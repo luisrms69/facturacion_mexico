@@ -1,0 +1,51 @@
+name: Linters
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint:
+    name: Run Linters
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install ruff black isort flake8 mypy
+
+    - name: Run Ruff
+      run: |
+        ruff check .
+        ruff format --check .
+
+    - name: Run Black
+      run: |
+        black --check --diff .
+
+    - name: Run isort
+      run: |
+        isort --check-only --diff .
+
+    - name: Run flake8
+      run: |
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+    - name: Run MyPy (optional, continue on error)
+      continue-on-error: true
+      run: |
+        mypy . --ignore-missing-imports || true

@@ -1,0 +1,32 @@
+name: Commit Validation
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: Validate commit messages
+      uses: wagoid/commitlint-github-action@v5
+      with:
+        configFile: '.github/commitlint.config.js'
+        
+    - name: Validate branch naming
+      if: github.event_name == 'pull_request'
+      run: |
+        branch_name="${{ github.head_ref }}"
+        if [[ ! $branch_name =~ ^(feature|fix|docs|style|refactor|test|chore)/.+ ]]; then
+          echo "❌ Branch name debe seguir convención: tipo/descripcion"
+          echo "Ejemplos: feature/nueva-funcionalidad, fix/corregir-bug"
+          exit 1
+        fi
+        echo "✅ Nombre de branch válido: $branch_name"

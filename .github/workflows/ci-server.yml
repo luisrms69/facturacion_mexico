@@ -1,0 +1,97 @@
+name: CI / Server
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    
+    services:
+      mariadb:
+        image: mariadb:10.6
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: test_frappe
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+        ports:
+          - 3306:3306
+
+      redis:
+        image: redis:6-alpine
+        options: --health-cmd="redis-cli ping" --health-interval=10s --health-timeout=5s --health-retries=3
+        ports:
+          - 6379:6379
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y python3-dev python3-setuptools python3-pip
+        sudo apt-get install -y nodejs npm wkhtmltopdf
+
+    - name: Install Frappe dependencies
+      run: |
+        pip install frappe-bench
+        npm install -g yarn
+
+    - name: Initialize Frappe bench
+      run: |
+        bench init --frappe-branch version-15 frappe-bench --verbose
+        cd frappe-bench
+
+    - name: Setup test site
+      run: |
+        cd frappe-bench
+        bench new-site test-site --admin-password admin --mariadb-root-password root
+        bench --site test-site install-app frappe
+
+    - name: Install current app
+      run: |
+        cd frappe-bench
+        cp -r $GITHUB_WORKSPACE apps/facturacion_mexico
+        bench --site test-site install-app facturacion_mexico
+
+    - name: Run tests
+      run: |
+        cd frappe-bench
+        bench --site test-site run-tests --app facturacion_mexico --coverage
+
+    - name: Generate coverage report
+      run: |
+        cd frappe-bench
+        coverage xml
+
+    - name: Upload coverage to Codecov
+      if: always()
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./frappe-bench/coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results
+        path: |
+          frappe-bench/sites/test-site/logs/
+          frappe-bench/coverage.xml

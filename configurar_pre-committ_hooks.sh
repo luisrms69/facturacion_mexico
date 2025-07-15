@@ -1,3 +1,12 @@
+#!/bin/bash
+
+echo "🪝 Configurando pre-commit hooks..."
+
+# Instalar pre-commit si no existe
+pip install pre-commit
+
+# Crear configuración de pre-commit
+cat > .pre-commit-config.yaml << 'EOF'
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.1.6
@@ -33,3 +42,9 @@ repos:
         types: [file]
         additional_dependencies:
           - eslint@8.53.0
+EOF
+
+# Instalar hooks
+pre-commit install
+
+echo "✅ Pre-commit hooks configurados"

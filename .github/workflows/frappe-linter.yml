@@ -1,0 +1,155 @@
+name: Frappe Linter
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  frappe-lint:
+    name: Frappe Framework Linting
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y python3-dev python3-setuptools python3-pip redis-server
+        sudo apt-get install -y mariadb-server mariadb-client
+        sudo apt-get install -y nodejs npm
+
+    - name: Install Frappe dependencies
+      run: |
+        pip install frappe-bench
+        npm install -g yarn
+
+    - name: Create bench directory
+      run: |
+        bench init --frappe-branch version-15 frappe-bench --verbose
+        cd frappe-bench
+        
+    - name: Set up test site
+      run: |
+        cd frappe-bench
+        bench new-site test-site --admin-password admin --mariadb-root-password root
+        bench --site test-site install-app frappe
+
+    - name: Install current app
+      run: |
+        cd frappe-bench
+        # Copy current app to apps directory
+        cp -r $GITHUB_WORKSPACE apps/facturacion_mexico
+        bench --site test-site install-app facturacion_mexico
+
+    - name: Run Frappe specific linting
+      run: |
+        cd frappe-bench
+        
+        # Check for Frappe-specific issues
+        echo "🔍 Checking for Frappe best practices..."
+        
+        # Check DocType naming conventions
+        find apps/facturacion_mexico -name "*.json" -path "*/doctype/*" | while read file; do
+          echo "Checking DocType: $file"
+          python -c "
+import json
+import sys
+try:
+    with open('$file', 'r') as f:
+        doctype = json.load(f)
+    if 'fields' in doctype:
+        for field in doctype['fields']:
+            if field.get('fieldtype') == 'Select' and field.get('options'):
+                options = field.get('options', '').split('\n')
+                for option in options:
+                    if option.strip() and any(word in option.lower() for word in ['active', 'inactive', 'draft', 'submitted']):
+                        print(f'Warning: English option detected in {field.get(\"fieldname\", \"unknown\")}: {option}')
+except Exception as e:
+    print(f'Error checking $file: {e}')
+"
+        done
+
+    - name: Validate Spanish translations
+      run: |
+        cd frappe-bench
+        echo "🔍 Validating Spanish labels..."
+        
+        # Check for Spanish labels in DocTypes
+        find apps/facturacion_mexico -name "*.json" -path "*/doctype/*" | while read file; do
+          python -c "
+import json
+import sys
+try:
+    with open('$file', 'r') as f:
+        doctype = json.load(f)
+    
+    # Check main doctype label
+    if doctype.get('label') and any(word in doctype['label'].lower() for word in ['test', 'draft', 'new']):
+        print(f'Warning: Potential English label in DocType: {doctype[\"label\"]}')
+    
+    # Check field labels
+    if 'fields' in doctype:
+        for field in doctype['fields']:
+            if field.get('label') and any(word in field['label'].lower() for word in ['name', 'title', 'status', 'type']):
+                print(f'Info: Check translation for field: {field[\"label\"]}')
+                
+except Exception as e:
+    print(f'Error: $e')
+"
+        done
+
+    - name: Check hooks.py structure
+      run: |
+        cd frappe-bench/apps/facturacion_mexico
+        echo "🔍 Validating hooks.py structure..."
+        
+        if [ -f "hooks.py" ]; then
+          python -c "
+import ast
+import sys
+
+try:
+    with open('hooks.py', 'r') as f:
+        content = f.read()
+    
+    # Parse the file
+    tree = ast.parse(content)
+    
+    # Check for required hooks
+    required_hooks = ['app_name', 'app_title', 'app_publisher']
+    found_hooks = []
+    
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Assign):
+            for target in node.targets:
+                if isinstance(target, ast.Name):
+                    found_hooks.append(target.id)
+    
+    for hook in required_hooks:
+        if hook not in found_hooks:
+            print(f'Warning: Missing required hook: {hook}')
+        else:
+            print(f'✅ Found required hook: {hook}')
+            
+except Exception as e:
+    print(f'Error parsing hooks.py: {e}')
+    sys.exit(1)
+"
+        else
+          echo "❌ hooks.py not found!"
+          exit 1
+        fi
