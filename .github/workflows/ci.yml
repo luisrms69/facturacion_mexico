@@ -140,3 +140,4 @@ jobs:
         env:
           TYPE: server
           FRAPPE_DEVELOPER_MODE: 1
+          FRAPPE_TEST_FAILFAST: 0
