@@ -129,7 +129,6 @@ jobs:
           bench --site facturacion.dev doctor
           bench --site facturacion.dev list-apps
           bench --site facturacion.dev migrate --skip-failing
-          bench --site facturacion.dev clear-cache
 
       - name: Run Tests with detailed logging
         working-directory: /home/runner/frappe-bench
@@ -140,4 +139,3 @@ jobs:
         env:
           TYPE: server
           FRAPPE_DEVELOPER_MODE: 1
-          FRAPPE_TEST_FAILFAST: 0

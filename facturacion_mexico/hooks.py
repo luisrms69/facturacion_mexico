@@ -188,10 +188,11 @@ doc_events = {
 # Scheduled Tasks
 # ---------------
 
-scheduler_events = {
-	"daily": ["facturacion_mexico.catalogos_sat.tasks.sync_sat_catalogs"],
-	"weekly": ["facturacion_mexico.facturacion_fiscal.tasks.cleanup_old_fiscal_events"],
-}
+# Scheduled Tasks - commented until tasks.py files are implemented
+# scheduler_events = {
+# 	"daily": ["facturacion_mexico.catalogos_sat.tasks.sync_sat_catalogs"],
+# 	"weekly": ["facturacion_mexico.facturacion_fiscal.tasks.cleanup_old_fiscal_events"],
+# }
 
 # Testing
 # -------
