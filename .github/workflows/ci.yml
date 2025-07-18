@@ -135,7 +135,8 @@ jobs:
         run: |
           bench --site facturacion.dev set-config allow_tests true
           bench --site facturacion.dev set-config developer_mode true
-          bench --site facturacion.dev run-tests --app facturacion_mexico --coverage
+          bench --site facturacion.dev run-tests --app facturacion_mexico --coverage --failfast=0
         env:
           TYPE: server
           FRAPPE_DEVELOPER_MODE: 1
+          FRAPPE_TEST_FAILFAST: 0

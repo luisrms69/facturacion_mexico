@@ -103,10 +103,7 @@ def before_tests():
 	# Crear warehouse types básicos antes de que test runner inicie
 	_create_basic_warehouse_types()
 
-	# Asegurar que Company puede ser creada sin errores
-	_ensure_basic_erpnext_records()
-
-	# Setup básico de ERPNext si no existe
+	# Setup básico de ERPNext si no existe - PRIMERO crear Company
 	from frappe.desk.page.setup_wizard.setup_wizard import setup_complete
 
 	year = now_datetime().year
@@ -131,6 +128,9 @@ def before_tests():
 		except Exception as e:
 			print(f"Warning: setup_complete failed: {e}")
 			_create_minimal_company()
+
+	# DESPUÉS de crear Company, asegurar que registros básicos existen
+	_ensure_basic_erpnext_records()
 
 	# Setup roles - usar ERPNext si disponible
 	try:
@@ -166,17 +166,29 @@ def _create_basic_warehouse_types():
 def _ensure_basic_erpnext_records():
 	"""
 	Asegurar que registros básicos requeridos por ERPNext existen.
+
+	NOTA: Esta función debe ejecutarse DESPUÉS de crear Company.
 	"""
+	# Obtener la primera company disponible
+	companies = frappe.get_all("Company", fields=["name"], limit=1)
+	company_name = companies[0].name if companies else None
+
 	# Department - crear "All Departments" como grupo principal
 	if not frappe.db.exists("Department", "All Departments"):
-		frappe.get_doc(
-			{
-				"doctype": "Department",
-				"department_name": "All Departments",
-				"is_group": 1,
-			}
-		).insert(ignore_permissions=True, ignore_if_duplicate=True)
-		print("✅ Created root department: All Departments")
+		department_doc = {
+			"doctype": "Department",
+			"department_name": "All Departments",
+			"is_group": 1,
+		}
+
+		# Solo agregar company si existe una
+		if company_name:
+			department_doc["company"] = company_name
+
+		frappe.get_doc(department_doc).insert(ignore_permissions=True, ignore_if_duplicate=True)
+		print(
+			f"✅ Created root department: All Departments{' with company: ' + company_name if company_name else ''}"
+		)
 
 
 def _create_minimal_company():
