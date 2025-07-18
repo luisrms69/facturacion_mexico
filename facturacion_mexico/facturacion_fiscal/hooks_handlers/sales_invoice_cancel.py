@@ -81,7 +81,7 @@ def _request_fiscal_cancellation(doc):
 
 	except Exception as e:
 		frappe.logger().error(f"Error solicitando cancelación fiscal {doc.name}: {e!s}")
-		frappe.msgprint(_("Error al solicitar cancelación fiscal: ") + str(e))
+		frappe.msgprint(_("Error al solicitar cancelación fiscal:") + str(e))
 
 
 def _mark_as_cancelled_without_stamping(doc):
@@ -162,4 +162,4 @@ def _auto_cancel_fiscal_invoice(doc):
 	except Exception as e:
 		frappe.logger().error(f"Error auto-cancelando factura {doc.name}: {e!s}")
 		# No lanzar error para no bloquear la cancelación
-		frappe.msgprint(_("Error al auto-cancelar fiscalmente: ") + str(e))
+		frappe.msgprint(_("Error al auto-cancelar fiscalmente:") + str(e))

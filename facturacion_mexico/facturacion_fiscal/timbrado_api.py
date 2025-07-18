@@ -185,7 +185,7 @@ class TimbradoAPI:
 		if self.settings.download_files_default:
 			self._download_fiscal_files(factura_fiscal, response.get("id"))
 
-		frappe.db.commit()
+		frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure fiscal transaction is committed after successful stamping
 
 	def _download_fiscal_files(self, factura_fiscal, facturapi_id):
 		"""Descargar PDF y XML de la factura."""

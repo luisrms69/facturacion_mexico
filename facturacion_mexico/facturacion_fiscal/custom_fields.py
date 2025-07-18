@@ -1,4 +1,5 @@
 import frappe
+from frappe import _
 from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
 
 
@@ -141,7 +142,7 @@ def create_all_custom_fields():
 	create_sales_invoice_custom_fields()
 	create_customer_custom_fields()
 	create_item_custom_fields()
-	frappe.msgprint("Custom Fields para facturación México creados exitosamente")
+	frappe.msgprint(_("Custom Fields para facturación México creados exitosamente"))
 
 
 def remove_custom_fields():
@@ -172,4 +173,4 @@ def remove_custom_fields():
 		if frappe.db.exists("Custom Field", field_name):
 			frappe.delete_doc("Custom Field", field_name)
 
-	frappe.msgprint("Custom Fields para facturación México removidos")
+	frappe.msgprint(_("Custom Fields para facturación México removidos"))

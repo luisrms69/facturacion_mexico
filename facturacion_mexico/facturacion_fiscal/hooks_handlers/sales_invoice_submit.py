@@ -116,4 +116,4 @@ def _auto_timbrar_factura(doc):
 	except Exception as e:
 		frappe.logger().error(f"Error auto-timbrando factura {doc.name}: {e!s}")
 		# No lanzar error para no bloquear el submit
-		frappe.msgprint(_("Error al auto-timbrar: ") + str(e))
+		frappe.msgprint(_("Error al auto-timbrar:") + str(e))

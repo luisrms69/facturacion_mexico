@@ -1,4 +1,5 @@
 import frappe
+from frappe import _
 from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
 
 
@@ -7,7 +8,7 @@ def after_install():
 	create_initial_configuration()
 	create_basic_sat_catalogs()  # PRIMERO: crear catálogos SAT
 	create_custom_fields_for_erpnext()  # SEGUNDO: crear custom fields que referencian catálogos
-	frappe.db.commit()
+	frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure installation process completes successfully
 
 
 def create_initial_configuration():
@@ -20,7 +21,7 @@ def create_initial_configuration():
 		settings.send_email_default = 0
 		settings.download_files_default = 1
 		settings.save()
-		frappe.msgprint("Configuración inicial de Facturación México creada")
+		frappe.msgprint(_("Configuración inicial de Facturación México creada"))
 
 
 def create_custom_fields_for_erpnext():
@@ -86,4 +87,4 @@ def create_basic_sat_catalogs():
 			doc.update(regimen)
 			doc.save()
 
-	frappe.msgprint("Catálogos básicos SAT creados")
+	frappe.msgprint(_("Catálogos básicos SAT creados"))
