@@ -197,7 +197,7 @@ doc_events = {
 # Testing
 # -------
 
-# before_tests = "facturacion_mexico.install.before_tests"
+before_tests = "facturacion_mexico.install.before_tests"
 
 # Overriding Methods
 # ------------------------------

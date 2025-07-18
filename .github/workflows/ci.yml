@@ -113,7 +113,6 @@ jobs:
             bench get-app --branch version-15 erpnext
             bench get-app facturacion_mexico $GITHUB_WORKSPACE
             bench setup requirements --dev
-            bench --site facturacion.dev execute frappe.utils.install.make_conf
             bench new-site --db-root-password root --admin-password admin facturacion.dev
             bench --site facturacion.dev install-app erpnext
             bench --site facturacion.dev install-app facturacion_mexico
@@ -130,7 +129,6 @@ jobs:
           bench --site facturacion.dev doctor
           bench --site facturacion.dev list-apps
           bench --site facturacion.dev migrate --skip-failing
-          bench --site facturacion.dev execute erpnext.setup.install_fixtures
 
       - name: Run Tests with detailed logging
         working-directory: /home/runner/frappe-bench

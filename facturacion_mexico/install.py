@@ -1,6 +1,7 @@
 import frappe
 from frappe import _
 from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
+from frappe.utils import now_datetime
 
 
 def after_install():
@@ -88,3 +89,128 @@ def create_basic_sat_catalogs():
 			doc.save()
 
 	frappe.msgprint(_("Catálogos básicos SAT creados"))
+
+
+def before_tests():
+	"""
+	Configuración pre-tests para facturacion_mexico.
+
+	Crea warehouse types básicos que ERPNext necesita para testing,
+	específicamente "Transit" que causa el error LinkValidationError.
+	"""
+	frappe.clear_cache()
+
+	# Crear warehouse types básicos antes de que test runner inicie
+	_create_basic_warehouse_types()
+
+	# Asegurar que Company puede ser creada sin errores
+	_ensure_basic_erpnext_records()
+
+	# Setup básico de ERPNext si no existe
+	from frappe.desk.page.setup_wizard.setup_wizard import setup_complete
+
+	year = now_datetime().year
+
+	if not frappe.get_list("Company"):
+		try:
+			setup_complete(
+				{
+					"currency": "MXN",
+					"full_name": "Administrator",
+					"company_name": "Facturacion Mexico Test LLC",
+					"timezone": "America/Mexico_City",
+					"company_abbr": "FMT",
+					"industry": "Services",
+					"country": "Mexico",
+					"fy_start_date": f"{year}-01-01",
+					"fy_end_date": f"{year}-12-31",
+					"company_tagline": "Testing Company",
+					"chart_of_accounts": "Standard",
+				}
+			)
+		except Exception as e:
+			print(f"Warning: setup_complete failed: {e}")
+			_create_minimal_company()
+
+	# Setup roles - usar ERPNext si disponible
+	try:
+		from erpnext.setup.utils import enable_all_roles_and_domains
+
+		enable_all_roles_and_domains()
+	except (ImportError, Exception) as e:
+		print(f"Warning: enable_all_roles_and_domains failed: {e}")
+		_setup_basic_roles_frappe_only()
+
+	frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure test setup completes successfully
+
+
+def _create_basic_warehouse_types():
+	"""
+	Crear tipos de warehouse básicos que Company necesita.
+
+	Evita el error 'Could not find Warehouse Type: Transit'.
+	"""
+	warehouse_types = ["Stores", "Work In Progress", "Finished Goods", "Transit"]
+
+	for wh_type in warehouse_types:
+		if not frappe.db.exists("Warehouse Type", wh_type):
+			frappe.get_doc(
+				{
+					"doctype": "Warehouse Type",
+					"name": wh_type,
+				}
+			).insert(ignore_permissions=True)
+			print(f"✅ Created Warehouse Type: {wh_type}")
+
+
+def _ensure_basic_erpnext_records():
+	"""
+	Asegurar que registros básicos requeridos por ERPNext existen.
+	"""
+	# Department - crear "All Departments" como grupo principal
+	if not frappe.db.exists("Department", "All Departments"):
+		frappe.get_doc(
+			{
+				"doctype": "Department",
+				"department_name": "All Departments",
+				"is_group": 1,
+			}
+		).insert(ignore_permissions=True, ignore_if_duplicate=True)
+		print("✅ Created root department: All Departments")
+
+
+def _create_minimal_company():
+	"""
+	Crear Company mínima como fallback cuando setup_complete falla.
+	"""
+	if not frappe.db.exists("Company", "Facturacion Mexico Test LLC"):
+		# Asegurar que warehouse types existen primero
+		_create_basic_warehouse_types()
+
+		company = frappe.get_doc(
+			{
+				"doctype": "Company",
+				"company_name": "Facturacion Mexico Test LLC",
+				"abbr": "FMT",
+				"default_currency": "MXN",
+				"country": "Mexico",
+			}
+		)
+		company.insert(ignore_permissions=True)
+		print("✅ Created minimal company: Facturacion Mexico Test LLC")
+
+
+def _setup_basic_roles_frappe_only():
+	"""
+	Setup roles básicos usando solo funciones de Frappe Framework.
+	"""
+	if frappe.db.exists("User", "Administrator"):
+		user = frappe.get_doc("User", "Administrator")
+		required_roles = ["System Manager", "Desk User"]
+
+		for role in required_roles:
+			if not any(r.role == role for r in user.roles):
+				user.append("roles", {"role": role})
+
+		user.save(ignore_permissions=True)
+		print("✅ Setup basic roles for Administrator")
