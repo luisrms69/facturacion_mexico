@@ -19,17 +19,22 @@ class TestFacturacionMexicoSettings(FacturacionMexicoTestCase):
 		"""Test validación de campos requeridos."""
 		settings = frappe.new_doc("Facturacion Mexico Settings")
 
-		# Test sin RFC emisor
+		# Test sin RFC emisor (debe fallar por falta de API key)
 		with self.assertRaises(frappe.ValidationError):
 			settings.save()
 
-		# Test con RFC emisor pero sin lugar expedición
+		# Test con RFC emisor pero sin lugar expedición (debe fallar por falta de API key)
 		settings.rfc_emisor = "ABC123456789"
 		with self.assertRaises(frappe.ValidationError):
 			settings.save()
 
-		# Test con todos los campos requeridos
+		# Test con RFC emisor y lugar expedición pero sin API key (debe fallar)
 		settings.lugar_expedicion = "01000"
+		with self.assertRaises(frappe.ValidationError):
+			settings.save()
+
+		# Test con todos los campos requeridos incluyendo API key
+		settings.test_api_key = "test_api_key_dummy_for_testing"
 		settings.save()  # No debe fallar
 
 	def test_api_key_fields_exist(self):
