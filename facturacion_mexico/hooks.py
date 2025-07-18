@@ -1,14 +1,14 @@
 app_name = "facturacion_mexico"
-app_title = "Facturacion Mexico"
+app_title = "Facturación México"
 app_publisher = "Buzola"
-app_description = "App de Facturacion en Mexico Integrada a ERPNEXT"
+app_description = "Sistema de Facturación Legal México para ERPNext"
 app_email = "it@buzola.mx"
 app_license = "gpl-3.0"
 
 # Apps
 # ------------------
 
-# required_apps = []
+required_apps = ["erpnext"]
 
 # Each item in the list will be shown as an app in the apps page
 # add_to_apps_screen = [
@@ -83,7 +83,40 @@ app_license = "gpl-3.0"
 # ------------
 
 # before_install = "facturacion_mexico.install.before_install"
-# after_install = "facturacion_mexico.install.after_install"
+after_install = "facturacion_mexico.install.after_install"
+
+# Custom Fields
+# -------------
+# Fixtures for custom fields
+fixtures = [
+	{
+		"dt": "Custom Field",
+		"filters": [
+			[
+				"name",
+				"in",
+				[
+					"Sales Invoice-informacion_fiscal_mx_section",
+					"Sales Invoice-cfdi_use",
+					"Sales Invoice-payment_method_sat",
+					"Sales Invoice-column_break_fiscal_mx",
+					"Sales Invoice-fiscal_status",
+					"Sales Invoice-uuid_fiscal",
+					"Sales Invoice-factura_fiscal_mx",
+					"Customer-informacion_fiscal_mx_section",
+					"Customer-rfc",
+					"Customer-column_break_fiscal_customer",
+					"Customer-regimen_fiscal",
+					"Customer-uso_cfdi_default",
+					"Item-clasificacion_sat_section",
+					"Item-producto_servicio_sat",
+					"Item-column_break_item_sat",
+					"Item-unidad_sat",
+				],
+			]
+		],
+	}
+]
 
 # Uninstallation
 # ------------
@@ -137,34 +170,28 @@ app_license = "gpl-3.0"
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+doc_events = {
+	"Sales Invoice": {
+		"validate": "facturacion_mexico.facturacion_fiscal.hooks_handlers.sales_invoice_validate.validate_fiscal_data",
+		"on_submit": "facturacion_mexico.facturacion_fiscal.hooks_handlers.sales_invoice_submit.create_fiscal_event",
+		"on_cancel": "facturacion_mexico.facturacion_fiscal.hooks_handlers.sales_invoice_cancel.handle_fiscal_cancellation",
+	},
+	"Customer": {
+		"validate": "facturacion_mexico.validaciones.hooks_handlers.customer_validate.validate_rfc_format"
+	},
+	"Factura Fiscal Mexico": {
+		"after_insert": "facturacion_mexico.facturacion_fiscal.hooks_handlers.factura_fiscal_insert.create_fiscal_event",
+		"on_update": "facturacion_mexico.facturacion_fiscal.hooks_handlers.factura_fiscal_update.register_status_changes",
+	},
+}
 
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"facturacion_mexico.tasks.all"
-# 	],
-# 	"daily": [
-# 		"facturacion_mexico.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"facturacion_mexico.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"facturacion_mexico.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"facturacion_mexico.tasks.monthly"
-# 	],
-# }
+scheduler_events = {
+	"daily": ["facturacion_mexico.catalogos_sat.tasks.sync_sat_catalogs"],
+	"weekly": ["facturacion_mexico.facturacion_fiscal.tasks.cleanup_old_fiscal_events"],
+}
 
 # Testing
 # -------

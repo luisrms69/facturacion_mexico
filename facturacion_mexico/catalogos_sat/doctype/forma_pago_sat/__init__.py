@@ -1,0 +1,1 @@
+# Forma Pago SAT DocType
