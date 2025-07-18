@@ -10,6 +10,11 @@ concurrency:
   group: develop-facturacion_mexico-${{ github.event.number }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  actions: read
+  checks: read
+
 jobs:
   tests:
     runs-on: ubuntu-latest
@@ -32,7 +37,7 @@ jobs:
           MYSQL_ROOT_PASSWORD: root
         ports:
           - 3306:3306
-        options: --health-cmd="mariadb-admin ping" --health-interval=5s --health-timeout=2s --health-retries=3
+        options: --health-cmd="mariadb-admin ping" --health-interval=10s --health-timeout=5s --health-retries=10 --health-start-period=30s
 
     steps:
       - name: Clone
@@ -46,13 +51,22 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.10"
+          python-version: '3.10'
 
-      - name: Setup Node
+      - name: Setup Node with registry config
         uses: actions/setup-node@v3
         with:
           node-version: 18
           check-latest: true
+          registry-url: 'https://registry.npmjs.org'
+          
+      - name: Configure yarn for stability
+        run: |
+          yarn config set registry https://registry.npmjs.org/
+          yarn config set network-timeout 900000
+          yarn config set network-retry 5
+          yarn config set prefer-offline true
+          yarn config set cache-folder ~/.yarn/cache
 
       - name: Cache pip
         uses: actions/cache@v4
@@ -99,18 +113,29 @@ jobs:
             bench get-app --branch version-15 erpnext
             bench get-app facturacion_mexico $GITHUB_WORKSPACE
             bench setup requirements --dev
-            bench new-site --db-root-password root --admin-password admin test_site
-            bench --site test_site install-app erpnext
-            bench --site test_site install-app facturacion_mexico
-            bench --site test_site migrate
+            bench new-site --db-root-password root --admin-password admin facturacion.dev
+            bench --site facturacion.dev install-app erpnext
+            bench --site facturacion.dev install-app facturacion_mexico
+            bench --site facturacion.dev migrate
             bench build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Run Tests
+
+      - name: Validate Environment
         working-directory: /home/runner/frappe-bench
         run: |
-          bench --site test_site set-config allow_tests true
-          bench --site test_site run-tests --app facturacion_mexico
+          bench --version
+          bench --site facturacion.dev doctor
+          bench --site facturacion.dev list-apps
+          bench --site facturacion.dev migrate --skip-failing
+
+      - name: Run Tests with detailed logging
+        working-directory: /home/runner/frappe-bench
+        run: |
+          bench --site facturacion.dev set-config allow_tests true
+          bench --site facturacion.dev set-config developer_mode true
+          bench --site facturacion.dev run-tests --app facturacion_mexico --coverage
         env:
           TYPE: server
+          FRAPPE_DEVELOPER_MODE: 1
