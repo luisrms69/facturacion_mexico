@@ -111,10 +111,12 @@ jobs:
           command: |
             cd /home/runner/frappe-bench
             bench get-app --branch version-15 erpnext
+            bench get-app --branch develop payments
             bench get-app facturacion_mexico $GITHUB_WORKSPACE
             bench setup requirements --dev
             bench new-site --db-root-password root --admin-password admin facturacion.dev
             bench --site facturacion.dev install-app erpnext
+            bench --site facturacion.dev install-app payments
             bench --site facturacion.dev install-app facturacion_mexico
             bench --site facturacion.dev migrate
             bench build
