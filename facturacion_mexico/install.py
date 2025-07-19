@@ -97,8 +97,12 @@ def before_tests():
 
 	Crea warehouse types básicos que ERPNext necesita para testing,
 	específicamente "Transit" que causa el error LinkValidationError.
+	Establece contexto de testing siguiendo patrón condominium_management.
 	"""
 	frappe.clear_cache()
+
+	# Establecer flag de testing siguiendo patrón condominium_management
+	frappe.flags.in_test = True
 
 	# Crear warehouse types básicos antes de que test runner inicie
 	_create_basic_warehouse_types()

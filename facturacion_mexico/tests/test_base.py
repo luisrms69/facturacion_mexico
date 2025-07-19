@@ -8,6 +8,9 @@ import frappe
 from frappe.test_runner import make_test_records
 from frappe.tests.utils import FrappeTestCase
 
+# Evitar errores de dependencias durante make_test_records siguiendo patrón condominium_management
+test_ignore = ["Sales Invoice", "Customer", "Item", "Uso CFDI SAT"]
+
 
 class FacturacionMexicoTestGranular(FrappeTestCase):
 	"""

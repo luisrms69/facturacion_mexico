@@ -4,6 +4,9 @@ import frappe
 
 from facturacion_mexico.tests.test_base import FacturacionMexicoTestCase
 
+# Evitar errores de dependencias durante make_test_records siguiendo patrón condominium_management
+test_ignore = ["Sales Invoice", "Customer", "Item", "Uso CFDI SAT"]
+
 
 class TestFacturacionMexicoSettings(FacturacionMexicoTestCase):
 	"""Tests para Facturacion Mexico Settings."""

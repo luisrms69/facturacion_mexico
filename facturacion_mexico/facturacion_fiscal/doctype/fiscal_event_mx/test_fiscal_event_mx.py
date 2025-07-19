@@ -6,6 +6,9 @@ import frappe
 
 from facturacion_mexico.tests.test_base import FacturacionMexicoTestGranular
 
+# Evitar errores de dependencias durante make_test_records siguiendo patrón condominium_management
+test_ignore = ["Sales Invoice", "Customer", "Item", "Uso CFDI SAT"]
+
 
 class TestFiscalEventMXGranular(FacturacionMexicoTestGranular):
 	"""Tests granulares para Fiscal Event MX."""

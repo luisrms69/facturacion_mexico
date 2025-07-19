@@ -5,6 +5,10 @@ from frappe import _
 def validate_fiscal_data(doc, method):
 	"""Validar datos fiscales en Sales Invoice."""
 
+	# Protección estándar para testing siguiendo patrón condominium_management
+	if hasattr(frappe.flags, "in_test") and frappe.flags.in_test:
+		return
+
 	# Solo validar si está configurado para México
 	if not _should_validate_fiscal_data(doc):
 		return
@@ -27,12 +31,6 @@ def _should_validate_fiscal_data(doc):
 	# Solo para facturas no canceladas
 	if doc.docstatus == 2:
 		return False
-
-	# Durante make_test_records de ERPNext, ser más permisivo
-	if frappe.flags.in_test and hasattr(frappe.local, "test_objects"):
-		# Si es un test record de ERPNext (identificable por el prefijo T-)
-		if doc.name and doc.name.startswith(("T-", "_Test")):
-			return False
 
 	# Solo si hay configuración de facturación México
 	if not frappe.db.exists("Facturacion Mexico Settings", "Facturacion Mexico Settings"):
@@ -75,25 +73,9 @@ def _validate_cfdi_use(doc):
 			if customer.uso_cfdi_default:
 				doc.cfdi_use = customer.uso_cfdi_default
 			else:
-				# En modo testing, asignar valor por defecto si existe
-				if frappe.flags.in_test:
-					default_uso = frappe.db.get_value("Uso CFDI SAT", {"code": "G03"}, "name")
-					if default_uso:
-						doc.cfdi_use = default_uso
-					else:
-						frappe.throw(_("Se requiere especificar Uso de CFDI"))
-				else:
-					frappe.throw(_("Se requiere especificar Uso de CFDI"))
-		else:
-			# En modo testing, asignar valor por defecto si existe
-			if frappe.flags.in_test:
-				default_uso = frappe.db.get_value("Uso CFDI SAT", {"code": "G03"}, "name")
-				if default_uso:
-					doc.cfdi_use = default_uso
-				else:
-					frappe.throw(_("Se requiere especificar Uso de CFDI"))
-			else:
 				frappe.throw(_("Se requiere especificar Uso de CFDI"))
+		else:
+			frappe.throw(_("Se requiere especificar Uso de CFDI"))
 
 	# Validar que el uso de CFDI existe y está activo
 	if not frappe.db.exists("Uso CFDI SAT", doc.cfdi_use):

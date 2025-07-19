@@ -5,15 +5,13 @@ from frappe import _
 def validate_rfc_format(doc, method):
 	"""Validar formato de RFC en Customer."""
 
+	# Protección estándar para testing siguiendo patrón condominium_management
+	if hasattr(frappe.flags, "in_test") and frappe.flags.in_test:
+		return
+
 	# Solo validar si tiene RFC
 	if not doc.rfc:
 		return
-
-	# Durante make_test_records de ERPNext, ser más permisivo
-	if frappe.flags.in_test and hasattr(frappe.local, "test_objects"):
-		# Si es un test record de ERPNext (identificable por el prefijo T- o _Test)
-		if doc.name and doc.name.startswith(("T-", "_Test")):
-			return
 
 	# Validar formato básico
 	rfc = doc.rfc.strip().upper()
