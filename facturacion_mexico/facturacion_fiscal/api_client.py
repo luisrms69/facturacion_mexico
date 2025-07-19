@@ -1,10 +1,9 @@
-import json
 from typing import Any
 
 import frappe
 import requests
 from frappe import _
-from frappe.utils import get_datetime, now_datetime
+from frappe.utils import now_datetime
 
 
 class FacturAPIClient:
@@ -67,6 +66,8 @@ class FacturAPIClient:
 			frappe.throw(_("Error de conexión con FacturAPI"))
 		except requests.exceptions.RequestException as e:
 			frappe.throw(_(f"Error en petición FacturAPI: {e!s}"))
+
+		return None
 
 	def _parse_error_response(self, response) -> str:
 		"""Parsear respuesta de error de FacturAPI."""

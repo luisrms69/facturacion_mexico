@@ -52,6 +52,8 @@ def get_uso_cfdi_for_customer(customer_name: str) -> list[dict[str, Any]]:
 		frappe.logger().error(f"Error obteniendo usos CFDI para cliente {customer_name}: {e!s}")
 		frappe.throw(_("Error al obtener usos CFDI válidos:") + str(e))
 
+	return []
+
 
 @frappe.whitelist()
 def get_regimen_fiscal_for_customer(customer_name: str) -> list[dict[str, Any]]:
@@ -100,6 +102,8 @@ def get_regimen_fiscal_for_customer(customer_name: str) -> list[dict[str, Any]]:
 	except Exception as e:
 		frappe.logger().error(f"Error obteniendo regímenes fiscales para cliente {customer_name}: {e!s}")
 		frappe.throw(_("Error al obtener regímenes fiscales válidos:") + str(e))
+
+	return []
 
 
 @frappe.whitelist()

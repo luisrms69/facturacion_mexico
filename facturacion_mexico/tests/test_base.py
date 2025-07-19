@@ -1,6 +1,5 @@
 import json
 import os
-import unittest
 from typing import ClassVar
 from unittest.mock import patch
 
@@ -86,9 +85,7 @@ class FacturacionMexicoTestGranular(FrappeTestCase):
 				try:
 					doc = frappe.get_doc(self.REQUIRED_FIELDS.copy())
 					doc.validate()
-					_validation_worked = True
 				except Exception as e:
-					_validation_worked = False
 					frappe.log_error(f"Expected validation failure: {e!s}")
 					# No falla el test, solo registra para diagnóstico
 		else:
@@ -169,6 +166,7 @@ class FacturacionMexicoTestGranular(FrappeTestCase):
 			self.skipTest("DOCTYPE_NAME not defined")
 
 		# Buscar archivo JSON del DocType
+		json_path = None
 		try:
 			app_path = frappe.get_app_path("facturacion_mexico")
 			for root, _dirs, files in os.walk(app_path):
@@ -182,6 +180,9 @@ class FacturacionMexicoTestGranular(FrappeTestCase):
 				self.skipTest(f"DocType JSON not found for {self.DOCTYPE_NAME}")
 		except Exception as e:
 			self.skipTest(f"Error finding DocType JSON: {e!s}")
+
+		if json_path is None:
+			self.skipTest("JSON path was not properly initialized.")
 
 		with open(json_path, encoding="utf-8") as f:
 			doctype_def = json.load(f)
