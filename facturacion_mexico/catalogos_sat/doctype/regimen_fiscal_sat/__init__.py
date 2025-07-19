@@ -1,1 +1,0 @@
-# Regimen Fiscal SAT DocType

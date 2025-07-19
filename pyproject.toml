@@ -3,15 +3,12 @@ name = "facturacion_mexico"
 authors = [
     { name = "Buzola", email = "it@buzola.mx"}
 ]
-description = "Sistema de Facturación Legal México para ERPNext"
+description = "App de Facturacion en Mexico Integrada a ERPNEXT"
 requires-python = ">=3.10"
 readme = "README.md"
 dynamic = ["version"]
 dependencies = [
     # "frappe~=15.0.0" # Installed and managed by bench.
-    "requests>=2.31.0",  # Para cliente HTTP FacturAPI.io
-    "cryptography>=41.0.0",  # Para validaciones fiscales
-    "python-dateutil>=2.8.0",  # Para manejo de fechas SAT
 ]
 
 [build-system]
@@ -56,3 +53,4 @@ typing-modules = ["frappe.types.DF"]
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "tab"
+docstring-code-format = true

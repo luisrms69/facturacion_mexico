@@ -1,1 +1,0 @@
-# Hooks handlers para validaciones
