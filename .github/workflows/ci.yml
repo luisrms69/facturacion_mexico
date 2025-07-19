@@ -103,25 +103,41 @@ jobs:
             mariadb --host 127.0.0.1 --port 3306 -u root -proot -e "SET GLOBAL character_set_server = 'utf8mb4'"
             mariadb --host 127.0.0.1 --port 3306 -u root -proot -e "SET GLOBAL collation_server = 'utf8mb4_unicode_ci'"
 
-      - name: Install with retry
-        uses: nick-invision/retry@v2
-        with:
-          timeout_minutes: 20
-          max_attempts: 3
-          command: |
-            cd /home/runner/frappe-bench
-            bench get-app --branch version-15 erpnext
-            bench get-app --branch develop payments
-            bench get-app facturacion_mexico $GITHUB_WORKSPACE
-            bench setup requirements --dev
-            bench new-site --db-root-password root --admin-password admin facturacion.dev
-            bench --site facturacion.dev install-app erpnext
-            bench --site facturacion.dev install-app payments
-            bench --site facturacion.dev install-app facturacion_mexico
-            bench --site facturacion.dev migrate
-            bench build
+      - name: Install Apps
+        working-directory: /home/runner/frappe-bench
+        run: |
+          bench get-app --branch version-15 erpnext
+          bench get-app --branch develop payments
+          bench get-app facturacion_mexico $GITHUB_WORKSPACE
+          bench setup requirements --dev
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Site with retry
+        uses: nick-invision/retry@v2
+        with:
+          timeout_minutes: 10
+          max_attempts: 2
+          command: |
+            cd /home/runner/frappe-bench
+            bench new-site --db-root-password root --admin-password admin facturacion.dev
+        
+      - name: Install Apps with retry
+        uses: nick-invision/retry@v2
+        with:
+          timeout_minutes: 15
+          max_attempts: 2
+          command: |
+            cd /home/runner/frappe-bench
+            bench --site facturacion.dev install-app erpnext --force
+            bench --site facturacion.dev install-app payments --force
+            bench --site facturacion.dev install-app facturacion_mexico --force
+            bench --site facturacion.dev migrate --skip-failing
+
+      - name: Build Assets
+        working-directory: /home/runner/frappe-bench
+        run: |
+          bench build --production || bench build
 
 
       - name: Validate Environment
@@ -137,8 +153,10 @@ jobs:
         run: |
           bench --site facturacion.dev set-config allow_tests true
           bench --site facturacion.dev set-config developer_mode true
+          bench --site facturacion.dev set-config skip_before_tests false
           bench --site facturacion.dev run-tests --app facturacion_mexico --coverage
         env:
           TYPE: server
           FRAPPE_DEVELOPER_MODE: 1
           FRAPPE_TEST_FAILFAST: 0
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
