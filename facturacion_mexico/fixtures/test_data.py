@@ -140,7 +140,7 @@ def create_test_records():
 	if not frappe.db.exists("Customer", customer_data["customer_name"]):
 		frappe.get_doc(customer_data).insert(ignore_permissions=True)
 
-	frappe.db.commit()
+	frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to persist test data across test cases
 
 
 def cleanup_test_records():
@@ -165,7 +165,7 @@ def cleanup_test_records():
 			if frappe.db.exists("Regimen Fiscal SAT", code):
 				frappe.delete_doc("Regimen Fiscal SAT", code, force=True)
 
-		frappe.db.commit()
+		frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to persist test data across test cases
 	except Exception as e:
 		# No fallar si hay errores en cleanup
 		print(f"Warning during test cleanup: {e}")

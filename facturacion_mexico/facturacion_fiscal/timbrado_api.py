@@ -57,7 +57,7 @@ class TimbradoAPI:
 
 			# Actualizar estado en Sales Invoice
 			frappe.db.set_value("Sales Invoice", sales_invoice_name, "fiscal_status", "Error")
-			frappe.db.commit()
+			frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure error state is persisted
 
 			frappe.logger().error(f"Error timbrado factura {sales_invoice_name}: {e!s}")
 			return {"success": False, "error": str(e), "message": f"Error al timbrar factura: {e!s}"}
@@ -256,7 +256,7 @@ class TimbradoAPI:
 			# Marcar evento como exitoso
 			FiscalEventMX.mark_event_success(event_doc.name, response)
 
-			frappe.db.commit()
+			frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure cancellation transaction is committed
 
 			return {"success": True, "message": "Factura cancelada exitosamente"}
 

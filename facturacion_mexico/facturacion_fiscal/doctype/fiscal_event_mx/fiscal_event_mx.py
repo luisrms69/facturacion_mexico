@@ -210,7 +210,7 @@ class FiscalEventMX(Document):
 			for event_name in old_events:
 				frappe.delete_doc("Fiscal Event MX", event_name, ignore_permissions=True)
 
-			frappe.db.commit()
+			frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure cleanup of old events is persisted
 			frappe.log_error(f"Cleaned up {len(old_events)} old fiscal events", "Fiscal Events Cleanup")
 
 		except Exception as e:

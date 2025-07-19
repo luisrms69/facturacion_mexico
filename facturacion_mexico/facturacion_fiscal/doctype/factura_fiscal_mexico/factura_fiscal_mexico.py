@@ -143,7 +143,7 @@ class FacturaFiscalMexico(Document):
 					"factura_fiscal_mx": self.name,
 				},
 			)
-			frappe.db.commit()
+			frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure Sales Invoice fiscal info is persisted
 		except Exception as e:
 			frappe.log_error(f"Error updating Sales Invoice fiscal info: {e!s}", "Sales Invoice Update Error")
 

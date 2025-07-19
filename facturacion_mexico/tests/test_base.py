@@ -34,7 +34,7 @@ class FacturacionMexicoTestGranular(FrappeTestCase):
 
 		try:
 			create_test_records()
-			frappe.db.commit()
+			frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to persist test setup data across test methods
 		except Exception as e:
 			frappe.log_error(f"Error setting up test data: {e}")
 			# Fallback a método anterior si fixtures fallan
@@ -43,7 +43,7 @@ class FacturacionMexicoTestGranular(FrappeTestCase):
 				cls.create_test_catalogs()
 				cls.create_test_customer()
 				cls.create_test_item()
-				frappe.db.commit()
+				frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to persist fallback test data
 
 	# ===== LAYER 1: UNIT TESTS (NO DATABASE OPERATIONS) =====
 
