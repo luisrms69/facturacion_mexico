@@ -1,0 +1,146 @@
+{
+  "actions": [],
+  "allow_rename": 1,
+  "autoname": "field:name",
+  "creation": "2025-07-17 19:40:00.000000",
+  "doctype": "DocType",
+  "editable_grid": 1,
+  "engine": "InnoDB",
+  "field_order": [
+    "name",
+    "configuracion_api_section",
+    "api_key",
+    "test_api_key",
+    "sandbox_mode",
+    "timeout",
+    "column_break_api",
+    "rfc_emisor",
+    "lugar_expedicion",
+    "regimen_fiscal_default",
+    "configuracion_automatica_section",
+    "auto_generate_ereceipts",
+    "send_email_default",
+    "download_files_default"
+  ],
+  "fields": [
+    {
+      "default": "Facturacion Mexico Settings",
+      "fieldname": "name",
+      "fieldtype": "Data",
+      "hidden": 1,
+      "label": "Nombre",
+      "reqd": 1
+    },
+    {
+      "fieldname": "configuracion_api_section",
+      "fieldtype": "Section Break",
+      "label": "Configuración API"
+    },
+    {
+      "description": "API Key para ambiente de producción",
+      "fieldname": "api_key",
+      "fieldtype": "Password",
+      "label": "API Key Producción"
+    },
+    {
+      "description": "API Key para ambiente de pruebas",
+      "fieldname": "test_api_key",
+      "fieldtype": "Password",
+      "label": "API Key Pruebas"
+    },
+    {
+      "default": 1,
+      "description": "Activar modo sandbox para pruebas",
+      "fieldname": "sandbox_mode",
+      "fieldtype": "Check",
+      "label": "Modo Sandbox"
+    },
+    {
+      "default": 30,
+      "description": "Timeout en segundos para llamadas a la API",
+      "fieldname": "timeout",
+      "fieldtype": "Int",
+      "label": "Timeout (segundos)"
+    },
+    {
+      "fieldname": "column_break_api",
+      "fieldtype": "Column Break"
+    },
+    {
+      "description": "RFC del emisor (su empresa)",
+      "fieldname": "rfc_emisor",
+      "fieldtype": "Data",
+      "in_list_view": 1,
+      "label": "RFC Emisor",
+      "reqd": 1
+    },
+    {
+      "description": "Código postal donde se expiden las facturas",
+      "fieldname": "lugar_expedicion",
+      "fieldtype": "Data",
+      "in_list_view": 1,
+      "label": "Lugar de Expedición",
+      "reqd": 1
+    },
+    {
+      "fieldname": "regimen_fiscal_default",
+      "fieldtype": "Link",
+      "label": "Régimen Fiscal por Defecto",
+      "options": "Regimen Fiscal SAT"
+    },
+    {
+      "fieldname": "configuracion_automatica_section",
+      "fieldtype": "Section Break",
+      "label": "Configuración Automática"
+    },
+    {
+      "default": 1,
+      "description": "Crear automáticamente recibos electrónicos",
+      "fieldname": "auto_generate_ereceipts",
+      "fieldtype": "Check",
+      "label": "Generar E-Receipts Automáticamente"
+    },
+    {
+      "default": 0,
+      "description": "Enviar email por defecto al timbrar",
+      "fieldname": "send_email_default",
+      "fieldtype": "Check",
+      "label": "Enviar Email por Defecto"
+    },
+    {
+      "default": 1,
+      "description": "Descargar archivos PDF/XML automáticamente",
+      "fieldname": "download_files_default",
+      "fieldtype": "Check",
+      "label": "Descargar Archivos por Defecto"
+    }
+  ],
+  "issingle": 1,
+  "links": [],
+  "modified": "2025-07-17 19:40:00.000000",
+  "modified_by": "Administrator",
+  "module": "Facturacion Fiscal",
+  "name": "Facturacion Mexico Settings",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "print": 1,
+      "read": 1,
+      "role": "System Manager",
+      "share": 1,
+      "write": 1
+    },
+    {
+      "read": 1,
+      "role": "Accounts Manager",
+      "write": 1
+    }
+  ],
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "states": [],
+  "track_changes": 1
+}

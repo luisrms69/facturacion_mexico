@@ -1,0 +1,205 @@
+{
+  "actions": [],
+  "allow_rename": 1,
+  "autoname": "naming_series:",
+  "creation": "2025-07-17 19:45:00.000000",
+  "doctype": "DocType",
+  "editable_grid": 1,
+  "engine": "InnoDB",
+  "field_order": [
+    "naming_series",
+    "sales_invoice",
+    "company",
+    "column_break_basic",
+    "status",
+    "fecha_timbrado",
+    "section_break_facturapi",
+    "facturapi_id",
+    "uuid",
+    "column_break_fiscal",
+    "serie",
+    "folio",
+    "total_fiscal",
+    "section_break_archivos",
+    "pdf_file",
+    "xml_file",
+    "section_break_cancelacion",
+    "cancellation_reason",
+    "cancellation_date"
+  ],
+  "fields": [
+    {
+      "fieldname": "naming_series",
+      "fieldtype": "Select",
+      "label": "Serie de Numeración",
+      "options": "FFMX-.YYYY.-",
+      "reqd": 1
+    },
+    {
+      "fieldname": "sales_invoice",
+      "fieldtype": "Link",
+      "in_list_view": 1,
+      "label": "Factura de Venta",
+      "options": "Sales Invoice",
+      "reqd": 1
+    },
+    {
+      "fieldname": "company",
+      "fieldtype": "Link",
+      "in_list_view": 1,
+      "label": "Empresa",
+      "options": "Company",
+      "reqd": 1
+    },
+    {
+      "fieldname": "column_break_basic",
+      "fieldtype": "Column Break"
+    },
+    {
+      "default": "draft",
+      "fieldname": "status",
+      "fieldtype": "Select",
+      "in_list_view": 1,
+      "label": "Estado",
+      "options": "draft\nstamped\ncancelled\ncancel_requested",
+      "reqd": 1
+    },
+    {
+      "fieldname": "fecha_timbrado",
+      "fieldtype": "Datetime",
+      "label": "Fecha de Timbrado",
+      "read_only": 1
+    },
+    {
+      "fieldname": "section_break_facturapi",
+      "fieldtype": "Section Break",
+      "label": "Información FacturAPI"
+    },
+    {
+      "description": "ID retornado por FacturAPI.io",
+      "fieldname": "facturapi_id",
+      "fieldtype": "Data",
+      "label": "FacturAPI ID",
+      "read_only": 1
+    },
+    {
+      "description": "UUID fiscal del SAT",
+      "fieldname": "uuid",
+      "fieldtype": "Data",
+      "in_list_view": 1,
+      "label": "UUID Fiscal",
+      "read_only": 1
+    },
+    {
+      "fieldname": "column_break_fiscal",
+      "fieldtype": "Column Break"
+    },
+    {
+      "description": "Serie de la factura fiscal",
+      "fieldname": "serie",
+      "fieldtype": "Data",
+      "label": "Serie",
+      "read_only": 1
+    },
+    {
+      "description": "Folio de la factura fiscal",
+      "fieldname": "folio",
+      "fieldtype": "Data",
+      "label": "Folio",
+      "read_only": 1
+    },
+    {
+      "description": "Total de la factura fiscal",
+      "fieldname": "total_fiscal",
+      "fieldtype": "Currency",
+      "label": "Total Fiscal",
+      "read_only": 1
+    },
+    {
+      "fieldname": "section_break_archivos",
+      "fieldtype": "Section Break",
+      "label": "Archivos Fiscales"
+    },
+    {
+      "description": "Archivo PDF de la factura",
+      "fieldname": "pdf_file",
+      "fieldtype": "Attach",
+      "label": "Archivo PDF",
+      "read_only": 1
+    },
+    {
+      "description": "Archivo XML de la factura",
+      "fieldname": "xml_file",
+      "fieldtype": "Attach",
+      "label": "Archivo XML",
+      "read_only": 1
+    },
+    {
+      "fieldname": "section_break_cancelacion",
+      "fieldtype": "Section Break",
+      "label": "Información de Cancelación"
+    },
+    {
+      "fieldname": "cancellation_reason",
+      "fieldtype": "Select",
+      "label": "Motivo de Cancelación",
+      "options": "01 - Comprobantes emitidos con errores con relación\n02 - Comprobantes emitidos con errores sin relación\n03 - No se llevó a cabo la operación\n04 - Operación nominativa relacionada en la factura global"
+    },
+    {
+      "fieldname": "cancellation_date",
+      "fieldtype": "Datetime",
+      "label": "Fecha de Cancelación",
+      "read_only": 1
+    }
+  ],
+  "index_web_pages_for_search": 1,
+  "links": [],
+  "modified": "2025-07-17 19:45:00.000000",
+  "modified_by": "Administrator",
+  "module": "Facturacion Fiscal",
+  "name": "Factura Fiscal Mexico",
+  "naming_rule": "By \"Naming Series\" field",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "Accounts Manager",
+      "share": 1,
+      "write": 1
+    },
+    {
+      "create": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "Accounts User",
+      "share": 1,
+      "write": 1
+    },
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "System Manager",
+      "share": 1,
+      "write": 1
+    }
+  ],
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "states": [],
+  "title_field": "sales_invoice",
+  "track_changes": 1
+}

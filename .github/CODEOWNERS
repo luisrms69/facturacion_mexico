@@ -1,0 +1,42 @@
+# CODEOWNERS para facturacion_mexico
+# Este archivo define quién debe revisar cambios en diferentes partes del código
+# Asegura que nadie pueda aprobar sus propios cambios
+
+# === REGLAS GLOBALES ===
+# Todos los archivos requieren aprobación de al menos uno de estos usuarios
+* @luisrms69 @it-consultoria-negocios
+
+# === ARCHIVOS CRÍTICOS DEL SISTEMA ===
+# Configuración del app
+hooks.py @luisrms69 @it-consultoria-negocios
+setup.py @luisrms69 @it-consultoria-negocios
+__init__.py @luisrms69 @it-consultoria-negocios
+
+# === DOCUMENTACIÓN Y CONFIGURACIÓN ===
+# README y documentación principal
+README.md @luisrms69 @it-consultoria-negocios
+docs/ @luisrms69 @it-consultoria-negocios
+
+# GitHub workflows y CI/CD
+.github/ @luisrms69 @it-consultoria-negocios
+.pre-commit-config.yaml @luisrms69 @it-consultoria-negocios
+
+# === TESTS ===
+# Tests requieren validación para mantener coverage
+**/test_*.py @luisrms69 @it-consultoria-negocios
+
+# === ARCHIVOS DE CONFIGURACIÓN ===
+# Configuraciones YAML/JSON críticas
+*.yml @luisrms69 @it-consultoria-negocios
+*.yaml @luisrms69 @it-consultoria-negocios
+*.json @luisrms69 @it-consultoria-negocios
+
+# === USUARIOS AUTORIZADOS ===
+# @luisrms69 - Owner principal del proyecto
+# @it-consultoria-negocios - Code reviewer autorizado
+
+# NOTA: Este archivo garantiza que:
+# 1. Nadie puede aprobar sus propios cambios
+# 2. Solo @luisrms69 o @it-consultoria-negocios pueden aprobar PRs
+# 3. Se mantiene la calidad del código con revisión obligatoria
+# 4. Fácil escalabilidad para agregar módulos específicos más adelante
