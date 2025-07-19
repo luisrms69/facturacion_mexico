@@ -1,0 +1,37 @@
+[
+	{
+		"doctype": "Uso CFDI SAT",
+		"code": "G01",
+		"description": "Adquisición de mercancías",
+		"aplica_fisica": 1,
+		"aplica_moral": 1
+	},
+	{
+		"doctype": "Uso CFDI SAT", 
+		"code": "G02",
+		"description": "Devoluciones, descuentos o bonificaciones",
+		"aplica_fisica": 1,
+		"aplica_moral": 1
+	},
+	{
+		"doctype": "Uso CFDI SAT",
+		"code": "G03", 
+		"description": "Gastos en general",
+		"aplica_fisica": 1,
+		"aplica_moral": 1
+	},
+	{
+		"doctype": "Regimen Fiscal SAT",
+		"code": "601",
+		"description": "General de Ley Personas Morales", 
+		"aplica_fisica": 0,
+		"aplica_moral": 1
+	},
+	{
+		"doctype": "Regimen Fiscal SAT",
+		"code": "612",
+		"description": "Personas Físicas con Actividades Empresariales y Profesionales",
+		"aplica_fisica": 1,
+		"aplica_moral": 0
+	}
+]

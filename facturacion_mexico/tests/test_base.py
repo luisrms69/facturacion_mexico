@@ -29,12 +29,21 @@ class FacturacionMexicoTestGranular(FrappeTestCase):
 	@classmethod
 	def setUpClass(cls):
 		"""Configurar datos de test una sola vez."""
-		if cls.DOCTYPE_NAME:
-			cls.create_test_settings()
-			cls.create_test_catalogs()
-			cls.create_test_customer()
-			cls.create_test_item()
+		# Usar fixtures centralizados para una arquitectura sólida
+		from facturacion_mexico.fixtures.test_data import create_test_records
+
+		try:
+			create_test_records()
 			frappe.db.commit()
+		except Exception as e:
+			frappe.log_error(f"Error setting up test data: {e}")
+			# Fallback a método anterior si fixtures fallan
+			if cls.DOCTYPE_NAME:
+				cls.create_test_settings()
+				cls.create_test_catalogs()
+				cls.create_test_customer()
+				cls.create_test_item()
+				frappe.db.commit()
 
 	# ===== LAYER 1: UNIT TESTS (NO DATABASE OPERATIONS) =====
 
@@ -315,6 +324,14 @@ class FacturacionMexicoTestGranular(FrappeTestCase):
 	@classmethod
 	def tearDownClass(cls):
 		"""Limpiar después de todos los tests."""
+		# Usar cleanup centralizado para arquitectura sólida
+		from facturacion_mexico.fixtures.test_data import cleanup_test_records
+
+		try:
+			cleanup_test_records()
+		except Exception as e:
+			frappe.log_error(f"Error cleaning up test data: {e}")
+
 		frappe.db.rollback()
 
 

@@ -132,6 +132,18 @@ def before_tests():
 	# DESPUÉS de crear Company, asegurar que registros básicos existen
 	_ensure_basic_erpnext_records()
 
+	# Crear cuentas contables básicas de ERPNext para testing
+	_create_basic_erpnext_accounts()
+
+	# Crear tax categories básicas para testing
+	_create_basic_tax_categories()
+
+	# Crear cost centers básicos para testing
+	_create_basic_cost_centers()
+
+	# Crear item tax templates básicos para testing
+	_create_basic_item_tax_templates()
+
 	# Setup roles - usar ERPNext si disponible
 	try:
 		from erpnext.setup.utils import enable_all_roles_and_domains
@@ -226,3 +238,182 @@ def _setup_basic_roles_frappe_only():
 
 		user.save(ignore_permissions=True)
 		print("✅ Setup basic roles for Administrator")
+
+
+def _create_basic_erpnext_accounts():
+	"""
+	Crear cuentas contables básicas de ERPNext requeridas para testing.
+
+	Basado en erpnext/accounts/doctype/account/test_account.py _make_test_records().
+	Evita el error 'Could not find Account: _Test Payable USD - _TC'.
+	"""
+	# Obtener las companies de testing específicas que necesitan cuentas
+	for company_abbr_search in ["_TC", "_TC1", "TCP1"]:
+		companies = frappe.get_all(
+			"Company", filters={"abbr": company_abbr_search}, fields=["name", "abbr"], limit=1
+		)
+
+		if not companies:
+			continue
+
+		company_name = companies[0].name
+		company_abbr = companies[0].abbr
+
+		_create_accounts_for_company(company_name, company_abbr)
+
+
+def _create_accounts_for_company(company_name, company_abbr):
+	"""
+	Crear cuentas para una company específica.
+	"""
+	# Cuentas básicas requeridas por ERPNext testing
+	# Formato: [account_name, parent_account, is_group, account_type, currency]
+	basic_accounts = [
+		["_Test Bank", "Bank Accounts", 0, "Bank", None],
+		["_Test Bank USD", "Bank Accounts", 0, "Bank", "USD"],
+		["_Test Cash", "Cash In Hand", 0, "Cash", None],
+		["_Test Receivable", "Current Assets", 0, "Receivable", None],
+		["_Test Payable", "Current Liabilities", 0, "Payable", None],
+		["_Test Receivable USD", "Current Assets", 0, "Receivable", "USD"],
+		["_Test Payable USD", "Current Liabilities", 0, "Payable", "USD"],
+		["_Test Account Cost for Goods Sold", "Expenses", 0, None, None],
+		["_Test Account Sales", "Direct Income", 0, None, None],
+		["_Test Account Excise Duty", "Current Assets", 0, "Tax", None],
+	]
+
+	for account_name, parent_account, is_group, account_type, currency in basic_accounts:
+		full_account_name = f"{account_name} - {company_abbr}"
+		parent_account_name = f"{parent_account} - {company_abbr}"
+
+		# Verificar si la cuenta ya existe
+		if frappe.db.exists("Account", full_account_name):
+			continue
+
+		# Verificar si la cuenta padre existe
+		if not frappe.db.exists("Account", parent_account_name):
+			print(
+				f"⚠️ Parent account {parent_account_name} not found, skipping {account_name} for {company_abbr}"
+			)
+			continue
+
+		try:
+			account_doc = {
+				"doctype": "Account",
+				"account_name": account_name,
+				"parent_account": parent_account_name,
+				"company": company_name,
+				"is_group": is_group,
+			}
+
+			if account_type:
+				account_doc["account_type"] = account_type
+
+			if currency:
+				account_doc["account_currency"] = currency
+
+			frappe.get_doc(account_doc).insert(ignore_permissions=True)
+			print(f"✅ Created account: {full_account_name}")
+
+		except Exception as e:
+			print(f"⚠️ Failed to create account {account_name} for {company_abbr}: {e}")
+
+
+def _create_basic_tax_categories():
+	"""
+	Crear tax categories básicas requeridas para testing ERPNext.
+	"""
+	basic_tax_categories = ["_Test Tax Category 1", "_Test Tax Category 2"]
+
+	for tax_category in basic_tax_categories:
+		if not frappe.db.exists("Tax Category", tax_category):
+			try:
+				frappe.get_doc(
+					{"doctype": "Tax Category", "title": tax_category, "name": tax_category}
+				).insert(ignore_permissions=True)
+				print(f"✅ Created tax category: {tax_category}")
+			except Exception as e:
+				print(f"⚠️ Failed to create tax category {tax_category}: {e}")
+
+
+def _create_basic_cost_centers():
+	"""
+	Crear cost centers básicos requeridos para testing ERPNext.
+	"""
+	# Obtener las companies de testing específicas que necesitan cost centers
+	for company_abbr_search in ["_TC", "_TC1", "TCP1"]:
+		companies = frappe.get_all(
+			"Company", filters={"abbr": company_abbr_search}, fields=["name", "abbr"], limit=1
+		)
+
+		if not companies:
+			continue
+
+		company_name = companies[0].name
+		company_abbr = companies[0].abbr
+
+		# Crear múltiples cost centers requeridos
+		cost_centers = ["_Test Cost Center", "_Test Cost Center 2"]
+
+		for cost_center_base_name in cost_centers:
+			cost_center_name = f"{cost_center_base_name} - {company_abbr}"
+
+			if not frappe.db.exists("Cost Center", cost_center_name):
+				try:
+					frappe.get_doc(
+						{
+							"doctype": "Cost Center",
+							"cost_center_name": cost_center_base_name,
+							"company": company_name,
+							"is_group": 0,
+							"parent_cost_center": f"{company_name} - {company_abbr}",
+						}
+					).insert(ignore_permissions=True)
+					print(f"✅ Created cost center: {cost_center_name}")
+				except Exception as e:
+					print(f"⚠️ Failed to create cost center {cost_center_base_name} for {company_abbr}: {e}")
+
+
+def _create_basic_item_tax_templates():
+	"""
+	Crear item tax templates básicos requeridos para testing ERPNext.
+	"""
+	# Obtener las companies de testing específicas que necesitan tax templates
+	for company_abbr_search in ["_TC", "_TC1", "TCP1"]:
+		companies = frappe.get_all(
+			"Company", filters={"abbr": company_abbr_search}, fields=["name", "abbr"], limit=1
+		)
+
+		if not companies:
+			continue
+
+		company_name = companies[0].name
+		company_abbr = companies[0].abbr
+
+		# Tax templates requeridos
+		tax_templates = [
+			{"name": f"_Test Account Excise Duty @ 10 - {company_abbr}", "rate": 10},
+			{"name": f"_Test Account Excise Duty @ 12 - {company_abbr}", "rate": 12},
+		]
+
+		for template in tax_templates:
+			template_name = template["name"]
+
+			if not frappe.db.exists("Item Tax Template", template_name):
+				try:
+					tax_doc = frappe.get_doc(
+						{
+							"doctype": "Item Tax Template",
+							"title": template_name,
+							"company": company_name,
+							"taxes": [
+								{
+									"tax_type": f"_Test Account Excise Duty - {company_abbr}",
+									"tax_rate": template["rate"],
+								}
+							],
+						}
+					)
+					tax_doc.insert(ignore_permissions=True)
+					print(f"✅ Created item tax template: {template_name}")
+				except Exception as e:
+					print(f"⚠️ Failed to create item tax template {template_name}: {e}")
