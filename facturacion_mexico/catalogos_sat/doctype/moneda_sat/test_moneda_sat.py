@@ -72,7 +72,7 @@ class TestMonedaSAT(FrappeTestCase):
 
 	def test_l2_duplicate_prevention(self):
 		"""LAYER 2: Test prevención de duplicados."""
-		with patch("frappe.db.exists", return_value=True):
+		with patch("frappe.db.get_value", return_value="EXISTING-MONEDA"):
 			moneda = frappe.new_doc("Moneda SAT")
 			moneda.code = "MXN"
 			moneda.description = "Peso Mexicano"
