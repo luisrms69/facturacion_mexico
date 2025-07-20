@@ -24,23 +24,97 @@ class AddendaTestBase(FrappeTestCase):
 	@classmethod
 	def setup_test_data(cls):
 		"""Configurar datos de prueba necesarios."""
-		# Crear registros de prueba básicos
+		# Crear registros de prueba básicos usando make_test_records
+		cls.setup_test_dependencies()
 		cls.create_test_customer()
 		cls.create_test_items()
 		cls.create_test_addenda_types()
+
+	@classmethod
+	def setup_test_dependencies(cls):
+		"""Configurar dependencias necesarias para los tests."""
+		try:
+			# Crear registros de prueba estándar de ERPNext
+			make_test_records("Territory")
+			make_test_records("Customer Group")
+			make_test_records("Item Group")
+			make_test_records("UOM")
+			make_test_records("Account")
+			make_test_records("Company")
+		except Exception:
+			# Si falla make_test_records, crear manualmente los registros mínimos
+			cls.create_minimal_test_fixtures()
+
+	@classmethod
+	def create_minimal_test_fixtures(cls):
+		"""Crear fixtures mínimos necesarios."""
+		# Crear Territory de prueba
+		if not frappe.db.exists("Territory", "_Test Territory"):
+			territory = frappe.get_doc(
+				{
+					"doctype": "Territory",
+					"territory_name": "_Test Territory",
+					"is_group": 0,
+					"parent_territory": "All Territories",
+				}
+			)
+			territory.insert(ignore_permissions=True)
+
+		# Crear Customer Group de prueba
+		if not frappe.db.exists("Customer Group", "Commercial"):
+			customer_group = frappe.get_doc(
+				{
+					"doctype": "Customer Group",
+					"customer_group_name": "Commercial",
+					"is_group": 0,
+					"parent_customer_group": "All Customer Groups",
+				}
+			)
+			customer_group.insert(ignore_permissions=True)
+
+		# Crear Item Groups de prueba
+		for group_name in ["Products", "Services"]:
+			if not frappe.db.exists("Item Group", group_name):
+				item_group = frappe.get_doc(
+					{
+						"doctype": "Item Group",
+						"item_group_name": group_name,
+						"is_group": 0,
+						"parent_item_group": "All Item Groups",
+					}
+				)
+				item_group.insert(ignore_permissions=True)
+
+		# Crear UOM de prueba
+		if not frappe.db.exists("UOM", "Nos"):
+			uom = frappe.get_doc({"doctype": "UOM", "uom_name": "Nos", "must_be_whole_number": 1})
+			uom.insert(ignore_permissions=True)
 
 	@classmethod
 	def create_test_customer(cls):
 		"""Crear cliente de prueba."""
 		customer_name = "Test Customer Addenda"
 		if not frappe.db.exists("Customer", customer_name):
+			# Verificar que territory existe, sino usar uno disponible
+			territory = "_Test Territory"
+			if not frappe.db.exists("Territory", territory):
+				# Buscar un territory existente o usar All Territories
+				existing_territories = frappe.get_all("Territory", filters={"is_group": 0}, limit=1)
+				territory = existing_territories[0].name if existing_territories else "All Territories"
+
+			# Verificar customer group
+			customer_group = "Commercial"
+			if not frappe.db.exists("Customer Group", customer_group):
+				existing_groups = frappe.get_all("Customer Group", filters={"is_group": 0}, limit=1)
+				customer_group = existing_groups[0].name if existing_groups else "All Customer Groups"
+
 			customer = frappe.get_doc(
 				{
 					"doctype": "Customer",
 					"customer_name": customer_name,
 					"customer_type": "Company",
-					"customer_group": "Commercial",
-					"territory": "_Test Territory",
+					"customer_group": customer_group,
+					"territory": territory,
 					"tax_id": "TEST123456789",
 				}
 			)
@@ -50,20 +124,36 @@ class AddendaTestBase(FrappeTestCase):
 	@classmethod
 	def create_test_items(cls):
 		"""Crear items de prueba."""
+		# Verificar Item Groups disponibles
+		products_group = "Products"
+		if not frappe.db.exists("Item Group", products_group):
+			existing_groups = frappe.get_all("Item Group", filters={"is_group": 0}, limit=1)
+			products_group = existing_groups[0].name if existing_groups else "All Item Groups"
+
+		services_group = "Services"
+		if not frappe.db.exists("Item Group", services_group):
+			services_group = products_group  # Usar el mismo si Services no existe
+
+		# Verificar UOM
+		stock_uom = "Nos"
+		if not frappe.db.exists("UOM", stock_uom):
+			existing_uoms = frappe.get_all("UOM", limit=1)
+			stock_uom = existing_uoms[0].name if existing_uoms else "Each"
+
 		items = [
 			{
 				"item_code": "TEST-ITEM-001",
 				"item_name": "Test Item for Addenda",
-				"item_group": "Products",
-				"stock_uom": "Nos",
+				"item_group": products_group,
+				"stock_uom": stock_uom,
 				"is_sales_item": 1,
 				"is_purchase_item": 1,
 			},
 			{
 				"item_code": "TEST-ITEM-002",
 				"item_name": "Test Service Item",
-				"item_group": "Services",
-				"stock_uom": "Nos",
+				"item_group": services_group,
+				"stock_uom": stock_uom,
 				"is_sales_item": 1,
 				"is_purchase_item": 0,
 			},
