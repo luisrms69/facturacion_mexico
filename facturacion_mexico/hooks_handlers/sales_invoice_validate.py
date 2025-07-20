@@ -112,7 +112,8 @@ def validate_addenda_fields_strict(doc, config):
 	errors = validate_field_values(config.get("field_values", {}), doc)
 
 	if errors:
-		error_msg = _("Errores en configuración de addenda:\n• {0}").format("\n• ".join(errors))
+		error_list = "\n• ".join(errors)
+		error_msg = _("Errores en configuración de addenda:") + f"\n• {error_list}"
 		frappe.throw(error_msg, title=_("Validación de Addenda Fallida"))
 
 
@@ -121,7 +122,8 @@ def validate_addenda_fields_error(doc, config):
 	errors = validate_field_values(config.get("field_values", {}), doc)
 
 	if errors:
-		error_msg = _("Errores en configuración de addenda:\n• {0}").format("\n• ".join(errors))
+		error_list = "\n• ".join(errors)
+		error_msg = _("Errores en configuración de addenda:") + f"\n• {error_list}"
 		frappe.msgprint(error_msg, indicator="red", title=_("Errores en Addenda"))
 
 
@@ -130,7 +132,8 @@ def validate_addenda_fields_warning(doc, config):
 	errors = validate_field_values(config.get("field_values", {}), doc)
 
 	if errors:
-		error_msg = _("Advertencias en configuración de addenda:\n• {0}").format("\n• ".join(errors))
+		error_list = "\n• ".join(errors)
+		error_msg = _("Advertencias en configuración de addenda:") + f"\n• {error_list}"
 		frappe.msgprint(error_msg, indicator="orange", title=_("Advertencias en Addenda"))
 
 

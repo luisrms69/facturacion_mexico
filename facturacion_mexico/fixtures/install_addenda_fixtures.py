@@ -241,7 +241,8 @@ class AddendaFixtureInstaller:
 				results["errors"].append(error_msg)
 				print(f"❌ {error_msg}")
 
-		frappe.db.commit()
+		# Manual commit required for batch fixture uninstallation to ensure data persistence
+		frappe.db.commit()  # nosemgrep
 
 		results["success"] = len(results["errors"]) == 0
 		print(
