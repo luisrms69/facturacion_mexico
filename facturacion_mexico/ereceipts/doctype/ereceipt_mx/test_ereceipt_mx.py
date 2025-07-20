@@ -30,7 +30,7 @@ class TestEReceiptMX(FrappeTestCase):
 	def test_layer1_calculate_expiry_fixed_days(self):
 		"""Layer 1: Test cálculo de expiración con días fijos."""
 		# Arrange
-		ereceipt = EReceiptMX()
+		ereceipt = frappe.new_doc("EReceipt MX")
 		ereceipt.date_issued = self.today
 		ereceipt.expiry_type = "Fixed Days"
 		ereceipt.expiry_days = 5
@@ -45,7 +45,7 @@ class TestEReceiptMX(FrappeTestCase):
 	def test_layer1_calculate_expiry_end_of_month(self):
 		"""Layer 1: Test cálculo de expiración fin de mes."""
 		# Arrange
-		ereceipt = EReceiptMX()
+		ereceipt = frappe.new_doc("EReceipt MX")
 		ereceipt.date_issued = datetime(2025, 7, 15).date()  # Medio del mes
 		ereceipt.expiry_type = "End of Month"
 
@@ -60,7 +60,7 @@ class TestEReceiptMX(FrappeTestCase):
 		"""Layer 1: Test expiración con fecha personalizada."""
 		# Arrange
 		custom_date = self.today + timedelta(days=10)
-		ereceipt = EReceiptMX()
+		ereceipt = frappe.new_doc("EReceipt MX")
 		ereceipt.date_issued = self.today
 		ereceipt.expiry_type = "Custom Date"
 		ereceipt.expiry_date = custom_date
@@ -74,7 +74,7 @@ class TestEReceiptMX(FrappeTestCase):
 	def test_layer1_calculate_expiry_custom_date_fallback(self):
 		"""Layer 1: Test fallback cuando no se proporciona fecha personalizada."""
 		# Arrange
-		ereceipt = EReceiptMX()
+		ereceipt = frappe.new_doc("EReceipt MX")
 		ereceipt.date_issued = self.today
 		ereceipt.expiry_type = "Custom Date"
 		ereceipt.expiry_date = None
@@ -89,7 +89,7 @@ class TestEReceiptMX(FrappeTestCase):
 	def test_layer1_is_expired_true(self):
 		"""Layer 1: Test detección de e-receipt expirado."""
 		# Arrange
-		ereceipt = EReceiptMX()
+		ereceipt = frappe.new_doc("EReceipt MX")
 		ereceipt.expiry_date = self.today - timedelta(days=1)  # Ayer
 
 		# Act
@@ -101,7 +101,7 @@ class TestEReceiptMX(FrappeTestCase):
 	def test_layer1_is_expired_false(self):
 		"""Layer 1: Test detección de e-receipt válido."""
 		# Arrange
-		ereceipt = EReceiptMX()
+		ereceipt = frappe.new_doc("EReceipt MX")
 		ereceipt.expiry_date = self.today + timedelta(days=1)  # Mañana
 
 		# Act
@@ -113,7 +113,7 @@ class TestEReceiptMX(FrappeTestCase):
 	def test_layer1_generate_key_format(self):
 		"""Layer 1: Test generación de key único."""
 		# Arrange
-		ereceipt = EReceiptMX()
+		ereceipt = frappe.new_doc("EReceipt MX")
 		ereceipt.sales_invoice = "SINV-001"
 		ereceipt.date_issued = datetime(2025, 7, 19).date()
 
@@ -135,7 +135,7 @@ class TestEReceiptMX(FrappeTestCase):
 		# Arrange
 		mock_exists.return_value = None  # No existe e-receipt previo
 
-		ereceipt = EReceiptMX()
+		ereceipt = frappe.new_doc("EReceipt MX")
 		ereceipt.sales_invoice = "SINV-001"
 
 		# Act & Assert (no debe lanzar excepción)
@@ -150,7 +150,7 @@ class TestEReceiptMX(FrappeTestCase):
 		# Arrange
 		mock_exists.return_value = "ER-001"  # Existe e-receipt previo
 
-		ereceipt = EReceiptMX()
+		ereceipt = frappe.new_doc("EReceipt MX")
 		ereceipt.sales_invoice = "SINV-001"
 
 		# Act & Assert
@@ -166,7 +166,7 @@ class TestEReceiptMX(FrappeTestCase):
 		mock_sales_invoice.get.return_value = None  # No tiene factura fiscal
 		mock_get_doc.return_value = mock_sales_invoice
 
-		ereceipt = EReceiptMX()
+		ereceipt = frappe.new_doc("EReceipt MX")
 		ereceipt.sales_invoice = "SINV-001"
 
 		# Act & Assert (no debe lanzar excepción)
@@ -183,7 +183,7 @@ class TestEReceiptMX(FrappeTestCase):
 		mock_sales_invoice.get.return_value = "FF-001"  # Tiene factura fiscal
 		mock_get_doc.return_value = mock_sales_invoice
 
-		ereceipt = EReceiptMX()
+		ereceipt = frappe.new_doc("EReceipt MX")
 		ereceipt.sales_invoice = "SINV-001"
 
 		# Act & Assert
@@ -198,7 +198,7 @@ class TestEReceiptMX(FrappeTestCase):
 		# Arrange
 		mock_get_single.return_value = True  # E-receipts habilitados
 
-		ereceipt = EReceiptMX()
+		ereceipt = frappe.new_doc("EReceipt MX")
 		ereceipt.sales_invoice = "SINV-001"
 
 		# Act
@@ -214,7 +214,7 @@ class TestEReceiptMX(FrappeTestCase):
 		# Arrange
 		mock_get_single.return_value = False  # E-receipts deshabilitados
 
-		ereceipt = EReceiptMX()
+		ereceipt = frappe.new_doc("EReceipt MX")
 		ereceipt.sales_invoice = "SINV-001"
 
 		# Act
@@ -252,7 +252,7 @@ class TestEReceiptMX(FrappeTestCase):
 			mock_ereceipt.insert.return_value = None
 
 			# Crear e-receipt (simulado)
-			ereceipt = EReceiptMX()
+			ereceipt = frappe.new_doc("EReceipt MX")
 			ereceipt.sales_invoice = "SINV-001"
 			ereceipt.company = "Test Company"
 			ereceipt.total = 1000.0
@@ -340,7 +340,7 @@ class TestEReceiptMX(FrappeTestCase):
 		keys = set()
 
 		for _i in range(100):
-			ereceipt = EReceiptMX()
+			ereceipt = frappe.new_doc("EReceipt MX")
 			ereceipt.sales_invoice = "SINV-001"
 			ereceipt.date_issued = self.today
 			ereceipt.generate_unique_key()
@@ -387,7 +387,7 @@ class TestEReceiptMX(FrappeTestCase):
 		]
 
 		for total in test_totals:
-			ereceipt = EReceiptMX()
+			ereceipt = frappe.new_doc("EReceipt MX")
 			ereceipt.total = total
 			ereceipt.sales_invoice = "SINV-LARGE"
 
@@ -405,7 +405,7 @@ class TestEReceiptMX(FrappeTestCase):
 		]
 
 		for test_date in edge_dates:
-			ereceipt = EReceiptMX()
+			ereceipt = frappe.new_doc("EReceipt MX")
 			ereceipt.date_issued = test_date
 			ereceipt.expiry_type = "Fixed Days"
 			ereceipt.expiry_days = 30
@@ -435,7 +435,7 @@ class TestEReceiptMXUtils(FrappeTestCase):
 		]
 
 		for from_status, to_status in valid_transitions:
-			ereceipt = EReceiptMX()
+			ereceipt = frappe.new_doc("EReceipt MX")
 			ereceipt.status = from_status
 
 			# Simular cambio de status
@@ -453,7 +453,7 @@ class TestEReceiptMXUtils(FrappeTestCase):
 		]
 
 		for from_status, _to_status in invalid_transitions:
-			ereceipt = EReceiptMX()
+			ereceipt = frappe.new_doc("EReceipt MX")
 			ereceipt.status = from_status
 
 			# En una implementación real, esto debería validarse

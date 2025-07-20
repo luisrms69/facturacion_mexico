@@ -309,3 +309,20 @@ def get_expiring_ereceipts(days_ahead=3):
 	except Exception as e:
 		frappe.log_error(message=str(e), title="Error obteniendo E-Receipts próximos a vencer")
 		return {"success": False, "message": str(e)}
+
+
+# Métodos estáticos requeridos por los tests
+class EReceiptMX(EReceiptMX):
+	"""Extensión de la clase para métodos estáticos."""
+
+	@staticmethod
+	def expire_ereceipts_batch():
+		"""Método estático para expirar E-Receipts en lote."""
+		result = bulk_expire_ereceipts()
+		return result.get("expired_count", 0)
+
+	@staticmethod
+	def get_for_global_invoice(date_from, date_to):
+		"""Método estático para obtener E-Receipts para factura global."""
+		result = get_ereceipts_for_period(date_from, date_to)
+		return result.get("ereceipts", [])

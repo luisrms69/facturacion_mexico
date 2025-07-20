@@ -95,7 +95,7 @@ class TestPaymentTrackingMX(FrappeTestCase):
 			{"name": "PT-003", "payment_date": "2025-07-21", "parcialidad_number": 3},
 		]
 
-		tracking = PaymentTrackingMX()
+		tracking = frappe.new_doc("Payment Tracking MX")
 		tracking.sales_invoice = "SINV-001"
 		tracking.payment_date = "2025-07-19"
 		tracking.name = "PT-001"
@@ -114,7 +114,7 @@ class TestPaymentTrackingMX(FrappeTestCase):
 		# Arrange
 		mock_sql.return_value = []  # Sin pagos posteriores
 
-		tracking = PaymentTrackingMX()
+		tracking = frappe.new_doc("Payment Tracking MX")
 		tracking.sales_invoice = "SINV-001"
 		tracking.payment_date = "2025-07-19"
 		tracking.name = "PT-001"
@@ -132,7 +132,7 @@ class TestPaymentTrackingMX(FrappeTestCase):
 		# Arrange
 		mock_sql.return_value = [(2,)]  # Última parcialidad es 2
 
-		tracking = PaymentTrackingMX()
+		tracking = frappe.new_doc("Payment Tracking MX")
 		tracking.sales_invoice = "SINV-001"
 		tracking.parcialidad_number = 3  # Siguiente esperado
 		tracking.is_retroactive = 0
@@ -150,7 +150,7 @@ class TestPaymentTrackingMX(FrappeTestCase):
 		# Arrange
 		mock_sql.return_value = [(2,)]  # Última parcialidad es 2
 
-		tracking = PaymentTrackingMX()
+		tracking = frappe.new_doc("Payment Tracking MX")
 		tracking.sales_invoice = "SINV-001"
 		tracking.parcialidad_number = 5  # Salto en secuencia
 		tracking.is_retroactive = 0
@@ -247,7 +247,7 @@ class TestPaymentTrackingMX(FrappeTestCase):
 		tracking_objects = []
 
 		for i in range(100):
-			tracking = PaymentTrackingMX()
+			tracking = frappe.new_doc("Payment Tracking MX")
 			tracking.balance_before = 1000.0 * i
 			tracking.amount_paid = 100.0
 			tracking.calculate_balance_after()

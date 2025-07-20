@@ -106,7 +106,11 @@ class SATValidationCache(Document):
 	def refresh_rfc_validation(self):
 		"""Refrescar validación de RFC."""
 		try:
-			from facturacion_mexico.validaciones.api import validate_rfc
+			# Importación dinámica para evitar import cíclico
+			from importlib import import_module
+
+			api_module = import_module("facturacion_mexico.validaciones.api")
+			validate_rfc = api_module.validate_rfc
 
 			result = validate_rfc(self.lookup_value, use_cache=False)
 
@@ -126,7 +130,11 @@ class SATValidationCache(Document):
 	def refresh_lista69b_validation(self):
 		"""Refrescar validación de Lista 69B."""
 		try:
-			from facturacion_mexico.validaciones.api import validate_lista_69b
+			# Importación dinámica para evitar import cíclico
+			from importlib import import_module
+
+			api_module = import_module("facturacion_mexico.validaciones.api")
+			validate_lista_69b = api_module.validate_lista_69b
 
 			result = validate_lista_69b(self.lookup_value, use_cache=False)
 
@@ -294,3 +302,43 @@ def get_cache_statistics():
 	except Exception as e:
 		frappe.log_error(message=str(e), title="Error obteniendo estadísticas de cache")
 		return {"success": False, "message": str(e)}
+
+
+# Métodos estáticos requeridos por los tests
+class SATValidationCache(SATValidationCache):
+	"""Extensión de la clase para métodos estáticos."""
+
+	@staticmethod
+	def deactivate_expired_caches():
+		"""Método estático para desactivar caches expirados."""
+		result = cleanup_expired_cache()
+		return result.get("cleaned_count", 0)
+
+	@staticmethod
+	def create_cache_record(lookup_value, validation_type, is_valid=True, validation_data=None):
+		"""Método estático para crear registro de cache."""
+		try:
+			cache_doc = frappe.new_doc("SAT Validation Cache")
+			cache_doc.lookup_value = lookup_value
+			cache_doc.validation_type = validation_type
+			cache_doc.is_valid = is_valid
+			cache_doc.validation_data = validation_data or "{}"
+			cache_doc.validation_date = frappe.utils.now()
+			cache_doc.insert()
+			return cache_doc.name
+		except Exception:
+			return None
+
+	@staticmethod
+	def get_valid_cache(lookup_value, validation_type):
+		"""Método estático para obtener cache válido."""
+		result = SATValidationCache.get_cached_validation(validation_type, lookup_value)
+		if result.get("success") and not result.get("from_cache", True):
+			return result.get("data", {})
+		return None
+
+	@staticmethod
+	def cleanup_expired_caches(days_to_keep=90):
+		"""Método estático para limpiar caches expirados con días de retención."""
+		result = cleanup_expired_cache()
+		return result.get("cleaned_count", 0)

@@ -31,7 +31,7 @@ class TestSATValidationCache(FrappeTestCase):
 	def test_layer1_calculate_expiry_date_rfc_validation(self):
 		"""Layer 1: Test cálculo de fecha de expiración para RFC (30 días)."""
 		# Arrange
-		cache = SATValidationCache()
+		cache = frappe.new_doc("SAT Validation Cache")
 		cache.validation_type = "rfc_validation"
 		cache.validated_at = self.today
 
@@ -45,7 +45,7 @@ class TestSATValidationCache(FrappeTestCase):
 	def test_layer1_calculate_expiry_date_lista69b(self):
 		"""Layer 1: Test cálculo de fecha de expiración para Lista 69B (7 días)."""
 		# Arrange
-		cache = SATValidationCache()
+		cache = frappe.new_doc("SAT Validation Cache")
 		cache.validation_type = "lista_69b"
 		cache.validated_at = self.today
 
@@ -59,7 +59,7 @@ class TestSATValidationCache(FrappeTestCase):
 	def test_layer1_calculate_expiry_date_default_type(self):
 		"""Layer 1: Test cálculo de fecha de expiración para tipo por defecto."""
 		# Arrange
-		cache = SATValidationCache()
+		cache = frappe.new_doc("SAT Validation Cache")
 		cache.validation_type = "unknown_type"
 		cache.validated_at = self.today
 
@@ -73,7 +73,7 @@ class TestSATValidationCache(FrappeTestCase):
 	def test_layer1_is_cache_expired_true(self):
 		"""Layer 1: Test detección de cache expirado."""
 		# Arrange
-		cache = SATValidationCache()
+		cache = frappe.new_doc("SAT Validation Cache")
 		cache.expires_at = self.today - timedelta(days=1)  # Ayer
 
 		# Act
@@ -85,7 +85,7 @@ class TestSATValidationCache(FrappeTestCase):
 	def test_layer1_is_cache_expired_false(self):
 		"""Layer 1: Test detección de cache válido."""
 		# Arrange
-		cache = SATValidationCache()
+		cache = frappe.new_doc("SAT Validation Cache")
 		cache.expires_at = self.today + timedelta(days=1)  # Mañana
 
 		# Act
@@ -97,7 +97,7 @@ class TestSATValidationCache(FrappeTestCase):
 	def test_layer1_is_cache_expired_today_edge_case(self):
 		"""Layer 1: Test caso límite - expira hoy."""
 		# Arrange
-		cache = SATValidationCache()
+		cache = frappe.new_doc("SAT Validation Cache")
 		cache.expires_at = self.today
 
 		# Act
@@ -115,7 +115,7 @@ class TestSATValidationCache(FrappeTestCase):
 		"""Layer 2: Test establecimiento automático de metadatos."""
 		# Arrange
 		mock_now.return_value = "2025-07-19 15:30:00"
-		cache = SATValidationCache()
+		cache = frappe.new_doc("SAT Validation Cache")
 
 		# Act
 		cache.set_metadata()
@@ -128,7 +128,7 @@ class TestSATValidationCache(FrappeTestCase):
 	def test_layer2_set_metadata_user_tracking(self, mock_user):
 		"""Layer 2: Test rastreo de usuario en metadatos."""
 		# Arrange
-		cache = SATValidationCache()
+		cache = frappe.new_doc("SAT Validation Cache")
 
 		# Act
 		cache.set_metadata()
@@ -142,7 +142,7 @@ class TestSATValidationCache(FrappeTestCase):
 		# Arrange
 		mock_exists.return_value = None  # No existe cache activo
 
-		cache = SATValidationCache()
+		cache = frappe.new_doc("SAT Validation Cache")
 		cache.validation_key = "RFC_XAXX010101000"
 		cache.validation_type = "rfc_validation"
 		cache.is_active = 1
@@ -159,7 +159,7 @@ class TestSATValidationCache(FrappeTestCase):
 		# Arrange
 		mock_exists.return_value = "SAT-CACHE-001"  # Existe cache activo
 
-		cache = SATValidationCache()
+		cache = frappe.new_doc("SAT Validation Cache")
 		cache.validation_key = "RFC_XAXX010101000"
 		cache.validation_type = "rfc_validation"
 		cache.is_active = 1
@@ -276,7 +276,7 @@ class TestSATValidationCache(FrappeTestCase):
 
 		cache_keys = []
 		for rfc in test_rfcs:
-			cache = SATValidationCache()
+			cache = frappe.new_doc("SAT Validation Cache")
 			cache.validation_key = f"RFC_{rfc.upper().replace('-', '')}"
 			cache_keys.append(cache.validation_key)
 
@@ -311,7 +311,7 @@ class TestSATValidationCache(FrappeTestCase):
 			"metadata": {"key_" + str(i): f"value_{i}" for i in range(500)},
 		}
 
-		cache = SATValidationCache()
+		cache = frappe.new_doc("SAT Validation Cache")
 		cache.validation_key = "RFC_LARGE_DATA_TEST"
 		cache.validation_type = "rfc_validation"
 		cache.result_data = str(large_result_data)  # Convertir a string como en DB
@@ -323,7 +323,7 @@ class TestSATValidationCache(FrappeTestCase):
 	def test_layer4_cache_expiry_edge_cases_timezone(self):
 		"""Layer 4: Test casos límite de expiración con zonas horarias."""
 		# Test diferentes configuraciones de zona horaria
-		cache = SATValidationCache()
+		cache = frappe.new_doc("SAT Validation Cache")
 		cache.validation_type = "rfc_validation"
 
 		# Simular diferentes horas del día
