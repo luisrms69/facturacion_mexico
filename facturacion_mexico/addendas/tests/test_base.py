@@ -272,15 +272,20 @@ class AddendaTestBase(FrappeTestCase):
 	</proveedor>
 </addenda>"""
 
+		# Generar nombre único para evitar conflictos
+		import time
+
+		unique_suffix = str(int(time.time() * 1000))[-6:]  # Últimos 6 dígitos
+
 		template = frappe.get_doc(
 			{
 				"doctype": "Addenda Template",
 				"addenda_type": addenda_type,
-				"template_name": "Test Template",
+				"template_name": f"Test Template {unique_suffix}",
 				"version": "1.0",
 				"description": "Template de prueba",
 				"template_xml": template_xml,
-				"is_default": 1,
+				"is_default": 0,  # No por defecto para evitar conflictos
 			}
 		)
 		template.insert(ignore_permissions=True)
@@ -289,18 +294,18 @@ class AddendaTestBase(FrappeTestCase):
 	def assert_xml_valid(self, xml_content: str, message: str = "XML should be valid"):
 		"""Validar que el XML sea válido."""
 		try:
-			from lxml import etree
+			from facturacion_mexico.utils.secure_xml import secure_parse_xml
 
-			etree.fromstring(xml_content.encode("utf-8"))
+			secure_parse_xml(xml_content, parser_type="lxml")
 		except Exception as e:
 			self.fail(f"{message}: {e}")
 
 	def assert_xml_contains(self, xml_content: str, xpath: str, expected_value: str | None = None):
 		"""Validar que el XML contenga un xpath específico."""
 		try:
-			from lxml import etree
+			from facturacion_mexico.utils.secure_xml import secure_parse_xml
 
-			root = etree.fromstring(xml_content.encode("utf-8"))
+			root = secure_parse_xml(xml_content, parser_type="lxml")
 			elements = root.xpath(xpath)
 
 			self.assertTrue(len(elements) > 0, f"XPath '{xpath}' not found in XML")

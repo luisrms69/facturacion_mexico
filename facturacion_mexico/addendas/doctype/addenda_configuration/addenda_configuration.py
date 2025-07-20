@@ -3,11 +3,11 @@ Addenda Configuration DocType - Sprint 3
 Configuraciones de addenda por cliente y tipo
 """
 
-import json
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 import frappe
+import frappe.utils
 from frappe import _
 from frappe.model.document import Document
 
@@ -59,14 +59,28 @@ class AddendaConfiguration(Document):
 		if not other_config.get("effective_date") and not other_config.get("expiry_date"):
 			return True
 
-		# Convertir fechas
-		start1 = self.effective_date or datetime.min.date()
-		end1 = self.expiry_date or datetime.max.date()
-		start2 = other_config.get("effective_date") or datetime.min.date()
-		end2 = other_config.get("expiry_date") or datetime.max.date()
+		# Convertir fechas - manejar tanto objetos date como strings
+		start1 = self._parse_date(self.effective_date) or datetime.min.date()
+		end1 = self._parse_date(self.expiry_date) or datetime.max.date()
+		start2 = self._parse_date(other_config.get("effective_date")) or datetime.min.date()
+		end2 = self._parse_date(other_config.get("expiry_date")) or datetime.max.date()
 
 		# Verificar solapamiento
 		return start1 <= end2 and start2 <= end1
+
+	def _parse_date(self, date_value):
+		"""Convertir string o date a objeto date."""
+		if not date_value:
+			return None
+
+		if isinstance(date_value, str):
+			try:
+				return frappe.utils.getdate(date_value)
+			except Exception:
+				return None
+
+		# Ya es un objeto date o datetime
+		return date_value
 
 	def validate_date_range(self):
 		"""Validar que las fechas sean lógicas."""
@@ -221,12 +235,14 @@ class AddendaConfiguration(Document):
 			try:
 				context["customer"] = frappe.get_doc("Customer", invoice_doc.customer)
 			except Exception:
+				# Ignorar si no se puede obtener datos del cliente - usar contexto sin customer
 				pass
 
 			if invoice_doc.items:
 				try:
 					context["item"] = frappe.get_doc("Item", invoice_doc.items[0].item_code)
 				except Exception:
+					# Ignorar si no se puede obtener datos del primer item - usar contexto sin item
 					pass
 
 		else:

@@ -52,8 +52,10 @@ class AddendaType(Document):
 			return
 
 		try:
-			# Intentar parsear el XSD
-			etree.fromstring(self.xsd_schema.encode("utf-8"))
+			# Intentar parsear el XSD de forma segura
+			from facturacion_mexico.utils.secure_xml import secure_parse_xml
+
+			secure_parse_xml(self.xsd_schema, parser_type="lxml")
 		except etree.XMLSyntaxError as e:
 			frappe.throw(_("Esquema XSD inválido: {0}").format(str(e)))
 		except Exception as e:
@@ -65,8 +67,10 @@ class AddendaType(Document):
 			return
 
 		try:
-			# Intentar parsear el XML
-			ET.fromstring(self.sample_xml)
+			# Intentar parsear el XML de forma segura
+			from facturacion_mexico.utils.secure_xml import secure_parse_xml
+
+			secure_parse_xml(self.sample_xml, parser_type="etree")
 		except ET.ParseError as e:
 			frappe.throw(_("XML de ejemplo inválido: {0}").format(str(e)))
 		except Exception as e:

@@ -4,7 +4,6 @@ APIs principales para el sistema de addendas genéricas
 """
 
 import json
-from typing import Any, Optional
 
 import frappe
 from frappe import _

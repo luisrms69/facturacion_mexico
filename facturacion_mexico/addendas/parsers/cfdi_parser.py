@@ -10,6 +10,8 @@ import frappe
 from frappe import _
 from lxml import etree
 
+from facturacion_mexico.utils.secure_xml import secure_parse_xml, validate_xml_size
+
 
 class CFDIParser:
 	"""Parser para documentos CFDI 4.0."""
@@ -24,8 +26,11 @@ class CFDIParser:
 	def _parse_xml(self):
 		"""Parsear el XML y extraer namespaces."""
 		try:
-			# Usar lxml para mejor manejo de namespaces
-			self.root = etree.fromstring(self.xml_content.encode("utf-8"))
+			# Validar tamaño del XML
+			validate_xml_size(self.xml_content, max_size_mb=5)
+
+			# Usar parsing seguro para evitar XXE
+			self.root = secure_parse_xml(self.xml_content, parser_type="lxml")
 
 			# Extraer namespaces
 			self.namespaces = self.root.nsmap.copy()
@@ -68,7 +73,7 @@ class CFDIParser:
 		"""Insertar addenda en el CFDI."""
 		try:
 			# Parsear la addenda
-			addenda_element = etree.fromstring(addenda_xml.encode("utf-8"))
+			addenda_element = secure_parse_xml(addenda_xml, parser_type="lxml")
 
 			# Encontrar punto de inserción
 			parent, index = self.get_insert_point()

@@ -10,6 +10,8 @@ import frappe
 from frappe import _
 from lxml import etree
 
+from facturacion_mexico.utils.secure_xml import secure_parse_xml, validate_xml_size
+
 
 class XSDValidator:
 	"""Validador de XML contra esquemas XSD."""
@@ -31,7 +33,7 @@ class XSDValidator:
 		"""Parsear y compilar el esquema XSD."""
 		try:
 			# Parsear esquema XSD
-			schema_doc = etree.fromstring(self.xsd_schema.encode("utf-8"))
+			schema_doc = secure_parse_xml(self.xsd_schema, parser_type="lxml")
 			self.schema = etree.XMLSchema(schema_doc)
 
 		except etree.XMLSchemaParseError as e:
@@ -63,7 +65,7 @@ class XSDValidator:
 
 		try:
 			# Parsear XML
-			xml_doc = etree.fromstring(xml_content.encode("utf-8"))
+			xml_doc = secure_parse_xml(xml_content, parser_type="lxml")
 
 			# Validar contra esquema
 			is_valid = self.schema.validate(xml_doc)
@@ -145,7 +147,7 @@ class XSDValidator:
 
 		try:
 			# Información básica del esquema
-			schema_doc = etree.fromstring(self.xsd_schema.encode("utf-8"))
+			schema_doc = secure_parse_xml(self.xsd_schema, parser_type="lxml")
 
 			info = {
 				"valid": True,

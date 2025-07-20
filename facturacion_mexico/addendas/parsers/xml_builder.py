@@ -12,6 +12,8 @@ import frappe
 from frappe import _
 from lxml import etree
 
+from facturacion_mexico.utils.secure_xml import secure_parse_xml, validate_xml_size
+
 
 class AddendaXMLBuilder:
 	"""Constructor de XML para addendas usando templates dinámicos."""
@@ -423,15 +425,15 @@ class AddendaXMLBuilder:
 			if not self.xml_content or not self.xml_content.strip():
 				return  # Permitir templates vacíos
 
-			ET.fromstring(self.xml_content)
+			secure_parse_xml(self.xml_content, parser_type="etree")
 		except ET.ParseError as e:
 			frappe.throw(_("XML generado inválido: {0}").format(str(e)))
 
 	def _add_namespace_to_root(self):
 		"""Agregar namespace al elemento raíz."""
 		try:
-			# Parsear XML
-			root = ET.fromstring(self.xml_content)
+			# Parsear XML de forma segura
+			root = secure_parse_xml(self.xml_content, parser_type="etree")
 
 			# Agregar namespace al elemento raíz
 			root.set("xmlns", self.namespace)

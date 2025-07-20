@@ -27,8 +27,10 @@ class AddendaTemplate(Document):
 			frappe.throw(_("Template XML es requerido"))
 
 		try:
-			# Verificar que sea XML válido
-			etree.fromstring(self.template_xml.encode("utf-8"))
+			# Verificar que sea XML válido usando parsing seguro
+			from facturacion_mexico.utils.secure_xml import secure_parse_xml
+
+			secure_parse_xml(self.template_xml, parser_type="lxml")
 
 			# Verificar que tenga variables válidas
 			self.validate_template_variables()
