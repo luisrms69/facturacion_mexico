@@ -46,9 +46,7 @@ class TestAddendaIntegration(AddendaTestBase):
 		]
 
 		for fv in field_values:
-			field_value_row = config_doc.append("field_values")
-			for key, value in fv.items():
-				setattr(field_value_row, key, value)
+			config_doc.append("field_values", fv)
 
 		config_doc.save()
 

@@ -85,7 +85,11 @@ class AddendaConfiguration(Document):
 	def validate_date_range(self):
 		"""Validar que las fechas sean lógicas."""
 		if self.effective_date and self.expiry_date:
-			if self.effective_date > self.expiry_date:
+			# Convertir fechas para comparación
+			effective_date_obj = self._parse_date(self.effective_date)
+			expiry_date_obj = self._parse_date(self.expiry_date)
+
+			if effective_date_obj > expiry_date_obj:
 				frappe.throw(_("La fecha de inicio no puede ser posterior a la fecha de fin"))
 
 		# Establecer fecha de inicio por defecto si no existe
@@ -134,11 +138,14 @@ class AddendaConfiguration(Document):
 		if not check_date:
 			check_date = frappe.utils.today()
 
+		# Convertir check_date a date object si es string
+		check_date_obj = self._parse_date(check_date)
+
 		# Verificar rango de fechas
-		if self.effective_date and check_date < self.effective_date:
+		if self.effective_date and check_date_obj < self._parse_date(self.effective_date):
 			return False
 
-		if self.expiry_date and check_date > self.expiry_date:
+		if self.expiry_date and check_date_obj > self._parse_date(self.expiry_date):
 			return False
 
 		return True

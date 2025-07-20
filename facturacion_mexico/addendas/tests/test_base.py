@@ -86,9 +86,14 @@ class AddendaTestBase(FrappeTestCase):
 				item_group.insert(ignore_permissions=True)
 
 		# Crear UOM de prueba
-		if not frappe.db.exists("UOM", "Nos"):
-			uom = frappe.get_doc({"doctype": "UOM", "uom_name": "Nos", "must_be_whole_number": 1})
-			uom.insert(ignore_permissions=True)
+		uoms_to_create = ["Nos", "PCS", "Pcs"]
+		for uom_name in uoms_to_create:
+			if not frappe.db.exists("UOM", uom_name):
+				uom = frappe.get_doc({"doctype": "UOM", "uom_name": uom_name, "must_be_whole_number": 1})
+				uom.insert(ignore_permissions=True)
+
+		# Note: Keep cfdi_use field in Sales Invoice but don't try to create the DocType
+		# The field is required but we'll use a simple string value
 
 	@classmethod
 	def create_test_customer(cls):
@@ -108,6 +113,14 @@ class AddendaTestBase(FrappeTestCase):
 				existing_groups = frappe.get_all("Customer Group", filters={"is_group": 0}, limit=1)
 				customer_group = existing_groups[0].name if existing_groups else "All Customer Groups"
 
+			# Obtener compañía por defecto
+			company = frappe.defaults.get_user_default("Company") or frappe.get_all("Company", limit=1)
+			if company:
+				if isinstance(company, list):
+					company = company[0].name if company else "Test Company"
+			else:
+				company = "Test Company"
+
 			customer = frappe.get_doc(
 				{
 					"doctype": "Customer",
@@ -116,9 +129,12 @@ class AddendaTestBase(FrappeTestCase):
 					"customer_group": customer_group,
 					"territory": territory,
 					"tax_id": "TEST123456789",
+					"payment_terms": "",  # Evitar el error de payment_terms
+					"default_currency": frappe.get_cached_value("Company", company, "default_currency")
+					or "USD",
 				}
 			)
-			customer.insert(ignore_permissions=True)
+			customer.insert(ignore_permissions=True, ignore_links=True)
 		cls.test_customer = customer_name
 
 	@classmethod
@@ -227,10 +243,14 @@ class AddendaTestBase(FrappeTestCase):
 					}
 				],
 				"taxes_and_charges": "",
-				"cfdi_use": "G01",  # Uso CFDI requerido para México
 			}
 		)
-		invoice.insert(ignore_permissions=True)
+
+		# Add cfdi_use without validation if the field exists
+		if hasattr(invoice, "cfdi_use"):
+			invoice.cfdi_use = "G01"
+
+		invoice.insert(ignore_permissions=True, ignore_links=True)
 		return invoice.name
 
 	def create_test_addenda_configuration(
@@ -240,6 +260,19 @@ class AddendaTestBase(FrappeTestCase):
 		customer = customer or self.test_customer
 		addenda_type = addenda_type or self.test_addenda_types[0]
 
+		# Limpiar configuraciones existentes para evitar duplicados
+		existing_configs = frappe.get_all(
+			"Addenda Configuration",
+			filters={"customer": customer, "addenda_type": addenda_type},
+			pluck="name",
+		)
+		for config_name in existing_configs:
+			try:
+				frappe.delete_doc("Addenda Configuration", config_name, force=True, ignore_permissions=True)
+			except Exception:
+				pass
+
+		# Crear nueva configuración
 		config = frappe.get_doc(
 			{
 				"doctype": "Addenda Configuration",
@@ -332,15 +365,50 @@ class AddendaTestBase(FrappeTestCase):
 
 	def cleanup_test_data(self):
 		"""Limpiar datos de prueba."""
-		# Limpiar configuraciones de addenda de prueba
-		configs = frappe.get_all(
-			"Addenda Configuration", filters={"customer": ["like", "%Test%"]}, pluck="name"
-		)
-		for config in configs:
-			try:
-				frappe.delete_doc("Addenda Configuration", config, force=True, ignore_permissions=True)
-			except Exception:
-				pass
+		# Limpiar de forma más agresiva con transacción
+		try:
+			frappe.db.begin()
+
+			# Limpiar todas las configuraciones que podrían haberse creado en los tests
+			all_configs = frappe.get_all(
+				"Addenda Configuration",
+				filters=[
+					["customer", "like", "%Test%"],
+					["OR"],
+					["name", "like", "ADCFG-%"],
+				],
+				pluck="name",
+			)
+
+			for config in all_configs:
+				try:
+					frappe.delete_doc("Addenda Configuration", config, force=True, ignore_permissions=True)
+				except Exception:
+					pass
+
+			# Limpiar field definitions de test
+			test_fields = frappe.get_all(
+				"Addenda Field Definition", filters={"field_name": ["like", "%test%"]}, pluck="name"
+			)
+			for field in test_fields:
+				try:
+					frappe.delete_doc("Addenda Field Definition", field, force=True, ignore_permissions=True)
+				except Exception:
+					pass
+
+			# Limpiar field values relacionados
+			test_values = frappe.get_all(
+				"Addenda Field Value", filters={"dynamic_source": "Sales Invoice"}, pluck="name"
+			)
+			for value in test_values:
+				try:
+					frappe.delete_doc("Addenda Field Value", value, force=True, ignore_permissions=True)
+				except Exception:
+					pass
+
+			frappe.db.commit()
+		except Exception:
+			frappe.db.rollback()
 
 		# Limpiar templates de prueba
 		templates = frappe.get_all(
