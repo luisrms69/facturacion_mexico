@@ -1,0 +1,195 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:ADPM-{customer}-{item_code}-{##}",
+ "creation": "2025-07-20 00:25:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "mapping_info_section",
+  "customer",
+  "item",
+  "item_code",
+  "item_name",
+  "column_break_ktzm",
+  "customer_item_code",
+  "customer_item_description",
+  "customer_uom",
+  "is_active",
+  "mapping_details_section",
+  "additional_data",
+  "column_break_lqxw",
+  "mapping_notes",
+  "audit_section",
+  "created_by",
+  "created_date",
+  "column_break_prmz",
+  "modified_by",
+  "modified_date"
+ ],
+ "fields": [
+  {
+   "fieldname": "mapping_info_section",
+   "fieldtype": "Section Break",
+   "label": "Información del Mapeo"
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Cliente",
+   "options": "Customer",
+   "reqd": 1
+  },
+  {
+   "fieldname": "item",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Artículo",
+   "options": "Item",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "item.item_code",
+   "fieldname": "item_code",
+   "fieldtype": "Data",
+   "label": "Código Artículo",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "item.item_name",
+   "fieldname": "item_name",
+   "fieldtype": "Data",
+   "label": "Nombre Artículo",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_ktzm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "customer_item_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Código Cliente",
+   "reqd": 1
+  },
+  {
+   "fieldname": "customer_item_description",
+   "fieldtype": "Data",
+   "label": "Descripción Cliente"
+  },
+  {
+   "fieldname": "customer_uom",
+   "fieldtype": "Link",
+   "label": "UOM Cliente",
+   "options": "UOM"
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Activo"
+  },
+  {
+   "fieldname": "mapping_details_section",
+   "fieldtype": "Section Break",
+   "label": "Detalles del Mapeo"
+  },
+  {
+   "description": "Datos adicionales en formato JSON",
+   "fieldname": "additional_data",
+   "fieldtype": "Code",
+   "label": "Datos Adicionales",
+   "options": "JSON"
+  },
+  {
+   "fieldname": "column_break_lqxw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "mapping_notes",
+   "fieldtype": "Text",
+   "label": "Notas del Mapeo"
+  },
+  {
+   "fieldname": "audit_section",
+   "fieldtype": "Section Break",
+   "label": "Auditoría"
+  },
+  {
+   "fieldname": "created_by",
+   "fieldtype": "Link",
+   "label": "Creado Por",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "created_date",
+   "fieldtype": "Datetime",
+   "label": "Fecha de Creación",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_prmz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "modified_by",
+   "fieldtype": "Link",
+   "label": "Modificado Por",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "modified_date",
+   "fieldtype": "Datetime",
+   "label": "Fecha de Modificación",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-07-20 00:25:00.000000",
+ "modified_by": "Administrator",
+ "module": "Addendas",
+ "name": "Addenda Product Mapping",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Accounts User"
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "customer_item_code",
+ "track_changes": 1
+}

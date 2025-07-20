@@ -1,0 +1,190 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:name",
+ "creation": "2025-07-20 05:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "basic_information_section",
+  "name",
+  "description",
+  "version",
+  "namespace",
+  "column_break_basic",
+  "is_active",
+  "requires_product_mapping",
+  "documentation_url",
+  "configuration_section",
+  "sample_xml",
+  "xsd_schema",
+  "field_definitions_section",
+  "field_definitions",
+  "audit_section",
+  "creation_date",
+  "modified_date",
+  "created_by",
+  "modified_by"
+ ],
+ "fields": [
+  {
+   "fieldname": "basic_information_section",
+   "fieldtype": "Section Break",
+   "label": "Información Básica"
+  },
+  {
+   "fieldname": "name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Nombre del Tipo",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text",
+   "label": "Descripción"
+  },
+  {
+   "fieldname": "version",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Versión",
+   "reqd": 1
+  },
+  {
+   "fieldname": "namespace",
+   "fieldtype": "Data",
+   "label": "Namespace XML"
+  },
+  {
+   "fieldname": "column_break_basic",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Activo",
+   "default": 1
+  },
+  {
+   "fieldname": "requires_product_mapping",
+   "fieldtype": "Check",
+   "label": "Requiere Mapeo de Productos"
+  },
+  {
+   "fieldname": "documentation_url",
+   "fieldtype": "Data",
+   "label": "URL de Documentación"
+  },
+  {
+   "fieldname": "configuration_section",
+   "fieldtype": "Section Break",
+   "label": "Configuración XML"
+  },
+  {
+   "fieldname": "sample_xml",
+   "fieldtype": "Code",
+   "label": "XML de Ejemplo",
+   "options": "XML"
+  },
+  {
+   "fieldname": "xsd_schema",
+   "fieldtype": "Code",
+   "label": "Esquema XSD",
+   "options": "XML"
+  },
+  {
+   "fieldname": "field_definitions_section",
+   "fieldtype": "Section Break",
+   "label": "Definición de Campos"
+  },
+  {
+   "fieldname": "field_definitions",
+   "fieldtype": "Table",
+   "label": "Campos Disponibles",
+   "options": "Addenda Field Definition"
+  },
+  {
+   "fieldname": "audit_section",
+   "fieldtype": "Section Break",
+   "label": "Información de Auditoría",
+   "read_only": 1
+  },
+  {
+   "fieldname": "creation_date",
+   "fieldtype": "Datetime",
+   "label": "Fecha de Creación",
+   "read_only": 1
+  },
+  {
+   "fieldname": "modified_date",
+   "fieldtype": "Datetime",
+   "label": "Fecha de Modificación",
+   "read_only": 1
+  },
+  {
+   "fieldname": "created_by",
+   "fieldtype": "Link",
+   "label": "Creado por",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "modified_by",
+   "fieldtype": "Link",
+   "label": "Modificado por",
+   "options": "User",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-07-20 05:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Addendas",
+ "name": "Addenda Type",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts User",
+   "share": 1
+  }
+ ],
+ "search_fields": "description,version",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "description",
+ "track_changes": 1
+}

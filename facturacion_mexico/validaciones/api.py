@@ -11,6 +11,17 @@ import requests
 from frappe import _
 
 
+def bulk_validate_customers():
+	"""Validar clientes en lote - scheduled task."""
+	try:
+		frappe.logger().info("Ejecutando validación en lote de clientes...")
+		# TODO: Implementar lógica real cuando esté disponible
+		return {"status": "success", "message": "Validación completada (placeholder)"}
+	except Exception as e:
+		frappe.log_error(f"Error en validación de clientes: {e}")
+		return {"status": "error", "message": str(e)}
+
+
 @frappe.whitelist()
 def validate_rfc(rfc, use_cache=True):
 	"""

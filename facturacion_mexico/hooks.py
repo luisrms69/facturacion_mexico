@@ -190,11 +190,15 @@ fixtures = [
 
 doc_events = {
 	"Sales Invoice": {
-		"validate": "facturacion_mexico.facturacion_fiscal.hooks_handlers.sales_invoice_validate.validate_fiscal_data",
+		"validate": [
+			"facturacion_mexico.facturacion_fiscal.hooks_handlers.sales_invoice_validate.validate_fiscal_data",
+			"facturacion_mexico.hooks_handlers.sales_invoice_validate.sales_invoice_validate",
+		],
 		"before_submit": "facturacion_mexico.validaciones.hooks_handlers.sales_invoice_validate.validate_customer_lista_69b",
 		"on_submit": [
 			"facturacion_mexico.facturacion_fiscal.hooks_handlers.sales_invoice_submit.create_fiscal_event",
 			"facturacion_mexico.ereceipts.hooks_handlers.sales_invoice_submit.create_ereceipt_if_configured",
+			"facturacion_mexico.hooks_handlers.sales_invoice_submit.sales_invoice_on_submit",
 		],
 		"on_cancel": "facturacion_mexico.facturacion_fiscal.hooks_handlers.sales_invoice_cancel.handle_fiscal_cancellation",
 	},

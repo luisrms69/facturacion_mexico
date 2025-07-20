@@ -1,0 +1,115 @@
+{
+ "actions": [],
+ "creation": "2025-07-20 05:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "field_information_section",
+  "field_name",
+  "field_label",
+  "field_type",
+  "column_break_field_info",
+  "is_mandatory",
+  "default_value",
+  "validation_section",
+  "options",
+  "validation_pattern",
+  "help_text",
+  "xml_mapping_section",
+  "xml_attribute",
+  "xml_element"
+ ],
+ "fields": [
+  {
+   "fieldname": "field_information_section",
+   "fieldtype": "Section Break",
+   "label": "Información del Campo"
+  },
+  {
+   "fieldname": "field_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Nombre Interno",
+   "reqd": 1
+  },
+  {
+   "fieldname": "field_label",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Etiqueta Visible",
+   "reqd": 1
+  },
+  {
+   "fieldname": "field_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Tipo de Campo",
+   "options": "Data\nInt\nFloat\nDate\nDatetime\nSelect\nLink\nCheck\nText\nCurrency",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_field_info",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "is_mandatory",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Obligatorio"
+  },
+  {
+   "fieldname": "default_value",
+   "fieldtype": "Data",
+   "label": "Valor por Defecto"
+  },
+  {
+   "fieldname": "validation_section",
+   "fieldtype": "Section Break",
+   "label": "Validación"
+  },
+  {
+   "fieldname": "options",
+   "fieldtype": "Small Text",
+   "label": "Opciones (para Select)",
+   "description": "Una opción por línea"
+  },
+  {
+   "fieldname": "validation_pattern",
+   "fieldtype": "Data",
+   "label": "Patrón de Validación (Regex)"
+  },
+  {
+   "fieldname": "help_text",
+   "fieldtype": "Text",
+   "label": "Texto de Ayuda"
+  },
+  {
+   "fieldname": "xml_mapping_section",
+   "fieldtype": "Section Break",
+   "label": "Mapeo XML"
+  },
+  {
+   "fieldname": "xml_attribute",
+   "fieldtype": "Data",
+   "label": "Nombre del Atributo XML"
+  },
+  {
+   "fieldname": "xml_element",
+   "fieldtype": "Data",
+   "label": "Nombre del Elemento XML"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-07-20 05:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Addendas",
+ "name": "Addenda Field Definition",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "field_name",
+ "sort_order": "ASC",
+ "states": [],
+ "track_changes": 1
+}
