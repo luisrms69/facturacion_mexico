@@ -1,0 +1,177 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:ADTPL-{addenda_type}-{##}",
+ "creation": "2025-07-20 00:20:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "basic_info_section",
+  "name1",
+  "addenda_type",
+  "template_name",
+  "column_break_rwlf",
+  "version",
+  "description",
+  "is_default",
+  "section_break_ewma",
+  "template_xml",
+  "column_break_yhrm",
+  "usage_notes",
+  "audit_section",
+  "created_by",
+  "created_date",
+  "column_break_xmbu",
+  "modified_by",
+  "modified_date"
+ ],
+ "fields": [
+  {
+   "fieldname": "basic_info_section",
+   "fieldtype": "Section Break",
+   "label": "Información Básica"
+  },
+  {
+   "fieldname": "name1",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Name"
+  },
+  {
+   "fieldname": "addenda_type",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Tipo de Addenda",
+   "options": "Addenda Type",
+   "reqd": 1
+  },
+  {
+   "fieldname": "template_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Nombre del Template",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_rwlf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "version",
+   "fieldtype": "Data",
+   "label": "Versión",
+   "reqd": 1
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Descripción"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_default",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Es Template Por Defecto"
+  },
+  {
+   "fieldname": "section_break_ewma",
+   "fieldtype": "Section Break",
+   "label": "Template XML"
+  },
+  {
+   "fieldname": "template_xml",
+   "fieldtype": "Code",
+   "label": "Template XML",
+   "options": "XML",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_yhrm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "usage_notes",
+   "fieldtype": "Text Editor",
+   "label": "Notas de Uso"
+  },
+  {
+   "fieldname": "audit_section",
+   "fieldtype": "Section Break",
+   "label": "Auditoría"
+  },
+  {
+   "fieldname": "created_by",
+   "fieldtype": "Link",
+   "label": "Creado Por",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "created_date",
+   "fieldtype": "Datetime",
+   "label": "Fecha de Creación",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_xmbu",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "modified_by",
+   "fieldtype": "Link",
+   "label": "Modificado Por",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "modified_date",
+   "fieldtype": "Datetime",
+   "label": "Fecha de Modificación",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-07-20 00:20:00.000000",
+ "modified_by": "Administrator",
+ "module": "Facturacion Mexico",
+ "name": "Addenda Template",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Accounts User"
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "template_name",
+ "track_changes": 1
+}
