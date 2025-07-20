@@ -1,0 +1,205 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2025-07-20 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "section_general",
+  "naming_series",
+  "sales_invoice",
+  "payment_entry",
+  "payment_date",
+  "column_break_1",
+  "parcialidad_number",
+  "amount_paid",
+  "balance_before",
+  "balance_after",
+  "section_validaciones",
+  "is_retroactive",
+  "sequence_warning",
+  "column_break_2",
+  "validation_date",
+  "validated_by",
+  "section_referencias",
+  "complemento_pago_mx",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_general",
+   "fieldtype": "Section Break",
+   "label": "Información General"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Serie de Nomenclatura",
+   "options": "PAY-TRACK-.YYYY.-",
+   "reqd": 1
+  },
+  {
+   "fieldname": "sales_invoice",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Sales Invoice",
+   "options": "Sales Invoice",
+   "reqd": 1
+  },
+  {
+   "fieldname": "payment_entry",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Payment Entry",
+   "options": "Payment Entry",
+   "reqd": 1
+  },
+  {
+   "fieldname": "payment_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Fecha del Pago",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "parcialidad_number",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Número de Parcialidad",
+   "reqd": 1
+  },
+  {
+   "fieldname": "amount_paid",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Monto Pagado",
+   "reqd": 1
+  },
+  {
+   "fieldname": "balance_before",
+   "fieldtype": "Currency",
+   "label": "Saldo Anterior",
+   "reqd": 1
+  },
+  {
+   "fieldname": "balance_after",
+   "fieldtype": "Currency",
+   "label": "Saldo Posterior",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_validaciones",
+   "fieldtype": "Section Break",
+   "label": "Validaciones"
+  },
+  {
+   "fieldname": "is_retroactive",
+   "fieldtype": "Check",
+   "label": "Pago Retroactivo"
+  },
+  {
+   "fieldname": "sequence_warning",
+   "fieldtype": "Small Text",
+   "label": "Advertencia de Secuencia",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "validation_date",
+   "fieldtype": "Datetime",
+   "label": "Fecha de Validación",
+   "read_only": 1
+  },
+  {
+   "fieldname": "validated_by",
+   "fieldtype": "Link",
+   "label": "Validado Por",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_referencias",
+   "fieldtype": "Section Break",
+   "label": "Referencias"
+  },
+  {
+   "fieldname": "complemento_pago_mx",
+   "fieldtype": "Link",
+   "label": "Complemento Pago MX",
+   "options": "Complemento Pago MX",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Payment Tracking MX",
+   "print_hide": 1,
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-07-20 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Complementos Pago",
+ "name": "Payment Tracking MX",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts User",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "sales_invoice",
+ "track_changes": 1
+}

@@ -1,5 +1,7 @@
 Facturacion Fiscal
 Catalogos SAT
+Complementos Pago
+EReceipts
 Addendas
 Validaciones
 Integracion

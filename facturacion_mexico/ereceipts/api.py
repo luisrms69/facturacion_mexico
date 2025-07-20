@@ -1,0 +1,253 @@
+"""
+APIs para EReceipts México - Sprint 2
+Sistema de recibos electrónicos con autofacturación
+"""
+
+import calendar
+from datetime import datetime, timedelta
+
+import frappe
+from frappe import _
+
+
+@frappe.whitelist()
+def crear_ereceipt(sales_invoice_name):
+	"""Crea E-Receipt desde Sales Invoice."""
+	try:
+		# Validar que no exista e-receipt previo
+		existing = frappe.db.exists("EReceipt MX", {"sales_invoice": sales_invoice_name})
+		if existing:
+			frappe.throw(_("Ya existe un E-Receipt para esta factura: {0}").format(existing))
+
+		sales_invoice = frappe.get_doc("Sales Invoice", sales_invoice_name)
+
+		# Validar que no tenga factura fiscal
+		if sales_invoice.get("factura_fiscal_mx"):
+			frappe.throw(_("Esta factura ya tiene factura fiscal asociada"))
+
+		# Crear E-Receipt
+		ereceipt = frappe.new_doc("EReceipt MX")
+		ereceipt.sales_invoice = sales_invoice_name
+		ereceipt.company = sales_invoice.company
+		ereceipt.total = sales_invoice.grand_total
+		ereceipt.date_issued = frappe.utils.today()
+
+		# Calcular fecha de vencimiento según configuración
+		_calcular_fecha_vencimiento(ereceipt)
+
+		ereceipt.insert()
+
+		# Generar en FacturAPI si está configurado
+		if frappe.db.get_single_value("Facturacion Mexico Settings", "enable_ereceipts"):
+			_generar_facturapi_ereceipt(ereceipt)
+
+		return {
+			"success": True,
+			"ereceipt_name": ereceipt.name,
+			"message": _("E-Receipt creado exitosamente"),
+		}
+
+	except Exception as e:
+		frappe.log_error(message=str(e), title="Error creando E-Receipt")
+		return {"success": False, "message": str(e)}
+
+
+@frappe.whitelist()
+def get_ereceipt_status(ereceipt_name):
+	"""Consulta status de E-Receipt."""
+	try:
+		ereceipt = frappe.get_doc("EReceipt MX", ereceipt_name)
+
+		# Verificar si ha expirado
+		if ereceipt.status == "open" and ereceipt.expiry_date < frappe.utils.today():
+			ereceipt.status = "expired"
+			ereceipt.save()
+
+		return {
+			"success": True,
+			"status": ereceipt.status,
+			"expiry_date": ereceipt.expiry_date,
+			"self_invoice_url": ereceipt.get("self_invoice_url"),
+			"facturapi_id": ereceipt.get("facturapi_id"),
+		}
+
+	except Exception as e:
+		frappe.log_error(message=str(e), title="Error consultando E-Receipt")
+		return {"success": False, "message": str(e)}
+
+
+@frappe.whitelist()
+def expire_ereceipts():
+	"""Marca E-Receipts expirados (llamada por scheduler)."""
+	try:
+		today = frappe.utils.today()
+
+		frappe.db.sql(
+			"""
+			UPDATE `tabEReceipt MX`
+			SET status = 'expired'
+			WHERE status = 'open'
+			AND expiry_date < %s
+		""",
+			(today,),
+		)
+
+		frappe.db.commit()
+
+		count = frappe.db.sql(
+			"""
+			SELECT COUNT(*) as count
+			FROM `tabEReceipt MX`
+			WHERE status = 'expired'
+			AND DATE(modified) = %s
+		""",
+			(today,),
+		)[0][0]
+
+		return {
+			"success": True,
+			"expired_count": count,
+			"message": _("E-Receipts expirados procesados: {0}").format(count),
+		}
+
+	except Exception as e:
+		frappe.log_error(message=str(e), title="Error expirando E-Receipts")
+		return {"success": False, "message": str(e)}
+
+
+@frappe.whitelist()
+def get_ereceipts_for_global_invoice(date_from, date_to, customer=None):
+	"""Obtiene E-Receipts para factura global."""
+	try:
+		filters = {
+			"status": "open",
+			"date_issued": ["between", [date_from, date_to]],
+			"included_in_global": 0,
+		}
+
+		if customer:
+			# Obtener invoices del customer
+			customer_invoices = frappe.db.get_list(
+				"Sales Invoice", filters={"customer": customer}, pluck="name"
+			)
+			filters["sales_invoice"] = ["in", customer_invoices]
+
+		ereceipts = frappe.db.get_list(
+			"EReceipt MX",
+			filters=filters,
+			fields=["name", "sales_invoice", "total", "date_issued", "expiry_date", "key"],
+		)
+
+		return {"success": True, "ereceipts": ereceipts, "count": len(ereceipts)}
+
+	except Exception as e:
+		frappe.log_error(message=str(e), title="Error obteniendo E-Receipts para global")
+		return {"success": False, "message": str(e)}
+
+
+@frappe.whitelist()
+def invoice_ereceipt(ereceipt_name, customer_data):
+	"""Convierte E-Receipt a factura."""
+	try:
+		ereceipt = frappe.get_doc("EReceipt MX", ereceipt_name)
+
+		if ereceipt.status != "open":
+			frappe.throw(_("Solo se pueden facturar E-Receipts abiertos"))
+
+		# Crear nueva Sales Invoice con datos del customer
+		sales_invoice = frappe.copy_doc(frappe.get_doc("Sales Invoice", ereceipt.sales_invoice))
+
+		# Actualizar datos del customer
+		sales_invoice.customer = customer_data.get("customer")
+		sales_invoice.customer_name = customer_data.get("customer_name")
+
+		# Limpiar campos fiscales para nuevo timbrado
+		sales_invoice.fiscal_status = "Pendiente"
+		sales_invoice.uuid_fiscal = None
+		sales_invoice.factura_fiscal_mx = None
+
+		sales_invoice.insert()
+
+		# Marcar E-Receipt como facturado
+		ereceipt.status = "invoiced"
+		ereceipt.related_factura_fiscal = sales_invoice.name
+		ereceipt.save()
+
+		return {
+			"success": True,
+			"sales_invoice": sales_invoice.name,
+			"message": _("E-Receipt convertido a factura exitosamente"),
+		}
+
+	except Exception as e:
+		frappe.log_error(message=str(e), title="Error convirtiendo E-Receipt")
+		return {"success": False, "message": str(e)}
+
+
+def _calcular_fecha_vencimiento(ereceipt):
+	"""Calcula fecha de vencimiento según configuración."""
+	settings = frappe.get_single("Facturacion Mexico Settings")
+
+	expiry_type = ereceipt.get("expiry_type") or settings.get("default_expiry_type", "Fixed Days")
+
+	if expiry_type == "Fixed Days":
+		days = ereceipt.get("expiry_days") or settings.get("default_expiry_days", 3)
+		ereceipt.expiry_date = frappe.utils.add_days(ereceipt.date_issued, days)
+
+	elif expiry_type == "End of Month":
+		# Último día del mes actual
+		year = datetime.now().year
+		month = datetime.now().month
+		last_day = calendar.monthrange(year, month)[1]
+		ereceipt.expiry_date = datetime(year, month, last_day).date()
+
+	elif expiry_type == "Custom Date":
+		# Se debe proporcionar expiry_date manualmente
+		if not ereceipt.get("expiry_date"):
+			ereceipt.expiry_date = frappe.utils.add_days(ereceipt.date_issued, 3)
+
+
+def _generar_facturapi_ereceipt(ereceipt):
+	"""Genera E-Receipt en FacturAPI."""
+	try:
+		from facturacion_mexico.facturacion_fiscal.api_client import FacturapiClient
+
+		client = FacturapiClient()
+		sales_invoice = frappe.get_doc("Sales Invoice", ereceipt.sales_invoice)
+
+		receipt_data = {
+			"type": "receipt",
+			"customer": {"legal_name": sales_invoice.customer_name, "email": sales_invoice.contact_email},
+			"items": [],
+			"payment_form": "28",  # Tarjeta de crédito por defecto para e-receipts
+			"folio_number": ereceipt.name,
+			"expires_at": ereceipt.expiry_date.isoformat(),
+		}
+
+		# Agregar items
+		for item in sales_invoice.items:
+			receipt_data["items"].append(
+				{
+					"quantity": item.qty,
+					"product": {
+						"description": item.item_name,
+						"product_key": "01010101",  # Genérico
+						"price": item.rate,
+						"unit_key": "H87",  # Pieza
+						"unit_name": "Pieza",
+						"sku": item.item_code,
+					},
+				}
+			)
+
+		# Crear en FacturAPI
+		response = client.create_receipt(receipt_data)
+
+		if response.get("success"):
+			ereceipt.facturapi_id = response["data"]["id"]
+			ereceipt.key = response["data"]["key"]
+			ereceipt.self_invoice_url = response["data"]["self_invoice_url"]
+			ereceipt.save()
+
+	except Exception as e:
+		frappe.log_error(message=str(e), title="Error generando E-Receipt en FacturAPI")
