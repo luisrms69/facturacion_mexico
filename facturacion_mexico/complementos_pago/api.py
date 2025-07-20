@@ -6,6 +6,28 @@ from frappe import _
 from frappe.utils.file_manager import save_file
 
 
+def process_pending_complements():
+	"""Procesar complementos de pago pendientes - scheduled task."""
+	try:
+		frappe.logger().info("Ejecutando proceso de complementos pendientes...")
+		# TODO: Implementar lógica real cuando esté disponible
+		return {"status": "success", "message": "Proceso completado (placeholder)"}
+	except Exception as e:
+		frappe.log_error(f"Error procesando complementos pendientes: {e}")
+		return {"status": "error", "message": str(e)}
+
+
+def reconcile_payment_tracking():
+	"""Reconciliar seguimiento de pagos - scheduled task."""
+	try:
+		frappe.logger().info("Ejecutando reconciliación de seguimiento de pagos...")
+		# TODO: Implementar lógica real cuando esté disponible
+		return {"status": "success", "message": "Reconciliación completada (placeholder)"}
+	except Exception as e:
+		frappe.log_error(f"Error en reconciliación de pagos: {e}")
+		return {"status": "error", "message": str(e)}
+
+
 @frappe.whitelist()
 def crear_complemento_desde_payment_entry(payment_entry_name):
 	"""

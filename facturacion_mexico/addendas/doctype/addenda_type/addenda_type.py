@@ -108,7 +108,7 @@ class AddendaType(Document):
 
 		existing = frappe.db.get_value(
 			"Addenda Type",
-			{"name": self.name, "version": self.version, "name": ["!=", self.name or ""]},
+			{"version": self.version, "name": ["!=", self.name or ""]},
 			"name",
 		)
 

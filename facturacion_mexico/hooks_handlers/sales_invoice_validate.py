@@ -32,7 +32,7 @@ def sales_invoice_validate(doc, method):
 	except Exception as e:
 		# Log del error sin interrumpir el flujo principal
 		frappe.log_error(
-			f"Error en validación de addenda para {doc.name}: {str(e)}", "Sales Invoice Addenda Validation"
+			f"Error en validación de addenda para {doc.name}: {e!s}", "Sales Invoice Addenda Validation"
 		)
 
 
@@ -62,7 +62,7 @@ def check_addenda_requirements(doc):
 			doc.fm_addenda_status = ""
 
 	except Exception as e:
-		frappe.log_error(f"Error verificando requerimientos de addenda: {str(e)}")
+		frappe.log_error(f"Error verificando requerimientos de addenda: {e!s}")
 
 
 def validate_addenda_configuration(doc):
@@ -104,7 +104,7 @@ def validate_addenda_configuration(doc):
 			validate_addenda_fields_warning(doc, config)
 
 	except Exception as e:
-		frappe.log_error(f"Error validando configuración de addenda: {str(e)}")
+		frappe.log_error(f"Error validando configuración de addenda: {e!s}")
 
 
 def validate_addenda_fields_strict(doc, config):
@@ -154,10 +154,10 @@ def validate_field_values(field_values: dict, doc) -> list:
 				errors.extend(field_errors)
 
 			except Exception as e:
-				errors.append(f"Error validando campo {field_name}: {str(e)}")
+				errors.append(f"Error validando campo {field_name}: {e!s}")
 
 	except Exception as e:
-		errors.append(f"Error general en validación de campos: {str(e)}")
+		errors.append(f"Error general en validación de campos: {e!s}")
 
 	return errors
 
@@ -186,7 +186,7 @@ def validate_individual_field(field_name: str, field_config: dict, context_data:
 				errors.append(f"Campo requerido {field_name} está vacío")
 
 	except Exception as e:
-		errors.append(f"Error en validación individual de {field_name}: {str(e)}")
+		errors.append(f"Error en validación individual de {field_name}: {e!s}")
 
 	return errors
 
@@ -226,7 +226,7 @@ def validate_product_mappings(doc):
 			)
 
 	except Exception as e:
-		frappe.log_error(f"Error validando mapeo de productos: {str(e)}")
+		frappe.log_error(f"Error validando mapeo de productos: {e!s}")
 
 
 def validate_cfdi_compatibility(doc):
@@ -249,7 +249,7 @@ def validate_cfdi_compatibility(doc):
 			)
 
 	except Exception as e:
-		frappe.log_error(f"Error validando compatibilidad CFDI: {str(e)}")
+		frappe.log_error(f"Error validando compatibilidad CFDI: {e!s}")
 
 
 def pre_validate_addenda_requirements(doc):
@@ -275,7 +275,7 @@ def pre_validate_addenda_requirements(doc):
 				frappe.msgprint(_("Generando addenda automáticamente..."), indicator="blue")
 
 	except Exception as e:
-		frappe.log_error(f"Error en pre-validación de addenda: {str(e)}")
+		frappe.log_error(f"Error en pre-validación de addenda: {e!s}")
 
 
 # Funciones de utilidad
@@ -313,7 +313,7 @@ def get_addenda_context_data(doc) -> dict:
 			parser = CFDIParser(doc.fm_cfdi_xml)
 			context["cfdi_data"] = parser.get_cfdi_data()
 		except Exception as e:
-			frappe.log_error(f"Error obteniendo datos CFDI: {str(e)}")
+			frappe.log_error(f"Error obteniendo datos CFDI: {e!s}")
 
 	return context
 
@@ -353,4 +353,4 @@ def notify_addenda_errors(doc, errors: list):
 		frappe.sendmail(recipients=recipients, subject=subject, message=message)
 
 	except Exception as e:
-		frappe.log_error(f"Error enviando notificación de addenda: {str(e)}")
+		frappe.log_error(f"Error enviando notificación de addenda: {e!s}")

@@ -4,7 +4,7 @@ Validador de XML contra esquemas XSD para addendas
 """
 
 import io
-from typing import List, Optional, Tuple
+from typing import Optional
 
 import frappe
 from frappe import _
@@ -35,13 +35,13 @@ class XSDValidator:
 			self.schema = etree.XMLSchema(schema_doc)
 
 		except etree.XMLSchemaParseError as e:
-			self.errors.append(f"Error en esquema XSD: {str(e)}")
+			self.errors.append(f"Error en esquema XSD: {e!s}")
 			self.schema = None
 		except etree.XMLSyntaxError as e:
-			self.errors.append(f"XML sintácticamente incorrecto en esquema: {str(e)}")
+			self.errors.append(f"XML sintácticamente incorrecto en esquema: {e!s}")
 			self.schema = None
 		except Exception as e:
-			self.errors.append(f"Error inesperado parseando esquema: {str(e)}")
+			self.errors.append(f"Error inesperado parseando esquema: {e!s}")
 			self.schema = None
 
 	def validate(self, xml_content: str) -> bool:
@@ -76,13 +76,13 @@ class XSDValidator:
 			return is_valid
 
 		except etree.XMLSyntaxError as e:
-			self.errors.append(f"XML sintácticamente incorrecto: {str(e)}")
+			self.errors.append(f"XML sintácticamente incorrecto: {e!s}")
 			return False
 		except Exception as e:
-			self.errors.append(f"Error durante validación: {str(e)}")
+			self.errors.append(f"Error durante validación: {e!s}")
 			return False
 
-	def validate_with_details(self, xml_content: str) -> Tuple[bool, List[str], List[str]]:
+	def validate_with_details(self, xml_content: str) -> tuple[bool, list[str], list[str]]:
 		"""
 		Validar XML y retornar detalles completos.
 
@@ -95,11 +95,11 @@ class XSDValidator:
 		is_valid = self.validate(xml_content)
 		return is_valid, self.errors.copy(), self.warnings.copy()
 
-	def get_errors(self) -> List[str]:
+	def get_errors(self) -> list[str]:
 		"""Obtener lista de errores de la última validación."""
 		return self.errors.copy()
 
-	def get_warnings(self) -> List[str]:
+	def get_warnings(self) -> list[str]:
 		"""Obtener lista de advertencias de la última validación."""
 		return self.warnings.copy()
 
@@ -110,7 +110,7 @@ class XSDValidator:
 
 		return "; ".join(self.errors)
 
-	def validate_multiple_files(self, xml_files: List[str]) -> List[dict]:
+	def validate_multiple_files(self, xml_files: list[str]) -> list[dict]:
 		"""
 		Validar múltiples archivos XML.
 
@@ -193,9 +193,9 @@ class XSDValidator:
 			return info
 
 		except Exception as e:
-			return {"valid": False, "error": f"Error extrayendo información: {str(e)}"}
+			return {"valid": False, "error": f"Error extrayendo información: {e!s}"}
 
-	def suggest_fixes(self, xml_content: str) -> List[str]:
+	def suggest_fixes(self, xml_content: str) -> list[str]:
 		"""
 		Sugerir correcciones para errores de validación.
 
@@ -215,27 +215,43 @@ class XSDValidator:
 
 		return suggestions
 
-	def _analyze_error_and_suggest(self, error: str) -> Optional[str]:
+	def _analyze_error_and_suggest(self, error: str) -> str | None:
 		"""Analizar error y sugerir corrección."""
 		error_lower = error.lower()
 
-		# Errores comunes y sugerencias
+		# Errores comunes y sugerencias basados en los mensajes reales de lxml
+		if "is not a valid value of the atomic type" in error_lower:
+			if "xs:date" in error_lower:
+				return "Corregir formato de fecha. Use formato ISO: YYYY-MM-DD (ej: 2025-07-20)"
+			elif "xs:decimal" in error_lower or "xs:number" in error_lower:
+				return "Corregir formato numérico. Use formato decimal (ej: 1000.00)"
+			elif "xs:int" in error_lower or "xs:integer" in error_lower:
+				return "Corregir formato de número entero (ej: 123)"
+			else:
+				return "Verificar que el valor cumple con las restricciones del tipo de dato"
+
+		if "missing child element" in error_lower and "expected is" in error_lower:
+			# Extraer el elemento faltante del mensaje
+			import re
+
+			match = re.search(r"Expected is.*?\{[^}]*\}([^)]*)", error)
+			if match:
+				missing_element = match.group(1).strip()
+				return f"Agregar elemento obligatorio faltante: <{missing_element}>"
+			else:
+				return "Agregar elementos obligatorios que faltan según el esquema"
+
 		if "element" in error_lower and "not expected" in error_lower:
 			return "Verificar que todos los elementos estén en el orden correcto según el esquema"
-
-		if "missing" in error_lower and "required" in error_lower:
-			return "Agregar elementos o atributos obligatorios que faltan"
-
-		if "invalid value" in error_lower:
-			return "Verificar que los valores cumplan con las restricciones del esquema (tipo, formato, longitud)"
 
 		if "namespace" in error_lower:
 			return "Verificar que los namespaces estén declarados correctamente"
 
-		if "type" in error_lower and "expected" in error_lower:
-			return "Verificar que el tipo de dato sea correcto (string, number, date, etc.)"
+		if "attribute" in error_lower and ("required" in error_lower or "missing" in error_lower):
+			return "Agregar atributos obligatorios que faltan"
 
-		return None
+		# Fallback genérico
+		return "Revisar la estructura del XML contra el esquema XSD"
 
 	def create_validation_report(self, xml_content: str, include_schema_info: bool = False) -> dict:
 		"""
@@ -284,7 +300,7 @@ class XSDValidator:
 			return {
 				"timestamp": frappe.utils.now(),
 				"is_valid": False,
-				"errors": [f"Error durante validación: {str(e)}"],
+				"errors": [f"Error durante validación: {e!s}"],
 				"warnings": [],
 				"error_count": 1,
 				"warning_count": 0,
@@ -295,7 +311,7 @@ class XSDValidator:
 		"""Verificar si el esquema XSD es válido."""
 		return self.schema is not None
 
-	def get_schema_validation_errors(self) -> List[str]:
+	def get_schema_validation_errors(self) -> list[str]:
 		"""Obtener errores de validación del esquema."""
 		return self.errors if not self.schema else []
 
@@ -344,7 +360,7 @@ def validate_addenda_xml(xml_content: str, addenda_type: str) -> dict:
 			"warnings": [],
 		}
 	except Exception as e:
-		frappe.log_error(f"Error validando addenda XML: {str(e)}")
+		frappe.log_error(f"Error validando addenda XML: {e!s}")
 		return {
 			"is_valid": False,
 			"message": _("Error durante validación: {0}").format(str(e)),
@@ -368,5 +384,5 @@ def validate_xml_against_schema(xml_content, xsd_content):
 	try:
 		return XSDValidator.validate_xml_against_xsd(xml_content, xsd_content)
 	except Exception as e:
-		frappe.log_error(f"Error en API de validación XSD: {str(e)}")
+		frappe.log_error(f"Error en API de validación XSD: {e!s}")
 		return {"is_valid": False, "errors": [str(e)], "warnings": [], "error_count": 1, "warning_count": 0}

@@ -1,0 +1,38 @@
+[
+	{
+		"doctype": "Addenda Template",
+		"name": "Generic-Default",
+		"addenda_type": "Generic",
+		"template_name": "Template Genérico por Defecto",
+		"version": "1.0",
+		"description": "Template por defecto para addendas genéricas. Incluye información básica del CFDI y conceptos.",
+		"template_xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<addenda xmlns=\"http://addenda.facturacion.mx/generic\">\n\t<informacionGeneral>\n\t\t<fechaEmision>{{ cfdi_fecha }}</fechaEmision>\n\t\t<folioFiscal>{{ cfdi_uuid }}</folioFiscal>\n\t\t<montoTotal>{{ cfdi_total }}</montoTotal>\n\t</informacionGeneral>\n\t<proveedor>\n\t\t<rfc>{{ emisor_rfc }}</rfc>\n\t\t<razonSocial>{{ emisor_nombre }}</razonSocial>\n\t</proveedor>\n\t<cliente>\n\t\t<rfc>{{ receptor_rfc }}</rfc>\n\t\t<razonSocial>{{ receptor_nombre }}</razonSocial>\n\t</cliente>\n\t<conceptos>\n\t\t{% for concepto in conceptos %}\n\t\t<concepto>\n\t\t\t<descripcion>{{ concepto.descripcion }}</descripcion>\n\t\t\t<cantidad>{{ concepto.cantidad }}</cantidad>\n\t\t\t<valorUnitario>{{ concepto.valor_unitario }}</valorUnitario>\n\t\t\t<importe>{{ concepto.importe }}</importe>\n\t\t</concepto>\n\t\t{% endfor %}\n\t</conceptos>\n</addenda>",
+		"is_default": 1,
+		"created_by": "Administrator",
+		"modified_by": "Administrator"
+	},
+	{
+		"doctype": "Addenda Template",
+		"name": "Liverpool-Default",
+		"addenda_type": "Liverpool",
+		"template_name": "Template Liverpool por Defecto",
+		"version": "2.1",
+		"description": "Template por defecto para addendas de Liverpool. Cumple con especificaciones EDI de Liverpool versión 2.1.",
+		"template_xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<addenda xmlns=\"http://addenda.facturacion.mx/liverpool\">\n\t<requestForPayment>\n\t\t<requestForPaymentIdentification>\n\t\t\t<entityType>{{ entityType }}</entityType>\n\t\t\t<uniqueCreatorIdentification>{{ uniqueCreatorIdentification }}</uniqueCreatorIdentification>\n\t\t\t<referenceCoded>{{ referenceCoded }}</referenceCoded>\n\t\t</requestForPaymentIdentification>\n\t\t<orderReference>\n\t\t\t<referenceDate>{{ cfdi_fecha }}</referenceDate>\n\t\t\t<description>{{ descripcion_orden }}</description>\n\t\t</orderReference>\n\t\t<buyer>\n\t\t\t<gln>{{ buyerGln }}</gln>\n\t\t\t<contactInformation>\n\t\t\t\t<personOrDepartmentName>\n\t\t\t\t\t<text>{{ receptor_nombre }}</text>\n\t\t\t\t</personOrDepartmentName>\n\t\t\t</contactInformation>\n\t\t</buyer>\n\t\t<seller>\n\t\t\t<gln>{{ sellerGln }}</gln>\n\t\t\t<alternatePartyIdentification>\n\t\t\t\t<type>SELLER_ASSIGNED_IDENTIFIER_FOR_A_PARTY</type>\n\t\t\t\t<value>{{ sellerAlternateId }}</value>\n\t\t\t</alternatePartyIdentification>\n\t\t</seller>\n\t\t<shipTo>\n\t\t\t<gln>{{ shipToGln }}</gln>\n\t\t\t<nameAndAddress>\n\t\t\t\t<name>{{ shipToName }}</name>\n\t\t\t\t<streetAddressOne>{{ shipToAddress }}</streetAddressOne>\n\t\t\t\t<city>{{ shipToCity }}</city>\n\t\t\t\t<postalCode>{{ shipToPostalCode }}</postalCode>\n\t\t\t</nameAndAddress>\n\t\t</shipTo>\n\t\t<currency>\n\t\t\t<currencyISOCode>{{ currencyCode }}</currencyISOCode>\n\t\t</currency>\n\t\t<paymentTerms>\n\t\t\t<paymentTermsEvent>{{ paymentTermsEvent }}</paymentTermsEvent>\n\t\t\t<paymentTermsRelationTime>{{ paymentTermsRelationTime }}</paymentTermsRelationTime>\n\t\t</paymentTerms>\n\t\t{% for concepto in conceptos %}\n\t\t<lineItem>\n\t\t\t<lineNumber>{{ loop.index }}</lineNumber>\n\t\t\t<tradeItemIdentification>\n\t\t\t\t<gtin>{{ concepto.gtin | default('0000000000000') }}</gtin>\n\t\t\t</tradeItemIdentification>\n\t\t\t<alternateTradeItemIdentification>\n\t\t\t\t<type>BUYER_ASSIGNED_IDENTIFIER_FOR_A_TRADE_ITEM</type>\n\t\t\t\t<value>{{ concepto.codigo_liverpool | default(concepto.codigo) }}</value>\n\t\t\t</alternateTradeItemIdentification>\n\t\t\t<tradeItemDescriptionInformation>\n\t\t\t\t<longText>{{ concepto.descripcion }}</longText>\n\t\t\t</tradeItemDescriptionInformation>\n\t\t\t<invoicedQuantity>\n\t\t\t\t<unitOfMeasure>{{ concepto.unidad | default('EA') }}</unitOfMeasure>\n\t\t\t\t<value>{{ concepto.cantidad }}</value>\n\t\t\t</invoicedQuantity>\n\t\t\t<grossPrice>\n\t\t\t\t<amount>{{ concepto.precio_con_impuestos | default(concepto.valor_unitario) }}</amount>\n\t\t\t</grossPrice>\n\t\t\t<netPrice>\n\t\t\t\t<amount>{{ concepto.valor_unitario }}</amount>\n\t\t\t</netPrice>\n\t\t\t<tradeItemTaxInformation>\n\t\t\t\t<taxTypeDescription>VAT</taxTypeDescription>\n\t\t\t\t<tradeItemTaxAmount>\n\t\t\t\t\t<taxPercentage>{{ concepto.porcentaje_iva | default('16.00') }}</taxPercentage>\n\t\t\t\t\t<taxAmount>{{ concepto.importe_iva | default('0.00') }}</taxAmount>\n\t\t\t\t</tradeItemTaxAmount>\n\t\t\t</tradeItemTaxInformation>\n\t\t\t<totalLineAmount>\n\t\t\t\t<grossAmount>\n\t\t\t\t\t<amount>{{ concepto.importe_con_impuestos | default(concepto.importe) }}</amount>\n\t\t\t\t</grossAmount>\n\t\t\t\t<netAmount>\n\t\t\t\t\t<amount>{{ concepto.importe }}</amount>\n\t\t\t\t</netAmount>\n\t\t\t</totalLineAmount>\n\t\t</lineItem>\n\t\t{% endfor %}\n\t\t<totalAmount>\n\t\t\t<grossAmount>\n\t\t\t\t<amount>{{ cfdi_total }}</amount>\n\t\t\t</grossAmount>\n\t\t\t<netAmount>\n\t\t\t\t<amount>{{ cfdi_subtotal }}</amount>\n\t\t\t</netAmount>\n\t\t</totalAmount>\n\t\t<TotalAllowancesCharges>\n\t\t\t<allowanceOrChargeAmount>{{ descuentos_cargos | default('0.00') }}</allowanceOrChargeAmount>\n\t\t</TotalAllowancesCharges>\n\t</requestForPayment>\n</addenda>",
+		"is_default": 1,
+		"created_by": "Administrator",
+		"modified_by": "Administrator"
+	},
+	{
+		"doctype": "Addenda Template",
+		"name": "Generic-Simple",
+		"addenda_type": "Generic",
+		"template_name": "Template Genérico Simplificado",
+		"version": "1.0",
+		"description": "Template simplificado para addendas genéricas. Solo incluye información básica sin conceptos detallados.",
+		"template_xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<addenda xmlns=\"http://addenda.facturacion.mx/generic\">\n\t<informacionGeneral>\n\t\t<fechaEmision>{{ cfdi_fecha }}</fechaEmision>\n\t\t<folioFiscal>{{ cfdi_uuid }}</folioFiscal>\n\t\t<montoTotal>{{ cfdi_total }}</montoTotal>\n\t</informacionGeneral>\n\t<proveedor>\n\t\t<rfc>{{ emisor_rfc }}</rfc>\n\t\t<razonSocial>{{ emisor_nombre }}</razonSocial>\n\t</proveedor>\n\t<cliente>\n\t\t<rfc>{{ receptor_rfc }}</rfc>\n\t\t<razonSocial>{{ receptor_nombre }}</razonSocial>\n\t</cliente>\n</addenda>",
+		"is_default": 0,
+		"created_by": "Administrator",
+		"modified_by": "Administrator"
+	}
+]

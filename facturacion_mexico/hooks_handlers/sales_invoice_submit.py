@@ -25,7 +25,7 @@ def sales_invoice_on_submit(doc, method):
 	except Exception as e:
 		# Log del error sin interrumpir el flujo
 		frappe.log_error(
-			f"Error procesando addenda en submit de {doc.name}: {str(e)}", "Sales Invoice Addenda Submit"
+			f"Error procesando addenda en submit de {doc.name}: {e!s}", "Sales Invoice Addenda Submit"
 		)
 
 
@@ -77,7 +77,7 @@ def process_addenda_after_submit(doc):
 
 	except Exception as e:
 		# Actualizar estado de error
-		update_addenda_status(doc.name, "Error", errors=f"Error iniciando generación: {str(e)}")
+		update_addenda_status(doc.name, "Error", errors=f"Error iniciando generación: {e!s}")
 		raise
 
 
@@ -108,12 +108,12 @@ def generate_addenda_background(sales_invoice: str, user: str):
 
 	except Exception as e:
 		# Error en el proceso
-		error_msg = f"Error en background job: {str(e)}"
+		error_msg = f"Error en background job: {e!s}"
 		frappe.log_error(error_msg, "Addenda Background Generation")
 
 		try:
 			update_addenda_status(sales_invoice, "Error", errors=error_msg)
-		except:
+		except Exception:
 			pass
 
 
@@ -142,7 +142,7 @@ def process_successful_addenda(doc, result):
 		frappe.db.commit()
 
 	except Exception as e:
-		error_msg = f"Error procesando addenda exitosa: {str(e)}"
+		error_msg = f"Error procesando addenda exitosa: {e!s}"
 		frappe.log_error(error_msg)
 		update_addenda_status(doc.name, "Error", errors=error_msg)
 
@@ -159,7 +159,7 @@ def process_failed_addenda(doc, error_message: str):
 		frappe.db.commit()
 
 	except Exception as e:
-		frappe.log_error(f"Error procesando fallo de addenda: {str(e)}")
+		frappe.log_error(f"Error procesando fallo de addenda: {e!s}")
 
 
 def insert_addenda_in_cfdi(doc, addenda_xml: str):
@@ -186,7 +186,7 @@ def insert_addenda_in_cfdi(doc, addenda_xml: str):
 		frappe.logger().info(f"Addenda insertada exitosamente en CFDI de factura {doc.name}")
 
 	except Exception as e:
-		error_msg = f"Error insertando addenda en CFDI: {str(e)}"
+		error_msg = f"Error insertando addenda en CFDI: {e!s}"
 		frappe.log_error(error_msg)
 
 		# No fallar todo el proceso por esto, solo logear
@@ -218,7 +218,7 @@ def update_addenda_status(sales_invoice: str, status: str, addenda_xml: str = ""
 		frappe.db.set_value("Sales Invoice", sales_invoice, update_data)
 
 	except Exception as e:
-		frappe.log_error(f"Error actualizando estado de addenda: {str(e)}")
+		frappe.log_error(f"Error actualizando estado de addenda: {e!s}")
 
 
 def notify_addenda_success(doc, result):
@@ -259,7 +259,7 @@ def notify_addenda_success(doc, result):
 		frappe.sendmail(recipients=recipients, subject=subject, message=message)
 
 	except Exception as e:
-		frappe.log_error(f"Error enviando notificación de éxito: {str(e)}")
+		frappe.log_error(f"Error enviando notificación de éxito: {e!s}")
 
 
 def notify_addenda_error(doc, errors: list):
@@ -299,7 +299,7 @@ def notify_addenda_error(doc, errors: list):
 		frappe.sendmail(recipients=recipients, subject=subject, message=message)
 
 	except Exception as e:
-		frappe.log_error(f"Error enviando notificación de error: {str(e)}")
+		frappe.log_error(f"Error enviando notificación de error: {e!s}")
 
 
 def retry_failed_addenda(sales_invoice: str):
@@ -319,7 +319,7 @@ def retry_failed_addenda(sales_invoice: str):
 		return {"success": True, "message": "Reintento de addenda iniciado"}
 
 	except Exception as e:
-		error_msg = f"Error reintentando addenda: {str(e)}"
+		error_msg = f"Error reintentando addenda: {e!s}"
 		frappe.log_error(error_msg)
 		return {"success": False, "message": error_msg}
 
@@ -338,7 +338,7 @@ def cancel_addenda_processing(sales_invoice: str):
 		return {"success": True, "message": "Procesamiento de addenda cancelado"}
 
 	except Exception as e:
-		error_msg = f"Error cancelando addenda: {str(e)}"
+		error_msg = f"Error cancelando addenda: {e!s}"
 		frappe.log_error(error_msg)
 		return {"success": False, "message": error_msg}
 
@@ -370,6 +370,6 @@ def force_regenerate_addenda(sales_invoice: str):
 		return {"success": True, "message": "Regeneración forzada iniciada"}
 
 	except Exception as e:
-		error_msg = f"Error en regeneración forzada: {str(e)}"
+		error_msg = f"Error en regeneración forzada: {e!s}"
 		frappe.log_error(error_msg)
 		return {"success": False, "message": error_msg}

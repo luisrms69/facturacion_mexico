@@ -4,7 +4,7 @@ APIs principales para el sistema de addendas genéricas
 """
 
 import json
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 import frappe
 from frappe import _
@@ -36,7 +36,7 @@ def get_addenda_types():
 		return {"success": True, "data": types, "count": len(types)}
 
 	except Exception as e:
-		frappe.log_error(f"Error obteniendo tipos de addenda: {str(e)}")
+		frappe.log_error(f"Error obteniendo tipos de addenda: {e!s}")
 		return {
 			"success": False,
 			"message": _("Error obteniendo tipos de addenda: {0}").format(str(e)),
@@ -98,7 +98,7 @@ def get_addenda_configuration(customer):
 		}
 
 	except Exception as e:
-		frappe.log_error(f"Error obteniendo configuración de addenda: {str(e)}")
+		frappe.log_error(f"Error obteniendo configuración de addenda: {e!s}")
 		return {
 			"success": False,
 			"message": _("Error obteniendo configuración: {0}").format(str(e)),
@@ -146,7 +146,7 @@ def generate_addenda_xml(sales_invoice, addenda_type=None, validate_output=True)
 				parser = CFDIParser(invoice_doc.fm_cfdi_xml)
 				cfdi_data = parser.get_cfdi_data()
 			except Exception as e:
-				frappe.log_error(f"Error parseando CFDI: {str(e)}")
+				frappe.log_error(f"Error parseando CFDI: {e!s}")
 
 		# Obtener valores de campos
 		config_result = get_addenda_configuration(invoice_doc.customer)
@@ -181,7 +181,7 @@ def generate_addenda_xml(sales_invoice, addenda_type=None, validate_output=True)
 		}
 
 	except Exception as e:
-		frappe.log_error(f"Error generando XML de addenda: {str(e)}")
+		frappe.log_error(f"Error generando XML de addenda: {e!s}")
 		return {"success": False, "message": _("Error generando XML: {0}").format(str(e)), "xml": ""}
 
 
@@ -194,7 +194,7 @@ def validate_addenda_xml_api(xml_content, addenda_type):
 		return {"success": True, "validation": result}
 
 	except Exception as e:
-		frappe.log_error(f"Error validando XML de addenda: {str(e)}")
+		frappe.log_error(f"Error validando XML de addenda: {e!s}")
 		return {
 			"success": False,
 			"message": _("Error durante validación: {0}").format(str(e)),
@@ -259,7 +259,7 @@ def create_addenda_configuration(customer, addenda_type, field_values, **kwargs)
 		}
 
 	except Exception as e:
-		frappe.log_error(f"Error creando configuración de addenda: {str(e)}")
+		frappe.log_error(f"Error creando configuración de addenda: {e!s}")
 		return {"success": False, "message": _("Error creando configuración: {0}").format(str(e))}
 
 
@@ -302,7 +302,7 @@ def get_product_mappings(customer, items=None):
 		return {"success": True, "data": mapping_dict, "count": len(mappings)}
 
 	except Exception as e:
-		frappe.log_error(f"Error obteniendo mapeo de productos: {str(e)}")
+		frappe.log_error(f"Error obteniendo mapeo de productos: {e!s}")
 		return {"success": False, "message": _("Error obteniendo mapeo: {0}").format(str(e)), "data": {}}
 
 
@@ -339,19 +339,19 @@ def test_addenda_generation(sales_invoice, addenda_type=None):
 							result["can_insert"] = False
 							result["insert_error"] = str(e)
 			except Exception as e:
-				result["cfdi_validation"] = {"valid": False, "message": f"Error validando CFDI: {str(e)}"}
+				result["cfdi_validation"] = {"valid": False, "message": f"Error validando CFDI: {e!s}"}
 
 		return result
 
 	except Exception as e:
-		frappe.log_error(f"Error en test de generación de addenda: {str(e)}")
+		frappe.log_error(f"Error en test de generación de addenda: {e!s}")
 		return {"success": False, "message": _("Error en test: {0}").format(str(e))}
 
 
 # Funciones helper internas
 
 
-def _resolve_dynamic_values(field_values: Dict, invoice_doc, cfdi_data: Dict) -> Dict:
+def _resolve_dynamic_values(field_values: dict, invoice_doc, cfdi_data: dict) -> dict:
 	"""Resolver valores dinámicos de campos."""
 	resolved = {}
 
@@ -366,7 +366,7 @@ def _resolve_dynamic_values(field_values: Dict, invoice_doc, cfdi_data: Dict) ->
 	return resolved
 
 
-def _get_dynamic_value(field_data: Dict, invoice_doc, cfdi_data: Dict) -> str:
+def _get_dynamic_value(field_data: dict, invoice_doc, cfdi_data: dict) -> str:
 	"""Obtener valor dinámico de un campo."""
 	try:
 		source = field_data.get("dynamic_source", "")
@@ -401,11 +401,11 @@ def _get_dynamic_value(field_data: Dict, invoice_doc, cfdi_data: Dict) -> str:
 		return str(value) if value is not None else ""
 
 	except Exception as e:
-		frappe.log_error(f"Error obteniendo valor dinámico: {str(e)}")
+		frappe.log_error(f"Error obteniendo valor dinámico: {e!s}")
 		return field_data.get("value", "")
 
 
-def get_addenda_template(addenda_type: str) -> Dict:
+def get_addenda_template(addenda_type: str) -> dict:
 	"""Obtener template para tipo de addenda."""
 	try:
 		# Buscar template por defecto
@@ -456,5 +456,5 @@ def get_addenda_requirements(customer):
 		}
 
 	except Exception as e:
-		frappe.log_error(f"Error verificando requerimientos de addenda: {str(e)}")
+		frappe.log_error(f"Error verificando requerimientos de addenda: {e!s}")
 		return {"requires_addenda": False, "configuration": None, "auto_apply": False}

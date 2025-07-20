@@ -4,7 +4,7 @@ Mapeo de productos para clientes con addendas específicas
 """
 
 import json
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 import frappe
 from frappe import _
@@ -59,7 +59,7 @@ class AddendaProductMapping(Document):
 		except json.JSONDecodeError as e:
 			frappe.throw(_("Datos adicionales contienen JSON inválido: {0}").format(str(e)))
 
-	def _validate_common_fields(self, data: Dict):
+	def _validate_common_fields(self, data: dict):
 		"""Validar campos comunes en datos adicionales."""
 		# Validaciones opcionales para campos específicos de clientes
 		if "categoria" in data and not isinstance(data["categoria"], str):
@@ -83,7 +83,7 @@ class AddendaProductMapping(Document):
 		self.modified_by = frappe.session.user
 		self.modified_date = frappe.utils.now()
 
-	def get_mapping_data(self) -> Dict[str, Any]:
+	def get_mapping_data(self) -> dict[str, Any]:
 		"""Obtener datos completos del mapeo."""
 		additional_data = {}
 
@@ -106,7 +106,7 @@ class AddendaProductMapping(Document):
 			"mapping_notes": self.mapping_notes or "",
 		}
 
-	def update_additional_data(self, new_data: Dict, merge: bool = True):
+	def update_additional_data(self, new_data: dict, merge: bool = True):
 		"""Actualizar datos adicionales."""
 		try:
 			if merge and self.additional_data:
@@ -121,7 +121,7 @@ class AddendaProductMapping(Document):
 		except Exception as e:
 			frappe.throw(_("Error actualizando datos adicionales: {0}").format(str(e)))
 
-	def get_customer_info(self) -> Dict:
+	def get_customer_info(self) -> dict:
 		"""Obtener información del cliente."""
 		try:
 			customer_doc = frappe.get_doc("Customer", self.customer)
@@ -130,10 +130,10 @@ class AddendaProductMapping(Document):
 				"customer_group": customer_doc.customer_group,
 				"territory": customer_doc.territory,
 			}
-		except:
+		except Exception:
 			return {}
 
-	def get_item_info(self) -> Dict:
+	def get_item_info(self) -> dict:
 		"""Obtener información del artículo."""
 		try:
 			item_doc = frappe.get_doc("Item", self.item)
@@ -143,10 +143,10 @@ class AddendaProductMapping(Document):
 				"description": item_doc.description,
 				"item_defaults": item_doc.item_defaults,
 			}
-		except:
+		except Exception:
 			return {}
 
-	def get_usage_stats(self) -> Dict:
+	def get_usage_stats(self) -> dict:
 		"""Obtener estadísticas de uso del mapeo."""
 		try:
 			# Contar facturas que incluyen este item para este cliente
@@ -176,11 +176,11 @@ class AddendaProductMapping(Document):
 			}
 
 		except Exception as e:
-			frappe.log_error(f"Error obteniendo estadísticas de mapeo: {str(e)}")
+			frappe.log_error(f"Error obteniendo estadísticas de mapeo: {e!s}")
 			return {"recent_invoices": 0, "mapping_age_days": 0, "last_modified_days": 0}
 
 	@staticmethod
-	def get_customer_mappings(customer: str, active_only: bool = True) -> List[Dict]:
+	def get_customer_mappings(customer: str, active_only: bool = True) -> list[dict]:
 		"""Obtener todos los mapeos de un cliente."""
 		filters = {"customer": customer}
 		if active_only:
@@ -206,13 +206,13 @@ class AddendaProductMapping(Document):
 		for mapping in mappings:
 			try:
 				mapping["additional_data"] = json.loads(mapping["additional_data"] or "{}")
-			except:
+			except Exception:
 				mapping["additional_data"] = {}
 
 		return mappings
 
 	@staticmethod
-	def get_item_mappings(item: str, active_only: bool = True) -> List[Dict]:
+	def get_item_mappings(item: str, active_only: bool = True) -> list[dict]:
 		"""Obtener todos los mapeos de un artículo."""
 		filters = {"item": item}
 		if active_only:
@@ -233,7 +233,7 @@ class AddendaProductMapping(Document):
 		)
 
 	@staticmethod
-	def find_mapping(customer: str, item: str) -> Optional[Dict]:
+	def find_mapping(customer: str, item: str) -> dict | None:
 		"""Buscar mapeo específico para cliente e item."""
 		mappings = frappe.get_all(
 			"Addenda Product Mapping",
@@ -256,13 +256,13 @@ class AddendaProductMapping(Document):
 
 		try:
 			mapping["additional_data"] = json.loads(mapping["additional_data"] or "{}")
-		except:
+		except Exception:
 			mapping["additional_data"] = {}
 
 		return mapping
 
 	@staticmethod
-	def bulk_create_mappings(mappings_data: List[Dict]) -> Dict:
+	def bulk_create_mappings(mappings_data: list[dict]) -> dict:
 		"""Crear múltiples mapeos en lote."""
 		results = {"created": 0, "errors": 0, "skipped": 0, "messages": []}
 
@@ -289,7 +289,7 @@ class AddendaProductMapping(Document):
 
 			except Exception as e:
 				results["errors"] += 1
-				results["messages"].append(f"Error: {str(e)}")
+				results["messages"].append(f"Error: {e!s}")
 
 		return results
 
@@ -326,5 +326,5 @@ def has_permission(doc, user):
 	try:
 		customer_doc = frappe.get_doc("Customer", doc.customer)
 		return not customer_doc.disabled
-	except:
+	except Exception:
 		return False

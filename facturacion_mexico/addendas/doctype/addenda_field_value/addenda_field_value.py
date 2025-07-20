@@ -108,7 +108,7 @@ class AddendaFieldValue(Document):
 		if self.transformation and self.transformation not in valid_transformations:
 			frappe.throw(_("Transformación inválida: {0}").format(self.transformation))
 
-	def get_resolved_value(self, context_data: dict = None) -> str:
+	def get_resolved_value(self, context_data: dict | None = None) -> str:
 		"""Resolver el valor final del campo."""
 		if context_data is None:
 			context_data = {}
@@ -149,7 +149,7 @@ class AddendaFieldValue(Document):
 			return self.default_value or ""
 
 		except Exception as e:
-			frappe.log_error(f"Error obteniendo valor dinámico: {str(e)}")
+			frappe.log_error(f"Error obteniendo valor dinámico: {e!s}")
 			return self.default_value or ""
 
 	def _apply_transformation(self, value: str) -> str:
@@ -190,7 +190,7 @@ class AddendaFieldValue(Document):
 			return value
 
 		except Exception as e:
-			frappe.log_error(f"Error aplicando transformación: {str(e)}")
+			frappe.log_error(f"Error aplicando transformación: {e!s}")
 			return value
 
 	def get_field_definition_info(self) -> dict:
@@ -206,7 +206,7 @@ class AddendaFieldValue(Document):
 				"is_required": field_def.is_required,
 				"validation_pattern": field_def.validation_pattern,
 			}
-		except:
+		except Exception:
 			return {}
 
 	def validate_against_definition(self) -> tuple[bool, list]:
@@ -273,7 +273,7 @@ class AddendaFieldValue(Document):
 			try:
 				self._parent_doc = frappe.get_doc(self.parenttype, self.parent)
 				return self._parent_doc
-			except:
+			except Exception:
 				pass
 
 		return None

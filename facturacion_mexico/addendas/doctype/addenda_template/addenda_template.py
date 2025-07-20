@@ -4,7 +4,7 @@ Template XML para tipos de addenda
 """
 
 import xml.dom.minidom
-from typing import Dict, List, Optional
+from typing import Optional
 
 import frappe
 from frappe import _
@@ -86,14 +86,14 @@ class AddendaTemplate(Document):
 		self.modified_by = frappe.session.user
 		self.modified_date = frappe.utils.now()
 
-	def get_template_variables(self) -> List[str]:
+	def get_template_variables(self) -> list[str]:
 		"""Obtener lista de variables en el template."""
 		import re
 
 		variables = re.findall(r"\{\{([^}]+)\}\}", self.template_xml)
 		return [var.strip() for var in variables]
 
-	def preview_template(self, sample_data: Optional[Dict] = None) -> str:
+	def preview_template(self, sample_data: dict | None = None) -> str:
 		"""Generar preview del template con datos de muestra."""
 		if not sample_data:
 			sample_data = self.get_sample_data()
@@ -111,7 +111,7 @@ class AddendaTemplate(Document):
 		except Exception as e:
 			return _("Error generando preview: {0}").format(str(e))
 
-	def get_sample_data(self) -> Dict:
+	def get_sample_data(self) -> dict:
 		"""Generar datos de muestra para el template."""
 		variables = self.get_template_variables()
 		sample_data = {}
@@ -131,7 +131,7 @@ class AddendaTemplate(Document):
 
 		return sample_data
 
-	def validate_against_xsd(self, sample_data: Optional[Dict] = None) -> Dict:
+	def validate_against_xsd(self, sample_data: dict | None = None) -> dict:
 		"""Validar template contra XSD del tipo de addenda."""
 		try:
 			# Obtener tipo de addenda
@@ -173,7 +173,7 @@ class AddendaTemplate(Document):
 
 		return new_doc.name
 
-	def get_usage_stats(self) -> Dict:
+	def get_usage_stats(self) -> dict:
 		"""Obtener estadísticas de uso del template."""
 		try:
 			# Contar configuraciones que usan este template
@@ -200,7 +200,7 @@ class AddendaTemplate(Document):
 			}
 
 		except Exception as e:
-			frappe.log_error(f"Error obteniendo estadísticas de template: {str(e)}")
+			frappe.log_error(f"Error obteniendo estadísticas de template: {e!s}")
 			return {"configurations_count": 0, "recent_invoices": 0, "template_age_days": 0}
 
 	@staticmethod
@@ -279,5 +279,5 @@ def has_permission(doc, user):
 	try:
 		addenda_type_doc = frappe.get_doc("Addenda Type", doc.addenda_type)
 		return addenda_type_doc.is_active
-	except:
+	except Exception:
 		return False

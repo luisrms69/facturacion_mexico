@@ -155,7 +155,7 @@ class CFDIParser:
 			return data
 
 		except Exception as e:
-			frappe.log_error(f"Error extrayendo datos CFDI: {str(e)}")
+			frappe.log_error(f"Error extrayendo datos CFDI: {e!s}")
 			return {}
 
 	def _get_uuid(self):
@@ -230,7 +230,7 @@ class CFDIParser:
 			return addendas
 
 		except Exception as e:
-			frappe.log_error(f"Error obteniendo addendas existentes: {str(e)}")
+			frappe.log_error(f"Error obteniendo addendas existentes: {e!s}")
 			return []
 
 	def extract_line_items(self):
@@ -263,7 +263,7 @@ class CFDIParser:
 			return items
 
 		except Exception as e:
-			frappe.log_error(f"Error extrayendo conceptos: {str(e)}")
+			frappe.log_error(f"Error extrayendo conceptos: {e!s}")
 			return []
 
 	def _extract_concepto_impuestos(self, impuestos_element):

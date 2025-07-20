@@ -3,7 +3,7 @@ Custom Fields para Sales Invoice - Sistema de Addendas
 Sprint 3 - Facturación México
 """
 
-from typing import Dict, List
+from typing import Any
 
 import frappe
 from frappe import _
@@ -123,7 +123,7 @@ def create_customer_addenda_fields():
 	print("✅ Custom fields de addenda agregados a Customer")
 
 
-def create_custom_field(doctype: str, field_config: Dict):
+def create_custom_field(doctype: str, field_config: dict):
 	"""Crear un custom field específico."""
 	try:
 		# Verificar si el campo ya existe
@@ -154,7 +154,7 @@ def create_custom_field(doctype: str, field_config: Dict):
 		print(f"✅ Campo {field_config['fieldname']} creado en {doctype}")
 
 	except Exception as e:
-		print(f"❌ Error creando campo {field_config['fieldname']} en {doctype}: {str(e)}")
+		print(f"❌ Error creando campo {field_config['fieldname']} en {doctype}: {e!s}")
 
 
 def remove_sales_invoice_addenda_fields():
@@ -180,7 +180,7 @@ def remove_customer_addenda_fields():
 	remove_custom_fields("Customer", field_names)
 
 
-def remove_custom_fields(doctype: str, field_names: List[str]):
+def remove_custom_fields(doctype: str, field_names: list[str]):
 	"""Remover una lista de custom fields."""
 	for field_name in field_names:
 		try:
@@ -193,7 +193,7 @@ def remove_custom_fields(doctype: str, field_names: List[str]):
 				print(f"✅ Campo {field_name} removido de {doctype}")
 
 		except Exception as e:
-			print(f"❌ Error removiendo campo {field_name} de {doctype}: {str(e)}")
+			print(f"❌ Error removiendo campo {field_name} de {doctype}: {e!s}")
 
 
 def update_addenda_status(sales_invoice: str, status: str, addenda_xml: str = "", errors: str = ""):
@@ -215,7 +215,7 @@ def update_addenda_status(sales_invoice: str, status: str, addenda_xml: str = ""
 		frappe.db.commit()
 
 	except Exception as e:
-		frappe.log_error(f"Error actualizando estado de addenda: {str(e)}")
+		frappe.log_error(f"Error actualizando estado de addenda: {e!s}")
 
 
 def check_addenda_requirement(sales_invoice_doc):
@@ -250,7 +250,7 @@ def check_addenda_requirement(sales_invoice_doc):
 		frappe.db.commit()
 
 	except Exception as e:
-		frappe.log_error(f"Error verificando requerimiento de addenda: {str(e)}")
+		frappe.log_error(f"Error verificando requerimiento de addenda: {e!s}")
 
 
 def auto_generate_addenda(sales_invoice_doc):
@@ -290,7 +290,7 @@ def auto_generate_addenda(sales_invoice_doc):
 					)
 
 				except Exception as e:
-					frappe.log_error(f"Error insertando addenda en CFDI: {str(e)}")
+					frappe.log_error(f"Error insertando addenda en CFDI: {e!s}")
 		else:
 			# Error generando addenda
 			update_addenda_status(
@@ -298,7 +298,7 @@ def auto_generate_addenda(sales_invoice_doc):
 			)
 
 	except Exception as e:
-		frappe.log_error(f"Error en generación automática de addenda: {str(e)}")
+		frappe.log_error(f"Error en generación automática de addenda: {e!s}")
 		update_addenda_status(sales_invoice_doc.name, "Error", errors=str(e))
 
 
