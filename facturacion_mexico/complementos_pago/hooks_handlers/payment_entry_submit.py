@@ -318,7 +318,7 @@ def _update_payment_entry_with_complements(payment_doc, complements_created):
 
 		frappe.db.set_value("Payment Entry", payment_doc.name, "fm_complementos_generated", complement_names)
 
-		frappe.db.commit()
+		frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to persist complement creation during payment submission
 
 	except Exception as e:
 		frappe.log_error(

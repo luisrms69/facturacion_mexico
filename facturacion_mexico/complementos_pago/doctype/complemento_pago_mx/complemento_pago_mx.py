@@ -2,6 +2,7 @@ import json
 from datetime import datetime
 
 import frappe
+from frappe import _
 from frappe.model.document import Document
 from frappe.model.naming import make_autoname
 
@@ -18,27 +19,29 @@ class ComplementoPagoMX(Document):
 
 	def validate_fecha_pago(self):
 		if self.fecha_pago and self.fecha_pago > datetime.now():
-			frappe.throw("La fecha de pago no puede ser mayor a la fecha actual")
+			frappe.throw(_("La fecha de pago no puede ser mayor a la fecha actual"))
 
 	def validate_monto_positivo(self):
 		if self.monto_p and self.monto_p <= 0:
-			frappe.throw("El monto del pago debe ser mayor a cero")
+			frappe.throw(_("El monto del pago debe ser mayor a cero"))
 
 	def validate_tipo_cambio(self):
 		if self.moneda_p != "MXN" and not self.tipo_cambio_p:
-			frappe.throw("Debe especificar el tipo de cambio para monedas extranjeras")
+			frappe.throw(_("Debe especificar el tipo de cambio para monedas extranjeras"))
 
 		if self.moneda_p == "MXN" and self.tipo_cambio_p and self.tipo_cambio_p != 1:
-			frappe.throw("El tipo de cambio para pesos mexicanos debe ser 1")
+			frappe.throw(_("El tipo de cambio para pesos mexicanos debe ser 1"))
 
 	def validate_documentos_relacionados(self):
 		if not self.documentos_relacionados:
-			frappe.throw("Debe especificar al menos un documento relacionado al pago")
+			frappe.throw(_("Debe especificar al menos un documento relacionado al pago"))
 
 		total_documentos = sum([doc.imp_pagado for doc in self.documentos_relacionados])
 		if abs(total_documentos - self.monto_p) > 0.01:
 			frappe.throw(
-				f"La suma de documentos relacionados ({total_documentos}) no coincide con el monto del pago ({self.monto_p})"
+				_(
+					f"La suma de documentos relacionados ({total_documentos}) no coincide con el monto del pago ({self.monto_p})"
+				)
 			)
 
 	def before_submit(self):
@@ -50,7 +53,7 @@ class ComplementoPagoMX(Document):
 			"Complemento Pago MX", {"folio_fiscal": self.folio_fiscal, "name": ["!=", self.name]}, "name"
 		)
 		if existing:
-			frappe.throw(f"Ya existe un complemento de pago con el folio fiscal {self.folio_fiscal}")
+			frappe.throw(_(f"Ya existe un complemento de pago con el folio fiscal {self.folio_fiscal}"))
 
 	def set_timbrado_info(self):
 		if not self.fecha_timbrado:
@@ -106,4 +109,4 @@ class ComplementoPagoMX(Document):
 			timeout=60,
 			complemento_id=self.name,
 		)
-		frappe.msgprint("Consulta de estatus SAT enviada. Se actualizará automáticamente.")
+		frappe.msgprint(_("Consulta de estatus SAT enviada. Se actualizará automáticamente."))

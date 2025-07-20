@@ -258,8 +258,7 @@ class TestPaymentTrackingMX(FrappeTestCase):
 			expected_balance = (1000.0 * i) - 100.0
 			self.assertEqual(tracking.balance_after, expected_balance)
 
-		# Cleanup explícito para verificar gestión de memoria
-		del tracking_objects
+		# Cleanup automático por garbage collector de Python
 
 
 # ═══════════════════════════════════════════════════════════════════

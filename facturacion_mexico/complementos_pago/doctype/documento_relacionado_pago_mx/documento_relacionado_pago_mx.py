@@ -1,4 +1,5 @@
 import frappe
+from frappe import _
 from frappe.model.document import Document
 
 
@@ -10,13 +11,13 @@ class DocumentoRelacionadoPagoMX(Document):
 
 	def validate_importes(self):
 		if self.imp_saldo_ant <= 0:
-			frappe.throw("El importe saldo anterior debe ser mayor a cero")
+			frappe.throw(_("El importe saldo anterior debe ser mayor a cero"))
 
 		if self.imp_pagado <= 0:
-			frappe.throw("El importe pagado debe ser mayor a cero")
+			frappe.throw(_("El importe pagado debe ser mayor a cero"))
 
 		if self.imp_pagado > self.imp_saldo_ant:
-			frappe.throw("El importe pagado no puede ser mayor al saldo anterior")
+			frappe.throw(_("El importe pagado no puede ser mayor al saldo anterior"))
 
 	def calculate_saldo_insoluto(self):
 		if self.imp_saldo_ant and self.imp_pagado:
@@ -24,7 +25,7 @@ class DocumentoRelacionadoPagoMX(Document):
 
 	def validate_parcialidad(self):
 		if self.num_parcialidad <= 0:
-			frappe.throw("El número de parcialidad debe ser mayor a cero")
+			frappe.throw(_("El número de parcialidad debe ser mayor a cero"))
 
 		if self.id_documento and self.num_parcialidad:
 			existing_parcialidades = frappe.db.sql(
@@ -43,7 +44,9 @@ class DocumentoRelacionadoPagoMX(Document):
 
 			if existing_parcialidades[0].count > 0:
 				frappe.throw(
-					f"Ya existe una parcialidad {self.num_parcialidad} para el documento {self.id_documento}"
+					_(
+						f"Ya existe una parcialidad {self.num_parcialidad} para el documento {self.id_documento}"
+					)
 				)
 
 	def before_save(self):

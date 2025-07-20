@@ -1,4 +1,5 @@
 import frappe
+from frappe import _
 from frappe.model.document import Document
 
 
@@ -12,7 +13,7 @@ class DetalleComplementoPagoMX(Document):
 		if self.tipo_factor == "Exento":
 			self.tasa_cuota = 0.0
 		elif self.tipo_factor in ["Tasa", "Cuota"] and not self.tasa_cuota:
-			frappe.throw(f"Debe especificar la tasa o cuota para el tipo factor {self.tipo_factor}")
+			frappe.throw(_(f"Debe especificar la tasa o cuota para el tipo factor {self.tipo_factor}"))
 
 	def calculate_importe(self):
 		if self.base_dr and self.tasa_cuota is not None:
@@ -27,14 +28,14 @@ class DetalleComplementoPagoMX(Document):
 
 	def validate_base_positiva(self):
 		if self.base_dr <= 0:
-			frappe.throw("La base del impuesto debe ser mayor a cero")
+			frappe.throw(_("La base del impuesto debe ser mayor a cero"))
 
 	def before_save(self):
 		self.validate_documento_relacionado()
 
 	def validate_documento_relacionado(self):
 		if not self.documento_relacionado:
-			frappe.throw("Debe especificar el ID del documento relacionado")
+			frappe.throw(_("Debe especificar el ID del documento relacionado"))
 
 		parent_doc = frappe.get_doc("Complemento Pago MX", self.parent)
 		documento_exists = False
@@ -46,5 +47,7 @@ class DetalleComplementoPagoMX(Document):
 
 		if not documento_exists:
 			frappe.throw(
-				f"El documento relacionado {self.documento_relacionado} no existe en este complemento de pago"
+				_(
+					f"El documento relacionado {self.documento_relacionado} no existe en este complemento de pago"
+				)
 			)

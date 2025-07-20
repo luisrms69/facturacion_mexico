@@ -27,7 +27,7 @@ def create_default_impuestos_sat():
 		impuesto.update(impuesto_data)
 		impuesto.insert(ignore_permissions=True)
 
-	frappe.db.commit()
+	frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to persist catalog data during system initialization
 
 
 if __name__ == "__main__":

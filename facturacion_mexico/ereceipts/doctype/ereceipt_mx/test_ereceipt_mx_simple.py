@@ -9,9 +9,17 @@ from datetime import datetime, timedelta
 import frappe
 from frappe.tests.utils import FrappeTestCase
 
+# REGLA #43A: Skip test records para evitar LinkValidationError
+frappe.flags.skip_test_records = True
+
 
 class TestEReceiptMXSimple(FrappeTestCase):
 	"""Tests básicos funcionales para cumplir reglas de commit."""
+
+	def setUp(self):
+		"""Setup para cada test."""
+		frappe.flags.skip_test_records = True
+		frappe.set_user("Administrator")
 
 	def test_ereceipt_creation(self):
 		"""Test básico: crear EReceipt MX."""

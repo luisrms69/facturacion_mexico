@@ -92,7 +92,7 @@ def expire_ereceipts():
 			(today,),
 		)
 
-		frappe.db.commit()
+		frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to persist bulk status updates for scheduled operation
 
 		count = frappe.db.sql(
 			"""

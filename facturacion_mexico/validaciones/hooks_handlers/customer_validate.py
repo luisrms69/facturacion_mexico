@@ -38,3 +38,31 @@ def validate_rfc_format(doc, method):
 
 	if not re.match(pattern, rfc):
 		frappe.throw(_("Formato de RFC inválido"))
+
+
+def schedule_rfc_validation(doc, method):
+	"""Programar validación de RFC con SAT después de crear Customer."""
+
+	# Protección estándar para testing
+	if hasattr(frappe.flags, "in_test") and frappe.flags.in_test:
+		return
+
+	# Solo si tiene RFC y está habilitada la validación automática
+	if not doc.rfc:
+		return
+
+	try:
+		# Programar validación asíncrona (placeholder para implementación futura)
+		frappe.enqueue(
+			"facturacion_mexico.validaciones.api.validate_rfc",
+			rfc=doc.rfc,
+			queue="short",
+			timeout=30,
+			is_async=True,
+		)
+	except Exception as e:
+		# No fallar la creación del customer por errores de validación
+		frappe.log_error(
+			message=f"Error programando validación RFC para {doc.name}: {e!s}",
+			title="Schedule RFC Validation Error",
+		)

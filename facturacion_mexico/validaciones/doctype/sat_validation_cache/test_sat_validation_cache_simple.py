@@ -4,14 +4,22 @@ Cumple reglas Buzola: tests funcionales antes de commit
 """
 
 import unittest
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import frappe
 from frappe.tests.utils import FrappeTestCase
 
+# REGLA #43A: Skip test records para evitar LinkValidationError
+frappe.flags.skip_test_records = True
+
 
 class TestSATValidationCacheSimple(FrappeTestCase):
 	"""Tests básicos funcionales para cumplir reglas de commit."""
+
+	def setUp(self):
+		"""Setup para cada test."""
+		frappe.flags.skip_test_records = True
+		frappe.set_user("Administrator")
 
 	def test_cache_creation(self):
 		"""Test básico: crear SAT Validation Cache."""

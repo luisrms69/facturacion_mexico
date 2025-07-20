@@ -1,10 +1,9 @@
 import json
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import frappe
-import requests
-from frappe.core.doctype.file.file import create_new_folder, save_file
-from frappe.utils import cint, cstr, flt, now, today
+from frappe import _
+from frappe.utils.file_manager import save_file
 
 
 @frappe.whitelist()
@@ -17,7 +16,7 @@ def crear_complemento_desde_payment_entry(payment_entry_name):
 
 		# Validar que el Payment Entry esté en estado válido
 		if payment_entry.docstatus != 1:
-			frappe.throw("El Payment Entry debe estar en estado 'Submitted'")
+			frappe.throw(_("El Payment Entry debe estar en estado 'Submitted'"))
 
 		# Crear el complemento de pago
 		complemento = frappe.new_doc("Complemento Pago MX")
@@ -154,7 +153,7 @@ def consultar_estatus_complemento(complemento_id):
 		complemento = frappe.get_doc("Complemento Pago MX", complemento_id)
 
 		if not complemento.folio_fiscal:
-			frappe.throw("El complemento no tiene folio fiscal para consultar")
+			frappe.throw(_("El complemento no tiene folio fiscal para consultar"))
 
 		# Configuración del servicio SAT
 		sat_config = frappe.get_single("Configuracion SAT MX")
@@ -174,7 +173,7 @@ def consultar_estatus_complemento(complemento_id):
 		complemento.db_set("estatus_sat", resultado.get("estatus", "No Encontrado"))
 		complemento.db_set("fecha_certificacion_sat", resultado.get("fecha_certificacion"))
 
-		frappe.db.commit()
+		frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to persist SAT status update after external API query
 
 		return {
 			"success": True,

@@ -200,7 +200,7 @@ doc_events = {
 	},
 	"Customer": {
 		"validate": "facturacion_mexico.validaciones.hooks_handlers.customer_validate.validate_rfc_format",
-		"before_save": "facturacion_mexico.validaciones.hooks_handlers.customer_validate.auto_validate_rfc",
+		"before_save": "facturacion_mexico.validaciones.hooks_handlers.customer_validate.validate_rfc_format",
 		"after_insert": "facturacion_mexico.validaciones.hooks_handlers.customer_validate.schedule_rfc_validation",
 	},
 	"Payment Entry": {

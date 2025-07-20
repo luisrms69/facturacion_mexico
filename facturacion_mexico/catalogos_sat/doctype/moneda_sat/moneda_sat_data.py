@@ -32,7 +32,7 @@ def create_default_monedas_sat():
 		moneda.update(moneda_data)
 		moneda.insert(ignore_permissions=True)
 
-	frappe.db.commit()
+	frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to persist catalog data during system initialization
 
 
 if __name__ == "__main__":

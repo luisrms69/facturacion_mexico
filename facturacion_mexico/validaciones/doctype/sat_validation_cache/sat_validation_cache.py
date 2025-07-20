@@ -4,7 +4,6 @@ Sprint 2 - Sistema de Facturación México
 """
 
 import json
-from datetime import datetime, timedelta
 
 import frappe
 from frappe import _
@@ -107,9 +106,9 @@ class SATValidationCache(Document):
 	def refresh_rfc_validation(self):
 		"""Refrescar validación de RFC."""
 		try:
-			from facturacion_mexico.validaciones.api import validar_rfc_sat_directo
+			from facturacion_mexico.validaciones.api import validate_rfc
 
-			result = validar_rfc_sat_directo(self.lookup_value)
+			result = validate_rfc(self.lookup_value, use_cache=False)
 
 			if result.get("success"):
 				self.is_valid = result.get("is_valid", False)
@@ -127,9 +126,9 @@ class SATValidationCache(Document):
 	def refresh_lista69b_validation(self):
 		"""Refrescar validación de Lista 69B."""
 		try:
-			from facturacion_mexico.validaciones.api import verificar_lista_69b_directo
+			from facturacion_mexico.validaciones.api import validate_lista_69b
 
-			result = verificar_lista_69b_directo(self.lookup_value)
+			result = validate_lista_69b(self.lookup_value, use_cache=False)
 
 			if result.get("success"):
 				self.is_valid = not result.get("esta_en_lista", True)  # Invertir lógica
@@ -194,13 +193,13 @@ class SATValidationCache(Document):
 		try:
 			# Llamar al servicio de validación
 			if validation_type == "RFC":
-				from facturacion_mexico.validaciones.api import validar_rfc_sat_directo
+				from facturacion_mexico.validaciones.api import validate_rfc
 
-				result = validar_rfc_sat_directo(lookup_value)
+				result = validate_rfc(lookup_value, use_cache=False)
 			elif validation_type == "Lista69B":
-				from facturacion_mexico.validaciones.api import verificar_lista_69b_directo
+				from facturacion_mexico.validaciones.api import validate_lista_69b
 
-				result = verificar_lista_69b_directo(lookup_value)
+				result = validate_lista_69b(lookup_value, use_cache=False)
 			else:
 				return {
 					"success": False,
@@ -253,7 +252,7 @@ def cleanup_expired_cache():
 		for record_name in expired_records:
 			frappe.delete_doc("SAT Validation Cache", record_name)
 
-		frappe.db.commit()
+		frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to persist bulk cache cleanup for scheduled operation
 
 		return {
 			"success": True,

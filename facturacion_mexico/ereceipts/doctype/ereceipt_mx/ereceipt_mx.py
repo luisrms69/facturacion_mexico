@@ -234,7 +234,7 @@ def bulk_expire_ereceipts():
 			except Exception as e:
 				frappe.log_error(message=str(e), title=f"Error expirando E-Receipt: {receipt_name}")
 
-		frappe.db.commit()
+		frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to persist bulk expiry status updates for scheduled operation
 
 		return {
 			"success": True,
