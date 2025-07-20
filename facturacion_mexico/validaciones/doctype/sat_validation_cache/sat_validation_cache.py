@@ -77,6 +77,56 @@ class SATValidationCache(Document):
 
 		self.lookup_value = rfc
 
+	def calculate_expiry_date(self):
+		"""Calcular fecha de expiración según tipo de validación."""
+		from datetime import timedelta
+
+		if not self.validation_date:
+			self.validation_date = frappe.utils.now()
+
+		base_date = frappe.utils.getdate(self.validation_date)
+
+		if self.validation_type == "RFC":
+			# RFC válido por 30 días
+			self.expiry_date = frappe.utils.add_days(base_date, 30)
+		elif self.validation_type == "Lista69B":
+			# Lista 69B válida por 7 días
+			self.expiry_date = frappe.utils.add_days(base_date, 7)
+		else:
+			# Por defecto 30 días
+			self.expiry_date = frappe.utils.add_days(base_date, 30)
+
+	def is_cache_expired(self):
+		"""Verificar si el cache ha expirado (alias para is_expired)."""
+		return self.is_expired()
+
+	def set_metadata(self):
+		"""Establecer metadatos automáticamente."""
+		if not self.validation_date:
+			self.validation_date = frappe.utils.now()
+		if not hasattr(self, "created_by") or not self.created_by:
+			self.created_by = frappe.session.user
+		self.last_accessed = frappe.utils.now()
+
+	def validate_no_duplicate_cache(self):
+		"""Validar que no exista cache duplicado activo."""
+		if self.lookup_value and self.validation_type:
+			existing = frappe.db.get_value(
+				"SAT Validation Cache",
+				{
+					"lookup_value": self.lookup_value,
+					"validation_type": self.validation_type,
+					"name": ["!=", self.name or ""],
+				},
+				"name",
+			)
+			if existing:
+				frappe.throw(
+					_("Ya existe un cache activo para {0} tipo {1}").format(
+						self.lookup_value, self.validation_type
+					)
+				)
+
 	def validate_validation_type(self):
 		"""Validar que el tipo de validación sea válido."""
 		valid_types = ["RFC", "Lista69B", "Obligaciones", "Regimen_Fiscal", "Domicilio_Fiscal"]
@@ -87,7 +137,7 @@ class SATValidationCache(Document):
 		"""Verificar si el cache ha expirado."""
 		if not self.expiry_date:
 			return True
-		return frappe.utils.getdate(self.expiry_date) < frappe.utils.today()
+		return frappe.utils.getdate(self.expiry_date) < frappe.utils.getdate(frappe.utils.today())
 
 	def refresh_validation(self, force=False):
 		"""Refrescar validación si ha expirado o es forzado."""
@@ -333,7 +383,7 @@ class SATValidationCache(SATValidationCache):
 	def get_valid_cache(lookup_value, validation_type):
 		"""Método estático para obtener cache válido."""
 		result = SATValidationCache.get_cached_validation(validation_type, lookup_value)
-		if result.get("success") and not result.get("from_cache", True):
+		if result.get("success") and result.get("is_valid", False):
 			return result.get("data", {})
 		return None
 

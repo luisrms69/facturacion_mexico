@@ -37,9 +37,9 @@ class EReceiptMX(Document):
 			self.expiry_date = datetime(year, month, last_day).date()
 
 		elif self.expiry_type == "Custom Date":
-			# Se debe proporcionar expiry_date manualmente
+			# Si no se proporciona expiry_date, usar fallback de 3 días
 			if not self.expiry_date:
-				frappe.throw(_("Debe especificar la fecha de vencimiento para tipo 'Custom Date'"))
+				self.expiry_date = frappe.utils.add_days(self.date_issued, 3)
 
 	def calculate_days_to_expire(self):
 		"""Calcular días restantes para vencer."""
@@ -130,7 +130,7 @@ class EReceiptMX(Document):
 		"""Verificar si el E-Receipt ha expirado."""
 		if not self.expiry_date:
 			return False
-		return frappe.utils.getdate(self.expiry_date) < frappe.utils.today()
+		return frappe.utils.getdate(self.expiry_date) < frappe.utils.getdate(frappe.utils.today())
 
 	def mark_as_invoiced(self, factura_fiscal_name):
 		"""Marcar como facturado."""
@@ -147,6 +147,47 @@ class EReceiptMX(Document):
 		self.status = "invoiced"
 		self.last_status_check = frappe.utils.now()
 		self.save()
+
+	def generate_unique_key(self):
+		"""Generar key único para el E-Receipt."""
+		import hashlib
+		import time
+
+		# Formato esperado: ER-SINV-001-20250719-HASH
+		date_str = (
+			frappe.utils.formatdate(self.date_issued, "yyyyMMdd")
+			if self.date_issued
+			else frappe.utils.formatdate(frappe.utils.today(), "yyyyMMdd")
+		)
+		base_string = f"ER-{self.sales_invoice}-{date_str}"
+
+		# Agregar hash corto para unicidad
+		hash_part = hashlib.md5(f"{base_string}-{time.time()}".encode()).hexdigest()[:6].upper()
+		self.key = f"{base_string}-{hash_part}"
+		return self.key
+
+	def validate_no_duplicate(self):
+		"""Validar que no exista E-Receipt duplicado para esta Sales Invoice."""
+		if self.sales_invoice:
+			existing = frappe.db.get_value(
+				"EReceipt MX", {"sales_invoice": self.sales_invoice, "name": ["!=", self.name or ""]}, "name"
+			)
+			if existing:
+				frappe.throw(_("Ya existe un E-Receipt para esta Sales Invoice: {0}").format(existing))
+
+	def validate_no_fiscal_invoice(self):
+		"""Validar que no exista factura fiscal previa."""
+		if self.sales_invoice:
+			sales_invoice = frappe.get_doc("Sales Invoice", self.sales_invoice)
+			if sales_invoice.get("factura_fiscal_mx"):
+				frappe.throw(_("Esta factura ya tiene factura fiscal asociada"))
+
+	def auto_generate_facturapi(self):
+		"""Generar automáticamente en FacturAPI si está habilitado."""
+		if frappe.db.get_single_value("Facturacion Mexico Settings", "enable_ereceipts"):
+			self.generate_facturapi_ereceipt()
+			return True
+		return False
 
 	def cancel_ereceipt(self, reason=""):
 		"""Cancelar E-Receipt."""
