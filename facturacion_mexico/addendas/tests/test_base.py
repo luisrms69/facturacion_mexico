@@ -129,7 +129,7 @@ class AddendaTestBase(FrappeTestCase):
 					"customer_group": customer_group,
 					"territory": territory,
 					"tax_id": "TEST123456789",
-					"payment_terms": "",  # Evitar el error de payment_terms
+					# REGLA #44: Environment tolerance - no establecer payment_terms
 					"default_currency": frappe.get_cached_value("Company", company, "default_currency")
 					or "USD",
 				}
