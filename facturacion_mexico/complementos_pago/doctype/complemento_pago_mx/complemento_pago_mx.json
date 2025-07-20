@@ -1,0 +1,313 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2025-07-20 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "section_general",
+  "naming_series",
+  "folio_fiscal",
+  "fecha_pago",
+  "forma_pago_p",
+  "moneda_p",
+  "tipo_cambio_p",
+  "monto_p",
+  "column_break_2",
+  "num_operacion",
+  "rfc_emisor_cta_ord",
+  "nom_banco_ord_ext",
+  "cta_ordenante",
+  "rfc_emisor_cta_ben",
+  "cta_beneficiario",
+  "tipo_cad_pago",
+  "cert_pago",
+  "cad_pago",
+  "sello_pago",
+  "section_complemento",
+  "version",
+  "id_documento",
+  "serie_folio",
+  "fecha_folio_fiscal",
+  "pac_cert_sat",
+  "section_documentos",
+  "documentos_relacionados",
+  "section_impuestos",
+  "detalles_impuestos",
+  "section_timbrado",
+  "estatus_sat",
+  "fecha_timbrado",
+  "uuid_sat",
+  "no_certificado_sat",
+  "fecha_certificacion_sat",
+  "version_cfdi",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_general",
+   "fieldtype": "Section Break",
+   "label": "Información General"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Serie de Nomenclatura",
+   "options": "COMP-PAG-.YYYY.-",
+   "reqd": 1
+  },
+  {
+   "fieldname": "folio_fiscal",
+   "fieldtype": "Data",
+   "label": "Folio Fiscal",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "fecha_pago",
+   "fieldtype": "Datetime",
+   "label": "Fecha de Pago",
+   "reqd": 1
+  },
+  {
+   "description": "Catálogo SAT c_FormaPago",
+   "fieldname": "forma_pago_p",
+   "fieldtype": "Link",
+   "label": "Forma de Pago",
+   "options": "Forma Pago SAT",
+   "reqd": 1
+  },
+  {
+   "description": "Catálogo SAT c_Moneda",
+   "fieldname": "moneda_p",
+   "fieldtype": "Link",
+   "label": "Moneda",
+   "options": "Moneda SAT",
+   "reqd": 1
+  },
+  {
+   "fieldname": "tipo_cambio_p",
+   "fieldtype": "Currency",
+   "label": "Tipo de Cambio",
+   "precision": 6
+  },
+  {
+   "fieldname": "monto_p",
+   "fieldtype": "Currency",
+   "label": "Monto",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "num_operacion",
+   "fieldtype": "Data",
+   "label": "Número de Operación"
+  },
+  {
+   "fieldname": "rfc_emisor_cta_ord",
+   "fieldtype": "Data",
+   "label": "RFC Emisor Cuenta Ordenante"
+  },
+  {
+   "fieldname": "nom_banco_ord_ext",
+   "fieldtype": "Data",
+   "label": "Nombre Banco Ordenante Extranjero"
+  },
+  {
+   "fieldname": "cta_ordenante",
+   "fieldtype": "Data",
+   "label": "Cuenta Ordenante"
+  },
+  {
+   "fieldname": "rfc_emisor_cta_ben",
+   "fieldtype": "Data",
+   "label": "RFC Emisor Cuenta Beneficiario"
+  },
+  {
+   "fieldname": "cta_beneficiario",
+   "fieldtype": "Data",
+   "label": "Cuenta Beneficiario"
+  },
+  {
+   "fieldname": "tipo_cad_pago",
+   "fieldtype": "Select",
+   "label": "Tipo Cadena Pago",
+   "options": "\n01\n02\n03"
+  },
+  {
+   "fieldname": "cert_pago",
+   "fieldtype": "Long Text",
+   "label": "Certificado Pago"
+  },
+  {
+   "fieldname": "cad_pago",
+   "fieldtype": "Long Text",
+   "label": "Cadena Pago"
+  },
+  {
+   "fieldname": "sello_pago",
+   "fieldtype": "Long Text",
+   "label": "Sello Pago"
+  },
+  {
+   "fieldname": "section_complemento",
+   "fieldtype": "Section Break",
+   "label": "Información del Complemento"
+  },
+  {
+   "default": "2.0",
+   "fieldname": "version",
+   "fieldtype": "Data",
+   "label": "Versión",
+   "read_only": 1
+  },
+  {
+   "fieldname": "id_documento",
+   "fieldtype": "Data",
+   "label": "ID Documento"
+  },
+  {
+   "fieldname": "serie_folio",
+   "fieldtype": "Data",
+   "label": "Serie y Folio"
+  },
+  {
+   "fieldname": "fecha_folio_fiscal",
+   "fieldtype": "Date",
+   "label": "Fecha Folio Fiscal"
+  },
+  {
+   "fieldname": "pac_cert_sat",
+   "fieldtype": "Data",
+   "label": "PAC Certificado SAT"
+  },
+  {
+   "fieldname": "section_documentos",
+   "fieldtype": "Section Break",
+   "label": "Documentos Relacionados"
+  },
+  {
+   "fieldname": "documentos_relacionados",
+   "fieldtype": "Table",
+   "label": "Documentos Relacionados",
+   "options": "Documento Relacionado Pago MX"
+  },
+  {
+   "fieldname": "section_impuestos",
+   "fieldtype": "Section Break",
+   "label": "Detalle de Impuestos"
+  },
+  {
+   "fieldname": "detalles_impuestos",
+   "fieldtype": "Table",
+   "label": "Impuestos Trasladados y Retenidos",
+   "options": "Detalle Complemento Pago MX"
+  },
+  {
+   "fieldname": "section_timbrado",
+   "fieldtype": "Section Break",
+   "label": "Información de Timbrado"
+  },
+  {
+   "fieldname": "estatus_sat",
+   "fieldtype": "Select",
+   "label": "Estatus SAT",
+   "options": "\nVigente\nCancelado\nNo Encontrado"
+  },
+  {
+   "fieldname": "fecha_timbrado",
+   "fieldtype": "Datetime",
+   "label": "Fecha de Timbrado"
+  },
+  {
+   "fieldname": "uuid_sat",
+   "fieldtype": "Data",
+   "label": "UUID SAT"
+  },
+  {
+   "fieldname": "no_certificado_sat",
+   "fieldtype": "Data",
+   "label": "No. Certificado SAT"
+  },
+  {
+   "fieldname": "fecha_certificacion_sat",
+   "fieldtype": "Datetime",
+   "label": "Fecha Certificación SAT"
+  },
+  {
+   "default": "4.0",
+   "fieldname": "version_cfdi",
+   "fieldtype": "Data",
+   "label": "Versión CFDI",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Complemento Pago MX",
+   "print_hide": 1,
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-07-20 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Complementos Pago",
+ "name": "Complemento Pago MX",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts User",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "folio_fiscal",
+ "track_changes": 1
+}

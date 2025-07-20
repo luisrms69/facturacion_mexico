@@ -7,8 +7,11 @@ import frappe
 from frappe.test_runner import make_test_records
 from frappe.tests.utils import FrappeTestCase
 
-# Evitar errores de dependencias durante make_test_records siguiendo patrón condominium_management
-test_ignore = ["Sales Invoice", "Customer", "Item", "Uso CFDI SAT"]
+# REGLA #43A: Skip test records para evitar LinkValidationError (patrón condominium_management)
+frappe.flags.skip_test_records = True
+
+# REGLA #43B: Test ignore list para dependencias problemáticas
+test_ignore = ["Sales Invoice", "Customer", "Item", "Uso CFDI SAT", "Item Tax Template", "Warehouse"]
 
 
 class FacturacionMexicoTestGranular(FrappeTestCase):
@@ -31,6 +34,9 @@ class FacturacionMexicoTestGranular(FrappeTestCase):
 	@classmethod
 	def setUpClass(cls):
 		"""Configurar datos de test una sola vez."""
+		# REGLA #43A: Aplicar skip_test_records en setup de clase
+		frappe.flags.skip_test_records = True
+
 		# Usar fixtures centralizados para una arquitectura sólida
 		from facturacion_mexico.fixtures.test_data import create_test_records
 
@@ -46,6 +52,16 @@ class FacturacionMexicoTestGranular(FrappeTestCase):
 				cls.create_test_customer()
 				cls.create_test_item()
 				frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to persist fallback test data
+
+	def setUp(self):
+		"""Setup para cada test individual."""
+		# REGLA #43A: Asegurar skip_test_records en cada test
+		frappe.flags.skip_test_records = True
+		frappe.set_user("Administrator")
+
+	def tearDown(self):
+		"""Cleanup después de cada test."""
+		frappe.db.rollback()
 
 	# ===== LAYER 1: UNIT TESTS (NO DATABASE OPERATIONS) =====
 
@@ -293,16 +309,73 @@ class FacturacionMexicoTestGranular(FrappeTestCase):
 				# Si falla, continuar sin item de test
 				frappe.logger().warning(f"No se pudo crear item de test: {e!s}")
 
+	# ===== FACTORY METHODS PATTERN (Transferido de condominium_management) =====
+
+	@classmethod
+	def create_test_customer_factory(cls, **kwargs):
+		"""Factory method para crear Customer de test con nombres únicos."""
+		timestamp = frappe.utils.now_datetime().strftime("%Y%m%d_%H%M%S")
+		random_suffix = frappe.utils.random_string(3)
+
+		defaults = {
+			"doctype": "Customer",
+			"customer_name": f"Test-Customer-{timestamp}-{random_suffix}",
+			"customer_type": "Individual",
+			"customer_group": "All Customer Groups",
+			"territory": "All Territories",
+			"rfc": f"ABC{random_suffix}456789",  # RFC único para pruebas
+		}
+		defaults.update(kwargs)
+
+		if frappe.flags.skip_test_records:
+			# Si skip_test_records está activo, usar new_doc sin insertar
+			return frappe.new_doc(defaults["doctype"]).update(defaults)
+		else:
+			# Insertar normalmente
+			return frappe.get_doc(defaults).insert()
+
+	@classmethod
+	def create_test_payment_entry_factory(cls, **kwargs):
+		"""Factory method para crear Payment Entry de test."""
+		frappe.utils.now_datetime().strftime("%Y%m%d_%H%M%S")
+
+		defaults = {
+			"doctype": "Payment Entry",
+			"payment_type": "Receive",
+			"party_type": "Customer",
+			"party": kwargs.get("customer", "Test Customer MX"),
+			"paid_amount": 1000.0,
+			"received_amount": 1000.0,
+			"target_exchange_rate": 1.0,
+			"posting_date": frappe.utils.today(),
+		}
+		defaults.update(kwargs)
+
+		if frappe.flags.skip_test_records:
+			return frappe.new_doc(defaults["doctype"]).update(defaults)
+		else:
+			return frappe.get_doc(defaults).insert()
+
+	@classmethod
+	def create_test_sales_invoice_factory(cls, **kwargs):
+		"""Factory method para crear Sales Invoice de test."""
+		frappe.utils.now_datetime().strftime("%Y%m%d_%H%M%S")
+
+		defaults = {
+			"doctype": "Sales Invoice",
+			"customer": kwargs.get("customer", "Test Customer MX"),
+			"posting_date": frappe.utils.today(),
+			"due_date": frappe.utils.today(),
+			"items": [{"item_code": "Test Item MX", "qty": 1, "rate": 1000.0}],
+		}
+		defaults.update(kwargs)
+
+		if frappe.flags.skip_test_records:
+			return frappe.new_doc(defaults["doctype"]).update(defaults)
+		else:
+			return frappe.get_doc(defaults).insert()
+
 	# ===== MÉTODOS DE UTILIDAD =====
-
-	def setUp(self):
-		"""Configurar antes de cada test."""
-		frappe.set_user("Administrator")
-
-	def tearDown(self):
-		"""Limpiar después de cada test."""
-		frappe.set_user("Administrator")
-		frappe.db.rollback()
 
 	def assertValidRFC(self, rfc):
 		"""Validar que un RFC tenga formato correcto."""

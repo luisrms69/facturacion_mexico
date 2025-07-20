@@ -1,0 +1,150 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "hash",
+ "creation": "2025-07-20 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "section_general",
+  "validation_type",
+  "lookup_value",
+  "validation_date",
+  "column_break_1",
+  "expiry_date",
+  "is_valid",
+  "validation_count",
+  "section_data",
+  "validation_data",
+  "section_metadata",
+  "last_updated_by",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_general",
+   "fieldtype": "Section Break",
+   "label": "Información de Validación"
+  },
+  {
+   "fieldname": "validation_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Tipo de Validación",
+   "options": "\nRFC\nLista69B\nObligaciones\nRegimen_Fiscal\nDomicilio_Fiscal",
+   "reqd": 1
+  },
+  {
+   "fieldname": "lookup_value",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Valor Consultado",
+   "reqd": 1
+  },
+  {
+   "fieldname": "validation_date",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Fecha de Validación",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "expiry_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Fecha de Expiración"
+  },
+  {
+   "fieldname": "is_valid",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Resultado Válido"
+  },
+  {
+   "fieldname": "validation_count",
+   "fieldtype": "Int",
+   "label": "Veces Validado",
+   "default": 1
+  },
+  {
+   "fieldname": "section_data",
+   "fieldtype": "Section Break",
+   "label": "Datos de Respuesta"
+  },
+  {
+   "fieldname": "validation_data",
+   "fieldtype": "JSON",
+   "label": "Respuesta Completa"
+  },
+  {
+   "fieldname": "section_metadata",
+   "fieldtype": "Section Break",
+   "label": "Metadata"
+  },
+  {
+   "fieldname": "last_updated_by",
+   "fieldtype": "Link",
+   "label": "Última Actualización Por",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notas"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-07-20 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Validaciones",
+ "name": "SAT Validation Cache",
+ "naming_rule": "Random",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts User",
+   "share": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "lookup_value",
+ "track_changes": 1
+}

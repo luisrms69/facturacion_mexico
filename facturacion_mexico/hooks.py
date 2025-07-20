@@ -96,6 +96,7 @@ fixtures = [
 				"name",
 				"in",
 				[
+					# Sales Invoice Sprint 1
 					"Sales Invoice-informacion_fiscal_mx_section",
 					"Sales Invoice-cfdi_use",
 					"Sales Invoice-payment_method_sat",
@@ -103,11 +104,28 @@ fixtures = [
 					"Sales Invoice-fiscal_status",
 					"Sales Invoice-uuid_fiscal",
 					"Sales Invoice-factura_fiscal_mx",
+					# Sales Invoice Sprint 2
+					"Sales Invoice-fm_payment_status",
+					"Sales Invoice-fm_pending_amount",
+					"Sales Invoice-fm_complementos_count",
+					# Customer Sprint 1
 					"Customer-informacion_fiscal_mx_section",
 					"Customer-rfc",
 					"Customer-column_break_fiscal_customer",
 					"Customer-regimen_fiscal",
 					"Customer-uso_cfdi_default",
+					# Customer Sprint 2
+					"Customer-fm_rfc_validated",
+					"Customer-fm_rfc_validation_date",
+					"Customer-fm_lista_69b_status",
+					# Payment Entry Sprint 2
+					"Payment Entry-informacion_fiscal_mx_section",
+					"Payment Entry-fm_complemento_pago",
+					"Payment Entry-fm_require_complement",
+					"Payment Entry-column_break_payment_mx",
+					"Payment Entry-fm_complement_generated",
+					"Payment Entry-fm_forma_pago_sat",
+					# Item Sprint 1
 					"Item-clasificacion_sat_section",
 					"Item-producto_servicio_sat",
 					"Item-column_break_item_sat",
@@ -173,11 +191,32 @@ fixtures = [
 doc_events = {
 	"Sales Invoice": {
 		"validate": "facturacion_mexico.facturacion_fiscal.hooks_handlers.sales_invoice_validate.validate_fiscal_data",
-		"on_submit": "facturacion_mexico.facturacion_fiscal.hooks_handlers.sales_invoice_submit.create_fiscal_event",
+		"before_submit": "facturacion_mexico.validaciones.hooks_handlers.sales_invoice_validate.validate_customer_lista_69b",
+		"on_submit": [
+			"facturacion_mexico.facturacion_fiscal.hooks_handlers.sales_invoice_submit.create_fiscal_event",
+			"facturacion_mexico.ereceipts.hooks_handlers.sales_invoice_submit.create_ereceipt_if_configured",
+		],
 		"on_cancel": "facturacion_mexico.facturacion_fiscal.hooks_handlers.sales_invoice_cancel.handle_fiscal_cancellation",
 	},
 	"Customer": {
-		"validate": "facturacion_mexico.validaciones.hooks_handlers.customer_validate.validate_rfc_format"
+		"validate": "facturacion_mexico.validaciones.hooks_handlers.customer_validate.validate_rfc_format",
+		"before_save": "facturacion_mexico.validaciones.hooks_handlers.customer_validate.validate_rfc_format",
+		"after_insert": "facturacion_mexico.validaciones.hooks_handlers.customer_validate.schedule_rfc_validation",
+	},
+	"Payment Entry": {
+		"validate": "facturacion_mexico.complementos_pago.hooks_handlers.payment_entry_validate.check_ppd_requirement",
+		"on_submit": "facturacion_mexico.complementos_pago.hooks_handlers.payment_entry_submit.create_complement_if_required",
+		"on_cancel": "facturacion_mexico.complementos_pago.hooks_handlers.payment_entry_cancel.cancel_related_complement",
+	},
+	"Complemento Pago MX": {
+		"validate": "facturacion_mexico.complementos_pago.hooks_handlers.complemento_pago_validate.validate_payment_amounts",
+		"before_save": "facturacion_mexico.complementos_pago.hooks_handlers.complemento_pago_validate.calculate_payment_balances",
+		"after_insert": "facturacion_mexico.complementos_pago.hooks_handlers.complemento_pago_insert.create_fiscal_event",
+		"on_submit": "facturacion_mexico.complementos_pago.hooks_handlers.complemento_pago_submit.update_payment_tracking",
+	},
+	"EReceipt MX": {
+		"before_save": "facturacion_mexico.ereceipts.hooks_handlers.ereceipt_validate.calculate_expiry_date",
+		"after_insert": "facturacion_mexico.ereceipts.hooks_handlers.ereceipt_insert.generate_facturapi_ereceipt",
 	},
 	"Factura Fiscal Mexico": {
 		"after_insert": "facturacion_mexico.facturacion_fiscal.hooks_handlers.factura_fiscal_insert.create_fiscal_event",
@@ -188,11 +227,22 @@ doc_events = {
 # Scheduled Tasks
 # ---------------
 
-# Scheduled Tasks - commented until tasks.py files are implemented
-# scheduler_events = {
-# 	"daily": ["facturacion_mexico.catalogos_sat.tasks.sync_sat_catalogs"],
-# 	"weekly": ["facturacion_mexico.facturacion_fiscal.tasks.cleanup_old_fiscal_events"],
-# }
+# Scheduled Tasks
+scheduler_events = {
+	"hourly": [
+		"facturacion_mexico.complementos_pago.api.process_pending_complements",
+		"facturacion_mexico.ereceipts.api.expire_ereceipts",
+	],
+	"daily": [
+		"facturacion_mexico.validaciones.api.bulk_validate_customers",
+		"facturacion_mexico.validaciones.doctype.sat_validation_cache.sat_validation_cache.cleanup_expired_cache",
+		"facturacion_mexico.ereceipts.doctype.ereceipt_mx.ereceipt_mx.bulk_expire_ereceipts",
+	],
+	"weekly": [
+		"facturacion_mexico.complementos_pago.api.reconcile_payment_tracking",
+		"facturacion_mexico.facturacion_fiscal.tasks.cleanup_old_fiscal_events",
+	],
+}
 
 # Testing
 # -------

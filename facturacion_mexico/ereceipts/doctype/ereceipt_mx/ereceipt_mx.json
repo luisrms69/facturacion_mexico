@@ -1,0 +1,313 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2025-07-20 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "section_general",
+  "naming_series",
+  "sales_invoice",
+  "company",
+  "customer",
+  "customer_name",
+  "column_break_1",
+  "total",
+  "date_issued",
+  "status",
+  "section_vencimiento",
+  "expiry_type",
+  "expiry_days",
+  "column_break_2",
+  "expiry_date",
+  "days_to_expire",
+  "section_facturapi",
+  "facturapi_id",
+  "key",
+  "column_break_3",
+  "self_invoice_url",
+  "receipt_pdf_url",
+  "section_conversion",
+  "invoiced",
+  "related_factura_fiscal",
+  "column_break_4",
+  "included_in_global",
+  "global_invoice_date",
+  "section_metadata",
+  "creation_method",
+  "created_by_user",
+  "column_break_5",
+  "last_status_check",
+  "notes",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_general",
+   "fieldtype": "Section Break",
+   "label": "Información General"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Serie de Nomenclatura",
+   "options": "E-REC-.YYYY.-",
+   "reqd": 1
+  },
+  {
+   "fieldname": "sales_invoice",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Sales Invoice",
+   "options": "Sales Invoice"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer"
+  },
+  {
+   "fieldname": "customer_name",
+   "fieldtype": "Data",
+   "label": "Customer Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Total",
+   "reqd": 1
+  },
+  {
+   "fieldname": "date_issued",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Fecha de Emisión",
+   "reqd": 1
+  },
+  {
+   "default": "open",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "open\ninvoiced\nexpired\ncancelled",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_vencimiento",
+   "fieldtype": "Section Break",
+   "label": "Configuración de Vencimiento"
+  },
+  {
+   "default": "Fixed Days",
+   "fieldname": "expiry_type",
+   "fieldtype": "Select",
+   "label": "Tipo de Vencimiento",
+   "options": "Fixed Days\nEnd of Month\nCustom Date",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.expiry_type=='Fixed Days'",
+   "fieldname": "expiry_days",
+   "fieldtype": "Int",
+   "label": "Días para Vencer"
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "expiry_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Fecha de Vencimiento",
+   "reqd": 1
+  },
+  {
+   "fieldname": "days_to_expire",
+   "fieldtype": "Int",
+   "label": "Días Restantes",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_facturapi",
+   "fieldtype": "Section Break",
+   "label": "Información FacturAPI"
+  },
+  {
+   "fieldname": "facturapi_id",
+   "fieldtype": "Data",
+   "label": "FacturAPI ID",
+   "read_only": 1
+  },
+  {
+   "fieldname": "key",
+   "fieldtype": "Data",
+   "label": "Clave de Autofactura",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "self_invoice_url",
+   "fieldtype": "Data",
+   "label": "URL de Autofacturación",
+   "read_only": 1
+  },
+  {
+   "fieldname": "receipt_pdf_url",
+   "fieldtype": "Data",
+   "label": "URL del PDF",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_conversion",
+   "fieldtype": "Section Break",
+   "label": "Conversión a Factura"
+  },
+  {
+   "fieldname": "invoiced",
+   "fieldtype": "Check",
+   "label": "Ya Facturado"
+  },
+  {
+   "fieldname": "related_factura_fiscal",
+   "fieldtype": "Link",
+   "label": "Factura Fiscal Generada",
+   "options": "Factura Fiscal Mexico",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "included_in_global",
+   "fieldtype": "Check",
+   "label": "Incluido en Factura Global"
+  },
+  {
+   "fieldname": "global_invoice_date",
+   "fieldtype": "Date",
+   "label": "Fecha Factura Global",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_metadata",
+   "fieldtype": "Section Break",
+   "label": "Metadata"
+  },
+  {
+   "default": "Automatic",
+   "fieldname": "creation_method",
+   "fieldtype": "Select",
+   "label": "Método de Creación",
+   "options": "Automatic\nManual\nBatch\nAPI",
+   "read_only": 1
+  },
+  {
+   "fieldname": "created_by_user",
+   "fieldtype": "Link",
+   "label": "Creado Por",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "last_status_check",
+   "fieldtype": "Datetime",
+   "label": "Última Verificación de Status",
+   "read_only": 1
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notas"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "EReceipt MX",
+   "print_hide": 1,
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-07-20 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "EReceipts",
+ "name": "EReceipt MX",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts User",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "sales_invoice",
+ "track_changes": 1
+}

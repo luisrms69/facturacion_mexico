@@ -1,0 +1,89 @@
+{
+ "actions": [],
+ "creation": "2025-07-20 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "tipo_impuesto",
+  "impuesto",
+  "tipo_factor",
+  "tasa_cuota",
+  "column_break_1",
+  "base_dr",
+  "importe_dr",
+  "documento_relacionado"
+ ],
+ "fields": [
+  {
+   "fieldname": "tipo_impuesto",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Tipo Impuesto",
+   "options": "\nTraslado\nRetencion",
+   "reqd": 1
+  },
+  {
+   "description": "Catálogo SAT c_Impuesto",
+   "fieldname": "impuesto",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Impuesto",
+   "options": "Impuesto SAT",
+   "reqd": 1
+  },
+  {
+   "description": "Catálogo SAT c_TipoFactor",
+   "fieldname": "tipo_factor",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Tipo Factor",
+   "options": "\nTasa\nCuota\nExento",
+   "reqd": 1
+  },
+  {
+   "fieldname": "tasa_cuota",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Tasa o Cuota",
+   "precision": 6
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "base_dr",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Base DR",
+   "reqd": 1
+  },
+  {
+   "fieldname": "importe_dr",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Importe DR",
+   "read_only": 1
+  },
+  {
+   "fieldname": "documento_relacionado",
+   "fieldtype": "Data",
+   "label": "ID Documento Relacionado",
+   "reqd": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-07-20 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Complementos Pago",
+ "name": "Detalle Complemento Pago MX",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}
