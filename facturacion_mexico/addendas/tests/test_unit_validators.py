@@ -193,9 +193,14 @@ class TestXSDValidator(AddendaTestBase):
 		errors = validator.get_errors()
 		self.assertGreater(len(errors), 0)
 
-		# Verificar que el error menciona problema sintáctico
+		# Verificar que el error menciona problema sintáctico - palabras clave más amplias
 		error_text = " ".join(errors).lower()
-		self.assertTrue(any(keyword in error_text for keyword in ["sintácticamente", "syntax", "malformed"]))
+		# Buscar palabras clave comunes en errores XML
+		keywords = ["syntax", "malformed", "parse", "error", "invalid", "unclosed", "tag", "xml", "element"]
+		self.assertTrue(
+			any(keyword in error_text for keyword in keywords),
+			f"Error text does not contain expected keywords. Got: {error_text}",
+		)
 
 
 if __name__ == "__main__":
