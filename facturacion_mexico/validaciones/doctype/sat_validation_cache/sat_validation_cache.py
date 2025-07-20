@@ -137,7 +137,11 @@ class SATValidationCache(Document):
 		"""Verificar si el cache ha expirado."""
 		if not self.expiry_date:
 			return True
-		return frappe.utils.getdate(self.expiry_date) < frappe.utils.getdate(frappe.utils.today())
+
+		expiry_date = frappe.utils.getdate(self.expiry_date)
+		today = frappe.utils.getdate(frappe.utils.today())
+
+		return expiry_date <= today
 
 	def refresh_validation(self, force=False):
 		"""Refrescar validación si ha expirado o es forzado."""

@@ -70,9 +70,11 @@ class TestSATValidationCache(FrappeTestCase):
 		expected_expiry = self.today + timedelta(days=30)  # Default
 		self.assertEqual(cache.expiry_date, expected_expiry)
 
-	def test_layer1_is_cache_expired_true(self):
+	@patch("frappe.utils.today")
+	def test_layer1_is_cache_expired_true(self, mock_today):
 		"""Layer 1: Test detección de cache expirado."""
 		# Arrange
+		mock_today.return_value = self.today
 		cache = frappe.new_doc("SAT Validation Cache")
 		cache.expiry_date = self.today - timedelta(days=1)  # Ayer
 
@@ -82,9 +84,11 @@ class TestSATValidationCache(FrappeTestCase):
 		# Assert
 		self.assertTrue(result)
 
-	def test_layer1_is_cache_expired_false(self):
+	@patch("frappe.utils.today")
+	def test_layer1_is_cache_expired_false(self, mock_today):
 		"""Layer 1: Test detección de cache válido."""
 		# Arrange
+		mock_today.return_value = self.today
 		cache = frappe.new_doc("SAT Validation Cache")
 		cache.expiry_date = self.today + timedelta(days=1)  # Mañana
 
@@ -94,9 +98,11 @@ class TestSATValidationCache(FrappeTestCase):
 		# Assert
 		self.assertFalse(result)
 
-	def test_layer1_is_cache_expired_today_edge_case(self):
+	@patch("frappe.utils.today")
+	def test_layer1_is_cache_expired_today_edge_case(self, mock_today):
 		"""Layer 1: Test caso límite - expira hoy."""
 		# Arrange
+		mock_today.return_value = self.today
 		cache = frappe.new_doc("SAT Validation Cache")
 		cache.expiry_date = self.today
 

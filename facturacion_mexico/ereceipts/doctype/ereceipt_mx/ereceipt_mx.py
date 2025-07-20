@@ -130,7 +130,11 @@ class EReceiptMX(Document):
 		"""Verificar si el E-Receipt ha expirado."""
 		if not self.expiry_date:
 			return False
-		return frappe.utils.getdate(self.expiry_date) < frappe.utils.getdate(frappe.utils.today())
+
+		expiry_date = frappe.utils.getdate(self.expiry_date)
+		today = frappe.utils.getdate(frappe.utils.today())
+
+		return expiry_date <= today
 
 	def mark_as_invoiced(self, factura_fiscal_name):
 		"""Marcar como facturado."""

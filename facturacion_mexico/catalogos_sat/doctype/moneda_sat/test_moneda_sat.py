@@ -38,6 +38,7 @@ class TestMonedaSAT(FrappeTestCase):
 
 	def test_l1_code_format_validation(self):
 		"""LAYER 1: Test validación de formato de código."""
+		# REGLA #44: Create document FIRST antes de cualquier mock
 		moneda = frappe.new_doc("Moneda SAT")
 		moneda.description = "Test Currency"
 
@@ -45,10 +46,14 @@ class TestMonedaSAT(FrappeTestCase):
 		valid_codes = ["MXN", "USD", "EUR", "CAD"]
 		for code in valid_codes:
 			moneda.code = code
-			try:
-				moneda.validate()
-			except Exception as e:
-				self.fail(f"Código válido {code} falló validación: {e}")
+
+			# Mock contextual solo para validación de duplicados
+			with patch("frappe.db.get_value") as mock_get_value:
+				mock_get_value.return_value = None  # No detectar duplicados
+				try:
+					moneda.validate_code_format()  # Solo validar formato, no duplicados
+				except Exception as e:
+					self.fail(f"Código válido {code} falló validación: {e}")
 
 	# ===== LAYER 2: BUSINESS LOGIC TESTS =====
 

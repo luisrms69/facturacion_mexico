@@ -86,9 +86,11 @@ class TestEReceiptMX(FrappeTestCase):
 		expected_expiry = self.today + timedelta(days=3)  # Default fallback
 		self.assertEqual(ereceipt.expiry_date, expected_expiry)
 
-	def test_layer1_is_expired_true(self):
+	@patch("frappe.utils.today")
+	def test_layer1_is_expired_true(self, mock_today):
 		"""Layer 1: Test detección de e-receipt expirado."""
 		# Arrange
+		mock_today.return_value = self.today
 		ereceipt = frappe.new_doc("EReceipt MX")
 		ereceipt.expiry_date = self.today - timedelta(days=1)  # Ayer
 
@@ -98,9 +100,11 @@ class TestEReceiptMX(FrappeTestCase):
 		# Assert
 		self.assertTrue(result)
 
-	def test_layer1_is_expired_false(self):
+	@patch("frappe.utils.today")
+	def test_layer1_is_expired_false(self, mock_today):
 		"""Layer 1: Test detección de e-receipt válido."""
 		# Arrange
+		mock_today.return_value = self.today
 		ereceipt = frappe.new_doc("EReceipt MX")
 		ereceipt.expiry_date = self.today + timedelta(days=1)  # Mañana
 

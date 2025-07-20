@@ -13,6 +13,7 @@ class MonedaSAT(Document):
 	def validate(self):
 		"""Validaciones del DocType."""
 		self.validate_code_format()
+		self.validate_duplicate_code()
 
 	def validate_code_format(self):
 		"""Validar formato del código SAT."""
@@ -25,3 +26,18 @@ class MonedaSAT(Document):
 
 		# Convertir a mayúsculas
 		self.code = self.code.upper()
+
+	def validate_duplicate_code(self):
+		"""Validar que no exista código duplicado."""
+		if not self.code:
+			return
+
+		existing = frappe.db.get_value(
+			"Moneda SAT", {"code": self.code, "name": ["!=", self.name or ""]}, "name"
+		)
+
+		if existing:
+			frappe.throw(
+				frappe._("Ya existe una moneda SAT con el código {0}").format(self.code),
+				frappe.DuplicateEntryError,
+			)

@@ -3,10 +3,14 @@ Tests 4-Layer para Payment Tracking MX - Sprint 2
 Sistema de Facturación México - Metodología Buzola
 """
 
+import frappe
+
+# REGLA #43A: Skip automatic test records para evitar framework issues
+frappe.flags.skip_test_records = True
+
 import unittest
 from unittest.mock import MagicMock, patch
 
-import frappe
 from frappe.tests.utils import FrappeTestCase
 
 from facturacion_mexico.complementos_pago.doctype.payment_tracking_mx.payment_tracking_mx import (
@@ -83,25 +87,39 @@ class TestPaymentTrackingMX(FrappeTestCase):
 	# LAYER 2: BUSINESS LOGIC TESTS - Lógica de negocio con mocks
 	# ═══════════════════════════════════════════════════════════════════
 
-	@patch("frappe.db.sql")
-	@patch("frappe.utils.now")
-	@patch("frappe.session.user", "test@example.com")
-	def test_layer2_validate_payment_sequence_with_posterior_payments(self, mock_now, mock_sql):
+	def test_layer2_validate_payment_sequence_with_posterior_payments(self):
 		"""Layer 2: Test detección de pagos retroactivos con mocks."""
-		# Arrange
-		mock_now.return_value = "2025-07-19 10:00:00"
-		mock_sql.return_value = [
-			{"name": "PT-002", "payment_date": "2025-07-20", "parcialidad_number": 2},
-			{"name": "PT-003", "payment_date": "2025-07-21", "parcialidad_number": 3},
-		]
+		# REGLA #44: Create document FIRST sin frappe.new_doc para evitar user_permissions error
+		tracking = frappe.get_doc(
+			{
+				"doctype": "Payment Tracking MX",
+				"sales_invoice": "SINV-001",
+				"payment_entry": "PE-001",
+				"amount_paid": 1000.0,
+				"balance_before": 5000.0,
+				"parcialidad_number": 1,
+				"payment_date": "2025-07-19",  # Fecha anterior a los existentes
+				"name": "PT-001",
+			}
+		)
 
-		tracking = frappe.new_doc("Payment Tracking MX")
-		tracking.sales_invoice = "SINV-001"
-		tracking.payment_date = "2025-07-19"
-		tracking.name = "PT-001"
+		# Establecer campos calculados básicos
+		tracking.balance_after = tracking.balance_before - tracking.amount_paid
 
-		# Act
-		tracking.validate_payment_sequence()
+		# Mock contextual solo para validaciones específicas
+		with (
+			patch("frappe.db.sql") as mock_sql,
+			patch("frappe.utils.now") as mock_now,
+		):
+			# Arrange mocks
+			mock_now.return_value = "2025-07-19 10:00:00"
+			mock_sql.return_value = [
+				{"name": "PT-002", "payment_date": "2025-07-20", "parcialidad_number": 2},
+				{"name": "PT-003", "payment_date": "2025-07-21", "parcialidad_number": 3},
+			]
+
+			# Act
+			tracking.validate_payment_sequence()
 
 		# Assert
 		self.assertEqual(tracking.is_retroactive, 1)
