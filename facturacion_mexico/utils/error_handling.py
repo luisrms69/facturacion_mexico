@@ -172,6 +172,31 @@ def handle_api_errors(default_return: Any = None, log_prefix: str = "API Error")
 	return decorator
 
 
+def handle_api_error(exception: Exception, context: str = "API Error") -> dict:
+	"""
+	Función helper para manejo consistente de errores en APIs.
+
+	Args:
+		exception: Excepción capturada
+		context: Contexto del error
+
+	Returns:
+		Dict con estructura estándar de error
+	"""
+	error_message = str(exception)
+
+	# Log del error
+	frappe.log_error(f"{context}: {error_message}", "API Error Handler")
+
+	return {
+		"success": False,
+		"message": error_message,
+		"data": None,
+		"error_type": type(exception).__name__,
+		"context": context,
+	}
+
+
 # Imports necesarios
 try:
 	import xml.etree.ElementTree as ET
