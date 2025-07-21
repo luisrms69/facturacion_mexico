@@ -3,16 +3,14 @@ XML Builder - Sprint 3
 Constructor dinámico de XML para addendas usando templates
 """
 
-import json
 import re
 import xml.etree.ElementTree as ET
 from datetime import datetime
 
 import frappe
 from frappe import _
-from lxml import etree
 
-from facturacion_mexico.utils.secure_xml import secure_parse_xml, validate_xml_size
+from facturacion_mexico.utils.secure_xml import secure_parse_xml
 
 
 class AddendaXMLBuilder:

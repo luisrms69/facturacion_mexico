@@ -5,8 +5,6 @@ Tests unitarios para parsers del sistema de addendas
 
 import unittest
 
-import frappe
-
 from facturacion_mexico.addendas.parsers.xml_builder import AddendaXMLBuilder
 from facturacion_mexico.addendas.tests.test_base import AddendaTestBase
 

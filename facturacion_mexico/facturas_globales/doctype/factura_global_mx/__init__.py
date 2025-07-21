@@ -1,0 +1,1 @@
+# Factura Global MX DocType

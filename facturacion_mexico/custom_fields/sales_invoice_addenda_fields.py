@@ -3,10 +3,7 @@ Custom Fields para Sales Invoice - Sistema de Addendas
 Sprint 3 - Facturación México
 """
 
-from typing import Any
-
 import frappe
-from frappe import _
 from frappe.utils import now
 
 

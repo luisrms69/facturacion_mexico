@@ -5,10 +5,8 @@ Script para instalar fixtures de Liverpool y Generic addenda types
 
 import json
 import os
-from typing import Any
 
 import frappe
-from frappe import _
 
 
 class AddendaFixtureInstaller:

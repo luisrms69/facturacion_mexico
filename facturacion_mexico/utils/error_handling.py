@@ -3,10 +3,9 @@ Utilidades para manejo mejorado de errores - Resolución de CodeQL
 Patrones seguros para manejo de excepciones específicas
 """
 
-import logging
 from collections.abc import Callable
 from functools import wraps
-from typing import Any, Optional, Union
+from typing import Any
 
 import frappe
 
@@ -170,6 +169,31 @@ def handle_api_errors(default_return: Any = None, log_prefix: str = "API Error")
 		return wrapper
 
 	return decorator
+
+
+def handle_api_error(exception: Exception, context: str = "API Error") -> dict:
+	"""
+	Función helper para manejo consistente de errores en APIs.
+
+	Args:
+		exception: Excepción capturada
+		context: Contexto del error
+
+	Returns:
+		Dict con estructura estándar de error
+	"""
+	error_message = str(exception)
+
+	# Log del error
+	frappe.log_error(f"{context}: {error_message}", "API Error Handler")
+
+	return {
+		"success": False,
+		"message": error_message,
+		"data": None,
+		"error_type": type(exception).__name__,
+		"context": context,
+	}
 
 
 # Imports necesarios

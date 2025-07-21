@@ -2,10 +2,9 @@ from typing import Any
 
 import frappe
 from frappe import _
-from frappe.utils import flt, get_datetime, now_datetime
+from frappe.utils import flt, now_datetime
 
 from .api_client import get_facturapi_client
-from .doctype.factura_fiscal_mexico.factura_fiscal_mexico import FacturaFiscalMexico
 from .doctype.fiscal_event_mx.fiscal_event_mx import FiscalEventMX
 
 

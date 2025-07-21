@@ -4,7 +4,7 @@ Sprint 2 - Sistema de Facturación México
 """
 
 import calendar
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import frappe
 from frappe import _

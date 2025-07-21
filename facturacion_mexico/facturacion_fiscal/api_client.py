@@ -3,7 +3,6 @@ from typing import Any
 import frappe
 import requests
 from frappe import _
-from frappe.utils import now_datetime
 
 
 class FacturAPIClient:

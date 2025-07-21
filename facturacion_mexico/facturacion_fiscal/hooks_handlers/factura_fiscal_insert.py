@@ -1,7 +1,3 @@
-import frappe
-from frappe import _
-
-
 def create_fiscal_event(doc, method):
 	"""Crear evento fiscal cuando se inserta Factura Fiscal Mexico."""
 	from facturacion_mexico.facturacion_fiscal.doctype.fiscal_event_mx.fiscal_event_mx import FiscalEventMX

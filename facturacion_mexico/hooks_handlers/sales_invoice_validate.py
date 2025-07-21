@@ -3,8 +3,6 @@ Sales Invoice Validate Handler - Sistema de Addendas
 Sprint 3 - Facturación México
 """
 
-from typing import Optional
-
 import frappe
 from frappe import _
 

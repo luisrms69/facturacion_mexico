@@ -3,7 +3,7 @@ Multi-Sucursal API - Sprint 3
 APIs para manejo de múltiples sucursales
 """
 
-from typing import Any, Optional
+from typing import Any
 
 import frappe
 from frappe import _

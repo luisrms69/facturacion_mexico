@@ -3,14 +3,11 @@ XSD Validator - Sprint 3
 Validador de XML contra esquemas XSD para addendas
 """
 
-import io
-from typing import Optional
-
 import frappe
 from frappe import _
 from lxml import etree
 
-from facturacion_mexico.utils.secure_xml import secure_parse_xml, validate_xml_size
+from facturacion_mexico.utils.secure_xml import secure_parse_xml
 
 
 class XSDValidator:

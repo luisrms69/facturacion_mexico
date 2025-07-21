@@ -1,0 +1,97 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-07-20 18:45:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "ereceipt",
+  "column_break_2",
+  "folio_receipt",
+  "section_break_4",
+  "fecha_receipt",
+  "column_break_6",
+  "monto",
+  "section_break_8",
+  "customer_name",
+  "column_break_10",
+  "included_in_cfdi"
+ ],
+ "fields": [
+  {
+   "fieldname": "ereceipt",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "E-Receipt",
+   "options": "EReceipt MX",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "folio_receipt",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Folio Receipt",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_4",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "fecha_receipt",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Fecha Receipt",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_6",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "monto",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Monto",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_8",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "customer_name",
+   "fieldtype": "Data",
+   "label": "Nombre Cliente",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_10",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "included_in_cfdi",
+   "fieldtype": "Check",
+   "label": "Incluido en CFDI",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-07-20 18:45:00.000000",
+ "modified_by": "Administrator",
+ "module": "Facturas Globales",
+ "name": "Factura Global Detail",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

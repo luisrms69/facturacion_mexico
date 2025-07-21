@@ -3,7 +3,7 @@ Multi-Sucursal Utils - Sprint 3
 Utilidades para manejo de múltiples sucursales y lugar de expedición
 """
 
-from typing import Any, Optional
+from typing import Any
 
 import frappe
 from frappe import _

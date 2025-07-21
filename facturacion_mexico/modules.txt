@@ -5,3 +5,4 @@ EReceipts
 Addendas
 Validaciones
 Integracion
+Facturas Globales

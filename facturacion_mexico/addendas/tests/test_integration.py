@@ -3,9 +3,7 @@ Integration Tests - Layer 3
 Tests de integración para el sistema de addendas
 """
 
-import json
 import unittest
-from unittest.mock import patch
 
 import frappe
 

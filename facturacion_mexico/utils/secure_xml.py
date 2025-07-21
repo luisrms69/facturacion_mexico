@@ -4,7 +4,6 @@ Resuelve vulnerabilidades de seguridad identificadas por CodeQL
 """
 
 import xml.etree.ElementTree as ET
-from typing import Union
 
 from lxml import etree
 

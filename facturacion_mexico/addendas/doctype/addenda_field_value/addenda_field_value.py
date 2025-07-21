@@ -5,7 +5,7 @@ Child table para valores de campos de addenda
 
 import re
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 import frappe
 from frappe import _
