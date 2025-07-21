@@ -20,7 +20,7 @@ def get_uso_cfdi_for_customer(customer_name: str) -> list[dict[str, Any]]:
 		customer = frappe.get_doc("Customer", customer_name)
 
 		# Determinar si es persona física o moral basado en RFC
-		es_persona_fisica = _is_persona_fisica(customer.rfc) if customer.rfc else True
+		es_persona_fisica = _is_persona_fisica(customer.fm_rfc) if customer.fm_rfc else True
 
 		# Filtros base para catálogos activos
 		filters = {"vigencia_hasta": [">=", frappe.utils.today()]}
@@ -40,9 +40,9 @@ def get_uso_cfdi_for_customer(customer_name: str) -> list[dict[str, Any]]:
 		)
 
 		# Si el cliente tiene uso por defecto, marcarlo
-		if customer.uso_cfdi_default:
+		if customer.fm_uso_cfdi_default:
 			for uso in usos_cfdi:
-				if uso.name == customer.uso_cfdi_default:
+				if uso.name == customer.fm_uso_cfdi_default:
 					uso["is_default"] = True
 					break
 
@@ -71,7 +71,7 @@ def get_regimen_fiscal_for_customer(customer_name: str) -> list[dict[str, Any]]:
 		customer = frappe.get_doc("Customer", customer_name)
 
 		# Determinar si es persona física o moral basado en RFC
-		es_persona_fisica = _is_persona_fisica(customer.rfc) if customer.rfc else True
+		es_persona_fisica = _is_persona_fisica(customer.fm_rfc) if customer.fm_rfc else True
 
 		# Filtros base para catálogos activos
 		filters = {"vigencia_hasta": [">=", frappe.utils.today()]}
@@ -91,9 +91,9 @@ def get_regimen_fiscal_for_customer(customer_name: str) -> list[dict[str, Any]]:
 		)
 
 		# Si el cliente tiene régimen por defecto, marcarlo
-		if customer.regimen_fiscal:
+		if customer.fm_regimen_fiscal:
 			for regimen in regimenes_fiscales:
-				if regimen.name == customer.regimen_fiscal:
+				if regimen.name == customer.fm_regimen_fiscal:
 					regimen["is_default"] = True
 					break
 
@@ -188,38 +188,39 @@ def validate_rfc(rfc: str) -> dict[str, Any]:
 		if not rfc:
 			return {"valid": False, "message": "RFC no puede estar vacío"}
 
-		rfc = rfc.strip().upper()
+		fm_rfc = rfc.strip().upper()
 
 		# Validar longitud
-		if len(rfc) not in [12, 13]:
+		if len(fm_rfc) not in [12, 13]:
 			return {"valid": False, "message": "RFC debe tener 12 o 13 caracteres"}
 
 		# Validar RFCs genéricos
 		generic_rfcs = ["XAXX010101000", "XEXX010101000"]
-		if rfc in generic_rfcs:
+		if fm_rfc in generic_rfcs:
 			return {"valid": False, "message": "No se permite RFC genérico"}
 
 		# Validar formato básico
-		if not _validate_rfc_format(rfc):
+		if not _validate_rfc_format(fm_rfc):
 			return {"valid": False, "message": "Formato de RFC inválido"}
 
 		# Validar dígito verificador
-		if not _validate_rfc_check_digit(rfc):
+		if not _validate_rfc_check_digit(fm_rfc):
 			return {"valid": False, "message": "Dígito verificador de RFC inválido"}
 
 		# Determinar tipo de persona
-		es_persona_fisica = _is_persona_fisica(rfc)
+		es_persona_fisica = _is_persona_fisica(fm_rfc)
 
 		return {
 			"valid": True,
 			"message": "RFC válido",
+			"rfc": fm_rfc,
 			"is_persona_fisica": es_persona_fisica,
 			"is_persona_moral": not es_persona_fisica,
-			"formatted_rfc": rfc,
+			"formatted_rfc": fm_rfc,
 		}
 
 	except Exception as e:
-		frappe.logger().error(f"Error validando RFC {rfc}: {e!s}")
+		frappe.logger().error(f"Error validando RFC {fm_rfc}: {e!s}")
 		return {"valid": False, "message": f"Error en validación: {e!s}"}
 
 

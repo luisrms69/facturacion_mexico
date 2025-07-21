@@ -280,9 +280,9 @@ class FacturacionMexicoTestGranular(FrappeTestCase):
 			)
 
 			# Campos fiscales - RFC válido de prueba
-			customer.rfc = "ABC123456789"  # RFC válido para pruebas
-			customer.regimen_fiscal = "601"
-			customer.uso_cfdi_default = "G01"
+			customer.fm_rfc = "ABC123456789"  # RFC válido para pruebas
+			customer.fm_regimen_fiscal = "601"
+			customer.fm_uso_cfdi_default = "G01"
 
 			customer.save()
 
@@ -301,8 +301,8 @@ class FacturacionMexicoTestGranular(FrappeTestCase):
 				item.include_item_in_manufacturing = 0
 
 				# Clasificación SAT
-				item.producto_servicio_sat = "01010101"
-				item.unidad_sat = "H87"
+				item.fm_producto_servicio_sat = "01010101"
+				item.fm_unidad_sat = "H87"
 
 				item.save()
 			except Exception as e:
@@ -323,7 +323,7 @@ class FacturacionMexicoTestGranular(FrappeTestCase):
 			"customer_type": "Individual",
 			"customer_group": "All Customer Groups",
 			"territory": "All Territories",
-			"rfc": f"ABC{random_suffix}456789",  # RFC único para pruebas
+			"fm_rfc": f"ABC{random_suffix}456789",  # RFC único para pruebas
 		}
 		defaults.update(kwargs)
 

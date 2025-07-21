@@ -70,9 +70,9 @@ def get_test_customer_record():
 		"customer_type": "Company",
 		"customer_group": "All Customer Groups",
 		"territory": "All Territories",
-		"rfc": "ABC123456789",
-		"regimen_fiscal": "601",
-		"uso_cfdi_default": "G03",
+		"fm_rfc": "ABC123456789",
+		"fm_regimen_fiscal": "601",
+		"fm_uso_cfdi_default": "G03",
 	}
 
 
@@ -85,8 +85,8 @@ def get_test_sales_invoice_record():
 		"due_date": frappe.utils.add_days(frappe.utils.today(), 30),
 		"company": "_Test Company",
 		"currency": "MXN",
-		"cfdi_use": "G03",
-		"payment_method_sat": "PUE",
+		"fm_cfdi_use": "G03",
+		"fm_payment_method_sat": "PUE",
 		"items": [
 			{
 				"item_code": "_Test Item",

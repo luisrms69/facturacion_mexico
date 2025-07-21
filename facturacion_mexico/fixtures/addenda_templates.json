@@ -6,7 +6,7 @@
 		"template_name": "Template Genérico por Defecto",
 		"version": "1.0",
 		"description": "Template por defecto para addendas genéricas. Incluye información básica del CFDI y conceptos.",
-		"template_xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<addenda xmlns=\"http://addenda.facturacion.mx/generic\">\n\t<informacionGeneral>\n\t\t<fechaEmision>{{ cfdi_fecha }}</fechaEmision>\n\t\t<folioFiscal>{{ cfdi_uuid }}</folioFiscal>\n\t\t<montoTotal>{{ cfdi_total }}</montoTotal>\n\t</informacionGeneral>\n\t<proveedor>\n\t\t<rfc>{{ emisor_rfc }}</rfc>\n\t\t<razonSocial>{{ emisor_nombre }}</razonSocial>\n\t</proveedor>\n\t<cliente>\n\t\t<rfc>{{ receptor_rfc }}</rfc>\n\t\t<razonSocial>{{ receptor_nombre }}</razonSocial>\n\t</cliente>\n\t<conceptos>\n\t\t{% for concepto in conceptos %}\n\t\t<concepto>\n\t\t\t<descripcion>{{ concepto.descripcion }}</descripcion>\n\t\t\t<cantidad>{{ concepto.cantidad }}</cantidad>\n\t\t\t<valorUnitario>{{ concepto.valor_unitario }}</valorUnitario>\n\t\t\t<importe>{{ concepto.importe }}</importe>\n\t\t</concepto>\n\t\t{% endfor %}\n\t</conceptos>\n</addenda>",
+		"template_xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<addenda xmlns=\"http://addenda.facturacion.mx/generic\">\n\t<informacionGeneral>\n\t\t<fechaEmision>{{ cfdi_fecha }}</fechaEmision>\n\t\t<folioFiscal>{{ cfdi_uuid }}</folioFiscal>\n\t\t<montoTotal>{{ cfdi_total }}</montoTotal>\n\t</informacionGeneral>\n\t<proveedor>\n\t\t<fm_rfc>{{ emisor_rfc }}</fm_rfc>\n\t\t<razonSocial>{{ emisor_nombre }}</razonSocial>\n\t</proveedor>\n\t<cliente>\n\t\t<fm_rfc>{{ receptor_rfc }}</fm_rfc>\n\t\t<razonSocial>{{ receptor_nombre }}</razonSocial>\n\t</cliente>\n\t<conceptos>\n\t\t{% for concepto in conceptos %}\n\t\t<concepto>\n\t\t\t<descripcion>{{ concepto.descripcion }}</descripcion>\n\t\t\t<cantidad>{{ concepto.cantidad }}</cantidad>\n\t\t\t<valorUnitario>{{ concepto.valor_unitario }}</valorUnitario>\n\t\t\t<importe>{{ concepto.importe }}</importe>\n\t\t</concepto>\n\t\t{% endfor %}\n\t</conceptos>\n</addenda>",
 		"is_default": 1,
 		"created_by": "Administrator",
 		"modified_by": "Administrator"
@@ -30,7 +30,7 @@
 		"template_name": "Template Genérico Simplificado",
 		"version": "1.0",
 		"description": "Template simplificado para addendas genéricas. Solo incluye información básica sin conceptos detallados.",
-		"template_xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<addenda xmlns=\"http://addenda.facturacion.mx/generic\">\n\t<informacionGeneral>\n\t\t<fechaEmision>{{ cfdi_fecha }}</fechaEmision>\n\t\t<folioFiscal>{{ cfdi_uuid }}</folioFiscal>\n\t\t<montoTotal>{{ cfdi_total }}</montoTotal>\n\t</informacionGeneral>\n\t<proveedor>\n\t\t<rfc>{{ emisor_rfc }}</rfc>\n\t\t<razonSocial>{{ emisor_nombre }}</razonSocial>\n\t</proveedor>\n\t<cliente>\n\t\t<rfc>{{ receptor_rfc }}</rfc>\n\t\t<razonSocial>{{ receptor_nombre }}</razonSocial>\n\t</cliente>\n</addenda>",
+		"template_xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<addenda xmlns=\"http://addenda.facturacion.mx/generic\">\n\t<informacionGeneral>\n\t\t<fechaEmision>{{ cfdi_fecha }}</fechaEmision>\n\t\t<folioFiscal>{{ cfdi_uuid }}</folioFiscal>\n\t\t<montoTotal>{{ cfdi_total }}</montoTotal>\n\t</informacionGeneral>\n\t<proveedor>\n\t\t<fm_rfc>{{ emisor_rfc }}</fm_rfc>\n\t\t<razonSocial>{{ emisor_nombre }}</razonSocial>\n\t</proveedor>\n\t<cliente>\n\t\t<fm_rfc>{{ receptor_rfc }}</fm_rfc>\n\t\t<razonSocial>{{ receptor_nombre }}</razonSocial>\n\t</cliente>\n</addenda>",
 		"is_default": 0,
 		"created_by": "Administrator",
 		"modified_by": "Administrator"

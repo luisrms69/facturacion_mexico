@@ -80,7 +80,7 @@ class EReceiptMX(Document):
 
 			# Verificar que no tenga factura fiscal
 			invoice = frappe.get_doc("Sales Invoice", self.sales_invoice)
-			if invoice.get("factura_fiscal_mx"):
+			if invoice.get("fm_factura_fiscal_mx"):
 				frappe.throw(_("Esta Sales Invoice ya tiene factura fiscal asociada"))
 
 	def validate_expiry_configuration(self):
@@ -183,7 +183,7 @@ class EReceiptMX(Document):
 		"""Validar que no exista factura fiscal previa."""
 		if self.sales_invoice:
 			sales_invoice = frappe.get_doc("Sales Invoice", self.sales_invoice)
-			if sales_invoice.get("factura_fiscal_mx"):
+			if sales_invoice.get("fm_factura_fiscal_mx"):
 				frappe.throw(_("Esta factura ya tiene factura fiscal asociada"))
 
 	def auto_generate_facturapi(self):
@@ -228,7 +228,7 @@ class EReceiptMX(Document):
 			sales_invoice = frappe.get_doc("Sales Invoice", sales_invoice_name)
 
 			# Validar que no tenga factura fiscal
-			if sales_invoice.get("factura_fiscal_mx"):
+			if sales_invoice.get("fm_factura_fiscal_mx"):
 				frappe.throw(_("Esta factura ya tiene factura fiscal asociada"))
 
 			# Crear E-Receipt

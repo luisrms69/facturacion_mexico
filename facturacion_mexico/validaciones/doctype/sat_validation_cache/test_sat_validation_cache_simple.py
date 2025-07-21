@@ -25,7 +25,7 @@ class TestSATValidationCacheSimple(FrappeTestCase):
 		"""Test básico: crear SAT Validation Cache."""
 		cache = frappe.new_doc("SAT Validation Cache")
 		cache.validation_key = "RFC_XAXX010101000"
-		cache.validation_type = "RFC"
+		cache.validation_type = "fm_rfc"
 		cache.result_data = '{"valid": true, "status": "Activo"}'
 		cache.validation_date = datetime.now().date()
 
@@ -39,20 +39,20 @@ class TestSATValidationCacheSimple(FrappeTestCase):
 		"""Test campos básicos del cache."""
 		cache = frappe.new_doc("SAT Validation Cache")
 		cache.validation_key = "RFC_TEST123456ABC"
-		cache.validation_type = "RFC"
+		cache.validation_type = "fm_rfc"
 		cache.result_data = '{"valid": true}'
 		cache.validation_date = datetime.now().date()
 
 		# Verificar campos básicos
 		self.assertEqual(cache.validation_key, "RFC_TEST123456ABC")
-		self.assertEqual(cache.validation_type, "RFC")
+		self.assertEqual(cache.validation_type, "fm_rfc")
 		self.assertEqual(cache.result_data, '{"valid": true}')
 
 	def test_cache_metadata_setup(self):
 		"""Test configuración de metadata."""
 		cache = frappe.new_doc("SAT Validation Cache")
 		cache.validation_key = "RFC_METADATA_TEST"
-		cache.validation_type = "RFC"
+		cache.validation_type = "fm_rfc"
 		cache.validation_date = datetime.now().date()
 
 		# Ejecutar configuración de metadata
@@ -65,7 +65,7 @@ class TestSATValidationCacheSimple(FrappeTestCase):
 
 	def test_different_validation_types(self):
 		"""Test diferentes tipos de validación."""
-		types = ["RFC", "Lista69B", "Obligaciones"]
+		types = ["fm_rfc", "Lista69B", "Obligaciones"]
 
 		for validation_type in types:
 			cache = frappe.new_doc("SAT Validation Cache")

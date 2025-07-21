@@ -55,7 +55,7 @@ class TimbradoAPI:
 				FiscalEventMX.mark_event_failed(event_doc.name, str(e))
 
 			# Actualizar estado en Sales Invoice
-			frappe.db.set_value("Sales Invoice", sales_invoice_name, "fiscal_status", "Error")
+			frappe.db.set_value("Sales Invoice", sales_invoice_name, "fm_fiscal_status", "Error")
 			frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure error state is persisted
 
 			frappe.logger().error(f"Error timbrado factura {sales_invoice_name}: {e!s}")
@@ -68,7 +68,7 @@ class TimbradoAPI:
 			frappe.throw(_("La factura debe estar enviada para timbrar"))
 
 		# Verificar que no esté ya timbrada
-		if sales_invoice.fiscal_status == "Timbrada":
+		if sales_invoice.fm_fiscal_status == "Timbrada":
 			frappe.throw(_("La factura ya está timbrada"))
 
 		# Verificar datos del cliente
@@ -76,11 +76,11 @@ class TimbradoAPI:
 			frappe.throw(_("Se requiere cliente para timbrar"))
 
 		customer = frappe.get_doc("Customer", sales_invoice.customer)
-		if not customer.rfc:
+		if not customer.fm_rfc:
 			frappe.throw(_("El cliente debe tener RFC configurado"))
 
 		# Verificar uso de CFDI
-		if not sales_invoice.cfdi_use:
+		if not sales_invoice.fm_cfdi_use:
 			frappe.throw(_("Se requiere Uso de CFDI para timbrar"))
 
 		# Verificar que tenga items
@@ -89,8 +89,8 @@ class TimbradoAPI:
 
 	def _get_or_create_factura_fiscal(self, sales_invoice):
 		"""Obtener o crear Factura Fiscal México."""
-		if sales_invoice.factura_fiscal_mx:
-			return frappe.get_doc("Factura Fiscal Mexico", sales_invoice.factura_fiscal_mx)
+		if sales_invoice.fm_factura_fiscal_mx:
+			return frappe.get_doc("Factura Fiscal Mexico", sales_invoice.fm_factura_fiscal_mx)
 
 		# Crear nueva factura fiscal
 		factura_fiscal = frappe.new_doc("Factura Fiscal Mexico")
@@ -98,11 +98,11 @@ class TimbradoAPI:
 		factura_fiscal.customer = sales_invoice.customer
 		factura_fiscal.total_amount = sales_invoice.grand_total
 		factura_fiscal.currency = sales_invoice.currency
-		factura_fiscal.fiscal_status = "draft"
+		factura_fiscal.fm_fiscal_status = "draft"
 		factura_fiscal.save()
 
 		# Actualizar referencia en Sales Invoice
-		frappe.db.set_value("Sales Invoice", sales_invoice.name, "factura_fiscal_mx", factura_fiscal.name)
+		frappe.db.set_value("Sales Invoice", sales_invoice.name, "fm_factura_fiscal_mx", factura_fiscal.name)
 
 		return factura_fiscal
 
@@ -113,7 +113,7 @@ class TimbradoAPI:
 		# Datos del cliente
 		customer_data = {
 			"legal_name": customer.customer_name,
-			"tax_id": customer.rfc,
+			"tax_id": customer.fm_rfc,
 			"email": customer.email_id or "cliente@example.com",
 		}
 
@@ -141,9 +141,9 @@ class TimbradoAPI:
 					"quantity": item.qty,
 					"product": {
 						"description": item.description or item.item_name,
-						"product_key": item_doc.producto_servicio_sat or "01010101",
+						"product_key": item_doc.fm_producto_servicio_sat or "01010101",
 						"price": flt(item.rate),
-						"unit_key": item_doc.unidad_sat or "H87",
+						"unit_key": item_doc.fm_unidad_sat or "H87",
 						"unit_name": item.uom or "Pieza",
 					},
 				}
@@ -156,7 +156,7 @@ class TimbradoAPI:
 			"payment_form": "99",  # Por definir
 			"folio_number": sales_invoice.name,
 			"series": "F",
-			"use": sales_invoice.cfdi_use,
+			"use": sales_invoice.fm_cfdi_use,
 		}
 
 		return invoice_data
@@ -166,7 +166,7 @@ class TimbradoAPI:
 		# Actualizar Factura Fiscal
 		factura_fiscal.uuid = response.get("uuid")
 		factura_fiscal.facturapi_id = response.get("id")
-		factura_fiscal.fiscal_status = "stamped"
+		factura_fiscal.fm_fiscal_status = "stamped"
 		factura_fiscal.stamped_at = now_datetime()
 		factura_fiscal.save()
 
@@ -174,7 +174,7 @@ class TimbradoAPI:
 		frappe.db.set_value(
 			"Sales Invoice",
 			sales_invoice.name,
-			{"fiscal_status": "Timbrada", "uuid_fiscal": response.get("uuid")},
+			{"fm_fiscal_status": "Timbrada", "fm_uuid_fiscal": response.get("uuid")},
 		)
 
 		# Marcar evento como exitoso
@@ -226,13 +226,13 @@ class TimbradoAPI:
 			sales_invoice = frappe.get_doc("Sales Invoice", sales_invoice_name)
 
 			# Validar que se pueda cancelar
-			if sales_invoice.fiscal_status != "Timbrada":
+			if sales_invoice.fm_fiscal_status != "Timbrada":
 				frappe.throw(_("Solo se pueden cancelar facturas timbradas"))
 
-			if not sales_invoice.factura_fiscal_mx:
+			if not sales_invoice.fm_factura_fiscal_mx:
 				frappe.throw(_("No se encontró factura fiscal asociada"))
 
-			factura_fiscal = frappe.get_doc("Factura Fiscal Mexico", sales_invoice.factura_fiscal_mx)
+			factura_fiscal = frappe.get_doc("Factura Fiscal Mexico", sales_invoice.fm_factura_fiscal_mx)
 
 			# Crear evento fiscal
 			event_doc = FiscalEventMX.create_event(
@@ -245,12 +245,12 @@ class TimbradoAPI:
 			response = self.client.cancel_invoice(factura_fiscal.facturapi_id, motivo)
 
 			# Procesar respuesta exitosa
-			factura_fiscal.fiscal_status = "cancelled"
+			factura_fiscal.fm_fiscal_status = "cancelled"
 			factura_fiscal.cancelled_at = now_datetime()
 			factura_fiscal.save()
 
 			# Actualizar Sales Invoice
-			frappe.db.set_value("Sales Invoice", sales_invoice_name, "fiscal_status", "Cancelada")
+			frappe.db.set_value("Sales Invoice", sales_invoice_name, "fm_fiscal_status", "Cancelada")
 
 			# Marcar evento como exitoso
 			FiscalEventMX.mark_event_success(event_doc.name, response)

@@ -8,56 +8,56 @@ def create_sales_invoice_custom_fields():
 	custom_fields = {
 		"Sales Invoice": [
 			{
-				"fieldname": "informacion_fiscal_mx_section",
+				"fieldname": "fm_informacion_fiscal_section",
 				"fieldtype": "Section Break",
 				"label": "Información Fiscal MX",
 				"insert_after": "customer",
 				"collapsible": 1,
 			},
 			{
-				"fieldname": "cfdi_use",
+				"fieldname": "fm_cfdi_use",
 				"fieldtype": "Link",
 				"label": "Uso del CFDI",
 				"options": "Uso CFDI SAT",
-				"insert_after": "informacion_fiscal_mx_section",
+				"insert_after": "fm_informacion_fiscal_section",
 				"reqd": 1,
 			},
 			{
-				"fieldname": "payment_method_sat",
+				"fieldname": "fm_payment_method_sat",
 				"fieldtype": "Select",
 				"label": "Método de Pago SAT",
 				"options": "PUE\nPPD",
 				"default": "PUE",
-				"insert_after": "cfdi_use",
+				"insert_after": "fm_cfdi_use",
 			},
 			{
-				"fieldname": "column_break_fiscal_mx",
+				"fieldname": "fm_column_break_fiscal",
 				"fieldtype": "Column Break",
-				"insert_after": "payment_method_sat",
+				"insert_after": "fm_payment_method_sat",
 			},
 			{
-				"fieldname": "fiscal_status",
+				"fieldname": "fm_fiscal_status",
 				"fieldtype": "Select",
 				"label": "Estado Fiscal",
 				"options": "Pendiente\nTimbrada\nCancelada\nError",
 				"default": "Pendiente",
 				"read_only": 1,
-				"insert_after": "column_break_fiscal_mx",
+				"insert_after": "fm_column_break_fiscal",
 			},
 			{
-				"fieldname": "uuid_fiscal",
+				"fieldname": "fm_uuid_fiscal",
 				"fieldtype": "Data",
 				"label": "UUID Fiscal",
 				"read_only": 1,
-				"insert_after": "fiscal_status",
+				"insert_after": "fm_fiscal_status",
 			},
 			{
-				"fieldname": "factura_fiscal_mx",
+				"fieldname": "fm_factura_fiscal_mx",
 				"fieldtype": "Link",
 				"label": "Factura Fiscal México",
 				"options": "Factura Fiscal Mexico",
 				"read_only": 1,
-				"insert_after": "uuid_fiscal",
+				"insert_after": "fm_uuid_fiscal",
 			},
 		]
 	}
@@ -70,32 +70,36 @@ def create_customer_custom_fields():
 	custom_fields = {
 		"Customer": [
 			{
-				"fieldname": "informacion_fiscal_mx_section",
+				"fieldname": "fm_informacion_fiscal_section_customer",
 				"fieldtype": "Section Break",
 				"label": "Información Fiscal MX",
 				"insert_after": "customer_details",
 				"collapsible": 1,
 			},
 			{
-				"fieldname": "rfc",
+				"fieldname": "fm_rfc",
 				"fieldtype": "Data",
 				"label": "RFC",
-				"insert_after": "informacion_fiscal_mx_section",
+				"insert_after": "fm_informacion_fiscal_section_customer",
 			},
-			{"fieldname": "column_break_fiscal_customer", "fieldtype": "Column Break", "insert_after": "rfc"},
 			{
-				"fieldname": "regimen_fiscal",
+				"fieldname": "fm_column_break_fiscal_customer",
+				"fieldtype": "Column Break",
+				"insert_after": "fm_rfc",
+			},
+			{
+				"fieldname": "fm_regimen_fiscal",
 				"fieldtype": "Link",
 				"label": "Régimen Fiscal",
 				"options": "Regimen Fiscal SAT",
-				"insert_after": "column_break_fiscal_customer",
+				"insert_after": "fm_column_break_fiscal_customer",
 			},
 			{
-				"fieldname": "uso_cfdi_default",
+				"fieldname": "fm_uso_cfdi_default",
 				"fieldtype": "Link",
 				"label": "Uso CFDI por Defecto",
 				"options": "Uso CFDI SAT",
-				"insert_after": "regimen_fiscal",
+				"insert_after": "fm_regimen_fiscal",
 			},
 		]
 	}
@@ -108,28 +112,28 @@ def create_item_custom_fields():
 	custom_fields = {
 		"Item": [
 			{
-				"fieldname": "clasificacion_sat_section",
+				"fieldname": "fm_clasificacion_sat_section",
 				"fieldtype": "Section Break",
 				"label": "Clasificación SAT",
 				"insert_after": "item_defaults",
 				"collapsible": 1,
 			},
 			{
-				"fieldname": "producto_servicio_sat",
+				"fieldname": "fm_producto_servicio_sat",
 				"fieldtype": "Data",
 				"label": "Código Producto/Servicio SAT",
-				"insert_after": "clasificacion_sat_section",
+				"insert_after": "fm_clasificacion_sat_section",
 			},
 			{
-				"fieldname": "column_break_item_sat",
+				"fieldname": "fm_column_break_item_sat",
 				"fieldtype": "Column Break",
-				"insert_after": "producto_servicio_sat",
+				"insert_after": "fm_producto_servicio_sat",
 			},
 			{
-				"fieldname": "unidad_sat",
+				"fieldname": "fm_unidad_sat",
 				"fieldtype": "Data",
 				"label": "Código Unidad SAT",
-				"insert_after": "column_break_item_sat",
+				"insert_after": "fm_column_break_item_sat",
 			},
 		]
 	}
@@ -142,7 +146,7 @@ def create_payment_entry_custom_fields():
 	custom_fields = {
 		"Payment Entry": [
 			{
-				"fieldname": "informacion_fiscal_mx_section",
+				"fieldname": "fm_informacion_fiscal_section",
 				"fieldtype": "Section Break",
 				"label": "Información Fiscal MX",
 				"insert_after": "references",
@@ -154,7 +158,7 @@ def create_payment_entry_custom_fields():
 				"label": "Complemento Pago Generado",
 				"options": "Complemento Pago MX",
 				"read_only": 1,
-				"insert_after": "informacion_fiscal_mx_section",
+				"insert_after": "fm_informacion_fiscal_section",
 			},
 			{
 				"fieldname": "fm_require_complement",
@@ -197,7 +201,7 @@ def create_sales_invoice_sprint2_custom_fields():
 				"label": "Estado de Pago",
 				"options": "Pagada\nParcial\nPendiente",
 				"read_only": 1,
-				"insert_after": "payment_method_sat",
+				"insert_after": "fm_payment_method_sat",
 			},
 			{
 				"fieldname": "fm_pending_amount",
@@ -228,7 +232,7 @@ def create_customer_sprint2_custom_fields():
 				"fieldtype": "Check",
 				"label": "RFC Validado con SAT",
 				"read_only": 1,
-				"insert_after": "rfc",
+				"insert_after": "fm_rfc",
 			},
 			{
 				"fieldname": "fm_rfc_validation_date",
@@ -267,23 +271,23 @@ def remove_custom_fields():
 	"""Remover custom fields (para desinstalación)."""
 	fields_to_remove = [
 		# Sales Invoice
-		"Sales Invoice-informacion_fiscal_mx_section",
-		"Sales Invoice-cfdi_use",
-		"Sales Invoice-payment_method_sat",
-		"Sales Invoice-column_break_fiscal_mx",
-		"Sales Invoice-fiscal_status",
-		"Sales Invoice-uuid_fiscal",
-		"Sales Invoice-factura_fiscal_mx",
+		"Sales Invoice-fm_informacion_fiscal_section",
+		"Sales Invoice-fm_cfdi_use",
+		"Sales Invoice-fm_payment_method_sat",
+		"Sales Invoice-fm_column_break_fiscal",
+		"Sales Invoice-fm_fiscal_status",
+		"Sales Invoice-fm_uuid_fiscal",
+		"Sales Invoice-fm_factura_fiscal_mx",
 		# Sprint 2 - Sales Invoice
 		"Sales Invoice-fm_payment_status",
 		"Sales Invoice-fm_pending_amount",
 		"Sales Invoice-fm_complementos_count",
 		# Customer
-		"Customer-informacion_fiscal_mx_section",
-		"Customer-rfc",
-		"Customer-column_break_fiscal_customer",
-		"Customer-regimen_fiscal",
-		"Customer-uso_cfdi_default",
+		"Customer-fm_informacion_fiscal_section_customer",
+		"Customer-fm_rfc",
+		"Customer-fm_column_break_fiscal_customer",
+		"Customer-fm_regimen_fiscal",
+		"Customer-fm_uso_cfdi_default",
 		# Sprint 2 - Customer
 		"Customer-fm_rfc_validated",
 		"Customer-fm_rfc_validation_date",
@@ -296,10 +300,10 @@ def remove_custom_fields():
 		"Payment Entry-fm_complement_generated",
 		"Payment Entry-fm_forma_pago_sat",
 		# Item
-		"Item-clasificacion_sat_section",
-		"Item-producto_servicio_sat",
-		"Item-column_break_item_sat",
-		"Item-unidad_sat",
+		"Item-fm_clasificacion_sat_section",
+		"Item-fm_producto_servicio_sat",
+		"Item-fm_column_break_item_sat",
+		"Item-fm_unidad_sat",
 	]
 
 	for field_name in fields_to_remove:

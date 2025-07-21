@@ -15,18 +15,18 @@ class FacturacionMexicoSettings(Document):
 	def validate_rfc_format(self):
 		"""Validar formato del RFC emisor."""
 		if self.rfc_emisor:
-			rfc = self.rfc_emisor.strip().upper()
+			fm_rfc = self.rfc_emisor.strip().upper()
 
 			# Validar longitud
-			if len(rfc) not in [12, 13]:
+			if len(fm_rfc) not in [12, 13]:
 				frappe.throw(_("El RFC debe tener 12 o 13 caracteres"))
 
 			# Validar que sea alfanumérico
-			if not rfc.isalnum():
+			if not fm_rfc.isalnum():
 				frappe.throw(_("El RFC debe contener solo letras y números"))
 
 			# Actualizar con formato correcto
-			self.rfc_emisor = rfc
+			self.rfc_emisor = fm_rfc
 
 	def validate_lugar_expedicion(self):
 		"""Validar código postal de lugar de expedición."""

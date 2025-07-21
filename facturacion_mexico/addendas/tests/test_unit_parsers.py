@@ -24,7 +24,7 @@ class TestAddendaXMLBuilder(AddendaTestBase):
 		<proveedor>{{ emisor_nombre }}</proveedor>
 	</informacion>
 	<cliente>
-		<rfc>{{ receptor_rfc }}</rfc>
+		<fm_rfc>{{ receptor_rfc }}</fm_rfc>
 		<nombre>{{ receptor_nombre }}</nombre>
 	</cliente>
 </addenda>"""
@@ -218,7 +218,7 @@ class TestAddendaXMLBuilder(AddendaTestBase):
 
 		template = """<addenda>
 	<uuid>{{ cfdi_uuid }}</uuid>
-	<rfc>{{ emisor_rfc }}</rfc>
+	<fm_rfc>{{ emisor_rfc }}</fm_rfc>
 </addenda>"""
 
 		builder = AddendaXMLBuilder(template, conflicting_vars, self.sample_cfdi_data)

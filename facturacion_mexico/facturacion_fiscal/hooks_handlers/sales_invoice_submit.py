@@ -28,7 +28,7 @@ def _should_create_fiscal_event(doc):
 		return False
 
 	customer = frappe.get_doc("Customer", doc.customer)
-	return bool(customer.rfc)
+	return bool(customer.fm_rfc)
 
 
 def _create_emission_event(doc):
@@ -52,13 +52,13 @@ def _create_emission_event(doc):
 	FiscalEventMX.mark_event_success(event_doc.name, {"status": "emitted"})
 
 	# Actualizar estado fiscal
-	frappe.db.set_value("Sales Invoice", doc.name, "fiscal_status", "Pendiente")
+	frappe.db.set_value("Sales Invoice", doc.name, "fm_fiscal_status", "Pendiente")
 
 
 def _get_or_create_factura_fiscal(doc):
 	"""Obtener o crear Factura Fiscal México."""
-	if doc.factura_fiscal_mx:
-		return frappe.get_doc("Factura Fiscal Mexico", doc.factura_fiscal_mx)
+	if doc.fm_factura_fiscal_mx:
+		return frappe.get_doc("Factura Fiscal Mexico", doc.fm_factura_fiscal_mx)
 
 	# Crear nueva factura fiscal
 	factura_fiscal = frappe.new_doc("Factura Fiscal Mexico")
@@ -66,11 +66,11 @@ def _get_or_create_factura_fiscal(doc):
 	factura_fiscal.customer = doc.customer
 	factura_fiscal.total_amount = doc.grand_total
 	factura_fiscal.currency = doc.currency
-	factura_fiscal.fiscal_status = "draft"
+	factura_fiscal.fm_fiscal_status = "draft"
 	factura_fiscal.save()
 
 	# Actualizar referencia en Sales Invoice
-	frappe.db.set_value("Sales Invoice", doc.name, "factura_fiscal_mx", factura_fiscal.name)
+	frappe.db.set_value("Sales Invoice", doc.name, "fm_factura_fiscal_mx", factura_fiscal.name)
 
 	return factura_fiscal
 
@@ -84,12 +84,12 @@ def _should_auto_timbrar(doc):
 		return False
 
 	# Solo si hay datos fiscales completos
-	if not doc.cfdi_use:
+	if not doc.fm_cfdi_use:
 		return False
 
 	# Solo si el cliente tiene RFC
 	customer = frappe.get_doc("Customer", doc.customer)
-	if not customer.rfc:
+	if not customer.fm_rfc:
 		return False
 
 	return True

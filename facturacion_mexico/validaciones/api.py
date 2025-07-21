@@ -38,11 +38,11 @@ def validate_rfc(rfc, use_cache=True):
 			return {"success": False, "message": _("RFC es requerido")}
 
 		# Normalizar RFC
-		rfc = rfc.upper().strip()
+		fm_rfc = rfc.upper().strip()
 
 		# Validar formato básico
-		if not _is_valid_rfc_format(rfc):
-			return {"success": False, "valid": False, "message": _("Formato de RFC inválido"), "rfc": rfc}
+		if not _is_valid_rfc_format(fm_rfc):
+			return {"success": False, "valid": False, "message": _("Formato de RFC inválido"), "fm_rfc": rfc}
 
 		# Buscar en cache si está habilitado
 		if use_cache:
@@ -81,11 +81,11 @@ def validate_lista_69b(rfc, use_cache=True):
 			return {"success": False, "message": _("RFC es requerido")}
 
 		# Normalizar RFC
-		rfc = rfc.upper().strip()
+		fm_rfc = rfc.upper().strip()
 
 		# Buscar en cache si está habilitado
 		if use_cache:
-			cached_result = _get_cached_lista_69b_validation(rfc)
+			cached_result = _get_cached_lista_69b_validation(fm_rfc)
 			if cached_result:
 				return cached_result
 
@@ -130,7 +130,7 @@ def bulk_validate_rfc(rfc_list):
 				result = validate_rfc(rfc, use_cache=True)
 				results.append(
 					{
-						"rfc": rfc,
+						"fm_rfc": rfc,
 						"valid": result.get("valid", False),
 						"message": result.get("message", ""),
 						"status": result.get("status", ""),
@@ -263,11 +263,11 @@ def force_refresh_cache(validation_key, validation_type):
 
 		# Crear nueva validación
 		if validation_type == "rfc_validation":
-			rfc = validation_key.replace("RFC_", "")
-			result = validate_rfc(rfc, use_cache=False)
+			fm_rfc = validation_key.replace("RFC_", "")
+			result = validate_rfc(fm_rfc, use_cache=False)
 		elif validation_type == "lista_69b":
-			rfc = validation_key.replace("L69B_", "")
-			result = validate_lista_69b(rfc, use_cache=False)
+			fm_rfc = validation_key.replace("L69B_", "")
+			result = validate_lista_69b(fm_rfc, use_cache=False)
 		else:
 			return {
 				"success": False,
@@ -331,7 +331,7 @@ def _get_cached_rfc_validation(rfc):
 				"valid": result_data.get("valid", False),
 				"status": result_data.get("status", ""),
 				"message": result_data.get("message", ""),
-				"rfc": rfc,
+				"fm_rfc": rfc,
 				"cached": True,
 				"cache_date": cached_result.get("validated_at"),
 				"expires_at": cached_result.get("expires_at"),
@@ -369,7 +369,7 @@ def _get_cached_lista_69b_validation(rfc):
 				"in_lista_69b": result_data.get("in_lista_69b", False),
 				"status": result_data.get("status", ""),
 				"message": result_data.get("message", ""),
-				"rfc": rfc,
+				"fm_rfc": rfc,
 				"cached": True,
 				"cache_date": cached_result.get("validated_at"),
 				"expires_at": cached_result.get("expires_at"),
@@ -405,7 +405,7 @@ def _validate_rfc_with_external_api(rfc):
 				"valid": False,
 				"status": "Inactivo",
 				"message": _("RFC no válido según SAT"),
-				"rfc": rfc,
+				"fm_rfc": rfc,
 				"api_response": {"codigo": "404", "mensaje": "RFC no encontrado"},
 			}
 		else:
@@ -414,7 +414,7 @@ def _validate_rfc_with_external_api(rfc):
 				"valid": True,
 				"status": "Activo",
 				"message": _("RFC válido según SAT"),
-				"rfc": rfc,
+				"fm_rfc": rfc,
 				"api_response": {
 					"codigo": "200",
 					"mensaje": "RFC válido",
@@ -451,7 +451,7 @@ def _validate_lista_69b_with_external_api(rfc):
 			"in_lista_69b": in_lista,
 			"status": "En Lista" if in_lista else "No encontrado",
 			"message": _("RFC {'en' if in_lista else 'NO en'} Lista 69B").format(**locals()),
-			"rfc": rfc,
+			"fm_rfc": rfc,
 			"api_response": {
 				"codigo": "200",
 				"en_lista": in_lista,

@@ -478,8 +478,8 @@ class AddendaXMLBuilder:
         fecha="{{{{ cfdi_fecha }}}}"
         total="{{{{ cfdi_total }}}}"
         uuid="{{{{ cfdi_uuid }}}}" />
-    <Emisor rfc="{{{{ emisor_rfc }}}}" nombre="{{{{ emisor_nombre }}}}" />
-    <Receptor rfc="{{{{ receptor_rfc }}}}" nombre="{{{{ receptor_nombre }}}}" />
+    <Emisor fm_rfc="{{{{ emisor_rfc }}}}" nombre="{{{{ emisor_nombre }}}}" />
+    <Receptor fm_rfc="{{{{ receptor_rfc }}}}" nombre="{{{{ receptor_nombre }}}}" />
 </addenda>"""
 
 			return template

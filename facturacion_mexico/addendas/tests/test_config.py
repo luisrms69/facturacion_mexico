@@ -76,7 +76,7 @@ class TestConfig:
 		<total>{{ cfdi_total }}</total>
 	</informacion>
 	<proveedor>
-		<rfc>{{ emisor_rfc }}</rfc>
+		<fm_rfc>{{ emisor_rfc }}</fm_rfc>
 		<nombre>{{ emisor_nombre }}</nombre>
 	</proveedor>
 </addenda>""",
@@ -143,7 +143,7 @@ class TestConfig:
         <xs:element name="proveedor">
           <xs:complexType>
             <xs:sequence>
-              <xs:element name="rfc" type="xs:string"/>
+              <xs:element name="fm_rfc" type="xs:string"/>
               <xs:element name="nombre" type="xs:string"/>
             </xs:sequence>
           </xs:complexType>

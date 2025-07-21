@@ -7,7 +7,7 @@ def create_fiscal_event(doc, method):
 		"sales_invoice": doc.sales_invoice,
 		"customer": doc.customer,
 		"total_amount": doc.total_amount,
-		"fiscal_status": doc.fiscal_status,
+		"fm_fiscal_status": doc.fm_fiscal_status,
 	}
 
 	event_doc = FiscalEventMX.create_event(doc.name, "factura_fiscal_created", event_data)

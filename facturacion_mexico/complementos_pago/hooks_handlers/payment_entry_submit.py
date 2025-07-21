@@ -113,11 +113,11 @@ def _requires_ppd_complement(sales_invoice):
 		return False
 
 	# Verificar que esté timbrada
-	if sales_invoice.get("fiscal_status") != "Timbrada":
+	if sales_invoice.get("fm_fiscal_status") != "Timbrada":
 		return False
 
 	# Verificar que tenga UUID fiscal
-	if not sales_invoice.get("uuid_fiscal"):
+	if not sales_invoice.get("fm_uuid_fiscal"):
 		return False
 
 	return True
@@ -191,7 +191,7 @@ def _create_complemento_pago(payment_doc, reference, sales_invoice, tracking_nam
 			"related_invoices",
 			{
 				"sales_invoice": reference.reference_name,
-				"invoice_uuid": sales_invoice.get("uuid_fiscal"),
+				"invoice_uuid": sales_invoice.get("fm_uuid_fiscal"),
 				"invoice_currency": sales_invoice.currency,
 				"invoice_exchange_rate": sales_invoice.get("conversion_rate", 1.0),
 				"previous_balance": _get_invoice_balance_before_payment(

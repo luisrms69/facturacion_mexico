@@ -216,11 +216,11 @@ class AddendaTemplate(Document):
 		<montoTotal>{{ cfdi_total }}</montoTotal>
 	</informacionGeneral>
 	<proveedor>
-		<rfc>{{ emisor_rfc }}</rfc>
+		<fm_rfc>{{ emisor_rfc }}</fm_rfc>
 		<razonSocial>{{ emisor_nombre }}</razonSocial>
 	</proveedor>
 	<cliente>
-		<rfc>{{ receptor_rfc }}</rfc>
+		<fm_rfc>{{ receptor_rfc }}</fm_rfc>
 		<razonSocial>{{ receptor_nombre }}</razonSocial>
 	</cliente>
 	<conceptos>

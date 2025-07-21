@@ -58,7 +58,7 @@ def _validate_sales_invoice_ppd_requirement(payment_doc, reference):
 			return
 
 		# Verificar que sea factura con CFDI
-		if not sales_invoice.get("fm_uso_cfdi") or sales_invoice.get("fiscal_status") != "Timbrada":
+		if not sales_invoice.get("fm_uso_cfdi") or sales_invoice.get("fm_fiscal_status") != "Timbrada":
 			return
 
 		# Validar que el monto del pago no exceda el saldo de la factura
