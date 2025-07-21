@@ -5,7 +5,7 @@ Tests de aceptación de usuario para validar comportamiento end-to-end desde per
 
 import time
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import frappe
 

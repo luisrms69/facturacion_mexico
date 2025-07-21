@@ -6,7 +6,6 @@ Componente para parsear y validar sintaxis de reglas fiscales
 import json
 import re
 
-import frappe
 from frappe import _
 
 
