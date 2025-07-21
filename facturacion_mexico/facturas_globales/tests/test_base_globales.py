@@ -265,6 +265,7 @@ class FacturasGlobalesTestBase(FrappeTestCase):
 				try:
 					frappe.delete_doc("Factura Global MX", global_name, force=True, ignore_permissions=True)
 				except Exception:
+					# Ignorar si el documento ya fue eliminado o no existe
 					pass
 
 			# Limpiar E-Receipts de prueba si son mock
@@ -278,6 +279,7 @@ class FacturasGlobalesTestBase(FrappeTestCase):
 					if not receipt_doc.get("global_invoice"):
 						frappe.delete_doc("EReceipt MX", receipt_name, force=True, ignore_permissions=True)
 				except Exception:
+					# Ignorar errores de cleanup - documento puede no existir o estar en uso
 					pass
 
 		except Exception as e:
@@ -296,4 +298,5 @@ class FacturasGlobalesTestBase(FrappeTestCase):
 				if companies_in_use == 0:
 					frappe.delete_doc("Company", cls.test_company, force=True, ignore_permissions=True)
 		except Exception:
+			# Ignorar errores al limpiar empresa de test - puede estar en uso por otros tests
 			pass
