@@ -97,7 +97,9 @@ def create_basic_sat_catalogs():
 			doc.update(regimen)
 			doc.save()
 
-	print("✅ [DEBUG] create_basic_sat_catalogs() completada exitosamente")
+	# CRÍTICO: Forzar commit para que registros estén disponibles en tests
+	frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required for test environment SAT catalogs
+	print("✅ [DEBUG] create_basic_sat_catalogs() completada exitosamente con commit")
 	frappe.msgprint(_("Catálogos básicos SAT creados"))
 
 
