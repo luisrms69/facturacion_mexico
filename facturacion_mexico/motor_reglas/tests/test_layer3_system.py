@@ -3,7 +3,6 @@ Layer 3: System Tests - Motor de Reglas
 Tests de sistema completo para validar comportamiento end-to-end
 """
 
-import json
 import time
 import unittest
 from unittest.mock import MagicMock, patch
@@ -190,7 +189,7 @@ class TestMotorReglasSystem(MotorReglasTestBase):
 		cached_executions = []
 		for _ in range(10):
 			start_time = time.time()
-			result = cached_rule.execute_rule(mock_doc)
+			cached_rule.execute_rule(mock_doc)  # Execute rule to test caching
 			execution_time = time.time() - start_time
 			cached_executions.append(execution_time)
 
@@ -201,8 +200,8 @@ class TestMotorReglasSystem(MotorReglasTestBase):
 
 		# Verificar consistencia de resultados
 		for i in range(5):
-			result = cached_rule.execute_rule(mock_doc)
-			self.assertTrue(result.get("success"), f"Ejecución {i+1} debe ser consistente")
+			consistency_result = cached_rule.execute_rule(mock_doc)
+			self.assertTrue(consistency_result.get("success"), f"Ejecución {i+1} debe ser consistente")
 
 	def test_system_error_recovery_and_resilience(self):
 		"""Test recuperación de errores y resistencia del sistema."""

@@ -5,7 +5,7 @@ Tests unitarios para componentes individuales del motor de reglas
 
 import json
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import frappe
 
