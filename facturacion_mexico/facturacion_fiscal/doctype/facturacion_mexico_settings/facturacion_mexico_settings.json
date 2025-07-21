@@ -20,7 +20,18 @@
     "configuracion_automatica_section",
     "auto_generate_ereceipts",
     "send_email_default",
-    "download_files_default"
+    "download_files_default",
+    "facturas_globales_section",
+    "enable_global_invoices",
+    "global_invoice_serie",
+    "global_invoice_periodicidad",
+    "column_break_global",
+    "auto_generate_global",
+    "global_generation_day",
+    "global_generation_time",
+    "include_zero_receipts",
+    "notify_global_generation",
+    "global_notification_emails"
   ],
   "fields": [
     {
@@ -113,11 +124,89 @@
       "fieldname": "download_files_default",
       "fieldtype": "Check",
       "label": "Descargar Archivos por Defecto"
+    },
+    {
+      "fieldname": "facturas_globales_section",
+      "fieldtype": "Section Break",
+      "label": "Configuración Facturas Globales"
+    },
+    {
+      "default": 0,
+      "description": "Habilitar funcionamiento de facturas globales",
+      "fieldname": "enable_global_invoices",
+      "fieldtype": "Check",
+      "label": "Habilitar Facturas Globales"
+    },
+    {
+      "description": "Serie fiscal para facturas globales (ej: FG)",
+      "fieldname": "global_invoice_serie",
+      "fieldtype": "Data",
+      "label": "Serie Facturas Globales",
+      "depends_on": "enable_global_invoices"
+    },
+    {
+      "description": "Periodicidad por defecto para facturas globales",
+      "fieldname": "global_invoice_periodicidad",
+      "fieldtype": "Select",
+      "label": "Periodicidad por Defecto",
+      "options": "Diaria\nSemanal\nQuincenal\nMensual",
+      "default": "Semanal",
+      "depends_on": "enable_global_invoices"
+    },
+    {
+      "fieldname": "column_break_global",
+      "fieldtype": "Column Break"
+    },
+    {
+      "default": 0,
+      "description": "Generar facturas globales automáticamente según configuración",
+      "fieldname": "auto_generate_global",
+      "fieldtype": "Check",
+      "label": "Generación Automática",
+      "depends_on": "enable_global_invoices"
+    },
+    {
+      "description": "Día del mes para generación automática (1-28)",
+      "fieldname": "global_generation_day",
+      "fieldtype": "Int",
+      "label": "Día de Generación",
+      "depends_on": "auto_generate_global"
+    },
+    {
+      "description": "Hora del día para generación automática",
+      "fieldname": "global_generation_time",
+      "fieldtype": "Time",
+      "label": "Hora de Generación",
+      "default": "01:00:00",
+      "depends_on": "auto_generate_global"
+    },
+    {
+      "default": 0,
+      "description": "Incluir períodos sin E-Receipts en facturas globales",
+      "fieldname": "include_zero_receipts",
+      "fieldtype": "Check",
+      "label": "Incluir Períodos Vacíos",
+      "depends_on": "enable_global_invoices"
+    },
+    {
+      "default": 0,
+      "description": "Enviar notificación por email al generar facturas globales",
+      "fieldname": "notify_global_generation",
+      "fieldtype": "Check",
+      "label": "Notificar por Email",
+      "depends_on": "enable_global_invoices"
+    },
+    {
+      "description": "Emails para notificación de facturas globales (separados por comas)",
+      "fieldname": "global_notification_emails",
+      "fieldtype": "Small Text",
+      "label": "Emails de Notificación",
+      "depends_on": "notify_global_generation"
     }
   ],
   "issingle": 1,
   "links": [],
-  "modified": "2025-07-17 19:40:00.000000",
+  "modified": "2025-07-21 02:30:00.000000",
   "modified_by": "Administrator",
   "module": "Facturacion Fiscal",
   "name": "Facturacion Mexico Settings",
