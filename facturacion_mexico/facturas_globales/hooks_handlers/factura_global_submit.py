@@ -247,10 +247,11 @@ def remove_from_global_invoice(ereceipt_doc):
 
 		# Solo si la factura global está en draft
 		if global_invoice.docstatus == 0:
-			# Remover del detalle
-			for detail in global_invoice.receipts_detail:
+			# Remover del detalle - iterar en reversa para evitar problemas de modificación
+			for i in range(len(global_invoice.receipts_detail) - 1, -1, -1):
+				detail = global_invoice.receipts_detail[i]
 				if detail.ereceipt == ereceipt_doc.name:
-					global_invoice.receipts_detail.remove(detail)
+					global_invoice.receipts_detail.pop(i)
 					break
 
 			# Recalcular totales

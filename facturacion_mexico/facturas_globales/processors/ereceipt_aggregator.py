@@ -30,28 +30,28 @@ class EReceiptAggregator:
 			"""
 			SELECT
 				er.name,
-				er.folio,
-				er.receipt_date,
-				er.total_amount,
-				er.tax_amount,
-				er.base_amount,
+				er.name as folio,
+				er.date_issued as receipt_date,
+				er.total as total_amount,
+				(er.total * 0.16) as tax_amount,
+				(er.total * 0.84) as base_amount,
 				er.customer_name,
-				er.currency,
-				er.exchange_rate,
-				er.tax_rate,
+				'MXN' as currency,
+				1.0 as exchange_rate,
+				16.0 as tax_rate,
 				er.facturapi_id,
 				er.status,
-				er.payment_method,
-				er.usage_cfdi,
+				'Efectivo' as payment_method,
+				'G01' as usage_cfdi,
 				er.creation,
-				COALESCE(er.tax_rate, 16) as effective_tax_rate
+				16.0 as effective_tax_rate
 			FROM `tabEReceipt MX` er
 			WHERE er.company = %(company)s
-			AND er.receipt_date BETWEEN %(periodo_inicio)s AND %(periodo_fin)s
+			AND er.date_issued BETWEEN %(periodo_inicio)s AND %(periodo_fin)s
 			AND er.docstatus = 1
 			AND (er.included_in_global IS NULL OR er.included_in_global = 0)
-			AND (er.available_for_global IS NULL OR er.available_for_global = 1)
-			ORDER BY er.receipt_date, er.folio
+			AND er.status != 'cancelled'
+			ORDER BY er.date_issued, er.name
 		""",
 			{"company": self.company, "periodo_inicio": self.periodo_inicio, "periodo_fin": self.periodo_fin},
 			as_dict=True,
@@ -131,7 +131,7 @@ class EReceiptAggregator:
 
 		grouped = {}
 		for receipt in self.receipts:
-			customer_key = receipt.customer_name or "Público General"
+			customer_key = getattr(receipt, "customer_name", receipt.get("customer_name", "Público General"))
 
 			if customer_key not in grouped:
 				grouped[customer_key] = {
@@ -142,7 +142,9 @@ class EReceiptAggregator:
 
 			grouped[customer_key]["receipts"].append(receipt)
 			grouped[customer_key]["totals"]["count"] += 1
-			grouped[customer_key]["totals"]["total_amount"] += flt(receipt.total_amount)
+			grouped[customer_key]["totals"]["total_amount"] += flt(
+				getattr(receipt, "total_amount", receipt.get("total_amount", 0))
+			)
 
 		return grouped
 

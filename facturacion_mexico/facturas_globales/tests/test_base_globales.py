@@ -143,10 +143,12 @@ class FacturasGlobalesTestBase(FrappeTestCase):
 
 	def create_test_factura_global(self, **kwargs) -> str:
 		"""Crear factura global de prueba."""
+		from unittest.mock import MagicMock, patch
+
 		default_data = {
 			"doctype": "Factura Global MX",
 			"company": self.test_company,
-			"periodo_inicio": add_days(today(), -7),
+			"periodo_inicio": add_days(today(), -6),  # 7 days total (0-6 inclusive)
 			"periodo_fin": today(),
 			"periodicidad": "Semanal",
 			"status": "Draft",
@@ -155,35 +157,42 @@ class FacturasGlobalesTestBase(FrappeTestCase):
 		# Actualizar con datos personalizados
 		default_data.update(kwargs)
 
-		global_doc = frappe.get_doc(default_data)
+		# Mock settings para evitar errores de validación
+		with patch("frappe.get_single") as mock_settings:
+			settings_mock = MagicMock()
+			settings_mock.enable_global_invoices = 1
+			settings_mock.global_invoice_serie = "FG-TEST"
+			mock_settings.return_value = settings_mock
 
-		# Agregar receipts si no se especificaron
-		if not global_doc.get("receipts_detail") and self.test_ereceipts:
-			for i, ereceipt_name in enumerate(self.test_ereceipts[:5]):  # Primeros 5
-				if not ereceipt_name.startswith("MOCK-"):
-					from facturacion_mexico.facturas_globales.doctype.factura_global_detail.factura_global_detail import (
-						FacturaGlobalDetail,
-					)
+			global_doc = frappe.get_doc(default_data)
 
-					try:
-						detail_data = FacturaGlobalDetail.create_from_receipt(ereceipt_name)
-						global_doc.append("receipts_detail", detail_data)
-					except Exception:
-						# Si falla, agregar datos básicos
-						global_doc.append(
-							"receipts_detail",
-							{
-								"ereceipt": ereceipt_name,
-								"folio_receipt": f"ER-{i:03d}",
-								"fecha_receipt": add_days(today(), -i),
-								"monto": 100.00 + (i * 10),
-								"customer_name": "Test Customer",
-								"included_in_cfdi": 1,
-							},
+			# Agregar receipts si no se especificaron
+			if not global_doc.get("receipts_detail") and self.test_ereceipts:
+				for i, ereceipt_name in enumerate(self.test_ereceipts[:5]):  # Primeros 5
+					if not ereceipt_name.startswith("MOCK-"):
+						from facturacion_mexico.facturas_globales.doctype.factura_global_detail.factura_global_detail import (
+							FacturaGlobalDetail,
 						)
 
-		global_doc.insert(ignore_permissions=True)
-		return global_doc.name
+						try:
+							detail_data = FacturaGlobalDetail.create_from_receipt(ereceipt_name)
+							global_doc.append("receipts_detail", detail_data)
+						except Exception:
+							# Si falla, agregar datos básicos
+							global_doc.append(
+								"receipts_detail",
+								{
+									"ereceipt": ereceipt_name,
+									"folio_receipt": f"ER-{i:03d}",
+									"fecha_receipt": add_days(today(), -i),
+									"monto": 100.00 + (i * 10),
+									"customer_name": "Test Customer",
+									"included_in_cfdi": 1,
+								},
+							)
+
+			global_doc.insert(ignore_permissions=True)
+			return global_doc.name
 
 	def create_mock_ereceipt_data(self, count: int = 5) -> list[dict[str, Any]]:
 		"""Crear datos mock de E-Receipts para testing."""

@@ -25,10 +25,10 @@ class FacturaGlobalDetail(Document):
 		try:
 			receipt_doc = frappe.get_doc("EReceipt MX", self.ereceipt)
 
-			# Poblar campos con datos del receipt
-			self.folio_receipt = receipt_doc.get("folio") or receipt_doc.name
-			self.fecha_receipt = receipt_doc.get("receipt_date")
-			self.monto = flt(receipt_doc.get("total_amount", 0))
+			# Poblar campos con datos del receipt usando los campos reales
+			self.folio_receipt = receipt_doc.name  # Use name as folio
+			self.fecha_receipt = receipt_doc.get("date_issued")
+			self.monto = flt(receipt_doc.get("total", 0))
 			self.customer_name = receipt_doc.get("customer_name") or "Público General"
 
 			# Por defecto se incluye en CFDI

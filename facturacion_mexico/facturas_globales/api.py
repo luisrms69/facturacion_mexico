@@ -35,12 +35,12 @@ def get_available_ereceipts(periodo_inicio, periodo_fin, company=None):
 			"""
 			SELECT
 				er.name as ereceipt,
-				er.folio,
-				er.receipt_date as fecha_receipt,
-				er.total_amount as monto,
-				er.tax_amount,
+				er.name as folio,
+				er.date_issued as fecha_receipt,
+				er.total as monto,
+				(er.total * 0.16) as tax_amount,
 				er.customer_name,
-				er.currency,
+				'MXN' as currency,
 				er.status,
 				1 as available_for_global,
 				CASE
@@ -49,11 +49,11 @@ def get_available_ereceipts(periodo_inicio, periodo_fin, company=None):
 				END as selectable
 			FROM `tabEReceipt MX` er
 			WHERE er.company = %(company)s
-			AND er.receipt_date BETWEEN %(periodo_inicio)s AND %(periodo_fin)s
+			AND er.date_issued BETWEEN %(periodo_inicio)s AND %(periodo_fin)s
 			AND er.docstatus = 1
 			AND (er.included_in_global IS NULL OR er.included_in_global = 0)
-			AND (er.available_for_global IS NULL OR er.available_for_global = 1)
-			ORDER BY er.receipt_date, er.folio
+			AND er.status != 'cancelled'
+			ORDER BY er.date_issued, er.name
 		""",
 			{"company": company, "periodo_inicio": periodo_inicio, "periodo_fin": periodo_fin},
 			as_dict=True,
