@@ -211,8 +211,12 @@ class MotorReglasTestBase(unittest.TestCase):
 		with patch("frappe.db.get_single_value") as mock_single_value:
 			mock_single_value.return_value = 0
 
-			invoice_doc = frappe.get_doc(default_config)
-			invoice_doc.insert(ignore_permissions=True)
+			# Mock cfdi_use link validation para testing - tratarlo como Data
+			with patch("frappe.db.exists") as mock_exists:
+				mock_exists.return_value = True  # Simular que el registro existe
+
+				invoice_doc = frappe.get_doc(default_config)
+				invoice_doc.insert(ignore_permissions=True)
 
 			# Agregar a lista de cleanup
 			self.test_documents.append(("Sales Invoice", invoice_doc.name))
