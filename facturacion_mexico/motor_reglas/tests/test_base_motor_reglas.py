@@ -207,16 +207,10 @@ class MotorReglasTestBase(unittest.TestCase):
 		if invoice_config:
 			default_config.update(invoice_config)
 
-		# Mock cfdi_use link validation para testing - simular que existe
-		with (
-			patch("frappe.db.exists") as mock_exists,
-			patch("frappe.db.get_single_value") as mock_single_value,
-		):
-			# Configurar mocks
-			mock_exists.return_value = True  # Simular que todos los registros existen
+		# Crear documento - catálogos SAT creados en before_tests()
+		with patch("frappe.db.get_single_value") as mock_single_value:
 			mock_single_value.return_value = 0
 
-			# Crear documento con mocks activos
 			invoice_doc = frappe.get_doc(default_config)
 			invoice_doc.insert(ignore_permissions=True)
 

@@ -149,6 +149,9 @@ def before_tests():
 	# Crear item tax templates básicos para testing
 	_create_basic_item_tax_templates()
 
+	# Crear catálogos SAT básicos para testing - CRÍTICO para LinkValidationError
+	create_basic_sat_catalogs()
+
 	# Setup roles - usar ERPNext si disponible
 	try:
 		from erpnext.setup.utils import enable_all_roles_and_domains
