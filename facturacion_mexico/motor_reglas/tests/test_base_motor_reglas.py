@@ -207,21 +207,23 @@ class MotorReglasTestBase(unittest.TestCase):
 		if invoice_config:
 			default_config.update(invoice_config)
 
-		# Crear documento
-		with patch("frappe.db.get_single_value") as mock_single_value:
+		# Mock cfdi_use link validation para testing - simular que existe
+		with (
+			patch("frappe.db.exists") as mock_exists,
+			patch("frappe.db.get_single_value") as mock_single_value,
+		):
+			# Configurar mocks
+			mock_exists.return_value = True  # Simular que todos los registros existen
 			mock_single_value.return_value = 0
 
-			# Mock cfdi_use link validation para testing - tratarlo como Data
-			with patch("frappe.db.exists") as mock_exists:
-				mock_exists.return_value = True  # Simular que el registro existe
+			# Crear documento con mocks activos
+			invoice_doc = frappe.get_doc(default_config)
+			invoice_doc.insert(ignore_permissions=True)
 
-				invoice_doc = frappe.get_doc(default_config)
-				invoice_doc.insert(ignore_permissions=True)
+		# Agregar a lista de cleanup
+		self.test_documents.append(("Sales Invoice", invoice_doc.name))
 
-			# Agregar a lista de cleanup
-			self.test_documents.append(("Sales Invoice", invoice_doc.name))
-
-			return invoice_doc
+		return invoice_doc
 
 	def create_test_customer(self, customer_config=None):
 		"""Crear Customer de prueba."""
