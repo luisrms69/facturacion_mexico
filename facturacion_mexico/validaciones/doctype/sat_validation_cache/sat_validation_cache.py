@@ -24,13 +24,13 @@ class SATValidationCache(Document):
 			cache_days = settings.get("rfc_cache_days", 30)
 
 			# Diferentes duraciones según tipo de validación
-			if self.validation_type == "RFC":
+			if self.validation_type == "fm_rfc":
 				days = cache_days
 			elif self.validation_type == "Lista69B":
 				days = 7  # Lista 69B cambia semanalmente
 			elif self.validation_type == "Obligaciones":
 				days = cache_days
-			elif self.validation_type == "Regimen_Fiscal":
+			elif self.validation_type == "fm_regimen_fiscal":
 				days = cache_days
 			elif self.validation_type == "Domicilio_Fiscal":
 				days = cache_days
@@ -57,7 +57,7 @@ class SATValidationCache(Document):
 
 	def validate_lookup_value(self):
 		"""Validar formato del valor a consultar."""
-		if self.validation_type == "RFC":
+		if self.validation_type == "fm_rfc":
 			self.validate_rfc_format()
 
 	def validate_rfc_format(self):
@@ -65,17 +65,17 @@ class SATValidationCache(Document):
 		if not self.lookup_value:
 			return
 
-		rfc = self.lookup_value.upper().strip()
+		fm_rfc = self.lookup_value.upper().strip()
 
 		# RFC debe tener 12 o 13 caracteres
-		if len(rfc) not in [12, 13]:
+		if len(fm_rfc) not in [12, 13]:
 			frappe.throw(_("RFC debe tener 12 o 13 caracteres"))
 
 		# Validar caracteres alfanuméricos
-		if not rfc.replace("&", "").replace("Ñ", "N").isalnum():
+		if not fm_rfc.replace("&", "").replace("Ñ", "N").isalnum():
 			frappe.throw(_("RFC contiene caracteres inválidos"))
 
-		self.lookup_value = rfc
+		self.lookup_value = fm_rfc
 
 	def calculate_expiry_date(self):
 		"""Calcular fecha de expiración según tipo de validación."""
@@ -85,7 +85,7 @@ class SATValidationCache(Document):
 
 		base_date = frappe.utils.getdate(self.validation_date)
 
-		if self.validation_type == "RFC":
+		if self.validation_type == "fm_rfc":
 			# RFC válido por 30 días
 			self.expiry_date = frappe.utils.add_days(base_date, 30)
 		elif self.validation_type == "Lista69B":
@@ -128,7 +128,7 @@ class SATValidationCache(Document):
 
 	def validate_validation_type(self):
 		"""Validar que el tipo de validación sea válido."""
-		valid_types = ["RFC", "Lista69B", "Obligaciones", "Regimen_Fiscal", "Domicilio_Fiscal"]
+		valid_types = ["fm_rfc", "Lista69B", "Obligaciones", "fm_regimen_fiscal", "Domicilio_Fiscal"]
 		if self.validation_type not in valid_types:
 			frappe.throw(_("Tipo de validación inválido: {0}").format(self.validation_type))
 
@@ -148,7 +148,7 @@ class SATValidationCache(Document):
 			return False
 
 		# Llamar al servicio de validación correspondiente
-		if self.validation_type == "RFC":
+		if self.validation_type == "fm_rfc":
 			return self.refresh_rfc_validation()
 		elif self.validation_type == "Lista69B":
 			return self.refresh_lista69b_validation()
@@ -253,7 +253,7 @@ class SATValidationCache(Document):
 		"""Crear nueva validación y guardar en cache."""
 		try:
 			# Llamar al servicio de validación
-			if validation_type == "RFC":
+			if validation_type == "fm_rfc":
 				from facturacion_mexico.validaciones.api import validate_rfc
 
 				result = validate_rfc(lookup_value, use_cache=False)

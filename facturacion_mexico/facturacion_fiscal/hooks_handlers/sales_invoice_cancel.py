@@ -24,20 +24,20 @@ def _should_handle_fiscal_cancellation(doc):
 		return False
 
 	customer = frappe.get_doc("Customer", doc.customer)
-	return bool(customer.rfc)
+	return bool(customer.fm_rfc)
 
 
 def _handle_cancellation_by_status(doc):
 	"""Manejar cancelación según estado fiscal actual."""
-	fiscal_status = doc.fiscal_status
+	fm_fiscal_status = doc.fm_fiscal_status
 
-	if fiscal_status == "Timbrada":
+	if fm_fiscal_status == "Timbrada":
 		# Factura timbrada: solicitar cancelación fiscal
 		_request_fiscal_cancellation(doc)
-	elif fiscal_status == "Pendiente":
+	elif fm_fiscal_status == "Pendiente":
 		# Factura pendiente: marcar como cancelada sin timbrar
 		_mark_as_cancelled_without_stamping(doc)
-	elif fiscal_status == "Error":
+	elif fm_fiscal_status == "Error":
 		# Factura con error: solo marcar como cancelada
 		_mark_as_cancelled_with_error(doc)
 	else:
@@ -51,10 +51,10 @@ def _request_fiscal_cancellation(doc):
 
 	try:
 		# Obtener Factura Fiscal
-		if not doc.factura_fiscal_mx:
+		if not doc.fm_factura_fiscal_mx:
 			frappe.throw(_("No se encontró factura fiscal para cancelar"))
 
-		factura_fiscal = frappe.get_doc("Factura Fiscal Mexico", doc.factura_fiscal_mx)
+		factura_fiscal = frappe.get_doc("Factura Fiscal Mexico", doc.fm_factura_fiscal_mx)
 
 		# Crear evento de solicitud de cancelación
 		event_data = {
@@ -66,11 +66,11 @@ def _request_fiscal_cancellation(doc):
 		event_doc = FiscalEventMX.create_event(factura_fiscal.name, "cancellation_request", event_data)
 
 		# Actualizar estado a "cancel_requested"
-		factura_fiscal.fiscal_status = "cancel_requested"
+		factura_fiscal.fm_fiscal_status = "cancel_requested"
 		factura_fiscal.save()
 
 		# Actualizar Sales Invoice
-		frappe.db.set_value("Sales Invoice", doc.name, "fiscal_status", "Solicitud de Cancelación")
+		frappe.db.set_value("Sales Invoice", doc.name, "fm_fiscal_status", "Solicitud de Cancelación")
 
 		# Marcar evento como exitoso
 		FiscalEventMX.mark_event_success(event_doc.name, {"status": "cancel_requested"})
@@ -89,12 +89,12 @@ def _mark_as_cancelled_without_stamping(doc):
 	from facturacion_mexico.facturacion_fiscal.doctype.fiscal_event_mx.fiscal_event_mx import FiscalEventMX
 
 	# Actualizar estado fiscal
-	frappe.db.set_value("Sales Invoice", doc.name, "fiscal_status", "Cancelada")
+	frappe.db.set_value("Sales Invoice", doc.name, "fm_fiscal_status", "Cancelada")
 
 	# Crear evento de cancelación
-	if doc.factura_fiscal_mx:
-		factura_fiscal = frappe.get_doc("Factura Fiscal Mexico", doc.factura_fiscal_mx)
-		factura_fiscal.fiscal_status = "cancelled"
+	if doc.fm_factura_fiscal_mx:
+		factura_fiscal = frappe.get_doc("Factura Fiscal Mexico", doc.fm_factura_fiscal_mx)
+		factura_fiscal.fm_fiscal_status = "cancelled"
 		factura_fiscal.save()
 
 		event_data = {"sales_invoice": doc.name, "reason": "Sales Invoice cancelled before stamping"}
@@ -109,10 +109,10 @@ def _mark_as_cancelled_without_stamping(doc):
 def _mark_as_cancelled_with_error(doc):
 	"""Marcar como cancelada con error previo."""
 	# Actualizar estado fiscal
-	frappe.db.set_value("Sales Invoice", doc.name, "fiscal_status", "Cancelada")
+	frappe.db.set_value("Sales Invoice", doc.name, "fm_fiscal_status", "Cancelada")
 
 	# Registrar evento si hay factura fiscal
-	if doc.factura_fiscal_mx:
+	if doc.fm_factura_fiscal_mx:
 		_create_cancellation_event(doc)
 
 
@@ -120,16 +120,16 @@ def _create_cancellation_event(doc):
 	"""Crear evento de cancelación genérico."""
 	from facturacion_mexico.facturacion_fiscal.doctype.fiscal_event_mx.fiscal_event_mx import FiscalEventMX
 
-	if not doc.factura_fiscal_mx:
+	if not doc.fm_factura_fiscal_mx:
 		return
 
 	event_data = {
 		"sales_invoice": doc.name,
 		"reason": "Sales Invoice cancelled",
-		"previous_status": doc.fiscal_status,
+		"previous_status": doc.fm_fiscal_status,
 	}
 
-	event_doc = FiscalEventMX.create_event(doc.factura_fiscal_mx, "invoice_cancellation", event_data)
+	event_doc = FiscalEventMX.create_event(doc.fm_factura_fiscal_mx, "invoice_cancellation", event_data)
 
 	FiscalEventMX.mark_event_success(event_doc.name, {"status": "cancelled"})
 

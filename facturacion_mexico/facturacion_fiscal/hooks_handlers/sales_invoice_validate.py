@@ -41,7 +41,7 @@ def _should_validate_fiscal_data(doc):
 		return False
 
 	customer = frappe.get_doc("Customer", doc.customer)
-	return bool(customer.rfc)
+	return bool(customer.fm_rfc)
 
 
 def _validate_customer_rfc(doc):
@@ -51,37 +51,37 @@ def _validate_customer_rfc(doc):
 
 	customer = frappe.get_doc("Customer", doc.customer)
 
-	if not customer.rfc:
+	if not customer.fm_rfc:
 		frappe.throw(_("El cliente debe tener RFC configurado para facturación fiscal"))
 
 	# Validar formato básico de RFC
-	rfc = customer.rfc.strip().upper()
-	if len(rfc) < 12 or len(rfc) > 13:
+	fm_rfc = customer.fm_rfc.strip().upper()
+	if len(fm_rfc) < 12 or len(fm_rfc) > 13:
 		frappe.throw(_("El RFC del cliente tiene formato inválido"))
 
 	# Validar que no sea RFC genérico
-	if rfc in ["XAXX010101000", "XEXX010101000"]:
+	if fm_rfc in ["XAXX010101000", "XEXX010101000"]:
 		frappe.throw(_("No se puede usar RFC genérico para facturación fiscal"))
 
 
 def _validate_cfdi_use(doc):
 	"""Validar uso de CFDI."""
-	if not doc.cfdi_use:
+	if not doc.fm_cfdi_use:
 		# Si el cliente tiene uso por defecto, asignarlo
 		if doc.customer:
 			customer = frappe.get_doc("Customer", doc.customer)
-			if customer.uso_cfdi_default:
-				doc.cfdi_use = customer.uso_cfdi_default
+			if customer.fm_uso_cfdi_default:
+				doc.fm_cfdi_use = customer.fm_uso_cfdi_default
 			else:
 				frappe.throw(_("Se requiere especificar Uso de CFDI"))
 		else:
 			frappe.throw(_("Se requiere especificar Uso de CFDI"))
 
 	# Validar que el uso de CFDI existe y está activo
-	if not frappe.db.exists("Uso CFDI SAT", doc.cfdi_use):
+	if not frappe.db.exists("Uso CFDI SAT", doc.fm_cfdi_use):
 		frappe.throw(_("El Uso de CFDI especificado no existe"))
 
-	uso_cfdi = frappe.get_doc("Uso CFDI SAT", doc.cfdi_use)
+	uso_cfdi = frappe.get_doc("Uso CFDI SAT", doc.fm_cfdi_use)
 	if not uso_cfdi.is_active():
 		frappe.throw(_("El Uso de CFDI especificado no está activo"))
 
@@ -92,27 +92,27 @@ def _validate_items_sat_codes(doc):
 		item_doc = frappe.get_doc("Item", item.item_code)
 
 		# Validar código de producto/servicio SAT
-		if not item_doc.producto_servicio_sat:
+		if not item_doc.fm_producto_servicio_sat:
 			frappe.msgprint(
 				_(f"El item {item.item_name} no tiene código de producto/servicio SAT configurado")
 			)
 
 		# Validar código de unidad SAT
-		if not item_doc.unidad_sat:
+		if not item_doc.fm_unidad_sat:
 			frappe.msgprint(_(f"El item {item.item_name} no tiene código de unidad SAT configurado"))
 
 
 def _validate_payment_method(doc):
 	"""Validar método de pago SAT."""
-	if not doc.payment_method_sat:
+	if not doc.fm_payment_method_sat:
 		# Asignar método por defecto
-		doc.payment_method_sat = "PUE"  # Pago en una sola exhibición
+		doc.fm_payment_method_sat = "PUE"  # Pago en una sola exhibición
 
 	# Validar que el método existe
 	valid_methods = ["PUE", "PPD"]
-	if doc.payment_method_sat not in valid_methods:
+	if doc.fm_payment_method_sat not in valid_methods:
 		frappe.throw(_("Método de pago SAT inválido. Use PUE o PPD"))
 
 	# Validar coherencia con forma de pago
-	if doc.payment_method_sat == "PPD" and doc.is_return:
+	if doc.fm_payment_method_sat == "PPD" and doc.is_return:
 		frappe.throw(_("Las notas de crédito no pueden usar método PPD"))

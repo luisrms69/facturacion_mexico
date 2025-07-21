@@ -32,7 +32,7 @@ class TestSATValidationCache(FrappeTestCase):
 		"""Layer 1: Test cálculo de fecha de expiración para RFC (30 días)."""
 		# Arrange
 		cache = frappe.new_doc("SAT Validation Cache")
-		cache.validation_type = "RFC"
+		cache.validation_type = "fm_rfc"
 		cache.validation_date = self.today
 
 		# Act
@@ -151,7 +151,7 @@ class TestSATValidationCache(FrappeTestCase):
 
 		cache = frappe.new_doc("SAT Validation Cache")
 		cache.lookup_value = "XAXX010101000"
-		cache.validation_type = "RFC"
+		cache.validation_type = "fm_rfc"
 
 		# Act & Assert (no debe lanzar excepción)
 		try:
@@ -167,7 +167,7 @@ class TestSATValidationCache(FrappeTestCase):
 
 		cache = frappe.new_doc("SAT Validation Cache")
 		cache.lookup_value = "XAXX010101000"
-		cache.validation_type = "RFC"
+		cache.validation_type = "fm_rfc"
 
 		# Act & Assert
 		with self.assertRaises(frappe.ValidationError) as context:
@@ -209,7 +209,7 @@ class TestSATValidationCache(FrappeTestCase):
 
 			result = SATValidationCache.create_cache_record(
 				lookup_value="XAXX010101000",
-				validation_type="RFC",
+				validation_type="fm_rfc",
 				is_valid=True,
 				validation_data='{"valid": true, "status": "Activo"}',
 			)
@@ -233,7 +233,7 @@ class TestSATValidationCache(FrappeTestCase):
 			}
 
 			# Act
-			result = SATValidationCache.get_valid_cache("XAXX010101000", "RFC")
+			result = SATValidationCache.get_valid_cache("XAXX010101000", "fm_rfc")
 
 			# Assert
 			self.assertIsNotNone(result)
@@ -250,7 +250,7 @@ class TestSATValidationCache(FrappeTestCase):
 			mock_get_cached.return_value = {"success": True, "is_valid": False, "data": {}}
 
 			# Act
-			result = SATValidationCache.get_valid_cache("NONEXISTENT", "RFC")
+			result = SATValidationCache.get_valid_cache("NONEXISTENT", "fm_rfc")
 
 			# Assert
 			self.assertIsNone(result)
@@ -299,7 +299,7 @@ class TestSATValidationCache(FrappeTestCase):
 		start_time = datetime.now()
 
 		for i in range(100):  # Reducido para test rápido
-			SATValidationCache.get_valid_cache(f"TEST{i:06d}", "RFC")
+			SATValidationCache.get_valid_cache(f"TEST{i:06d}", "fm_rfc")
 
 		end_time = datetime.now()
 		execution_time = (end_time - start_time).total_seconds()
@@ -372,10 +372,10 @@ class TestSATValidationCacheStatics(FrappeTestCase):
 	def test_generate_cache_key_rfc_format(self):
 		"""Test generación de cache key para RFC."""
 		# Test directo de la lógica (sin método específico, se infiere)
-		rfc = "XAXX010101000"
+		fm_rfc = "XAXX010101000"
 
-		expected_key = f"RFC_{rfc}"
-		cache_key = f"RFC_{rfc}"  # Simulación de la lógica
+		expected_key = f"RFC_{fm_rfc}"
+		cache_key = f"RFC_{fm_rfc}"  # Simulación de la lógica
 
 		self.assertEqual(cache_key, expected_key)
 

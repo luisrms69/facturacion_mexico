@@ -22,7 +22,7 @@ def crear_ereceipt(sales_invoice_name):
 		sales_invoice = frappe.get_doc("Sales Invoice", sales_invoice_name)
 
 		# Validar que no tenga factura fiscal
-		if sales_invoice.get("factura_fiscal_mx"):
+		if sales_invoice.get("fm_factura_fiscal_mx"):
 			frappe.throw(_("Esta factura ya tiene factura fiscal asociada"))
 
 		# Crear E-Receipt
@@ -162,9 +162,9 @@ def invoice_ereceipt(ereceipt_name, customer_data):
 		sales_invoice.customer_name = customer_data.get("customer_name")
 
 		# Limpiar campos fiscales para nuevo timbrado
-		sales_invoice.fiscal_status = "Pendiente"
-		sales_invoice.uuid_fiscal = None
-		sales_invoice.factura_fiscal_mx = None
+		sales_invoice.fm_fiscal_status = "Pendiente"
+		sales_invoice.fm_uuid_fiscal = None
+		sales_invoice.fm_factura_fiscal_mx = None
 
 		sales_invoice.insert()
 

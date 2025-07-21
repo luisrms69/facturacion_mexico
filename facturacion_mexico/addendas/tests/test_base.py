@@ -246,8 +246,8 @@ class AddendaTestBase(FrappeTestCase):
 		)
 
 		# Add cfdi_use without validation if the field exists
-		if hasattr(invoice, "cfdi_use"):
-			invoice.cfdi_use = "G01"
+		if hasattr(invoice, "fm_cfdi_use"):
+			invoice.fm_cfdi_use = "G01"
 
 		invoice.insert(ignore_permissions=True, ignore_links=True)
 		return invoice.name
@@ -299,7 +299,7 @@ class AddendaTestBase(FrappeTestCase):
 		<total>{{ cfdi_total }}</total>
 	</informacion>
 	<proveedor>
-		<rfc>{{ emisor_rfc }}</rfc>
+		<fm_rfc>{{ emisor_rfc }}</fm_rfc>
 		<nombre>{{ emisor_nombre }}</nombre>
 	</proveedor>
 </addenda>"""

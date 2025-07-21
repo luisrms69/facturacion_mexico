@@ -120,7 +120,7 @@ class CFDIParser:
 			if emisor is not None:
 				data.update(
 					{
-						"emisor_rfc": emisor.get("Rfc", ""),
+						"emisor_rfc": emisor.get("fm_rfc", ""),
 						"emisor_nombre": emisor.get("Nombre", ""),
 						"emisor_regimen_fiscal": emisor.get("RegimenFiscal", ""),
 					}
@@ -131,7 +131,7 @@ class CFDIParser:
 			if receptor is not None:
 				data.update(
 					{
-						"receptor_rfc": receptor.get("Rfc", ""),
+						"receptor_rfc": receptor.get("fm_rfc", ""),
 						"receptor_nombre": receptor.get("Nombre", ""),
 						"receptor_uso_cfdi": receptor.get("UsoCFDI", ""),
 						"receptor_residencia_fiscal": receptor.get("ResidenciaFiscal", ""),

@@ -138,9 +138,9 @@ class FacturaFiscalMexico(Document):
 				"Sales Invoice",
 				self.sales_invoice,
 				{
-					"fiscal_status": status_map.get(self.status, "Pendiente"),
-					"uuid_fiscal": self.uuid,
-					"factura_fiscal_mx": self.name,
+					"fm_fiscal_status": status_map.get(self.status, "Pendiente"),
+					"fm_uuid_fiscal": self.uuid,
+					"fm_factura_fiscal_mx": self.name,
 				},
 			)
 			frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure Sales Invoice fiscal info is persisted
