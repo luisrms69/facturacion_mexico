@@ -157,13 +157,50 @@ class MotorReglasTestBase(unittest.TestCase):
 
 		return rule_doc
 
+	def create_test_item(self, item_config=None):
+		"""Crear Item de prueba."""
+		default_config = {
+			"doctype": "Item",
+			"item_code": "Test Item",
+			"item_name": "Test Item Motor Reglas",
+			"item_group": "All Item Groups",
+			"stock_uom": "Nos",
+			"is_stock_item": 0,
+			"maintain_stock": 0,
+		}
+
+		if item_config:
+			default_config.update(item_config)
+
+		# Verificar si ya existe
+		if frappe.db.exists("Item", default_config["item_code"]):
+			return frappe.get_doc("Item", default_config["item_code"])
+
+		try:
+			item_doc = frappe.get_doc(default_config)
+			item_doc.insert(ignore_permissions=True)
+
+			# Agregar a lista de cleanup
+			self.test_documents.append(("Item", item_doc.name))
+
+			return item_doc
+		except Exception:
+			# Si falla, intentar obtener el existente
+			if frappe.db.exists("Item", default_config["item_code"]):
+				return frappe.get_doc("Item", default_config["item_code"])
+			raise
+
 	def create_test_sales_invoice(self, invoice_config=None):
 		"""Crear Sales Invoice de prueba."""
+		# Crear Item necesario primero
+		self.create_test_item()
+
 		default_config = {
 			"doctype": "Sales Invoice",
 			"customer": "Test Customer",
 			"company": self.test_company,
 			"currency": "MXN",
+			"cfdi_use": "G03",  # Campo obligatorio para México - Gastos en General
 			"items": [{"item_code": "Test Item", "qty": 1, "rate": 1000, "amount": 1000}],
 		}
 
