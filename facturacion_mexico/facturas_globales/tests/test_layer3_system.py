@@ -4,13 +4,12 @@ Tests de sistema end-to-end con múltiples componentes y escenarios reales
 REGLA #33: Testing progresivo - Layer 3 debe pasar después de Layers 1 y 2
 """
 
-import threading
 import time
 import unittest
 from unittest.mock import MagicMock, patch
 
 import frappe
-from frappe.utils import add_days, flt, now_datetime, today
+from frappe.utils import add_days, flt, today
 
 from facturacion_mexico.facturas_globales.tests.test_base_globales import FacturasGlobalesTestBase
 
@@ -428,8 +427,8 @@ class TestFacturasGlobalesSystem(FacturasGlobalesTestBase):
 		)
 
 		# Limpiar datos de memoria
-		del large_receipts
-		del aggregator
+		large_receipts.clear()
+		aggregator.receipts = []
 
 	def test_data_consistency_across_operations(self):
 		"""Test: Consistencia de datos a través de operaciones."""

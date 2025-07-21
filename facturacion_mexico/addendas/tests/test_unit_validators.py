@@ -5,8 +5,6 @@ Tests unitarios para validadores del sistema de addendas
 
 import unittest
 
-import frappe
-
 from facturacion_mexico.addendas.tests.test_base import AddendaTestBase
 from facturacion_mexico.addendas.validators.xsd_validator import XSDValidator
 

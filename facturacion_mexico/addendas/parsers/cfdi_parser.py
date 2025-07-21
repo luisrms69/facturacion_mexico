@@ -3,9 +3,6 @@ CFDI Parser - Sprint 3
 Parser para extraer datos de CFDI y encontrar puntos de inserción para addendas
 """
 
-import re
-import xml.etree.ElementTree as ET
-
 import frappe
 from frappe import _
 from lxml import etree

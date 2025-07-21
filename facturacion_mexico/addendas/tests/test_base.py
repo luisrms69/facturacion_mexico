@@ -3,9 +3,8 @@ Base Test Class for Addendas Module - Sprint 3
 Framework de testing 4-Layer: Unit, Business Logic, Integration, Performance
 """
 
-import json
 import time
-from typing import Any, Optional
+from typing import Any
 
 import frappe
 from frappe.test_runner import make_test_records

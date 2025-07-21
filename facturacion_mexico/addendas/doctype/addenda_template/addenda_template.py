@@ -4,7 +4,6 @@ Template XML para tipos de addenda
 """
 
 import xml.dom.minidom
-from typing import Optional
 
 import frappe
 from frappe import _

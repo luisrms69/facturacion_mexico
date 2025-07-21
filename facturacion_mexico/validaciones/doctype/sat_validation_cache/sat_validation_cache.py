@@ -79,7 +79,6 @@ class SATValidationCache(Document):
 
 	def calculate_expiry_date(self):
 		"""Calcular fecha de expiración según tipo de validación."""
-		from datetime import timedelta
 
 		if not self.validation_date:
 			self.validation_date = frappe.utils.now()

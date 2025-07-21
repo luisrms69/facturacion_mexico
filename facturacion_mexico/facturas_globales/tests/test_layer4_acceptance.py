@@ -5,7 +5,6 @@ REGLA #33: Testing progresivo - Layer 4 debe pasar después de Layers 1, 2 y 3
 """
 
 import unittest
-from datetime import datetime
 from unittest.mock import MagicMock, patch
 
 import frappe

@@ -8,8 +8,6 @@ import time
 import unittest
 from io import StringIO
 
-import frappe
-
 
 class AddendaTestRunner:
 	"""Ejecutor de tests para el módulo de addendas."""

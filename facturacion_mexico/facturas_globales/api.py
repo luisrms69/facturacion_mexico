@@ -5,7 +5,7 @@ APIs principales para el sistema de facturas globales
 
 import frappe
 from frappe import _
-from frappe.utils import add_days, flt, get_datetime, getdate
+from frappe.utils import add_days, flt, getdate
 
 from facturacion_mexico.utils.error_handling import handle_api_error
 

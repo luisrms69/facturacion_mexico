@@ -3,10 +3,9 @@ Utilidades para manejo mejorado de errores - Resolución de CodeQL
 Patrones seguros para manejo de excepciones específicas
 """
 
-import logging
 from collections.abc import Callable
 from functools import wraps
-from typing import Any, Optional, Union
+from typing import Any
 
 import frappe
 

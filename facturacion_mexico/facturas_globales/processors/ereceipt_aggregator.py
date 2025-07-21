@@ -3,11 +3,10 @@ EReceipt Aggregator - Sprint 4 Semana 1
 Procesador para agrupar E-Receipts en facturas globales
 """
 
-from typing import Any, Optional
+from typing import Any
 
 import frappe
-from frappe import _
-from frappe.utils import cstr, flt, getdate
+from frappe.utils import flt, getdate
 
 
 class EReceiptAggregator:

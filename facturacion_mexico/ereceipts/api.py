@@ -4,7 +4,7 @@ Sistema de recibos electrónicos con autofacturación
 """
 
 import calendar
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import frappe
 from frappe import _

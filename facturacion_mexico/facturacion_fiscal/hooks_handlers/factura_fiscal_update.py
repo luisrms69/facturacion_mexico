@@ -1,7 +1,3 @@
-import frappe
-from frappe import _
-
-
 def register_status_changes(doc, method):
 	"""Registrar cambios de estado en Factura Fiscal Mexico."""
 	from facturacion_mexico.facturacion_fiscal.doctype.fiscal_event_mx.fiscal_event_mx import FiscalEventMX

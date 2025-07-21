@@ -18,9 +18,6 @@ class TestFacturasGlobalesUnit(FacturasGlobalesTestBase):
 
 	def test_period_validation_logic(self):
 		"""Test: Lógica de validación de períodos."""
-		from facturacion_mexico.facturas_globales.doctype.factura_global_mx.factura_global_mx import (
-			FacturaGlobalMX,
-		)
 
 		# Crear documento temporal para testing
 		doc = frappe.get_doc(
@@ -85,9 +82,6 @@ class TestFacturasGlobalesUnit(FacturasGlobalesTestBase):
 
 	def test_total_calculations(self):
 		"""Test: Cálculos de totales."""
-		from facturacion_mexico.facturas_globales.doctype.factura_global_mx.factura_global_mx import (
-			FacturaGlobalMX,
-		)
 
 		# Crear documento con receipts mock
 		doc = frappe.get_doc(
@@ -235,9 +229,6 @@ class TestFacturasGlobalesUnit(FacturasGlobalesTestBase):
 
 	def test_validation_error_handling(self):
 		"""Test: Manejo de errores de validación."""
-		from facturacion_mexico.facturas_globales.doctype.factura_global_mx.factura_global_mx import (
-			FacturaGlobalMX,
-		)
 
 		# Test validación sin company
 		doc = frappe.get_doc(
@@ -266,9 +257,6 @@ class TestFacturasGlobalesUnit(FacturasGlobalesTestBase):
 
 	def test_autonaming_pattern(self):
 		"""Test: Patrón de autonaming."""
-		from facturacion_mexico.facturas_globales.doctype.factura_global_mx.factura_global_mx import (
-			FacturaGlobalMX,
-		)
 
 		doc = frappe.get_doc(
 			{
@@ -329,9 +317,6 @@ class TestFacturasGlobalesUnit(FacturasGlobalesTestBase):
 
 	def test_settings_integration(self):
 		"""Test: Integración con configuraciones."""
-		from facturacion_mexico.facturas_globales.doctype.factura_global_mx.factura_global_mx import (
-			FacturaGlobalMX,
-		)
 
 		doc = frappe.get_doc(
 			{

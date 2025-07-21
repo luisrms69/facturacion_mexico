@@ -2,8 +2,7 @@
 EReceipt Validation Hooks
 """
 
-import frappe
-from frappe.utils import add_days, getdate
+from frappe.utils import add_days
 
 
 def calculate_expiry_date(doc, method):

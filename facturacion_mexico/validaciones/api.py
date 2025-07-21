@@ -7,7 +7,6 @@ import re
 from datetime import datetime
 
 import frappe
-import requests
 from frappe import _
 
 

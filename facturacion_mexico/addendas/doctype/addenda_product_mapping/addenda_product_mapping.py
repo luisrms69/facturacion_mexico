@@ -4,7 +4,7 @@ Mapeo de productos para clientes con addendas específicas
 """
 
 import json
-from typing import Any, Optional
+from typing import Any
 
 import frappe
 from frappe import _

@@ -8,8 +8,6 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import flt, getdate, now_datetime
 
-from facturacion_mexico.utils.error_handling import handle_api_error
-
 
 class FacturaGlobalMX(Document):
 	"""Factura Global MX - Agrupación de E-Receipts para timbrado fiscal."""
@@ -170,11 +168,12 @@ class FacturaGlobalMX(Document):
 
 	def generate_global_cfdi(self):
 		"""Generar CFDI global en FacturAPI.io."""
+		start_time = now_datetime()  # Inicializar al comienzo para garantizar disponibilidad
+
 		try:
 			from facturacion_mexico.facturas_globales.processors.cfdi_global_builder import CFDIGlobalBuilder
 
 			self.status = "Processing"
-			start_time = now_datetime()
 
 			# Construir datos para FacturAPI
 			builder = CFDIGlobalBuilder(self)
@@ -205,9 +204,8 @@ class FacturaGlobalMX(Document):
 
 		finally:
 			# Calcular tiempo de procesamiento
-			if "start_time" in locals():
-				end_time = now_datetime()
-				self.processing_time = (end_time - start_time).total_seconds()
+			end_time = now_datetime()
+			self.processing_time = (end_time - start_time).total_seconds()
 
 	def mark_receipts_as_included(self):
 		"""Marcar receipts como incluidos en factura global."""

@@ -3,11 +3,10 @@ CFDI Global Builder - Sprint 4 Semana 1
 Constructor de datos CFDI para facturas globales en FacturAPI.io
 """
 
-from typing import Any, Optional
+from typing import Any
 
 import frappe
-from frappe import _
-from frappe.utils import cstr, flt, format_date, getdate
+from frappe.utils import flt, format_date
 
 
 class CFDIGlobalBuilder:
