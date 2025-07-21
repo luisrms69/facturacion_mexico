@@ -1,0 +1,107 @@
+{
+ "actions": [],
+ "allow_copy": 0,
+ "allow_events_in_timeline": 0,
+ "allow_guest_to_view": 0,
+ "allow_import": 0,
+ "allow_rename": 0,
+ "beta": 0,
+ "creation": "2025-07-21 00:35:00.000000",
+ "custom": 0,
+ "docstatus": 0,
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "condition_type",
+  "field_name",
+  "operator",
+  "value",
+  "column_break_4",
+  "value_type",
+  "logical_operator",
+  "group_start",
+  "group_end"
+ ],
+ "fields": [
+  {
+   "fieldname": "condition_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Tipo de Condición",
+   "options": "Field\nExpression\nCustom",
+   "reqd": 1
+  },
+  {
+   "fieldname": "field_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Campo a Evaluar"
+  },
+  {
+   "fieldname": "operator",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Operador",
+   "options": "equals\nnot_equals\ngreater_than\nless_than\ngreater_equal\nless_equal\ncontains\nnot_contains\nin_list\nnot_in_list\nis_set\nis_not_set\nregex_match",
+   "reqd": 1
+  },
+  {
+   "fieldname": "value",
+   "fieldtype": "Text",
+   "in_list_view": 1,
+   "label": "Valor de Comparación"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "value_type",
+   "fieldtype": "Select",
+   "label": "Tipo de Valor",
+   "options": "Static\nDynamic\nFormula\nField Reference",
+   "default": "Static"
+  },
+  {
+   "fieldname": "logical_operator",
+   "fieldtype": "Select",
+   "label": "Operador Lógico",
+   "options": "AND\nOR"
+  },
+  {
+   "fieldname": "group_start",
+   "fieldtype": "Check",
+   "label": "Inicio de Grupo"
+  },
+  {
+   "fieldname": "group_end",
+   "fieldtype": "Check",
+   "label": "Fin de Grupo"
+  }
+ ],
+ "hide_heading": 0,
+ "hide_toolbar": 0,
+ "idx": 0,
+ "image_view": 0,
+ "in_create": 0,
+ "is_submittable": 0,
+ "issingle": 0,
+ "istable": 1,
+ "max_attachments": 0,
+ "modified": "2025-07-21 00:35:00.000000",
+ "modified_by": "Administrator",
+ "module": "Motor Reglas",
+ "name": "Rule Condition",
+ "owner": "Administrator",
+ "permissions": [],
+ "quick_entry": 0,
+ "read_only": 0,
+ "read_only_onload": 0,
+ "show_name_in_global_search": 0,
+ "sort_field": "idx",
+ "sort_order": "ASC",
+ "track_changes": 0,
+ "track_seen": 0,
+ "track_views": 0
+}

@@ -1,0 +1,251 @@
+{
+ "actions": [],
+ "allow_copy": 0,
+ "allow_events_in_timeline": 0,
+ "allow_guest_to_view": 0,
+ "allow_import": 0,
+ "allow_rename": 1,
+ "autoname": "field:rule_code",
+ "beta": 0,
+ "creation": "2025-07-21 00:30:00.000000",
+ "custom": 0,
+ "docstatus": 0,
+ "doctype": "DocType",
+ "document_type": "Document",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "basic_info_section",
+  "rule_name",
+  "rule_code", 
+  "description",
+  "column_break_4",
+  "rule_type",
+  "apply_to_doctype",
+  "is_active",
+  "priority",
+  "configuration_section",
+  "effective_date",
+  "expiry_date",
+  "column_break_10",
+  "error_message",
+  "warning_message",
+  "severity",
+  "conditions_section",
+  "conditions",
+  "actions_section", 
+  "actions",
+  "statistics_section",
+  "execution_count",
+  "last_execution",
+  "column_break_18",
+  "average_execution_time",
+  "last_error"
+ ],
+ "fields": [
+  {
+   "fieldname": "basic_info_section",
+   "fieldtype": "Section Break",
+   "label": "Información Básica"
+  },
+  {
+   "fieldname": "rule_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Nombre de la Regla",
+   "reqd": 1
+  },
+  {
+   "fieldname": "rule_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Código de Regla",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text",
+   "label": "Descripción"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "rule_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Tipo de Regla",
+   "options": "Validation\nCalculation\nTransformation",
+   "reqd": 1
+  },
+  {
+   "fieldname": "apply_to_doctype",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Aplicar a DocType",
+   "options": "Sales Invoice\nPayment Entry\nCustomer\nEReceipt MX\nFactura Global MX",
+   "reqd": 1
+  },
+  {
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Activa"
+  },
+  {
+   "fieldname": "priority",
+   "fieldtype": "Int",
+   "label": "Prioridad (1-100)",
+   "default": "50"
+  },
+  {
+   "fieldname": "configuration_section",
+   "fieldtype": "Section Break",
+   "label": "Configuración"
+  },
+  {
+   "fieldname": "effective_date",
+   "fieldtype": "Date",
+   "label": "Fecha de Vigencia"
+  },
+  {
+   "fieldname": "expiry_date",
+   "fieldtype": "Date",
+   "label": "Fecha de Expiración"
+  },
+  {
+   "fieldname": "column_break_10",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "error_message",
+   "fieldtype": "Text",
+   "label": "Mensaje de Error"
+  },
+  {
+   "fieldname": "warning_message",
+   "fieldtype": "Text",
+   "label": "Mensaje de Advertencia"
+  },
+  {
+   "fieldname": "severity",
+   "fieldtype": "Select",
+   "label": "Severidad",
+   "options": "Error\nWarning\nInfo",
+   "default": "Error"
+  },
+  {
+   "fieldname": "conditions_section",
+   "fieldtype": "Section Break",
+   "label": "Condiciones"
+  },
+  {
+   "fieldname": "conditions",
+   "fieldtype": "Table",
+   "label": "Condiciones de la Regla",
+   "options": "Rule Condition"
+  },
+  {
+   "fieldname": "actions_section",
+   "fieldtype": "Section Break",
+   "label": "Acciones"
+  },
+  {
+   "fieldname": "actions",
+   "fieldtype": "Table",
+   "label": "Acciones a Ejecutar", 
+   "options": "Rule Action"
+  },
+  {
+   "fieldname": "statistics_section",
+   "fieldtype": "Section Break",
+   "label": "Estadísticas",
+   "read_only": 1
+  },
+  {
+   "fieldname": "execution_count",
+   "fieldtype": "Int",
+   "label": "Veces Ejecutada",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_execution",
+   "fieldtype": "Datetime",
+   "label": "Última Ejecución",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_18",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "average_execution_time",
+   "fieldtype": "Float",
+   "label": "Tiempo Promedio (ms)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_error",
+   "fieldtype": "Text",
+   "label": "Último Error",
+   "read_only": 1
+  }
+ ],
+ "has_web_view": 0,
+ "hide_heading": 0,
+ "hide_toolbar": 0,
+ "idx": 0,
+ "image_view": 0,
+ "in_create": 0,
+ "is_submittable": 0,
+ "issingle": 0,
+ "istable": 0,
+ "max_attachments": 0,
+ "modified": "2025-07-21 00:30:00.000000",
+ "modified_by": "Administrator",
+ "module": "Motor Reglas",
+ "name": "Fiscal Validation Rule",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Accounts User"
+  }
+ ],
+ "quick_entry": 0,
+ "read_only": 0,
+ "read_only_onload": 0,
+ "show_name_in_global_search": 1,
+ "sort_field": "priority",
+ "sort_order": "ASC",
+ "title_field": "rule_name",
+ "track_changes": 1,
+ "track_seen": 0,
+ "track_views": 0
+}

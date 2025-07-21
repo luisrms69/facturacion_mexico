@@ -1,0 +1,89 @@
+{
+ "actions": [],
+ "allow_copy": 0,
+ "allow_events_in_timeline": 0,
+ "allow_guest_to_view": 0,
+ "allow_import": 0,
+ "allow_rename": 0,
+ "beta": 0,
+ "creation": "2025-07-21 00:40:00.000000",
+ "custom": 0,
+ "docstatus": 0,
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "action_type",
+  "target_field",
+  "action_value",
+  "column_break_3",
+  "continue_on_error",
+  "log_action",
+  "description"
+ ],
+ "fields": [
+  {
+   "fieldname": "action_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Tipo de Acción",
+   "options": "Set Field\nShow Error\nShow Warning\nShow Message\nCall API\nExecute Script\nSend Email\nCreate Document",
+   "reqd": 1
+  },
+  {
+   "fieldname": "target_field",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Campo Objetivo"
+  },
+  {
+   "fieldname": "action_value",
+   "fieldtype": "Text",
+   "in_list_view": 1,
+   "label": "Valor/Script a Ejecutar"
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "continue_on_error",
+   "fieldtype": "Check",
+   "label": "Continuar si Falla"
+  },
+  {
+   "fieldname": "log_action",
+   "fieldtype": "Check",
+   "label": "Registrar en Log"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Descripción"
+  }
+ ],
+ "hide_heading": 0,
+ "hide_toolbar": 0,
+ "idx": 0,
+ "image_view": 0,
+ "in_create": 0,
+ "is_submittable": 0,
+ "issingle": 0,
+ "istable": 1,
+ "max_attachments": 0,
+ "modified": "2025-07-21 00:40:00.000000",
+ "modified_by": "Administrator",
+ "module": "Motor Reglas",
+ "name": "Rule Action",
+ "owner": "Administrator",
+ "permissions": [],
+ "quick_entry": 0,
+ "read_only": 0,
+ "read_only_onload": 0,
+ "show_name_in_global_search": 0,
+ "sort_field": "idx",
+ "sort_order": "ASC",
+ "track_changes": 0,
+ "track_seen": 0,
+ "track_views": 0
+}

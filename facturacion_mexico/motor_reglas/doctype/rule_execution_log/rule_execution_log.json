@@ -1,0 +1,197 @@
+{
+ "actions": [],
+ "allow_copy": 0,
+ "allow_events_in_timeline": 0,
+ "allow_guest_to_view": 0,
+ "allow_import": 0,
+ "allow_rename": 0,
+ "autoname": "naming_series:",
+ "beta": 0,
+ "creation": "2025-07-21 00:45:00.000000",
+ "custom": 0,
+ "docstatus": 0,
+ "doctype": "DocType",
+ "document_type": "Document",
+ "editable_grid": 0,
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "basic_info_section",
+  "rule",
+  "rule_name",
+  "document_type",
+  "document_name",
+  "column_break_5",
+  "execution_time",
+  "result",
+  "creation",
+  "action_details_section",
+  "action_type",
+  "action_idx",
+  "column_break_10",
+  "conditions_evaluated",
+  "actions_executed",
+  "error_section",
+  "error_details",
+  "action_details"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Naming Series",
+   "options": "REL-.YYYY.-"
+  },
+  {
+   "fieldname": "basic_info_section",
+   "fieldtype": "Section Break",
+   "label": "Información Básica"
+  },
+  {
+   "fieldname": "rule",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Regla",
+   "options": "Fiscal Validation Rule",
+   "reqd": 1
+  },
+  {
+   "fieldname": "rule_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Nombre de Regla",
+   "read_only": 1
+  },
+  {
+   "fieldname": "document_type",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Tipo de Documento"
+  },
+  {
+   "fieldname": "document_name",
+   "fieldtype": "Dynamic Link",
+   "in_list_view": 1,
+   "label": "Documento",
+   "options": "document_type"
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "execution_time",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Tiempo Ejecución (ms)",
+   "precision": "3"
+  },
+  {
+   "fieldname": "result",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Resultado",
+   "options": "Success\nFailed\nSkipped"
+  },
+  {
+   "fieldname": "creation",
+   "fieldtype": "Datetime",
+   "label": "Fecha/Hora"
+  },
+  {
+   "fieldname": "action_details_section",
+   "fieldtype": "Section Break",
+   "label": "Detalles de Acción"
+  },
+  {
+   "fieldname": "action_type",
+   "fieldtype": "Data",
+   "label": "Tipo de Acción"
+  },
+  {
+   "fieldname": "action_idx",
+   "fieldtype": "Int",
+   "label": "Índice de Acción"
+  },
+  {
+   "fieldname": "column_break_10",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "conditions_evaluated",
+   "fieldtype": "Int",
+   "label": "Condiciones Evaluadas"
+  },
+  {
+   "fieldname": "actions_executed",
+   "fieldtype": "Int",
+   "label": "Acciones Ejecutadas"
+  },
+  {
+   "fieldname": "error_section",
+   "fieldtype": "Section Break",
+   "label": "Detalles de Error"
+  },
+  {
+   "fieldname": "error_details",
+   "fieldtype": "Text",
+   "label": "Detalles de Error"
+  },
+  {
+   "fieldname": "action_details",
+   "fieldtype": "Long Text",
+   "label": "Detalles de Acción (JSON)"
+  }
+ ],
+ "has_web_view": 0,
+ "hide_heading": 0,
+ "hide_toolbar": 0,
+ "idx": 0,
+ "image_view": 0,
+ "in_create": 0,
+ "is_submittable": 0,
+ "issingle": 0,
+ "istable": 0,
+ "max_attachments": 0,
+ "modified": "2025-07-21 00:45:00.000000",
+ "modified_by": "Administrator",
+ "module": "Motor Reglas",
+ "name": "Rule Execution Log",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 0,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 0,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 0,
+   "write": 0
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager",
+   "share": 0
+  },
+  {
+   "read": 1,
+   "role": "Accounts User"
+  }
+ ],
+ "quick_entry": 0,
+ "read_only": 1,
+ "read_only_onload": 1,
+ "show_name_in_global_search": 0,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "title_field": "rule_name",
+ "track_changes": 0,
+ "track_seen": 0,
+ "track_views": 0
+}
