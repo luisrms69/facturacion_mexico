@@ -43,6 +43,26 @@ class RuleParser:
 
 		self.supported_value_types = ["Static", "Dynamic", "Formula", "Field Reference"]
 
+	def validate_rule_syntax(self, rule_doc):
+		"""Validar sintaxis completa de una regla."""
+		errors = []
+
+		# Validar condiciones
+		if rule_doc.conditions:
+			for condition in rule_doc.conditions:
+				condition_validation = self.validate_condition_syntax(condition)
+				if not condition_validation["valid"]:
+					errors.extend(condition_validation["errors"])
+
+		# Validar acciones
+		if rule_doc.actions:
+			for action in rule_doc.actions:
+				action_validation = self.validate_action_syntax(action)
+				if not action_validation["valid"]:
+					errors.extend(action_validation["errors"])
+
+		return {"valid": len(errors) == 0, "errors": errors}
+
 	def parse_conditions(self, conditions):
 		"""Parsear condiciones a estructura AST."""
 		if not conditions:

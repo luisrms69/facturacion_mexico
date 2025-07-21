@@ -279,3 +279,12 @@ def force_revalidate_document(doctype, document_name):
 
 	except Exception as e:
 		return {"success": False, "error": str(e)}
+
+
+def validate_document_with_rules(doc):
+	"""Wrapper function for testing integration."""
+	try:
+		execute_validation_rules(doc, "test_validation")
+		return {"success": True, "message": "Validation completed"}
+	except Exception as e:
+		return {"success": False, "error": str(e)}
