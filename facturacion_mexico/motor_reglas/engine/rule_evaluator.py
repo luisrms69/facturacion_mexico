@@ -278,7 +278,7 @@ class RuleEvaluator:
 			# Evaluar expresión de forma segura
 			# Reemplazar true/false por valores booleanos de Python
 			safe_expression = python_expression.lower().replace("true", "True").replace("false", "False")
-			return eval(safe_expression)
+			return frappe.safe_eval(safe_expression)
 
 		except Exception as e:
 			frappe.log_error(f"Error evaluando expresión lógica '{expression}': {e}")

@@ -478,6 +478,301 @@ class TestMotorReglasUnit(MotorReglasTestBase):
 		self.assertIn("and", expression.lower())
 		self.assertIn("or", expression.lower())
 
+	def test_evaluation_summary_complete(self):
+		"""Test resumen completo de evaluación."""
+		from facturacion_mexico.motor_reglas.engine.rule_evaluator import RuleEvaluator
+
+		evaluator = RuleEvaluator()
+
+		# Mock document
+		mock_doc = MagicMock()
+		mock_doc.grand_total = 1500
+		mock_doc.customer_name = "Test Customer"
+
+		# Mock conditions
+		conditions = []
+		cond1 = MagicMock()
+		cond1.condition_type = "Field"
+		cond1.field_name = "grand_total"
+		cond1.operator = "greater_than"
+		cond1.value = "1000"
+		cond1.logical_operator = "AND"
+		conditions.append(cond1)
+
+		cond2 = MagicMock()
+		cond2.condition_type = "Field"
+		cond2.field_name = "customer_name"
+		cond2.operator = "contains"
+		cond2.value = "Test"
+		cond2.logical_operator = None
+		conditions.append(cond2)
+
+		# Test summary generation
+		summary = evaluator.get_evaluation_summary(conditions, mock_doc)
+
+		self.assertIn("total_conditions", summary)
+		self.assertIn("conditions_detail", summary)
+		self.assertIn("final_result", summary)
+		self.assertIn("logical_expression", summary)
+		self.assertEqual(summary["total_conditions"], 2)
+		self.assertEqual(len(summary["conditions_detail"]), 2)
+
+	def test_string_comparison_operators(self):
+		"""Test operadores de comparación de strings."""
+		from facturacion_mexico.motor_reglas.engine.rule_evaluator import RuleEvaluator
+
+		evaluator = RuleEvaluator()
+
+		# Test comparaciones de strings
+		self.assertTrue(evaluator.safe_string_compare("B", "A", ">"))
+		self.assertTrue(evaluator.safe_string_compare("A", "B", "<"))
+		self.assertTrue(evaluator.safe_string_compare("A", "A", ">="))
+		self.assertTrue(evaluator.safe_string_compare("A", "A", "<="))
+
+		# Test case sensitivity
+		self.assertFalse(evaluator.safe_string_compare("a", "A", ">"))
+		self.assertTrue(evaluator.safe_string_compare("b", "A", ">"))
+
+	def test_formula_evaluation_edge_cases(self):
+		"""Test evaluación de fórmulas - casos especiales."""
+		from facturacion_mexico.motor_reglas.engine.rule_evaluator import RuleEvaluator
+
+		evaluator = RuleEvaluator()
+
+		# Mock document sin atributos esperados
+		mock_doc = MagicMock()
+		mock_doc.grand_total = None
+
+		# Test fórmulas con documentos incompletos
+		result = evaluator.evaluate_formula("GRAND_TOTAL", mock_doc)
+		self.assertEqual(result, 0)
+
+		result = evaluator.evaluate_formula("INVALID_FORMULA", mock_doc)
+		self.assertEqual(result, "INVALID_FORMULA")
+
+		# Test con documento que tiene items
+		mock_doc_with_items = MagicMock()
+		mock_doc_with_items.items = [{"item": 1}, {"item": 2}]
+		result = evaluator.evaluate_formula("ITEM_COUNT", mock_doc_with_items)
+		self.assertEqual(result, 2)
+
+	def test_dynamic_values_comprehensive(self):
+		"""Test valores dinámicos completos."""
+		from facturacion_mexico.motor_reglas.engine.rule_evaluator import RuleEvaluator
+
+		evaluator = RuleEvaluator()
+
+		# Test todos los valores dinámicos disponibles
+		result_today = evaluator.resolve_dynamic_value("TODAY")
+		self.assertEqual(result_today, frappe.utils.today())
+
+		result_now = evaluator.resolve_dynamic_value("NOW")
+		self.assertEqual(result_now, frappe.utils.now())
+
+		result_user = evaluator.resolve_dynamic_value("CURRENT_USER")
+		self.assertEqual(result_user, frappe.session.user)
+
+		# Test valor dinámico inexistente
+		result_invalid = evaluator.resolve_dynamic_value("INVALID_DYNAMIC")
+		self.assertEqual(result_invalid, "INVALID_DYNAMIC")
+
+	def test_field_value_extraction_edge_cases(self):
+		"""Test extracción de valores de campo - casos especiales."""
+		from facturacion_mexico.motor_reglas.engine.rule_evaluator import RuleEvaluator
+
+		evaluator = RuleEvaluator()
+
+		# Test con documento None
+		result = evaluator.get_document_field_value(None, "field_name")
+		self.assertIsNone(result)
+
+		# Test con campo inexistente
+		mock_doc = MagicMock()
+		del mock_doc.nonexistent_field  # Ensure it doesn't exist
+		result = evaluator.get_document_field_value(mock_doc, "nonexistent_field")
+		self.assertIsNone(result)
+
+		# Test con diccionario
+		dict_doc = {"existing_field": "value"}
+		result = evaluator.get_document_field_value(dict_doc, "existing_field")
+		self.assertEqual(result, "value")
+
+		result = evaluator.get_document_field_value(dict_doc, "nonexistent_field")
+		self.assertIsNone(result)
+
+	def test_comparison_value_types(self):
+		"""Test diferentes tipos de valores de comparación."""
+		from facturacion_mexico.motor_reglas.engine.rule_evaluator import RuleEvaluator
+
+		evaluator = RuleEvaluator()
+
+		# Mock condition y document
+		mock_condition = MagicMock()
+		mock_doc = MagicMock()
+		mock_doc.reference_field = "reference_value"
+
+		# Test Static value
+		mock_condition.value = "static_value"
+		mock_condition.value_type = "Static"
+		result = evaluator.get_comparison_value(mock_condition, mock_doc)
+		self.assertEqual(result, "static_value")
+
+		# Test Dynamic value
+		mock_condition.value = "TODAY"
+		mock_condition.value_type = "Dynamic"
+		result = evaluator.get_comparison_value(mock_condition, mock_doc)
+		self.assertEqual(result, frappe.utils.today())
+
+		# Test Formula value
+		mock_condition.value = "GRAND_TOTAL"
+		mock_condition.value_type = "Formula"
+		mock_doc.grand_total = 1000
+		result = evaluator.get_comparison_value(mock_condition, mock_doc)
+		self.assertEqual(result, 1000)
+
+		# Test Field Reference
+		mock_condition.value = "reference_field"
+		mock_condition.value_type = "Field Reference"
+		result = evaluator.get_comparison_value(mock_condition, mock_doc)
+		self.assertEqual(result, "reference_value")
+
+	def test_list_operations_comprehensive(self):
+		"""Test operaciones de lista completas."""
+		from facturacion_mexico.motor_reglas.engine.rule_evaluator import RuleEvaluator
+
+		evaluator = RuleEvaluator()
+
+		# Test lista comma-separated
+		self.assertTrue(evaluator.value_in_list("Test", "Test,Demo,Sample"))
+		self.assertFalse(evaluator.value_in_list("Other", "Test,Demo,Sample"))
+
+		# Test lista JSON válida
+		self.assertTrue(evaluator.value_in_list("Test", '["Test", "Demo", "Sample"]'))
+		self.assertFalse(evaluator.value_in_list("Other", '["Test", "Demo", "Sample"]'))
+
+		# Test lista JSON inválida (fallback a comma-separated)
+		self.assertTrue(evaluator.value_in_list("Test", '["Test", "Demo"'))  # JSON malformado
+
+		# Test con lista vacía
+		self.assertFalse(evaluator.value_in_list("Test", ""))
+		self.assertFalse(evaluator.value_in_list("Test", "[]"))
+
+		# Test con valor None
+		self.assertFalse(evaluator.value_in_list(None, "Test,Demo"))
+
+	def test_rule_summary_and_active_rules(self):
+		"""Test resumen de reglas y obtener reglas activas."""
+		# Test get_rule_summary
+		rule_doc = self.create_test_rule({"rule_name": "Summary Test Rule", "rule_code": "SUMMARY_001"})
+
+		summary = rule_doc.get_rule_summary()
+		self.assertIn("rule_code", summary)
+		self.assertIn("rule_name", summary)
+		self.assertIn("is_active", summary)
+		self.assertIn("conditions_count", summary)
+		self.assertIn("actions_count", summary)
+		self.assertEqual(summary["rule_code"], "SUMMARY_001")
+
+		# Test get_active_rules_for_doctype
+		from facturacion_mexico.motor_reglas.doctype.fiscal_validation_rule.fiscal_validation_rule import (
+			FiscalValidationRule,
+		)
+
+		active_rules = FiscalValidationRule.get_active_rules_for_doctype("Sales Invoice")
+		self.assertIsInstance(active_rules, list)
+
+	def test_rule_test_function(self):
+		"""Test función de testing de reglas."""
+		rule_doc = self.create_test_rule({"rule_name": "Test Function Rule", "rule_code": "TESTFUNC_001"})
+
+		# Crear un Sales Invoice de prueba
+		invoice_doc = self.create_test_sales_invoice()
+
+		# Test la función test_rule
+		test_result = rule_doc.test_rule(invoice_doc.name)
+		self.assertIn("success", test_result)
+		self.assertIn("test_result", test_result)
+		self.assertIn("rule", test_result)
+		self.assertEqual(test_result["rule"], "TESTFUNC_001")
+
+		# Test con documento inexistente
+		with self.assertRaises(frappe.ValidationError):
+			rule_doc.test_rule(None)
+
+	def test_security_validations(self):
+		"""Test validaciones de seguridad básicas."""
+		from facturacion_mexico.motor_reglas.engine.rule_evaluator import RuleEvaluator
+
+		evaluator = RuleEvaluator()
+
+		# Test regex pattern injection
+		mock_doc = MagicMock()
+		mock_doc.test_field = "test_value"
+
+		# Pattern potencialmente peligroso pero válido
+		result = evaluator.apply_operator("test_value", r"^test.*", "regex_match")
+		self.assertTrue(result)
+
+		# Test expression evaluation security
+		# Solo debe evaluar expresiones seguras
+		safe_expr = "true and false"
+		result = evaluator.evaluate_logical_expression(safe_expr)
+		self.assertFalse(result)
+
+		# Expression con tokens no seguros debe retornar False
+		unsafe_expr = "true and import_os"
+		result = evaluator.evaluate_logical_expression(unsafe_expr)
+		self.assertFalse(result)
+
+	def test_error_handling_comprehensive(self):
+		"""Test manejo de errores comprehensivo."""
+		from facturacion_mexico.motor_reglas.engine.rule_evaluator import RuleEvaluator
+
+		evaluator = RuleEvaluator()
+
+		# Test con documento que lanza AttributeError
+		class BadDocument:
+			@property
+			def bad_field(self):
+				raise AttributeError("Field not accessible")
+
+		bad_doc = BadDocument()
+
+		# Debe manejar AttributeError gracefully
+		result = evaluator.get_document_field_value(bad_doc, "bad_field")
+		self.assertIsNone(result)
+
+		# Test numeric comparison con valores inválidos
+		result = evaluator.safe_numeric_compare("invalid", "also_invalid", ">")
+		self.assertFalse(result)  # Fallback a string comparison
+
+		# Test value_in_list con JSON extremadamente malformado
+		result = evaluator.value_in_list("test", "{invalid[json")
+		self.assertFalse(result)
+
+	def test_cache_operations_detailed(self):
+		"""Test operaciones de caché detalladas."""
+		rule_doc = self.create_test_rule({"rule_name": "Cache Detail Rule", "rule_code": "CACHE_DETAIL_001"})
+
+		# Test compilación de caché con datos específicos
+		rule_doc.compile_rule_cache()
+
+		cache_key = f"fiscal_rule_cache_{rule_doc.name}"
+		cached_data = frappe.cache().get_value(cache_key)
+		self.assertIsNotNone(cached_data)
+
+		# Verificar estructura del caché
+		cache_content = json.loads(cached_data)
+		self.assertIn("rule_code", cache_content)
+		self.assertIn("conditions", cache_content)
+		self.assertIn("actions", cache_content)
+		self.assertEqual(cache_content["rule_code"], "CACHE_DETAIL_001")
+
+		# Test invalidación y limpieza
+		rule_doc.invalidate_rule_cache()
+		cached_data_after = frappe.cache().get_value(cache_key)
+		self.assertIsNone(cached_data_after)
+
 
 if __name__ == "__main__":
 	unittest.main()
