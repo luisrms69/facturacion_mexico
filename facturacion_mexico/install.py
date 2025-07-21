@@ -5,9 +5,11 @@ from frappe.utils import now_datetime
 
 def after_install():
 	"""Ejecutar después de instalar la app."""
+	frappe.logger().info("Starting Facturacion Mexico installation...")
 	create_initial_configuration()
 	create_basic_sat_catalogs()  # PRIMERO: crear catálogos SAT
 	create_custom_fields_for_erpnext()  # SEGUNDO: crear custom fields que referencian catálogos
+	frappe.logger().info("Facturacion Mexico installation completed successfully.")
 	frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure installation process completes successfully
 
 
