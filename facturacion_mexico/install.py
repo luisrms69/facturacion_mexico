@@ -35,6 +35,7 @@ def create_custom_fields_for_erpnext():
 
 def create_basic_sat_catalogs():
 	"""Crear catálogos básicos SAT."""
+	print("🔧 [DEBUG] create_basic_sat_catalogs() iniciada")
 
 	# Crear algunos registros básicos de Uso CFDI
 	basic_uso_cfdi = [
@@ -50,10 +51,17 @@ def create_basic_sat_catalogs():
 	]
 
 	for uso in basic_uso_cfdi:
-		if not frappe.db.exists("Uso CFDI SAT", uso["code"]):
-			doc = frappe.new_doc("Uso CFDI SAT")
-			doc.update(uso)
-			doc.save()
+		try:
+			if not frappe.db.exists("Uso CFDI SAT", uso["code"]):
+				doc = frappe.new_doc("Uso CFDI SAT")
+				doc.update(uso)
+				doc.save()
+				print(f"✅ [DEBUG] Created Uso CFDI SAT: {uso['code']} - {uso['description']}")
+			else:
+				print(f"[INFO] [DEBUG] Uso CFDI SAT {uso['code']} ya existe")
+		except Exception as e:
+			print(f"❌ [DEBUG] Error creating Uso CFDI SAT {uso['code']}: {e}")
+			# Continue with next item
 
 	# Crear algunos registros básicos de Régimen Fiscal
 	basic_regimen_fiscal = [
@@ -89,6 +97,7 @@ def create_basic_sat_catalogs():
 			doc.update(regimen)
 			doc.save()
 
+	print("✅ [DEBUG] create_basic_sat_catalogs() completada exitosamente")
 	frappe.msgprint(_("Catálogos básicos SAT creados"))
 
 
@@ -150,7 +159,9 @@ def before_tests():
 	_create_basic_item_tax_templates()
 
 	# Crear catálogos SAT básicos para testing - CRÍTICO para LinkValidationError
+	print("🔧 [DEBUG] before_tests() llamando create_basic_sat_catalogs()...")
 	create_basic_sat_catalogs()
+	print("✅ [DEBUG] before_tests() completó create_basic_sat_catalogs()")
 
 	# Setup roles - usar ERPNext si disponible
 	try:
