@@ -539,7 +539,7 @@ class FiscalHealthScore(Document):
 			self.append(
 				"factors_positive",
 				{
-					"factor_type": "ereceipts",
+					"factor_type": "E-Receipts",
 					"description": f"Excelente cumplimiento E-Receipts ({self.ereceipts_score:.1f}%)",
 					"impact_score": 6,
 				},
@@ -549,7 +549,7 @@ class FiscalHealthScore(Document):
 			self.append(
 				"factors_positive",
 				{
-					"factor_type": "rules_compliance",  # Match test pattern
+					"factor_type": "Cumplimiento",
 					"description": f"Alto cumplimiento regulatorio ({self.rules_compliance_score:.1f}%)",
 					"impact_score": 3,
 				},
