@@ -1,0 +1,1 @@
+# Fiscal Dashboard Config DocType

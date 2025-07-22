@@ -1,0 +1,206 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:name",
+ "creation": "2025-07-21 15:15:00.000000",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "basic_settings_section",
+  "refresh_interval",
+  "enable_auto_refresh",
+  "cache_duration",
+  "performance_mode",
+  "column_break_basic",
+  "default_period",
+  "dashboard_theme",
+  "show_trend_indicators",
+  "enable_drill_down",
+  "display_settings_section",
+  "show_monetary_in_thousands",
+  "default_widgets_layout",
+  "column_break_display",
+  "alert_settings_section",
+  "enable_alerts",
+  "alert_check_frequency",
+  "column_break_alerts"
+ ],
+ "fields": [
+  {
+   "fieldname": "basic_settings_section",
+   "fieldtype": "Section Break",
+   "label": "Configuración Básica"
+  },
+  {
+   "default": "300",
+   "description": "Segundos entre actualizaciones automáticas del dashboard",
+   "fieldname": "refresh_interval",
+   "fieldtype": "Int",
+   "label": "Intervalo de Actualización (segundos)",
+   "reqd": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_auto_refresh",
+   "fieldtype": "Check",
+   "label": "Habilitar Actualización Automática"
+  },
+  {
+   "default": "3600",
+   "description": "Duración del cache en segundos (3600 = 1 hora)",
+   "fieldname": "cache_duration",
+   "fieldtype": "Int",
+   "label": "Duración Cache (segundos)",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "description": "Modo rendimiento: menos actualizaciones, más cache",
+   "fieldname": "performance_mode",
+   "fieldtype": "Check",
+   "label": "Modo Rendimiento"
+  },
+  {
+   "fieldname": "column_break_basic",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "month",
+   "fieldname": "default_period",
+   "fieldtype": "Select",
+   "label": "Período Por Defecto",
+   "options": "today\nweek\nmonth\nyear",
+   "reqd": 1
+  },
+  {
+   "default": "light",
+   "fieldname": "dashboard_theme",
+   "fieldtype": "Select",
+   "label": "Tema del Dashboard",
+   "options": "light\ndark\nauto",
+   "reqd": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "show_trend_indicators",
+   "fieldtype": "Check",
+   "label": "Mostrar Indicadores de Tendencia"
+  },
+  {
+   "default": "1",
+   "description": "Permitir navegación detallada desde widgets",
+   "fieldname": "enable_drill_down",
+   "fieldtype": "Check",
+   "label": "Habilitar Drill-Down"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "display_settings_section",
+   "fieldtype": "Section Break",
+   "label": "Configuración de Visualización"
+  },
+  {
+   "default": "0",
+   "description": "Mostrar montos en miles (ej: 1,250K en lugar de 1,250,000)",
+   "fieldname": "show_monetary_in_thousands",
+   "fieldtype": "Check",
+   "label": "Mostrar Montos en Miles"
+  },
+  {
+   "description": "Configuración JSON del layout por defecto de widgets",
+   "fieldname": "default_widgets_layout",
+   "fieldtype": "JSON",
+   "label": "Layout Por Defecto de Widgets"
+  },
+  {
+   "fieldname": "column_break_display",
+   "fieldtype": "Column Break"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "alert_settings_section",
+   "fieldtype": "Section Break",
+   "label": "Configuración de Alertas"
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_alerts",
+   "fieldtype": "Check",
+   "label": "Sistema de Alertas Activo"
+  },
+  {
+   "default": "15min",
+   "depends_on": "enable_alerts",
+   "fieldname": "alert_check_frequency",
+   "fieldtype": "Select",
+   "label": "Frecuencia de Verificación de Alertas",
+   "options": "5min\n15min\n30min\n1hour"
+  },
+  {
+   "fieldname": "column_break_alerts",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "has_web_view": 0,
+ "hide_toolbar": 0,
+ "idx": 0,
+ "in_create": 0,
+ "is_submittable": 0,
+ "issingle": 1,
+ "istable": 0,
+ "max_attachments": 0,
+ "modified": "2025-07-21 15:15:00.000000",
+ "modified_by": "Administrator",
+ "module": "Dashboard Fiscal",
+ "name": "Fiscal Dashboard Config",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts User",
+   "share": 1,
+   "write": 0
+  }
+ ],
+ "quick_entry": 0,
+ "read_only": 0,
+ "read_only_onload": 0,
+ "show_name_in_global_search": 0,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "track_seen": 0,
+ "track_views": 0
+}
