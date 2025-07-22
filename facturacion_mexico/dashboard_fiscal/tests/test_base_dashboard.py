@@ -190,7 +190,6 @@ class TestBaseDashboard(unittest.TestCase):
 class TestDashboardConfigValidation(unittest.TestCase):
 	"""Tests específicos para validación de configuración"""
 
-	@unittest.skip("Skipping until DocTypes are installed in test site")
 	def test_widget_layout_validation(self):
 		"""Test validación de layout de widgets"""
 		from facturacion_mexico.dashboard_fiscal.doctype.fiscal_dashboard_config.fiscal_dashboard_config import (
@@ -223,7 +222,6 @@ class TestDashboardConfigValidation(unittest.TestCase):
 		with self.assertRaises(Exception):
 			config.validate_widget_layout(invalid_layout)
 
-	@unittest.skip("Skipping until DocTypes are installed in test site")
 	def test_interval_validation(self):
 		"""Test validación de intervalos"""
 		from facturacion_mexico.dashboard_fiscal.doctype.fiscal_dashboard_config.fiscal_dashboard_config import (
