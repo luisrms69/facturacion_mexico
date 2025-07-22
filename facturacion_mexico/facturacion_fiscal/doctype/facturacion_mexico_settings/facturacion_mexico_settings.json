@@ -31,7 +31,16 @@
     "global_generation_time",
     "include_zero_receipts",
     "notify_global_generation",
-    "global_notification_emails"
+    "global_notification_emails",
+    "dashboard_fiscal_section",
+    "enable_fiscal_dashboard",
+    "dashboard_default_company",
+    "dashboard_data_retention_days",
+    "column_break_dashboard",
+    "enable_dashboard_notifications",
+    "dashboard_admin_roles",
+    "ereceipt_monthly_limit",
+    "global_invoice_monthly_limit"
   ],
   "fields": [
     {
@@ -202,6 +211,68 @@
       "fieldtype": "Small Text",
       "label": "Emails de Notificación",
       "depends_on": "notify_global_generation"
+    },
+    {
+      "fieldname": "dashboard_fiscal_section",
+      "fieldtype": "Section Break",
+      "label": "Configuración Dashboard Fiscal"
+    },
+    {
+      "default": 1,
+      "description": "Habilitar el dashboard fiscal del sistema",
+      "fieldname": "enable_fiscal_dashboard",
+      "fieldtype": "Check",
+      "label": "Habilitar Dashboard Fiscal"
+    },
+    {
+      "description": "Company por defecto para el dashboard",
+      "fieldname": "dashboard_default_company",
+      "fieldtype": "Link",
+      "label": "Company por Defecto",
+      "options": "Company",
+      "depends_on": "enable_fiscal_dashboard"
+    },
+    {
+      "default": 365,
+      "description": "Días de retención de datos del dashboard",
+      "fieldname": "dashboard_data_retention_days",
+      "fieldtype": "Int",
+      "label": "Días Retención Datos",
+      "depends_on": "enable_fiscal_dashboard"
+    },
+    {
+      "fieldname": "column_break_dashboard",
+      "fieldtype": "Column Break"
+    },
+    {
+      "default": 1,
+      "description": "Habilitar notificaciones del dashboard",
+      "fieldname": "enable_dashboard_notifications",
+      "fieldtype": "Check",
+      "label": "Notificaciones Activas",
+      "depends_on": "enable_fiscal_dashboard"
+    },
+    {
+      "description": "Roles con acceso administrativo al dashboard (separados por comas)",
+      "fieldname": "dashboard_admin_roles",
+      "fieldtype": "Small Text",
+      "label": "Roles Administrativos",
+      "default": "System Manager,Accounts Manager",
+      "depends_on": "enable_fiscal_dashboard"
+    },
+    {
+      "default": 1000,
+      "description": "Límite mensual de e-receipts para alertas",
+      "fieldname": "ereceipt_monthly_limit",
+      "fieldtype": "Int",
+      "label": "Límite Mensual E-Receipts"
+    },
+    {
+      "default": 500,
+      "description": "Límite mensual de facturas globales para alertas",
+      "fieldname": "global_invoice_monthly_limit",
+      "fieldtype": "Int", 
+      "label": "Límite Mensual Facturas Globales"
     }
   ],
   "issingle": 1,

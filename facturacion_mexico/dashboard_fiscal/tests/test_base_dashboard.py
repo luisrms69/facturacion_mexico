@@ -200,6 +200,7 @@ class TestDashboardConfigValidation(unittest.TestCase):
 			config = frappe.new_doc("Fiscal Dashboard Config")
 		except (ImportError, frappe.DoesNotExistError):
 			self.skipTest("Fiscal Dashboard Config DocType not available - skipping integration test")
+			return  # Exit early if config is not available
 
 		# Layout válido
 		valid_layout = [{"code": "test_widget", "position": {"row": 1, "col": 1, "width": 2, "height": 1}}]
@@ -235,6 +236,7 @@ class TestDashboardConfigValidation(unittest.TestCase):
 			config = frappe.new_doc("Fiscal Dashboard Config")
 		except (ImportError, frappe.DoesNotExistError):
 			self.skipTest("Fiscal Dashboard Config DocType not available - skipping integration test")
+			return  # Exit early if config is not available
 
 		# Configuración válida
 		config.refresh_interval = 300

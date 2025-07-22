@@ -1,0 +1,201 @@
+{% extends "templates/web.html" %}
+
+{% block title %}{{ _("Dashboard Fiscal") }}{% endblock %}
+
+{% block head_include %}
+<link rel="stylesheet" href="/assets/facturacion_mexico/css/fiscal_dashboard.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% endblock %}
+
+{% block content %}
+<div class="fiscal-dashboard-container" data-theme="{{ theme }}">
+	<!-- Header del Dashboard -->
+	<div class="dashboard-header">
+		<div class="header-left">
+			<h1 class="dashboard-title">
+				<i class="fa fa-tachometer" aria-hidden="true"></i>
+				{{ _("Dashboard Fiscal") }}
+			</h1>
+			<p class="dashboard-subtitle">{{ _("Monitoreo integral del sistema fiscal mexicano") }}</p>
+		</div>
+
+		<div class="header-right">
+			<!-- Selector de Empresa -->
+			<div class="company-selector">
+				<label for="company-select">{{ _("Empresa") }}:</label>
+				<select id="company-select" class="form-control">
+					{% for company in available_companies %}
+					<option value="{{ company.name }}"
+						{% if company.name == default_company %}selected{% endif %}>
+						{{ company.company_name }}
+					</option>
+					{% endfor %}
+				</select>
+			</div>
+
+			<!-- Controles del Dashboard -->
+			<div class="dashboard-controls">
+				<button id="refresh-dashboard" class="btn btn-primary btn-sm" title="{{ _('Actualizar Dashboard') }}">
+					<i class="fa fa-refresh"></i>
+				</button>
+				<button id="configure-dashboard" class="btn btn-secondary btn-sm" title="{{ _('Configurar Dashboard') }}">
+					<i class="fa fa-cog"></i>
+				</button>
+				<button id="export-dashboard" class="btn btn-info btn-sm" title="{{ _('Exportar Reporte') }}">
+					<i class="fa fa-download"></i>
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Indicadores de Estado -->
+	<div class="dashboard-status">
+		<div class="status-item">
+			<span class="status-label">{{ _("Último Update") }}:</span>
+			<span id="last-update" class="status-value">--</span>
+		</div>
+		<div class="status-item">
+			<span class="status-label">{{ _("Auto-refresh") }}:</span>
+			<span id="auto-refresh-status" class="status-value">
+				{% if user_preferences.auto_refresh %}{{ _("Activado") }}{% else %}{{ _("Desactivado") }}{% endif %}
+			</span>
+		</div>
+		<div class="status-item">
+			<span class="status-label">{{ _("Siguiente update") }}:</span>
+			<span id="next-update" class="status-value">--</span>
+		</div>
+	</div>
+
+	<!-- Loading Overlay -->
+	<div id="dashboard-loading" class="loading-overlay">
+		<div class="loading-content">
+			<div class="spinner"></div>
+			<p>{{ _("Cargando datos del dashboard...") }}</p>
+		</div>
+	</div>
+
+	<!-- Grid Principal de Widgets -->
+	<div id="dashboard-grid" class="dashboard-grid">
+		<!-- Los widgets se cargarán dinámicamente aquí -->
+	</div>
+
+	<!-- Panel de Alertas (si están habilitadas) -->
+	{% if dashboard_config.alerts_enabled %}
+	<div id="alerts-container" class="alerts-container">
+		<h3 class="alerts-title">
+			<i class="fa fa-exclamation-triangle"></i>
+			{{ _("Alertas Activas") }}
+		</h3>
+		<div id="alerts-content" class="alerts-content">
+			<!-- Las alertas se cargarán dinámicamente -->
+		</div>
+	</div>
+	{% endif %}
+
+	<!-- Footer del Dashboard -->
+	<div class="dashboard-footer">
+		<div class="footer-left">
+			<small class="text-muted">
+				{{ _("Dashboard Fiscal v1.0") }} |
+				{{ _("Sistema de Facturación Legal México") }}
+			</small>
+		</div>
+		<div class="footer-right">
+			<small class="text-muted" id="performance-info">
+				<!-- Información de performance se actualiza dinámicamente -->
+			</small>
+		</div>
+	</div>
+</div>
+
+<!-- Modal de Configuración -->
+<div id="config-modal" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">{{ _("Configurar Dashboard") }}</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<!-- Formulario de configuración se carga dinámicamente -->
+				<div id="config-form-container"></div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Cancelar") }}</button>
+				<button type="button" class="btn btn-primary" id="save-config">{{ _("Guardar Configuración") }}</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Templates de Widgets -->
+<script id="widget-template" type="text/template">
+	<div class="dashboard-widget" data-widget-code="{widget_code}" style="grid-area: {grid_area};">
+		<div class="widget-header">
+			<h4 class="widget-title">{widget_title}</h4>
+			<div class="widget-controls">
+				<button class="widget-refresh" title="{{ _('Actualizar Widget') }}">
+					<i class="fa fa-refresh"></i>
+				</button>
+				<button class="widget-config" title="{{ _('Configurar Widget') }}">
+					<i class="fa fa-cog"></i>
+				</button>
+			</div>
+		</div>
+		<div class="widget-content">
+			{widget_content}
+		</div>
+		<div class="widget-loading">
+			<div class="widget-spinner"></div>
+		</div>
+	</div>
+</script>
+
+<!-- Template de KPI -->
+<script id="kpi-template" type="text/template">
+	<div class="kpi-item {kpi_color}">
+		<div class="kpi-value">{kpi_value}</div>
+		<div class="kpi-label">{kpi_label}</div>
+		<div class="kpi-trend {trend_direction}">{trend_indicator}</div>
+	</div>
+</script>
+
+<!-- Template de Alerta -->
+<script id="alert-template" type="text/template">
+	<div class="alert-item alert-{alert_type}">
+		<div class="alert-icon">
+			<i class="fa fa-{alert_icon}"></i>
+		</div>
+		<div class="alert-content">
+			<div class="alert-message">{alert_message}</div>
+			<div class="alert-meta">
+				<span class="alert-module">{alert_module}</span>
+				<span class="alert-time">{alert_time}</span>
+			</div>
+		</div>
+		<div class="alert-actions">
+			<button class="btn btn-sm btn-outline-primary" onclick="dismissAlert('{alert_id}')">
+				{{ _("Descartar") }}
+			</button>
+		</div>
+	</div>
+</script>
+
+{% endblock %}
+
+{% block script %}
+<script>
+	// Configuración global del dashboard
+	window.DashboardConfig = {
+		userPreferences: {{ user_preferences | tojson }},
+		dashboardConfig: {{ dashboard_config | tojson }},
+		defaultCompany: "{{ default_company }}",
+		userRoles: {{ user_roles | tojson }},
+		csrfToken: "{{ csrf_token }}"
+	};
+</script>
+<script src="/assets/facturacion_mexico/js/fiscal_dashboard.js"></script>
+{% endblock %}
