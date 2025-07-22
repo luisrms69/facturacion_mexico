@@ -275,11 +275,11 @@ class FiscalAlertRule(Document):
 			subject = f"Alerta Fiscal: {alert_data['alert_name']}"
 			message = f"""
 			<h3>Alerta Fiscal Activada</h3>
-			<p><strong>Tipo:</strong> {alert_data['alert_type']}</p>
-			<p><strong>Módulo:</strong> {alert_data['module']}</p>
-			<p><strong>Mensaje:</strong> {alert_data['message']}</p>
-			<p><strong>Prioridad:</strong> {alert_data['priority']}</p>
-			<p><strong>Fecha:</strong> {alert_data['triggered_at']}</p>
+			<p><strong>Tipo:</strong> {alert_data["alert_type"]}</p>
+			<p><strong>Módulo:</strong> {alert_data["module"]}</p>
+			<p><strong>Mensaje:</strong> {alert_data["message"]}</p>
+			<p><strong>Prioridad:</strong> {alert_data["priority"]}</p>
+			<p><strong>Fecha:</strong> {alert_data["triggered_at"]}</p>
 			"""
 
 			# Enviar email
