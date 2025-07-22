@@ -13,13 +13,67 @@ class FiscalHealthScore(Document):
 	def validate(self):
 		"""Validaciones antes de guardar"""
 		self.validate_score_date()
+		self.validate_health_factors()
+		self.validate_recommendations()
 		if not self.overall_score:
 			self.calculate_health_score()
 
 	def validate_score_date(self):
 		"""Validar que la fecha del score no sea futura"""
-		if self.score_date and self.score_date > date.today():
-			frappe.throw(_("La fecha del score no puede ser futura"))
+		if self.score_date:
+			# Convert to date if it's a string
+			if isinstance(self.score_date, str):
+				try:
+					score_date = frappe.utils.getdate(self.score_date)
+				except Exception:
+					frappe.throw(_("Fecha del score inválida"))
+			else:
+				score_date = self.score_date
+
+			if score_date > date.today():
+				frappe.throw(_("La fecha del score no puede ser futura"))
+
+	def validate_health_factors(self):
+		"""Validar factores de salud en child tables"""
+		all_factors = []
+		if hasattr(self, "factors_positive"):
+			all_factors.extend(self.factors_positive)
+		if hasattr(self, "factors_negative"):
+			all_factors.extend(self.factors_negative)
+
+		for factor in all_factors:
+			self.validate_factor_impact_score(factor)
+			self.validate_factor_required_fields(factor)
+
+	def validate_factor_impact_score(self, factor):
+		"""Validar impact_score de un factor"""
+		if factor.impact_score is not None:
+			if abs(factor.impact_score) > 10:
+				frappe.throw(_("El impact_score debe estar entre -10 y +10"))
+
+	def validate_factor_required_fields(self, factor):
+		"""Validar campos requeridos de factor"""
+		if not factor.factor_type:
+			frappe.throw(_("Tipo de Factor es requerido"))
+		if not factor.description:
+			frappe.throw(_("Descripción es requerida"))
+
+	def validate_recommendations(self):
+		"""Validar recomendaciones en child table"""
+		if hasattr(self, "recommendations"):
+			for rec in self.recommendations:
+				self.validate_recommendation_fields(rec)
+
+	def validate_recommendation_fields(self, rec):
+		"""Validar campos de recomendación"""
+		if not rec.category:
+			frappe.throw(_("Categoría es requerida en recomendaciones"))
+
+		if not rec.recommendation:
+			frappe.throw(_("Texto de recomendación es requerido"))
+
+		if rec.estimated_days is not None and rec.estimated_days <= 0:
+			frappe.throw(_("Días estimados debe ser positivo"))
 
 	def calculate_health_score(self):
 		"""Calcular score de salud fiscal completo"""
@@ -79,8 +133,11 @@ class FiscalHealthScore(Document):
 	def calculate_timbrado_score(self):
 		"""Calcular score del módulo de timbrado"""
 		try:
-			period_start = date(self.score_date.year, self.score_date.month, 1)
-			period_end = self.score_date
+			score_date = (
+				frappe.utils.getdate(self.score_date) if isinstance(self.score_date, str) else self.score_date
+			)
+			period_start = date(score_date.year, score_date.month, 1)
+			period_end = score_date
 
 			# Facturas totales en el período
 			total_invoices = frappe.db.count(
@@ -144,8 +201,11 @@ class FiscalHealthScore(Document):
 	def calculate_ppd_score(self):
 		"""Calcular score del módulo PPD"""
 		try:
-			period_start = date(self.score_date.year, self.score_date.month, 1)
-			period_end = self.score_date
+			score_date = (
+				frappe.utils.getdate(self.score_date) if isinstance(self.score_date, str) else self.score_date
+			)
+			period_start = date(score_date.year, score_date.month, 1)
+			period_end = score_date
 
 			# Pagos totales que requieren complemento
 			total_payments = frappe.db.count(
@@ -203,8 +263,11 @@ class FiscalHealthScore(Document):
 			if not frappe.db.exists("DocType", "EReceipt MX"):
 				return 100.0  # Módulo no instalado = score perfecto
 
-			period_start = date(self.score_date.year, self.score_date.month, 1)
-			period_end = self.score_date
+			score_date = (
+				frappe.utils.getdate(self.score_date) if isinstance(self.score_date, str) else self.score_date
+			)
+			period_start = date(score_date.year, score_date.month, 1)
+			period_end = score_date
 
 			# E-Receipts totales
 			total_ereceipts = frappe.db.count(
@@ -258,8 +321,11 @@ class FiscalHealthScore(Document):
 			if not frappe.db.exists("DocType", "Addenda Template"):
 				return 100.0
 
-			period_start = date(self.score_date.year, self.score_date.month, 1)
-			period_end = self.score_date
+			score_date = (
+				frappe.utils.getdate(self.score_date) if isinstance(self.score_date, str) else self.score_date
+			)
+			period_start = date(score_date.year, score_date.month, 1)
+			period_end = score_date
 
 			# Facturas con addenda aplicable
 			invoices_with_addenda = frappe.db.sql(
@@ -310,8 +376,11 @@ class FiscalHealthScore(Document):
 			if not frappe.db.exists("DocType", "Factura Global MX"):
 				return 100.0
 
-			period_start = date(self.score_date.year, self.score_date.month, 1)
-			period_end = self.score_date
+			score_date = (
+				frappe.utils.getdate(self.score_date) if isinstance(self.score_date, str) else self.score_date
+			)
+			period_start = date(score_date.year, score_date.month, 1)
+			period_end = score_date
 
 			# Facturas globales iniciadas
 			total_global = frappe.db.count(
@@ -346,8 +415,11 @@ class FiscalHealthScore(Document):
 			if not frappe.db.exists("DocType", "Rule Execution Log"):
 				return 100.0
 
-			period_start = date(self.score_date.year, self.score_date.month, 1)
-			period_end = self.score_date
+			score_date = (
+				frappe.utils.getdate(self.score_date) if isinstance(self.score_date, str) else self.score_date
+			)
+			period_start = date(score_date.year, score_date.month, 1)
+			period_end = score_date
 
 			# Ejecuciones de reglas totales
 			total_executions = frappe.db.count(

@@ -116,15 +116,15 @@
   },
   {
    "fieldname": "favorite_widgets",
-   "fieldtype": "Table",
-   "label": "Widgets Favoritos",
-   "options": "Dashboard Widget Favorite"
+   "fieldtype": "Small Text",
+   "label": "Widgets Favoritos (JSON)",
+   "description": "JSON list de widget IDs favoritos"
   },
   {
    "fieldname": "hidden_widgets",
-   "fieldtype": "Table",
-   "label": "Widgets Ocultos",
-   "options": "Dashboard Widget Hidden"
+   "fieldtype": "Small Text",
+   "label": "Widgets Ocultos (JSON)", 
+   "description": "JSON list de widget IDs ocultos"
   },
   {
    "fieldname": "notifications_section",

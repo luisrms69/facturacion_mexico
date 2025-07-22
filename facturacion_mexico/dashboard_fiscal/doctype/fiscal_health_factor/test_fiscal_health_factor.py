@@ -12,12 +12,11 @@ class TestFiscalHealthFactor(unittest.TestCase):
 
 	def setUp(self):
 		"""Setup básico para cada test"""
-		# Limpiar datos de test previos si la tabla existe
+		# Limpiar datos de test previos
 		try:
 			frappe.db.delete("Fiscal Health Score", {"company": ["like", "%test%"]})
 			frappe.db.commit()
 		except Exception:
-			# La tabla puede no existir aún, es normal en tests
 			pass
 
 		# Usar una compañía de test estándar o crear una
@@ -34,13 +33,17 @@ class TestFiscalHealthFactor(unittest.TestCase):
 			)
 			company_doc.insert(ignore_permissions=True)
 
-		# Crear parent document de test
+		# Crear parent document de test con unique name
+		import uuid
+
+		unique_id = str(uuid.uuid4())[:8]
 		self.parent_score = frappe.get_doc(
 			{
 				"doctype": "Fiscal Health Score",
 				"score_date": frappe.utils.add_days(frappe.utils.today(), -1),
 				"company": test_company,
 				"overall_score": 75.5,
+				"name": f"TEST-HEALTH-{unique_id}",
 			}
 		)
 		self.parent_score.insert()
@@ -163,15 +166,16 @@ class TestFiscalHealthFactor(unittest.TestCase):
 	def test_required_fields(self):
 		"""Test: Campos requeridos"""
 		# Sin factor_type
+		self.parent_score.append(
+			"factors_positive",
+			{
+				"description": "Test sin factor_type",
+				"impact_score": 5,
+				# factor_type faltante - empty string
+				"factor_type": "",
+			},
+		)
 		with self.assertRaises(frappe.ValidationError):
-			self.parent_score.append(
-				"factors_positive",
-				{
-					"description": "Test sin factor_type",
-					"impact_score": 5,
-					# factor_type faltante
-				},
-			)
 			self.parent_score.save()
 
 	def test_factor_types_validation(self):
@@ -179,15 +183,8 @@ class TestFiscalHealthFactor(unittest.TestCase):
 		valid_types = ["Timbrado", "PPD", "E-Receipts", "Addendas", "Facturas Globales"]
 
 		for _i, factor_type in enumerate(valid_types):
-			test_parent = frappe.get_doc(
-				{
-					"doctype": "Fiscal Health Score",
-					"score_date": frappe.utils.add_days(frappe.utils.today(), -1),
-					"company": "_Test Company",
-					"overall_score": 75.5,
-				}
-			)
-			test_parent.append(
+			# Usar el mismo parent para evitar duplicates
+			self.parent_score.append(
 				"factors_positive",
 				{
 					"factor_type": factor_type,
@@ -195,10 +192,14 @@ class TestFiscalHealthFactor(unittest.TestCase):
 					"impact_score": 2,
 				},
 			)
-			test_parent.insert()
-			factor = test_parent.factors_positive[0]
+
+		# Save una sola vez con todos los factores
+		self.parent_score.save()
+
+		# Verificar que todos los tipos se guardaron correctamente
+		for i, factor_type in enumerate(valid_types):
+			factor = self.parent_score.factors_positive[i]
 			self.assertEqual(factor.factor_type, factor_type)
-			test_parent.delete()
 
 	def test_decimal_precision_impact_score(self):
 		"""Test: Precisión decimal en impact_score - campo es Int"""
