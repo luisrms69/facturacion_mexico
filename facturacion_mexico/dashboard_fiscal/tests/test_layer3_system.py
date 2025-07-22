@@ -361,14 +361,35 @@ class TestDashboardFiscalLayer3System(FrappeTestCase):
 		negative_factors = [f for f in health_score.factors_negative if f.factor_type]
 
 		# Step 4: Validate positive factors for high scores
-		high_score_modules = ["ereceipts", "addendas", "rules_compliance"]  # Scores >= 90
-		for module in high_score_modules:
-			module_factors = [f for f in positive_factors if module.lower() in f.factor_type.lower()]
+		# Map test module names to actual factor_type names used in fiscal_health_score.py
+		high_score_modules = {
+			"ereceipts": "E-Receipts",  # Maps to actual factor_type
+			"addendas": "Addendas",  # Maps to actual factor_type
+			"rules_compliance": "Cumplimiento",  # Maps to actual factor_type
+		}
+
+		for module, factor_type_name in high_score_modules.items():
+			module_factors = [f for f in positive_factors if f.factor_type == factor_type_name]
+
+			# Add detailed logging for debugging factor generation
+			frappe.logger().info(
+				f"Module {module}: Score {getattr(health_score, f'{module}_score', 'N/A')}, "
+				f"Factors found: {len(module_factors)}, Expected factor_type: {factor_type_name}"
+			)
+
 			if module != "addendas":  # Addendas puede no generar factor si módulo no instalado
+				if len(module_factors) == 0:
+					# Log all available factors for debugging
+					frappe.logger().error(f"No factors found for {module}. Available factors:")
+					for factor in positive_factors:
+						frappe.logger().error(f"  - {factor.factor_type}: {factor.description}")
+
 				self.assertGreater(
 					len(module_factors),
 					0,
-					f"Score alto en {module} debe generar factor positivo",
+					f"Score alto en {module} (score: {getattr(health_score, f'{module}_score', 'N/A')}) "
+					f"debe generar factor positivo de tipo '{factor_type_name}'. "
+					f"Factores disponibles: {[f.factor_type for f in positive_factors]}",
 				)
 
 		# Step 5: Validate factor impact scores are realistic

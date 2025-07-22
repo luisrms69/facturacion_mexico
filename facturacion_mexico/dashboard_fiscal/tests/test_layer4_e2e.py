@@ -69,7 +69,15 @@ class TestDashboardFiscalLayer4E2E(FrappeTestCase):
 		}
 
 	def tearDown(self):
-		"""Cleanup E2E testing environment"""
+		"""Enhanced cleanup E2E testing environment"""
+		# Clean up test-specific fiscal years to prevent overlap in next run
+		try:
+			frappe.db.delete("Fiscal Year", {"company": self.e2e_company})
+			frappe.db.delete("Dashboard User Preference", {"user": ["like", "%e2e%"]})
+			frappe.db.commit()
+		except Exception:
+			pass  # Ignore cleanup errors
+
 		frappe.db.rollback()
 
 	def test_complete_fiscal_user_journey_e2e(self):
@@ -924,20 +932,25 @@ class TestDashboardFiscalLayer4E2E(FrappeTestCase):
 
 	def _create_required_master_data(self):
 		"""Create required master data for testing"""
-		# Create Fiscal Year for current date
-		current_year = frappe.utils.getdate().year
-		fiscal_year_name = f"{current_year}-{current_year+1}"
+		# Clean up any existing test fiscal years to avoid overlap
+		frappe.db.delete("Fiscal Year", {"company": self.e2e_company})
+		frappe.db.commit()
 
-		if not frappe.db.exists("Fiscal Year", fiscal_year_name):
-			fiscal_year = frappe.get_doc(
-				{
-					"doctype": "Fiscal Year",
-					"year": fiscal_year_name,
-					"year_start_date": f"{current_year}-01-01",
-					"year_end_date": f"{current_year}-12-31",
-				}
-			)
-			fiscal_year.insert(ignore_permissions=True)
+		# Create Fiscal Year with unique naming and proper company association
+		current_year = frappe.utils.getdate().year
+		fiscal_year_name = f"FY-E2E-TEST-{current_year}"
+
+		# Always create new fiscal year for clean test environment
+		fiscal_year = frappe.get_doc(
+			{
+				"doctype": "Fiscal Year",
+				"year": fiscal_year_name,
+				"year_start_date": f"{current_year}-01-01",
+				"year_end_date": f"{current_year}-12-31",
+				"company": self.e2e_company,  # Direct company association as recommended
+			}
+		)
+		fiscal_year.insert(ignore_permissions=True)
 
 		# Create UOM if it doesn't exist
 		if not frappe.db.exists("UOM", "Nos"):
