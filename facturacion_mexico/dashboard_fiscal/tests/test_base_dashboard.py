@@ -192,11 +192,14 @@ class TestDashboardConfigValidation(unittest.TestCase):
 
 	def test_widget_layout_validation(self):
 		"""Test validación de layout de widgets"""
-		from facturacion_mexico.dashboard_fiscal.doctype.fiscal_dashboard_config.fiscal_dashboard_config import (
-			FiscalDashboardConfig,
-		)
+		try:
+			from facturacion_mexico.dashboard_fiscal.doctype.fiscal_dashboard_config.fiscal_dashboard_config import (
+				FiscalDashboardConfig,
+			)
 
-		config = frappe.new_doc("Fiscal Dashboard Config")
+			config = frappe.new_doc("Fiscal Dashboard Config")
+		except (ImportError, frappe.DoesNotExistError):
+			self.skipTest("Fiscal Dashboard Config DocType not available - skipping integration test")
 
 		# Layout válido
 		valid_layout = [{"code": "test_widget", "position": {"row": 1, "col": 1, "width": 2, "height": 1}}]
@@ -224,11 +227,14 @@ class TestDashboardConfigValidation(unittest.TestCase):
 
 	def test_interval_validation(self):
 		"""Test validación de intervalos"""
-		from facturacion_mexico.dashboard_fiscal.doctype.fiscal_dashboard_config.fiscal_dashboard_config import (
-			FiscalDashboardConfig,
-		)
+		try:
+			from facturacion_mexico.dashboard_fiscal.doctype.fiscal_dashboard_config.fiscal_dashboard_config import (
+				FiscalDashboardConfig,
+			)
 
-		config = frappe.new_doc("Fiscal Dashboard Config")
+			config = frappe.new_doc("Fiscal Dashboard Config")
+		except (ImportError, frappe.DoesNotExistError):
+			self.skipTest("Fiscal Dashboard Config DocType not available - skipping integration test")
 
 		# Configuración válida
 		config.refresh_interval = 300

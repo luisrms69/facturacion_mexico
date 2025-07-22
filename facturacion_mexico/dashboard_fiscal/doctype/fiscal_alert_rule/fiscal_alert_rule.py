@@ -130,8 +130,8 @@ class FiscalAlertRule(Document):
 				"abs": abs,
 			}
 
-			# Evaluar condición
-			result = eval(self.custom_condition, {"__builtins__": {}}, safe_namespace)
+			# Evaluar condición usando safe_eval para seguridad
+			result = frappe.safe_eval(self.custom_condition, safe_namespace)
 			return bool(result)
 
 		except Exception as e:

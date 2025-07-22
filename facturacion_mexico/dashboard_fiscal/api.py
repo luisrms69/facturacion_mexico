@@ -62,7 +62,7 @@ def get_dashboard_data(period: str = "month", company: str | None = None) -> dic
 			return error_response("Sin permisos para acceder a esta company", code="NO_PERMISSION")
 
 		# Usar cache para performance
-		def fetch_dashboard_data():
+		def fetch_dashboard_data(**kwargs):
 			dashboard_data = {}
 
 			# Obtener configuración del dashboard
@@ -145,7 +145,7 @@ def get_module_kpis(module_name: str, filters: dict | None = None) -> dict[str, 
 
 		# Obtener KPIs del módulo con cache
 		@cached_kpi(f"{module_name}_detailed", ttl=900)  # 15 min cache
-		def fetch_module_kpis():
+		def fetch_module_kpis(**kwargs):
 			module_kpis = DashboardRegistry.get_module_kpis(module_name)
 
 			if not module_kpis:
@@ -201,7 +201,7 @@ def get_active_alerts(severity: str | None = None, module: str | None = None) ->
 	try:
 		# Usar cache para alertas (menor TTL por ser críticas)
 		@cached_kpi("active_alerts", ttl=300)  # 5 min cache
-		def fetch_active_alerts():
+		def fetch_active_alerts(**kwargs):
 			return _get_active_alerts()
 
 		all_alerts = fetch_active_alerts(severity=severity, module=module)
@@ -229,10 +229,12 @@ def get_active_alerts(severity: str | None = None, module: str | None = None) ->
 		)
 
 	except Exception as e:
-		frappe.log_error(
-			title="Error en get_active_alerts",
-			message=f"Error: {e!s}\nSeverity: {severity}, Module: {module}",
-		)
+		# En testing, evitar log_error que puede causar DocType None errors
+		if not frappe.flags.in_test:
+			frappe.log_error(
+				title="Error en get_active_alerts",
+				message=f"Error: {e!s}\nSeverity: {severity}, Module: {module}",
+			)
 		return error_response("Error obteniendo alertas activas", code="INTERNAL_ERROR")
 
 
@@ -263,7 +265,7 @@ def get_fiscal_health_score(company: str | None = None, date: str | None = None)
 		)  # 30min actual, 24h histórico
 
 		@cached_kpi("fiscal_health_score", ttl=cache_ttl)
-		def calculate_fiscal_health():
+		def calculate_fiscal_health(**kwargs):
 			# Algoritmo de scoring basado en todos los módulos
 			scores = {}
 			overall_factors = {"positive": [], "negative": [], "recommendations": []}

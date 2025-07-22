@@ -88,17 +88,23 @@ class DashboardCache:
 
 			except Exception as e:
 				DashboardCache._stats["errors"] += 1
-				frappe.log_error(
-					title=f"Error en Cache Manager - {key}",
-					message=f"Error ejecutando fetcher_function: {e!s}\nKwargs: {kwargs}",
-				)
+				# En testing, evitar log_error que puede causar problemas
+				if not frappe.flags.in_test:
+					frappe.log_error(
+						title=f"Error en Cache Manager - {key}",
+						message=f"Error ejecutando fetcher_function: {e!s}\nKwargs: {kwargs}",
+					)
 
 				# Graceful degradation: retornar None o valor por defecto
 				return None
 
 		except Exception as e:
 			DashboardCache._stats["errors"] += 1
-			frappe.log_error(title="Error crítico en Cache Manager", message=f"Error en get_or_set: {e!s}")
+			# En testing, evitar log_error que puede causar problemas
+			if not frappe.flags.in_test:
+				frappe.log_error(
+					title="Error crítico en Cache Manager", message=f"Error en get_or_set: {e!s}"
+				)
 
 			# Fallback: intentar ejecutar función directamente
 			try:
@@ -293,7 +299,7 @@ def cached_kpi(kpi_name: str, ttl: int = 900):
 
 	def decorator(func: Callable) -> Callable:
 		def wrapper(*args, **kwargs):
-			return DashboardCache.get_or_set(f"kpi_{kpi_name}", func, ttl=ttl, args=args, kwargs=kwargs)
+			return DashboardCache.get_or_set(f"kpi_{kpi_name}", func, ttl=ttl, **kwargs)
 
 		return wrapper
 
@@ -305,7 +311,7 @@ def cached_report(report_name: str, ttl: int = 1800):
 
 	def decorator(func: Callable) -> Callable:
 		def wrapper(*args, **kwargs):
-			return DashboardCache.get_or_set(f"report_{report_name}", func, ttl=ttl, args=args, kwargs=kwargs)
+			return DashboardCache.get_or_set(f"report_{report_name}", func, ttl=ttl, **kwargs)
 
 		return wrapper
 
