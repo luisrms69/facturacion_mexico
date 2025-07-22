@@ -1,7 +1,6 @@
 # Copyright (c) 2025, Frappe Technologies and contributors
 # For license information, please see license.txt
 
-import json
 import re
 from datetime import datetime
 

@@ -299,8 +299,6 @@ class TestDashboardUserPreference(unittest.TestCase):
 
 def run_tests():
 	"""Función para correr todos los tests de este módulo"""
-	import unittest
-
 	loader = unittest.TestLoader()
 	suite = loader.loadTestsFromTestCase(TestDashboardUserPreference)
 	runner = unittest.TextTestRunner(verbosity=2)

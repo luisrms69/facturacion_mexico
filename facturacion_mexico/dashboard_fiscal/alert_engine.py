@@ -3,7 +3,6 @@ Alert Engine - Dashboard Fiscal
 Motor de evaluación y gestión de alertas del sistema fiscal
 """
 
-import json
 import time
 from datetime import datetime, timedelta
 
