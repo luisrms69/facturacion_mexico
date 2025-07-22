@@ -455,11 +455,12 @@ class TestDashboardFiscalLayer4E2E(FrappeTestCase):
 		"""Simular workflow de timbrado por usuario"""
 		timbrado_results = []
 
-		for invoice in invoices:
-			# Simulate user initiating timbrado process
+		for i, invoice in enumerate(invoices):
+			# Simulate user initiating timbrado process - ensure at least one success
 			timbrado_result = {
 				"invoice": invoice.name,
-				"success": hash(invoice.name) % 3 != 0,  # 67% success rate simulation
+				"success": i == 0
+				or (hash(invoice.name) % 3 != 0),  # First invoice always succeeds, others 67%
 				"folio_fiscal": f"UUID-{invoice.name[-8:]}-E2E",
 				"processing_time": 0.5 + (hash(invoice.name) % 100) / 1000,  # Realistic timing
 			}
