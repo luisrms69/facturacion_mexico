@@ -225,12 +225,13 @@ def get_creditos_pac_restantes(**kwargs):
 		# Esto sería una llamada real al PAC para obtener saldo
 		# Por ahora retornamos un valor simulado
 
+		creditos = 1500  # Valor simulado
 		return {
-			"value": 1500,  # Valor simulado
+			"value": creditos,
 			"format": "number",
 			"subtitle": "Créditos PAC restantes",
 			"timestamp": datetime.now().isoformat(),
-			"trend": "critical" if 1500 < 100 else "warning" if 1500 < 500 else "good",
+			"trend": "critical" if creditos < 100 else "warning" if creditos < 500 else "good",
 		}
 
 	except Exception as e:

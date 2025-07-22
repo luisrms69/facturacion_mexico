@@ -21,6 +21,9 @@ class FiscalHealthScore(Document):
 	def validate_score_date(self):
 		"""Validar que la fecha del score no sea futura"""
 		if self.score_date:
+			# Initialize score_date variable
+			score_date = None
+
 			# Convert to date if it's a string
 			if isinstance(self.score_date, str):
 				try:
@@ -30,7 +33,8 @@ class FiscalHealthScore(Document):
 			else:
 				score_date = self.score_date
 
-			if score_date > date.today():
+			# Check if score_date was properly initialized before comparison
+			if score_date and score_date > date.today():
 				frappe.throw(_("La fecha del score no puede ser futura"))
 
 	def validate_health_factors(self):
