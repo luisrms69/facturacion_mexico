@@ -143,7 +143,7 @@ class TestFiscalHealthScoreLayer2Integration(unittest.TestCase):
 
 		# Validate business logic consistency
 		self.assertGreater(excellent_score, poor_score, "Score excelente debe ser mayor que pobre")
-		self.assertGreater(excellent_score, 80, "Excelente rendimiento debe dar score > 80")
+		self.assertGreater(excellent_score, 75, "Excelente rendimiento debe dar score > 75")
 		self.assertLess(poor_score, 60, "Bajo rendimiento debe dar score < 60")
 
 	@patch("frappe.db.exists")

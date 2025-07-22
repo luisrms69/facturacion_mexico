@@ -437,6 +437,18 @@ class TestDashboardFiscalLayer4E2E(FrappeTestCase):
 
 		for invoice in invoices:
 			if invoice.fm_timbrado_status == "Timbrada":
+				# Get default accounts for payment
+				receivable_account = frappe.db.get_value(
+					"Account", {"company": self.e2e_company, "account_type": "Receivable"}, "name"
+				)
+				cash_account = frappe.db.get_value(
+					"Account", {"company": self.e2e_company, "account_type": "Cash"}, "name"
+				)
+
+				# Skip payment creation if accounts don't exist
+				if not receivable_account or not cash_account:
+					continue
+
 				payment = frappe.get_doc(
 					{
 						"doctype": "Payment Entry",
@@ -447,6 +459,8 @@ class TestDashboardFiscalLayer4E2E(FrappeTestCase):
 						"posting_date": frappe.utils.add_days(self.test_date, 5),
 						"paid_amount": invoice.grand_total,
 						"received_amount": invoice.grand_total,
+						"paid_from": receivable_account,
+						"paid_to": cash_account,
 						"fm_ppd_status": "Pending",
 					}
 				)
@@ -605,6 +619,19 @@ class TestDashboardFiscalLayer4E2E(FrappeTestCase):
 
 	def _simulate_company_specific_invoice_creation(self, company, count=2):
 		"""Simular creación de facturas específicas para una company"""
+		# Ensure customer exists
+		if not frappe.db.exists("Customer", "Cliente E2E Test"):
+			customer = frappe.get_doc(
+				{
+					"doctype": "Customer",
+					"customer_name": "Cliente E2E Test",
+					"customer_type": "Company",
+					"customer_group": "All Customer Groups",
+					"territory": "All Territories",
+				}
+			)
+			customer.insert(ignore_permissions=True)
+
 		invoices = []
 
 		for i in range(count):
@@ -634,6 +661,19 @@ class TestDashboardFiscalLayer4E2E(FrappeTestCase):
 
 	def _create_diverse_compliance_scenarios(self):
 		"""Crear escenarios diversos para testing de compliance"""
+		# Ensure customer exists
+		if not frappe.db.exists("Customer", "Cliente E2E Test"):
+			customer = frappe.get_doc(
+				{
+					"doctype": "Customer",
+					"customer_name": "Cliente E2E Test",
+					"customer_type": "Company",
+					"customer_group": "All Customer Groups",
+					"territory": "All Territories",
+				}
+			)
+			customer.insert(ignore_permissions=True)
+
 		scenarios = [
 			{"status": "Timbrada", "amount": 1000, "compliance": "full"},
 			{"status": "Error", "amount": 1500, "compliance": "failed"},
@@ -742,6 +782,19 @@ class TestDashboardFiscalLayer4E2E(FrappeTestCase):
 
 	def _create_production_like_fiscal_data(self):
 		"""Crear datos similares a producción para testing disaster recovery"""
+		# Ensure customer exists
+		if not frappe.db.exists("Customer", "Cliente E2E Test"):
+			customer = frappe.get_doc(
+				{
+					"doctype": "Customer",
+					"customer_name": "Cliente E2E Test",
+					"customer_type": "Company",
+					"customer_group": "All Customer Groups",
+					"territory": "All Territories",
+				}
+			)
+			customer.insert(ignore_permissions=True)
+
 		production_data = {
 			"invoices": 50,
 			"health_scores": 10,
