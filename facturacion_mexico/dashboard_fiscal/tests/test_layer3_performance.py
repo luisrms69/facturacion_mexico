@@ -5,7 +5,8 @@ Sistema de Facturación México - Metodología Buzola
 Layer 3: Tests de performance, escalabilidad y comportamiento bajo carga
 del sistema Dashboard Fiscal con métricas reales de rendimiento.
 
-CI Reactivation: Updated to trigger GitHub Actions after timeout - 2025-07-22
+CI Reactivation: Trigger GitHub Actions after AppNotInstalledError timeout - 2025-07-22 11:45
+All CI errors resolved, ready for full test execution.
 """
 
 import json
