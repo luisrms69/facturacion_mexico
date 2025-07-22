@@ -129,7 +129,7 @@ class TestDashboardFiscalLayer4Acceptance(FrappeTestCase):
 					"calculation_method": "Comprehensive",
 				}
 			)
-			health_score.insert()
+			health_score.insert(ignore_permissions=True)
 
 			dashboard_access_time = time.time() - dashboard_access_start
 
@@ -327,7 +327,7 @@ class TestDashboardFiscalLayer4Acceptance(FrappeTestCase):
 						"overall_score": 75 + (i * 3),  # Trending up
 					}
 				)
-				health_score.insert()
+				health_score.insert(ignore_permissions=True)
 				health_scores.append(health_score)
 
 			# Configure executive dashboard

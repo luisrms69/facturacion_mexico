@@ -58,6 +58,7 @@ class TestDashboardUserPreferenceLayer2Integration(unittest.TestCase):
 			"last_cached": frappe.utils.now(),
 		}
 
+		# Set up the mock to return cached preferences when called with the right key
 		mock_cache_instance.get.return_value = cached_preferences
 
 		# We don't need to create the actual preference for this caching test
@@ -65,14 +66,17 @@ class TestDashboardUserPreferenceLayer2Integration(unittest.TestCase):
 
 		# Mock caching integration functions for testing
 		def cache_user_preferences(user, preferences, ttl=3600):
-			mock_cache_instance.set.return_value = True
+			# Actually call the mocked cache set to ensure it's used
+			mock_cache_instance.set(f"preferences_{user}", preferences, ttl)
 			return {"success": True, "cached_at": frappe.utils.now()}
 
 		def get_cached_preferences(user):
-			return mock_cache_instance.get.return_value
+			# Actually call the mocked cache get to ensure it's used
+			return mock_cache_instance.get(f"preferences_{user}")
 
 		def invalidate_preference_cache(user):
-			mock_cache_instance.delete.return_value = True
+			# Actually call the mocked cache delete to ensure it's used
+			mock_cache_instance.delete(f"preferences_{user}")
 			return {"success": True, "invalidated_at": frappe.utils.now()}
 
 		# Test cached preference retrieval

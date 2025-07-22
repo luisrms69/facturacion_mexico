@@ -399,12 +399,18 @@ class TestDashboardFiscalLayer3Performance(FrappeTestCase):
 		for i in range(3):  # Multiple runs to test memory consistency
 			memory_start = time.time()
 
-			# Create new health score
+			# Create new health score with unique date to avoid duplicates
+			import uuid
+
+			unique_score_date = frappe.utils.add_days(
+				frappe.utils.today(), -1 - i - int(str(uuid.uuid4()).split("-")[0][:3], 16) % 100
+			)
+
 			memory_health_score = frappe.get_doc(
 				{
 					"doctype": "Fiscal Health Score",
 					"company": self.test_company,
-					"score_date": frappe.utils.add_days(frappe.utils.today(), -1 - i),
+					"score_date": unique_score_date,
 					"calculation_method": "Simple Average",  # Different method
 				}
 			)

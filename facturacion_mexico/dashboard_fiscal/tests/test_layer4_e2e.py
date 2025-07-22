@@ -350,6 +350,7 @@ class TestDashboardFiscalLayer4E2E(FrappeTestCase):
 				{
 					"doctype": "Customer",
 					"customer_name": "Cliente E2E Test",
+					"customer_type": "Company",
 					"customer_group": "All Customer Groups",
 					"territory": "All Territories",
 					"tax_id": "CET850101XYZ",
@@ -384,9 +385,11 @@ class TestDashboardFiscalLayer4E2E(FrappeTestCase):
 					"doctype": "Sales Invoice",
 					"customer": "Cliente E2E Test",
 					"company": self.e2e_company,
+					"currency": "MXN",
 					"posting_date": self.test_date,
 					"due_date": frappe.utils.add_days(self.test_date, 30),
 					"fm_timbrado_status": "Pendiente",
+					"fm_cfdi_use": "G01",
 					"items": [
 						{
 							"item_code": "Servicio E2E Test",
@@ -610,8 +613,10 @@ class TestDashboardFiscalLayer4E2E(FrappeTestCase):
 					"doctype": "Sales Invoice",
 					"customer": "Cliente E2E Test",
 					"company": company,
+					"currency": "MXN",
 					"posting_date": self.test_date,
 					"due_date": frappe.utils.add_days(self.test_date, 30),
+					"fm_cfdi_use": "G01",
 					"items": [
 						{
 							"item_code": "Servicio E2E Test",
@@ -644,8 +649,10 @@ class TestDashboardFiscalLayer4E2E(FrappeTestCase):
 					"doctype": "Sales Invoice",
 					"customer": "Cliente E2E Test",
 					"company": self.e2e_company,
+					"currency": "MXN",
 					"posting_date": frappe.utils.add_days(self.test_date, -i),
 					"fm_timbrado_status": scenario["status"],
+					"fm_cfdi_use": "G01",
 					"items": [
 						{
 							"item_code": "Servicio E2E Test",
@@ -749,8 +756,10 @@ class TestDashboardFiscalLayer4E2E(FrappeTestCase):
 					"doctype": "Sales Invoice",
 					"customer": "Cliente E2E Test",
 					"company": self.e2e_company,
+					"currency": "MXN",
 					"posting_date": frappe.utils.add_days(self.test_date, -i),
 					"fm_timbrado_status": "Timbrada",
+					"fm_cfdi_use": "G01",
 					"items": [
 						{
 							"item_code": "Servicio E2E Test",

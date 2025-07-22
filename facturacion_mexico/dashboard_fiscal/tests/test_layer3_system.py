@@ -620,44 +620,67 @@ class TestDashboardFiscalLayer3System(FrappeTestCase):
 	def _create_realistic_payment_entries_data(self):
 		"""Crear datos realistas de Payment Entries para testing"""
 		# First ensure parent account exists
-		if not frappe.db.exists("Account", f"Current Assets - {self.test_company[:10]}"):
-			# First check if root Assets account exists, if not use existing one
+		parent_account_name = f"Current Assets - {self.test_company[:10]}"
+		if not frappe.db.exists("Account", parent_account_name):
+			# Get existing Assets root account for the company
 			root_asset = frappe.db.get_value(
-				"Account", {"company": self.test_company, "root_type": "Asset", "is_group": 1}, "name"
+				"Account",
+				{"company": self.test_company, "root_type": "Asset", "is_group": 1, "parent_account": ""},
+				"name",
 			)
+
+			# If no direct root asset found, get any root asset account
 			if not root_asset:
 				root_asset = frappe.db.get_value(
 					"Account",
-					{"company": self.test_company, "account_name": "Application of Funds (Assets)"},
+					{"company": self.test_company, "is_group": 1, "account_name": ["like", "%Asset%"]},
 					"name",
 				)
 
 			if root_asset:
-				parent_account = frappe.get_doc(
-					{
-						"doctype": "Account",
-						"account_name": "Current Assets",
-						"account_type": "",
-						"is_group": 1,
-						"company": self.test_company,
-						"root_type": "Asset",
-						"parent_account": root_asset,
-					}
-				)
-				parent_account.insert(ignore_permissions=True, ignore_if_duplicate=True)
+				try:
+					parent_account = frappe.get_doc(
+						{
+							"doctype": "Account",
+							"account_name": "Current Assets",
+							"account_type": "",
+							"is_group": 1,
+							"company": self.test_company,
+							"root_type": "Asset",
+							"parent_account": root_asset,
+						}
+					)
+					parent_account.insert(ignore_permissions=True, ignore_if_duplicate=True)
+				except frappe.DuplicateEntryError:
+					# Account already exists, continue
+					pass
 
 		# Now create cash account
-		if not frappe.db.exists("Account", f"Test Cash - {self.test_company[:10]}"):
-			account = frappe.get_doc(
-				{
-					"doctype": "Account",
-					"account_name": "Test Cash",
-					"account_type": "Cash",
-					"parent_account": f"Current Assets - {self.test_company[:10]}",
-					"company": self.test_company,
-				}
-			)
-			account.insert(ignore_permissions=True)
+		cash_account_name = f"Test Cash - {self.test_company[:10]}"
+		if not frappe.db.exists("Account", cash_account_name):
+			# Verify parent account exists before creating child
+			if frappe.db.exists("Account", parent_account_name):
+				try:
+					account = frappe.get_doc(
+						{
+							"doctype": "Account",
+							"account_name": "Test Cash",
+							"account_type": "Cash",
+							"parent_account": parent_account_name,
+							"company": self.test_company,
+						}
+					)
+					account.insert(ignore_permissions=True)
+				except (frappe.DuplicateEntryError, frappe.LinkValidationError):
+					# Account creation failed, use existing cash account
+					cash_account_name = frappe.db.get_value(
+						"Account", {"company": self.test_company, "account_type": "Cash"}, "name"
+					)
+			else:
+				# Fallback to any existing cash account for the company
+				cash_account_name = frappe.db.get_value(
+					"Account", {"company": self.test_company, "account_type": "Cash"}, "name"
+				)
 
 		# Crear Payment Entries con diferentes estados PPD
 		payment_data = [
@@ -680,7 +703,7 @@ class TestDashboardFiscalLayer3System(FrappeTestCase):
 						"posting_date": self.test_date,
 						"paid_amount": data["amount"],
 						"received_amount": data["amount"],
-						"paid_to": f"Test Cash - {self.test_company[:10]}",
+						"paid_to": cash_account_name,
 						"fm_ppd_status": data["ppd_status"],
 					}
 				)
