@@ -1,0 +1,526 @@
+{% extends "templates/web.html" %}
+
+{% block title %}{{ _("Dashboard Fiscal") }}{% endblock %}
+
+{% block head_include %}
+	<style>
+		.dashboard-fiscal {
+			padding: 20px;
+			background: #f8f9fa;
+			min-height: 100vh;
+		}
+
+		.dashboard-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 30px;
+			background: white;
+			padding: 20px;
+			border-radius: 8px;
+			box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+		}
+
+		.dashboard-title {
+			font-size: 28px;
+			font-weight: 600;
+			color: #333;
+			margin: 0;
+		}
+
+		.dashboard-controls {
+			display: flex;
+			gap: 15px;
+			align-items: center;
+		}
+
+		.refresh-button, .settings-button {
+			padding: 8px 16px;
+			border: 1px solid #ddd;
+			border-radius: 6px;
+			background: white;
+			cursor: pointer;
+			transition: all 0.3s;
+		}
+
+		.refresh-button:hover, .settings-button:hover {
+			background: #f0f0f0;
+			border-color: #007bff;
+		}
+
+		.dashboard-grid {
+			display: grid;
+			grid-template-columns: repeat(4, 1fr);
+			grid-template-rows: repeat(4, 250px);
+			gap: 20px;
+			margin-bottom: 30px;
+		}
+
+		.dashboard-widget {
+			background: white;
+			border-radius: 8px;
+			box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+			padding: 20px;
+			position: relative;
+			overflow: hidden;
+			transition: transform 0.3s, box-shadow 0.3s;
+		}
+
+		.dashboard-widget:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+		}
+
+		.widget-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 15px;
+			border-bottom: 1px solid #eee;
+			padding-bottom: 10px;
+		}
+
+		.widget-title {
+			font-size: 16px;
+			font-weight: 600;
+			color: #333;
+			margin: 0;
+		}
+
+		.widget-menu {
+			color: #999;
+			cursor: pointer;
+			padding: 4px;
+		}
+
+		.widget-content {
+			height: calc(100% - 60px);
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+		}
+
+		.widget-value {
+			font-size: 32px;
+			font-weight: 700;
+			color: #007bff;
+			text-align: center;
+			margin-bottom: 10px;
+		}
+
+		.widget-subtitle {
+			text-align: center;
+			color: #666;
+			font-size: 14px;
+		}
+
+		.widget-loading {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			height: 100%;
+			color: #999;
+		}
+
+		.widget-error {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			height: 100%;
+			color: #dc3545;
+			text-align: center;
+		}
+
+		.status-indicator {
+			position: absolute;
+			top: 10px;
+			right: 10px;
+			width: 12px;
+			height: 12px;
+			border-radius: 50%;
+			background: #28a745;
+		}
+
+		.status-indicator.loading {
+			background: #ffc107;
+			animation: pulse 1.5s infinite;
+		}
+
+		.status-indicator.error {
+			background: #dc3545;
+		}
+
+		@keyframes pulse {
+			0% { opacity: 1; }
+			50% { opacity: 0.5; }
+			100% { opacity: 1; }
+		}
+
+		.last-updated {
+			position: absolute;
+			bottom: 10px;
+			right: 10px;
+			font-size: 11px;
+			color: #999;
+		}
+
+		/* Grid positioning classes */
+		.grid-1-1 { grid-column: 1; grid-row: 1; }
+		.grid-1-2 { grid-column: 1; grid-row: 2; }
+		.grid-1-3 { grid-column: 1; grid-row: 3; }
+		.grid-1-4 { grid-column: 1; grid-row: 4; }
+		.grid-2-1 { grid-column: 2; grid-row: 1; }
+		.grid-2-2 { grid-column: 2; grid-row: 2; }
+		.grid-2-3 { grid-column: 2; grid-row: 3; }
+		.grid-2-4 { grid-column: 2; grid-row: 4; }
+		.grid-3-1 { grid-column: 3; grid-row: 1; }
+		.grid-3-2 { grid-column: 3; grid-row: 2; }
+		.grid-3-3 { grid-column: 3; grid-row: 3; }
+		.grid-3-4 { grid-column: 3; grid-row: 4; }
+		.grid-4-1 { grid-column: 4; grid-row: 1; }
+		.grid-4-2 { grid-column: 4; grid-row: 2; }
+		.grid-4-3 { grid-column: 4; grid-row: 3; }
+		.grid-4-4 { grid-column: 4; grid-row: 4; }
+
+		/* Responsive design */
+		@media (max-width: 1200px) {
+			.dashboard-grid {
+				grid-template-columns: repeat(2, 1fr);
+				grid-template-rows: auto;
+			}
+		}
+
+		@media (max-width: 768px) {
+			.dashboard-grid {
+				grid-template-columns: 1fr;
+				grid-template-rows: auto;
+			}
+
+			.dashboard-header {
+				flex-direction: column;
+				gap: 15px;
+				text-align: center;
+			}
+
+			.dashboard-controls {
+				justify-content: center;
+			}
+		}
+	</style>
+{% endblock %}
+
+{% block page_content %}
+<div class="dashboard-fiscal">
+	<!-- Header del Dashboard -->
+	<div class="dashboard-header">
+		<h1 class="dashboard-title">{{ _("Dashboard Fiscal") }}</h1>
+		<div class="dashboard-controls">
+			<div class="refresh-button" onclick="refreshDashboard()">
+				<i class="fa fa-refresh"></i> {{ _("Actualizar") }}
+			</div>
+			<div class="settings-button" onclick="openSettings()">
+				<i class="fa fa-cog"></i> {{ _("Configuración") }}
+			</div>
+		</div>
+	</div>
+
+	<!-- Grid del Dashboard -->
+	<div class="dashboard-grid" id="dashboard-grid">
+		<!-- Los widgets se cargarán dinámicamente aquí -->
+	</div>
+
+	<!-- Información de estado -->
+	<div class="dashboard-footer" style="text-align: center; color: #666; margin-top: 20px;">
+		<small>
+			{{ _("Última actualización") }}: <span id="last-update-time">{{ _("Cargando...") }}</span> |
+			{{ _("Próxima actualización") }}: <span id="next-update-time">{{ _("Calculando...") }}</span>
+		</small>
+	</div>
+</div>
+
+<!-- Template para widgets -->
+<template id="widget-template">
+	<div class="dashboard-widget" data-widget-code="">
+		<div class="status-indicator"></div>
+		<div class="widget-header">
+			<h3 class="widget-title"></h3>
+			<div class="widget-menu">⋮</div>
+		</div>
+		<div class="widget-content">
+			<div class="widget-loading">
+				<i class="fa fa-spinner fa-spin"></i> {{ _("Cargando...") }}
+			</div>
+		</div>
+		<div class="last-updated"></div>
+	</div>
+</template>
+{% endblock %}
+
+{% block script %}
+<script>
+	// Configuración del dashboard desde el backend
+	const dashboardConfig = {{ meta_data | tojson }};
+	const dashboardLayout = {{ dashboard_layout | tojson }};
+	const availableModules = {{ available_modules | tojson }};
+	const userCompany = {{ user_company | tojson }};
+
+	// Variables globales
+	let refreshInterval;
+	let lastUpdateTime = new Date();
+
+	// Inicializar dashboard
+	document.addEventListener('DOMContentLoaded', function() {
+		initializeDashboard();
+		setupAutoRefresh();
+	});
+
+	function initializeDashboard() {
+		console.log('Inicializando Dashboard Fiscal...');
+		renderWidgets();
+		loadDashboardData();
+	}
+
+	function renderWidgets() {
+		const grid = document.getElementById('dashboard-grid');
+		const template = document.getElementById('widget-template');
+
+		// Limpiar grid
+		grid.innerHTML = '';
+
+		// Si no hay widgets configurados, mostrar mensaje
+		if (Object.keys(dashboardLayout).length === 0) {
+			grid.innerHTML = `
+				<div style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+					<h3>{{ _("¡Bienvenido al Dashboard Fiscal!") }}</h3>
+					<p>{{ _("No hay widgets configurados. Contacta al administrador para configurar el dashboard.") }}</p>
+					<button onclick="openSettings()" class="btn btn-primary">
+						{{ _("Configurar Dashboard") }}
+					</button>
+				</div>
+			`;
+			return;
+		}
+
+		// Renderizar cada widget
+		Object.values(dashboardLayout).forEach(widget => {
+			const widgetElement = template.content.cloneNode(true);
+			const widgetDiv = widgetElement.querySelector('.dashboard-widget');
+
+			// Configurar widget
+			widgetDiv.dataset.widgetCode = widget.widget_code;
+			widgetDiv.classList.add(`grid-${widget.position.col}-${widget.position.row}`);
+
+			// Aplicar spanning si es necesario
+			if (widget.position.width > 1) {
+				widgetDiv.style.gridColumn = `${widget.position.col} / span ${widget.position.width}`;
+			}
+			if (widget.position.height > 1) {
+				widgetDiv.style.gridRow = `${widget.position.row} / span ${widget.position.height}`;
+			}
+
+			// Configurar título
+			widgetElement.querySelector('.widget-title').textContent = widget.widget_name;
+
+			// Aplicar estilos personalizados
+			if (widget.config && widget.config.custom_styles) {
+				Object.assign(widgetDiv.style, widget.config.custom_styles);
+			}
+
+			grid.appendChild(widgetElement);
+		});
+	}
+
+	function loadDashboardData() {
+		console.log('Cargando datos del dashboard...');
+
+		// Actualizar indicadores de carga
+		document.querySelectorAll('.dashboard-widget').forEach(widget => {
+			const statusIndicator = widget.querySelector('.status-indicator');
+			statusIndicator.classList.add('loading');
+		});
+
+		// Llamar API para obtener datos
+		frappe.call({
+			method: 'facturacion_mexico.dashboard_fiscal.api.get_dashboard_data',
+			args: {
+				period: 'month',
+				company: userCompany
+			},
+			callback: function(response) {
+				if (response.message && response.message.success) {
+					renderDashboardData(response.message.data);
+					updateLastUpdateTime();
+				} else {
+					showError('Error cargando datos del dashboard');
+				}
+			},
+			error: function(error) {
+				console.error('Error:', error);
+				showError('Error de conexión');
+			}
+		});
+	}
+
+	function renderDashboardData(data) {
+		console.log('Renderizando datos:', data);
+
+		// Renderizar KPIs
+		if (data.kpis) {
+			Object.keys(data.kpis).forEach(module => {
+				const moduleKpis = data.kpis[module];
+				Object.keys(moduleKpis).forEach(kpiName => {
+					const kpiData = moduleKpis[kpiName];
+					renderKpiWidget(module, kpiName, kpiData);
+				});
+			});
+		}
+
+		// Renderizar alertas
+		if (data.alerts && data.alerts.length > 0) {
+			renderAlertsWidget(data.alerts);
+		}
+
+		// Actualizar indicadores de estado
+		document.querySelectorAll('.dashboard-widget').forEach(widget => {
+			const statusIndicator = widget.querySelector('.status-indicator');
+			statusIndicator.classList.remove('loading');
+		});
+	}
+
+	function renderKpiWidget(module, kpiName, kpiData) {
+		// Buscar widget correspondiente
+		const widgetCode = `${module}_${kpiName}`;
+		const widget = document.querySelector(`[data-widget-code="${widgetCode}"]`) ||
+					   document.querySelector(`[data-widget-code*="${module}"]`);
+
+		if (!widget) return;
+
+		const content = widget.querySelector('.widget-content');
+		const statusIndicator = widget.querySelector('.status-indicator');
+
+		if (kpiData && kpiData.value !== undefined) {
+			content.innerHTML = `
+				<div class="widget-value">${formatValue(kpiData.value, kpiData.format)}</div>
+				<div class="widget-subtitle">${kpiData.subtitle || kpiName}</div>
+			`;
+			statusIndicator.classList.remove('loading', 'error');
+		} else {
+			content.innerHTML = `
+				<div class="widget-error">
+					<div>{{ _("Sin datos") }}</div>
+				</div>
+			`;
+			statusIndicator.classList.add('error');
+		}
+
+		// Actualizar timestamp
+		const lastUpdated = widget.querySelector('.last-updated');
+		lastUpdated.textContent = new Date().toLocaleTimeString();
+	}
+
+	function renderAlertsWidget(alerts) {
+		// Buscar widget de alertas o usar el primer widget disponible
+		const alertWidget = document.querySelector('[data-widget-code*="alert"]') ||
+						   document.querySelector('.dashboard-widget');
+
+		if (!alertWidget) return;
+
+		const content = alertWidget.querySelector('.widget-content');
+		const statusIndicator = alertWidget.querySelector('.status-indicator');
+
+		if (alerts.length > 0) {
+			const urgentAlerts = alerts.filter(alert => alert.priority >= 7);
+			content.innerHTML = `
+				<div class="widget-value" style="color: #dc3545;">${urgentAlerts.length}</div>
+				<div class="widget-subtitle">{{ _("Alertas Urgentes") }}</div>
+			`;
+			statusIndicator.style.background = urgentAlerts.length > 0 ? '#dc3545' : '#28a745';
+		} else {
+			content.innerHTML = `
+				<div class="widget-value" style="color: #28a745;">0</div>
+				<div class="widget-subtitle">{{ _("Sin Alertas") }}</div>
+			`;
+		}
+	}
+
+	function formatValue(value, format) {
+		if (!value && value !== 0) return '-';
+
+		switch (format) {
+			case 'currency':
+				return new Intl.NumberFormat('es-MX', {
+					style: 'currency',
+					currency: 'MXN'
+				}).format(value);
+			case 'percentage':
+				return `${value.toFixed(1)}%`;
+			case 'number':
+				return new Intl.NumberFormat('es-MX').format(value);
+			default:
+				return value.toString();
+		}
+	}
+
+	function setupAutoRefresh() {
+		if (dashboardConfig.auto_refresh) {
+			refreshInterval = setInterval(function() {
+				loadDashboardData();
+			}, dashboardConfig.refresh_interval);
+
+			updateNextUpdateTime();
+		}
+	}
+
+	function refreshDashboard() {
+		loadDashboardData();
+
+		// Restart auto-refresh timer
+		if (refreshInterval) {
+			clearInterval(refreshInterval);
+			setupAutoRefresh();
+		}
+	}
+
+	function updateLastUpdateTime() {
+		lastUpdateTime = new Date();
+		document.getElementById('last-update-time').textContent = lastUpdateTime.toLocaleString();
+		updateNextUpdateTime();
+	}
+
+	function updateNextUpdateTime() {
+		if (dashboardConfig.auto_refresh) {
+			const nextUpdate = new Date(lastUpdateTime.getTime() + dashboardConfig.refresh_interval);
+			document.getElementById('next-update-time').textContent = nextUpdate.toLocaleTimeString();
+		} else {
+			document.getElementById('next-update-time').textContent = '{{ _("Manual") }}';
+		}
+	}
+
+	function openSettings() {
+		// Navegar a la configuración del dashboard
+		window.location.href = '/app/fiscal-dashboard-config';
+	}
+
+	function showError(message) {
+		frappe.msgprint({
+			title: '{{ _("Error") }}',
+			message: message,
+			indicator: 'red'
+		});
+
+		// Actualizar indicadores de error
+		document.querySelectorAll('.dashboard-widget').forEach(widget => {
+			const statusIndicator = widget.querySelector('.status-indicator');
+			statusIndicator.classList.remove('loading');
+			statusIndicator.classList.add('error');
+		});
+	}
+
+	// Cleanup en page unload
+	window.addEventListener('beforeunload', function() {
+		if (refreshInterval) {
+			clearInterval(refreshInterval);
+		}
+	});
+</script>
+{% endblock %}
