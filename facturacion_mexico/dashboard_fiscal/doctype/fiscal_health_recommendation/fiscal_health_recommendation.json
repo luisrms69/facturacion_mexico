@@ -1,0 +1,135 @@
+{
+ "actions": [],
+ "allow_copy": 0,
+ "allow_events_in_timeline": 0,
+ "allow_guest_to_view": 0,
+ "allow_import": 0,
+ "allow_rename": 0,
+ "autoname": "hash",
+ "beta": 0,
+ "creation": "2025-07-22 12:00:00.000000",
+ "custom": 0,
+ "docstatus": 0,
+ "doctype": "DocType",
+ "document_type": "Document",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "category",
+  "recommendation",
+  "column_break_1",
+  "priority",
+  "estimated_days",
+  "implementation_section",
+  "action_required",
+  "responsible_role",
+  "tracking_section",
+  "status",
+  "implementation_date",
+  "completion_notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "category",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Categoría",
+   "options": "Timbrado\nPPD\nE-Receipts\nAddendas\nFacturas Globales\nCumplimiento\nGeneral\nSeguridad\nRendimiento",
+   "reqd": 1
+  },
+  {
+   "fieldname": "recommendation",
+   "fieldtype": "Text",
+   "in_list_view": 1,
+   "label": "Recomendación",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "priority",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Prioridad",
+   "options": "High\nMedium\nLow",
+   "reqd": 1,
+   "default": "Medium"
+  },
+  {
+   "fieldname": "estimated_days",
+   "fieldtype": "Int",
+   "label": "Días Estimados",
+   "description": "Días estimados para implementar"
+  },
+  {
+   "fieldname": "implementation_section",
+   "fieldtype": "Section Break",
+   "label": "Implementación",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "action_required",
+   "fieldtype": "Small Text",
+   "label": "Acción Requerida",
+   "description": "Pasos específicos a seguir"
+  },
+  {
+   "fieldname": "responsible_role",
+   "fieldtype": "Link",
+   "label": "Rol Responsable",
+   "options": "Role"
+  },
+  {
+   "fieldname": "tracking_section",
+   "fieldtype": "Section Break",
+   "label": "Seguimiento",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Estado",
+   "options": "Pending\nIn Progress\nCompleted\nSkipped",
+   "default": "Pending"
+  },
+  {
+   "fieldname": "implementation_date",
+   "fieldtype": "Date",
+   "label": "Fecha Implementación"
+  },
+  {
+   "fieldname": "completion_notes",
+   "fieldtype": "Small Text",
+   "label": "Notas de Completado"
+  }
+ ],
+ "has_web_view": 0,
+ "hide_heading": 0,
+ "hide_toolbar": 0,
+ "idx": 0,
+ "image_view": 0,
+ "in_create": 0,
+ "is_submittable": 0,
+ "issingle": 0,
+ "istable": 1,
+ "max_attachments": 0,
+ "modified": "2025-07-22 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Dashboard Fiscal",
+ "name": "Fiscal Health Recommendation",
+ "naming_rule": "Random",
+ "owner": "Administrator",
+ "permissions": [],
+ "quick_entry": 0,
+ "read_only": 0,
+ "read_only_onload": 0,
+ "show_name_in_global_search": 0,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 0,
+ "track_seen": 0,
+ "track_views": 0
+}

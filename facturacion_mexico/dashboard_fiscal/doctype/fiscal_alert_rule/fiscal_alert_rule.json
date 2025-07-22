@@ -1,0 +1,262 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:alert_code",
+ "creation": "2025-07-21 19:15:00.000000",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "basic_info_section",
+  "alert_name",
+  "alert_code",
+  "alert_type",
+  "module",
+  "column_break_basic",
+  "is_active",
+  "priority",
+  "condition_section",
+  "condition_type",
+  "condition_field",
+  "condition_operator",
+  "condition_value",
+  "column_break_condition",
+  "custom_condition",
+  "message_section",
+  "message_template",
+  "notification_section",
+  "notify_roles",
+  "notify_users",
+  "column_break_notification",
+  "send_email",
+  "show_in_dashboard",
+  "tracking_section",
+  "last_triggered",
+  "trigger_count"
+ ],
+ "fields": [
+  {
+   "fieldname": "basic_info_section",
+   "fieldtype": "Section Break",
+   "label": "Información Básica"
+  },
+  {
+   "fieldname": "alert_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Nombre de la Alerta",
+   "reqd": 1
+  },
+  {
+   "fieldname": "alert_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Código de Alerta",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "alert_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Tipo de Alerta",
+   "options": "Error\nWarning\nInfo\nSuccess",
+   "reqd": 1
+  },
+  {
+   "fieldname": "module",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Módulo",
+   "options": "Timbrado\nPPD\nE-Receipts\nAddendas\nFacturas Globales\nMotor Reglas\nGeneral",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_basic",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Alerta Activa"
+  },
+  {
+   "default": "5",
+   "description": "Prioridad de display (1-10, mayor número = mayor prioridad)",
+   "fieldname": "priority",
+   "fieldtype": "Int",
+   "label": "Prioridad"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "condition_section",
+   "fieldtype": "Section Break",
+   "label": "Condiciones de Activación"
+  },
+  {
+   "fieldname": "condition_type",
+   "fieldtype": "Select",
+   "label": "Tipo de Condición",
+   "options": "Count\nPercentage\nAmount\nDays\nCustom"
+  },
+  {
+   "depends_on": "eval:doc.condition_type != 'Custom'",
+   "fieldname": "condition_field",
+   "fieldtype": "Data",
+   "label": "Campo a Evaluar"
+  },
+  {
+   "depends_on": "eval:doc.condition_type != 'Custom'",
+   "fieldname": "condition_operator",
+   "fieldtype": "Select",
+   "label": "Operador",
+   "options": ">\n<\n=\n!=\n>=\n<="
+  },
+  {
+   "depends_on": "eval:doc.condition_type != 'Custom'",
+   "fieldname": "condition_value",
+   "fieldtype": "Float",
+   "label": "Valor de Comparación"
+  },
+  {
+   "fieldname": "column_break_condition",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.condition_type == 'Custom'",
+   "description": "Condición Python personalizada que retorna True/False",
+   "fieldname": "custom_condition",
+   "fieldtype": "Code",
+   "label": "Condición Personalizada (Python)"
+  },
+  {
+   "fieldname": "message_section",
+   "fieldtype": "Section Break",
+   "label": "Mensaje de Alerta"
+  },
+  {
+   "description": "Mensaje con variables {field_name} que se reemplazarán automáticamente",
+   "fieldname": "message_template",
+   "fieldtype": "Text",
+   "label": "Plantilla de Mensaje",
+   "reqd": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "notification_section",
+   "fieldtype": "Section Break",
+   "label": "Configuración de Notificaciones"
+  },
+  {
+   "fieldname": "notify_roles",
+   "fieldtype": "Table",
+   "label": "Roles a Notificar",
+   "options": "Fiscal Alert Notify Role"
+  },
+  {
+   "fieldname": "notify_users",
+   "fieldtype": "Table",
+   "label": "Usuarios Específicos",
+   "options": "Fiscal Alert Notify User"
+  },
+  {
+   "fieldname": "column_break_notification",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "send_email",
+   "fieldtype": "Check",
+   "label": "Enviar Notificación por Email"
+  },
+  {
+   "default": "1",
+   "fieldname": "show_in_dashboard",
+   "fieldtype": "Check",
+   "label": "Mostrar en Dashboard"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "tracking_section",
+   "fieldtype": "Section Break",
+   "label": "Seguimiento"
+  },
+  {
+   "fieldname": "last_triggered",
+   "fieldtype": "Datetime",
+   "label": "Última Activación",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "trigger_count",
+   "fieldtype": "Int",
+   "label": "Veces Activada",
+   "read_only": 1
+  }
+ ],
+ "has_web_view": 0,
+ "hide_toolbar": 0,
+ "idx": 0,
+ "in_create": 0,
+ "is_submittable": 0,
+ "issingle": 0,
+ "istable": 0,
+ "max_attachments": 0,
+ "modified": "2025-07-21 19:15:00.000000",
+ "modified_by": "Administrator",
+ "module": "Dashboard Fiscal",
+ "name": "Fiscal Alert Rule",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts User",
+   "share": 1,
+   "write": 0
+  }
+ ],
+ "quick_entry": 0,
+ "read_only": 0,
+ "read_only_onload": 0,
+ "show_name_in_global_search": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "alert_name",
+ "track_changes": 1,
+ "track_seen": 0,
+ "track_views": 0
+}

@@ -1,0 +1,381 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:widget_code",
+ "creation": "2025-07-21 19:15:00.000000",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "basic_info_section",
+  "widget_name",
+  "widget_code",
+  "widget_type",
+  "module",
+  "column_break_basic",
+  "is_active",
+  "display_order",
+  "position_section",
+  "grid_row",
+  "grid_col",
+  "grid_width",
+  "grid_height",
+  "column_break_position",
+  "css_classes",
+  "custom_styles",
+  "data_config_section",
+  "data_source",
+  "kpi_function",
+  "chart_config",
+  "custom_query",
+  "column_break_data",
+  "refresh_interval",
+  "cache_enabled",
+  "cache_ttl",
+  "display_config_section",
+  "title_template",
+  "value_format",
+  "color_config",
+  "icon_config",
+  "column_break_display",
+  "show_trend",
+  "trend_period",
+  "show_comparison",
+  "permissions_section",
+  "allowed_roles",
+  "required_permissions",
+  "tracking_section",
+  "last_updated",
+  "view_count",
+  "last_accessed"
+ ],
+ "fields": [
+  {
+   "fieldname": "basic_info_section",
+   "fieldtype": "Section Break",
+   "label": "Información Básica"
+  },
+  {
+   "fieldname": "widget_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Nombre del Widget",
+   "reqd": 1
+  },
+  {
+   "fieldname": "widget_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Código del Widget",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "widget_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Tipo de Widget",
+   "options": "KPI\nChart\nTable\nGauge\nProgress\nAlert\nCustom",
+   "reqd": 1
+  },
+  {
+   "fieldname": "module",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Módulo",
+   "options": "Timbrado\nPPD\nE-Receipts\nAddendas\nFacturas Globales\nMotor Reglas\nGeneral",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_basic",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Widget Activo"
+  },
+  {
+   "default": "10",
+   "description": "Orden de visualización en el dashboard (menor número = mayor prioridad)",
+   "fieldname": "display_order",
+   "fieldtype": "Int",
+   "label": "Orden de Display"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "position_section",
+   "fieldtype": "Section Break",
+   "label": "Posición y Layout"
+  },
+  {
+   "default": "1",
+   "description": "Fila en el grid (1-4)",
+   "fieldname": "grid_row",
+   "fieldtype": "Int",
+   "label": "Fila del Grid",
+   "reqd": 1
+  },
+  {
+   "default": "1",
+   "description": "Columna en el grid (1-4)",
+   "fieldname": "grid_col",
+   "fieldtype": "Int",
+   "label": "Columna del Grid",
+   "reqd": 1
+  },
+  {
+   "default": "1",
+   "description": "Ancho en unidades del grid (1-4)",
+   "fieldname": "grid_width",
+   "fieldtype": "Int",
+   "label": "Ancho del Grid",
+   "reqd": 1
+  },
+  {
+   "default": "1",
+   "description": "Alto en unidades del grid (1-4)",
+   "fieldname": "grid_height",
+   "fieldtype": "Int",
+   "label": "Alto del Grid",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_position",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Clases CSS adicionales para el widget",
+   "fieldname": "css_classes",
+   "fieldtype": "Data",
+   "label": "Clases CSS"
+  },
+  {
+   "description": "Estilos CSS personalizados en formato JSON",
+   "fieldname": "custom_styles",
+   "fieldtype": "Code",
+   "label": "Estilos Personalizados (JSON)"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "data_config_section",
+   "fieldtype": "Section Break",
+   "label": "Configuración de Datos"
+  },
+  {
+   "fieldname": "data_source",
+   "fieldtype": "Select",
+   "label": "Fuente de Datos",
+   "options": "Registry KPI\nCustom Query\nAPI Endpoint\nStatic Data"
+  },
+  {
+   "depends_on": "eval:doc.data_source == 'Registry KPI'",
+   "description": "Nombre de la función KPI registrada en el Registry",
+   "fieldname": "kpi_function",
+   "fieldtype": "Data",
+   "label": "Función KPI"
+  },
+  {
+   "depends_on": "eval:doc.widget_type == 'Chart'",
+   "description": "Configuración del chart en formato JSON",
+   "fieldname": "chart_config",
+   "fieldtype": "Code",
+   "label": "Configuración del Chart (JSON)"
+  },
+  {
+   "depends_on": "eval:doc.data_source == 'Custom Query'",
+   "description": "Query SQL personalizada para obtener datos",
+   "fieldname": "custom_query",
+   "fieldtype": "Code",
+   "label": "Query Personalizada (SQL)"
+  },
+  {
+   "fieldname": "column_break_data",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "300",
+   "description": "Intervalo de actualización en segundos",
+   "fieldname": "refresh_interval",
+   "fieldtype": "Int",
+   "label": "Intervalo de Actualización (seg)"
+  },
+  {
+   "default": "1",
+   "fieldname": "cache_enabled",
+   "fieldtype": "Check",
+   "label": "Cache Habilitado"
+  },
+  {
+   "default": "3600",
+   "depends_on": "cache_enabled",
+   "description": "Tiempo de vida del cache en segundos",
+   "fieldname": "cache_ttl",
+   "fieldtype": "Int",
+   "label": "TTL del Cache (seg)"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "display_config_section",
+   "fieldtype": "Section Break",
+   "label": "Configuración de Display"
+  },
+  {
+   "description": "Template del título con variables {field_name}",
+   "fieldname": "title_template",
+   "fieldtype": "Data",
+   "label": "Template del Título"
+  },
+  {
+   "description": "Formato del valor: currency, percentage, number, text",
+   "fieldname": "value_format",
+   "fieldtype": "Select",
+   "label": "Formato del Valor",
+   "options": "currency\npercentage\nnumber\ntext\ncustom"
+  },
+  {
+   "description": "Configuración de colores en formato JSON",
+   "fieldname": "color_config",
+   "fieldtype": "Code",
+   "label": "Configuración de Colores (JSON)"
+  },
+  {
+   "description": "Configuración del icono en formato JSON",
+   "fieldname": "icon_config",
+   "fieldtype": "Code",
+   "label": "Configuración del Icono (JSON)"
+  },
+  {
+   "fieldname": "column_break_display",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "show_trend",
+   "fieldtype": "Check",
+   "label": "Mostrar Tendencia"
+  },
+  {
+   "default": "30",
+   "depends_on": "show_trend",
+   "description": "Período para calcular tendencia en días",
+   "fieldname": "trend_period",
+   "fieldtype": "Int",
+   "label": "Período de Tendencia (días)"
+  },
+  {
+   "default": "0",
+   "fieldname": "show_comparison",
+   "fieldtype": "Check",
+   "label": "Mostrar Comparación"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "permissions_section",
+   "fieldtype": "Section Break",
+   "label": "Permisos y Seguridad"
+  },
+  {
+   "fieldname": "allowed_roles",
+   "fieldtype": "Table",
+   "label": "Roles Permitidos",
+   "options": "Dashboard Widget Allowed Role"
+  },
+  {
+   "description": "Permisos adicionales requeridos separados por comas",
+   "fieldname": "required_permissions",
+   "fieldtype": "Text",
+   "label": "Permisos Requeridos"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "tracking_section",
+   "fieldtype": "Section Break",
+   "label": "Seguimiento de Uso"
+  },
+  {
+   "fieldname": "last_updated",
+   "fieldtype": "Datetime",
+   "label": "Última Actualización",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "view_count",
+   "fieldtype": "Int",
+   "label": "Veces Visualizado",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_accessed",
+   "fieldtype": "Datetime",
+   "label": "Último Acceso",
+   "read_only": 1
+  }
+ ],
+ "has_web_view": 0,
+ "hide_toolbar": 0,
+ "idx": 0,
+ "in_create": 0,
+ "is_submittable": 0,
+ "issingle": 0,
+ "istable": 0,
+ "max_attachments": 0,
+ "modified": "2025-07-21 19:15:00.000000",
+ "modified_by": "Administrator",
+ "module": "Dashboard Fiscal",
+ "name": "Dashboard Widget Config",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts User",
+   "share": 1,
+   "write": 0
+  }
+ ],
+ "quick_entry": 0,
+ "read_only": 0,
+ "read_only_onload": 0,
+ "show_name_in_global_search": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "widget_name",
+ "track_changes": 1,
+ "track_seen": 0,
+ "track_views": 0
+}

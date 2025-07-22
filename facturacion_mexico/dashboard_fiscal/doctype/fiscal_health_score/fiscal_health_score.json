@@ -1,0 +1,246 @@
+{
+ "actions": [],
+ "allow_copy": 0,
+ "allow_events_in_timeline": 1,
+ "allow_guest_to_view": 0,
+ "allow_import": 0,
+ "allow_rename": 0,
+ "autoname": "format:HEALTH-{score_date}-{company}",
+ "beta": 0,
+ "creation": "2025-07-21 23:00:00.000000",
+ "custom": 0,
+ "docstatus": 0,
+ "doctype": "DocType",
+ "document_type": "Document",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "basic_information",
+  "score_date",
+  "company",
+  "overall_score",
+  "column_break_basic",
+  "calculation_method",
+  "last_calculated",
+  "module_scores_section",
+  "timbrado_score",
+  "ppd_score",
+  "ereceipts_score",
+  "column_break_modules",
+  "addendas_score",
+  "global_invoices_score",
+  "rules_compliance_score",
+  "health_factors_section",
+  "factors_positive",
+  "factors_negative",
+  "recommendations",
+  "tracking_section",
+  "created_by",
+  "calculation_duration_ms"
+ ],
+ "fields": [
+  {
+   "fieldname": "basic_information",
+   "fieldtype": "Section Break",
+   "label": "Información Básica"
+  },
+  {
+   "fieldname": "score_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Fecha del Score",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "overall_score",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Score General",
+   "precision": 2,
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_basic",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "calculation_method",
+   "fieldtype": "Select",
+   "label": "Método de Cálculo",
+   "options": "Weighted Average\nSimple Average\nCustom Formula",
+   "default": "Weighted Average"
+  },
+  {
+   "fieldname": "last_calculated",
+   "fieldtype": "Datetime",
+   "label": "Última Calculación",
+   "read_only": 1
+  },
+  {
+   "fieldname": "module_scores_section",
+   "fieldtype": "Section Break",
+   "label": "Scores por Módulo"
+  },
+  {
+   "fieldname": "timbrado_score",
+   "fieldtype": "Float",
+   "label": "Score Timbrado",
+   "precision": 2,
+   "read_only": 1
+  },
+  {
+   "fieldname": "ppd_score",
+   "fieldtype": "Float",
+   "label": "Score PPD",
+   "precision": 2,
+   "read_only": 1
+  },
+  {
+   "fieldname": "ereceipts_score",
+   "fieldtype": "Float",
+   "label": "Score E-Receipts",
+   "precision": 2,
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_modules",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "addendas_score",
+   "fieldtype": "Float",
+   "label": "Score Addendas",
+   "precision": 2,
+   "read_only": 1
+  },
+  {
+   "fieldname": "global_invoices_score",
+   "fieldtype": "Float",
+   "label": "Score Facturas Globales",
+   "precision": 2,
+   "read_only": 1
+  },
+  {
+   "fieldname": "rules_compliance_score",
+   "fieldtype": "Float",
+   "label": "Score Cumplimiento Reglas",
+   "precision": 2,
+   "read_only": 1
+  },
+  {
+   "fieldname": "health_factors_section",
+   "fieldtype": "Section Break",
+   "label": "Factores de Salud"
+  },
+  {
+   "fieldname": "factors_positive",
+   "fieldtype": "Table",
+   "label": "Factores Positivos",
+   "options": "Fiscal Health Factor"
+  },
+  {
+   "fieldname": "factors_negative",
+   "fieldtype": "Table",
+   "label": "Factores Negativos",
+   "options": "Fiscal Health Factor"
+  },
+  {
+   "fieldname": "recommendations",
+   "fieldtype": "Table",
+   "label": "Recomendaciones",
+   "options": "Fiscal Health Recommendation"
+  },
+  {
+   "fieldname": "tracking_section",
+   "fieldtype": "Section Break",
+   "label": "Seguimiento",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "created_by",
+   "fieldtype": "Link",
+   "label": "Creado por",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "calculation_duration_ms",
+   "fieldtype": "Int",
+   "label": "Duración Cálculo (ms)",
+   "read_only": 1
+  }
+ ],
+ "has_web_view": 0,
+ "hide_heading": 0,
+ "hide_toolbar": 0,
+ "idx": 0,
+ "image_view": 0,
+ "in_create": 0,
+ "is_submittable": 0,
+ "issingle": 0,
+ "istable": 0,
+ "max_attachments": 0,
+ "modified": "2025-07-21 23:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Dashboard Fiscal",
+ "name": "Fiscal Health Score",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 0,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 0,
+   "delete": 0,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 0,
+   "role": "Accounts User",
+   "share": 0,
+   "write": 0
+  }
+ ],
+ "quick_entry": 0,
+ "read_only": 0,
+ "read_only_onload": 0,
+ "show_name_in_global_search": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "overall_score",
+ "track_changes": 1,
+ "track_seen": 0,
+ "track_views": 0
+}

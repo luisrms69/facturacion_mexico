@@ -1,0 +1,217 @@
+{
+ "actions": [],
+ "allow_copy": 0,
+ "allow_events_in_timeline": 0,
+ "allow_guest_to_view": 0,
+ "allow_import": 0,
+ "allow_rename": 0,
+ "autoname": "format:DASHPREF-{user}",
+ "beta": 0,
+ "creation": "2025-07-22 12:00:00.000000",
+ "custom": 0,
+ "docstatus": 0,
+ "doctype": "DocType",
+ "document_type": "Document",
+ "editable_grid": 0,
+ "engine": "InnoDB",
+ "field_order": [
+  "user_info_section",
+  "user",
+  "last_viewed",
+  "column_break_user",
+  "default_company",
+  "dashboard_theme",
+  "layout_section",
+  "dashboard_layout",
+  "custom_date_range",
+  "column_break_layout",
+  "auto_refresh_enabled",
+  "refresh_interval",
+  "widgets_section",
+  "favorite_widgets",
+  "hidden_widgets",
+  "notifications_section",
+  "notification_preferences",
+  "email_digest_enabled",
+  "column_break_notifications",
+  "alert_frequency",
+  "mobile_notifications"
+ ],
+ "fields": [
+  {
+   "fieldname": "user_info_section",
+   "fieldtype": "Section Break",
+   "label": "Información del Usuario"
+  },
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Usuario",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "last_viewed",
+   "fieldtype": "Datetime",
+   "label": "Último Acceso",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_user",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "default_company",
+   "fieldtype": "Link",
+   "label": "Company por Defecto",
+   "options": "Company"
+  },
+  {
+   "fieldname": "dashboard_theme",
+   "fieldtype": "Select",
+   "label": "Tema Dashboard",
+   "options": "Light\nDark\nAuto",
+   "default": "Light"
+  },
+  {
+   "fieldname": "layout_section",
+   "fieldtype": "Section Break",
+   "label": "Configuración de Layout"
+  },
+  {
+   "fieldname": "dashboard_layout",
+   "fieldtype": "JSON",
+   "label": "Layout del Dashboard",
+   "description": "Configuración JSON del layout personalizado"
+  },
+  {
+   "fieldname": "custom_date_range",
+   "fieldtype": "Select",
+   "label": "Rango de Fechas por Defecto",
+   "options": "Today\nYesterday\nThis Week\nLast Week\nThis Month\nLast Month\nThis Quarter\nThis Year\nCustom",
+   "default": "This Month"
+  },
+  {
+   "fieldname": "column_break_layout",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "auto_refresh_enabled",
+   "fieldtype": "Check",
+   "label": "Auto-refresh Activado",
+   "default": 1
+  },
+  {
+   "fieldname": "refresh_interval",
+   "fieldtype": "Int",
+   "label": "Intervalo Refresh (segundos)",
+   "default": 300,
+   "depends_on": "auto_refresh_enabled"
+  },
+  {
+   "fieldname": "widgets_section",
+   "fieldtype": "Section Break",
+   "label": "Configuración de Widgets"
+  },
+  {
+   "fieldname": "favorite_widgets",
+   "fieldtype": "Small Text",
+   "label": "Widgets Favoritos (JSON)",
+   "description": "JSON list de widget IDs favoritos"
+  },
+  {
+   "fieldname": "hidden_widgets",
+   "fieldtype": "Small Text",
+   "label": "Widgets Ocultos (JSON)", 
+   "description": "JSON list de widget IDs ocultos"
+  },
+  {
+   "fieldname": "notifications_section",
+   "fieldtype": "Section Break",
+   "label": "Configuración de Notificaciones"
+  },
+  {
+   "fieldname": "notification_preferences",
+   "fieldtype": "JSON",
+   "label": "Preferencias de Notificaciones",
+   "description": "Configuración JSON de tipos de alertas a recibir"
+  },
+  {
+   "fieldname": "email_digest_enabled",
+   "fieldtype": "Check",
+   "label": "Resumen Email Activado",
+   "default": 0
+  },
+  {
+   "fieldname": "column_break_notifications",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "alert_frequency",
+   "fieldtype": "Select",
+   "label": "Frecuencia de Alertas",
+   "options": "Immediate\nEvery 15 minutes\nEvery 30 minutes\nHourly\nDaily",
+   "default": "Every 15 minutes"
+  },
+  {
+   "fieldname": "mobile_notifications",
+   "fieldtype": "Check",
+   "label": "Notificaciones Móviles",
+   "default": 1
+  }
+ ],
+ "has_web_view": 0,
+ "hide_heading": 0,
+ "hide_toolbar": 0,
+ "idx": 0,
+ "image_view": 0,
+ "in_create": 0,
+ "is_submittable": 0,
+ "issingle": 0,
+ "istable": 0,
+ "max_attachments": 0,
+ "modified": "2025-07-22 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Dashboard Fiscal",
+ "name": "Dashboard User Preference",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Dashboard User",
+   "share": 1,
+   "write": 1,
+   "if_owner": 1
+  }
+ ],
+ "quick_entry": 0,
+ "read_only": 0,
+ "read_only_onload": 0,
+ "show_name_in_global_search": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "track_seen": 0,
+ "track_views": 0
+}
