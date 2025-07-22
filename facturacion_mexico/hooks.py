@@ -207,6 +207,11 @@ doc_events = {
 		"before_save": "facturacion_mexico.validaciones.hooks_handlers.customer_validate.validate_rfc_format",
 		"after_insert": "facturacion_mexico.validaciones.hooks_handlers.customer_validate.schedule_rfc_validation",
 	},
+	"Branch": {
+		"validate": "facturacion_mexico.multi_sucursal.custom_fields.branch_fiscal_fields.validate_branch_fiscal_configuration",
+		"after_insert": "facturacion_mexico.multi_sucursal.custom_fields.branch_fiscal_fields.after_branch_insert",
+		"on_update": "facturacion_mexico.multi_sucursal.custom_fields.branch_fiscal_fields.on_branch_update",
+	},
 	"Payment Entry": {
 		"validate": "facturacion_mexico.complementos_pago.hooks_handlers.payment_entry_validate.check_ppd_requirement",
 		"on_submit": "facturacion_mexico.complementos_pago.hooks_handlers.payment_entry_submit.create_complement_if_required",
