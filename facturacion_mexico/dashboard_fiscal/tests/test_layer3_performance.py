@@ -348,7 +348,6 @@ class TestDashboardFiscalLayer3Performance(FrappeTestCase):
 		batch_size = 100
 
 		total_creation_time = 0
-		calculation_times = []
 
 		# Create dataset in batches para evitar memory issues
 		for batch in range(0, large_dataset_size, batch_size):
@@ -413,6 +412,7 @@ class TestDashboardFiscalLayer3Performance(FrappeTestCase):
 			memory_test_times.append(memory_calculation_time)
 
 		# Validate memory performance consistency
+		variance_ratio = 0  # Initialize to default value
 		if len(memory_test_times) >= 3:
 			time_variance = statistics.variance(memory_test_times)
 			avg_time = statistics.mean(memory_test_times)
@@ -429,7 +429,7 @@ class TestDashboardFiscalLayer3Performance(FrappeTestCase):
 			"creation_time": total_creation_time,
 			"calculation_time": large_calculation_time,
 			"memory_test_times": memory_test_times,
-			"memory_consistency": variance_ratio if "variance_ratio" in locals() else 0,
+			"memory_consistency": variance_ratio,
 		}
 
 	def test_dashboard_widget_rendering_performance_optimization(self):
@@ -573,6 +573,7 @@ class TestDashboardFiscalLayer3Performance(FrappeTestCase):
 				{
 					"doctype": "Customer",
 					"customer_name": "Performance Test Customer",
+					"customer_type": "Company",
 					"customer_group": "All Customer Groups",
 					"territory": "All Territories",
 				}
@@ -609,6 +610,8 @@ class TestDashboardFiscalLayer3Performance(FrappeTestCase):
 				"posting_date": frappe.utils.add_days(frappe.utils.today(), -1),
 				"due_date": frappe.utils.add_days(frappe.utils.today(), 30),
 				"fm_timbrado_status": ["Timbrada", "Error", "Pendiente"][hash(invoice_name) % 3],
+				"fm_cfdi_use": "G03",  # Required field for Mexican fiscal invoices
+				"currency": "MXN",  # Required field
 				"items": [
 					{
 						"item_code": "Performance Test Item",

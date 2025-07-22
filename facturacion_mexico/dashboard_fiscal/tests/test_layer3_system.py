@@ -619,30 +619,20 @@ class TestDashboardFiscalLayer3System(FrappeTestCase):
 
 	def _create_realistic_payment_entries_data(self):
 		"""Crear datos realistas de Payment Entries para testing"""
-		# Crear Account de test si no existe
-		if not frappe.db.exists("Account", f"Test Cash - {self.test_company[:10]}"):
-			account = frappe.get_doc(
-				{
-					"doctype": "Account",
-					"account_name": "Test Cash",
-					"account_type": "Cash",
-					"parent_account": f"Current Assets - {self.test_company[:10]}",
-					"company": self.test_company,
-				}
+		# First ensure parent account exists
+		if not frappe.db.exists("Account", f"Current Assets - {self.test_company[:10]}"):
+			# First check if root Assets account exists, if not use existing one
+			root_asset = frappe.db.get_value(
+				"Account", {"company": self.test_company, "root_type": "Asset", "is_group": 1}, "name"
 			)
-			# Crear parent account si no existe
-			if not frappe.db.exists("Account", f"Current Assets - {self.test_company[:10]}"):
-				# First check if root Assets account exists, if not use existing one
+			if not root_asset:
 				root_asset = frappe.db.get_value(
-					"Account", {"company": self.test_company, "root_type": "Asset", "is_group": 1}, "name"
+					"Account",
+					{"company": self.test_company, "account_name": "Application of Funds (Assets)"},
+					"name",
 				)
-				if not root_asset:
-					root_asset = frappe.db.get_value(
-						"Account",
-						{"company": self.test_company, "account_name": "Application of Funds (Assets)"},
-						"name",
-					)
 
+			if root_asset:
 				parent_account = frappe.get_doc(
 					{
 						"doctype": "Account",
@@ -655,6 +645,18 @@ class TestDashboardFiscalLayer3System(FrappeTestCase):
 					}
 				)
 				parent_account.insert(ignore_permissions=True, ignore_if_duplicate=True)
+
+		# Now create cash account
+		if not frappe.db.exists("Account", f"Test Cash - {self.test_company[:10]}"):
+			account = frappe.get_doc(
+				{
+					"doctype": "Account",
+					"account_name": "Test Cash",
+					"account_type": "Cash",
+					"parent_account": f"Current Assets - {self.test_company[:10]}",
+					"company": self.test_company,
+				}
+			)
 			account.insert(ignore_permissions=True)
 
 		# Crear Payment Entries con diferentes estados PPD

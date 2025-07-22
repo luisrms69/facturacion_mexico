@@ -76,7 +76,6 @@ class TestDashboardFiscalLayer4Acceptance(FrappeTestCase):
 						"first_name": persona["name"].split()[0],
 						"last_name": " ".join(persona["name"].split()[1:]),
 						"send_welcome_email": 0,
-						"role_profile_name": "System Manager",
 						"language": "es",
 					}
 				)

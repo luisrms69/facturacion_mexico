@@ -83,13 +83,11 @@ class TestFiscalHealthScoreLayer2Integration(unittest.TestCase):
 		self.assertGreater(mock_count.call_count, 5, "Debe hacer múltiples queries de datos")
 
 	@patch("frappe.db.count")
-	@patch("frappe.db.sql")
-	def test_scoring_algorithm_with_different_scenarios(self, mock_sql, mock_count):
+	def test_scoring_algorithm_with_different_scenarios(self, mock_count):
 		"""LAYER 2: Test algoritmo scoring con diferentes escenarios de negocio"""
 
 		# Escenario 1: Company con excelente rendimiento
 		mock_count.side_effect = self._mock_excellent_performance_data
-		mock_sql.return_value = [[100]]  # Addendas perfectas
 
 		health_score = frappe.get_doc(
 			{
@@ -100,12 +98,13 @@ class TestFiscalHealthScoreLayer2Integration(unittest.TestCase):
 			}
 		)
 
-		health_score.calculate_health_score()
-		excellent_score = health_score.overall_score
+		with patch("frappe.db.sql") as mock_sql:
+			mock_sql.return_value = [[100]]  # Addendas perfectas
+			health_score.calculate_health_score()
+			excellent_score = health_score.overall_score
 
 		# Escenario 2: Company con bajo rendimiento
 		mock_count.side_effect = self._mock_poor_performance_data
-		mock_sql.return_value = [[10]]  # Addendas con problemas
 
 		# Create poor company for testing
 		poor_company = self.test_company + " Poor"
@@ -130,8 +129,10 @@ class TestFiscalHealthScoreLayer2Integration(unittest.TestCase):
 			}
 		)
 
-		health_score_poor.calculate_health_score()
-		poor_score = health_score_poor.overall_score
+		with patch("frappe.db.sql") as mock_sql:
+			mock_sql.return_value = [[10]]  # Addendas con problemas
+			health_score_poor.calculate_health_score()
+			poor_score = health_score_poor.overall_score
 
 		# Validate business logic consistency
 		self.assertGreater(excellent_score, poor_score, "Score excelente debe ser mayor que pobre")

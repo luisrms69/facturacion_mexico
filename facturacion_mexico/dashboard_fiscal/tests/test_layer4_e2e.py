@@ -51,7 +51,6 @@ class TestDashboardFiscalLayer4E2E(FrappeTestCase):
 					"first_name": "Usuario",
 					"last_name": "Fiscal E2E",
 					"send_welcome_email": 0,
-					"role_profile_name": "System Manager",
 					"language": "es",
 					"time_zone": "America/Mexico_City",
 					"user_type": "System User",
