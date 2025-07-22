@@ -289,6 +289,35 @@ class TestLayer1BranchInfrastructure(unittest.TestCase):
 			cert_source, "specific_certs", "Con certificados específicos debe usar specific_certs"
 		)
 
+	def test_certificate_selector_integration(self):
+		"""Test: Verificar integración con Certificate Selector"""
+		try:
+			from facturacion_mexico.multi_sucursal.certificate_selector import (
+				MultibranchCertificateManager,
+				get_available_certificates,
+				get_branch_certificate_status,
+			)
+
+			# Test: Crear manager
+			manager = MultibranchCertificateManager(self.test_company, self.test_branch)
+			self.assertIsNotNone(manager, "MultibranchCertificateManager debe crearse correctamente")
+
+			# Test: Obtener certificados disponibles
+			certificates = get_available_certificates(self.test_company, self.test_branch)
+			self.assertIsInstance(certificates, list, "get_available_certificates debe retornar lista")
+
+			# Test: API de estado de certificados de sucursal
+			status_result = get_branch_certificate_status(self.test_branch)
+			self.assertIsInstance(status_result, dict, "get_branch_certificate_status debe retornar dict")
+			self.assertIn("success", status_result, "Resultado debe incluir campo 'success'")
+
+			print("✅ Certificate Selector integrado correctamente")
+
+		except ImportError as e:
+			self.fail(f"Error importando Certificate Selector: {e!s}")
+		except Exception as e:
+			self.fail(f"Error en integración Certificate Selector: {e!s}")
+
 
 if __name__ == "__main__":
 	# Permitir ejecutar tests individualmente

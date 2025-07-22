@@ -250,8 +250,14 @@ class ConfiguracionFiscalSucursal(Document):
 				except json.JSONDecodeError:
 					config["specific_certificates"] = []
 
-			# Obtener certificados disponibles (esto se implementaría según el sistema de certificados existente)
-			# config["available_certificates"] = get_available_certificates(self.company)
+			# Obtener certificados disponibles usando el Certificate Selector
+			try:
+				from facturacion_mexico.multi_sucursal.certificate_selector import get_available_certificates
+
+				config["available_certificates"] = get_available_certificates(self.company, self.branch)
+			except ImportError:
+				# Fallback si el Certificate Selector no está disponible
+				config["available_certificates"] = []
 
 			return config
 
