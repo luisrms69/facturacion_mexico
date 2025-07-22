@@ -57,7 +57,6 @@ class TestDashboardFiscalLayer3System(FrappeTestCase):
 					"first_name": "Test",
 					"last_name": "Dashboard Layer3",
 					"send_welcome_email": 0,
-					"role_profile_name": "System Manager",
 					"language": "es",
 					"time_zone": "America/Mexico_City",
 				}
@@ -216,7 +215,7 @@ class TestDashboardFiscalLayer3System(FrappeTestCase):
 		self.assertEqual(retrieved_layout, parsed_layout, "Layout debe ser consistente en retrieval")
 
 		# Step 7: Test preference modification system flow
-		preference.theme = "dark"
+		preference.dashboard_theme = "Dark"
 		preference.refresh_interval = 600
 		modified_layout = complex_layout.copy()
 		modified_layout["widgets"][0]["enabled"] = False
@@ -225,7 +224,7 @@ class TestDashboardFiscalLayer3System(FrappeTestCase):
 
 		# Step 8: Validate modification persistence
 		updated_preference = frappe.get_doc("Dashboard User Preference", preference.name)
-		self.assertEqual(updated_preference.theme, "dark")
+		self.assertEqual(updated_preference.dashboard_theme, "Dark")
 		self.assertEqual(updated_preference.refresh_interval, 600)
 		updated_layout = updated_preference.get_layout_config()
 		self.assertFalse(updated_layout["widgets"][0]["enabled"], "Widget disable debe ser persistido")
@@ -313,7 +312,7 @@ class TestDashboardFiscalLayer3System(FrappeTestCase):
 			full_pref = frappe.get_doc("Dashboard User Preference", pref.name)
 			layout = full_pref.get_layout_config()
 
-			themes_found.add(full_pref.theme)
+			themes_found.add(full_pref.dashboard_theme)
 			intervals_found.add(full_pref.refresh_interval)
 
 			# Validate user-specific configuration
@@ -600,9 +599,11 @@ class TestDashboardFiscalLayer3System(FrappeTestCase):
 						"naming_series": "SI-L3-.###",
 						"customer": "Test Customer L3",
 						"company": self.test_company,
+						"currency": "MXN",
 						"posting_date": self.test_date,
 						"due_date": frappe.utils.add_days(self.test_date, 30),
 						"fm_timbrado_status": data["timbrado_status"],
+						"fm_cfdi_use": "G01",
 						"items": [
 							{
 								"item_code": "Test Item L3",
@@ -631,6 +632,17 @@ class TestDashboardFiscalLayer3System(FrappeTestCase):
 			)
 			# Crear parent account si no existe
 			if not frappe.db.exists("Account", f"Current Assets - {self.test_company[:10]}"):
+				# First check if root Assets account exists, if not use existing one
+				root_asset = frappe.db.get_value(
+					"Account", {"company": self.test_company, "root_type": "Asset", "is_group": 1}, "name"
+				)
+				if not root_asset:
+					root_asset = frappe.db.get_value(
+						"Account",
+						{"company": self.test_company, "account_name": "Application of Funds (Assets)"},
+						"name",
+					)
+
 				parent_account = frappe.get_doc(
 					{
 						"doctype": "Account",
@@ -639,9 +651,10 @@ class TestDashboardFiscalLayer3System(FrappeTestCase):
 						"is_group": 1,
 						"company": self.test_company,
 						"root_type": "Asset",
+						"parent_account": root_asset,
 					}
 				)
-				parent_account.insert(ignore_permissions=True)
+				parent_account.insert(ignore_permissions=True, ignore_if_duplicate=True)
 			account.insert(ignore_permissions=True)
 
 		# Crear Payment Entries con diferentes estados PPD

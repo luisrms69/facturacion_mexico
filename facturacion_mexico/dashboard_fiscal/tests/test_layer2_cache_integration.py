@@ -387,3 +387,15 @@ class TestDashboardCacheLayer2Integration(unittest.TestCase):
 		stats_after = DashboardCache.get_cache_stats()
 		self.assertEqual(stats_after["cache_size"], 0)
 		self.assertEqual(stats_after["memory_estimate_bytes"], 0)
+
+
+def run_tests():
+	"""Función para correr todos los tests Layer 2 Cache Integration de este módulo"""
+	loader = unittest.TestLoader()
+	suite = loader.loadTestsFromTestCase(TestDashboardCacheLayer2Integration)
+	runner = unittest.TextTestRunner(verbosity=2)
+	return runner.run(suite)
+
+
+if __name__ == "__main__":
+	run_tests()

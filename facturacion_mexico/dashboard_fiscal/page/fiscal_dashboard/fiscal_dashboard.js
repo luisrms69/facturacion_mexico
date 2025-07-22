@@ -432,7 +432,6 @@ class FiscalDashboard {
 		if (!widget) return;
 
 		const loading = widget.element.find(".widget-loading");
-		const content = widget.element.find(".widget-content");
 
 		loading.show();
 
