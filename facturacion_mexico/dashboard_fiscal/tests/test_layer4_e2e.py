@@ -126,7 +126,7 @@ class TestDashboardFiscalLayer4E2E(FrappeTestCase):
 					"calculation_method": "Weighted Average",
 				}
 			)
-			health_score.insert(ignore_permissions=True)
+			health_score.insert(ignore_permissions=True, ignore_if_duplicate=True)
 
 			# STEP 6: User configures dashboard preferences
 			user_preference = self._simulate_user_dashboard_configuration()
@@ -216,7 +216,7 @@ class TestDashboardFiscalLayer4E2E(FrappeTestCase):
 						"calculation_method": "Simple Average",
 					}
 				)
-				health_score.insert(ignore_permissions=True)
+				health_score.insert(ignore_permissions=True, ignore_if_duplicate=True)
 
 				multi_company_results[company] = {
 					"invoices": len(company_invoices),
@@ -269,7 +269,7 @@ class TestDashboardFiscalLayer4E2E(FrappeTestCase):
 					"ppd_score": base_score + 5,
 				}
 			)
-			health_score.insert(ignore_permissions=True)
+			health_score.insert(ignore_permissions=True, ignore_if_duplicate=True)
 			health_scores.append(health_score)
 			time.sleep(0.1)  # Small delay to simulate real-time monitoring
 
@@ -566,7 +566,7 @@ class TestDashboardFiscalLayer4E2E(FrappeTestCase):
 					"notification_email": 1,
 				}
 			)
-			user_preference.insert()
+			user_preference.insert(ignore_permissions=True)
 		except ImportError as e:
 			if "dashboard_widget_favorite" in str(e).lower():
 				# Create a mock preference for testing when Dashboard Widget Favorite is not available
@@ -946,9 +946,30 @@ class TestDashboardFiscalLayer4E2E(FrappeTestCase):
 			except Exception:
 				pass  # Ignore deletion errors
 
-		# Create Fiscal Year with unique naming and proper company association
-		current_year = frappe.utils.getdate().year
-		fiscal_year_name = f"FY-E2E-TEST-{current_year}"
+		# Create Fiscal Year with unique naming to avoid overlap with existing years
+		# Use test year 2019 to prevent overlap with existing test years and current years
+		test_year = 2019  # Use older year to avoid all conflicts
+		fiscal_year_name = f"FY-E2E-UNIQUE-{test_year}"
+
+		# Comprehensive cleanup of all potential conflicting fiscal years
+		try:
+			# Clean up our test fiscal years
+			existing_fy = frappe.db.get_all(
+				"Fiscal Year", filters={"year": ["like", "FY-E2E%"]}, fields=["name"]
+			)
+			for fy in existing_fy:
+				frappe.delete_doc("Fiscal Year", fy.name, ignore_permissions=True, force=True)
+
+			# Also clean up any 2019 fiscal years to prevent overlap
+			existing_2019 = frappe.db.get_all(
+				"Fiscal Year", filters={"year_start_date": f"{test_year}-01-01"}, fields=["name"]
+			)
+			for fy in existing_2019:
+				frappe.delete_doc("Fiscal Year", fy.name, ignore_permissions=True, force=True)
+
+			frappe.db.commit()
+		except Exception:
+			pass
 
 		# Check if already exists before creating
 		if not frappe.db.exists("Fiscal Year", fiscal_year_name):
@@ -956,9 +977,9 @@ class TestDashboardFiscalLayer4E2E(FrappeTestCase):
 				{
 					"doctype": "Fiscal Year",
 					"year": fiscal_year_name,
-					"year_start_date": f"{current_year}-01-01",
-					"year_end_date": f"{current_year}-12-31",
-					"companies": [{"company": self.e2e_company}],  # Child table association
+					"year_start_date": f"{test_year}-01-01",
+					"year_end_date": f"{test_year}-12-31",
+					"companies": [{"company": self.e2e_company}],  # Proper company association
 				}
 			)
 			fiscal_year.insert(ignore_permissions=True)
