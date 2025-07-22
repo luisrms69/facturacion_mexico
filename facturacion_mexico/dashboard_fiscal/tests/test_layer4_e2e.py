@@ -70,9 +70,13 @@ class TestDashboardFiscalLayer4E2E(FrappeTestCase):
 
 	def tearDown(self):
 		"""Enhanced cleanup E2E testing environment"""
-		# Clean up test-specific fiscal years to prevent overlap in next run
+		# Clean up test-specific fiscal years by name pattern to prevent overlap in next run
 		try:
-			frappe.db.delete("Fiscal Year", {"company": self.e2e_company})
+			test_fiscal_years = frappe.db.get_all(
+				"Fiscal Year", filters={"year": ["like", "FY-E2E-TEST-%"]}, fields=["name"]
+			)
+			for fy in test_fiscal_years:
+				frappe.delete_doc("Fiscal Year", fy.name, ignore_permissions=True)
 			frappe.db.delete("Dashboard User Preference", {"user": ["like", "%e2e%"]})
 			frappe.db.commit()
 		except Exception:
@@ -932,25 +936,32 @@ class TestDashboardFiscalLayer4E2E(FrappeTestCase):
 
 	def _create_required_master_data(self):
 		"""Create required master data for testing"""
-		# Clean up any existing test fiscal years to avoid overlap
-		frappe.db.delete("Fiscal Year", {"company": self.e2e_company})
-		frappe.db.commit()
+		# Clean up any existing test fiscal years by name pattern to avoid overlap
+		test_fiscal_years = frappe.db.get_all(
+			"Fiscal Year", filters={"year": ["like", "FY-E2E-TEST-%"]}, fields=["name"]
+		)
+		for fy in test_fiscal_years:
+			try:
+				frappe.delete_doc("Fiscal Year", fy.name, ignore_permissions=True)
+			except Exception:
+				pass  # Ignore deletion errors
 
 		# Create Fiscal Year with unique naming and proper company association
 		current_year = frappe.utils.getdate().year
 		fiscal_year_name = f"FY-E2E-TEST-{current_year}"
 
-		# Always create new fiscal year for clean test environment
-		fiscal_year = frappe.get_doc(
-			{
-				"doctype": "Fiscal Year",
-				"year": fiscal_year_name,
-				"year_start_date": f"{current_year}-01-01",
-				"year_end_date": f"{current_year}-12-31",
-				"company": self.e2e_company,  # Direct company association as recommended
-			}
-		)
-		fiscal_year.insert(ignore_permissions=True)
+		# Check if already exists before creating
+		if not frappe.db.exists("Fiscal Year", fiscal_year_name):
+			fiscal_year = frappe.get_doc(
+				{
+					"doctype": "Fiscal Year",
+					"year": fiscal_year_name,
+					"year_start_date": f"{current_year}-01-01",
+					"year_end_date": f"{current_year}-12-31",
+					"companies": [{"company": self.e2e_company}],  # Child table association
+				}
+			)
+			fiscal_year.insert(ignore_permissions=True)
 
 		# Create UOM if it doesn't exist
 		if not frappe.db.exists("UOM", "Nos"):
