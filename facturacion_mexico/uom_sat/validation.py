@@ -271,13 +271,13 @@ def sales_invoice_validate_uom_mappings(doc, method):
 		if not validation_result["is_valid"]:
 			# Mostrar sugerencias si las hay
 			if validation_result.get("suggestions"):
-				suggestion_msg = "Sugerencias de mapeo automático disponibles. "
-				suggestion_msg += "Use el botón 'Sugerir Mapeos UOM-SAT' para aplicarlas."
-				frappe.msgprint(suggestion_msg, title="Sugerencias UOM-SAT", indicator="blue")
+				suggestion_msg = _("Sugerencias de mapeo automático disponibles. ")
+				suggestion_msg += _("Use el botón 'Sugerir Mapeos UOM-SAT' para aplicarlas.")
+				frappe.msgprint(suggestion_msg, title=_("Sugerencias UOM-SAT"), indicator="blue")
 
 			# Fallar con error descriptivo
-			error_msg = "Facturación bloqueada: " + "; ".join(validation_result["errors"])
-			frappe.throw(error_msg, title="Error UOM-SAT")
+			error_msg = _("Facturación bloqueada: ") + "; ".join(validation_result["errors"])
+			frappe.throw(error_msg, title=_("Error UOM-SAT"))
 
 	except Exception as e:
 		# No fallar la factura por errores en validación UOM

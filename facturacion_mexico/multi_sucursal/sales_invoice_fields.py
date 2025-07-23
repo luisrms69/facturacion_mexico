@@ -129,6 +129,7 @@ def remove_sales_invoice_custom_fields():
 		except Exception as e:
 			print(f"⚠️  Error eliminando campo {fieldname}: {e}")
 
+	# Manual commit required for custom field cleanup in development  # nosemgrep
 	frappe.db.commit()
 	print("✅ Custom fields de Sales Invoice removidos")
 
