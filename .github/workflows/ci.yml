@@ -99,6 +99,13 @@ jobs:
           max_attempts: 3
           command: |
             pip install frappe-bench
+            # Clear any existing yarn cache to prevent 404 errors
+            yarn cache clean
+            # Configure yarn with fallback registry and retry settings
+            yarn config set registry https://registry.npmjs.org/
+            yarn config set network-timeout 300000
+            yarn config set network-retry 3
+            # Initialize bench with skip-assets to avoid initial build issues
             bench init --skip-redis-config-generation --skip-assets --python "$(which python)" --frappe-branch version-15 ~/frappe-bench
             mariadb --host 127.0.0.1 --port 3306 -u root -proot -e "SET GLOBAL character_set_server = 'utf8mb4'"
             mariadb --host 127.0.0.1 --port 3306 -u root -proot -e "SET GLOBAL collation_server = 'utf8mb4_unicode_ci'"
@@ -110,10 +117,6 @@ jobs:
           bench get-app --branch develop payments
           bench get-app facturacion_mexico $GITHUB_WORKSPACE
           bench setup requirements --dev
-          # Fix for fast-glob dependency issue - ensure Node.js dependencies are properly installed
-          bench setup requirements --node
-          # Alternative: explicit fast-glob installation if needed
-          yarn add fast-glob
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -138,12 +141,25 @@ jobs:
             bench --site facturacion.dev install-app facturacion_mexico --force
             bench --site facturacion.dev migrate --skip-failing
 
-      - name: Update Dependencies and Build Assets
+      - name: Resolve Node.js Dependencies and Build Assets
         working-directory: /home/runner/frappe-bench
         run: |
-          # Update dependencies and rebuild assets - recommended fix for dependency issues
+          # Expert-recommended solution: Clean Node.js cache and dependencies
+          rm -rf node_modules apps/frappe/node_modules apps/erpnext/node_modules
+          yarn cache clean
+          yarn config set registry https://registry.npmjs.org
+          
+          # Comprehensive dependency sync and rebuild - handles stylus 404 and fast-glob issues
           bench update --patch --no-backup
-          # Fallback to explicit build if update doesn't handle assets
+          
+          # Fallback: explicit dependency installation if bench update doesn't resolve everything  
+          if [ ! -d "apps/frappe/node_modules/fast-glob" ]; then
+            echo "Installing missing fast-glob dependency"
+            yarn install --cwd .
+            cd apps/frappe && yarn add fast-glob && cd ../..
+          fi
+          
+          # Final asset build with fallback
           bench build --production || bench build
 
 
