@@ -141,26 +141,47 @@ jobs:
             bench --site facturacion.dev install-app facturacion_mexico --force
             bench --site facturacion.dev migrate --skip-failing
 
-      - name: Resolve Node.js Dependencies and Build Assets
+      - name: Resolve Node.js Dependencies (PROVEN FIX)
         working-directory: /home/runner/frappe-bench
         run: |
-          # Expert-recommended solution: Clean Node.js cache and dependencies
-          rm -rf node_modules apps/frappe/node_modules apps/erpnext/node_modules
+          echo "🔬 DEPENDENCY RESOLUTION PHASE: Applying proven fix from fast testing..."
+          
+          echo "🧹 CLEANUP PHASE: Removing existing dependencies..."
+          rm -rf node_modules apps/frappe/node_modules
           yarn cache clean
+          
+          echo "🔧 CONFIGURATION PHASE: Setting up yarn..."
           yarn config set registry https://registry.npmjs.org
           
-          # Comprehensive dependency sync and rebuild - handles stylus 404 and fast-glob issues
-          bench update --patch --no-backup
+          echo "📥 INSTALLATION PHASE: Installing Frappe dependencies..."
+          cd apps/frappe
+          yarn install --force --verbose || exit 1
           
-          # Fallback: explicit dependency installation if bench update doesn't resolve everything  
-          if [ ! -d "apps/frappe/node_modules/fast-glob" ]; then
-            echo "Installing missing fast-glob dependency"
-            yarn install --cwd .
-            cd apps/frappe && yarn add fast-glob && cd ../..
+          echo "🎯 FAST-GLOB FIX: Adding fast-glob dependency..."
+          yarn add fast-glob --verbose || exit 1
+          
+          echo "🔍 VERIFICATION PHASE: Testing fast-glob accessibility..."
+          if [ -d "node_modules/fast-glob" ]; then
+            echo "✅ SUCCESS: fast-glob dependency resolved!"
+            node -e "const fg = require('fast-glob'); console.log('✅ fast-glob import successful:', typeof fg);" || exit 1
+            
+            echo "🧪 Testing esbuild.js can find fast-glob..."
+            if [ -f "esbuild/esbuild.js" ]; then
+              node -e "process.chdir('$(pwd)'); const fg = require('fast-glob'); console.log('✅ esbuild.js context can access fast-glob');" || exit 1
+            fi
+          else
+            echo "❌ FAILED: fast-glob still missing"
+            exit 1
           fi
           
-          # Final asset build with fallback
+          echo "✅ DEPENDENCY RESOLUTION COMPLETED SUCCESSFULLY!"
+
+      - name: Build Assets
+        working-directory: /home/runner/frappe-bench
+        run: |
+          echo "🏗️ ASSET BUILD PHASE: Building application assets..."
           bench build --production || bench build
+          echo "✅ ASSET BUILD COMPLETED!"
 
 
       - name: Validate Environment
