@@ -31,10 +31,13 @@ class TestMultiSucursalSystem(FrappeTestCase):
 		"""Setup de componentes del sistema"""
 		try:
 			from facturacion_mexico.multi_sucursal.branch_manager import BranchManager
+			from facturacion_mexico.multi_sucursal.certificate_selector import MultibranchCertificateManager
 
 			cls.BranchManager = BranchManager
+			cls.CertificateManager = MultibranchCertificateManager
 		except ImportError:
 			cls.BranchManager = None
+			cls.CertificateManager = None
 			print("Warning: System components not available")
 
 	def test_complete_multibranch_workflow(self):
@@ -66,8 +69,25 @@ class TestMultiSucursalSystem(FrappeTestCase):
 			},
 		]
 
-		with patch.object(branch_manager, "get_fiscal_branches") as mock_branches:
+		with (
+			patch.object(branch_manager, "get_fiscal_branches") as mock_branches,
+			patch.object(self.CertificateManager, "__init__", return_value=None),
+			patch.object(self.CertificateManager, "get_certificate_health_summary") as mock_cert_health,
+		):
 			mock_branches.return_value = system_branches
+
+			# REGLA #35: Complete mock certificate health structure
+			mock_cert_health.return_value = {
+				"total_certificates": 3,
+				"healthy": 2,
+				"warning": 1,
+				"critical": 0,
+				"expired": 0,
+				"expiring_soon": 1,  # CRÍTICO: Key required by health logic
+				"summary": {"expiring_soon": 1, "healthy": 2, "critical": 0, "expired": 0},
+				"details": [],
+				"branch": "Sistema Multi-Sucursal",
+			}
 
 			# Test workflow completo del sistema
 			health_summary = branch_manager.get_branch_health_summary()
@@ -345,28 +365,83 @@ class TestMultiSucursalSystem(FrappeTestCase):
 			{
 				"name": "Healthy_Branch",
 				"branch": "Healthy Branch",
+				"fm_lugar_expedicion": "06000",  # REGLA #35: Complete structure
 				"fm_folio_current": 100,
 				"fm_folio_end": 2000,
 				"fm_folio_warning_threshold": 500,
+				"fm_share_certificates": 1,
 			},
 			{
 				"name": "Warning_Branch",
 				"branch": "Warning Branch",
-				"fm_folio_current": 1600,
+				"fm_lugar_expedicion": "44100",  # REGLA #35: Complete structure
+				"fm_folio_current": 1800,  # 200 folios restantes < 500 threshold
 				"fm_folio_end": 2000,
 				"fm_folio_warning_threshold": 500,
+				"fm_share_certificates": 1,
 			},
 			{
 				"name": "Critical_Branch",
 				"branch": "Critical Branch",
-				"fm_folio_current": 1950,
+				"fm_lugar_expedicion": "64000",  # REGLA #35: Complete structure
+				"fm_folio_current": 1980,  # Solo 20 folios restantes < 250 (threshold/2)
 				"fm_folio_end": 2000,
 				"fm_folio_warning_threshold": 500,
+				"fm_share_certificates": 1,
 			},
 		]
 
-		with patch.object(branch_manager, "get_fiscal_branches") as mock_branches:
+		with (
+			patch.object(branch_manager, "get_fiscal_branches") as mock_branches,
+			patch.object(self.CertificateManager, "__init__", return_value=None),
+			patch.object(self.CertificateManager, "get_certificate_health_summary") as mock_cert_health,
+		):
 			mock_branches.return_value = monitoring_branches
+
+			# REGLA #35: Mock certificate health diferente por branch usando side_effect
+			def certificate_health_side_effect():
+				# Healthy branch sin problemas
+				if hasattr(certificate_health_side_effect, "call_count"):
+					certificate_health_side_effect.call_count += 1
+				else:
+					certificate_health_side_effect.call_count = 1
+
+				call = certificate_health_side_effect.call_count
+				if call == 1:  # Healthy_Branch
+					return {
+						"total_certificates": 2,
+						"healthy": 2,
+						"warning": 0,
+						"critical": 0,
+						"expired": 0,
+						"expiring_soon": 0,
+						"summary": {"expiring_soon": 0, "healthy": 2},
+						"details": [],
+					}
+				elif call == 2:  # Warning_Branch
+					return {
+						"total_certificates": 2,
+						"healthy": 1,
+						"warning": 1,
+						"critical": 0,
+						"expired": 0,
+						"expiring_soon": 1,
+						"summary": {"expiring_soon": 1, "healthy": 1},
+						"details": [],
+					}
+				else:  # Critical_Branch
+					return {
+						"total_certificates": 3,
+						"healthy": 0,
+						"warning": 1,
+						"critical": 2,
+						"expired": 0,
+						"expiring_soon": 1,
+						"summary": {"expiring_soon": 1, "critical": 2},
+						"details": [],
+					}
+
+			mock_cert_health.side_effect = certificate_health_side_effect
 
 			health_summary = branch_manager.get_branch_health_summary()
 

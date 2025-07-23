@@ -158,8 +158,10 @@ class BranchManager:
 
 		return {
 			"branch_name": branch_name,
-			"branch_label": branch["branch"],
-			"lugar_expedicion": branch["fm_lugar_expedicion"],
+			# REGLA #35: Defensive access pattern para branch label
+			"branch_label": branch.get("branch", branch.get("name", "Unknown Branch")),
+			# REGLA #35: Defensive access pattern para datos de branch
+			"lugar_expedicion": branch.get("fm_lugar_expedicion", "N/A"),
 			"health_status": overall_health["status"],
 			"health_score": overall_health["score"],
 			"needs_attention": overall_health["needs_attention"],
@@ -235,8 +237,10 @@ class BranchManager:
 				recommendations.append("Revisar certificados críticos")
 				health_score -= 20
 
-			if cert_health["expiring_soon"] > 0:
-				issues.append(f"{cert_health['expiring_soon']} certificados vencen pronto")
+			# REGLA #35: Defensive access pattern para expiring_soon
+			expiring_soon = cert_health.get("expiring_soon", 0)
+			if expiring_soon > 0:
+				issues.append(f"{expiring_soon} certificados vencen pronto")
 				recommendations.append("Planear renovación de certificados")
 				health_score -= 10
 

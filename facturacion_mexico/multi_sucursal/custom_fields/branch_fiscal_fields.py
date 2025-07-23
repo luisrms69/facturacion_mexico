@@ -272,9 +272,10 @@ def validate_branch_fiscal_configuration(doc, method):
 	if not doc.get("fm_folio_current"):
 		doc.fm_folio_current = folio_start
 
-	# Validar umbral de advertencia
-	warning_threshold = doc.get("fm_folio_warning_threshold", 0)
-	if warning_threshold < 1:
+	# REGLA #34: Fortalecer validación con fallbacks robustos
+	# Validar umbral de advertencia con defensive handling
+	warning_threshold = doc.get("fm_folio_warning_threshold")
+	if warning_threshold is None or (isinstance(warning_threshold, int | float) and warning_threshold < 1):
 		doc.fm_folio_warning_threshold = 100
 
 	print(f"✅ Branch '{doc.name}' validado para configuración fiscal")

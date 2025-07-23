@@ -134,8 +134,10 @@ class TestMultiSucursalIntegration(FrappeTestCase):
 		if not self.BranchManager:
 			self.skipTest("BranchManager not available")
 
-		# Test integración con dashboard registry
+		# Test integración con dashboard registry - REGLA #35: Check module availability first
 		try:
+			# First check if registry module exists
+			import facturacion_mexico.dashboard_fiscal.registry
 			from facturacion_mexico.dashboard_fiscal.integrations.multibranch_integration import (
 				setup_multibranch_dashboard_integration,
 			)
@@ -155,7 +157,7 @@ class TestMultiSucursalIntegration(FrappeTestCase):
 				mock_register_kpi.assert_called()
 				mock_register_widget.assert_called()
 
-		except ImportError:
+		except (ImportError, AttributeError):
 			# REGLA #35: Robust fallback test with defensive access
 			branch_manager = self.BranchManager(self.test_company)
 

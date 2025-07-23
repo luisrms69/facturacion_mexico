@@ -299,15 +299,15 @@ class TestLayer1BranchInfrastructure(unittest.TestCase):
 			)
 
 			# Test: Crear manager
-			manager = MultibranchCertificateManager(self.test_company, self.test_branch)
+			manager = MultibranchCertificateManager(self.test_company, self.test_branch_name)
 			self.assertIsNotNone(manager, "MultibranchCertificateManager debe crearse correctamente")
 
 			# Test: Obtener certificados disponibles
-			certificates = get_available_certificates(self.test_company, self.test_branch)
+			certificates = get_available_certificates(self.test_company, self.test_branch_name)
 			self.assertIsInstance(certificates, list, "get_available_certificates debe retornar lista")
 
 			# Test: API de estado de certificados de sucursal
-			status_result = get_branch_certificate_status(self.test_branch)
+			status_result = get_branch_certificate_status(self.test_branch_name)
 			self.assertIsInstance(status_result, dict, "get_branch_certificate_status debe retornar dict")
 			self.assertIn("success", status_result, "Resultado debe incluir campo 'success'")
 
