@@ -110,6 +110,10 @@ jobs:
           bench get-app --branch develop payments
           bench get-app facturacion_mexico $GITHUB_WORKSPACE
           bench setup requirements --dev
+          # Fix for fast-glob dependency issue - ensure Node.js dependencies are properly installed
+          bench setup requirements --node
+          # Alternative: explicit fast-glob installation if needed
+          yarn add fast-glob
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -134,9 +138,12 @@ jobs:
             bench --site facturacion.dev install-app facturacion_mexico --force
             bench --site facturacion.dev migrate --skip-failing
 
-      - name: Build Assets
+      - name: Update Dependencies and Build Assets
         working-directory: /home/runner/frappe-bench
         run: |
+          # Update dependencies and rebuild assets - recommended fix for dependency issues
+          bench update --patch --no-backup
+          # Fallback to explicit build if update doesn't handle assets
           bench build --production || bench build
 
 
