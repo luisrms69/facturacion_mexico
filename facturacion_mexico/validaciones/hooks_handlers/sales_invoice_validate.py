@@ -31,6 +31,7 @@ def validate_sat_requirements(doc, method):
 		_validate_metodo_pago(doc)
 		_validate_currency_and_exchange_rate(doc)
 		_validate_items_sat_codes(doc)
+		_validate_uom_sat_codes(doc)  # Sprint 6 Phase 2: UOM-SAT validation
 
 	except Exception as e:
 		frappe.log_error(
@@ -471,4 +472,42 @@ def _validate_lista_69b_with_cache(rfc, customer_name):
 	except Exception as e:
 		frappe.log_error(
 			message=f"Error validando Lista 69B con cache: {e!s}", title="Lista 69B Cache Validation Error"
+		)
+
+
+def _validate_uom_sat_codes(sales_invoice):
+	"""
+	Validar códigos SAT de Unidades de Medida en items de factura.
+	Sprint 6 Phase 2: Integración UOM-SAT
+
+	Args:
+		sales_invoice: Sales Invoice document
+	"""
+	try:
+		from facturacion_mexico.uom_sat.uom_sat_catalog import validate_invoice_uom_sat_codes
+
+		# Ejecutar validación usando el catálogo UOM-SAT
+		is_valid, errors = validate_invoice_uom_sat_codes(sales_invoice)
+
+		if not is_valid:
+			# Mostrar errores de validación UOM-SAT
+			error_message = "Errores de Unidades de Medida SAT:\n" + "\n".join(errors)
+			frappe.throw(_(error_message))
+
+	except ImportError:
+		frappe.log_error("UOM SAT Catalog no disponible - validación omitida", "UOM SAT Validation Warning")
+	except frappe.ValidationError:
+		raise
+	except Exception as e:
+		frappe.log_error(
+			message=f"Error validando códigos UOM-SAT: {e!s}",
+			title="Sales Invoice - UOM SAT Validation Error",
+		)
+		# Por ahora no bloquear facturación por errores UOM-SAT
+		frappe.msgprint(
+			_(
+				"Advertencia: No se pudieron validar códigos UOM-SAT. Revise configuración de Unidades de Medida."
+			),
+			alert=True,
+			indicator="orange",
 		)

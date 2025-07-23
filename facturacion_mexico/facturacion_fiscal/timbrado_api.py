@@ -110,6 +110,9 @@ class TimbradoAPI:
 		"""Preparar datos para FacturAPI."""
 		customer = frappe.get_doc("Customer", sales_invoice.customer)
 
+		# Sprint 6 Phase 2: Obtener datos de sucursal si está configurada
+		branch_data = self._get_branch_data_for_invoice(sales_invoice)
+
 		# Datos del cliente
 		customer_data = {
 			"legal_name": customer.customer_name,
@@ -154,12 +157,80 @@ class TimbradoAPI:
 			"customer": customer_data,
 			"items": items,
 			"payment_form": "99",  # Por definir
-			"folio_number": sales_invoice.name,
-			"series": "F",
+			"folio_number": branch_data.get("folio_number", sales_invoice.name),
+			"series": branch_data.get("series", "F"),
 			"use": sales_invoice.fm_cfdi_use,
 		}
 
+		# Sprint 6 Phase 2: Agregar datos específicos de sucursal
+		if branch_data.get("lugar_expedicion"):
+			invoice_data["place_of_issue"] = branch_data["lugar_expedicion"]
+
+		if branch_data.get("branch_name"):
+			invoice_data["branch_office"] = branch_data["branch_name"]
+
 		return invoice_data
+
+	def _get_branch_data_for_invoice(self, sales_invoice) -> dict[str, Any]:
+		"""
+		Obtener datos de sucursal para la factura
+		Sprint 6 Phase 2: Integración multi-sucursal
+		"""
+		try:
+			# Datos por defecto
+			branch_data = {
+				"folio_number": sales_invoice.name,
+				"series": "F",
+				"lugar_expedicion": None,
+				"branch_name": None,
+			}
+
+			# Si no hay sucursal configurada, usar datos por defecto
+			if not hasattr(sales_invoice, "fm_branch") or not sales_invoice.fm_branch:
+				return branch_data
+
+			# Obtener datos de la sucursal
+			branch_doc = frappe.get_cached_doc("Branch", sales_invoice.fm_branch)
+
+			# Actualizar con datos de la sucursal
+			branch_data.update(
+				{
+					"lugar_expedicion": sales_invoice.get("fm_lugar_expedicion")
+					or branch_doc.get("fm_lugar_expedicion"),
+					"branch_name": branch_doc.branch,
+					"series": self._extract_series_from_pattern(branch_doc.get("fm_serie_pattern", "F")),
+				}
+			)
+
+			# Si hay serie y folio específicos de la sucursal, usarlos
+			if hasattr(sales_invoice, "fm_serie_folio") and sales_invoice.fm_serie_folio:
+				branch_data["folio_number"] = sales_invoice.fm_serie_folio
+
+			return branch_data
+
+		except Exception as e:
+			frappe.log_error(
+				f"Error getting branch data for invoice {sales_invoice.name}: {e!s}", "Branch Invoice Data"
+			)
+			# Retornar datos por defecto en caso de error
+			return {
+				"folio_number": sales_invoice.name,
+				"series": "F",
+				"lugar_expedicion": None,
+				"branch_name": None,
+			}
+
+	def _extract_series_from_pattern(self, serie_pattern: str) -> str:
+		"""
+		Extraer serie del patrón de serie
+		Ejemplo: A{####} -> A
+		"""
+		try:
+			if "{" in serie_pattern:
+				return serie_pattern.split("{")[0]
+			return serie_pattern[:1] if serie_pattern else "F"
+		except Exception:
+			return "F"
 
 	def _process_timbrado_success(self, sales_invoice, factura_fiscal, response, event_doc):
 		"""Procesar respuesta exitosa de timbrado."""
