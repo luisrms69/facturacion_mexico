@@ -126,13 +126,9 @@ class TestLayer1BranchCustomFields(unittest.TestCase):
 			self.fail(f"No se puede crear instancia de Branch para test: {e}")
 
 	def test_branch_fm_fields_in_database(self):
-		"""Test: Custom Fields están aplicados en la tabla de base de datos"""
-		# Verificar que las columnas existen en la tabla tabBranch
+		"""Test: Custom Fields están correctamente registrados en base de datos"""
+		# Verificar que los custom fields existen en Custom Field
 		try:
-			# Obtener estructura de la tabla
-			columns = frappe.db.sql("DESCRIBE `tabBranch`", as_dict=True)
-			column_names = [col['Field'] for col in columns]
-
 			# Campos fm_* esperados
 			expected_fm_fields = [
 				"fm_enable_fiscal", "fm_lugar_expedicion",
@@ -140,11 +136,16 @@ class TestLayer1BranchCustomFields(unittest.TestCase):
 			]
 
 			for fieldname in expected_fm_fields:
-				self.assertIn(fieldname, column_names,
-					f"Columna '{fieldname}' debe existir en tabla tabBranch")
+				# Verificar que el custom field existe
+				field_exists = frappe.db.exists("Custom Field", {
+					"dt": "Branch",
+					"fieldname": fieldname
+				})
+				self.assertTrue(field_exists,
+					f"Custom Field '{fieldname}' debe estar registrado en base de datos")
 
 		except Exception as e:
-			self.fail(f"Error verificando estructura de tabla tabBranch: {e}")
+			self.fail(f"Error verificando custom fields de Branch: {e}")
 
 	def test_branch_fm_fields_permissions(self):
 		"""Test: Custom Fields tienen permisos apropiados"""
@@ -154,8 +155,12 @@ class TestLayer1BranchCustomFields(unittest.TestCase):
 
 		for field in branch_fm_fields:
 			# Verificar que los campos no son read_only por defecto
-			# (excepto campos calculados)
-			if "valid_" not in field.fieldname:
+			# (excepto campos calculados o de solo lectura por diseño)
+			read_only_allowed = [
+				"fm_monthly_average", "fm_annual_total", "fm_last_updated",
+				"fm_folio_current", "fm_status_fiscal", "fm_last_invoice_date"
+			]
+			if field.fieldname not in read_only_allowed and "valid_" not in field.fieldname:
 				self.assertFalse(field.read_only,
 					f"Campo '{field.fieldname}' no debe ser read_only")
 

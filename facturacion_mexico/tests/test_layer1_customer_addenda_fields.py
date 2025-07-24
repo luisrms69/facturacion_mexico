@@ -83,21 +83,21 @@ class TestLayer1CustomerAddendaFields(unittest.TestCase):
 			"fm_addenda_xml debe ser tipo Long Text, Code o Text Editor")
 
 	def test_sales_invoice_fm_addenda_generated_field(self):
-		"""Test: Custom Field fm_addenda_generated existe en Sales Invoice"""
+		"""Test: Custom Field fm_addenda_generated_date existe en Sales Invoice"""
 		field_exists = frappe.db.exists("Custom Field", {
 			"dt": "Sales Invoice",
-			"fieldname": "fm_addenda_generated"
+			"fieldname": "fm_addenda_generated_date"
 		})
-		self.assertTrue(field_exists, "Custom Field 'fm_addenda_generated' debe existir en Sales Invoice")
+		self.assertTrue(field_exists, "Custom Field 'fm_addenda_generated_date' debe existir en Sales Invoice")
 
-		# Verificar que es tipo Check
+		# Verificar que es tipo Datetime
 		field_doc = frappe.get_doc("Custom Field", {
 			"dt": "Sales Invoice",
-			"fieldname": "fm_addenda_generated"
+			"fieldname": "fm_addenda_generated_date"
 		})
 
-		self.assertEqual(field_doc.fieldtype, "Check",
-			"fm_addenda_generated debe ser tipo Check")
+		self.assertEqual(field_doc.fieldtype, "Datetime",
+			"fm_addenda_generated_date debe ser tipo Datetime")
 
 	def test_sales_invoice_fm_addenda_type_field(self):
 		"""Test: Custom Field fm_addenda_type existe en Sales Invoice"""
@@ -142,7 +142,7 @@ class TestLayer1CustomerAddendaFields(unittest.TestCase):
 
 			# Verificar acceso a campos addenda
 			addenda_fields = [
-				"fm_addenda_xml", "fm_addenda_generated",
+				"fm_addenda_xml", "fm_addenda_generated_date",
 				"fm_addenda_type"
 			]
 
@@ -161,8 +161,7 @@ class TestLayer1CustomerAddendaFields(unittest.TestCase):
 			customer_column_names = [col['Field'] for col in customer_columns]
 
 			expected_customer_fields = [
-				"fm_requires_addenda", "fm_addenda_type",
-				"fm_addenda_configuration"
+				"fm_requires_addenda", "fm_default_addenda_type"
 			]
 
 			for fieldname in expected_customer_fields:
@@ -178,7 +177,7 @@ class TestLayer1CustomerAddendaFields(unittest.TestCase):
 			invoice_column_names = [col['Field'] for col in invoice_columns]
 
 			expected_invoice_fields = [
-				"fm_addenda_xml", "fm_addenda_generated",
+				"fm_addenda_xml", "fm_addenda_generated_date",
 				"fm_addenda_type"
 			]
 
@@ -229,17 +228,18 @@ class TestLayer1CustomerAddendaFields(unittest.TestCase):
 			fields=["fieldname", "label", "dt"])
 
 		for field in all_addenda_fields:
-			# Verificar que tienen label configurado
-			self.assertIsNotNone(field.label,
-				f"Campo '{field.fieldname}' en '{field.dt}' debe tener label")
+			# Verificar que tienen label configurado (excepto column breaks)
+			if "column_break" not in field.fieldname and "break" not in field.fieldname:
+				self.assertIsNotNone(field.label,
+					f"Campo '{field.fieldname}' en '{field.dt}' debe tener label")
 
-			# Verificar que contiene términos relacionados con addenda
-			label_lower = field.label.lower()
-			addenda_terms = ["addenda", "complemento", "anexo"]
-			has_addenda_term = any(term in label_lower for term in addenda_terms)
+				# Verificar que contiene términos relacionados con addenda
+				label_lower = field.label.lower()
+				addenda_terms = ["addenda", "complemento", "anexo"]
+				has_addenda_term = any(term in label_lower for term in addenda_terms)
 
-			self.assertTrue(has_addenda_term,
-				f"Label de '{field.fieldname}' debe contener términos relacionados con addenda")
+				self.assertTrue(has_addenda_term,
+					f"Label de '{field.fieldname}' debe contener términos relacionados con addenda")
 
 	def test_addenda_fields_integration(self):
 		"""Test: Custom Fields se integran correctamente con sistema de addendas"""
@@ -251,7 +251,7 @@ class TestLayer1CustomerAddendaFields(unittest.TestCase):
 		# Verificar que hay coherencia entre Customer y Sales Invoice
 		customer_addenda_type = frappe.db.exists("Custom Field", {
 			"dt": "Customer",
-			"fieldname": "fm_addenda_type"
+			"fieldname": "fm_default_addenda_type"
 		})
 
 		invoice_addenda_type = frappe.db.exists("Custom Field", {
@@ -260,7 +260,7 @@ class TestLayer1CustomerAddendaFields(unittest.TestCase):
 		})
 
 		self.assertTrue(customer_addenda_type and invoice_addenda_type,
-			"Ambos Customer y Sales Invoice deben tener campo fm_addenda_type")
+			"Customer debe tener fm_default_addenda_type y Sales Invoice debe tener fm_addenda_type")
 
 
 if __name__ == "__main__":

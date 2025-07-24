@@ -264,7 +264,24 @@ def create_all_custom_fields():
 	create_payment_entry_custom_fields()
 	create_sales_invoice_sprint2_custom_fields()
 	create_customer_sprint2_custom_fields()
+	# Sprint 6 Addenda fields
+	create_addenda_custom_fields()
 	frappe.msgprint(_("Custom Fields para facturación México creados exitosamente"))
+
+
+def create_addenda_custom_fields():
+	"""Crear custom fields para sistema de addendas Sprint 6."""
+	try:
+		# Import and call addenda custom fields creation
+		from facturacion_mexico.custom_fields.sales_invoice_addenda_fields import (
+			install_addenda_custom_fields,
+		)
+
+		install_addenda_custom_fields()
+		print("✅ Custom fields de addendas creados exitosamente")
+	except Exception as e:
+		print(f"⚠️ Error creando custom fields de addendas: {e}")
+		frappe.log_error(f"Error creating addenda custom fields: {e}", "Addenda Custom Fields")
 
 
 def remove_custom_fields():
