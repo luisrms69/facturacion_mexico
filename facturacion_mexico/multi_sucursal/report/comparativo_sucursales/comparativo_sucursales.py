@@ -194,7 +194,12 @@ def get_data(filters):
 		ORDER BY total_amount DESC
 	"""
 
-	branch_data = frappe.db.sql(query, filters, as_dict=True)
+	# REGLA #35: Defensive SQL execution with error handling
+	try:
+		branch_data = frappe.db.sql(query, filters, as_dict=True)
+	except Exception as e:
+		frappe.log_error(f"Error executing branch comparison query: {e}", "Branch Comparison Report")
+		branch_data = []
 
 	# Enriquecer con métricas calculadas
 	total_period_amount = sum(row["total_amount"] or 0 for row in branch_data)
@@ -318,39 +323,51 @@ def calculate_growth_rate(branch, filters):
 		if not from_date or not to_date:
 			return 0
 
-		# Período actual
-		current_amount = (
-			frappe.db.sql(
-				"""
-			SELECT SUM(grand_total)
-			FROM `tabSales Invoice`
-			WHERE fm_branch = %s
-			AND docstatus = 1
-			AND posting_date BETWEEN %s AND %s
-		""",
-				(branch, from_date, to_date),
-			)[0][0]
-			or 0
-		)
+		# Período actual con manejo defensivo
+		try:
+			current_amount = (
+				frappe.db.sql(
+					"""
+				SELECT SUM(grand_total)
+				FROM `tabSales Invoice`
+				WHERE fm_branch = %s
+				AND docstatus = 1
+				AND posting_date BETWEEN %s AND %s
+			""",
+					(branch, from_date, to_date),
+				)[0][0]
+				or 0
+			)
+		except Exception as e:
+			frappe.log_error(
+				f"Error calculating current amount for branch {branch}: {e}", "Growth Calculation"
+			)
+			current_amount = 0
 
 		# Período anterior (mismo rango de días)
 		date_diff = (to_date - from_date).days
 		prev_from = from_date - timedelta(days=date_diff + 1)
 		prev_to = from_date - timedelta(days=1)
 
-		previous_amount = (
-			frappe.db.sql(
-				"""
-			SELECT SUM(grand_total)
-			FROM `tabSales Invoice`
-			WHERE fm_branch = %s
-			AND docstatus = 1
-			AND posting_date BETWEEN %s AND %s
-		""",
-				(branch, prev_from, prev_to),
-			)[0][0]
-			or 0
-		)
+		try:
+			previous_amount = (
+				frappe.db.sql(
+					"""
+				SELECT SUM(grand_total)
+				FROM `tabSales Invoice`
+				WHERE fm_branch = %s
+				AND docstatus = 1
+				AND posting_date BETWEEN %s AND %s
+			""",
+					(branch, prev_from, prev_to),
+				)[0][0]
+				or 0
+			)
+		except Exception as e:
+			frappe.log_error(
+				f"Error calculating previous amount for branch {branch}: {e}", "Growth Calculation"
+			)
+			previous_amount = 0
 
 		if previous_amount == 0:
 			return 0

@@ -136,7 +136,12 @@ def get_data(filters):
 		ORDER BY total_amount DESC
 	"""
 
-	data = frappe.db.sql(query, filters, as_dict=True)
+	# REGLA #35: Defensive SQL execution
+	try:
+		data = frappe.db.sql(query, filters, as_dict=True)
+	except Exception as e:
+		frappe.log_error(f"Error executing consolidado fiscal query: {e}", "Consolidado Fiscal Report")
+		data = []
 
 	# Enriquecer datos con información adicional
 	for row in data:

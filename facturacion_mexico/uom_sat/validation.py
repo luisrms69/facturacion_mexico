@@ -176,6 +176,9 @@ class UOMSATValidator:
 	def _get_uom_mapping(self, uom: str) -> dict | None:
 		"""Obtener mapeo SAT de una UOM"""
 		try:
+			# REGLA #35: Defensive DocType access with existence check
+			if not frappe.db.exists("UOM", uom):
+				return None
 			uom_doc = frappe.get_cached_doc("UOM", uom)
 			if uom_doc.get("fm_clave_sat"):
 				return {
@@ -185,13 +188,18 @@ class UOMSATValidator:
 					"verified": uom_doc.get("fm_mapping_verified", 0),
 				}
 			return None
-		except Exception:
+		except (frappe.DoesNotExistError, Exception):
 			return None
 
 	def _generate_mapping_suggestions(self, unmapped_items: list) -> list:
 		"""Generar sugerencias de mapeo para items sin mapeo"""
 		try:
-			from facturacion_mexico.uom_sat.mapper import UOMSATMapper
+			# REGLA #35: Defensive import handling
+			try:
+				from facturacion_mexico.uom_sat.mapper import UOMSATMapper
+			except ImportError as e:
+				frappe.log_error(f"UOMSATMapper import failed: {e}", "UOM Import Error")
+				return []
 
 			mapper = UOMSATMapper()
 			suggestions = []

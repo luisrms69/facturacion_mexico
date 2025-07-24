@@ -131,6 +131,22 @@ def get_unmapped_uoms(limit: int = 50, popular_only: bool = False) -> dict:
 def bulk_suggest_mappings(confidence_threshold: int = 70, limit: int = 50) -> dict:
 	"""API para generar sugerencias masivas de mapeo"""
 	try:
+		# REGLA #35: Validate input parameters defensively
+		try:
+			confidence_threshold = int(confidence_threshold) if confidence_threshold else 70
+			limit = int(limit) if limit else 50
+		except (ValueError, TypeError):
+			return {
+				"success": False,
+				"message": "Invalid parameters: confidence_threshold and limit must be integers",
+			}
+
+		if not (0 <= confidence_threshold <= 100):
+			return {"success": False, "message": "confidence_threshold must be between 0 and 100"}
+
+		if limit <= 0 or limit > 1000:
+			return {"success": False, "message": "limit must be between 1 and 1000"}
+
 		mapper = UOMSATMapper()
 		mapper.confidence_threshold = confidence_threshold
 
@@ -173,8 +189,19 @@ def bulk_suggest_mappings(confidence_threshold: int = 70, limit: int = 50) -> di
 def apply_bulk_mappings(mappings: str, apply_mode: str = "high_confidence") -> dict:
 	"""API para aplicar mapeos en lote"""
 	try:
-		if isinstance(mappings, str):
-			mappings = json.loads(mappings)
+		# REGLA #35: Validate parameters and handle JSON parsing defensively
+		if not mappings:
+			return {"success": False, "message": "mappings parameter is required"}
+
+		valid_modes = ["all", "high_confidence", "medium_confidence"]
+		if apply_mode not in valid_modes:
+			return {"success": False, "message": f"apply_mode must be one of: {', '.join(valid_modes)}"}
+
+		try:
+			if isinstance(mappings, str):
+				mappings = json.loads(mappings)
+		except json.JSONDecodeError as e:
+			return {"success": False, "message": f"Invalid JSON in mappings parameter: {e!s}"}
 
 		applied = 0
 		skipped = 0
@@ -259,7 +286,20 @@ def validate_all_pending_invoices(auto_fix: bool = False) -> dict:
 
 		for invoice in pending_invoices:
 			try:
-				invoice_doc = frappe.get_doc("Sales Invoice", invoice.name)
+				# REGLA #35: Defensive DocType access
+				try:
+					invoice_doc = frappe.get_doc("Sales Invoice", invoice.name)
+				except frappe.DoesNotExistError:
+					validation_results.append(
+						{
+							"invoice": invoice.name,
+							"customer": invoice.customer,
+							"is_valid": False,
+							"error": "Invoice not found",
+						}
+					)
+					continue
+
 				validation = validator.validate_invoice_uom_mappings(invoice_doc)
 
 				result = {
@@ -397,10 +437,17 @@ def export_uom_mappings(format: str = "json") -> dict:
 def import_uom_mappings(mappings_data: str, update_existing: bool = False) -> dict:
 	"""API para importar mapeos UOM-SAT"""
 	try:
-		if isinstance(mappings_data, str):
-			mappings = json.loads(mappings_data)
-		else:
-			mappings = mappings_data
+		# REGLA #35: Validate parameters and handle JSON parsing defensively
+		if not mappings_data:
+			return {"success": False, "message": "mappings_data parameter is required"}
+
+		try:
+			if isinstance(mappings_data, str):
+				mappings = json.loads(mappings_data)
+			else:
+				mappings = mappings_data
+		except json.JSONDecodeError as e:
+			return {"success": False, "message": f"Invalid JSON in mappings_data parameter: {e!s}"}
 
 		imported = 0
 		updated = 0

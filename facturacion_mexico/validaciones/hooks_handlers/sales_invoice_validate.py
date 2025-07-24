@@ -51,16 +51,27 @@ def _requires_sat_validation(sales_invoice):
 	Returns:
 		bool: True si requiere validación SAT
 	"""
-	# Verificar si está marcada para timbrado
-	if not sales_invoice.get("fm_requires_stamp"):
-		return False
+	try:
+		# REGLA #35: Defensive access para fm_requires_stamp
+		requires_stamp = getattr(sales_invoice, "fm_requires_stamp", None)
+		if not requires_stamp:
+			return False
 
-	# Verificar que sea a un cliente nacional (México)
-	customer_country = frappe.get_value("Customer", sales_invoice.customer, "country")
-	if customer_country and customer_country != "Mexico":
-		return False
+		# REGLA #35: Defensive access para customer field
+		customer_name = getattr(sales_invoice, "customer", None)
+		if not customer_name:
+			return False
 
-	return True
+		# Verificar que sea a un cliente nacional (México)
+		customer_country = frappe.get_value("Customer", customer_name, "country")
+		if customer_country and customer_country != "Mexico":
+			return False
+
+		return True
+
+	except Exception as e:
+		frappe.log_error(f"Error checking SAT validation requirements: {e}", "SAT Validation Check")
+		return False
 
 
 def _validate_customer_rfc(sales_invoice):
@@ -71,13 +82,16 @@ def _validate_customer_rfc(sales_invoice):
 		sales_invoice: Sales Invoice document
 	"""
 	try:
-		customer_rfc = frappe.get_value("Customer", sales_invoice.customer, "tax_id")
+		# REGLA #35: Defensive access para customer field
+		customer_name = getattr(sales_invoice, "customer", None)
+		if not customer_name:
+			frappe.throw(_("Sales Invoice debe tener cliente configurado"))
+
+		customer_rfc = frappe.get_value("Customer", customer_name, "tax_id")
 
 		if not customer_rfc:
 			frappe.throw(
-				_("El cliente {0} debe tener RFC configurado para facturación fiscal").format(
-					sales_invoice.customer
-				)
+				_("El cliente {0} debe tener RFC configurado para facturación fiscal").format(customer_name)
 			)
 
 		# Validar formato básico de RFC
@@ -85,7 +99,7 @@ def _validate_customer_rfc(sales_invoice):
 			frappe.throw(_("RFC del cliente '{0}' tiene formato inválido").format(customer_rfc))
 
 		# Validar contra SAT usando cache
-		_validate_rfc_with_sat_cache(customer_rfc, sales_invoice.customer)
+		_validate_rfc_with_sat_cache(customer_rfc, customer_name)
 
 	except frappe.ValidationError:
 		raise

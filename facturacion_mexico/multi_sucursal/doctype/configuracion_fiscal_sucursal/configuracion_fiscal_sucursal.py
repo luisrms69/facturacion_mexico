@@ -37,7 +37,11 @@ class ConfiguracionFiscalSucursal(Document):
 		if not self.branch:
 			frappe.throw(_("Sucursal es obligatoria"))
 
-		branch_doc = frappe.get_doc("Branch", self.branch)
+		# REGLA #35: Defensive DocType access
+		try:
+			branch_doc = frappe.get_doc("Branch", self.branch)
+		except frappe.DoesNotExistError:
+			frappe.throw(_("La sucursal '{0}' no existe").format(self.branch))
 
 		if not branch_doc.get("fm_enable_fiscal"):
 			frappe.throw(
@@ -63,7 +67,12 @@ class ConfiguracionFiscalSucursal(Document):
 
 	def sync_with_branch(self):
 		"""Sincronizar datos críticos con Branch"""
-		branch_doc = frappe.get_doc("Branch", self.branch)
+		# REGLA #35: Defensive DocType access
+		try:
+			branch_doc = frappe.get_doc("Branch", self.branch)
+		except frappe.DoesNotExistError:
+			frappe.log_error(f"Branch {self.branch} not found during sync", "Branch Sync Error")
+			return
 
 		# Sincronizar desde Branch hacia Configuracion Fiscal
 		self.serie_fiscal = branch_doc.get("fm_serie_pattern", "")
@@ -310,6 +319,10 @@ def get_branch_fiscal_status(branch):
 	API para obtener estado fiscal de una sucursal
 	"""
 	try:
+		# REGLA #35: Validate required parameters
+		if not branch:
+			return {"success": False, "message": "branch parameter is required", "data": None}
+
 		config_name = frappe.db.get_value("Configuracion Fiscal Sucursal", {"branch": branch})
 
 		if not config_name:
@@ -319,7 +332,15 @@ def get_branch_fiscal_status(branch):
 				"data": None,
 			}
 
-		config_doc = frappe.get_doc("Configuracion Fiscal Sucursal", config_name)
+		# REGLA #35: Defensive DocType access
+		try:
+			config_doc = frappe.get_doc("Configuracion Fiscal Sucursal", config_name)
+		except frappe.DoesNotExistError:
+			return {
+				"success": False,
+				"message": f"Configuracion Fiscal Sucursal {config_name} not found",
+				"data": None,
+			}
 
 		return {
 			"success": True,
