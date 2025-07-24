@@ -259,6 +259,20 @@ def _create_basic_test_items():
 
 	Evita errores 'Item Test Item MX not found' en Sales Invoice tests.
 	"""
+	# Crear Item Group si no existe
+	if not frappe.db.exists("Item Group", "All Item Groups"):
+		try:
+			frappe.get_doc(
+				{
+					"doctype": "Item Group",
+					"item_group_name": "All Item Groups",
+					"is_group": 1,
+				}
+			).insert(ignore_permissions=True)
+			print("✅ Created Item Group: All Item Groups")
+		except Exception as e:
+			print(f"⚠️ Failed to create Item Group: {e}")
+
 	basic_items = [
 		{
 			"item_code": "Test Item MX",
@@ -266,6 +280,7 @@ def _create_basic_test_items():
 			"stock_uom": "Nos",
 			"is_stock_item": 0,
 			"include_item_in_manufacturing": 0,
+			"item_group": "All Item Groups",
 		},
 		{
 			"item_code": "Test Item",
@@ -273,6 +288,7 @@ def _create_basic_test_items():
 			"stock_uom": "Nos",
 			"is_stock_item": 0,
 			"include_item_in_manufacturing": 0,
+			"item_group": "All Item Groups",
 		},
 	]
 
@@ -291,6 +307,35 @@ def _create_basic_test_customers():
 
 	Evita errores 'Customer Test Customer MX not found' en Sales Invoice tests.
 	"""
+	# Crear Territory si no existe
+	if not frappe.db.exists("Territory", "Mexico"):
+		try:
+			frappe.get_doc(
+				{
+					"doctype": "Territory",
+					"territory_name": "Mexico",
+					"is_group": 0,
+					"parent_territory": "All Territories",
+				}
+			).insert(ignore_permissions=True)
+			print("✅ Created Territory: Mexico")
+		except Exception as e:
+			print(f"⚠️ Failed to create Territory Mexico: {e}")
+
+	# Crear Customer Group si no existe
+	if not frappe.db.exists("Customer Group", "All Customer Groups"):
+		try:
+			frappe.get_doc(
+				{
+					"doctype": "Customer Group",
+					"customer_group_name": "All Customer Groups",
+					"is_group": 1,
+				}
+			).insert(ignore_permissions=True)
+			print("✅ Created Customer Group: All Customer Groups")
+		except Exception as e:
+			print(f"⚠️ Failed to create Customer Group: {e}")
+
 	basic_customers = [
 		{
 			"customer_name": "Test Customer MX",

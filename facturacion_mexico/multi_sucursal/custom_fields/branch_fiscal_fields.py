@@ -17,13 +17,17 @@ def create_branch_fiscal_custom_fields():
 	Aplicar patrón establecido: prefijo fm_ para prevenir conflictos
 	"""
 
-	# REGLA #34: Asegurar company field existe antes de custom fields fiscales
+	# REGLA #34: Verificar si Branch DocType existe antes de custom fields fiscales
+	if not frappe.db.exists("DocType", "Branch"):
+		print("⚠️  DocType Branch no encontrado - skipping Branch custom fields")
+		return False
+
 	try:
 		branch_meta = frappe.get_meta("Branch")
 		has_company_field = any(f.fieldname == "company" for f in branch_meta.fields)
 	except Exception as e:
 		print(f"⚠️  Error al obtener metadatos de Branch: {e!s}")
-		has_company_field = False
+		return False
 
 	branch_custom_fields = {"Branch": []}
 
