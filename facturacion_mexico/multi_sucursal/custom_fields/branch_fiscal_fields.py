@@ -25,14 +25,17 @@ def create_branch_fiscal_custom_fields():
 	try:
 		branch_meta = frappe.get_meta("Branch")
 		has_company_field = any(f.fieldname == "company" for f in branch_meta.fields)
+		print(f"🔍 Branch DocType analysis: has_company_field={has_company_field}")
 	except Exception as e:
 		print(f"⚠️  Error al obtener metadatos de Branch: {e!s}")
-		return False
+		# Asumir que no tiene company field si hay error
+		has_company_field = False
 
 	branch_custom_fields = {"Branch": []}
 
-	# Añadir company field si no existe
+	# CRÍTICO: Añadir company field si no existe (requerido para queries SQL)
 	if not has_company_field:
+		print("🔧 Adding missing company field to Branch DocType")
 		branch_custom_fields["Branch"].append(
 			{
 				"fieldname": "company",
@@ -44,6 +47,8 @@ def create_branch_fiscal_custom_fields():
 				"description": _("Company that this branch belongs to"),
 			}
 		)
+	else:
+		print("✅ Branch DocType already has company field")
 
 	# Añadir campos fiscales
 	branch_custom_fields["Branch"].extend(

@@ -66,9 +66,9 @@ def setup_sales_invoice_custom_fields():
 def setup_addenda_types():
 	"""Crear Addenda Types necesarios para testing"""
 	try:
-		# Verificar si existe DocType Addenda Type
+		# CRÍTICO: Verificar si existe DocType Addenda Type
 		if not frappe.db.exists("DocType", "Addenda Type"):
-			print("⚠️  DocType 'Addenda Type' no encontrado - creando mock para testing")
+			print("🔧 DocType 'Addenda Type' no encontrado - creando para testing")
 
 			# Crear DocType simple para testing
 			addenda_type_doctype = {
@@ -112,7 +112,7 @@ def setup_addenda_types():
 			frappe.get_doc(addenda_type_doctype).insert()
 			print("✅ DocType 'Addenda Type' creado")
 
-		# Crear registros de test
+		# CRÍTICO: Crear registros de test para evitar DoesNotExistError
 		test_addenda_types = [
 			{"nombre_del_tipo": "TEST_GENERIC", "description": "Generic test addenda for Sprint 6 testing"},
 			{"nombre_del_tipo": "TEST_AUTOMOTIVE", "description": "Automotive test addenda"},
@@ -121,9 +121,16 @@ def setup_addenda_types():
 
 		for addenda_data in test_addenda_types:
 			if not frappe.db.exists("Addenda Type", addenda_data["nombre_del_tipo"]):
-				addenda_doc = frappe.get_doc({"doctype": "Addenda Type", **addenda_data})
-				addenda_doc.insert()
-				print(f"✅ Addenda Type '{addenda_data['nombre_del_tipo']}' creado")
+				try:
+					addenda_doc = frappe.get_doc({"doctype": "Addenda Type", **addenda_data})
+					addenda_doc.insert(ignore_permissions=True)
+					print(f"✅ Addenda Type '{addenda_data['nombre_del_tipo']}' creado")
+				except Exception as create_error:
+					print(
+						f"⚠️  Error creando Addenda Type '{addenda_data['nombre_del_tipo']}': {create_error}"
+					)
+			else:
+				print(f"✓ Addenda Type '{addenda_data['nombre_del_tipo']}' ya existe")
 
 		print("✅ Addenda Types configurados para testing")
 

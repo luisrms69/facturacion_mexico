@@ -130,6 +130,9 @@ def before_tests():
 	# Establecer flag de testing siguiendo patrón condominium_management
 	frappe.flags.in_test = True
 
+	# CRÍTICO: Force Branch custom fields installation for testing
+	force_branch_custom_fields_installation()
+
 	# Crear warehouse types básicos antes de que test runner inicie
 	_create_basic_warehouse_types()
 
@@ -602,3 +605,32 @@ def _create_basic_item_tax_templates():
 					print(f"✅ Created item tax template: {template_name}")
 				except Exception as e:
 					print(f"⚠️ Failed to create item tax template {template_name}: {e}")
+
+
+def force_branch_custom_fields_installation():
+	"""
+	Forzar instalación de Branch custom fields para testing.
+	Función crítica para resolver errores SQL de Branch DocType.
+	"""
+	try:
+		print("🔧 [CRITICAL] Forcing Branch custom fields installation...")
+
+		# Verificar si Branch DocType existe
+		if not frappe.db.exists("DocType", "Branch"):
+			print("⚠️  Branch DocType not found - cannot install custom fields")
+			return
+
+		from facturacion_mexico.multi_sucursal.custom_fields.branch_fiscal_fields import (
+			create_branch_fiscal_custom_fields,
+		)
+
+		result = create_branch_fiscal_custom_fields()
+		if result:
+			print("✅ [CRITICAL] Branch custom fields forced installation: SUCCESS")
+			frappe.db.commit()
+		else:
+			print("❌ [CRITICAL] Branch custom fields forced installation: FAILED")
+
+	except Exception as e:
+		print(f"❌ [CRITICAL] Error in force_branch_custom_fields_installation: {e}")
+		frappe.log_error(f"Critical error forcing branch fields: {e}", "Branch Fields Critical")

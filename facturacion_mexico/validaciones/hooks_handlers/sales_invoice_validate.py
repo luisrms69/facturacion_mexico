@@ -354,7 +354,7 @@ def _validate_items_sat_codes(sales_invoice):
 			)
 
 		# Validar Clave Unidad SAT
-		clave_unidad = frappe.get_value("UOM", item.uom, "custom_clave_unidad_sat")
+		clave_unidad = frappe.get_value("UOM", item.uom, "fm_clave_sat")
 		if not clave_unidad:
 			frappe.throw(_("La UOM '{0}' debe tener configurada la Clave de Unidad SAT").format(item.uom))
 

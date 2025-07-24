@@ -107,10 +107,8 @@ class UOMSATCatalog:
 			# Obtener todas las UOMs sin código SAT
 			uoms_without_sat = frappe.get_all(
 				"UOM",
-				filters={
-					"$or": [{"custom_clave_unidad_sat": ["is", "not set"]}, {"custom_clave_unidad_sat": ""}]
-				},
-				fields=["name", "uom_name", "custom_clave_unidad_sat"],
+				filters={"$or": [{"fm_clave_sat": ["is", "not set"]}, {"fm_clave_sat": ""}]},
+				fields=["name", "uom_name", "fm_clave_sat"],
 			)
 
 			for uom in uoms_without_sat:
@@ -140,7 +138,7 @@ class UOMSATCatalog:
 								frappe.db.set_value(
 									"UOM",
 									uom_name_key,
-									"custom_clave_unidad_sat",
+									"fm_clave_sat",
 									best_suggestion["clave"],
 								)
 								results["updated"] += 1
@@ -191,7 +189,7 @@ class UOMSATCatalog:
 				uom = item.uom
 
 				# Obtener código SAT de la UOM
-				sat_code = frappe.db.get_value("UOM", uom, "custom_clave_unidad_sat")
+				sat_code = frappe.db.get_value("UOM", uom, "fm_clave_sat")
 
 				if not sat_code:
 					errors.append(f"Item {item.item_code}: UOM '{uom}' no tiene código SAT configurado")
