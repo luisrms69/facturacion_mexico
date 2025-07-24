@@ -38,20 +38,26 @@ class UOMSATValidator:
 			suggestions = []
 
 			for item in invoice_doc.items:
-				uom_mapping = self._get_uom_mapping(item.uom)
+				# REGLA #35: Defensive access patterns para item attributes
+				item_uom = getattr(item, "uom", None)
+				if not item_uom:
+					continue
+
+				uom_mapping = self._get_uom_mapping(item_uom)
 
 				if not uom_mapping:
 					unmapped_items.append(
 						{
-							"item_code": item.item_code,
-							"item_name": item.item_name,
-							"uom": item.uom,
-							"qty": item.qty,
+							"item_code": getattr(item, "item_code", "Unknown"),
+							"item_name": getattr(item, "item_name", "Unknown"),
+							"uom": item_uom,
+							"qty": getattr(item, "qty", 0),
 						}
 					)
 				elif uom_mapping.get("confidence", 100) < 80:
+					item_code = getattr(item, "item_code", "Unknown")
 					warnings.append(
-						f"Item '{item.item_code}': UOM '{item.uom}' tiene mapeo SAT con "
+						f"Item '{item_code}': UOM '{item_uom}' tiene mapeo SAT con "
 						f"baja confianza ({uom_mapping.get('confidence', 0)}%)"
 					)
 

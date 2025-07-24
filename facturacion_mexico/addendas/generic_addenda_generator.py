@@ -176,18 +176,24 @@ class AddendaGenerator:
 			}
 		)
 
-		# 4. Agregar datos de empresa si están disponibles
-		if invoice_data.get("company"):
+		# REGLA #35: Agregar datos de empresa con defensive access
+		company_name = invoice_data.get("company")
+		if company_name:
 			try:
-				company_doc = frappe.get_cached_doc("Company", invoice_data["company"])
+				company_doc = frappe.get_cached_doc("Company", company_name)
 				context["company"] = {
-					"name": company_doc.company_name,
-					"tax_id": company_doc.tax_id,
-					"country": company_doc.country,
-					"default_currency": company_doc.default_currency,
+					"name": getattr(company_doc, "company_name", "N/A"),
+					"tax_id": getattr(company_doc, "tax_id", "N/A"),
+					"country": getattr(company_doc, "country", "N/A"),
+					"default_currency": getattr(company_doc, "default_currency", "MXN"),
 				}
 			except Exception:
-				pass
+				context["company"] = {
+					"name": "N/A",
+					"tax_id": "N/A",
+					"country": "N/A",
+					"default_currency": "MXN",
+				}
 
 		# 5. Agregar helpers/funciones útiles
 		context["helpers"] = {
@@ -354,9 +360,17 @@ def get_customer_addenda_defaults(customer: str, addenda_type: str) -> dict:
 	try:
 		customer_doc = frappe.get_cached_doc("Customer", customer)
 
-		if customer_doc.get("fm_addenda_defaults"):
-			defaults = json.loads(customer_doc.fm_addenda_defaults)
-			return defaults.get(addenda_type, {})
+		# REGLA #35: Defensive access para fm_addenda_defaults
+		addenda_defaults_field = getattr(customer_doc, "fm_addenda_defaults", None)
+		if addenda_defaults_field:
+			try:
+				defaults = json.loads(addenda_defaults_field)
+				return defaults.get(addenda_type, {})
+			except (json.JSONDecodeError, TypeError):
+				frappe.log_error(
+					f"Invalid JSON in fm_addenda_defaults for customer {customer}", "Addenda Defaults"
+				)
+				return {}
 
 		return {}
 

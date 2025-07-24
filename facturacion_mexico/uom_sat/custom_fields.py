@@ -111,12 +111,17 @@ def remove_uom_sat_fields():
 def uom_validate(doc, method):
 	"""Hook que se ejecuta al validar UOM para sugerir mapeo SAT"""
 	try:
-		# Solo procesar si no tiene mapeo SAT
-		if not doc.get("fm_clave_sat"):
+		# REGLA #35: Defensive access para fm_clave_sat field
+		current_sat_mapping = getattr(doc, "fm_clave_sat", None)
+		if not current_sat_mapping:
 			from facturacion_mexico.uom_sat.mapper import UOMSATMapper
 
 			mapper = UOMSATMapper()
-			suggestion = mapper.suggest_mapping(doc.uom_name)
+			uom_name = getattr(doc, "uom_name", None)
+			if not uom_name:
+				return
+
+			suggestion = mapper.suggest_mapping(uom_name)
 
 			if suggestion.get("suggested_mapping"):
 				# Auto-asignar si la confianza es muy alta (>90%)

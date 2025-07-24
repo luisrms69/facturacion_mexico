@@ -119,7 +119,13 @@ class UOMSATCatalog:
 				try:
 					# REGLA #35: Defensive access pattern para dict/object compatibility
 					# Buscar sugerencias para esta UOM
-					uom_name = uom.get("uom_name") or uom.get("name")
+					if hasattr(uom, "get"):
+						# Es un dict
+						uom_name = uom.get("uom_name") or uom.get("name")
+					else:
+						# Es un objeto
+						uom_name = getattr(uom, "uom_name", None) or getattr(uom, "name", None)
+
 					suggestions = self.suggest_sat_code_for_uom(uom_name)
 
 					if suggestions:
@@ -128,18 +134,29 @@ class UOMSATCatalog:
 						if best_suggestion.get("confidence", 0) >= 90:
 							# Auto-asignar si confianza alta
 							if not dry_run:
+								uom_name_key = (
+									uom.get("name") if hasattr(uom, "get") else getattr(uom, "name", None)
+								)
 								frappe.db.set_value(
 									"UOM",
-									uom.get("name"),
+									uom_name_key,
 									"custom_clave_unidad_sat",
 									best_suggestion["clave"],
 								)
 								results["updated"] += 1
 
+							# REGLA #35: Defensive access para dict/object compatibility
+							uom_name_key = (
+								uom.get("name") if hasattr(uom, "get") else getattr(uom, "name", None)
+							)
+							uom_name_val = (
+								uom.get("uom_name") if hasattr(uom, "get") else getattr(uom, "uom_name", None)
+							)
+
 							results["suggestions"].append(
 								{
-									"uom": uom.get("name"),
-									"uom_name": uom.get("uom_name"),
+									"uom": uom_name_key,
+									"uom_name": uom_name_val,
 									"suggested_code": best_suggestion["clave"],
 									"suggested_name": best_suggestion["nombre"],
 									"confidence": best_suggestion["confidence"],
@@ -149,7 +166,10 @@ class UOMSATCatalog:
 
 				except Exception as e:
 					results["errors"] += 1
-					frappe.log_error(f"Error processing UOM {uom.get('name')}: {e!s}", "UOM SAT Sync")
+					uom_name_for_error = (
+						uom.get("name") if hasattr(uom, "get") else getattr(uom, "name", "Unknown")
+					)
+					frappe.log_error(f"Error processing UOM {uom_name_for_error}: {e!s}", "UOM SAT Sync")
 
 			if not dry_run:
 				frappe.db.commit()
