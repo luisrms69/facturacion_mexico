@@ -9,6 +9,7 @@ def after_install():
 	create_initial_configuration()
 	create_basic_sat_catalogs()  # PRIMERO: crear catálogos SAT
 	create_custom_fields_for_erpnext()  # SEGUNDO: crear custom fields que referencian catálogos
+	setup_multi_sucursal_system()  # TERCERO: configurar sistema multi-sucursal Sprint 6
 	frappe.logger().info("Facturacion Mexico installation completed successfully.")
 	frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure installation process completes successfully
 
@@ -31,6 +32,19 @@ def create_custom_fields_for_erpnext():
 	from facturacion_mexico.facturacion_fiscal.custom_fields import create_all_custom_fields
 
 	create_all_custom_fields()
+
+
+def setup_multi_sucursal_system():
+	"""Configurar sistema multi-sucursal Sprint 6."""
+	try:
+		print("🚀 Configurando sistema Multi-Sucursal Sprint 6...")
+		from facturacion_mexico.multi_sucursal.install import setup_multi_sucursal
+
+		setup_multi_sucursal()
+		print("✅ Sistema Multi-Sucursal configurado exitosamente")
+	except Exception as e:
+		print(f"⚠️  Error configurando sistema Multi-Sucursal: {e!s}")
+		frappe.log_error(f"Error setting up multi-sucursal system: {e!s}", "Multi Sucursal Installation")
 
 
 def create_basic_sat_catalogs():
@@ -165,6 +179,26 @@ def before_tests():
 	create_basic_sat_catalogs()
 	print("✅ [DEBUG] before_tests() completó create_basic_sat_catalogs()")
 
+	# Crear UOMs básicos para testing
+	print("🔧 [DEBUG] before_tests() creando UOMs básicos...")
+	_create_basic_uoms()
+	print("✅ [DEBUG] before_tests() completó UOMs básicos")
+
+	# Crear Items básicos para testing
+	print("🔧 [DEBUG] before_tests() creando Items básicos...")
+	_create_basic_test_items()
+	print("✅ [DEBUG] before_tests() completó Items básicos")
+
+	# Crear Customers básicos para testing
+	print("🔧 [DEBUG] before_tests() creando Customers básicos...")
+	_create_basic_test_customers()
+	print("✅ [DEBUG] before_tests() completó Customers básicos")
+
+	# Configurar sistema multi-sucursal para testing
+	print("🔧 [DEBUG] before_tests() configurando sistema multi-sucursal...")
+	setup_multi_sucursal_system()
+	print("✅ [DEBUG] before_tests() completó sistema multi-sucursal")
+
 	# Setup roles - usar ERPNext si disponible
 	try:
 		from erpnext.setup.utils import enable_all_roles_and_domains
@@ -194,6 +228,91 @@ def _create_basic_warehouse_types():
 				}
 			).insert(ignore_permissions=True)
 			print(f"✅ Created Warehouse Type: {wh_type}")
+
+
+def _create_basic_uoms():
+	"""
+	Crear UOMs básicos necesarios para testing.
+
+	Evita errores 'UOM Nos not found' en Sales Invoice Items.
+	"""
+	basic_uoms = [
+		{"uom_name": "Nos", "name": "Nos"},
+		{"uom_name": "Kilogram", "name": "Kg"},
+		{"uom_name": "Meter", "name": "Mtr"},
+		{"uom_name": "Unit", "name": "Unit"},
+		{"uom_name": "Piece", "name": "Piece"},
+	]
+
+	for uom_data in basic_uoms:
+		if not frappe.db.exists("UOM", uom_data["name"]):
+			try:
+				frappe.get_doc({"doctype": "UOM", **uom_data}).insert(ignore_permissions=True)
+				print(f"✅ Created UOM: {uom_data['name']}")
+			except Exception as e:
+				print(f"⚠️ Failed to create UOM {uom_data['name']}: {e}")
+
+
+def _create_basic_test_items():
+	"""
+	Crear Items básicos necesarios para testing.
+
+	Evita errores 'Item Test Item MX not found' en Sales Invoice tests.
+	"""
+	basic_items = [
+		{
+			"item_code": "Test Item MX",
+			"item_name": "Test Item MX",
+			"stock_uom": "Nos",
+			"is_stock_item": 0,
+			"include_item_in_manufacturing": 0,
+		},
+		{
+			"item_code": "Test Item",
+			"item_name": "Test Item",
+			"stock_uom": "Nos",
+			"is_stock_item": 0,
+			"include_item_in_manufacturing": 0,
+		},
+	]
+
+	for item_data in basic_items:
+		if not frappe.db.exists("Item", item_data["item_code"]):
+			try:
+				frappe.get_doc({"doctype": "Item", **item_data}).insert(ignore_permissions=True)
+				print(f"✅ Created Item: {item_data['item_code']}")
+			except Exception as e:
+				print(f"⚠️ Failed to create Item {item_data['item_code']}: {e}")
+
+
+def _create_basic_test_customers():
+	"""
+	Crear Customers básicos necesarios para testing.
+
+	Evita errores 'Customer Test Customer MX not found' en Sales Invoice tests.
+	"""
+	basic_customers = [
+		{
+			"customer_name": "Test Customer MX",
+			"customer_type": "Individual",
+			"territory": "Mexico",
+			"customer_group": "All Customer Groups",
+		},
+		{
+			"customer_name": "Test Customer",
+			"customer_type": "Individual",
+			"territory": "Mexico",
+			"customer_group": "All Customer Groups",
+		},
+	]
+
+	for customer_data in basic_customers:
+		if not frappe.db.exists("Customer", customer_data["customer_name"]):
+			try:
+				frappe.get_doc({"doctype": "Customer", **customer_data}).insert(ignore_permissions=True)
+				print(f"✅ Created Customer: {customer_data['customer_name']}")
+			except Exception as e:
+				print(f"⚠️ Failed to create Customer {customer_data['customer_name']}: {e}")
 
 
 def _ensure_basic_erpnext_records():

@@ -17,13 +17,38 @@ def create_branch_fiscal_custom_fields():
 	Aplicar patrón establecido: prefijo fm_ para prevenir conflictos
 	"""
 
-	branch_custom_fields = {
-		"Branch": [
+	# REGLA #34: Asegurar company field existe antes de custom fields fiscales
+	try:
+		branch_meta = frappe.get_meta("Branch")
+		has_company_field = any(f.fieldname == "company" for f in branch_meta.fields)
+	except Exception as e:
+		print(f"⚠️  Error al obtener metadatos de Branch: {e!s}")
+		has_company_field = False
+
+	branch_custom_fields = {"Branch": []}
+
+	# Añadir company field si no existe
+	if not has_company_field:
+		branch_custom_fields["Branch"].append(
+			{
+				"fieldname": "company",
+				"label": _("Company"),
+				"fieldtype": "Link",
+				"options": "Company",
+				"reqd": 1,
+				"insert_after": "branch",
+				"description": _("Company that this branch belongs to"),
+			}
+		)
+
+	# Añadir campos fiscales
+	branch_custom_fields["Branch"].extend(
+		[
 			{
 				"fieldname": "fiscal_configuration_section",
 				"label": _("Configuración Fiscal"),
 				"fieldtype": "Section Break",
-				"insert_after": "is_group",
+				"insert_after": "company" if has_company_field else "branch",
 				"collapsible": 1,
 				"collapsible_depends_on": "fm_enable_fiscal",
 			},
@@ -180,7 +205,7 @@ def create_branch_fiscal_custom_fields():
 				"description": _("Días estimados hasta agotar folios (calculado)"),
 			},
 		]
-	}
+	)
 
 	try:
 		# Crear custom fields

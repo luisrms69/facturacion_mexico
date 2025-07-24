@@ -201,7 +201,7 @@ class MotorReglasTestBase(unittest.TestCase):
 			"company": self.test_company,
 			"currency": "MXN",
 			"fm_cfdi_use": "G03",  # Campo obligatorio para México - Gastos en General
-			"items": [{"item_code": "Test Item", "qty": 1, "rate": 1000, "amount": 1000}],
+			"items": [{"item_code": "Test Item", "qty": 1, "rate": 1000, "amount": 1000, "uom": "Nos"}],
 		}
 
 		if invoice_config:

@@ -366,7 +366,7 @@ class FacturacionMexicoTestGranular(FrappeTestCase):
 			"customer": kwargs.get("customer", "Test Customer MX"),
 			"posting_date": frappe.utils.today(),
 			"due_date": frappe.utils.today(),
-			"items": [{"item_code": "Test Item MX", "qty": 1, "rate": 1000.0}],
+			"items": [{"item_code": "Test Item MX", "qty": 1, "rate": 1000.0, "uom": "Nos"}],
 		}
 		defaults.update(kwargs)
 

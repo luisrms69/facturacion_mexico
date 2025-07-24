@@ -117,8 +117,10 @@ class UOMSATCatalog:
 				results["processed"] += 1
 
 				try:
+					# REGLA #35: Defensive access pattern para dict/object compatibility
 					# Buscar sugerencias para esta UOM
-					suggestions = self.suggest_sat_code_for_uom(uom.uom_name or uom.name)
+					uom_name = uom.get("uom_name") or uom.get("name")
+					suggestions = self.suggest_sat_code_for_uom(uom_name)
 
 					if suggestions:
 						best_suggestion = suggestions[0]
@@ -127,14 +129,17 @@ class UOMSATCatalog:
 							# Auto-asignar si confianza alta
 							if not dry_run:
 								frappe.db.set_value(
-									"UOM", uom.name, "custom_clave_unidad_sat", best_suggestion["clave"]
+									"UOM",
+									uom.get("name"),
+									"custom_clave_unidad_sat",
+									best_suggestion["clave"],
 								)
 								results["updated"] += 1
 
 							results["suggestions"].append(
 								{
-									"uom": uom.name,
-									"uom_name": uom.uom_name,
+									"uom": uom.get("name"),
+									"uom_name": uom.get("uom_name"),
 									"suggested_code": best_suggestion["clave"],
 									"suggested_name": best_suggestion["nombre"],
 									"confidence": best_suggestion["confidence"],
@@ -144,7 +149,7 @@ class UOMSATCatalog:
 
 				except Exception as e:
 					results["errors"] += 1
-					frappe.log_error(f"Error processing UOM {uom.name}: {e!s}", "UOM SAT Sync")
+					frappe.log_error(f"Error processing UOM {uom.get('name')}: {e!s}", "UOM SAT Sync")
 
 			if not dry_run:
 				frappe.db.commit()

@@ -22,6 +22,12 @@ def setup_multi_sucursal():
 	# Crear custom fields para Branch
 	setup_branch_custom_fields()
 
+	# Crear custom fields para Sales Invoice multi-sucursal
+	setup_sales_invoice_custom_fields()
+
+	# Crear Addenda Types para testing
+	setup_addenda_types()
+
 	# Agregar hooks necesarios
 	setup_branch_hooks()
 
@@ -42,6 +48,88 @@ def setup_branch_custom_fields():
 	except Exception as e:
 		print(f"❌ Error configurando custom fields: {e!s}")
 		frappe.log_error(f"Error setting up branch custom fields: {e!s}", "Multi Sucursal Setup")
+
+
+def setup_sales_invoice_custom_fields():
+	"""Configurar custom fields para Sales Invoice multi-sucursal"""
+	try:
+		from .sales_invoice_fields import setup_sales_invoice_custom_fields as setup_si_fields
+
+		setup_si_fields()
+		print("✅ Custom fields para Sales Invoice multi-sucursal creados")
+
+	except Exception as e:
+		print(f"❌ Error configurando custom fields Sales Invoice: {e!s}")
+		frappe.log_error(f"Error setting up sales invoice custom fields: {e!s}", "Multi Sucursal Setup")
+
+
+def setup_addenda_types():
+	"""Crear Addenda Types necesarios para testing"""
+	try:
+		# Verificar si existe DocType Addenda Type
+		if not frappe.db.exists("DocType", "Addenda Type"):
+			print("⚠️  DocType 'Addenda Type' no encontrado - creando mock para testing")
+
+			# Crear DocType simple para testing
+			addenda_type_doctype = {
+				"doctype": "DocType",
+				"name": "Addenda Type",
+				"module": "Facturacion Mexico",
+				"custom": 1,
+				"naming_rule": "By fieldname",
+				"autoname": "field:nombre_del_tipo",
+				"fields": [
+					{
+						"fieldname": "nombre_del_tipo",
+						"label": "Nombre del Tipo",
+						"fieldtype": "Data",
+						"reqd": 1,
+						"unique": 1,
+					},
+					{
+						"fieldname": "description",
+						"label": "Description",
+						"fieldtype": "Text",
+					},
+					{
+						"fieldname": "is_active",
+						"label": "Is Active",
+						"fieldtype": "Check",
+						"default": 1,
+					},
+				],
+				"permissions": [
+					{
+						"role": "System Manager",
+						"read": 1,
+						"write": 1,
+						"create": 1,
+						"delete": 1,
+					}
+				],
+			}
+
+			frappe.get_doc(addenda_type_doctype).insert()
+			print("✅ DocType 'Addenda Type' creado")
+
+		# Crear registros de test
+		test_addenda_types = [
+			{"nombre_del_tipo": "TEST_GENERIC", "description": "Generic test addenda for Sprint 6 testing"},
+			{"nombre_del_tipo": "TEST_AUTOMOTIVE", "description": "Automotive test addenda"},
+			{"nombre_del_tipo": "TEST_RETAIL", "description": "Retail test addenda"},
+		]
+
+		for addenda_data in test_addenda_types:
+			if not frappe.db.exists("Addenda Type", addenda_data["nombre_del_tipo"]):
+				addenda_doc = frappe.get_doc({"doctype": "Addenda Type", **addenda_data})
+				addenda_doc.insert()
+				print(f"✅ Addenda Type '{addenda_data['nombre_del_tipo']}' creado")
+
+		print("✅ Addenda Types configurados para testing")
+
+	except Exception as e:
+		print(f"❌ Error configurando Addenda Types: {e!s}")
+		frappe.log_error(f"Error setting up addenda types: {e!s}", "Multi Sucursal Setup")
 
 
 def setup_branch_hooks():
