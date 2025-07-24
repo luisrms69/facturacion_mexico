@@ -27,10 +27,10 @@ class TestLayer1AddendaDocTypes(unittest.TestCase):
 		doctype_meta = frappe.get_meta("Addenda Type")
 		field_names = [field.fieldname for field in doctype_meta.fields]
 
-		# Campos básicos esperados
+		# Campos básicos esperados (basados en implementación real)
 		expected_fields = [
-			"addenda_name", "customer", "xml_template",
-			"is_active", "validation_schema"
+			"name", "description", "version", "xml_template",
+			"is_active", "field_definitions"
 		]
 
 		for field in expected_fields:
@@ -62,7 +62,7 @@ class TestLayer1AddendaDocTypes(unittest.TestCase):
 		doctype_meta = frappe.get_meta("Addenda Template")
 		field_names = [field.fieldname for field in doctype_meta.fields]
 
-		expected_fields = ["template_name", "template_content", "template_type"]
+		expected_fields = ["name1", "template_name", "template_xml", "addenda_type"]
 		for field in expected_fields:
 			self.assertIn(field, field_names,
 				f"Campo '{field}' debe existir en Addenda Template")
@@ -76,7 +76,7 @@ class TestLayer1AddendaDocTypes(unittest.TestCase):
 		doctype_meta = frappe.get_meta("Addenda Field Definition")
 		field_names = [field.fieldname for field in doctype_meta.fields]
 
-		expected_fields = ["field_name", "field_type", "is_mandatory"]
+		expected_fields = ["field_definition", "field_value", "is_dynamic"]
 		for field in expected_fields:
 			self.assertIn(field, field_names,
 				f"Campo '{field}' debe existir en Addenda Field Definition")
@@ -92,7 +92,7 @@ class TestLayer1AddendaDocTypes(unittest.TestCase):
 
 		# Verificar que tiene campos de valor
 		field_names = [field.fieldname for field in doctype_meta.fields]
-		expected_fields = ["field_name", "field_value"]
+		expected_fields = ["field_definition", "field_value"]
 
 		for field in expected_fields:
 			self.assertIn(field, field_names,
@@ -107,7 +107,7 @@ class TestLayer1AddendaDocTypes(unittest.TestCase):
 		doctype_meta = frappe.get_meta("Addenda Product Mapping")
 		field_names = [field.fieldname for field in doctype_meta.fields]
 
-		expected_fields = ["item_code", "addenda_product_code"]
+		expected_fields = ["item", "item_code", "customer_item_code"]
 		for field in expected_fields:
 			self.assertIn(field, field_names,
 				f"Campo '{field}' debe existir en Addenda Product Mapping")

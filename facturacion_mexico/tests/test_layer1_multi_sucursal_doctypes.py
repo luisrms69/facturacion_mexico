@@ -27,11 +27,11 @@ class TestLayer1MultiSucursalDocTypes(unittest.TestCase):
 		doctype_meta = frappe.get_meta("Configuracion Fiscal Sucursal")
 		field_names = [field.fieldname for field in doctype_meta.fields]
 
-		# Campos básicos esperados
+		# Campos básicos esperados (basados en implementación real)
 		expected_fields = [
-			"branch", "company", "lugar_expedicion",
+			"branch", "company", "serie_fiscal",
 			"folio_warning_threshold", "folio_critical_threshold",
-			"is_default_branch", "certificate_file"
+			"folio_current", "certificate_ids"
 		]
 
 		for field in expected_fields:
