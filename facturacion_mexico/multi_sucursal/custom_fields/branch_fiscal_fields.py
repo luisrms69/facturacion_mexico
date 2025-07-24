@@ -50,12 +50,12 @@ def create_branch_fiscal_custom_fields():
 	else:
 		print("✅ Branch DocType already has company field")
 
-	# Añadir campos fiscales
+	# Test fields individually to find the problematic one
 	branch_custom_fields["Branch"].extend(
 		[
 			{
 				"fieldname": "fiscal_configuration_section",
-				"label": _("Configuración Fiscal"),
+				"label": "Configuración Fiscal",
 				"fieldtype": "Section Break",
 				"insert_after": "company" if has_company_field else "branch",
 				"collapsible": 1,
@@ -63,11 +63,10 @@ def create_branch_fiscal_custom_fields():
 			},
 			{
 				"fieldname": "fm_enable_fiscal",
-				"label": _("Habilitar para Facturación Fiscal"),
+				"label": "Habilitar para Facturación Fiscal",
 				"fieldtype": "Check",
-				"default": 0,
 				"insert_after": "fiscal_configuration_section",
-				"description": _("Activar esta sucursal para emisión de facturas fiscales"),
+				"description": "Activar esta sucursal para emisión de facturas fiscales",
 			},
 			{
 				"fieldname": "fm_lugar_expedicion",
@@ -94,7 +93,6 @@ def create_branch_fiscal_custom_fields():
 				"insert_after": "folio_management_section",
 				"depends_on": "fm_enable_fiscal",
 				"description": _("Patrón para generar series (ej: SUC1-{yyyy}, MATRIZ-{mm})"),
-				"default": "{abbr}-{yyyy}",
 			},
 			{
 				"fieldname": "column_break_folios_1",
@@ -107,7 +105,6 @@ def create_branch_fiscal_custom_fields():
 				"fieldtype": "Int",
 				"insert_after": "column_break_folios_1",
 				"depends_on": "fm_enable_fiscal",
-				"default": 1,
 				"description": _("Primer folio disponible para esta sucursal"),
 			},
 			{
@@ -138,108 +135,37 @@ def create_branch_fiscal_custom_fields():
 				"fieldtype": "Int",
 				"insert_after": "fm_folio_end",
 				"depends_on": "fm_enable_fiscal",
-				"default": 100,
 				"description": _("Advertir cuando queden menos de N folios disponibles"),
 			},
-			{
-				"fieldname": "certificate_management_section",
-				"label": _("Gestión de Certificados"),
-				"fieldtype": "Section Break",
-				"insert_after": "fm_folio_warning_threshold",
-				"depends_on": "fm_enable_fiscal",
-				"collapsible": 1,
-			},
-			{
-				"fieldname": "fm_share_certificates",
-				"label": _("Compartir Certificados"),
-				"fieldtype": "Check",
-				"insert_after": "certificate_management_section",
-				"depends_on": "fm_enable_fiscal",
-				"default": 1,
-				"description": _("Usar pool compartido de certificados de la empresa"),
-			},
-			{
-				"fieldname": "fm_certificate_ids",
-				"label": _("Certificados Específicos"),
-				"fieldtype": "Table MultiSelect",
-				"insert_after": "fm_share_certificates",
-				"depends_on": "eval:doc.fm_enable_fiscal && !doc.fm_share_certificates",
-				"description": _("Certificados asignados exclusivamente a esta sucursal"),
-			},
-			{
-				"fieldname": "statistics_section",
-				"label": _("Estadísticas"),
-				"fieldtype": "Section Break",
-				"insert_after": "fm_certificate_ids",
-				"depends_on": "fm_enable_fiscal",
-				"collapsible": 1,
-				"collapsible_depends_on": "eval:doc.fm_folio_current > doc.fm_folio_start",
-			},
-			{
-				"fieldname": "fm_last_invoice_date",
-				"label": _("Última Factura"),
-				"fieldtype": "Datetime",
-				"insert_after": "statistics_section",
-				"depends_on": "fm_enable_fiscal",
-				"read_only": 1,
-				"description": _("Fecha y hora de la última factura emitida"),
-			},
-			{
-				"fieldname": "column_break_stats_1",
-				"fieldtype": "Column Break",
-				"insert_after": "fm_last_invoice_date",
-			},
-			{
-				"fieldname": "fm_monthly_average",
-				"label": _("Promedio Mensual"),
-				"fieldtype": "Float",
-				"insert_after": "column_break_stats_1",
-				"depends_on": "fm_enable_fiscal",
-				"read_only": 1,
-				"precision": 1,
-				"description": _("Promedio de facturas por mes (calculado)"),
-			},
-			{
-				"fieldname": "column_break_stats_2",
-				"fieldtype": "Column Break",
-				"insert_after": "fm_monthly_average",
-			},
-			{
-				"fieldname": "fm_days_until_exhaustion",
-				"label": _("Días hasta Agotamiento"),
-				"fieldtype": "Int",
-				"insert_after": "column_break_stats_2",
-				"depends_on": "fm_enable_fiscal",
-				"read_only": 1,
-				"description": _("Días estimados hasta agotar folios (calculado)"),
-			},
+			# Additional fields temporarily disabled to prevent "DocType None" error
+			# TODO: Add remaining certificate management and statistics fields
+			# Note: Issue occurs with some field attributes - needs further investigation
 		]
 	)
 
 	try:
-		# REGLA #35: Validar que branch_custom_fields no esté vacío
+		if not frappe.db.exists("DocType", "Branch"):
+			print("❌ Branch DocType not found")
+			return False
+
 		if not branch_custom_fields.get("Branch"):
-			print("✅ No custom fields needed for Branch DocType")
-			return True
+			branch_custom_fields["Branch"].append(
+				{
+					"fieldname": "fm_enable_fiscal",
+					"label": _("Habilitar para Facturación Fiscal"),
+					"fieldtype": "Check",
+					"default": 0,
+					"insert_after": "company" if has_company_field else "branch",
+					"description": _("Activar esta sucursal para emisión de facturas fiscales"),
+				}
+			)
 
-		# Crear custom fields
 		create_custom_fields(branch_custom_fields, update=True)
-
-		print("✅ Custom fields fiscales para Branch creados exitosamente")
-		print(f"📊 Total de campos agregados: {len(branch_custom_fields['Branch'])}")
-
-		# Log para debugging
-		frappe.logger().info("Branch fiscal custom fields created successfully")
-
+		print(f"✅ Branch custom fields created: {len(branch_custom_fields['Branch'])}")
 		return True
 
 	except Exception as e:
-		print(f"❌ Error creando custom fields para Branch: {e!s}")
-		# REGLA #35: Defensive logging to prevent None DocType errors
-		try:
-			frappe.log_error(f"Error creating branch fiscal custom fields: {e!s}", "Branch Custom Fields")
-		except Exception as log_error:
-			print(f"⚠️  Additional error while logging: {log_error!s}")
+		print(f"❌ Branch custom fields error: {e!s}")
 		return False
 
 
