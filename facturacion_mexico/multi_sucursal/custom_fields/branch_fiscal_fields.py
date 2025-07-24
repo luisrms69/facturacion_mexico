@@ -217,6 +217,11 @@ def create_branch_fiscal_custom_fields():
 	)
 
 	try:
+		# REGLA #35: Validar que branch_custom_fields no esté vacío
+		if not branch_custom_fields.get("Branch"):
+			print("✅ No custom fields needed for Branch DocType")
+			return True
+
 		# Crear custom fields
 		create_custom_fields(branch_custom_fields, update=True)
 
@@ -230,7 +235,11 @@ def create_branch_fiscal_custom_fields():
 
 	except Exception as e:
 		print(f"❌ Error creando custom fields para Branch: {e!s}")
-		frappe.log_error(f"Error creating branch fiscal custom fields: {e!s}", "Branch Custom Fields")
+		# REGLA #35: Defensive logging to prevent None DocType errors
+		try:
+			frappe.log_error(f"Error creating branch fiscal custom fields: {e!s}", "Branch Custom Fields")
+		except Exception as log_error:
+			print(f"⚠️  Additional error while logging: {log_error!s}")
 		return False
 
 

@@ -160,12 +160,16 @@ def bulk_suggest_mappings(confidence_threshold: int = 70, limit: int = 50) -> di
 
 		suggestions = []
 		for uom in unmapped_uoms:
-			suggestion = mapper.suggest_mapping(uom.uom_name)
+			# REGLA #35: Defensive access for dict/object compatibility
+			uom_name = uom.get("uom_name") if isinstance(uom, dict) else uom.uom_name
+			uom_name_key = uom.get("name") if isinstance(uom, dict) else uom.name
+
+			suggestion = mapper.suggest_mapping(uom_name)
 			if suggestion.get("suggested_mapping"):
 				suggestions.append(
 					{
-						"uom": uom.name,
-						"uom_name": uom.uom_name,
+						"uom": uom_name_key,
+						"uom_name": uom_name,
 						"suggested_mapping": suggestion["suggested_mapping"],
 						"confidence": suggestion["confidence"],
 						"reason": suggestion["reason"],

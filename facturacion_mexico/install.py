@@ -187,6 +187,11 @@ def before_tests():
 	_create_basic_uoms()
 	print("✅ [DEBUG] before_tests() completó UOMs básicos")
 
+	# Crear Addenda Types básicos para testing
+	print("🔧 [DEBUG] before_tests() creando Addenda Types básicos...")
+	_create_basic_addenda_types()
+	print("✅ [DEBUG] before_tests() completó Addenda Types básicos")
+
 	# Crear Items básicos para testing
 	print("🔧 [DEBUG] before_tests() creando Items básicos...")
 	_create_basic_test_items()
@@ -254,6 +259,63 @@ def _create_basic_uoms():
 				print(f"✅ Created UOM: {uom_data['name']}")
 			except Exception as e:
 				print(f"⚠️ Failed to create UOM {uom_data['name']}: {e}")
+
+
+def _create_basic_addenda_types():
+	"""
+	Crear Addenda Types básicos necesarios para testing.
+
+	Evita errores 'Addenda Type TEST_GENERIC not found'.
+	"""
+	basic_addenda_types = [
+		{
+			"doctype": "Addenda Type",
+			"name": "TEST_GENERIC",  # CRÍTICO: Campo requerido (autoname: field:name)
+			"description": "Generic test addenda type for testing",
+			"version": "1.0",  # CRÍTICO: Campo requerido
+			"xml_template": """<addenda>
+	<test_field>{{ test_value | default('test') }}</test_field>
+	<customer_name>{{ customer.name }}</customer_name>
+</addenda>""",
+			"is_active": 1,
+		},
+		{
+			"doctype": "Addenda Type",
+			"name": "TEST_AUTOMOTIVE",  # CRÍTICO: Campo requerido (autoname: field:name)
+			"description": "Automotive industry test addenda type",
+			"version": "1.0",  # CRÍTICO: Campo requerido
+			"xml_template": """<addenda>
+	<automotive_field>{{ auto_value | default('auto') }}</automotive_field>
+	<vehicle_info>{{ vehicle_data | default('N/A') }}</vehicle_info>
+</addenda>""",
+			"is_active": 1,
+		},
+		{
+			"doctype": "Addenda Type",
+			"name": "TEST_RETAIL",  # CRÍTICO: Campo requerido (autoname: field:name)
+			"description": "Retail industry test addenda type",
+			"version": "1.0",  # CRÍTICO: Campo requerido
+			"xml_template": """<addenda>
+	<retail_field>{{ retail_value | default('retail') }}</retail_field>
+	<store_info>{{ store_data | default('N/A') }}</store_info>
+</addenda>""",
+			"is_active": 1,
+		},
+	]
+
+	for addenda_data in basic_addenda_types:
+		try:
+			if not frappe.db.exists("Addenda Type", addenda_data["name"]):
+				# REGLA #35: Verificar que DocType existe antes de crear
+				if frappe.db.exists("DocType", "Addenda Type"):
+					frappe.get_doc(addenda_data).insert(ignore_permissions=True)
+					print(f"✅ Created Addenda Type: {addenda_data['name']}")
+				else:
+					print(f"⚠️  Addenda Type DocType not found, skipping {addenda_data['name']}")
+			else:
+				print(f"✓ Addenda Type {addenda_data['name']} already exists")
+		except Exception as e:
+			print(f"⚠️  Error creando Addenda Type '{addenda_data['name']}': {e}")
 
 
 def _create_basic_test_items():
