@@ -38,10 +38,13 @@ class ConfiguracionFiscalSucursal(Document):
 			frappe.throw(_("Sucursal es obligatoria"))
 
 		# REGLA #35: Defensive DocType access
+		branch_doc = None
 		try:
 			branch_doc = frappe.get_doc("Branch", self.branch)
 		except frappe.DoesNotExistError:
 			frappe.throw(_("La sucursal '{0}' no existe").format(self.branch))
+		except Exception:
+			frappe.throw(_("Error al obtener datos de la sucursal '{0}'").format(self.branch))
 
 		# Verificar que branch_doc se obtuvo correctamente
 		if not branch_doc:

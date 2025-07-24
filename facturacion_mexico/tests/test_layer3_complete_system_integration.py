@@ -236,11 +236,10 @@ class TestLayer3CompleteSystemIntegration(unittest.TestCase):
 
             # Test module import error handling
             try:
-                # Test critical module availability
-                import frappe
+                # Test critical module availability - frappe ya está importado globalmente
                 if frappe:
                     error_handling_tests.append('core_modules_available')
-            except ImportError:
+            except (ImportError, NameError):
                 error_handling_tests.append('import_error_handled')
 
             # Test data validation error handling
