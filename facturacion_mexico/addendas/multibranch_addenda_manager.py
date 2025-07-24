@@ -152,8 +152,10 @@ class MultibranchAddendaManager:
 			# Obtener datos específicos de la sucursal
 			branch_data = self._get_branch_context_for_addenda(sales_invoice_doc)
 
-			# Configurar builder con contexto de sucursal
-			builder = AddendaXMLBuilder(addenda_type)
+			# Obtener template y configurar builder con contexto de sucursal
+			template = self._get_addenda_template(addenda_type)
+			field_values = self._get_branch_field_values(sales_invoice_doc, branch_data)
+			builder = AddendaXMLBuilder(template, field_values)
 
 			# Generar XML con datos de sucursal integrados
 			addenda_xml = builder.build_from_sales_invoice(sales_invoice_doc, branch_context=branch_data)
@@ -303,6 +305,30 @@ class MultibranchAddendaManager:
 		except Exception as e:
 			frappe.logger().warning(f"Error getting branch context: {e!s}")
 			return {"branch_code": self.branch, "company": self.company}
+
+	def _get_addenda_template(self, addenda_type: str) -> str:
+		"""Obtener template de addenda por tipo"""
+		try:
+			addenda_type_doc = frappe.get_cached_doc("Addenda Type", addenda_type)
+			return addenda_type_doc.xml_template or ""
+		except Exception as e:
+			frappe.logger().warning(f"Error getting addenda template: {e!s}")
+			return ""
+
+	def _get_branch_field_values(self, sales_invoice_doc: Any, branch_data: dict) -> dict:
+		"""Obtener valores de campos para la addenda desde la sucursal"""
+		field_values = {}
+
+		# Agregar datos de la sucursal
+		field_values.update(branch_data)
+
+		# Agregar datos de la factura
+		if hasattr(sales_invoice_doc, "name"):
+			field_values["invoice_name"] = sales_invoice_doc.name
+		if hasattr(sales_invoice_doc, "customer"):
+			field_values["customer"] = sales_invoice_doc.customer
+
+		return field_values
 
 
 # APIs públicas para integración

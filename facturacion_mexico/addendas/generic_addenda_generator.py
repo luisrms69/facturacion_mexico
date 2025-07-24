@@ -38,9 +38,9 @@ class AddendaGenerator:
 			if not self.addenda_type_doc.is_active:
 				frappe.throw(_("El tipo de addenda '{0}' no está activo").format(self.addenda_type))
 
-			# Cargar template Jinja2
+			# Cargar template Jinja2 con autoescape habilitado para prevenir XSS
 			if self.addenda_type_doc.xml_template:
-				self.template = Template(self.addenda_type_doc.xml_template)
+				self.template = Template(self.addenda_type_doc.xml_template, autoescape=True)
 			else:
 				frappe.throw(
 					_("El tipo de addenda '{0}' no tiene template XML configurado").format(self.addenda_type)
@@ -250,8 +250,8 @@ class AddendaGenerator:
 			return []
 
 		try:
-			# Usar Jinja2 meta para extraer variables del template
-			env = Environment()
+			# Usar Jinja2 meta para extraer variables del template con autoescape
+			env = Environment(autoescape=True)
 			ast = env.parse(self.addenda_type_doc.xml_template)
 			variables = meta.find_undeclared_variables(ast)
 			return sorted(list(variables))
