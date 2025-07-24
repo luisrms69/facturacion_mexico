@@ -48,8 +48,8 @@ class TestLayer3CFDIGenerationWorkflows(unittest.TestCase):
                               "Workflow CFDI debe tener campos fiscales")
 
         except Exception as e:
-            # Error no crítico para Layer 3
-            pass
+            # Error no crítico para Layer 3 - registrar para debugging
+            frappe.logger().warning(f"CFDI workflow test non-critical error: {e}")
 
     def test_sat_catalog_integration_workflow(self):
         """Test: Workflow de integración con catálogos SAT"""

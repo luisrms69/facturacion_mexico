@@ -8,7 +8,7 @@ Generador genérico de addendas usando Jinja2 templates dinámicos
 
 import json
 import re
-from typing import Any, Optional
+from typing import Any
 
 import frappe
 from frappe import _

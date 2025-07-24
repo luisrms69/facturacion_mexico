@@ -43,6 +43,10 @@ class ConfiguracionFiscalSucursal(Document):
 		except frappe.DoesNotExistError:
 			frappe.throw(_("La sucursal '{0}' no existe").format(self.branch))
 
+		# Verificar que branch_doc se obtuvo correctamente
+		if not branch_doc:
+			frappe.throw(_("Error al obtener datos de la sucursal '{0}'").format(self.branch))
+
 		if not branch_doc.get("fm_enable_fiscal"):
 			frappe.throw(
 				_("La sucursal '{0}' no está habilitada para facturación fiscal").format(self.branch)

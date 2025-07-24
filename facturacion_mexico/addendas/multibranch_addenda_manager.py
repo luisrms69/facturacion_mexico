@@ -7,7 +7,7 @@ Integra sistema Addendas Genéricas con infraestructura Multi-Sucursal
 Gestiona addendas específicas por sucursal y configuraciones centralizadas
 """
 
-from typing import Any, Optional
+from typing import Any
 
 import frappe
 from frappe import _
