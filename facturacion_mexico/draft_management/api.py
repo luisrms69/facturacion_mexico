@@ -7,6 +7,7 @@ import json
 from typing import Any, Optional
 
 import frappe
+from frappe import _
 from frappe.utils import now
 
 
@@ -311,7 +312,7 @@ def validate_draft_workflow(doc, method):
 	try:
 		# Si está marcado como borrador pero ya está timbrado, prevenir
 		if doc.get("fm_create_as_draft") and doc.get("fm_cfdi_uuid"):
-			frappe.throw("No se puede marcar como borrador una factura ya timbrada")
+			frappe.throw(_("No se puede marcar como borrador una factura ya timbrada"))
 
 		# Si no está marcado como borrador, limpiar campos relacionados
 		if not doc.get("fm_create_as_draft"):
