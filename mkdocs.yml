@@ -1,0 +1,103 @@
+site_name: Facturación México - Documentación Técnica
+site_description: Documentación completa del sistema de facturación electrónica para México
+site_author: Equipo Desarrollo Facturación México
+
+# Configuration
+theme:
+  name: material
+  language: es
+  palette:
+    - scheme: default
+      primary: blue
+      accent: amber
+      toggle:
+        icon: material/brightness-7
+        name: Cambiar a modo oscuro
+    - scheme: slate
+      primary: blue
+      accent: amber
+      toggle:
+        icon: material/brightness-4
+        name: Cambiar a modo claro
+  features:
+    - content.code.copy
+    - navigation.expand
+    - navigation.instant
+    - navigation.sections
+    - navigation.tabs
+    - navigation.top
+    - search.highlight
+    - search.suggest
+
+# Basic plugins
+plugins:
+  - search:
+      lang: es
+
+# Extensions
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - md_in_html
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+
+# Navigation
+nav:
+  - Inicio: index.md
+  - Guía de Usuario:
+    - user-guide/index.md
+    - Primeros Pasos: user-guide/getting-started.md
+    - Multi-sucursal: user-guide/multisucursal.md
+    - Addendas: user-guide/addendas.md
+    - Troubleshooting: user-guide/troubleshooting.md
+  - API Reference:
+    - api/index.md
+    - CFDI: api/cfdi.md
+    - Multi-sucursal: api/multisucursal.md
+    - Addendas: api/addendas.md
+    - Catalogos SAT: api/catalogos.md
+    - Hooks: api/hooks.md
+  - Desarrollo:
+    - development/index.md
+    - Setup Desarrollo: development/setup.md
+
+# Extra
+extra:
+  version:
+    provider: mike
+    default: latest
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/tu-org/facturacion_mexico
+      name: GitHub
+  analytics:
+    provider: google
+    property: G-XXXXXXXXXX
+  consent:
+    title: Consentimiento de cookies
+    description: >
+      Utilizamos cookies para reconocer tus visitas repetidas y preferencias,
+      así como para medir la efectividad de nuestra documentación y si los
+      usuarios encuentran lo que están buscando. Con tu consentimiento, nos
+      ayudas a mejorar nuestra documentación.
+    actions:
+      - accept
+      - reject
+      - manage
+
+extra_css:
+  - assets/stylesheets/extra.css
+  - assets/stylesheets/advanced.css
+
+extra_javascript:
+  - assets/javascripts/extra.js
+  - assets/javascripts/advanced.js
+
+copyright: Copyright &copy; 2025 Facturación México - Documentación Técnica

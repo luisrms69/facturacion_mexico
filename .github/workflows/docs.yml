@@ -1,0 +1,191 @@
+name: Documentación Profesional
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+on:
+  push:
+    branches: [main, develop, feature/sistema-documentacion-profesional]
+  pull_request:
+    branches: [main]
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Versión a desplegar'
+        required: true
+        default: 'dev'
+
+jobs:
+  quality-check:
+    name: Verificar Calidad de Documentación
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      - name: Cache de dependencias
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
+      
+      - name: Instalar dependencias
+        run: |
+          pip install -r requirements-docs.txt
+          pip install interrogate pydocstyle
+      
+      - name: Verificar cobertura de docstrings
+        run: |
+          interrogate -vv --fail-under 80 .
+          echo "✅ Cobertura de docstrings: $(interrogate --quiet .)"
+      
+      - name: Verificar estilo de docstrings
+        run: |
+          pydocstyle --count --convention=google . || echo "⚠️ Issues de estilo encontrados"
+      
+      - name: Generar badge de cobertura
+        if: github.ref == 'refs/heads/main'
+        run: |
+          interrogate --generate-badge docs/badges/ .
+          echo "📊 Badge de cobertura generado"
+
+  lint-docs:
+    name: Lint de Documentación
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      - name: Instalar dependencias
+        run: pip install -r requirements-docs.txt
+      
+      - name: Verificar links rotos
+        run: |
+          pip install mkdocs-linkcheck
+          mkdocs build --strict
+          echo "🔗 Verificación de links completada"
+
+  build-and-deploy:
+    name: Construir y Desplegar
+    runs-on: ubuntu-latest
+    needs: [quality-check, lint-docs]
+    if: github.event_name != 'pull_request'
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Necesario para mike y git history
+      
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      - name: Cache de dependencias
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
+      
+      - name: Instalar dependencias
+        run: |
+          pip install -r requirements-docs.txt
+          echo "📦 Dependencias instaladas"
+      
+      - name: Configurar Git para Mike
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+      
+      - name: Verificar documentación existente
+        run: |
+          echo "📚 Documentación ya incluida en el commit"
+          ls -la docs/ | head -10
+          echo "✅ Documentación verificada - $(find docs -name '*.md' | wc -l) archivos MD"
+          echo "🏗️ Sistema MkDocs Material listo para build"
+      
+      - name: Verificar estructura de documentación
+        run: |
+          echo "📁 Estructura de docs:"
+          find docs -type f -name "*.md" | head -20
+          echo "📊 Total archivos markdown: $(find docs -name "*.md" | wc -l)"
+      
+      - name: Construir documentación
+        run: |
+          mkdocs build --strict --verbose
+          echo "🔨 Documentación construida exitosamente"
+      
+      - name: Verificar site generado
+        run: |
+          echo "📄 Archivos HTML generados: $(find site -name "*.html" | wc -l)"
+          ls -la site/
+      
+      - name: Desplegar versión con Mike
+        run: |
+          if [[ "${{ github.event_name }}" == "release" ]]; then
+            VERSION="${{ github.event.release.tag_name }}"
+            echo "🚀 Desplegando release: $VERSION"
+            mike deploy --push --update-aliases $VERSION latest
+            mike set-default --push latest
+          elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "🚀 Desplegando main branch"
+            mike deploy --push --update-aliases main stable
+          elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+            echo "🚀 Desplegando develop branch"
+            mike deploy --push dev
+          elif [[ "${{ github.ref }}" == "refs/heads/feature/sistema-documentacion-profesional" ]]; then
+            echo "🚀 Desplegando feature branch"
+            mike deploy --push feature-docs
+          fi
+      
+      - name: Listar versiones desplegadas
+        run: |
+          mike list
+          echo "✅ Despliegue completado"
+
+  pr-preview:
+    name: Preview de Pull Request
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      - name: Instalar dependencias
+        run: pip install -r requirements-docs.txt
+      
+      - name: Construir preview
+        run: |
+          mkdocs build --strict
+          echo "🔍 Preview construido para PR #${{ github.event.number }}"
+      
+      - name: Comentar en PR
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const htmlFiles = fs.existsSync('site') ? fs.readdirSync('site').filter(f => f.endsWith('.html')).length : 0;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `📚 **Preview de Documentación**\n\n✅ La documentación se construyó exitosamente para este PR.\n\n- 📊 Archivos generados: ${htmlFiles} páginas HTML\n- 🔍 Sistema MkDocs Material operativo`
+            })
