@@ -4,6 +4,7 @@ Sprint 3 - Facturación México
 """
 
 import frappe
+from frappe.custom.doctype.custom_field.custom_field import create_custom_field
 from frappe.utils import now
 
 
@@ -11,7 +12,7 @@ def create_sales_invoice_addenda_fields():
 	"""Crear campos personalizados para Sales Invoice relacionados con addendas."""
 
 	# Definir los campos a agregar
-	custom_fields = [
+	addenda_fields = [
 		{
 			"fieldname": "fm_addenda_section",
 			"fieldtype": "Section Break",
@@ -79,10 +80,101 @@ def create_sales_invoice_addenda_fields():
 	]
 
 	# Crear los custom fields
-	for field in custom_fields:
+	for field in addenda_fields:
 		create_custom_field("Sales Invoice", field)
 
 	print("✅ Custom fields de addenda agregados a Sales Invoice")
+
+
+def create_sales_invoice_draft_fields():
+	"""Crear campos personalizados para Sales Invoice - Funcionalidad Borradores."""
+
+	# Definir los campos de borradores
+	draft_fields = [
+		{
+			"fieldname": "fm_draft_section",
+			"fieldtype": "Section Break",
+			"label": "Configuración de Borradores",
+			"insert_after": "fm_addenda_generated_date",
+			"collapsible": 1,
+		},
+		{
+			"fieldname": "fm_create_as_draft",
+			"fieldtype": "Check",
+			"label": "Crear como Borrador",
+			"insert_after": "fm_draft_section",
+			"default": 0,
+			"description": "Crear factura en modo borrador para revisión antes del timbrado final",
+		},
+		{
+			"fieldname": "fm_draft_status",
+			"fieldtype": "Select",
+			"label": "Estado Borrador",
+			"options": "\nBorrador\nEn Revisión\nAprobado\nTimbrado",
+			"insert_after": "fm_create_as_draft",
+			"read_only": 1,
+			"depends_on": "fm_create_as_draft",
+		},
+		{
+			"fieldname": "fm_draft_column_break",
+			"fieldtype": "Column Break",
+			"insert_after": "fm_draft_status",
+		},
+		{
+			"fieldname": "fm_factorapi_draft_id",
+			"fieldtype": "Data",
+			"label": "ID Borrador FacturAPI",
+			"insert_after": "fm_draft_column_break",
+			"read_only": 1,
+			"depends_on": "eval:doc.fm_draft_status == 'Borrador'",
+		},
+		{
+			"fieldname": "fm_draft_created_date",
+			"fieldtype": "Datetime",
+			"label": "Fecha Creación Borrador",
+			"insert_after": "fm_factorapi_draft_id",
+			"read_only": 1,
+			"depends_on": "eval:doc.fm_draft_status != ''",
+		},
+		{
+			"fieldname": "fm_draft_approved_by",
+			"fieldtype": "Link",
+			"label": "Aprobado Por",
+			"options": "User",
+			"insert_after": "fm_draft_created_date",
+			"read_only": 1,
+			"depends_on": "eval:doc.fm_draft_status == 'Aprobado'",
+		},
+	]
+
+	# Crear los custom fields
+	for field in draft_fields:
+		create_custom_field("Sales Invoice", field)
+
+	print("✅ Custom fields de borradores agregados a Sales Invoice")
+
+
+def remove_sales_invoice_draft_fields():
+	"""Remover campos personalizados de borradores en Sales Invoice."""
+	field_names = [
+		"fm_draft_section",
+		"fm_create_as_draft",
+		"fm_draft_status",
+		"fm_draft_column_break",
+		"fm_factorapi_draft_id",
+		"fm_draft_created_date",
+		"fm_draft_approved_by",
+	]
+
+	remove_custom_fields("Sales Invoice", field_names)
+	print("✅ Custom fields de borradores removidos de Sales Invoice")
+
+
+# Completar función original
+def complete_addenda_fields_installation():
+	"""Completar instalación de campos addenda."""
+	create_sales_invoice_addenda_fields()
+	print("✅ Instalación completa de campos addenda")
 
 
 def create_customer_addenda_fields():
@@ -120,38 +212,7 @@ def create_customer_addenda_fields():
 	print("✅ Custom fields de addenda agregados a Customer")
 
 
-def create_custom_field(doctype: str, field_config: dict):
-	"""Crear un custom field específico."""
-	try:
-		# Verificar si el campo ya existe
-		existing = frappe.get_all(
-			"Custom Field", filters={"dt": doctype, "fieldname": field_config["fieldname"]}, limit=1
-		)
-
-		if existing:
-			print(f"⚠️  Campo {field_config['fieldname']} ya existe en {doctype}")
-			return
-
-		# Crear el custom field
-		custom_field = frappe.new_doc("Custom Field")
-		custom_field.dt = doctype
-		custom_field.fieldname = field_config["fieldname"]
-		custom_field.fieldtype = field_config["fieldtype"]
-		custom_field.label = field_config.get("label", "")
-		custom_field.insert_after = field_config.get("insert_after")
-		custom_field.options = field_config.get("options", "")
-		custom_field.read_only = field_config.get("read_only", 0)
-		custom_field.default = field_config.get("default", "")
-		custom_field.depends_on = field_config.get("depends_on", "")
-		custom_field.collapsible = field_config.get("collapsible", 0)
-		custom_field.description = field_config.get("description", "")
-
-		custom_field.insert()
-
-		print(f"✅ Campo {field_config['fieldname']} creado en {doctype}")
-
-	except Exception as e:
-		print(f"❌ Error creando campo {field_config['fieldname']} en {doctype}: {e!s}")
+# Function removed - using imported create_custom_field from frappe
 
 
 def remove_sales_invoice_addenda_fields():
@@ -313,6 +374,32 @@ def install_addenda_custom_fields():
 	print("✅ Custom fields de addendas instalados correctamente")
 
 
+def install_draft_custom_fields():
+	"""Instalar todos los custom fields de borradores."""
+	print("🔧 Instalando custom fields de borradores...")
+
+	create_sales_invoice_draft_fields()
+
+	# Limpiar cache
+	frappe.clear_cache()
+
+	print("✅ Custom fields de borradores instalados correctamente")
+
+
+def install_all_custom_fields():
+	"""Instalar todos los custom fields (addendas + borradores)."""
+	print("🔧 Instalando todos los custom fields...")
+
+	create_sales_invoice_addenda_fields()
+	create_customer_addenda_fields()
+	create_sales_invoice_draft_fields()
+
+	# Limpiar cache
+	frappe.clear_cache()
+
+	print("✅ Todos los custom fields instalados correctamente")
+
+
 def uninstall_addenda_custom_fields():
 	"""Desinstalar todos los custom fields de addendas."""
 	print("🧹 Removiendo custom fields de addendas...")
@@ -324,6 +411,32 @@ def uninstall_addenda_custom_fields():
 	frappe.clear_cache()
 
 	print("✅ Custom fields de addendas removidos correctamente")
+
+
+def uninstall_draft_custom_fields():
+	"""Desinstalar todos los custom fields de borradores."""
+	print("🧹 Removiendo custom fields de borradores...")
+
+	remove_sales_invoice_draft_fields()
+
+	# Limpiar cache
+	frappe.clear_cache()
+
+	print("✅ Custom fields de borradores removidos correctamente")
+
+
+def uninstall_all_custom_fields():
+	"""Desinstalar todos los custom fields (addendas + borradores)."""
+	print("🧹 Removiendo todos los custom fields...")
+
+	remove_sales_invoice_addenda_fields()
+	remove_customer_addenda_fields()
+	remove_sales_invoice_draft_fields()
+
+	# Limpiar cache
+	frappe.clear_cache()
+
+	print("✅ Todos los custom fields removidos correctamente")
 
 
 if __name__ == "__main__":
