@@ -1,0 +1,151 @@
+/* Custom CSS for Facturación México Documentation */
+
+/* Badge styling */
+.badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin: 2px;
+}
+
+.badge-success {
+    background-color: #28a745;
+    color: white;
+}
+
+.badge-warning {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.badge-info {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.badge-primary {
+    background-color: #007bff;
+    color: white;
+}
+
+/* Grid cards styling */
+.grid.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.grid.cards > div {
+    background: var(--md-default-bg-color);
+    border: 1px solid var(--md-default-fg-color--lightest);
+    border-radius: 0.2rem;
+    padding: 1rem;
+    transition: all 0.2s ease;
+}
+
+.grid.cards > div:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Code block improvements */
+.highlight pre {
+    padding: 1rem;
+    border-radius: 0.2rem;
+}
+
+/* Table styling */
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1rem 0;
+}
+
+table th,
+table td {
+    border: 1px solid var(--md-default-fg-color--lightest);
+    padding: 0.6rem;
+    text-align: left;
+}
+
+table th {
+    background-color: var(--md-default-fg-color--lightest);
+    font-weight: 600;
+}
+
+table tr:nth-child(even) {
+    background-color: var(--md-default-bg-color--light);
+}
+
+/* Custom admonition styles */
+.admonition.tip {
+    border-left-color: #00e676;
+}
+
+.admonition.warning {
+    border-left-color: #ff9100;
+}
+
+.admonition.danger {
+    border-left-color: #ff1744;
+}
+
+.admonition.info {
+    border-left-color: #00b0ff;
+}
+
+/* Navigation improvements */
+.md-nav__item--active > .md-nav__link {
+    font-weight: 600;
+}
+
+/* Header improvements */
+.md-header {
+    background-color: var(--md-primary-fg-color);
+}
+
+/* Footer improvements */
+.md-footer {
+    background-color: var(--md-default-bg-color--dark);
+}
+
+/* Search improvements */
+.md-search__input {
+    border-radius: 0.2rem;
+}
+
+/* Responsive design */
+@media screen and (max-width: 768px) {
+    .grid.cards {
+        grid-template-columns: 1fr;
+    }
+    
+    table {
+        font-size: 0.8rem;
+    }
+    
+    .md-content__inner {
+        padding: 1rem 0.8rem;
+    }
+}
+
+/* Print styles */
+@media print {
+    .md-header,
+    .md-sidebar,
+    .md-footer {
+        display: none !important;
+    }
+    
+    .md-main__inner {
+        margin: 0;
+    }
+    
+    .md-content {
+        margin: 0;
+    }
+}
