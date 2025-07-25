@@ -112,25 +112,40 @@ def setup_addenda_types():
 			frappe.get_doc(addenda_type_doctype).insert()
 			print("✅ DocType 'Addenda Type' creado")
 
-		# CRÍTICO: Crear registros de test para evitar DoesNotExistError
-		test_addenda_types = [
-			{"nombre_del_tipo": "TEST_GENERIC", "description": "Generic test addenda for Sprint 6 testing"},
-			{"nombre_del_tipo": "TEST_AUTOMOTIVE", "description": "Automotive test addenda"},
-			{"nombre_del_tipo": "TEST_RETAIL", "description": "Retail test addenda"},
-		]
+		# CRÍTICO: Verificar que el DocType real existe antes de crear registros
+		if frappe.db.exists("DocType", "Addenda Type"):
+			# Obtener estructura real del DocType
+			doctype_meta = frappe.get_meta("Addenda Type")
+			required_field = None
 
-		for addenda_data in test_addenda_types:
-			if not frappe.db.exists("Addenda Type", addenda_data["nombre_del_tipo"]):
-				try:
-					addenda_doc = frappe.get_doc({"doctype": "Addenda Type", **addenda_data})
-					addenda_doc.insert(ignore_permissions=True)
-					print(f"✅ Addenda Type '{addenda_data['nombre_del_tipo']}' creado")
-				except Exception as create_error:
-					print(
-						f"⚠️  Error creando Addenda Type '{addenda_data['nombre_del_tipo']}': {create_error}"
-					)
-			else:
-				print(f"✓ Addenda Type '{addenda_data['nombre_del_tipo']}' ya existe")
+			# Buscar el campo que es requerido para el nombre
+			for field in doctype_meta.fields:
+				if field.reqd and field.fieldtype in ["Data", "Link"]:
+					required_field = field.fieldname
+					break
+
+			if not required_field:
+				required_field = "name"  # Fallback
+
+			test_addenda_types = [
+				{required_field: "TEST_GENERIC", "description": "Generic test addenda for Sprint 6 testing"},
+				{required_field: "TEST_AUTOMOTIVE", "description": "Automotive test addenda"},
+				{required_field: "TEST_RETAIL", "description": "Retail test addenda"},
+			]
+
+			for addenda_data in test_addenda_types:
+				type_name = addenda_data[required_field]
+				if not frappe.db.exists("Addenda Type", type_name):
+					try:
+						addenda_doc = frappe.get_doc({"doctype": "Addenda Type", **addenda_data})
+						addenda_doc.insert(ignore_permissions=True)
+						print(f"✅ Addenda Type '{type_name}' creado")
+					except Exception as create_error:
+						print(f"⚠️  Error creando Addenda Type '{type_name}': {create_error}")
+				else:
+					print(f"✓ Addenda Type '{type_name}' ya existe")
+		else:
+			print("⚠️  DocType 'Addenda Type' no encontrado - saltando creación de test records")
 
 		print("✅ Addenda Types configurados para testing")
 
