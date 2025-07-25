@@ -132,23 +132,32 @@ jobs:
           echo "📄 Archivos HTML generados: $(find site -name "*.html" | wc -l)"
           ls -la site/
       
-      - name: Desplegar versión con Mike
+      - name: Construir con Mike para versionado
         run: |
           if [[ "${{ github.event_name }}" == "release" ]]; then
             VERSION="${{ github.event.release.tag_name }}"
-            echo "🚀 Desplegando release: $VERSION"
-            mike deploy --push --update-aliases $VERSION latest
-            mike set-default --push latest
+            echo "🚀 Construyendo release: $VERSION"
+            mike deploy --update-aliases $VERSION latest
+            mike set-default latest
           elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            echo "🚀 Desplegando main branch"
-            mike deploy --push --update-aliases main stable
-          elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
-            echo "🚀 Desplegando develop branch"
-            mike deploy --push dev
-          elif [[ "${{ github.ref }}" == "refs/heads/feature/sistema-documentacion-profesional" ]]; then
-            echo "🚀 Desplegando feature branch"
-            mike deploy --push feature-docs
+            echo "🚀 Construyendo main branch"
+            mike deploy --update-aliases main stable
+            mike set-default stable
+          else
+            echo "🚀 Construyendo versión de desarrollo"
+            mike deploy dev
           fi
+      
+      - name: Desplegar a GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        if: github.ref == 'refs/heads/main' || github.event_name == 'release'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site
+          enable_jekyll: false
+          user_name: 'GitHub Actions'
+          user_email: 'actions@github.com'
+          commit_message: 'Deploy documentation to GitHub Pages'
       
       - name: Listar versiones desplegadas
         run: |
