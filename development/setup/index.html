@@ -1,0 +1,2200 @@
+
+<!doctype html>
+<html lang="es" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentación completa del sistema de facturación electrónica para México">
+      
+      
+        <meta name="author" content="Equipo Desarrollo Facturación México">
+      
+      
+      
+        <link rel="prev" href="../">
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.3">
+    
+    
+      
+        <title>Setup Desarrollo - Facturación México - Documentación Técnica</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.50c56a3b.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/advanced.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function n(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],n("js",new Date),n("config","G-XXXXXXXXXX"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){this.value&&n("event","search",{search_term:this.value})}),document$.subscribe(function(){var a=document.forms.feedback;if(void 0!==a)for(var e of a.querySelectorAll("[type=submit]"))e.addEventListener("click",function(e){e.preventDefault();var t=document.location.pathname,e=this.getAttribute("data-md-value");n("event","feedback",{page:t,data:e}),a.firstElementChild.disabled=!0;e=a.querySelector(".md-feedback__note [data-md-value='"+e+"']");e&&(e.hidden=!1)}),a.hidden=!1}),location$.subscribe(function(e){n("config","G-XXXXXXXXXX",{page_path:e.pathname})})});var e=document.createElement("script");e.async=!0,e.src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX",document.getElementById("__analytics").insertAdjacentElement("afterEnd",e)}</script>
+  
+    <script>var consent;"undefined"==typeof __md_analytics||(consent=__md_get("__consent"))&&consent.analytics&&__md_analytics()</script>
+  
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#setup-de-desarrollo-facturacion-mexico" class="md-skip">
+          Saltar a contenido
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabecera">
+    <a href="../.." title="Facturación México - Documentación Técnica" class="md-header__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Facturación México - Documentación Técnica
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Setup Desarrollo
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo oscuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo oscuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Búsqueda" placeholder="Búsqueda" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Buscar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpiar" aria-label="Limpiar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando búsqueda
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Pestañas" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+    
+  
+  Inicio
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../user-guide/" class="md-tabs__link">
+          
+  
+  Guía de Usuario
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/" class="md-tabs__link">
+          
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  Desarrollo
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navegación" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Facturación México - Documentación Técnica" class="md-nav__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Facturación México - Documentación Técnica
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Inicio
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Guía de Usuario
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Guía de Usuario
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Usuario - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/getting-started/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Primeros Pasos
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/troubleshooting/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    API Reference
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    API Reference - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/cfdi/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CFDI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/catalogos/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Catalogos SAT
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/hooks/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Hooks
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Desarrollo
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Desarrollo
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Desarrollo - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Setup Desarrollo
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Setup Desarrollo
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#entorno-de-desarrollo" class="md-nav__link">
+    <span class="md-ellipsis">
+      🛠️ Entorno de Desarrollo
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🛠️ Entorno de Desarrollo">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#requisitos-del-sistema" class="md-nav__link">
+    <span class="md-ellipsis">
+      Requisitos del Sistema
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Requisitos del Sistema">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#software-base" class="md-nav__link">
+    <span class="md-ellipsis">
+      Software Base
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#herramientas-de-desarrollo" class="md-nav__link">
+    <span class="md-ellipsis">
+      Herramientas de Desarrollo
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instalacion-paso-a-paso" class="md-nav__link">
+    <span class="md-ellipsis">
+      Instalación Paso a Paso
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Instalación Paso a Paso">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-clonar-repositorio" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Clonar Repositorio
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-setup-frappe-bench" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Setup Frappe Bench
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-configuracion-de-desarrollo" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Configuración de Desarrollo
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuracion-site_configjson" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuración site_config.json
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setup-de-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧪 Setup de Testing
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🧪 Setup de Testing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#estructura-de-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Estructura de Tests
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuracion-de-test-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuración de Test Environment
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ejecutar-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ejecutar Tests
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Ejecutar Tests">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tests-completos" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tests Completos
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tests-por-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tests por Layer
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tests-especificos" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tests Específicos
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#debugging-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Debugging Tests
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Debugging Tests">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#con-pdb" class="md-nav__link">
+    <span class="md-ellipsis">
+      Con pdb
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#con-logs-detallados" class="md-nav__link">
+    <span class="md-ellipsis">
+      Con logs detallados
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#herramientas-de-desarrollo_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔧 Herramientas de Desarrollo
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔧 Herramientas de Desarrollo">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pre-commit-hooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pre-commit Hooks
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Pre-commit Hooks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pre-commit-configyaml" class="md-nav__link">
+    <span class="md-ellipsis">
+      .pre-commit-config.yaml
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#code-quality-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      Code Quality Tools
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Code Quality Tools">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#linting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Linting
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#documentation-quality" class="md-nav__link">
+    <span class="md-ellipsis">
+      Documentation Quality
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#monitoreo-de-desarrollo" class="md-nav__link">
+    <span class="md-ellipsis">
+      📊 Monitoreo de Desarrollo
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📊 Monitoreo de Desarrollo">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#performance-profiling" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance Profiling
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memory-profiling" class="md-nav__link">
+    <span class="md-ellipsis">
+      Memory Profiling
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#database-query-monitoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      Database Query Monitoring
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deployment-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      🚀 Deployment Testing
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🚀 Deployment Testing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#docker-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Docker Environment
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Docker Environment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dockerfiledev" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dockerfile.dev
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#docker-composedevyml" class="md-nav__link">
+    <span class="md-ellipsis">
+      docker-compose.dev.yml
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cicd-pipeline-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      CI/CD Pipeline Testing
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#workflow-de-desarrollo" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔄 Workflow de Desarrollo
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔄 Workflow de Desarrollo">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#branch-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Branch Strategy
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#conventional-commits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conventional Commits
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pull-request-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pull Request Checklist
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#entorno-de-desarrollo" class="md-nav__link">
+    <span class="md-ellipsis">
+      🛠️ Entorno de Desarrollo
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🛠️ Entorno de Desarrollo">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#requisitos-del-sistema" class="md-nav__link">
+    <span class="md-ellipsis">
+      Requisitos del Sistema
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Requisitos del Sistema">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#software-base" class="md-nav__link">
+    <span class="md-ellipsis">
+      Software Base
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#herramientas-de-desarrollo" class="md-nav__link">
+    <span class="md-ellipsis">
+      Herramientas de Desarrollo
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instalacion-paso-a-paso" class="md-nav__link">
+    <span class="md-ellipsis">
+      Instalación Paso a Paso
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Instalación Paso a Paso">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-clonar-repositorio" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Clonar Repositorio
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-setup-frappe-bench" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Setup Frappe Bench
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-configuracion-de-desarrollo" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Configuración de Desarrollo
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuracion-site_configjson" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuración site_config.json
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setup-de-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧪 Setup de Testing
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🧪 Setup de Testing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#estructura-de-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Estructura de Tests
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuracion-de-test-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuración de Test Environment
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ejecutar-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ejecutar Tests
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Ejecutar Tests">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tests-completos" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tests Completos
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tests-por-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tests por Layer
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tests-especificos" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tests Específicos
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#debugging-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Debugging Tests
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Debugging Tests">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#con-pdb" class="md-nav__link">
+    <span class="md-ellipsis">
+      Con pdb
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#con-logs-detallados" class="md-nav__link">
+    <span class="md-ellipsis">
+      Con logs detallados
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#herramientas-de-desarrollo_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔧 Herramientas de Desarrollo
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔧 Herramientas de Desarrollo">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pre-commit-hooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pre-commit Hooks
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Pre-commit Hooks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pre-commit-configyaml" class="md-nav__link">
+    <span class="md-ellipsis">
+      .pre-commit-config.yaml
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#code-quality-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      Code Quality Tools
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Code Quality Tools">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#linting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Linting
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#documentation-quality" class="md-nav__link">
+    <span class="md-ellipsis">
+      Documentation Quality
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#monitoreo-de-desarrollo" class="md-nav__link">
+    <span class="md-ellipsis">
+      📊 Monitoreo de Desarrollo
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📊 Monitoreo de Desarrollo">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#performance-profiling" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance Profiling
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memory-profiling" class="md-nav__link">
+    <span class="md-ellipsis">
+      Memory Profiling
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#database-query-monitoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      Database Query Monitoring
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deployment-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      🚀 Deployment Testing
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🚀 Deployment Testing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#docker-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Docker Environment
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Docker Environment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dockerfiledev" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dockerfile.dev
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#docker-composedevyml" class="md-nav__link">
+    <span class="md-ellipsis">
+      docker-compose.dev.yml
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cicd-pipeline-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      CI/CD Pipeline Testing
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#workflow-de-desarrollo" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔄 Workflow de Desarrollo
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔄 Workflow de Desarrollo">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#branch-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Branch Strategy
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#conventional-commits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conventional Commits
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pull-request-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pull Request Checklist
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="setup-de-desarrollo-facturacion-mexico">Setup de Desarrollo - Facturación México<a class="headerlink" href="#setup-de-desarrollo-facturacion-mexico" title="Permanent link">&para;</a></h1>
+<p>Guía completa para configurar el entorno de desarrollo del proyecto.</p>
+<h2 id="entorno-de-desarrollo">🛠️ Entorno de Desarrollo<a class="headerlink" href="#entorno-de-desarrollo" title="Permanent link">&para;</a></h2>
+<h3 id="requisitos-del-sistema">Requisitos del Sistema<a class="headerlink" href="#requisitos-del-sistema" title="Permanent link">&para;</a></h3>
+<h4 id="software-base">Software Base<a class="headerlink" href="#software-base" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Python 3.8+</strong> (recomendado 3.10+)</li>
+<li><strong>Node.js 16+</strong> con npm</li>
+<li><strong>MariaDB 10.6+</strong> o <strong>MySQL 8.0+</strong></li>
+<li><strong>Redis</strong> (para cache y queue)</li>
+<li><strong>Git</strong> para control de versiones</li>
+</ul>
+<h4 id="herramientas-de-desarrollo">Herramientas de Desarrollo<a class="headerlink" href="#herramientas-de-desarrollo" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>VS Code</strong> con extensiones Python y JavaScript</li>
+<li><strong>Postman</strong> o <strong>Thunder Client</strong> para API testing</li>
+<li><strong>Docker</strong> (opcional, para testing isolado)</li>
+</ul>
+<h3 id="instalacion-paso-a-paso">Instalación Paso a Paso<a class="headerlink" href="#instalacion-paso-a-paso" title="Permanent link">&para;</a></h3>
+<h4 id="1-clonar-repositorio">1. Clonar Repositorio<a class="headerlink" href="#1-clonar-repositorio" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># Clonar el repositorio principal</span>
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/tu-org/facturacion_mexico.git
+<span class="nb">cd</span><span class="w"> </span>facturacion_mexico
+
+<span class="c1"># Revisar branches disponibles</span>
+git<span class="w"> </span>branch<span class="w"> </span>-a
+
+<span class="c1"># Cambiar a branch de desarrollo</span>
+git<span class="w"> </span>checkout<span class="w"> </span>develop
+</code></pre></div>
+<h4 id="2-setup-frappe-bench">2. Setup Frappe Bench<a class="headerlink" href="#2-setup-frappe-bench" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># Crear nuevo bench para desarrollo</span>
+bench<span class="w"> </span>init<span class="w"> </span>--frappe-branch<span class="w"> </span>version-15<span class="w"> </span>frappe-dev
+<span class="nb">cd</span><span class="w"> </span>frappe-dev
+
+<span class="c1"># Obtener la app desde repo local</span>
+bench<span class="w"> </span>get-app<span class="w"> </span>facturacion_mexico<span class="w"> </span>/path/to/facturacion_mexico
+
+<span class="c1"># Crear site de desarrollo</span>
+bench<span class="w"> </span>new-site<span class="w"> </span>dev.facturacion.local<span class="w"> </span>--db-root-password<span class="w"> </span>your_password
+
+<span class="c1"># Instalar app</span>
+bench<span class="w"> </span>--site<span class="w"> </span>dev.facturacion.local<span class="w"> </span>install-app<span class="w"> </span>facturacion_mexico
+</code></pre></div>
+<h4 id="3-configuracion-de-desarrollo">3. Configuración de Desarrollo<a class="headerlink" href="#3-configuracion-de-desarrollo" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># Habilitar modo desarrollador</span>
+bench<span class="w"> </span>--site<span class="w"> </span>dev.facturacion.local<span class="w"> </span>set-config<span class="w"> </span>developer_mode<span class="w"> </span><span class="m">1</span>
+
+<span class="c1"># Configurar debug mode</span>
+bench<span class="w"> </span>--site<span class="w"> </span>dev.facturacion.local<span class="w"> </span>set-config<span class="w"> </span>debug<span class="w"> </span><span class="m">1</span>
+
+<span class="c1"># Configurar reload automático</span>
+bench<span class="w"> </span>--site<span class="w"> </span>dev.facturacion.local<span class="w"> </span>set-config<span class="w"> </span>auto_reload<span class="w"> </span><span class="m">1</span>
+</code></pre></div>
+<h3 id="configuracion-site_configjson">Configuración site_config.json<a class="headerlink" href="#configuracion-site_configjson" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;developer_mode&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;debug&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;auto_reload&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;pac_provider&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;finkok&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;pac_test_mode&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;pac_username&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;test_user&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;pac_password&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;test_password&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;multisucursal_enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;addendas_auto_generation&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;cfdi_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;4.0&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;logging&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;facturacion_mexico&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DEBUG&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h2 id="setup-de-testing">🧪 Setup de Testing<a class="headerlink" href="#setup-de-testing" title="Permanent link">&para;</a></h2>
+<h3 id="estructura-de-tests">Estructura de Tests<a class="headerlink" href="#estructura-de-tests" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>facturacion_mexico/tests/
+├── __init__.py
+├── test_layer1_basic_cfdi_functionality.py          # 15 tests
+├── test_layer2_advanced_multisucursal_operations.py # 15 tests  
+├── test_layer3_*.py                                 # 12 tests (5 archivos)
+└── test_layer4_*.py                                 # 4 tests (4 archivos)
+</code></pre></div>
+<h3 id="configuracion-de-test-environment">Configuración de Test Environment<a class="headerlink" href="#configuracion-de-test-environment" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Crear site específico para tests</span>
+bench<span class="w"> </span>new-site<span class="w"> </span>test.facturacion.local<span class="w"> </span>--db-root-password<span class="w"> </span>your_password
+
+<span class="c1"># Instalar app en site de tests</span>
+bench<span class="w"> </span>--site<span class="w"> </span>test.facturacion.local<span class="w"> </span>install-app<span class="w"> </span>facturacion_mexico
+
+<span class="c1"># Configurar datos de prueba</span>
+bench<span class="w"> </span>--site<span class="w"> </span>test.facturacion.local<span class="w"> </span>execute<span class="w"> </span>facturacion_mexico.install.before_tests
+</code></pre></div>
+<h3 id="ejecutar-tests">Ejecutar Tests<a class="headerlink" href="#ejecutar-tests" title="Permanent link">&para;</a></h3>
+<h4 id="tests-completos">Tests Completos<a class="headerlink" href="#tests-completos" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># Todos los tests (46 tests)</span>
+bench<span class="w"> </span>--site<span class="w"> </span>test.facturacion.local<span class="w"> </span>run-tests<span class="w"> </span>--app<span class="w"> </span>facturacion_mexico
+
+<span class="c1"># Con coverage</span>
+bench<span class="w"> </span>--site<span class="w"> </span>test.facturacion.local<span class="w"> </span>run-tests<span class="w"> </span>--app<span class="w"> </span>facturacion_mexico<span class="w"> </span>--coverage
+
+<span class="c1"># Verbose mode</span>
+bench<span class="w"> </span>--site<span class="w"> </span>test.facturacion.local<span class="w"> </span>run-tests<span class="w"> </span>--app<span class="w"> </span>facturacion_mexico<span class="w"> </span>-v
+</code></pre></div>
+<h4 id="tests-por-layer">Tests por Layer<a class="headerlink" href="#tests-por-layer" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># Layer 1: Funcionalidad básica CFDI</span>
+bench<span class="w"> </span>--site<span class="w"> </span>test.facturacion.local<span class="w"> </span>run-tests<span class="w"> </span>--app<span class="w"> </span>facturacion_mexico<span class="w"> </span>--module<span class="w"> </span>facturacion_mexico.tests.test_layer1_basic_cfdi_functionality
+
+<span class="c1"># Layer 2: Operaciones multi-sucursal avanzadas  </span>
+bench<span class="w"> </span>--site<span class="w"> </span>test.facturacion.local<span class="w"> </span>run-tests<span class="w"> </span>--app<span class="w"> </span>facturacion_mexico<span class="w"> </span>--module<span class="w"> </span>facturacion_mexico.tests.test_layer2_advanced_multisucursal_operations
+
+<span class="c1"># Layer 3: Integración completa del sistema</span>
+bench<span class="w"> </span>--site<span class="w"> </span>test.facturacion.local<span class="w"> </span>run-tests<span class="w"> </span>--app<span class="w"> </span>facturacion_mexico<span class="w"> </span>--module<span class="w"> </span>facturacion_mexico.tests.test_layer3_complete_system_integration_sprint6
+
+<span class="c1"># Layer 4: Tests de producción</span>
+bench<span class="w"> </span>--site<span class="w"> </span>test.facturacion.local<span class="w"> </span>run-tests<span class="w"> </span>--app<span class="w"> </span>facturacion_mexico<span class="w"> </span>--module<span class="w"> </span>facturacion_mexico.tests.test_layer4_sprint6_multisucursal_production
+</code></pre></div>
+<h4 id="tests-especificos">Tests Específicos<a class="headerlink" href="#tests-especificos" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># Test específico por nombre</span>
+bench<span class="w"> </span>--site<span class="w"> </span>test.facturacion.local<span class="w"> </span>run-tests<span class="w"> </span>--app<span class="w"> </span>facturacion_mexico<span class="w"> </span>--module<span class="w"> </span>facturacion_mexico.tests.test_layer1_basic_cfdi_functionality<span class="w"> </span>--test<span class="w"> </span>test_basic_cfdi_creation
+
+<span class="c1"># Tests que coincidan con patrón</span>
+bench<span class="w"> </span>--site<span class="w"> </span>test.facturacion.local<span class="w"> </span>run-tests<span class="w"> </span>--app<span class="w"> </span>facturacion_mexico<span class="w"> </span>--module<span class="w"> </span>facturacion_mexico.tests.test_layer3_addenda_multisucursal_workflows<span class="w"> </span>--test<span class="w"> </span><span class="s2">&quot;*addenda*&quot;</span>
+</code></pre></div>
+<h3 id="debugging-tests">Debugging Tests<a class="headerlink" href="#debugging-tests" title="Permanent link">&para;</a></h3>
+<h4 id="con-pdb">Con pdb<a class="headerlink" href="#con-pdb" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># En el código de test</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pdb</span><span class="p">;</span> <span class="n">pdb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span>
+
+<span class="c1"># O usando frappe debugger</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">frappe</span>
+<span class="n">frappe</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="s2">&quot;Debug point reached&quot;</span><span class="p">,</span> <span class="s2">&quot;Test Debug&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h4 id="con-logs-detallados">Con logs detallados<a class="headerlink" href="#con-logs-detallados" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># Setup logging en tests</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+
+<span class="c1"># O usando frappe logger</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">frappe</span>
+<span class="n">frappe</span><span class="o">.</span><span class="n">logger</span><span class="p">(</span><span class="s2">&quot;test_debug&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Test checkpoint reached&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="herramientas-de-desarrollo_1">🔧 Herramientas de Desarrollo<a class="headerlink" href="#herramientas-de-desarrollo_1" title="Permanent link">&para;</a></h2>
+<h3 id="pre-commit-hooks">Pre-commit Hooks<a class="headerlink" href="#pre-commit-hooks" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Instalar pre-commit</span>
+pip<span class="w"> </span>install<span class="w"> </span>pre-commit
+
+<span class="c1"># Setup hooks</span>
+pre-commit<span class="w"> </span>install
+
+<span class="c1"># Ejecutar manualmente</span>
+pre-commit<span class="w"> </span>run<span class="w"> </span>--all-files
+</code></pre></div>
+<h4 id="pre-commit-configyaml">.pre-commit-config.yaml<a class="headerlink" href="#pre-commit-configyaml" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="nt">repos</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">repo</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://github.com/psf/black</span>
+<span class="w">    </span><span class="nt">rev</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">23.1.0</span>
+<span class="w">    </span><span class="nt">hooks</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">black</span>
+<span class="w">        </span><span class="nt">language_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">python3</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">repo</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://github.com/pycqa/flake8</span>
+<span class="w">    </span><span class="nt">rev</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">6.0.0</span>
+<span class="w">    </span><span class="nt">hooks</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">flake8</span>
+<span class="w">        </span><span class="nt">args</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">--max-line-length=100</span><span class="p p-Indicator">]</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">repo</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://github.com/pycqa/isort</span>
+<span class="w">    </span><span class="nt">rev</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5.12.0</span>
+<span class="w">    </span><span class="nt">hooks</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">isort</span>
+<span class="w">        </span><span class="nt">args</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">--profile=black</span><span class="p p-Indicator">]</span>
+</code></pre></div>
+<h3 id="code-quality-tools">Code Quality Tools<a class="headerlink" href="#code-quality-tools" title="Permanent link">&para;</a></h3>
+<h4 id="linting">Linting<a class="headerlink" href="#linting" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># flake8 para style checking</span>
+flake8<span class="w"> </span>facturacion_mexico/<span class="w"> </span>--max-line-length<span class="o">=</span><span class="m">100</span>
+
+<span class="c1"># black para formatting</span>
+black<span class="w"> </span>facturacion_mexico/
+
+<span class="c1"># isort para import sorting  </span>
+isort<span class="w"> </span>facturacion_mexico/<span class="w"> </span>--profile<span class="o">=</span>black
+</code></pre></div>
+<h4 id="documentation-quality">Documentation Quality<a class="headerlink" href="#documentation-quality" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># pydocstyle para docstring checking</span>
+pydocstyle<span class="w"> </span>facturacion_mexico/<span class="w"> </span>--convention<span class="o">=</span>google
+
+<span class="c1"># interrogate para docstring coverage</span>
+interrogate<span class="w"> </span>facturacion_mexico/<span class="w"> </span>--verbose
+</code></pre></div>
+<h2 id="monitoreo-de-desarrollo">📊 Monitoreo de Desarrollo<a class="headerlink" href="#monitoreo-de-desarrollo" title="Permanent link">&para;</a></h2>
+<h3 id="performance-profiling">Performance Profiling<a class="headerlink" href="#performance-profiling" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Profiling de funciones críticas</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">cProfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pstats</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">wraps</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">profile_function</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">pr</span> <span class="o">=</span> <span class="n">cProfile</span><span class="o">.</span><span class="n">Profile</span><span class="p">()</span>
+        <span class="n">pr</span><span class="o">.</span><span class="n">enable</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">pr</span><span class="o">.</span><span class="n">disable</span><span class="p">()</span>
+
+        <span class="n">stats</span> <span class="o">=</span> <span class="n">pstats</span><span class="o">.</span><span class="n">Stats</span><span class="p">(</span><span class="n">pr</span><span class="p">)</span>
+        <span class="n">stats</span><span class="o">.</span><span class="n">sort_stats</span><span class="p">(</span><span class="s1">&#39;cumulative&#39;</span><span class="p">)</span>
+        <span class="n">stats</span><span class="o">.</span><span class="n">print_stats</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>  <span class="c1"># Top 10 functions</span>
+
+        <span class="k">return</span> <span class="n">result</span>
+    <span class="k">return</span> <span class="n">wrapper</span>
+
+<span class="c1"># Uso en código</span>
+<span class="nd">@profile_function</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_cfdi_xml</span><span class="p">(</span><span class="n">invoice_doc</span><span class="p">):</span>
+    <span class="c1"># Implementación...</span>
+    <span class="k">pass</span>
+</code></pre></div>
+<h3 id="memory-profiling">Memory Profiling<a class="headerlink" href="#memory-profiling" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Con memory_profiler</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">memory_profiler</span><span class="w"> </span><span class="kn">import</span> <span class="n">profile</span>
+
+<span class="nd">@profile</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">memory_intensive_function</span><span class="p">():</span>
+    <span class="c1"># Código que consume memoria</span>
+    <span class="k">pass</span>
+
+<span class="c1"># Ejecutar con:</span>
+<span class="c1"># python -m memory_profiler script.py</span>
+</code></pre></div>
+<h3 id="database-query-monitoring">Database Query Monitoring<a class="headerlink" href="#database-query-monitoring" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Monitoring de queries</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">frappe</span>
+
+<span class="c1"># Habilitar query logging</span>
+<span class="n">frappe</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="c1"># Ver queries ejecutadas</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">frappe</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_query_log</span><span class="p">())</span>
+
+<span class="c1"># Resetear log  </span>
+<span class="n">frappe</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">reset_query_log</span><span class="p">()</span>
+</code></pre></div>
+<h2 id="deployment-testing">🚀 Deployment Testing<a class="headerlink" href="#deployment-testing" title="Permanent link">&para;</a></h2>
+<h3 id="docker-environment">Docker Environment<a class="headerlink" href="#docker-environment" title="Permanent link">&para;</a></h3>
+<h4 id="dockerfiledev">Dockerfile.dev<a class="headerlink" href="#dockerfiledev" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="k">FROM</span><span class="w"> </span><span class="s">frappe/erpnext:v15</span>
+
+<span class="c"># Copy app</span>
+<span class="k">COPY</span><span class="w"> </span>.<span class="w"> </span>/home/frappe/frappe-bench/apps/facturacion_mexico
+
+<span class="c"># Install app</span>
+<span class="k">RUN</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>/home/frappe/frappe-bench<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>bench<span class="w"> </span>get-app<span class="w"> </span>facturacion_mexico<span class="w"> </span>--resolve-deps<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>bench<span class="w"> </span>build
+
+<span class="c"># Development specific configurations</span>
+<span class="k">ENV</span><span class="w"> </span><span class="nv">DEVELOPER_MODE</span><span class="o">=</span><span class="m">1</span>
+<span class="k">ENV</span><span class="w"> </span><span class="nv">DEBUG_MODE</span><span class="o">=</span><span class="m">1</span>
+</code></pre></div>
+<h4 id="docker-composedevyml">docker-compose.dev.yml<a class="headerlink" href="#docker-composedevyml" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3.8&#39;</span>
+
+<span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">erpnext</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">build</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">context</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">.</span>
+<span class="w">      </span><span class="nt">dockerfile</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Dockerfile.dev</span>
+<span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;8000:8000&quot;</span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SITE_NAME=dev.facturacion.local</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DB_ROOT_PASSWORD=admin</span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./facturacion_mexico:/home/frappe/frappe-bench/apps/facturacion_mexico</span>
+<span class="w">    </span><span class="nt">depends_on</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">db</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis</span>
+
+<span class="w">  </span><span class="nt">db</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mariadb:10.6</span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MYSQL_ROOT_PASSWORD=admin</span>
+
+<span class="w">  </span><span class="nt">redis</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis:alpine</span>
+</code></pre></div>
+<h3 id="cicd-pipeline-testing">CI/CD Pipeline Testing<a class="headerlink" href="#cicd-pipeline-testing" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># .github/workflows/test.yml</span>
+<span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Tests</span>
+
+<span class="nt">on</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">push</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">pull_request</span><span class="p p-Indicator">]</span>
+
+<span class="nt">jobs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">test</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+
+<span class="w">    </span><span class="nt">services</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">mariadb</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mariadb:10.6</span>
+<span class="w">        </span><span class="nt">env</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">MYSQL_ROOT_PASSWORD</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">root</span>
+<span class="w">        </span><span class="nt">options</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">--health-cmd=&quot;mysqladmin ping&quot; --health-interval=10s</span>
+
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v3</span>
+
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Setup Python</span>
+<span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/setup-python@v4</span>
+<span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">python-version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3.10&#39;</span>
+
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Install Frappe</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">          </span><span class="no">pip install frappe-bench</span>
+<span class="w">          </span><span class="no">bench init --skip-redis-config-generation frappe-bench</span>
+
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Setup App</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">          </span><span class="no">cd frappe-bench</span>
+<span class="w">          </span><span class="no">bench get-app facturacion_mexico $GITHUB_WORKSPACE</span>
+<span class="w">          </span><span class="no">bench new-site test.local --db-root-password root</span>
+<span class="w">          </span><span class="no">bench install-app facturacion_mexico --site test.local</span>
+
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Run Tests</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">          </span><span class="no">cd frappe-bench</span>
+<span class="w">          </span><span class="no">bench --site test.local run-tests --app facturacion_mexico --coverage</span>
+</code></pre></div>
+<h2 id="workflow-de-desarrollo">🔄 Workflow de Desarrollo<a class="headerlink" href="#workflow-de-desarrollo" title="Permanent link">&para;</a></h2>
+<h3 id="branch-strategy">Branch Strategy<a class="headerlink" href="#branch-strategy" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Feature branch</span>
+git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>feature/nueva-funcionalidad
+
+<span class="c1"># Desarrollo...</span>
+git<span class="w"> </span>add<span class="w"> </span>.
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: agregar nueva funcionalidad&quot;</span>
+
+<span class="c1"># Push y crear PR  </span>
+git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>feature/nueva-funcionalidad
+</code></pre></div>
+<h3 id="conventional-commits">Conventional Commits<a class="headerlink" href="#conventional-commits" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Ejemplos de commits válidos</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: agregar soporte para addendas Liverpool&quot;</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: corregir validación RFC en CFDI generation&quot;</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test: agregar tests para multi-sucursal failover&quot;</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;docs: actualizar documentación API&quot;</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;refactor: optimizar algoritmo de selección de branch&quot;</span>
+</code></pre></div>
+<h3 id="pull-request-checklist">Pull Request Checklist<a class="headerlink" href="#pull-request-checklist" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Tests pasan (46/46) ✅</li>
+<li>[ ] Code coverage &gt; 90% ✅  </li>
+<li>[ ] Linting sin errores ✅</li>
+<li>[ ] Documentación actualizada ✅</li>
+<li>[ ] CHANGELOG.md actualizado ✅</li>
+<li>[ ] Conventional commits ✅</li>
+</ul>
+<hr />
+<div class="admonition tip">
+<p class="admonition-title">Performance</p>
+<p>Usa <code>bench --site site.local clear-cache</code> frecuentemente durante desarrollo para evitar cache issues.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Database</p>
+<p>Nunca hagas cambios directos a la DB en development. Usa migrations para cambios de schema.</p>
+</div>
+<div class="admonition info">
+<p class="admonition-title">Hot Reload</p>
+<p>Con <code>auto_reload: 1</code>, Frappe recargará automáticamente cuando detecte cambios en Python files.</p>
+</div>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Volver al principio
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 Facturación México - Documentación Técnica
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/tu-org/facturacion_mexico" target="_blank" rel="noopener" title="GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+      <div class="md-consent" data-md-component="consent" id="__consent" hidden>
+        <div class="md-consent__overlay"></div>
+        <aside class="md-consent__inner">
+          <form class="md-consent__form md-grid md-typeset" name="consent">
+            
+
+  
+    
+  
+
+
+
+
+
+<h4>Consentimiento de cookies</h4>
+<p>Utilizamos cookies para reconocer tus visitas repetidas y preferencias, así como para medir la efectividad de nuestra documentación y si los usuarios encuentran lo que están buscando. Con tu consentimiento, nos ayudas a mejorar nuestra documentación.
+</p>
+<input class="md-toggle" type="checkbox" id="__settings" >
+<div class="md-consent__settings">
+  <ul class="task-list">
+    
+      
+      
+        
+        
+      
+      <li class="task-list-item">
+        <label class="task-list-control">
+          <input type="checkbox" name="analytics" checked>
+          <span class="task-list-indicator"></span>
+          Google Analytics
+        </label>
+      </li>
+    
+  </ul>
+</div>
+<div class="md-consent__controls">
+  
+    
+      <button class="md-button md-button--primary">Aceptar</button>
+    
+    
+    
+  
+    
+    
+      <button type="reset" class="md-button md-button--primary">Rechazar</button>
+    
+    
+  
+    
+    
+    
+      <label class="md-button" for="__settings">Gestionar cookies</label>
+    
+  
+</div>
+          </form>
+        </aside>
+      </div>
+      <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout(function(){document.querySelector("[data-md-component=consent]").hidden=!1},250);var action,form=document.forms.consent;for(action of["submit","reset"])form.addEventListener(action,function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map(function(e){return[e,!0]}))),location.hash="",location.reload()})</script>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.expand", "navigation.instant", "navigation.sections", "navigation.tabs", "navigation.top", "search.highlight", "search.suggest"], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copiado al portapapeles", "clipboard.copy": "Copiar al portapapeles", "search.result.more.one": "1 m\u00e1s en esta p\u00e1gina", "search.result.more.other": "# m\u00e1s en esta p\u00e1gina", "search.result.none": "No se encontraron documentos", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Teclee para comenzar b\u00fasqueda", "search.result.term.missing": "Falta", "select.version": "Seleccionar versi\u00f3n"}, "version": {"default": "latest", "provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7c377c4.min.js"></script>
+      
+        <script src="../../assets/javascripts/extra.js"></script>
+      
+        <script src="../../assets/javascripts/advanced.js"></script>
+      
+    
+  </body>
+</html>

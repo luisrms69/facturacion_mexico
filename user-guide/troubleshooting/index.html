@@ -1,0 +1,1973 @@
+
+<!doctype html>
+<html lang="es" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentación completa del sistema de facturación electrónica para México">
+      
+      
+        <meta name="author" content="Equipo Desarrollo Facturación México">
+      
+      
+      
+        <link rel="prev" href="../addendas/">
+      
+      
+        <link rel="next" href="../../api/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.3">
+    
+    
+      
+        <title>Troubleshooting - Facturación México - Documentación Técnica</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.50c56a3b.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/advanced.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function n(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],n("js",new Date),n("config","G-XXXXXXXXXX"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){this.value&&n("event","search",{search_term:this.value})}),document$.subscribe(function(){var a=document.forms.feedback;if(void 0!==a)for(var e of a.querySelectorAll("[type=submit]"))e.addEventListener("click",function(e){e.preventDefault();var t=document.location.pathname,e=this.getAttribute("data-md-value");n("event","feedback",{page:t,data:e}),a.firstElementChild.disabled=!0;e=a.querySelector(".md-feedback__note [data-md-value='"+e+"']");e&&(e.hidden=!1)}),a.hidden=!1}),location$.subscribe(function(e){n("config","G-XXXXXXXXXX",{page_path:e.pathname})})});var e=document.createElement("script");e.async=!0,e.src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX",document.getElementById("__analytics").insertAdjacentElement("afterEnd",e)}</script>
+  
+    <script>var consent;"undefined"==typeof __md_analytics||(consent=__md_get("__consent"))&&consent.analytics&&__md_analytics()</script>
+  
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#troubleshooting-solucion-de-problemas" class="md-skip">
+          Saltar a contenido
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabecera">
+    <a href="../.." title="Facturación México - Documentación Técnica" class="md-header__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Facturación México - Documentación Técnica
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Troubleshooting
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo oscuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo oscuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Búsqueda" placeholder="Búsqueda" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Buscar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpiar" aria-label="Limpiar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando búsqueda
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Pestañas" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+    
+  
+  Inicio
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  Guía de Usuario
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/" class="md-tabs__link">
+          
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/" class="md-tabs__link">
+          
+  
+  Desarrollo
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navegación" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Facturación México - Documentación Técnica" class="md-nav__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Facturación México - Documentación Técnica
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Inicio
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Guía de Usuario
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Guía de Usuario
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Usuario - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Primeros Pasos
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#problemas-de-timbrado" class="md-nav__link">
+    <span class="md-ellipsis">
+      🚨 Problemas de Timbrado
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🚨 Problemas de Timbrado">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#error-pac-provider-not-configured" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error: "PAC Provider Not Configured"
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-certificate-validation-failed" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error: "Certificate Validation Failed"
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-invalid-xml-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error: "Invalid XML Structure"
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#problemas-multi-sucursal" class="md-nav__link">
+    <span class="md-ellipsis">
+      🏢 Problemas Multi-sucursal
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🏢 Problemas Multi-sucursal">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#branch-no-responde" class="md-nav__link">
+    <span class="md-ellipsis">
+      Branch No Responde
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#failover-no-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      Failover No Funciona
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#problemas-de-addendas" class="md-nav__link">
+    <span class="md-ellipsis">
+      📄 Problemas de Addendas
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📄 Problemas de Addendas">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#addenda-no-se-genera" class="md-nav__link">
+    <span class="md-ellipsis">
+      Addenda No Se Genera
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-de-validacion-en-addenda" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error de Validación en Addenda
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#problemas-de-catalogos-sat" class="md-nav__link">
+    <span class="md-ellipsis">
+      📊 Problemas de Catalogos SAT
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📊 Problemas de Catalogos SAT">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#catalogos-desactualizados" class="md-nav__link">
+    <span class="md-ellipsis">
+      Catalogos Desactualizados
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#items-sin-codigos-sat" class="md-nav__link">
+    <span class="md-ellipsis">
+      Items Sin Códigos SAT
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#problemas-de-performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔧 Problemas de Performance
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔧 Problemas de Performance">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#timbrado-lento" class="md-nav__link">
+    <span class="md-ellipsis">
+      Timbrado Lento
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memoria-alta" class="md-nav__link">
+    <span class="md-ellipsis">
+      Memoria Alta
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#herramientas-de-debugging" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔍 Herramientas de Debugging
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔍 Herramientas de Debugging">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#logs-detallados" class="md-nav__link">
+    <span class="md-ellipsis">
+      Logs Detallados
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#console-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      Console Commands
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#health-check-script" class="md-nav__link">
+    <span class="md-ellipsis">
+      Health Check Script
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    API Reference
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    API Reference - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/cfdi/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CFDI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/catalogos/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Catalogos SAT
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/hooks/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Hooks
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Desarrollo
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Desarrollo
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Desarrollo - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Setup Desarrollo
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#problemas-de-timbrado" class="md-nav__link">
+    <span class="md-ellipsis">
+      🚨 Problemas de Timbrado
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🚨 Problemas de Timbrado">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#error-pac-provider-not-configured" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error: "PAC Provider Not Configured"
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-certificate-validation-failed" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error: "Certificate Validation Failed"
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-invalid-xml-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error: "Invalid XML Structure"
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#problemas-multi-sucursal" class="md-nav__link">
+    <span class="md-ellipsis">
+      🏢 Problemas Multi-sucursal
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🏢 Problemas Multi-sucursal">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#branch-no-responde" class="md-nav__link">
+    <span class="md-ellipsis">
+      Branch No Responde
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#failover-no-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      Failover No Funciona
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#problemas-de-addendas" class="md-nav__link">
+    <span class="md-ellipsis">
+      📄 Problemas de Addendas
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📄 Problemas de Addendas">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#addenda-no-se-genera" class="md-nav__link">
+    <span class="md-ellipsis">
+      Addenda No Se Genera
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-de-validacion-en-addenda" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error de Validación en Addenda
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#problemas-de-catalogos-sat" class="md-nav__link">
+    <span class="md-ellipsis">
+      📊 Problemas de Catalogos SAT
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📊 Problemas de Catalogos SAT">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#catalogos-desactualizados" class="md-nav__link">
+    <span class="md-ellipsis">
+      Catalogos Desactualizados
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#items-sin-codigos-sat" class="md-nav__link">
+    <span class="md-ellipsis">
+      Items Sin Códigos SAT
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#problemas-de-performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔧 Problemas de Performance
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔧 Problemas de Performance">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#timbrado-lento" class="md-nav__link">
+    <span class="md-ellipsis">
+      Timbrado Lento
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memoria-alta" class="md-nav__link">
+    <span class="md-ellipsis">
+      Memoria Alta
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#herramientas-de-debugging" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔍 Herramientas de Debugging
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔍 Herramientas de Debugging">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#logs-detallados" class="md-nav__link">
+    <span class="md-ellipsis">
+      Logs Detallados
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#console-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      Console Commands
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#health-check-script" class="md-nav__link">
+    <span class="md-ellipsis">
+      Health Check Script
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="troubleshooting-solucion-de-problemas">Troubleshooting - Solución de Problemas<a class="headerlink" href="#troubleshooting-solucion-de-problemas" title="Permanent link">&para;</a></h1>
+<p>Guía completa para resolver problemas comunes del sistema de facturación.</p>
+<h2 id="problemas-de-timbrado">🚨 Problemas de Timbrado<a class="headerlink" href="#problemas-de-timbrado" title="Permanent link">&para;</a></h2>
+<h3 id="error-pac-provider-not-configured">Error: "PAC Provider Not Configured"<a class="headerlink" href="#error-pac-provider-not-configured" title="Permanent link">&para;</a></h3>
+<p><strong>Síntomas:</strong>
+- Error al hacer submit de Sales Invoice
+- Mensaje: "No PAC provider configured"</p>
+<p><strong>Solución:</strong></p>
+<ol>
+<li><strong>Verificar configuración PAC</strong>:
+   <div class="highlight"><pre><span></span><code>bench<span class="w"> </span>--site<span class="w"> </span>tu-sitio.local<span class="w"> </span>console
+</code></pre></div></li>
+</ol>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">frappe</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PAC Provider: </span><span class="si">{</span><span class="n">frappe</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;pac_provider&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PAC Username: </span><span class="si">{</span><span class="n">frappe</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;pac_username&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Test Mode: </span><span class="si">{</span><span class="n">frappe</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;pac_test_mode&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<ol>
+<li>
+<p><strong>Configurar en site_config.json</strong>:
+   <div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;pac_provider&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;finkok&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;pac_username&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tu_usuario&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;pac_password&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tu_password&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;pac_test_mode&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="p">}</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Reiniciar servicios</strong>:
+   <div class="highlight"><pre><span></span><code>bench<span class="w"> </span>restart
+</code></pre></div></p>
+</li>
+</ol>
+<h3 id="error-certificate-validation-failed">Error: "Certificate Validation Failed"<a class="headerlink" href="#error-certificate-validation-failed" title="Permanent link">&para;</a></h3>
+<p><strong>Síntomas:</strong>
+- Timbrado falla con error de certificado
+- XML se genera pero no se timbre</p>
+<p><strong>Solución:</strong></p>
+<ol>
+<li>
+<p><strong>Verificar certificados</strong>:
+   <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">facturacion_mexico.utils.certificates</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_certificates</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">validate_certificates</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Válido: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;valid&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;error&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expira: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;expires_on&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Re-subir certificados</strong>:</p>
+</li>
+<li>Ve a <strong>Setup &gt; Facturación México &gt; Certificados SAT</strong></li>
+<li>Sube nuevamente los archivos .cer y .key</li>
+<li>
+<p>Ingresa la contraseña correcta</p>
+</li>
+<li>
+<p><strong>Verificar permisos</strong>:
+   <div class="highlight"><pre><span></span><code><span class="c1"># Verificar que los archivos sean legibles</span>
+ls<span class="w"> </span>-la<span class="w"> </span>sites/tu-sitio.local/private/files/
+chmod<span class="w"> </span><span class="m">644</span><span class="w"> </span>sites/tu-sitio.local/private/files/*.cer
+chmod<span class="w"> </span><span class="m">600</span><span class="w"> </span>sites/tu-sitio.local/private/files/*.key
+</code></pre></div></p>
+</li>
+</ol>
+<h3 id="error-invalid-xml-structure">Error: "Invalid XML Structure"<a class="headerlink" href="#error-invalid-xml-structure" title="Permanent link">&para;</a></h3>
+<p><strong>Síntomas:</strong>
+- XML se genera con errores de estructura
+- PAC rechaza el XML por formato inválido</p>
+<p><strong>Solución:</strong></p>
+<ol>
+<li>
+<p><strong>Validar datos de company</strong>:
+   <div class="highlight"><pre><span></span><code><span class="n">company</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_doc</span><span class="p">(</span><span class="s2">&quot;Company&quot;</span><span class="p">,</span> <span class="s2">&quot;Tu Empresa&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;RFC: </span><span class="si">{</span><span class="n">company</span><span class="o">.</span><span class="n">tax_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Régimen Fiscal: </span><span class="si">{</span><span class="n">company</span><span class="o">.</span><span class="n">default_tax_regime</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Código Postal: </span><span class="si">{</span><span class="n">company</span><span class="o">.</span><span class="n">zip_code</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Verificar catalogos SAT</strong>:
+   <div class="highlight"><pre><span></span><code>bench<span class="w"> </span>--site<span class="w"> </span>tu-sitio.local<span class="w"> </span>execute<span class="w"> </span>facturacion_mexico.catalogos_sat.sync_all_catalogs
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Validar XML manualmente</strong>:
+   <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">facturacion_mexico.cfdi.xml_validator</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_cfdi_xml</span>
+
+<span class="n">invoice</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_doc</span><span class="p">(</span><span class="s2">&quot;Sales Invoice&quot;</span><span class="p">,</span> <span class="s2">&quot;SINV-00001&quot;</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">validate_cfdi_xml</span><span class="p">(</span><span class="n">invoice</span><span class="o">.</span><span class="n">cfdi_xml</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;valid&#39;</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">error</span> <span class="ow">in</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;errors&#39;</span><span class="p">]:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div></p>
+</li>
+</ol>
+<h2 id="problemas-multi-sucursal">🏢 Problemas Multi-sucursal<a class="headerlink" href="#problemas-multi-sucursal" title="Permanent link">&para;</a></h2>
+<h3 id="branch-no-responde">Branch No Responde<a class="headerlink" href="#branch-no-responde" title="Permanent link">&para;</a></h3>
+<p><strong>Síntomas:</strong>
+- Timeouts al procesar facturas
+- Branch marcado como "Not Available"</p>
+<p><strong>Solución:</strong></p>
+<ol>
+<li>
+<p><strong>Verificar conectividad</strong>:
+   <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">facturacion_mexico.multisucursal.diagnostics</span><span class="w"> </span><span class="kn">import</span> <span class="n">test_branch_connectivity</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">test_branch_connectivity</span><span class="p">(</span><span class="s2">&quot;NORTE_01&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Status: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Response Time: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;response_time&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">ms&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PAC Available: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;pac_available&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Revisar credenciales PAC del branch</strong>:
+   <div class="highlight"><pre><span></span><code><span class="n">branch</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_doc</span><span class="p">(</span><span class="s2">&quot;Branch&quot;</span><span class="p">,</span> <span class="s2">&quot;NORTE_01&quot;</span><span class="p">)</span>
+
+<span class="c1"># Verificar configuración (sin mostrar password)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PAC Provider: </span><span class="si">{</span><span class="n">branch</span><span class="o">.</span><span class="n">pac_provider</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Username configured: </span><span class="si">{</span><span class="nb">bool</span><span class="p">(</span><span class="n">branch</span><span class="o">.</span><span class="n">pac_username</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Status: </span><span class="si">{</span><span class="n">branch</span><span class="o">.</span><span class="n">status</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Forzar health check</strong>:
+   <div class="highlight"><pre><span></span><code>bench<span class="w"> </span>--site<span class="w"> </span>tu-sitio.local<span class="w"> </span>execute<span class="w"> </span>facturacion_mexico.multisucursal.coordination.force_health_check<span class="w"> </span>--args<span class="w"> </span><span class="s2">&quot;[&#39;NORTE_01&#39;]&quot;</span>
+</code></pre></div></p>
+</li>
+</ol>
+<h3 id="failover-no-funciona">Failover No Funciona<a class="headerlink" href="#failover-no-funciona" title="Permanent link">&para;</a></h3>
+<p><strong>Síntomas:</strong>
+- Falla un branch pero el sistema no cambia automáticamente
+- Errores continúan en lugar de usar backup</p>
+<p><strong>Solución:</strong></p>
+<ol>
+<li>
+<p><strong>Verificar configuración de failover</strong>:
+   <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">frappe</span>
+
+<span class="c1"># Verificar configuración global</span>
+<span class="n">failover_enabled</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;branch_failover_enabled&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failover habilitado: </span><span class="si">{</span><span class="n">failover_enabled</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Verificar grupos de coordinación</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">facturacion_mexico.multisucursal.coordination</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_coordination_groups</span>
+<span class="n">groups</span> <span class="o">=</span> <span class="n">get_coordination_groups</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Grupos configurados: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">groups</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Revisar logs de coordinación</strong>:
+   <div class="highlight"><pre><span></span><code>tail<span class="w"> </span>-f<span class="w"> </span>logs/frappe.log<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;multisucursal&quot;</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Configurar backup branches</strong>:
+   <div class="highlight"><pre><span></span><code><span class="c1"># Configurar backups para un grupo</span>
+<span class="n">group_config</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;GRUPO_NORTE&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;primary&quot;</span><span class="p">:</span> <span class="s2">&quot;MONTERREY_01&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;backups&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;TIJUANA_01&quot;</span><span class="p">,</span> <span class="s2">&quot;CHIHUAHUA_01&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;failover_threshold&quot;</span><span class="p">:</span> <span class="mi">3</span>  <span class="c1"># errores consecutivos</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">frappe</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="s2">&quot;Branch Settings&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;coordination_groups&quot;</span><span class="p">,</span> 
+                   <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">group_config</span><span class="p">))</span>
+</code></pre></div></p>
+</li>
+</ol>
+<h2 id="problemas-de-addendas">📄 Problemas de Addendas<a class="headerlink" href="#problemas-de-addendas" title="Permanent link">&para;</a></h2>
+<h3 id="addenda-no-se-genera">Addenda No Se Genera<a class="headerlink" href="#addenda-no-se-genera" title="Permanent link">&para;</a></h3>
+<p><strong>Síntomas:</strong>
+- Campo <code>addenda_xml</code> permanece vacío
+- No aparece addenda en el PDF</p>
+<p><strong>Solución:</strong></p>
+<ol>
+<li>
+<p><strong>Verificar configuración del cliente</strong>:
+   <div class="highlight"><pre><span></span><code><span class="n">customer</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_doc</span><span class="p">(</span><span class="s2">&quot;Customer&quot;</span><span class="p">,</span> <span class="s2">&quot;WALMART-001&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Addenda Required: </span><span class="si">{</span><span class="n">customer</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;fm_addenda_required&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Addenda Type: </span><span class="si">{</span><span class="n">customer</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;addenda_type&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Auto Apply: </span><span class="si">{</span><span class="n">customer</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;addenda_auto_apply&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Verificar tipo de addenda</strong>:
+   <div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="n">customer</span><span class="o">.</span><span class="n">addenda_type</span><span class="p">:</span>
+    <span class="n">addenda_type</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_doc</span><span class="p">(</span><span class="s2">&quot;Addenda Type&quot;</span><span class="p">,</span> <span class="n">customer</span><span class="o">.</span><span class="n">addenda_type</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Template File: </span><span class="si">{</span><span class="n">addenda_type</span><span class="o">.</span><span class="n">template_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Auto Apply: </span><span class="si">{</span><span class="n">addenda_type</span><span class="o">.</span><span class="n">auto_apply</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Required Fields: </span><span class="si">{</span><span class="n">addenda_type</span><span class="o">.</span><span class="n">required_fields</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Verificar template file</strong>:
+   <div class="highlight"><pre><span></span><code><span class="c1"># Verificar que el template existe</span>
+ls<span class="w"> </span>-la<span class="w"> </span>addendas/templates/walmart_mx.xml
+
+<span class="c1"># Verificar permisos</span>
+chmod<span class="w"> </span><span class="m">644</span><span class="w"> </span>addendas/templates/*.xml
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Generar manualmente</strong>:
+   <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">facturacion_mexico.addendas.generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_addenda_for_invoice</span>
+
+<span class="n">invoice</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_doc</span><span class="p">(</span><span class="s2">&quot;Sales Invoice&quot;</span><span class="p">,</span> <span class="s2">&quot;SINV-00001&quot;</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">generate_addenda_for_invoice</span><span class="p">(</span><span class="n">invoice</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;success&#39;</span><span class="p">]:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Addenda generada exitosamente&quot;</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;error&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div></p>
+</li>
+</ol>
+<h3 id="error-de-validacion-en-addenda">Error de Validación en Addenda<a class="headerlink" href="#error-de-validacion-en-addenda" title="Permanent link">&para;</a></h3>
+<p><strong>Síntomas:</strong>
+- Addenda se genera pero falla validación
+- Errores de formato XML</p>
+<p><strong>Solución:</strong></p>
+<ol>
+<li>
+<p><strong>Validar XML estructura</strong>:
+   <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">facturacion_mexico.addendas.validator</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_addenda_xml</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xml.etree.ElementTree</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ET</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">ET</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">invoice</span><span class="o">.</span><span class="n">addenda_xml</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;XML bien formado&quot;</span><span class="p">)</span>
+<span class="k">except</span> <span class="n">ET</span><span class="o">.</span><span class="n">ParseError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error XML: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Verificar campos requeridos</strong>:
+   <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">facturacion_mexico.addendas.validator</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_required_fields</span>
+
+<span class="n">invoice</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_doc</span><span class="p">(</span><span class="s2">&quot;Sales Invoice&quot;</span><span class="p">,</span> <span class="s2">&quot;SINV-00001&quot;</span><span class="p">)</span> 
+<span class="n">missing_fields</span> <span class="o">=</span> <span class="n">check_required_fields</span><span class="p">(</span><span class="n">invoice</span><span class="p">,</span> <span class="s2">&quot;WALMART_MX&quot;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">missing_fields</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Campos faltantes: </span><span class="si">{</span><span class="n">missing_fields</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Debug del template</strong>:
+   <div class="highlight"><pre><span></span><code><span class="c1"># Verificar datos disponibles para el template</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">frappe.utils.jinja</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_jenv</span>
+
+<span class="n">jenv</span> <span class="o">=</span> <span class="n">get_jenv</span><span class="p">()</span>
+<span class="n">template</span> <span class="o">=</span> <span class="n">jenv</span><span class="o">.</span><span class="n">get_template</span><span class="p">(</span><span class="s2">&quot;walmart_mx.xml&quot;</span><span class="p">)</span>
+
+<span class="c1"># Context de datos</span>
+<span class="n">context</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;invoice_number&#39;</span><span class="p">:</span> <span class="n">invoice</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+    <span class="s1">&#39;purchase_order&#39;</span><span class="p">:</span> <span class="n">invoice</span><span class="o">.</span><span class="n">po_no</span><span class="p">,</span>
+    <span class="s1">&#39;vendor_number&#39;</span><span class="p">:</span> <span class="n">invoice</span><span class="o">.</span><span class="n">supplier_invoice</span><span class="p">,</span>
+    <span class="c1"># ... otros campos</span>
+<span class="p">}</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">rendered</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="o">**</span><span class="n">context</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Template renderizado exitosamente&quot;</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error en template: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div></p>
+</li>
+</ol>
+<h2 id="problemas-de-catalogos-sat">📊 Problemas de Catalogos SAT<a class="headerlink" href="#problemas-de-catalogos-sat" title="Permanent link">&para;</a></h2>
+<h3 id="catalogos-desactualizados">Catalogos Desactualizados<a class="headerlink" href="#catalogos-desactualizados" title="Permanent link">&para;</a></h3>
+<p><strong>Síntomas:</strong>
+- Códigos SAT no encontrados
+- Errores de validación por catalogos obsoletos</p>
+<p><strong>Solución:</strong></p>
+<ol>
+<li>
+<p><strong>Sincronizar catalogos</strong>:
+   <div class="highlight"><pre><span></span><code><span class="c1"># Sincronizar todos los catalogos</span>
+bench<span class="w"> </span>--site<span class="w"> </span>tu-sitio.local<span class="w"> </span>execute<span class="w"> </span>facturacion_mexico.catalogos_sat.sync_all_catalogs
+
+<span class="c1"># Sincronizar catálogo específico</span>
+bench<span class="w"> </span>--site<span class="w"> </span>tu-sitio.local<span class="w"> </span>execute<span class="w"> </span>facturacion_mexico.catalogos_sat.sync_regimen_fiscal
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Verificar última sincronización</strong>:
+   <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">frappe.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_datetime</span>
+
+<span class="c1"># Verificar regímenes fiscales</span>
+<span class="n">last_sync</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">&quot;Regimen Fiscal SAT&quot;</span><span class="p">,</span> 
+                               <span class="n">filters</span><span class="o">=</span><span class="p">{},</span> 
+                               <span class="n">fieldname</span><span class="o">=</span><span class="s2">&quot;modified&quot;</span><span class="p">,</span> 
+                               <span class="n">order_by</span><span class="o">=</span><span class="s2">&quot;modified desc&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Última sincronización: </span><span class="si">{</span><span class="n">last_sync</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Verificar cantidad de registros</span>
+<span class="n">count</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;Regimen Fiscal SAT&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Regímenes disponibles: </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Forzar descarga manual</strong>:
+   <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">facturacion_mexico.catalogos_sat.downloader</span><span class="w"> </span><span class="kn">import</span> <span class="n">download_sat_catalog</span>
+
+<span class="c1"># Descargar catálogo específico</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">download_sat_catalog</span><span class="p">(</span><span class="s2">&quot;regimen_fiscal&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Descargados: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> registros&quot;</span><span class="p">)</span>
+</code></pre></div></p>
+</li>
+</ol>
+<h3 id="items-sin-codigos-sat">Items Sin Códigos SAT<a class="headerlink" href="#items-sin-codigos-sat" title="Permanent link">&para;</a></h3>
+<p><strong>Síntomas:</strong>
+- Error: "Item code SAT not found"
+- Factura no se puede timbrar</p>
+<p><strong>Solución:</strong></p>
+<ol>
+<li>
+<p><strong>Configurar códigos SAT en items</strong>:
+   <div class="highlight"><pre><span></span><code><span class="c1"># Buscar items sin código SAT</span>
+<span class="n">items_without_sat</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    SELECT name, item_name </span>
+<span class="s2">    FROM `tabItem` </span>
+<span class="s2">    WHERE sat_item_code IS NULL OR sat_item_code = &#39;&#39;</span>
+<span class="s2">    LIMIT 10</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items_without_sat</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Item sin SAT: </span><span class="si">{</span><span class="n">item</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">item</span><span class="o">.</span><span class="n">item_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Asignar códigos SAT automáticamente</strong>:
+   <div class="highlight"><pre><span></span><code><span class="c1"># Script para asignar códigos SAT por descripción</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">auto_assign_sat_codes</span><span class="p">():</span>
+    <span class="n">items</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_all</span><span class="p">(</span><span class="s2">&quot;Item&quot;</span><span class="p">,</span> 
+                          <span class="n">filters</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;sat_item_code&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;in&quot;</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">]]},</span>
+                          <span class="n">fields</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;item_name&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">])</span>
+
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+        <span class="c1"># Lógica para encontrar código SAT apropiado</span>
+        <span class="n">sat_code</span> <span class="o">=</span> <span class="n">find_best_sat_code</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">item_name</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">sat_code</span><span class="p">:</span>
+            <span class="n">frappe</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="s2">&quot;Item&quot;</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;sat_item_code&quot;</span><span class="p">,</span> <span class="n">sat_code</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Asignado </span><span class="si">{</span><span class="n">sat_code</span><span class="si">}</span><span class="s2"> a </span><span class="si">{</span><span class="n">item</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Usar código SAT genérico temporalmente</strong>:
+   <div class="highlight"><pre><span></span><code><span class="c1"># Asignar código genérico a items problemáticos</span>
+<span class="n">generic_code</span> <span class="o">=</span> <span class="s2">&quot;01010101&quot;</span>  <span class="c1"># Código genérico SAT</span>
+
+<span class="n">frappe</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    UPDATE `tabItem` </span>
+<span class="s2">    SET sat_item_code = </span><span class="si">%s</span><span class="s2"> </span>
+<span class="s2">    WHERE sat_item_code IS NULL OR sat_item_code = &#39;&#39;</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">generic_code</span><span class="p">,))</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Códigos genéricos asignados&quot;</span><span class="p">)</span>
+</code></pre></div></p>
+</li>
+</ol>
+<h2 id="problemas-de-performance">🔧 Problemas de Performance<a class="headerlink" href="#problemas-de-performance" title="Permanent link">&para;</a></h2>
+<h3 id="timbrado-lento">Timbrado Lento<a class="headerlink" href="#timbrado-lento" title="Permanent link">&para;</a></h3>
+<p><strong>Síntomas:</strong>
+- Submit de facturas toma más de 10 segundos
+- Timeouts en timbrado</p>
+<p><strong>Solución:</strong></p>
+<ol>
+<li>
+<p><strong>Monitorear tiempos</strong>:
+   <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">wraps</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">time_function</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">func</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> tomó </span><span class="si">{</span><span class="n">end</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> segundos&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span>
+    <span class="k">return</span> <span class="n">wrapper</span>
+
+<span class="c1"># Aplicar a función de timbrado</span>
+<span class="nd">@time_function</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">timbrar_factura</span><span class="p">(</span><span class="n">invoice</span><span class="p">):</span>
+    <span class="c1"># Lógica de timbrado</span>
+    <span class="k">pass</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Optimizar consultas</strong>:
+   <div class="highlight"><pre><span></span><code><span class="c1"># Verificar queries lentas</span>
+<span class="n">frappe</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="c1"># Procesar factura</span>
+<span class="n">invoice</span><span class="o">.</span><span class="n">submit</span><span class="p">()</span>
+
+<span class="c1"># Ver log de queries</span>
+<span class="k">for</span> <span class="n">query</span> <span class="ow">in</span> <span class="n">frappe</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_query_log</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">query</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">1.0</span><span class="p">:</span>  <span class="c1"># Queries &gt; 1 segundo</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Query lenta: </span><span class="si">{</span><span class="n">query</span><span class="p">[</span><span class="s1">&#39;query&#39;</span><span class="p">][:</span><span class="mi">100</span><span class="p">]</span><span class="si">}</span><span class="s2">... (</span><span class="si">{</span><span class="n">query</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s)&quot;</span><span class="p">)</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Configurar cache</strong>:
+   <div class="highlight"><pre><span></span><code><span class="c1"># Cachear catalogos SAT frecuentemente usados</span>
+<span class="nd">@frappe</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">memoize</span><span class="p">()</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_sat_regimen_fiscal</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_all</span><span class="p">(</span><span class="s2">&quot;Regimen Fiscal SAT&quot;</span><span class="p">,</span> 
+                        <span class="n">fields</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;codigo&quot;</span><span class="p">,</span> <span class="s2">&quot;descripcion&quot;</span><span class="p">])</span>
+
+<span class="c1"># Usar cache en lugar de query directa</span>
+<span class="n">regimenes</span> <span class="o">=</span> <span class="n">get_sat_regimen_fiscal</span><span class="p">()</span>
+</code></pre></div></p>
+</li>
+</ol>
+<h3 id="memoria-alta">Memoria Alta<a class="headerlink" href="#memoria-alta" title="Permanent link">&para;</a></h3>
+<p><strong>Síntomas:</strong>
+- Proceso Frappe consume mucha RAM
+- Server se ralentiza con el tiempo</p>
+<p><strong>Solución:</strong></p>
+<ol>
+<li>
+<p><strong>Monitorear uso de memoria</strong>:
+   <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">psutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="n">process</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">())</span>
+<span class="n">memory_info</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">memory_info</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;RSS: </span><span class="si">{</span><span class="n">memory_info</span><span class="o">.</span><span class="n">rss</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">1024</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">1024</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> MB&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;VMS: </span><span class="si">{</span><span class="n">memory_info</span><span class="o">.</span><span class="n">vms</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">1024</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">1024</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> MB&quot;</span><span class="p">)</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Limpiar cache periódicamente</strong>:
+   <div class="highlight"><pre><span></span><code><span class="c1"># Limpiar cache manualmente</span>
+bench<span class="w"> </span>--site<span class="w"> </span>tu-sitio.local<span class="w"> </span>clear-cache
+
+<span class="c1"># Configurar limpieza automática</span>
+bench<span class="w"> </span>--site<span class="w"> </span>tu-sitio.local<span class="w"> </span>set-config<span class="w"> </span>clear_cache_interval<span class="w"> </span><span class="m">3600</span><span class="w">  </span><span class="c1"># cada hora</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Optimizar consultas masivas</strong>:
+   <div class="highlight"><pre><span></span><code><span class="c1"># En lugar de cargar todos los registros</span>
+<span class="c1"># invoices = frappe.get_all(&quot;Sales Invoice&quot;)  # ❌ Malo</span>
+
+<span class="c1"># Usar paginación</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">process_invoices_batch</span><span class="p">():</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">page_size</span> <span class="o">=</span> <span class="mi">100</span>
+
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">invoices</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_all</span><span class="p">(</span><span class="s2">&quot;Sales Invoice&quot;</span><span class="p">,</span> 
+                                <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> 
+                                <span class="n">page_length</span><span class="o">=</span><span class="n">page_size</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">invoices</span><span class="p">:</span>
+            <span class="k">break</span>
+
+        <span class="k">for</span> <span class="n">invoice</span> <span class="ow">in</span> <span class="n">invoices</span><span class="p">:</span>
+            <span class="n">process_invoice</span><span class="p">(</span><span class="n">invoice</span><span class="p">)</span>
+
+        <span class="n">start</span> <span class="o">+=</span> <span class="n">page_size</span>
+</code></pre></div></p>
+</li>
+</ol>
+<h2 id="herramientas-de-debugging">🔍 Herramientas de Debugging<a class="headerlink" href="#herramientas-de-debugging" title="Permanent link">&para;</a></h2>
+<h3 id="logs-detallados">Logs Detallados<a class="headerlink" href="#logs-detallados" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Habilitar logging detallado</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="c1"># Para módulo específico</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;facturacion_mexico&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+
+<span class="c1"># Para logging global</span>
+<span class="n">frappe</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="s2">&quot;Debug info&quot;</span><span class="p">,</span> <span class="s2">&quot;Debug Category&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="console-commands">Console Commands<a class="headerlink" href="#console-commands" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Información del sistema</span>
+bench<span class="w"> </span>--site<span class="w"> </span>tu-sitio.local<span class="w"> </span>console
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># Commands útiles en consola</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">frappe</span>
+
+<span class="c1"># Ver configuración actual</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">frappe</span><span class="o">.</span><span class="n">conf</span><span class="p">)</span>
+
+<span class="c1"># Ver apps instaladas</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">frappe</span><span class="o">.</span><span class="n">get_installed_apps</span><span class="p">())</span>
+
+<span class="c1"># Ver site config</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">frappe</span><span class="o">.</span><span class="n">get_site_config</span><span class="p">())</span>
+
+<span class="c1"># Información de la base de datos</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;DB: </span><span class="si">{</span><span class="n">frappe</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">db_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Usuario: </span><span class="si">{</span><span class="n">frappe</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">user</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="health-check-script">Health Check Script<a class="headerlink" href="#health-check-script" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">system_health_check</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Script completo de health check.&quot;&quot;&quot;</span>
+
+    <span class="n">checks</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;PAC Configuration&quot;</span><span class="p">:</span> <span class="n">check_pac_config</span><span class="p">(),</span>
+        <span class="s2">&quot;Certificates&quot;</span><span class="p">:</span> <span class="n">check_certificates</span><span class="p">(),</span>
+        <span class="s2">&quot;SAT Catalogs&quot;</span><span class="p">:</span> <span class="n">check_sat_catalogs</span><span class="p">(),</span>
+        <span class="s2">&quot;Branches&quot;</span><span class="p">:</span> <span class="n">check_branches</span><span class="p">(),</span>
+        <span class="s2">&quot;Templates&quot;</span><span class="p">:</span> <span class="n">check_templates</span><span class="p">(),</span>
+        <span class="s2">&quot;Performance&quot;</span><span class="p">:</span> <span class="n">check_performance</span><span class="p">()</span>
+    <span class="p">}</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">=== HEALTH CHECK RESULTS ===&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">check_name</span><span class="p">,</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">checks</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;✅ PASS&quot;</span> <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="s2">&quot;❌ FAIL&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">check_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Error: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;error&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">check</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="n">checks</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+<span class="c1"># Ejecutar health check</span>
+<span class="n">health_ok</span> <span class="o">=</span> <span class="n">system_health_check</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Sistema saludable: </span><span class="si">{</span><span class="s1">&#39;✅ Sí&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">health_ok</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;❌ No&#39;</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<hr />
+<div class="admonition tip">
+<p class="admonition-title">Logging Proactivo</p>
+<p>Habilita logging detallado durante desarrollo para detectar problemas temprano.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Performance</p>
+<p>Monitorea regularmente el performance del sistema, especialmente en timbrado masivo.</p>
+</div>
+<div class="admonition info">
+<p class="admonition-title">Support</p>
+<p>Si ninguna solución funciona, revisa los logs de sistema y contacta soporte técnico con información específica del error.</p>
+</div>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Volver al principio
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 Facturación México - Documentación Técnica
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/tu-org/facturacion_mexico" target="_blank" rel="noopener" title="GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+      <div class="md-consent" data-md-component="consent" id="__consent" hidden>
+        <div class="md-consent__overlay"></div>
+        <aside class="md-consent__inner">
+          <form class="md-consent__form md-grid md-typeset" name="consent">
+            
+
+  
+    
+  
+
+
+
+
+
+<h4>Consentimiento de cookies</h4>
+<p>Utilizamos cookies para reconocer tus visitas repetidas y preferencias, así como para medir la efectividad de nuestra documentación y si los usuarios encuentran lo que están buscando. Con tu consentimiento, nos ayudas a mejorar nuestra documentación.
+</p>
+<input class="md-toggle" type="checkbox" id="__settings" >
+<div class="md-consent__settings">
+  <ul class="task-list">
+    
+      
+      
+        
+        
+      
+      <li class="task-list-item">
+        <label class="task-list-control">
+          <input type="checkbox" name="analytics" checked>
+          <span class="task-list-indicator"></span>
+          Google Analytics
+        </label>
+      </li>
+    
+  </ul>
+</div>
+<div class="md-consent__controls">
+  
+    
+      <button class="md-button md-button--primary">Aceptar</button>
+    
+    
+    
+  
+    
+    
+      <button type="reset" class="md-button md-button--primary">Rechazar</button>
+    
+    
+  
+    
+    
+    
+      <label class="md-button" for="__settings">Gestionar cookies</label>
+    
+  
+</div>
+          </form>
+        </aside>
+      </div>
+      <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout(function(){document.querySelector("[data-md-component=consent]").hidden=!1},250);var action,form=document.forms.consent;for(action of["submit","reset"])form.addEventListener(action,function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map(function(e){return[e,!0]}))),location.hash="",location.reload()})</script>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.expand", "navigation.instant", "navigation.sections", "navigation.tabs", "navigation.top", "search.highlight", "search.suggest"], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copiado al portapapeles", "clipboard.copy": "Copiar al portapapeles", "search.result.more.one": "1 m\u00e1s en esta p\u00e1gina", "search.result.more.other": "# m\u00e1s en esta p\u00e1gina", "search.result.none": "No se encontraron documentos", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Teclee para comenzar b\u00fasqueda", "search.result.term.missing": "Falta", "select.version": "Seleccionar versi\u00f3n"}, "version": {"default": "latest", "provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7c377c4.min.js"></script>
+      
+        <script src="../../assets/javascripts/extra.js"></script>
+      
+        <script src="../../assets/javascripts/advanced.js"></script>
+      
+    
+  </body>
+</html>

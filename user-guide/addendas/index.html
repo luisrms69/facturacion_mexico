@@ -1,0 +1,2184 @@
+
+<!doctype html>
+<html lang="es" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentación completa del sistema de facturación electrónica para México">
+      
+      
+        <meta name="author" content="Equipo Desarrollo Facturación México">
+      
+      
+      
+        <link rel="prev" href="../multisucursal/">
+      
+      
+        <link rel="next" href="../troubleshooting/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.3">
+    
+    
+      
+        <title>Addendas - Facturación México - Documentación Técnica</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.50c56a3b.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/advanced.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function n(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],n("js",new Date),n("config","G-XXXXXXXXXX"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){this.value&&n("event","search",{search_term:this.value})}),document$.subscribe(function(){var a=document.forms.feedback;if(void 0!==a)for(var e of a.querySelectorAll("[type=submit]"))e.addEventListener("click",function(e){e.preventDefault();var t=document.location.pathname,e=this.getAttribute("data-md-value");n("event","feedback",{page:t,data:e}),a.firstElementChild.disabled=!0;e=a.querySelector(".md-feedback__note [data-md-value='"+e+"']");e&&(e.hidden=!1)}),a.hidden=!1}),location$.subscribe(function(e){n("config","G-XXXXXXXXXX",{page_path:e.pathname})})});var e=document.createElement("script");e.async=!0,e.src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX",document.getElementById("__analytics").insertAdjacentElement("afterEnd",e)}</script>
+  
+    <script>var consent;"undefined"==typeof __md_analytics||(consent=__md_get("__consent"))&&consent.analytics&&__md_analytics()</script>
+  
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#addendas-guia-de-usuario" class="md-skip">
+          Saltar a contenido
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabecera">
+    <a href="../.." title="Facturación México - Documentación Técnica" class="md-header__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Facturación México - Documentación Técnica
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Addendas
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo oscuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo oscuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Búsqueda" placeholder="Búsqueda" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Buscar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpiar" aria-label="Limpiar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando búsqueda
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Pestañas" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+    
+  
+  Inicio
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  Guía de Usuario
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/" class="md-tabs__link">
+          
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/" class="md-tabs__link">
+          
+  
+  Desarrollo
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navegación" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Facturación México - Documentación Técnica" class="md-nav__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Facturación México - Documentación Técnica
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Inicio
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Guía de Usuario
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Guía de Usuario
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Usuario - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Primeros Pasos
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#que-son-las-addendas" class="md-nav__link">
+    <span class="md-ellipsis">
+      📄 ¿Qué son las Addendas?
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuracion-inicial" class="md-nav__link">
+    <span class="md-ellipsis">
+      ⚙️ Configuración Inicial
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="⚙️ Configuración Inicial">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-habilitar-addendas" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Habilitar Addendas
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-configurar-templates" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Configurar Templates
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-configurar-tipos-de-addenda" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Configurar Tipos de Addenda
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Configurar Tipos de Addenda">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#walmart-mexico" class="md-nav__link">
+    <span class="md-ellipsis">
+      Walmart México
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#liverpool" class="md-nav__link">
+    <span class="md-ellipsis">
+      Liverpool
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configurar-clientes" class="md-nav__link">
+    <span class="md-ellipsis">
+      👥 Configurar Clientes
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="👥 Configurar Clientes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cliente-con-addenda-automatica" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cliente con Addenda Automática
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#campos-especificos-por-cliente" class="md-nav__link">
+    <span class="md-ellipsis">
+      Campos Específicos por Cliente
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Campos Específicos por Cliente">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#para-walmart" class="md-nav__link">
+    <span class="md-ellipsis">
+      Para Walmart
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#para-liverpool" class="md-nav__link">
+    <span class="md-ellipsis">
+      Para Liverpool
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#uso-diario" class="md-nav__link">
+    <span class="md-ellipsis">
+      📋 Uso Diario
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📋 Uso Diario">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#crear-factura-con-addenda" class="md-nav__link">
+    <span class="md-ellipsis">
+      Crear Factura con Addenda
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Crear Factura con Addenda">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#proceso-automatico" class="md-nav__link">
+    <span class="md-ellipsis">
+      Proceso Automático
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verificar-addenda-generada" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verificar Addenda Generada
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#proceso-manual" class="md-nav__link">
+    <span class="md-ellipsis">
+      Proceso Manual
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#templates-personalizados" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔧 Templates Personalizados
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔧 Templates Personalizados">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#estructura-de-template" class="md-nav__link">
+    <span class="md-ellipsis">
+      Estructura de Template
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Estructura de Template">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#walmart-template-walmart_mxxml" class="md-nav__link">
+    <span class="md-ellipsis">
+      Walmart Template (walmart_mx.xml)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#custom-filters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Custom Filters
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Custom Filters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#filtros-disponibles" class="md-nav__link">
+    <span class="md-ellipsis">
+      Filtros Disponibles
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#crear-filtros-personalizados" class="md-nav__link">
+    <span class="md-ellipsis">
+      Crear Filtros Personalizados
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#crear-template-personalizado" class="md-nav__link">
+    <span class="md-ellipsis">
+      Crear Template Personalizado
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Crear Template Personalizado">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-crear-archivo-xml" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Crear archivo XML
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-registrar-template" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Registrar Template
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validacion-y-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧪 Validación y Testing
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🧪 Validación y Testing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#validar-addenda" class="md-nav__link">
+    <span class="md-ellipsis">
+      Validar Addenda
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#test-de-generacion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Test de Generación
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#monitoreo-y-reportes" class="md-nav__link">
+    <span class="md-ellipsis">
+      📊 Monitoreo y Reportes
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📊 Monitoreo y Reportes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#reporte-de-addendas" class="md-nav__link">
+    <span class="md-ellipsis">
+      Reporte de Addendas
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metricas-de-performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Métricas de Performance
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mantenimiento" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔄 Mantenimiento
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔄 Mantenimiento">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#actualizar-templates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Actualizar Templates
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#migrar-configuraciones" class="md-nav__link">
+    <span class="md-ellipsis">
+      Migrar Configuraciones
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      🚨 Troubleshooting
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🚨 Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#addenda-no-se-genera" class="md-nav__link">
+    <span class="md-ellipsis">
+      Addenda No Se Genera
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-de-validacion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error de Validación
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#template-no-se-encuentra" class="md-nav__link">
+    <span class="md-ellipsis">
+      Template No Se Encuentra
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../troubleshooting/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    API Reference
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    API Reference - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/cfdi/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CFDI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/catalogos/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Catalogos SAT
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/hooks/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Hooks
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Desarrollo
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Desarrollo
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Desarrollo - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Setup Desarrollo
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#que-son-las-addendas" class="md-nav__link">
+    <span class="md-ellipsis">
+      📄 ¿Qué son las Addendas?
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuracion-inicial" class="md-nav__link">
+    <span class="md-ellipsis">
+      ⚙️ Configuración Inicial
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="⚙️ Configuración Inicial">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-habilitar-addendas" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Habilitar Addendas
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-configurar-templates" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Configurar Templates
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-configurar-tipos-de-addenda" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Configurar Tipos de Addenda
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Configurar Tipos de Addenda">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#walmart-mexico" class="md-nav__link">
+    <span class="md-ellipsis">
+      Walmart México
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#liverpool" class="md-nav__link">
+    <span class="md-ellipsis">
+      Liverpool
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configurar-clientes" class="md-nav__link">
+    <span class="md-ellipsis">
+      👥 Configurar Clientes
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="👥 Configurar Clientes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cliente-con-addenda-automatica" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cliente con Addenda Automática
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#campos-especificos-por-cliente" class="md-nav__link">
+    <span class="md-ellipsis">
+      Campos Específicos por Cliente
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Campos Específicos por Cliente">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#para-walmart" class="md-nav__link">
+    <span class="md-ellipsis">
+      Para Walmart
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#para-liverpool" class="md-nav__link">
+    <span class="md-ellipsis">
+      Para Liverpool
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#uso-diario" class="md-nav__link">
+    <span class="md-ellipsis">
+      📋 Uso Diario
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📋 Uso Diario">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#crear-factura-con-addenda" class="md-nav__link">
+    <span class="md-ellipsis">
+      Crear Factura con Addenda
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Crear Factura con Addenda">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#proceso-automatico" class="md-nav__link">
+    <span class="md-ellipsis">
+      Proceso Automático
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verificar-addenda-generada" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verificar Addenda Generada
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#proceso-manual" class="md-nav__link">
+    <span class="md-ellipsis">
+      Proceso Manual
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#templates-personalizados" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔧 Templates Personalizados
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔧 Templates Personalizados">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#estructura-de-template" class="md-nav__link">
+    <span class="md-ellipsis">
+      Estructura de Template
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Estructura de Template">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#walmart-template-walmart_mxxml" class="md-nav__link">
+    <span class="md-ellipsis">
+      Walmart Template (walmart_mx.xml)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#custom-filters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Custom Filters
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Custom Filters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#filtros-disponibles" class="md-nav__link">
+    <span class="md-ellipsis">
+      Filtros Disponibles
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#crear-filtros-personalizados" class="md-nav__link">
+    <span class="md-ellipsis">
+      Crear Filtros Personalizados
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#crear-template-personalizado" class="md-nav__link">
+    <span class="md-ellipsis">
+      Crear Template Personalizado
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Crear Template Personalizado">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-crear-archivo-xml" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Crear archivo XML
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-registrar-template" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Registrar Template
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validacion-y-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧪 Validación y Testing
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🧪 Validación y Testing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#validar-addenda" class="md-nav__link">
+    <span class="md-ellipsis">
+      Validar Addenda
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#test-de-generacion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Test de Generación
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#monitoreo-y-reportes" class="md-nav__link">
+    <span class="md-ellipsis">
+      📊 Monitoreo y Reportes
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📊 Monitoreo y Reportes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#reporte-de-addendas" class="md-nav__link">
+    <span class="md-ellipsis">
+      Reporte de Addendas
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metricas-de-performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Métricas de Performance
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mantenimiento" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔄 Mantenimiento
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔄 Mantenimiento">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#actualizar-templates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Actualizar Templates
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#migrar-configuraciones" class="md-nav__link">
+    <span class="md-ellipsis">
+      Migrar Configuraciones
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      🚨 Troubleshooting
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🚨 Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#addenda-no-se-genera" class="md-nav__link">
+    <span class="md-ellipsis">
+      Addenda No Se Genera
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-de-validacion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error de Validación
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#template-no-se-encuentra" class="md-nav__link">
+    <span class="md-ellipsis">
+      Template No Se Encuentra
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="addendas-guia-de-usuario">Addendas - Guía de Usuario<a class="headerlink" href="#addendas-guia-de-usuario" title="Permanent link">&para;</a></h1>
+<p>Guía completa para configurar y usar el sistema de addendas automáticas.</p>
+<h2 id="que-son-las-addendas">📄 ¿Qué son las Addendas?<a class="headerlink" href="#que-son-las-addendas" title="Permanent link">&para;</a></h2>
+<p>Las addendas son documentos XML adicionales que se anexan al CFDI para cumplir con requisitos específicos de grandes clientes como:</p>
+<ul>
+<li><strong>Walmart México</strong> - Formato de requestForPayment</li>
+<li><strong>Liverpool</strong> - Datos de proveedor y pedido</li>
+<li><strong>Chedraui</strong> - Información de orden de compra</li>
+<li><strong>Soriana</strong> - Detalles de entrega y facturación</li>
+<li><strong>OXXO</strong> - Códigos de producto específicos</li>
+</ul>
+<h2 id="configuracion-inicial">⚙️ Configuración Inicial<a class="headerlink" href="#configuracion-inicial" title="Permanent link">&para;</a></h2>
+<h3 id="1-habilitar-addendas">1. Habilitar Addendas<a class="headerlink" href="#1-habilitar-addendas" title="Permanent link">&para;</a></h3>
+<p>En tu <code>site_config.json</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;addendas_auto_generation&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;addenda_validation_strict&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;addenda_templates_path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;addendas/templates/&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="2-configurar-templates">2. Configurar Templates<a class="headerlink" href="#2-configurar-templates" title="Permanent link">&para;</a></h3>
+<p>Los templates están en <code>addendas/templates/</code>:</p>
+<div class="highlight"><pre><span></span><code>addendas/templates/
+├── walmart_mx.xml
+├── liverpool_mx.xml  
+├── chedraui_mx.xml
+├── soriana_mx.xml
+└── custom/
+    └── cliente_especial.xml
+</code></pre></div>
+<h3 id="3-configurar-tipos-de-addenda">3. Configurar Tipos de Addenda<a class="headerlink" href="#3-configurar-tipos-de-addenda" title="Permanent link">&para;</a></h3>
+<p>Ve a <strong>Setup &gt; Facturación México &gt; Addenda Types</strong>:</p>
+<h4 id="walmart-mexico">Walmart México<a class="headerlink" href="#walmart-mexico" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code>Addenda Type: WALMART_MX
+Template File: walmart_mx.xml
+Auto Apply: ✓ (marcado)
+Required Fields:
+- purchase_order
+- vendor_number  
+- store_number
+</code></pre></div>
+<h4 id="liverpool">Liverpool<a class="headerlink" href="#liverpool" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code>Addenda Type: LIVERPOOL_MX
+Template File: liverpool_mx.xml
+Auto Apply: ✓ (marcado)
+Required Fields:
+- proveedor_id
+- num_pedido
+- sucursal
+</code></pre></div>
+<h2 id="configurar-clientes">👥 Configurar Clientes<a class="headerlink" href="#configurar-clientes" title="Permanent link">&para;</a></h2>
+<h3 id="cliente-con-addenda-automatica">Cliente con Addenda Automática<a class="headerlink" href="#cliente-con-addenda-automatica" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Ve a <strong>Selling &gt; Customer</strong></li>
+<li>Abrir o crear cliente (ej: "Walmart de México")</li>
+<li>En sección <strong>Facturación México</strong>:</li>
+<li>Marcar <strong>FM Addenda Required</strong>: ✓</li>
+<li>Seleccionar <strong>Addenda Type</strong>: <code>WALMART_MX</code></li>
+<li>Configurar <strong>Auto Apply</strong>: ✓</li>
+</ol>
+<h3 id="campos-especificos-por-cliente">Campos Específicos por Cliente<a class="headerlink" href="#campos-especificos-por-cliente" title="Permanent link">&para;</a></h3>
+<h4 id="para-walmart">Para Walmart<a class="headerlink" href="#para-walmart" title="Permanent link">&para;</a></h4>
+<p>En <strong>Customer &gt; Custom Fields</strong>:</p>
+<div class="highlight"><pre><span></span><code>Vendor Number: WAL001234
+Store Network: Walmart México
+Payment Terms: NET30
+Purchase Order Pattern: ^\d{10}$
+</code></pre></div>
+<h4 id="para-liverpool">Para Liverpool<a class="headerlink" href="#para-liverpool" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code>Proveedor ID: LIV001234  
+Sucursal Code: LIV-CENTRO
+Num Pedido Pattern: ^LP\d{8}$
+</code></pre></div>
+<h2 id="uso-diario">📋 Uso Diario<a class="headerlink" href="#uso-diario" title="Permanent link">&para;</a></h2>
+<h3 id="crear-factura-con-addenda">Crear Factura con Addenda<a class="headerlink" href="#crear-factura-con-addenda" title="Permanent link">&para;</a></h3>
+<h4 id="proceso-automatico">Proceso Automático<a class="headerlink" href="#proceso-automatico" title="Permanent link">&para;</a></h4>
+<ol>
+<li>Crear <strong>Sales Invoice</strong> para cliente con addenda configurada</li>
+<li>Completar campos obligatorios:</li>
+<li><strong>Purchase Order</strong>: 1234567890 (para Walmart)</li>
+<li><strong>Store Number</strong>: 2587</li>
+<li><strong>Submit</strong> la factura</li>
+<li>La addenda se genera automáticamente</li>
+</ol>
+<h4 id="verificar-addenda-generada">Verificar Addenda Generada<a class="headerlink" href="#verificar-addenda-generada" title="Permanent link">&para;</a></h4>
+<p>Después del submit:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Desde consola</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">frappe</span>
+
+<span class="n">invoice</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_doc</span><span class="p">(</span><span class="s2">&quot;Sales Invoice&quot;</span><span class="p">,</span> <span class="s2">&quot;SINV-00001&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Addenda generada: </span><span class="si">{</span><span class="nb">bool</span><span class="p">(</span><span class="n">invoice</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;addenda_xml&#39;</span><span class="p">))</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tipo de addenda: </span><span class="si">{</span><span class="n">invoice</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;addenda_type&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Validación: </span><span class="si">{</span><span class="n">invoice</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;addenda_validation_status&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="proceso-manual">Proceso Manual<a class="headerlink" href="#proceso-manual" title="Permanent link">&para;</a></h3>
+<p>Si necesitas generar la addenda manualmente:</p>
+<ol>
+<li>En Sales Invoice, ir a <strong>More &gt; Generate Addenda</strong></li>
+<li>Seleccionar tipo de addenda</li>
+<li>Completar campos requeridos</li>
+<li>Clic en <strong>Generate</strong></li>
+</ol>
+<h2 id="templates-personalizados">🔧 Templates Personalizados<a class="headerlink" href="#templates-personalizados" title="Permanent link">&para;</a></h2>
+<h3 id="estructura-de-template">Estructura de Template<a class="headerlink" href="#estructura-de-template" title="Permanent link">&para;</a></h3>
+<h4 id="walmart-template-walmart_mxxml">Walmart Template (walmart_mx.xml)<a class="headerlink" href="#walmart-template-walmart_mxxml" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="nt">&lt;cfdi:Addenda&gt;</span>
+<span class="w">    </span><span class="nt">&lt;Walmart&gt;</span>
+<span class="w">        </span><span class="nt">&lt;requestForPayment&gt;</span>
+<span class="w">            </span><span class="nt">&lt;PaymentTerms&gt;</span>{{<span class="w"> </span>payment_terms<span class="w"> </span>|<span class="w"> </span>default(&#39;NET30&#39;)<span class="w"> </span>}}<span class="nt">&lt;/PaymentTerms&gt;</span>
+<span class="w">            </span><span class="nt">&lt;InvoiceNumber&gt;</span>{{<span class="w"> </span>invoice_number<span class="w"> </span>}}<span class="nt">&lt;/InvoiceNumber&gt;</span>
+<span class="w">            </span><span class="nt">&lt;PurchaseOrder&gt;</span>{{<span class="w"> </span>purchase_order<span class="w"> </span>|<span class="w"> </span>rfc_format<span class="w"> </span>}}<span class="nt">&lt;/PurchaseOrder&gt;</span>
+<span class="w">            </span><span class="nt">&lt;VendorNumber&gt;</span>{{<span class="w"> </span>vendor_number<span class="w"> </span>}}<span class="nt">&lt;/VendorNumber&gt;</span>
+<span class="w">            </span><span class="nt">&lt;StoreNumber&gt;</span>{{<span class="w"> </span>store_number<span class="w"> </span>}}<span class="nt">&lt;/StoreNumber&gt;</span>
+<span class="w">            </span><span class="nt">&lt;InvoiceDate&gt;</span>{{<span class="w"> </span>invoice_date<span class="w"> </span>|<span class="w"> </span>sat_datetime<span class="w"> </span>}}<span class="nt">&lt;/InvoiceDate&gt;</span>
+<span class="w">            </span><span class="nt">&lt;InvoiceAmount</span><span class="w"> </span><span class="na">currency=</span><span class="s">&quot;MXN&quot;</span><span class="nt">&gt;</span>{{<span class="w"> </span>grand_total<span class="w"> </span>|<span class="w"> </span>round(2)<span class="w"> </span>}}<span class="nt">&lt;/InvoiceAmount&gt;</span>
+<span class="w">        </span><span class="nt">&lt;/requestForPayment&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/Walmart&gt;</span>
+<span class="nt">&lt;/cfdi:Addenda&gt;</span>
+</code></pre></div>
+<h3 id="custom-filters">Custom Filters<a class="headerlink" href="#custom-filters" title="Permanent link">&para;</a></h3>
+<h4 id="filtros-disponibles">Filtros Disponibles<a class="headerlink" href="#filtros-disponibles" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>sat_datetime</code>: Formato de fecha SAT (AAAA-MM-DDTHH:MM:SS)</li>
+<li><code>rfc_format</code>: Validación de formato RFC</li>
+<li><code>currency_format</code>: Formato de moneda (2 decimales)</li>
+<li><code>uppercase</code>: Convertir a mayúsculas</li>
+<li><code>remove_accents</code>: Quitar acentos</li>
+</ul>
+<h4 id="crear-filtros-personalizados">Crear Filtros Personalizados<a class="headerlink" href="#crear-filtros-personalizados" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># En hooks.py</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">custom_addenda_filters</span><span class="p">():</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;walmart_date&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">date</span><span class="p">:</span> <span class="n">date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;pad_zeros&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">value</span><span class="p">,</span> <span class="n">length</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="n">length</span><span class="p">),</span>
+        <span class="s2">&quot;truncate&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">text</span><span class="p">,</span> <span class="n">max_len</span><span class="p">:</span> <span class="n">text</span><span class="p">[:</span><span class="n">max_len</span><span class="p">]</span> <span class="k">if</span> <span class="n">text</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+    <span class="p">}</span>
+</code></pre></div>
+<h3 id="crear-template-personalizado">Crear Template Personalizado<a class="headerlink" href="#crear-template-personalizado" title="Permanent link">&para;</a></h3>
+<h4 id="1-crear-archivo-xml">1. Crear archivo XML<a class="headerlink" href="#1-crear-archivo-xml" title="Permanent link">&para;</a></h4>
+<p><code>addendas/templates/custom/mi_cliente.xml</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">&lt;cfdi:Addenda&gt;</span>
+<span class="w">    </span><span class="nt">&lt;MiCliente&gt;</span>
+<span class="w">        </span><span class="nt">&lt;DatosFactura&gt;</span>
+<span class="w">            </span><span class="nt">&lt;NumeroFactura&gt;</span>{{<span class="w"> </span>invoice_number<span class="w"> </span>}}<span class="nt">&lt;/NumeroFactura&gt;</span>
+<span class="w">            </span><span class="nt">&lt;FechaFactura&gt;</span>{{<span class="w"> </span>invoice_date<span class="w"> </span>|<span class="w"> </span>sat_datetime<span class="w"> </span>}}<span class="nt">&lt;/FechaFactura&gt;</span>
+<span class="w">            </span><span class="nt">&lt;CodigoCliente&gt;</span>{{<span class="w"> </span>customer_code<span class="w"> </span>|<span class="w"> </span>uppercase<span class="w"> </span>}}<span class="nt">&lt;/CodigoCliente&gt;</span>
+<span class="w">            </span><span class="nt">&lt;ImporteTotal&gt;</span>{{<span class="w"> </span>grand_total<span class="w"> </span>|<span class="w"> </span>currency_format<span class="w"> </span>}}<span class="nt">&lt;/ImporteTotal&gt;</span>
+<span class="w">        </span><span class="nt">&lt;/DatosFactura&gt;</span>
+<span class="w">        </span><span class="nt">&lt;DetalleItems&gt;</span>
+<span class="w">            </span>{%<span class="w"> </span>for<span class="w"> </span>item<span class="w"> </span>in<span class="w"> </span>items<span class="w"> </span>%}
+<span class="w">            </span><span class="nt">&lt;Item&gt;</span>
+<span class="w">                </span><span class="nt">&lt;Codigo&gt;</span>{{<span class="w"> </span>item.item_code<span class="w"> </span>}}<span class="nt">&lt;/Codigo&gt;</span>
+<span class="w">                </span><span class="nt">&lt;Descripcion&gt;</span>{{<span class="w"> </span>item.description<span class="w"> </span>|<span class="w"> </span>truncate(50)<span class="w"> </span>}}<span class="nt">&lt;/Descripcion&gt;</span>
+<span class="w">                </span><span class="nt">&lt;Cantidad&gt;</span>{{<span class="w"> </span>item.qty<span class="w"> </span>}}<span class="nt">&lt;/Cantidad&gt;</span>
+<span class="w">                </span><span class="nt">&lt;Precio&gt;</span>{{<span class="w"> </span>item.rate<span class="w"> </span>|<span class="w"> </span>currency_format<span class="w"> </span>}}<span class="nt">&lt;/Precio&gt;</span>
+<span class="w">            </span><span class="nt">&lt;/Item&gt;</span>
+<span class="w">            </span>{%<span class="w"> </span>endfor<span class="w"> </span>%}
+<span class="w">        </span><span class="nt">&lt;/DetalleItems&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/MiCliente&gt;</span>
+<span class="nt">&lt;/cfdi:Addenda&gt;</span>
+</code></pre></div>
+<h4 id="2-registrar-template">2. Registrar Template<a class="headerlink" href="#2-registrar-template" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># Setup del template personalizado</span>
+<span class="n">frappe</span><span class="o">.</span><span class="n">get_doc</span><span class="p">({</span>
+    <span class="s2">&quot;doctype&quot;</span><span class="p">:</span> <span class="s2">&quot;Addenda Type&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;addenda_type&quot;</span><span class="p">:</span> <span class="s2">&quot;MI_CLIENTE_MX&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;template_file&quot;</span><span class="p">:</span> <span class="s2">&quot;custom/mi_cliente.xml&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;auto_apply&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="s2">&quot;required_fields&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;customer_code&quot;</span><span class="p">,</span> <span class="s2">&quot;invoice_date&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;validation_rules&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;customer_code&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;^MC\d</span><span class="si">{6}</span><span class="s2">$&quot;</span>
+    <span class="p">}</span>
+<span class="p">})</span><span class="o">.</span><span class="n">insert</span><span class="p">()</span>
+</code></pre></div>
+<h2 id="validacion-y-testing">🧪 Validación y Testing<a class="headerlink" href="#validacion-y-testing" title="Permanent link">&para;</a></h2>
+<h3 id="validar-addenda">Validar Addenda<a class="headerlink" href="#validar-addenda" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Validar addenda generada</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">facturacion_mexico.addendas.validator</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_addenda</span>
+
+<span class="n">invoice</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_doc</span><span class="p">(</span><span class="s2">&quot;Sales Invoice&quot;</span><span class="p">,</span> <span class="s2">&quot;SINV-00001&quot;</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">validate_addenda</span><span class="p">(</span><span class="n">invoice</span><span class="o">.</span><span class="n">addenda_xml</span><span class="p">,</span> <span class="n">invoice</span><span class="o">.</span><span class="n">addenda_type</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Válida: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">is_valid</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="o">.</span><span class="n">is_valid</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Errores: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">errors</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="test-de-generacion">Test de Generación<a class="headerlink" href="#test-de-generacion" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Test completo de generación</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">facturacion_mexico.addendas.generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_test_addenda</span>
+
+<span class="c1"># Generar addenda de prueba</span>
+<span class="n">test_data</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;customer&quot;</span><span class="p">:</span> <span class="s2">&quot;Walmart de México&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;purchase_order&quot;</span><span class="p">:</span> <span class="s2">&quot;1234567890&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;vendor_number&quot;</span><span class="p">:</span> <span class="s2">&quot;WAL001234&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;store_number&quot;</span><span class="p">:</span> <span class="s2">&quot;2587&quot;</span>
+<span class="p">}</span>
+
+<span class="n">addenda_xml</span> <span class="o">=</span> <span class="n">generate_test_addenda</span><span class="p">(</span><span class="s2">&quot;WALMART_MX&quot;</span><span class="p">,</span> <span class="n">test_data</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Addenda generada exitosamente&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="monitoreo-y-reportes">📊 Monitoreo y Reportes<a class="headerlink" href="#monitoreo-y-reportes" title="Permanent link">&para;</a></h2>
+<h3 id="reporte-de-addendas">Reporte de Addendas<a class="headerlink" href="#reporte-de-addendas" title="Permanent link">&para;</a></h3>
+<p>Ve a <strong>Reports &gt; Facturación México &gt; Addenda Generation Report</strong>:</p>
+<ul>
+<li>Addendas generadas por período</li>
+<li>Tasa de éxito por tipo</li>
+<li>Errores de validación frecuentes</li>
+<li>Clientes sin configuración</li>
+</ul>
+<h3 id="metricas-de-performance">Métricas de Performance<a class="headerlink" href="#metricas-de-performance" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Métricas de addendas</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">facturacion_mexico.addendas.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_addenda_metrics</span>
+
+<span class="n">metrics</span> <span class="o">=</span> <span class="n">get_addenda_metrics</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total generadas: </span><span class="si">{</span><span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;total_generated&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tasa de éxito: </span><span class="si">{</span><span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;success_rate&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tiempo promedio: </span><span class="si">{</span><span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;avg_generation_time&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">ms&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="mantenimiento">🔄 Mantenimiento<a class="headerlink" href="#mantenimiento" title="Permanent link">&para;</a></h2>
+<h3 id="actualizar-templates">Actualizar Templates<a class="headerlink" href="#actualizar-templates" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p><strong>Backup del template actual</strong>:
+   <div class="highlight"><pre><span></span><code>cp<span class="w"> </span>addendas/templates/walmart_mx.xml<span class="w"> </span>addendas/templates/backup/walmart_mx_v1.xml
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Actualizar template</strong>:</p>
+</li>
+<li>Editar el archivo XML</li>
+<li>Validar sintaxis</li>
+<li>
+<p>Probar con datos de ejemplo</p>
+</li>
+<li>
+<p><strong>Deploy gradual</strong>:
+   <div class="highlight"><pre><span></span><code><span class="c1"># Activar nueva versión gradualmente</span>
+<span class="n">frappe</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="s2">&quot;Addenda Type&quot;</span><span class="p">,</span> <span class="s2">&quot;WALMART_MX&quot;</span><span class="p">,</span> <span class="s2">&quot;template_version&quot;</span><span class="p">,</span> <span class="s2">&quot;v2.0&quot;</span><span class="p">)</span>
+</code></pre></div></p>
+</li>
+</ol>
+<h3 id="migrar-configuraciones">Migrar Configuraciones<a class="headerlink" href="#migrar-configuraciones" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Script de migración</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">migrate_addenda_configs</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Migrar configuraciones de addenda a nueva versión.&quot;&quot;&quot;</span>
+
+    <span class="c1"># Actualizar tipos existentes</span>
+    <span class="n">old_types</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_all</span><span class="p">(</span><span class="s2">&quot;Addenda Type&quot;</span><span class="p">,</span> 
+                              <span class="n">filters</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;template_version&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;&lt;&quot;</span><span class="p">,</span> <span class="s2">&quot;2.0&quot;</span><span class="p">]})</span>
+
+    <span class="k">for</span> <span class="n">addenda_type</span> <span class="ow">in</span> <span class="n">old_types</span><span class="p">:</span>
+        <span class="n">doc</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_doc</span><span class="p">(</span><span class="s2">&quot;Addenda Type&quot;</span><span class="p">,</span> <span class="n">addenda_type</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="c1"># Actualizar configuración</span>
+        <span class="n">doc</span><span class="o">.</span><span class="n">template_version</span> <span class="o">=</span> <span class="s2">&quot;2.0&quot;</span>
+        <span class="n">doc</span><span class="o">.</span><span class="n">validation_rules</span> <span class="o">=</span> <span class="n">upgrade_validation_rules</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">validation_rules</span><span class="p">)</span>
+        <span class="n">doc</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Migrado: </span><span class="si">{</span><span class="n">doc</span><span class="o">.</span><span class="n">addenda_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="troubleshooting">🚨 Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="addenda-no-se-genera">Addenda No Se Genera<a class="headerlink" href="#addenda-no-se-genera" title="Permanent link">&para;</a></h3>
+<p><strong>Síntomas:</strong>
+- Campo <code>addenda_xml</code> vacío después del submit
+- No aparece en el PDF del CFDI</p>
+<p><strong>Solución:</strong>
+1. Verificar que el cliente tenga <code>FM Addenda Required</code> marcado
+2. Confirmar que el tipo de addenda esté configurado
+3. Revisar que <code>auto_apply</code> esté habilitado</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Debug de configuración</span>
+<span class="n">customer</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_doc</span><span class="p">(</span><span class="s2">&quot;Customer&quot;</span><span class="p">,</span> <span class="s2">&quot;WALMART-001&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Addenda required: </span><span class="si">{</span><span class="n">customer</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;fm_addenda_required&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Addenda type: </span><span class="si">{</span><span class="n">customer</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;addenda_type&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="n">addenda_type</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_doc</span><span class="p">(</span><span class="s2">&quot;Addenda Type&quot;</span><span class="p">,</span> <span class="n">customer</span><span class="o">.</span><span class="n">addenda_type</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Auto apply: </span><span class="si">{</span><span class="n">addenda_type</span><span class="o">.</span><span class="n">auto_apply</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="error-de-validacion">Error de Validación<a class="headerlink" href="#error-de-validacion" title="Permanent link">&para;</a></h3>
+<p><strong>Síntomas:</strong>
+- Addenda se genera pero falla validación
+- Errores en XML structure</p>
+<p><strong>Solución:</strong>
+1. Revisar template syntax
+2. Verificar que todos los campos requeridos estén presentes
+3. Validar formato de datos</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Debug de validación</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">facturacion_mexico.addendas.validator</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_addenda_xml</span>
+
+<span class="n">xml_content</span> <span class="o">=</span> <span class="n">invoice</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;addenda_xml&#39;</span><span class="p">)</span>
+<span class="n">validation_result</span> <span class="o">=</span> <span class="n">validate_addenda_xml</span><span class="p">(</span><span class="n">xml_content</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="ow">not</span> <span class="n">validation_result</span><span class="o">.</span><span class="n">is_valid</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">error</span> <span class="ow">in</span> <span class="n">validation_result</span><span class="o">.</span><span class="n">errors</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: </span><span class="si">{</span><span class="n">error</span><span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> en línea </span><span class="si">{</span><span class="n">error</span><span class="p">[</span><span class="s1">&#39;line&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="template-no-se-encuentra">Template No Se Encuentra<a class="headerlink" href="#template-no-se-encuentra" title="Permanent link">&para;</a></h3>
+<p><strong>Síntomas:</strong>
+- Error "Template not found"
+- Template file missing</p>
+<p><strong>Solución:</strong>
+1. Verificar que el archivo existe en <code>addendas/templates/</code>
+2. Confirmar permisos de lectura
+3. Validar path en configuración</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Verificar templates disponibles</span>
+ls<span class="w"> </span>-la<span class="w"> </span>addendas/templates/
+find<span class="w"> </span>.<span class="w"> </span>-name<span class="w"> </span><span class="s2">&quot;*.xml&quot;</span><span class="w"> </span>-type<span class="w"> </span>f<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>addendas
+</code></pre></div>
+<hr />
+<div class="admonition success">
+<p class="admonition-title">Automatización Completa</p>
+<p>Las addendas se generan automáticamente sin intervención manual una vez configuradas.</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Validación Estricta</p>
+<p>Activa <code>addenda_validation_strict: 1</code> para detectar errores temprano en desarrollo.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Backup Templates</p>
+<p>Siempre mantén backup de templates antes de actualizaciones para permitir rollback rápido.</p>
+</div>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Volver al principio
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 Facturación México - Documentación Técnica
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/tu-org/facturacion_mexico" target="_blank" rel="noopener" title="GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+      <div class="md-consent" data-md-component="consent" id="__consent" hidden>
+        <div class="md-consent__overlay"></div>
+        <aside class="md-consent__inner">
+          <form class="md-consent__form md-grid md-typeset" name="consent">
+            
+
+  
+    
+  
+
+
+
+
+
+<h4>Consentimiento de cookies</h4>
+<p>Utilizamos cookies para reconocer tus visitas repetidas y preferencias, así como para medir la efectividad de nuestra documentación y si los usuarios encuentran lo que están buscando. Con tu consentimiento, nos ayudas a mejorar nuestra documentación.
+</p>
+<input class="md-toggle" type="checkbox" id="__settings" >
+<div class="md-consent__settings">
+  <ul class="task-list">
+    
+      
+      
+        
+        
+      
+      <li class="task-list-item">
+        <label class="task-list-control">
+          <input type="checkbox" name="analytics" checked>
+          <span class="task-list-indicator"></span>
+          Google Analytics
+        </label>
+      </li>
+    
+  </ul>
+</div>
+<div class="md-consent__controls">
+  
+    
+      <button class="md-button md-button--primary">Aceptar</button>
+    
+    
+    
+  
+    
+    
+      <button type="reset" class="md-button md-button--primary">Rechazar</button>
+    
+    
+  
+    
+    
+    
+      <label class="md-button" for="__settings">Gestionar cookies</label>
+    
+  
+</div>
+          </form>
+        </aside>
+      </div>
+      <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout(function(){document.querySelector("[data-md-component=consent]").hidden=!1},250);var action,form=document.forms.consent;for(action of["submit","reset"])form.addEventListener(action,function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map(function(e){return[e,!0]}))),location.hash="",location.reload()})</script>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.expand", "navigation.instant", "navigation.sections", "navigation.tabs", "navigation.top", "search.highlight", "search.suggest"], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copiado al portapapeles", "clipboard.copy": "Copiar al portapapeles", "search.result.more.one": "1 m\u00e1s en esta p\u00e1gina", "search.result.more.other": "# m\u00e1s en esta p\u00e1gina", "search.result.none": "No se encontraron documentos", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Teclee para comenzar b\u00fasqueda", "search.result.term.missing": "Falta", "select.version": "Seleccionar versi\u00f3n"}, "version": {"default": "latest", "provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7c377c4.min.js"></script>
+      
+        <script src="../../assets/javascripts/extra.js"></script>
+      
+        <script src="../../assets/javascripts/advanced.js"></script>
+      
+    
+  </body>
+</html>

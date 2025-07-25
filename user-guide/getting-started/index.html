@@ -1,0 +1,1788 @@
+
+<!doctype html>
+<html lang="es" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentación completa del sistema de facturación electrónica para México">
+      
+      
+        <meta name="author" content="Equipo Desarrollo Facturación México">
+      
+      
+      
+        <link rel="prev" href="../">
+      
+      
+        <link rel="next" href="../multisucursal/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.3">
+    
+    
+      
+        <title>Primeros Pasos - Facturación México - Documentación Técnica</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.50c56a3b.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/advanced.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function n(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],n("js",new Date),n("config","G-XXXXXXXXXX"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){this.value&&n("event","search",{search_term:this.value})}),document$.subscribe(function(){var a=document.forms.feedback;if(void 0!==a)for(var e of a.querySelectorAll("[type=submit]"))e.addEventListener("click",function(e){e.preventDefault();var t=document.location.pathname,e=this.getAttribute("data-md-value");n("event","feedback",{page:t,data:e}),a.firstElementChild.disabled=!0;e=a.querySelector(".md-feedback__note [data-md-value='"+e+"']");e&&(e.hidden=!1)}),a.hidden=!1}),location$.subscribe(function(e){n("config","G-XXXXXXXXXX",{page_path:e.pathname})})});var e=document.createElement("script");e.async=!0,e.src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX",document.getElementById("__analytics").insertAdjacentElement("afterEnd",e)}</script>
+  
+    <script>var consent;"undefined"==typeof __md_analytics||(consent=__md_get("__consent"))&&consent.analytics&&__md_analytics()</script>
+  
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#primeros-pasos-facturacion-mexico" class="md-skip">
+          Saltar a contenido
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabecera">
+    <a href="../.." title="Facturación México - Documentación Técnica" class="md-header__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Facturación México - Documentación Técnica
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Primeros Pasos
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo oscuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo oscuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Búsqueda" placeholder="Búsqueda" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Buscar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpiar" aria-label="Limpiar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando búsqueda
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Pestañas" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+    
+  
+  Inicio
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  Guía de Usuario
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/" class="md-tabs__link">
+          
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/" class="md-tabs__link">
+          
+  
+  Desarrollo
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navegación" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Facturación México - Documentación Técnica" class="md-nav__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Facturación México - Documentación Técnica
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Inicio
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Guía de Usuario
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Guía de Usuario
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Usuario - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Primeros Pasos
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Primeros Pasos
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#instalacion-inicial" class="md-nav__link">
+    <span class="md-ellipsis">
+      🚀 Instalación Inicial
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🚀 Instalación Inicial">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#requisitos-previos" class="md-nav__link">
+    <span class="md-ellipsis">
+      Requisitos Previos
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instalacion-paso-a-paso" class="md-nav__link">
+    <span class="md-ellipsis">
+      Instalación Paso a Paso
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Instalación Paso a Paso">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-obtener-la-app" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Obtener la App
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-instalar-en-site" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Instalar en Site
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-configuracion-inicial" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Configuración Inicial
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuracion-basica" class="md-nav__link">
+    <span class="md-ellipsis">
+      ⚙️ Configuración Básica
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="⚙️ Configuración Básica">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#site-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      Site Config
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#certificados-sat" class="md-nav__link">
+    <span class="md-ellipsis">
+      Certificados SAT
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Certificados SAT">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#subir-certificados" class="md-nav__link">
+    <span class="md-ellipsis">
+      Subir Certificados
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuracion-de-company" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuración de Company
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuración de Company">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#datos-fiscales-obligatorios" class="md-nav__link">
+    <span class="md-ellipsis">
+      Datos Fiscales Obligatorios
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuracion-multi-sucursal-opcional" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuración Multi-sucursal (Opcional)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#primera-factura-cfdi" class="md-nav__link">
+    <span class="md-ellipsis">
+      📋 Primera Factura CFDI
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📋 Primera Factura CFDI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#crear-customer-con-datos-fiscales" class="md-nav__link">
+    <span class="md-ellipsis">
+      Crear Customer con Datos Fiscales
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#crear-sales-invoice" class="md-nav__link">
+    <span class="md-ellipsis">
+      Crear Sales Invoice
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verificar-cfdi-generado" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verificar CFDI Generado
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ejecutar-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧪 Ejecutar Tests
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🧪 Ejecutar Tests">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tests-basicos" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tests Básicos
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verificar-resultados" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verificar Resultados
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting-comun" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔧 Troubleshooting Común
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔧 Troubleshooting Común">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#error-no-pac-configured" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error: "No PAC configured"
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-invalid-sat-catalog" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error: "Invalid SAT Catalog"
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-certificate-validation-failed" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error: "Certificate validation failed"
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-en-addendas" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error en Addendas
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#proximos-pasos" class="md-nav__link">
+    <span class="md-ellipsis">
+      📚 Próximos Pasos
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../troubleshooting/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    API Reference
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    API Reference - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/cfdi/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CFDI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/catalogos/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Catalogos SAT
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/hooks/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Hooks
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Desarrollo
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Desarrollo
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Desarrollo - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Setup Desarrollo
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#instalacion-inicial" class="md-nav__link">
+    <span class="md-ellipsis">
+      🚀 Instalación Inicial
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🚀 Instalación Inicial">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#requisitos-previos" class="md-nav__link">
+    <span class="md-ellipsis">
+      Requisitos Previos
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instalacion-paso-a-paso" class="md-nav__link">
+    <span class="md-ellipsis">
+      Instalación Paso a Paso
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Instalación Paso a Paso">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-obtener-la-app" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Obtener la App
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-instalar-en-site" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Instalar en Site
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-configuracion-inicial" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Configuración Inicial
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuracion-basica" class="md-nav__link">
+    <span class="md-ellipsis">
+      ⚙️ Configuración Básica
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="⚙️ Configuración Básica">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#site-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      Site Config
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#certificados-sat" class="md-nav__link">
+    <span class="md-ellipsis">
+      Certificados SAT
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Certificados SAT">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#subir-certificados" class="md-nav__link">
+    <span class="md-ellipsis">
+      Subir Certificados
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuracion-de-company" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuración de Company
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuración de Company">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#datos-fiscales-obligatorios" class="md-nav__link">
+    <span class="md-ellipsis">
+      Datos Fiscales Obligatorios
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuracion-multi-sucursal-opcional" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuración Multi-sucursal (Opcional)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#primera-factura-cfdi" class="md-nav__link">
+    <span class="md-ellipsis">
+      📋 Primera Factura CFDI
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📋 Primera Factura CFDI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#crear-customer-con-datos-fiscales" class="md-nav__link">
+    <span class="md-ellipsis">
+      Crear Customer con Datos Fiscales
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#crear-sales-invoice" class="md-nav__link">
+    <span class="md-ellipsis">
+      Crear Sales Invoice
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verificar-cfdi-generado" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verificar CFDI Generado
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ejecutar-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧪 Ejecutar Tests
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🧪 Ejecutar Tests">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tests-basicos" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tests Básicos
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verificar-resultados" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verificar Resultados
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting-comun" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔧 Troubleshooting Común
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔧 Troubleshooting Común">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#error-no-pac-configured" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error: "No PAC configured"
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-invalid-sat-catalog" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error: "Invalid SAT Catalog"
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-certificate-validation-failed" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error: "Certificate validation failed"
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-en-addendas" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error en Addendas
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#proximos-pasos" class="md-nav__link">
+    <span class="md-ellipsis">
+      📚 Próximos Pasos
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="primeros-pasos-facturacion-mexico">Primeros Pasos - Facturación México<a class="headerlink" href="#primeros-pasos-facturacion-mexico" title="Permanent link">&para;</a></h1>
+<p>Guía completa para comenzar a usar el sistema de facturación electrónica.</p>
+<h2 id="instalacion-inicial">🚀 Instalación Inicial<a class="headerlink" href="#instalacion-inicial" title="Permanent link">&para;</a></h2>
+<h3 id="requisitos-previos">Requisitos Previos<a class="headerlink" href="#requisitos-previos" title="Permanent link">&para;</a></h3>
+<p>Antes de instalar, asegúrate de tener:</p>
+<ul>
+<li><strong>Frappe Framework v15</strong> instalado y funcionando</li>
+<li><strong>ERPNext</strong> (opcional pero recomendado)</li>
+<li><strong>Python 3.8+</strong> con todas las dependencias</li>
+<li><strong>Certificados SAT</strong> válidos para timbrado</li>
+<li><strong>Credenciales PAC</strong> activas</li>
+</ul>
+<h3 id="instalacion-paso-a-paso">Instalación Paso a Paso<a class="headerlink" href="#instalacion-paso-a-paso" title="Permanent link">&para;</a></h3>
+<h4 id="1-obtener-la-app">1. Obtener la App<a class="headerlink" href="#1-obtener-la-app" title="Permanent link">&para;</a></h4>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Desde GitHub</label><label for="__tabbed_1_2">Desde Local</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="c1"># Clonar el repositorio</span>
+<span class="nb">cd</span><span class="w"> </span>/path/to/frappe-bench
+bench<span class="w"> </span>get-app<span class="w"> </span>facturacion_mexico<span class="w"> </span>https://github.com/tu-org/facturacion_mexico.git
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="c1"># Si tienes el código localmente</span>
+bench<span class="w"> </span>get-app<span class="w"> </span>facturacion_mexico<span class="w"> </span>/path/to/local/repo
+</code></pre></div>
+</div>
+</div>
+</div>
+<h4 id="2-instalar-en-site">2. Instalar en Site<a class="headerlink" href="#2-instalar-en-site" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># Instalar en tu site</span>
+bench<span class="w"> </span>--site<span class="w"> </span>tu-sitio.local<span class="w"> </span>install-app<span class="w"> </span>facturacion_mexico
+
+<span class="c1"># Verificar instalación</span>
+bench<span class="w"> </span>--site<span class="w"> </span>tu-sitio.local<span class="w"> </span>console
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># En la consola de Frappe</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">frappe</span>
+<span class="n">frappe</span><span class="o">.</span><span class="n">get_installed_apps</span><span class="p">()</span>
+<span class="c1"># Debe aparecer &#39;facturacion_mexico&#39; en la lista</span>
+</code></pre></div>
+<h4 id="3-configuracion-inicial">3. Configuración Inicial<a class="headerlink" href="#3-configuracion-inicial" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># Ejecutar setup inicial</span>
+bench<span class="w"> </span>--site<span class="w"> </span>tu-sitio.local<span class="w"> </span>execute<span class="w"> </span>facturacion_mexico.install.before_tests
+
+<span class="c1"># Esto creará:</span>
+<span class="c1"># - Datos básicos de prueba</span>
+<span class="c1"># - Catalogos SAT mínimos  </span>
+<span class="c1"># - Configuración de company</span>
+<span class="c1"># - Tipos de addenda básicos</span>
+</code></pre></div>
+<h2 id="configuracion-basica">⚙️ Configuración Básica<a class="headerlink" href="#configuracion-basica" title="Permanent link">&para;</a></h2>
+<h3 id="site-config">Site Config<a class="headerlink" href="#site-config" title="Permanent link">&para;</a></h3>
+<p>Agrega la siguiente configuración a tu <code>site_config.json</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;pac_provider&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;finkok&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;pac_username&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tu_usuario_pac&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;pac_password&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tu_password_pac&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;pac_test_mode&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;multisucursal_enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;addendas_auto_generation&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;cfdi_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;4.0&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="certificados-sat">Certificados SAT<a class="headerlink" href="#certificados-sat" title="Permanent link">&para;</a></h3>
+<h4 id="subir-certificados">Subir Certificados<a class="headerlink" href="#subir-certificados" title="Permanent link">&para;</a></h4>
+<ol>
+<li>Ve a <strong>Setup &gt; Facturación México &gt; Certificados SAT</strong></li>
+<li>Sube tu archivo <code>.cer</code> (certificado público)</li>
+<li>Sube tu archivo <code>.key</code> (llave privada)</li>
+<li>Ingresa la contraseña de la llave privada</li>
+<li>Verifica que el estado sea "Válido"</li>
+</ol>
+<div class="highlight"><pre><span></span><code><span class="c1"># Verificar certificados desde consola</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">frappe</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">facturacion_mexico.utils.certificates</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_certificates</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">validate_certificates</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Certificados válidos: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;valid&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Vigencia hasta: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;expires_on&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="configuracion-de-company">Configuración de Company<a class="headerlink" href="#configuracion-de-company" title="Permanent link">&para;</a></h3>
+<h4 id="datos-fiscales-obligatorios">Datos Fiscales Obligatorios<a class="headerlink" href="#datos-fiscales-obligatorios" title="Permanent link">&para;</a></h4>
+<p>Ve a <strong>Setup &gt; Company</strong> y completa:</p>
+<ul>
+<li><strong>Tax ID (RFC)</strong>: RFC de tu empresa</li>
+<li><strong>Régimen Fiscal</strong>: Selecciona de la lista SAT</li>
+<li><strong>Dirección Fiscal</strong>: Completa con código postal válido</li>
+<li><strong>Moneda Base</strong>: MXN (requerido)</li>
+</ul>
+<h4 id="configuracion-multi-sucursal-opcional">Configuración Multi-sucursal (Opcional)<a class="headerlink" href="#configuracion-multi-sucursal-opcional" title="Permanent link">&para;</a></h4>
+<p>Si usarás múltiples sucursales:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Crear branches desde consola</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">frappe</span>
+
+<span class="c1"># Branch principal</span>
+<span class="n">branch_doc</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_doc</span><span class="p">({</span>
+    <span class="s2">&quot;doctype&quot;</span><span class="p">:</span> <span class="s2">&quot;Branch&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;branch_code&quot;</span><span class="p">:</span> <span class="s2">&quot;MATRIZ_01&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;branch_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Casa Matriz&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;is_primary&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;pac_provider&quot;</span><span class="p">:</span> <span class="s2">&quot;finkok&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;Active&quot;</span>
+<span class="p">})</span>
+<span class="n">branch_doc</span><span class="o">.</span><span class="n">insert</span><span class="p">()</span>
+
+<span class="c1"># Branch secundario</span>
+<span class="n">branch_doc</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_doc</span><span class="p">({</span>
+    <span class="s2">&quot;doctype&quot;</span><span class="p">:</span> <span class="s2">&quot;Branch&quot;</span><span class="p">,</span> 
+    <span class="s2">&quot;branch_code&quot;</span><span class="p">:</span> <span class="s2">&quot;SUCURSAL_01&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;branch_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Sucursal Norte&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;is_primary&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="s2">&quot;pac_provider&quot;</span><span class="p">:</span> <span class="s2">&quot;finkok&quot;</span><span class="p">,</span> 
+    <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;Active&quot;</span>
+<span class="p">})</span>
+<span class="n">branch_doc</span><span class="o">.</span><span class="n">insert</span><span class="p">()</span>
+</code></pre></div>
+<h2 id="primera-factura-cfdi">📋 Primera Factura CFDI<a class="headerlink" href="#primera-factura-cfdi" title="Permanent link">&para;</a></h2>
+<h3 id="crear-customer-con-datos-fiscales">Crear Customer con Datos Fiscales<a class="headerlink" href="#crear-customer-con-datos-fiscales" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Ve a <strong>Selling &gt; Customer</strong></li>
+<li>Crea un nuevo cliente</li>
+<li>En la sección <strong>Tax Details</strong>:</li>
+<li><strong>Tax ID</strong>: RFC del cliente</li>
+<li><strong>Tax Category</strong>: Selecciona apropiada</li>
+<li>Si requiere addenda, marca <strong>FM Addenda Required</strong></li>
+</ol>
+<h3 id="crear-sales-invoice">Crear Sales Invoice<a class="headerlink" href="#crear-sales-invoice" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Ve a <strong>Selling &gt; Sales Invoice</strong>  </li>
+<li>Selecciona el customer creado</li>
+<li>Agrega items con códigos SAT válidos</li>
+<li>Verifica que los impuestos se calculen correctamente</li>
+<li><strong>Submit</strong> la factura</li>
+</ol>
+<h3 id="verificar-cfdi-generado">Verificar CFDI Generado<a class="headerlink" href="#verificar-cfdi-generado" title="Permanent link">&para;</a></h3>
+<p>Después del submit, verifica:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Desde consola</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">frappe</span>
+
+<span class="c1"># Obtener la factura</span>
+<span class="n">invoice</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_doc</span><span class="p">(</span><span class="s2">&quot;Sales Invoice&quot;</span><span class="p">,</span> <span class="s2">&quot;SINV-00001&quot;</span><span class="p">)</span>
+
+<span class="c1"># Verificar campos CFDI</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CFDI UUID: </span><span class="si">{</span><span class="n">invoice</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cfdi_uuid&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;XML generado: </span><span class="si">{</span><span class="nb">bool</span><span class="p">(</span><span class="n">invoice</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cfdi_xml&#39;</span><span class="p">))</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Estado PAC: </span><span class="si">{</span><span class="n">invoice</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cfdi_status&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Fecha timbrado: </span><span class="si">{</span><span class="n">invoice</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cfdi_stamped_date&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="ejecutar-tests">🧪 Ejecutar Tests<a class="headerlink" href="#ejecutar-tests" title="Permanent link">&para;</a></h2>
+<h3 id="tests-basicos">Tests Básicos<a class="headerlink" href="#tests-basicos" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Tests completos</span>
+bench<span class="w"> </span>--site<span class="w"> </span>tu-sitio.local<span class="w"> </span>run-tests<span class="w"> </span>--app<span class="w"> </span>facturacion_mexico
+
+<span class="c1"># Tests específicos por layer</span>
+bench<span class="w"> </span>--site<span class="w"> </span>tu-sitio.local<span class="w"> </span>run-tests<span class="w"> </span>--app<span class="w"> </span>facturacion_mexico<span class="w"> </span>--module<span class="w"> </span>facturacion_mexico.tests.test_layer1_basic_cfdi_functionality
+
+<span class="c1"># Tests de integración</span>
+bench<span class="w"> </span>--site<span class="w"> </span>tu-sitio.local<span class="w"> </span>run-tests<span class="w"> </span>--app<span class="w"> </span>facturacion_mexico<span class="w"> </span>--module<span class="w"> </span>facturacion_mexico.tests.test_layer3_complete_system_integration_sprint6
+</code></pre></div>
+<h3 id="verificar-resultados">Verificar Resultados<a class="headerlink" href="#verificar-resultados" title="Permanent link">&para;</a></h3>
+<p>Los tests deben mostrar:</p>
+<div class="highlight"><pre><span></span><code>Ran 46 tests in XXX.XXXs
+
+PASSED (46 tests)
+- Layer 1: 15 tests ✅ 
+- Layer 2: 15 tests ✅
+- Layer 3: 12 tests ✅
+- Layer 4: 4 tests ✅
+</code></pre></div>
+<h2 id="troubleshooting-comun">🔧 Troubleshooting Común<a class="headerlink" href="#troubleshooting-comun" title="Permanent link">&para;</a></h2>
+<h3 id="error-no-pac-configured">Error: "No PAC configured"<a class="headerlink" href="#error-no-pac-configured" title="Permanent link">&para;</a></h3>
+<p><strong>Solución:</strong>
+<div class="highlight"><pre><span></span><code><span class="c1"># Verificar configuración PAC</span>
+bench<span class="w"> </span>--site<span class="w"> </span>tu-sitio.local<span class="w"> </span>console
+</code></pre></div></p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">frappe</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">frappe</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;pac_provider&#39;</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">frappe</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;pac_username&#39;</span><span class="p">))</span>
+<span class="c1"># No imprimas la password por seguridad</span>
+</code></pre></div>
+<h3 id="error-invalid-sat-catalog">Error: "Invalid SAT Catalog"<a class="headerlink" href="#error-invalid-sat-catalog" title="Permanent link">&para;</a></h3>
+<p><strong>Solución:</strong>
+<div class="highlight"><pre><span></span><code><span class="c1"># Sincronizar catalogos SAT</span>
+bench<span class="w"> </span>--site<span class="w"> </span>tu-sitio.local<span class="w"> </span>execute<span class="w"> </span>facturacion_mexico.catalogos_sat.sync_all_catalogs
+</code></pre></div></p>
+<h3 id="error-certificate-validation-failed">Error: "Certificate validation failed"<a class="headerlink" href="#error-certificate-validation-failed" title="Permanent link">&para;</a></h3>
+<p><strong>Solución:</strong>
+1. Verifica que los archivos .cer y .key sean válidos
+2. Confirma que la contraseña sea correcta
+3. Verifica que no estén vencidos</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Verificar certificados</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">facturacion_mexico.utils.certificates</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_certificates</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">validate_certificates</span><span class="p">()</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;valid&#39;</span><span class="p">]:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;error&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="error-en-addendas">Error en Addendas<a class="headerlink" href="#error-en-addendas" title="Permanent link">&para;</a></h3>
+<p><strong>Síntomas:</strong> Addenda no se genera automáticamente</p>
+<p><strong>Solución:</strong>
+1. Verifica que el customer tenga <strong>FM Addenda Required</strong> marcado
+2. Confirma que exista configuración de addenda para ese cliente
+3. Revisa logs de error</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Debug addenda</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">facturacion_mexico.addendas.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_addenda_configuration</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">get_addenda_configuration</span><span class="p">(</span><span class="s2">&quot;CUSTOMER-001&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Config found: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;success&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;success&#39;</span><span class="p">]:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Auto apply: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;auto_apply&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="proximos-pasos">📚 Próximos Pasos<a class="headerlink" href="#proximos-pasos" title="Permanent link">&para;</a></h2>
+<p>Una vez completada la configuración básica:</p>
+<ol>
+<li><strong><a href="../multisucursal/">Configurar Multi-sucursal</a></strong> - Si manejas múltiples branches</li>
+<li><strong><a href="../addendas/">Configurar Addendas</a></strong> - Para clientes que requieren addendas específicas  </li>
+<li><strong><a href="../troubleshooting/">Troubleshooting Avanzado</a></strong> - Solución de problemas complejos</li>
+</ol>
+<hr />
+<div class="admonition success">
+<p class="admonition-title">¡Listo para Producción!</p>
+<p>Si todos los tests pasan y puedes generar CFDIs correctamente, tu sistema está listo para producción.</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Monitoreo</p>
+<p>Configura alertas para monitorear el estado de tus certificados y credenciales PAC.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Respaldos</p>
+<p>Siempre mantén respaldos de tus certificados SAT y configuración PAC.</p>
+</div>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Volver al principio
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 Facturación México - Documentación Técnica
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/tu-org/facturacion_mexico" target="_blank" rel="noopener" title="GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+      <div class="md-consent" data-md-component="consent" id="__consent" hidden>
+        <div class="md-consent__overlay"></div>
+        <aside class="md-consent__inner">
+          <form class="md-consent__form md-grid md-typeset" name="consent">
+            
+
+  
+    
+  
+
+
+
+
+
+<h4>Consentimiento de cookies</h4>
+<p>Utilizamos cookies para reconocer tus visitas repetidas y preferencias, así como para medir la efectividad de nuestra documentación y si los usuarios encuentran lo que están buscando. Con tu consentimiento, nos ayudas a mejorar nuestra documentación.
+</p>
+<input class="md-toggle" type="checkbox" id="__settings" >
+<div class="md-consent__settings">
+  <ul class="task-list">
+    
+      
+      
+        
+        
+      
+      <li class="task-list-item">
+        <label class="task-list-control">
+          <input type="checkbox" name="analytics" checked>
+          <span class="task-list-indicator"></span>
+          Google Analytics
+        </label>
+      </li>
+    
+  </ul>
+</div>
+<div class="md-consent__controls">
+  
+    
+      <button class="md-button md-button--primary">Aceptar</button>
+    
+    
+    
+  
+    
+    
+      <button type="reset" class="md-button md-button--primary">Rechazar</button>
+    
+    
+  
+    
+    
+    
+      <label class="md-button" for="__settings">Gestionar cookies</label>
+    
+  
+</div>
+          </form>
+        </aside>
+      </div>
+      <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout(function(){document.querySelector("[data-md-component=consent]").hidden=!1},250);var action,form=document.forms.consent;for(action of["submit","reset"])form.addEventListener(action,function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map(function(e){return[e,!0]}))),location.hash="",location.reload()})</script>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.expand", "navigation.instant", "navigation.sections", "navigation.tabs", "navigation.top", "search.highlight", "search.suggest"], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copiado al portapapeles", "clipboard.copy": "Copiar al portapapeles", "search.result.more.one": "1 m\u00e1s en esta p\u00e1gina", "search.result.more.other": "# m\u00e1s en esta p\u00e1gina", "search.result.none": "No se encontraron documentos", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Teclee para comenzar b\u00fasqueda", "search.result.term.missing": "Falta", "select.version": "Seleccionar versi\u00f3n"}, "version": {"default": "latest", "provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7c377c4.min.js"></script>
+      
+        <script src="../../assets/javascripts/extra.js"></script>
+      
+        <script src="../../assets/javascripts/advanced.js"></script>
+      
+    
+  </body>
+</html>
