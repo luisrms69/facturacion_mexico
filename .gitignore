@@ -102,3 +102,16 @@ common_site_config.json
 .*.rej
 *.rej
 *.orig
+
+# Buzola internal system files (DO NOT commit to public repo)
+CLAUDE.md
+.claude/
+buzola-*
+BUZOLA*
+*.buzola
+.buzola
+
+# MkDocs build artifacts (generated, not source)
+site/
+mkdocs-minimal.yml
+mkdocs-simple.yml
