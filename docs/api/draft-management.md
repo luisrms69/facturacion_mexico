@@ -366,4 +366,4 @@ def get_draft_metrics(date_range=None):
 
 - [User Guide - Facturas en Borrador](../user-guide/draft-invoices.md)
 - [Development Guide - Draft Workflow](../development/draft-workflow.md)
-- [API Reference - FacturAPI Integration](./factorapi-integration.md)
+- [API Reference - Main Index](index.md)
