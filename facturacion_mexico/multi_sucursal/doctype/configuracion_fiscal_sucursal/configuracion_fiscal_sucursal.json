@@ -1,0 +1,235 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2025-07-22 17:05:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "branch",
+  "company",
+  "section_break_3",
+  "certificate_ids",
+  "serie_fiscal",
+  "column_break_6",
+  "folio_current",
+  "folio_warning_threshold",
+  "folio_critical_threshold",
+  "section_break_statistics",
+  "last_invoice_date",
+  "monthly_average",
+  "column_break_11",
+  "days_until_exhaustion",
+  "total_invoices_generated",
+  "section_break_status",
+  "is_active",
+  "last_sync_date",
+  "column_break_15",
+  "created_automatically",
+  "needs_attention"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "CFS-.YYYY.-",
+   "reqd": 1
+  },
+  {
+   "fieldname": "branch",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Sucursal",
+   "options": "Branch",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fetch_from": "branch.company",
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Empresa",
+   "options": "Company",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_3",
+   "fieldtype": "Section Break",
+   "label": "Configuraci\u00f3n Fiscal"
+  },
+  {
+   "description": "Certificados asignados a esta sucursal (JSON array)",
+   "fieldname": "certificate_ids",
+   "fieldtype": "JSON",
+   "label": "IDs de Certificados"
+  },
+  {
+   "description": "Serie fiscal espec\u00edfica de la sucursal",
+   "fetch_from": "branch.fm_serie_pattern",
+   "fieldname": "serie_fiscal",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Serie Fiscal"
+  },
+  {
+   "fieldname": "column_break_6",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Contador actual de folios",
+   "fetch_from": "branch.fm_folio_current",
+   "fieldname": "folio_current",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Folio Actual",
+   "non_negative": 1
+  },
+  {
+   "default": "100",
+   "description": "Umbral para advertencias de folios bajos",
+   "fetch_from": "branch.fm_folio_warning_threshold",
+   "fieldname": "folio_warning_threshold",
+   "fieldtype": "Int",
+   "label": "Umbral de Advertencia",
+   "non_negative": 1
+  },
+  {
+   "default": "50",
+   "description": "Umbral cr\u00edtico - menos folios disponibles",
+   "fieldname": "folio_critical_threshold",
+   "fieldtype": "Int",
+   "label": "Umbral Cr\u00edtico",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "section_break_statistics",
+   "fieldtype": "Section Break",
+   "label": "Estad\u00edsticas y M\u00e9tricas"
+  },
+  {
+   "description": "Fecha y hora de la \u00faltima factura generada",
+   "fieldname": "last_invoice_date",
+   "fieldtype": "Datetime",
+   "label": "\u00daltima Factura",
+   "read_only": 1
+  },
+  {
+   "description": "Promedio de facturas por mes (calculado)",
+   "fieldname": "monthly_average",
+   "fieldtype": "Float",
+   "label": "Promedio Mensual",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_11",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "D\u00edas estimados hasta agotar folios disponibles",
+   "fieldname": "days_until_exhaustion",
+   "fieldtype": "Int",
+   "label": "D\u00edas hasta Agotamiento",
+   "read_only": 1
+  },
+  {
+   "description": "Total de facturas generadas por esta sucursal",
+   "fieldname": "total_invoices_generated",
+   "fieldtype": "Int",
+   "label": "Total Facturas Generadas",
+   "non_negative": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_status",
+   "fieldtype": "Section Break",
+   "label": "Estado y Control"
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "label": "Activa"
+  },
+  {
+   "description": "\u00daltima sincronizaci\u00f3n con Branch",
+   "fieldname": "last_sync_date",
+   "fieldtype": "Datetime",
+   "label": "\u00daltima Sincronizaci\u00f3n",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_15",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "description": "Indica si fue creada autom\u00e1ticamente",
+   "fieldname": "created_automatically",
+   "fieldtype": "Check",
+   "label": "Creaci\u00f3n Autom\u00e1tica",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "description": "Requiere atenci\u00f3n del usuario",
+   "fieldname": "needs_attention",
+   "fieldtype": "Check",
+   "label": "Necesita Atenci\u00f3n"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 0,
+ "links": [],
+ "modified": "2025-07-22 17:05:00.000000",
+ "modified_by": "Administrator",
+ "module": "Multi Sucursal",
+ "name": "Configuracion Fiscal Sucursal",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts User",
+   "share": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "branch",
+ "track_changes": 1
+}

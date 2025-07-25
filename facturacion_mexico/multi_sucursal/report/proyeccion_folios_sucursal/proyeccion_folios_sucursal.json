@@ -1,0 +1,78 @@
+{
+ "add_total_row": 1,
+ "columns": [],
+ "creation": "2025-07-22 20:00:00.000000",
+ "disable_prepared_report": 0,
+ "disabled": 0,
+ "docstatus": 0,
+ "doctype": "Report",
+ "filters": [
+  {
+   "fieldname": "branch",
+   "fieldtype": "Link",
+   "label": "Sucursal",
+   "mandatory": 0,
+   "options": "Branch",
+   "wildcard_filter": 0
+  },
+  {
+   "fieldname": "months_ahead",
+   "fieldtype": "Int",
+   "label": "Meses a Proyectar",
+   "mandatory": 0,
+   "default": 6,
+   "wildcard_filter": 0
+  },
+  {
+   "fieldname": "serie_filter",
+   "fieldtype": "Data",
+   "label": "Serie Específica",
+   "mandatory": 0,
+   "wildcard_filter": 0
+  },
+  {
+   "fieldname": "alert_threshold",
+   "fieldtype": "Int",
+   "label": "Umbral de Alerta (%)",
+   "mandatory": 0,
+   "default": 80,
+   "wildcard_filter": 0
+  },
+  {
+   "fieldname": "include_inactive",
+   "fieldtype": "Check",
+   "label": "Incluir Sucursales Inactivas",
+   "mandatory": 0,
+   "wildcard_filter": 0
+  }
+ ],
+ "idx": 1,
+ "is_standard": "Yes",
+ "json": "{}",
+ "letter_head": "",
+ "modified": "2025-07-22 20:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Multi Sucursal",
+ "name": "Proyección de Folios por Sucursal",
+ "owner": "Administrator",
+ "prepared_report": 0,
+ "query": "",
+ "ref_doctype": "Branch",
+ "report_name": "Proyección de Folios por Sucursal",
+ "report_script": "",
+ "report_type": "Script Report",
+ "roles": [
+  {
+   "role": "Accounts Manager"
+  },
+  {
+   "role": "Accounts User"
+  },
+  {
+   "role": "Multi Sucursal Manager"
+  },
+  {
+   "role": "System Manager"
+  }
+ ]
+}

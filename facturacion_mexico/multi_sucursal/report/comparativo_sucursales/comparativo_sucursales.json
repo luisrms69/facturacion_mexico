@@ -1,0 +1,95 @@
+{
+ "add_total_row": 1,
+ "columns": [],
+ "creation": "2025-07-22 20:15:00.000000",
+ "disable_prepared_report": 0,
+ "disabled": 0,
+ "docstatus": 0,
+ "doctype": "Report",
+ "filters": [
+  {
+   "fieldname": "from_date",
+   "fieldtype": "Date",
+   "label": "Fecha Desde",
+   "mandatory": 1,
+   "wildcard_filter": 0
+  },
+  {
+   "fieldname": "to_date",
+   "fieldtype": "Date",
+   "label": "Fecha Hasta",
+   "mandatory": 1,
+   "wildcard_filter": 0
+  },
+  {
+   "fieldname": "branches",
+   "fieldtype": "MultiSelectList",
+   "label": "Sucursales",
+   "mandatory": 0,
+   "options": "Branch",
+   "wildcard_filter": 0
+  },
+  {
+   "fieldname": "comparison_type",
+   "fieldtype": "Select",
+   "label": "Tipo de Comparación",
+   "mandatory": 0,
+   "options": "\nFacturación\nVolumen\nCumplimiento\nEficiencia\nCompleto",
+   "default": "Completo",
+   "wildcard_filter": 0
+  },
+  {
+   "fieldname": "include_inactive",
+   "fieldtype": "Check",
+   "label": "Incluir Sucursales Inactivas",
+   "mandatory": 0,
+   "wildcard_filter": 0
+  },
+  {
+   "fieldname": "group_by_period",
+   "fieldtype": "Select",
+   "label": "Agrupar por Período",
+   "mandatory": 0,
+   "options": "\nDiario\nSemanal\nMensual",
+   "default": "Mensual",
+   "wildcard_filter": 0
+  },
+  {
+   "fieldname": "benchmark_branch",
+   "fieldtype": "Link",
+   "label": "Sucursal Benchmark",
+   "mandatory": 0,
+   "options": "Branch",
+   "wildcard_filter": 0
+  }
+ ],
+ "idx": 1,
+ "is_standard": "Yes",
+ "json": "{}",
+ "letter_head": "",
+ "modified": "2025-07-22 20:15:00.000000",
+ "modified_by": "Administrator",
+ "module": "Multi Sucursal",
+ "name": "Comparativo de Sucursales",
+ "owner": "Administrator",
+ "prepared_report": 0,
+ "query": "",
+ "ref_doctype": "Branch",
+ "report_name": "Comparativo de Sucursales",
+ "report_script": "",
+ "report_type": "Script Report",
+ "roles": [
+  {
+   "role": "Accounts Manager"
+  },
+  {
+   "role": "Accounts User"
+  },
+  {
+   "role": "Multi Sucursal Manager"
+  },
+  {
+   "role": "System Manager"
+  }
+ ]
+}

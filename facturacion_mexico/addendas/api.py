@@ -8,6 +8,11 @@ import json
 import frappe
 from frappe import _
 
+from facturacion_mexico.addendas.addenda_auto_detector import AddendaAutoDetector
+
+# Sprint 6 Phase 3: Importar sistema genérico
+from facturacion_mexico.addendas.generic_addenda_generator import AddendaGenerator
+
 # Importar parsers y validadores
 from facturacion_mexico.addendas.parsers.cfdi_parser import CFDIParser
 from facturacion_mexico.addendas.parsers.xml_builder import AddendaXMLBuilder
@@ -448,3 +453,154 @@ def get_addenda_requirements(customer):
 	except Exception as e:
 		frappe.log_error(f"Error verificando requerimientos de addenda: {e!s}")
 		return {"requires_addenda": False, "configuration": None, "auto_apply": False}
+
+
+# ============================================================================
+# SPRINT 6 PHASE 3: APIs GENÉRICAS CON JINJA2 TEMPLATES
+# ============================================================================
+
+
+@frappe.whitelist()
+def generate_generic_addenda(sales_invoice, addenda_type, addenda_values=None):
+	"""
+	Generar addenda usando sistema genérico con Jinja2 templates
+	Sprint 6 Phase 3 - API principal para addendas genéricas
+	"""
+	try:
+		if isinstance(addenda_values, str):
+			addenda_values = json.loads(addenda_values)
+
+		# Usar el nuevo generador genérico
+		from facturacion_mexico.addendas.generic_addenda_generator import generate_addenda_for_invoice
+
+		result = generate_addenda_for_invoice(sales_invoice, addenda_type, addenda_values)
+
+		return result
+
+	except Exception as e:
+		frappe.log_error(f"Error in generate_generic_addenda API: {e!s}", "Generic Addenda API")
+		return {"success": False, "message": f"Error generando addenda genérica: {e!s}"}
+
+
+@frappe.whitelist()
+def get_addenda_field_definitions(addenda_type):
+	"""
+	Obtener definición de campos para un tipo de addenda
+	Sprint 6 Phase 3 - Campos dinámicos configurables
+	"""
+	try:
+		from facturacion_mexico.addendas.generic_addenda_generator import get_addenda_type_fields
+
+		result = get_addenda_type_fields(addenda_type)
+
+		return result
+
+	except Exception as e:
+		frappe.log_error(f"Error in get_addenda_field_definitions API: {e!s}", "Generic Addenda API")
+		return {"success": False, "message": f"Error: {e!s}", "fields": []}
+
+
+@frappe.whitelist()
+def setup_customer_addenda_auto_detection(customer=None, apply_changes=False):
+	"""
+	Ejecutar auto-detección de addendas para cliente
+	Sprint 6 Phase 3 - Auto-detección inteligente
+	"""
+	try:
+		from facturacion_mexico.addendas.addenda_auto_detector import (
+			apply_auto_detection,
+			detect_customer_addenda_requirement,
+		)
+
+		if customer:
+			# Auto-detección para cliente específico
+			detection_result = detect_customer_addenda_requirement(customer)
+
+			if apply_changes and detection_result.get("success"):
+				apply_result = apply_auto_detection(customer)
+				return {"success": True, "detection_result": detection_result, "apply_result": apply_result}
+			else:
+				return detection_result
+		else:
+			# Auto-detección en lote
+			from facturacion_mexico.addendas.addenda_auto_detector import bulk_auto_detect_customers
+
+			return bulk_auto_detect_customers(limit=50)
+
+	except Exception as e:
+		frappe.log_error(f"Error in setup_customer_addenda_auto_detection API: {e!s}", "Auto Detection API")
+		return {"success": False, "message": f"Error: {e!s}"}
+
+
+@frappe.whitelist()
+def install_customer_addenda_fields():
+	"""
+	Instalar custom fields de addenda en Customer
+	Sprint 6 Phase 3 - Configuración inicial
+	"""
+	try:
+		from facturacion_mexico.addendas.custom_fields.customer_addenda_fields import (
+			create_customer_addenda_fields,
+		)
+
+		result = create_customer_addenda_fields()
+		return result
+
+	except Exception as e:
+		frappe.log_error(f"Error installing customer addenda fields: {e!s}", "Customer Addenda Fields")
+		return {"success": False, "message": f"Error: {e!s}"}
+
+
+@frappe.whitelist()
+def get_customer_addenda_info(customer):
+	"""
+	Obtener información completa de addenda para un cliente
+	Sprint 6 Phase 3 - Vista consolidada
+	"""
+	try:
+		if not customer:
+			return {"success": False, "message": "Customer es requerido"}
+
+		customer_doc = frappe.get_cached_doc("Customer", customer)
+
+		# Información básica
+		customer_info = {
+			"requires_addenda": customer_doc.get("fm_requires_addenda", 0),
+			"addenda_type": customer_doc.get("fm_addenda_type"),
+			"auto_detected": customer_doc.get("fm_addenda_auto_detected", 0),
+			"validation_override": customer_doc.get("fm_addenda_validation_override", 0),
+		}
+
+		# Valores por defecto
+		defaults = {}
+		if customer_doc.get("fm_addenda_defaults"):
+			try:
+				defaults = json.loads(customer_doc.fm_addenda_defaults)
+			except json.JSONDecodeError:
+				pass
+
+		# Si tiene tipo de addenda, obtener definición de campos
+		field_definitions = []
+		if customer_info["addenda_type"]:
+			field_result = get_addenda_field_definitions(customer_info["addenda_type"])
+			if field_result.get("success"):
+				field_definitions = field_result["fields"]
+
+		# Auto-detección (si no tiene configuración manual)
+		auto_detection = None
+		if not customer_info["requires_addenda"]:
+			from facturacion_mexico.addendas.addenda_auto_detector import detect_customer_addenda_requirement
+
+			auto_detection = detect_customer_addenda_requirement(customer)
+
+		return {
+			"success": True,
+			"customer_info": customer_info,
+			"defaults": defaults,
+			"field_definitions": field_definitions,
+			"auto_detection": auto_detection,
+		}
+
+	except Exception as e:
+		frappe.log_error(f"Error in get_customer_addenda_info API: {e!s}", "Customer Addenda Info")
+		return {"success": False, "message": f"Error: {e!s}"}

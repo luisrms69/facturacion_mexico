@@ -14,16 +14,27 @@ from frappe import _
 def crear_ereceipt(sales_invoice_name):
 	"""Crea E-Receipt desde Sales Invoice."""
 	try:
+		# REGLA #35: Validate required parameters
+		if not sales_invoice_name:
+			return {"success": False, "message": "sales_invoice_name parameter is required"}
+
 		# Validar que no exista e-receipt previo
 		existing = frappe.db.exists("EReceipt MX", {"sales_invoice": sales_invoice_name})
 		if existing:
-			frappe.throw(_("Ya existe un E-Receipt para esta factura: {0}").format(existing))
+			return {
+				"success": False,
+				"message": _("Ya existe un E-Receipt para esta factura: {0}").format(existing),
+			}
 
-		sales_invoice = frappe.get_doc("Sales Invoice", sales_invoice_name)
+		# REGLA #35: Defensive DocType access with validation
+		try:
+			sales_invoice = frappe.get_doc("Sales Invoice", sales_invoice_name)
+		except frappe.DoesNotExistError:
+			return {"success": False, "message": _("Sales Invoice {0} not found").format(sales_invoice_name)}
 
 		# Validar que no tenga factura fiscal
 		if sales_invoice.get("fm_factura_fiscal_mx"):
-			frappe.throw(_("Esta factura ya tiene factura fiscal asociada"))
+			return {"success": False, "message": _("Esta factura ya tiene factura fiscal asociada")}
 
 		# Crear E-Receipt
 		ereceipt = frappe.new_doc("EReceipt MX")
@@ -56,7 +67,15 @@ def crear_ereceipt(sales_invoice_name):
 def get_ereceipt_status(ereceipt_name):
 	"""Consulta status de E-Receipt."""
 	try:
-		ereceipt = frappe.get_doc("EReceipt MX", ereceipt_name)
+		# REGLA #35: Validate required parameters
+		if not ereceipt_name:
+			return {"success": False, "message": "ereceipt_name parameter is required"}
+
+		# REGLA #35: Defensive DocType access
+		try:
+			ereceipt = frappe.get_doc("EReceipt MX", ereceipt_name)
+		except frappe.DoesNotExistError:
+			return {"success": False, "message": f"EReceipt {ereceipt_name} not found"}
 
 		# Verificar si ha expirado
 		if ereceipt.status == "open" and ereceipt.expiry_date < frappe.utils.today():
@@ -149,10 +168,21 @@ def get_ereceipts_for_global_invoice(date_from, date_to, customer=None):
 def invoice_ereceipt(ereceipt_name, customer_data):
 	"""Convierte E-Receipt a factura."""
 	try:
-		ereceipt = frappe.get_doc("EReceipt MX", ereceipt_name)
+		# REGLA #35: Validate required parameters
+		if not ereceipt_name:
+			return {"success": False, "message": "ereceipt_name parameter is required"}
+
+		if not customer_data:
+			return {"success": False, "message": "customer_data parameter is required"}
+
+		# REGLA #35: Defensive DocType access
+		try:
+			ereceipt = frappe.get_doc("EReceipt MX", ereceipt_name)
+		except frappe.DoesNotExistError:
+			return {"success": False, "message": f"EReceipt {ereceipt_name} not found"}
 
 		if ereceipt.status != "open":
-			frappe.throw(_("Solo se pueden facturar E-Receipts abiertos"))
+			return {"success": False, "message": _("Solo se pueden facturar E-Receipts abiertos")}
 
 		# Crear nueva Sales Invoice con datos del customer
 		sales_invoice = frappe.copy_doc(frappe.get_doc("Sales Invoice", ereceipt.sales_invoice))

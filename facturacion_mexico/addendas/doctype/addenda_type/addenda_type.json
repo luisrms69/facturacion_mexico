@@ -16,10 +16,13 @@
   "requires_product_mapping",
   "documentation_url",
   "configuration_section",
+  "xml_template",
   "sample_xml",
   "xsd_schema",
   "field_definitions_section",
   "field_definitions",
+  "validation_rules_section",
+  "validation_rules",
   "audit_section",
   "creation_date",
   "modified_date",
@@ -74,6 +77,11 @@
    "label": "Requiere Mapeo de Productos"
   },
   {
+   "fieldname": "requires_specific_certificate",
+   "fieldtype": "Check",
+   "label": "Requiere Certificado Específico"
+  },
+  {
    "fieldname": "documentation_url",
    "fieldtype": "Data",
    "label": "URL de Documentación"
@@ -82,6 +90,13 @@
    "fieldname": "configuration_section",
    "fieldtype": "Section Break",
    "label": "Configuración XML"
+  },
+  {
+   "fieldname": "xml_template",
+   "fieldtype": "Code",
+   "label": "Template XML (Jinja2)",
+   "options": "XML",
+   "description": "Template XML con variables Jinja2. Ej: {{campo_1}}, {{invoice.customer}}"
   },
   {
    "fieldname": "sample_xml",
@@ -105,6 +120,18 @@
    "fieldtype": "Table",
    "label": "Campos Disponibles",
    "options": "Addenda Field Definition"
+  },
+  {
+   "fieldname": "validation_rules_section",
+   "fieldtype": "Section Break",
+   "label": "Reglas de Validación"
+  },
+  {
+   "fieldname": "validation_rules",
+   "fieldtype": "Code",
+   "label": "Reglas de Validación (JSON)",
+   "options": "JSON",
+   "description": "Reglas de validación en formato JSON para campos de la addenda"
   },
   {
    "fieldname": "audit_section",

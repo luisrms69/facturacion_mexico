@@ -99,6 +99,13 @@ jobs:
           max_attempts: 3
           command: |
             pip install frappe-bench
+            # Clear any existing yarn cache to prevent 404 errors
+            yarn cache clean
+            # Configure yarn with fallback registry and retry settings
+            yarn config set registry https://registry.npmjs.org/
+            yarn config set network-timeout 300000
+            yarn config set network-retry 3
+            # Initialize bench with skip-assets to avoid initial build issues
             bench init --skip-redis-config-generation --skip-assets --python "$(which python)" --frappe-branch version-15 ~/frappe-bench
             mariadb --host 127.0.0.1 --port 3306 -u root -proot -e "SET GLOBAL character_set_server = 'utf8mb4'"
             mariadb --host 127.0.0.1 --port 3306 -u root -proot -e "SET GLOBAL collation_server = 'utf8mb4_unicode_ci'"
@@ -134,10 +141,47 @@ jobs:
             bench --site facturacion.dev install-app facturacion_mexico --force
             bench --site facturacion.dev migrate --skip-failing
 
+      - name: Resolve Node.js Dependencies (PROVEN FIX)
+        working-directory: /home/runner/frappe-bench
+        run: |
+          echo "🔬 DEPENDENCY RESOLUTION PHASE: Applying proven fix from fast testing..."
+          
+          echo "🧹 CLEANUP PHASE: Removing existing dependencies..."
+          rm -rf node_modules apps/frappe/node_modules
+          yarn cache clean
+          
+          echo "🔧 CONFIGURATION PHASE: Setting up yarn..."
+          yarn config set registry https://registry.npmjs.org
+          
+          echo "📥 INSTALLATION PHASE: Installing Frappe dependencies..."
+          cd apps/frappe
+          yarn install --force --verbose || exit 1
+          
+          echo "🎯 FAST-GLOB FIX: Adding fast-glob dependency..."
+          yarn add fast-glob --verbose || exit 1
+          
+          echo "🔍 VERIFICATION PHASE: Testing fast-glob accessibility..."
+          if [ -d "node_modules/fast-glob" ]; then
+            echo "✅ SUCCESS: fast-glob dependency resolved!"
+            node -e "const fg = require('fast-glob'); console.log('✅ fast-glob import successful:', typeof fg);" || exit 1
+            
+            echo "🧪 Testing esbuild.js can find fast-glob..."
+            if [ -f "esbuild/esbuild.js" ]; then
+              node -e "process.chdir('$(pwd)'); const fg = require('fast-glob'); console.log('✅ esbuild.js context can access fast-glob');" || exit 1
+            fi
+          else
+            echo "❌ FAILED: fast-glob still missing"
+            exit 1
+          fi
+          
+          echo "✅ DEPENDENCY RESOLUTION COMPLETED SUCCESSFULLY!"
+
       - name: Build Assets
         working-directory: /home/runner/frappe-bench
         run: |
+          echo "🏗️ ASSET BUILD PHASE: Building application assets..."
           bench build --production || bench build
+          echo "✅ ASSET BUILD COMPLETED!"
 
 
       - name: Validate Environment

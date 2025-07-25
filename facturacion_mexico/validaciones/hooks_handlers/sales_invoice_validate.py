@@ -31,6 +31,7 @@ def validate_sat_requirements(doc, method):
 		_validate_metodo_pago(doc)
 		_validate_currency_and_exchange_rate(doc)
 		_validate_items_sat_codes(doc)
+		_validate_uom_sat_codes(doc)  # Sprint 6 Phase 2: UOM-SAT validation
 
 	except Exception as e:
 		frappe.log_error(
@@ -50,16 +51,27 @@ def _requires_sat_validation(sales_invoice):
 	Returns:
 		bool: True si requiere validación SAT
 	"""
-	# Verificar si está marcada para timbrado
-	if not sales_invoice.get("fm_requires_stamp"):
-		return False
+	try:
+		# REGLA #35: Defensive access para fm_requires_stamp
+		requires_stamp = getattr(sales_invoice, "fm_requires_stamp", None)
+		if not requires_stamp:
+			return False
 
-	# Verificar que sea a un cliente nacional (México)
-	customer_country = frappe.get_value("Customer", sales_invoice.customer, "country")
-	if customer_country and customer_country != "Mexico":
-		return False
+		# REGLA #35: Defensive access para customer field
+		customer_name = getattr(sales_invoice, "customer", None)
+		if not customer_name:
+			return False
 
-	return True
+		# Verificar que sea a un cliente nacional (México)
+		customer_country = frappe.get_value("Customer", customer_name, "country")
+		if customer_country and customer_country != "Mexico":
+			return False
+
+		return True
+
+	except Exception as e:
+		frappe.log_error(f"Error checking SAT validation requirements: {e}", "SAT Validation Check")
+		return False
 
 
 def _validate_customer_rfc(sales_invoice):
@@ -70,13 +82,16 @@ def _validate_customer_rfc(sales_invoice):
 		sales_invoice: Sales Invoice document
 	"""
 	try:
-		customer_rfc = frappe.get_value("Customer", sales_invoice.customer, "tax_id")
+		# REGLA #35: Defensive access para customer field
+		customer_name = getattr(sales_invoice, "customer", None)
+		if not customer_name:
+			frappe.throw(_("Sales Invoice debe tener cliente configurado"))
+
+		customer_rfc = frappe.get_value("Customer", customer_name, "tax_id")
 
 		if not customer_rfc:
 			frappe.throw(
-				_("El cliente {0} debe tener RFC configurado para facturación fiscal").format(
-					sales_invoice.customer
-				)
+				_("El cliente {0} debe tener RFC configurado para facturación fiscal").format(customer_name)
 			)
 
 		# Validar formato básico de RFC
@@ -84,7 +99,7 @@ def _validate_customer_rfc(sales_invoice):
 			frappe.throw(_("RFC del cliente '{0}' tiene formato inválido").format(customer_rfc))
 
 		# Validar contra SAT usando cache
-		_validate_rfc_with_sat_cache(customer_rfc, sales_invoice.customer)
+		_validate_rfc_with_sat_cache(customer_rfc, customer_name)
 
 	except frappe.ValidationError:
 		raise
@@ -353,7 +368,7 @@ def _validate_items_sat_codes(sales_invoice):
 			)
 
 		# Validar Clave Unidad SAT
-		clave_unidad = frappe.get_value("UOM", item.uom, "custom_clave_unidad_sat")
+		clave_unidad = frappe.get_value("UOM", item.uom, "fm_clave_sat")
 		if not clave_unidad:
 			frappe.throw(_("La UOM '{0}' debe tener configurada la Clave de Unidad SAT").format(item.uom))
 
@@ -471,4 +486,42 @@ def _validate_lista_69b_with_cache(rfc, customer_name):
 	except Exception as e:
 		frappe.log_error(
 			message=f"Error validando Lista 69B con cache: {e!s}", title="Lista 69B Cache Validation Error"
+		)
+
+
+def _validate_uom_sat_codes(sales_invoice):
+	"""
+	Validar códigos SAT de Unidades de Medida en items de factura.
+	Sprint 6 Phase 2: Integración UOM-SAT
+
+	Args:
+		sales_invoice: Sales Invoice document
+	"""
+	try:
+		from facturacion_mexico.uom_sat.uom_sat_catalog import validate_invoice_uom_sat_codes
+
+		# Ejecutar validación usando el catálogo UOM-SAT
+		is_valid, errors = validate_invoice_uom_sat_codes(sales_invoice)
+
+		if not is_valid:
+			# Mostrar errores de validación UOM-SAT
+			error_message = "Errores de Unidades de Medida SAT:\n" + "\n".join(errors)
+			frappe.throw(_(error_message))
+
+	except ImportError:
+		frappe.log_error("UOM SAT Catalog no disponible - validación omitida", "UOM SAT Validation Warning")
+	except frappe.ValidationError:
+		raise
+	except Exception as e:
+		frappe.log_error(
+			message=f"Error validando códigos UOM-SAT: {e!s}",
+			title="Sales Invoice - UOM SAT Validation Error",
+		)
+		# Por ahora no bloquear facturación por errores UOM-SAT
+		frappe.msgprint(
+			_(
+				"Advertencia: No se pudieron validar códigos UOM-SAT. Revise configuración de Unidades de Medida."
+			),
+			alert=True,
+			indicator="orange",
 		)

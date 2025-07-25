@@ -9,13 +9,18 @@ def validate_rfc_format(doc, method):
 	if hasattr(frappe.flags, "in_test") and frappe.flags.in_test:
 		return
 
-	# Solo validar si tiene RFC
-	if not doc.fm_rfc:
+	# REGLA #35: Validación defensiva con fallback
+	rfc_field = getattr(doc, "fm_rfc", None)
+	if not rfc_field:
 		return
 
-	# Validar formato básico
-	fm_rfc = doc.fm_rfc.strip().upper()
-	doc.fm_rfc = fm_rfc
+	# Validar formato básico con defensive handling
+	try:
+		fm_rfc = str(rfc_field).strip().upper()
+		doc.fm_rfc = fm_rfc
+	except (AttributeError, TypeError):
+		frappe.throw(_("RFC debe ser un campo de texto válido"))
+		return
 
 	# Validar longitud
 	if len(fm_rfc) not in [12, 13]:
@@ -47,15 +52,16 @@ def schedule_rfc_validation(doc, method):
 	if hasattr(frappe.flags, "in_test") and frappe.flags.in_test:
 		return
 
-	# Solo si tiene RFC y está habilitada la validación automática
-	if not doc.fm_rfc:
+	# REGLA #35: Validación defensiva de RFC field
+	rfc_field = getattr(doc, "fm_rfc", None)
+	if not rfc_field:
 		return
 
 	try:
 		# Programar validación asíncrona (placeholder para implementación futura)
 		frappe.enqueue(
 			"facturacion_mexico.validaciones.api.validate_rfc",
-			fm_rfc=doc.fm_rfc,
+			fm_rfc=str(rfc_field),
 			queue="short",
 			timeout=30,
 			is_async=True,

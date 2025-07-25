@@ -88,52 +88,90 @@ after_install = "facturacion_mexico.install.after_install"
 # Custom Fields
 # -------------
 # Fixtures for custom fields
+# FIXME: Temporarily disabled to fix duplicate field errors
 fixtures = [
-	{
-		"dt": "Custom Field",
-		"filters": [
-			[
-				"name",
-				"in",
-				[
-					# Sales Invoice Sprint 1
-					"Sales Invoice-informacion_fiscal_mx_section",
-					"Sales Invoice-cfdi_use",
-					"Sales Invoice-payment_method_sat",
-					"Sales Invoice-column_break_fiscal_mx",
-					"Sales Invoice-fiscal_status",
-					"Sales Invoice-uuid_fiscal",
-					"Sales Invoice-factura_fiscal_mx",
-					# Sales Invoice Sprint 2
-					"Sales Invoice-fm_payment_status",
-					"Sales Invoice-fm_pending_amount",
-					"Sales Invoice-fm_complementos_count",
-					# Customer Sprint 1
-					"Customer-informacion_fiscal_mx_section",
-					"Customer-rfc",
-					"Customer-column_break_fiscal_customer",
-					"Customer-regimen_fiscal",
-					"Customer-uso_cfdi_default",
-					# Customer Sprint 2
-					"Customer-fm_rfc_validated",
-					"Customer-fm_rfc_validation_date",
-					"Customer-fm_lista_69b_status",
-					# Payment Entry Sprint 2
-					"Payment Entry-informacion_fiscal_mx_section",
-					"Payment Entry-fm_complemento_pago",
-					"Payment Entry-fm_require_complement",
-					"Payment Entry-column_break_payment_mx",
-					"Payment Entry-fm_complement_generated",
-					"Payment Entry-fm_forma_pago_sat",
-					# Item Sprint 1
-					"Item-clasificacion_sat_section",
-					"Item-producto_servicio_sat",
-					"Item-column_break_item_sat",
-					"Item-unidad_sat",
-				],
-			]
-		],
-	}
+	# {
+	# 	"dt": "Custom Field",
+	# 	"filters": [
+	# 		[
+	# 			"name",
+	# 			"in",
+	# 			[
+	# Sales Invoice Sprint 1
+	"Sales Invoice-informacion_fiscal_mx_section",
+	"Sales Invoice-cfdi_use",
+	"Sales Invoice-payment_method_sat",
+	"Sales Invoice-column_break_fiscal_mx",
+	"Sales Invoice-fiscal_status",
+	"Sales Invoice-uuid_fiscal",
+	"Sales Invoice-factura_fiscal_mx",
+	# Sales Invoice Sprint 2
+	"Sales Invoice-fm_payment_status",
+	"Sales Invoice-fm_pending_amount",
+	"Sales Invoice-fm_complementos_count",
+	# Sales Invoice Sprint 6 Multi-Sucursal
+	"Sales Invoice-fm_multi_sucursal_section",
+	"Sales Invoice-fm_branch",
+	"Sales Invoice-fm_serie_fiscal",
+	"Sales Invoice-fm_folio_fiscal",
+	"Sales Invoice-fm_column_break_multi_sucursal",
+	"Sales Invoice-fm_certificado_usado",
+	"Sales Invoice-fm_lugar_expedicion",
+	# Sales Invoice Sprint 6 Addendas
+	"Sales Invoice-fm_addenda_section",
+	"Sales Invoice-fm_requires_addenda",
+	"Sales Invoice-fm_addenda_type",
+	"Sales Invoice-fm_addenda_xml",
+	"Sales Invoice-fm_addenda_generated",
+	# Customer Sprint 1
+	"Customer-informacion_fiscal_mx_section",
+	"Customer-rfc",
+	"Customer-column_break_fiscal_customer",
+	"Customer-regimen_fiscal",
+	"Customer-uso_cfdi_default",
+	# Customer Sprint 2
+	"Customer-fm_rfc_validated",
+	"Customer-fm_rfc_validation_date",
+	"Customer-fm_lista_69b_status",
+	# Customer Sprint 6 Addendas
+	"Customer-fm_addenda_section",
+	"Customer-fm_requires_addenda",
+	"Customer-fm_default_addenda_type",
+	"Customer-fm_addenda_configuration",
+	# Branch Sprint 6 Multi-Sucursal
+	"Branch-fm_fiscal_section",
+	"Branch-fm_enable_fiscal",
+	"Branch-fm_lugar_expedicion",
+	"Branch-fm_column_break_fiscal",
+	"Branch-fm_serie_pattern",
+	"Branch-fm_folio_start",
+	"Branch-fm_folio_current",
+	"Branch-fm_folio_end",
+	"Branch-fm_folio_warning_threshold",
+	"Branch-fm_folio_critical_threshold",
+	"Branch-fm_share_certificates",
+	"Branch-fm_statistics_section",
+	"Branch-fm_monthly_average",
+	"Branch-fm_last_invoice_date",
+	"Branch-fm_column_break_statistics",
+	"Branch-fm_days_until_exhaustion",
+	"Branch-fm_needs_attention",
+	# Payment Entry Sprint 2
+	"Payment Entry-informacion_fiscal_mx_section",
+	"Payment Entry-fm_complemento_pago",
+	"Payment Entry-fm_require_complement",
+	"Payment Entry-column_break_payment_mx",
+	"Payment Entry-fm_complement_generated",
+	"Payment Entry-fm_forma_pago_sat",
+	# Item Sprint 1
+	"Item-clasificacion_sat_section",
+	"Item-producto_servicio_sat",
+	"Item-column_break_item_sat",
+	# "Item-unidad_sat",
+	# ],
+	# ]
+	# ],
+	# }
 ]
 
 # Uninstallation
@@ -206,6 +244,11 @@ doc_events = {
 		"validate": "facturacion_mexico.validaciones.hooks_handlers.customer_validate.validate_rfc_format",
 		"before_save": "facturacion_mexico.validaciones.hooks_handlers.customer_validate.validate_rfc_format",
 		"after_insert": "facturacion_mexico.validaciones.hooks_handlers.customer_validate.schedule_rfc_validation",
+	},
+	"Branch": {
+		"validate": "facturacion_mexico.multi_sucursal.custom_fields.branch_fiscal_fields.validate_branch_fiscal_configuration",
+		"after_insert": "facturacion_mexico.multi_sucursal.custom_fields.branch_fiscal_fields.after_branch_insert",
+		"on_update": "facturacion_mexico.multi_sucursal.custom_fields.branch_fiscal_fields.on_branch_update",
 	},
 	"Payment Entry": {
 		"validate": "facturacion_mexico.complementos_pago.hooks_handlers.payment_entry_validate.check_ppd_requirement",
