@@ -598,6 +598,7 @@ class TestLayer3CompleteSystemIntegrationSprint6(unittest.TestCase):
 
     def get_income_account(self, company):
         """Obtener cuenta de ingresos adecuada para la company"""
+        abbr = "TC"  # Default fallback value
         try:
             # Buscar cuenta de ingresos existente
             income_accounts = frappe.db.sql("""
@@ -615,7 +616,18 @@ class TestLayer3CompleteSystemIntegrationSprint6(unittest.TestCase):
             abbr = frappe.db.get_value("Company", company, "abbr") or "TC"
             return f"Sales - {abbr}"
         except Exception:
-            return "Sales"
+            # Final fallback - try to find any income account
+            try:
+                any_income = frappe.db.sql("""
+                    SELECT name FROM `tabAccount`
+                    WHERE account_type = 'Income Account'
+                    AND is_group = 0 LIMIT 1
+                """, as_dict=True)
+                if any_income:
+                    return any_income[0].name
+            except Exception:
+                pass
+            return f"Sales - {abbr}"
 
     def validate_fiscal_data_completeness(self, sales_invoices):
         """Validar completitud de datos fiscales"""
