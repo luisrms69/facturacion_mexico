@@ -56,17 +56,20 @@ nav:
     - Primeros Pasos: user-guide/getting-started.md
     - Multi-sucursal: user-guide/multisucursal.md
     - Addendas: user-guide/addendas.md
+    - Facturas en Borrador: user-guide/draft-invoices.md
     - Troubleshooting: user-guide/troubleshooting.md
   - API Reference:
     - api/index.md
     - CFDI: api/cfdi.md
     - Multi-sucursal: api/multisucursal.md
     - Addendas: api/addendas.md
+    - Draft Management: api/draft-management.md
     - Catalogos SAT: api/catalogos.md
     - Hooks: api/hooks.md
   - Desarrollo:
     - development/index.md
     - Setup Desarrollo: development/setup.md
+    - Draft Workflow: development/draft-workflow.md
 
 # Extra
 extra:
