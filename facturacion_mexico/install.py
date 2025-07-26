@@ -749,7 +749,7 @@ def remove_obsolete_payment_status_field():
 			print("✅ Custom field fm_payment_status eliminado")
 			return True
 		else:
-			print("ℹ️ Custom field fm_payment_status no existe")
+			print("Info: Custom field fm_payment_status no existe")
 			return True
 	except Exception as e:
 		print(f"❌ Error eliminando custom field: {e}")
@@ -783,9 +783,9 @@ def create_mexican_tax_templates():
 						"charge_type": "On Net Total",
 						"account_head": f"IVA por Pagar - {company_abbr}",
 						"rate": 16.0,
-						"description": "Impuesto al Valor Agregado 16%"
+						"description": "Impuesto al Valor Agregado 16%",
 					}
-				]
+				],
 			},
 			{
 				"title": "IVA 0% - México",
@@ -795,15 +795,11 @@ def create_mexican_tax_templates():
 						"charge_type": "On Net Total",
 						"account_head": f"IVA por Pagar - {company_abbr}",
 						"rate": 0.0,
-						"description": "Impuesto al Valor Agregado 0% (Exento)"
+						"description": "Impuesto al Valor Agregado 0% (Exento)",
 					}
-				]
+				],
 			},
-			{
-				"title": "Sin Impuestos - México",
-				"company": company_name,
-				"taxes": []
-			}
+			{"title": "Sin Impuestos - México", "company": company_name, "taxes": []},
 		]
 
 		created_count = 0
@@ -812,17 +808,16 @@ def create_mexican_tax_templates():
 
 			if not frappe.db.exists("Sales Taxes and Charges Template", template_name):
 				try:
-					template_doc = frappe.get_doc({
-						"doctype": "Sales Taxes and Charges Template",
-						**template_data
-					})
+					template_doc = frappe.get_doc(
+						{"doctype": "Sales Taxes and Charges Template", **template_data}
+					)
 					template_doc.insert(ignore_permissions=True)
 					print(f"✅ Created: {template_name}")
 					created_count += 1
 				except Exception as e:
 					print(f"⚠️ Failed to create {template_name}: {e}")
 			else:
-				print(f"ℹ️ Already exists: {template_name}")
+				print(f"Info: Already exists: {template_name}")
 
 		frappe.db.commit()
 		print(f"✅ Sales Tax Templates mexicanos: {created_count} creados")
@@ -842,14 +837,14 @@ def _create_mexican_tax_accounts(company_name, company_abbr):
 				"account_name": "IVA por Pagar",
 				"parent_account": f"Current Liabilities - {company_abbr}",
 				"account_type": "Tax",
-				"tax_rate": None
+				"tax_rate": None,
 			},
 			{
 				"account_name": "IEPS por Pagar",
 				"parent_account": f"Current Liabilities - {company_abbr}",
 				"account_type": "Tax",
-				"tax_rate": None
-			}
+				"tax_rate": None,
+			},
 		]
 
 		for account_data in tax_accounts:
@@ -865,14 +860,16 @@ def _create_mexican_tax_accounts(company_name, company_abbr):
 			# Crear account si no existe
 			if not frappe.db.exists("Account", full_account_name):
 				try:
-					account_doc = frappe.get_doc({
-						"doctype": "Account",
-						"account_name": account_name,
-						"parent_account": parent_account,
-						"company": company_name,
-						"is_group": 0,
-						"account_type": account_data["account_type"]
-					})
+					account_doc = frappe.get_doc(
+						{
+							"doctype": "Account",
+							"account_name": account_name,
+							"parent_account": parent_account,
+							"company": company_name,
+							"is_group": 0,
+							"account_type": account_data["account_type"],
+						}
+					)
 					account_doc.insert(ignore_permissions=True)
 					print(f"✅ Created tax account: {full_account_name}")
 				except Exception as e:
@@ -885,7 +882,7 @@ def _create_mexican_tax_accounts(company_name, company_abbr):
 def create_fiscal_setup_wizard():
 	"""
 	Crear Setup Wizard Fiscal Mexicano para configuración interactiva.
-	
+
 	Basado en investigación SAT completa:
 	- 🟢 VENTAS: IVA 16%/8%/0%/Exento + IEPS variables
 	- 🟡 COMPRAS: Retenciones ISR/IVA para honorarios, arrendamientos, autotransporte
@@ -939,13 +936,15 @@ def _detect_existing_tax_accounts(company_name, company_abbr):
 		"ieps_pagar": ["IEPS", "Impuesto Especial", "por Pagar"],
 		"iva_retenido": ["IVA", "Retenido", "Retención", "Withheld"],
 		"isr_retenido": ["ISR", "Retenido", "Retención", "Income", "Withheld"],
-		"iva_acreditable": ["IVA", "Acreditable", "por Cobrar", "Receivable"]
+		"iva_acreditable": ["IVA", "Acreditable", "por Cobrar", "Receivable"],
 	}
 
 	# Buscar cuentas que coincidan con patrones
-	accounts = frappe.get_all("Account",
-							filters={"company": company_name, "is_group": 0},
-							fields=["name", "account_name", "account_type"])
+	accounts = frappe.get_all(
+		"Account",
+		filters={"company": company_name, "is_group": 0},
+		fields=["name", "account_name", "account_type"],
+	)
 
 	for account in accounts:
 		account_name_lower = account.account_name.lower()
@@ -969,82 +968,80 @@ def _create_missing_tax_accounts(company_name, company_abbr, detected_accounts):
 		"iva_pagar_16": {
 			"account_name": "IVA por Pagar 16%",
 			"parent_account": f"Current Liabilities - {company_abbr}",
-			"account_type": "Tax"
+			"account_type": "Tax",
 		},
 		"iva_pagar_8": {
 			"account_name": "IVA por Pagar 8% - Zona Fronteriza",
 			"parent_account": f"Current Liabilities - {company_abbr}",
-			"account_type": "Tax"
+			"account_type": "Tax",
 		},
 		"iva_pagar_0": {
 			"account_name": "IVA por Pagar 0%",
 			"parent_account": f"Current Liabilities - {company_abbr}",
-			"account_type": "Tax"
+			"account_type": "Tax",
 		},
 		"ieps_pagar": {
 			"account_name": "IEPS por Pagar",
 			"parent_account": f"Current Liabilities - {company_abbr}",
-			"account_type": "Tax"
+			"account_type": "Tax",
 		},
 		"isr_pagar": {
 			"account_name": "ISR por Pagar",
 			"parent_account": f"Current Liabilities - {company_abbr}",
-			"account_type": "Tax"
+			"account_type": "Tax",
 		},
-
 		# 🟡 CUENTAS DE RETENCIONES POR ENTERAR (PASIVOS)
 		"isr_ret_honorarios": {
 			"account_name": "ISR Retenido Honorarios",
 			"parent_account": f"Current Liabilities - {company_abbr}",
-			"account_type": "Tax"
+			"account_type": "Tax",
 		},
 		"isr_ret_arrendamientos": {
 			"account_name": "ISR Retenido Arrendamientos",
 			"parent_account": f"Current Liabilities - {company_abbr}",
-			"account_type": "Tax"
+			"account_type": "Tax",
 		},
 		"isr_ret_autotransporte": {
 			"account_name": "ISR Retenido Autotransporte",
 			"parent_account": f"Current Liabilities - {company_abbr}",
-			"account_type": "Tax"
+			"account_type": "Tax",
 		},
 		"iva_ret_servicios": {
 			"account_name": "IVA Retenido Servicios Profesionales",
 			"parent_account": f"Current Liabilities - {company_abbr}",
-			"account_type": "Tax"
+			"account_type": "Tax",
 		},
 		"iva_ret_arrendamientos": {
 			"account_name": "IVA Retenido Arrendamientos",
 			"parent_account": f"Current Liabilities - {company_abbr}",
-			"account_type": "Tax"
+			"account_type": "Tax",
 		},
 		"iva_ret_autotransporte": {
 			"account_name": "IVA Retenido Autotransporte",
 			"parent_account": f"Current Liabilities - {company_abbr}",
-			"account_type": "Tax"
+			"account_type": "Tax",
 		},
-
 		# 🔵 CUENTAS DE IMPUESTOS POR COBRAR (ACTIVOS)
 		"iva_acreditable_16": {
 			"account_name": "IVA Acreditable 16%",
 			"parent_account": f"Current Assets - {company_abbr}",
-			"account_type": "Tax"
+			"account_type": "Tax",
 		},
 		"iva_acreditable_8": {
 			"account_name": "IVA Acreditable 8%",
 			"parent_account": f"Current Assets - {company_abbr}",
-			"account_type": "Tax"
+			"account_type": "Tax",
 		},
 		"isr_retenido_favor": {
 			"account_name": "ISR Retenido a Favor",
 			"parent_account": f"Current Assets - {company_abbr}",
-			"account_type": "Tax"
-		}
+			"account_type": "Tax",
+		},
 	}
 
 	created_accounts = []
 
-	for account_key, account_data in required_accounts.items():
+	for _account_key, account_data in required_accounts.items():
 		full_account_name = f"{account_data['account_name']} - {company_abbr}"
 		parent_account = account_data["parent_account"]
 
@@ -1058,14 +1055,16 @@ def _create_missing_tax_accounts(company_name, company_abbr, detected_accounts):
 			continue
 
 		try:
-			account_doc = frappe.get_doc({
-				"doctype": "Account",
-				"account_name": account_data["account_name"],
-				"parent_account": parent_account,
-				"company": company_name,
-				"is_group": 0,
-				"account_type": account_data["account_type"]
-			})
+			account_doc = frappe.get_doc(
+				{
+					"doctype": "Account",
+					"account_name": account_data["account_name"],
+					"parent_account": parent_account,
+					"company": company_name,
+					"is_group": 0,
+					"account_type": account_data["account_type"],
+				}
+			)
 			account_doc.insert(ignore_permissions=True)
 			created_accounts.append(full_account_name)
 			print(f"✅ Created: {full_account_name}")
@@ -1086,38 +1085,40 @@ def _create_comprehensive_tax_templates(company_name, company_abbr, detected_acc
 		{
 			"title": "IVA 16% - México",
 			"company": company_name,
-			"taxes": [{
-				"charge_type": "On Net Total",
-				"account_head": f"IVA por Pagar 16% - {company_abbr}",
-				"rate": 16.0,
-				"description": "Impuesto al Valor Agregado 16%"
-			}]
+			"taxes": [
+				{
+					"charge_type": "On Net Total",
+					"account_head": f"IVA por Pagar 16% - {company_abbr}",
+					"rate": 16.0,
+					"description": "Impuesto al Valor Agregado 16%",
+				}
+			],
 		},
 		{
 			"title": "IVA 8% - Zona Fronteriza",
 			"company": company_name,
-			"taxes": [{
-				"charge_type": "On Net Total",
-				"account_head": f"IVA por Pagar 8% - Zona Fronteriza - {company_abbr}",
-				"rate": 8.0,
-				"description": "Impuesto al Valor Agregado 8% Zona Fronteriza"
-			}]
+			"taxes": [
+				{
+					"charge_type": "On Net Total",
+					"account_head": f"IVA por Pagar 8% - Zona Fronteriza - {company_abbr}",
+					"rate": 8.0,
+					"description": "Impuesto al Valor Agregado 8% Zona Fronteriza",
+				}
+			],
 		},
 		{
 			"title": "IVA 0% - Exportación",
 			"company": company_name,
-			"taxes": [{
-				"charge_type": "On Net Total",
-				"account_head": f"IVA por Pagar 0% - {company_abbr}",
-				"rate": 0.0,
-				"description": "Impuesto al Valor Agregado 0% Exportación"
-			}]
+			"taxes": [
+				{
+					"charge_type": "On Net Total",
+					"account_head": f"IVA por Pagar 0% - {company_abbr}",
+					"rate": 0.0,
+					"description": "Impuesto al Valor Agregado 0% Exportación",
+				}
+			],
 		},
-		{
-			"title": "Sin Impuestos - Exento",
-			"company": company_name,
-			"taxes": []
-		},
+		{"title": "Sin Impuestos - Exento", "company": company_name, "taxes": []},
 		{
 			"title": "IEPS + IVA 16% - Bebidas Alcohólicas",
 			"company": company_name,
@@ -1127,16 +1128,16 @@ def _create_comprehensive_tax_templates(company_name, company_abbr, detected_acc
 					"account_head": f"IEPS por Pagar - {company_abbr}",
 					"rate": 53.0,
 					"description": "IEPS Bebidas Alcohólicas 53%",
-					"row_id": 1
+					"row_id": 1,
 				},
 				{
 					"charge_type": "On Previous Row Amount",
 					"account_head": f"IVA por Pagar 16% - {company_abbr}",
 					"rate": 16.0,
 					"description": "IVA 16% sobre base + IEPS",
-					"row_id": 2
-				}
-			]
+					"row_id": 2,
+				},
+			],
 		},
 		{
 			"title": "IEPS + IVA 16% - Tabaco",
@@ -1147,16 +1148,16 @@ def _create_comprehensive_tax_templates(company_name, company_abbr, detected_acc
 					"account_head": f"IEPS por Pagar - {company_abbr}",
 					"rate": 160.0,
 					"description": "IEPS Tabaco 160%",
-					"row_id": 1
+					"row_id": 1,
 				},
 				{
 					"charge_type": "On Previous Row Amount",
 					"account_head": f"IVA por Pagar 16% - {company_abbr}",
 					"rate": 16.0,
 					"description": "IVA 16% sobre base + IEPS",
-					"row_id": 2
-				}
-			]
+					"row_id": 2,
+				},
+			],
 		},
 		{
 			"title": "IEPS + IVA 16% - Combustibles",
@@ -1167,16 +1168,16 @@ def _create_comprehensive_tax_templates(company_name, company_abbr, detected_acc
 					"account_head": f"IEPS por Pagar - {company_abbr}",
 					"rate": 0.0,
 					"description": "IEPS Combustibles (por cuotas)",
-					"row_id": 1
+					"row_id": 1,
 				},
 				{
 					"charge_type": "On Previous Row Amount",
 					"account_head": f"IVA por Pagar 16% - {company_abbr}",
 					"rate": 16.0,
 					"description": "IVA 16% sobre base + IEPS",
-					"row_id": 2
-				}
-			]
+					"row_id": 2,
+				},
+			],
 		},
 		{
 			"title": "IEPS + IVA 16% - Bebidas Azucaradas",
@@ -1187,17 +1188,17 @@ def _create_comprehensive_tax_templates(company_name, company_abbr, detected_acc
 					"account_head": f"IEPS por Pagar - {company_abbr}",
 					"rate": 8.0,
 					"description": "IEPS Bebidas Azucaradas 8%",
-					"row_id": 1
+					"row_id": 1,
 				},
 				{
 					"charge_type": "On Previous Row Amount",
 					"account_head": f"IVA por Pagar 16% - {company_abbr}",
 					"rate": 16.0,
 					"description": "IVA 16% sobre base + IEPS",
-					"row_id": 2
-				}
-			]
-		}
+					"row_id": 2,
+				},
+			],
+		},
 	]
 
 	# 🟡 TEMPLATES DE COMPRAS CON RETENCIONES (8+ templates)
@@ -1210,15 +1211,15 @@ def _create_comprehensive_tax_templates(company_name, company_abbr, detected_acc
 					"charge_type": "On Net Total",
 					"account_head": f"ISR Retenido Honorarios - {company_abbr}",
 					"rate": -10.0,
-					"description": "Retención ISR Honorarios 10%"
+					"description": "Retención ISR Honorarios 10%",
 				},
 				{
 					"charge_type": "On Net Total",
 					"account_head": f"IVA Retenido Servicios Profesionales - {company_abbr}",
 					"rate": -10.67,
-					"description": "Retención IVA 2/3 (10.67% del 16%)"
-				}
-			]
+					"description": "Retención IVA 2/3 (10.67% del 16%)",
+				},
+			],
 		},
 		{
 			"title": "Honorarios RESICO - ISR 1.25% + IVA Ret 2/3",
@@ -1228,15 +1229,15 @@ def _create_comprehensive_tax_templates(company_name, company_abbr, detected_acc
 					"charge_type": "On Net Total",
 					"account_head": f"ISR Retenido Honorarios - {company_abbr}",
 					"rate": -1.25,
-					"description": "Retención ISR RESICO 1.25%"
+					"description": "Retención ISR RESICO 1.25%",
 				},
 				{
 					"charge_type": "On Net Total",
 					"account_head": f"IVA Retenido Servicios Profesionales - {company_abbr}",
 					"rate": -10.67,
-					"description": "Retención IVA 2/3 (10.67% del 16%)"
-				}
-			]
+					"description": "Retención IVA 2/3 (10.67% del 16%)",
+				},
+			],
 		},
 		{
 			"title": "Arrendamientos - ISR 10% + IVA Ret 2/3",
@@ -1246,15 +1247,15 @@ def _create_comprehensive_tax_templates(company_name, company_abbr, detected_acc
 					"charge_type": "On Net Total",
 					"account_head": f"ISR Retenido Arrendamientos - {company_abbr}",
 					"rate": -10.0,
-					"description": "Retención ISR Arrendamientos 10%"
+					"description": "Retención ISR Arrendamientos 10%",
 				},
 				{
 					"charge_type": "On Net Total",
 					"account_head": f"IVA Retenido Arrendamientos - {company_abbr}",
 					"rate": -10.67,
-					"description": "Retención IVA 2/3 (10.67% del 16%)"
-				}
-			]
+					"description": "Retención IVA 2/3 (10.67% del 16%)",
+				},
+			],
 		},
 		{
 			"title": "Autotransporte - ISR 4% + IVA Ret 4%",
@@ -1264,15 +1265,15 @@ def _create_comprehensive_tax_templates(company_name, company_abbr, detected_acc
 					"charge_type": "On Net Total",
 					"account_head": f"ISR Retenido Autotransporte - {company_abbr}",
 					"rate": -4.0,
-					"description": "Retención ISR Autotransporte 4%"
+					"description": "Retención ISR Autotransporte 4%",
 				},
 				{
 					"charge_type": "On Net Total",
 					"account_head": f"IVA Retenido Autotransporte - {company_abbr}",
 					"rate": -4.0,
-					"description": "Retención IVA Autotransporte 4%"
-				}
-			]
+					"description": "Retención IVA Autotransporte 4%",
+				},
+			],
 		},
 		{
 			"title": "Autotransporte RESICO - ISR 1.25% + IVA Ret 4%",
@@ -1282,46 +1283,52 @@ def _create_comprehensive_tax_templates(company_name, company_abbr, detected_acc
 					"charge_type": "On Net Total",
 					"account_head": f"ISR Retenido Autotransporte - {company_abbr}",
 					"rate": -1.25,
-					"description": "Retención ISR RESICO 1.25%"
+					"description": "Retención ISR RESICO 1.25%",
 				},
 				{
 					"charge_type": "On Net Total",
 					"account_head": f"IVA Retenido Autotransporte - {company_abbr}",
 					"rate": -4.0,
-					"description": "Retención IVA Autotransporte 4%"
-				}
-			]
+					"description": "Retención IVA Autotransporte 4%",
+				},
+			],
 		},
 		{
 			"title": "Dividendos - ISR 10%",
 			"company": company_name,
-			"taxes": [{
-				"charge_type": "On Net Total",
-				"account_head": f"ISR Retenido Honorarios - {company_abbr}",
-				"rate": -10.0,
-				"description": "Retención ISR Dividendos 10%"
-			}]
+			"taxes": [
+				{
+					"charge_type": "On Net Total",
+					"account_head": f"ISR Retenido Honorarios - {company_abbr}",
+					"rate": -10.0,
+					"description": "Retención ISR Dividendos 10%",
+				}
+			],
 		},
 		{
 			"title": "Intereses - ISR 10%",
 			"company": company_name,
-			"taxes": [{
-				"charge_type": "On Net Total",
-				"account_head": f"ISR Retenido Honorarios - {company_abbr}",
-				"rate": -10.0,
-				"description": "Retención ISR Intereses 10%"
-			}]
+			"taxes": [
+				{
+					"charge_type": "On Net Total",
+					"account_head": f"ISR Retenido Honorarios - {company_abbr}",
+					"rate": -10.0,
+					"description": "Retención ISR Intereses 10%",
+				}
+			],
 		},
 		{
 			"title": "Regalías - ISR 10%",
 			"company": company_name,
-			"taxes": [{
-				"charge_type": "On Net Total",
-				"account_head": f"ISR Retenido Honorarios - {company_abbr}",
-				"rate": -10.0,
-				"description": "Retención ISR Regalías 10%"
-			}]
-		}
+			"taxes": [
+				{
+					"charge_type": "On Net Total",
+					"account_head": f"ISR Retenido Honorarios - {company_abbr}",
+					"rate": -10.0,
+					"description": "Retención ISR Regalías 10%",
+				}
+			],
+		},
 	]
 
 	# Crear todos los templates
@@ -1341,10 +1348,9 @@ def _create_comprehensive_tax_templates(company_name, company_abbr, detected_acc
 						break
 
 				if valid_template:
-					template_doc = frappe.get_doc({
-						"doctype": "Sales Taxes and Charges Template",
-						**template_data
-					})
+					template_doc = frappe.get_doc(
+						{"doctype": "Sales Taxes and Charges Template", **template_data}
+					)
 					template_doc.insert(ignore_permissions=True)
 					templates_created += 1
 					print(f"✅ Template: {template_name}")
@@ -1352,7 +1358,7 @@ def _create_comprehensive_tax_templates(company_name, company_abbr, detected_acc
 			except Exception as e:
 				print(f"⚠️ Failed to create template {template_name}: {e}")
 		else:
-			print(f"ℹ️ Template exists: {template_name}")
+			print(f"Info: Template exists: {template_name}")
 
 	return templates_created
 
@@ -1386,16 +1392,16 @@ def create_missing_ieps_templates():
 						"charge_type": "On Net Total",
 						"account_head": f"IEPS por Pagar - {company_abbr}",
 						"rate": 53.0,
-						"description": "IEPS Bebidas Alcohólicas 53%"
+						"description": "IEPS Bebidas Alcohólicas 53%",
 					},
 					{
 						"charge_type": "On Previous Row Amount",
 						"account_head": f"IVA por Pagar 16% - {company_abbr}",
 						"rate": 16.0,
 						"description": "IVA 16% sobre base + IEPS",
-						"row_id": 1
-					}
-				]
+						"row_id": 1,
+					},
+				],
 			},
 			{
 				"title": "IEPS + IVA 16% - Tabaco",
@@ -1405,16 +1411,16 @@ def create_missing_ieps_templates():
 						"charge_type": "On Net Total",
 						"account_head": f"IEPS por Pagar - {company_abbr}",
 						"rate": 160.0,
-						"description": "IEPS Tabaco 160%"
+						"description": "IEPS Tabaco 160%",
 					},
 					{
 						"charge_type": "On Previous Row Amount",
 						"account_head": f"IVA por Pagar 16% - {company_abbr}",
 						"rate": 16.0,
 						"description": "IVA 16% sobre base + IEPS",
-						"row_id": 1
-					}
-				]
+						"row_id": 1,
+					},
+				],
 			},
 			{
 				"title": "IEPS + IVA 16% - Combustibles",
@@ -1424,16 +1430,16 @@ def create_missing_ieps_templates():
 						"charge_type": "On Net Total",
 						"account_head": f"IEPS por Pagar - {company_abbr}",
 						"rate": 0.0,
-						"description": "IEPS Combustibles (por cuotas)"
+						"description": "IEPS Combustibles (por cuotas)",
 					},
 					{
 						"charge_type": "On Previous Row Amount",
 						"account_head": f"IVA por Pagar 16% - {company_abbr}",
 						"rate": 16.0,
 						"description": "IVA 16% sobre base + IEPS",
-						"row_id": 1
-					}
-				]
+						"row_id": 1,
+					},
+				],
 			},
 			{
 				"title": "IEPS + IVA 16% - Bebidas Azucaradas",
@@ -1443,17 +1449,17 @@ def create_missing_ieps_templates():
 						"charge_type": "On Net Total",
 						"account_head": f"IEPS por Pagar - {company_abbr}",
 						"rate": 8.0,
-						"description": "IEPS Bebidas Azucaradas 8%"
+						"description": "IEPS Bebidas Azucaradas 8%",
 					},
 					{
 						"charge_type": "On Previous Row Amount",
 						"account_head": f"IVA por Pagar 16% - {company_abbr}",
 						"rate": 16.0,
 						"description": "IVA 16% sobre base + IEPS",
-						"row_id": 1
-					}
-				]
-			}
+						"row_id": 1,
+					},
+				],
+			},
 		]
 
 		templates_created = 0
@@ -1463,7 +1469,7 @@ def create_missing_ieps_templates():
 
 			# Verificar si ya existe
 			if frappe.db.exists("Sales Taxes and Charges Template", template_name):
-				print(f"ℹ️ Template ya existe: {template_name}")
+				print(f"Info: Template ya existe: {template_name}")
 				continue
 
 			try:
@@ -1476,10 +1482,9 @@ def create_missing_ieps_templates():
 						break
 
 				if valid_template:
-					template_doc = frappe.get_doc({
-						"doctype": "Sales Taxes and Charges Template",
-						**template_data
-					})
+					template_doc = frappe.get_doc(
+						{"doctype": "Sales Taxes and Charges Template", **template_data}
+					)
 					template_doc.insert(ignore_permissions=True)
 					templates_created += 1
 					print(f"✅ Template IEPS creado: {template_name}")
@@ -1507,9 +1512,9 @@ def list_created_tax_templates():
 		company_name = companies[0].name
 
 		# Listar todos los templates de la company
-		templates = frappe.get_all("Sales Taxes and Charges Template",
-									filters={"company": company_name},
-									fields=["name", "title"])
+		templates = frappe.get_all(
+			"Sales Taxes and Charges Template", filters={"company": company_name}, fields=["name", "title"]
+		)
 
 		print(f"📋 Templates fiscales encontrados para {company_name}:")
 		print("=" * 60)
@@ -1523,7 +1528,19 @@ def list_created_tax_templates():
 			title = template.title
 			if "IEPS" in title:
 				ieps_templates.append(title)
-			elif any(keyword in title for keyword in ["ISR", "Ret", "Honorarios", "Arrendamientos", "Autotransporte", "Dividendos", "Intereses", "Regalías"]):
+			elif any(
+				keyword in title
+				for keyword in [
+					"ISR",
+					"Ret",
+					"Honorarios",
+					"Arrendamientos",
+					"Autotransporte",
+					"Dividendos",
+					"Intereses",
+					"Regalías",
+				]
+			):
 				purchase_templates.append(title)
 			else:
 				sales_templates.append(title)
@@ -1584,7 +1601,9 @@ def check_currency_configuration():
 			print("      - Chart of Accounts en español")
 			print("   3. Ejecutar Setup Wizard Fiscal en la nueva Company")
 			print("\n   💡 COMANDO SUGERIDO:")
-			print("   bench --site facturacion.dev new-company \"Mi Empresa México\" --country \"Mexico\" --currency \"MXN\"")
+			print(
+				'   bench --site facturacion.dev new-company "Mi Empresa México" --country "Mexico" --currency "MXN"'
+			)
 
 			# Verificar si MXN existe
 			if frappe.db.exists("Currency", "MXN"):
@@ -1596,10 +1615,16 @@ def check_currency_configuration():
 			print("✅ La moneda ya está configurada correctamente en MXN")
 
 		# Verificar templates existentes
-		mexican_templates = frappe.get_all("Sales Taxes and Charges Template",
-											filters={"company": company_name},
-											fields=["name"])
-		mexican_count = len([t for t in mexican_templates if any(keyword in t.name.lower() for keyword in ["iva", "isr", "ieps", "méxico", "mexico"])])
+		mexican_templates = frappe.get_all(
+			"Sales Taxes and Charges Template", filters={"company": company_name}, fields=["name"]
+		)
+		mexican_count = len(
+			[
+				t
+				for t in mexican_templates
+				if any(keyword in t.name.lower() for keyword in ["iva", "isr", "ieps", "méxico", "mexico"])
+			]
+		)
 
 		print("\n📊 ESTADO ACTUAL DEL SISTEMA:")
 		print(f"   🏢 Company: {company_name}")
@@ -1635,7 +1660,7 @@ def create_test_invoice_with_fiscal_wizard():
 			return False
 
 		company_name = companies[0].name
-		company_abbr = companies[0].abbr
+		_company_abbr = companies[0].abbr
 
 		# 1. Verificar datos básicos
 		print("🔍 Verificando datos básicos del sistema...")
@@ -1650,13 +1675,15 @@ def create_test_invoice_with_fiscal_wizard():
 		else:
 			# Crear cliente de prueba
 			print("   🆕 Creando cliente de prueba...")
-			customer_doc = frappe.get_doc({
-				"doctype": "Customer",
-				"customer_name": "Cliente Prueba México",
-				"customer_type": "Company",
-				"customer_group": "All Customer Groups",
-				"territory": "All Territories"
-			})
+			customer_doc = frappe.get_doc(
+				{
+					"doctype": "Customer",
+					"customer_name": "Cliente Prueba México",
+					"customer_type": "Company",
+					"customer_group": "All Customer Groups",
+					"territory": "All Territories",
+				}
+			)
 			customer_doc.insert(ignore_permissions=True)
 			test_customer = customer_doc.name
 			print(f"   ✅ Cliente creado: {customer_doc.customer_name}")
@@ -1671,18 +1698,20 @@ def create_test_invoice_with_fiscal_wizard():
 		else:
 			# Crear item de prueba
 			print("   🆕 Creando item de prueba...")
-			item_doc = frappe.get_doc({
-				"doctype": "Item",
-				"item_code": "PROD-TEST-001",
-				"item_name": "Producto de Prueba México",
-				"item_group": "All Item Groups",
-				"is_sales_item": 1,
-				"is_purchase_item": 0,
-				"is_stock_item": 0,
-				"include_item_in_manufacturing": 0,
-				"standard_rate": 1000.0,
-				"uom": "Nos"
-			})
+			item_doc = frappe.get_doc(
+				{
+					"doctype": "Item",
+					"item_code": "PROD-TEST-001",
+					"item_name": "Producto de Prueba México",
+					"item_group": "All Item Groups",
+					"is_sales_item": 1,
+					"is_purchase_item": 0,
+					"is_stock_item": 0,
+					"include_item_in_manufacturing": 0,
+					"standard_rate": 1000.0,
+					"uom": "Nos",
+				}
+			)
 			item_doc.insert(ignore_permissions=True)
 			test_item = item_doc.name
 			print(f"   ✅ Item creado: {item_doc.item_name}")
@@ -1692,12 +1721,15 @@ def create_test_invoice_with_fiscal_wizard():
 
 		# Buscar template IVA 16% básico (no IEPS)
 		iva_template = None
-		templates = frappe.db.sql("""
-			SELECT name, title 
-			FROM `tabSales Taxes and Charges Template` 
+		templates = frappe.db.sql(
+			"""
+			SELECT name, title
+			FROM `tabSales Taxes and Charges Template`
 			WHERE company = %s AND title = %s
 			LIMIT 1
-		""", (company_name, 'IVA 16% - México'))
+		""",
+			(company_name, "IVA 16% - México"),
+		)
 
 		if templates:
 			iva_template = templates[0][0]
@@ -1710,24 +1742,21 @@ def create_test_invoice_with_fiscal_wizard():
 		# 3. Crear Sales Invoice de prueba
 		print("🧾 Creando Sales Invoice con template fiscal...")
 
-		invoice_doc = frappe.get_doc({
-			"doctype": "Sales Invoice",
-			"customer": test_customer,
-			"company": company_name,
-			"posting_date": frappe.utils.today(),
-			"due_date": frappe.utils.add_days(frappe.utils.today(), 30),
-			"taxes_and_charges": iva_template,
-			# Campos fiscales mexicanos obligatorios
-			"fm_cfdi_use": "G01",  # Adquisición de mercancías
-			"fm_payment_method": "PUE",  # Pago en una sola exhibición
-			"fm_payment_form": "01",  # Efectivo
-			"items": [{
-				"item_code": test_item,
-				"qty": 1,
-				"rate": 1000.0,
-				"amount": 1000.0
-			}]
-		})
+		invoice_doc = frappe.get_doc(
+			{
+				"doctype": "Sales Invoice",
+				"customer": test_customer,
+				"company": company_name,
+				"posting_date": frappe.utils.today(),
+				"due_date": frappe.utils.add_days(frappe.utils.today(), 30),
+				"taxes_and_charges": iva_template,
+				# Campos fiscales mexicanos obligatorios
+				"fm_cfdi_use": "G01",  # Adquisición de mercancías
+				"fm_payment_method": "PUE",  # Pago en una sola exhibición
+				"fm_payment_form": "01",  # Efectivo
+				"items": [{"item_code": test_item, "qty": 1, "rate": 1000.0, "amount": 1000.0}],
+			}
+		)
 
 		# Insertar factura
 		invoice_doc.insert(ignore_permissions=True)
@@ -1777,6 +1806,7 @@ def create_test_invoice_with_fiscal_wizard():
 	except Exception as e:
 		print(f"❌ Error creando factura de prueba: {e}")
 		import traceback
+
 		traceback.print_exc()
 		return False
 
@@ -1788,10 +1818,10 @@ def test_invoice_submit():
 
 		# Buscar última factura creada
 		invoices = frappe.db.sql("""
-			SELECT name, customer, grand_total 
-			FROM `tabSales Invoice` 
-			WHERE docstatus = 0 
-			ORDER BY creation DESC 
+			SELECT name, customer, grand_total
+			FROM `tabSales Invoice`
+			WHERE docstatus = 0
+			ORDER BY creation DESC
 			LIMIT 1
 		""")
 
@@ -1825,6 +1855,7 @@ def test_invoice_submit():
 	except Exception as e:
 		print(f"❌ Error en submit de factura: {e}")
 		import traceback
+
 		traceback.print_exc()
 		return False
 
@@ -1869,10 +1900,10 @@ def check_fiscal_configuration_for_timbrado():
 
 		# 4. Verificar última factura
 		invoices = frappe.db.sql("""
-			SELECT name, fm_fiscal_status, fm_cfdi_use, fm_payment_method_sat 
-			FROM `tabSales Invoice` 
-			WHERE docstatus = 1 
-			ORDER BY creation DESC 
+			SELECT name, fm_fiscal_status, fm_cfdi_use, fm_payment_method_sat
+			FROM `tabSales Invoice`
+			WHERE docstatus = 1
+			ORDER BY creation DESC
 			LIMIT 1
 		""")
 
@@ -1900,6 +1931,7 @@ def check_fiscal_configuration_for_timbrado():
 	except Exception as e:
 		print(f"❌ Error verificando configuración fiscal: {e}")
 		import traceback
+
 		traceback.print_exc()
 		return False
 
@@ -1914,6 +1946,7 @@ def investigate_timbrado_issue():
 
 		# Buscar hooks en Sales Invoice
 		from facturacion_mexico.hooks import doc_events
+
 		si_hooks = doc_events.get("Sales Invoice", {})
 
 		print("   🔗 Hooks configurados en Sales Invoice:")
@@ -1928,10 +1961,10 @@ def investigate_timbrado_issue():
 		print("\n📄 VERIFICANDO ÚLTIMA FACTURA:")
 
 		invoices = frappe.db.sql("""
-			SELECT name, docstatus, fm_fiscal_status, fm_uuid_fiscal, 
+			SELECT name, docstatus, fm_fiscal_status, fm_uuid_fiscal,
 				   fm_factura_fiscal_mx, customer, grand_total
-			FROM `tabSales Invoice` 
-			ORDER BY creation DESC 
+			FROM `tabSales Invoice`
+			ORDER BY creation DESC
 			LIMIT 3
 		""")
 
@@ -1950,10 +1983,10 @@ def investigate_timbrado_issue():
 		print("\n⚠️ VERIFICANDO ERROR LOGS DE TIMBRADO:")
 
 		error_logs = frappe.db.sql("""
-			SELECT creation, title, error 
-			FROM `tabError Log` 
+			SELECT creation, title, error
+			FROM `tabError Log`
 			WHERE title LIKE '%timbrado%' OR title LIKE '%fiscal%' OR title LIKE '%cfdi%'
-			ORDER BY creation DESC 
+			ORDER BY creation DESC
 			LIMIT 5
 		""")
 
@@ -1971,15 +2004,15 @@ def investigate_timbrado_issue():
 		try:
 			# Intentar obtener settings de diferentes formas
 			settings_data = frappe.db.sql("""
-				SELECT field, value 
-				FROM `tabSingles` 
+				SELECT field, value
+				FROM `tabSingles`
 				WHERE doctype = 'Facturacion Mexico Settings'
 			""")
 
 			if settings_data:
 				print("   📋 Configuración encontrada:")
 				for field, value in settings_data:
-					if 'key' in field.lower() or 'password' in field.lower():
+					if "key" in field.lower() or "password" in field.lower():
 						display_value = "***CONFIGURADO***" if value else "NO CONFIGURADO"
 					else:
 						display_value = value or "NO CONFIGURADO"
@@ -2006,5 +2039,6 @@ def investigate_timbrado_issue():
 	except Exception as e:
 		print(f"❌ Error investigando timbrado: {e}")
 		import traceback
+
 		traceback.print_exc()
 		return False
