@@ -72,8 +72,6 @@ Agrega la siguiente configuración a tu `site_config.json`:
 ```json
 {
   "pac_provider": "finkok",
-  "pac_username": "tu_usuario_pac",
-  "pac_password": "tu_password_pac",
   "pac_test_mode": 1,
   "multisucursal_enabled": 1,
   "addendas_auto_generation": 1,
@@ -81,25 +79,32 @@ Agrega la siguiente configuración a tu `site_config.json`:
 }
 ```
 
-### Certificados SAT
+> **📝 Nota**: Las credenciales PAC (API Keys) se configuran en "Facturacion Mexico Settings", no en site_config.json
 
-#### Subir Certificados
+### Configuración PAC Provider
 
-1. Ve a **Setup > Facturación México > Certificados SAT**
-2. Sube tu archivo `.cer` (certificado público)
-3. Sube tu archivo `.key` (llave privada)
-4. Ingresa la contraseña de la llave privada
-5. Verifica que el estado sea "Válido"
+#### Configurar Proveedor de Certificación Autorizado
 
-```python
-# Verificar certificados desde consola
-import frappe
-from facturacion_mexico.utils.certificates import validate_certificates
+1. Ve a **Setup > Facturación México > Facturacion Mexico Settings**
+2. Configura los siguientes campos:
 
-result = validate_certificates()
-print(f"Certificados válidos: {result['valid']}")
-print(f"Vigencia hasta: {result['expires_on']}")
-```
+**Configuración API:**
+- **API Key Producción**: Tu API Key de producción del PAC
+- **API Key Pruebas**: Tu API Key de pruebas del PAC  
+- **Modo Sandbox**: ✅ Activar para pruebas, ❌ desactivar para producción
+- **Timeout**: Tiempo límite para llamadas API (por defecto 30 segundos)
+
+**Configuración Fiscal:**
+- **RFC Emisor**: RFC de tu empresa
+- **Lugar de Expedición**: Código postal donde se expiden las facturas
+- **Régimen Fiscal por Defecto**: Tu régimen fiscal SAT
+
+**Configuración Automática:**
+- **Generar E-Receipts Automáticamente**: Para autofacturación
+- **Enviar Email por Defecto**: Envío automático de CFDIs
+- **Descargar Archivos por Defecto**: Descarga automática PDF/XML
+
+> **📝 Nota Importante**: Los certificados SAT se gestionan directamente en el portal de tu PAC provider, no en ERPNext. El PAC se encarga de la firma digital de los CFDIs usando tus certificados.
 
 ### Configuración de Company
 
@@ -222,8 +227,8 @@ bench --site tu-sitio.local console
 ```python
 import frappe
 print(frappe.conf.get('pac_provider'))
-print(frappe.conf.get('pac_username'))
-# No imprimas la password por seguridad
+print(frappe.conf.get('pac_test_mode'))
+print(frappe.conf.get('multisucursal_enabled'))
 ```
 
 ### Error: "Invalid SAT Catalog"

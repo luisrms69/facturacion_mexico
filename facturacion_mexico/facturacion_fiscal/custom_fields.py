@@ -196,19 +196,11 @@ def create_sales_invoice_sprint2_custom_fields():
 	custom_fields = {
 		"Sales Invoice": [
 			{
-				"fieldname": "fm_payment_status",
-				"fieldtype": "Select",
-				"label": "Estado de Pago",
-				"options": "Pagada\nParcial\nPendiente",
-				"read_only": 1,
-				"insert_after": "fm_payment_method_sat",
-			},
-			{
 				"fieldname": "fm_pending_amount",
 				"fieldtype": "Currency",
 				"label": "Monto Pendiente",
 				"read_only": 1,
-				"insert_after": "fm_payment_status",
+				"insert_after": "fm_payment_method_sat",
 			},
 			{
 				"fieldname": "fm_complementos_count",
@@ -296,7 +288,6 @@ def remove_custom_fields():
 		"Sales Invoice-fm_uuid_fiscal",
 		"Sales Invoice-fm_factura_fiscal_mx",
 		# Sprint 2 - Sales Invoice
-		"Sales Invoice-fm_payment_status",
 		"Sales Invoice-fm_pending_amount",
 		"Sales Invoice-fm_complementos_count",
 		# Customer

@@ -10,7 +10,9 @@ def create_fiscal_event(doc, method):
 		"fm_fiscal_status": doc.fm_fiscal_status,
 	}
 
-	event_doc = FiscalEventMX.create_event(doc.name, "factura_fiscal_created", event_data)
+	# Crear evento con parametros correctos: (event_type, reference_doctype, reference_name, event_data)
+	event_doc = FiscalEventMX.create_event("creation", "Factura Fiscal Mexico", doc.name, event_data)
 
-	# Marcar como exitoso
-	FiscalEventMX.mark_event_success(event_doc.name, {"status": "created"})
+	# Marcar como exitoso solo si el evento se creó correctamente
+	if event_doc:
+		FiscalEventMX.mark_event_success(event_doc.name, {"status": "created"})

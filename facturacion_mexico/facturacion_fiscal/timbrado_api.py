@@ -76,8 +76,10 @@ class TimbradoAPI:
 			frappe.throw(_("Se requiere cliente para timbrar"))
 
 		customer = frappe.get_doc("Customer", sales_invoice.customer)
-		if not customer.fm_rfc:
-			frappe.throw(_("El cliente debe tener RFC configurado"))
+		# ESTRATEGIA HÍBRIDA: Verificar tax_id o fm_rfc
+		customer_rfc = customer.get('tax_id') or customer.get('fm_rfc')
+		if not customer_rfc:
+			frappe.throw(_("El cliente debe tener RFC configurado (Tax ID o RFC)"))
 
 		# Verificar uso de CFDI
 		if not sales_invoice.fm_cfdi_use:
@@ -116,7 +118,7 @@ class TimbradoAPI:
 		# Datos del cliente
 		customer_data = {
 			"legal_name": customer.customer_name,
-			"tax_id": customer.fm_rfc,
+			"tax_id": customer.get('tax_id') or customer.get('fm_rfc'),
 			"email": customer.email_id or "cliente@example.com",
 		}
 

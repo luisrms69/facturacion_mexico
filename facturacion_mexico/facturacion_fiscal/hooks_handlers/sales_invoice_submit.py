@@ -18,7 +18,7 @@ def create_fiscal_event(doc, method):
 
 
 def _should_create_fiscal_event(doc):
-	"""Determinar si se debe crear evento fiscal."""
+	"""Determinar si se debe crear evento fiscal - Estrategia Híbrida."""
 	# Solo para facturas enviadas
 	if doc.docstatus != 1:
 		return False
@@ -28,7 +28,10 @@ def _should_create_fiscal_event(doc):
 		return False
 
 	customer = frappe.get_doc("Customer", doc.customer)
-	return bool(customer.fm_rfc)
+	
+	# ESTRATEGIA HÍBRIDA: Verificar tax_id primero, fm_rfc como fallback
+	has_rfc = bool(customer.get('tax_id')) or bool(customer.get('fm_rfc'))
+	return has_rfc
 
 
 def _create_emission_event(doc):
@@ -46,7 +49,8 @@ def _create_emission_event(doc):
 		"currency": doc.currency,
 	}
 
-	event_doc = FiscalEventMX.create_event(factura_fiscal.name, "invoice_emission", event_data)
+	# Crear evento con parametros correctos: (event_type, reference_doctype, reference_name, event_data)
+	event_doc = FiscalEventMX.create_event("invoice_emission", "Factura Fiscal Mexico", factura_fiscal.name, event_data)
 
 	# Marcar como exitoso inmediatamente
 	FiscalEventMX.mark_event_success(event_doc.name, {"status": "emitted"})
@@ -76,7 +80,7 @@ def _get_or_create_factura_fiscal(doc):
 
 
 def _should_auto_timbrar(doc):
-	"""Determinar si se debe auto-timbrar."""
+	"""Determinar si se debe auto-timbrar - Estrategia Híbrida."""
 	settings = frappe.get_single("Facturacion Mexico Settings")
 
 	# Solo si está habilitado auto-timbrado
@@ -87,9 +91,10 @@ def _should_auto_timbrar(doc):
 	if not doc.fm_cfdi_use:
 		return False
 
-	# Solo si el cliente tiene RFC
+	# Solo si el cliente tiene RFC (tax_id o fm_rfc)
 	customer = frappe.get_doc("Customer", doc.customer)
-	if not customer.fm_rfc:
+	has_rfc = bool(customer.get('tax_id')) or bool(customer.get('fm_rfc'))
+	if not has_rfc:
 		return False
 
 	return True

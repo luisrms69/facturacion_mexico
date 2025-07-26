@@ -106,7 +106,6 @@ fixtures = [
 	"Sales Invoice-uuid_fiscal",
 	"Sales Invoice-factura_fiscal_mx",
 	# Sales Invoice Sprint 2
-	"Sales Invoice-fm_payment_status",
 	"Sales Invoice-fm_pending_amount",
 	"Sales Invoice-fm_complementos_count",
 	# Sales Invoice Sprint 6 Multi-Sucursal
@@ -232,7 +231,7 @@ doc_events = {
 			"facturacion_mexico.facturacion_fiscal.hooks_handlers.sales_invoice_validate.validate_fiscal_data",
 			"facturacion_mexico.hooks_handlers.sales_invoice_validate.sales_invoice_validate",
 		],
-		"before_submit": "facturacion_mexico.validaciones.hooks_handlers.sales_invoice_validate.validate_customer_lista_69b",
+		"before_submit": "facturacion_mexico.validaciones.hooks_handlers.sales_invoice_validate.validate_lista_69b_customer",
 		"on_submit": [
 			"facturacion_mexico.facturacion_fiscal.hooks_handlers.sales_invoice_submit.create_fiscal_event",
 			"facturacion_mexico.ereceipts.hooks_handlers.sales_invoice_submit.create_ereceipt_if_configured",
