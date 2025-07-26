@@ -33,7 +33,11 @@ class TimbradoAPI:
 
 			# Crear evento fiscal
 			event_doc = FiscalEventMX.create_event(
-				factura_fiscal.name, "timbrado_request", {"sales_invoice": sales_invoice_name}
+				event_type="stamp",
+				reference_doctype="Factura Fiscal Mexico",
+				reference_name=factura_fiscal.name,
+				event_data={"sales_invoice": sales_invoice_name},
+				status="pending",
 			)
 
 			# Llamar a FacturAPI
@@ -54,12 +58,32 @@ class TimbradoAPI:
 			if "event_doc" in locals():
 				FiscalEventMX.mark_event_failed(event_doc.name, str(e))
 
+			# Procesar error específico del PAC
+			error_details = self._process_pac_error(e)
+
+			# Registrar intento fallido en tabla de logs
+			self._log_timbrado_attempt(
+				sales_invoice_name=sales_invoice_name,
+				attempt_type="Timbrado",
+				status="Error",
+				error_details=error_details["user_message"],
+				pac_message=str(e),
+			)
+
 			# Actualizar estado en Sales Invoice
 			frappe.db.set_value("Sales Invoice", sales_invoice_name, "fm_fiscal_status", "Error")
 			frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure error state is persisted
 
+			# Log error técnico
 			frappe.logger().error(f"Error timbrado factura {sales_invoice_name}: {e!s}")
-			return {"success": False, "error": str(e), "message": f"Error al timbrar factura: {e!s}"}
+
+			return {
+				"success": False,
+				"error": str(e),
+				"user_error": error_details["user_message"],
+				"corrective_action": error_details["corrective_action"],
+				"message": error_details["user_message"],
+			}
 
 	def _validate_invoice_for_timbrado(self, sales_invoice):
 		"""Validar que la factura se puede timbrar."""
@@ -77,7 +101,7 @@ class TimbradoAPI:
 
 		customer = frappe.get_doc("Customer", sales_invoice.customer)
 		# ESTRATEGIA HÍBRIDA: Verificar tax_id o fm_rfc
-		customer_rfc = customer.get('tax_id') or customer.get('fm_rfc')
+		customer_rfc = customer.get("tax_id") or customer.get("fm_rfc")
 		if not customer_rfc:
 			frappe.throw(_("El cliente debe tener RFC configurado (Tax ID o RFC)"))
 
@@ -118,23 +142,28 @@ class TimbradoAPI:
 		# Datos del cliente
 		customer_data = {
 			"legal_name": customer.customer_name,
-			"tax_id": customer.get('tax_id') or customer.get('fm_rfc'),
+			"tax_id": customer.get("tax_id") or customer.get("fm_rfc"),
 			"email": customer.email_id or "cliente@example.com",
 		}
 
-		# Dirección del cliente si existe
-		if customer.customer_primary_address:
-			address = frappe.get_doc("Address", customer.customer_primary_address)
-			customer_data["address"] = {
-				"street": address.address_line1 or "",
-				"exterior": address.address_line2 or "",
-				"neighborhood": address.city or "",
-				"city": address.city or "",
-				"municipality": address.city or "",
-				"state": address.state or "",
-				"country": address.country or "MEX",
-				"zip": address.pincode or "",
-			}
+		# VALIDACIÓN CRÍTICA: Dirección del cliente es REQUERIDA por PAC
+		primary_address = self._get_customer_primary_address(customer)
+		if not primary_address:
+			# Error sin enviar al PAC - manejado por _process_pac_error()
+			raise Exception(
+				f"customer.address_required: El cliente {customer.customer_name} no tiene dirección primaria configurada"
+			)
+
+		customer_data["address"] = {
+			"street": primary_address.get("address_line1") or "",
+			"exterior": primary_address.get("address_line2") or "",
+			"neighborhood": primary_address.get("city") or "",
+			"city": primary_address.get("city") or "",
+			"municipality": primary_address.get("city") or "",
+			"state": primary_address.get("state") or "",
+			"country": primary_address.get("country") or "MEX",
+			"zip": primary_address.get("pincode") or "",
+		}
 
 		# Items de la factura
 		items = []
@@ -243,6 +272,16 @@ class TimbradoAPI:
 		factura_fiscal.stamped_at = now_datetime()
 		factura_fiscal.save()
 
+		# Registrar intento exitoso en tabla de logs
+		self._log_timbrado_attempt(
+			sales_invoice_name=sales_invoice.name,
+			attempt_type="Timbrado",
+			status="Exitoso",
+			pac_response_code="200",
+			pac_message="Timbrado exitoso",
+			response_data=response,
+		)
+
 		# Actualizar Sales Invoice
 		frappe.db.set_value(
 			"Sales Invoice",
@@ -339,6 +378,158 @@ class TimbradoAPI:
 
 			frappe.logger().error(f"Error cancelando factura {sales_invoice_name}: {e!s}")
 			return {"success": False, "error": str(e), "message": f"Error al cancelar factura: {e!s}"}
+
+	def _process_pac_error(self, error) -> dict[str, str]:
+		"""Procesar errores del PAC y generar mensajes útiles para el usuario."""
+		error_str = str(error).lower()
+
+		# Errores específicos de customer.address
+		if "customer.address" in error_str or "address_required" in error_str:
+			# Extraer nombre del cliente del mensaje si está disponible
+			customer_name = "el cliente"
+			if "El cliente" in str(error):
+				try:
+					customer_name = str(error).split("El cliente ")[1].split(" no tiene")[0]
+				except Exception:
+					customer_name = "el cliente"
+
+			return {
+				"user_message": f"ERROR FISCAL: {customer_name} debe tener una dirección primaria configurada para el timbrado fiscal.",
+				"corrective_action": f"Ir a Customer '{customer_name}' → Addresses → Agregar dirección primaria con todos los campos requeridos",
+			}
+
+		# Errores de RFC
+		if "tax_id" in error_str or "rfc" in error_str:
+			return {
+				"user_message": "ERROR FISCAL: RFC del cliente inválido o faltante. Verifique que el campo Tax ID del cliente tenga un RFC válido.",
+				"corrective_action": "Ir a Customer → Tax ID → Configurar RFC válido",
+			}
+
+		# Errores de productos SAT
+		if "product_key" in error_str or "clave" in error_str:
+			return {
+				"user_message": "ERROR FISCAL: Algunos productos no tienen configurada la Clave de Producto/Servicio SAT requerida.",
+				"corrective_action": "Ir a Item → Configurar Clave Producto/Servicio SAT",
+			}
+
+		# Errores de unidades de medida
+		if "unit_key" in error_str or "unidad" in error_str:
+			return {
+				"user_message": "ERROR FISCAL: Algunas unidades de medida no tienen configurada la Clave de Unidad SAT requerida.",
+				"corrective_action": "Ir a UOM → Configurar Clave Unidad SAT",
+			}
+
+		# Errores de uso CFDI
+		if "uso" in error_str or "cfdi" in error_str:
+			return {
+				"user_message": "ERROR FISCAL: Uso CFDI faltante o inválido. Configure el Uso CFDI en la factura.",
+				"corrective_action": "Configurar campo 'Uso CFDI' en la factura",
+			}
+
+		# Errores de API key o autenticación
+		if "unauthorized" in error_str or "api" in error_str or "token" in error_str:
+			return {
+				"user_message": "ERROR DE AUTENTICACIÓN: Problema con las credenciales del PAC. Verifique la configuración de API keys.",
+				"corrective_action": "Verificar Facturacion Mexico Settings → API Keys",
+			}
+
+		# Error genérico
+		return {
+			"user_message": f"ERROR FISCAL: {str(error)[:200]}...",
+			"corrective_action": "Revisar los datos fiscales de la factura y el cliente",
+		}
+
+	def _log_timbrado_attempt(
+		self,
+		sales_invoice_name,
+		attempt_type,
+		status,
+		pac_response_code=None,
+		pac_message=None,
+		request_data=None,
+		response_data=None,
+		error_details=None,
+	):
+		"""Registrar intento de timbrado en tabla de logs."""
+		try:
+			from facturacion_mexico.facturacion_fiscal.doctype.fiscal_attempt_log.fiscal_attempt_log import (
+				FiscalAttemptLog,
+			)
+
+			# Obtener documento Sales Invoice
+			sales_invoice = frappe.get_doc("Sales Invoice", sales_invoice_name)
+
+			# Crear log de intento
+			FiscalAttemptLog.create_attempt_log(
+				parent_doc=sales_invoice,
+				attempt_type=attempt_type,
+				status=status,
+				pac_response_code=pac_response_code,
+				pac_message=pac_message,
+				request_data=request_data,
+				response_data=response_data,
+				error_details=error_details,
+			)
+
+			frappe.logger().info(
+				f"Log de intento {attempt_type} registrado para {sales_invoice_name}: {status}"
+			)
+
+		except Exception as e:
+			frappe.logger().error(f"Error registrando log de intento: {e!s}")
+			# No fallar el proceso principal por errores de logging
+
+	def _get_customer_primary_address(self, customer):
+		"""Obtener dirección primaria del customer."""
+		try:
+			# Buscar dirección primaria
+			primary_address = frappe.db.sql(
+				"""
+				SELECT addr.name, addr.address_line1, addr.address_line2, addr.city,
+				       addr.state, addr.country, addr.pincode
+				FROM `tabAddress` addr
+				INNER JOIN `tabDynamic Link` dl ON dl.parent = addr.name
+				WHERE dl.link_doctype = 'Customer'
+				AND dl.link_name = %s
+				AND addr.is_primary_address = 1
+				LIMIT 1
+			""",
+				customer.name,
+				as_dict=True,
+			)
+
+			if primary_address:
+				return primary_address[0]
+
+			# Si no hay primaria, buscar cualquier dirección
+			any_address = frappe.db.sql(
+				"""
+				SELECT addr.name, addr.address_line1, addr.address_line2, addr.city,
+				       addr.state, addr.country, addr.pincode
+				FROM `tabAddress` addr
+				INNER JOIN `tabDynamic Link` dl ON dl.parent = addr.name
+				WHERE dl.link_doctype = 'Customer'
+				AND dl.link_name = %s
+				LIMIT 1
+			""",
+				customer.name,
+				as_dict=True,
+			)
+
+			if any_address:
+				frappe.msgprint(
+					_(
+						"Advertencia: El cliente no tiene dirección primaria. Usando la primera dirección disponible."
+					),
+					indicator="orange",
+				)
+				return any_address[0]
+
+			return None
+
+		except Exception as e:
+			frappe.logger().error(f"Error obteniendo dirección del customer {customer.name}: {e!s}")
+			return None
 
 
 # API endpoints para uso desde interfaz
