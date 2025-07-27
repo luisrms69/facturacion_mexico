@@ -375,44 +375,28 @@ def _validate_items_sat_codes(sales_invoice):
 
 def validate_customer_fiscal_data(doc, method):
 	"""
-	Validar datos fiscales del cliente.
+	Validar datos fiscales del cliente ANTES del submit.
+	Evita que Sales Invoice se submita con datos faltantes.
 
 	Args:
 		doc: Sales Invoice document
 		method: Hook method name
 	"""
 	try:
-		if not _requires_sat_validation(doc):
+		# Solo validar si requiere timbrado fiscal
+		if not _should_validate_fiscal_data(doc):
 			return
 
 		customer = frappe.get_doc("Customer", doc.customer)
 
-		# Validar que tenga dirección fiscal
-		fiscal_address = None
-		for address in customer.customer_primary_address:
-			if address.is_primary_address:
-				fiscal_address = frappe.get_doc("Address", address.parent)
-				break
+		# VALIDACIÓN CRÍTICA: customer.address requerida por PAC
+		_validate_customer_address_required(doc, customer)
 
-		if not fiscal_address:
-			frappe.throw(
-				_("El cliente {0} debe tener una dirección fiscal primaria configurada").format(doc.customer)
-			)
+		# Validar RFC usando estrategia híbrida
+		_validate_customer_rfc_hybrid(doc, customer)
 
-		# Validar campos requeridos en la dirección
-		required_fields = ["address_line1", "city", "state", "country", "pincode"]
-		missing_fields = []
-
-		for field in required_fields:
-			if not fiscal_address.get(field):
-				missing_fields.append(frappe.get_meta("Address").get_label(field))
-
-		if missing_fields:
-			frappe.throw(
-				_("La dirección fiscal del cliente requiere los siguientes campos: {0}").format(
-					", ".join(missing_fields)
-				)
-			)
+		# Validar otros datos fiscales
+		_validate_customer_fiscal_fields(doc, customer)
 
 	except frappe.ValidationError:
 		raise
@@ -420,6 +404,112 @@ def validate_customer_fiscal_data(doc, method):
 		frappe.log_error(
 			message=f"Error validando datos fiscales del cliente: {e!s}",
 			title="Sales Invoice - Customer Fiscal Data Validation Error",
+		)
+		# Re-lanzar para bloquear submit
+		raise
+
+
+def _should_validate_fiscal_data(doc):
+	"""Determinar si requiere validación fiscal usando misma lógica que timbrado."""
+	try:
+		# Usar misma lógica que _should_create_fiscal_event
+		if doc.docstatus != 0:  # Solo validar en draft
+			return False
+
+		if not doc.customer:
+			return False
+
+		customer = frappe.get_doc("Customer", doc.customer)
+		has_rfc = bool(customer.get("tax_id")) or bool(customer.get("fm_rfc"))
+
+		# Si tiene RFC, verificar si se va a timbrar
+		if has_rfc:
+			settings = frappe.get_single("Facturacion Mexico Settings")
+			# Si ereceipts está deshabilitado, se va a timbrar normal
+			if not settings.auto_generate_ereceipts:
+				return True
+
+		return False
+
+	except Exception:
+		return False
+
+
+def _validate_customer_address_required(doc, customer):
+	"""Validar que customer tenga address para PAC."""
+	# Buscar primary address del customer
+	primary_address = frappe.db.sql(
+		"""
+		SELECT addr.name, addr.address_line1, addr.city, addr.state,
+		       addr.country, addr.pincode
+		FROM `tabAddress` addr
+		INNER JOIN `tabDynamic Link` dl ON dl.parent = addr.name
+		WHERE dl.link_doctype = 'Customer'
+		AND dl.link_name = %s
+		AND addr.is_primary_address = 1
+		LIMIT 1
+	""",
+		doc.customer,
+		as_dict=True,
+	)
+
+	if not primary_address:
+		frappe.throw(
+			_(
+				"VALIDACIÓN FISCAL: El cliente {0} debe tener una dirección primaria configurada para facturación"
+			).format(doc.customer),
+			title=_("Dirección Fiscal Requerida"),
+		)
+
+	address = primary_address[0]
+	required_fields = {
+		"address_line1": "Dirección",
+		"city": "Ciudad",
+		"state": "Estado",
+		"country": "País",
+		"pincode": "Código Postal",
+	}
+
+	missing_fields = []
+	for field, label in required_fields.items():
+		if not address.get(field):
+			missing_fields.append(label)
+
+	if missing_fields:
+		frappe.throw(
+			_("VALIDACIÓN FISCAL: La dirección primaria del cliente requiere: {0}").format(
+				", ".join(missing_fields)
+			),
+			title=_("Campos de Dirección Faltantes"),
+		)
+
+
+def _validate_customer_rfc_hybrid(doc, customer):
+	"""Validar RFC usando estrategia híbrida tax_id/fm_rfc."""
+	rfc = customer.get("tax_id") or customer.get("fm_rfc")
+
+	if not rfc:
+		frappe.throw(
+			_("VALIDACIÓN FISCAL: El cliente {0} debe tener RFC configurado (Tax ID o RFC)").format(
+				doc.customer
+			),
+			title=_("RFC Requerido"),
+		)
+
+	# Validar formato RFC
+	if not _is_valid_rfc_format(rfc):
+		frappe.throw(
+			_("VALIDACIÓN FISCAL: RFC '{0}' tiene formato inválido").format(rfc),
+			title=_("RFC Formato Inválido"),
+		)
+
+
+def _validate_customer_fiscal_fields(doc, customer):
+	"""Validar otros campos fiscales requeridos."""
+	# Validar CFDI Use
+	if not doc.get("fm_cfdi_use"):
+		frappe.throw(
+			_("VALIDACIÓN FISCAL: Uso CFDI es requerido para facturación"), title=_("Uso CFDI Requerido")
 		)
 
 

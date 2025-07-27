@@ -35,9 +35,9 @@ class FacturAPIClient:
 	def _get_api_key(self) -> str:
 		"""Obtener API key según modo sandbox/producción."""
 		if self.settings.sandbox_mode:
-			return self.settings.get_password("sandbox_api_key")
+			return self.settings.get_password("test_api_key")
 		else:
-			return self.settings.get_password("production_api_key")
+			return self.settings.get_password("api_key")
 
 	def _make_request(self, method: str, endpoint: str, data: dict | None = None) -> dict[str, Any]:
 		"""Realizar petición HTTP a FacturAPI."""

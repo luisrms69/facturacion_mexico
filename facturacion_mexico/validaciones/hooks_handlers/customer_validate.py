@@ -3,11 +3,14 @@ from frappe import _
 
 
 def validate_rfc_format(doc, method):
-	"""Validar formato de RFC en Customer."""
+	"""Validar formato de RFC en Customer - Estrategia Híbrida tax_id + fm_rfc."""
 
 	# Protección estándar para testing siguiendo patrón condominium_management
 	if hasattr(frappe.flags, "in_test") and frappe.flags.in_test:
 		return
+
+	# ESTRATEGIA HÍBRIDA: Usar tax_id como fuente, sincronizar con fm_rfc
+	_sync_tax_id_to_fm_rfc(doc)
 
 	# REGLA #35: Validación defensiva con fallback
 	rfc_field = getattr(doc, "fm_rfc", None)
@@ -43,6 +46,28 @@ def validate_rfc_format(doc, method):
 
 	if not re.match(pattern, fm_rfc):
 		frappe.throw(_("Formato de RFC inválido"))
+
+
+def _sync_tax_id_to_fm_rfc(doc):
+	"""Sincronizar tax_id estándar ERPNext con fm_rfc para compatibilidad."""
+
+	# Si tax_id tiene valor, usarlo como fuente de verdad
+	if hasattr(doc, "tax_id") and doc.tax_id and doc.tax_id.strip():
+		rfc_from_tax_id = doc.tax_id.strip().upper()
+
+		# Sincronizar fm_rfc con tax_id
+		if not hasattr(doc, "fm_rfc") or not doc.fm_rfc or doc.fm_rfc != rfc_from_tax_id:
+			doc.fm_rfc = rfc_from_tax_id
+			frappe.msgprint(_("RFC sincronizado desde Tax ID: {0}").format(rfc_from_tax_id))
+
+	# Si fm_rfc tiene valor pero tax_id no, sincronizar al revés
+	elif hasattr(doc, "fm_rfc") and doc.fm_rfc and doc.fm_rfc.strip():
+		rfc_from_fm = doc.fm_rfc.strip().upper()
+
+		# Sincronizar tax_id con fm_rfc
+		if not hasattr(doc, "tax_id") or not doc.tax_id or doc.tax_id != rfc_from_fm:
+			doc.tax_id = rfc_from_fm
+			frappe.msgprint(_("Tax ID sincronizado desde RFC: {0}").format(rfc_from_fm))
 
 
 def schedule_rfc_validation(doc, method):

@@ -14,7 +14,9 @@ def register_status_changes(doc, method):
 			"customer": doc.customer,
 		}
 
-		event_doc = FiscalEventMX.create_event(doc.name, "status_change", event_data)
+		# Crear evento con parametros correctos: (event_type, reference_doctype, reference_name, event_data)
+		event_doc = FiscalEventMX.create_event("status_change", "Factura Fiscal Mexico", doc.name, event_data)
 
-		# Marcar como exitoso
-		FiscalEventMX.mark_event_success(event_doc.name, {"status": "status_changed"})
+		# Marcar como exitoso solo si el evento se creó correctamente
+		if event_doc:
+			FiscalEventMX.mark_event_success(event_doc.name, {"status": "status_changed"})

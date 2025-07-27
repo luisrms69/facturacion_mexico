@@ -20,7 +20,7 @@ def create_sales_invoice_custom_fields():
 				"label": "Uso del CFDI",
 				"options": "Uso CFDI SAT",
 				"insert_after": "fm_informacion_fiscal_section",
-				"reqd": 1,
+				"allow_on_submit": 1,
 			},
 			{
 				"fieldname": "fm_payment_method_sat",
@@ -29,6 +29,7 @@ def create_sales_invoice_custom_fields():
 				"options": "PUE\nPPD",
 				"default": "PUE",
 				"insert_after": "fm_cfdi_use",
+				"allow_on_submit": 1,
 			},
 			{
 				"fieldname": "fm_column_break_fiscal",
@@ -58,6 +59,21 @@ def create_sales_invoice_custom_fields():
 				"options": "Factura Fiscal Mexico",
 				"read_only": 1,
 				"insert_after": "fm_uuid_fiscal",
+			},
+			{
+				"fieldname": "fm_timbrado_section",
+				"fieldtype": "Section Break",
+				"label": "Historial de Timbrado",
+				"insert_after": "fm_factura_fiscal_mx",
+				"collapsible": 1,
+			},
+			{
+				"fieldname": "fiscal_attempts",
+				"fieldtype": "Table",
+				"label": "Intentos de Timbrado",
+				"options": "Fiscal Attempt Log",
+				"insert_after": "fm_timbrado_section",
+				"read_only": 1,
 			},
 		]
 	}
@@ -196,19 +212,11 @@ def create_sales_invoice_sprint2_custom_fields():
 	custom_fields = {
 		"Sales Invoice": [
 			{
-				"fieldname": "fm_payment_status",
-				"fieldtype": "Select",
-				"label": "Estado de Pago",
-				"options": "Pagada\nParcial\nPendiente",
-				"read_only": 1,
-				"insert_after": "fm_payment_method_sat",
-			},
-			{
 				"fieldname": "fm_pending_amount",
 				"fieldtype": "Currency",
 				"label": "Monto Pendiente",
 				"read_only": 1,
-				"insert_after": "fm_payment_status",
+				"insert_after": "fm_payment_method_sat",
 			},
 			{
 				"fieldname": "fm_complementos_count",
@@ -259,7 +267,6 @@ def create_all_custom_fields():
 	"""Crear todos los custom fields de una vez."""
 	create_sales_invoice_custom_fields()
 	create_customer_custom_fields()
-	create_item_custom_fields()
 	# Sprint 2 fields
 	create_payment_entry_custom_fields()
 	create_sales_invoice_sprint2_custom_fields()
@@ -296,7 +303,6 @@ def remove_custom_fields():
 		"Sales Invoice-fm_uuid_fiscal",
 		"Sales Invoice-fm_factura_fiscal_mx",
 		# Sprint 2 - Sales Invoice
-		"Sales Invoice-fm_payment_status",
 		"Sales Invoice-fm_pending_amount",
 		"Sales Invoice-fm_complementos_count",
 		# Customer
