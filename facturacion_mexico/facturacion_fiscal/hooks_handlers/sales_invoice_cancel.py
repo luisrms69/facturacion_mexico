@@ -64,7 +64,9 @@ def _request_fiscal_cancellation(doc):
 		}
 
 		# Crear evento con parametros correctos: (event_type, reference_doctype, reference_name, event_data)
-		event_doc = FiscalEventMX.create_event("cancellation_request", "Factura Fiscal Mexico", factura_fiscal.name, event_data)
+		event_doc = FiscalEventMX.create_event(
+			"cancellation_request", "Factura Fiscal Mexico", factura_fiscal.name, event_data
+		)
 
 		# Actualizar estado a "cancel_requested"
 		factura_fiscal.fm_fiscal_status = "cancel_requested"
@@ -131,7 +133,9 @@ def _create_cancellation_event(doc):
 	}
 
 	# Crear evento con parametros correctos: (event_type, reference_doctype, reference_name, event_data)
-	event_doc = FiscalEventMX.create_event("invoice_cancellation", "Factura Fiscal Mexico", doc.fm_factura_fiscal_mx, event_data)
+	event_doc = FiscalEventMX.create_event(
+		"invoice_cancellation", "Factura Fiscal Mexico", doc.fm_factura_fiscal_mx, event_data
+	)
 
 	FiscalEventMX.mark_event_success(event_doc.name, {"status": "cancelled"})
 
