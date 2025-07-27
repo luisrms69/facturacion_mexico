@@ -90,7 +90,7 @@ def create_volaris_customer():
 			customer.save()
 			print("✅ Dirección primaria configurada")
 
-		frappe.db.commit()
+		frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to persist fixture data for testing environment
 
 		print("\n🎉 CLIENTE VOLARIS CONFIGURADO EXITOSAMENTE")
 		print(f"📋 Customer: {customer.name}")
