@@ -267,12 +267,15 @@ def create_all_custom_fields():
 	"""Crear todos los custom fields de una vez."""
 	create_sales_invoice_custom_fields()
 	create_customer_custom_fields()
+	create_item_custom_fields()
 	# Sprint 2 fields
 	create_payment_entry_custom_fields()
 	create_sales_invoice_sprint2_custom_fields()
 	create_customer_sprint2_custom_fields()
 	# Sprint 6 Addenda fields
 	create_addenda_custom_fields()
+	# E-Receipt fields
+	create_ereceipt_custom_fields()
 	frappe.msgprint(_("Custom Fields para facturación México creados exitosamente"))
 
 
@@ -289,6 +292,67 @@ def create_addenda_custom_fields():
 	except Exception as e:
 		print(f"⚠️ Error creando custom fields de addendas: {e}")
 		frappe.log_error(f"Error creating addenda custom fields: {e}", "Addenda Custom Fields")
+
+
+def create_ereceipt_custom_fields():
+	"""
+	Crear custom fields para configuración E-Receipt individual en Sales Invoice.
+
+	NOTA: Esta función usa el patrón incorrecto de custom fields manuales.
+	Ver Issue #31 para migración a fixtures/migrations apropiadas.
+	"""
+	custom_fields = {
+		"Sales Invoice": [
+			{
+				"fieldname": "fm_ereceipt_section",
+				"fieldtype": "Section Break",
+				"label": "Configuración E-Receipt",
+				"insert_after": "fm_payment_method_sat",
+				"collapsible": 1,
+			},
+			{
+				"fieldname": "fm_ereceipt_mode",
+				"fieldtype": "Select",
+				"label": "Modo de Facturación",
+				"options": "Normal\nE-Receipt",
+				"default": "Normal",
+				"description": "Normal = timbrado directo, E-Receipt = recibo para autofacturación",
+				"insert_after": "fm_ereceipt_section",
+			},
+			{
+				"fieldname": "fm_ereceipt_column_break",
+				"fieldtype": "Column Break",
+				"insert_after": "fm_ereceipt_mode",
+			},
+			{
+				"fieldname": "fm_ereceipt_expiry_type",
+				"fieldtype": "Select",
+				"label": "Tipo de Vencimiento",
+				"options": "Fixed Days\nEnd of Month\nCustom Date",
+				"default": "Fixed Days",
+				"depends_on": 'eval:doc.fm_ereceipt_mode=="E-Receipt"',
+				"insert_after": "fm_ereceipt_column_break",
+			},
+			{
+				"fieldname": "fm_ereceipt_expiry_days",
+				"fieldtype": "Int",
+				"label": "Días de Vencimiento",
+				"default": 3,
+				"depends_on": 'eval:doc.fm_ereceipt_mode=="E-Receipt" && doc.fm_ereceipt_expiry_type=="Fixed Days"',
+				"insert_after": "fm_ereceipt_expiry_type",
+			},
+			{
+				"fieldname": "fm_ereceipt_expiry_date",
+				"fieldtype": "Date",
+				"label": "Fecha de Vencimiento",
+				"depends_on": 'eval:doc.fm_ereceipt_mode=="E-Receipt" && doc.fm_ereceipt_expiry_type=="Custom Date"',
+				"insert_after": "fm_ereceipt_expiry_days",
+			},
+		]
+	}
+
+	create_custom_fields(custom_fields)
+	print("✅ Custom fields E-Receipt creados en Sales Invoice")
 
 
 def remove_custom_fields():
