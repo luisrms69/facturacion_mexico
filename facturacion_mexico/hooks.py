@@ -302,7 +302,10 @@ scheduler_events = {
 # Testing
 # -------
 
-before_tests = "facturacion_mexico.install.before_tests"
+before_tests = [
+	"facturacion_mexico.install.before_tests",
+	"facturacion_mexico.setup.testing.load_testing_fixtures",
+]
 
 # Overriding Methods
 # ------------------------------

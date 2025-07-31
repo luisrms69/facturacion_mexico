@@ -28,11 +28,8 @@ FRAPPE OFFICIAL RECOMMENDATION: Use fixtures for custom fields, not manual funct
 Per official documentation: fixtures are the recommended approach for managing custom fields.
 """
 
-import frappe
-from frappe import _
-
-# Legacy imports kept for backward compatibility
-from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
+# No imports needed - all custom field creation is now handled via fixtures
+# See Issue #31 migration to Frappe fixtures approach
 
 
 def get_custom_fields_info():
