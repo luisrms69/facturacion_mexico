@@ -1,0 +1,91 @@
+{
+  "actions": [],
+  "allow_rename": 1,
+  "creation": "2025-07-27 07:00:00.000000",
+  "doctype": "DocType",
+  "editable_grid": 1,
+  "engine": "InnoDB",
+  "field_order": [
+    "codigo",
+    "descripcion",
+    "incluye_objeto_impuesto",
+    "complemento",
+    "fecha_inicio_vigencia",
+    "fecha_fin_vigencia",
+    "palabras_similares"
+  ],
+  "fields": [
+    {
+      "fieldname": "codigo",
+      "fieldtype": "Data",
+      "label": "Código",
+      "reqd": 1,
+      "unique": 1
+    },
+    {
+      "fieldname": "descripcion",
+      "fieldtype": "Data",
+      "label": "Descripción",
+      "reqd": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "incluye_objeto_impuesto",
+      "fieldtype": "Select",
+      "label": "Incluye Objeto Impuesto",
+      "options": "01\n02\n03",
+      "default": "02"
+    },
+    {
+      "fieldname": "complemento",
+      "fieldtype": "Data",
+      "label": "Complemento"
+    },
+    {
+      "fieldname": "fecha_inicio_vigencia",
+      "fieldtype": "Date",
+      "label": "Fecha Inicio Vigencia"
+    },
+    {
+      "fieldname": "fecha_fin_vigencia",
+      "fieldtype": "Date",
+      "label": "Fecha Fin Vigencia"
+    },
+    {
+      "fieldname": "palabras_similares",
+      "fieldtype": "Text",
+      "label": "Palabras Similares"
+    }
+  ],
+  "links": [],
+  "modified": "2025-07-27 07:00:00.000000",
+  "modified_by": "Administrator",
+  "module": "Catalogos SAT",
+  "name": "SAT Producto Servicio",
+  "naming_rule": "By fieldname",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "System Manager",
+      "share": 1,
+      "write": 1
+    },
+    {
+      "read": 1,
+      "role": "Accounts Manager"
+    }
+  ],
+  "search_fields": "descripcion,palabras_similares",
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "states": [],
+  "title_field": "descripcion",
+  "track_changes": 1
+}

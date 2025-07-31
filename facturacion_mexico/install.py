@@ -122,6 +122,13 @@ def before_tests():
 	# CRÍTICO: Force Branch custom fields installation for testing
 	force_branch_custom_fields_installation()
 
+	# CRÍTICO: Crear todos los custom fields para testing (incluyendo fm_rfc)
+	try:
+		create_custom_fields_for_erpnext()
+		print("✅ Custom fields para ERPNext creados en testing")
+	except Exception as e:
+		print(f"⚠️ Error creando custom fields: {e}")
+
 	# Crear warehouse types básicos antes de que test runner inicie
 	_create_basic_warehouse_types()
 
@@ -308,11 +315,20 @@ def _create_basic_addenda_types():
 			):
 				if frappe.db.exists("DocType", "Addenda Type"):
 					addenda_data = {"doctype": "Addenda Type", "is_active": 1, **definition}
+
+					# CRITICAL FIX: Agregar nombre del tipo que es obligatorio
+					if "nombre_del_tipo" not in addenda_data:
+						addenda_data["nombre_del_tipo"] = expected_final_name
+
 					doc = frappe.get_doc(addenda_data)
 
 					# CRITICAL: Crear con nombre de tests (bypass validation para nombres test)
 					doc.insert(ignore_permissions=True, set_name=expected_final_name)
 					print(f"✅ Created Addenda Type: {expected_final_name}")
+		except frappe.DuplicateEntryError:
+			# SAFETY: Ignorar duplicados silenciosamente en testing
+			print(f"Info: Addenda Type '{expected_final_name}' ya existe (ok)")
+			continue
 		except Exception as e:
 			print(f"❌ Error Addenda Type '{expected_final_name}': {e}")
 			continue
@@ -426,6 +442,8 @@ def _create_basic_test_customers():
 			"fm_requires_addenda": 0,
 			"mobile_no": "5551234567",
 			"email_id": "test@example.com",
+			# FIX: Agregar payment_terms básico para evitar NoneType error
+			"payment_terms": None,
 		},
 		{
 			"customer_name": "Test Customer",
@@ -437,6 +455,8 @@ def _create_basic_test_customers():
 			"fm_requires_addenda": 0,
 			"mobile_no": "5557654321",
 			"email_id": "customer@test.com",
+			# FIX: Agregar payment_terms básico para evitar NoneType error
+			"payment_terms": None,
 		},
 		{
 			"customer_name": "Test Customer Corporate MX",
@@ -447,6 +467,8 @@ def _create_basic_test_customers():
 			"fm_rfc": "ABC123456789",
 			"fm_requires_addenda": 1,
 			"fm_addenda_type": "TEST_GENERIC",
+			# FIX: Agregar payment_terms básico para evitar NoneType error
+			"payment_terms": None,
 		},
 	]
 

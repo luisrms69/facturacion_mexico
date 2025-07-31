@@ -49,13 +49,30 @@ def crear_ereceipt(sales_invoice_name):
 		ereceipt.insert()
 
 		# Generar en FacturAPI si está configurado
-		if frappe.db.get_single_value("Facturacion Mexico Settings", "enable_ereceipts"):
-			_generar_facturapi_ereceipt(ereceipt)
+		facturapi_result = None
+		settings = frappe.get_single("Facturacion Mexico Settings")
+		if settings.get("enable_ereceipts") and (settings.get("api_key") or settings.get("test_api_key")):
+			facturapi_result = _generar_facturapi_ereceipt(ereceipt)
+
+			if not facturapi_result.get("success"):
+				# E-Receipt creado localmente pero falló en FacturAPI
+				return {
+					"success": True,
+					"ereceipt_name": ereceipt.name,
+					"message": _("E-Receipt creado (sin sincronizar con FacturAPI): {0}").format(
+						facturapi_result.get("message", "")
+					),
+					"warning": True,
+				}
+
+		message = _("E-Receipt creado exitosamente")
+		if facturapi_result and facturapi_result.get("success"):
+			message += f" - FacturAPI ID: {facturapi_result.get('facturapi_id', 'N/A')}"
 
 		return {
 			"success": True,
 			"ereceipt_name": ereceipt.name,
-			"message": _("E-Receipt creado exitosamente"),
+			"message": message,
 		}
 
 	except Exception as e:
@@ -240,28 +257,39 @@ def _calcular_fecha_vencimiento(ereceipt):
 def _generar_facturapi_ereceipt(ereceipt):
 	"""Genera E-Receipt en FacturAPI."""
 	try:
-		from facturacion_mexico.facturacion_fiscal.api_client import FacturapiClient
+		from facturacion_mexico.facturacion_fiscal.api_client import get_facturapi_client
 
-		client = FacturapiClient()
+		client = get_facturapi_client()
 		sales_invoice = frappe.get_doc("Sales Invoice", ereceipt.sales_invoice)
+
+		# Preparar datos del customer
+		customer_data = {
+			"legal_name": sales_invoice.customer_name or "Cliente Público en General",
+			"email": sales_invoice.contact_email or "noreply@example.com",
+		}
+
+		# Si tenemos RFC del customer, agregarlo
+		customer_doc = frappe.get_doc("Customer", sales_invoice.customer)
+		if customer_doc.get("rfc"):
+			customer_data["tax_id"] = customer_doc.rfc
 
 		receipt_data = {
 			"type": "receipt",
-			"customer": {"legal_name": sales_invoice.customer_name, "email": sales_invoice.contact_email},
+			"customer": customer_data,
 			"items": [],
 			"payment_form": "28",  # Tarjeta de crédito por defecto para e-receipts
 			"folio_number": ereceipt.name,
-			"expires_at": ereceipt.expiry_date.isoformat(),
+			"expires_at": ereceipt.expiry_date.isoformat() if ereceipt.expiry_date else None,
 		}
 
-		# Agregar items
+		# Agregar items de la factura
 		for item in sales_invoice.items:
 			receipt_data["items"].append(
 				{
 					"quantity": item.qty,
 					"product": {
-						"description": item.item_name,
-						"product_key": "01010101",  # Genérico
+						"description": item.item_name or item.item_code,
+						"product_key": "01010101",  # Genérico para pruebas
 						"price": item.rate,
 						"unit_key": "H87",  # Pieza
 						"unit_name": "Pieza",
@@ -273,11 +301,27 @@ def _generar_facturapi_ereceipt(ereceipt):
 		# Crear en FacturAPI
 		response = client.create_receipt(receipt_data)
 
-		if response.get("success"):
-			ereceipt.facturapi_id = response["data"]["id"]
-			ereceipt.key = response["data"]["key"]
-			ereceipt.self_invoice_url = response["data"]["self_invoice_url"]
+		# Procesar respuesta exitosa
+		if response and response.get("id"):
+			ereceipt.facturapi_id = response["id"]
+			ereceipt.key = response.get("key")
+			ereceipt.self_invoice_url = response.get("self_invoice_url")
+			ereceipt.status = "open"
 			ereceipt.save()
 
+			frappe.logger().info(f"E-Receipt {ereceipt.name} creado en FacturAPI: {response['id']}")
+
+			return {"success": True, "facturapi_id": response["id"]}
+		else:
+			frappe.log_error(
+				message=f"Respuesta inválida de FacturAPI: {response}", title="FacturAPI E-Receipt Error"
+			)
+			return {"success": False, "message": "Respuesta inválida de FacturAPI"}
+
 	except Exception as e:
-		frappe.log_error(message=str(e), title="Error generando E-Receipt en FacturAPI")
+		error_msg = str(e)
+		frappe.log_error(
+			message=f"Error generando E-Receipt en FacturAPI: {error_msg}\nE-Receipt: {ereceipt.name}",
+			title="Error FacturAPI E-Receipt",
+		)
+		return {"success": False, "message": error_msg}

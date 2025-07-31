@@ -18,7 +18,12 @@
     "lugar_expedicion",
     "regimen_fiscal_default",
     "configuracion_automatica_section",
-    "auto_generate_ereceipts",
+    "ereceipt_mode_default",
+    "ereceipt_expiry_type_default",
+    "ereceipt_expiry_days_default",
+    "column_break_ereceipt",
+    "ereceipt_notification_email",
+    "ereceipt_self_invoice_message",
     "send_email_default",
     "download_files_default",
     "facturas_globales_section",
@@ -114,11 +119,44 @@
       "label": "Configuración Automática"
     },
     {
-      "default": 1,
-      "description": "Crear automáticamente recibos electrónicos",
-      "fieldname": "auto_generate_ereceipts",
-      "fieldtype": "Check",
-      "label": "Generar E-Receipts Automáticamente"
+      "default": "Normal",
+      "description": "Modo de facturación por defecto para nuevas Sales Invoices (Normal = timbrado directo, E-Receipt = recibo para autofacturación)",
+      "fieldname": "ereceipt_mode_default",
+      "fieldtype": "Select",
+      "label": "Modo Facturación por Defecto",
+      "options": "Normal\nE-Receipt"
+    },
+    {
+      "default": "End of Month",
+      "description": "Tipo de vencimiento por defecto para E-Receipts",
+      "fieldname": "ereceipt_expiry_type_default",
+      "fieldtype": "Select",
+      "label": "Tipo Vencimiento por Defecto",
+      "options": "Fixed Days\nEnd of Month\nCustom Date"
+    },
+    {
+      "default": 3,
+      "description": "Días de vencimiento por defecto para E-Receipts",
+      "fieldname": "ereceipt_expiry_days_default",
+      "fieldtype": "Int",
+      "label": "Días Vencimiento por Defecto"
+    },
+    {
+      "fieldname": "column_break_ereceipt",
+      "fieldtype": "Column Break"
+    },
+    {
+      "description": "Email para notificaciones de E-Receipts no facturados",
+      "fieldname": "ereceipt_notification_email",
+      "fieldtype": "Data",
+      "label": "Email Notificaciones E-Receipt"
+    },
+    {
+      "default": "Su compra está pendiente de facturación. Use el enlace para generar su factura fiscal.",
+      "description": "Mensaje para clientes en E-Receipts",
+      "fieldname": "ereceipt_self_invoice_message",
+      "fieldtype": "Text",
+      "label": "Mensaje E-Receipt"
     },
     {
       "default": 0,
