@@ -29,12 +29,12 @@ def create_initial_configuration():
 
 def create_custom_fields_for_erpnext():
 	"""
-	MIGRATED TO FIXTURES - Custom fields are now managed through fixtures.
+	Custom fields are now managed exclusively via fixtures following Issue #31 migration.
 
-	This function is kept for backward compatibility during installation.
-	All custom fields are automatically created via fixtures mechanism in hooks.py.
+	IMPORTANT: Frappe fixtures are automatically applied during installation.
+	This function is kept for backward compatibility but no longer creates fields manually.
 
-	See Issue #31 - Migration completed: 2025-07-31
+	See Issue #31 - All custom fields now use fixtures per Frappe best practices.
 	"""
 	print("✅ Custom fields managed via fixtures - no manual creation needed")
 	return True
@@ -128,12 +128,9 @@ def before_tests():
 	# CRÍTICO: Force Branch custom fields installation for testing
 	force_branch_custom_fields_installation()
 
-	# CRÍTICO: Crear todos los custom fields para testing (incluyendo fm_rfc)
-	try:
-		create_custom_fields_for_erpnext()
-		print("✅ Custom fields para ERPNext creados en testing")
-	except Exception as e:
-		print(f"⚠️ Error creando custom fields: {e}")
+	# Custom fields are now handled by fixtures automatically
+	# See Issue #31 - migrated from manual functions to fixtures
+	print("✅ Custom fields managed via fixtures in testing environment")
 
 	# Crear warehouse types básicos antes de que test runner inicie
 	_create_basic_warehouse_types()

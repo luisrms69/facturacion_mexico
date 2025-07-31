@@ -23,6 +23,9 @@ See: /home/erpnext/frappe-bench/apps/buzola-internal/projects/facturacion_mexico
 
 All custom fields are now automatically created during installation via fixtures mechanism.
 No manual intervention required.
+
+FRAPPE OFFICIAL RECOMMENDATION: Use fixtures for custom fields, not manual functions.
+Per official documentation: fixtures are the recommended approach for managing custom fields.
 """
 
 import frappe
@@ -51,3 +54,10 @@ def get_custom_fields_info():
 
 # Keep this file for potential utility functions in the future
 # All custom field creation is now handled by fixtures in hooks.py
+
+# REMOVED: All manual custom field creation functions have been permanently removed
+# as per Issue #31 critical migration. Frappe official documentation clearly states
+# that fixtures are the recommended approach, not manual functions.
+#
+# Custom fields are now exclusively managed through fixtures in hooks.py
+# and properly exported using 'bench export-fixtures' command.
