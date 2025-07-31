@@ -28,10 +28,16 @@ def create_initial_configuration():
 
 
 def create_custom_fields_for_erpnext():
-	"""Crear custom fields en DocTypes de ERPNext."""
-	from facturacion_mexico.facturacion_fiscal.custom_fields import create_all_custom_fields
+	"""
+	MIGRATED TO FIXTURES - Custom fields are now managed through fixtures.
 
-	create_all_custom_fields()
+	This function is kept for backward compatibility during installation.
+	All custom fields are automatically created via fixtures mechanism in hooks.py.
+
+	See Issue #31 - Migration completed: 2025-07-31
+	"""
+	print("✅ Custom fields managed via fixtures - no manual creation needed")
+	return True
 
 
 def setup_multi_sucursal_system():
@@ -744,11 +750,10 @@ def force_branch_custom_fields_installation():
 			print("⚠️ Branch DocType not found")
 			return False
 
-		from facturacion_mexico.multi_sucursal.custom_fields.branch_fiscal_fields import (
-			create_branch_fiscal_custom_fields,
-		)
-
-		result = create_branch_fiscal_custom_fields()
+		# REMOVED: create_branch_fiscal_custom_fields() - migrated to fixtures
+		# Custom fields are now created automatically via fixtures in hooks.py
+		print("✅ Branch custom fields managed via fixtures")
+		result = True
 		if result:
 			print("✅ Branch custom fields: SUCCESS")
 			frappe.db.commit()

@@ -2,80 +2,46 @@
 # For license information, please see license.txt
 
 """
-Customer Addenda Custom Fields - Sprint 6 Phase 3
-Custom fields para gestión de addendas genéricas por cliente
+Customer Addenda Custom Fields - MIGRATED TO FIXTURES
+
+IMPORTANT: Custom field creation functions have been removed as part of Issue #31 critical migration.
+Custom fields are now managed exclusively through fixtures in hooks.py following Frappe best practices.
+
+REMOVED FUNCTIONS:
+- create_customer_addenda_fields() - now replaced by fixtures
+
+MIGRATION COMPLETED: 2025-07-31
+All custom fields are now automatically created during installation via fixtures mechanism.
 """
 
 import frappe
-from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
+from frappe import _
 
 
-def create_customer_addenda_fields():
-	"""Crear custom fields para addendas en Customer"""
-
-	custom_fields = {
-		"Customer": [
-			{
-				"fieldname": "fm_addenda_section",
-				"fieldtype": "Section Break",
-				"label": "Configuración de Addendas",
-				"insert_after": "fm_rfc",
-				"collapsible": 1,
-			},
-			{
-				"fieldname": "fm_requires_addenda",
-				"fieldtype": "Check",
-				"label": "Requiere Addenda",
-				"insert_after": "fm_addenda_section",
-				"description": "Marcar si este cliente requiere addenda en sus facturas",
-			},
-			{
-				"fieldname": "fm_addenda_type",
-				"fieldtype": "Link",
-				"label": "Tipo de Addenda",
-				"options": "Addenda Type",
-				"insert_after": "fm_requires_addenda",
-				"depends_on": "eval:doc.fm_requires_addenda",
-				"mandatory_depends_on": "eval:doc.fm_requires_addenda",
-			},
-			{
-				"fieldname": "fm_addenda_defaults",
-				"fieldtype": "Code",
-				"label": "Valores Por Defecto (JSON)",
-				"options": "JSON",
-				"insert_after": "fm_addenda_type",
-				"depends_on": "eval:doc.fm_requires_addenda",
-				"description": "Valores por defecto en formato JSON para campos de la addenda",
-			},
-			{
-				"fieldname": "fm_addenda_auto_detected",
-				"fieldtype": "Check",
-				"label": "Auto-detectado",
-				"insert_after": "fm_addenda_defaults",
-				"depends_on": "eval:doc.fm_requires_addenda",
-				"read_only": 1,
-				"description": "Campo automático - indica si fue detectado por el sistema",
-			},
-			{
-				"fieldname": "fm_addenda_validation_override",
-				"fieldtype": "Check",
-				"label": "Omitir Validaciones",
-				"insert_after": "fm_addenda_auto_detected",
-				"depends_on": "eval:doc.fm_requires_addenda",
-				"description": "Permitir generar factura aunque falten campos de addenda",
-			},
-		]
+def get_customer_addenda_fields_info():
+	"""
+	Information function about customer addenda fields management.
+	Returns info about the fixtures-based approach.
+	"""
+	return {
+		"status": "MIGRATED_TO_FIXTURES",
+		"migration_date": "2025-07-31",
+		"issue": "#31",
+		"doctype": "Customer",
+		"fields_created": [
+			"fm_addenda_section",
+			"fm_requires_addenda",
+			"fm_addenda_type",
+			"fm_addenda_defaults",
+			"fm_addenda_auto_detected",
+			"fm_addenda_validation_override",
+		],
+		"fixtures_location": "facturacion_mexico/hooks.py",
+		"message": "Customer addenda fields are now managed via fixtures. No manual functions needed.",
 	}
 
-	try:
-		create_custom_fields(custom_fields, update=True)
-		frappe.db.commit()
-		return {"success": True, "message": "Custom fields de addenda creados exitosamente"}
-	except Exception as e:
-		frappe.log_error(f"Error creando custom fields de addenda: {e!s}", "Customer Addenda Fields")
-		return {"success": False, "message": f"Error: {e!s}"}
 
-
+# Legacy removal function kept for development/testing purposes
 def remove_customer_addenda_fields():
 	"""Remover custom fields de addendas (para desarrollo/testing)"""
 
@@ -108,12 +74,12 @@ def remove_customer_addenda_fields():
 
 # API endpoints
 @frappe.whitelist()
-def setup_customer_addenda_fields():
-	"""API para crear custom fields de addenda"""
-	return create_customer_addenda_fields()
+def get_addenda_fields_status():
+	"""API para obtener información sobre campos de addenda"""
+	return get_customer_addenda_fields_info()
 
 
 @frappe.whitelist()
 def remove_addenda_fields():
-	"""API para remover custom fields de addenda"""
+	"""API para remover custom fields de addenda (solo para testing)"""
 	return remove_customer_addenda_fields()

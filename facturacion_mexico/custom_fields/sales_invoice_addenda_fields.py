@@ -177,39 +177,9 @@ def complete_addenda_fields_installation():
 	print("✅ Instalación completa de campos addenda")
 
 
-def create_customer_addenda_fields():
-	"""Crear campos personalizados para Customer relacionados con addendas."""
-
-	custom_fields = [
-		{
-			"fieldname": "fm_addenda_info_section",
-			"fieldtype": "Section Break",
-			"label": "Configuración de Addendas",
-			"insert_after": "more_info",  # Después de información adicional
-			"collapsible": 1,
-		},
-		{
-			"fieldname": "fm_requires_addenda",
-			"fieldtype": "Check",
-			"label": "Requiere Addenda",
-			"insert_after": "fm_addenda_info_section",
-			"default": 0,
-		},
-		{
-			"fieldname": "fm_default_addenda_type",
-			"fieldtype": "Link",
-			"label": "Tipo de Addenda Por Defecto",
-			"options": "Addenda Type",
-			"insert_after": "fm_requires_addenda",
-			"depends_on": "fm_requires_addenda",
-		},
-	]
-
-	# Crear los custom fields
-	for field in custom_fields:
-		create_custom_field("Customer", field)
-
-	print("✅ Custom fields de addenda agregados a Customer")
+# REMOVED: create_customer_addenda_fields() function
+# Custom fields are now managed through fixtures in hooks.py
+# This function was eliminated as part of Issue #31 FASE 3 cleanup
 
 
 # Function removed - using imported create_custom_field from frappe
@@ -366,7 +336,7 @@ def install_addenda_custom_fields():
 	print("🔧 Instalando custom fields de addendas...")
 
 	create_sales_invoice_addenda_fields()
-	create_customer_addenda_fields()
+	# create_customer_addenda_fields() - REMOVED: migrated to fixtures
 
 	# Limpiar cache
 	frappe.clear_cache()
@@ -391,7 +361,7 @@ def install_all_custom_fields():
 	print("🔧 Instalando todos los custom fields...")
 
 	create_sales_invoice_addenda_fields()
-	create_customer_addenda_fields()
+	# create_customer_addenda_fields() - REMOVED: migrated to fixtures
 	create_sales_invoice_draft_fields()
 
 	# Limpiar cache
