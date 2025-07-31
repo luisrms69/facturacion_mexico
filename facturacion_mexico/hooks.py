@@ -87,90 +87,101 @@ after_install = "facturacion_mexico.install.after_install"
 
 # Custom Fields
 # -------------
-# Fixtures for custom fields
-# FIXME: Temporarily disabled to fix duplicate field errors
+# Fixtures for custom fields - ISSUE #31 CRITICAL MIGRATION
 fixtures = [
-	# {
-	# 	"dt": "Custom Field",
-	# 	"filters": [
-	# 		[
-	# 			"name",
-	# 			"in",
-	# 			[
-	# Sales Invoice Sprint 1
-	"Sales Invoice-informacion_fiscal_mx_section",
-	"Sales Invoice-fm_cfdi_use",
-	"Sales Invoice-payment_method_sat",
-	"Sales Invoice-column_break_fiscal_mx",
-	"Sales Invoice-fiscal_status",
-	"Sales Invoice-uuid_fiscal",
-	"Sales Invoice-factura_fiscal_mx",
-	# Sales Invoice Sprint 2
-	"Sales Invoice-fm_pending_amount",
-	"Sales Invoice-fm_complementos_count",
-	# Sales Invoice Sprint 6 Multi-Sucursal
-	"Sales Invoice-fm_multi_sucursal_section",
-	"Sales Invoice-fm_branch",
-	"Sales Invoice-fm_serie_fiscal",
-	"Sales Invoice-fm_folio_fiscal",
-	"Sales Invoice-fm_column_break_multi_sucursal",
-	"Sales Invoice-fm_certificado_usado",
-	"Sales Invoice-fm_lugar_expedicion",
-	# Sales Invoice Sprint 6 Addendas
-	"Sales Invoice-fm_addenda_section",
-	"Sales Invoice-fm_requires_addenda",
-	"Sales Invoice-fm_addenda_type",
-	"Sales Invoice-fm_addenda_xml",
-	"Sales Invoice-fm_addenda_generated",
-	# Customer Sprint 1
-	"Customer-informacion_fiscal_mx_section",
-	"Customer-fm_rfc",
-	"Customer-column_break_fiscal_customer",
-	"Customer-regimen_fiscal",
-	"Customer-uso_cfdi_default",
-	# Customer Sprint 2
-	"Customer-fm_rfc_validated",
-	"Customer-fm_rfc_validation_date",
-	"Customer-fm_lista_69b_status",
-	# Customer Sprint 6 Addendas
-	"Customer-fm_addenda_section",
-	"Customer-fm_requires_addenda",
-	"Customer-fm_default_addenda_type",
-	"Customer-fm_addenda_configuration",
-	# Branch Sprint 6 Multi-Sucursal
-	"Branch-fm_fiscal_section",
-	"Branch-fm_enable_fiscal",
-	"Branch-fm_lugar_expedicion",
-	"Branch-fm_column_break_fiscal",
-	"Branch-fm_serie_pattern",
-	"Branch-fm_folio_start",
-	"Branch-fm_folio_current",
-	"Branch-fm_folio_end",
-	"Branch-fm_folio_warning_threshold",
-	"Branch-fm_folio_critical_threshold",
-	"Branch-fm_share_certificates",
-	"Branch-fm_statistics_section",
-	"Branch-fm_monthly_average",
-	"Branch-fm_last_invoice_date",
-	"Branch-fm_column_break_statistics",
-	"Branch-fm_days_until_exhaustion",
-	"Branch-fm_needs_attention",
-	# Payment Entry Sprint 2
-	"Payment Entry-informacion_fiscal_mx_section",
-	"Payment Entry-fm_complemento_pago",
-	"Payment Entry-fm_require_complement",
-	"Payment Entry-column_break_payment_mx",
-	"Payment Entry-fm_complement_generated",
-	"Payment Entry-fm_forma_pago_sat",
-	# Item Sprint 1
-	"Item-fm_clasificacion_sat_section",
-	"Item-fm_producto_servicio_sat",
-	"Item-fm_column_break_item_sat",
-	"Item-fm_unidad_sat",
-	# ],
-	# ]
-	# ],
-	# }
+	{
+		"dt": "Custom Field",
+		"filters": [
+			[
+				"name",
+				"in",
+				[
+					# Branch custom fields (14 campos)
+					"Branch-fiscal_configuration_section",
+					"Branch-fm_certificate_ids",
+					"Branch-fm_enable_fiscal",
+					"Branch-fm_enable_fiscal_test",
+					"Branch-fm_folio_current",
+					"Branch-fm_folio_end",
+					"Branch-fm_folio_start",
+					"Branch-fm_folio_warning_threshold",
+					"Branch-fm_last_invoice_date",
+					"Branch-fm_lugar_expedicion",
+					"Branch-fm_monthly_average",
+					"Branch-fm_serie_pattern",
+					"Branch-fm_share_certificates",
+					"Branch-fm_test_field_unique_2025",
+					# Customer custom fields (13 campos)
+					"Customer-fm_addenda_info_section",
+					"Customer-fm_column_break_fiscal_customer",
+					"Customer-fm_column_break_validacion",
+					"Customer-fm_default_addenda_type",
+					"Customer-fm_informacion_fiscal_section_customer",
+					"Customer-fm_lista_69b_status",
+					"Customer-fm_regimen_fiscal",
+					"Customer-fm_requires_addenda",
+					"Customer-fm_rfc",
+					"Customer-fm_rfc_validated",
+					"Customer-fm_rfc_validation_date",
+					"Customer-fm_uso_cfdi_default",
+					"Customer-fm_validacion_sat_section",
+					# Item custom fields (2 existentes + 2 faltantes = 4 total)
+					"Item-fm_clasificacion_sat_section",
+					"Item-fm_producto_servicio_sat",
+					"Item-fm_column_break_item_sat",
+					"Item-fm_unidad_sat",
+					# Payment Entry custom fields (5 campos)
+					"Payment Entry-fm_complement_generated",
+					"Payment Entry-fm_complemento_pago",
+					"Payment Entry-fm_forma_pago_sat",
+					"Payment Entry-fm_informacion_fiscal_section",
+					"Payment Entry-fm_require_complement",
+					# Sales Invoice custom fields (41 campos)
+					"Sales Invoice-fiscal_attempts",
+					"Sales Invoice-fm_addenda_column_break",
+					"Sales Invoice-fm_addenda_errors",
+					"Sales Invoice-fm_addenda_generated_date",
+					"Sales Invoice-fm_addenda_required",
+					"Sales Invoice-fm_addenda_section",
+					"Sales Invoice-fm_addenda_status",
+					"Sales Invoice-fm_addenda_type",
+					"Sales Invoice-fm_addenda_xml",
+					"Sales Invoice-fm_auto_selected_branch",
+					"Sales Invoice-fm_branch",
+					"Sales Invoice-fm_branch_health_status",
+					"Sales Invoice-fm_certificate_info",
+					"Sales Invoice-fm_cfdi_use",
+					"Sales Invoice-fm_column_break_fiscal",
+					"Sales Invoice-fm_complementos_count",
+					"Sales Invoice-fm_create_as_draft",
+					"Sales Invoice-fm_draft_approved_by",
+					"Sales Invoice-fm_draft_column_break",
+					"Sales Invoice-fm_draft_created_date",
+					"Sales Invoice-fm_draft_section",
+					"Sales Invoice-fm_draft_status",
+					"Sales Invoice-fm_ereceipt_column_break",
+					"Sales Invoice-fm_ereceipt_expiry_date",
+					"Sales Invoice-fm_ereceipt_expiry_days",
+					"Sales Invoice-fm_ereceipt_expiry_type",
+					"Sales Invoice-fm_ereceipt_mode",
+					"Sales Invoice-fm_ereceipt_section",
+					"Sales Invoice-fm_factorapi_draft_id",
+					"Sales Invoice-fm_factura_fiscal_mx",
+					"Sales Invoice-fm_fiscal_status",
+					"Sales Invoice-fm_folio_reserved",
+					"Sales Invoice-fm_informacion_fiscal_section",
+					"Sales Invoice-fm_lugar_expedicion",
+					"Sales Invoice-fm_multi_sucursal_column",
+					"Sales Invoice-fm_multi_sucursal_section",
+					"Sales Invoice-fm_payment_method_sat",
+					"Sales Invoice-fm_pending_amount",
+					"Sales Invoice-fm_serie_folio",
+					"Sales Invoice-fm_timbrado_section",
+					"Sales Invoice-fm_uuid_fiscal",
+				],
+			]
+		],
+	}
 ]
 
 # Uninstallation

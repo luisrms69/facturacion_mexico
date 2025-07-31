@@ -7,3 +7,5 @@
 
 # Custom Fields Migration - Add fm_ prefix to prevent conflicts with other Mexican tax apps
 facturacion_mexico.patches.migrate_custom_field_prefixes
+# Issue #31 Critical Migration - Create missing Item custom fields
+facturacion_mexico.patches.create_missing_item_custom_fields
