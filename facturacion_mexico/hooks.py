@@ -163,10 +163,10 @@ fixtures = [
 	"Payment Entry-fm_complement_generated",
 	"Payment Entry-fm_forma_pago_sat",
 	# Item Sprint 1
-	"Item-clasificacion_sat_section",
-	"Item-producto_servicio_sat",
-	"Item-column_break_item_sat",
-	# "Item-unidad_sat",
+	"Item-fm_clasificacion_sat_section",
+	"Item-fm_producto_servicio_sat",
+	"Item-fm_column_break_item_sat",
+	"Item-fm_unidad_sat",
 	# ],
 	# ]
 	# ],

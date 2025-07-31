@@ -93,13 +93,11 @@ def _validate_items_sat_codes(doc):
 
 		# Validar código de producto/servicio SAT
 		if not item_doc.fm_producto_servicio_sat:
-			frappe.msgprint(
-				_(f"El item {item.item_name} no tiene código de producto/servicio SAT configurado")
-			)
+			frappe.throw(_(f"El item {item.item_name} no tiene código de producto/servicio SAT configurado"))
 
 		# Validar código de unidad SAT
 		if not item_doc.fm_unidad_sat:
-			frappe.msgprint(_(f"El item {item.item_name} no tiene código de unidad SAT configurado"))
+			frappe.throw(_(f"El item {item.item_name} no tiene código de unidad SAT configurado"))
 
 
 def _validate_payment_method(doc):
