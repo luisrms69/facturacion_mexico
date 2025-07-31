@@ -51,10 +51,11 @@ class TestLayer2MultiSucursal(unittest.TestCase):
         # Verificar que existe integración entre los DocTypes
         try:
             # Test de importación de módulos de integración
+            # REMOVED: create_branch_fiscal_custom_fields - migrated to fixtures
             from facturacion_mexico.multi_sucursal.custom_fields.branch_fiscal_fields import (
-                create_branch_fiscal_custom_fields
+                remove_branch_fiscal_custom_fields
             )
-            self.assertIsNotNone(create_branch_fiscal_custom_fields)
+            self.assertIsNotNone(remove_branch_fiscal_custom_fields)
 
             from facturacion_mexico.multi_sucursal.doctype.configuracion_fiscal_sucursal.configuracion_fiscal_sucursal import (
                 create_default_config

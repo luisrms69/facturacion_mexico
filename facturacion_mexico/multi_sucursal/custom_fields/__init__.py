@@ -7,9 +7,9 @@ Módulo para gestión de campos personalizados del sistema multi-sucursal
 """
 
 # Import main functions for easy access
+# NOTE: create_branch_fiscal_custom_fields removed as part of Issue #31 migration to fixtures
 from .branch_fiscal_fields import (
 	after_branch_insert,
-	create_branch_fiscal_custom_fields,
 	on_branch_update,
 	remove_branch_fiscal_custom_fields,
 	validate_branch_fiscal_configuration,
@@ -17,7 +17,7 @@ from .branch_fiscal_fields import (
 
 __all__ = [
 	"after_branch_insert",
-	"create_branch_fiscal_custom_fields",
+	# "create_branch_fiscal_custom_fields",  # REMOVED: migrated to fixtures
 	"on_branch_update",
 	"remove_branch_fiscal_custom_fields",
 	"validate_branch_fiscal_configuration",
