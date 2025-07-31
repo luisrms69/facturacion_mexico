@@ -35,19 +35,12 @@ def setup_multi_sucursal():
 
 
 def setup_branch_custom_fields():
-	"""Configurar custom fields para Branch DocType"""
-	try:
-		from .custom_fields.branch_fiscal_fields import create_branch_fiscal_custom_fields
-
-		result = create_branch_fiscal_custom_fields()
-		if result:
-			print("✅ Custom fields para Branch creados")
-		else:
-			print("⚠️  Error creando custom fields para Branch")
-
-	except Exception as e:
-		print(f"❌ Error configurando custom fields: {e!s}")
-		frappe.log_error(f"Error setting up branch custom fields: {e!s}", "Multi Sucursal Setup")
+	"""
+	Configurar custom fields para Branch DocType.
+	MIGRATED TO FIXTURES - Custom fields now managed via fixtures in hooks.py
+	"""
+	print("✅ Branch custom fields managed via fixtures - no manual creation needed")
+	return True
 
 
 def setup_sales_invoice_custom_fields():

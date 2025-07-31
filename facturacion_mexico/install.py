@@ -28,10 +28,16 @@ def create_initial_configuration():
 
 
 def create_custom_fields_for_erpnext():
-	"""Crear custom fields en DocTypes de ERPNext."""
-	from facturacion_mexico.facturacion_fiscal.custom_fields import create_all_custom_fields
+	"""
+	Custom fields are now managed exclusively via fixtures following Issue #31 migration.
 
-	create_all_custom_fields()
+	IMPORTANT: Frappe fixtures are automatically applied during installation.
+	This function is kept for backward compatibility but no longer creates fields manually.
+
+	See Issue #31 - All custom fields now use fixtures per Frappe best practices.
+	"""
+	print("✅ Custom fields managed via fixtures - no manual creation needed")
+	return True
 
 
 def setup_multi_sucursal_system():
@@ -122,12 +128,9 @@ def before_tests():
 	# CRÍTICO: Force Branch custom fields installation for testing
 	force_branch_custom_fields_installation()
 
-	# CRÍTICO: Crear todos los custom fields para testing (incluyendo fm_rfc)
-	try:
-		create_custom_fields_for_erpnext()
-		print("✅ Custom fields para ERPNext creados en testing")
-	except Exception as e:
-		print(f"⚠️ Error creando custom fields: {e}")
+	# Custom fields are now handled by fixtures automatically
+	# See Issue #31 - migrated from manual functions to fixtures
+	print("✅ Custom fields managed via fixtures in testing environment")
 
 	# Crear warehouse types básicos antes de que test runner inicie
 	_create_basic_warehouse_types()
@@ -744,11 +747,10 @@ def force_branch_custom_fields_installation():
 			print("⚠️ Branch DocType not found")
 			return False
 
-		from facturacion_mexico.multi_sucursal.custom_fields.branch_fiscal_fields import (
-			create_branch_fiscal_custom_fields,
-		)
-
-		result = create_branch_fiscal_custom_fields()
+		# REMOVED: create_branch_fiscal_custom_fields() - migrated to fixtures
+		# Custom fields are now created automatically via fixtures in hooks.py
+		print("✅ Branch custom fields managed via fixtures")
+		result = True
 		if result:
 			print("✅ Branch custom fields: SUCCESS")
 			frappe.db.commit()

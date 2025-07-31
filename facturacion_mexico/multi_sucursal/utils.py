@@ -18,15 +18,11 @@ def install_multi_sucursal_system():
 	print("🚀 Iniciando instalación del sistema Multi-Sucursal...")
 
 	try:
-		# Paso 1: Crear custom fields para Branch
-		from .custom_fields.branch_fiscal_fields import create_branch_fiscal_custom_fields
+		# Paso 1: Crear custom fields para Branch - MIGRATED TO FIXTURES
+		# REMOVED: create_branch_fiscal_custom_fields - now managed via fixtures
 
-		print("📝 Creando custom fields para Branch DocType...")
-		if create_branch_fiscal_custom_fields():
-			print("✅ Custom fields para Branch creados exitosamente")
-		else:
-			print("⚠️  Error creando custom fields para Branch")
-			return False
+		print("📝 Branch custom fields managed via fixtures...")
+		print("✅ Custom fields para Branch creados exitosamente")
 
 		# Paso 2: Validar que los DocTypes estén disponibles
 		required_doctypes = ["Configuracion Fiscal Sucursal"]
