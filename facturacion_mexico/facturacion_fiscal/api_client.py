@@ -140,6 +140,64 @@ class FacturAPIClient:
 		except Exception as e:
 			frappe.throw(_(f"Error descargando XML: {e!s}"))
 
+	def create_receipt(self, receipt_data: dict) -> dict[str, Any]:
+		"""Crear E-Receipt (recibo electrónico) en FacturAPI.
+
+		Args:
+			receipt_data: Datos del recibo con estructura:
+			{
+				"type": "receipt",
+				"customer": {"legal_name": str, "email": str},
+				"items": [{"quantity": float, "product": {...}}],
+				"payment_form": str,
+				"folio_number": str,
+				"expires_at": str (ISO format)
+			}
+
+		Returns:
+			dict: Respuesta de FacturAPI con id, key, self_invoice_url
+		"""
+		try:
+			# Validar estructura mínima
+			required_fields = ["type", "customer", "items"]
+			for field in required_fields:
+				if field not in receipt_data:
+					frappe.throw(_(f"Campo requerido para E-Receipt: {field}"))
+
+			# Configurar valores por defecto para ambiente de prueba
+			if self.settings.sandbox_mode:
+				# En sandbox, usar datos de prueba seguros
+				receipt_data.setdefault("payment_form", "28")  # Tarjeta de crédito
+
+				# Validar que el customer tenga los campos mínimos
+				customer = receipt_data["customer"]
+				customer.setdefault("legal_name", "Cliente Público en General")
+				customer.setdefault("email", "test@example.com")
+				customer.setdefault("tax_id", "XAXX010101000")  # RFC genérico para pruebas
+
+			# Log para debugging en ambiente de prueba
+			if self.settings.sandbox_mode:
+				frappe.logger().info(
+					f"Creando E-Receipt en SANDBOX: {receipt_data.get('folio_number', 'N/A')}"
+				)
+
+			return self._make_request("POST", "/receipts", receipt_data)
+
+		except Exception as e:
+			frappe.log_error(
+				message=f"Error creando E-Receipt: {e!s}\nData: {receipt_data}",
+				title="FacturAPI E-Receipt Error",
+			)
+			raise
+
+	def get_receipt(self, receipt_id: str) -> dict[str, Any]:
+		"""Obtener E-Receipt de FacturAPI."""
+		return self._make_request("GET", f"/receipts/{receipt_id}")
+
+	def cancel_receipt(self, receipt_id: str) -> dict[str, Any]:
+		"""Cancelar E-Receipt en FacturAPI."""
+		return self._make_request("DELETE", f"/receipts/{receipt_id}")
+
 	def test_connection(self) -> bool:
 		"""Probar conexión con FacturAPI."""
 		try:

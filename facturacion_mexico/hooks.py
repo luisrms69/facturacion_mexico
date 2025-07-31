@@ -43,7 +43,7 @@ required_apps = ["erpnext"]
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
-doctype_js = {"Sales Invoice": "public/js/sales_invoice.js"}
+doctype_js = {"Sales Invoice": ["public/js/sales_invoice.js", "public/js/ereceipt_handler.js"]}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
@@ -99,7 +99,7 @@ fixtures = [
 	# 			[
 	# Sales Invoice Sprint 1
 	"Sales Invoice-informacion_fiscal_mx_section",
-	"Sales Invoice-cfdi_use",
+	"Sales Invoice-fm_cfdi_use",
 	"Sales Invoice-payment_method_sat",
 	"Sales Invoice-column_break_fiscal_mx",
 	"Sales Invoice-fiscal_status",
@@ -124,7 +124,7 @@ fixtures = [
 	"Sales Invoice-fm_addenda_generated",
 	# Customer Sprint 1
 	"Customer-informacion_fiscal_mx_section",
-	"Customer-rfc",
+	"Customer-fm_rfc",
 	"Customer-column_break_fiscal_customer",
 	"Customer-regimen_fiscal",
 	"Customer-uso_cfdi_default",
@@ -233,8 +233,6 @@ doc_events = {
 		],
 		"before_submit": "facturacion_mexico.validaciones.hooks_handlers.sales_invoice_validate.validate_lista_69b_customer",
 		"on_submit": [
-			"facturacion_mexico.facturacion_fiscal.hooks_handlers.sales_invoice_submit.create_fiscal_event",
-			"facturacion_mexico.ereceipts.hooks_handlers.sales_invoice_submit.create_ereceipt_if_configured",
 			"facturacion_mexico.hooks_handlers.sales_invoice_submit.sales_invoice_on_submit",
 		],
 		"on_cancel": "facturacion_mexico.facturacion_fiscal.hooks_handlers.sales_invoice_cancel.handle_fiscal_cancellation",
