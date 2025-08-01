@@ -45,7 +45,7 @@ def run():
 				updated_count += 1
 				print(f"🔄 Habilitado: {mode_name}")
 
-	frappe.db.commit()
+	frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to persist Mode of Payment SAT population
 
 	print("\n📊 RESUMEN:")
 	print(f"   Creados: {created_count}")

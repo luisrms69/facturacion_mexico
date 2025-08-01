@@ -1,4 +1,5 @@
 import frappe
+from frappe import _
 
 
 def validate_ppd_vs_forma_pago(doc, method):
@@ -33,17 +34,21 @@ def validate_ppd_vs_forma_pago(doc, method):
 		# PPD (Pago en Parcialidades Diferido): Solo permite "99 Por definir"
 		if forma_pago_sat != "99":
 			frappe.throw(
-				f"Para facturas PPD (Pago en Parcialidades) solo se permite '99 - Por definir'. "
-				f"Forma de pago detectada: {forma_pago_sat}",
-				title="Error Validación PPD",
+				_(
+					f"Para facturas PPD (Pago en Parcialidades) solo se permite '99 - Por definir'. "
+					f"Forma de pago detectada: {forma_pago_sat}"
+				),
+				title=_("Error Validación PPD"),
 			)
 	else:
 		# PUE (Pago Una Exhibición): NO permite "99 Por definir"
 		if forma_pago_sat == "99":
 			frappe.throw(
-				"Para facturas PUE (Pago Una Exhibición) no se permite '99 - Por definir'. "
-				"Debe seleccionar una forma de pago específica (01, 02, 03, etc.)",
-				title="Error Validación PUE",
+				_(
+					"Para facturas PUE (Pago Una Exhibición) no se permite '99 - Por definir'. "
+					"Debe seleccionar una forma de pago específica (01, 02, 03, etc.)"
+				),
+				title=_("Error Validación PUE"),
 			)
 
 	frappe.logger().info(

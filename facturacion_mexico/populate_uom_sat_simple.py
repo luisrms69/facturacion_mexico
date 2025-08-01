@@ -58,7 +58,7 @@ def run():
 			created += 1
 			print(f"✅ Creado: {uom_name}")
 
-	frappe.db.commit()
+	frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to persist UOM SAT population for fixtures
 
 	print("\n📊 RESUMEN:")
 	print(f"   Creadas: {created}")

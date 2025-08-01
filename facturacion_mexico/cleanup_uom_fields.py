@@ -28,7 +28,7 @@ def run():
 			print(f"⚠️  Error eliminando {field_name}: {e!s}")
 
 	if deleted > 0:
-		frappe.db.commit()
+		frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to persist UOM field cleanup before population
 		frappe.clear_cache()
 		print(f"✅ Eliminados {deleted} Custom Fields problemáticos")
 		print("🔄 Cache limpiado - listo para población UOM")
