@@ -85,9 +85,9 @@ doctype_js = {"Sales Invoice": ["public/js/sales_invoice.js", "public/js/ereceip
 # before_install = "facturacion_mexico.install.before_install"
 after_install = "facturacion_mexico.install.after_install"
 
-# Custom Fields
+# Custom Fields & SAT Catalogs Fixtures
 # -------------
-# Fixtures for custom fields - ISSUE #31 CRITICAL MIGRATION
+# Fixtures for custom fields - ISSUE #31 CRITICAL MIGRATION + SAT Catalogs Migration
 fixtures = [
 	{
 		"dt": "Custom Field",
@@ -180,7 +180,11 @@ fixtures = [
 				],
 			]
 		],
-	}
+	},
+	# SAT Catalogs Fixtures - Migration from install.py to fixtures
+	"facturacion_mexico/fixtures/sat_uso_cfdi.json",
+	"facturacion_mexico/fixtures/sat_regimen_fiscal.json",
+	"facturacion_mexico/fixtures/sat_forma_pago.json",
 ]
 
 # Uninstallation

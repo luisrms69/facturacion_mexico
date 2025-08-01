@@ -1,0 +1,252 @@
+[
+  {
+    "doctype": "Uso CFDI SAT",
+    "name": "G01",
+    "code": "G01",
+    "description": "Adquisición de mercancías",
+    "aplica_fisica": 1,
+    "aplica_moral": 1,
+    "vigencia_desde": "2017-07-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Uso CFDI SAT",
+    "name": "G02",
+    "code": "G02",
+    "description": "Devoluciones, descuentos o bonificaciones",
+    "aplica_fisica": 1,
+    "aplica_moral": 1,
+    "vigencia_desde": "2017-07-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Uso CFDI SAT",
+    "name": "G03",
+    "code": "G03",
+    "description": "Gastos en general",
+    "aplica_fisica": 1,
+    "aplica_moral": 1,
+    "vigencia_desde": "2017-07-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Uso CFDI SAT",
+    "name": "I01",
+    "code": "I01",
+    "description": "Construcciones",
+    "aplica_fisica": 1,
+    "aplica_moral": 1,
+    "vigencia_desde": "2017-07-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Uso CFDI SAT",
+    "name": "I02",
+    "code": "I02",
+    "description": "Mobilario y equipo de oficina por inversiones",
+    "aplica_fisica": 1,
+    "aplica_moral": 1,
+    "vigencia_desde": "2017-07-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Uso CFDI SAT",
+    "name": "I03",
+    "code": "I03",
+    "description": "Equipo de transporte",
+    "aplica_fisica": 1,
+    "aplica_moral": 1,
+    "vigencia_desde": "2017-07-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Uso CFDI SAT",
+    "name": "I04",
+    "code": "I04",
+    "description": "Equipo de computo y accesorios",
+    "aplica_fisica": 1,
+    "aplica_moral": 1,
+    "vigencia_desde": "2017-07-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Uso CFDI SAT",
+    "name": "I05",
+    "code": "I05",
+    "description": "Dados, troqueles, moldes, matrices y herramental",
+    "aplica_fisica": 1,
+    "aplica_moral": 1,
+    "vigencia_desde": "2017-07-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Uso CFDI SAT",
+    "name": "I06",
+    "code": "I06",
+    "description": "Comunicaciones telefónicas",
+    "aplica_fisica": 1,
+    "aplica_moral": 1,
+    "vigencia_desde": "2017-07-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Uso CFDI SAT",
+    "name": "I07",
+    "code": "I07",
+    "description": "Comunicaciones satelitales",
+    "aplica_fisica": 1,
+    "aplica_moral": 1,
+    "vigencia_desde": "2017-07-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Uso CFDI SAT",
+    "name": "I08",
+    "code": "I08",
+    "description": "Otra maquinaria y equipo",
+    "aplica_fisica": 1,
+    "aplica_moral": 1,
+    "vigencia_desde": "2017-07-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Uso CFDI SAT",
+    "name": "D01",
+    "code": "D01",
+    "description": "Honorarios médicos, dentales y gastos hospitalarios",
+    "aplica_fisica": 1,
+    "aplica_moral": 0,
+    "vigencia_desde": "2017-07-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Uso CFDI SAT",
+    "name": "D02",
+    "code": "D02",
+    "description": "Gastos médicos por incapacidad o discapacidad",
+    "aplica_fisica": 1,
+    "aplica_moral": 0,
+    "vigencia_desde": "2017-07-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Uso CFDI SAT",
+    "name": "D03",
+    "code": "D03",
+    "description": "Gastos funerarios",
+    "aplica_fisica": 1,
+    "aplica_moral": 0,
+    "vigencia_desde": "2017-07-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Uso CFDI SAT",
+    "name": "D04",
+    "code": "D04",
+    "description": "Donativos",
+    "aplica_fisica": 1,
+    "aplica_moral": 1,
+    "vigencia_desde": "2017-07-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Uso CFDI SAT",
+    "name": "D05",
+    "code": "D05",
+    "description": "Intereses reales efectivamente pagados por créditos hipotecarios (casa habitación)",
+    "aplica_fisica": 1,
+    "aplica_moral": 0,
+    "vigencia_desde": "2017-07-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Uso CFDI SAT",
+    "name": "D06",
+    "code": "D06",
+    "description": "Aportaciones voluntarias al SAR",
+    "aplica_fisica": 1,
+    "aplica_moral": 0,
+    "vigencia_desde": "2017-07-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Uso CFDI SAT",
+    "name": "D07",
+    "code": "D07",
+    "description": "Primas por seguros de gastos médicos",
+    "aplica_fisica": 1,
+    "aplica_moral": 0,
+    "vigencia_desde": "2017-07-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Uso CFDI SAT",
+    "name": "D08",
+    "code": "D08",
+    "description": "Gastos de transportación escolar obligatoria",
+    "aplica_fisica": 1,
+    "aplica_moral": 0,
+    "vigencia_desde": "2017-07-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Uso CFDI SAT",
+    "name": "D09",
+    "code": "D09",
+    "description": "Depósitos en cuentas para el ahorro, primas que tengan como base planes de pensiones",
+    "aplica_fisica": 1,
+    "aplica_moral": 0,
+    "vigencia_desde": "2017-07-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Uso CFDI SAT",
+    "name": "D10",
+    "code": "D10",
+    "description": "Pagos por servicios educativos (colegiaturas)",
+    "aplica_fisica": 1,
+    "aplica_moral": 0, 
+    "vigencia_desde": "2017-07-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Uso CFDI SAT",
+    "name": "S01",
+    "code": "S01",
+    "description": "Sin efectos fiscales",
+    "aplica_fisica": 1,
+    "aplica_moral": 1,
+    "vigencia_desde": "2017-07-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Uso CFDI SAT",
+    "name": "CP01",
+    "code": "CP01",
+    "description": "Pagos",
+    "aplica_fisica": 1,
+    "aplica_moral": 1,
+    "vigencia_desde": "2017-07-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Uso CFDI SAT",
+    "name": "CN01",
+    "code": "CN01",
+    "description": "Nómina",
+    "aplica_fisica": 1,
+    "aplica_moral": 1,
+    "vigencia_desde": "2017-07-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Uso CFDI SAT",
+    "name": "P01",
+    "code": "P01",
+    "description": "Por definir",
+    "aplica_fisica": 1,
+    "aplica_moral": 1,
+    "vigencia_desde": "2017-07-01",
+    "vigencia_hasta": null
+  }
+]
