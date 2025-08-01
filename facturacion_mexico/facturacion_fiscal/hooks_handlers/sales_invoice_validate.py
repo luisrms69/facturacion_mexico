@@ -3,7 +3,7 @@ from frappe import _
 
 
 def validate_fiscal_data(doc, method):
-	"""Validar datos fiscales en Sales Invoice."""
+	"""Validar datos fiscales en Sales Invoice - ARQUITECTURA MIGRADA."""
 
 	# Protección estándar para testing siguiendo patrón condominium_management
 	if hasattr(frappe.flags, "in_test") and frappe.flags.in_test:
@@ -13,20 +13,14 @@ def validate_fiscal_data(doc, method):
 	if not _should_validate_fiscal_data(doc):
 		return
 
-	# Auto-asignar uso CFDI default si es necesario
-	_auto_assign_cfdi_use_default(doc)
-
-	# Validar cliente con RFC
+	# Validar cliente con RFC (básico - no requiere campos fiscales)
 	_validate_customer_rfc(doc)
 
-	# Validar uso de CFDI
-	_validate_cfdi_use(doc)
-
-	# Validar items con códigos SAT
+	# Validar items con códigos SAT (no requiere campos fiscales de factura)
 	_validate_items_sat_codes(doc)
 
-	# Validar método de pago
-	_validate_payment_method(doc)
+	# NOTA: Validaciones fiscales específicas (CFDI, payment method) MIGRADAS
+	# Se ejecutan ahora en validate() de "Factura Fiscal Mexico" donde existen los campos fm_*
 
 
 def _should_validate_fiscal_data(doc):
@@ -83,25 +77,10 @@ def _auto_assign_cfdi_use_default(doc):
 
 
 def _validate_cfdi_use(doc):
-	"""Validar uso de CFDI - OBLIGATORIO para todas las facturas."""
-
-	# 1. VALIDACIÓN BLOQUEANTE: Uso CFDI es OBLIGATORIO
-	if not doc.fm_cfdi_use:
-		frappe.throw(
-			_(
-				"Uso de CFDI es obligatorio para facturación fiscal mexicana. "
-				"Configure un default en el Cliente o seleccione manualmente."
-			)
-		)
-
-	# 2. Validar que el uso de CFDI existe en catálogo SAT
-	if not frappe.db.exists("Uso CFDI SAT", doc.fm_cfdi_use):
-		frappe.throw(_("El Uso de CFDI '{0}' no existe en el catálogo SAT").format(doc.fm_cfdi_use))
-
-	# 3. Validar que el uso de CFDI está activo
-	uso_cfdi = frappe.get_doc("Uso CFDI SAT", doc.fm_cfdi_use)
-	if not uso_cfdi.is_active():
-		frappe.throw(_("El Uso de CFDI '{0}' no está activo en el catálogo SAT").format(doc.fm_cfdi_use))
+	"""Validación migrada a Factura Fiscal Mexico - campo ya no existe en Sales Invoice."""
+	# MIGRADO: Esta validación ahora se ejecuta en validate() de "Factura Fiscal Mexico"
+	# donde sí existe el campo fm_cfdi_use tras la migración arquitectural
+	return
 
 
 def _validate_items_sat_codes(doc):
@@ -159,16 +138,7 @@ def _validate_uom_sat_format(item):
 
 
 def _validate_payment_method(doc):
-	"""Validar método de pago SAT."""
-	if not doc.fm_payment_method_sat:
-		# Asignar método por defecto
-		doc.fm_payment_method_sat = "PUE"  # Pago en una sola exhibición
-
-	# Validar que el método existe
-	valid_methods = ["PUE", "PPD"]
-	if doc.fm_payment_method_sat not in valid_methods:
-		frappe.throw(_("Método de pago SAT inválido. Use PUE o PPD"))
-
-	# Validar coherencia con forma de pago
-	if doc.fm_payment_method_sat == "PPD" and doc.is_return:
-		frappe.throw(_("Las notas de crédito no pueden usar método PPD"))
+	"""Validación migrada a Factura Fiscal Mexico - campo ya no existe en Sales Invoice."""
+	# MIGRADO: Esta validación ahora se ejecuta en validate() de "Factura Fiscal Mexico"
+	# donde sí existe el campo fm_payment_method_sat tras la migración arquitectural
+	return

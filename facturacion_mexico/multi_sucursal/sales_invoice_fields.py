@@ -12,8 +12,16 @@ from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
 
 def setup_sales_invoice_custom_fields():
 	"""
-	Crear custom fields necesarios para multi-sucursal en Sales Invoice
+	DESACTIVADO - MIGRADO A FIXTURES
+
+	Esta función ha sido desactivada como parte de la migración arquitectural de Issue #31.
+	Los campos fm_lugar_expedicion y fm_serie_folio han sido migrados a Factura Fiscal Mexico.
+
+	RAZÓN: Prevenir creación duplicada de campos fiscales durante migraciones.
 	"""
+	print("⚠️ setup_sales_invoice_custom_fields() DESACTIVADO")
+	print("📍 Campos fm_lugar_expedicion y fm_serie_folio migrados a Factura Fiscal Mexico")
+	return
 
 	custom_fields = {
 		"Sales Invoice": [
@@ -135,4 +143,6 @@ def remove_sales_invoice_custom_fields():
 
 
 if __name__ == "__main__":
-	setup_sales_invoice_custom_fields()
+	# DESACTIVADO - Migrado a fixtures en hooks.py
+	print("⚠️ SALES_INVOICE_FIELDS: Campos migrados a Factura Fiscal Mexico")
+	print("📍 No se ejecutará setup_sales_invoice_custom_fields()")

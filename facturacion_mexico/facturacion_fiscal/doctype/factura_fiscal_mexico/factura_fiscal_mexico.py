@@ -13,6 +13,11 @@ class FacturaFiscalMexico(Document):
 		self.validate_company_match()
 		self.validate_status_transitions()
 
+		# Validaciones fiscales migradas desde Sales Invoice
+		self.validate_cfdi_use()
+		self.validate_payment_method()
+		self.validate_ppd_vs_forma_pago()
+
 	def validate_sales_invoice(self):
 		"""Validar que Sales Invoice existe y está submitted."""
 		if not self.sales_invoice:
@@ -216,3 +221,102 @@ class FacturaFiscalMexico(Document):
 		self.save()
 		frappe.msgprint(_("Solicitud de cancelación enviada"))
 		return {"message": "Cancellation requested"}
+
+	def validate_cfdi_use(self):
+		"""Validar uso de CFDI - MIGRADO desde Sales Invoice."""
+		# Solo validar si no es un documento nuevo en estado pendiente
+		if self.fm_fiscal_status == "Pendiente" and self.is_new():
+			# Permitir guardar documentos nuevos sin CFDI para configuración posterior
+			return
+
+		# 1. VALIDACIÓN BLOQUEANTE: Uso CFDI es OBLIGATORIO (para timbrado)
+		if not self.fm_cfdi_use:
+			frappe.throw(
+				_(
+					"Uso de CFDI es obligatorio para facturación fiscal mexicana. "
+					"Configure un default en el Cliente o seleccione manualmente."
+				)
+			)
+
+		# 2. Validar que el uso de CFDI existe en catálogo SAT
+		if not frappe.db.exists("Uso CFDI SAT", self.fm_cfdi_use):
+			frappe.throw(_("El Uso de CFDI '{0}' no existe en el catálogo SAT").format(self.fm_cfdi_use))
+
+		# 3. Validar que el uso de CFDI está activo
+		uso_cfdi = frappe.get_doc("Uso CFDI SAT", self.fm_cfdi_use)
+		if hasattr(uso_cfdi, "is_active") and not uso_cfdi.is_active():
+			frappe.throw(_("El Uso de CFDI '{0}' no está activo en el catálogo SAT").format(self.fm_cfdi_use))
+
+	def validate_payment_method(self):
+		"""Validar método de pago SAT - MIGRADO desde Sales Invoice."""
+		if not self.fm_payment_method_sat:
+			# Asignar método por defecto
+			self.fm_payment_method_sat = "PUE"  # Pago en una sola exhibición
+
+		# Validar que el método existe
+		valid_methods = ["PUE", "PPD"]
+		if self.fm_payment_method_sat not in valid_methods:
+			frappe.throw(_("Método de pago SAT inválido. Use PUE o PPD"))
+
+		# Validar coherencia con forma de pago
+		if self.fm_payment_method_sat == "PPD" and self.sales_invoice:
+			sales_invoice = frappe.get_doc("Sales Invoice", self.sales_invoice)
+			if sales_invoice.is_return:
+				frappe.throw(_("Las notas de crédito no pueden usar método PPD"))
+
+	def validate_ppd_vs_forma_pago(self):
+		"""Validar compatibilidad entre PPD/PUE y forma de pago SAT - MIGRADO desde Sales Invoice."""
+		if not self.fm_payment_method_sat or not self.sales_invoice:
+			return
+
+		sales_invoice = frappe.get_doc("Sales Invoice", self.sales_invoice)
+
+		# Obtener forma de pago desde Payment Entry relacionado
+		forma_pago_sat = None
+
+		if hasattr(sales_invoice, "payments") and sales_invoice.payments:
+			# Buscar Payment Entry relacionado
+			for payment_ref in sales_invoice.payments:
+				if (
+					payment_ref.reference_doctype == "Sales Invoice"
+					and payment_ref.reference_name == sales_invoice.name
+				):
+					payment_entry = frappe.get_doc("Payment Entry", payment_ref.parent)
+
+					if payment_entry.mode_of_payment:
+						# Extraer código SAT del Mode of Payment (formato: "01 - Efectivo")
+						mode_parts = payment_entry.mode_of_payment.split(" - ")
+						if len(mode_parts) >= 2 and mode_parts[0].isdigit():
+							forma_pago_sat = mode_parts[0]
+							break
+
+		if not forma_pago_sat:
+			return
+
+		# Determinar si es PPD basado en payment_terms_template
+		is_ppd = bool(sales_invoice.payment_terms_template)
+
+		if is_ppd:
+			# PPD (Pago en Parcialidades Diferido): Solo permite "99 Por definir"
+			if forma_pago_sat != "99":
+				frappe.throw(
+					_(
+						f"Para facturas PPD (Pago en Parcialidades) solo se permite '99 - Por definir'. "
+						f"Forma de pago detectada: {forma_pago_sat}"
+					),
+					title=_("Error Validación PPD"),
+				)
+		else:
+			# PUE (Pago Una Exhibición): NO permite "99 Por definir"
+			if forma_pago_sat == "99":
+				frappe.throw(
+					_(
+						"Para facturas PUE (Pago Una Exhibición) no se permite '99 - Por definir'. "
+						"Debe seleccionar una forma de pago específica (01, 02, 03, etc.)"
+					),
+					title=_("Error Validación PUE"),
+				)
+
+		frappe.logger().info(
+			f"Validación PPD/PUE exitosa - Tipo: {'PPD' if is_ppd else 'PUE'}, Forma Pago: {forma_pago_sat}"
+		)
