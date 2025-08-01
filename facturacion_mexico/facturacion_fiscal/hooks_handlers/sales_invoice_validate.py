@@ -41,7 +41,7 @@ def _should_validate_fiscal_data(doc):
 		return False
 
 	customer = frappe.get_doc("Customer", doc.customer)
-	return bool(customer.fm_rfc)
+	return bool(customer.tax_id)
 
 
 def _validate_customer_rfc(doc):
@@ -51,16 +51,16 @@ def _validate_customer_rfc(doc):
 
 	customer = frappe.get_doc("Customer", doc.customer)
 
-	if not customer.fm_rfc:
-		frappe.throw(_("El cliente debe tener RFC configurado para facturación fiscal"))
+	if not customer.tax_id:
+		frappe.throw(_("El cliente debe tener RFC configurado en Tax ID para facturación fiscal"))
 
 	# Validar formato básico de RFC
-	fm_rfc = customer.fm_rfc.strip().upper()
-	if len(fm_rfc) < 12 or len(fm_rfc) > 13:
+	rfc = customer.tax_id.strip().upper()
+	if len(rfc) < 12 or len(rfc) > 13:
 		frappe.throw(_("El RFC del cliente tiene formato inválido"))
 
 	# Validar que no sea RFC genérico
-	if fm_rfc in ["XAXX010101000", "XEXX010101000"]:
+	if rfc in ["XAXX010101000", "XEXX010101000"]:
 		frappe.throw(_("No se puede usar RFC genérico para facturación fiscal"))
 
 

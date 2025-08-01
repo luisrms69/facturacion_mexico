@@ -111,16 +111,15 @@ fixtures = [
 					"Branch-fm_serie_pattern",
 					"Branch-fm_share_certificates",
 					"Branch-fm_test_field_unique_2025",
-					# Customer custom fields (13 campos)
+					# Customer custom fields (11 campos - movidos a Tax tab)
 					"Customer-fm_addenda_info_section",
 					"Customer-fm_column_break_fiscal_customer",
 					"Customer-fm_column_break_validacion",
 					"Customer-fm_default_addenda_type",
-					"Customer-fm_informacion_fiscal_section_customer",
+					"Customer-fm_informacion_fiscal_mx_section",
 					"Customer-fm_lista_69b_status",
 					"Customer-fm_regimen_fiscal",
 					"Customer-fm_requires_addenda",
-					"Customer-fm_rfc",
 					"Customer-fm_rfc_validated",
 					"Customer-fm_rfc_validation_date",
 					"Customer-fm_uso_cfdi_default",

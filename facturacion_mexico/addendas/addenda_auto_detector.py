@@ -85,8 +85,8 @@ class AddendaAutoDetector:
 			best_match = name_match
 
 		# 2. Búsqueda por RFC
-		if customer_doc.get("fm_rfc"):
-			rfc_match = self._detect_by_rfc(customer_doc.fm_rfc)
+		if customer_doc.get("tax_id"):
+			rfc_match = self._detect_by_rfc(customer_doc.tax_id)
 			if rfc_match["confidence"] > best_match["confidence"]:
 				best_match = rfc_match
 

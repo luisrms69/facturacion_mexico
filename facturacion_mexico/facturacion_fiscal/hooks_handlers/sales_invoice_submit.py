@@ -38,8 +38,8 @@ def _should_create_fiscal_event(doc):
 
 	customer = frappe.get_doc("Customer", doc.customer)
 
-	# ESTRATEGIA HÍBRIDA: Verificar tax_id primero, fm_rfc como fallback
-	has_rfc = bool(customer.get("tax_id")) or bool(customer.get("fm_rfc"))
+	# Usar tax_id como único campo RFC
+	has_rfc = bool(customer.get("tax_id"))
 	return has_rfc
 
 
@@ -120,12 +120,12 @@ def _should_auto_timbrar(doc):
 		frappe.log_error(f"❌ Sin fm_cfdi_use para {doc.name}", "Auto-Timbrado Check")
 		return False
 
-	# Solo si el cliente tiene RFC (tax_id o fm_rfc)
+	# Solo si el cliente tiene RFC en tax_id
 	customer = frappe.get_doc("Customer", doc.customer)
-	has_rfc = bool(customer.get("tax_id")) or bool(customer.get("fm_rfc"))
+	has_rfc = bool(customer.get("tax_id"))
 	if not has_rfc:
 		frappe.log_error(
-			f"❌ Cliente {doc.customer} sin RFC (tax_id: {customer.get('tax_id')}, fm_rfc: {customer.get('fm_rfc')})",
+			f"❌ Cliente {doc.customer} sin RFC en tax_id: {customer.get('tax_id')}",
 			"Auto-Timbrado Check",
 		)
 		return False

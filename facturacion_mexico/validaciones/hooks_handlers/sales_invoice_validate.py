@@ -420,7 +420,7 @@ def _should_validate_fiscal_data(doc):
 			return False
 
 		customer = frappe.get_doc("Customer", doc.customer)
-		has_rfc = bool(customer.get("tax_id")) or bool(customer.get("fm_rfc"))
+		has_rfc = bool(customer.get("tax_id"))
 
 		# Si tiene RFC, verificar si se va a timbrar
 		if has_rfc:
@@ -485,12 +485,12 @@ def _validate_customer_address_required(doc, customer):
 
 
 def _validate_customer_rfc_hybrid(doc, customer):
-	"""Validar RFC usando estrategia híbrida tax_id/fm_rfc."""
-	rfc = customer.get("tax_id") or customer.get("fm_rfc")
+	"""Validar RFC usando tax_id estándar ERPNext."""
+	rfc = customer.get("tax_id")
 
 	if not rfc:
 		frappe.throw(
-			_("VALIDACIÓN FISCAL: El cliente {0} debe tener RFC configurado (Tax ID o RFC)").format(
+			_("VALIDACIÓN FISCAL: El cliente {0} debe tener RFC configurado en Tax ID").format(
 				doc.customer
 			),
 			title=_("RFC Requerido"),

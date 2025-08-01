@@ -75,9 +75,9 @@ function has_customer_rfc(frm) {
 	if (!frm.doc.customer) return false;
 
 	// Verificar si tenemos datos del cliente cargados
-	return frappe.db.get_value("Customer", frm.doc.customer, ["tax_id", "fm_rfc"]).then((r) => {
+	return frappe.db.get_value("Customer", frm.doc.customer, ["tax_id"]).then((r) => {
 		const customer = r.message;
-		return !!(customer.tax_id || customer.fm_rfc);
+		return !!(customer.tax_id);
 	});
 }
 
