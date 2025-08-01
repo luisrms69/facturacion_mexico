@@ -137,7 +137,7 @@ fixtures = [
 					"Payment Entry-fm_forma_pago_sat",
 					"Payment Entry-fm_informacion_fiscal_section",
 					"Payment Entry-fm_require_complement",
-					# Sales Invoice custom fields (41 campos)
+					# Sales Invoice custom fields (34 campos activos + 7 migrados)
 					"Sales Invoice-fm_fiscal_attempts",
 					"Sales Invoice-fm_addenda_column_break",
 					"Sales Invoice-fm_addenda_errors",
@@ -179,6 +179,14 @@ fixtures = [
 					# "Sales Invoice-fm_serie_folio", # MIGRADO A Factura Fiscal Mexico
 					"Sales Invoice-fm_timbrado_section",
 					# "Sales Invoice-fm_uuid_fiscal", # MIGRADO A Factura Fiscal Mexico
+					# Factura Fiscal Mexico custom fields (7 campos migrados)
+					"Factura Fiscal Mexico-fm_cfdi_use",
+					"Factura Fiscal Mexico-fm_fiscal_status",
+					"Factura Fiscal Mexico-fm_forma_pago_timbrado",
+					"Factura Fiscal Mexico-fm_lugar_expedicion",
+					"Factura Fiscal Mexico-fm_payment_method_sat",
+					"Factura Fiscal Mexico-fm_serie_folio",
+					"Factura Fiscal Mexico-fm_uuid_fiscal",
 				],
 			]
 		],
