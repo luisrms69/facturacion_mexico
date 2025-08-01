@@ -490,9 +490,7 @@ def _validate_customer_rfc_hybrid(doc, customer):
 
 	if not rfc:
 		frappe.throw(
-			_("VALIDACIÓN FISCAL: El cliente {0} debe tener RFC configurado en Tax ID").format(
-				doc.customer
-			),
+			_("VALIDACIÓN FISCAL: El cliente {0} debe tener RFC configurado en Tax ID").format(doc.customer),
 			title=_("RFC Requerido"),
 		)
 
