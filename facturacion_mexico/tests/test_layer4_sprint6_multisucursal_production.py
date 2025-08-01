@@ -358,7 +358,7 @@ class TestLayer4Sprint6MultisucursalProduction(unittest.TestCase):
                     "abbr": "TCP",
                     "default_currency": "MXN",
                     "country": "Mexico",
-                    "fm_rfc": "TCP010101ABC"
+                    "tax_id": "TCP010101ABC"
                 })
                 company.insert(ignore_permissions=True)
                 self.cleanup_list.append(("Company", company_name))

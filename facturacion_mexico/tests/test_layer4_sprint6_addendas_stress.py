@@ -552,7 +552,7 @@ class TestLayer4Sprint6AddendasStress(unittest.TestCase):
                 "doctype": "Customer",
                 "customer_name": customer_name,
                 "customer_type": "Company",
-                "fm_rfc": f"STR{index:03d}0101ABC"
+                "tax_id": f"STR{index:03d}0101ABC"
             }
 
             customer = frappe.get_doc(customer_config)

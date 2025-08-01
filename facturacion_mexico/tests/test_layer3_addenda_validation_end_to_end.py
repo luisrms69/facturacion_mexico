@@ -406,7 +406,7 @@ class TestLayer3AddendaValidationEndToEnd(unittest.TestCase):
                     "abbr": "TCAE2E",
                     "default_currency": "MXN",
                     "country": "Mexico",
-                    "fm_rfc": "TCAE010101ABC",
+                    "tax_id": "TCAE010101ABC",
                     "fm_enable_addenda": 1
                 }
 
@@ -459,7 +459,7 @@ class TestLayer3AddendaValidationEndToEnd(unittest.TestCase):
                     "fm_requires_addenda": 1,
                     "fm_default_addenda_type": "TEST_GENERIC",
                     "fm_addenda_format": "XML",
-                    "fm_rfc": "CUSAE010101ABC"
+                    "tax_id": "CUSAE010101ABC"
                 }
 
                 customer = frappe.get_doc(customer_data)
@@ -888,7 +888,7 @@ class TestLayer3AddendaValidationEndToEnd(unittest.TestCase):
             requesting_party = root.find("requestingParty")
 
             if requesting_party is not None:
-                rfc_element = requesting_party.find("fm_rfc")
+                rfc_element = requesting_party.find("tax_id")
                 return rfc_element is not None and customer in rfc_element.text
 
             return False
