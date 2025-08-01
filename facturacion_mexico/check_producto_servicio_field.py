@@ -47,7 +47,7 @@ def run():
 		# 4. Verificar si field está oculto o con depends_on
 		if frappe.db.exists("Custom Field", "Item-fm_producto_servicio_sat"):
 			field_details = frappe.get_doc("Custom Field", "Item-fm_producto_servicio_sat")
-			print(f"\n🔍 Detalles campo:")
+			print("\n🔍 Detalles campo:")
 			print(f"   Hidden: {field_details.hidden}")
 			print(f"   Depends on: {field_details.depends_on}")
 			print(f"   Read only: {field_details.read_only}")
@@ -56,5 +56,5 @@ def run():
 		return {"success": True, "fields_found": len(producto_fields)}
 
 	except Exception as e:
-		print(f"💥 Error: {str(e)}")
+		print(f"💥 Error: {e!s}")
 		return {"success": False, "error": str(e)}

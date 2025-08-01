@@ -6,8 +6,9 @@ Layer 1 Branch Custom Fields Tests
 Tests básicos para verificar Custom Fields de Branch del sistema Multi-Sucursal Sprint 6
 """
 
-import frappe
 import unittest
+
+import frappe
 
 
 class TestLayer1BranchCustomFields(unittest.TestCase):

@@ -6,8 +6,9 @@ Layer 1 DocTypes Tests
 Tests básicos para verificar que DocTypes principales funcionan
 """
 
-import frappe
 import unittest
+
+import frappe
 
 
 class TestLayer1DocTypes(unittest.TestCase):

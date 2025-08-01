@@ -84,7 +84,7 @@ def run():
 					print(f"✅ Creado: {uom_name}")
 
 			except Exception as e:
-				error_msg = f"Error procesando {uom_data['code']}: {str(e)}"
+				error_msg = f"Error procesando {uom_data['code']}: {e!s}"
 				errors.append(error_msg)
 				print(f"❌ {error_msg}")
 
@@ -93,7 +93,7 @@ def run():
 
 		result = {"created": created, "updated": updated, "errors": len(errors), "error_details": errors}
 
-		print(f"🎉 UOMs SAT pobladas exitosamente:")
+		print("🎉 UOMs SAT pobladas exitosamente:")
 		print(f"   📝 Creadas: {created}")
 		print(f"   🔄 Actualizadas: {updated}")
 		print(f"   ❌ Errores: {len(errors)}")
@@ -101,8 +101,8 @@ def run():
 		return result
 
 	except Exception as e:
-		frappe.log_error(f"Error poblando UOMs SAT: {str(e)}", "UOM SAT Population")
-		print(f"💥 Error crítico: {str(e)}")
+		frappe.log_error(f"Error poblando UOMs SAT: {e!s}", "UOM SAT Population")
+		print(f"💥 Error crítico: {e!s}")
 		return {"error": str(e), "created": 0}
 
 
@@ -117,26 +117,26 @@ def disable_generic_uoms():
 		print("🔧 Desactivando UOM Conversion Factors genéricos...")
 
 		# 1. Desactivar UOM Conversion Factors que involucren UOMs genéricas
-		conversion_updates = frappe.db.sql("""
+		frappe.db.sql("""
             UPDATE `tabUOM Conversion Factor`
             SET disabled = 1
             WHERE (from_uom NOT LIKE '% - %' OR to_uom NOT LIKE '% - %')
             AND disabled = 0
         """)
 
-		print(f"✅ UOM Conversion Factors desactivados")
+		print("✅ UOM Conversion Factors desactivados")
 
 		print("🔧 Desactivando UOMs genéricas...")
 
 		# 2. Desactivar UOMs genéricas (que no tienen formato SAT)
-		uom_updates = frappe.db.sql("""
+		frappe.db.sql("""
             UPDATE `tabUOM`
             SET enabled = 0
             WHERE uom_name NOT LIKE '% - %'
             AND enabled = 1
         """)
 
-		print(f"✅ UOMs genéricas desactivadas")
+		print("✅ UOMs genéricas desactivadas")
 
 		# 3. Commit cambios
 		frappe.db.commit()
@@ -151,8 +151,8 @@ def disable_generic_uoms():
 		}
 
 	except Exception as e:
-		frappe.log_error(f"Error desactivando UOMs genéricas: {str(e)}", "UOM SAT Disable")
-		print(f"💥 Error desactivando UOMs: {str(e)}")
+		frappe.log_error(f"Error desactivando UOMs genéricas: {e!s}", "UOM SAT Disable")
+		print(f"💥 Error desactivando UOMs: {e!s}")
 		return {"success": False, "error": str(e)}
 
 
@@ -237,11 +237,11 @@ def create_sat_conversion_factors():
 					print(f"✅ Creado: {conversion['from']} → {conversion['to']} ({conversion['factor']})")
 
 			except Exception as e:
-				print(f"❌ Error creando conversión {conversion['from']} → {conversion['to']}: {str(e)}")
+				print(f"❌ Error creando conversión {conversion['from']} → {conversion['to']}: {e!s}")
 
 		frappe.db.commit()
 
-		print(f"🎉 Conversiones SAT completadas:")
+		print("🎉 Conversiones SAT completadas:")
 		print(f"   📝 Creadas: {created}")
 		print(f"   🔄 Actualizadas: {updated}")
 
@@ -253,8 +253,8 @@ def create_sat_conversion_factors():
 		}
 
 	except Exception as e:
-		frappe.log_error(f"Error creando conversiones SAT: {str(e)}", "UOM SAT Conversions")
-		print(f"💥 Error creando conversiones: {str(e)}")
+		frappe.log_error(f"Error creando conversiones SAT: {e!s}", "UOM SAT Conversions")
+		print(f"💥 Error creando conversiones: {e!s}")
 		return {"success": False, "error": str(e)}
 
 
@@ -298,7 +298,7 @@ def get_uom_sat_status():
 		return status
 
 	except Exception as e:
-		frappe.log_error(f"Error obteniendo estado UOMs: {str(e)}", "UOM SAT Status")
+		frappe.log_error(f"Error obteniendo estado UOMs: {e!s}", "UOM SAT Status")
 		return {"error": str(e)}
 
 

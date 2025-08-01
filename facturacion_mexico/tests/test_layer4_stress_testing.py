@@ -6,12 +6,13 @@ Layer 4 Stress Testing
 Tests de estrés y carga extrema para validación de producción Sprint 6
 """
 
-import frappe
-import unittest
-import time
-import threading
 import concurrent.futures
-from unittest.mock import patch, MagicMock
+import threading
+import time
+import unittest
+from unittest.mock import MagicMock, patch
+
+import frappe
 
 
 class TestLayer4StressTesting(unittest.TestCase):
@@ -94,7 +95,7 @@ class TestLayer4StressTesting(unittest.TestCase):
             self.assertGreaterEqual(len(stress_results), 1,
                                   "Sistema debe manejar estrés de usuarios concurrentes")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 4 stress testing
             pass
 
@@ -109,7 +110,7 @@ class TestLayer4StressTesting(unittest.TestCase):
             start_time = time.time()
             heavy_query_success = 0
 
-            for i in range(20):  # 20 heavy queries
+            for _i in range(20):  # 20 heavy queries
                 try:
                     heavy_query = frappe.db.sql("""
                         SELECT
@@ -144,7 +145,7 @@ class TestLayer4StressTesting(unittest.TestCase):
             transaction_success = 0
             start_time = time.time()
 
-            for i in range(30):  # 30 transaction-like operations
+            for _i in range(30):  # 30 transaction-like operations
                 try:
                     # Simulate transaction-heavy operations
                     trans_test = frappe.db.sql("""
@@ -204,7 +205,7 @@ class TestLayer4StressTesting(unittest.TestCase):
             self.assertGreaterEqual(len(db_stress_results), 2,
                                   "Sistema debe manejar estrés de carga de base de datos")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 4 stress testing
             pass
 
@@ -321,7 +322,7 @@ class TestLayer4StressTesting(unittest.TestCase):
             self.assertGreaterEqual(len(memory_tests), 3,
                                   "Sistema debe pasar detección de memory leaks")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 4 stress testing
             pass
 
@@ -407,7 +408,7 @@ class TestLayer4StressTesting(unittest.TestCase):
             self.assertGreaterEqual(len(network_stress_results), 2,
                                   "Sistema debe manejar estrés de latencia de red")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 4 stress testing
             pass
 
@@ -421,7 +422,7 @@ class TestLayer4StressTesting(unittest.TestCase):
             # Test 1: Data consistency under stress
             consistency_tests = 0
 
-            for i in range(25):
+            for _i in range(25):
                 try:
                     # Test data remains consistent during stress
                     consistency_test = frappe.db.sql("""
@@ -468,7 +469,7 @@ class TestLayer4StressTesting(unittest.TestCase):
             # Test 3: Data validation under stress
             validation_success = 0
 
-            for i in range(30):
+            for _i in range(30):
                 try:
                     # Test that data validation remains active under stress
                     validation_test = frappe.db.sql("""
@@ -512,7 +513,7 @@ class TestLayer4StressTesting(unittest.TestCase):
             self.assertGreaterEqual(len(corruption_resistance), 3,
                                   "Sistema debe tener resistencia a corrupción de datos")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 4 stress testing
             pass
 
@@ -614,7 +615,7 @@ class TestLayer4StressTesting(unittest.TestCase):
             self.assertGreaterEqual(len(breaking_point_results), 2,
                                   "Sistema debe tener punto de ruptura identificable y manejo apropiado")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 4 stress testing - extreme conditions expected
             pass
 

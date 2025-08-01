@@ -6,16 +6,17 @@ Layer 4 Sprint 6 Addendas Stress Testing
 Tests de carga extrema para el sistema de Addendas Multi-Sucursal
 """
 
-import frappe
+import concurrent.futures
+import json
+import os
+import threading
+import time
 import unittest
 from datetime import datetime, timedelta
-import json
-import time
-import threading
-import concurrent.futures
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
+import frappe
 import psutil
-import os
 
 
 class TestLayer4Sprint6AddendasStress(unittest.TestCase):
@@ -727,7 +728,7 @@ class TestLayer4Sprint6AddendasStress(unittest.TestCase):
         results = {"successful": 0, "failed": 0, "total": len(templates)}
 
         try:
-            for i, template in enumerate(templates):
+            for _i, _template in enumerate(templates):
                 # Simular rendering
                 time.sleep(0.01)
                 results["successful"] += 1

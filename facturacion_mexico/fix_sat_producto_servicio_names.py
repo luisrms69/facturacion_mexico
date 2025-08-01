@@ -50,5 +50,5 @@ def run():
 		}
 
 	except Exception as e:
-		print(f"💥 Error: {str(e)}")
+		print(f"💥 Error: {e!s}")
 		return {"success": False, "error": str(e)}

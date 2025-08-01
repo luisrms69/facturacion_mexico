@@ -6,8 +6,9 @@ Layer 2 Customer Addenda Branch Integration Tests
 Tests de integración para configuración de addendas específicas por sucursal y customer
 """
 
-import frappe
 import unittest
+
+import frappe
 
 
 class TestLayer2CustomerAddendaBranch(unittest.TestCase):
@@ -165,7 +166,7 @@ class TestLayer2CustomerAddendaBranch(unittest.TestCase):
         available_validators = []
         for module_path in validation_modules:
             try:
-                module = __import__(module_path, fromlist=[''])
+                __import__(module_path, fromlist=[''])
                 available_validators.append(module_path)
             except ImportError:
                 continue

@@ -33,8 +33,8 @@ def run():
 			_validate_uom_sat_format(test_item_valid)
 			print("✅ Validación exitosa - UOM SAT válida")
 		except Exception as e:
-			print(f"❌ Error inesperado: {str(e)}")
-			return {"error": f"Validación falló para UOM válida: {str(e)}"}
+			print(f"❌ Error inesperado: {e!s}")
+			return {"error": f"Validación falló para UOM válida: {e!s}"}
 
 		# 3. Probar validación con UOM inválida
 		test_item_invalid = frappe._dict({"item_code": "TEST-ITEM-2", "uom": "InvalidUOM"})
@@ -48,7 +48,7 @@ def run():
 			print(f"✅ Validación correcta - Error esperado: {str(e)[:100]}...")
 
 		# 4. Verificar que Item puede usar UOMs SAT
-		print(f"\n📦 Verificando Items con UOMs SAT...")
+		print("\n📦 Verificando Items con UOMs SAT...")
 
 		# Buscar items existentes con UOMs SAT
 		items_with_sat = frappe.get_all(
@@ -60,10 +60,10 @@ def run():
 			print(f"   - {item.item_code}: {item.stock_uom}")
 
 		# 5. Estado final
-		print(f"\n📊 RESUMEN TESTING:")
+		print("\n📊 RESUMEN TESTING:")
 		print(f"   ✅ UOMs SAT activas: {len(sat_uoms)}")
-		print(f"   ✅ Validación formato: Funcionando")
-		print(f"   ✅ Detección errores: Funcionando")
+		print("   ✅ Validación formato: Funcionando")
+		print("   ✅ Detección errores: Funcionando")
 		print(f"   ✅ Items compatibles: {len(items_with_sat)}")
 
 		return {
@@ -74,5 +74,5 @@ def run():
 		}
 
 	except Exception as e:
-		print(f"💥 Error en testing: {str(e)}")
+		print(f"💥 Error en testing: {e!s}")
 		return {"success": False, "error": str(e)}

@@ -6,8 +6,9 @@ Layer 2 Certificates Branch Integration Tests
 Tests de integración para manejo de certificados por sucursal para addendas
 """
 
-import frappe
 import unittest
+
+import frappe
 
 
 class TestLayer2CertificatesBranchIntegration(unittest.TestCase):

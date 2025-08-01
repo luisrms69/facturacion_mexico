@@ -25,7 +25,7 @@ def run():
 				deleted += 1
 				print(f"🗑️  Eliminado: UOM-{field_name}")
 		except Exception as e:
-			print(f"⚠️  Error eliminando {field_name}: {str(e)}")
+			print(f"⚠️  Error eliminando {field_name}: {e!s}")
 
 	if deleted > 0:
 		frappe.db.commit()

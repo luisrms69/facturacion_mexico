@@ -6,8 +6,9 @@ Layer 2 Motor de Reglas Integration Tests
 Tests de integración para el motor de reglas CFDI 4.0 Sprint 6
 """
 
-import frappe
 import unittest
+
+import frappe
 
 
 class TestLayer2MotorReglas(unittest.TestCase):
@@ -128,7 +129,7 @@ class TestLayer2MotorReglas(unittest.TestCase):
             """, as_dict=True)
 
             self.assertIsInstance(cfdi_40_rules, list)
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 2
             pass
 
@@ -147,7 +148,7 @@ class TestLayer2MotorReglas(unittest.TestCase):
             """, as_dict=True)
 
             self.assertIsInstance(severity_levels, list)
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 2
             pass
 
@@ -165,7 +166,7 @@ class TestLayer2MotorReglas(unittest.TestCase):
             """, as_dict=True)
 
             self.assertIsInstance(rule_types, list)
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 2
             pass
 
@@ -184,7 +185,7 @@ class TestLayer2MotorReglas(unittest.TestCase):
             """, as_dict=True)
 
             self.assertIsInstance(error_codes, list)
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 2
             pass
 
@@ -218,7 +219,7 @@ class TestLayer2MotorReglas(unittest.TestCase):
             si_events = doc_events.get('Sales Invoice', {})
             validation_hooks = []
 
-            for event, handlers in si_events.items():
+            for _event, handlers in si_events.items():
                 if isinstance(handlers, list):
                     validation_hooks.extend([h for h in handlers if 'validat' in h.lower()])
                 elif isinstance(handlers, str) and 'validat' in handlers.lower():
@@ -226,7 +227,7 @@ class TestLayer2MotorReglas(unittest.TestCase):
 
             # Solo verificamos que la estructura existe
             self.assertIsInstance(validation_hooks, list)
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 2
             pass
 

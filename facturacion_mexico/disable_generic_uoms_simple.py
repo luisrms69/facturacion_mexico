@@ -42,7 +42,7 @@ def run():
 		remaining_generic = frappe.db.count("UOM", {"uom_name": ["not like", "% - %"], "enabled": 1})
 		sat_active = frappe.db.count("UOM", {"uom_name": ["like", "% - %"], "enabled": 1})
 
-		print(f"✅ Desactivación completada:")
+		print("✅ Desactivación completada:")
 		print(f"   UOMs desactivadas: {disabled_count}")
 		print(f"   UOMs genéricas restantes: {remaining_generic}")
 		print(f"   UOMs SAT activas: {sat_active}")
@@ -55,5 +55,5 @@ def run():
 		}
 
 	except Exception as e:
-		print(f"💥 Error: {str(e)}")
+		print(f"💥 Error: {e!s}")
 		return {"success": False, "error": str(e)}

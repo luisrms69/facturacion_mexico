@@ -60,7 +60,7 @@ def run():
 
 	frappe.db.commit()
 
-	print(f"\n📊 RESUMEN:")
+	print("\n📊 RESUMEN:")
 	print(f"   Creadas: {created}")
 	print(f"   Actualizadas: {updated}")
 

@@ -6,15 +6,16 @@ Layer 4 Sprint 6 Disaster Recovery Tests
 Tests específicos de recuperación ante desastres para sistema Multi-Sucursal
 """
 
-import frappe
-import unittest
-from datetime import datetime, timedelta
 import json
-import time
+import os
 import shutil
 import tempfile
-import os
-from unittest.mock import patch, MagicMock
+import time
+import unittest
+from datetime import datetime, timedelta
+from unittest.mock import MagicMock, patch
+
+import frappe
 
 
 class TestLayer4Sprint6DisasterRecovery(unittest.TestCase):
@@ -390,9 +391,9 @@ class TestLayer4Sprint6DisasterRecovery(unittest.TestCase):
         }
 
         try:
-            for i, customer in enumerate(customers):
+            for i, _customer in enumerate(customers):
                 if backup_branches:
-                    target_branch = backup_branches[i % len(backup_branches)]
+                    backup_branches[i % len(backup_branches)]
                     # Simular redireccionamiento
                     time.sleep(0.01)
                     results["redirected"] += 1
@@ -604,7 +605,7 @@ class TestLayer4Sprint6DisasterRecovery(unittest.TestCase):
         try:
             # Simular restore
             time.sleep(0.5)
-            return f"Restore automático completado desde backups"
+            return "Restore automático completado desde backups"
         except Exception as e:
             return f"ERROR en restore: {e}"
 

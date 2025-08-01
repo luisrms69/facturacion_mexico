@@ -128,7 +128,6 @@ fixtures = [
 					"Item-fm_clasificacion_sat_section",
 					"Item-fm_producto_servicio_sat",
 					"Item-fm_column_break_item_sat",
-					"Item-fm_unidad_sat",
 					# Payment Entry custom fields (5 campos)
 					"Payment Entry-fm_complement_generated",
 					"Payment Entry-fm_complemento_pago",

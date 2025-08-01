@@ -6,10 +6,11 @@ Layer 3 Addenda Validation End-to-End Tests
 Tests end-to-end de validación completa de addendas por sucursal Sprint 6
 """
 
-import frappe
 import unittest
-from datetime import datetime, timedelta
 import xml.etree.ElementTree as ET
+from datetime import datetime, timedelta
+
+import frappe
 
 
 class TestLayer3AddendaValidationEndToEnd(unittest.TestCase):
@@ -384,7 +385,7 @@ class TestLayer3AddendaValidationEndToEnd(unittest.TestCase):
         avg_time = sum(r["time"] for r in performance_results) / len(performance_results)
         max_time = max(r["time"] for r in performance_results)
 
-        print(f"\nRendimiento Addenda Validation:")
+        print("\nRendimiento Addenda Validation:")
         print(f"  Tiempo promedio: {avg_time:.3f}s")
         print(f"  Tiempo máximo: {max_time:.3f}s")
 
@@ -653,7 +654,7 @@ class TestLayer3AddendaValidationEndToEnd(unittest.TestCase):
             except Exception:
                 pass
             # Último fallback
-            return f"Sales - TC"
+            return "Sales - TC"
 
     # =================== MÉTODOS DE VALIDACIÓN ===================
 
@@ -728,7 +729,7 @@ class TestLayer3AddendaValidationEndToEnd(unittest.TestCase):
 
             for module_path in generator_modules:
                 try:
-                    module = __import__(module_path, fromlist=[''])
+                    __import__(module_path, fromlist=[''])
                     return f"Generador disponible: {module_path}"
                 except ImportError:
                     continue
@@ -756,7 +757,7 @@ class TestLayer3AddendaValidationEndToEnd(unittest.TestCase):
     def validate_addenda_type_specific_rules(self, sales_invoice, addenda_config):
         """Validar reglas específicas por tipo de addenda"""
         try:
-            si_doc = frappe.get_doc("Sales Invoice", sales_invoice)
+            frappe.get_doc("Sales Invoice", sales_invoice)
 
             validation_results = []
 

@@ -6,10 +6,11 @@ Layer 3 CFDI Multi-Sucursal Generation Workflows Tests
 Tests end-to-end de workflows de generación CFDI con contexto Multi-Sucursal Sprint 6
 """
 
-import frappe
+import json
 import unittest
 from datetime import datetime, timedelta
-import json
+
+import frappe
 
 
 class TestLayer3CFDIMultiSucursalGenerationWorkflows(unittest.TestCase):
@@ -465,10 +466,9 @@ class TestLayer3CFDIMultiSucursalGenerationWorkflows(unittest.TestCase):
                     "item_code": item_code,
                     "item_name": item_code,
                     "item_group": "All Item Groups",
-                    "stock_uom": "Nos",
+                    "stock_uom": "ACT - Actividad",  # SAT UOM format
                     "is_stock_item": 0,
-                    "fm_producto_servicio_sat": "01010101",  # Código SAT
-                    "fm_unidad_sat": "ACT"  # Actividad
+                    "fm_producto_servicio_sat": "01010101"  # Código SAT
                 }
 
                 item = frappe.get_doc(item_data)
@@ -526,10 +526,9 @@ class TestLayer3CFDIMultiSucursalGenerationWorkflows(unittest.TestCase):
                 "item_code": item_code,
                 "item_name": item_code,
                 "item_group": "All Item Groups",
-                "stock_uom": "Nos",
+                "stock_uom": "ACT - Actividad",  # SAT UOM format
                 "is_stock_item": 0,
                 "fm_producto_servicio_sat": "01010101",
-                "fm_unidad_sat": "ACT",
                 "fm_tax_type": tax_type,
                 "fm_tax_rate": tax_rate
             }
@@ -656,7 +655,7 @@ class TestLayer3CFDIMultiSucursalGenerationWorkflows(unittest.TestCase):
             except Exception:
                 pass
             # Último fallback
-            return f"Sales - TC"
+            return "Sales - TC"
 
 # =================== MÉTODOS DE VALIDACIÓN ===================
 
@@ -714,7 +713,7 @@ class TestLayer3CFDIMultiSucursalGenerationWorkflows(unittest.TestCase):
 
             for module_path in timbrado_modules:
                 try:
-                    module = __import__(module_path, fromlist=[''])
+                    __import__(module_path, fromlist=[''])
                     return f"Módulo de timbrado disponible: {module_path}"
                 except ImportError:
                     continue

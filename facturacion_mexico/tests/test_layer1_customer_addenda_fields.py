@@ -6,8 +6,9 @@ Layer 1 Customer Addenda Custom Fields Tests
 Tests básicos para verificar Custom Fields de Customer y Sales Invoice para Addendas Sprint 6
 """
 
-import frappe
 import unittest
+
+import frappe
 
 
 class TestLayer1CustomerAddendaFields(unittest.TestCase):

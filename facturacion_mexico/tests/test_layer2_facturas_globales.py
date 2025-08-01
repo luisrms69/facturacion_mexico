@@ -6,8 +6,9 @@ Layer 2 Facturas Globales Integration Tests
 Tests de integración para el sistema de facturas globales Sprint 6
 """
 
-import frappe
 import unittest
+
+import frappe
 
 
 class TestLayer2FacturasGlobales(unittest.TestCase):
@@ -129,7 +130,7 @@ class TestLayer2FacturasGlobales(unittest.TestCase):
             """, as_dict=True)
 
             self.assertIsInstance(periods, list)
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 2
             pass
 
@@ -147,7 +148,7 @@ class TestLayer2FacturasGlobales(unittest.TestCase):
             """, as_dict=True)
 
             self.assertIsInstance(settings, list)
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 2
             pass
 
@@ -185,7 +186,7 @@ class TestLayer2FacturasGlobales(unittest.TestCase):
             """, as_dict=True)
 
             self.assertIsInstance(company_stats, list)
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 2
             pass
 
@@ -198,11 +199,11 @@ class TestLayer2FacturasGlobales(unittest.TestCase):
 
             # Verificar si hay eventos relacionados con facturas globales
             all_scheduled_methods = []
-            for frequency, methods in scheduler_events.items():
+            for _frequency, methods in scheduler_events.items():
                 all_scheduled_methods.extend(methods)
 
             self.assertIsInstance(all_scheduled_methods, list)
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 2
             pass
 

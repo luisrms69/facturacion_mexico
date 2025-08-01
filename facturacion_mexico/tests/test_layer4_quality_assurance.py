@@ -6,11 +6,12 @@ Layer 4 Quality Assurance Tests
 Tests de aseguramiento de calidad y validación final Sprint 6
 """
 
-import frappe
-import unittest
-import time
 import re
-from unittest.mock import patch, MagicMock
+import time
+import unittest
+from unittest.mock import MagicMock, patch
+
+import frappe
 
 
 class TestLayer4QualityAssurance(unittest.TestCase):
@@ -117,7 +118,7 @@ class TestLayer4QualityAssurance(unittest.TestCase):
             self.assertGreaterEqual(len(quality_standards), 3,
                                   "Sistema debe cumplir estándares de calidad del código")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 4 QA
             pass
 
@@ -131,7 +132,7 @@ class TestLayer4QualityAssurance(unittest.TestCase):
             # Test 1: Response time consistency
             response_times = []
 
-            for i in range(15):
+            for _i in range(15):
                 start_time = time.time()
                 try:
                     ux_response_test = frappe.db.sql("""
@@ -234,7 +235,7 @@ class TestLayer4QualityAssurance(unittest.TestCase):
             self.assertGreaterEqual(len(ux_validation), 3,
                                   "Sistema debe cumplir estándares de experiencia de usuario")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 4 QA
             pass
 
@@ -349,7 +350,7 @@ class TestLayer4QualityAssurance(unittest.TestCase):
             self.assertGreaterEqual(len(business_logic), 3,
                                   "Sistema debe tener lógica de negocio correcta")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 4 QA
             pass
 
@@ -466,7 +467,7 @@ class TestLayer4QualityAssurance(unittest.TestCase):
             self.assertGreaterEqual(len(integration_completeness), 3,
                                   "Sistema debe tener integración completa entre módulos")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 4 QA
             pass
 
@@ -550,7 +551,7 @@ class TestLayer4QualityAssurance(unittest.TestCase):
 
             # Test concurrency benchmark
             concurrent_success = 0
-            for i in range(10):
+            for _i in range(10):
                 try:
                     concurrent_test = frappe.db.sql("SELECT 1 as test", as_dict=True)
                     if concurrent_test:
@@ -601,7 +602,7 @@ class TestLayer4QualityAssurance(unittest.TestCase):
                 self.assertGreaterEqual(overall_health_score, 2.0,
                                       "Sistema debe tener salud general aceptable para producción")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 4 QA final
             pass
 

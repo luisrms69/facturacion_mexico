@@ -10,14 +10,14 @@ def run():
 		# 1. Primero desactivar UOM Conversion Factors que involucren UOMs genéricas
 		print("   Desactivando UOM Conversion Factors genéricos...")
 
-		conversions_disabled = frappe.db.sql("""
+		frappe.db.sql("""
             UPDATE `tabUOM Conversion Factor`
             SET disabled = 1
             WHERE (from_uom NOT LIKE '% - %' OR to_uom NOT LIKE '% - %')
             AND disabled = 0
         """)
 
-		print(f"   ✅ UOM Conversion Factors desactivados")
+		print("   ✅ UOM Conversion Factors desactivados")
 
 		# 2. Desactivar UOMs genéricas (que no tienen formato SAT)
 		print("   Desactivando UOMs genéricas...")
@@ -47,7 +47,7 @@ def run():
 		# 3. Commit cambios
 		frappe.db.commit()
 
-		print(f"✅ Desactivación completada:")
+		print("✅ Desactivación completada:")
 		print(f"   UOMs desactivadas: {disabled_count}")
 		print(f"   UOMs SAT activas: {frappe.db.count('UOM', {'uom_name': ['like', '% - %'], 'enabled': 1})}")
 
@@ -58,6 +58,6 @@ def run():
 		}
 
 	except Exception as e:
-		frappe.log_error(f"Error desactivando UOMs genéricas: {str(e)}", "UOM SAT Disable")
-		print(f"💥 Error desactivando UOMs: {str(e)}")
+		frappe.log_error(f"Error desactivando UOMs genéricas: {e!s}", "UOM SAT Disable")
+		print(f"💥 Error desactivando UOMs: {e!s}")
 		return {"success": False, "error": str(e)}

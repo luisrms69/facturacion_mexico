@@ -6,8 +6,9 @@ Layer 2 UOM SAT Integration Tests
 Tests de integración para el sistema UOM SAT Sprint 6
 """
 
-import frappe
 import unittest
+
+import frappe
 
 
 class TestLayer2UOMSAT(unittest.TestCase):
@@ -99,7 +100,7 @@ class TestLayer2UOMSAT(unittest.TestCase):
             """, as_dict=True)
 
             self.assertIsInstance(mapping_stats, list)
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 2
             pass
 
@@ -148,7 +149,7 @@ class TestLayer2UOMSAT(unittest.TestCase):
         # Si hay campos UOM, verificar integración
         if item_uom_fields:
             field_names = [f.fieldname for f in item_uom_fields]
-            expected_fields = ["unidad_sat"]
+            expected_fields = ["fm_unidad_sat"]  # Temporal - será eliminado después de migración
 
             for field in expected_fields:
                 if field in field_names:
@@ -169,7 +170,7 @@ class TestLayer2UOMSAT(unittest.TestCase):
             """, as_dict=True)
 
             self.assertIsInstance(valid_codes, list)
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 2
             pass
 
@@ -187,7 +188,7 @@ class TestLayer2UOMSAT(unittest.TestCase):
             """, as_dict=True)
 
             self.assertIsInstance(auto_mappings, list)
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 2
             pass
 
@@ -216,7 +217,7 @@ class TestLayer2UOMSAT(unittest.TestCase):
             """, as_dict=True)
 
             self.assertIsInstance(catalog_diversity, list)
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 2
             pass
 
@@ -233,7 +234,7 @@ class TestLayer2UOMSAT(unittest.TestCase):
             """, as_dict=True)
 
             self.assertIsInstance(items_with_uom, list)
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 2
             pass
 

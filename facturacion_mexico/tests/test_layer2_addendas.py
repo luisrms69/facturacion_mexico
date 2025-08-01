@@ -6,8 +6,9 @@ Layer 2 Addendas Integration Tests
 Tests de integración para el sistema de addendas Sprint 6
 """
 
-import frappe
 import unittest
+
+import frappe
 
 
 class TestLayer2Addendas(unittest.TestCase):
@@ -72,7 +73,7 @@ class TestLayer2Addendas(unittest.TestCase):
         """Test: Integración de módulos de custom fields de addendas"""
         try:
             from facturacion_mexico.addendas.custom_fields.customer_addenda_fields import (
-                create_customer_addenda_fields
+                create_customer_addenda_fields,
             )
             self.assertIsNotNone(create_customer_addenda_fields)
         except ImportError:

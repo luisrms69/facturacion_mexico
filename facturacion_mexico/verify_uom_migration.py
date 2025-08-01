@@ -20,9 +20,9 @@ def run():
 	# Verificar fixtures generados
 	fixtures_path = "/home/erpnext/frappe-bench/apps/facturacion_mexico/facturacion_mexico/fixtures/uom.json"
 	if os.path.exists(fixtures_path):
-		print(f"✅ Fixtures UOM generados: uom.json")
+		print("✅ Fixtures UOM generados: uom.json")
 		# Contar líneas del archivo
-		with open(fixtures_path, "r") as f:
+		with open(fixtures_path) as f:
 			lines = len(f.readlines())
 		print(f"📄 Tamaño fixtures: {lines} líneas")
 	else:

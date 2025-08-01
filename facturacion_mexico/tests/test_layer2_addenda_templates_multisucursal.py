@@ -6,8 +6,9 @@ Layer 2 Addenda Templates Multi-Sucursal Integration Tests
 Tests de integración para templates de addenda que incluyen variables de sucursal
 """
 
-import frappe
 import unittest
+
+import frappe
 
 
 class TestLayer2AddendaTemplatesMultiSucursal(unittest.TestCase):
@@ -54,14 +55,6 @@ class TestLayer2AddendaTemplatesMultiSucursal(unittest.TestCase):
         # Verificar que los templates pueden incluir variables de sucursal
 
         # Variables esperadas que los templates deberían soportar
-        expected_branch_variables = [
-            "branch_name",
-            "lugar_expedicion",
-            "serie_fiscal",
-            "folio_fiscal",
-            "branch_code",
-            "sucursal"
-        ]
 
         # Verificar si existe documentación o ejemplos de variables
         template_doctypes = ["Addenda Template", "Addenda Type", "Addenda Configuration"]
@@ -206,7 +199,7 @@ class TestLayer2AddendaTemplatesMultiSucursal(unittest.TestCase):
         available_preprocessors = []
         for module_path in preprocessing_modules:
             try:
-                module = __import__(module_path, fromlist=[''])
+                __import__(module_path, fromlist=[''])
                 available_preprocessors.append(module_path)
             except ImportError:
                 continue
@@ -256,7 +249,7 @@ class TestLayer2AddendaTemplatesMultiSucursal(unittest.TestCase):
         xml_validators = []
         for module_path in validation_modules:
             try:
-                module = __import__(module_path, fromlist=[''])
+                __import__(module_path, fromlist=[''])
                 xml_validators.append(module_path)
             except ImportError:
                 continue
@@ -268,7 +261,6 @@ class TestLayer2AddendaTemplatesMultiSucursal(unittest.TestCase):
             try:
                 import xml.etree.ElementTree as ET
                 # Test XML simple con variable de sucursal
-                test_xml = """<addenda><sucursal>{{branch_name}}</sucursal></addenda>"""
                 # Esto no debería fallar el parseo básico (las variables se resuelven después)
                 print("✓ Validación XML básica funcional")
             except Exception as e:

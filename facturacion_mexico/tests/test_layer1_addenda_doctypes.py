@@ -6,8 +6,9 @@ Layer 1 Addenda DocTypes Tests
 Tests básicos para verificar DocTypes del sistema de Addendas Sprint 6
 """
 
-import frappe
 import unittest
+
+import frappe
 
 
 class TestLayer1AddendaDocTypes(unittest.TestCase):

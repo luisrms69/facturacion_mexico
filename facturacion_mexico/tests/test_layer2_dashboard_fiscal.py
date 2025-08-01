@@ -6,8 +6,9 @@ Layer 2 Dashboard Fiscal Integration Tests
 Tests de integración para el dashboard fiscal Sprint 6
 """
 
-import frappe
 import unittest
+
+import frappe
 
 
 class TestLayer2DashboardFiscal(unittest.TestCase):
@@ -167,7 +168,7 @@ class TestLayer2DashboardFiscal(unittest.TestCase):
                 """, as_dict=True)
 
                 self.assertIsInstance(factor_types, list)
-            except Exception as e:
+            except Exception:
                 # Error no crítico para Layer 2
                 pass
 
@@ -185,7 +186,7 @@ class TestLayer2DashboardFiscal(unittest.TestCase):
             """, as_dict=True)
 
             self.assertIsInstance(recommendations, list)
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 2
             pass
 
@@ -202,7 +203,7 @@ class TestLayer2DashboardFiscal(unittest.TestCase):
             """, as_dict=True)
 
             self.assertIsInstance(preferences, list)
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 2
             pass
 

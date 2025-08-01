@@ -25,7 +25,7 @@ def run():
 
 		# 2. Verificar orden de campos en Item
 		meta = frappe.get_meta("Item")
-		print(f"\n📊 POSICIÓN EN ITEM META:")
+		print("\n📊 POSICIÓN EN ITEM META:")
 
 		# Buscar campos alrededor del fm_producto_servicio_sat
 		found_field = False
@@ -48,7 +48,7 @@ def run():
 		sections = [f for f in meta.fields if f.fieldtype == "Section Break"]
 		tabs = [f for f in meta.fields if f.fieldtype == "Tab Break"]
 
-		print(f"\n📁 ESTRUCTURA UI:")
+		print("\n📁 ESTRUCTURA UI:")
 		print(f"   Secciones: {len(sections)}")
 		print(f"   Tabs: {len(tabs)}")
 
@@ -62,12 +62,12 @@ def run():
 				break
 
 		# 4. Verificar permisos
-		print(f"\n🔐 PERMISOS:")
+		print("\n🔐 PERMISOS:")
 		roles = frappe.get_roles()
 		print(f"   Roles usuario: {roles[:3]}...")
 
 		# 5. Probar crear un Item para ver si aparece
-		print(f"\n🧪 TEST CREACIÓN ITEM:")
+		print("\n🧪 TEST CREACIÓN ITEM:")
 		test_meta = frappe.get_meta("Item")
 		visible_fields = [
 			f.fieldname
@@ -88,5 +88,5 @@ def run():
 		}
 
 	except Exception as e:
-		print(f"💥 Error: {str(e)}")
+		print(f"💥 Error: {e!s}")
 		return {"success": False, "error": str(e)}

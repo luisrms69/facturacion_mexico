@@ -6,8 +6,9 @@ Layer 1 Multi Sucursal DocTypes Tests
 Tests básicos para verificar DocTypes del sistema Multi-Sucursal Sprint 6
 """
 
-import frappe
 import unittest
+
+import frappe
 
 
 class TestLayer1MultiSucursalDocTypes(unittest.TestCase):
@@ -133,7 +134,9 @@ class TestLayer1MultiSucursalDocTypes(unittest.TestCase):
 		"""Test: Métodos principales del DocType están disponibles"""
 		try:
 			# Importar la clase del DocType
-			from facturacion_mexico.multi_sucursal.doctype.configuracion_fiscal_sucursal.configuracion_fiscal_sucursal import ConfiguracionFiscalSucursal
+			from facturacion_mexico.multi_sucursal.doctype.configuracion_fiscal_sucursal.configuracion_fiscal_sucursal import (
+				ConfiguracionFiscalSucursal,
+			)
 
 			# Verificar que la clase existe
 			self.assertIsNotNone(ConfiguracionFiscalSucursal)
