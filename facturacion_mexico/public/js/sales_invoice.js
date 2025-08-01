@@ -8,11 +8,27 @@ frappe.ui.form.on("Sales Invoice", {
 
 		// Actualizar estado visual del timbrado
 		update_fiscal_status_display(frm);
+
+		// Convertir método de pago SAT a radio buttons
+		convert_payment_method_to_radio(frm);
 	},
 
 	onload: function (frm) {
 		// Configurar campos fiscales
 		setup_fiscal_fields(frm);
+
+		// Convertir método de pago SAT a radio buttons
+		convert_payment_method_to_radio(frm);
+	},
+
+	customer: function (frm) {
+		// Auto-asignar uso CFDI default cuando se selecciona cliente
+		auto_assign_cfdi_use_default(frm);
+	},
+
+	fm_payment_method_sat: function (frm) {
+		// Sincronizar radio buttons cuando el campo cambie programáticamente
+		sync_radio_buttons_with_field(frm);
 	},
 });
 
@@ -287,5 +303,182 @@ function update_fiscal_status_display(frm) {
 	// Actualizar el indicador en el dashboard si existe
 	if (frm.dashboard && frm.dashboard.add_indicator) {
 		frm.dashboard.add_indicator(__("Estado Fiscal: {0}", [status_text]), indicator_color);
+	}
+}
+
+function auto_assign_cfdi_use_default(frm) {
+	// Solo procesar si hay cliente seleccionado
+	if (!frm.doc.customer) {
+		return;
+	}
+
+	// Obtener uso CFDI default del cliente
+	frappe.db
+		.get_value("Customer", frm.doc.customer, "fm_uso_cfdi_default")
+		.then((r) => {
+			if (r.message && r.message.fm_uso_cfdi_default) {
+				// Solo asignar si el campo está vacío
+				if (!frm.doc.fm_cfdi_use) {
+					frm.set_value("fm_cfdi_use", r.message.fm_uso_cfdi_default);
+
+					// Mostrar mensaje informativo
+					frappe.show_alert({
+						message: __("Uso CFDI asignado automáticamente desde Cliente"),
+						indicator: "green",
+					});
+				}
+			} else {
+				// Cliente no tiene default, limpiar campo si venía de otro cliente
+				if (frm.doc.fm_cfdi_use && frm._previous_customer) {
+					frm.set_value("fm_cfdi_use", "");
+					frappe.show_alert({
+						message: __("Cliente sin Uso CFDI default - campo limpiado"),
+						indicator: "blue",
+					});
+				}
+			}
+
+			// Recordar el cliente actual para comparaciones futuras
+			frm._previous_customer = frm.doc.customer;
+		})
+		.catch((err) => {
+			// Error silencioso, no interrumpir el flujo
+			console.log("Error obteniendo uso CFDI default:", err);
+		});
+}
+
+function convert_payment_method_to_radio(frm) {
+	// Solo procesar si el campo existe y el form no está en modo de solo lectura
+	const field = frm.get_field("fm_payment_method_sat");
+	if (!field || !field.$wrapper) {
+		return;
+	}
+
+	// No convertir si el documento está submitted (solo lectura)
+	if (frm.doc.docstatus === 1) {
+		return;
+	}
+
+	// Esperar un momento para que el DOM esté completamente cargado
+	setTimeout(() => {
+		setup_radio_buttons(frm, field);
+	}, 100);
+}
+
+function setup_radio_buttons(frm, field) {
+	// Obtener valor actual
+	const current_value = frm.doc.fm_payment_method_sat || "PUE";
+
+	// Crear HTML de radio buttons con estilos mejorados
+	const radio_html = `
+		<div class="payment-method-radio-container" style="padding: 8px 0;">
+			<div class="radio-group" style="display: flex; gap: 20px; align-items: center;">
+				<label class="radio-option" style="display: flex; align-items: center; cursor: pointer; font-weight: normal; margin-bottom: 0;">
+					<input type="radio" name="fm_payment_method_sat_radio" value="PUE"
+						   ${current_value === "PUE" ? "checked" : ""}
+						   style="margin-right: 8px; transform: scale(1.2);">
+					<span style="font-size: 14px;">
+						<strong>PUE</strong> - Pago en una exhibición
+					</span>
+				</label>
+				<label class="radio-option" style="display: flex; align-items: center; cursor: pointer; font-weight: normal; margin-bottom: 0;">
+					<input type="radio" name="fm_payment_method_sat_radio" value="PPD"
+						   ${current_value === "PPD" ? "checked" : ""}
+						   style="margin-right: 8px; transform: scale(1.2);">
+					<span style="font-size: 14px;">
+						<strong>PPD</strong> - Pago en parcialidades o diferido
+					</span>
+				</label>
+			</div>
+		</div>
+	`;
+
+	// Reemplazar el contenido del select con los radio buttons
+	const $control_input = field.$wrapper.find(".control-input");
+	if ($control_input.length) {
+		// Ocultar el select original y añadir los radio buttons
+		$control_input.find("select").hide();
+
+		// Remover radio buttons previos si existen
+		$control_input.find(".payment-method-radio-container").remove();
+
+		// Añadir los radio buttons
+		$control_input.append(radio_html);
+
+		// Manejar cambios en los radio buttons
+		$control_input.find('input[type="radio"]').on("change", function () {
+			const selected_value = $(this).val();
+
+			// Actualizar el campo en el documento
+			frm.set_value("fm_payment_method_sat", selected_value);
+
+			// Mostrar feedback visual
+			frappe.show_alert({
+				message: __("Método de pago actualizado: {0}", [
+					selected_value === "PUE"
+						? "PUE - Pago en una exhibición"
+						: "PPD - Pago en parcialidades",
+				]),
+				indicator: "blue",
+			});
+		});
+
+		// Añadir estilos CSS personalizados si no existen
+		add_radio_button_styles();
+	}
+}
+
+function add_radio_button_styles() {
+	// Añadir estilos CSS una sola vez
+	if (!document.getElementById("payment-method-radio-styles")) {
+		const style = document.createElement("style");
+		style.id = "payment-method-radio-styles";
+		style.textContent = `
+			.payment-method-radio-container .radio-option:hover {
+				background-color: #f8f9fa;
+				border-radius: 4px;
+				padding: 4px 8px;
+				transition: background-color 0.2s ease;
+			}
+
+			.payment-method-radio-container input[type="radio"]:checked + span {
+				color: #007bff;
+				font-weight: 600;
+			}
+
+			.payment-method-radio-container input[type="radio"] {
+				accent-color: #007bff;
+			}
+
+			.payment-method-radio-container .radio-group {
+				border: 1px solid #e9ecef;
+				border-radius: 6px;
+				padding: 12px 16px;
+				background-color: #ffffff;
+			}
+		`;
+		document.head.appendChild(style);
+	}
+}
+
+function sync_radio_buttons_with_field(frm) {
+	// Sincronizar radio buttons cuando el campo cambie programáticamente
+	const field = frm.get_field("fm_payment_method_sat");
+	if (!field || !field.$wrapper) {
+		return;
+	}
+
+	const current_value = frm.doc.fm_payment_method_sat || "PUE";
+	const $radio_buttons = field.$wrapper.find('input[name="fm_payment_method_sat_radio"]');
+
+	if ($radio_buttons.length) {
+		// Actualizar el estado de los radio buttons
+		$radio_buttons.each(function () {
+			$(this).prop("checked", $(this).val() === current_value);
+		});
+
+		// Actualizar estilos visuales
+		field.$wrapper.find(".radio-option span").removeClass("active");
+		field.$wrapper.find(`input[value="${current_value}"] + span`).addClass("active");
 	}
 }

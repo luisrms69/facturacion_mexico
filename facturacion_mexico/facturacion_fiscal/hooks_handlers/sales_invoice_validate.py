@@ -13,6 +13,9 @@ def validate_fiscal_data(doc, method):
 	if not _should_validate_fiscal_data(doc):
 		return
 
+	# Auto-asignar uso CFDI default si es necesario
+	_auto_assign_cfdi_use_default(doc)
+
 	# Validar cliente con RFC
 	_validate_customer_rfc(doc)
 
@@ -64,16 +67,25 @@ def _validate_customer_rfc(doc):
 		frappe.throw(_("No se puede usar RFC genérico para facturación fiscal"))
 
 
+def _auto_assign_cfdi_use_default(doc):
+	"""Auto-asignar uso CFDI default desde Customer si no está definido."""
+	# Solo asignar si el campo está vacío y hay cliente
+	if not doc.fm_cfdi_use and doc.customer:
+		try:
+			customer = frappe.get_doc("Customer", doc.customer)
+			if customer.fm_uso_cfdi_default:
+				doc.fm_cfdi_use = customer.fm_uso_cfdi_default
+				frappe.logger().info(
+					f"Auto-asignado uso CFDI '{customer.fm_uso_cfdi_default}' para factura {doc.name}"
+				)
+		except Exception as e:
+			frappe.logger().error(f"Error auto-asignando uso CFDI default: {e}")
+
+
 def _validate_cfdi_use(doc):
 	"""Validar uso de CFDI - OBLIGATORIO para todas las facturas."""
 
-	# 1. Auto-asignar default SOLO si Customer tiene uno configurado
-	if not doc.fm_cfdi_use and doc.customer:
-		customer = frappe.get_doc("Customer", doc.customer)
-		if customer.fm_uso_cfdi_default:
-			doc.fm_cfdi_use = customer.fm_uso_cfdi_default
-
-	# 2. VALIDACIÓN BLOQUEANTE: Uso CFDI es OBLIGATORIO
+	# 1. VALIDACIÓN BLOQUEANTE: Uso CFDI es OBLIGATORIO
 	if not doc.fm_cfdi_use:
 		frappe.throw(
 			_(
@@ -82,11 +94,11 @@ def _validate_cfdi_use(doc):
 			)
 		)
 
-	# 3. Validar que el uso de CFDI existe en catálogo SAT
+	# 2. Validar que el uso de CFDI existe en catálogo SAT
 	if not frappe.db.exists("Uso CFDI SAT", doc.fm_cfdi_use):
 		frappe.throw(_("El Uso de CFDI '{0}' no existe en el catálogo SAT").format(doc.fm_cfdi_use))
 
-	# 4. Validar que el uso de CFDI está activo
+	# 3. Validar que el uso de CFDI está activo
 	uso_cfdi = frappe.get_doc("Uso CFDI SAT", doc.fm_cfdi_use)
 	if not uso_cfdi.is_active():
 		frappe.throw(_("El Uso de CFDI '{0}' no está activo en el catálogo SAT").format(doc.fm_cfdi_use))
