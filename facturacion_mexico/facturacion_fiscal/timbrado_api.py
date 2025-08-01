@@ -222,8 +222,18 @@ class TimbradoAPI:
 				}
 			)
 
-		# Obtener forma de pago desde Sales Invoice
+		# Obtener forma de pago desde Factura Fiscal Mexico
 		payment_form = self._get_payment_form_for_invoice(sales_invoice)
+
+		# Obtener uso CFDI desde Factura Fiscal Mexico
+		fiscal_doc = self._get_factura_fiscal_doc(sales_invoice)
+		cfdi_use = fiscal_doc.get("fm_cfdi_use") if fiscal_doc else sales_invoice.get("fm_cfdi_use")
+
+		if not cfdi_use:
+			frappe.throw(
+				_("No se puede timbrar: falta configurar el Uso CFDI en los datos fiscales."),
+				title=_("Uso CFDI Requerido"),
+			)
 
 		# Datos de la factura
 		invoice_data = {
@@ -232,7 +242,7 @@ class TimbradoAPI:
 			"payment_form": payment_form,
 			"folio_number": branch_data.get("folio_number", sales_invoice.name),
 			"series": branch_data.get("series", "F"),
-			"use": sales_invoice.fm_cfdi_use,
+			"use": cfdi_use,
 		}
 
 		# Sprint 6 Phase 2: Agregar datos específicos de sucursal
@@ -246,30 +256,51 @@ class TimbradoAPI:
 
 	def _get_payment_form_for_invoice(self, sales_invoice) -> str:
 		"""
-		Obtener forma de pago SAT para timbrado desde Sales Invoice.
-		Prioriza fm_forma_pago_timbrado del Sales Invoice sobre lógica de método.
+		Obtener forma de pago SAT para timbrado desde Factura Fiscal Mexico.
+		NUEVA ARQUITECTURA: Lee datos fiscales desde documento separado.
 		"""
-		# Prioridad 1: Campo fm_forma_pago_timbrado del Sales Invoice
-		if hasattr(sales_invoice, "fm_forma_pago_timbrado") and sales_invoice.fm_forma_pago_timbrado:
+		# Obtener documento Factura Fiscal Mexico
+		fiscal_doc = self._get_factura_fiscal_doc(sales_invoice)
+		if not fiscal_doc:
+			frappe.throw(
+				_(
+					"No se puede timbrar: no existe documento fiscal asociado. "
+					"Configure los datos fiscales primero."
+				),
+				title=_("Documento Fiscal Requerido"),
+			)
+
+		# Prioridad 1: Campo fm_forma_pago_timbrado de Factura Fiscal Mexico
+		if fiscal_doc.get("fm_forma_pago_timbrado"):
 			# Extraer código SAT del formato "01 - Efectivo"
-			mode_parts = sales_invoice.fm_forma_pago_timbrado.split(" - ")
+			mode_parts = fiscal_doc.fm_forma_pago_timbrado.split(" - ")
 			if len(mode_parts) >= 2 and mode_parts[0].strip().isdigit():
 				return mode_parts[0].strip()
 
 		# Prioridad 2: Lógica basada en método de pago SAT SOLO para PPD
-		if hasattr(sales_invoice, "fm_payment_method_sat"):
-			if sales_invoice.fm_payment_method_sat == "PPD":
+		if fiscal_doc.get("fm_payment_method_sat"):
+			if fiscal_doc.fm_payment_method_sat == "PPD":
 				# PPD siempre usa "99 - Por definir"
 				return "99"
 
 		# Si no hay forma de pago definida, lanzar error - NO usar defaults
 		frappe.throw(
 			_(
-				"No se puede timbrar: falta definir la forma de pago. "
-				"Configure 'Forma de Pago para Timbrado' en la factura."
+				"No se puede timbrar: falta definir la forma de pago en los datos fiscales. "
+				"Configure 'Forma de Pago para Timbrado' en el documento Factura Fiscal Mexico."
 			),
 			title=_("Forma de Pago Requerida"),
 		)
+
+	def _get_factura_fiscal_doc(self, sales_invoice):
+		"""Obtener documento Factura Fiscal Mexico asociado"""
+		if not sales_invoice.fm_factura_fiscal_mx:
+			return None
+
+		try:
+			return frappe.get_doc("Factura Fiscal Mexico", sales_invoice.fm_factura_fiscal_mx)
+		except frappe.DoesNotExistError:
+			return None
 
 	def _get_branch_data_for_invoice(self, sales_invoice) -> dict[str, Any]:
 		"""
