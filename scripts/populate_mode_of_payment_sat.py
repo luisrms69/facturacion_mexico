@@ -47,7 +47,7 @@ def run():
 
 	frappe.db.commit()
 
-	print(f"\n📊 RESUMEN:")
+	print("\n📊 RESUMEN:")
 	print(f"   Creados: {created_count}")
 	print(f"   Actualizados: {updated_count}")
 	print(f"   Total formas SAT: {len(sat_forms)}")
