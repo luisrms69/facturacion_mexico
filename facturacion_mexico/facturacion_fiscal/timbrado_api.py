@@ -222,11 +222,14 @@ class TimbradoAPI:
 				}
 			)
 
+		# Obtener forma de pago desde Sales Invoice
+		payment_form = self._get_payment_form_for_invoice(sales_invoice)
+
 		# Datos de la factura
 		invoice_data = {
 			"customer": customer_data,
 			"items": items,
-			"payment_form": "99",  # Por definir
+			"payment_form": payment_form,
 			"folio_number": branch_data.get("folio_number", sales_invoice.name),
 			"series": branch_data.get("series", "F"),
 			"use": sales_invoice.fm_cfdi_use,
@@ -240,6 +243,33 @@ class TimbradoAPI:
 			invoice_data["branch_office"] = branch_data["branch_name"]
 
 		return invoice_data
+
+	def _get_payment_form_for_invoice(self, sales_invoice) -> str:
+		"""
+		Obtener forma de pago SAT para timbrado desde Sales Invoice.
+		Prioriza fm_forma_pago_timbrado del Sales Invoice sobre lógica de método.
+		"""
+		# Prioridad 1: Campo fm_forma_pago_timbrado del Sales Invoice
+		if hasattr(sales_invoice, "fm_forma_pago_timbrado") and sales_invoice.fm_forma_pago_timbrado:
+			# Extraer código SAT del formato "01 - Efectivo"
+			mode_parts = sales_invoice.fm_forma_pago_timbrado.split(" - ")
+			if len(mode_parts) >= 2 and mode_parts[0].strip().isdigit():
+				return mode_parts[0].strip()
+
+		# Prioridad 2: Lógica basada en método de pago SAT SOLO para PPD
+		if hasattr(sales_invoice, "fm_payment_method_sat"):
+			if sales_invoice.fm_payment_method_sat == "PPD":
+				# PPD siempre usa "99 - Por definir"
+				return "99"
+
+		# Si no hay forma de pago definida, lanzar error - NO usar defaults
+		frappe.throw(
+			_(
+				"No se puede timbrar: falta definir la forma de pago. "
+				"Configure 'Forma de Pago para Timbrado' en la factura."
+			),
+			title=_("Forma de Pago Requerida"),
+		)
 
 	def _get_branch_data_for_invoice(self, sales_invoice) -> dict[str, Any]:
 		"""

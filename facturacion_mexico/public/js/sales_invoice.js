@@ -29,6 +29,18 @@ frappe.ui.form.on("Sales Invoice", {
 	fm_payment_method_sat: function (frm) {
 		// Sincronizar radio buttons cuando el campo cambie programáticamente
 		sync_radio_buttons_with_field(frm);
+
+		// Actualizar botones fiscales cuando cambie el método de pago
+		if (frm.doc.docstatus === 1) {
+			update_fiscal_buttons(frm);
+		}
+	},
+
+	fm_cfdi_use: function (frm) {
+		// Actualizar botones fiscales cuando cambie el uso CFDI
+		if (frm.doc.docstatus === 1) {
+			update_fiscal_buttons(frm);
+		}
 	},
 });
 
@@ -43,18 +55,34 @@ function add_fiscal_buttons(frm) {
 
 	// Botón principal de timbrado
 	if (fiscal_status !== "Exitoso") {
-		frm.add_custom_button(
-			__("Timbrar Factura"),
-			function () {
-				timbrar_factura(frm);
-			},
-			__("Facturación Fiscal")
-		);
+		// Verificar si la factura está lista para timbrar
+		const validation_result = validate_payment_method_requirements(frm);
+		const ready_to_stamp = validate_fiscal_data_for_button(frm);
 
-		// Hacer el botón más prominente
-		frm.page.set_primary_action(__("Timbrar Factura"), function () {
-			timbrar_factura(frm);
-		});
+		if (ready_to_stamp) {
+			// Botón habilitado - todo está listo
+			frm.add_custom_button(
+				__("Timbrar Factura"),
+				function () {
+					timbrar_factura(frm);
+				},
+				__("Facturación Fiscal")
+			);
+
+			// Hacer el botón más prominente
+			frm.page.set_primary_action(__("Timbrar Factura"), function () {
+				timbrar_factura(frm);
+			});
+		} else {
+			// Botón deshabilitado - mostrar qué falta
+			frm.add_custom_button(
+				__("⚠️ Completar Datos Fiscales"),
+				function () {
+					show_missing_fiscal_data_dialog(frm);
+				},
+				__("Facturación Fiscal")
+			);
+		}
 	}
 
 	// Botón de cancelación (solo si está timbrada)
@@ -224,9 +252,11 @@ function test_pac_connection(frm) {
 }
 
 function validate_fiscal_data(frm) {
+	// Validaciones básicas
 	const required_fields = [
 		{ field: "customer", label: "Cliente" },
 		{ field: "fm_cfdi_use", label: "Uso del CFDI" },
+		{ field: "fm_payment_method_sat", label: "Método de Pago SAT" },
 	];
 
 	for (let req of required_fields) {
@@ -236,7 +266,311 @@ function validate_fiscal_data(frm) {
 		}
 	}
 
+	// Validaciones específicas PUE vs PPD
+	const validation_result = validate_payment_method_requirements(frm);
+	if (!validation_result.valid) {
+		frappe.msgprint({
+			title: __("Error Validación Pago"),
+			message: validation_result.message,
+			indicator: "red",
+		});
+		return false;
+	}
+
+	// Mostrar advertencias si las hay
+	if (validation_result.warnings && validation_result.warnings.length > 0) {
+		frappe.show_alert({
+			message: validation_result.warnings.join("<br>"),
+			indicator: "orange",
+		});
+	}
+
 	return true;
+}
+
+function validate_payment_method_requirements(frm) {
+	const payment_method = frm.doc.fm_payment_method_sat;
+	const warnings = [];
+
+	// Contar Payment Entries relacionados
+	const payment_count = get_related_payment_entries_count(frm);
+
+	if (payment_method === "PUE") {
+		// PUE: Pago en Una Exhibición
+
+		// Validar múltiples pagos (violación legislación SAT)
+		if (payment_count > 1) {
+			warnings.push(
+				__(
+					"⚠️ ADVERTENCIA FISCAL: PUE con múltiples pagos viola la normativa SAT. " +
+						"Considere cambiar a PPD (Pago en Parcialidades Diferido)"
+				)
+			);
+		}
+
+		// PUE requiere forma de pago específica en Sales Invoice
+		const forma_pago_invoice = get_forma_pago_from_sales_invoice(frm);
+
+		if (!forma_pago_invoice) {
+			return {
+				valid: false,
+				message: __(
+					"PUE requiere definir 'Forma de Pago para Timbrado' en la factura. " +
+						"Seleccione una forma de pago específica (01-Efectivo, 02-Cheque, 03-Transferencia, etc.)"
+				),
+			};
+		}
+
+		// Validar que forma de pago no sea "99 Por definir"
+		if (forma_pago_invoice === "99") {
+			return {
+				valid: false,
+				message: __(
+					"PUE no puede usar forma de pago '99 - Por definir'. " +
+						"Debe especificar forma de pago exacta (01, 02, 03, etc.)"
+				),
+			};
+		}
+
+		// Validar consistencia con Payment Entry si existe
+		const forma_pago_payment = get_forma_pago_from_payment_entry(frm);
+		if (forma_pago_payment && forma_pago_payment !== forma_pago_invoice) {
+			warnings.push(
+				__(
+					"⚠️ DISCREPANCIA: Factura usa '{0}' pero Payment Entry usa '{1}'. " +
+						"Para timbrado se usará el valor de la factura.",
+					[forma_pago_invoice, forma_pago_payment]
+				)
+			);
+		}
+	} else if (payment_method === "PPD") {
+		// PPD: Pago en Parcialidades o Diferido
+
+		// PPD siempre debe usar "99 - Por definir" para timbrado
+		const forma_pago_invoice = get_forma_pago_from_sales_invoice(frm);
+
+		if (forma_pago_invoice && forma_pago_invoice !== "99") {
+			// Auto-corregir a "99" si es necesario
+			const mode_99 = get_mode_of_payment_with_code("99");
+			if (mode_99) {
+				frm.set_value("fm_forma_pago_timbrado", mode_99);
+				frappe.show_alert({
+					message: __("PPD corregido automáticamente a '99 - Por definir'"),
+					indicator: "blue",
+				});
+			}
+		} else if (!forma_pago_invoice) {
+			// Auto-asignar "99" si está vacío
+			const mode_99 = get_mode_of_payment_with_code("99");
+			if (mode_99) {
+				frm.set_value("fm_forma_pago_timbrado", mode_99);
+				frappe.show_alert({
+					message: __("PPD asignado automáticamente: '99 - Por definir'"),
+					indicator: "blue",
+				});
+			}
+		}
+
+		// Verificar consistencia con Payment Entry
+		const forma_pago_payment = get_forma_pago_from_payment_entry(frm);
+		if (forma_pago_payment && forma_pago_payment !== "99") {
+			warnings.push(
+				__(
+					"⚠️ ADVERTENCIA: Payment Entry usa '{0}' pero PPD requiere '99 - Por definir'. " +
+						"Para timbrado se usará '99 - Por definir'.",
+					[forma_pago_payment]
+				)
+			);
+		}
+	}
+
+	return {
+		valid: true,
+		warnings: warnings,
+	};
+}
+
+function get_related_payment_entries_count(frm) {
+	// Contar Payment Entries que referencian esta Sales Invoice
+	let count = 0;
+
+	if (frm.doc.advances && frm.doc.advances.length > 0) {
+		// Contar advance payments
+		count += frm.doc.advances.length;
+	}
+
+	// Buscar Payment Entry References usando llamada síncrona para validación inmediata
+	frappe.call({
+		method: "frappe.client.get_list",
+		args: {
+			doctype: "Payment Entry Reference",
+			filters: {
+				reference_doctype: "Sales Invoice",
+				reference_name: frm.doc.name,
+			},
+		},
+		async: false, // Síncrona para validación inmediata
+		callback: function (r) {
+			if (r.message) {
+				count += r.message.length;
+			}
+		},
+	});
+
+	return count;
+}
+
+function get_forma_pago_from_payment_entry(frm) {
+	// Obtener código SAT desde Mode of Payment del Payment Entry relacionado
+	let forma_pago_sat = null;
+
+	// Buscar en advances (Payment Entry References)
+	if (frm.doc.advances && frm.doc.advances.length > 0) {
+		const advance = frm.doc.advances[0];
+		if (advance.reference_name) {
+			frappe.call({
+				method: "frappe.client.get_value",
+				args: {
+					doctype: "Payment Entry",
+					name: advance.reference_name,
+					fieldname: "mode_of_payment",
+				},
+				async: false,
+				callback: function (r) {
+					if (r.message && r.message.mode_of_payment) {
+						// Extraer código SAT del formato "01 - Efectivo"
+						const mode_parts = r.message.mode_of_payment.split(" - ");
+						if (mode_parts.length >= 2 && mode_parts[0].match(/^\d+$/)) {
+							forma_pago_sat = mode_parts[0];
+						}
+					}
+				},
+			});
+		}
+	}
+
+	return forma_pago_sat;
+}
+
+function get_forma_pago_from_sales_invoice(frm) {
+	// Obtener código SAT desde fm_forma_pago_timbrado de Sales Invoice
+	if (!frm.doc.fm_forma_pago_timbrado) {
+		return null;
+	}
+
+	// Extraer código SAT del formato "01 - Efectivo"
+	const mode_parts = frm.doc.fm_forma_pago_timbrado.split(" - ");
+	if (mode_parts.length >= 2 && mode_parts[0].match(/^\d+$/)) {
+		return mode_parts[0];
+	}
+
+	return null;
+}
+
+function get_mode_of_payment_with_code(code) {
+	// Buscar Mode of Payment que tenga el código SAT especificado
+	let result = null;
+
+	frappe.call({
+		method: "frappe.client.get_list",
+		args: {
+			doctype: "Mode of Payment",
+			filters: {
+				name: ["like", `${code} - %`],
+			},
+			fields: ["name"],
+			limit_page_length: 1,
+		},
+		async: false,
+		callback: function (r) {
+			if (r.message && r.message.length > 0) {
+				result = r.message[0].name;
+			}
+		},
+	});
+
+	return result;
+}
+
+function validate_fiscal_data_for_button(frm) {
+	// Validación rápida para habilitar/deshabilitar botón de timbrado
+	const required_fields = ["customer", "fm_cfdi_use", "fm_payment_method_sat"];
+
+	// Verificar campos básicos
+	for (let field of required_fields) {
+		if (!frm.doc[field]) {
+			return false;
+		}
+	}
+
+	// Validar PUE vs PPD
+	if (frm.doc.fm_payment_method_sat === "PUE") {
+		// PUE requiere forma de pago específica en Sales Invoice
+		const forma_pago = get_forma_pago_from_sales_invoice(frm);
+		if (!forma_pago || forma_pago === "99") {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+function show_missing_fiscal_data_dialog(frm) {
+	const missing_items = [];
+
+	// Verificar campos básicos
+	if (!frm.doc.customer) missing_items.push("• Cliente");
+	if (!frm.doc.fm_cfdi_use) missing_items.push("• Uso del CFDI");
+	if (!frm.doc.fm_payment_method_sat) missing_items.push("• Método de Pago SAT (PUE/PPD)");
+
+	// Validaciones específicas PUE
+	if (frm.doc.fm_payment_method_sat === "PUE") {
+		const forma_pago = get_forma_pago_from_sales_invoice(frm);
+		if (!forma_pago) {
+			missing_items.push("• Forma de Pago para Timbrado");
+		} else if (forma_pago === "99") {
+			missing_items.push("• Forma de pago específica (no '99 - Por definir')");
+		}
+	}
+
+	const dialog_content = `
+		<div class="alert alert-warning">
+			<strong>Datos Fiscales Incompletos</strong><br>
+			Para habilitar el timbrado, complete los siguientes campos:
+		</div>
+		<div style="margin: 15px 0;">
+			${missing_items.join("<br>")}
+		</div>
+		<div class="alert alert-info">
+			<strong>Nota:</strong> El botón de timbrado se habilitará automáticamente
+			cuando todos los datos estén completos.
+		</div>
+	`;
+
+	const d = new frappe.ui.Dialog({
+		title: __("Completar Datos Fiscales"),
+		fields: [
+			{
+				fieldtype: "HTML",
+				fieldname: "missing_data",
+				options: dialog_content,
+			},
+		],
+		primary_action_label: __("Entendido"),
+		primary_action: function () {
+			d.hide();
+		},
+	});
+
+	d.show();
+}
+
+function update_fiscal_buttons(frm) {
+	// Limpiar botones existentes
+	frm.clear_custom_buttons();
+
+	// Volver a agregar botones con estado actualizado
+	add_fiscal_buttons(frm);
 }
 
 function show_fiscal_error_dialog(error_message, corrective_action) {
