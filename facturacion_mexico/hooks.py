@@ -181,10 +181,14 @@ fixtures = [
 			]
 		],
 	},
-	# SAT Catalogs Fixtures - Migration from install.py to fixtures
-	"facturacion_mexico/fixtures/sat_uso_cfdi.json",
-	"facturacion_mexico/fixtures/sat_regimen_fiscal.json",
-	"facturacion_mexico/fixtures/sat_forma_pago.json",
+	# SAT Catalogs Fixtures - Migration from install.py to fixtures (Temporarily disabled for fixtures export)
+	# "facturacion_mexico/fixtures/sat_uso_cfdi.json",
+	# "facturacion_mexico/fixtures/sat_regimen_fiscal.json",
+	# "facturacion_mexico/fixtures/sat_forma_pago.json",
+	# Mode of Payment SAT - Formas de pago con códigos SAT
+	{"dt": "Mode of Payment", "filters": [["name", "like", "%-%"]]},
+	# UOM SAT - Unidades de medida con códigos SAT (20 principales)
+	{"dt": "UOM", "filters": [["uom_name", "like", "% - %"]]},
 ]
 
 # Uninstallation
@@ -244,6 +248,7 @@ doc_events = {
 		"validate": [
 			"facturacion_mexico.facturacion_fiscal.hooks_handlers.sales_invoice_validate.validate_fiscal_data",
 			"facturacion_mexico.hooks_handlers.sales_invoice_validate.sales_invoice_validate",
+			"facturacion_mexico.validaciones.sales_invoice.validate_ppd_vs_forma_pago",
 		],
 		"before_submit": "facturacion_mexico.validaciones.hooks_handlers.sales_invoice_validate.validate_lista_69b_customer",
 		"on_submit": [

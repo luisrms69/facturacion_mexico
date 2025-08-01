@@ -113,9 +113,49 @@ def _validate_items_sat_codes(doc):
 		if not item_doc.fm_producto_servicio_sat:
 			frappe.throw(_(f"El item {item.item_name} no tiene código de producto/servicio SAT configurado"))
 
-		# Validar código de unidad SAT
-		if not item_doc.fm_unidad_sat:
-			frappe.throw(_(f"El item {item.item_name} no tiene código de unidad SAT configurado"))
+		# Validar UOM con formato SAT (NUEVA VALIDACIÓN)
+		_validate_uom_sat_format(item)
+
+
+def _validate_uom_sat_format(item):
+	"""
+	Validar que UOM tenga formato SAT válido: 'CODIGO - Descripción'
+	Reemplaza la validación anterior de fm_unidad_sat por formato UOM nativo.
+	"""
+	if not item.uom:
+		frappe.throw(_(f"Item {item.item_code}: UOM es obligatoria"))
+
+	# Verificar formato SAT: "CODIGO - Descripción"
+	uom_parts = item.uom.split(" - ")
+	if len(uom_parts) < 2:
+		frappe.throw(
+			_(
+				f"Item {item.item_code}: UOM '{item.uom}' debe tener formato SAT 'CODIGO - Descripción'. "
+				f"Ejemplo: 'H87 - Pieza', 'KGM - Kilogramo'"
+			)
+		)
+
+	sat_code = uom_parts[0].strip()
+	if len(sat_code) < 2:
+		frappe.throw(
+			_(
+				f"Item {item.item_code}: Código SAT '{sat_code}' inválido en UOM '{item.uom}'. "
+				f"El código debe tener al menos 2 caracteres"
+			)
+		)
+
+	# Verificar que la UOM existe y está activa
+	if not frappe.db.exists("UOM", item.uom):
+		frappe.throw(_(f"Item {item.item_code}: UOM '{item.uom}' no existe"))
+
+	uom_enabled = frappe.db.get_value("UOM", item.uom, "enabled")
+	if not uom_enabled:
+		frappe.throw(
+			_(
+				f"Item {item.item_code}: UOM '{item.uom}' está desactivada. "
+				f"Active la UOM o seleccione una UOM SAT válida"
+			)
+		)
 
 
 def _validate_payment_method(doc):

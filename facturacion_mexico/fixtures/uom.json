@@ -1,0 +1,182 @@
+[
+ {
+  "docstatus": 0,
+  "doctype": "UOM",
+  "enabled": 1,
+  "modified": "2025-08-01 03:35:47.277280",
+  "must_be_whole_number": 0,
+  "name": "H87 - Pieza",
+  "uom_name": "H87 - Pieza"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "UOM",
+  "enabled": 1,
+  "modified": "2025-08-01 03:35:47.547870",
+  "must_be_whole_number": 0,
+  "name": "KGM - Kilogramo",
+  "uom_name": "KGM - Kilogramo"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "UOM",
+  "enabled": 1,
+  "modified": "2025-08-01 03:35:47.550019",
+  "must_be_whole_number": 0,
+  "name": "GRM - Gramo",
+  "uom_name": "GRM - Gramo"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "UOM",
+  "enabled": 1,
+  "modified": "2025-08-01 03:35:47.552157",
+  "must_be_whole_number": 0,
+  "name": "LTR - Litro",
+  "uom_name": "LTR - Litro"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "UOM",
+  "enabled": 1,
+  "modified": "2025-08-01 03:35:47.554101",
+  "must_be_whole_number": 0,
+  "name": "MLT - Mililitro",
+  "uom_name": "MLT - Mililitro"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "UOM",
+  "enabled": 1,
+  "modified": "2025-08-01 03:35:47.555703",
+  "must_be_whole_number": 0,
+  "name": "MTR - Metro",
+  "uom_name": "MTR - Metro"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "UOM",
+  "enabled": 1,
+  "modified": "2025-08-01 03:35:47.556961",
+  "must_be_whole_number": 0,
+  "name": "CMT - Centímetro",
+  "uom_name": "CMT - Centímetro"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "UOM",
+  "enabled": 1,
+  "modified": "2025-08-01 03:35:47.558413",
+  "must_be_whole_number": 0,
+  "name": "MMT - Milímetro",
+  "uom_name": "MMT - Milímetro"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "UOM",
+  "enabled": 1,
+  "modified": "2025-08-01 03:35:47.559944",
+  "must_be_whole_number": 0,
+  "name": "MTK - Metro cuadrado",
+  "uom_name": "MTK - Metro cuadrado"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "UOM",
+  "enabled": 1,
+  "modified": "2025-08-01 03:35:47.561309",
+  "must_be_whole_number": 0,
+  "name": "MTQ - Metro cúbico",
+  "uom_name": "MTQ - Metro cúbico"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "UOM",
+  "enabled": 1,
+  "modified": "2025-08-01 03:35:47.562632",
+  "must_be_whole_number": 0,
+  "name": "HUR - Hora",
+  "uom_name": "HUR - Hora"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "UOM",
+  "enabled": 1,
+  "modified": "2025-08-01 03:35:47.564094",
+  "must_be_whole_number": 0,
+  "name": "MIN - Minuto",
+  "uom_name": "MIN - Minuto"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "UOM",
+  "enabled": 1,
+  "modified": "2025-08-01 03:35:47.565882",
+  "must_be_whole_number": 0,
+  "name": "SEC - Segundo",
+  "uom_name": "SEC - Segundo"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "UOM",
+  "enabled": 1,
+  "modified": "2025-08-01 03:35:47.567250",
+  "must_be_whole_number": 0,
+  "name": "DAY - Día",
+  "uom_name": "DAY - Día"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "UOM",
+  "enabled": 1,
+  "modified": "2025-08-01 03:35:47.568461",
+  "must_be_whole_number": 0,
+  "name": "E48 - Servicio",
+  "uom_name": "E48 - Servicio"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "UOM",
+  "enabled": 1,
+  "modified": "2025-08-01 03:35:47.569599",
+  "must_be_whole_number": 0,
+  "name": "ACT - Actividad",
+  "uom_name": "ACT - Actividad"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "UOM",
+  "enabled": 1,
+  "modified": "2025-08-01 03:35:47.570375",
+  "must_be_whole_number": 0,
+  "name": "E51 - Trabajo",
+  "uom_name": "E51 - Trabajo"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "UOM",
+  "enabled": 1,
+  "modified": "2025-08-01 03:35:47.571139",
+  "must_be_whole_number": 0,
+  "name": "MON - Mes",
+  "uom_name": "MON - Mes"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "UOM",
+  "enabled": 1,
+  "modified": "2025-08-01 03:35:47.572017",
+  "must_be_whole_number": 0,
+  "name": "ANN - Año",
+  "uom_name": "ANN - Año"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "UOM",
+  "enabled": 1,
+  "modified": "2025-08-01 03:35:47.573015",
+  "must_be_whole_number": 0,
+  "name": "NA - No Aplica",
+  "uom_name": "NA - No Aplica"
+ }
+]
