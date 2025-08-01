@@ -97,7 +97,7 @@ fixtures = [
 				"in",
 				[
 					# Branch custom fields (14 campos)
-					"Branch-fiscal_configuration_section",
+					"Branch-fm_fiscal_configuration_section",
 					"Branch-fm_certificate_ids",
 					"Branch-fm_enable_fiscal",
 					"Branch-fm_enable_fiscal_test",
@@ -136,7 +136,7 @@ fixtures = [
 					"Payment Entry-fm_informacion_fiscal_section",
 					"Payment Entry-fm_require_complement",
 					# Sales Invoice custom fields (41 campos)
-					"Sales Invoice-fiscal_attempts",
+					"Sales Invoice-fm_fiscal_attempts",
 					"Sales Invoice-fm_addenda_column_break",
 					"Sales Invoice-fm_addenda_errors",
 					"Sales Invoice-fm_addenda_generated_date",

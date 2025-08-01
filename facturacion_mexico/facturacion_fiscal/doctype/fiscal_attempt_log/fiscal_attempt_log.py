@@ -25,7 +25,7 @@ class FiscalAttemptLog(Document):
 
 		# Crear nuevo registro en la tabla hijo
 		log_entry = parent_doc.append(
-			"fiscal_attempts",
+			"fm_fiscal_attempts",
 			{
 				"attempt_type": attempt_type,
 				"status": status,
@@ -49,7 +49,7 @@ class FiscalAttemptLog(Document):
 
 		parent_doc = frappe.get_doc(doctype, parent_docname)
 
-		for attempt in reversed(parent_doc.fiscal_attempts):
+		for attempt in reversed(parent_doc.fm_fiscal_attempts):
 			if attempt.status == "Exitoso" and attempt.attempt_type == "Timbrado":
 				return attempt
 
@@ -62,7 +62,7 @@ class FiscalAttemptLog(Document):
 		parent_doc = frappe.get_doc(doctype, parent_docname)
 
 		summary = {
-			"total_attempts": len(parent_doc.fiscal_attempts),
+			"total_attempts": len(parent_doc.fm_fiscal_attempts),
 			"successful_attempts": 0,
 			"failed_attempts": 0,
 			"last_attempt": None,
@@ -70,15 +70,15 @@ class FiscalAttemptLog(Document):
 			"current_status": "Sin Intentos",
 		}
 
-		for attempt in parent_doc.fiscal_attempts:
+		for attempt in parent_doc.fm_fiscal_attempts:
 			if attempt.status == "Exitoso":
 				summary["successful_attempts"] += 1
 				summary["last_successful"] = attempt
 			elif attempt.status in ["Error", "Rechazado"]:
 				summary["failed_attempts"] += 1
 
-		if parent_doc.fiscal_attempts:
-			summary["last_attempt"] = parent_doc.fiscal_attempts[-1]
+		if parent_doc.fm_fiscal_attempts:
+			summary["last_attempt"] = parent_doc.fm_fiscal_attempts[-1]
 			summary["current_status"] = summary["last_attempt"].status
 
 		return summary

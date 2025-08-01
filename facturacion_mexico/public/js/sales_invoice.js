@@ -98,9 +98,9 @@ function has_customer_rfc(frm) {
 }
 
 function get_current_fiscal_status(frm) {
-	// Verificar el último intento en la tabla fiscal_attempts
-	if (frm.doc.fiscal_attempts && frm.doc.fiscal_attempts.length > 0) {
-		const last_attempt = frm.doc.fiscal_attempts[frm.doc.fiscal_attempts.length - 1];
+	// Verificar el último intento en la tabla fm_fiscal_attempts
+	if (frm.doc.fm_fiscal_attempts && frm.doc.fm_fiscal_attempts.length > 0) {
+		const last_attempt = frm.doc.fm_fiscal_attempts[frm.doc.fm_fiscal_attempts.length - 1];
 		return last_attempt.status;
 	}
 

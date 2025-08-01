@@ -20,7 +20,7 @@ def remove_branch_fiscal_custom_fields():
 	Eliminar custom fields fiscales de Branch (para rollback si es necesario)
 	"""
 	field_names = [
-		"fiscal_configuration_section",
+		"fm_fiscal_configuration_section",
 		"fm_enable_fiscal",
 		"fm_lugar_expedicion",
 		"folio_management_section",
