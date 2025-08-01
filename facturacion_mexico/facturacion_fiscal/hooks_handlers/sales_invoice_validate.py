@@ -65,25 +65,31 @@ def _validate_customer_rfc(doc):
 
 
 def _validate_cfdi_use(doc):
-	"""Validar uso de CFDI."""
+	"""Validar uso de CFDI - OBLIGATORIO para todas las facturas."""
+
+	# 1. Auto-asignar default SOLO si Customer tiene uno configurado
+	if not doc.fm_cfdi_use and doc.customer:
+		customer = frappe.get_doc("Customer", doc.customer)
+		if customer.fm_uso_cfdi_default:
+			doc.fm_cfdi_use = customer.fm_uso_cfdi_default
+
+	# 2. VALIDACIÓN BLOQUEANTE: Uso CFDI es OBLIGATORIO
 	if not doc.fm_cfdi_use:
-		# Si el cliente tiene uso por defecto, asignarlo
-		if doc.customer:
-			customer = frappe.get_doc("Customer", doc.customer)
-			if customer.fm_uso_cfdi_default:
-				doc.fm_cfdi_use = customer.fm_uso_cfdi_default
-			else:
-				frappe.throw(_("Se requiere especificar Uso de CFDI"))
-		else:
-			frappe.throw(_("Se requiere especificar Uso de CFDI"))
+		frappe.throw(
+			_(
+				"Uso de CFDI es obligatorio para facturación fiscal mexicana. "
+				"Configure un default en el Cliente o seleccione manualmente."
+			)
+		)
 
-	# Validar que el uso de CFDI existe y está activo
+	# 3. Validar que el uso de CFDI existe en catálogo SAT
 	if not frappe.db.exists("Uso CFDI SAT", doc.fm_cfdi_use):
-		frappe.throw(_("El Uso de CFDI especificado no existe"))
+		frappe.throw(_("El Uso de CFDI '{0}' no existe en el catálogo SAT").format(doc.fm_cfdi_use))
 
+	# 4. Validar que el uso de CFDI está activo
 	uso_cfdi = frappe.get_doc("Uso CFDI SAT", doc.fm_cfdi_use)
 	if not uso_cfdi.is_active():
-		frappe.throw(_("El Uso de CFDI especificado no está activo"))
+		frappe.throw(_("El Uso de CFDI '{0}' no está activo en el catálogo SAT").format(doc.fm_cfdi_use))
 
 
 def _validate_items_sat_codes(doc):
