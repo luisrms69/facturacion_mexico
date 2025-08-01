@@ -70,8 +70,7 @@ def create_fields():
 		except Exception as e:
 			print(f"❌ Error creando {field_name}: {e!s}")
 
-	# Commit cambios
-	frappe.db.commit()
+	# Cambios se commitean automáticamente por Frappe Framework
 
 	print(f"\n🎉 Creados {len(created_fields)} campos:")
 	for field in created_fields:
