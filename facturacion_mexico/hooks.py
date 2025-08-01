@@ -97,7 +97,7 @@ fixtures = [
 				"in",
 				[
 					# Branch custom fields (14 campos)
-					"Branch-fiscal_configuration_section",
+					"Branch-fm_fiscal_configuration_section",
 					"Branch-fm_certificate_ids",
 					"Branch-fm_enable_fiscal",
 					"Branch-fm_enable_fiscal_test",
@@ -111,16 +111,15 @@ fixtures = [
 					"Branch-fm_serie_pattern",
 					"Branch-fm_share_certificates",
 					"Branch-fm_test_field_unique_2025",
-					# Customer custom fields (13 campos)
+					# Customer custom fields (11 campos - movidos a Tax tab)
 					"Customer-fm_addenda_info_section",
 					"Customer-fm_column_break_fiscal_customer",
 					"Customer-fm_column_break_validacion",
 					"Customer-fm_default_addenda_type",
-					"Customer-fm_informacion_fiscal_section_customer",
+					"Customer-fm_informacion_fiscal_mx_section",
 					"Customer-fm_lista_69b_status",
 					"Customer-fm_regimen_fiscal",
 					"Customer-fm_requires_addenda",
-					"Customer-fm_rfc",
 					"Customer-fm_rfc_validated",
 					"Customer-fm_rfc_validation_date",
 					"Customer-fm_uso_cfdi_default",
@@ -137,7 +136,7 @@ fixtures = [
 					"Payment Entry-fm_informacion_fiscal_section",
 					"Payment Entry-fm_require_complement",
 					# Sales Invoice custom fields (41 campos)
-					"Sales Invoice-fiscal_attempts",
+					"Sales Invoice-fm_fiscal_attempts",
 					"Sales Invoice-fm_addenda_column_break",
 					"Sales Invoice-fm_addenda_errors",
 					"Sales Invoice-fm_addenda_generated_date",

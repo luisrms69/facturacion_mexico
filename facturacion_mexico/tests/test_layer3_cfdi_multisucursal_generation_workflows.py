@@ -388,7 +388,7 @@ class TestLayer3CFDIMultiSucursalGenerationWorkflows(unittest.TestCase):
                     "abbr": "TCCFDI",
                     "default_currency": "MXN",
                     "country": "Mexico",
-                    "fm_rfc": "TCF010101ABC",
+                    "tax_id": "TCF010101ABC",
                     "fm_tax_regime": "601",  # General de Ley Personas Morales
                     "fm_pac_environment": "test"
                 }
@@ -439,7 +439,7 @@ class TestLayer3CFDIMultiSucursalGenerationWorkflows(unittest.TestCase):
                     "doctype": "Customer",
                     "customer_name": customer_name,
                     "customer_type": "Company",
-                    "fm_rfc": "CUSF010101ABC",
+                    "tax_id": "CUSF010101ABC",
                     "fm_tax_regime": "601",
                     "fm_cfdi_use": "G03",  # Gastos en general
                     "fm_payment_method": "PPD"  # Pago en parcialidades o diferido
@@ -505,7 +505,7 @@ class TestLayer3CFDIMultiSucursalGenerationWorkflows(unittest.TestCase):
             base_data = {
                 "doctype": "Customer",
                 "customer_type": "Company",
-                "fm_rfc": "CUSTF010101ABC",
+                "tax_id": "CUSTF010101ABC",
                 "fm_cfdi_use": "G03"
             }
             base_data.update(customer_data)

@@ -20,7 +20,7 @@ def get_uso_cfdi_for_customer(customer_name: str) -> list[dict[str, Any]]:
 		customer = frappe.get_doc("Customer", customer_name)
 
 		# Determinar si es persona física o moral basado en RFC
-		es_persona_fisica = _is_persona_fisica(customer.fm_rfc) if customer.fm_rfc else True
+		es_persona_fisica = _is_persona_fisica(customer.tax_id) if customer.tax_id else True
 
 		# Filtros base para catálogos activos
 		filters = {"vigencia_hasta": [">=", frappe.utils.today()]}
@@ -71,7 +71,7 @@ def get_regimen_fiscal_for_customer(customer_name: str) -> list[dict[str, Any]]:
 		customer = frappe.get_doc("Customer", customer_name)
 
 		# Determinar si es persona física o moral basado en RFC
-		es_persona_fisica = _is_persona_fisica(customer.fm_rfc) if customer.fm_rfc else True
+		es_persona_fisica = _is_persona_fisica(customer.tax_id) if customer.tax_id else True
 
 		# Filtros base para catálogos activos
 		filters = {"vigencia_hasta": [">=", frappe.utils.today()]}

@@ -30,8 +30,9 @@ class TestLayer1CustomFields(unittest.TestCase):
         # Verificar que existen algunos campos básicos
         field_names = [f.fieldname for f in customer_fields]
 
-        # Al menos debe existir el campo RFC
-        self.assertIn("fm_rfc", field_names, "Customer debe tener campo fm_rfc")
+        # Verificar que tax_id (RFC) está disponible en Customer
+        customer_meta = frappe.get_meta("Customer")
+        self.assertTrue(customer_meta.has_field("tax_id"), "Customer debe tener campo tax_id disponible")
 
         # Verificar que los campos tienen configuración correcta
         for field in customer_fields:

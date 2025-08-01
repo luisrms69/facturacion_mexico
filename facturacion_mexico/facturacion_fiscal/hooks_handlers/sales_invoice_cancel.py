@@ -24,7 +24,7 @@ def _should_handle_fiscal_cancellation(doc):
 		return False
 
 	customer = frappe.get_doc("Customer", doc.customer)
-	return bool(customer.fm_rfc)
+	return bool(customer.tax_id)
 
 
 def _handle_cancellation_by_status(doc):

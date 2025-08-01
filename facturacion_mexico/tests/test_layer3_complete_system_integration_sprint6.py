@@ -258,7 +258,7 @@ class TestLayer3CompleteSystemIntegrationSprint6(unittest.TestCase):
                     "abbr": "TCSS6",
                     "default_currency": "MXN",
                     "country": "Mexico",
-                    "fm_rfc": "TCSS010101ABC",
+                    "tax_id": "TCSS010101ABC",
                     "fm_tax_regime": "601",
                     "fm_enable_cfdi": 1,
                     "fm_enable_addenda": 1,
@@ -335,7 +335,7 @@ class TestLayer3CompleteSystemIntegrationSprint6(unittest.TestCase):
                 "fm_default_addenda_type": "TEST_AUTOMOTIVE",
                 "fm_business_type": "automotive",
                 "fm_volume_level": "high",
-                "fm_rfc": "CUSAUT010101ABC"
+                "tax_id": "CUSAUT010101ABC"
             },
             {
                 "customer_name": "Test Customer Sys Retail Chain",
@@ -343,7 +343,7 @@ class TestLayer3CompleteSystemIntegrationSprint6(unittest.TestCase):
                 "fm_default_addenda_type": "TEST_RETAIL",
                 "fm_business_type": "retail",
                 "fm_volume_level": "medium",
-                "fm_rfc": "CUSRET010101ABC"
+                "tax_id": "CUSRET010101ABC"
             },
             {
                 "customer_name": "Test Customer Sys Generic SME",
@@ -351,14 +351,14 @@ class TestLayer3CompleteSystemIntegrationSprint6(unittest.TestCase):
                 "fm_default_addenda_type": "TEST_GENERIC",
                 "fm_business_type": "generic",
                 "fm_volume_level": "low",
-                "fm_rfc": "CUSGEN010101ABC"
+                "tax_id": "CUSGEN010101ABC"
             },
             {
                 "customer_name": "Test Customer Sys No Addenda",
                 "fm_requires_addenda": 0,
                 "fm_business_type": "standard",
                 "fm_volume_level": "low",
-                "fm_rfc": "CUSSTD010101ABC"
+                "tax_id": "CUSSTD010101ABC"
             }
         ]
 
