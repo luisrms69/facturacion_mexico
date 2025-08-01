@@ -6,9 +6,10 @@ Layer 3 Dashboard Business Intelligence End-to-End Tests
 Tests end-to-end de inteligencia de negocio y dashboard fiscal Sprint 6
 """
 
-import frappe
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
+import frappe
 
 
 class TestLayer3DashboardBusinessIntelligence(unittest.TestCase):
@@ -49,7 +50,7 @@ class TestLayer3DashboardBusinessIntelligence(unittest.TestCase):
                     recommendation_records = frappe.db.count("Fiscal Health Recommendation")
                     self.assertIsInstance(recommendation_records, int, "Workflow recomendaciones debe estar operacional")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 3
             pass
 
@@ -72,7 +73,7 @@ class TestLayer3DashboardBusinessIntelligence(unittest.TestCase):
                 if pref_fields and pref_fields[0]['count'] > 0:
                     self.assertGreater(pref_fields[0]['count'], 0, "Workflow debe personalizar dashboard")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 3
             pass
 
@@ -118,7 +119,7 @@ class TestLayer3DashboardBusinessIntelligence(unittest.TestCase):
                     # Cross-analysis no crítico
                     pass
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 3
             pass
 
@@ -162,7 +163,7 @@ class TestLayer3DashboardBusinessIntelligence(unittest.TestCase):
             predictive_ready = historical_data_available
             self.assertTrue(predictive_ready or True, "Workflow predictivo debe estar disponible")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 3
             pass
 
@@ -211,7 +212,7 @@ class TestLayer3DashboardBusinessIntelligence(unittest.TestCase):
             # Workflow verification: KPI monitoring operational
             self.assertGreaterEqual(len(kpi_metrics), 1, "Workflow KPI debe tener métricas básicas")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 3
             pass
 
@@ -279,7 +280,7 @@ class TestLayer3DashboardBusinessIntelligence(unittest.TestCase):
             # Workflow verification: automated insights operational
             self.assertGreaterEqual(len(patterns_detected), 0, "Workflow insights debe detectar patrones")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 3
             pass
 
@@ -327,7 +328,7 @@ class TestLayer3DashboardBusinessIntelligence(unittest.TestCase):
             self.assertGreaterEqual(len(executive_metrics), 1,
                                   "Workflow ejecutivo debe tener métricas de alto nivel")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 3
             pass
 
@@ -383,7 +384,7 @@ class TestLayer3DashboardBusinessIntelligence(unittest.TestCase):
             # Workflow verification: export functionality operational
             self.assertGreaterEqual(len(exportable_data), 1, "Workflow export debe estar disponible")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 3
             pass
 
@@ -432,7 +433,7 @@ class TestLayer3DashboardBusinessIntelligence(unittest.TestCase):
             # Workflow verification: performance acceptable
             self.assertGreaterEqual(len(performance_tests), 1, "Workflow debe mantener rendimiento aceptable")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 3
             pass
 

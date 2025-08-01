@@ -6,11 +6,12 @@ Layer 3 Complete System Integration Sprint 6 Tests
 Tests end-to-end del sistema completo Customer->Branch->Addenda->CFDI Sprint 6
 """
 
-import frappe
-import unittest
-from datetime import datetime, timedelta
 import json
 import time
+import unittest
+from datetime import datetime, timedelta
+
+import frappe
 
 
 class TestLayer3CompleteSystemIntegrationSprint6(unittest.TestCase):
@@ -388,21 +389,21 @@ class TestLayer3CompleteSystemIntegrationSprint6(unittest.TestCase):
             {
                 "item_code": "Test Item Sys Auto Part",
                 "fm_producto_servicio_sat": "25101500",  # Auto parts
-                "fm_unidad_sat": "H87",  # Piece
+                "stock_uom": "H87 - Pieza",  # SAT UOM format
                 "fm_category": "automotive",
                 "standard_rate": 500
             },
             {
                 "item_code": "Test Item Sys Retail Product",
                 "fm_producto_servicio_sat": "53131600",  # Retail products
-                "fm_unidad_sat": "H87",  # Piece
+                "stock_uom": "H87 - Pieza",  # SAT UOM format
                 "fm_category": "retail",
                 "standard_rate": 100
             },
             {
                 "item_code": "Test Item Sys Service",
                 "fm_producto_servicio_sat": "80141600",  # Professional services
-                "fm_unidad_sat": "E48",  # Service unit
+                "stock_uom": "E48 - Servicio",  # SAT UOM format
                 "fm_category": "service",
                 "standard_rate": 1000
             }
@@ -482,11 +483,6 @@ class TestLayer3CompleteSystemIntegrationSprint6(unittest.TestCase):
             ("Test Customer No Addenda", {"fm_requires_addenda": 0})
         ]
 
-        branches_config = [
-            ("Test Branch Auto", {"fm_enable_addenda": 1, "fm_addenda_specialization": "automotive"}),
-            ("Test Branch Retail", {"fm_enable_addenda": 1, "fm_addenda_specialization": "retail"}),
-            ("Test Branch Generic", {"fm_enable_addenda": 1})
-        ]
         inheritance_results = []
 
         for customer_name, customer_config in customers_config:
@@ -699,7 +695,7 @@ class TestLayer3CompleteSystemIntegrationSprint6(unittest.TestCase):
 
                 if requires_addenda:
                     # Simular generación de addenda
-                    addenda_type = invoice["config"].get("fm_default_addenda_type", "GENERIC")
+                    invoice["config"].get("fm_default_addenda_type", "GENERIC")
                     # Aquí iría la lógica real de generación
                     addenda_results["generated"] += 1
                 else:

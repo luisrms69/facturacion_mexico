@@ -6,11 +6,12 @@ Layer 4 Production Readiness Tests
 Tests de preparación para producción y deployment Sprint 6
 """
 
-import frappe
-import unittest
-import time
 import threading
-from unittest.mock import patch, MagicMock
+import time
+import unittest
+from unittest.mock import MagicMock, patch
+
+import frappe
 
 
 class TestLayer4ProductionReadiness(unittest.TestCase):
@@ -71,7 +72,7 @@ class TestLayer4ProductionReadiness(unittest.TestCase):
             self.assertGreaterEqual(len(production_checklist), 2,
                                   "Sistema debe cumplir checklist mínimo de producción")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 4
             pass
 
@@ -86,7 +87,7 @@ class TestLayer4ProductionReadiness(unittest.TestCase):
             start_time = time.time()
             concurrent_success = 0
 
-            for i in range(50):  # Simulate 50 concurrent operations
+            for _i in range(50):  # Simulate 50 concurrent operations
                 try:
                     test_query = frappe.db.sql("""
                         SELECT COUNT(*) as count
@@ -125,7 +126,7 @@ class TestLayer4ProductionReadiness(unittest.TestCase):
 
             # Test 3: Response time consistency
             response_times = []
-            for i in range(10):
+            for _i in range(10):
                 start = time.time()
                 try:
                     frappe.db.sql("SELECT 1 as test", as_dict=True)
@@ -142,7 +143,7 @@ class TestLayer4ProductionReadiness(unittest.TestCase):
             self.assertGreaterEqual(len(performance_metrics), 2,
                                   "Sistema debe mantener rendimiento de producción")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 4
             pass
 
@@ -159,7 +160,7 @@ class TestLayer4ProductionReadiness(unittest.TestCase):
                 before_count = frappe.db.count("DocType")
 
                 # Simulate stress operations
-                for i in range(10):
+                for _i in range(10):
                     test_data = frappe.db.sql("""
                         SELECT name FROM `tabDocType`
                         WHERE name IS NOT NULL
@@ -196,7 +197,7 @@ class TestLayer4ProductionReadiness(unittest.TestCase):
 
             # Test 3: Data validation under load
             validation_success = 0
-            for i in range(20):
+            for _i in range(20):
                 try:
                     # Test data validation remains active under load
                     validation_test = frappe.db.sql("""
@@ -218,7 +219,7 @@ class TestLayer4ProductionReadiness(unittest.TestCase):
             self.assertGreaterEqual(len(integrity_tests), 2,
                                   "Sistema debe mantener integridad de datos bajo estrés")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 4
             pass
 
@@ -289,7 +290,7 @@ class TestLayer4ProductionReadiness(unittest.TestCase):
             self.assertGreaterEqual(len(security_measures), 2,
                                   "Sistema debe tener medidas de seguridad endurecidas")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 4
             pass
 
@@ -364,7 +365,7 @@ class TestLayer4ProductionReadiness(unittest.TestCase):
             self.assertGreaterEqual(len(recovery_capabilities), 3,
                                   "Sistema debe tener capacidades de recuperación ante desastres")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 4
             pass
 
@@ -441,7 +442,7 @@ class TestLayer4ProductionReadiness(unittest.TestCase):
             self.assertGreaterEqual(len(monitoring_systems), 3,
                                   "Sistema debe tener sistemas de monitoreo completos")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 4
             pass
 
@@ -529,7 +530,7 @@ class TestLayer4ProductionReadiness(unittest.TestCase):
             self.assertGreaterEqual(len(compliance_features), 3,
                                   "Sistema debe estar preparado para auditoría y cumplimiento")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 4
             pass
 
@@ -562,7 +563,7 @@ class TestLayer4ProductionReadiness(unittest.TestCase):
             start_time = time.time()
 
             # Simulate concurrent users
-            for i in range(100):  # Simulate 100 concurrent operations
+            for _i in range(100):  # Simulate 100 concurrent operations
                 try:
                     concurrent_test = frappe.db.sql("SELECT 1 as test", as_dict=True)
                     if concurrent_test:
@@ -599,7 +600,7 @@ class TestLayer4ProductionReadiness(unittest.TestCase):
 
             # Test 4: Response time under load
             response_times = []
-            for i in range(20):  # Test response time consistency
+            for _i in range(20):  # Test response time consistency
                 start = time.time()
                 try:
                     frappe.db.sql("SELECT COUNT(*) FROM `tabDocType` LIMIT 1", as_dict=True)
@@ -616,7 +617,7 @@ class TestLayer4ProductionReadiness(unittest.TestCase):
             self.assertGreaterEqual(len(scalability_metrics), 3,
                                   "Sistema debe validar límites de escalabilidad")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 4
             pass
 
@@ -696,7 +697,7 @@ class TestLayer4ProductionReadiness(unittest.TestCase):
             self.assertGreaterEqual(len(maintenance_capabilities), 3,
                                   "Sistema debe estar preparado para mantenimiento y actualizaciones")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 4
             pass
 

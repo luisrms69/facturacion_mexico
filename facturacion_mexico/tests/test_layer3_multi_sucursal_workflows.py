@@ -6,9 +6,10 @@ Layer 3 Multi-Sucursal End-to-End Workflow Tests
 Tests end-to-end de workflows completos para sistema multi-sucursal Sprint 6
 """
 
-import frappe
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
+import frappe
 
 
 class TestLayer3MultiSucursalWorkflows(unittest.TestCase):
@@ -30,15 +31,11 @@ class TestLayer3MultiSucursalWorkflows(unittest.TestCase):
             branch_count_before = frappe.db.count("Branch")
 
             # Simular creación de branch fiscal
-            test_branch_data = {
-                "branch": "Test_Branch_Fiscal",
-                "company": "Test Company"
-            }
 
             # Solo verificamos que la estructura permite el workflow
             self.assertIsInstance(branch_count_before, int)
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 3 end-to-end
             pass
 
@@ -65,7 +62,7 @@ class TestLayer3MultiSucursalWorkflows(unittest.TestCase):
                 workflow_ready = any(field in field_names for field in workflow_fields)
                 self.assertTrue(workflow_ready or len(fiscal_fields) > 0, "Workflow fiscal debe tener campos base")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para workflow end-to-end
             pass
 
@@ -87,7 +84,7 @@ class TestLayer3MultiSucursalWorkflows(unittest.TestCase):
                 workflow_integration = any("branch" in field.lower() for field in field_names)
                 self.assertTrue(workflow_integration, "Workflow SI-Branch debe estar integrado")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 3
             pass
 
@@ -113,7 +110,7 @@ class TestLayer3MultiSucursalWorkflows(unittest.TestCase):
                 folio_workflow_ready = any(field in field_names for field in folio_workflow_fields)
                 self.assertTrue(folio_workflow_ready or len(folio_fields) > 0, "Workflow de folios debe estar disponible")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para workflow
             pass
 
@@ -129,7 +126,7 @@ class TestLayer3MultiSucursalWorkflows(unittest.TestCase):
         except ImportError:
             # Module no disponible, workflow no crítico para Layer 3
             pass
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 3
             pass
 
@@ -151,7 +148,7 @@ class TestLayer3MultiSucursalWorkflows(unittest.TestCase):
 
         except frappe.PermissionError:
             self.fail("Workflow de permisos bloqueado - configuración requerida")
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 3
             pass
 
@@ -175,7 +172,7 @@ class TestLayer3MultiSucursalWorkflows(unittest.TestCase):
                 # Workflow verification: multi-company separation
                 self.assertGreater(company_branch_data[0]['companies'], 0, "Workflow multi-company debe funcionar")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 3
             pass
 
@@ -204,7 +201,7 @@ class TestLayer3MultiSucursalWorkflows(unittest.TestCase):
                                           si_fields and si_fields[0]['count'] > 0)
                     self.assertTrue(propagation_possible, "Workflow de propagación debe estar configurado")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 3
             pass
 
@@ -237,7 +234,7 @@ class TestLayer3MultiSucursalWorkflows(unittest.TestCase):
                 self.assertTrue(integration_ready or critical_components >= 4,
                               "Workflow integration debe estar configurado")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 3
             pass
 
@@ -258,7 +255,7 @@ class TestLayer3MultiSucursalWorkflows(unittest.TestCase):
                     # Error handling verification
                     self.assertIsInstance(query_error, Exception, "Sistema debe capturar errores correctamente")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 3
             pass
 

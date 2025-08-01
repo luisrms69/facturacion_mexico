@@ -1,0 +1,202 @@
+[
+  {
+    "doctype": "Regimen Fiscal SAT",
+    "name": "601",
+    "code": "601",
+    "description": "General de Ley Personas Morales",
+    "aplica_fisica": 0,
+    "aplica_moral": 1,
+    "vigencia_desde": "2017-07-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Regimen Fiscal SAT",
+    "name": "603",
+    "code": "603",
+    "description": "Personas Morales con Fines no Lucrativos",
+    "aplica_fisica": 0,
+    "aplica_moral": 1,
+    "vigencia_desde": "2017-07-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Regimen Fiscal SAT",
+    "name": "605",
+    "code": "605",
+    "description": "Sueldos y Salarios e Ingresos Asimilados a Salarios",
+    "aplica_fisica": 1,
+    "aplica_moral": 0,
+    "vigencia_desde": "2017-07-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Regimen Fiscal SAT",
+    "name": "606",
+    "code": "606",
+    "description": "Arrendamiento",
+    "aplica_fisica": 1,
+    "aplica_moral": 0,
+    "vigencia_desde": "2017-07-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Regimen Fiscal SAT",
+    "name": "607",
+    "code": "607",
+    "description": "Régimen de Enajenación o Adquisición de Bienes",
+    "aplica_fisica": 1,
+    "aplica_moral": 0,
+    "vigencia_desde": "2017-07-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Regimen Fiscal SAT",
+    "name": "608",
+    "code": "608",
+    "description": "Demás ingresos",
+    "aplica_fisica": 1,
+    "aplica_moral": 0,
+    "vigencia_desde": "2017-07-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Regimen Fiscal SAT",
+    "name": "609",
+    "code": "609",
+    "description": "Consolidación",
+    "aplica_fisica": 0,
+    "aplica_moral": 1,
+    "vigencia_desde": "2010-01-01",
+    "vigencia_hasta": "2013-12-31"
+  },
+  {
+    "doctype": "Regimen Fiscal SAT", 
+    "name": "610",
+    "code": "610",
+    "description": "Residentes en el Extranjero sin Establecimiento Permanente en México",
+    "aplica_fisica": 1,
+    "aplica_moral": 1,
+    "vigencia_desde": "2017-07-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Regimen Fiscal SAT",
+    "name": "611",
+    "code": "611", 
+    "description": "Ingresos por Dividendos (socios y accionistas)",
+    "aplica_fisica": 1,
+    "aplica_moral": 0,
+    "vigencia_desde": "2017-07-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Regimen Fiscal SAT",
+    "name": "612",
+    "code": "612",
+    "description": "Personas Físicas con Actividades Empresariales y Profesionales",
+    "aplica_fisica": 1,
+    "aplica_moral": 0,
+    "vigencia_desde": "2017-07-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Regimen Fiscal SAT",
+    "name": "614",
+    "code": "614",
+    "description": "Ingresos por intereses",
+    "aplica_fisica": 1,
+    "aplica_moral": 0,
+    "vigencia_desde": "2017-07-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Regimen Fiscal SAT",
+    "name": "615",
+    "code": "615",
+    "description": "Régimen de los ingresos por obtención de premios",
+    "aplica_fisica": 1,
+    "aplica_moral": 0,
+    "vigencia_desde": "2017-07-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Regimen Fiscal SAT",
+    "name": "616",
+    "code": "616",
+    "description": "Sin obligaciones fiscales",
+    "aplica_fisica": 1,
+    "aplica_moral": 0,
+    "vigencia_desde": "2017-07-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Regimen Fiscal SAT",
+    "name": "620",
+    "code": "620",
+    "description": "Sociedades Cooperativas de Producción que optan por diferir sus ingresos",
+    "aplica_fisica": 0,
+    "aplica_moral": 1,
+    "vigencia_desde": "2017-07-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Regimen Fiscal SAT",
+    "name": "621",
+    "code": "621",
+    "description": "Incorporación Fiscal",
+    "aplica_fisica": 1,
+    "aplica_moral": 0,
+    "vigencia_desde": "2017-07-01",
+    "vigencia_hasta": "2021-12-31"
+  },
+  {
+    "doctype": "Regimen Fiscal SAT",
+    "name": "622",
+    "code": "622",
+    "description": "Actividades Agrícolas, Ganaderas, Silvícolas y Pesqueras",
+    "aplica_fisica": 1,
+    "aplica_moral": 1,
+    "vigencia_desde": "2017-07-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Regimen Fiscal SAT",
+    "name": "623",
+    "code": "623",
+    "description": "Opcional para Grupos de Sociedades",
+    "aplica_fisica": 0,
+    "aplica_moral": 1,
+    "vigencia_desde": "2017-07-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Regimen Fiscal SAT",
+    "name": "624",
+    "code": "624",
+    "description": "Coordinados",
+    "aplica_fisica": 0,
+    "aplica_moral": 1,
+    "vigencia_desde": "2017-07-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Regimen Fiscal SAT",
+    "name": "625",
+    "code": "625",
+    "description": "Régimen de las Actividades Empresariales con ingresos a través de Plataformas Tecnológicas",
+    "aplica_fisica": 1,
+    "aplica_moral": 0,
+    "vigencia_desde": "2020-01-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Regimen Fiscal SAT",
+    "name": "626",
+    "code": "626",
+    "description": "Régimen Simplificado de Confianza",
+    "aplica_fisica": 1,
+    "aplica_moral": 1,
+    "vigencia_desde": "2022-01-01",
+    "vigencia_hasta": null
+  }
+]

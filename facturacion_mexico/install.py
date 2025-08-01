@@ -54,62 +54,17 @@ def setup_multi_sucursal_system():
 
 
 def create_basic_sat_catalogs():
-	"""Crear catálogos básicos SAT."""
-	basic_uso_cfdi = [
-		{"code": "G01", "description": "Adquisición de mercancías", "aplica_fisica": 1, "aplica_moral": 1},
-		{
-			"code": "G02",
-			"description": "Devoluciones, descuentos o bonificaciones",
-			"aplica_fisica": 1,
-			"aplica_moral": 1,
-		},
-		{"code": "G03", "description": "Gastos en general", "aplica_fisica": 1, "aplica_moral": 1},
-		{"code": "P01", "description": "Por definir", "aplica_fisica": 1, "aplica_moral": 1},
-	]
+	"""
+	SAT Catalogs are now managed exclusively via fixtures following migration plan.
 
-	for uso in basic_uso_cfdi:
-		try:
-			if not frappe.db.exists("Uso CFDI SAT", uso["code"]):
-				doc = frappe.new_doc("Uso CFDI SAT")
-				doc.update(uso)
-				doc.save()
-		except Exception:
-			continue
+	IMPORTANT: SAT catalogs (Uso CFDI, Regimen Fiscal, Forma Pago) are automatically
+	loaded via fixtures defined in hooks.py. This function is kept for backward
+	compatibility but no longer creates catalogs manually.
 
-	basic_regimen_fiscal = [
-		{
-			"code": "601",
-			"description": "General de Ley Personas Morales",
-			"aplica_fisica": 0,
-			"aplica_moral": 1,
-		},
-		{
-			"code": "603",
-			"description": "Personas Morales con Fines no Lucrativos",
-			"aplica_fisica": 0,
-			"aplica_moral": 1,
-		},
-		{
-			"code": "605",
-			"description": "Sueldos y Salarios e Ingresos Asimilados a Salarios",
-			"aplica_fisica": 1,
-			"aplica_moral": 0,
-		},
-		{
-			"code": "612",
-			"description": "Personas Físicas con Actividades Empresariales y Profesionales",
-			"aplica_fisica": 1,
-			"aplica_moral": 0,
-		},
-	]
-
-	for regimen in basic_regimen_fiscal:
-		if not frappe.db.exists("Regimen Fiscal SAT", regimen["code"]):
-			doc = frappe.new_doc("Regimen Fiscal SAT")
-			doc.update(regimen)
-			doc.save()
-
-	frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required for test environment SAT catalogs
+	See SAT Catalogs Migration Plan - All catalogs now use fixtures per Frappe best practices.
+	"""
+	print("✅ SAT catalogs managed via fixtures - no manual creation needed")
+	return True
 
 
 def before_tests():

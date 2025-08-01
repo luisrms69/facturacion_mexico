@@ -6,9 +6,10 @@ Layer 3 Addenda Multi-Sucursal Workflows Tests
 Tests end-to-end de workflows completos para integración Addenda-Multi-Sucursal Sprint 6
 """
 
-import frappe
 import unittest
 from datetime import datetime, timedelta
+
+import frappe
 
 
 class TestLayer3AddendaMultiSucursalWorkflows(unittest.TestCase):
@@ -711,7 +712,7 @@ class TestLayer3AddendaMultiSucursalWorkflows(unittest.TestCase):
 
             for module_path in xml_modules:
                 try:
-                    module = __import__(module_path, fromlist=[''])
+                    __import__(module_path, fromlist=[''])
                     return f"XML module available: {module_path}"
                 except ImportError:
                     continue
@@ -723,7 +724,7 @@ class TestLayer3AddendaMultiSucursalWorkflows(unittest.TestCase):
     def validate_customer_specific_addenda_behavior(self, sales_invoice, config):
         """Validar comportamiento específico de addenda por customer"""
         try:
-            si_doc = frappe.get_doc("Sales Invoice", sales_invoice)
+            frappe.get_doc("Sales Invoice", sales_invoice)
 
             if config["requires"]:
                 # Customer debe tener configuración de addenda

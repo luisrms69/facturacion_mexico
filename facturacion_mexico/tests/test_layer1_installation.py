@@ -6,8 +6,9 @@ Layer 1 Installation Tests
 Tests básicos para verificar que la instalación de la app funciona correctamente
 """
 
-import frappe
 import unittest
+
+import frappe
 
 
 class TestLayer1Installation(unittest.TestCase):

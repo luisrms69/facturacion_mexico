@@ -6,10 +6,11 @@ Layer 3 Complete System Integration End-to-End Tests
 Tests end-to-end de integración completa del sistema Sprint 6
 """
 
-import frappe
-import unittest
-from unittest.mock import patch, MagicMock
 import time
+import unittest
+from unittest.mock import MagicMock, patch
+
+import frappe
 
 
 class TestLayer3CompleteSystemIntegration(unittest.TestCase):
@@ -47,7 +48,7 @@ class TestLayer3CompleteSystemIntegration(unittest.TestCase):
                 data_flow_possible = (company_count >= 0 and invoice_count >= 0)
                 self.assertTrue(data_flow_possible, "Workflow debe permitir flujo de datos end-to-end")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 3
             pass
 
@@ -99,7 +100,7 @@ class TestLayer3CompleteSystemIntegration(unittest.TestCase):
             self.assertGreaterEqual(len(integration_points), 1,
                                   "Sistema debe tener integración entre módulos")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 3
             pass
 
@@ -160,7 +161,7 @@ class TestLayer3CompleteSystemIntegration(unittest.TestCase):
             self.assertGreaterEqual(len(consistency_checks), 1,
                                   "Sistema debe mantener consistencia de datos")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 3
             pass
 
@@ -185,7 +186,7 @@ class TestLayer3CompleteSystemIntegration(unittest.TestCase):
 
             # Test multiple concurrent operations simulation
             concurrent_operations = 0
-            for i in range(10):
+            for _i in range(10):
                 try:
                     test_operation = frappe.db.sql("SELECT 1 as test", as_dict=True)
                     if test_operation:
@@ -213,7 +214,7 @@ class TestLayer3CompleteSystemIntegration(unittest.TestCase):
             self.assertGreaterEqual(len(performance_metrics), 1,
                                   "Sistema debe demostrar escalabilidad básica")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 3
             pass
 
@@ -230,7 +231,7 @@ class TestLayer3CompleteSystemIntegration(unittest.TestCase):
                 error_test_query = frappe.db.sql("SELECT 1 as error_test", as_dict=True)
                 if error_test_query:
                     error_handling_tests.append('db_connection_stable')
-            except Exception as e:
+            except Exception:
                 # Test that system handles database errors gracefully
                 error_handling_tests.append('db_error_handled')
 
@@ -261,7 +262,7 @@ class TestLayer3CompleteSystemIntegration(unittest.TestCase):
             self.assertGreaterEqual(len(error_handling_tests), 2,
                                   "Sistema debe manejar errores efectivamente")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 3
             pass
 
@@ -323,7 +324,7 @@ class TestLayer3CompleteSystemIntegration(unittest.TestCase):
             self.assertGreaterEqual(len(security_components), 2,
                                   "Sistema debe tener medidas de seguridad integradas")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 3
             pass
 
@@ -386,7 +387,7 @@ class TestLayer3CompleteSystemIntegration(unittest.TestCase):
             self.assertGreaterEqual(len(monitoring_capabilities), 2,
                                   "Sistema debe tener capacidades de monitoreo")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 3
             pass
 
@@ -453,7 +454,7 @@ class TestLayer3CompleteSystemIntegration(unittest.TestCase):
             self.assertGreaterEqual(len(backup_recovery_tests), 2,
                                   "Sistema debe tener capacidades de backup y recuperación")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 3
             pass
 

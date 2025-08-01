@@ -6,9 +6,10 @@ Layer 3 CFDI Generation End-to-End Workflow Tests
 Tests end-to-end completos para generación CFDI 4.0 Sprint 6
 """
 
-import frappe
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
+import frappe
 
 
 class TestLayer3CFDIGenerationWorkflows(unittest.TestCase):
@@ -79,7 +80,7 @@ class TestLayer3CFDIGenerationWorkflows(unittest.TestCase):
                         catalog_count = frappe.db.count(doctype_name)
                         self.assertIsInstance(catalog_count, int, f"Catálogo {catalog_name} debe estar disponible")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 3
             pass
 
@@ -98,7 +99,7 @@ class TestLayer3CFDIGenerationWorkflows(unittest.TestCase):
                     validation_logs = frappe.db.count("Validacion CFDI")
                     self.assertIsInstance(validation_logs, int, "Workflow debe capturar validaciones")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 3
             pass
 
@@ -124,7 +125,7 @@ class TestLayer3CFDIGenerationWorkflows(unittest.TestCase):
                     self.assertGreater(customer_addenda_fields[0]['count'], 0,
                                      "Workflow addenda-customer debe estar integrado")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 3
             pass
 
@@ -143,7 +144,7 @@ class TestLayer3CFDIGenerationWorkflows(unittest.TestCase):
                     settings_count = frappe.db.count("Global Invoice Settings")
                     self.assertIsInstance(settings_count, int, "Workflow debe tener configuración")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 3
             pass
 
@@ -186,7 +187,7 @@ class TestLayer3CFDIGenerationWorkflows(unittest.TestCase):
             self.assertGreaterEqual(len(fiscal_flow_components), 1,
                                   "Workflow de datos fiscales debe estar configurado")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 3
             pass
 
@@ -209,7 +210,7 @@ class TestLayer3CFDIGenerationWorkflows(unittest.TestCase):
             # Workflow puede generar XML usando templates
             self.assertTrue(xml_utilities_available or True, "Workflow XML debe estar disponible")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 3
             pass
 
@@ -233,7 +234,7 @@ class TestLayer3CFDIGenerationWorkflows(unittest.TestCase):
             # Workflow verification: error recovery system operational
             self.assertTrue(error_handling_available, "Workflow de recuperación debe estar operacional")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 3
             pass
 
@@ -246,7 +247,7 @@ class TestLayer3CFDIGenerationWorkflows(unittest.TestCase):
             operations_count = 0
 
             # Test basic database operations performance
-            for i in range(5):
+            for _i in range(5):
                 try:
                     test_query = frappe.db.sql("SELECT 1 as test LIMIT 1", as_dict=True)
                     if test_query:
@@ -257,7 +258,7 @@ class TestLayer3CFDIGenerationWorkflows(unittest.TestCase):
             # Workflow verification: system maintains performance
             self.assertGreaterEqual(operations_count, 3, "Workflow debe mantener rendimiento aceptable")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 3
             pass
 
@@ -287,7 +288,7 @@ class TestLayer3CFDIGenerationWorkflows(unittest.TestCase):
             audit_capability = len(compliance_components) > 0
             self.assertTrue(audit_capability, "Workflow debe soportar auditoría")
 
-        except Exception as e:
+        except Exception:
             # Error no crítico para Layer 3
             pass
 

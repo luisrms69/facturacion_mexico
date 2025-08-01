@@ -6,8 +6,9 @@ Layer 2 Multi-Sucursal Integration Tests
 Tests de integración para el sistema multi-sucursal Sprint 6
 """
 
-import frappe
 import unittest
+
+import frappe
 
 
 class TestLayer2MultiSucursal(unittest.TestCase):
@@ -53,12 +54,12 @@ class TestLayer2MultiSucursal(unittest.TestCase):
             # Test de importación de módulos de integración
             # REMOVED: create_branch_fiscal_custom_fields - migrated to fixtures
             from facturacion_mexico.multi_sucursal.custom_fields.branch_fiscal_fields import (
-                remove_branch_fiscal_custom_fields
+                remove_branch_fiscal_custom_fields,
             )
             self.assertIsNotNone(remove_branch_fiscal_custom_fields)
 
             from facturacion_mexico.multi_sucursal.doctype.configuracion_fiscal_sucursal.configuracion_fiscal_sucursal import (
-                create_default_config
+                create_default_config,
             )
             self.assertIsNotNone(create_default_config)
 

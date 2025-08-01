@@ -6,8 +6,9 @@ Layer 1 Basic Infrastructure Tests
 Tests básicos para verificar infraestructura core de facturación México
 """
 
-import frappe
 import unittest
+
+import frappe
 from frappe.test_runner import make_test_records
 
 

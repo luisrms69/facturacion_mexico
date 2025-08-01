@@ -8,6 +8,45 @@ from .api_client import get_facturapi_client
 from .doctype.fiscal_event_mx.fiscal_event_mx import FiscalEventMX
 
 
+def _extract_sat_code_from_uom(uom_name):
+	"""
+	Extraer código SAT de UOM con formato 'CODIGO - Descripción'
+
+	Args:
+		uom_name (str): UOM name como "H87 - Pieza" o "KGM - Kilogramo"
+
+	Returns:
+		str: Código SAT extraído como "H87" o fallback "H87"
+	"""
+	if not uom_name:
+		return "H87"  # Fallback por defecto
+
+	# Verificar si tiene formato SAT: "CODIGO - Descripción"
+	if " - " in uom_name:
+		parts = uom_name.split(" - ")
+		if len(parts) >= 2 and parts[0].strip():
+			return parts[0].strip()
+
+	# Si no tiene formato SAT, intentar mapear UOMs genéricas comunes
+	uom_mapping = {
+		"Pieza": "H87",
+		"Piece": "H87",
+		"Unit": "H87",
+		"Nos": "H87",
+		"Kg": "KGM",
+		"Kilogram": "KGM",
+		"Gram": "GRM",
+		"Liter": "LTR",
+		"Litre": "LTR",
+		"Meter": "MTR",
+		"Hour": "HUR",
+		"Service": "E48",
+		"Activity": "ACT",
+	}
+
+	return uom_mapping.get(uom_name, "H87")
+
+
 class TimbradoAPI:
 	"""API para timbrado de facturas usando FacturAPI.io."""
 
@@ -177,7 +216,7 @@ class TimbradoAPI:
 						"description": item.description or item.item_name,
 						"product_key": item_doc.fm_producto_servicio_sat or "01010101",
 						"price": flt(item.rate),
-						"unit_key": item_doc.fm_unidad_sat or "H87",
+						"unit_key": _extract_sat_code_from_uom(item.uom),
 						"unit_name": item.uom or "Pieza",
 					},
 				}

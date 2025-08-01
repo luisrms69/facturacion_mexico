@@ -6,8 +6,9 @@ Layer 1 Custom Fields Tests
 Tests básicos para verificar custom fields funcionan correctamente
 """
 
-import frappe
 import unittest
+
+import frappe
 
 
 class TestLayer1CustomFields(unittest.TestCase):
@@ -28,7 +29,7 @@ class TestLayer1CustomFields(unittest.TestCase):
         """, as_dict=True)
 
         # Verificar que existen algunos campos básicos
-        field_names = [f.fieldname for f in customer_fields]
+        [f.fieldname for f in customer_fields]
 
         # Verificar que tax_id (RFC) está disponible en Customer
         customer_meta = frappe.get_meta("Customer")

@@ -49,14 +49,14 @@ class TestDraftManagement(unittest.TestCase):
 
     def test_create_draft_invoice_function_exists(self):
         """Test: Verificar que función de creación existe y es llamable"""
-        self.assertTrue(hasattr(create_draft_invoice, '__call__'))
+        self.assertTrue(callable(create_draft_invoice))
         # Test con argumentos inválidos para verificar manejo de errores
         try:
             result = create_draft_invoice("NON_EXISTENT_INVOICE")
             # Debe retornar un dict con success=False
             self.assertIsInstance(result, dict)
             self.assertIn("success", result)
-        except Exception as e:
+        except Exception:
             # Es aceptable que falle, lo importante es que no crashee el import
             pass
 

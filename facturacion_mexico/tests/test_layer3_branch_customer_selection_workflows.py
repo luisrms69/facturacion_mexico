@@ -6,9 +6,10 @@ Layer 3 Branch Customer Selection Workflows Tests
 Tests end-to-end de workflows de selección Branch-Customer para Sprint 6
 """
 
-import frappe
 import unittest
 from datetime import datetime, timedelta
+
+import frappe
 
 
 class TestLayer3BranchCustomerSelectionWorkflows(unittest.TestCase):
@@ -226,7 +227,7 @@ class TestLayer3BranchCustomerSelectionWorkflows(unittest.TestCase):
 
         # PASO 4: Verificar distribución equilibrada
         branch_usage = {}
-        for invoice, branch in created_invoices:
+        for _invoice, branch in created_invoices:
             branch_usage[branch] = branch_usage.get(branch, 0) + 1
 
         print("Distribución de carga por branch:")
@@ -462,7 +463,7 @@ class TestLayer3BranchCustomerSelectionWorkflows(unittest.TestCase):
         if sales_invoice:
             print(f"✓ Sales Invoice creado con selección multi-criterio: {sales_invoice}")
         else:
-            print(f"⚠ Sales Invoice no creado - posible problema de configuración en testing")
+            print("⚠ Sales Invoice no creado - posible problema de configuración en testing")
 
     # =================== MÉTODOS AUXILIARES ===================
 
@@ -794,7 +795,7 @@ class TestLayer3BranchCustomerSelectionWorkflows(unittest.TestCase):
             except Exception:
                 pass
             # Último fallback
-            return f"Sales - TC"
+            return "Sales - TC"
 
     def validate_branch_selection_logic(self, sales_invoice, customer, selected_branch):
         """Validar lógica de selección de branch"""

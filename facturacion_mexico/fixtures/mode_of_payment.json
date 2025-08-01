@@ -1,0 +1,222 @@
+[
+ {
+  "accounts": [],
+  "docstatus": 0,
+  "doctype": "Mode of Payment",
+  "enabled": 1,
+  "mode_of_payment": "01 - Efectivo",
+  "modified": "2025-08-01 02:19:40.072464",
+  "name": "01 - Efectivo",
+  "type": "General"
+ },
+ {
+  "accounts": [],
+  "docstatus": 0,
+  "doctype": "Mode of Payment",
+  "enabled": 1,
+  "mode_of_payment": "02 - Cheque nominativo",
+  "modified": "2025-08-01 02:19:40.218555",
+  "name": "02 - Cheque nominativo",
+  "type": "General"
+ },
+ {
+  "accounts": [],
+  "docstatus": 0,
+  "doctype": "Mode of Payment",
+  "enabled": 1,
+  "mode_of_payment": "03 - Transferencia electrónica de fondos",
+  "modified": "2025-08-01 02:19:40.223135",
+  "name": "03 - Transferencia electrónica de fondos",
+  "type": "General"
+ },
+ {
+  "accounts": [],
+  "docstatus": 0,
+  "doctype": "Mode of Payment",
+  "enabled": 1,
+  "mode_of_payment": "04 - Tarjeta de crédito",
+  "modified": "2025-08-01 02:19:40.226123",
+  "name": "04 - Tarjeta de crédito",
+  "type": "General"
+ },
+ {
+  "accounts": [],
+  "docstatus": 0,
+  "doctype": "Mode of Payment",
+  "enabled": 1,
+  "mode_of_payment": "05 - Monedero electrónico",
+  "modified": "2025-08-01 02:19:40.229576",
+  "name": "05 - Monedero electrónico",
+  "type": "General"
+ },
+ {
+  "accounts": [],
+  "docstatus": 0,
+  "doctype": "Mode of Payment",
+  "enabled": 1,
+  "mode_of_payment": "06 - Dinero electrónico",
+  "modified": "2025-08-01 02:19:40.232925",
+  "name": "06 - Dinero electrónico",
+  "type": "General"
+ },
+ {
+  "accounts": [],
+  "docstatus": 0,
+  "doctype": "Mode of Payment",
+  "enabled": 1,
+  "mode_of_payment": "08 - Vales de despensa",
+  "modified": "2025-08-01 02:19:40.235260",
+  "name": "08 - Vales de despensa",
+  "type": "General"
+ },
+ {
+  "accounts": [],
+  "docstatus": 0,
+  "doctype": "Mode of Payment",
+  "enabled": 1,
+  "mode_of_payment": "12 - Dación en pago",
+  "modified": "2025-08-01 02:19:40.237308",
+  "name": "12 - Dación en pago",
+  "type": "General"
+ },
+ {
+  "accounts": [],
+  "docstatus": 0,
+  "doctype": "Mode of Payment",
+  "enabled": 1,
+  "mode_of_payment": "13 - Pago por subrogación",
+  "modified": "2025-08-01 02:19:40.239330",
+  "name": "13 - Pago por subrogación",
+  "type": "General"
+ },
+ {
+  "accounts": [],
+  "docstatus": 0,
+  "doctype": "Mode of Payment",
+  "enabled": 1,
+  "mode_of_payment": "14 - Pago por consignación",
+  "modified": "2025-08-01 02:19:40.241149",
+  "name": "14 - Pago por consignación",
+  "type": "General"
+ },
+ {
+  "accounts": [],
+  "docstatus": 0,
+  "doctype": "Mode of Payment",
+  "enabled": 1,
+  "mode_of_payment": "15 - Condonación",
+  "modified": "2025-08-01 02:19:40.243078",
+  "name": "15 - Condonación",
+  "type": "General"
+ },
+ {
+  "accounts": [],
+  "docstatus": 0,
+  "doctype": "Mode of Payment",
+  "enabled": 1,
+  "mode_of_payment": "17 - Compensación",
+  "modified": "2025-08-01 02:19:40.244811",
+  "name": "17 - Compensación",
+  "type": "General"
+ },
+ {
+  "accounts": [],
+  "docstatus": 0,
+  "doctype": "Mode of Payment",
+  "enabled": 1,
+  "mode_of_payment": "23 - Novación",
+  "modified": "2025-08-01 02:19:40.246807",
+  "name": "23 - Novación",
+  "type": "General"
+ },
+ {
+  "accounts": [],
+  "docstatus": 0,
+  "doctype": "Mode of Payment",
+  "enabled": 1,
+  "mode_of_payment": "24 - Confusión",
+  "modified": "2025-08-01 02:19:40.251324",
+  "name": "24 - Confusión",
+  "type": "General"
+ },
+ {
+  "accounts": [],
+  "docstatus": 0,
+  "doctype": "Mode of Payment",
+  "enabled": 1,
+  "mode_of_payment": "25 - Remisión de deuda",
+  "modified": "2025-08-01 02:19:40.256698",
+  "name": "25 - Remisión de deuda",
+  "type": "General"
+ },
+ {
+  "accounts": [],
+  "docstatus": 0,
+  "doctype": "Mode of Payment",
+  "enabled": 1,
+  "mode_of_payment": "26 - Prescripción o caducidad",
+  "modified": "2025-08-01 02:19:40.262354",
+  "name": "26 - Prescripción o caducidad",
+  "type": "General"
+ },
+ {
+  "accounts": [],
+  "docstatus": 0,
+  "doctype": "Mode of Payment",
+  "enabled": 1,
+  "mode_of_payment": "27 - A satisfacción del acreedor",
+  "modified": "2025-08-01 02:19:40.268078",
+  "name": "27 - A satisfacción del acreedor",
+  "type": "General"
+ },
+ {
+  "accounts": [],
+  "docstatus": 0,
+  "doctype": "Mode of Payment",
+  "enabled": 1,
+  "mode_of_payment": "28 - Tarjeta de débito",
+  "modified": "2025-08-01 02:19:40.274263",
+  "name": "28 - Tarjeta de débito",
+  "type": "General"
+ },
+ {
+  "accounts": [],
+  "docstatus": 0,
+  "doctype": "Mode of Payment",
+  "enabled": 1,
+  "mode_of_payment": "29 - Tarjeta de servicios",
+  "modified": "2025-08-01 02:19:40.278991",
+  "name": "29 - Tarjeta de servicios",
+  "type": "General"
+ },
+ {
+  "accounts": [],
+  "docstatus": 0,
+  "doctype": "Mode of Payment",
+  "enabled": 1,
+  "mode_of_payment": "30 - Aplicación de anticipos",
+  "modified": "2025-08-01 02:19:40.284201",
+  "name": "30 - Aplicación de anticipos",
+  "type": "General"
+ },
+ {
+  "accounts": [],
+  "docstatus": 0,
+  "doctype": "Mode of Payment",
+  "enabled": 1,
+  "mode_of_payment": "31 - Intermediario pagos",
+  "modified": "2025-08-01 02:19:40.288160",
+  "name": "31 - Intermediario pagos",
+  "type": "General"
+ },
+ {
+  "accounts": [],
+  "docstatus": 0,
+  "doctype": "Mode of Payment",
+  "enabled": 1,
+  "mode_of_payment": "99 - Por definir",
+  "modified": "2025-08-01 02:19:40.291445",
+  "name": "99 - Por definir",
+  "type": "General"
+ }
+]

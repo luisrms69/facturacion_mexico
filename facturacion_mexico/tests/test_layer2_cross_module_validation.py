@@ -6,8 +6,9 @@ Layer 2 Cross-Module Validation Tests
 Tests de validación cruzada entre módulos Multi-Sucursal y Addendas Sprint 6
 """
 
-import frappe
 import unittest
+
+import frappe
 
 
 class TestLayer2CrossModuleValidation(unittest.TestCase):
@@ -38,7 +39,7 @@ class TestLayer2CrossModuleValidation(unittest.TestCase):
             'column_break_fiscal_mx', 'fiscal_status', 'uuid_fiscal',
             'factura_fiscal_mx', 'rfc', 'column_break_fiscal_customer',
             'regimen_fiscal', 'uso_cfdi_default', 'clasificacion_sat_section',
-            'producto_servicio_sat', 'column_break_item_sat', 'unidad_sat'
+            'producto_servicio_sat', 'column_break_item_sat', 'fm_unidad_sat'
         ]
 
         real_inconsistent = [f for f in inconsistent_fields
@@ -67,7 +68,7 @@ class TestLayer2CrossModuleValidation(unittest.TestCase):
                 by_doctype[field.dt] = []
             by_doctype[field.dt].append(field)
 
-        for doctype, fields in by_doctype.items():
+        for _doctype, fields in by_doctype.items():
             field_names = {f.fieldname for f in fields}
 
             # Verificar referencias circulares
@@ -282,7 +283,7 @@ class TestLayer2CrossModuleValidation(unittest.TestCase):
 
         for module_path in module_paths:
             try:
-                module = __import__(module_path, fromlist=[''])
+                __import__(module_path, fromlist=[''])
                 loaded_modules.append(module_path)
             except ImportError as e:
                 failed_modules.append((module_path, str(e)))

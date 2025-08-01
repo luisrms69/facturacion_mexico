@@ -6,8 +6,9 @@ Layer 2 Addenda Multi-Sucursal Integration Tests
 Tests de integración específicos para el sistema combinado Addenda + Multi-Sucursal Sprint 6
 """
 
-import frappe
 import unittest
+
+import frappe
 
 
 class TestLayer2AddendaMultiSucursalIntegration(unittest.TestCase):
@@ -285,7 +286,7 @@ class TestLayer2AddendaMultiSucursalIntegration(unittest.TestCase):
             print(f"✓ Secciones organizadas: Multi-Sucursal={multi_sucursal_sections}, Addenda={addenda_sections}")
 
         # 3. Verificar orden lógico de campos
-        insert_after_values = [f.insert_after for f in si_fields if f.insert_after]
+        [f.insert_after for f in si_fields if f.insert_after]
 
         # No debe haber referencias circulares
         self.assertNotIn(None, [f.fieldname for f in si_fields],
