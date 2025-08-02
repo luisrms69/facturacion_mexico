@@ -9,6 +9,9 @@ frappe.ui.form.on("Factura Fiscal Mexico", {
 		// Configurar radio buttons para payment method
 		setup_payment_method_radio_buttons(frm);
 
+		// PUNTOS 8-9: Controlar visibilidad según estado de timbrado
+		control_field_visibility_by_status(frm);
+
 		// Agregar botones de funcionalidad fiscal
 		add_fiscal_buttons(frm);
 	},
@@ -35,6 +38,11 @@ frappe.ui.form.on("Factura Fiscal Mexico", {
 	validate: function (frm) {
 		// Validaciones antes de guardar
 		validate_fiscal_data(frm);
+	},
+
+	fm_fiscal_status: function (frm) {
+		// PUNTOS 8-9: Actualizar visibilidad cuando cambia el estado fiscal
+		control_field_visibility_by_status(frm);
 	},
 });
 
@@ -236,6 +244,12 @@ function add_fiscal_buttons(frm) {
 		frm.add_custom_button(__("Test Conexión PAC"), function () {
 			test_pac_connection(frm);
 		}).addClass("btn-secondary");
+
+		// Debug button para probar visibilidad
+		frm.add_custom_button(__("🔧 Debug Visibilidad"), function () {
+			console.log("=== DEBUG MANUAL ===");
+			control_field_visibility_by_status(frm);
+		}).addClass("btn-warning");
 	}
 
 	// Navegación a Sales Invoice relacionada
@@ -582,5 +596,120 @@ function update_radio_button_highlighting(field, selected_value) {
 			padding: "8px 12px",
 			"box-shadow": "0 2px 4px rgba(255, 193, 7, 0.2)",
 		});
+	}
+}
+
+// ========================================
+// IMPLEMENTACIÓN PUNTOS 8-9: Visibilidad Dinámica por Estado
+// ========================================
+
+function control_field_visibility_by_status(frm) {
+	// Control dinámico de visibilidad según fm_fiscal_status
+	const fiscal_status = frm.doc.fm_fiscal_status || "Pendiente";
+
+	// Debug logging
+	console.log(`[DEBUG] Estado fiscal actual: ${fiscal_status}`);
+	console.log(`[DEBUG] Campos disponibles:`, Object.keys(frm.fields_dict));
+
+	// Campos que vienen de FacturAPI response (Punto 8)
+	const facturapi_response_fields = [
+		"uuid", // UUID fiscal del SAT (DocType field)
+		"serie", // Serie de la factura (DocType field)
+		"folio", // Folio de la factura (DocType field)
+		"total_fiscal", // Total de la factura fiscal (DocType field)
+		"facturapi_id", // ID retornado por FacturAPI.io (DocType field)
+		"fm_uuid_fiscal", // UUID fiscal custom field (si existe)
+		"fm_serie_folio", // Serie y Folio custom field (si existe)
+	];
+
+	// Campos de archivos fiscales
+	const fiscal_files_fields = [
+		"pdf_file", // Archivo PDF
+		"xml_file", // Archivo XML
+	];
+
+	// Campos y sección de cancelación (Punto 9)
+	const cancellation_fields = [
+		"cancellation_reason", // Motivo de Cancelación
+		"cancellation_date", // Fecha de Cancelación
+	];
+
+	// Lógica de visibilidad según estado
+	if (fiscal_status === "Pendiente") {
+		// ESTADO PENDIENTE: Ocultar todo lo que viene después del timbrado
+		hide_fields(frm, facturapi_response_fields);
+		hide_fields(frm, fiscal_files_fields);
+		hide_fields(frm, cancellation_fields);
+		hide_section(frm, "section_break_archivos"); // Sección Archivos Fiscales
+		hide_section(frm, "section_break_cancelacion"); // Sección Cancelación
+	} else if (fiscal_status === "Timbrada") {
+		// ESTADO TIMBRADA: Mostrar datos de FacturAPI, ocultar cancelación
+		show_fields(frm, facturapi_response_fields);
+		show_fields(frm, fiscal_files_fields);
+		hide_fields(frm, cancellation_fields);
+		show_section(frm, "section_break_archivos"); // Mostrar Archivos Fiscales
+		hide_section(frm, "section_break_cancelacion"); // Ocultar Cancelación
+	} else if (fiscal_status === "Cancelada") {
+		// ESTADO CANCELADA: Mostrar todo incluyendo información de cancelación
+		show_fields(frm, facturapi_response_fields);
+		show_fields(frm, fiscal_files_fields);
+		show_fields(frm, cancellation_fields);
+		show_section(frm, "section_break_archivos"); // Mostrar Archivos Fiscales
+		show_section(frm, "section_break_cancelacion"); // Mostrar Cancelación
+	} else if (fiscal_status === "Error") {
+		// ESTADO ERROR: Mostrar campos básicos, ocultar respuesta y cancelación
+		hide_fields(frm, facturapi_response_fields);
+		hide_fields(frm, fiscal_files_fields);
+		hide_fields(frm, cancellation_fields);
+		hide_section(frm, "section_break_archivos");
+		hide_section(frm, "section_break_cancelacion");
+	} else if (fiscal_status === "Solicitud Cancelación") {
+		// ESTADO SOLICITUD CANCELACIÓN: Como timbrada pero indicando proceso
+		show_fields(frm, facturapi_response_fields);
+		show_fields(frm, fiscal_files_fields);
+		hide_fields(frm, cancellation_fields);
+		show_section(frm, "section_break_archivos");
+		hide_section(frm, "section_break_cancelacion"); // Aún no confirmada
+	}
+
+	// Log para debugging
+	console.log(`[Field Visibility] Estado: ${fiscal_status} - Visibilidad aplicada`);
+}
+
+function hide_fields(frm, field_list) {
+	// Ocultar lista de campos
+	field_list.forEach((fieldname) => {
+		if (frm.fields_dict[fieldname]) {
+			frm.set_df_property(fieldname, "hidden", 1);
+			console.log(`[DEBUG] ✅ Ocultando campo: ${fieldname}`);
+		} else {
+			console.log(`[DEBUG] ❌ Campo no encontrado: ${fieldname}`);
+		}
+	});
+}
+
+function show_fields(frm, field_list) {
+	// Mostrar lista de campos
+	field_list.forEach((fieldname) => {
+		if (frm.fields_dict[fieldname]) {
+			frm.set_df_property(fieldname, "hidden", 0);
+			console.log(`[DEBUG] ✅ Mostrando campo: ${fieldname}`);
+		} else {
+			console.log(`[DEBUG] ❌ Campo no encontrado: ${fieldname}`);
+		}
+	});
+}
+
+function hide_section(frm, section_fieldname) {
+	// Ocultar sección completa
+	if (frm.fields_dict[section_fieldname]) {
+		frm.set_df_property(section_fieldname, "hidden", 1);
+	}
+}
+
+function show_section(frm, section_fieldname) {
+	// Mostrar sección completa
+	if (frm.fields_dict[section_fieldname]) {
+		frm.set_df_property(section_fieldname, "hidden", 0);
 	}
 }
