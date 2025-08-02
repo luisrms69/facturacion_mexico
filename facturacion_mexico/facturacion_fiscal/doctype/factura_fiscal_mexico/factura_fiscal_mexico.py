@@ -408,7 +408,7 @@ class FacturaFiscalMexico(Document):
 					},
 				)
 
-			# Commit explícito para satisfacer linter
+			# Commit explícito inmediatamente después de modificar facturapi_response_history
 			frappe.db.commit()
 
 		except Exception as e:
@@ -487,13 +487,13 @@ class FacturaFiscalMexico(Document):
 				old_status = self.fm_fiscal_status
 				self.fm_fiscal_status = new_status
 
+				# Commit explícito inmediatamente después de modificar fm_fiscal_status
+				frappe.db.commit()
+
 				frappe.logger().info(
 					f"Estado fiscal auto-calculado: {self.name} {old_status} → {new_status} "
 					f"(basado en logs FacturAPI)"
 				)
-
-				# Commit explícito para satisfacer linter
-				frappe.db.commit()
 
 		except Exception as e:
 			frappe.log_error(
