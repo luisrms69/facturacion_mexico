@@ -121,6 +121,12 @@ class FacturaFiscalMexico(Document):
 		# Actualizar Sales Invoice con información fiscal
 		self.update_sales_invoice_fiscal_info()
 
+		# Sincronizar historial FacturAPI
+		self.sync_facturapi_history()
+
+		# Recalcular estado fiscal basado en logs
+		self.calculate_fiscal_status_from_logs()
+
 	def create_fiscal_event(self, event_type, event_data):
 		"""Crear evento fiscal para auditoría."""
 		try:
@@ -332,3 +338,153 @@ class FacturaFiscalMexico(Document):
 		frappe.logger().info(
 			f"Validación PPD/PUE exitosa - Tipo: {'PPD' if is_ppd else 'PUE'}, Forma Pago: {forma_pago_sat}"
 		)
+
+	def sync_facturapi_history(self):
+		"""Sincronizar historial de respuestas FacturAPI con child table."""
+		try:
+			# Obtener logs de FacturAPI Response Log
+			logs = frappe.get_all(
+				"FacturAPI Response Log",
+				filters={"factura_fiscal_mexico": self.name},
+				fields=[
+					"timestamp",
+					"operation_type",
+					"success",
+					"status_code",
+					"error_message",
+					"facturapi_response",
+				],
+				order_by="timestamp desc",
+			)
+
+			# Limpiar tabla actual
+			self.facturapi_response_history = []
+
+			# Agregar cada log como fila en child table
+			for log in logs:
+				# Crear resumen de respuesta
+				response_summary = ""
+				if log.facturapi_response:
+					try:
+						import json
+
+						response_data = (
+							log.facturapi_response
+							if isinstance(log.facturapi_response, dict)
+							else json.loads(log.facturapi_response)
+						)
+
+						# Extraer información clave
+						key_info = []
+						if response_data.get("id"):
+							key_info.append(f"ID: {response_data['id']}")
+						if response_data.get("uuid"):
+							key_info.append(f"UUID: {response_data['uuid'][:8]}...")
+						if response_data.get("status"):
+							key_info.append(f"Status: {response_data['status']}")
+
+						response_summary = " | ".join(key_info) if key_info else "Respuesta procesada"
+					except Exception:
+						response_summary = "Respuesta disponible"
+
+				# Agregar fila a child table
+				self.append(
+					"facturapi_response_history",
+					{
+						"timestamp": log.timestamp,
+						"operation_type": log.operation_type,
+						"success": log.success,
+						"status_code": log.status_code,
+						"error_message": log.error_message[:100]
+						if log.error_message
+						else None,  # Truncar para UI
+						"response_summary": response_summary,
+					},
+				)
+
+		except Exception as e:
+			frappe.log_error(
+				f"Error sincronizando historial FacturAPI para {self.name}: {e!s}",
+				"FacturAPI History Sync Error",
+			)
+
+	def calculate_fiscal_status_from_logs(self):
+		"""Calcular estado fiscal automáticamente basado en logs de FacturAPI."""
+		try:
+			# Obtener último log exitoso de operaciones críticas
+			latest_log = frappe.db.get_value(
+				"FacturAPI Response Log",
+				{
+					"factura_fiscal_mexico": self.name,
+					"success": 1,
+					"operation_type": ("in", ["Timbrado", "Confirmación Cancelación"]),
+				},
+				["operation_type", "timestamp"],
+				order_by="timestamp desc",
+			)
+
+			# Determinar nuevo estado basado en último log exitoso
+			new_status = "Pendiente"  # Estado por defecto
+
+			if latest_log:
+				operation_type = latest_log[0] if isinstance(latest_log, tuple) else latest_log
+
+				# Mapear operaciones a estados
+				status_map = {"Timbrado": "Timbrada", "Confirmación Cancelación": "Cancelada"}
+
+				new_status = status_map.get(operation_type, "Pendiente")
+
+			# Verificar si hay solicitudes de cancelación pendientes
+			pending_cancellation = frappe.db.exists(
+				"FacturAPI Response Log",
+				{"factura_fiscal_mexico": self.name, "success": 1, "operation_type": "Solicitud Cancelación"},
+			)
+
+			# Si hay solicitud de cancelación pero no confirmación, estado intermedio
+			if pending_cancellation and new_status == "Timbrada":
+				confirmation_exists = frappe.db.exists(
+					"FacturAPI Response Log",
+					{
+						"factura_fiscal_mexico": self.name,
+						"success": 1,
+						"operation_type": "Confirmación Cancelación",
+					},
+				)
+
+				if not confirmation_exists:
+					new_status = "Solicitud Cancelación"
+
+			# Verificar si hay errores recientes
+			recent_error = frappe.db.get_value(
+				"FacturAPI Response Log",
+				{
+					"factura_fiscal_mexico": self.name,
+					"success": 0,
+					"timestamp": (
+						">",
+						frappe.utils.add_days(frappe.utils.now_datetime(), -1),
+					),  # Últimas 24 horas
+				},
+				["operation_type", "timestamp"],
+				order_by="timestamp desc",
+			)
+
+			# Si hay error reciente y no hay éxito posterior, marcar como Error
+			if recent_error and not latest_log:
+				new_status = "Error"
+
+			# Actualizar estado solo si cambió
+			if self.fm_fiscal_status != new_status:
+				old_status = self.fm_fiscal_status
+				self.fm_fiscal_status = new_status
+
+				frappe.logger().info(
+					f"Estado fiscal auto-calculado: {self.name} {old_status} → {new_status} "
+					f"(basado en logs FacturAPI)"
+				)
+
+		except Exception as e:
+			frappe.log_error(
+				f"Error calculando estado fiscal para {self.name}: {e!s}",
+				"FacturAPI Status Calculation Error",
+			)

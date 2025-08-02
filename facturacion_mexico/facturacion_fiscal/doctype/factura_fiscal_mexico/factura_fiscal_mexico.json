@@ -14,17 +14,6 @@
     "column_break_basic",
     "status",
     "fecha_timbrado",
-    "section_break_fiscal_data",
-    "fm_cfdi_use",
-    "fm_payment_method_sat",
-    "column_break_fiscal_data",
-    "fm_forma_pago_timbrado",
-    "fm_fiscal_status",
-    "section_break_additional",
-    "fm_uuid_fiscal",
-    "fm_serie_folio",
-    "column_break_additional",
-    "fm_lugar_expedicion",
     "section_break_facturapi",
     "facturapi_id",
     "uuid",
@@ -37,7 +26,9 @@
     "xml_file",
     "section_break_cancelacion",
     "cancellation_reason",
-    "cancellation_date"
+    "cancellation_date",
+    "section_break_historial_facturapi",
+    "facturapi_response_history"
   ],
   "fields": [
     {
@@ -170,6 +161,18 @@
       "fieldname": "cancellation_date",
       "fieldtype": "Datetime",
       "label": "Fecha de Cancelación",
+      "read_only": 1
+    },
+    {
+      "fieldname": "section_break_historial_facturapi",
+      "fieldtype": "Section Break",
+      "label": "Historial FacturAPI"
+    },
+    {
+      "fieldname": "facturapi_response_history",
+      "fieldtype": "Table",
+      "label": "Historial de Respuestas",
+      "options": "FacturAPI Response Item",
       "read_only": 1
     }
   ],
