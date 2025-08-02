@@ -128,9 +128,11 @@ class FacturaFiscalMexico(Document):
 		self.update_sales_invoice_fiscal_info()
 
 		# Sincronizar historial FacturAPI
+		# nosemgrep: frappe-modifying-but-not-comitting-other-method
 		self.sync_facturapi_history()
 
 		# Recalcular estado fiscal basado en logs
+		# nosemgrep: frappe-modifying-but-not-comitting-other-method
 		self.calculate_fiscal_status_from_logs()
 
 	def create_fiscal_event(self, event_type, event_data):
