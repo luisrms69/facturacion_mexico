@@ -1,0 +1,145 @@
+{
+  "actions": [],
+  "allow_rename": 0,
+  "autoname": "naming_series:",
+  "creation": "2025-08-02 16:00:00.000000",
+  "doctype": "DocType",
+  "editable_grid": 1,
+  "engine": "InnoDB",
+  "field_order": [
+    "naming_series",
+    "factura_fiscal_mexico",
+    "timestamp",
+    "operation_type",
+    "column_break_basic",
+    "success",
+    "status_code",
+    "section_break_response",
+    "facturapi_response",
+    "error_message",
+    "section_break_metadata",
+    "user_role",
+    "ip_address"
+  ],
+  "fields": [
+    {
+      "fieldname": "naming_series",
+      "fieldtype": "Select",
+      "label": "Serie de Numeración",
+      "options": "FAPI-LOG-.YYYY.-",
+      "reqd": 1
+    },
+    {
+      "fieldname": "factura_fiscal_mexico",
+      "fieldtype": "Link",
+      "in_list_view": 1,
+      "in_standard_filter": 1,
+      "label": "Factura Fiscal Mexico",
+      "options": "Factura Fiscal Mexico",
+      "reqd": 1
+    },
+    {
+      "fieldname": "timestamp",
+      "fieldtype": "Datetime",
+      "in_list_view": 1,
+      "label": "Fecha y Hora",
+      "reqd": 1
+    },
+    {
+      "fieldname": "operation_type",
+      "fieldtype": "Select",
+      "in_list_view": 1,
+      "in_standard_filter": 1,
+      "label": "Tipo de Operación",
+      "options": "Timbrado\nSolicitud Cancelación\nConfirmación Cancelación\nConsulta Estado\nTest Conexión",
+      "reqd": 1
+    },
+    {
+      "fieldname": "column_break_basic",
+      "fieldtype": "Column Break"
+    },
+    {
+      "default": "0",
+      "fieldname": "success",
+      "fieldtype": "Check",
+      "in_list_view": 1,
+      "label": "Éxito"
+    },
+    {
+      "fieldname": "status_code",
+      "fieldtype": "Data",
+      "label": "Código HTTP",
+      "length": 10
+    },
+    {
+      "fieldname": "section_break_response",
+      "fieldtype": "Section Break",
+      "label": "Respuesta FacturAPI"
+    },
+    {
+      "fieldname": "facturapi_response",
+      "fieldtype": "JSON",
+      "label": "Respuesta JSON Completa"
+    },
+    {
+      "fieldname": "error_message",
+      "fieldtype": "Text",
+      "label": "Mensaje de Error"
+    },
+    {
+      "fieldname": "section_break_metadata",
+      "fieldtype": "Section Break",
+      "label": "Metadatos"
+    },
+    {
+      "fieldname": "user_role",
+      "fieldtype": "Data",
+      "label": "Rol de Usuario",
+      "read_only": 1
+    },
+    {
+      "fieldname": "ip_address",
+      "fieldtype": "Data",
+      "label": "Dirección IP",
+      "read_only": 1
+    }
+  ],
+  "index_web_pages_for_search": 1,
+  "links": [],
+  "modified": "2025-08-02 16:00:00.000000",
+  "modified_by": "Administrator",
+  "module": "Facturacion Fiscal",
+  "name": "FacturAPI Response Log",
+  "naming_rule": "By \"Naming Series\" field",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "create": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "System Manager",
+      "share": 1,
+      "write": 1
+    },
+    {
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "Accounts Manager",
+      "share": 1
+    },
+    {
+      "read": 1,
+      "role": "Accounts User"
+    }
+  ],
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "states": [],
+  "track_changes": 1
+}

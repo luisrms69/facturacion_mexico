@@ -47,6 +47,11 @@ doctype_js = {
 	"Sales Invoice": ["public/js/sales_invoice.js", "public/js/ereceipt_handler.js"],
 	"Factura Fiscal Mexico": ["public/js/factura_fiscal_mexico.js"],
 }
+
+# include css in doctype views
+doctype_css = {
+	"Factura Fiscal Mexico": ["public/css/fiscal_dashboard.css"],
+}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}

@@ -93,6 +93,14 @@ class FacturAPIClient:
 		"""Actualizar cliente en FacturAPI."""
 		return self._make_request("PUT", f"/customers/{customer_id}", customer_data)
 
+	def delete_customer(self, customer_id: str) -> dict[str, Any]:
+		"""Eliminar cliente de FacturAPI."""
+		return self._make_request("DELETE", f"/customers/{customer_id}")
+
+	def validate_customer_tax_info(self, customer_id: str) -> dict[str, Any]:
+		"""Validar información fiscal del cliente con SAT."""
+		return self._make_request("GET", f"/customers/{customer_id}/tax-info-validation")
+
 	def create_invoice(self, invoice_data: dict) -> dict[str, Any]:
 		"""Crear factura en FacturAPI."""
 		return self._make_request("POST", "/invoices", invoice_data)

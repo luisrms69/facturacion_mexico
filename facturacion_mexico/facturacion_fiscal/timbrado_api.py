@@ -5,6 +5,7 @@ from frappe import _
 from frappe.utils import flt, now_datetime
 
 from .api_client import get_facturapi_client
+from .doctype.facturapi_response_log.facturapi_response_log import FacturapiResponseLog
 from .doctype.fiscal_event_mx.fiscal_event_mx import FiscalEventMX
 
 
@@ -115,6 +116,24 @@ class TimbradoAPI:
 
 			# Log error técnico
 			frappe.logger().error(f"Error timbrado factura {sales_invoice_name}: {e!s}")
+
+			# Crear log de error FacturAPI
+			factura_fiscal_name = None
+			if "factura_fiscal" in locals():
+				factura_fiscal_name = factura_fiscal.name
+			elif frappe.db.get_value("Sales Invoice", sales_invoice_name, "fm_factura_fiscal_mx"):
+				factura_fiscal_name = frappe.db.get_value(
+					"Sales Invoice", sales_invoice_name, "fm_factura_fiscal_mx"
+				)
+
+			if factura_fiscal_name:
+				FacturapiResponseLog.create_log(
+					factura_fiscal_mexico=factura_fiscal_name,
+					operation_type="Timbrado",
+					success=False,
+					error_message=error_details["user_message"],
+					status_code=error_details.get("status_code", "500"),
+				)
 
 			return {
 				"success": False,
@@ -392,6 +411,15 @@ class TimbradoAPI:
 		# Marcar evento como exitoso
 		FiscalEventMX.mark_event_success(event_doc.name, response)
 
+		# Crear log de respuesta FacturAPI
+		FacturapiResponseLog.create_log(
+			factura_fiscal_mexico=factura_fiscal.name,
+			operation_type="Timbrado",
+			success=True,
+			facturapi_response=response,
+			status_code="200",
+		)
+
 		# Descargar archivos si está configurado
 		if self.settings.download_files_default:
 			self._download_fiscal_files(factura_fiscal, response.get("id"))
@@ -467,6 +495,15 @@ class TimbradoAPI:
 			# Marcar evento como exitoso
 			FiscalEventMX.mark_event_success(event_doc.name, response)
 
+			# Crear log de respuesta FacturAPI para cancelación
+			FacturapiResponseLog.create_log(
+				factura_fiscal_mexico=factura_fiscal.name,
+				operation_type="Confirmación Cancelación",
+				success=True,
+				facturapi_response=response,
+				status_code="200",
+			)
+
 			frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure cancellation transaction is committed
 
 			return {"success": True, "message": "Factura cancelada exitosamente"}
@@ -477,6 +514,17 @@ class TimbradoAPI:
 				FiscalEventMX.mark_event_failed(event_doc.name, str(e))
 
 			frappe.logger().error(f"Error cancelando factura {sales_invoice_name}: {e!s}")
+
+			# Crear log de error FacturAPI para cancelación
+			if "factura_fiscal" in locals():
+				FacturapiResponseLog.create_log(
+					factura_fiscal_mexico=factura_fiscal.name,
+					operation_type="Solicitud Cancelación",
+					success=False,
+					error_message=str(e)[:500],  # Truncar mensaje largo
+					status_code="500",
+				)
+
 			return {"success": False, "error": str(e), "message": f"Error al cancelar factura: {e!s}"}
 
 	def _process_pac_error(self, error) -> dict[str, str]:
