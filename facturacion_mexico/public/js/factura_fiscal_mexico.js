@@ -213,17 +213,23 @@ function update_fiscal_data_from_customer(frm) {
 }
 
 function validate_fiscal_data(frm) {
+	// Solo validar si el documento no es nuevo o si está intentando guardar
+	if (frm.doc.__islocal && !frm.is_dirty()) {
+		// Documento nuevo sin cambios - no validar aún
+		return;
+	}
+
 	// Validaciones específicas de datos fiscales
 
-	// Validar que PUE tenga forma de pago específica
+	// Validar que PUE tenga forma de pago específica (solo si ya seleccionó PUE)
 	if (frm.doc.fm_payment_method_sat === "PUE") {
 		if (!frm.doc.fm_forma_pago_timbrado || frm.doc.fm_forma_pago_timbrado.startsWith("99 -")) {
 			frappe.throw(__("Para método PUE debe especificar una forma de pago específica"));
 		}
 	}
 
-	// Validar uso CFDI requerido
-	if (!frm.doc.fm_cfdi_use) {
+	// Validar uso CFDI requerido (solo si el documento no es completamente nuevo)
+	if (!frm.doc.__islocal && !frm.doc.fm_cfdi_use) {
 		frappe.throw(__("Uso del CFDI es requerido"));
 	}
 }
