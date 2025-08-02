@@ -94,6 +94,12 @@ class FacturaFiscalMexico(Document):
 			if not self.customer:
 				self.customer = sales_invoice.customer
 
+		# Calcular status automáticamente basado en fm_fiscal_status
+		self.calculate_status_from_fiscal_status()
+
+		# Poblar datos de facturación desde customer
+		self.populate_billing_data()
+
 	def after_insert(self):
 		"""Ejecutar después de insertar."""
 		# Crear evento fiscal
@@ -488,3 +494,133 @@ class FacturaFiscalMexico(Document):
 				f"Error calculando estado fiscal para {self.name}: {e!s}",
 				"FacturAPI Status Calculation Error",
 			)
+
+	def calculate_status_from_fiscal_status(self):
+		"""Calcular status automáticamente basado en fm_fiscal_status."""
+		# Mapear estados fiscales a status interno
+		status_map = {
+			"Pendiente": "draft",
+			"Timbrada": "stamped",
+			"Cancelada": "cancelled",
+			"Error": "draft",  # Error vuelve a draft para reintento
+			"Solicitud Cancelación": "cancel_requested",
+		}
+
+		new_status = status_map.get(self.fm_fiscal_status, "draft")
+
+		# Solo actualizar si cambió
+		if self.status != new_status:
+			old_status = self.status
+			self.status = new_status
+
+			# Log del cambio automático
+			frappe.logger().info(
+				f"Status auto-calculado: {self.name} {old_status} → {new_status} "
+				f"(basado en fm_fiscal_status: {self.fm_fiscal_status})"
+			)
+
+	def populate_billing_data(self):
+		"""Poblar campos de datos de facturación desde el customer."""
+		print(f"🔧 [DEBUG BILLING] populate_billing_data ejecutándose para customer: {self.customer}")
+
+		if not self.customer:
+			print("❌ [DEBUG BILLING] No hay customer - limpiando campos")
+			# Limpiar campos si no hay customer
+			self.fm_cp_cliente = ""
+			self.fm_email_facturacion = ""
+			self.fm_rfc_cliente = ""
+			self.fm_direccion_principal_link = ""
+			self.fm_direccion_principal_display = ""
+			return
+
+		try:
+			# Obtener datos del customer
+			customer_doc = frappe.get_doc("Customer", self.customer)
+			print(f"✅ [DEBUG BILLING] Customer encontrado: {customer_doc.name}")
+
+			# RFC desde Tax ID
+			self.fm_rfc_cliente = customer_doc.tax_id or ""
+			print(f"📋 [DEBUG BILLING] RFC asignado: {self.fm_rfc_cliente}")
+
+			# Buscar dirección principal
+			primary_address = self._get_primary_address()
+			print(
+				f"🏠 [DEBUG BILLING] Dirección principal: {primary_address.name if primary_address else 'No encontrada'}"
+			)
+
+			if primary_address:
+				# Poblar datos desde dirección principal
+				self.fm_cp_cliente = primary_address.pincode or ""
+				self.fm_email_facturacion = primary_address.email_id or ""
+				self.fm_direccion_principal_link = primary_address.name
+				self.fm_direccion_principal_display = primary_address.display or self._format_address(
+					primary_address
+				)
+				print(
+					f"✅ [DEBUG BILLING] Datos poblados - CP: {self.fm_cp_cliente}, Email: {self.fm_email_facturacion}"
+				)
+			else:
+				# No hay dirección principal - marcar campos como vacíos
+				self.fm_cp_cliente = ""
+				self.fm_email_facturacion = ""
+				self.fm_direccion_principal_link = ""
+				self.fm_direccion_principal_display = "⚠️ FALTA DIRECCIÓN PRINCIPAL DEL CLIENTE"
+				print("⚠️ [DEBUG BILLING] No hay dirección principal - campos marcados como vacíos")
+
+		except Exception as e:
+			frappe.log_error(f"Error poblando datos de facturación: {e!s}", "Billing Data Population Error")
+			# En caso de error, limpiar campos
+			self.fm_cp_cliente = ""
+			self.fm_email_facturacion = ""
+			self.fm_rfc_cliente = ""
+			self.fm_direccion_principal_link = ""
+			self.fm_direccion_principal_display = f"Error: {e!s}"
+
+	def _get_primary_address(self):
+		"""Obtener la dirección principal del customer."""
+		if not self.customer:
+			return None
+
+		# Buscar direcciones vinculadas al customer
+		linked_addresses = frappe.get_all(
+			"Dynamic Link",
+			filters={"link_doctype": "Customer", "link_name": self.customer, "parenttype": "Address"},
+			fields=["parent"],
+			pluck="parent",
+		)
+
+		if not linked_addresses:
+			return None
+
+		# Buscar dirección marcada como principal
+		for address_name in linked_addresses:
+			address_doc = frappe.get_doc("Address", address_name)
+			if address_doc.is_primary_address:
+				return address_doc
+
+		# Si no hay dirección principal, retornar la primera disponible
+		if linked_addresses:
+			return frappe.get_doc("Address", linked_addresses[0])
+
+		return None
+
+	def _format_address(self, address_doc):
+		"""Formatear dirección para display."""
+		if not address_doc:
+			return ""
+
+		parts = []
+		if address_doc.address_line1:
+			parts.append(address_doc.address_line1)
+		if address_doc.address_line2:
+			parts.append(address_doc.address_line2)
+		if address_doc.city:
+			parts.append(address_doc.city)
+		if address_doc.state:
+			parts.append(address_doc.state)
+		if address_doc.pincode:
+			parts.append(f"CP {address_doc.pincode}")
+		if address_doc.country:
+			parts.append(address_doc.country)
+
+		return ", ".join(parts)

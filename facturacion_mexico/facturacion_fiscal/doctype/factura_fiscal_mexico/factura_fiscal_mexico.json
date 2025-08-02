@@ -11,6 +11,13 @@
     "sales_invoice",
     "company",
     "customer",
+    "section_break_datos_facturacion",
+    "fm_cp_cliente",
+    "fm_email_facturacion",
+    "fm_rfc_cliente",
+    "column_break_datos_facturacion",
+    "fm_direccion_principal_link",
+    "fm_direccion_principal_display",
     "column_break_basic",
     "status",
     "fecha_timbrado",
@@ -70,10 +77,10 @@
     {
       "default": "draft",
       "fieldname": "status",
-      "fieldtype": "Select",
+      "fieldtype": "Data",
       "in_list_view": 1,
       "label": "Estado",
-      "options": "draft\nstamped\ncancelled\ncancel_requested",
+      "read_only": 1,
       "reqd": 1
     },
     {
@@ -174,6 +181,51 @@
       "label": "Historial de Respuestas",
       "options": "FacturAPI Response Item",
       "read_only": 1
+    },
+    {
+      "fieldname": "section_break_datos_facturacion",
+      "fieldtype": "Section Break",
+      "label": "Datos de Facturación"
+    },
+    {
+      "fieldname": "fm_cp_cliente",
+      "fieldtype": "Data",
+      "label": "CP Cliente",
+      "read_only": 1,
+      "description": "Código postal desde dirección principal del cliente"
+    },
+    {
+      "fieldname": "fm_email_facturacion",
+      "fieldtype": "Data",
+      "label": "Email Facturación",
+      "read_only": 1,
+      "description": "Email desde dirección principal del cliente"
+    },
+    {
+      "fieldname": "fm_rfc_cliente",
+      "fieldtype": "Data",
+      "label": "RFC Cliente",
+      "read_only": 1,
+      "description": "RFC desde Tax ID del cliente"
+    },
+    {
+      "fieldname": "column_break_datos_facturacion",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "fm_direccion_principal_link",
+      "fieldtype": "Link",
+      "label": "Dirección Principal",
+      "options": "Address",
+      "read_only": 1,
+      "description": "Link a la dirección principal para edición"
+    },
+    {
+      "fieldname": "fm_direccion_principal_display",
+      "fieldtype": "Small Text",
+      "label": "Dirección Completa",
+      "read_only": 1,
+      "description": "Dirección principal formateada"
     }
   ],
   "index_web_pages_for_search": 1,
