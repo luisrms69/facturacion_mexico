@@ -3,10 +3,12 @@ from frappe import _
 
 
 def validate_ppd_vs_forma_pago(doc, method):
-	"""Validar compatibilidad entre PPD/PUE y forma de pago SAT basado en Mode of Payment"""
+	"""Validar compatibilidad entre PPD/PUE y forma de pago SAT - MIGRADO A FACTURA FISCAL MEXICO"""
 
-	if not doc.fm_payment_method_sat:
-		return
+	# VALIDACIÓN MIGRADA: fm_payment_method_sat ya no existe en Sales Invoice
+	# Esta validación ahora se ejecuta en validate() de "Factura Fiscal Mexico"
+	# donde sí existe el campo fm_payment_method_sat tras la migración arquitectural
+	return
 
 	# Obtener forma de pago desde Payment Entry relacionado
 	forma_pago_sat = None

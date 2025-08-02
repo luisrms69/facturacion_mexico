@@ -43,7 +43,10 @@ required_apps = ["erpnext"]
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
-doctype_js = {"Sales Invoice": ["public/js/sales_invoice.js", "public/js/ereceipt_handler.js"]}
+doctype_js = {
+	"Sales Invoice": ["public/js/sales_invoice.js", "public/js/ereceipt_handler.js"],
+	"Factura Fiscal Mexico": ["public/js/factura_fiscal_mexico.js"],
+}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
@@ -134,7 +137,7 @@ fixtures = [
 					"Payment Entry-fm_forma_pago_sat",
 					"Payment Entry-fm_informacion_fiscal_section",
 					"Payment Entry-fm_require_complement",
-					# Sales Invoice custom fields (41 campos)
+					# Sales Invoice custom fields (34 campos activos + 7 migrados)
 					"Sales Invoice-fm_fiscal_attempts",
 					"Sales Invoice-fm_addenda_column_break",
 					"Sales Invoice-fm_addenda_errors",
@@ -148,7 +151,7 @@ fixtures = [
 					"Sales Invoice-fm_branch",
 					"Sales Invoice-fm_branch_health_status",
 					"Sales Invoice-fm_certificate_info",
-					"Sales Invoice-fm_cfdi_use",
+					# "Sales Invoice-fm_cfdi_use", # MIGRADO A Factura Fiscal Mexico
 					"Sales Invoice-fm_column_break_fiscal",
 					"Sales Invoice-fm_complementos_count",
 					"Sales Invoice-fm_create_as_draft",
@@ -165,17 +168,25 @@ fixtures = [
 					"Sales Invoice-fm_ereceipt_section",
 					"Sales Invoice-fm_factorapi_draft_id",
 					"Sales Invoice-fm_factura_fiscal_mx",
-					"Sales Invoice-fm_fiscal_status",
+					# "Sales Invoice-fm_fiscal_status", # MIGRADO A Factura Fiscal Mexico
 					"Sales Invoice-fm_folio_reserved",
-					"Sales Invoice-fm_informacion_fiscal_section",
-					"Sales Invoice-fm_lugar_expedicion",
+					# "Sales Invoice-fm_informacion_fiscal_section", # ELIMINADO - Sección vacía migrada a Factura Fiscal Mexico
+					# "Sales Invoice-fm_lugar_expedicion", # MIGRADO A Factura Fiscal Mexico
 					"Sales Invoice-fm_multi_sucursal_column",
 					"Sales Invoice-fm_multi_sucursal_section",
-					"Sales Invoice-fm_payment_method_sat",
+					# "Sales Invoice-fm_payment_method_sat", # MIGRADO A Factura Fiscal Mexico
 					"Sales Invoice-fm_pending_amount",
-					"Sales Invoice-fm_serie_folio",
+					# "Sales Invoice-fm_serie_folio", # MIGRADO A Factura Fiscal Mexico
 					"Sales Invoice-fm_timbrado_section",
-					"Sales Invoice-fm_uuid_fiscal",
+					# "Sales Invoice-fm_uuid_fiscal", # MIGRADO A Factura Fiscal Mexico
+					# Factura Fiscal Mexico custom fields (7 campos migrados)
+					"Factura Fiscal Mexico-fm_cfdi_use",
+					"Factura Fiscal Mexico-fm_fiscal_status",
+					"Factura Fiscal Mexico-fm_forma_pago_timbrado",
+					"Factura Fiscal Mexico-fm_lugar_expedicion",
+					"Factura Fiscal Mexico-fm_payment_method_sat",
+					"Factura Fiscal Mexico-fm_serie_folio",
+					"Factura Fiscal Mexico-fm_uuid_fiscal",
 				],
 			]
 		],

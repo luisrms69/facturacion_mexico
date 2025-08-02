@@ -124,18 +124,28 @@ def get_custom_fields():
 
 
 def apply_custom_fields():
-	"""Aplicar custom fields al sistema"""
-	try:
-		custom_fields = get_custom_fields()
-		create_custom_fields(custom_fields, update=True)
+	"""
+	DESACTIVADO - MIGRADO A FIXTURES
 
-		frappe.db.commit()
-		print("✅ Custom fields multi-sucursal aplicados exitosamente")
+	Esta función ha sido desactivada como parte de la migración arquitectural de Issue #31.
+	Los custom fields multi-sucursal ahora se gestionan exclusivamente a través de fixtures en hooks.py.
 
-	except Exception as e:
-		frappe.db.rollback()
-		print(f"❌ Error aplicando custom fields: {e}")
-		raise
+	RAZÓN: Prevenir creación duplicada de campos durante migraciones.
+	"""
+	print("⚠️ apply_custom_fields() DESACTIVADO - Campos gestionados por fixtures")
+	print("📍 Ver hooks.py para custom fields multi-sucursal")
+	return
+
+	# CÓDIGO ORIGINAL COMENTADO - NO ELIMINAR PARA REFERENCIA
+	# try:
+	# 	custom_fields = get_custom_fields()
+	# 	create_custom_fields(custom_fields, update=True)
+	# 	frappe.db.commit()
+	# 	print("✅ Custom fields multi-sucursal aplicados exitosamente")
+	# except Exception as e:
+	# 	frappe.db.rollback()
+	# 	print(f"❌ Error aplicando custom fields: {e}")
+	# 	raise
 
 
 def remove_custom_fields():
@@ -159,4 +169,6 @@ def remove_custom_fields():
 
 
 if __name__ == "__main__":
-	apply_custom_fields()
+	# DESACTIVADO - Migrado a fixtures en hooks.py
+	print("⚠️ MULTI-SUCURSAL: Custom fields ahora gestionados por fixtures")
+	print("📍 No se ejecutará apply_custom_fields() - Ver hooks.py")
