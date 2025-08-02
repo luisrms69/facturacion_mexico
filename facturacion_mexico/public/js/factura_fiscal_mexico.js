@@ -15,10 +15,17 @@ frappe.ui.form.on("Factura Fiscal Mexico", {
 		setup_default_values(frm);
 	},
 
-	fm_sales_invoice: function (frm) {
+	sales_invoice: function (frm) {
 		// Cuando se selecciona Sales Invoice, cargar datos del cliente
-		if (frm.doc.fm_sales_invoice) {
+		if (frm.doc.sales_invoice) {
 			load_customer_data_from_sales_invoice(frm);
+		}
+	},
+
+	customer: function (frm) {
+		// Cuando cambia el customer, actualizar datos fiscales
+		if (frm.doc.customer) {
+			update_fiscal_data_from_customer(frm);
 		}
 	},
 
@@ -46,6 +53,11 @@ function setup_default_values(frm) {
 			frm.set_value("fm_payment_method_sat", "PUE");
 		}
 	}
+
+	// Si hay Sales Invoice pero no customer, cargar customer desde Sales Invoice
+	if (frm.doc.sales_invoice && !frm.doc.customer) {
+		load_customer_data_from_sales_invoice(frm);
+	}
 }
 
 function load_customer_data_from_sales_invoice(frm) {
@@ -54,21 +66,29 @@ function load_customer_data_from_sales_invoice(frm) {
 		method: "frappe.client.get",
 		args: {
 			doctype: "Sales Invoice",
-			name: frm.doc.fm_sales_invoice,
-			fields: ["customer", "customer_name"],
+			name: frm.doc.sales_invoice,
+			fields: ["customer", "customer_name", "grand_total"],
 		},
 		callback: function (r) {
 			if (r.message && r.message.customer) {
-				// Auto-asignar uso CFDI default del cliente
+				// Asignar customer al campo customer del DocType
+				frm.set_value("customer", r.message.customer);
+
+				// Auto-asignar uso CFDI default del cliente SI lo tiene configurado
 				auto_assign_cfdi_from_customer(frm, r.message.customer);
+
+				// Cargar total fiscal desde Sales Invoice
+				if (r.message.grand_total) {
+					frm.set_value("total_fiscal", r.message.grand_total);
+				}
 			}
 		},
 	});
 }
 
 function auto_assign_cfdi_from_customer(frm, customer) {
-	// Auto-asignar uso CFDI default cuando se selecciona cliente
-	// ESTA ES LA IMPLEMENTACIÓN CORRECTA - En el DocType fiscal, no en Sales Invoice
+	// Lógica: Si customer tiene uso CFDI default configurado, cargarlo
+	// Si no tiene, dejar vacío (no seleccionar nada por defecto)
 
 	if (!customer) {
 		return;
@@ -78,18 +98,90 @@ function auto_assign_cfdi_from_customer(frm, customer) {
 		.get_value("Customer", customer, "fm_uso_cfdi_default")
 		.then((r) => {
 			if (r.message && r.message.fm_uso_cfdi_default) {
-				// Asignar directamente en este documento fiscal
+				// Solo asignar SI el customer tiene configurado uso CFDI
 				frm.set_value("fm_cfdi_use", r.message.fm_uso_cfdi_default);
 
 				frappe.show_alert({
-					message: __("Uso CFDI asignado automáticamente desde Cliente"),
+					message: __("Uso CFDI cargado desde configuración del Cliente"),
 					indicator: "green",
 				});
+			} else {
+				// Customer no tiene uso CFDI configurado - dejar vacío
+				frm.set_value("fm_cfdi_use", "");
+				console.log("Customer no tiene fm_uso_cfdi_default configurado - campo vacío");
 			}
 		})
 		.catch((err) => {
 			console.log("Error obteniendo uso CFDI default:", err);
+			// En caso de error, dejar vacío
+			frm.set_value("fm_cfdi_use", "");
 		});
+}
+
+function update_fiscal_data_from_customer(frm) {
+	// Actualizar datos fiscales cuando cambia el customer
+	if (!frm.doc.customer) {
+		return;
+	}
+
+	frappe.show_alert({
+		message: __("Actualizando datos fiscales del cliente..."),
+		indicator: "blue",
+	});
+
+	// Obtener datos fiscales del customer
+	frappe.call({
+		method: "frappe.client.get",
+		args: {
+			doctype: "Customer",
+			name: frm.doc.customer,
+			fields: [
+				"fm_uso_cfdi_default",
+				"fm_regimen_fiscal_customer",
+				"fm_codigo_postal_customer",
+				"fm_rfc_customer",
+			],
+		},
+		callback: function (r) {
+			if (r.message) {
+				// Actualizar uso CFDI si está configurado
+				if (r.message.fm_uso_cfdi_default) {
+					frm.set_value("fm_cfdi_use", r.message.fm_uso_cfdi_default);
+				} else {
+					// Limpiar campo si no hay default
+					frm.set_value("fm_cfdi_use", "");
+				}
+
+				// Actualizar otros campos fiscales del customer si existen
+				if (r.message.fm_regimen_fiscal_customer) {
+					frm.set_value(
+						"fm_regimen_fiscal_customer",
+						r.message.fm_regimen_fiscal_customer
+					);
+				}
+				if (r.message.fm_codigo_postal_customer) {
+					frm.set_value(
+						"fm_codigo_postal_customer",
+						r.message.fm_codigo_postal_customer
+					);
+				}
+				if (r.message.fm_rfc_customer) {
+					frm.set_value("fm_rfc_customer", r.message.fm_rfc_customer);
+				}
+
+				frappe.show_alert({
+					message: __("Datos fiscales actualizados desde el Cliente"),
+					indicator: "green",
+				});
+			}
+		},
+		error: function () {
+			frappe.show_alert({
+				message: __("Error al cargar datos fiscales del Cliente"),
+				indicator: "red",
+			});
+		},
+	});
 }
 
 function validate_fiscal_data(frm) {
@@ -109,33 +201,41 @@ function validate_fiscal_data(frm) {
 }
 
 function add_fiscal_buttons(frm) {
-	// Agregar botones de funcionalidad fiscal específica
+	// OPCIÓN C: Solo botones específicos para operaciones FacturAPI
+	// Save/Submit son manejados automáticamente por Frappe
 
-	// Botón de timbrado (solo si está en estado pendiente)
-	if (frm.doc.fm_fiscal_status === "Pendiente" || !frm.doc.fm_fiscal_status) {
-		frm.add_custom_button(__("Timbrar Factura"), function () {
-			timbrar_factura(frm);
-		});
-
-		// Hacer prominente
-		frm.page.set_primary_action(__("Timbrar Factura"), function () {
-			timbrar_factura(frm);
-		});
+	// Control del botón Cancel de Frappe: Solo disponible cuando está definitivamente cancelada
+	if (frm.doc.fm_fiscal_status !== "Cancelada") {
+		frm.page.clear_actions();
+		// Re-agregar botones básicos excepto Cancel
+		if (frm.doc.docstatus === 0) {
+			frm.page.set_primary_action(__("Save"), () => frm.save());
+			frm.page.set_secondary_action(__("Submit"), () => frm.submit());
+		}
 	}
 
-	// Botón de cancelación (solo si está timbrada)
-	if (frm.doc.fm_fiscal_status === "Timbrada") {
-		frm.add_custom_button(__("Cancelar Timbrado"), function () {
+	if (frm.doc.docstatus === 1 && frm.doc.fm_fiscal_status === "Pendiente") {
+		// Botón FacturAPI: Timbrar solo cuando documento está submitted
+		frm.add_custom_button(__("Timbrar con FacturAPI"), function () {
+			timbrar_factura(frm);
+		}).addClass("btn-primary");
+	}
+
+	if (frm.doc.docstatus === 1 && frm.doc.fm_fiscal_status === "Timbrada") {
+		// Botón FacturAPI: Cancelar solo facturas timbradas
+		frm.add_custom_button(__("Cancelar en FacturAPI"), function () {
 			cancelar_timbrado(frm);
-		});
+		}).addClass("btn-danger");
 	}
 
-	// Botón para probar conexión PAC
-	frm.add_custom_button(__("Probar Conexión PAC"), function () {
-		test_pac_connection(frm);
-	});
+	// Test conexión PAC (solo desarrollo)
+	if (frappe.boot.developer_mode) {
+		frm.add_custom_button(__("Test Conexión PAC"), function () {
+			test_pac_connection(frm);
+		}).addClass("btn-secondary");
+	}
 
-	// Botón para ver Sales Invoice relacionado
+	// Navegación a Sales Invoice relacionada
 	if (frm.doc.sales_invoice) {
 		frm.add_custom_button(__("Ver Sales Invoice"), function () {
 			frappe.set_route("Form", "Sales Invoice", frm.doc.sales_invoice);

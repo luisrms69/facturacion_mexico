@@ -62,15 +62,19 @@ class FacturaFiscalMexico(Document):
 		if not old_doc:
 			return
 
-		old_status = old_doc.status
-		new_status = self.status
+		old_status = old_doc.fm_fiscal_status if hasattr(old_doc, "fm_fiscal_status") else None
+		new_status = self.fm_fiscal_status
+
+		# Si no hay cambio de estado, no validar
+		if old_status == new_status:
+			return
 
 		# Definir transiciones válidas
 		valid_transitions = {
-			"draft": ["stamped", "cancelled"],
-			"stamped": ["cancel_requested", "cancelled"],
-			"cancel_requested": ["cancelled", "stamped"],  # Puede fallar la cancelación
-			"cancelled": [],  # Estado final
+			"Pendiente": ["Timbrada", "Cancelada", "Error"],
+			"Timbrada": ["Cancelada"],
+			"Cancelada": [],  # Estado final
+			"Error": ["Pendiente", "Timbrada"],  # Puede reintentarse
 		}
 
 		if new_status not in valid_transitions.get(old_status, []):
@@ -78,31 +82,39 @@ class FacturaFiscalMexico(Document):
 
 	def before_save(self):
 		"""Ejecutar antes de guardar."""
-		# Si no hay empresa, obtenerla de Sales Invoice
-		if not self.company and self.sales_invoice:
+		# Cargar datos desde Sales Invoice si no están establecidos
+		if self.sales_invoice:
 			sales_invoice = frappe.get_doc("Sales Invoice", self.sales_invoice)
-			self.company = sales_invoice.company
+
+			# Si no hay empresa vendedora, obtenerla de Sales Invoice
+			if not self.company:
+				self.company = sales_invoice.company
+
+			# Si no hay customer, obtenerlo de Sales Invoice
+			if not self.customer:
+				self.customer = sales_invoice.customer
 
 	def after_insert(self):
 		"""Ejecutar después de insertar."""
 		# Crear evento fiscal
 		self.create_fiscal_event(
-			"create", {"sales_invoice": self.sales_invoice, "company": self.company, "status": self.status}
+			"create",
+			{"sales_invoice": self.sales_invoice, "company": self.company, "status": self.fm_fiscal_status},
 		)
 
 	def on_update(self):
 		"""Ejecutar después de actualizar."""
 		# Si el estado cambió, crear evento fiscal
-		if self.has_value_changed("status"):
+		if self.has_value_changed("fm_fiscal_status"):
 			self.create_fiscal_event(
 				"status_change",
 				{
-					"old_status": self.get_doc_before_save().status
+					"old_status": self.get_doc_before_save().fm_fiscal_status
 					if self.get_doc_before_save()
-					else "draft",
-					"new_status": self.status,
-					"uuid": self.uuid,
-					"facturapi_id": self.facturapi_id,
+					else "Pendiente",
+					"new_status": self.fm_fiscal_status,
+					"uuid": self.fm_uuid_fiscal,
+					"facturapi_id": getattr(self, "facturapi_id", None),
 				},
 			)
 
@@ -130,12 +142,12 @@ class FacturaFiscalMexico(Document):
 		if not self.sales_invoice:
 			return
 
-		# Mapear estados para Sales Invoice
+		# Mapear estados para Sales Invoice (ya están en español)
 		status_map = {
-			"draft": "Pendiente",
-			"stamped": "Timbrada",
-			"cancel_requested": "Cancelación Solicitada",
-			"cancelled": "Cancelada",
+			"Pendiente": "Pendiente",
+			"Timbrada": "Timbrada",
+			"Cancelada": "Cancelada",
+			"Error": "Error",
 		}
 
 		try:
@@ -143,8 +155,8 @@ class FacturaFiscalMexico(Document):
 				"Sales Invoice",
 				self.sales_invoice,
 				{
-					"fm_fiscal_status": status_map.get(self.status, "Pendiente"),
-					"fm_uuid_fiscal": self.uuid,
+					"fm_fiscal_status": status_map.get(self.fm_fiscal_status, "Pendiente"),
+					"fm_uuid_fiscal": self.fm_uuid_fiscal,
 					"fm_factura_fiscal_mx": self.name,
 				},
 			)
@@ -154,7 +166,7 @@ class FacturaFiscalMexico(Document):
 
 	def mark_as_stamped(self, facturapi_data):
 		"""Marcar como timbrada con datos de FacturAPI."""
-		self.status = "stamped"
+		self.fm_fiscal_status = "Timbrada"
 		self.facturapi_id = facturapi_data.get("id")
 		self.uuid = facturapi_data.get("uuid")
 		self.serie = facturapi_data.get("serie")
@@ -173,7 +185,7 @@ class FacturaFiscalMexico(Document):
 
 	def mark_as_cancelled(self, cancellation_reason=None):
 		"""Marcar como cancelada."""
-		self.status = "cancelled"
+		self.fm_fiscal_status = "Cancelada"
 		if cancellation_reason:
 			self.cancellation_reason = cancellation_reason
 		self.cancellation_date = now_datetime()
@@ -203,8 +215,8 @@ class FacturaFiscalMexico(Document):
 	@frappe.whitelist()
 	def request_stamping(self):
 		"""Solicitar timbrado fiscal."""
-		if self.status != "draft":
-			frappe.throw(_("Solo se pueden timbrar facturas en estado borrador"))
+		if self.fm_fiscal_status != "Pendiente":
+			frappe.throw(_("Solo se pueden timbrar facturas en estado Pendiente"))
 
 		# Aquí se integraría con FacturAPI.io
 		# Por ahora solo cambiar el estado para testing
@@ -214,10 +226,10 @@ class FacturaFiscalMexico(Document):
 	@frappe.whitelist()
 	def request_cancellation(self):
 		"""Solicitar cancelación fiscal."""
-		if self.status != "stamped":
+		if self.fm_fiscal_status != "Timbrada":
 			frappe.throw(_("Solo se pueden cancelar facturas timbradas"))
 
-		self.status = "cancel_requested"
+		self.fm_fiscal_status = "Cancelada"
 		self.save()
 		frappe.msgprint(_("Solicitud de cancelación enviada"))
 		return {"message": "Cancellation requested"}

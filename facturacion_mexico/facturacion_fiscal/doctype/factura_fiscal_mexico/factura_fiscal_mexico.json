@@ -10,6 +10,7 @@
     "naming_series",
     "sales_invoice",
     "company",
+    "customer",
     "column_break_basic",
     "status",
     "fecha_timbrado",
@@ -58,8 +59,17 @@
       "fieldname": "company",
       "fieldtype": "Link",
       "in_list_view": 1,
-      "label": "Empresa",
+      "label": "Empresa Vendedora",
       "options": "Company",
+      "read_only": 1,
+      "reqd": 1
+    },
+    {
+      "fieldname": "customer",
+      "fieldtype": "Link",
+      "in_list_view": 1,
+      "label": "Cliente",
+      "options": "Customer",
       "reqd": 1
     },
     {
