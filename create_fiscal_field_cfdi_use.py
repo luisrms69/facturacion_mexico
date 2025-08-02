@@ -32,7 +32,7 @@ def create_cfdi_use_field():
 	)
 
 	custom_field.insert()
-	frappe.db.commit()
+	frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required for custom field creation script to persist changes immediately
 
 	print("✅ Campo fm_cfdi_use creado exitosamente")
 	print(f"   Name: {custom_field.name}")

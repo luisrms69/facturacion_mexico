@@ -78,7 +78,7 @@ def migrate_existing_data():
 			errors += 1
 
 	# Commit cambios
-	frappe.db.commit()
+	frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required for data migration script to persist all changes atomically
 
 	print("\n" + "=" * 60)
 	print("📊 RESUMEN MIGRACIÓN DE DATOS:")
