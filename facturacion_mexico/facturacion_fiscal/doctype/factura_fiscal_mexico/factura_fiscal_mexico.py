@@ -128,12 +128,10 @@ class FacturaFiscalMexico(Document):
 		self.update_sales_invoice_fiscal_info()
 
 		# Sincronizar historial FacturAPI
-		# nosemgrep: frappe-modifying-but-not-comitting-other-method
-		self.sync_facturapi_history()
+		self.sync_facturapi_history()  # nosemgrep: frappe-modifying-but-not-comitting-other-method
 
 		# Recalcular estado fiscal basado en logs
-		# nosemgrep: frappe-modifying-but-not-comitting-other-method
-		self.calculate_fiscal_status_from_logs()
+		self.calculate_fiscal_status_from_logs()  # nosemgrep: frappe-modifying-but-not-comitting-other-method
 
 	def create_fiscal_event(self, event_type, event_data):
 		"""Crear evento fiscal para auditoría."""
