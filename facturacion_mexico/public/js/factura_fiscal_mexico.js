@@ -6,6 +6,9 @@ frappe.ui.form.on("Factura Fiscal Mexico", {
 		// Configurar interfaz del documento fiscal
 		setup_fiscal_interface(frm);
 
+		// Configurar radio buttons para payment method
+		setup_payment_method_radio_buttons(frm);
+
 		// Agregar botones de funcionalidad fiscal
 		add_fiscal_buttons(frm);
 	},
@@ -317,4 +320,267 @@ function test_pac_connection(frm) {
 			}
 		},
 	});
+}
+
+// ========================================
+// IMPLEMENTACIÓN RADIO BUTTONS - Punto 5
+// ========================================
+
+function setup_payment_method_radio_buttons(frm) {
+	// Solo aplicar en formulario cargado y campo presente
+	if (!frm.doc || !frm.fields_dict.fm_payment_method_sat) {
+		return;
+	}
+
+	// Esperar a que el DOM esté completamente cargado
+	setTimeout(() => {
+		try {
+			convert_payment_method_to_radio(frm, "fm_payment_method_sat");
+
+			// Aplicar reglas iniciales basadas en el valor actual
+			const current_method = frm.doc.fm_payment_method_sat || "PUE";
+			handle_payment_form_field_visibility(frm, current_method);
+		} catch (error) {
+			console.log("Error setting up radio buttons:", error);
+		}
+	}, 500);
+}
+
+function convert_payment_method_to_radio(frm, field_name) {
+	const field = frm.fields_dict[field_name];
+	if (!field || !field.$wrapper) {
+		console.log(`Campo ${field_name} no encontrado o sin wrapper DOM`);
+		return;
+	}
+
+	// Verificar si ya se convirtió
+	if (field.$wrapper.find(".payment-method-radio-container").length > 0) {
+		sync_radio_buttons_with_field(frm, field_name);
+		return;
+	}
+
+	// Ocultar el select original
+	field.$wrapper.find("select").hide();
+	field.$wrapper.find(".control-label").hide();
+
+	// Configurar radio buttons
+	setup_radio_buttons(frm, field);
+}
+
+function setup_radio_buttons(frm, field) {
+	const current_value = frm.doc.fm_payment_method_sat || "PUE";
+
+	const radio_html = `
+		<div class="payment-method-radio-container" style="padding: 8px 0;">
+			<label class="control-label" style="margin-bottom: 8px; display: block; font-weight: 600;">
+				Método de Pago SAT <span class="text-danger">*</span>
+			</label>
+			<div class="radio-group" style="display: flex; gap: 20px; align-items: center;">
+				<label class="radio-option" style="display: flex; align-items: center; cursor: pointer; margin: 0;">
+					<input type="radio" name="fm_payment_method_sat_radio" value="PUE"
+						   ${current_value === "PUE" ? "checked" : ""}
+						   style="margin-right: 8px;">
+					<span><strong>PUE</strong> - Pago en una exhibición</span>
+				</label>
+				<label class="radio-option" style="display: flex; align-items: center; cursor: pointer; margin: 0;">
+					<input type="radio" name="fm_payment_method_sat_radio" value="PPD"
+						   ${current_value === "PPD" ? "checked" : ""}
+						   style="margin-right: 8px;">
+					<span><strong>PPD</strong> - Pago en parcialidades o diferido</span>
+				</label>
+			</div>
+		</div>
+	`;
+
+	// Insertar radio buttons
+	field.$wrapper.append(radio_html);
+
+	// Configurar event listeners
+	field.$wrapper.find('input[name="fm_payment_method_sat_radio"]').on("change", function () {
+		const selected_value = $(this).val();
+		const previous_value = frm.doc.fm_payment_method_sat;
+
+		// Actualizar el campo en Frappe
+		frm.set_value("fm_payment_method_sat", selected_value);
+
+		// Actualizar resaltado visual
+		update_radio_button_highlighting(field, selected_value);
+
+		// Punto 6: Mostrar avisos detallados al cambiar método
+		show_payment_method_change_notification(frm, previous_value, selected_value);
+
+		// Punto 7: Manejar campo "Forma de pago para Timbrado"
+		handle_payment_form_field_visibility(frm, selected_value);
+
+		// Trigger validations si existen
+		frm.trigger("fm_payment_method_sat");
+	});
+
+	// Aplicar estilos de hover y resaltado inicial
+	field.$wrapper.find(".radio-option").hover(
+		function () {
+			if (!$(this).find("input").is(":checked")) {
+				$(this).css("background-color", "#f8f9fa");
+			}
+		},
+		function () {
+			if (!$(this).find("input").is(":checked")) {
+				$(this).css("background-color", "transparent");
+			}
+		}
+	);
+
+	// Aplicar resaltado inicial
+	update_radio_button_highlighting(field, current_value);
+}
+
+function sync_radio_buttons_with_field(frm, field_name) {
+	const current_value = frm.doc[field_name] || "PUE";
+	const field = frm.fields_dict[field_name];
+	const radio_container = field.$wrapper.find(".payment-method-radio-container");
+
+	if (radio_container.length > 0) {
+		radio_container.find(`input[value="${current_value}"]`).prop("checked", true);
+		update_radio_button_highlighting(field, current_value);
+	}
+}
+
+function show_payment_method_change_notification(frm, previous_value, new_value) {
+	// Punto 6: Avisos detallados al cambiar método de pago
+	if (previous_value === new_value) {
+		return; // No hay cambio
+	}
+
+	let message = "";
+	let title = "";
+	let indicator = "blue";
+
+	if (new_value === "PPD") {
+		title = "✅ Método cambiado a PPD";
+		message = `
+			<strong>Pago en Parcialidades o Diferido (PPD)</strong><br>
+			• Forma de pago se asignó automáticamente a "99 - Por definir"<br>
+			• Campo "Forma de pago para Timbrado" se ocultó (no aplica para PPD)<br>
+			• Este método es para facturas con términos de pago diferido
+		`;
+		indicator = "orange";
+	} else if (new_value === "PUE") {
+		title = "✅ Método cambiado a PUE";
+		message = `
+			<strong>Pago en Una Exhibición (PUE)</strong><br>
+			• Debe especificar una forma de pago específica<br>
+			• Campo "Forma de pago para Timbrado" ahora es visible<br>
+			• NO puede usar "99 - Por definir" para PUE
+		`;
+		indicator = "green";
+	}
+
+	if (message) {
+		frappe.show_alert(
+			{
+				message: `<strong>${__(title)}</strong><br>${__(message)}`,
+				indicator: indicator,
+			},
+			8
+		); // 8 segundos de duración
+	}
+}
+
+function handle_payment_form_field_visibility(frm, payment_method) {
+	// Punto 7: Manejar visibilidad del campo "Forma de pago para Timbrado"
+
+	if (!frm.fields_dict.fm_forma_pago_timbrado) {
+		return; // Campo no existe
+	}
+
+	if (payment_method === "PPD") {
+		// Para PPD: Ocultar campo y asignar "99 - Por definir"
+		frm.set_df_property("fm_forma_pago_timbrado", "hidden", 1);
+
+		// Remover filtros para PPD (todas las opciones disponibles)
+		frm.set_query("fm_forma_pago_timbrado", function () {
+			return {}; // Sin filtros
+		});
+
+		frm.set_value("fm_forma_pago_timbrado", "99 - Por definir");
+
+		frappe.show_alert({
+			message: __("Forma de pago asignada automáticamente: 99 - Por definir"),
+			indicator: "orange",
+		});
+	} else if (payment_method === "PUE") {
+		// Para PUE: Mostrar campo y filtrar opciones (sin "99 - Por definir")
+		frm.set_df_property("fm_forma_pago_timbrado", "hidden", 0);
+
+		// Filtrar Mode of Payment para excluir "99 - Por definir"
+		frm.set_query("fm_forma_pago_timbrado", function () {
+			return {
+				filters: [["Mode of Payment", "name", "!=", "99 - Por definir"]],
+			};
+		});
+
+		// Limpiar si tenía "99 - Por definir"
+		if (frm.doc.fm_forma_pago_timbrado === "99 - Por definir") {
+			frm.set_value("fm_forma_pago_timbrado", "");
+
+			frappe.show_alert({
+				message: __("Debe seleccionar una forma de pago específica para PUE"),
+				indicator: "yellow",
+			});
+		}
+	}
+}
+
+function show_payment_method_feedback(method) {
+	// Función simplificada para casos donde no hay cambio específico
+	let message = "";
+	let color = "blue";
+
+	if (method === "PUE") {
+		message = "PUE: Requiere forma de pago específica (no '99 - Por definir')";
+		color = "green";
+	} else if (method === "PPD") {
+		message = "PPD: Automáticamente usará '99 - Por definir' como forma de pago";
+		color = "orange";
+	}
+
+	if (message) {
+		frappe.show_alert({
+			message: __(message),
+			indicator: color,
+		});
+	}
+}
+
+function update_radio_button_highlighting(field, selected_value) {
+	// Función para resaltar visualmente la opción seleccionada
+
+	// Limpiar estilos previos
+	field.$wrapper.find(".radio-option").css({
+		"background-color": "transparent",
+		border: "none",
+		"border-radius": "0px",
+		padding: "0px",
+	});
+
+	// Aplicar estilo según la opción seleccionada
+	if (selected_value === "PUE") {
+		// Verde suave para PUE
+		field.$wrapper.find(".radio-option").has('input[value="PUE"]').css({
+			"background-color": "#d4edda",
+			border: "2px solid #28a745",
+			"border-radius": "8px",
+			padding: "8px 12px",
+			"box-shadow": "0 2px 4px rgba(40, 167, 69, 0.2)",
+		});
+	} else if (selected_value === "PPD") {
+		// Naranja suave para PPD
+		field.$wrapper.find(".radio-option").has('input[value="PPD"]').css({
+			"background-color": "#fff3cd",
+			border: "2px solid #ffc107",
+			"border-radius": "8px",
+			padding: "8px 12px",
+			"box-shadow": "0 2px 4px rgba(255, 193, 7, 0.2)",
+		});
+	}
 }
