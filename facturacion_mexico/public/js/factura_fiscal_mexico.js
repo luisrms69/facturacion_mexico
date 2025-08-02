@@ -348,14 +348,23 @@ function test_pac_connection(frm) {
 		method: "facturacion_mexico.facturacion_fiscal.timbrado_api.test_connection",
 		callback: function (r) {
 			if (r.message && r.message.success) {
-				frappe.show_alert({
-					message: __("Conexión con PAC exitosa"),
+				frappe.msgprint({
+					title: __("Conexión Exitosa"),
+					message: __(
+						"La conexión con FacturAPI se estableció correctamente. El sistema está listo para timbrar facturas."
+					),
 					indicator: "green",
+					primary_action: {
+						label: __("Cerrar"),
+						action: function () {
+							cur_dialog.hide();
+						},
+					},
 				});
 			} else {
 				frappe.msgprint({
 					title: __("Error de Conexión"),
-					message: r.message ? r.message.error : __("No se pudo conectar con el PAC"),
+					message: r.message ? r.message.message : __("No se pudo conectar con el PAC"),
 					indicator: "red",
 				});
 			}

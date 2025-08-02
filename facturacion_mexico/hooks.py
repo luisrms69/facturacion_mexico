@@ -46,6 +46,7 @@ required_apps = ["erpnext"]
 doctype_js = {
 	"Sales Invoice": ["public/js/sales_invoice.js", "public/js/ereceipt_handler.js"],
 	"Factura Fiscal Mexico": ["public/js/factura_fiscal_mexico.js"],
+	"Customer": ["public/js/customer.js"],
 }
 
 # include css in doctype views
@@ -316,6 +317,10 @@ scheduler_events = {
 		"facturacion_mexico.validaciones.doctype.sat_validation_cache.sat_validation_cache.cleanup_expired_cache",
 		"facturacion_mexico.ereceipts.doctype.ereceipt_mx.ereceipt_mx.bulk_expire_ereceipts",
 	],
+	"cron": {
+		# Validación RFC automática nocturna a las 2:00 AM todos los días
+		"0 2 * * *": ["facturacion_mexico.validaciones.api.run_nightly_rfc_validation"]
+	},
 	"weekly": [
 		"facturacion_mexico.complementos_pago.api.reconcile_payment_tracking",
 		"facturacion_mexico.facturacion_fiscal.tasks.cleanup_old_fiscal_events",
