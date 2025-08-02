@@ -634,6 +634,9 @@ function control_field_visibility_by_status(frm) {
 		"cancellation_date", // Fecha de Cancelación
 	];
 
+	// NUEVA FUNCIONALIDAD: Control de lugar_expedicion basado en multi-sucursal
+	control_multisucursal_field_visibility(frm);
+
 	// Lógica de visibilidad según estado
 	if (fiscal_status === "Pendiente") {
 		// ESTADO PENDIENTE: Ocultar todo lo que viene después del timbrado
@@ -712,4 +715,111 @@ function show_section(frm, section_fieldname) {
 	if (frm.fields_dict[section_fieldname]) {
 		frm.set_df_property(section_fieldname, "hidden", 0);
 	}
+}
+
+// ========================================
+// FUNCIONALIDAD MULTI-SUCURSAL
+// ========================================
+
+function control_multisucursal_field_visibility(frm) {
+	// Control de visibilidad de campos multi-sucursal basado en configuración
+	console.log(`[DEBUG] Controlando visibilidad multi-sucursal`);
+
+	// Verificar si multi-sucursal está habilitado a nivel de sitio
+	frappe.call({
+		method: "frappe.client.get_value",
+		args: {
+			doctype: "System Settings",
+			fieldname: ["multisucursal_enabled"],
+		},
+		callback: function (r) {
+			const is_multisucursal_enabled = r.message && r.message.multisucursal_enabled;
+			console.log(`[DEBUG] Multi-sucursal habilitado: ${is_multisucursal_enabled}`);
+
+			// Controlar visibilidad del campo lugar_expedicion
+			if (is_multisucursal_enabled) {
+				// Si multi-sucursal está habilitado, mostrar lugar_expedicion
+				show_multisucursal_fields(frm);
+			} else {
+				// Si multi-sucursal NO está habilitado, ocultar lugar_expedicion
+				hide_multisucursal_fields(frm);
+			}
+		},
+		error: function () {
+			// En caso de error, verificar por site_config.json
+			console.log(`[DEBUG] Fallback: Verificando site_config.json`);
+			check_site_config_multisucursal(frm);
+		},
+	});
+}
+
+function show_multisucursal_fields(frm) {
+	// Mostrar campos relacionados con multi-sucursal
+	const multisucursal_fields = [
+		"fm_lugar_expedicion", // Campo lugar de expedición
+		"fm_branch", // Campo de sucursal si existe
+		"fm_serie_folio", // Serie y folio específico de sucursal
+	];
+
+	console.log(`[DEBUG] Mostrando campos multi-sucursal`);
+	show_fields(frm, multisucursal_fields);
+
+	// Mostrar sección multi-sucursal si existe
+	show_section(frm, "section_break_multisucursal");
+	show_section(frm, "fm_multibranch_section");
+
+	// Agregar indicador visual de multi-sucursal activo
+	if (!frm.doc.__multisucursal_indicator_shown) {
+		frappe.show_alert(
+			{
+				message: __("Modo Multi-Sucursal activado - Lugar de expedición disponible"),
+				indicator: "blue",
+			},
+			3
+		);
+		frm.doc.__multisucursal_indicator_shown = true;
+	}
+}
+
+function hide_multisucursal_fields(frm) {
+	// Ocultar campos relacionados con multi-sucursal
+	const multisucursal_fields = [
+		"fm_lugar_expedicion", // Campo lugar de expedición
+		"fm_branch", // Campo de sucursal si existe
+		"fm_serie_folio", // Serie y folio específico de sucursal
+	];
+
+	console.log(`[DEBUG] Ocultando campos multi-sucursal`);
+	hide_fields(frm, multisucursal_fields);
+
+	// Ocultar sección multi-sucursal si existe
+	hide_section(frm, "section_break_multisucursal");
+	hide_section(frm, "fm_multibranch_section");
+}
+
+function check_site_config_multisucursal(frm) {
+	// Verificar configuración multi-sucursal en site_config.json
+	frappe.call({
+		method: "frappe.utils.get_site_config",
+		args: {
+			key: "multisucursal_enabled",
+		},
+		callback: function (r) {
+			const is_multisucursal_enabled = r.message === 1 || r.message === true;
+			console.log(`[DEBUG] Site config multi-sucursal: ${is_multisucursal_enabled}`);
+
+			if (is_multisucursal_enabled) {
+				show_multisucursal_fields(frm);
+			} else {
+				hide_multisucursal_fields(frm);
+			}
+		},
+		error: function () {
+			// Si falla todo, usar comportamiento por defecto (ocultar)
+			console.log(
+				`[DEBUG] Error verificando configuración - ocultando campos multi-sucursal por defecto`
+			);
+			hide_multisucursal_fields(frm);
+		},
+	});
 }
