@@ -693,3 +693,19 @@ def cancelar_factura(sales_invoice_name: str, motivo: str = "02"):
 	"""API para cancelar factura desde interfaz."""
 	api = TimbradoAPI()
 	return api.cancelar_factura(sales_invoice_name, motivo)
+
+
+@frappe.whitelist()
+def test_connection():
+	"""Probar conexión con FacturAPI desde interfaz."""
+	try:
+		client = get_facturapi_client()
+		if client.test_connection():
+			return {"success": True, "message": "Conexión exitosa con FacturAPI"}
+		else:
+			return {
+				"success": False,
+				"message": "No se pudo conectar con FacturAPI. Verifique las credenciales.",
+			}
+	except Exception as e:
+		return {"success": False, "message": f"Error de conexión: {e!s}"}
