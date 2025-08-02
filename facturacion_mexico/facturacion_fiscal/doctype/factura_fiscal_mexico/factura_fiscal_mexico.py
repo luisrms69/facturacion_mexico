@@ -521,10 +521,10 @@ class FacturaFiscalMexico(Document):
 
 	def populate_billing_data(self):
 		"""Poblar campos de datos de facturación desde el customer."""
-		print(f"🔧 [DEBUG BILLING] populate_billing_data ejecutándose para customer: {self.customer}")
+		# Poblar datos de facturación desde customer
 
 		if not self.customer:
-			print("❌ [DEBUG BILLING] No hay customer - limpiando campos")
+			# Limpiar campos si no hay customer
 			# Limpiar campos si no hay customer
 			self.fm_cp_cliente = ""
 			self.fm_email_facturacion = ""
@@ -536,17 +536,15 @@ class FacturaFiscalMexico(Document):
 		try:
 			# Obtener datos del customer
 			customer_doc = frappe.get_doc("Customer", self.customer)
-			print(f"✅ [DEBUG BILLING] Customer encontrado: {customer_doc.name}")
+			# Customer encontrado, poblar datos
 
 			# RFC desde Tax ID
 			self.fm_rfc_cliente = customer_doc.tax_id or ""
-			print(f"📋 [DEBUG BILLING] RFC asignado: {self.fm_rfc_cliente}")
+			# RFC asignado desde tax_id
 
 			# Buscar dirección principal
 			primary_address = self._get_primary_address()
-			print(
-				f"🏠 [DEBUG BILLING] Dirección principal: {primary_address.name if primary_address else 'No encontrada'}"
-			)
+			# Obtener dirección principal del customer
 
 			if primary_address:
 				# Poblar datos desde dirección principal
@@ -556,16 +554,14 @@ class FacturaFiscalMexico(Document):
 				self.fm_direccion_principal_display = primary_address.display or self._format_address(
 					primary_address
 				)
-				print(
-					f"✅ [DEBUG BILLING] Datos poblados - CP: {self.fm_cp_cliente}, Email: {self.fm_email_facturacion}"
-				)
+				# Datos poblados desde dirección principal
 			else:
 				# No hay dirección principal - marcar campos como vacíos
 				self.fm_cp_cliente = ""
 				self.fm_email_facturacion = ""
 				self.fm_direccion_principal_link = ""
 				self.fm_direccion_principal_display = "⚠️ FALTA DIRECCIÓN PRINCIPAL DEL CLIENTE"
-				print("⚠️ [DEBUG BILLING] No hay dirección principal - campos marcados como vacíos")
+				# No hay dirección principal - campos marcados como vacíos
 
 		except Exception as e:
 			frappe.log_error(f"Error poblando datos de facturación: {e!s}", "Billing Data Population Error")

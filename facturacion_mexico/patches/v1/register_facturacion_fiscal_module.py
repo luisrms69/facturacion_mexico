@@ -13,6 +13,6 @@ def execute():
 		)
 		module.insert(ignore_permissions=True)
 		frappe.db.commit()
-		frappe.msgprint("✅ Módulo 'Facturacion Fiscal' registrado en BD")
+		frappe.msgprint(frappe._("Módulo 'Facturacion Fiscal' registrado en BD"))
 	else:
-		frappe.msgprint("INFO: Módulo 'Facturacion Fiscal' ya existe en BD")
+		frappe.msgprint(frappe._("Módulo 'Facturacion Fiscal' ya existe en BD"))

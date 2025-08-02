@@ -940,7 +940,8 @@ function validate_customer_fiscal_data(frm) {
 			frappe.msgprint({
 				title: __("Error de Conexión"),
 				message:
-					__("No se pudo conectar al servicio de validación: ") +
+					__("No se pudo conectar al servicio de validación:") +
+					" " +
 					(err.message || "Error desconocido"),
 				indicator: "red",
 			});
@@ -1121,7 +1122,8 @@ function validate_rfc_with_external_service(frm) {
 			frappe.msgprint({
 				title: __("Error de Conexión"),
 				message:
-					__("No se pudo conectar al servicio de validación RFC: ") +
+					__("No se pudo conectar al servicio de validación RFC:") +
+					" " +
 					(err.message || "Error desconocido"),
 				indicator: "red",
 			});
