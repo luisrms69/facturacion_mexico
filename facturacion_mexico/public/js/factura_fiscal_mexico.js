@@ -15,9 +15,9 @@ frappe.ui.form.on("Factura Fiscal Mexico", {
 		// Agregar botones de funcionalidad fiscal
 		add_fiscal_buttons(frm);
 
-		// Validar visualmente los datos de facturación
+		// Verificar y mostrar estado de datos de facturación
 		setTimeout(() => {
-			validate_billing_data_visual(frm);
+			check_and_show_billing_data_status(frm);
 		}, 500);
 	},
 
@@ -39,9 +39,9 @@ frappe.ui.form.on("Factura Fiscal Mexico", {
 			update_fiscal_data_from_customer(frm);
 		}
 
-		// Validar visualmente los datos de facturación después del cambio
+		// Verificar datos de facturación después del cambio
 		setTimeout(() => {
-			validate_billing_data_visual(frm);
+			check_and_show_billing_data_status(frm);
 		}, 1000);
 	},
 
@@ -273,10 +273,6 @@ function add_fiscal_buttons(frm) {
 			validate_customer_fiscal_data(frm);
 		}).addClass("btn-info");
 
-		// Validar RFC con FacturAPI/SAT
-		frm.add_custom_button(__("Validar RFC/CSF"), function () {
-			validate_rfc_with_external_service(frm);
-		}).addClass("btn-info");
 	}
 
 	// Navegación a Sales Invoice relacionada
@@ -1150,63 +1146,144 @@ function validate_rfc_with_external_service(frm) {
 // VALIDACIÓN VISUAL DATOS DE FACTURACIÓN
 // ========================================
 
-function validate_billing_data_visual(frm) {
-	// Validación visual de campos de datos de facturación con resaltado rojo para campos faltantes
-	console.log("🔧 [DEBUG] validate_billing_data_visual ejecutándose...");
-
+function check_and_show_billing_data_status(frm) {
+	// Verificar estado de datos de facturación y mostrar avisos apropiados
 	if (!frm.doc) {
-		console.log("❌ [DEBUG] frm.doc no existe");
 		return;
 	}
 
-	console.log("✅ [DEBUG] frm.doc existe, customer:", frm.doc.customer);
+	// Si no hay customer, mostrar aviso
+	if (!frm.doc.customer) {
+		show_billing_data_message(frm, "warning", "Seleccione un Customer para cargar datos de facturación");
+		return;
+	}
 
-	// Campos de datos de facturación a validar
+	// Verificar si los campos están poblados
 	const billing_fields = [
-		{
-			fieldname: "fm_cp_cliente",
-			label: "CP Cliente",
-			required: true,
-			check_value: frm.doc.fm_cp_cliente,
-		},
-		{
-			fieldname: "fm_email_facturacion",
-			label: "Email Facturación",
-			required: true,
-			check_value: frm.doc.fm_email_facturacion,
-		},
-		{
-			fieldname: "fm_rfc_cliente",
-			label: "RFC Cliente",
-			required: true,
-			check_value: frm.doc.fm_rfc_cliente,
-		},
-		{
-			fieldname: "fm_direccion_principal_display",
-			label: "Dirección Principal",
-			required: true,
-			check_value:
-				frm.doc.fm_direccion_principal_display &&
-				!frm.doc.fm_direccion_principal_display.includes("⚠️ FALTA DIRECCIÓN"),
-		},
+		{ field: "fm_cp_cliente", label: "Código Postal" },
+		{ field: "fm_email_facturacion", label: "Email" },
+		{ field: "fm_rfc_cliente", label: "RFC" },
+		{ field: "fm_direccion_principal_display", label: "Dirección" }
 	];
 
-	console.log("📋 [DEBUG] billing_fields configurados:", billing_fields.length);
-
-	// Aplicar validación visual a cada campo
-	billing_fields.forEach((field) => {
-		console.log(`🔍 [DEBUG] Validando campo ${field.fieldname}:`, field.check_value);
-		apply_visual_validation(frm, field);
-	});
-
-	// Mostrar resumen de validación si hay campos faltantes
-	const missing_fields = billing_fields.filter((field) => !field.check_value);
-	console.log("⚠️ [DEBUG] Campos faltantes:", missing_fields.length);
-
-	if (missing_fields.length > 0 && frm.doc.customer) {
-		console.log("🚨 [DEBUG] Mostrando resumen de campos faltantes");
-		show_billing_data_summary(frm, missing_fields);
+	const empty_fields = billing_fields.filter(f => !frm.doc[f.field] || frm.doc[f.field].includes("⚠️ FALTA"));
+	
+	if (empty_fields.length > 0) {
+		const missing_list = empty_fields.map(f => f.label).join(", ");
+		show_billing_data_message(frm, "error", `Datos faltantes en Customer: ${missing_list}. Configure estos datos en el Customer.`);
+	} else {
+		show_billing_data_message(frm, "success", "Datos de facturación completos");
 	}
+}
+
+function show_billing_data_message(frm, type, message) {
+	// Mostrar mensaje en la sección de datos de facturación
+	const section_wrapper = frm.fields_dict.section_break_datos_facturacion;
+	if (!section_wrapper || !section_wrapper.$wrapper) {
+		return;
+	}
+
+	// Remover mensaje anterior
+	section_wrapper.$wrapper.find(".billing-data-message").remove();
+
+	// Configurar colores según tipo
+	const config = {
+		error: { bg: "#fff5f5", border: "#feb2b2", color: "#c53030", icon: "⚠️" },
+		warning: { bg: "#fffbeb", border: "#fde68a", color: "#d97706", icon: "⚠️" },
+		success: { bg: "#f0fff4", border: "#9ae6b4", color: "#2f855a", icon: "✅" }
+	};
+
+	const style = config[type] || config.warning;
+
+	// Crear y agregar mensaje
+	const message_html = $(`
+		<div class="billing-data-message" style="
+			background-color: ${style.bg};
+			border: 1px solid ${style.border};
+			color: ${style.color};
+			padding: 8px 12px;
+			margin: 8px 0;
+			border-radius: 6px;
+			font-size: 13px;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		">
+			<span>${style.icon}</span>
+			<span>${message}</span>
+		</div>
+	`);
+
+	// Insertar después del título de la sección
+	const section_head = section_wrapper.$wrapper.find(".section-head");
+	if (section_head.length > 0) {
+		section_head.after(message_html);
+	}
+}
+
+function validate_billing_data_visual_OLD(frm) {
+	// Validación visual de campos de datos de facturación con sistema de colores basado en validación RFC
+	if (!frm.doc) {
+		return;
+	}
+
+	// Si no hay customer, aplicar color rojo (sin datos)
+	if (!frm.doc.customer) {
+		apply_billing_section_color(frm, "red", "Sin Cliente configurado");
+		return;
+	}
+
+	// Verificar si el Customer tiene RFC validado
+	check_customer_rfc_validation_status(frm, (rfc_validation_status) => {
+		// Campos de datos de facturación a validar
+		const billing_fields = [
+			{
+				fieldname: "fm_cp_cliente",
+				label: "CP Cliente",
+				check_value: frm.doc.fm_cp_cliente,
+			},
+			{
+				fieldname: "fm_email_facturacion", 
+				label: "Email Facturación",
+				check_value: frm.doc.fm_email_facturacion,
+			},
+			{
+				fieldname: "fm_rfc_cliente",
+				label: "RFC Cliente", 
+				check_value: frm.doc.fm_rfc_cliente,
+			},
+			{
+				fieldname: "fm_direccion_principal_display",
+				label: "Dirección Principal",
+				check_value:
+					frm.doc.fm_direccion_principal_display &&
+					!frm.doc.fm_direccion_principal_display.includes("⚠️ FALTA DIRECCIÓN"),
+			},
+		];
+
+		// Verificar si todos los campos tienen datos
+		const missing_fields = billing_fields.filter((field) => !field.check_value);
+		const has_all_data = missing_fields.length === 0;
+
+		// Determinar color y mensaje según validación RFC y completitud de datos
+		let color, message;
+		
+		if (!has_all_data) {
+			// Rojo: Faltan datos de facturación
+			color = "red";
+			message = `Faltan datos: ${missing_fields.map(f => f.label).join(", ")}`;
+		} else if (rfc_validation_status.validated) {
+			// Verde: RFC validado y datos completos  
+			color = "green";
+			message = `RFC validado el ${rfc_validation_status.validation_date}`;
+		} else {
+			// Amarillo: Datos completos pero RFC no validado
+			color = "yellow";
+			message = "RFC pendiente de validación en Customer";
+		}
+
+		apply_billing_section_color(frm, color, message);
+	});
 }
 
 function apply_visual_validation(frm, field_config) {
@@ -1282,10 +1359,11 @@ function show_billing_data_summary(frm, missing_fields) {
 	);
 }
 
-// Agregar estilos CSS para validación visual
+// Agregar estilos CSS para validación visual y colores de sección
 if (!$("#billing-validation-styles").length) {
 	$("head").append(`
 		<style id="billing-validation-styles">
+			/* Estilos para campos individuales (legacy) */
 			.billing-error .form-control {
 				border: 2px solid #e74c3c !important;
 				background-color: #fdf2f2 !important;
@@ -1298,14 +1376,42 @@ if (!$("#billing-validation-styles").length) {
 				box-shadow: 0 0 5px rgba(46, 204, 113, 0.3) !important;
 			}
 
-			.billing-error .form-control:focus {
-				border-color: #c0392b !important;
-				box-shadow: 0 0 8px rgba(231, 76, 60, 0.5) !important;
+			/* Estilos para secciones de datos de facturación */
+			.billing-section-red {
+				background-color: #fff5f5 !important;
+				border: 2px solid #feb2b2 !important;
+				border-radius: 8px !important;
+				padding: 12px !important;
+				margin: 8px 0 !important;
 			}
 
-			.billing-success .form-control:focus {
-				border-color: #27ae60 !important;
-				box-shadow: 0 0 8px rgba(46, 204, 113, 0.5) !important;
+			.billing-section-yellow {
+				background-color: #fffbeb !important;
+				border: 2px solid #fde68a !important;
+				border-radius: 8px !important;
+				padding: 12px !important;
+				margin: 8px 0 !important;
+			}
+
+			.billing-section-green {
+				background-color: #f0fff4 !important;
+				border: 2px solid #9ae6b4 !important;
+				border-radius: 8px !important;
+				padding: 12px !important;
+				margin: 8px 0 !important;
+			}
+
+			/* Efectos de hover para secciones */
+			.billing-section-red:hover {
+				box-shadow: 0 4px 12px rgba(254, 178, 178, 0.4) !important;
+			}
+
+			.billing-section-yellow:hover {
+				box-shadow: 0 4px 12px rgba(253, 230, 138, 0.4) !important;
+			}
+
+			.billing-section-green:hover {
+				box-shadow: 0 4px 12px rgba(154, 230, 180, 0.4) !important;
 			}
 
 			.control-input {
@@ -1318,6 +1424,113 @@ if (!$("#billing-validation-styles").length) {
 // ========================================
 // FUNCIONES AUXILIARES DATOS DE FACTURACIÓN
 // ========================================
+
+function check_customer_rfc_validation_status(frm, callback) {
+	// Verificar estado de validación RFC del Customer
+	if (!frm.doc.customer) {
+		callback({ validated: false, validation_date: null });
+		return;
+	}
+
+	frappe.call({
+		method: "frappe.client.get_value",
+		args: {
+			doctype: "Customer",
+			fieldname: ["fm_rfc_validated", "fm_rfc_validation_date"],
+			filters: { name: frm.doc.customer },
+		},
+		callback: function(r) {
+			if (r.message) {
+				const is_validated = r.message.fm_rfc_validated == 1;
+				const validation_date = r.message.fm_rfc_validation_date || null;
+				
+				callback({
+					validated: is_validated,
+					validation_date: validation_date ? frappe.datetime.str_to_user(validation_date) : null
+				});
+			} else {
+				callback({ validated: false, validation_date: null });
+			}
+		},
+		error: function() {
+			callback({ validated: false, validation_date: null });
+		}
+	});
+}
+
+function apply_billing_section_color(frm, color, message) {
+	// Aplicar color de fondo a toda la sección "Datos de Facturación"
+	const section_wrapper = frm.fields_dict.section_break_datos_facturacion;
+	if (!section_wrapper || !section_wrapper.$wrapper) {
+		return;
+	}
+
+	// Remover clases de color previas
+	section_wrapper.$wrapper.removeClass("billing-section-red billing-section-yellow billing-section-green");
+
+	// Definir colores según estado
+	const color_config = {
+		red: {
+			class: "billing-section-red",
+			bg_color: "#fff5f5",
+			border_color: "#feb2b2", 
+			text_color: "#c53030",
+			icon: "🔴"
+		},
+		yellow: {
+			class: "billing-section-yellow", 
+			bg_color: "#fffbeb",
+			border_color: "#fde68a",
+			text_color: "#d97706", 
+			icon: "🟡"
+		},
+		green: {
+			class: "billing-section-green",
+			bg_color: "#f0fff4", 
+			border_color: "#9ae6b4",
+			text_color: "#2f855a",
+			icon: "🟢"
+		}
+	};
+
+	const config = color_config[color];
+	if (!config) return;
+
+	// Aplicar clase CSS
+	section_wrapper.$wrapper.addClass(config.class);
+
+	// Buscar o crear indicador de estado
+	let status_indicator = section_wrapper.$wrapper.find(".billing-status-indicator");
+	if (status_indicator.length === 0) {
+		// Crear indicador si no existe
+		const section_label = section_wrapper.$wrapper.find(".section-head");
+		if (section_label.length > 0) {
+			status_indicator = $(`
+				<div class="billing-status-indicator" style="
+					margin-top: 8px;
+					padding: 8px 12px;
+					border-radius: 6px;
+					font-size: 13px;
+					font-weight: 500;
+					display: flex;
+					align-items: center;
+					gap: 8px;
+				"></div>
+			`);
+			section_label.after(status_indicator);
+		}
+	}
+
+	// Actualizar contenido y estilo del indicador
+	if (status_indicator.length > 0) {
+		status_indicator.html(`${config.icon} ${message}`);
+		status_indicator.css({
+			"background-color": config.bg_color,
+			"border": `1px solid ${config.border_color}`,
+			"color": config.text_color
+		});
+	}
+}
 
 function trigger_billing_data_population(frm) {
 	// Activar función backend para poblar datos de facturación desde customer

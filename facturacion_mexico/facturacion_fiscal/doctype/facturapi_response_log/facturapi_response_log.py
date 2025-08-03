@@ -4,7 +4,7 @@ from frappe.model.document import Document
 from frappe.utils import now_datetime
 
 
-class FacturapiResponseLog(Document):
+class FacturAPIResponseLog(Document):
 	"""Registro de respuestas de FacturAPI para auditoría y cálculo de estados."""
 
 	def before_insert(self):
