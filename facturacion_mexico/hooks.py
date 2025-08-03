@@ -185,14 +185,15 @@ fixtures = [
 					# "Sales Invoice-fm_serie_folio", # MIGRADO A Factura Fiscal Mexico
 					"Sales Invoice-fm_timbrado_section",
 					# "Sales Invoice-fm_uuid_fiscal", # MIGRADO A Factura Fiscal Mexico
-					# Factura Fiscal Mexico custom fields (7 campos migrados)
-					"Factura Fiscal Mexico-fm_cfdi_use",
-					"Factura Fiscal Mexico-fm_fiscal_status",
-					"Factura Fiscal Mexico-fm_forma_pago_timbrado",
-					"Factura Fiscal Mexico-fm_lugar_expedicion",
-					"Factura Fiscal Mexico-fm_payment_method_sat",
-					"Factura Fiscal Mexico-fm_serie_folio",
-					"Factura Fiscal Mexico-fm_uuid_fiscal",
+					# Factura Fiscal Mexico custom fields - ELIMINADOS (migrados a JSON nativo del DocType)
+					# NOTA: Estos campos ahora están definidos directamente en factura_fiscal_mexico.json
+					# "Factura Fiscal Mexico-fm_cfdi_use",           # ✅ Migrado a JSON DocType
+					# "Factura Fiscal Mexico-fm_fiscal_status",      # ✅ Migrado a JSON DocType
+					# "Factura Fiscal Mexico-fm_forma_pago_timbrado", # ✅ Migrado a JSON DocType
+					# "Factura Fiscal Mexico-fm_lugar_expedicion",   # ✅ Migrado a JSON DocType
+					# "Factura Fiscal Mexico-fm_payment_method_sat", # ✅ Migrado a JSON DocType
+					# "Factura Fiscal Mexico-fm_serie_folio",        # ✅ Migrado a JSON DocType
+					# "Factura Fiscal Mexico-fm_uuid_fiscal",        # ✅ Migrado a JSON DocType
 				],
 			]
 		],

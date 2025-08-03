@@ -24,6 +24,13 @@
     "section_break_facturapi",
     "facturapi_id",
     "uuid",
+    "fm_cfdi_use",
+    "fm_fiscal_status",
+    "fm_uuid_fiscal",
+    "fm_payment_method_sat",
+    "fm_forma_pago_timbrado",
+    "fm_serie_folio",
+    "fm_lugar_expedicion",
     "column_break_fiscal",
     "serie",
     "folio",
@@ -108,6 +115,49 @@
       "in_list_view": 1,
       "label": "UUID Fiscal",
       "read_only": 1
+    },
+    {
+      "fieldname": "fm_cfdi_use",
+      "fieldtype": "Link",
+      "label": "Uso del CFDI",
+      "options": "Uso CFDI SAT"
+    },
+    {
+      "default": "Pendiente",
+      "description": "Estado fiscal calculado automáticamente basado en respuestas de FacturAPI",
+      "fieldname": "fm_fiscal_status",
+      "fieldtype": "Select",
+      "in_list_view": 1,
+      "label": "Estado Fiscal",
+      "options": "Pendiente\nTimbrada\nCancelada\nError\nSolicitud Cancelación",
+      "read_only": 1
+    },
+    {
+      "fieldname": "fm_uuid_fiscal",
+      "fieldtype": "Data",
+      "label": "UUID Fiscal"
+    },
+    {
+      "fieldname": "fm_payment_method_sat",
+      "fieldtype": "Select",
+      "label": "Método de Pago SAT",
+      "options": "PUE\nPPD"
+    },
+    {
+      "fieldname": "fm_forma_pago_timbrado",
+      "fieldtype": "Link",
+      "label": "Forma de Pago para Timbrado",
+      "options": "Mode of Payment"
+    },
+    {
+      "fieldname": "fm_serie_folio",
+      "fieldtype": "Data",
+      "label": "Serie y Folio"
+    },
+    {
+      "fieldname": "fm_lugar_expedicion",
+      "fieldtype": "Data",
+      "label": "Lugar de Expedición"
     },
     {
       "fieldname": "column_break_fiscal",
