@@ -12,6 +12,9 @@
     "company",
     "customer",
     "status",
+    "column_break_payment_methods",
+    "fm_payment_method_sat",
+    "fm_forma_pago_timbrado",
     "section_break_datos_facturacion",
     "fm_cp_cliente",
     "fm_email_facturacion",
@@ -26,8 +29,6 @@
     "uuid",
     "fm_cfdi_use",
     "fm_fiscal_status",
-    "fm_payment_method_sat",
-    "fm_forma_pago_timbrado",
     "fm_serie_folio",
     "fm_lugar_expedicion",
     "column_break_fiscal",
@@ -97,6 +98,22 @@
       "reqd": 1
     },
     {
+      "fieldname": "column_break_payment_methods",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "fm_payment_method_sat",
+      "fieldtype": "Select",
+      "label": "Método de Pago SAT",
+      "options": "PUE\nPPD"
+    },
+    {
+      "fieldname": "fm_forma_pago_timbrado",
+      "fieldtype": "Link",
+      "label": "Forma de Pago para Timbrado",
+      "options": "Mode of Payment"
+    },
+    {
       "fieldname": "fecha_timbrado",
       "fieldtype": "Datetime",
       "label": "Fecha de Timbrado",
@@ -137,18 +154,6 @@
       "label": "Estado Fiscal",
       "options": "Pendiente\nTimbrada\nCancelada\nError\nSolicitud Cancelación",
       "read_only": 1
-    },
-    {
-      "fieldname": "fm_payment_method_sat",
-      "fieldtype": "Select",
-      "label": "Método de Pago SAT",
-      "options": "PUE\nPPD"
-    },
-    {
-      "fieldname": "fm_forma_pago_timbrado",
-      "fieldtype": "Link",
-      "label": "Forma de Pago para Timbrado",
-      "options": "Mode of Payment"
     },
     {
       "fieldname": "fm_serie_folio",
