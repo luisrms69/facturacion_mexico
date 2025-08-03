@@ -21,6 +21,7 @@ frappe.ui.form.on("Factura Fiscal Mexico", {
 		// console.log("🔍 Ejecutando check_and_show_billing_data_status en refresh");
 		setTimeout(() => {
 			check_and_show_billing_data_status(frm);
+			check_customer_fiscal_warning(frm);
 		}, 1500);
 	},
 
@@ -34,6 +35,11 @@ frappe.ui.form.on("Factura Fiscal Mexico", {
 		if (frm.doc.sales_invoice) {
 			load_customer_data_from_sales_invoice(frm);
 		}
+
+		// Verificar cliente fiscal después de cargar Sales Invoice
+		setTimeout(() => {
+			check_customer_fiscal_warning(frm);
+		}, 500);
 	},
 
 	customer: function (frm) {
@@ -41,6 +47,9 @@ frappe.ui.form.on("Factura Fiscal Mexico", {
 		if (frm.doc.customer) {
 			update_fiscal_data_from_customer(frm);
 		}
+
+		// Verificar si cliente fiscal es diferente al del Sales Invoice
+		check_customer_fiscal_warning(frm);
 
 		// Verificar datos de facturación después del cambio
 		setTimeout(() => {
@@ -1386,4 +1395,108 @@ function clear_billing_data_fields(frm) {
 	setTimeout(() => {
 		validate_billing_data_visual(frm);
 	}, 100);
+}
+
+// ========================================
+// VERIFICACIÓN CLIENTE FISCAL DIFERENTE
+// ========================================
+
+function check_customer_fiscal_warning(frm) {
+	// Verificar si el cliente fiscal es diferente al del Sales Invoice
+	if (!frm.doc.sales_invoice || !frm.doc.customer) {
+		hide_customer_fiscal_warning(frm);
+		return;
+	}
+
+	// Obtener cliente del Sales Invoice
+	frappe.call({
+		method: "frappe.client.get_value",
+		args: {
+			doctype: "Sales Invoice",
+			fieldname: ["customer", "customer_name"],
+			filters: { name: frm.doc.sales_invoice },
+		},
+		callback: function (r) {
+			if (r.message) {
+				const sales_invoice_customer = r.message.customer;
+				const sales_invoice_customer_name = r.message.customer_name;
+
+				// Comparar clientes
+				if (frm.doc.customer !== sales_invoice_customer) {
+					// Clientes diferentes - mostrar aviso
+					show_customer_fiscal_warning(
+						frm,
+						sales_invoice_customer,
+						sales_invoice_customer_name
+					);
+				} else {
+					// Mismo cliente - ocultar aviso
+					hide_customer_fiscal_warning(frm);
+				}
+			} else {
+				hide_customer_fiscal_warning(frm);
+			}
+		},
+		error: function () {
+			hide_customer_fiscal_warning(frm);
+		},
+	});
+}
+
+function show_customer_fiscal_warning(frm, original_customer, original_customer_name) {
+	// Mostrar aviso de cliente fiscal diferente
+	const warning_field = frm.fields_dict.customer_fiscal_warning;
+	if (!warning_field || !warning_field.$wrapper) {
+		return;
+	}
+
+	// Obtener nombre del cliente fiscal actual
+	frappe.call({
+		method: "frappe.client.get_value",
+		args: {
+			doctype: "Customer",
+			fieldname: "customer_name",
+			filters: { name: frm.doc.customer },
+		},
+		callback: function (r) {
+			const fiscal_customer_name = r.message ? r.message.customer_name : frm.doc.customer;
+
+			const warning_html = `
+				<div style="
+					background-color: #fff3cd;
+					border: 1px solid #ffeaa7;
+					border-radius: 6px;
+					padding: 12px;
+					margin: 8px 0;
+					font-size: 13px;
+					display: flex;
+					align-items: center;
+					gap: 10px;
+				">
+					<span style="color: #d97706; font-size: 18px;">⚠️</span>
+					<div>
+						<strong style="color: #d97706;">Cliente Fiscal Diferente:</strong><br>
+						<span style="color: #666;">
+							<strong>Sales Invoice:</strong> ${original_customer_name} (${original_customer})<br>
+							<strong>Factura Fiscal:</strong> ${fiscal_customer_name} (${frm.doc.customer})
+						</span>
+						<div style="margin-top: 6px; font-size: 11px; color: #856404;">
+							💡 Uso común: Facturación a "Público en General" o cambio de receptor fiscal
+						</div>
+					</div>
+				</div>
+			`;
+
+			warning_field.$wrapper.html(warning_html);
+			warning_field.$wrapper.show();
+		},
+	});
+}
+
+function hide_customer_fiscal_warning(frm) {
+	// Ocultar aviso de cliente fiscal
+	const warning_field = frm.fields_dict.customer_fiscal_warning;
+	if (warning_field && warning_field.$wrapper) {
+		warning_field.$wrapper.hide();
+	}
 }

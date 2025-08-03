@@ -11,6 +11,7 @@ class FacturaFiscalMexico(Document):
 		"""Validar factura fiscal antes de guardar."""
 		self.validate_sales_invoice()
 		self.validate_company_match()
+		self.validate_customer_fiscal_change()
 		self.validate_status_transitions()
 
 		# Validaciones fiscales migradas desde Sales Invoice
@@ -52,6 +53,38 @@ class FacturaFiscalMexico(Document):
 			sales_invoice = frappe.get_doc("Sales Invoice", self.sales_invoice)
 			if sales_invoice.company != self.company:
 				frappe.throw(_("La empresa debe coincidir con la Sales Invoice"))
+
+	def validate_customer_fiscal_change(self):
+		"""Validar y permitir cambio de cliente fiscal diferente al Sales Invoice."""
+		if not self.sales_invoice or not self.customer:
+			return
+
+		# Obtener cliente del Sales Invoice
+		sales_invoice = frappe.get_doc("Sales Invoice", self.sales_invoice)
+		sales_invoice_customer = sales_invoice.customer
+
+		# Si el cliente fiscal es diferente al del Sales Invoice, crear log informativo
+		if self.customer != sales_invoice_customer:
+			# Log informativo para auditoría (no es error, es funcionalidad permitida)
+			frappe.logger().info(
+				f"Cliente fiscal diferente en {self.name}: "
+				f"Sales Invoice customer: {sales_invoice_customer}, "
+				f"Fiscal customer: {self.customer}. "
+				f"Caso común: Público en General o cambio receptor fiscal."
+			)
+
+			# Opcional: Agregar mensaje informativo sin bloquear (solo primera vez)
+			if self.is_new() and not hasattr(self, "_customer_change_notified"):
+				frappe.msgprint(
+					_(
+						"Cliente fiscal ({0}) es diferente al cliente del Sales Invoice ({1}). "
+						"Esto es permitido para casos como 'Público en General'."
+					).format(self.customer, sales_invoice_customer),
+					title=_("Cliente Fiscal Diferente"),
+					indicator="orange",
+					alert=True,
+				)
+				self._customer_change_notified = True
 
 	def validate_status_transitions(self):
 		"""Validar transiciones de estado válidas."""

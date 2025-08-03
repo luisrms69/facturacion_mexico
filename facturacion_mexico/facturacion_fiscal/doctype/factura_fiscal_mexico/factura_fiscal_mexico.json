@@ -78,6 +78,13 @@
       "reqd": 1
     },
     {
+      "depends_on": "eval:doc.customer && doc.sales_invoice",
+      "fieldname": "customer_fiscal_warning",
+      "fieldtype": "HTML",
+      "label": "Aviso Cliente Fiscal",
+      "options": "<div id=\"customer-fiscal-warning\" style=\"display: none;\"></div>"
+    },
+    {
       "fieldname": "column_break_basic",
       "fieldtype": "Column Break"
     },
