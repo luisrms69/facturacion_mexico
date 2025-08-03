@@ -80,6 +80,11 @@ class FacturaFiscalMexico(Document):
 		if new_status not in valid_transitions.get(old_status, []):
 			frappe.throw(_("Transición de estado inválida: {0} → {1}").format(old_status, new_status))
 
+	def onload(self):
+		"""Ejecutar al cargar el documento."""
+		# Poblar datos de facturación al cargar
+		self.populate_billing_data()
+
 	def before_save(self):
 		"""Ejecutar antes de guardar."""
 		# Cargar datos desde Sales Invoice si no están establecidos
@@ -93,6 +98,10 @@ class FacturaFiscalMexico(Document):
 			# Si no hay customer, obtenerlo de Sales Invoice
 			if not self.customer:
 				self.customer = sales_invoice.customer
+
+		# Detectar cambio de customer y repoblar datos
+		if self.has_value_changed("customer"):
+			self.populate_billing_data()
 
 		# Calcular status automáticamente basado en fm_fiscal_status
 		self.calculate_status_from_fiscal_status()
@@ -527,13 +536,12 @@ class FacturaFiscalMexico(Document):
 		# Poblar datos de facturación desde customer
 
 		if not self.customer:
-			# Limpiar campos si no hay customer
-			# Limpiar campos si no hay customer
-			self.fm_cp_cliente = ""
-			self.fm_email_facturacion = ""
-			self.fm_rfc_cliente = ""
+			# Mostrar mensajes informativos si no hay customer
+			self.fm_cp_cliente = "⚠️ SELECCIONA UN CLIENTE"
+			self.fm_email_facturacion = "⚠️ SELECCIONA UN CLIENTE"
+			self.fm_rfc_cliente = "⚠️ SELECCIONA UN CLIENTE"
 			self.fm_direccion_principal_link = ""
-			self.fm_direccion_principal_display = ""
+			self.fm_direccion_principal_display = "⚠️ SELECCIONA UN CLIENTE"
 			return
 
 		try:
@@ -542,7 +550,7 @@ class FacturaFiscalMexico(Document):
 			# Customer encontrado, poblar datos
 
 			# RFC desde Tax ID
-			self.fm_rfc_cliente = customer_doc.tax_id or ""
+			self.fm_rfc_cliente = customer_doc.tax_id or "⚠️ FALTA RFC EN CUSTOMER"
 			# RFC asignado desde tax_id
 
 			# Buscar dirección principal
@@ -551,29 +559,30 @@ class FacturaFiscalMexico(Document):
 
 			if primary_address:
 				# Poblar datos desde dirección principal
-				self.fm_cp_cliente = primary_address.pincode or ""
-				self.fm_email_facturacion = primary_address.email_id or ""
+				self.fm_cp_cliente = primary_address.pincode or "⚠️ FALTA CP EN DIRECCIÓN"
+				self.fm_email_facturacion = primary_address.email_id or "⚠️ FALTA EMAIL EN DIRECCIÓN"
 				self.fm_direccion_principal_link = primary_address.name
-				self.fm_direccion_principal_display = primary_address.display or self._format_address(
-					primary_address
-				)
+				self.fm_direccion_principal_display = self._format_address(primary_address)
 				# Datos poblados desde dirección principal
 			else:
-				# No hay dirección principal - marcar campos como vacíos
-				self.fm_cp_cliente = ""
-				self.fm_email_facturacion = ""
+				# No hay dirección principal - marcar campos como faltantes
+				self.fm_cp_cliente = "⚠️ FALTA DIRECCIÓN PRINCIPAL"
+				self.fm_email_facturacion = "⚠️ FALTA DIRECCIÓN PRINCIPAL"
 				self.fm_direccion_principal_link = ""
 				self.fm_direccion_principal_display = "⚠️ FALTA DIRECCIÓN PRINCIPAL DEL CLIENTE"
-				# No hay dirección principal - campos marcados como vacíos
+				# No hay dirección principal - campos marcados como faltantes
+
+			# Determinar estado de validación SAT para colores
+			self._set_validation_status_color(customer_doc, primary_address)
 
 		except Exception as e:
 			frappe.log_error(f"Error poblando datos de facturación: {e!s}", "Billing Data Population Error")
-			# En caso de error, limpiar campos
-			self.fm_cp_cliente = ""
-			self.fm_email_facturacion = ""
-			self.fm_rfc_cliente = ""
+			# En caso de error, mostrar mensajes de error
+			self.fm_cp_cliente = "❌ ERROR AL OBTENER CP"
+			self.fm_email_facturacion = "❌ ERROR AL OBTENER EMAIL"
+			self.fm_rfc_cliente = "❌ ERROR AL OBTENER RFC"
 			self.fm_direccion_principal_link = ""
-			self.fm_direccion_principal_display = f"Error: {e!s}"
+			self.fm_direccion_principal_display = f"❌ Error: {e!s}"
 
 	def _get_primary_address(self):
 		"""Obtener la dirección principal del customer."""
@@ -623,3 +632,49 @@ class FacturaFiscalMexico(Document):
 			parts.append(address_doc.country)
 
 		return ", ".join(parts)
+
+	def _set_validation_status_color(self, customer_doc, primary_address):
+		"""Determinar color de sección Datos de Facturación basado en validación SAT."""
+		# Verificar estado de validación SAT
+		rfc_validated = getattr(customer_doc, "fm_rfc_validated", 0)
+
+		# 1. VERDE: RFC validado exitosamente
+		if rfc_validated:
+			self._validation_status = "green"
+			self._validation_message = "✅ DATOS FISCALES VALIDADOS"
+			return
+
+		# 2. VERIFICAR SI DATOS ESTÁN COMPLETOS PARA VALIDACIÓN
+		# RFC debe existir
+		if not customer_doc.tax_id:
+			self._validation_status = "red"
+			self._validation_message = "🔴 FALTA RFC"
+			return
+
+		# Dirección principal debe existir y estar completa
+		if not primary_address:
+			self._validation_status = "red"
+			self._validation_message = "🔴 FALTA DIRECCIÓN PRINCIPAL"
+			return
+
+		# Verificar campos críticos de dirección
+		missing_fields = []
+		if not primary_address.address_line1:
+			missing_fields.append("Calle")
+		if not primary_address.pincode:
+			missing_fields.append("CP")
+		if not primary_address.city:
+			missing_fields.append("Ciudad")
+		if not primary_address.state:
+			missing_fields.append("Estado")
+		if not primary_address.country:
+			missing_fields.append("País")
+
+		if missing_fields:
+			self._validation_status = "red"
+			self._validation_message = f"🔴 FALTA EN DIRECCIÓN: {', '.join(missing_fields)}"
+			return
+
+		# 3. AMARILLO: Datos completos pero no validados
+		self._validation_status = "yellow"
+		self._validation_message = "🟡 LISTO PARA VALIDAR RFC/CSF"

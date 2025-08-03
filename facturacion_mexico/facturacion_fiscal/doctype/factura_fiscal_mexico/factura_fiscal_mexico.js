@@ -1,6 +1,8 @@
 // Factura Fiscal Mexico - JavaScript customizations
 // Manejo de datos fiscales separados de Sales Invoice
 
+// console.log("✅ Cargando JS para Factura Fiscal Mexico desde directorio DocType");
+
 frappe.ui.form.on("Factura Fiscal Mexico", {
 	refresh: function (frm) {
 		// Configurar interfaz del documento fiscal
@@ -16,9 +18,10 @@ frappe.ui.form.on("Factura Fiscal Mexico", {
 		add_fiscal_buttons(frm);
 
 		// Verificar y mostrar estado de datos de facturación
+		// console.log("🔍 Ejecutando check_and_show_billing_data_status en refresh");
 		setTimeout(() => {
 			check_and_show_billing_data_status(frm);
-		}, 500);
+		}, 1500);
 	},
 
 	onload: function (frm) {
@@ -1213,43 +1216,58 @@ function validate_rfc_with_external_service(frm) {
 // ========================================
 
 function check_and_show_billing_data_status(frm) {
-	// Verificar estado de datos de facturación y mostrar avisos apropiados
+	// Verificar estado de datos de facturación y aplicar colores de validación SAT
 	if (!frm.doc) {
 		return;
 	}
 
-	// Si no hay customer, mostrar aviso
+	// Si no hay customer, aplicar estado rojo
 	if (!frm.doc.customer) {
-		show_billing_data_message(
-			frm,
-			"warning",
-			"Seleccione un Customer para cargar datos de facturación"
-		);
+		apply_billing_section_color(frm, "red", "🔴 SELECCIONA UN CLIENTE");
 		return;
 	}
 
-	// Verificar si los campos están poblados
-	const billing_fields = [
-		{ field: "fm_cp_cliente", label: "Código Postal" },
-		{ field: "fm_email_facturacion", label: "Email" },
-		{ field: "fm_rfc_cliente", label: "RFC" },
-		{ field: "fm_direccion_principal_display", label: "Dirección" },
-	];
+	// Verificar estado de validación SAT del Customer
+	check_customer_rfc_validation_status(frm, (rfc_validation_status) => {
+		// Verificar si los campos OBLIGATORIOS están poblados (sin email)
+		const billing_fields = [
+			{ field: "fm_cp_cliente", label: "CP" },
+			{ field: "fm_rfc_cliente", label: "RFC" },
+			{ field: "fm_direccion_principal_display", label: "Dirección" },
+		];
 
-	const empty_fields = billing_fields.filter(
-		(f) => !frm.doc[f.field] || frm.doc[f.field].includes("⚠️ FALTA")
-	);
-
-	if (empty_fields.length > 0) {
-		const missing_list = empty_fields.map((f) => f.label).join(", ");
-		show_billing_data_message(
-			frm,
-			"error",
-			`Datos faltantes en Customer: ${missing_list}. Configure estos datos en el Customer.`
+		const empty_fields = billing_fields.filter(
+			(f) =>
+				!frm.doc[f.field] ||
+				frm.doc[f.field].includes("⚠️ FALTA") ||
+				frm.doc[f.field].includes("❌ ERROR")
 		);
-	} else {
-		show_billing_data_message(frm, "success", "Datos de facturación completos");
-	}
+
+		// Determinar color y mensaje según validación SAT (RFC validado tiene prioridad)
+		let color, message;
+
+		if (rfc_validation_status.validated) {
+			// VERDE: RFC validado exitosamente (prioridad sobre campos faltantes)
+			color = "green";
+			message = `✅ DATOS FISCALES VALIDADOS${
+				rfc_validation_status.validation_date
+					? ` (${rfc_validation_status.validation_date})`
+					: ""
+			}`;
+		} else if (empty_fields.length > 0) {
+			// ROJO: Faltan datos básicos y RFC no validado
+			color = "red";
+			const missing_list = empty_fields.map((f) => f.label).join(", ");
+			message = `🔴 FALTA: ${missing_list}`;
+		} else {
+			// AMARILLO: Datos completos pero RFC no validado
+			color = "yellow";
+			message = "🟡 LISTO PARA VALIDAR RFC/CSF";
+		}
+
+		// Aplicar color a la sección
+		apply_billing_section_color(frm, color, message);
+	});
 }
 
 function show_billing_data_message(frm, type, message) {
@@ -1547,15 +1565,30 @@ function check_customer_rfc_validation_status(frm, callback) {
 
 function apply_billing_section_color(frm, color, message) {
 	// Aplicar color de fondo a toda la sección "Datos de Facturación"
+
+	// MÉTODO 1: Intentar con frm.fields_dict
 	const section_wrapper = frm.fields_dict.section_break_datos_facturacion;
-	if (!section_wrapper || !section_wrapper.$wrapper) {
+
+	// MÉTODO 2: Buscar directamente en el DOM usando jQuery
+	const section_element = $('div[data-fieldname="section_break_datos_facturacion"]');
+
+	// MÉTODO 3: Buscar por el texto "Datos de Facturación"
+	const section_by_text = $('.section-head:contains("Datos de Facturación")').parent();
+
+	let target_element;
+
+	if (section_wrapper && section_wrapper.$wrapper) {
+		target_element = section_wrapper.$wrapper;
+	} else if (section_element.length > 0) {
+		target_element = section_element;
+	} else if (section_by_text.length > 0) {
+		target_element = section_by_text;
+	} else {
 		return;
 	}
 
 	// Remover clases de color previas
-	section_wrapper.$wrapper.removeClass(
-		"billing-section-red billing-section-yellow billing-section-green"
-	);
+	target_element.removeClass("billing-section-red billing-section-yellow billing-section-green");
 
 	// Definir colores según estado
 	const color_config = {
@@ -1583,16 +1616,20 @@ function apply_billing_section_color(frm, color, message) {
 	};
 
 	const config = color_config[color];
-	if (!config) return;
+	if (!config) {
+		return;
+	}
 
 	// Aplicar clase CSS
-	section_wrapper.$wrapper.addClass(config.class);
+	target_element.addClass(config.class);
 
 	// Buscar o crear indicador de estado
-	let status_indicator = section_wrapper.$wrapper.find(".billing-status-indicator");
+	let status_indicator = target_element.find(".billing-status-indicator");
+
 	if (status_indicator.length === 0) {
 		// Crear indicador si no existe
-		const section_label = section_wrapper.$wrapper.find(".section-head");
+		const section_label = target_element.find(".section-head");
+
 		if (section_label.length > 0) {
 			status_indicator = $(`
 				<div class="billing-status-indicator" style="
