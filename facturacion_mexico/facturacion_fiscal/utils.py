@@ -110,4 +110,3 @@ def is_invoice_stamped(sales_invoice_name):
 
 	except Exception:
 		return False
-
