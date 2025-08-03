@@ -169,8 +169,9 @@ class FacturaFiscalMexico(Document):
 		# Actualizar Sales Invoice con información fiscal
 		self.update_sales_invoice_fiscal_info()
 
-		# Sincronizar historial FacturAPI
-		self.sync_facturapi_history()
+		# FASE 1.1: Deshabilitar sync_facturapi_history() - funcionalidad duplicada
+		# FacturAPI Response Log es la única fuente de verdad para historial
+		# self.sync_facturapi_history()
 
 		# Recalcular estado fiscal basado en logs
 		self.calculate_fiscal_status_from_logs()

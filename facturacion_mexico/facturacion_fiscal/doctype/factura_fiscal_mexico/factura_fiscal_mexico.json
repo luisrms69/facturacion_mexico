@@ -233,9 +233,10 @@
       "label": "Historial FacturAPI"
     },
     {
+      "depends_on": "eval:false",
       "fieldname": "facturapi_response_history",
       "fieldtype": "Table",
-      "label": "Historial de Respuestas",
+      "label": "Historial de Respuestas (DEPRECADO)",
       "options": "FacturAPI Response Item",
       "read_only": 1
     },
