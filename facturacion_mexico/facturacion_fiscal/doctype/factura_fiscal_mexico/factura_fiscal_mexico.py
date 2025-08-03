@@ -161,7 +161,7 @@ class FacturaFiscalMexico(Document):
 					if self.get_doc_before_save()
 					else "Pendiente",
 					"new_status": self.fm_fiscal_status,
-					"uuid": self.fm_uuid_fiscal,
+					"uuid": self.uuid,
 					"facturapi_id": getattr(self, "facturapi_id", None),
 				},
 			)
@@ -211,7 +211,6 @@ class FacturaFiscalMexico(Document):
 				self.sales_invoice,
 				{
 					"fm_fiscal_status": status_map.get(self.fm_fiscal_status, "Pendiente"),
-					"fm_uuid_fiscal": self.fm_uuid_fiscal,
 					"fm_factura_fiscal_mx": self.name,
 				},
 			)

@@ -183,7 +183,7 @@ fixtures = [
 					"Sales Invoice-fm_pending_amount",
 					# "Sales Invoice-fm_serie_folio", # MIGRADO A Factura Fiscal Mexico
 					"Sales Invoice-fm_timbrado_section",
-					# "Sales Invoice-fm_uuid_fiscal", # MIGRADO A Factura Fiscal Mexico
+					# "Sales Invoice-fm_uuid_fiscal", # ELIMINADO: Usar función puente get_invoice_uuid() - NO duplicar UUID
 					# Factura Fiscal Mexico custom fields - ELIMINADOS (migrados a JSON nativo del DocType)
 					# NOTA: Estos campos ahora están definidos directamente en factura_fiscal_mexico.json
 					# "Factura Fiscal Mexico-fm_cfdi_use",           # ✅ Migrado a JSON DocType

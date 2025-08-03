@@ -26,7 +26,6 @@
     "uuid",
     "fm_cfdi_use",
     "fm_fiscal_status",
-    "fm_uuid_fiscal",
     "fm_payment_method_sat",
     "fm_forma_pago_timbrado",
     "fm_serie_folio",
@@ -138,11 +137,6 @@
       "label": "Estado Fiscal",
       "options": "Pendiente\nTimbrada\nCancelada\nError\nSolicitud Cancelación",
       "read_only": 1
-    },
-    {
-      "fieldname": "fm_uuid_fiscal",
-      "fieldtype": "Data",
-      "label": "UUID Fiscal"
     },
     {
       "fieldname": "fm_payment_method_sat",

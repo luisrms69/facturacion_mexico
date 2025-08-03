@@ -405,7 +405,7 @@ class TimbradoAPI:
 		frappe.db.set_value(
 			"Sales Invoice",
 			sales_invoice.name,
-			{"fm_fiscal_status": "Timbrada", "fm_uuid_fiscal": response.get("uuid")},
+			{"fm_fiscal_status": "Timbrada"},
 		)
 
 		# Marcar evento como exitoso

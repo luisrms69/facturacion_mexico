@@ -117,7 +117,9 @@ def _requires_ppd_complement(sales_invoice):
 		return False
 
 	# Verificar que tenga UUID fiscal
-	if not sales_invoice.get("fm_uuid_fiscal"):
+	from facturacion_mexico.facturacion_fiscal.utils import is_invoice_stamped
+
+	if not is_invoice_stamped(sales_invoice.name):
 		return False
 
 	return True
@@ -191,7 +193,7 @@ def _create_complemento_pago(payment_doc, reference, sales_invoice, tracking_nam
 			"related_invoices",
 			{
 				"sales_invoice": reference.reference_name,
-				"invoice_uuid": sales_invoice.get("fm_uuid_fiscal"),
+				"invoice_uuid": _get_invoice_uuid_from_fiscal_doc(sales_invoice.name),
 				"invoice_currency": sales_invoice.currency,
 				"invoice_exchange_rate": sales_invoice.get("conversion_rate", 1.0),
 				"previous_balance": _get_invoice_balance_before_payment(
@@ -358,6 +360,28 @@ def auto_stamp_complements(doc, method):
 			message=f"Error en auto_stamp_complements: {e!s}",
 			title="Payment Entry Submit - Auto Stamp Error",
 		)
+
+
+def _get_invoice_uuid_from_fiscal_doc(sales_invoice_name):
+	"""
+	Obtener UUID fiscal usando función puente para evitar duplicación.
+
+	Args:
+		sales_invoice_name: Nombre del documento Sales Invoice
+
+	Returns:
+		str|None: UUID fiscal si existe
+	"""
+	try:
+		from facturacion_mexico.facturacion_fiscal.utils import get_invoice_uuid
+
+		return get_invoice_uuid(sales_invoice_name)
+	except Exception as e:
+		frappe.log_error(
+			message=f"Error obteniendo UUID fiscal para complemento: {e!s}",
+			title="Complemento Pago - UUID Error",
+		)
+		return None
 
 
 def _auto_stamp_complement(complement_name):

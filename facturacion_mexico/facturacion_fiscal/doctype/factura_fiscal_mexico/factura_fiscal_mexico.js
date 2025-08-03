@@ -71,7 +71,7 @@ frappe.ui.form.on("Factura Fiscal Mexico", {
 function setup_fiscal_interface(frm) {
 	// Configurar interfaz específica para datos fiscales
 	if (frm.doc.fm_fiscal_status === "Timbrado") {
-		frm.set_df_property("fm_uuid_fiscal", "read_only", 1);
+		frm.set_df_property("uuid", "read_only", 1);
 		frm.set_df_property("fm_serie_folio", "read_only", 1);
 	}
 }
@@ -390,7 +390,7 @@ function cancelar_timbrado(frm) {
 		frappe.call({
 			method: "facturacion_mexico.facturacion_fiscal.timbrado_api.cancelar_factura",
 			args: {
-				uuid: frm.doc.fm_uuid_fiscal,
+				uuid: frm.doc.uuid,
 			},
 			callback: function (r) {
 				if (r.message && r.message.success) {
@@ -719,7 +719,7 @@ function control_field_visibility_by_status(frm) {
 		"folio", // Folio de la factura (DocType field)
 		"total_fiscal", // Total de la factura fiscal (DocType field)
 		"facturapi_id", // ID retornado por FacturAPI.io (DocType field)
-		"fm_uuid_fiscal", // UUID fiscal custom field (si existe)
+		// fm_uuid_fiscal eliminado - usar solo uuid
 		"fm_serie_folio", // Serie y Folio custom field (si existe)
 	];
 
