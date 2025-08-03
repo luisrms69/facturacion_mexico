@@ -68,6 +68,33 @@ class FacturAPIClient:
 
 		return None
 
+	def _make_request_silent(self, method: str, endpoint: str, data: dict | None = None) -> dict[str, Any]:
+		"""Realizar petición HTTP a FacturAPI SIN frappe.throw() para validaciones."""
+		url = f"{self.base_url}{endpoint}"
+
+		try:
+			# Usar requests que ya viene con Frappe
+			response = requests.request(
+				method=method, url=url, headers=self.headers, json=data, timeout=self.timeout
+			)
+
+			# Log de la petición
+			frappe.logger().info(f"FacturAPI {method} {endpoint}: {response.status_code}")
+
+			# Si hay error, retornar como excepción en lugar de frappe.throw()
+			if response.status_code >= 400:
+				error_msg = self._parse_error_response(response)
+				raise Exception(f"Error FacturAPI {response.status_code}: {error_msg}")
+
+			return response.json()
+
+		except requests.exceptions.Timeout:
+			raise Exception("Timeout al conectar con FacturAPI")
+		except requests.exceptions.ConnectionError:
+			raise Exception("Error de conexión con FacturAPI")
+		except requests.exceptions.RequestException as e:
+			raise Exception(f"Error en petición FacturAPI: {e!s}")
+
 	def _parse_error_response(self, response) -> str:
 		"""Parsear respuesta de error de FacturAPI."""
 		try:

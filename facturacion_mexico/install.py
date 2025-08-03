@@ -26,6 +26,9 @@ def create_initial_configuration():
 		settings.save()
 		frappe.msgprint(_("Configuración inicial de Facturación México creada"))
 
+	# Agregar campo de límite diario de validación RFC si no existe
+	add_rfc_validation_limit_field()
+
 
 def create_custom_fields_for_erpnext():
 	"""
@@ -2021,3 +2024,50 @@ def investigate_timbrado_issue():
 
 		traceback.print_exc()
 		return False
+
+
+def add_rfc_validation_limit_field():
+	"""
+	Agregar campo daily_rfc_validation_limit a Facturacion Mexico Settings de forma segura.
+	Utiliza Custom Field para evitar modificar el DocType JSON directamente.
+	"""
+	try:
+		# Verificar si el campo ya existe
+		if frappe.db.exists("Custom Field", "Facturacion Mexico Settings-daily_rfc_validation_limit"):
+			return
+
+		# Crear Custom Field para el límite diario de validación RFC
+		custom_field = frappe.get_doc(
+			{
+				"doctype": "Custom Field",
+				"dt": "Facturacion Mexico Settings",
+				"fieldname": "daily_rfc_validation_limit",
+				"fieldtype": "Int",
+				"label": "Límite Diario Validación RFC",
+				"description": "Máximo número de customers a validar por día en el proceso nocturno automático",
+				"default": "30",
+				"insert_after": "global_invoice_monthly_limit",
+			}
+		)
+
+		custom_field.insert(ignore_permissions=True)
+
+		# También crear sección si no existe
+		if not frappe.db.exists("Custom Field", "Facturacion Mexico Settings-validacion_rfc_section"):
+			section_field = frappe.get_doc(
+				{
+					"doctype": "Custom Field",
+					"dt": "Facturacion Mexico Settings",
+					"fieldname": "validacion_rfc_section",
+					"fieldtype": "Section Break",
+					"label": "Validación RFC Automática",
+					"insert_after": "global_invoice_monthly_limit",
+				}
+			)
+			section_field.insert(ignore_permissions=True)
+
+		frappe.logger().info("✅ Campo daily_rfc_validation_limit agregado a Facturacion Mexico Settings")
+
+	except Exception as e:
+		frappe.log_error(f"Error adding RFC validation limit field: {e!s}", "Settings Field Creation")
+		frappe.logger().warning(f"⚠️ No se pudo agregar campo RFC validation limit: {e!s}")

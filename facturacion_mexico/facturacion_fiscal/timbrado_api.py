@@ -5,7 +5,7 @@ from frappe import _
 from frappe.utils import flt, now_datetime
 
 from .api_client import get_facturapi_client
-from .doctype.facturapi_response_log.facturapi_response_log import FacturapiResponseLog
+from .doctype.facturapi_response_log.facturapi_response_log import FacturAPIResponseLog
 from .doctype.fiscal_event_mx.fiscal_event_mx import FiscalEventMX
 
 
@@ -127,7 +127,7 @@ class TimbradoAPI:
 				)
 
 			if factura_fiscal_name:
-				FacturapiResponseLog.create_log(
+				FacturAPIResponseLog.create_log(
 					factura_fiscal_mexico=factura_fiscal_name,
 					operation_type="Timbrado",
 					success=False,
@@ -405,14 +405,14 @@ class TimbradoAPI:
 		frappe.db.set_value(
 			"Sales Invoice",
 			sales_invoice.name,
-			{"fm_fiscal_status": "Timbrada", "fm_uuid_fiscal": response.get("uuid")},
+			{"fm_fiscal_status": "Timbrada"},
 		)
 
 		# Marcar evento como exitoso
 		FiscalEventMX.mark_event_success(event_doc.name, response)
 
 		# Crear log de respuesta FacturAPI
-		FacturapiResponseLog.create_log(
+		FacturAPIResponseLog.create_log(
 			factura_fiscal_mexico=factura_fiscal.name,
 			operation_type="Timbrado",
 			success=True,
@@ -496,7 +496,7 @@ class TimbradoAPI:
 			FiscalEventMX.mark_event_success(event_doc.name, response)
 
 			# Crear log de respuesta FacturAPI para cancelación
-			FacturapiResponseLog.create_log(
+			FacturAPIResponseLog.create_log(
 				factura_fiscal_mexico=factura_fiscal.name,
 				operation_type="Confirmación Cancelación",
 				success=True,
@@ -517,7 +517,7 @@ class TimbradoAPI:
 
 			# Crear log de error FacturAPI para cancelación
 			if "factura_fiscal" in locals():
-				FacturapiResponseLog.create_log(
+				FacturAPIResponseLog.create_log(
 					factura_fiscal_mexico=factura_fiscal.name,
 					operation_type="Solicitud Cancelación",
 					success=False,
@@ -693,3 +693,19 @@ def cancelar_factura(sales_invoice_name: str, motivo: str = "02"):
 	"""API para cancelar factura desde interfaz."""
 	api = TimbradoAPI()
 	return api.cancelar_factura(sales_invoice_name, motivo)
+
+
+@frappe.whitelist()
+def test_connection():
+	"""Probar conexión con FacturAPI desde interfaz."""
+	try:
+		client = get_facturapi_client()
+		if client.test_connection():
+			return {"success": True, "message": "Conexión exitosa con FacturAPI"}
+		else:
+			return {
+				"success": False,
+				"message": "No se pudo conectar con FacturAPI. Verifique las credenciales.",
+			}
+	except Exception as e:
+		return {"success": False, "message": f"Error de conexión: {e!s}"}

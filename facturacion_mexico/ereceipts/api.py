@@ -210,7 +210,6 @@ def invoice_ereceipt(ereceipt_name, customer_data):
 
 		# Limpiar campos fiscales para nuevo timbrado
 		sales_invoice.fm_fiscal_status = "Pendiente"
-		sales_invoice.fm_uuid_fiscal = None
 		sales_invoice.fm_factura_fiscal_mx = None
 
 		sales_invoice.insert()

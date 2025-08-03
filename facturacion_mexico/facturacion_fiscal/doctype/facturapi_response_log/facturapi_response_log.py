@@ -4,7 +4,7 @@ from frappe.model.document import Document
 from frappe.utils import now_datetime
 
 
-class FacturapiResponseLog(Document):
+class FacturAPIResponseLog(Document):
 	"""Registro de respuestas de FacturAPI para auditoría y cálculo de estados."""
 
 	def before_insert(self):
@@ -28,7 +28,7 @@ class FacturapiResponseLog(Document):
 			self.update_fiscal_status()
 
 	def update_fiscal_status(self):
-		"""Actualizar estado fiscal basado en el tipo de operación exitosa."""
+		"""Actualizar estado fiscal y campos relacionados basado en el tipo de operación exitosa."""
 		if not self.success:
 			return
 
@@ -44,20 +44,56 @@ class FacturapiResponseLog(Document):
 			return
 
 		try:
-			# Actualizar estado en Factura Fiscal Mexico
-			frappe.db.set_value(
-				"Factura Fiscal Mexico", self.factura_fiscal_mexico, "fm_fiscal_status", new_status
-			)
+			# Preparar campos a actualizar
+			update_fields = {"fm_fiscal_status": new_status}
 
-			# Log del cambio
+			# Si es timbrado exitoso, actualizar campos adicionales con datos de FacturAPI
+			if self.operation_type == "Timbrado" and self.facturapi_response:
+				response_data = self.facturapi_response
+				if isinstance(response_data, str):
+					import json
+
+					try:
+						response_data = json.loads(response_data)
+					except Exception:
+						response_data = {}
+
+				# Actualizar campos fiscales críticos
+				if response_data.get("id"):
+					update_fields["facturapi_id"] = response_data["id"]
+
+				if response_data.get("uuid"):
+					update_fields["uuid"] = response_data["uuid"]
+
+				if response_data.get("serie"):
+					update_fields["serie"] = response_data["serie"]
+
+				if response_data.get("folio"):
+					update_fields["folio"] = str(response_data["folio"])
+
+				if response_data.get("total"):
+					update_fields["total_fiscal"] = frappe.utils.flt(response_data["total"])
+
+				# Actualizar fecha de timbrado
+				update_fields["fecha_timbrado"] = self.timestamp or frappe.utils.now_datetime()
+
+			# Si es cancelación, actualizar fecha de cancelación
+			elif self.operation_type == "Confirmación Cancelación":
+				update_fields["cancellation_date"] = self.timestamp or frappe.utils.now_datetime()
+
+			# Actualizar todos los campos en una sola operación
+			frappe.db.set_value("Factura Fiscal Mexico", self.factura_fiscal_mexico, update_fields)
+
+			# Log del cambio con detalles
+			updated_fields = ", ".join([f"{k}={v}" for k, v in update_fields.items()])
 			frappe.logger().info(
-				f"Estado fiscal actualizado: {self.factura_fiscal_mexico} → {new_status} "
+				f"Campos fiscales actualizados: {self.factura_fiscal_mexico} → {updated_fields} "
 				f"(basado en log {self.name})"
 			)
 
 		except Exception as e:
 			frappe.log_error(
-				f"Error actualizando estado fiscal para {self.factura_fiscal_mexico}: {e!s}",
+				f"Error actualizando campos fiscales para {self.factura_fiscal_mexico}: {e!s}",
 				"FacturAPI Response Log Update Error",
 			)
 

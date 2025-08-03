@@ -45,7 +45,7 @@ required_apps = ["erpnext"]
 # include js in doctype views
 doctype_js = {
 	"Sales Invoice": ["public/js/sales_invoice.js", "public/js/ereceipt_handler.js"],
-	"Factura Fiscal Mexico": ["public/js/factura_fiscal_mexico.js"],
+	"Customer": ["public/js/customer.js"],
 }
 
 # include css in doctype views
@@ -183,15 +183,16 @@ fixtures = [
 					"Sales Invoice-fm_pending_amount",
 					# "Sales Invoice-fm_serie_folio", # MIGRADO A Factura Fiscal Mexico
 					"Sales Invoice-fm_timbrado_section",
-					# "Sales Invoice-fm_uuid_fiscal", # MIGRADO A Factura Fiscal Mexico
-					# Factura Fiscal Mexico custom fields (7 campos migrados)
-					"Factura Fiscal Mexico-fm_cfdi_use",
-					"Factura Fiscal Mexico-fm_fiscal_status",
-					"Factura Fiscal Mexico-fm_forma_pago_timbrado",
-					"Factura Fiscal Mexico-fm_lugar_expedicion",
-					"Factura Fiscal Mexico-fm_payment_method_sat",
-					"Factura Fiscal Mexico-fm_serie_folio",
-					"Factura Fiscal Mexico-fm_uuid_fiscal",
+					# "Sales Invoice-fm_uuid_fiscal", # ELIMINADO: Usar función puente get_invoice_uuid() - NO duplicar UUID
+					# Factura Fiscal Mexico custom fields - ELIMINADOS (migrados a JSON nativo del DocType)
+					# NOTA: Estos campos ahora están definidos directamente en factura_fiscal_mexico.json
+					# "Factura Fiscal Mexico-fm_cfdi_use",           # ✅ Migrado a JSON DocType
+					# "Factura Fiscal Mexico-fm_fiscal_status",      # ✅ Migrado a JSON DocType
+					# "Factura Fiscal Mexico-fm_forma_pago_timbrado", # ✅ Migrado a JSON DocType
+					# "Factura Fiscal Mexico-fm_lugar_expedicion",   # ✅ Migrado a JSON DocType
+					# "Factura Fiscal Mexico-fm_payment_method_sat", # ✅ Migrado a JSON DocType
+					# "Factura Fiscal Mexico-fm_serie_folio",        # ✅ Migrado a JSON DocType
+					# "Factura Fiscal Mexico-fm_uuid_fiscal",        # ✅ Migrado a JSON DocType
 				],
 			]
 		],
@@ -316,6 +317,10 @@ scheduler_events = {
 		"facturacion_mexico.validaciones.doctype.sat_validation_cache.sat_validation_cache.cleanup_expired_cache",
 		"facturacion_mexico.ereceipts.doctype.ereceipt_mx.ereceipt_mx.bulk_expire_ereceipts",
 	],
+	"cron": {
+		# Validación RFC automática nocturna a las 2:00 AM todos los días
+		"0 2 * * *": ["facturacion_mexico.validaciones.api.run_nightly_rfc_validation"]
+	},
 	"weekly": [
 		"facturacion_mexico.complementos_pago.api.reconcile_payment_tracking",
 		"facturacion_mexico.facturacion_fiscal.tasks.cleanup_old_fiscal_events",
