@@ -146,6 +146,7 @@ class TestLayer1DoubleFacturationPrevention(unittest.TestCase):
 		# Usar path relativo desde frappe-bench para compatibilidad CI
 		js_file_path = frappe.get_app_path("facturacion_mexico", "public", "js", "sales_invoice.js")
 
+		js_content = ""
 		try:
 			with open(js_file_path, 'r', encoding='utf-8') as f:
 				js_content = f.read()
@@ -221,6 +222,7 @@ class TestLayer1DoubleFacturationPrevention(unittest.TestCase):
 		# Usar path relativo desde frappe-bench para compatibilidad CI
 		js_file_path = frappe.get_app_path("facturacion_mexico", "facturacion_fiscal", "doctype", "factura_fiscal_mexico", "factura_fiscal_mexico.js")
 
+		js_content = ""
 		try:
 			with open(js_file_path, 'r', encoding='utf-8') as f:
 				js_content = f.read()
