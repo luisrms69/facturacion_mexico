@@ -142,8 +142,7 @@ fixtures = [
 					"Payment Entry-fm_forma_pago_sat",
 					"Payment Entry-fm_informacion_fiscal_section",
 					"Payment Entry-fm_require_complement",
-					# Sales Invoice custom fields (34 campos activos + 7 migrados)
-					"Sales Invoice-fm_fiscal_attempts",
+					# Sales Invoice custom fields (33 campos activos + 7 migrados)
 					"Sales Invoice-fm_addenda_column_break",
 					"Sales Invoice-fm_addenda_errors",
 					"Sales Invoice-fm_addenda_generated_date",
