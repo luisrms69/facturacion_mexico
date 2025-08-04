@@ -9,7 +9,6 @@ Tests de infraestructura básica para prevención de doble facturación
 import unittest
 
 import frappe
-from frappe.test_runner import make_test_records
 
 
 class TestLayer1DoubleFacturationPrevention(unittest.TestCase):

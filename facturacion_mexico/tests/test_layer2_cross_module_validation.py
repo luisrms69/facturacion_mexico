@@ -92,6 +92,7 @@ class TestLayer2CrossModuleValidation(unittest.TestCase):
         # Usar path relativo desde frappe-bench para compatibilidad CI
         js_file_path = frappe.get_app_path("facturacion_mexico", "facturacion_fiscal", "doctype", "factura_fiscal_mexico", "factura_fiscal_mexico.js")
 
+        js_content = ""
         try:
             with open(js_file_path, 'r', encoding='utf-8') as f:
                 js_content = f.read()
@@ -162,8 +163,12 @@ class TestLayer2CrossModuleValidation(unittest.TestCase):
         # Leer archivo JavaScript - usar path relativo para compatibilidad CI
         js_file_path = frappe.get_app_path("facturacion_mexico", "facturacion_fiscal", "doctype", "factura_fiscal_mexico", "factura_fiscal_mexico.js")
 
-        with open(js_file_path, 'r', encoding='utf-8') as f:
-            js_content = f.read()
+        js_content = ""
+        try:
+            with open(js_file_path, 'r', encoding='utf-8') as f:
+                js_content = f.read()
+        except FileNotFoundError:
+            self.fail(f"Archivo JavaScript no encontrado: {js_file_path}")
 
         # Verificar validación de estado timbrado
         self.assertIn(
@@ -231,8 +236,12 @@ class TestLayer2CrossModuleValidation(unittest.TestCase):
         # Usar path relativo para compatibilidad CI
         js_file_path = frappe.get_app_path("facturacion_mexico", "facturacion_fiscal", "doctype", "factura_fiscal_mexico", "factura_fiscal_mexico.js")
 
-        with open(js_file_path, 'r', encoding='utf-8') as f:
-            js_content = f.read()
+        js_content = ""
+        try:
+            with open(js_file_path, 'r', encoding='utf-8') as f:
+                js_content = f.read()
+        except FileNotFoundError:
+            self.fail(f"Archivo JavaScript no encontrado: {js_file_path}")
 
         self.assertIn(
             "function auto_load_payment_method_from_sales_invoice",
@@ -330,8 +339,12 @@ class TestLayer2CrossModuleValidation(unittest.TestCase):
         # Usar path relativo para compatibilidad CI
         js_file_path = frappe.get_app_path("facturacion_mexico", "facturacion_fiscal", "doctype", "factura_fiscal_mexico", "factura_fiscal_mexico.js")
 
-        with open(js_file_path, 'r', encoding='utf-8') as f:
-            js_content = f.read()
+        js_content = ""
+        try:
+            with open(js_file_path, 'r', encoding='utf-8') as f:
+                js_content = f.read()
+        except FileNotFoundError:
+            self.fail(f"Archivo JavaScript no encontrado: {js_file_path}")
 
         js_query_logic = [
             'get_payment_entry_for_javascript',
