@@ -177,7 +177,7 @@ def correct_database_modules():
 			print(f"   ⚠️  Campo no encontrado en mapeo histórico: {dt}.{fieldname}")
 
 	# Guardar cambios
-	frappe.db.commit()
+	frappe.db.commit()  # nosemgrep: frappe-manual-commit Required to persist custom field module corrections in batch script
 
 	print(f"   📊 BD: {corrections_made} correcciones, {fields_not_found} no encontrados")
 	return corrections_made
