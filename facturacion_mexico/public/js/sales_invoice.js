@@ -3,9 +3,11 @@
 
 frappe.ui.form.on("Sales Invoice", {
 	refresh: function (frm) {
-		// Solo mostrar botón de timbrado si está submitted y tiene RFC
-		if (frm.doc.docstatus === 1 && has_customer_rfc(frm)) {
+		// Solo mostrar botón de timbrado si está submitted, tiene RFC y NO está timbrada
+		if (frm.doc.docstatus === 1 && has_customer_rfc(frm) && !is_already_timbrada(frm)) {
 			add_timbrar_button(frm);
+		} else if (frm.doc.docstatus === 1 && is_already_timbrada(frm)) {
+			add_view_fiscal_button(frm);
 		}
 	},
 });
@@ -15,6 +17,11 @@ function has_customer_rfc(frm) {
 	return frm.doc.customer && frm.doc.tax_id;
 }
 
+function is_already_timbrada(frm) {
+	// PREVENCIÓN DOBLE FACTURACIÓN: Verificar si ya está vinculada a una Factura Fiscal Mexico
+	return frm.doc.fm_factura_fiscal_mx && frm.doc.fm_factura_fiscal_mx.trim() !== "";
+}
+
 function add_timbrar_button(frm) {
 	// Botón único y prominente: Timbrar Factura que redirije a Factura Fiscal Mexico
 	frm.page.set_primary_action(__("Timbrar Factura"), function () {
@@ -22,11 +29,42 @@ function add_timbrar_button(frm) {
 	});
 }
 
-function redirect_to_fiscal_document(frm) {
-	// Verificar si ya existe documento fiscal
-	if (frm.doc.fm_factura_fiscal_mx) {
-		// Ya existe, ir directamente
+function add_view_fiscal_button(frm) {
+	// Botón para ver documento fiscal ya timbrado
+	frm.add_custom_button(__("Ver Factura Fiscal"), function () {
 		frappe.set_route("Form", "Factura Fiscal Mexico", frm.doc.fm_factura_fiscal_mx);
+	}).addClass("btn-info");
+
+	// Agregar indicador visual de que ya está timbrada
+	frm.dashboard.add_indicator(__("Ya Timbrada"), "green");
+}
+
+function redirect_to_fiscal_document(frm) {
+	// VALIDACIÓN DOBLE PREVENCIÓN: Verificar si ya existe documento fiscal
+	if (frm.doc.fm_factura_fiscal_mx) {
+		// Verificar estado del documento fiscal existente
+		frappe.call({
+			method: "frappe.client.get_value",
+			args: {
+				doctype: "Factura Fiscal Mexico",
+				name: frm.doc.fm_factura_fiscal_mx,
+				fieldname: "fm_fiscal_status",
+			},
+			callback: function (r) {
+				if (r.message && r.message.fm_fiscal_status === "Timbrada") {
+					frappe.msgprint({
+						title: __("Ya Timbrada"),
+						message: __(
+							"Esta Sales Invoice ya está timbrada. No se puede volver a timbrar."
+						),
+						indicator: "orange",
+					});
+					return;
+				}
+				// Si no está timbrada, ir al documento para continuar proceso
+				frappe.set_route("Form", "Factura Fiscal Mexico", frm.doc.fm_factura_fiscal_mx);
+			},
+		});
 		return;
 	}
 
@@ -38,8 +76,9 @@ function redirect_to_fiscal_document(frm) {
 				doctype: "Factura Fiscal Mexico",
 				sales_invoice: frm.doc.name,
 				company: frm.doc.company,
-				fm_fiscal_status: "Pendiente", // Valor válido según el DocType
-				fm_payment_method_sat: "PUE", // Valor por defecto para evitar validaciones
+				customer: frm.doc.customer, // AÑADIR: Customer requerido
+				fm_fiscal_status: "Pendiente", // Valor correcto en español
+				fm_payment_method_sat: "PUE", // Valor por defecto
 			},
 		},
 		callback: function (r) {
@@ -54,11 +93,35 @@ function redirect_to_fiscal_document(frm) {
 						value: r.message.name,
 					},
 					callback: function () {
-						// Ir al documento fiscal recién creado
-						frappe.set_route("Form", "Factura Fiscal Mexico", r.message.name);
+						// Mostrar mensaje de éxito
+						frappe.show_alert(
+							{
+								message: __("Documento fiscal creado exitosamente"),
+								indicator: "green",
+							},
+							3
+						);
+
+						// Forzar navegación completa con reload para corregir título
+						setTimeout(() => {
+							window.location.href = `/app/factura-fiscal-mexico/${r.message.name}`;
+						}, 1000);
 					},
 				});
+			} else {
+				frappe.msgprint({
+					title: __("Error"),
+					message: __("No se pudo crear el documento fiscal"),
+					indicator: "red",
+				});
 			}
+		},
+		error: function (r) {
+			frappe.msgprint({
+				title: __("Error al Crear Documento"),
+				message: r.message || __("Error desconocido al crear Factura Fiscal Mexico"),
+				indicator: "red",
+			});
 		},
 	});
 }

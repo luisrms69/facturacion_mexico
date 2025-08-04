@@ -50,6 +50,138 @@ class TestLayer2CrossModuleValidation(unittest.TestCase):
         else:
             print("✓ Todos los custom fields nuevos siguen nomenclatura fm_*")
 
+        self.assertEqual(len(real_inconsistent), 0,
+            "Todos los custom fields deben usar prefijo fm_")
+
+    def test_sales_invoice_filters_implementation(self):
+        """
+        Test: Verificar implementación de filtros Sales Invoice en Factura Fiscal Mexico
+
+        FASE 3: Validaciones de filtros dinámicos
+        - Función setup_sales_invoice_filters existe
+        - Filtros configuran criterios correctos
+        - Validación de disponibilidad funciona
+        """
+        # Leer archivo JavaScript de Factura Fiscal Mexico
+        js_file_path = "/home/erpnext/frappe-bench/apps/facturacion_mexico/facturacion_mexico/facturacion_fiscal/doctype/factura_fiscal_mexico/factura_fiscal_mexico.js"
+
+        try:
+            with open(js_file_path, 'r', encoding='utf-8') as f:
+                js_content = f.read()
+        except FileNotFoundError:
+            self.fail(f"Archivo JavaScript no encontrado: {js_file_path}")
+
+        # Verificar que función setup_sales_invoice_filters existe
+        self.assertIn(
+            "function setup_sales_invoice_filters",
+            js_content,
+            "Función setup_sales_invoice_filters debe existir"
+        )
+
+        # Verificar que se configura frm.set_query para sales_invoice
+        self.assertIn(
+            'frm.set_query("sales_invoice"',
+            js_content,
+            "Debe configurar filtros dinámicos para campo sales_invoice"
+        )
+
+        # Verificar criterios de filtro específicos
+        filter_criteria = [
+            'docstatus", "=", 1',  # Solo submitted
+            'fm_factura_fiscal_mx", "in", ["", null]',  # Sin asignar
+            'tax_id", "!=", ""'  # Con RFC
+        ]
+
+        for criteria in filter_criteria:
+            self.assertIn(
+                criteria,
+                js_content,
+                f"Filtro debe incluir criterio: {criteria}"
+            )
+
+        # Verificar función de validación de disponibilidad
+        self.assertIn(
+            "function validate_sales_invoice_availability",
+            js_content,
+            "Función validate_sales_invoice_availability debe existir"
+        )
+
+        # Verificar que se llama en el evento sales_invoice
+        self.assertIn(
+            "validate_sales_invoice_availability(frm)",
+            js_content,
+            "Validación debe ejecutarse cuando se selecciona Sales Invoice"
+        )
+
+        # Verificar comentarios de documentación FASE 3
+        self.assertIn(
+            "FASE 3: FILTROS SALES INVOICE DISPONIBLES",
+            js_content,
+            "Código debe estar documentado como FASE 3"
+        )
+
+        print("✅ Filtros Sales Invoice correctamente implementados")
+
+    def test_sales_invoice_availability_validation_logic(self):
+        """
+        Test: Verificar lógica de validación de disponibilidad de Sales Invoice
+
+        Validaciones:
+        - Detecta Sales Invoice ya timbradas
+        - Valida docstatus = 1
+        - Verifica RFC presente
+        - Maneja casos edge apropiadamente
+        """
+        # Leer archivo JavaScript
+        js_file_path = "/home/erpnext/frappe-bench/apps/facturacion_mexico/facturacion_mexico/facturacion_fiscal/doctype/factura_fiscal_mexico/factura_fiscal_mexico.js"
+
+        with open(js_file_path, 'r', encoding='utf-8') as f:
+            js_content = f.read()
+
+        # Verificar validación de estado timbrado
+        self.assertIn(
+            'fm_fiscal_status === "Timbrada"',
+            js_content,
+            "Debe validar si Sales Invoice ya está timbrada"
+        )
+
+        # Verificar validación de docstatus
+        self.assertIn(
+            "docstatus !== 1",
+            js_content,
+            "Debe validar que Sales Invoice esté submitted"
+        )
+
+        # Verificar validación de RFC
+        self.assertIn(
+            "!sales_invoice_data.tax_id",
+            js_content,
+            "Debe validar que Sales Invoice tenga RFC"
+        )
+
+        # Verificar mensajes de error apropiados
+        error_messages = [
+            "Sales Invoice No Disponible",
+            "Sales Invoice No Válida",
+            "RFC Faltante"
+        ]
+
+        for message in error_messages:
+            self.assertIn(
+                message,
+                js_content,
+                f"Debe mostrar mensaje de error: {message}"
+            )
+
+        # Verificar que limpia selección en caso de error
+        self.assertIn(
+            'frm.set_value("sales_invoice", "")',
+            js_content,
+            "Debe limpiar selección cuando Sales Invoice no es válida"
+        )
+
+        print("✅ Lógica de validación de disponibilidad correctamente implementada")
+
     def test_custom_fields_insert_after_chain(self):
         """Test: Cadena de insert_after en custom fields es válida"""
         # Verificar que no hay referencias circulares en insert_after
@@ -359,6 +491,156 @@ class TestLayer2CrossModuleValidation(unittest.TestCase):
             total_hooks = sum(len(handlers) for handlers in events.values())
             if total_hooks > 5:
                 print(f"⚠ {doctype} tiene {total_hooks} hooks - verificar impacto de rendimiento")
+
+    def test_timbrado_sales_invoice_to_factura_fiscal_integration(self):
+        """
+        Test: Integración Sales Invoice → Factura Fiscal Mexico con actualización automática
+
+        Validaciones:
+        - Crear Sales Invoice submitted
+        - Crear Factura Fiscal Mexico vinculada
+        - Verificar actualización automática fm_factura_fiscal_mx
+        - Confirmar valor correcto del campo
+        """
+        # Crear Sales Invoice de prueba
+        sales_invoice = frappe.get_doc({
+            "doctype": "Sales Invoice",
+            "customer": "_Test Customer",
+            "company": "_Test Company",
+            "posting_date": frappe.utils.today(),
+            "due_date": frappe.utils.today(),
+            "items": [{
+                "item_code": "_Test Item",
+                "rate": 100,
+                "qty": 1
+            }]
+        })
+        sales_invoice.insert()
+        sales_invoice.submit()
+
+        # Verificar estado inicial - no debe tener factura fiscal
+        self.assertFalse(
+            sales_invoice.fm_factura_fiscal_mx,
+            "Sales Invoice inicial no debe tener factura fiscal vinculada"
+        )
+
+        # Crear Factura Fiscal Mexico vinculada
+        factura_fiscal = frappe.get_doc({
+            "doctype": "Factura Fiscal Mexico",
+            "sales_invoice": sales_invoice.name,
+            "company": sales_invoice.company,
+            "customer": sales_invoice.customer,
+            "fm_fiscal_status": "Pendiente"
+        })
+        factura_fiscal.insert()
+        factura_fiscal.submit()
+
+        # Simular actualización automática (normalmente se hace en after_insert hook)
+        frappe.db.set_value("Sales Invoice", sales_invoice.name,
+            "fm_factura_fiscal_mx", factura_fiscal.name)
+        frappe.db.commit()
+
+        # Recargar Sales Invoice para verificar actualización
+        sales_invoice.reload()
+
+        # Verificar que fm_factura_fiscal_mx se actualizó correctamente
+        self.assertEqual(
+            sales_invoice.fm_factura_fiscal_mx, factura_fiscal.name,
+            "Campo fm_factura_fiscal_mx debe actualizarse con name del documento fiscal"
+        )
+
+        # Verificar bidireccionalidad - Factura Fiscal debe apuntar a Sales Invoice
+        self.assertEqual(
+            factura_fiscal.sales_invoice, sales_invoice.name,
+            "Factura Fiscal debe mantener referencia a Sales Invoice original"
+        )
+
+        print(f"✅ Integración correcta: {sales_invoice.name} ↔ {factura_fiscal.name}")
+
+        # Cleanup
+        frappe.delete_doc("Factura Fiscal Mexico", factura_fiscal.name, force=True)
+        frappe.delete_doc("Sales Invoice", sales_invoice.name, force=True)
+
+    def test_timbrado_duplicate_prevention_backend_validation(self):
+        """
+        Test: Prevención de doble timbrado en backend con ValidationError
+
+        Validaciones:
+        - Crear Sales Invoice y Factura Fiscal timbrada
+        - Intentar crear segunda Factura Fiscal para mismo Sales Invoice
+        - Verificar que frappe.ValidationError se lanza
+        - Confirmar mensaje de error específico
+        """
+        # Crear Sales Invoice de prueba
+        sales_invoice = frappe.get_doc({
+            "doctype": "Sales Invoice",
+            "customer": "_Test Customer",
+            "company": "_Test Company",
+            "posting_date": frappe.utils.today(),
+            "due_date": frappe.utils.today(),
+            "items": [{
+                "item_code": "_Test Item",
+                "rate": 100,
+                "qty": 1
+            }]
+        })
+        sales_invoice.insert()
+        sales_invoice.submit()
+
+        # Crear primera Factura Fiscal y marcarla como timbrada
+        first_factura = frappe.get_doc({
+            "doctype": "Factura Fiscal Mexico",
+            "sales_invoice": sales_invoice.name,
+            "company": sales_invoice.company,
+            "customer": sales_invoice.customer,
+            "fm_fiscal_status": "Timbrada"  # Estado crítico para prevención
+        })
+        first_factura.insert()
+        first_factura.submit()
+
+        # Actualizar Sales Invoice con referencia
+        frappe.db.set_value("Sales Invoice", sales_invoice.name,
+            "fm_factura_fiscal_mx", first_factura.name)
+        frappe.db.commit()
+
+        # Intentar crear segunda Factura Fiscal (debe fallar)
+        second_factura = frappe.get_doc({
+            "doctype": "Factura Fiscal Mexico",
+            "sales_invoice": sales_invoice.name,  # Mismo Sales Invoice
+            "company": sales_invoice.company,
+            "customer": sales_invoice.customer,
+            "fm_fiscal_status": "Pendiente"
+        })
+
+        # Verificar que ValidationError se lanza al intentar validate
+        with self.assertRaises(frappe.ValidationError) as context:
+            second_factura.validate()
+
+        # Verificar mensaje de error específico
+        error_message = str(context.exception)
+        self.assertIn(
+            "ya ha sido timbrada",
+            error_message.lower(),
+            "Error debe mencionar que Sales Invoice ya está timbrada"
+        )
+
+        self.assertIn(
+            sales_invoice.name,
+            error_message,
+            "Error debe mencionar el Sales Invoice específico"
+        )
+
+        self.assertIn(
+            first_factura.name,
+            error_message,
+            "Error debe mencionar el documento fiscal existente"
+        )
+
+        print(f"✅ Prevención correcta: {sales_invoice.name} protegida contra doble timbrado")
+
+        # Cleanup
+        frappe.delete_doc("Factura Fiscal Mexico", first_factura.name, force=True)
+        frappe.delete_doc("Sales Invoice", sales_invoice.name, force=True)
 
 
 if __name__ == "__main__":

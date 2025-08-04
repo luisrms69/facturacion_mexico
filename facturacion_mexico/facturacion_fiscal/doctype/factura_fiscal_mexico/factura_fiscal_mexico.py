@@ -29,6 +29,9 @@ class FacturaFiscalMexico(Document):
 
 		sales_invoice = frappe.get_doc("Sales Invoice", self.sales_invoice)
 
+		# PREVENCIÓN DOBLE FACTURACIÓN: Verificar que no exista otra Factura Fiscal timbrada
+		self.validate_no_duplicate_timbrado()
+
 		if sales_invoice.docstatus != 1:
 			frappe.throw(_("Sales Invoice debe estar enviada (submitted) para crear factura fiscal"))
 
@@ -104,6 +107,8 @@ class FacturaFiscalMexico(Document):
 
 		# Definir transiciones válidas
 		valid_transitions = {
+			None: ["Pendiente"],  # Documento nuevo puede ser Pendiente
+			"": ["Pendiente"],  # Estado vacío puede ir a Pendiente
 			"Pendiente": ["Timbrada", "Cancelada", "Error"],
 			"Timbrada": ["Cancelada"],
 			"Cancelada": [],  # Estado final
@@ -111,7 +116,47 @@ class FacturaFiscalMexico(Document):
 		}
 
 		if new_status not in valid_transitions.get(old_status, []):
-			frappe.throw(_("Transición de estado inválida: {0} → {1}").format(old_status, new_status))
+			frappe.throw(
+				_("Transición de estado inválida: {0} → {1}").format(old_status or "nuevo", new_status)
+			)
+
+	def validate_no_duplicate_timbrado(self):
+		"""Prevenir doble timbrado del mismo Sales Invoice."""
+		if not self.sales_invoice:
+			return
+
+		# Verificar campo directo en Sales Invoice
+		existing_fiscal_doc = frappe.db.get_value("Sales Invoice", self.sales_invoice, "fm_factura_fiscal_mx")
+
+		if existing_fiscal_doc and existing_fiscal_doc != self.name:
+			# Verificar si el documento existente está timbrado
+			existing_status = frappe.db.get_value(
+				"Factura Fiscal Mexico", existing_fiscal_doc, "fm_fiscal_status"
+			)
+
+			if existing_status == "Timbrada":
+				frappe.throw(
+					_("Sales Invoice {0} ya ha sido timbrada en documento {1}").format(
+						self.sales_invoice, existing_fiscal_doc
+					)
+				)
+
+		# Validación cruzada - buscar otras Facturas Fiscales timbradas
+		existing = frappe.get_all(
+			"Factura Fiscal Mexico",
+			filters={
+				"sales_invoice": self.sales_invoice,
+				"fm_fiscal_status": "Timbrada",
+				"name": ["!=", self.name or "new-doc"],
+			},
+		)
+
+		if existing:
+			frappe.throw(
+				_("Ya existe Factura Fiscal timbrada para Sales Invoice {0}: {1}").format(
+					self.sales_invoice, existing[0].name
+				)
+			)
 
 	def onload(self):
 		"""Ejecutar al cargar el documento."""
