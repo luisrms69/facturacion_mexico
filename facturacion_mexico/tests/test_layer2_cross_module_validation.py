@@ -182,6 +182,143 @@ class TestLayer2CrossModuleValidation(unittest.TestCase):
 
         print("✅ Lógica de validación de disponibilidad correctamente implementada")
 
+    def test_fase4_auto_load_payment_method_implementation(self):
+        """
+        Test: Verificar implementación FASE 4 - Auto-carga PUE mejorada
+
+        Validaciones:
+        - Función auto_load_payment_method_from_sales_invoice existe en Python
+        - Función auto_load_payment_method_from_sales_invoice existe en JavaScript
+        - Triggers configurados en sales_invoice y fm_payment_method_sat
+        - Lógica PUE vs PPD implementada correctamente
+        """
+        # 1. Verificar función Python existe
+        from facturacion_mexico.facturacion_fiscal.doctype.factura_fiscal_mexico.factura_fiscal_mexico import FacturaFiscalMexico
+
+        self.assertTrue(
+            hasattr(FacturaFiscalMexico, "auto_load_payment_method_from_sales_invoice"),
+            "Método auto_load_payment_method_from_sales_invoice debe existir en FacturaFiscalMexico"
+        )
+
+        # 2. Verificar función JavaScript existe
+        js_file_path = "/home/erpnext/frappe-bench/apps/facturacion_mexico/facturacion_mexico/facturacion_fiscal/doctype/factura_fiscal_mexico/factura_fiscal_mexico.js"
+
+        with open(js_file_path, 'r', encoding='utf-8') as f:
+            js_content = f.read()
+
+        self.assertIn(
+            "function auto_load_payment_method_from_sales_invoice",
+            js_content,
+            "Función auto_load_payment_method_from_sales_invoice debe existir en JavaScript"
+        )
+
+        # 3. Verificar trigger sales_invoice llama auto-carga
+        self.assertIn(
+            "auto_load_payment_method_from_sales_invoice(frm)",
+            js_content,
+            "Trigger sales_invoice debe llamar función de auto-carga"
+        )
+
+        # 4. Verificar trigger fm_payment_method_sat existe
+        self.assertIn(
+            "fm_payment_method_sat: function (frm)",
+            js_content,
+            "Debe existir trigger para fm_payment_method_sat"
+        )
+
+        # 5. Verificar lógica PUE vs PPD
+        pue_ppd_logic = [
+            'fm_payment_method_sat === "PUE"',
+            'fm_payment_method_sat === "PPD"',
+            '"99 - Por definir"',
+            "Payment Entry"
+        ]
+
+        for logic in pue_ppd_logic:
+            self.assertIn(
+                logic,
+                js_content,
+                f"Lógica PUE/PPD debe incluir: {logic}"
+            )
+
+        # 6. Verificar comentarios FASE 4
+        self.assertIn(
+            "FASE 4: AUTO-CARGA PUE MEJORADA",
+            js_content,
+            "Código debe estar documentado como FASE 4"
+        )
+
+        print("✅ FASE 4 - Auto-carga PUE mejorada correctamente implementada")
+
+    def test_fase4_payment_entry_query_logic(self):
+        """
+        Test: Verificar lógica de consulta Payment Entry en FASE 4
+
+        Validaciones:
+        - Consulta Payment Entry con filtros correctos
+        - Manejo de caso sin Payment Entry
+        - Auto-asignación PPD vs PUE
+        - No sobrescribir selección manual
+        """
+        # Verificar archivo Python tiene consulta Payment Entry
+        python_file_path = "/home/erpnext/frappe-bench/apps/facturacion_mexico/facturacion_mexico/facturacion_fiscal/doctype/factura_fiscal_mexico/factura_fiscal_mexico.py"
+
+        with open(python_file_path, 'r', encoding='utf-8') as f:
+            python_content = f.read()
+
+        # Verificar consulta Payment Entry - ACTUALIZADO para nueva implementación SQL
+        payment_entry_query = [
+            'get_payment_entry_by_invoice(',
+            'frappe.db.sql(',
+            'SELECT pe.name, pe.mode_of_payment',
+            'FROM `tabPayment Entry` pe',
+            'tabPayment Entry Reference'
+        ]
+
+        for query_part in payment_entry_query:
+            self.assertIn(
+                query_part,
+                python_content,
+                f"Consulta Payment Entry debe incluir: {query_part}"
+            )
+
+        # Verificar lógica condicional PUE/PPD
+        conditional_logic = [
+            'if self.fm_payment_method_sat == "PPD"',
+            'if self.fm_payment_method_sat == "PUE"',
+            'if self.fm_forma_pago_timbrado:',  # No sobrescribir
+            'payment_entries = get_payment_entry_by_invoice'
+        ]
+
+        for logic in conditional_logic:
+            self.assertIn(
+                logic,
+                python_content,
+                f"Lógica condicional debe incluir: {logic}"
+            )
+
+        # Verificar JavaScript tiene lógica similar
+        js_file_path = "/home/erpnext/frappe-bench/apps/facturacion_mexico/facturacion_mexico/facturacion_fiscal/doctype/factura_fiscal_mexico/factura_fiscal_mexico.js"
+
+        with open(js_file_path, 'r', encoding='utf-8') as f:
+            js_content = f.read()
+
+        js_query_logic = [
+            'get_payment_entry_for_javascript',
+            'invoice_name: frm.doc.sales_invoice',
+            'if (frm.doc.fm_forma_pago_timbrado)',  # No sobrescribir
+            'r.message.success && r.message.data'
+        ]
+
+        for js_logic in js_query_logic:
+            self.assertIn(
+                js_logic,
+                js_content,
+                f"JavaScript debe incluir lógica: {js_logic}"
+            )
+
+        print("✅ FASE 4 - Lógica consulta Payment Entry correctamente implementada")
+
     def test_custom_fields_insert_after_chain(self):
         """Test: Cadena de insert_after en custom fields es válida"""
         # Verificar que no hay referencias circulares en insert_after

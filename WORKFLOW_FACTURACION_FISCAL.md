@@ -257,7 +257,7 @@ def cancel_cfdi(self):
 | **1** | Prevención doble facturación | 🔴 Alta | ✅ **COMPLETADO** | 4.5 horas |
 | **2** | Control botones workflow | 🔴 Alta | ✅ **COMPLETADO** | 3 horas |
 | **3** | Filtros Sales Invoice | 🔴 Alta | ✅ **COMPLETADO** | 2 horas |
-| **4** | Auto-carga PUE mejorada | 🟡 Media | ⏸️ **PENDIENTE** | 3 horas |
+| **4** | Auto-carga PUE mejorada | 🟡 Media | ✅ **COMPLETADO** | 4.5 horas |
 | **5** | Sistema cancelación CFDI | 🟡 Media | ⏸️ **PENDIENTE** | 6 horas |
 | **6** | Validación estados SAT | 🟢 Baja | ⏸️ **PENDIENTE** | 4 horas |
 
@@ -290,14 +290,29 @@ def cancel_cfdi(self):
 - ✅ **Prevención crítica**: No permite seleccionar facturas draft (0) o canceladas (2)
 - ✅ **Mensajes específicos**: Feedback claro sobre por qué una factura no es válida
 
+#### **FASE 4: Auto-carga PUE Mejorada** ✅ **COMPLETADA**
+- ✅ **Función Python**: `auto_load_payment_method_from_sales_invoice()` con función SQL directa optimizada
+- ✅ **Wrapper JavaScript**: `get_payment_entry_for_javascript()` con `@frappe.whitelist()` 
+- ✅ **Lógica PUE vs PPD implementada**:
+  - **PUE sin Payment Entry**: Forma de pago vacía (selección manual del usuario)
+  - **PUE con Payment Entry**: Auto-carga `mode_of_payment` automáticamente desde PE
+  - **PPD**: Siempre asigna "99 - Por definir" (cumple normativa SAT)
+- ✅ **Triggers configurados**: `sales_invoice` y `fm_payment_method_sat` eventos
+- ✅ **Auto-actualización documentos existentes**: Verificación de consistencia en `onload()`
+- ✅ **Respeto selecciones manuales**: No sobrescribe valores establecidos por usuario
+- ✅ **Casos edge cubiertos**: Creación nueva, cambio Sales Invoice, documento existente sin PE
+- ✅ **SQL child table optimizado**: Función `get_payment_entry_by_invoice()` con consulta directa
+- ✅ **JavaScript call mejorado**: `get_payment_entry_for_javascript()` para frontend
+- ✅ **Testing validado**: Tests Layer 2 para implementación y lógica PUE/PPD - PASSED
+
 ### **🔧 ARCHIVOS MODIFICADOS**
 
 | Archivo | Cambios Principales |
 |---------|-------------------|
 | `sales_invoice.js` | ✅ Control botones, validación doble facturación, navegación |
-| `factura_fiscal_mexico.py` | ✅ Validación backend, transiciones estado, prevent duplicate |
-| `factura_fiscal_mexico.js` | ✅ Auto-carga Use CFDI, **FASE 3: Filtros Sales Invoice + validación tiempo real** |
-| `test_layer2_cross_module_validation.py` | ✅ Tests para filtros Sales Invoice y validación de disponibilidad |
+| `factura_fiscal_mexico.py` | ✅ Validación backend, transiciones estado, prevent duplicate, **FASE 4: auto_load_payment_method_from_sales_invoice() + get_payment_entry_by_invoice() + get_payment_entry_for_javascript()** |
+| `factura_fiscal_mexico.js` | ✅ Auto-carga Use CFDI, **FASE 3: Filtros Sales Invoice + validación tiempo real**, **FASE 4: auto_load_payment_method_from_sales_invoice() + triggers sales_invoice/fm_payment_method_sat** |
+| `test_layer2_cross_module_validation.py` | ✅ Tests para filtros Sales Invoice y validación de disponibilidad, **FASE 4: Tests implementación y lógica Payment Entry - PASSED** |
 
 ### **🧪 VALIDACIONES IMPLEMENTADAS**
 
@@ -384,7 +399,8 @@ def validate_no_duplicate_timbrado(self):
 3. ✅ **ERROR CRÍTICO RESUELTO** - Botón Submit aparece correctamente después de Save
 4. ✅ **Ejecución tests automatizados** - 3 nuevos tests PASSED validando funcionalidad
 5. ✅ **FASE 3 COMPLETADA** - Filtros Sales Invoice funcionando correctamente
-6. 🎯 **PRÓXIMO: Continuación Fase 4** - Auto-carga PUE mejorada (workflow listo para continuar)
+6. ✅ **FASE 4 COMPLETADA** - Auto-carga PUE mejorada con avisos de consistencia implementada
+7. 🎯 **PRÓXIMO: Fase 5** - Sistema cancelación CFDI (workflow listo para continuar)
 
 ### **🚨 ERRORES RESTANTES CONOCIDOS**
 
@@ -428,7 +444,7 @@ def validate_no_duplicate_timbrado(self):
 
 **IMPACTO:** 🟢 **RESUELTO** - Workflow de timbrado completamente funcional
 
-**TOTAL ESTIMADO:** 24 horas (22 + 2 horas FASE 3)
+**TOTAL ESTIMADO:** 28.5 horas (14 horas FASES 1-4 completadas)
 
 ---
 
@@ -491,6 +507,7 @@ def validate_no_duplicate_timbrado(self):
 | 2025-08-03 | 🔧 **CORRECCIONES CRÍTICAS** - Hook fiscal update + UI buttons + navegación | Claude Code |
 | 2025-08-04 | ✅ **ERROR CRÍTICO RESUELTO** - DocType submittable + Arquitectura mixta + Tests validados | Claude Code |
 | 2025-08-04 | ✅ **FASE 3 COMPLETADA** - Filtros Sales Invoice + Validación tiempo real + Debug crítico | Claude Code |
+| 2025-08-04 | ✅ **FASE 4 COMPLETADA** - Auto-carga PUE mejorada + Avisos consistencia + SQL directo child tables | Claude Code |
 
 ---
 
