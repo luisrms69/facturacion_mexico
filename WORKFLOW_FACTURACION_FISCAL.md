@@ -400,11 +400,29 @@ def validate_no_duplicate_timbrado(self):
 4. ✅ **Ejecución tests automatizados** - 3 nuevos tests PASSED validando funcionalidad
 5. ✅ **FASE 3 COMPLETADA** - Filtros Sales Invoice funcionando correctamente
 6. ✅ **FASE 4 COMPLETADA** - Auto-carga PUE mejorada con avisos de consistencia implementada
-7. 🎯 **PRÓXIMO: Fase 5** - Sistema cancelación CFDI (workflow listo para continuar)
+7. 🎯 **ACTUAL: Correcciones Semgrep** - Fixing CI linter blocking errors (in progress)
+8. 🎯 **PRÓXIMO: Fase 5** - Sistema cancelación CFDI (workflow listo para continuar)
+
+### **🚨 ESTADO ACTUAL - CORRECCIONES SEMGREP**
+
+**PROBLEMA CI BLOQUEANTE:**
+- **Semgrep Rule**: `frappe-translation-js-splitting` 
+- **Error**: String concatenation inside `__()` translation functions
+- **Archivos**: `factura_fiscal_mexico.js` líneas 1710-1715, 1762-1766, 1784-1787
+
+**PROGRESO CORRECCIONES:**
+- ✅ **Líneas 1710-1715**: String concatenation corregida → template parameters
+- ✅ **Líneas 1762-1766**: String concatenation corregida → template parameters  
+- ✅ **Líneas 1784-1787**: String concatenation corregida → simple string
+- 🔄 **Pending**: Commit + push correcciones
+
+**COMMITS REALIZADOS:**
+- `e3348b2`: FASE 4 - Auto-carga PUE mejorada implementada
+- `7616070`: CI FIXES - Correcciones compatibilidad entornos tests
+- 🔄 **Next**: Semgrep fixes commit
 
 ### **🚨 ERRORES RESTANTES CONOCIDOS**
 
-- **Navegación título**: "ACC-SINV-2025-00596" persiste en navegador (requiere refresh)
 - **Auto-compacting**: Cerca del límite, requiere manejo de contexto
 
 ### **⏸️ SISTEMA FISCAL EVENTS TEMPORALMENTE DESACTIVADO**

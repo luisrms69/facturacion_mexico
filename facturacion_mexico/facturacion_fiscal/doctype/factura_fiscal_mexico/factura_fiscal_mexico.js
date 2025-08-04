@@ -1708,23 +1708,16 @@ function check_and_update_payment_method_on_load(frm) {
 								frappe.msgprint({
 									title: __("⚠️ Forma de Pago Inconsistente"),
 									message: __(
-										"Se detectó una inconsistencia en la forma de pago:<br><br>" +
-											"<b>Factura Fiscal Mexico:</b> {0}<br>" +
-											"<b>Payment Entry:</b> {1}<br><br>" +
-											"Por favor, verifique y corrija la forma de pago antes de timbrar."
-									)
-										.replace(
-											"{0}",
+										"Se detectó una inconsistencia en la forma de pago:<br><br><b>Factura Fiscal Mexico:</b> {0}<br><b>Payment Entry:</b> {1}<br><br>Por favor, verifique y corrija la forma de pago antes de timbrar.",
+										[
 											"<span style='color: #d73502;'>" +
 												current_forma_pago +
-												"</span>"
-										)
-										.replace(
-											"{1}",
+												"</span>",
 											"<span style='color: #0066cc;'>" +
 												payment_method +
-												"</span>"
-										),
+												"</span>",
+										]
+									),
 									indicator: "orange",
 									primary_action: {
 										label: __("Cerrar"),
@@ -1760,14 +1753,12 @@ function check_and_update_payment_method_on_load(frm) {
 							frappe.msgprint({
 								title: __("ℹ️ Sin Pago Registrado"),
 								message: __(
-									"No hay Payment Entry registrado para esta factura.<br><br>" +
-										"<b>Forma de pago actual:</b> {0}<br><br>" +
-										"Considere crear un Payment Entry o verificar la forma de pago."
-								).replace(
-									"{0}",
-									"<span style='color: #0066cc;'>" +
-										current_forma_pago +
-										"</span>"
+									"No hay Payment Entry registrado para esta factura.<br><br><b>Forma de pago actual:</b> {0}<br><br>Considere crear un Payment Entry o verificar la forma de pago.",
+									[
+										"<span style='color: #0066cc;'>" +
+											current_forma_pago +
+											"</span>",
+									]
 								),
 								indicator: "blue",
 								primary_action: {
@@ -1782,8 +1773,7 @@ function check_and_update_payment_method_on_load(frm) {
 							frappe.msgprint({
 								title: __("ℹ️ Sin Pago Registrado"),
 								message: __(
-									"No hay Payment Entry registrado para esta factura.<br><br>" +
-										"Seleccione la forma de pago manualmente antes de timbrar."
+									"No hay Payment Entry registrado para esta factura.<br><br>Seleccione la forma de pago manualmente antes de timbrar."
 								),
 								indicator: "blue",
 								primary_action: {
