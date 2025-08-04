@@ -18,6 +18,32 @@ class TestLayer2CrossModuleValidation(unittest.TestCase):
     def setUpClass(cls):
         """Setup inicial para todos los tests"""
         frappe.clear_cache()
+        cls._ensure_test_data_exists()
+
+    @classmethod
+    def _ensure_test_data_exists(cls):
+        """Asegurar que Customer y Item de test existen para evitar payment_terms error"""
+        # Crear Customer test si no existe
+        if not frappe.db.exists("Customer", "_Test Customer"):
+            customer = frappe.get_doc({
+                "doctype": "Customer",
+                "customer_name": "_Test Customer",
+                "customer_type": "Individual",
+                "territory": "All Territories",
+                "customer_group": "All Customer Groups"
+            })
+            customer.insert(ignore_permissions=True)
+
+        # Crear Item test si no existe
+        if not frappe.db.exists("Item", "_Test Item"):
+            item = frappe.get_doc({
+                "doctype": "Item",
+                "item_code": "_Test Item",
+                "item_name": "_Test Item",
+                "item_group": "All Item Groups",
+                "is_stock_item": 0
+            })
+            item.insert(ignore_permissions=True)
 
     def test_custom_fields_naming_consistency(self):
         """Test: Consistencia en nomenclatura de custom fields entre módulos"""
@@ -63,7 +89,8 @@ class TestLayer2CrossModuleValidation(unittest.TestCase):
         - Validación de disponibilidad funciona
         """
         # Leer archivo JavaScript de Factura Fiscal Mexico
-        js_file_path = "/home/erpnext/frappe-bench/apps/facturacion_mexico/facturacion_mexico/facturacion_fiscal/doctype/factura_fiscal_mexico/factura_fiscal_mexico.js"
+        # Usar path relativo desde frappe-bench para compatibilidad CI
+        js_file_path = frappe.get_app_path("facturacion_mexico", "facturacion_fiscal", "doctype", "factura_fiscal_mexico", "factura_fiscal_mexico.js")
 
         try:
             with open(js_file_path, 'r', encoding='utf-8') as f:
@@ -132,8 +159,8 @@ class TestLayer2CrossModuleValidation(unittest.TestCase):
         - Verifica RFC presente
         - Maneja casos edge apropiadamente
         """
-        # Leer archivo JavaScript
-        js_file_path = "/home/erpnext/frappe-bench/apps/facturacion_mexico/facturacion_mexico/facturacion_fiscal/doctype/factura_fiscal_mexico/factura_fiscal_mexico.js"
+        # Leer archivo JavaScript - usar path relativo para compatibilidad CI
+        js_file_path = frappe.get_app_path("facturacion_mexico", "facturacion_fiscal", "doctype", "factura_fiscal_mexico", "factura_fiscal_mexico.js")
 
         with open(js_file_path, 'r', encoding='utf-8') as f:
             js_content = f.read()
@@ -201,7 +228,8 @@ class TestLayer2CrossModuleValidation(unittest.TestCase):
         )
 
         # 2. Verificar función JavaScript existe
-        js_file_path = "/home/erpnext/frappe-bench/apps/facturacion_mexico/facturacion_mexico/facturacion_fiscal/doctype/factura_fiscal_mexico/factura_fiscal_mexico.js"
+        # Usar path relativo para compatibilidad CI
+        js_file_path = frappe.get_app_path("facturacion_mexico", "facturacion_fiscal", "doctype", "factura_fiscal_mexico", "factura_fiscal_mexico.js")
 
         with open(js_file_path, 'r', encoding='utf-8') as f:
             js_content = f.read()
@@ -261,7 +289,8 @@ class TestLayer2CrossModuleValidation(unittest.TestCase):
         - No sobrescribir selección manual
         """
         # Verificar archivo Python tiene consulta Payment Entry
-        python_file_path = "/home/erpnext/frappe-bench/apps/facturacion_mexico/facturacion_mexico/facturacion_fiscal/doctype/factura_fiscal_mexico/factura_fiscal_mexico.py"
+        # Usar path relativo para compatibilidad CI
+        python_file_path = frappe.get_app_path("facturacion_mexico", "facturacion_fiscal", "doctype", "factura_fiscal_mexico", "factura_fiscal_mexico.py")
 
         with open(python_file_path, 'r', encoding='utf-8') as f:
             python_content = f.read()
@@ -298,7 +327,8 @@ class TestLayer2CrossModuleValidation(unittest.TestCase):
             )
 
         # Verificar JavaScript tiene lógica similar
-        js_file_path = "/home/erpnext/frappe-bench/apps/facturacion_mexico/facturacion_mexico/facturacion_fiscal/doctype/factura_fiscal_mexico/factura_fiscal_mexico.js"
+        # Usar path relativo para compatibilidad CI
+        js_file_path = frappe.get_app_path("facturacion_mexico", "facturacion_fiscal", "doctype", "factura_fiscal_mexico", "factura_fiscal_mexico.js")
 
         with open(js_file_path, 'r', encoding='utf-8') as f:
             js_content = f.read()
