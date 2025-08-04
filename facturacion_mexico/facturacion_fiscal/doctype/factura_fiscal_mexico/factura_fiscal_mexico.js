@@ -5,20 +5,12 @@
 
 frappe.ui.form.on("Factura Fiscal Mexico", {
 	refresh: function (frm) {
-		// Configurar interfaz del documento fiscal
 		setup_fiscal_interface(frm);
-
-		// Configurar radio buttons para payment method
 		setup_payment_method_radio_buttons(frm);
-
-		// PUNTOS 8-9: Controlar visibilidad según estado de timbrado
 		control_field_visibility_by_status(frm);
-
-		// Agregar botones de funcionalidad fiscal
 		add_fiscal_buttons(frm);
 
 		// Verificar y mostrar estado de datos de facturación
-		// console.log("🔍 Ejecutando check_and_show_billing_data_status en refresh");
 		setTimeout(() => {
 			check_and_show_billing_data_status(frm);
 			check_customer_fiscal_warning(frm);
@@ -28,12 +20,34 @@ frappe.ui.form.on("Factura Fiscal Mexico", {
 	onload: function (frm) {
 		// Inicializar datos por defecto al cargar
 		setup_default_values(frm);
+
+		// FASE 3: Configurar filtros para Sales Invoice disponibles
+		setup_sales_invoice_filters(frm);
+
+		// Forzar carga de Use CFDI si customer está presente pero Use CFDI vacío
+		if (frm.doc.customer && !frm.doc.fm_cfdi_use) {
+			auto_assign_cfdi_from_customer(frm, frm.doc.customer);
+		}
+
+		// FASE 4: Auto-verificar forma de pago en documentos existentes
+		// Caso: Usuario agregó Payment Entry después de crear Factura Fiscal
+		if (frm.doc.sales_invoice && !frm.is_new() && frm.doc.docstatus === 0) {
+			setTimeout(() => {
+				check_and_update_payment_method_on_load(frm);
+			}, 1000);
+		}
 	},
 
 	sales_invoice: function (frm) {
+		// FASE 3: Validar disponibilidad de Sales Invoice seleccionada
+		validate_sales_invoice_availability(frm);
+
 		// Cuando se selecciona Sales Invoice, cargar datos del cliente
 		if (frm.doc.sales_invoice) {
 			load_customer_data_from_sales_invoice(frm);
+
+			// FASE 4: Auto-cargar forma de pago desde Payment Entry
+			auto_load_payment_method_from_sales_invoice(frm);
 		}
 
 		// Verificar cliente fiscal después de cargar Sales Invoice
@@ -65,6 +79,13 @@ frappe.ui.form.on("Factura Fiscal Mexico", {
 	fm_fiscal_status: function (frm) {
 		// PUNTOS 8-9: Actualizar visibilidad cuando cambia el estado fiscal
 		control_field_visibility_by_status(frm);
+	},
+
+	fm_payment_method_sat: function (frm) {
+		// FASE 4: Cuando cambia método de pago, auto-cargar forma de pago
+		if (frm.doc.sales_invoice && frm.doc.fm_payment_method_sat) {
+			auto_load_payment_method_from_sales_invoice(frm);
+		}
 	},
 });
 
@@ -124,28 +145,37 @@ function auto_assign_cfdi_from_customer(frm, customer) {
 	// Si no tiene, dejar vacío (no seleccionar nada por defecto)
 
 	if (!customer) {
+		console.log("❌ auto_assign_cfdi_from_customer: No customer provided");
 		return;
 	}
+
+	console.log(`🔍 auto_assign_cfdi_from_customer: Cargando Use CFDI para customer: ${customer}`);
 
 	frappe.db
 		.get_value("Customer", customer, "fm_uso_cfdi_default")
 		.then((r) => {
+			console.log("📥 Response from Customer.fm_uso_cfdi_default:", r);
+
 			if (r.message && r.message.fm_uso_cfdi_default) {
 				// Solo asignar SI el customer tiene configurado uso CFDI
+				console.log(`✅ Asignando Use CFDI: ${r.message.fm_uso_cfdi_default}`);
 				frm.set_value("fm_cfdi_use", r.message.fm_uso_cfdi_default);
 
-				frappe.show_alert({
-					message: __("Uso CFDI cargado desde configuración del Cliente"),
-					indicator: "green",
-				});
+				frappe.show_alert(
+					{
+						message: __("Uso CFDI cargado desde configuración del Cliente"),
+						indicator: "green",
+					},
+					4
+				);
 			} else {
 				// Customer no tiene uso CFDI configurado - dejar vacío
+				console.log("⚠️ Customer no tiene fm_uso_cfdi_default configurado - campo vacío");
 				frm.set_value("fm_cfdi_use", "");
-				console.log("Customer no tiene fm_uso_cfdi_default configurado - campo vacío");
 			}
 		})
 		.catch((err) => {
-			console.log("Error obteniendo uso CFDI default:", err);
+			console.log("❌ Error obteniendo uso CFDI default:", err);
 			// En caso de error, dejar vacío
 			frm.set_value("fm_cfdi_use", "");
 		});
@@ -314,17 +344,13 @@ function validate_billing_data_visual(frm) {
 }
 
 function add_fiscal_buttons(frm) {
-	// OPCIÓN C: Solo botones específicos para operaciones FacturAPI
-	// Save/Submit son manejados automáticamente por Frappe
+	// Solo botones específicos para operaciones FacturAPI
+	// Save/Submit son manejados automáticamente por Frappe - NO interferir
 
-	// Control del botón Cancel de Frappe: Solo disponible cuando está definitivamente cancelada
-	if (frm.doc.fm_fiscal_status !== "Cancelada") {
-		frm.page.clear_actions();
-		// Re-agregar botones básicos excepto Cancel
-		if (frm.doc.docstatus === 0) {
-			frm.page.set_primary_action(__("Save"), () => frm.save());
-			frm.page.set_secondary_action(__("Submit"), () => frm.submit());
-		}
+	// Solo ocultar Cancel cuando NO está cancelada (mantener comportamiento Frappe normal)
+	if (frm.doc.fm_fiscal_status === "Cancelada") {
+		// Para documentos cancelados, permitir comportamiento normal de Frappe
+		return;
 	}
 
 	if (frm.doc.docstatus === 1 && frm.doc.fm_fiscal_status === "Pendiente") {
@@ -436,6 +462,123 @@ function test_pac_connection(frm) {
 					message: r.message ? r.message.message : __("No se pudo conectar con el PAC"),
 					indicator: "red",
 				});
+			}
+		},
+	});
+}
+
+// ========================================
+// FASE 3: FILTROS SALES INVOICE DISPONIBLES
+// ========================================
+
+function setup_sales_invoice_filters(frm) {
+	/**
+	 * Configurar filtros dinámicos para mostrar solo Sales Invoice disponibles
+	 *
+	 * CRITERIOS:
+	 * - docstatus = 1 (submitted)
+	 * - fm_factura_fiscal_mx vacío o NULL
+	 * - Sin Factura Fiscal Mexico timbrada asociada
+	 */
+	frm.set_query("sales_invoice", function () {
+		console.log("🔍 DEBUG: Aplicando filtros Sales Invoice - Solo submitted sin timbrar");
+
+		return {
+			filters: [
+				// 1. CRÍTICO: Solo Sales Invoice submitted (docstatus = 1)
+				// Evita facturas draft (0) y canceladas (2)
+				["docstatus", "=", 1],
+
+				// 2. CRÍTICO: Sin Factura Fiscal Mexico ya asignada
+				// Evita doble facturación fiscal
+				["fm_factura_fiscal_mx", "in", ["", null]],
+
+				// 3. Tener RFC del cliente (requerido para facturación fiscal)
+				// Sin RFC no se puede timbrar
+				["tax_id", "!=", ""],
+			],
+		};
+	});
+
+	console.log("✅ Filtros Sales Invoice configurados - Solo facturas disponibles para timbrado");
+}
+
+function validate_sales_invoice_availability(frm) {
+	/**
+	 * Validar que Sales Invoice seleccionada sigue estando disponible
+	 * Se ejecuta cuando usuario selecciona una Sales Invoice
+	 */
+	if (!frm.doc.sales_invoice) return;
+
+	frappe.call({
+		method: "frappe.client.get_value",
+		args: {
+			doctype: "Sales Invoice",
+			filters: { name: frm.doc.sales_invoice },
+			fieldname: ["fm_factura_fiscal_mx", "docstatus", "tax_id"],
+		},
+		callback: function (r) {
+			if (r.message) {
+				const sales_invoice_data = r.message;
+
+				// Verificar si ya está asignada a otra Factura Fiscal
+				if (
+					sales_invoice_data.fm_factura_fiscal_mx &&
+					sales_invoice_data.fm_factura_fiscal_mx !== frm.doc.name
+				) {
+					// Verificar si esa Factura Fiscal está timbrada
+					frappe.call({
+						method: "frappe.client.get_value",
+						args: {
+							doctype: "Factura Fiscal Mexico",
+							filters: { name: sales_invoice_data.fm_factura_fiscal_mx },
+							fieldname: "fm_fiscal_status",
+						},
+						callback: function (fiscal_r) {
+							if (
+								fiscal_r.message &&
+								fiscal_r.message.fm_fiscal_status === "Timbrada"
+							) {
+								frappe.msgprint({
+									title: __("Sales Invoice No Disponible"),
+									message: __(
+										"La Sales Invoice {0} ya ha sido timbrada en el documento {1}. Por favor seleccione otra factura."
+									).format(
+										frm.doc.sales_invoice,
+										sales_invoice_data.fm_factura_fiscal_mx
+									),
+									indicator: "red",
+								});
+
+								// Limpiar selección
+								frm.set_value("sales_invoice", "");
+							}
+						},
+					});
+				}
+
+				// Verificar otros criterios
+				if (sales_invoice_data.docstatus !== 1) {
+					frappe.msgprint({
+						title: __("Sales Invoice No Válida"),
+						message: __(
+							"La Sales Invoice debe estar enviada (submitted) para crear factura fiscal."
+						),
+						indicator: "orange",
+					});
+					frm.set_value("sales_invoice", "");
+				}
+
+				if (!sales_invoice_data.tax_id) {
+					frappe.msgprint({
+						title: __("RFC Faltante"),
+						message: __(
+							"La Sales Invoice debe tener RFC del cliente para facturación fiscal."
+						),
+						indicator: "orange",
+					});
+					frm.set_value("sales_invoice", "");
+				}
 			}
 		},
 	});
@@ -1498,5 +1641,253 @@ function hide_customer_fiscal_warning(frm) {
 	const warning_field = frm.fields_dict.customer_fiscal_warning;
 	if (warning_field && warning_field.$wrapper) {
 		warning_field.$wrapper.hide();
+	}
+}
+
+// ========================================
+// FASE 4: AUTO-CARGA PUE MEJORADA
+// ========================================
+
+function check_and_update_payment_method_on_load(frm) {
+	/**
+	 * FASE 4: Verificar consistencia de forma de pago en documentos existentes
+	 *
+	 * Nueva lógica (mejor UX):
+	 * - Sin Payment Entry → Aviso "No hay pago registrado"
+	 * - Con Payment Entry igual → Sin aviso (consistente)
+	 * - Con Payment Entry diferente → Aviso "Forma de pago inconsistente"
+	 */
+	if (!frm.doc.sales_invoice || !frm.doc.fm_payment_method_sat) {
+		return;
+	}
+
+	console.log(
+		`🔍 FASE 4: Verificando consistencia Payment Entry para documento existente ${frm.doc.name}`
+	);
+
+	// Solo verificar para PUE (PPD siempre usa "99 - Por definir")
+	if (frm.doc.fm_payment_method_sat === "PUE") {
+		// Buscar Payment Entry relacionada
+		frappe.call({
+			method: "facturacion_mexico.facturacion_fiscal.doctype.factura_fiscal_mexico.factura_fiscal_mexico.get_payment_entry_for_javascript",
+			args: {
+				invoice_name: frm.doc.sales_invoice,
+			},
+			callback: function (r) {
+				try {
+					console.log("🔍 FASE 4: Respuesta recibida:", r);
+
+					const current_forma_pago = frm.doc.fm_forma_pago_timbrado;
+
+					if (
+						r.message &&
+						r.message.success &&
+						r.message.data &&
+						r.message.data.length > 0
+					) {
+						const payment_entry = r.message.data[0];
+						const payment_method = payment_entry.mode_of_payment;
+
+						console.log(
+							`🔍 FASE 4: Payment Entry encontrado - ${payment_entry.name}, Método: ${payment_method}`
+						);
+
+						if (current_forma_pago) {
+							// Hay forma de pago en Factura Fiscal - verificar consistencia
+							if (current_forma_pago === payment_method) {
+								// ✅ Consistente - no mostrar aviso
+								console.log(
+									`✅ FASE 4: Forma de pago consistente: ${current_forma_pago}`
+								);
+							} else {
+								// ⚠️ Inconsistente - mostrar mensaje persistente
+								console.log(
+									`⚠️ FASE 4: Inconsistencia detectada - Factura: ${current_forma_pago}, Payment: ${payment_method}`
+								);
+
+								frappe.msgprint({
+									title: __("⚠️ Forma de Pago Inconsistente"),
+									message: __(
+										"Se detectó una inconsistencia en la forma de pago:<br><br><b>Factura Fiscal Mexico:</b> {0}<br><b>Payment Entry:</b> {1}<br><br>Por favor, verifique y corrija la forma de pago antes de timbrar.",
+										[
+											"<span style='color: #d73502;'>" +
+												current_forma_pago +
+												"</span>",
+											"<span style='color: #0066cc;'>" +
+												payment_method +
+												"</span>",
+										]
+									),
+									indicator: "orange",
+									primary_action: {
+										label: __("Cerrar"),
+										action: function () {
+											cur_dialog.hide();
+										},
+									},
+								});
+							}
+						} else {
+							// Sin forma de pago pero hay Payment Entry - auto-cargar
+							console.log(
+								`✅ FASE 4: Auto-cargando ${payment_method} desde ${payment_entry.name}`
+							);
+
+							frm.set_value("fm_forma_pago_timbrado", payment_method);
+							frappe.show_alert(
+								{
+									message:
+										"✅ Forma de pago cargada desde Payment Entry: " +
+										payment_method,
+									indicator: "green",
+								},
+								5
+							);
+						}
+					} else {
+						// Sin Payment Entry
+						console.log("ℹ️ FASE 4: No hay Payment Entry registrado");
+
+						if (current_forma_pago) {
+							// Hay forma de pago pero no Payment Entry
+							frappe.msgprint({
+								title: __("ℹ️ Sin Pago Registrado"),
+								message: __(
+									"No hay Payment Entry registrado para esta factura.<br><br><b>Forma de pago actual:</b> {0}<br><br>Considere crear un Payment Entry o verificar la forma de pago.",
+									[
+										"<span style='color: #0066cc;'>" +
+											current_forma_pago +
+											"</span>",
+									]
+								),
+								indicator: "blue",
+								primary_action: {
+									label: __("Cerrar"),
+									action: function () {
+										cur_dialog.hide();
+									},
+								},
+							});
+						} else {
+							// Sin forma de pago y sin Payment Entry
+							frappe.msgprint({
+								title: __("ℹ️ Sin Pago Registrado"),
+								message: __(
+									"No hay Payment Entry registrado para esta factura.<br><br>Seleccione la forma de pago manualmente antes de timbrar."
+								),
+								indicator: "blue",
+								primary_action: {
+									label: __("Cerrar"),
+									action: function () {
+										cur_dialog.hide();
+									},
+								},
+							});
+						}
+					}
+				} catch (error) {
+					console.error("❌ FASE 4: Error en callback de consistencia:", error);
+					frappe.show_alert(
+						{
+							message: "❌ Error verificando consistencia de forma de pago",
+							indicator: "red",
+						},
+						3
+					);
+				}
+			},
+			error: function (err) {
+				console.error("❌ FASE 4: Error verificando consistencia Payment Entry:", err);
+			},
+		});
+	}
+}
+
+function auto_load_payment_method_from_sales_invoice(frm) {
+	/**
+	 * FASE 4: Auto-cargar forma de pago desde Payment Entry
+	 *
+	 * Lógica según especificación:
+	 * - PUE: Buscar Payment Entry relacionada y auto-cargar mode_of_payment
+	 * - PPD: Siempre usar "99 - Por definir"
+	 * - Solo auto-cargar si campo está vacío (no sobrescribir selección manual)
+	 */
+	if (!frm.doc.sales_invoice || !frm.doc.fm_payment_method_sat) {
+		console.log("🔍 FASE 4: Sin Sales Invoice o método de pago - saltando auto-carga");
+		return;
+	}
+
+	// Para PPD: Siempre asignar "99 - Por definir"
+	if (frm.doc.fm_payment_method_sat === "PPD") {
+		if (
+			!frm.doc.fm_forma_pago_timbrado ||
+			frm.doc.fm_forma_pago_timbrado !== "99 - Por definir"
+		) {
+			frm.set_value("fm_forma_pago_timbrado", "99 - Por definir");
+			console.log("✅ FASE 4: Auto-asignado PPD - 99 - Por definir");
+		}
+		return;
+	}
+
+	// Para PUE: Buscar Payment Entry relacionada
+	if (frm.doc.fm_payment_method_sat === "PUE") {
+		// Solo auto-cargar si el campo está vacío (no sobrescribir selección manual)
+		if (frm.doc.fm_forma_pago_timbrado) {
+			console.log("🔍 FASE 4: PUE ya tiene forma de pago - no sobrescribir");
+			return;
+		}
+
+		console.log(
+			`🔍 FASE 4: Buscando Payment Entry para Sales Invoice ${frm.doc.sales_invoice}`
+		);
+
+		// Usar método Python con SQL correcto (no sintaxis child table problemática)
+		frappe.call({
+			method: "facturacion_mexico.facturacion_fiscal.doctype.factura_fiscal_mexico.factura_fiscal_mexico.get_payment_entry_for_javascript",
+			args: {
+				invoice_name: frm.doc.sales_invoice,
+			},
+			callback: function (r) {
+				if (r.message && r.message.success && r.message.data.length > 0) {
+					const payment_entry = r.message.data[0];
+					if (payment_entry.mode_of_payment) {
+						// Auto-cargar forma de pago desde Payment Entry
+						frm.set_value("fm_forma_pago_timbrado", payment_entry.mode_of_payment);
+
+						frappe.show_alert(
+							{
+								message: __(
+									"Forma de pago cargada automáticamente desde Payment Entry {0}"
+								).format(payment_entry.name),
+								indicator: "green",
+							},
+							4
+						);
+
+						console.log(
+							`✅ FASE 4: Auto-cargado PUE - ${payment_entry.mode_of_payment} desde ${payment_entry.name}`
+						);
+					}
+				} else {
+					// PUE sin Payment Entry - dejar vacío para selección manual
+					console.log(
+						"ℹ️ FASE 4: PUE sin Payment Entry - usuario debe seleccionar manualmente"
+					);
+
+					frappe.show_alert(
+						{
+							message: __(
+								"No se encontró Payment Entry. Seleccione forma de pago manualmente."
+							),
+							indicator: "yellow",
+						},
+						3
+					);
+				}
+			},
+			error: function (err) {
+				console.error("❌ FASE 4: Error buscando Payment Entry:", err);
+			},
+		});
 	}
 }

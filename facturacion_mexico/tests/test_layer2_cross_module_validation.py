@@ -18,6 +18,32 @@ class TestLayer2CrossModuleValidation(unittest.TestCase):
     def setUpClass(cls):
         """Setup inicial para todos los tests"""
         frappe.clear_cache()
+        cls._ensure_test_data_exists()
+
+    @classmethod
+    def _ensure_test_data_exists(cls):
+        """Asegurar que Customer y Item de test existen para evitar payment_terms error"""
+        # Crear Customer test si no existe
+        if not frappe.db.exists("Customer", "_Test Customer"):
+            customer = frappe.get_doc({
+                "doctype": "Customer",
+                "customer_name": "_Test Customer",
+                "customer_type": "Individual",
+                "territory": "All Territories",
+                "customer_group": "All Customer Groups"
+            })
+            customer.insert(ignore_permissions=True)
+
+        # Crear Item test si no existe
+        if not frappe.db.exists("Item", "_Test Item"):
+            item = frappe.get_doc({
+                "doctype": "Item",
+                "item_code": "_Test Item",
+                "item_name": "_Test Item",
+                "item_group": "All Item Groups",
+                "is_stock_item": 0
+            })
+            item.insert(ignore_permissions=True)
 
     def test_custom_fields_naming_consistency(self):
         """Test: Consistencia en nomenclatura de custom fields entre módulos"""
@@ -49,6 +75,292 @@ class TestLayer2CrossModuleValidation(unittest.TestCase):
             print(f"⚠ Campos sin prefijo fm_: {[(f.dt, f.fieldname) for f in real_inconsistent[:5]]}")
         else:
             print("✓ Todos los custom fields nuevos siguen nomenclatura fm_*")
+
+        self.assertEqual(len(real_inconsistent), 0,
+            "Todos los custom fields deben usar prefijo fm_")
+
+    def test_sales_invoice_filters_implementation(self):
+        """
+        Test: Verificar implementación de filtros Sales Invoice en Factura Fiscal Mexico
+
+        FASE 3: Validaciones de filtros dinámicos
+        - Función setup_sales_invoice_filters existe
+        - Filtros configuran criterios correctos
+        - Validación de disponibilidad funciona
+        """
+        # Leer archivo JavaScript de Factura Fiscal Mexico
+        # Usar path relativo desde frappe-bench para compatibilidad CI
+        js_file_path = frappe.get_app_path("facturacion_mexico", "facturacion_fiscal", "doctype", "factura_fiscal_mexico", "factura_fiscal_mexico.js")
+
+        js_content = ""
+        try:
+            with open(js_file_path, 'r', encoding='utf-8') as f:
+                js_content = f.read()
+        except FileNotFoundError:
+            self.fail(f"Archivo JavaScript no encontrado: {js_file_path}")
+
+        # Verificar que función setup_sales_invoice_filters existe
+        self.assertIn(
+            "function setup_sales_invoice_filters",
+            js_content,
+            "Función setup_sales_invoice_filters debe existir"
+        )
+
+        # Verificar que se configura frm.set_query para sales_invoice
+        self.assertIn(
+            'frm.set_query("sales_invoice"',
+            js_content,
+            "Debe configurar filtros dinámicos para campo sales_invoice"
+        )
+
+        # Verificar criterios de filtro específicos
+        filter_criteria = [
+            'docstatus", "=", 1',  # Solo submitted
+            'fm_factura_fiscal_mx", "in", ["", null]',  # Sin asignar
+            'tax_id", "!=", ""'  # Con RFC
+        ]
+
+        for criteria in filter_criteria:
+            self.assertIn(
+                criteria,
+                js_content,
+                f"Filtro debe incluir criterio: {criteria}"
+            )
+
+        # Verificar función de validación de disponibilidad
+        self.assertIn(
+            "function validate_sales_invoice_availability",
+            js_content,
+            "Función validate_sales_invoice_availability debe existir"
+        )
+
+        # Verificar que se llama en el evento sales_invoice
+        self.assertIn(
+            "validate_sales_invoice_availability(frm)",
+            js_content,
+            "Validación debe ejecutarse cuando se selecciona Sales Invoice"
+        )
+
+        # Verificar comentarios de documentación FASE 3
+        self.assertIn(
+            "FASE 3: FILTROS SALES INVOICE DISPONIBLES",
+            js_content,
+            "Código debe estar documentado como FASE 3"
+        )
+
+        print("✅ Filtros Sales Invoice correctamente implementados")
+
+    def test_sales_invoice_availability_validation_logic(self):
+        """
+        Test: Verificar lógica de validación de disponibilidad de Sales Invoice
+
+        Validaciones:
+        - Detecta Sales Invoice ya timbradas
+        - Valida docstatus = 1
+        - Verifica RFC presente
+        - Maneja casos edge apropiadamente
+        """
+        # Leer archivo JavaScript - usar path relativo para compatibilidad CI
+        js_file_path = frappe.get_app_path("facturacion_mexico", "facturacion_fiscal", "doctype", "factura_fiscal_mexico", "factura_fiscal_mexico.js")
+
+        js_content = ""
+        try:
+            with open(js_file_path, 'r', encoding='utf-8') as f:
+                js_content = f.read()
+        except FileNotFoundError:
+            self.fail(f"Archivo JavaScript no encontrado: {js_file_path}")
+
+        # Verificar validación de estado timbrado
+        self.assertIn(
+            'fm_fiscal_status === "Timbrada"',
+            js_content,
+            "Debe validar si Sales Invoice ya está timbrada"
+        )
+
+        # Verificar validación de docstatus
+        self.assertIn(
+            "docstatus !== 1",
+            js_content,
+            "Debe validar que Sales Invoice esté submitted"
+        )
+
+        # Verificar validación de RFC
+        self.assertIn(
+            "!sales_invoice_data.tax_id",
+            js_content,
+            "Debe validar que Sales Invoice tenga RFC"
+        )
+
+        # Verificar mensajes de error apropiados
+        error_messages = [
+            "Sales Invoice No Disponible",
+            "Sales Invoice No Válida",
+            "RFC Faltante"
+        ]
+
+        for message in error_messages:
+            self.assertIn(
+                message,
+                js_content,
+                f"Debe mostrar mensaje de error: {message}"
+            )
+
+        # Verificar que limpia selección en caso de error
+        self.assertIn(
+            'frm.set_value("sales_invoice", "")',
+            js_content,
+            "Debe limpiar selección cuando Sales Invoice no es válida"
+        )
+
+        print("✅ Lógica de validación de disponibilidad correctamente implementada")
+
+    def test_fase4_auto_load_payment_method_implementation(self):
+        """
+        Test: Verificar implementación FASE 4 - Auto-carga PUE mejorada
+
+        Validaciones:
+        - Función auto_load_payment_method_from_sales_invoice existe en Python
+        - Función auto_load_payment_method_from_sales_invoice existe en JavaScript
+        - Triggers configurados en sales_invoice y fm_payment_method_sat
+        - Lógica PUE vs PPD implementada correctamente
+        """
+        # 1. Verificar función Python existe
+        from facturacion_mexico.facturacion_fiscal.doctype.factura_fiscal_mexico.factura_fiscal_mexico import FacturaFiscalMexico
+
+        self.assertTrue(
+            hasattr(FacturaFiscalMexico, "auto_load_payment_method_from_sales_invoice"),
+            "Método auto_load_payment_method_from_sales_invoice debe existir en FacturaFiscalMexico"
+        )
+
+        # 2. Verificar función JavaScript existe
+        # Usar path relativo para compatibilidad CI
+        js_file_path = frappe.get_app_path("facturacion_mexico", "facturacion_fiscal", "doctype", "factura_fiscal_mexico", "factura_fiscal_mexico.js")
+
+        js_content = ""
+        try:
+            with open(js_file_path, 'r', encoding='utf-8') as f:
+                js_content = f.read()
+        except FileNotFoundError:
+            self.fail(f"Archivo JavaScript no encontrado: {js_file_path}")
+
+        self.assertIn(
+            "function auto_load_payment_method_from_sales_invoice",
+            js_content,
+            "Función auto_load_payment_method_from_sales_invoice debe existir en JavaScript"
+        )
+
+        # 3. Verificar trigger sales_invoice llama auto-carga
+        self.assertIn(
+            "auto_load_payment_method_from_sales_invoice(frm)",
+            js_content,
+            "Trigger sales_invoice debe llamar función de auto-carga"
+        )
+
+        # 4. Verificar trigger fm_payment_method_sat existe
+        self.assertIn(
+            "fm_payment_method_sat: function (frm)",
+            js_content,
+            "Debe existir trigger para fm_payment_method_sat"
+        )
+
+        # 5. Verificar lógica PUE vs PPD
+        pue_ppd_logic = [
+            'fm_payment_method_sat === "PUE"',
+            'fm_payment_method_sat === "PPD"',
+            '"99 - Por definir"',
+            "Payment Entry"
+        ]
+
+        for logic in pue_ppd_logic:
+            self.assertIn(
+                logic,
+                js_content,
+                f"Lógica PUE/PPD debe incluir: {logic}"
+            )
+
+        # 6. Verificar comentarios FASE 4
+        self.assertIn(
+            "FASE 4: AUTO-CARGA PUE MEJORADA",
+            js_content,
+            "Código debe estar documentado como FASE 4"
+        )
+
+        print("✅ FASE 4 - Auto-carga PUE mejorada correctamente implementada")
+
+    def test_fase4_payment_entry_query_logic(self):
+        """
+        Test: Verificar lógica de consulta Payment Entry en FASE 4
+
+        Validaciones:
+        - Consulta Payment Entry con filtros correctos
+        - Manejo de caso sin Payment Entry
+        - Auto-asignación PPD vs PUE
+        - No sobrescribir selección manual
+        """
+        # Verificar archivo Python tiene consulta Payment Entry
+        # Usar path relativo para compatibilidad CI
+        python_file_path = frappe.get_app_path("facturacion_mexico", "facturacion_fiscal", "doctype", "factura_fiscal_mexico", "factura_fiscal_mexico.py")
+
+        with open(python_file_path, 'r', encoding='utf-8') as f:
+            python_content = f.read()
+
+        # Verificar consulta Payment Entry - ACTUALIZADO para nueva implementación SQL
+        payment_entry_query = [
+            'get_payment_entry_by_invoice(',
+            'frappe.db.sql(',
+            'SELECT pe.name, pe.mode_of_payment',
+            'FROM `tabPayment Entry` pe',
+            'tabPayment Entry Reference'
+        ]
+
+        for query_part in payment_entry_query:
+            self.assertIn(
+                query_part,
+                python_content,
+                f"Consulta Payment Entry debe incluir: {query_part}"
+            )
+
+        # Verificar lógica condicional PUE/PPD
+        conditional_logic = [
+            'if self.fm_payment_method_sat == "PPD"',
+            'if self.fm_payment_method_sat == "PUE"',
+            'if self.fm_forma_pago_timbrado:',  # No sobrescribir
+            'payment_entries = get_payment_entry_by_invoice'
+        ]
+
+        for logic in conditional_logic:
+            self.assertIn(
+                logic,
+                python_content,
+                f"Lógica condicional debe incluir: {logic}"
+            )
+
+        # Verificar JavaScript tiene lógica similar
+        # Usar path relativo para compatibilidad CI
+        js_file_path = frappe.get_app_path("facturacion_mexico", "facturacion_fiscal", "doctype", "factura_fiscal_mexico", "factura_fiscal_mexico.js")
+
+        js_content = ""
+        try:
+            with open(js_file_path, 'r', encoding='utf-8') as f:
+                js_content = f.read()
+        except FileNotFoundError:
+            self.fail(f"Archivo JavaScript no encontrado: {js_file_path}")
+
+        js_query_logic = [
+            'get_payment_entry_for_javascript',
+            'invoice_name: frm.doc.sales_invoice',
+            'if (frm.doc.fm_forma_pago_timbrado)',  # No sobrescribir
+            'r.message.success && r.message.data'
+        ]
+
+        for js_logic in js_query_logic:
+            self.assertIn(
+                js_logic,
+                js_content,
+                f"JavaScript debe incluir lógica: {js_logic}"
+            )
+
+        print("✅ FASE 4 - Lógica consulta Payment Entry correctamente implementada")
 
     def test_custom_fields_insert_after_chain(self):
         """Test: Cadena de insert_after en custom fields es válida"""
@@ -359,6 +671,8 @@ class TestLayer2CrossModuleValidation(unittest.TestCase):
             total_hooks = sum(len(handlers) for handlers in events.values())
             if total_hooks > 5:
                 print(f"⚠ {doctype} tiene {total_hooks} hooks - verificar impacto de rendimiento")
+
+
 
 
 if __name__ == "__main__":

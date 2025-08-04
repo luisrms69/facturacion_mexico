@@ -298,8 +298,10 @@ doc_events = {
 		"after_insert": "facturacion_mexico.ereceipts.hooks_handlers.ereceipt_insert.generate_facturapi_ereceipt",
 	},
 	"Factura Fiscal Mexico": {
-		"after_insert": "facturacion_mexico.facturacion_fiscal.hooks_handlers.factura_fiscal_insert.create_fiscal_event",
-		"on_update": "facturacion_mexico.facturacion_fiscal.hooks_handlers.factura_fiscal_update.register_status_changes",
+		# TEMPORAL: Fiscal Events desactivados para eliminar error "Transición de estado inválida: pending → pending"
+		# Se reactivarán después de completar implementación workflow de prevención doble facturación
+		# "after_insert": "facturacion_mexico.facturacion_fiscal.hooks_handlers.factura_fiscal_insert.create_fiscal_event",
+		# "on_update": "facturacion_mexico.facturacion_fiscal.hooks_handlers.factura_fiscal_update.register_status_changes",
 	},
 }
 

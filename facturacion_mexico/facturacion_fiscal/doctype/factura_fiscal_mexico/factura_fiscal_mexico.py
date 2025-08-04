@@ -4,6 +4,64 @@ from frappe.model.document import Document
 from frappe.utils import flt, now_datetime
 
 
+def get_payment_entry_by_invoice(invoice_name):
+	"""
+	Función encapsulada para buscar Payment Entry por Sales Invoice.
+
+	Práctica recomendada por experto Frappe para consultas child tables.
+	Reutilizable en todo el sistema.
+
+	Args:
+		invoice_name (str): Nombre del Sales Invoice
+
+	Returns:
+		list: Lista de dict con name y mode_of_payment del Payment Entry
+	"""
+	return frappe.db.sql(
+		"""
+		SELECT pe.name, pe.mode_of_payment
+		FROM `tabPayment Entry` pe
+		WHERE pe.docstatus = 1
+		  AND EXISTS (
+			SELECT 1 FROM `tabPayment Entry Reference` per
+			WHERE per.parent = pe.name
+			  AND per.reference_doctype = %s
+			  AND per.reference_name = %s
+		  )
+		LIMIT 1
+	""",
+		("Sales Invoice", invoice_name),
+		as_dict=True,
+	)
+
+
+@frappe.whitelist()
+def get_payment_entry_for_javascript(invoice_name):
+	"""
+	Wrapper para JavaScript - buscar Payment Entry por Sales Invoice.
+
+	Permite a JavaScript usar la lógica SQL correcta sin problemas de sintaxis child tables.
+
+	Args:
+		invoice_name (str): Nombre del Sales Invoice
+
+	Returns:
+		dict: Resultado con payment entries o mensaje de error
+	"""
+	try:
+		payment_entries = get_payment_entry_by_invoice(invoice_name)
+		return {
+			"success": True,
+			"data": payment_entries,
+			"message": f"Encontrados {len(payment_entries)} Payment Entry para {invoice_name}",
+		}
+	except Exception as e:
+		frappe.log_error(
+			f"Error buscando Payment Entry para {invoice_name}: {e!s}", "Payment Entry Search Error"
+		)
+		return {"success": False, "data": [], "message": f"Error buscando Payment Entry: {e!s}"}
+
+
 class FacturaFiscalMexico(Document):
 	"""Documento principal para facturas fiscales de México."""
 
@@ -28,6 +86,9 @@ class FacturaFiscalMexico(Document):
 			frappe.throw(_("Sales Invoice {0} no existe").format(self.sales_invoice))
 
 		sales_invoice = frappe.get_doc("Sales Invoice", self.sales_invoice)
+
+		# PREVENCIÓN DOBLE FACTURACIÓN: Verificar que no exista otra Factura Fiscal timbrada
+		self.validate_no_duplicate_timbrado()
 
 		if sales_invoice.docstatus != 1:
 			frappe.throw(_("Sales Invoice debe estar enviada (submitted) para crear factura fiscal"))
@@ -104,6 +165,8 @@ class FacturaFiscalMexico(Document):
 
 		# Definir transiciones válidas
 		valid_transitions = {
+			None: ["Pendiente"],  # Documento nuevo puede ser Pendiente
+			"": ["Pendiente"],  # Estado vacío puede ir a Pendiente
 			"Pendiente": ["Timbrada", "Cancelada", "Error"],
 			"Timbrada": ["Cancelada"],
 			"Cancelada": [],  # Estado final
@@ -111,12 +174,64 @@ class FacturaFiscalMexico(Document):
 		}
 
 		if new_status not in valid_transitions.get(old_status, []):
-			frappe.throw(_("Transición de estado inválida: {0} → {1}").format(old_status, new_status))
+			frappe.throw(
+				_("Transición de estado inválida: {0} → {1}").format(old_status or "nuevo", new_status)
+			)
+
+	def validate_no_duplicate_timbrado(self):
+		"""Prevenir doble timbrado del mismo Sales Invoice."""
+		if not self.sales_invoice:
+			return
+
+		# Verificar campo directo en Sales Invoice
+		existing_fiscal_doc = frappe.db.get_value("Sales Invoice", self.sales_invoice, "fm_factura_fiscal_mx")
+
+		if existing_fiscal_doc and existing_fiscal_doc != self.name:
+			# Verificar si el documento existente está timbrado
+			existing_status = frappe.db.get_value(
+				"Factura Fiscal Mexico", existing_fiscal_doc, "fm_fiscal_status"
+			)
+
+			if existing_status == "Timbrada":
+				frappe.throw(
+					_("Sales Invoice {0} ya ha sido timbrada en documento {1}").format(
+						self.sales_invoice, existing_fiscal_doc
+					)
+				)
+
+		# Validación cruzada - buscar otras Facturas Fiscales timbradas
+		existing = frappe.get_all(
+			"Factura Fiscal Mexico",
+			filters={
+				"sales_invoice": self.sales_invoice,
+				"fm_fiscal_status": "Timbrada",
+				"name": ["!=", self.name or "new-doc"],
+			},
+		)
+
+		if existing:
+			frappe.throw(
+				_("Ya existe Factura Fiscal timbrada para Sales Invoice {0}: {1}").format(
+					self.sales_invoice, existing[0].name
+				)
+			)
 
 	def onload(self):
 		"""Ejecutar al cargar el documento."""
 		# Poblar datos de facturación al cargar
 		self.populate_billing_data()
+
+		# FASE 4: Auto-actualizar forma de pago al cargar documento existente
+		# Caso: Usuario agregó Payment Entry después de crear Factura Fiscal
+		if self.sales_invoice and not self.is_new():
+			old_forma_pago = self.fm_forma_pago_timbrado
+			self.auto_load_payment_method_from_sales_invoice()
+
+			# Si cambió, marcar como modificado para que el usuario pueda guardar
+			if old_forma_pago != self.fm_forma_pago_timbrado:
+				frappe.logger().info(
+					f"Auto-actualizada forma de pago en onload: {old_forma_pago} → {self.fm_forma_pago_timbrado}"
+				)
 
 	def before_save(self):
 		"""Ejecutar antes de guardar."""
@@ -141,6 +256,9 @@ class FacturaFiscalMexico(Document):
 
 		# Poblar datos de facturación desde customer
 		self.populate_billing_data()
+
+		# FASE 4: Auto-cargar forma de pago desde Payment Entry
+		self.auto_load_payment_method_from_sales_invoice()
 
 	def after_insert(self):
 		"""Ejecutar después de insertar."""
@@ -287,6 +405,54 @@ class FacturaFiscalMexico(Document):
 		self.save()
 		frappe.msgprint(_("Solicitud de cancelación enviada"))
 		return {"message": "Cancellation requested"}
+
+	def auto_load_payment_method_from_sales_invoice(self):
+		"""
+		FASE 4: Auto-carga mejorada de forma de pago desde Payment Entry
+
+		Para método PUE:
+		- Buscar Payment Entry relacionada al Sales Invoice
+		- Si existe: Cargar mode_of_payment automáticamente
+		- Si no existe: Dejar vacío para selección manual
+
+		Para método PPD:
+		- Siempre asignar "99 - Por definir"
+		"""
+		if not self.sales_invoice or not self.fm_payment_method_sat:
+			return
+
+		# Para PPD: Siempre asignar "99 - Por definir"
+		if self.fm_payment_method_sat == "PPD":
+			if not self.fm_forma_pago_timbrado or self.fm_forma_pago_timbrado != "99 - Por definir":
+				self.fm_forma_pago_timbrado = "99 - Por definir"
+				frappe.logger().info(f"Auto-asignado PPD: 99 - Por definir para {self.name}")
+			return
+
+		# Para PUE: Buscar Payment Entry relacionada
+		if self.fm_payment_method_sat == "PUE":
+			# Solo auto-cargar si el campo está vacío (no sobrescribir selección manual)
+			if self.fm_forma_pago_timbrado:
+				return
+
+			# Buscar Payment Entry relacionada (según especificación FASE 4)
+			# Usar función encapsulada con SQL directo (práctica recomendada)
+			payment_entries = get_payment_entry_by_invoice(self.sales_invoice)
+
+			if payment_entries:
+				payment_entry = payment_entries[0]
+				if payment_entry.mode_of_payment:
+					# Auto-cargar forma de pago desde Payment Entry
+					self.fm_forma_pago_timbrado = payment_entry.mode_of_payment
+					frappe.logger().info(
+						f"Auto-cargado PUE: {payment_entry.mode_of_payment} "
+						f"desde Payment Entry {payment_entry.name} para {self.name}"
+					)
+			else:
+				# PUE sin Payment Entry - dejar vacío para selección manual
+				frappe.logger().info(
+					f"PUE sin Payment Entry para Sales Invoice {self.sales_invoice} "
+					f"- usuario debe seleccionar manualmente"
+				)
 
 	def validate_cfdi_use(self):
 		"""Validar uso de CFDI - MIGRADO desde Sales Invoice."""
