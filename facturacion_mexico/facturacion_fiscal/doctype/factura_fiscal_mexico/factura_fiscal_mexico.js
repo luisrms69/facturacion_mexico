@@ -484,19 +484,19 @@ function setup_sales_invoice_filters(frm) {
 		console.log("🔍 DEBUG: Aplicando filtros Sales Invoice - Solo submitted sin timbrar");
 
 		return {
-			filters: {
+			filters: [
 				// 1. CRÍTICO: Solo Sales Invoice submitted (docstatus = 1)
 				// Evita facturas draft (0) y canceladas (2)
-				docstatus: 1,
+				["docstatus", "=", 1],
 
 				// 2. CRÍTICO: Sin Factura Fiscal Mexico ya asignada
 				// Evita doble facturación fiscal
-				fm_factura_fiscal_mx: ["in", ["", null]],
+				["fm_factura_fiscal_mx", "in", ["", null]],
 
 				// 3. Tener RFC del cliente (requerido para facturación fiscal)
 				// Sin RFC no se puede timbrar
-				tax_id: ["not in", ["", null]],
-			},
+				["tax_id", "!=", ""],
+			],
 		};
 	});
 

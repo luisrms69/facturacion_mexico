@@ -400,30 +400,146 @@ def validate_no_duplicate_timbrado(self):
 4. ✅ **Ejecución tests automatizados** - 3 nuevos tests PASSED validando funcionalidad
 5. ✅ **FASE 3 COMPLETADA** - Filtros Sales Invoice funcionando correctamente
 6. ✅ **FASE 4 COMPLETADA** - Auto-carga PUE mejorada con avisos de consistencia implementada
-7. 🎯 **ACTUAL: Correcciones Semgrep** - Fixing CI linter blocking errors (in progress)
-8. 🎯 **PRÓXIMO: Fase 5** - Sistema cancelación CFDI (workflow listo para continuar)
+7. ✅ **CORRECCIONES SEMGREP COMPLETADAS** - Violaciones linter corregidas y pushed
+8. 🚨 **CI ERRORES CRÍTICOS DETECTADOS** - Múltiples errores bloqueantes requieren corrección inmediata
+9. 🎯 **PRÓXIMO: Continuar con Fase 5** - Después de resolver errores CI críticos
 
-### **🚨 ESTADO ACTUAL - CORRECCIONES SEMGREP**
+### **🚨 ESTADO ACTUAL - TESTS CI BLOQUEADOS - REQUIERE EXPERTO**
 
-**PROBLEMA CI BLOQUEANTE:**
-- **Semgrep Rule**: `frappe-translation-js-splitting` 
-- **Error**: String concatenation inside `__()` translation functions
-- **Archivos**: `factura_fiscal_mexico.js` líneas 1710-1715, 1762-1766, 1784-1787
+**❌ PROBLEMA CRÍTICO: Currency Exchange Error en Tests**
 
-**PROGRESO CORRECCIONES:**
-- ✅ **Líneas 1710-1715**: String concatenation corregida → template parameters
-- ✅ **Líneas 1762-1766**: String concatenation corregida → template parameters  
-- ✅ **Líneas 1784-1787**: String concatenation corregida → simple string
-- 🔄 **Pending**: Commit + push correcciones
+**Error Principal:**
+```
+ValidationError: Exchange Rate is mandatory. Maybe Currency Exchange record is not created for MXN to None
+Party Account currency (None/INR) and document currency (MXN/USD) should be same
+```
+
+**Causa:** Los tests requieren configuración compleja de relaciones contables ERPNext:
+- Customer → Party Account → Receivable Account → Currency Exchange
+- Múltiples dependencias entre DocTypes de ERPNext core
+- Configuración específica de Chart of Accounts para testing
+
+**ERRORES CI DETECTADOS:**
+
+1. **❌ Currency Exchange Error** (CRÍTICO - BLOQUEANTE)
+   - **Error**: `ValidationError: Exchange Rate is mandatory. Maybe Currency Exchange record is not created for MXN to None`
+   - **Ubicación**: Tests de Sales Invoice creation en `test_layer2_cross_module_validation.py`
+   - **Status**: ❌ BLOQUEADO - Requiere experto en ERPNext accounting setup
+
+2. **✅ Campo fm_factura_fiscal_mx Faltante** (RESUELTO)
+   - **Error**: `Campo fm_factura_fiscal_mx debe existir en Sales Invoice`
+   - **Causa**: Campo eliminado accidentalmente durante revert de fixtures
+   - **Solución**: ✅ COMPLETADA - Campo creado usando método programático correcto
+   - **Método**: Custom field patch + export fixtures
+   - **Status**: ✅ RESUELTO - Test Layer1 ahora pasa exitosamente
+
+3. **✅ Filtros Sales Invoice** (CORREGIDO) 
+   - **Error**: `'docstatus", "=", 1' not found in JavaScript`
+   - **Causa**: Formato de filtros incorrecto (object vs array)
+   - **Solución**: ✅ COMPLETADA - Convertido a formato array correcto
+   - **Status**: ✅ CORREGIDO - Filtros usando sintaxis `["docstatus", "=", 1]`
+
+4. **❌ CodeQL Security Issues** (MEDIO)
+   - **Error**: Issues de seguridad detectados por análisis CodeQL  
+   - **Status**: ⏸️ PENDIENTE - Requiere revisión issues específicos
+
+**🚨 ACCIÓN REQUERIDA URGENTE:**
+
+**NECESITO EXPERTO EN ERPNext/Frappe PARA:**
+
+1. **Configurar correctamente Party Account setup en tests:**
+   - Crear Customer → Party Account → Receivable Account con currency matching
+   - Configurar Currency Exchange records para MXN ↔ Company currency
+   - Setup correcto de Chart of Accounts para testing environment
+
+2. **Resolver error específico:**
+   ```python
+   # Tests fallan en estas líneas:
+   sales_invoice = frappe.get_doc({
+       "doctype": "Sales Invoice",
+       "customer": "_Test Customer", 
+       "company": "_Test Company",
+       "currency": "MXN",  # ← AQUÍ FALLA
+       # ...
+   })
+   sales_invoice.insert()  # ← ValidationError
+   ```
+
+3. **Alternativas consideradas:**
+   - ✅ Cambiar currency a "USD" (workaround temporal) - pero pierde test coverage MXN
+   - ❌ Crear Party Account manualmente - falló por campos parent/parenttype faltantes
+   - ❌ Configurar Currency Exchange - persiste error Party Account mismatch
+
+**ARCHIVOS AFECTADOS:**
+- `/home/erpnext/frappe-bench/apps/facturacion_mexico/facturacion_mexico/tests/test_layer2_cross_module_validation.py`
+- Tests específicos: `test_timbrado_sales_invoice_to_factura_fiscal_integration`, `test_fase4_auto_load_payment_method_pue_with_payment_entry`
+
+**RESULTADO ACTUAL:** 
+- ✅ **14/16 tests PASSING** (progreso significativo)
+- ❌ **2 tests ERROR** - Currency/Party Account mismatch  
+- ❌ **CI BLOQUEADO** - No se puede continuar FASE 5
+
+**URGENCIA:** 🔴 **CRÍTICA** - Bloquea desarrollo FASE 5 (Sistema cancelación CFDI)
 
 **COMMITS REALIZADOS:**
-- `e3348b2`: FASE 4 - Auto-carga PUE mejorada implementada
-- `7616070`: CI FIXES - Correcciones compatibilidad entornos tests
-- 🔄 **Next**: Semgrep fixes commit
+- `5571e24`: SEMGREP FIXES - frappe-translation-js-splitting violations ✅
+- Campo fm_factura_fiscal_mx: Patch programático ejecutado exitosamente ✅
+- Filtros JS: Corregidos a formato array ✅
+- Currency MXN: Agregado a tests ⏸️ (pendiente validación)
 
-### **🚨 ERRORES RESTANTES CONOCIDOS**
+**PROGRESO ACTUAL:**
+- ✅ **Semgrep**: Todas las violaciones corregidas  
+- ✅ **Custom Field**: fm_factura_fiscal_mx recreado correctamente
+- ✅ **Filtros JS**: Sintaxis corregida para tests
+- ⏸️ **Currency**: Error MXN exchange rate pendiente
+- ⏸️ **CodeQL**: Security issues pendientes revisión
 
-- **Auto-compacting**: Cerca del límite, requiere manejo de contexto
+### **🚨 ANÁLISIS ERROR CRÍTICO CURRENCY EXCHANGE**
+
+**DIAGNÓSTICO DETALLADO:**
+- **Root Cause**: Tests crean Sales Invoice sin especificar currency correcta
+- **Frappe Requirement**: ERPNext require exchange rate MXN → Company currency 
+- **Error Specific**: `Exchange Rate is mandatory. Maybe Currency Exchange record is not created for MXN to None`
+- **Ubicación**: 2 tests en `test_layer2_cross_module_validation.py` líneas 673-684, 742-753
+
+**SOLUCIÓN EN PROGRESO:**
+- ✅ **Paso 1**: Currency "MXN" agregada a Sales Invoice creation en tests
+- ⏸️ **Paso 2**: Validar si funciona o requiere currency exchange record
+- ⏸️ **Paso 3**: Si falla, crear currency exchange record en test setup
+
+**MÉTODO APLICADO:**
+```python
+sales_invoice = frappe.get_doc({
+    "doctype": "Sales Invoice", 
+    "customer": "_Test Customer",
+    "company": "_Test Company",
+    "currency": "MXN",  # ← AGREGADO
+    "posting_date": frappe.utils.today(),
+    # ... resto de campos
+})
+```
+
+### **📋 RESUMEN TÉCNICO PARA CONTINUACIÓN POST-AUTOCOMPACT**
+
+**ARCHIVOS MODIFICADOS (STATUS ACTUAL):**
+1. ✅ `custom/fields/sales_invoice.py` - Custom field patch creado correctamente
+2. ✅ `patches.txt` - Patch registrado para migración  
+3. ✅ `factura_fiscal_mexico.js` - Filtros corregidos formato array
+4. ⏸️ `test_layer2_cross_module_validation.py` - Currency MXN agregada (pendiente test)
+
+**COMANDOS EJECUTADOS EXITOSAMENTE:**
+- `bench execute facturacion_mexico.custom.fields.sales_invoice.create_custom_fields` ✅
+- `bench export-fixtures --app facturacion_mexico` ✅  
+- Test Layer1: 5/5 tests PASSED ✅
+
+**PRÓXIMOS PASOS POST-AUTOCOMPACT:**
+1. Verificar si currency MXN fix resuelve tests Layer2
+2. Si persiste error exchange rate, crear Currency Exchange record en test setup
+3. Revisar CodeQL security issues específicos
+4. Una vez CI limpio, continuar con **FASE 5: Sistema cancelación CFDI**
+
+**ERRORES RESTANTES CONOCIDOS:**
+- **Auto-compacting**: Límite alcanzado - documento actualizado para continuación
 
 ### **⏸️ SISTEMA FISCAL EVENTS TEMPORALMENTE DESACTIVADO**
 
