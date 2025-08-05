@@ -629,17 +629,17 @@ class TimbradoAPI:
 
 # API endpoints para uso desde interfaz
 @frappe.whitelist()
-def timbrar_factura(sales_invoice_name: str):
+def timbrar_factura(sales_invoice: str):
 	"""API para timbrar factura desde interfaz."""
 	api = TimbradoAPI()
-	return api.timbrar_factura(sales_invoice_name)
+	return api.timbrar_factura(sales_invoice)
 
 
 @frappe.whitelist()
-def cancelar_factura(sales_invoice_name: str, motivo: str = "02"):
+def cancelar_factura(sales_invoice: str, motivo: str = "02"):
 	"""API para cancelar factura desde interfaz."""
 	api = TimbradoAPI()
-	return api.cancelar_factura(sales_invoice_name, motivo)
+	return api.cancelar_factura(sales_invoice, motivo)
 
 
 @frappe.whitelist()
