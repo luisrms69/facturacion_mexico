@@ -57,7 +57,7 @@ class TestLayer3MultiSucursalWorkflows(unittest.TestCase):
             if fiscal_fields:
                 # Verificar workflow: campos críticos para configuración fiscal
                 field_names = [f.fieldname for f in fiscal_fields]
-                workflow_fields = ["fm_enable_fiscal", "fm_lugar_expedicion", "fm_regimen_fiscal"]
+                workflow_fields = ["fm_enable_fiscal", "fm_lugar_expedicion"]  # fm_regimen_fiscal migrado a tax_category nativo
 
                 workflow_ready = any(field in field_names for field in workflow_fields)
                 self.assertTrue(workflow_ready or len(fiscal_fields) > 0, "Workflow fiscal debe tener campos base")

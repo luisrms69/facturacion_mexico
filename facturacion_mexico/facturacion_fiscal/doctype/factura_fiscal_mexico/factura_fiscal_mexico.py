@@ -739,6 +739,7 @@ class FacturaFiscalMexico(Document):
 			self.fm_cp_cliente = "⚠️ SELECCIONA UN CLIENTE"
 			self.fm_email_facturacion = "⚠️ SELECCIONA UN CLIENTE"
 			self.fm_rfc_cliente = "⚠️ SELECCIONA UN CLIENTE"
+			self.fm_tax_system = "⚠️ SELECCIONA UN CLIENTE"
 			self.fm_direccion_principal_link = ""
 			self.fm_direccion_principal_display = "⚠️ SELECCIONA UN CLIENTE"
 			return
@@ -751,6 +752,12 @@ class FacturaFiscalMexico(Document):
 			# RFC desde Tax ID
 			self.fm_rfc_cliente = customer_doc.tax_id or "⚠️ FALTA RFC EN CUSTOMER"
 			# RFC asignado desde tax_id
+
+			# Tax System desde Tax Category (MIGRACIÓN ARQUITECTURAL)
+			self.fm_tax_system = (
+				self._extract_tax_system_from_customer(customer_doc) or "⚠️ FALTA TAX CATEGORY EN CUSTOMER"
+			)
+			# Tax system code extraído desde customer.tax_category
 
 			# Buscar dirección principal
 			primary_address = self._get_primary_address()
@@ -780,6 +787,7 @@ class FacturaFiscalMexico(Document):
 			self.fm_cp_cliente = "❌ ERROR AL OBTENER CP"
 			self.fm_email_facturacion = "❌ ERROR AL OBTENER EMAIL"
 			self.fm_rfc_cliente = "❌ ERROR AL OBTENER RFC"
+			self.fm_tax_system = "❌ ERROR AL OBTENER TAX SYSTEM"
 			self.fm_direccion_principal_link = ""
 			self.fm_direccion_principal_display = f"❌ Error: {e!s}"
 
@@ -877,3 +885,35 @@ class FacturaFiscalMexico(Document):
 		# 3. AMARILLO: Datos completos pero no validados
 		self._validation_status = "yellow"
 		self._validation_message = "🟡 LISTO PARA VALIDAR RFC/CSF"
+
+	def _extract_tax_system_from_customer(self, customer_doc):
+		"""
+		Extraer código de régimen fiscal desde Tax Category del cliente.
+
+		MIGRACIÓN ARQUITECTURAL: fm_regimen_fiscal → tax_category
+		Tax Category tiene formato "601 - General de Ley Personas Morales"
+		Extraer código "601" para FacturAPI.
+
+		Args:
+			customer_doc: Documento Customer
+
+		Returns:
+			str: Código del régimen fiscal (ej: "601") o None si no disponible
+		"""
+		if not customer_doc or not hasattr(customer_doc, "tax_category"):
+			return None
+
+		tax_category = customer_doc.tax_category
+		if not tax_category:
+			return None
+
+		# Tax Category tiene formato "601 - General de Ley Personas Morales"
+		# Extraer código "601"
+		if " - " in tax_category:
+			code = tax_category.split(" - ")[0].strip()
+			# Validar que el código sea numérico SAT (3 dígitos)
+			if code.isdigit() and len(code) == 3:
+				return code
+
+		# Si no tiene formato esperado, retornar el valor completo limpio
+		return tax_category.strip() if tax_category else None

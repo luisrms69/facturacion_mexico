@@ -202,7 +202,7 @@ function update_fiscal_data_from_customer(frm) {
 			name: frm.doc.customer,
 			fields: [
 				"fm_uso_cfdi_default",
-				"fm_regimen_fiscal_customer",
+				"tax_category",
 				"fm_codigo_postal_customer",
 				"fm_rfc_customer",
 				"tax_id", // RFC principal del customer
@@ -219,11 +219,8 @@ function update_fiscal_data_from_customer(frm) {
 				}
 
 				// Actualizar otros campos fiscales del customer si existen (legacy)
-				if (r.message.fm_regimen_fiscal_customer) {
-					frm.set_value(
-						"fm_regimen_fiscal_customer",
-						r.message.fm_regimen_fiscal_customer
-					);
+				if (r.message.tax_category) {
+					frm.set_value("fm_regimen_fiscal_customer", r.message.tax_category);
 				}
 				if (r.message.fm_codigo_postal_customer) {
 					frm.set_value(
@@ -353,9 +350,33 @@ function add_fiscal_buttons(frm) {
 		return;
 	}
 
-	if (frm.doc.docstatus === 1 && frm.doc.fm_fiscal_status === "Pendiente") {
-		// Botón FacturAPI: Timbrar solo cuando documento está submitted
-		frm.add_custom_button(__("Timbrar con FacturAPI"), function () {
+	if (
+		frm.doc.docstatus === 1 &&
+		(frm.doc.fm_fiscal_status === "Pendiente" || frm.doc.fm_fiscal_status === "Error")
+	) {
+		// VALIDACIÓN CRÍTICA: tax_system es OBLIGATORIO para timbrado
+		if (
+			!frm.doc.fm_tax_system ||
+			frm.doc.fm_tax_system.startsWith("⚠️") ||
+			frm.doc.fm_tax_system.startsWith("❌")
+		) {
+			// NO mostrar botón, mostrar mensaje explicativo
+			frm.dashboard.add_comment(
+				__(
+					"Régimen Fiscal requerido: Configure Tax Category en el cliente para habilitar timbrado"
+				),
+				"red",
+				true
+			);
+			return; // No agregar botón de timbrado
+		}
+
+		// Tax system válido → Mostrar botón
+		const button_text =
+			frm.doc.fm_fiscal_status === "Error"
+				? __("Reintentar Timbrado")
+				: __("Timbrar con FacturAPI");
+		frm.add_custom_button(button_text, function () {
 			timbrar_factura(frm);
 		}).addClass("btn-primary");
 	}
@@ -399,11 +420,17 @@ function timbrar_factura(frm) {
 					});
 					frm.reload_doc();
 				} else {
+					// TODO: Verificar por qué algunos errores específicos (ej: customer.address.country)
+					// muestran mensaje técnico en lugar del mensaje procesado por _process_pac_error()
 					frappe.msgprint({
 						title: __("Error en Timbrado"),
-						message: r.message ? r.message.error : __("Error desconocido"),
+						message: r.message
+							? r.message.message || r.message.error
+							: __("Error desconocido"),
 						indicator: "red",
 					});
+					// Auto-refresh para mostrar estado actualizado (failed)
+					frm.reload_doc();
 				}
 			},
 		});
@@ -881,6 +908,13 @@ function control_field_visibility_by_status(frm) {
 	// NUEVA FUNCIONALIDAD: Control de lugar_expedicion basado en multi-sucursal
 	control_multisucursal_field_visibility(frm);
 
+	// PROTECCIÓN: Ocultar botón Cancel del DocType cuando esté "Timbrada" (proteger facturas reales del SAT)
+	if (fiscal_status === "Timbrada") {
+		// Ocultar botón Cancel de Frappe para proteger facturas timbradas en el SAT
+		frm.page.clear_secondary_action();
+		// Solo permitir botón Cancel personalizado de FacturAPI (si se implementa posteriormente)
+	}
+
 	// Lógica de visibilidad según estado
 	if (fiscal_status === "Pendiente") {
 		// ESTADO PENDIENTE: Ocultar todo lo que viene después del timbrado
@@ -903,8 +937,8 @@ function control_field_visibility_by_status(frm) {
 		show_fields(frm, cancellation_fields);
 		show_section(frm, "section_break_archivos"); // Mostrar Archivos Fiscales
 		show_section(frm, "section_break_cancelacion"); // Mostrar Cancelación
-	} else if (fiscal_status === "Error") {
-		// ESTADO ERROR: Mostrar campos básicos, ocultar respuesta y cancelación
+	} else if (fiscal_status === "Error" || fiscal_status === "failed") {
+		// ESTADO ERROR/FAILED: Mostrar campos básicos, ocultar respuesta y cancelación
 		hide_fields(frm, facturapi_response_fields);
 		hide_fields(frm, fiscal_files_fields);
 		hide_fields(frm, cancellation_fields);

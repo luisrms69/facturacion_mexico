@@ -67,7 +67,7 @@ class TestLayer1BasicInfrastructure(unittest.TestCase):
 
         customer_field_names = [f.fieldname for f in customer_fields]
         # fm_rfc eliminado - ahora se usa tax_id estándar de ERPNext
-        expected_customer_fields = ["fm_regimen_fiscal", "fm_uso_cfdi_default"]
+        expected_customer_fields = ["fm_uso_cfdi_default"]  # fm_regimen_fiscal migrado a tax_category nativo
 
         for field in expected_customer_fields:
             self.assertIn(field, customer_field_names,

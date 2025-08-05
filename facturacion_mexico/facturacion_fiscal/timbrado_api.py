@@ -4,6 +4,8 @@ import frappe
 from frappe import _
 from frappe.utils import flt, now_datetime
 
+from facturacion_mexico.validaciones.api import _normalize_company_name_for_facturapi
+
 from .api_client import get_facturapi_client
 from .doctype.facturapi_response_log.facturapi_response_log import FacturAPIResponseLog
 from .doctype.fiscal_event_mx.fiscal_event_mx import FiscalEventMX
@@ -71,14 +73,21 @@ class TimbradoAPI:
 			# Preparar datos para FacturAPI
 			invoice_data = self._prepare_facturapi_data(sales_invoice, factura_fiscal)
 
-			# Crear evento fiscal
+			# Crear evento fiscal - SIEMPRE NUEVO evento para cada intento
+
 			event_doc = FiscalEventMX.create_event(
 				event_type="stamp",
 				reference_doctype="Factura Fiscal Mexico",
 				reference_name=factura_fiscal.name,
-				event_data={"sales_invoice": sales_invoice_name},
+				event_data={
+					"sales_invoice": sales_invoice_name,
+					"attempt_timestamp": frappe.utils.now(),
+					"attempt_user": frappe.session.user,
+				},
 				status="pending",
 			)
+			if event_doc is None:
+				raise Exception("No se pudo crear evento fiscal - create_event retornó None")
 
 			# Llamar a FacturAPI
 			response = self.client.create_invoice(invoice_data)
@@ -94,9 +103,11 @@ class TimbradoAPI:
 			}
 
 		except Exception as e:
-			# Marcar evento como fallido
-			if "event_doc" in locals():
+			# Marcar evento como fallido - DEFENSIVE PROGRAMMING
+			if "event_doc" in locals() and event_doc is not None:
 				FiscalEventMX.mark_event_failed(event_doc.name, str(e))
+			else:
+				frappe.logger().error("event_doc no existe o es None - no se puede marcar como fallido")
 
 			# Procesar error específico del PAC
 			error_details = self._process_pac_error(e)
@@ -119,21 +130,38 @@ class TimbradoAPI:
 					"Sales Invoice", sales_invoice_name, "fm_factura_fiscal_mx"
 				)
 
+			# Crear log de respuesta FacturAPI - INDEPENDIENTE de FiscalEventMX
 			if factura_fiscal_name:
-				FacturAPIResponseLog.create_log(
-					factura_fiscal_mexico=factura_fiscal_name,
-					operation_type="Timbrado",
-					success=False,
-					error_message=error_details["user_message"],
-					status_code=error_details.get("status_code", "500"),
-				)
+				try:
+					# Determinar código de error específico (máximo 10 caracteres)
+					error_str = str(e)
+					if "customer.tax_system_required" in error_str:
+						internal_status_code = "VAL_ERROR"  # 9 caracteres
+					elif "customer.address_required" in error_str:
+						internal_status_code = "VAL_ERROR"  # 9 caracteres
+					elif "customer.address.country" in error_str:
+						internal_status_code = "VAL_ERROR"  # 9 caracteres
+					else:
+						internal_status_code = error_details.get("status_code", "500")  # PAC real
+
+					FacturAPIResponseLog.create_log(
+						factura_fiscal_mexico=factura_fiscal_name,
+						operation_type="Timbrado",
+						success=False,
+						error_message=error_str,
+						status_code=internal_status_code,
+					)
+				except Exception as log_error:
+					frappe.log_error(
+						f"Error creating FacturAPI Response Log: {log_error}", "FacturAPI Log Error"
+					)
 
 			return {
 				"success": False,
-				"error": str(e),
-				"user_error": error_details["user_message"],
+				"error": str(e),  # ERROR TÉCNICO ORIGINAL
+				"user_error": error_details["user_message"],  # MENSAJE AMIGABLE PARA UX
 				"corrective_action": error_details["corrective_action"],
-				"message": error_details["user_message"],
+				"message": error_details["user_message"],  # UI usa este para mostrar al usuario
 			}
 
 	def _validate_invoice_for_timbrado(self, sales_invoice):
@@ -156,9 +184,26 @@ class TimbradoAPI:
 		if not customer_rfc:
 			frappe.throw(_("El cliente debe tener RFC configurado en Tax ID"))
 
-		# Verificar uso de CFDI
-		if not sales_invoice.fm_cfdi_use:
-			frappe.throw(_("Se requiere Uso de CFDI para timbrar"))
+		# NUEVA VALIDACIÓN: País del cliente ANTES del timbrado
+		primary_address = self._get_customer_primary_address(customer)
+		if primary_address:
+			country = primary_address.get("country")
+			if not self._is_valid_country_for_facturapi(country):
+				frappe.throw(
+					_(
+						"ERROR FISCAL: El país '{0}' en la dirección del cliente no es reconocido por el sistema. "
+						"Para facturación fiscal mexicana, configure el campo Country como: 'México', 'Mexico', 'MEX' o 'MX'. "
+						"Países soportados: México, Estados Unidos, Canada. "
+						"Corrija el campo Country en la dirección primaria del cliente."
+					).format(country or "Sin especificar"),
+					title=_("País No Soportado para Timbrado"),
+					exc=frappe.ValidationError,
+				)
+
+		# Verificar uso de CFDI - validación temprana en datos fiscales
+		fiscal_doc = self._get_factura_fiscal_doc(sales_invoice)
+		if fiscal_doc and not fiscal_doc.get("fm_cfdi_use"):
+			frappe.throw(_("Se requiere configurar Uso de CFDI en los datos fiscales"))
 
 		# Verificar que tenga items
 		if not sales_invoice.items:
@@ -175,7 +220,7 @@ class TimbradoAPI:
 		factura_fiscal.customer = sales_invoice.customer
 		factura_fiscal.total_amount = sales_invoice.grand_total
 		factura_fiscal.currency = sales_invoice.currency
-		factura_fiscal.fm_fiscal_status = "draft"
+		factura_fiscal.fm_fiscal_status = "Pendiente"
 		factura_fiscal.save()
 
 		# Actualizar referencia en Sales Invoice
@@ -192,10 +237,26 @@ class TimbradoAPI:
 
 		# Datos del cliente
 		customer_data = {
-			"legal_name": customer.customer_name,
+			"legal_name": _normalize_company_name_for_facturapi(
+				customer.customer_name
+			),  # CFDI 4.0: función idéntica a validación RFC/CSF
 			"tax_id": customer.get("tax_id"),
-			"email": customer.email_id or "cliente@example.com",
+			"email": customer.email_id or self.settings.get("customer_email_fallback"),
 		}
+
+		# TODO: Email fallback configurable desde Facturacion Mexico Settings
+		# Si no hay email del cliente ni configurado en settings, email queda None (sin envío correos)
+
+		# MIGRACIÓN ARQUITECTURAL: Tax system OBLIGATORIO desde Factura Fiscal
+		tax_system_code = self._get_tax_system_for_timbrado(factura_fiscal, customer)
+		if not tax_system_code:
+			# ERROR CRÍTICO: Sin tax_system no se puede enviar a FacturAPI
+			raise Exception(
+				f"customer.tax_system_required: El cliente {customer.customer_name} no tiene Tax Category configurada. "
+				f"Configure Tax Category en el cliente para que se popule fm_tax_system en Factura Fiscal Mexico."
+			)
+
+		customer_data["tax_system"] = tax_system_code
 
 		# VALIDACIÓN CRÍTICA: Dirección del cliente es REQUERIDA por PAC
 		primary_address = self._get_customer_primary_address(customer)
@@ -212,7 +273,7 @@ class TimbradoAPI:
 			"city": primary_address.get("city") or "",
 			"municipality": primary_address.get("city") or "",
 			"state": primary_address.get("state") or "",
-			"country": primary_address.get("country") or "MEX",
+			"country": self._convert_country_to_iso3(primary_address.get("country")) or "MEX",
 			"zip": primary_address.get("pincode") or "",
 		}
 
@@ -380,7 +441,9 @@ class TimbradoAPI:
 		# Actualizar Factura Fiscal
 		factura_fiscal.uuid = response.get("uuid")
 		factura_fiscal.facturapi_id = response.get("id")
-		factura_fiscal.fm_fiscal_status = "stamped"
+		factura_fiscal.fm_fiscal_status = (
+			"Timbrada"  # CORRECCIÓN: Usar valor en español que espera el DocType
+		)
 		factura_fiscal.stamped_at = now_datetime()
 		factura_fiscal.save()
 
@@ -470,7 +533,7 @@ class TimbradoAPI:
 			response = self.client.cancel_invoice(factura_fiscal.facturapi_id, motivo)
 
 			# Procesar respuesta exitosa
-			factura_fiscal.fm_fiscal_status = "cancelled"
+			factura_fiscal.fm_fiscal_status = "Cancelada"
 			factura_fiscal.cancelled_at = now_datetime()
 			factura_fiscal.save()
 
@@ -500,6 +563,9 @@ class TimbradoAPI:
 
 			frappe.logger().error(f"Error cancelando factura {sales_invoice_name}: {e!s}")
 
+			# Procesar error específico del PAC
+			error_details = self._process_pac_error(e)
+
 			# Crear log de error FacturAPI para cancelación
 			if "factura_fiscal" in locals():
 				FacturAPIResponseLog.create_log(
@@ -507,7 +573,7 @@ class TimbradoAPI:
 					operation_type="Solicitud Cancelación",
 					success=False,
 					error_message=str(e)[:500],  # Truncar mensaje largo
-					status_code="500",
+					status_code=error_details.get("status_code", "500"),
 				)
 
 			return {"success": False, "error": str(e), "message": f"Error al cancelar factura: {e!s}"}
@@ -516,7 +582,33 @@ class TimbradoAPI:
 		"""Procesar errores del PAC y generar mensajes útiles para el usuario."""
 		error_str = str(error).lower()
 
-		# Errores específicos de customer.address
+		# Intentar extraer status code de diferentes tipos de errores
+		status_code = "500"  # default
+		try:
+			# Si es HTTPError o similar, intentar extraer status code
+			if hasattr(error, "response") and hasattr(error.response, "status_code"):
+				status_code = str(error.response.status_code)
+			elif "400" in str(error):
+				status_code = "400"
+			elif "401" in str(error):
+				status_code = "401"
+			elif "403" in str(error):
+				status_code = "403"
+			elif "404" in str(error):
+				status_code = "404"
+		except Exception:
+			pass
+
+		# Errores específicos de país (más específico primero)
+		# NOTA: Este error NO debería ocurrir ahora gracias a la validación preventiva
+		if "customer.address.country" in error_str and "3 characters" in error_str:
+			return {
+				"user_message": "ERROR FISCAL: País del cliente no válido. La validación previa falló - esto indica un error en el sistema.",
+				"corrective_action": "Contactar soporte técnico - la validación previa debió prevenir este error",
+				"status_code": status_code,
+			}
+
+		# Errores específicos de customer.address (dirección primaria)
 		if "customer.address" in error_str or "address_required" in error_str:
 			# Extraer nombre del cliente del mensaje si está disponible
 			customer_name = "el cliente"
@@ -529,6 +621,7 @@ class TimbradoAPI:
 			return {
 				"user_message": f"ERROR FISCAL: {customer_name} debe tener una dirección primaria configurada para el timbrado fiscal.",
 				"corrective_action": f"Ir a Customer '{customer_name}' → Addresses → Agregar dirección primaria con todos los campos requeridos",
+				"status_code": status_code,
 			}
 
 		# Errores de RFC
@@ -536,6 +629,7 @@ class TimbradoAPI:
 			return {
 				"user_message": "ERROR FISCAL: RFC del cliente inválido o faltante. Verifique que el campo Tax ID del cliente tenga un RFC válido.",
 				"corrective_action": "Ir a Customer → Tax ID → Configurar RFC válido",
+				"status_code": status_code,
 			}
 
 		# Errores de productos SAT
@@ -543,6 +637,7 @@ class TimbradoAPI:
 			return {
 				"user_message": "ERROR FISCAL: Algunos productos no tienen configurada la Clave de Producto/Servicio SAT requerida.",
 				"corrective_action": "Ir a Item → Configurar Clave Producto/Servicio SAT",
+				"status_code": status_code,
 			}
 
 		# Errores de unidades de medida
@@ -550,6 +645,7 @@ class TimbradoAPI:
 			return {
 				"user_message": "ERROR FISCAL: Algunas unidades de medida no tienen configurada la Clave de Unidad SAT requerida.",
 				"corrective_action": "Ir a UOM → Configurar Clave Unidad SAT",
+				"status_code": status_code,
 			}
 
 		# Errores de uso CFDI
@@ -557,6 +653,7 @@ class TimbradoAPI:
 			return {
 				"user_message": "ERROR FISCAL: Uso CFDI faltante o inválido. Configure el Uso CFDI en la factura.",
 				"corrective_action": "Configurar campo 'Uso CFDI' en la factura",
+				"status_code": status_code,
 			}
 
 		# Errores de API key o autenticación
@@ -564,12 +661,14 @@ class TimbradoAPI:
 			return {
 				"user_message": "ERROR DE AUTENTICACIÓN: Problema con las credenciales del PAC. Verifique la configuración de API keys.",
 				"corrective_action": "Verificar Facturacion Mexico Settings → API Keys",
+				"status_code": status_code,
 			}
 
 		# Error genérico
 		return {
 			"user_message": f"ERROR FISCAL: {str(error)[:200]}...",
 			"corrective_action": "Revisar los datos fiscales de la factura y el cliente",
+			"status_code": status_code,
 		}
 
 	# Método _log_timbrado_attempt eliminado - funcionalidad duplicada con FacturAPI Response Log
@@ -626,20 +725,132 @@ class TimbradoAPI:
 			frappe.logger().error(f"Error obteniendo dirección del customer {customer.name}: {e!s}")
 			return None
 
+	def _is_valid_country_for_facturapi(self, country):
+		"""Validar si podemos convertir el país para FacturAPI."""
+		return self._convert_country_to_iso3(country) is not None
+
+	def _convert_country_to_iso3(self, country):
+		"""Convertir país a código ISO3 para FacturAPI."""
+		if not country:
+			return None
+
+		country_mapping = {
+			# Nombres en español
+			"México": "MEX",
+			"Mexico": "MEX",
+			"méxico": "MEX",
+			"mexico": "MEX",
+			# Códigos ISO alpha-2 a alpha-3
+			"MX": "MEX",
+			# Códigos ya correctos (3 caracteres)
+			"MEX": "MEX",
+			# Otros países comunes
+			"Estados Unidos": "USA",
+			"United States": "USA",
+			"US": "USA",
+			"USA": "USA",
+			"Canada": "CAN",
+			"Canadá": "CAN",
+			"CA": "CAN",
+			"CAN": "CAN",
+		}
+
+		return country_mapping.get(country.strip())
+
+	def _get_tax_system_for_timbrado(self, factura_fiscal, customer):
+		"""
+		Obtener tax_system ESTRICTAMENTE desde Factura Fiscal.
+
+		MIGRACIÓN ARQUITECTURAL: Solo usar fm_tax_system de Factura Fiscal Mexico.
+		NO hay fallback a customer.tax_category directamente.
+
+		Args:
+			factura_fiscal: Documento Factura Fiscal Mexico
+			customer: Documento Customer (solo para logging)
+
+		Returns:
+			str: tax_system code (ej: "601") o None si no disponible
+		"""
+		# ÚNICA FUENTE: Campo fm_tax_system en Factura Fiscal Mexico
+		if hasattr(factura_fiscal, "fm_tax_system"):
+			raw_value = factura_fiscal.fm_tax_system
+
+			# CORRECCIÓN: Detectar None (null) y repoblar automáticamente ANTES de validaciones
+			if raw_value is None:
+				# Intentar repoblar desde customer.tax_category
+				customer = frappe.get_doc("Customer", factura_fiscal.customer)
+				if customer and customer.tax_category:
+					# Extraer código del tax_category (formato: "601 - Descripción" -> "601")
+					tax_code = customer.tax_category.split(" - ")[0].strip()
+
+					# Actualizar el campo en la Factura Fiscal
+					factura_fiscal.fm_tax_system = tax_code
+					factura_fiscal.save()
+					# Manual commit required: Auto-repopulation must persist immediately during timbrado process
+					# to ensure data correction survives if subsequent timbrado operations fail
+					frappe.db.commit()  # nosemgrep
+
+					raw_value = tax_code
+				else:
+					return None
+
+			# Validación normal para valores reales (incluyendo valores repoblados)
+			if raw_value:
+				# Limpiar posibles mensajes de error como "⚠️ FALTA TAX CATEGORY"
+				tax_system = raw_value.strip()
+
+				if not tax_system.startswith("⚠️") and not tax_system.startswith("❌"):
+					# Validar rango SAT antes de retornar
+					if self._validate_tax_system_sat_range(tax_system):
+						return tax_system
+					else:
+						# Tax system fuera de rango SAT válido - log para debugging
+						frappe.logger().warning(
+							f"Tax system {tax_system} fuera de rango SAT válido (600-630) para factura {factura_fiscal.name}"
+						)
+
+		return None
+
+	def _validate_tax_system_sat_range(self, tax_system_code):
+		"""
+		Validar que el código de régimen fiscal sea válido según SAT.
+
+		CAMBIO 4: Validación de rango 600-630 para regímenes fiscales SAT.
+
+		Args:
+			tax_system_code (str): Código como "601"
+
+		Returns:
+			bool: True si válido, False si inválido
+		"""
+		if not tax_system_code:
+			return False
+
+		try:
+			# Convertir a número para validación de rango
+			code_num = int(tax_system_code.strip())
+
+			# Validar rango SAT: 600-630 (regímenes fiscales válidos)
+			return 600 <= code_num <= 630
+
+		except (ValueError, TypeError):
+			# No es número válido
+			return False
+
 
 # API endpoints para uso desde interfaz
 @frappe.whitelist()
-def timbrar_factura(sales_invoice_name: str):
+def timbrar_factura(sales_invoice: str):
 	"""API para timbrar factura desde interfaz."""
 	api = TimbradoAPI()
-	return api.timbrar_factura(sales_invoice_name)
+	return api.timbrar_factura(sales_invoice)
 
 
 @frappe.whitelist()
-def cancelar_factura(sales_invoice_name: str, motivo: str = "02"):
+def cancelar_factura(sales_invoice: str, motivo: str = "02"):
 	"""API para cancelar factura desde interfaz."""
 	api = TimbradoAPI()
-	return api.cancelar_factura(sales_invoice_name, motivo)
+	return api.cancelar_factura(sales_invoice, motivo)
 
 
 @frappe.whitelist()

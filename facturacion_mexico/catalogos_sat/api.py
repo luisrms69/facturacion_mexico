@@ -60,12 +60,21 @@ def get_regimen_fiscal_for_customer(customer_name: str) -> list[dict[str, Any]]:
 	"""
 	Obtener regímenes fiscales válidos para un cliente específico.
 
+	DEPRECATED: Esta función parece no estar en uso. Migrado por precaución.
+	TODO: Verificar si se puede eliminar o si hay dependencias ocultas.
+
 	Args:
 	        customer_name: Nombre del cliente
 
 	Returns:
 	        Lista de regímenes fiscales válidos según el tipo de cliente
 	"""
+	# DEPRECATED WARNING: Log para detectar uso en desarrollo
+	frappe.logger().warning(
+		f"DEPRECATED API called: get_regimen_fiscal_for_customer({customer_name}). "
+		"This function may not be in use. Consider removing if no dependencies found."
+	)
+
 	try:
 		# Obtener datos del cliente
 		customer = frappe.get_doc("Customer", customer_name)
@@ -90,12 +99,18 @@ def get_regimen_fiscal_for_customer(customer_name: str) -> list[dict[str, Any]]:
 			order_by="code",
 		)
 
-		# Si el cliente tiene régimen por defecto, marcarlo
-		if customer.fm_regimen_fiscal:
-			for regimen in regimenes_fiscales:
-				if regimen.name == customer.fm_regimen_fiscal:
-					regimen["is_default"] = True
-					break
+		# MIGRACIÓN ARQUITECTURAL: fm_regimen_fiscal → tax_category
+		# Si el cliente tiene tax_category configurada, marcar régimen por defecto
+		if customer.tax_category:
+			# Tax Category formato: "601 - General de Ley Personas Morales"
+			# Extraer código para comparar con regimenes_fiscales
+			tax_category_parts = customer.tax_category.split(" - ")
+			if len(tax_category_parts) >= 2:
+				tax_code = tax_category_parts[0].strip()
+				for regimen in regimenes_fiscales:
+					if regimen.code == tax_code:
+						regimen["is_default"] = True
+						break
 
 		return regimenes_fiscales
 

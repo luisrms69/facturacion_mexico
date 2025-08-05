@@ -20,16 +20,10 @@ def create_fields():
 			"collapsible": 1,
 		},
 		{
-			"fieldname": "fm_regimen_fiscal",
-			"label": "Régimen Fiscal",
-			"fieldtype": "Data",
-			"insert_after": "fm_informacion_fiscal_mx_section",
-		},
-		{
 			"fieldname": "fm_uso_cfdi_default",
 			"label": "Uso CFDI por Defecto",
 			"fieldtype": "Data",
-			"insert_after": "fm_regimen_fiscal",
+			"insert_after": "fm_informacion_fiscal_mx_section",
 		},
 		{
 			"fieldname": "fm_column_break_validacion_sat",
