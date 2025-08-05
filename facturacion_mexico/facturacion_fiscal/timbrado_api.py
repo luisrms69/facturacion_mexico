@@ -786,7 +786,9 @@ class TimbradoAPI:
 					# Actualizar el campo en la Factura Fiscal
 					factura_fiscal.fm_tax_system = tax_code
 					factura_fiscal.save()
-					frappe.db.commit()
+					# Manual commit required: Auto-repopulation must persist immediately during timbrado process
+					# to ensure data correction survives if subsequent timbrado operations fail
+					frappe.db.commit()  # nosemgrep
 
 					raw_value = tax_code
 				else:
