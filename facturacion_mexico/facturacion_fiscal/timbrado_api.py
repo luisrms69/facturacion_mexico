@@ -156,9 +156,10 @@ class TimbradoAPI:
 		if not customer_rfc:
 			frappe.throw(_("El cliente debe tener RFC configurado en Tax ID"))
 
-		# Verificar uso de CFDI
-		if not sales_invoice.fm_cfdi_use:
-			frappe.throw(_("Se requiere Uso de CFDI para timbrar"))
+		# Verificar uso de CFDI - validación temprana en datos fiscales
+		fiscal_doc = self._get_factura_fiscal_doc(sales_invoice)
+		if fiscal_doc and not fiscal_doc.get("fm_cfdi_use"):
+			frappe.throw(_("Se requiere configurar Uso de CFDI en los datos fiscales"))
 
 		# Verificar que tenga items
 		if not sales_invoice.items:
