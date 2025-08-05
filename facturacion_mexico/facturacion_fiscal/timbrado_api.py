@@ -71,14 +71,21 @@ class TimbradoAPI:
 			# Preparar datos para FacturAPI
 			invoice_data = self._prepare_facturapi_data(sales_invoice, factura_fiscal)
 
-			# Crear evento fiscal
+			# Crear evento fiscal - SIEMPRE NUEVO evento para cada intento
+
 			event_doc = FiscalEventMX.create_event(
 				event_type="stamp",
 				reference_doctype="Factura Fiscal Mexico",
 				reference_name=factura_fiscal.name,
-				event_data={"sales_invoice": sales_invoice_name},
+				event_data={
+					"sales_invoice": sales_invoice_name,
+					"attempt_timestamp": frappe.utils.now(),
+					"attempt_user": frappe.session.user,
+				},
 				status="pending",
 			)
+			if event_doc is None:
+				raise Exception("No se pudo crear evento fiscal - create_event retornó None")
 
 			# Llamar a FacturAPI
 			response = self.client.create_invoice(invoice_data)
@@ -94,9 +101,11 @@ class TimbradoAPI:
 			}
 
 		except Exception as e:
-			# Marcar evento como fallido
-			if "event_doc" in locals():
+			# Marcar evento como fallido - DEFENSIVE PROGRAMMING
+			if "event_doc" in locals() and event_doc is not None:
 				FiscalEventMX.mark_event_failed(event_doc.name, str(e))
+			else:
+				frappe.logger().error("event_doc no existe o es None - no se puede marcar como fallido")
 
 			# Procesar error específico del PAC
 			error_details = self._process_pac_error(e)
@@ -119,21 +128,27 @@ class TimbradoAPI:
 					"Sales Invoice", sales_invoice_name, "fm_factura_fiscal_mx"
 				)
 
+			# Crear log de respuesta FacturAPI - INDEPENDIENTE de FiscalEventMX
 			if factura_fiscal_name:
-				FacturAPIResponseLog.create_log(
-					factura_fiscal_mexico=factura_fiscal_name,
-					operation_type="Timbrado",
-					success=False,
-					error_message=error_details["user_message"],
-					status_code=error_details.get("status_code", "500"),
-				)
+				try:
+					FacturAPIResponseLog.create_log(
+						factura_fiscal_mexico=factura_fiscal_name,
+						operation_type="Timbrado",
+						success=False,
+						error_message=str(e),  # ERROR ORIGINAL DEL PAC - SIN MODIFICAR
+						status_code=error_details.get("status_code", "500"),
+					)
+				except Exception as log_error:
+					frappe.log_error(
+						f"Error creating FacturAPI Response Log: {log_error}", "FacturAPI Log Error"
+					)
 
 			return {
 				"success": False,
-				"error": str(e),
-				"user_error": error_details["user_message"],
+				"error": str(e),  # ERROR TÉCNICO ORIGINAL
+				"user_error": error_details["user_message"],  # MENSAJE AMIGABLE PARA UX
 				"corrective_action": error_details["corrective_action"],
-				"message": error_details["user_message"],
+				"message": error_details["user_message"],  # UI usa este para mostrar al usuario
 			}
 
 	def _validate_invoice_for_timbrado(self, sales_invoice):
@@ -501,6 +516,9 @@ class TimbradoAPI:
 
 			frappe.logger().error(f"Error cancelando factura {sales_invoice_name}: {e!s}")
 
+			# Procesar error específico del PAC
+			error_details = self._process_pac_error(e)
+
 			# Crear log de error FacturAPI para cancelación
 			if "factura_fiscal" in locals():
 				FacturAPIResponseLog.create_log(
@@ -508,7 +526,7 @@ class TimbradoAPI:
 					operation_type="Solicitud Cancelación",
 					success=False,
 					error_message=str(e)[:500],  # Truncar mensaje largo
-					status_code="500",
+					status_code=error_details.get("status_code", "500"),
 				)
 
 			return {"success": False, "error": str(e), "message": f"Error al cancelar factura: {e!s}"}
@@ -517,7 +535,32 @@ class TimbradoAPI:
 		"""Procesar errores del PAC y generar mensajes útiles para el usuario."""
 		error_str = str(error).lower()
 
-		# Errores específicos de customer.address
+		# Intentar extraer status code de diferentes tipos de errores
+		status_code = "500"  # default
+		try:
+			# Si es HTTPError o similar, intentar extraer status code
+			if hasattr(error, "response") and hasattr(error.response, "status_code"):
+				status_code = str(error.response.status_code)
+			elif "400" in str(error):
+				status_code = "400"
+			elif "401" in str(error):
+				status_code = "401"
+			elif "403" in str(error):
+				status_code = "403"
+			elif "404" in str(error):
+				status_code = "404"
+		except Exception:
+			pass
+
+		# Errores específicos de país (más específico primero)
+		if "customer.address.country" in error_str and "3 characters" in error_str:
+			return {
+				"user_message": "ERROR FISCAL: El país del cliente debe ser código ISO de 3 caracteres (ej: MEX para México).",
+				"corrective_action": "Ir a Customer → Addresses → Configurar campo Country con código de 3 letras (MEX, USA, CAN, etc.)",
+				"status_code": status_code,
+			}
+
+		# Errores específicos de customer.address (dirección primaria)
 		if "customer.address" in error_str or "address_required" in error_str:
 			# Extraer nombre del cliente del mensaje si está disponible
 			customer_name = "el cliente"
@@ -530,6 +573,7 @@ class TimbradoAPI:
 			return {
 				"user_message": f"ERROR FISCAL: {customer_name} debe tener una dirección primaria configurada para el timbrado fiscal.",
 				"corrective_action": f"Ir a Customer '{customer_name}' → Addresses → Agregar dirección primaria con todos los campos requeridos",
+				"status_code": status_code,
 			}
 
 		# Errores de RFC
@@ -537,6 +581,7 @@ class TimbradoAPI:
 			return {
 				"user_message": "ERROR FISCAL: RFC del cliente inválido o faltante. Verifique que el campo Tax ID del cliente tenga un RFC válido.",
 				"corrective_action": "Ir a Customer → Tax ID → Configurar RFC válido",
+				"status_code": status_code,
 			}
 
 		# Errores de productos SAT
@@ -544,6 +589,7 @@ class TimbradoAPI:
 			return {
 				"user_message": "ERROR FISCAL: Algunos productos no tienen configurada la Clave de Producto/Servicio SAT requerida.",
 				"corrective_action": "Ir a Item → Configurar Clave Producto/Servicio SAT",
+				"status_code": status_code,
 			}
 
 		# Errores de unidades de medida
@@ -551,6 +597,7 @@ class TimbradoAPI:
 			return {
 				"user_message": "ERROR FISCAL: Algunas unidades de medida no tienen configurada la Clave de Unidad SAT requerida.",
 				"corrective_action": "Ir a UOM → Configurar Clave Unidad SAT",
+				"status_code": status_code,
 			}
 
 		# Errores de uso CFDI
@@ -558,6 +605,7 @@ class TimbradoAPI:
 			return {
 				"user_message": "ERROR FISCAL: Uso CFDI faltante o inválido. Configure el Uso CFDI en la factura.",
 				"corrective_action": "Configurar campo 'Uso CFDI' en la factura",
+				"status_code": status_code,
 			}
 
 		# Errores de API key o autenticación
@@ -565,12 +613,14 @@ class TimbradoAPI:
 			return {
 				"user_message": "ERROR DE AUTENTICACIÓN: Problema con las credenciales del PAC. Verifique la configuración de API keys.",
 				"corrective_action": "Verificar Facturacion Mexico Settings → API Keys",
+				"status_code": status_code,
 			}
 
 		# Error genérico
 		return {
 			"user_message": f"ERROR FISCAL: {str(error)[:200]}...",
 			"corrective_action": "Revisar los datos fiscales de la factura y el cliente",
+			"status_code": status_code,
 		}
 
 	# Método _log_timbrado_attempt eliminado - funcionalidad duplicada con FacturAPI Response Log
