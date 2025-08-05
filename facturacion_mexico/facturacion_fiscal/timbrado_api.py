@@ -771,70 +771,17 @@ class TimbradoAPI:
 		Returns:
 			str: tax_system code (ej: "601") o None si no disponible
 		"""
-		# DEBUG MSGPRINT TEMPORAL - ELIMINAR DESPUÉS
-		frappe.msgprint(
-			f"🔍 DEBUG _get_tax_system_for_timbrado: factura_fiscal={factura_fiscal.name if factura_fiscal else 'None'}",
-			indicator="blue",
-		)
-		frappe.msgprint(
-			f"🔍 DEBUG hasattr fm_tax_system: {hasattr(factura_fiscal, 'fm_tax_system') if factura_fiscal else 'N/A'}",
-			indicator="blue",
-		)
-		frappe.msgprint(
-			f"🔍 DEBUG fm_tax_system value: '{factura_fiscal.fm_tax_system if factura_fiscal and hasattr(factura_fiscal, 'fm_tax_system') else 'N/A'}'",
-			indicator="blue",
-		)
-
 		# ÚNICA FUENTE: Campo fm_tax_system en Factura Fiscal Mexico
 		if hasattr(factura_fiscal, "fm_tax_system"):
 			raw_value = factura_fiscal.fm_tax_system
 
-			# DEBUG ROBUSTO - Manejar valores corruptos
-			try:
-				type_info = type(raw_value)
-				frappe.msgprint(
-					f"🔍 DEBUG raw fm_tax_system: '{raw_value}' (type: {type_info})", indicator="blue"
-				)
-			except Exception as e:
-				frappe.msgprint(
-					f"🔍 DEBUG raw fm_tax_system: '{raw_value}' (type: ERROR - {e})", indicator="red"
-				)
-
-			try:
-				frappe.msgprint(f"🔍 DEBUG raw_value == 'None': {raw_value == 'None'}", indicator="blue")
-			except Exception as e:
-				frappe.msgprint(f"🔍 DEBUG raw_value == 'None': ERROR - {e}", indicator="red")
-
-			try:
-				frappe.msgprint(f"🔍 DEBUG raw_value is None: {raw_value is None}", indicator="blue")
-			except Exception as e:
-				frappe.msgprint(f"🔍 DEBUG raw_value is None: ERROR - {e}", indicator="red")
-
-			try:
-				frappe.msgprint(f"🔍 DEBUG bool(raw_value): {bool(raw_value)}", indicator="blue")
-			except Exception as e:
-				frappe.msgprint(f"🔍 DEBUG bool(raw_value): ERROR - {e}", indicator="red")
-
-			try:
-				frappe.msgprint(f"🔍 DEBUG repr(raw_value): {repr(raw_value)}", indicator="blue")
-			except Exception as e:
-				frappe.msgprint(f"🔍 DEBUG repr(raw_value): ERROR - {e}", indicator="red")
-
 			# CORRECCIÓN: Detectar None (null) y repoblar automáticamente ANTES de validaciones
 			if raw_value is None:
-				frappe.msgprint(
-					f"🔍 DEBUG: fm_tax_system es None - INICIANDO REPOBLACIÓN AUTOMÁTICA", indicator="orange"
-				)
-
 				# Intentar repoblar desde customer.tax_category
 				customer = frappe.get_doc("Customer", factura_fiscal.customer)
 				if customer and customer.tax_category:
 					# Extraer código del tax_category (formato: "601 - Descripción" -> "601")
 					tax_code = customer.tax_category.split(" - ")[0].strip()
-					frappe.msgprint(
-						f"🔍 DEBUG: Repoblando fm_tax_system='{tax_code}' desde customer.tax_category='{customer.tax_category}'",
-						indicator="green",
-					)
 
 					# Actualizar el campo en la Factura Fiscal
 					factura_fiscal.fm_tax_system = tax_code
@@ -842,43 +789,24 @@ class TimbradoAPI:
 					frappe.db.commit()
 
 					raw_value = tax_code
-					frappe.msgprint(
-						f"🔍 DEBUG: REPOBLACIÓN EXITOSA - nuevo valor: '{raw_value}'", indicator="green"
-					)
 				else:
-					customer_tax_category = customer.tax_category if customer else "N/A"
-					frappe.msgprint(
-						f"🔍 DEBUG: REPOBLACIÓN FALLIDA - customer.tax_category='{customer_tax_category}'",
-						indicator="red",
-					)
 					return None
 
 			# Validación normal para valores reales (incluyendo valores repoblados)
 			if raw_value:
 				# Limpiar posibles mensajes de error como "⚠️ FALTA TAX CATEGORY"
 				tax_system = raw_value.strip()
-				frappe.msgprint(f"🔍 DEBUG tax_system after strip: '{tax_system}'", indicator="blue")
 
 				if not tax_system.startswith("⚠️") and not tax_system.startswith("❌"):
-					frappe.msgprint(f"🔍 DEBUG no warning prefix, validating range...", indicator="blue")
-					# CAMBIO 4: Validar rango SAT antes de retornar
+					# Validar rango SAT antes de retornar
 					if self._validate_tax_system_sat_range(tax_system):
-						frappe.msgprint(f"🔍 DEBUG range valid, returning: '{tax_system}'", indicator="green")
 						return tax_system
 					else:
 						# Tax system fuera de rango SAT válido - log para debugging
-						frappe.msgprint(
-							f"🔍 DEBUG Tax system {tax_system} fuera de rango SAT válido (600-630)",
-							indicator="red",
+						frappe.logger().warning(
+							f"Tax system {tax_system} fuera de rango SAT válido (600-630) para factura {factura_fiscal.name}"
 						)
-				else:
-					frappe.msgprint(f"🔍 DEBUG has warning prefix, skipping", indicator="orange")
-			else:
-				frappe.msgprint(f"🔍 DEBUG fm_tax_system is empty/falsy", indicator="red")
-		else:
-			frappe.msgprint(f"🔍 DEBUG fm_tax_system attribute not found", indicator="red")
 
-		frappe.msgprint(f"🔍 DEBUG returning None", indicator="red")
 		return None
 
 	def _validate_tax_system_sat_range(self, tax_system_code):
