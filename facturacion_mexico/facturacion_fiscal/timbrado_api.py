@@ -171,6 +171,22 @@ class TimbradoAPI:
 		if not customer_rfc:
 			frappe.throw(_("El cliente debe tener RFC configurado en Tax ID"))
 
+		# NUEVA VALIDACIÓN: País del cliente ANTES del timbrado
+		primary_address = self._get_customer_primary_address(customer)
+		if primary_address:
+			country = primary_address.get("country")
+			if not self._is_valid_country_for_facturapi(country):
+				frappe.throw(
+					_(
+						"ERROR FISCAL: El país '{0}' en la dirección del cliente no es reconocido por el sistema. "
+						"Para facturación fiscal mexicana, configure el campo Country como: 'México', 'Mexico', 'MEX' o 'MX'. "
+						"Países soportados: México, Estados Unidos, Canada. "
+						"Corrija el campo Country en la dirección primaria del cliente."
+					).format(country or "Sin especificar"),
+					title=_("País No Soportado para Timbrado"),
+					exc=frappe.ValidationError,
+				)
+
 		# Verificar uso de CFDI - validación temprana en datos fiscales
 		fiscal_doc = self._get_factura_fiscal_doc(sales_invoice)
 		if fiscal_doc and not fiscal_doc.get("fm_cfdi_use"):
@@ -228,7 +244,7 @@ class TimbradoAPI:
 			"city": primary_address.get("city") or "",
 			"municipality": primary_address.get("city") or "",
 			"state": primary_address.get("state") or "",
-			"country": primary_address.get("country") or "MEX",
+			"country": self._convert_country_to_iso3(primary_address.get("country")) or "MEX",
 			"zip": primary_address.get("pincode") or "",
 		}
 
@@ -553,10 +569,11 @@ class TimbradoAPI:
 			pass
 
 		# Errores específicos de país (más específico primero)
+		# NOTA: Este error NO debería ocurrir ahora gracias a la validación preventiva
 		if "customer.address.country" in error_str and "3 characters" in error_str:
 			return {
-				"user_message": "ERROR FISCAL: El país del cliente debe ser código ISO de 3 caracteres (ej: MEX para México).",
-				"corrective_action": "Ir a Customer → Addresses → Configurar campo Country con código de 3 letras (MEX, USA, CAN, etc.)",
+				"user_message": "ERROR FISCAL: País del cliente no válido. La validación previa falló - esto indica un error en el sistema.",
+				"corrective_action": "Contactar soporte técnico - la validación previa debió prevenir este error",
 				"status_code": status_code,
 			}
 
@@ -676,6 +693,38 @@ class TimbradoAPI:
 		except Exception as e:
 			frappe.logger().error(f"Error obteniendo dirección del customer {customer.name}: {e!s}")
 			return None
+
+	def _is_valid_country_for_facturapi(self, country):
+		"""Validar si podemos convertir el país para FacturAPI."""
+		return self._convert_country_to_iso3(country) is not None
+
+	def _convert_country_to_iso3(self, country):
+		"""Convertir país a código ISO3 para FacturAPI."""
+		if not country:
+			return None
+
+		country_mapping = {
+			# Nombres en español
+			"México": "MEX",
+			"Mexico": "MEX",
+			"méxico": "MEX",
+			"mexico": "MEX",
+			# Códigos ISO alpha-2 a alpha-3
+			"MX": "MEX",
+			# Códigos ya correctos (3 caracteres)
+			"MEX": "MEX",
+			# Otros países comunes
+			"Estados Unidos": "USA",
+			"United States": "USA",
+			"US": "USA",
+			"USA": "USA",
+			"Canada": "CAN",
+			"Canadá": "CAN",
+			"CA": "CAN",
+			"CAN": "CAN",
+		}
+
+		return country_mapping.get(country.strip())
 
 
 # API endpoints para uso desde interfaz
