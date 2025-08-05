@@ -1,1 +1,2 @@
 facturacion_mexico.custom.fields.sales_invoice.create_custom_fields
+facturacion_mexico.patches.eliminate_duplicate_fiscal_logging

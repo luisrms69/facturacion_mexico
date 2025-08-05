@@ -63,7 +63,7 @@ class TestLayer2CrossModuleValidation(unittest.TestCase):
         system_fields = [
             'informacion_fiscal_mx_section', 'cfdi_use', 'payment_method_sat',
             'column_break_fiscal_mx', 'fiscal_status', 'uuid_fiscal',
-            'factura_fiscal_mx', 'rfc', 'column_break_fiscal_customer',
+            'fm_factura_fiscal_mx', 'rfc', 'column_break_fiscal_customer',
             'regimen_fiscal', 'uso_cfdi_default', 'clasificacion_sat_section',
             'producto_servicio_sat', 'column_break_item_sat', 'fm_unidad_sat'
         ]

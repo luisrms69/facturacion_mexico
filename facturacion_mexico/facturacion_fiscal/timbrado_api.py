@@ -101,14 +101,7 @@ class TimbradoAPI:
 			# Procesar error específico del PAC
 			error_details = self._process_pac_error(e)
 
-			# Registrar intento fallido en tabla de logs
-			self._log_timbrado_attempt(
-				sales_invoice_name=sales_invoice_name,
-				attempt_type="Timbrado",
-				status="Error",
-				error_details=error_details["user_message"],
-				pac_message=str(e),
-			)
+			# Log de intento fallido ya manejado por FacturAPI Response Log
 
 			# Actualizar estado en Sales Invoice
 			frappe.db.set_value("Sales Invoice", sales_invoice_name, "fm_fiscal_status", "Error")
@@ -391,15 +384,7 @@ class TimbradoAPI:
 		factura_fiscal.stamped_at = now_datetime()
 		factura_fiscal.save()
 
-		# Registrar intento exitoso en tabla de logs
-		self._log_timbrado_attempt(
-			sales_invoice_name=sales_invoice.name,
-			attempt_type="Timbrado",
-			status="Exitoso",
-			pac_response_code="200",
-			pac_message="Timbrado exitoso",
-			response_data=response,
-		)
+		# Log de intento exitoso ya manejado por FacturAPI Response Log
 
 		# Actualizar Sales Invoice
 		frappe.db.set_value(
@@ -587,45 +572,7 @@ class TimbradoAPI:
 			"corrective_action": "Revisar los datos fiscales de la factura y el cliente",
 		}
 
-	def _log_timbrado_attempt(
-		self,
-		sales_invoice_name,
-		attempt_type,
-		status,
-		pac_response_code=None,
-		pac_message=None,
-		request_data=None,
-		response_data=None,
-		error_details=None,
-	):
-		"""Registrar intento de timbrado en tabla de logs."""
-		try:
-			from facturacion_mexico.facturacion_fiscal.doctype.fiscal_attempt_log.fiscal_attempt_log import (
-				FiscalAttemptLog,
-			)
-
-			# Obtener documento Sales Invoice
-			sales_invoice = frappe.get_doc("Sales Invoice", sales_invoice_name)
-
-			# Crear log de intento
-			FiscalAttemptLog.create_attempt_log(
-				parent_doc=sales_invoice,
-				attempt_type=attempt_type,
-				status=status,
-				pac_response_code=pac_response_code,
-				pac_message=pac_message,
-				request_data=request_data,
-				response_data=response_data,
-				error_details=error_details,
-			)
-
-			frappe.logger().info(
-				f"Log de intento {attempt_type} registrado para {sales_invoice_name}: {status}"
-			)
-
-		except Exception as e:
-			frappe.logger().error(f"Error registrando log de intento: {e!s}")
-			# No fallar el proceso principal por errores de logging
+	# Método _log_timbrado_attempt eliminado - funcionalidad duplicada con FacturAPI Response Log
 
 	def _get_customer_primary_address(self, customer):
 		"""Obtener dirección primaria del customer."""
