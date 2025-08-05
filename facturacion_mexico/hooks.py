@@ -126,7 +126,7 @@ fixtures = [
 					"Customer-fm_default_addenda_type",
 					"Customer-fm_informacion_fiscal_mx_section",
 					"Customer-fm_lista_69b_status",
-					"Customer-fm_regimen_fiscal",
+					"Customer-fm_regimen_fiscal",  # TODO: Remove after custom field elimination (next commit)
 					"Customer-fm_requires_addenda",
 					"Customer-fm_rfc_validated",
 					"Customer-fm_rfc_validation_date",

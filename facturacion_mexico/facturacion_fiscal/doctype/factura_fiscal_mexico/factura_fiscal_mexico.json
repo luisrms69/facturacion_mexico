@@ -20,6 +20,7 @@
     "fm_cp_cliente",
     "fm_email_facturacion",
     "fm_rfc_cliente",
+    "fm_tax_system",
     "column_break_datos_facturacion",
     "fm_direccion_principal_link",
     "fm_direccion_principal_display",
@@ -265,6 +266,13 @@
       "label": "RFC Cliente",
       "read_only": 1,
       "description": "RFC desde Tax ID del cliente"
+    },
+    {
+      "fieldname": "fm_tax_system",
+      "fieldtype": "Data",
+      "label": "Régimen Fiscal (Código)",
+      "read_only": 1,
+      "description": "Código del régimen fiscal para FacturAPI (ej: 601). Se obtiene automáticamente desde Tax Category del cliente"
     },
     {
       "fieldname": "column_break_datos_facturacion",

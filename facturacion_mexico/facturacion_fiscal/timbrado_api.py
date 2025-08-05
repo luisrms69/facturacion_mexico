@@ -4,6 +4,8 @@ import frappe
 from frappe import _
 from frappe.utils import flt, now_datetime
 
+from facturacion_mexico.validaciones.api import _normalize_company_name_for_facturapi
+
 from .api_client import get_facturapi_client
 from .doctype.facturapi_response_log.facturapi_response_log import FacturAPIResponseLog
 from .doctype.fiscal_event_mx.fiscal_event_mx import FiscalEventMX
@@ -131,12 +133,23 @@ class TimbradoAPI:
 			# Crear log de respuesta FacturAPI - INDEPENDIENTE de FiscalEventMX
 			if factura_fiscal_name:
 				try:
+					# Determinar código de error específico (máximo 10 caracteres)
+					error_str = str(e)
+					if "customer.tax_system_required" in error_str:
+						internal_status_code = "VAL_ERROR"  # 9 caracteres
+					elif "customer.address_required" in error_str:
+						internal_status_code = "VAL_ERROR"  # 9 caracteres
+					elif "customer.address.country" in error_str:
+						internal_status_code = "VAL_ERROR"  # 9 caracteres
+					else:
+						internal_status_code = error_details.get("status_code", "500")  # PAC real
+
 					FacturAPIResponseLog.create_log(
 						factura_fiscal_mexico=factura_fiscal_name,
 						operation_type="Timbrado",
 						success=False,
-						error_message=str(e),  # ERROR ORIGINAL DEL PAC - SIN MODIFICAR
-						status_code=error_details.get("status_code", "500"),
+						error_message=error_str,
+						status_code=internal_status_code,
 					)
 				except Exception as log_error:
 					frappe.log_error(
@@ -207,7 +220,7 @@ class TimbradoAPI:
 		factura_fiscal.customer = sales_invoice.customer
 		factura_fiscal.total_amount = sales_invoice.grand_total
 		factura_fiscal.currency = sales_invoice.currency
-		factura_fiscal.fm_fiscal_status = "draft"
+		factura_fiscal.fm_fiscal_status = "Pendiente"
 		factura_fiscal.save()
 
 		# Actualizar referencia en Sales Invoice
@@ -224,10 +237,26 @@ class TimbradoAPI:
 
 		# Datos del cliente
 		customer_data = {
-			"legal_name": customer.customer_name,
+			"legal_name": _normalize_company_name_for_facturapi(
+				customer.customer_name
+			),  # CFDI 4.0: función idéntica a validación RFC/CSF
 			"tax_id": customer.get("tax_id"),
-			"email": customer.email_id or "cliente@example.com",
+			"email": customer.email_id or self.settings.get("customer_email_fallback"),
 		}
+
+		# TODO: Email fallback configurable desde Facturacion Mexico Settings
+		# Si no hay email del cliente ni configurado en settings, email queda None (sin envío correos)
+
+		# MIGRACIÓN ARQUITECTURAL: Tax system OBLIGATORIO desde Factura Fiscal
+		tax_system_code = self._get_tax_system_for_timbrado(factura_fiscal, customer)
+		if not tax_system_code:
+			# ERROR CRÍTICO: Sin tax_system no se puede enviar a FacturAPI
+			raise Exception(
+				f"customer.tax_system_required: El cliente {customer.customer_name} no tiene Tax Category configurada. "
+				f"Configure Tax Category en el cliente para que se popule fm_tax_system en Factura Fiscal Mexico."
+			)
+
+		customer_data["tax_system"] = tax_system_code
 
 		# VALIDACIÓN CRÍTICA: Dirección del cliente es REQUERIDA por PAC
 		primary_address = self._get_customer_primary_address(customer)
@@ -412,7 +441,9 @@ class TimbradoAPI:
 		# Actualizar Factura Fiscal
 		factura_fiscal.uuid = response.get("uuid")
 		factura_fiscal.facturapi_id = response.get("id")
-		factura_fiscal.fm_fiscal_status = "stamped"
+		factura_fiscal.fm_fiscal_status = (
+			"Timbrada"  # CORRECCIÓN: Usar valor en español que espera el DocType
+		)
 		factura_fiscal.stamped_at = now_datetime()
 		factura_fiscal.save()
 
@@ -502,7 +533,7 @@ class TimbradoAPI:
 			response = self.client.cancel_invoice(factura_fiscal.facturapi_id, motivo)
 
 			# Procesar respuesta exitosa
-			factura_fiscal.fm_fiscal_status = "cancelled"
+			factura_fiscal.fm_fiscal_status = "Cancelada"
 			factura_fiscal.cancelled_at = now_datetime()
 			factura_fiscal.save()
 
@@ -725,6 +756,156 @@ class TimbradoAPI:
 		}
 
 		return country_mapping.get(country.strip())
+
+	def _get_tax_system_for_timbrado(self, factura_fiscal, customer):
+		"""
+		Obtener tax_system ESTRICTAMENTE desde Factura Fiscal.
+
+		MIGRACIÓN ARQUITECTURAL: Solo usar fm_tax_system de Factura Fiscal Mexico.
+		NO hay fallback a customer.tax_category directamente.
+
+		Args:
+			factura_fiscal: Documento Factura Fiscal Mexico
+			customer: Documento Customer (solo para logging)
+
+		Returns:
+			str: tax_system code (ej: "601") o None si no disponible
+		"""
+		# DEBUG MSGPRINT TEMPORAL - ELIMINAR DESPUÉS
+		frappe.msgprint(
+			f"🔍 DEBUG _get_tax_system_for_timbrado: factura_fiscal={factura_fiscal.name if factura_fiscal else 'None'}",
+			indicator="blue",
+		)
+		frappe.msgprint(
+			f"🔍 DEBUG hasattr fm_tax_system: {hasattr(factura_fiscal, 'fm_tax_system') if factura_fiscal else 'N/A'}",
+			indicator="blue",
+		)
+		frappe.msgprint(
+			f"🔍 DEBUG fm_tax_system value: '{factura_fiscal.fm_tax_system if factura_fiscal and hasattr(factura_fiscal, 'fm_tax_system') else 'N/A'}'",
+			indicator="blue",
+		)
+
+		# ÚNICA FUENTE: Campo fm_tax_system en Factura Fiscal Mexico
+		if hasattr(factura_fiscal, "fm_tax_system"):
+			raw_value = factura_fiscal.fm_tax_system
+
+			# DEBUG ROBUSTO - Manejar valores corruptos
+			try:
+				type_info = type(raw_value)
+				frappe.msgprint(
+					f"🔍 DEBUG raw fm_tax_system: '{raw_value}' (type: {type_info})", indicator="blue"
+				)
+			except Exception as e:
+				frappe.msgprint(
+					f"🔍 DEBUG raw fm_tax_system: '{raw_value}' (type: ERROR - {e})", indicator="red"
+				)
+
+			try:
+				frappe.msgprint(f"🔍 DEBUG raw_value == 'None': {raw_value == 'None'}", indicator="blue")
+			except Exception as e:
+				frappe.msgprint(f"🔍 DEBUG raw_value == 'None': ERROR - {e}", indicator="red")
+
+			try:
+				frappe.msgprint(f"🔍 DEBUG raw_value is None: {raw_value is None}", indicator="blue")
+			except Exception as e:
+				frappe.msgprint(f"🔍 DEBUG raw_value is None: ERROR - {e}", indicator="red")
+
+			try:
+				frappe.msgprint(f"🔍 DEBUG bool(raw_value): {bool(raw_value)}", indicator="blue")
+			except Exception as e:
+				frappe.msgprint(f"🔍 DEBUG bool(raw_value): ERROR - {e}", indicator="red")
+
+			try:
+				frappe.msgprint(f"🔍 DEBUG repr(raw_value): {repr(raw_value)}", indicator="blue")
+			except Exception as e:
+				frappe.msgprint(f"🔍 DEBUG repr(raw_value): ERROR - {e}", indicator="red")
+
+			# CORRECCIÓN: Detectar None (null) y repoblar automáticamente ANTES de validaciones
+			if raw_value is None:
+				frappe.msgprint(
+					f"🔍 DEBUG: fm_tax_system es None - INICIANDO REPOBLACIÓN AUTOMÁTICA", indicator="orange"
+				)
+
+				# Intentar repoblar desde customer.tax_category
+				customer = frappe.get_doc("Customer", factura_fiscal.customer)
+				if customer and customer.tax_category:
+					# Extraer código del tax_category (formato: "601 - Descripción" -> "601")
+					tax_code = customer.tax_category.split(" - ")[0].strip()
+					frappe.msgprint(
+						f"🔍 DEBUG: Repoblando fm_tax_system='{tax_code}' desde customer.tax_category='{customer.tax_category}'",
+						indicator="green",
+					)
+
+					# Actualizar el campo en la Factura Fiscal
+					factura_fiscal.fm_tax_system = tax_code
+					factura_fiscal.save()
+					frappe.db.commit()
+
+					raw_value = tax_code
+					frappe.msgprint(
+						f"🔍 DEBUG: REPOBLACIÓN EXITOSA - nuevo valor: '{raw_value}'", indicator="green"
+					)
+				else:
+					customer_tax_category = customer.tax_category if customer else "N/A"
+					frappe.msgprint(
+						f"🔍 DEBUG: REPOBLACIÓN FALLIDA - customer.tax_category='{customer_tax_category}'",
+						indicator="red",
+					)
+					return None
+
+			# Validación normal para valores reales (incluyendo valores repoblados)
+			if raw_value:
+				# Limpiar posibles mensajes de error como "⚠️ FALTA TAX CATEGORY"
+				tax_system = raw_value.strip()
+				frappe.msgprint(f"🔍 DEBUG tax_system after strip: '{tax_system}'", indicator="blue")
+
+				if not tax_system.startswith("⚠️") and not tax_system.startswith("❌"):
+					frappe.msgprint(f"🔍 DEBUG no warning prefix, validating range...", indicator="blue")
+					# CAMBIO 4: Validar rango SAT antes de retornar
+					if self._validate_tax_system_sat_range(tax_system):
+						frappe.msgprint(f"🔍 DEBUG range valid, returning: '{tax_system}'", indicator="green")
+						return tax_system
+					else:
+						# Tax system fuera de rango SAT válido - log para debugging
+						frappe.msgprint(
+							f"🔍 DEBUG Tax system {tax_system} fuera de rango SAT válido (600-630)",
+							indicator="red",
+						)
+				else:
+					frappe.msgprint(f"🔍 DEBUG has warning prefix, skipping", indicator="orange")
+			else:
+				frappe.msgprint(f"🔍 DEBUG fm_tax_system is empty/falsy", indicator="red")
+		else:
+			frappe.msgprint(f"🔍 DEBUG fm_tax_system attribute not found", indicator="red")
+
+		frappe.msgprint(f"🔍 DEBUG returning None", indicator="red")
+		return None
+
+	def _validate_tax_system_sat_range(self, tax_system_code):
+		"""
+		Validar que el código de régimen fiscal sea válido según SAT.
+
+		CAMBIO 4: Validación de rango 600-630 para regímenes fiscales SAT.
+
+		Args:
+			tax_system_code (str): Código como "601"
+
+		Returns:
+			bool: True si válido, False si inválido
+		"""
+		if not tax_system_code:
+			return False
+
+		try:
+			# Convertir a número para validación de rango
+			code_num = int(tax_system_code.strip())
+
+			# Validar rango SAT: 600-630 (regímenes fiscales válidos)
+			return 600 <= code_num <= 630
+
+		except (ValueError, TypeError):
+			# No es número válido
+			return False
 
 
 # API endpoints para uso desde interfaz

@@ -45,7 +45,8 @@
     "enable_dashboard_notifications",
     "dashboard_admin_roles",
     "ereceipt_monthly_limit",
-    "global_invoice_monthly_limit"
+    "global_invoice_monthly_limit",
+    "customer_email_fallback"
   ],
   "fields": [
     {
@@ -311,6 +312,13 @@
       "fieldname": "global_invoice_monthly_limit",
       "fieldtype": "Int", 
       "label": "Límite Mensual Facturas Globales"
+    },
+    {
+      "default": "cliente@miempresa.com",
+      "description": "Email por defecto cuando el cliente no tiene email configurado en timbrado CFDI",
+      "fieldname": "customer_email_fallback",
+      "fieldtype": "Data",
+      "label": "Email Fallback Cliente"
     }
   ],
   "issingle": 1,

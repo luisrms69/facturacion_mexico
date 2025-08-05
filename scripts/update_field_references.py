@@ -20,9 +20,8 @@ FIELD_MAPPINGS = {
 	"factura_fiscal_mx": "fm_factura_fiscal_mx",
 	"informacion_fiscal_mx_section": "fm_informacion_fiscal_section",
 	"column_break_fiscal_mx": "fm_column_break_fiscal",
-	# Customer (5 campos)
+	# Customer (4 campos)
 	"rfc": "fm_rfc",
-	"regimen_fiscal": "fm_regimen_fiscal",
 	"uso_cfdi_default": "fm_uso_cfdi_default",
 	"column_break_fiscal_customer": "fm_column_break_fiscal_customer",
 	# Item (4 campos)
@@ -149,7 +148,6 @@ def update_custom_fields_definitions():
 		# Customer updates
 		('"rfc"', '"fm_rfc"'),
 		('"column_break_fiscal_customer"', '"fm_column_break_fiscal_customer"'),
-		('"regimen_fiscal"', '"fm_regimen_fiscal"'),
 		('"uso_cfdi_default"', '"fm_uso_cfdi_default"'),
 		# Item updates
 		('"clasificacion_sat_section"', '"fm_clasificacion_sat_section"'),
@@ -172,7 +170,6 @@ def update_custom_fields_definitions():
 		("Customer-informacion_fiscal_mx_section", "Customer-fm_informacion_fiscal_section_customer"),
 		("Customer-rfc", "Customer-fm_rfc"),
 		("Customer-column_break_fiscal_customer", "Customer-fm_column_break_fiscal_customer"),
-		("Customer-regimen_fiscal", "Customer-fm_regimen_fiscal"),
 		("Customer-uso_cfdi_default", "Customer-fm_uso_cfdi_default"),
 		("Item-clasificacion_sat_section", "Item-fm_clasificacion_sat_section"),
 		("Item-producto_servicio_sat", "Item-fm_producto_servicio_sat"),

@@ -202,7 +202,7 @@ function update_fiscal_data_from_customer(frm) {
 			name: frm.doc.customer,
 			fields: [
 				"fm_uso_cfdi_default",
-				"fm_regimen_fiscal_customer",
+				"tax_category",
 				"fm_codigo_postal_customer",
 				"fm_rfc_customer",
 				"tax_id", // RFC principal del customer
@@ -219,11 +219,8 @@ function update_fiscal_data_from_customer(frm) {
 				}
 
 				// Actualizar otros campos fiscales del customer si existen (legacy)
-				if (r.message.fm_regimen_fiscal_customer) {
-					frm.set_value(
-						"fm_regimen_fiscal_customer",
-						r.message.fm_regimen_fiscal_customer
-					);
+				if (r.message.tax_category) {
+					frm.set_value("fm_regimen_fiscal_customer", r.message.tax_category);
 				}
 				if (r.message.fm_codigo_postal_customer) {
 					frm.set_value(
@@ -355,11 +352,28 @@ function add_fiscal_buttons(frm) {
 
 	if (
 		frm.doc.docstatus === 1 &&
-		(frm.doc.fm_fiscal_status === "Pendiente" || frm.doc.fm_fiscal_status === "failed")
+		(frm.doc.fm_fiscal_status === "Pendiente" || frm.doc.fm_fiscal_status === "Error")
 	) {
-		// Botón FacturAPI: Timbrar cuando documento está submitted (Pendiente o failed)
+		// VALIDACIÓN CRÍTICA: tax_system es OBLIGATORIO para timbrado
+		if (
+			!frm.doc.fm_tax_system ||
+			frm.doc.fm_tax_system.startsWith("⚠️") ||
+			frm.doc.fm_tax_system.startsWith("❌")
+		) {
+			// NO mostrar botón, mostrar mensaje explicativo
+			frm.dashboard.add_comment(
+				__(
+					"Régimen Fiscal requerido: Configure Tax Category en el cliente para habilitar timbrado"
+				),
+				"red",
+				true
+			);
+			return; // No agregar botón de timbrado
+		}
+
+		// Tax system válido → Mostrar botón
 		const button_text =
-			frm.doc.fm_fiscal_status === "failed"
+			frm.doc.fm_fiscal_status === "Error"
 				? __("Reintentar Timbrado")
 				: __("Timbrar con FacturAPI");
 		frm.add_custom_button(button_text, function () {

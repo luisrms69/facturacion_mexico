@@ -21,9 +21,9 @@ def execute():
 		("Sales Invoice", "factura_fiscal_mx", "fm_factura_fiscal_mx"),
 		("Sales Invoice", "informacion_fiscal_mx_section", "fm_informacion_fiscal_section"),
 		("Sales Invoice", "column_break_fiscal_mx", "fm_column_break_fiscal"),
-		# Customer (5 campos)
+		# Customer (4 campos)
 		("Customer", "rfc", "fm_rfc"),
-		("Customer", "regimen_fiscal", "fm_regimen_fiscal"),
+		# ("Customer", "regimen_fiscal", "fm_regimen_fiscal"),  # OBSOLETO: Migrado a tax_category nativo
 		("Customer", "uso_cfdi_default", "fm_uso_cfdi_default"),
 		("Customer", "informacion_fiscal_mx_section", "fm_informacion_fiscal_section_customer"),
 		("Customer", "column_break_fiscal_customer", "fm_column_break_fiscal_customer"),

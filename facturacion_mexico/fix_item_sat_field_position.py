@@ -43,7 +43,7 @@ def run():
 		# Si no encontramos una sección específica, usar un campo SAT conocido
 		if not target_insert_after:
 			# Buscar campos fiscales conocidos
-			known_sat_fields = ["fm_cfdi_use", "fm_regimen_fiscal", "fm_uso_cfdi_default", "fm_enable_fiscal"]
+			known_sat_fields = ["fm_cfdi_use", "fm_uso_cfdi_default", "fm_enable_fiscal"]
 
 			for known_field in known_sat_fields:
 				if frappe.db.exists("Custom Field", f"Item-{known_field}"):

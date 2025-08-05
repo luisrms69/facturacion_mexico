@@ -30,7 +30,9 @@ class SATValidationCache(Document):
 				days = 7  # Lista 69B cambia semanalmente
 			elif self.validation_type == "Obligaciones":
 				days = cache_days
-			elif self.validation_type == "fm_regimen_fiscal":
+			elif (
+				self.validation_type == "fm_regimen_fiscal"
+			):  # TODO: Cache type identifier, not field reference
 				days = cache_days
 			elif self.validation_type == "Domicilio_Fiscal":
 				days = cache_days
@@ -128,7 +130,13 @@ class SATValidationCache(Document):
 
 	def validate_validation_type(self):
 		"""Validar que el tipo de validación sea válido."""
-		valid_types = ["fm_rfc", "Lista69B", "Obligaciones", "fm_regimen_fiscal", "Domicilio_Fiscal"]
+		valid_types = [
+			"fm_rfc",
+			"Lista69B",
+			"Obligaciones",
+			"fm_regimen_fiscal",
+			"Domicilio_Fiscal",
+		]  # TODO: fm_regimen_fiscal is cache type, not field reference
 		if self.validation_type not in valid_types:
 			frappe.throw(_("Tipo de validación inválido: {0}").format(self.validation_type))
 

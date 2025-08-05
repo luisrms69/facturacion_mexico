@@ -201,7 +201,7 @@ class FiscalEventMX(Document):
 			try:
 				if event.reference_doctype == "Factura Fiscal Mexico":
 					frappe.db.set_value(
-						"Factura Fiscal Mexico", event.reference_name, "fm_fiscal_status", "failed"
+						"Factura Fiscal Mexico", event.reference_name, "fm_fiscal_status", "Error"
 					)
 					frappe.db.commit()
 			except Exception as e:
