@@ -1,0 +1,201 @@
+{
+  "actions": [],
+  "allow_rename": 0,
+  "autoname": "naming_series:",
+  "creation": "2025-08-06 16:00:00.000000",
+  "description": "Cola de recuperación automática para estados fiscales inconsistentes y timeouts PAC",
+  "doctype": "DocType",
+  "editable_grid": 1,
+  "engine": "InnoDB",
+  "field_order": [
+    "naming_series",
+    "task_section",
+    "task_type",
+    "reference_doctype",
+    "reference_name",
+    "priority",
+    "column_break_task",
+    "status",
+    "attempts",
+    "max_attempts",
+    "scheduled_time",
+    "last_attempt",
+    "error_section",
+    "last_error",
+    "error_details",
+    "column_break_error",
+    "created_by_system",
+    "assigned_to",
+    "escalated_flag",
+    "metadata_section",
+    "recovery_data",
+    "processing_notes"
+  ],
+  "fields": [
+    {
+      "fieldname": "naming_series",
+      "fieldtype": "Select",
+      "label": "Serie de Numeración",
+      "options": "RECOVERY-.YYYY.-.MM.-.#####",
+      "reqd": 1
+    },
+    {
+      "fieldname": "task_section",
+      "fieldtype": "Section Break",
+      "label": "Información de Tarea"
+    },
+    {
+      "fieldname": "task_type",
+      "fieldtype": "Select",
+      "in_list_view": 1,
+      "in_standard_filter": 1,
+      "label": "Tipo de Tarea",
+      "options": "timeout_recovery\nsync_error\nmanual_fix",
+      "reqd": 1
+    },
+    {
+      "fieldname": "reference_doctype",
+      "fieldtype": "Link",
+      "label": "DocType de Referencia",
+      "options": "DocType",
+      "reqd": 1
+    },
+    {
+      "fieldname": "reference_name",
+      "fieldtype": "Dynamic Link",
+      "label": "Documento de Referencia",
+      "options": "reference_doctype",
+      "reqd": 1
+    },
+    {
+      "fieldname": "priority",
+      "fieldtype": "Select",
+      "in_list_view": 1,
+      "label": "Prioridad",
+      "options": "high\nmedium\nlow",
+      "reqd": 1
+    },
+    {
+      "fieldname": "column_break_task",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "status",
+      "fieldtype": "Select",
+      "in_list_view": 1,
+      "in_standard_filter": 1,
+      "label": "Estado",
+      "options": "pending\nprocessing\ncompleted\nfailed",
+      "reqd": 1
+    },
+    {
+      "fieldname": "attempts",
+      "fieldtype": "Int",
+      "label": "Intentos Realizados",
+      "default": 0
+    },
+    {
+      "fieldname": "max_attempts",
+      "fieldtype": "Int",
+      "label": "Máximo de Intentos",
+      "default": 3,
+      "reqd": 1
+    },
+    {
+      "fieldname": "scheduled_time",
+      "fieldtype": "Datetime",
+      "label": "Tiempo Programado",
+      "reqd": 1
+    },
+    {
+      "fieldname": "last_attempt",
+      "fieldtype": "Datetime",
+      "label": "Último Intento"
+    },
+    {
+      "fieldname": "error_section",
+      "fieldtype": "Section Break",
+      "label": "Información de Errores"
+    },
+    {
+      "fieldname": "last_error",
+      "fieldtype": "Text",
+      "label": "Último Error"
+    },
+    {
+      "fieldname": "error_details",
+      "fieldtype": "JSON",
+      "label": "Detalles del Error"
+    },
+    {
+      "fieldname": "column_break_error",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "created_by_system",
+      "fieldtype": "Check",
+      "label": "Creado por Sistema",
+      "read_only": 1
+    },
+    {
+      "fieldname": "assigned_to",
+      "fieldtype": "Link",
+      "label": "Asignado a",
+      "options": "User"
+    },
+    {
+      "fieldname": "escalated_flag",
+      "fieldtype": "Check",
+      "label": "Escalado",
+      "read_only": 1
+    },
+    {
+      "fieldname": "metadata_section",
+      "fieldtype": "Section Break",
+      "label": "Metadatos"
+    },
+    {
+      "fieldname": "recovery_data",
+      "fieldtype": "JSON",
+      "label": "Datos de Recuperación"
+    },
+    {
+      "fieldname": "processing_notes",
+      "fieldtype": "Text",
+      "label": "Notas de Procesamiento"
+    }
+  ],
+  "index_web_pages_for_search": 1,
+  "links": [],
+  "modified": "2025-08-06 16:00:00.000000",
+  "modified_by": "Administrator",
+  "module": "Facturacion Fiscal",
+  "name": "Fiscal Recovery Task",
+  "naming_rule": "By \"Naming Series\" field",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "create": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "System Manager",
+      "share": 1,
+      "write": 1
+    },
+    {
+      "read": 1,
+      "role": "Accounts Manager"
+    },
+    {
+      "read": 1,
+      "role": "Accounts User"
+    }
+  ],
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "states": [],
+  "track_changes": 1
+}

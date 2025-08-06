@@ -8,12 +8,20 @@
   "engine": "InnoDB",
   "field_order": [
     "naming_series",
+    "request_section",
+    "request_id",
+    "request_timestamp",
+    "request_payload",
+    "column_break_request",
     "factura_fiscal_mexico",
     "timestamp",
     "operation_type",
+    "timeout_flag",
+    "retry_of",
     "column_break_basic",
     "success",
     "status_code",
+    "response_time_ms",
     "section_break_response",
     "facturapi_response",
     "error_message",
@@ -28,6 +36,33 @@
       "label": "Serie de Numeración",
       "options": "FAPI-LOG-.YYYY.-",
       "reqd": 1
+    },
+    {
+      "fieldname": "request_section",
+      "fieldtype": "Section Break",
+      "label": "Información de Solicitud"
+    },
+    {
+      "fieldname": "request_id",
+      "fieldtype": "Data",
+      "label": "ID de Solicitud",
+      "read_only": 1,
+      "unique": 1
+    },
+    {
+      "fieldname": "request_timestamp",
+      "fieldtype": "Datetime",
+      "label": "Timestamp de Solicitud",
+      "read_only": 1
+    },
+    {
+      "fieldname": "request_payload",
+      "fieldtype": "JSON",
+      "label": "Payload de Solicitud"
+    },
+    {
+      "fieldname": "column_break_request",
+      "fieldtype": "Column Break"
     },
     {
       "fieldname": "factura_fiscal_mexico",
@@ -58,6 +93,18 @@
       "reqd": 1
     },
     {
+      "fieldname": "timeout_flag",
+      "fieldtype": "Check",
+      "label": "Timeout",
+      "read_only": 1
+    },
+    {
+      "fieldname": "retry_of",
+      "fieldtype": "Link",
+      "label": "Reintento de",
+      "options": "FacturAPI Response Log"
+    },
+    {
       "fieldname": "column_break_basic",
       "fieldtype": "Column Break"
     },
@@ -74,6 +121,12 @@
       "fieldtype": "Data",
       "label": "Código HTTP",
       "length": 10,
+      "read_only": 1
+    },
+    {
+      "fieldname": "response_time_ms",
+      "fieldtype": "Float",
+      "label": "Tiempo de Respuesta (ms)",
       "read_only": 1
     },
     {
