@@ -328,7 +328,6 @@ def _attempt_timeout_recovery(task: dict[str, Any]) -> dict[str, Any]:
 	"""Intentar recovery de un timeout PAC específico."""
 	try:
 		# Obtener datos del recovery task
-		recovery_data = json.loads(task.get("recovery_data", "{}"))
 		response_log_name = task.get("reference_name")
 
 		# Obtener log original

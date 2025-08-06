@@ -87,7 +87,7 @@ class PACResponseWriter:
 				return result
 
 		except Exception as db_error:
-			result["errors"].append(f"DB Error: {str(db_error)}")
+			result["errors"].append(f"DB Error: {db_error!s}")
 			frappe.log_error(f"Error escritura BD PAC: {traceback.format_exc()}", "PAC Writer DB Error")
 
 		# PASO 3: Fallback a filesystem si BD falla
@@ -107,7 +107,7 @@ class PACResponseWriter:
 			return result
 
 		except Exception as fs_error:
-			result["errors"].append(f"Filesystem Error: {str(fs_error)}")
+			result["errors"].append(f"Filesystem Error: {fs_error!s}")
 			frappe.log_error(
 				f"Error filesystem fallback: {traceback.format_exc()}", "PAC Writer Filesystem Error"
 			)
@@ -147,7 +147,7 @@ class PACResponseWriter:
 		request_data: dict[str, Any],
 		response_data: dict[str, Any],
 		operation_type: str,
-	) -> Optional[Any]:
+	) -> Any | None:
 		"""Escribir a FacturAPI Response Log en BD."""
 		# Obtener referencia a Factura Fiscal Mexico si existe
 		factura_fiscal = frappe.db.get_value(
@@ -272,7 +272,7 @@ class PACResponseWriter:
 			or (response_data.get("status_code", 0) >= 200 and response_data.get("status_code", 0) < 300)
 		)
 
-	def _determine_fiscal_status(self, response_data: dict[str, Any]) -> Optional[str]:
+	def _determine_fiscal_status(self, response_data: dict[str, Any]) -> str | None:
 		"""Determinar estado fiscal basado en respuesta PAC."""
 		if not self._is_success_response(response_data):
 			return "Error"
@@ -427,7 +427,7 @@ def recover_from_file(fallback_file_path: str) -> dict[str, Any]:
 			return {"success": False, "error": f"Archivo fallback no encontrado: {fallback_file_path}"}
 
 		# Leer datos del archivo
-		with open(fallback_file_path, "r") as f:
+		with open(fallback_file_path) as f:
 			fallback_data = json.load(f)
 
 		# Verificar que no ha sido ya recuperado
@@ -484,7 +484,7 @@ def get_fallback_files() -> list[dict[str, Any]]:
 				filepath = os.path.join(FALLBACK_DIR, filename)
 
 				try:
-					with open(filepath, "r") as f:
+					with open(filepath) as f:
 						data = json.load(f)
 
 					fallback_files.append(

@@ -491,7 +491,7 @@ def sync_status_to_sales_invoice(factura_fiscal_name: str) -> dict[str, Any]:
 		return {"success": False, "error": str(e), "factura_fiscal": factura_fiscal_name, "timestamp": now()}
 
 
-def bulk_sync_invoices(limit: int = 100, filters: Optional[dict[str, Any]] = None) -> dict[str, Any]:
+def bulk_sync_invoices(limit: int = 100, filters: dict[str, Any] | None = None) -> dict[str, Any]:
 	"""
 	Sincronización masiva de estados fiscales.
 	Procesa en lotes para evitar timeouts y permite filtros específicos.
@@ -597,7 +597,7 @@ def bulk_sync_invoices(limit: int = 100, filters: Optional[dict[str, Any]] = Non
 		}
 
 
-def enqueue_bulk_sync(limit: int = 500, filters: Optional[dict[str, Any]] = None) -> dict[str, Any]:
+def enqueue_bulk_sync(limit: int = 500, filters: dict[str, Any] | None = None) -> dict[str, Any]:
 	"""
 	Enqueue sincronización masiva como background job.
 	Non-blocking para operaciones grandes.
