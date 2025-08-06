@@ -1,0 +1,267 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "allow_guest_to_view": 0,
+ "allow_copy": 0,
+ "allow_import": 0,
+ "allow_auto_repeat": 0,
+ "autoname": "naming_series:",
+ "creation": "2025-08-06 12:30:00.000000",
+ "description": "Cola de recuperación automática para estados fiscales inconsistentes y timeouts PAC",
+ "doctype": "DocType",
+ "document_type": "Document",
+ "engine": "InnoDB",
+ "field_order": [
+  "task_section",
+  "naming_series",
+  "task_type",
+  "reference_doctype",
+  "reference_name",
+  "priority",
+  "column_break_task",
+  "status",
+  "attempts",
+  "max_attempts",
+  "scheduled_time",
+  "last_attempt",
+  "error_section",
+  "last_error",
+  "error_details",
+  "resolution_notes",
+  "column_break_error",
+  "created_by_system",
+  "assigned_to",
+  "escalated_flag",
+  "metadata_section",
+  "original_request_id",
+  "recovery_data",
+  "processing_notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "task_section",
+   "fieldtype": "Section Break",
+   "label": "Información de Tarea"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Serie de Nombres",
+   "options": "RECOVERY-.YYYY.-.MM.-.#####",
+   "default": "RECOVERY-.YYYY.-.MM.-.#####",
+   "reqd": 1
+  },
+  {
+   "fieldname": "task_type",
+   "fieldtype": "Select",
+   "label": "Tipo de Tarea",
+   "options": "timeout_recovery\nsync_error\nmanual_fix\nstate_corruption\norphaned_response",
+   "reqd": 1,
+   "description": "Categoría del problema a resolver"
+  },
+  {
+   "fieldname": "reference_doctype",
+   "fieldtype": "Data",
+   "label": "DocType de Referencia",
+   "reqd": 1,
+   "description": "DocType del documento con problema"
+  },
+  {
+   "fieldname": "reference_name",
+   "fieldtype": "Data", 
+   "label": "Nombre de Referencia",
+   "reqd": 1,
+   "description": "Nombre del documento con problema"
+  },
+  {
+   "fieldname": "priority",
+   "fieldtype": "Select",
+   "label": "Prioridad",
+   "options": "high\nmedium\nlow",
+   "default": "medium",
+   "reqd": 1,
+   "description": "Prioridad de procesamiento (high = inmediato)"
+  },
+  {
+   "fieldname": "column_break_task",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Estado",
+   "options": "pending\nprocessing\ncompleted\nfailed\nexceeded_attempts",
+   "default": "pending",
+   "reqd": 1,
+   "description": "Estado actual de la tarea de recuperación"
+  },
+  {
+   "fieldname": "attempts",
+   "fieldtype": "Int",
+   "label": "Intentos Realizados",
+   "default": 0,
+   "read_only": 1,
+   "description": "Contador de intentos de recuperación"
+  },
+  {
+   "fieldname": "max_attempts",
+   "fieldtype": "Int",
+   "label": "Máximo de Intentos",
+   "default": 3,
+   "reqd": 1,
+   "description": "Máximo de intentos antes de marcar como fallida"
+  },
+  {
+   "fieldname": "scheduled_time",
+   "fieldtype": "Datetime",
+   "label": "Programado Para",
+   "reqd": 1,
+   "description": "Cuándo debe procesarse esta tarea"
+  },
+  {
+   "fieldname": "last_attempt",
+   "fieldtype": "Datetime",
+   "label": "Último Intento",
+   "read_only": 1,
+   "description": "Timestamp del último intento de procesamiento"
+  },
+  {
+   "fieldname": "error_section",
+   "fieldtype": "Section Break",
+   "label": "Información de Error"
+  },
+  {
+   "fieldname": "last_error",
+   "fieldtype": "Text",
+   "label": "Último Error",
+   "read_only": 1,
+   "description": "Descripción del último error encontrado"
+  },
+  {
+   "fieldname": "error_details",
+   "fieldtype": "JSON",
+   "label": "Detalles del Error",
+   "read_only": 1,
+   "description": "Información técnica detallada del error (JSON)"
+  },
+  {
+   "fieldname": "resolution_notes",
+   "fieldtype": "Text",
+   "label": "Notas de Resolución",
+   "description": "Notas del proceso de resolución o acciones tomadas"
+  },
+  {
+   "fieldname": "column_break_error",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "created_by_system",
+   "fieldtype": "Link",
+   "label": "Creado por Sistema",
+   "options": "User",
+   "read_only": 1,
+   "description": "Usuario/sistema que creó la tarea"
+  },
+  {
+   "fieldname": "assigned_to",
+   "fieldtype": "Link",
+   "label": "Asignado a",
+   "options": "User",
+   "description": "Usuario asignado para resolución manual si es necesario"
+  },
+  {
+   "fieldname": "escalated_flag",
+   "fieldtype": "Check",
+   "label": "Escalado",
+   "default": 0,
+   "description": "True si la tarea ha sido escalada a soporte manual"
+  },
+  {
+   "fieldname": "metadata_section",
+   "fieldtype": "Section Break",
+   "label": "Metadatos de Recovery",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "original_request_id",
+   "fieldtype": "Data",
+   "label": "Request ID Original",
+   "description": "UUID del request original que causó el problema"
+  },
+  {
+   "fieldname": "recovery_data",
+   "fieldtype": "JSON",
+   "label": "Datos de Recuperación",
+   "description": "Información adicional necesaria para la recuperación (JSON)"
+  },
+  {
+   "fieldname": "processing_notes",
+   "fieldtype": "Text",
+   "label": "Notas de Procesamiento",
+   "read_only": 1,
+   "description": "Log detallado de los intentos de procesamiento"
+  }
+ ],
+ "has_web_view": 0,
+ "hide_toolbar": 0,
+ "idx": 0,
+ "in_create": 0,
+ "is_submittable": 0,
+ "issingle": 0,
+ "istable": 0,
+ "max_attachments": 0,
+ "modified": "2025-08-06 12:30:00.000000",
+ "modified_by": "Administrator",
+ "module": "Facturacion Mexico",
+ "name": "Fiscal Recovery Task",
+ "name_case": "",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Fiscal Manager",
+   "share": 0,
+   "write": 1
+  },
+  {
+   "create": 0,
+   "delete": 0,
+   "email": 0,
+   "export": 0,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Fiscal User",
+   "share": 0,
+   "write": 0
+  }
+ ],
+ "quick_entry": 0,
+ "read_only": 0,
+ "read_only_onload": 0,
+ "show_name_in_global_search": 1,
+ "sort_field": "scheduled_time",
+ "sort_order": "ASC",
+ "title_field": "task_type",
+ "track_changes": 1,
+ "track_seen": 1,
+ "track_views": 0
+}

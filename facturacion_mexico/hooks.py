@@ -172,7 +172,10 @@ fixtures = [
 					"Sales Invoice-fm_ereceipt_section",
 					"Sales Invoice-fm_factorapi_draft_id",
 					"Sales Invoice-fm_factura_fiscal_mx",
-					# "Sales Invoice-fm_fiscal_status", # MIGRADO A Factura Fiscal Mexico
+					"Sales Invoice-fm_fiscal_section",
+					"Sales Invoice-fm_fiscal_status",
+					"Sales Invoice-fm_last_status_update",
+					"Sales Invoice-fm_quick_status",
 					"Sales Invoice-fm_folio_reserved",
 					# "Sales Invoice-fm_informacion_fiscal_section", # ELIMINADO - Sección vacía migrada a Factura Fiscal Mexico
 					# "Sales Invoice-fm_lugar_expedicion", # MIGRADO A Factura Fiscal Mexico
