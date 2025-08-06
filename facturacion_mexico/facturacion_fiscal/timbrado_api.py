@@ -70,6 +70,15 @@ class TimbradoAPI:
 			# Crear o actualizar Factura Fiscal
 			factura_fiscal = self._get_or_create_factura_fiscal(sales_invoice)
 
+			# VALIDACIÓN CRÍTICA: Documento fiscal debe estar submitted
+			if factura_fiscal.docstatus != 1:
+				frappe.throw(
+					_(
+						"No se puede timbrar: el documento fiscal debe estar submitted (enviado). Use el botón Submit en Factura Fiscal Mexico primero."
+					),
+					title=_("Documento Fiscal Draft"),
+				)
+
 			# Preparar datos para FacturAPI
 			invoice_data = self._prepare_facturapi_data(sales_invoice, factura_fiscal)
 
@@ -221,6 +230,12 @@ class TimbradoAPI:
 		factura_fiscal.total_amount = sales_invoice.grand_total
 		factura_fiscal.currency = sales_invoice.currency
 		factura_fiscal.fm_fiscal_status = "Pendiente"
+
+		# CORRECCIÓN: Copiar fm_cfdi_use desde Customer (campo fm_uso_cfdi_default)
+		customer = frappe.get_doc("Customer", sales_invoice.customer)
+		if customer.fm_uso_cfdi_default:
+			factura_fiscal.fm_cfdi_use = customer.fm_uso_cfdi_default
+
 		factura_fiscal.save()
 
 		# Actualizar referencia en Sales Invoice
@@ -300,12 +315,14 @@ class TimbradoAPI:
 
 		# Obtener uso CFDI desde Factura Fiscal Mexico
 		fiscal_doc = self._get_factura_fiscal_doc(sales_invoice)
-		cfdi_use = fiscal_doc.get("fm_cfdi_use") if fiscal_doc else sales_invoice.get("fm_cfdi_use")
+		cfdi_use = fiscal_doc.get("fm_cfdi_use") if fiscal_doc else None
 
 		if not cfdi_use:
 			frappe.throw(
-				_("No se puede timbrar: falta configurar el Uso CFDI en los datos fiscales."),
-				title=_("Uso CFDI Requerido"),
+				_(
+					"No se puede timbrar: falta configurar 'Uso CFDI Default' en el Customer. Configure el campo en Customer → Fiscal → Uso CFDI Default."
+				),
+				title=_("Uso CFDI Requerido en Customer"),
 			)
 
 		# Datos de la factura
