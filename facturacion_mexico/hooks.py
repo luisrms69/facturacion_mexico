@@ -316,6 +316,14 @@ scheduler_events = {
 		"facturacion_mexico.complementos_pago.api.process_pending_complements",
 		"facturacion_mexico.ereceipts.api.expire_ereceipts",
 	],
+	"all": [
+		# Recovery Worker - Cada 5 minutos (300 segundos)
+		"facturacion_mexico.facturacion_fiscal.tasks.process_timeout_recovery",
+		# Recovery Worker - Cada 10 minutos (600 segundos)
+		"facturacion_mexico.facturacion_fiscal.tasks.process_sync_errors",
+		# Sync Service - Cada 5 minutos junto con recovery jobs
+		"facturacion_mexico.facturacion_fiscal.tasks.process_bulk_sync",
+	],
 	"daily": [
 		"facturacion_mexico.validaciones.api.bulk_validate_customers",
 		"facturacion_mexico.validaciones.doctype.sat_validation_cache.sat_validation_cache.cleanup_expired_cache",
@@ -323,7 +331,11 @@ scheduler_events = {
 	],
 	"cron": {
 		# Validación RFC automática nocturna a las 2:00 AM todos los días
-		"0 2 * * *": ["facturacion_mexico.validaciones.api.run_nightly_rfc_validation"]
+		"0 2 * * *": [
+			"facturacion_mexico.validaciones.api.run_nightly_rfc_validation",
+			# Recovery Worker - Limpieza logs diaria a las 2:00 AM
+			"facturacion_mexico.facturacion_fiscal.tasks.cleanup_old_logs",
+		]
 	},
 	"weekly": [
 		"facturacion_mexico.complementos_pago.api.reconcile_payment_tracking",
