@@ -15,3 +15,5 @@ facturacion_mexico.patches.migrate_sat_catalogs_to_fixtures
 facturacion_mexico.patches.v1.register_facturacion_fiscal_module
 # CRITICAL FIX - Restore corrupted FacturAPI Response Item DocType after module migration
 facturacion_mexico.patches.v1.restore_facturapi_response_item
+# ARQUITECTURA RESILIENTE - Migrar estados fiscales legacy a arquitectura resiliente (TAREA 2.4)
+facturacion_mexico.patches.v2_0.migrate_fiscal_status_to_architecture

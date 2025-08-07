@@ -154,10 +154,10 @@ class PACResponseWriter:
 			"Factura Fiscal Mexico", {"sales_invoice": sales_invoice_name}, "name"
 		)
 
-		# Mapear operation_type a valores válidos del DocType
+		# Mapear operation_type a valores válidos del DocType (ARQUITECTURA RESILIENTE)
 		operation_type_mapping = {
 			"timbrado": "Timbrado",
-			"cancelacion": "Solicitud Cancelación",
+			"cancelacion": "PENDIENTE_CANCELACION",
 			"consulta": "Consulta Estado",
 			"timeout_recovery": "Consulta Estado",
 		}
@@ -279,15 +279,15 @@ class PACResponseWriter:
 
 		status = response_data.get("status", "").lower()
 
-		# Mapeo estados FacturAPI -> Estados internos (español actual)
+		# Mapeo estados FacturAPI -> Estados internos (ARQUITECTURA RESILIENTE)
 		status_map = {
-			"valid": "Timbrada",
-			"canceled": "Cancelada",
-			"pending_cancellation": "Solicitud Cancelación",
-			"draft": "Pendiente",  # Para e-receipts
+			"valid": "TIMBRADO",
+			"canceled": "CANCELADO",
+			"pending_cancellation": "PENDIENTE_CANCELACION",
+			"draft": "BORRADOR",  # Para e-receipts
 		}
 
-		return status_map.get(status, "Timbrada" if response_data.get("uuid") else None)
+		return status_map.get(status, "TIMBRADO" if response_data.get("uuid") else None)
 
 	def _schedule_recovery_task(self, fallback_file: str):
 		"""Programar tarea de recovery para archivo fallback."""

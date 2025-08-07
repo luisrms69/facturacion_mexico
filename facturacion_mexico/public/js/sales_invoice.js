@@ -101,7 +101,7 @@ function redirect_to_fiscal_document(frm) {
 				sales_invoice: frm.doc.name,
 				company: frm.doc.company,
 				customer: frm.doc.customer, // AÑADIR: Customer requerido
-				fm_fiscal_status: "Pendiente", // Valor correcto en español
+				fm_fiscal_status: "BORRADOR", // Estado arquitectura resiliente
 				fm_payment_method_sat: "PUE", // Valor por defecto
 			},
 		},

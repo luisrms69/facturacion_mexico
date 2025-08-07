@@ -163,13 +163,13 @@
       "options": "Uso CFDI SAT"
     },
     {
-      "default": "Pendiente",
+      "default": "BORRADOR",
       "description": "Estado fiscal calculado automáticamente basado en respuestas de FacturAPI",
       "fieldname": "fm_fiscal_status",
       "fieldtype": "Select",
       "in_list_view": 1,
       "label": "Estado Fiscal",
-      "options": "Pendiente\nTimbrada\nCancelada\nError\nSolicitud Cancelación",
+      "options": "BORRADOR\nPROCESANDO\nTIMBRADO\nERROR\nCANCELADO\nPENDIENTE_CANCELACION\nARCHIVADO",
       "read_only": 1
     },
     {

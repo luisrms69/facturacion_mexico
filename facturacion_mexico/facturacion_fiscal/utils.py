@@ -111,8 +111,8 @@ def is_invoice_stamped(sales_invoice_name):
 	try:
 		fiscal_data = get_invoice_fiscal_data(sales_invoice_name)
 
-		# Verificar que tenga UUID y estado Timbrada
-		return fiscal_data.get("uuid") and fiscal_data.get("fm_fiscal_status") == "Timbrada"
+		# Verificar que tenga UUID y estado TIMBRADO
+		return fiscal_data.get("uuid") and fiscal_data.get("fm_fiscal_status") == "TIMBRADO"
 
 	except Exception:
 		return False
@@ -200,7 +200,7 @@ def calculate_current_status(factura_fiscal_name: str) -> dict[str, Any]:
 			except (json.JSONDecodeError, Exception):
 				# Si no puede parsear respuesta pero success=True, asumir timbrado
 				return {
-					"status": "Timbrada",
+					"status": "TIMBRADO",
 					"sub_status": "success_unparseable_response",
 					"calculated_at": frappe.utils.now(),
 					"source": "status_calculator",
@@ -273,23 +273,23 @@ def get_status_from_response(response_payload: dict[str, Any]) -> dict[str, Any]
 		# Obtener status de FacturAPI
 		facturapi_status = response_payload.get("status", "").lower()
 
-		# Mapeo según arquitectura líneas 296-311
+		# Mapeo según arquitectura resiliente (ARQUITECTURA RESILIENTE)
 		status_mapping = {
-			"valid": {"status": "Timbrada", "sub_status": None},
-			"canceled": {"status": "Cancelada", "sub_status": None},
-			"pending_cancellation": {"status": "Pendiente Cancelación", "sub_status": None},
-			"draft": {"status": "Borrador", "sub_status": "ereceipt_draft"},
-			"expired": {"status": "Archivada", "sub_status": "ereceipt_expired"},
-			"invoiced": {"status": "Timbrada", "sub_status": "ereceipt_converted"},
+			"valid": {"status": "TIMBRADO", "sub_status": None},
+			"canceled": {"status": "CANCELADO", "sub_status": None},
+			"pending_cancellation": {"status": "PENDIENTE_CANCELACION", "sub_status": None},
+			"draft": {"status": "BORRADOR", "sub_status": "ereceipt_draft"},
+			"expired": {"status": "ARCHIVADO", "sub_status": "ereceipt_expired"},
+			"invoiced": {"status": "TIMBRADO", "sub_status": "ereceipt_converted"},
 		}
 
 		# Si hay mapeo directo, usarlo
 		if facturapi_status in status_mapping:
 			return status_mapping[facturapi_status]
 
-		# Si no hay status pero hay UUID, asumir timbrada
+		# Si no hay status pero hay UUID, asumir timbrado
 		if response_payload.get("uuid") or response_payload.get("id"):
-			return {"status": "Timbrada", "sub_status": None}
+			return {"status": "TIMBRADO", "sub_status": None}
 
 		# Si hay error específico de validación
 		if "error" in response_payload:
@@ -338,13 +338,13 @@ def should_override_status(current_status: str, calculated_status: str, factura_
 
 		# Lógica de precedencia de estados
 		precedence_order = [
-			"Borrador",  # 0 - Estado inicial
-			"Procesando",  # 1 - En proceso
-			"Error",  # 2 - Error recuperable
-			"Timbrada",  # 3 - Éxito final
-			"Pendiente Cancelación",  # 4 - Cancelación en proceso
-			"Cancelada",  # 5 - Cancelación final
-			"Archivada",  # 6 - Estado final archivado
+			"BORRADOR",  # 0 - Estado inicial
+			"PROCESANDO",  # 1 - En proceso
+			"ERROR",  # 2 - Error recuperable
+			"TIMBRADO",  # 3 - Éxito final
+			"PENDIENTE_CANCELACION",  # 4 - Cancelación en proceso
+			"CANCELADO",  # 5 - Cancelación final
+			"ARCHIVADO",  # 6 - Estado final archivado
 		]
 
 		try:
@@ -363,7 +363,7 @@ def should_override_status(current_status: str, calculated_status: str, factura_
 		# O si vamos de Error -> cualquier estado exitoso
 		if calculated_idx > current_idx:
 			return True
-		elif current_status == "Error" and calculated_status in ["Timbrada", "Cancelada"]:
+		elif current_status == "ERROR" and calculated_status in ["TIMBRADO", "CANCELADO"]:
 			# Permitir recuperación de errores a estados exitosos
 			return True
 

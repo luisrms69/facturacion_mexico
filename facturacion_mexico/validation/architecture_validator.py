@@ -114,15 +114,15 @@ class ResilienceArchitectureValidator:
 				validation["errors"].append(f"Factura Fiscal {factura_fiscal_name} no encontrada")
 				return validation
 
-			# VALIDACIÓN 1: fm_fiscal_status debe estar en valores válidos
+			# VALIDACIÓN 1: fm_fiscal_status debe estar en valores válidos (ARQUITECTURA RESILIENTE)
 			valid_statuses = [
-				"Borrador",
-				"Procesando",
-				"Timbrada",
-				"Error",
-				"Cancelada",
-				"Pendiente Cancelación",
-				"Archivada",
+				"BORRADOR",
+				"PROCESANDO",
+				"TIMBRADO",
+				"ERROR",
+				"CANCELADO",
+				"PENDIENTE_CANCELACION",
+				"ARCHIVADO",
 			]
 			current_status = fiscal_data.get("fm_fiscal_status")
 
@@ -477,6 +477,24 @@ class ResilienceArchitectureValidator:
 		for validation in all_validations:
 			if validation.get("warnings"):
 				self.validation_results["summary"]["warnings"] += len(validation["warnings"])
+
+	# TODO: Agregar función workflow completo Sales Invoice → Factura Fiscal → Validación
+	# def validate_sales_invoice_workflow(self, sales_invoice_name: str) -> dict[str, Any]:
+	#     """
+	#     Validar workflow completo desde Sales Invoice sin Factura Fiscal.
+	#
+	#     WORKFLOW:
+	#     1. Sales Invoice sin fm_factura_fiscal_mx
+	#     2. Crear Factura Fiscal Mexico automáticamente
+	#     3. Validar arquitectura resiliente completa
+	#
+	#     Args:
+	#         sales_invoice_name: Nombre Sales Invoice (ej: ACC-SINV-2025-00956)
+	#
+	#     Returns:
+	#         Dict con resultados validación workflow completo
+	#     """
+	#     # IMPLEMENTAR: Sales Invoice → get_or_create_factura_fiscal() → validate_complete_system()
 
 	def validate_shadow_mode_batch(
 		self, start_invoice: str = "ACC-SINV-2025-00917", count: int = 20
