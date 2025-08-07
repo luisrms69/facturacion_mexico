@@ -6,6 +6,7 @@ from frappe.utils import flt, now_datetime
 
 from facturacion_mexico.validaciones.api import _normalize_company_name_for_facturapi
 
+from .api import write_pac_response  # PAC Response Writer - Arquitectura resiliente
 from .api_client import get_facturapi_client
 from .doctype.facturapi_response_log.facturapi_response_log import FacturAPIResponseLog
 from .doctype.fiscal_event_mx.fiscal_event_mx import FiscalEventMX
@@ -153,12 +154,15 @@ class TimbradoAPI:
 					else:
 						internal_status_code = error_details.get("status_code", "500")  # PAC real
 
-					FacturAPIResponseLog.create_log(
+					# Nueva arquitectura resiliente - PAC Response Writer
+					write_pac_response(
 						factura_fiscal_mexico=factura_fiscal_name,
 						operation_type="Timbrado",
 						success=False,
 						error_message=error_str,
 						status_code=internal_status_code,
+						request_id=f"TIMBRADO_ERROR_{frappe.generate_hash()[:8]}",
+						request_payload={"error": "timbrado_failed", "details": error_str},
 					)
 				except Exception as log_error:
 					frappe.log_error(
@@ -476,13 +480,15 @@ class TimbradoAPI:
 		# Marcar evento como exitoso
 		FiscalEventMX.mark_event_success(event_doc.name, response)
 
-		# Crear log de respuesta FacturAPI
-		FacturAPIResponseLog.create_log(
+		# Nueva arquitectura resiliente - PAC Response Writer
+		write_pac_response(
 			factura_fiscal_mexico=factura_fiscal.name,
 			operation_type="Timbrado",
 			success=True,
 			facturapi_response=response,
 			status_code="200",
+			request_id=f"TIMBRADO_{frappe.generate_hash()[:8]}",
+			request_payload={"sales_invoice": sales_invoice.name, "action": "timbrar"},
 		)
 
 		# Descargar archivos si está configurado
@@ -560,13 +566,15 @@ class TimbradoAPI:
 			# Marcar evento como exitoso
 			FiscalEventMX.mark_event_success(event_doc.name, response)
 
-			# Crear log de respuesta FacturAPI para cancelación
-			FacturAPIResponseLog.create_log(
+			# Nueva arquitectura resiliente - PAC Response Writer
+			write_pac_response(
 				factura_fiscal_mexico=factura_fiscal.name,
 				operation_type="Confirmación Cancelación",
 				success=True,
 				facturapi_response=response,
 				status_code="200",
+				request_id=f"CANCELACION_{frappe.generate_hash()[:8]}",
+				request_payload={"sales_invoice": sales_invoice_name, "action": "cancelar"},
 			)
 
 			frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure cancellation transaction is committed
@@ -583,14 +591,20 @@ class TimbradoAPI:
 			# Procesar error específico del PAC
 			error_details = self._process_pac_error(e)
 
-			# Crear log de error FacturAPI para cancelación
+			# Nueva arquitectura resiliente - PAC Response Writer
 			if "factura_fiscal" in locals():
-				FacturAPIResponseLog.create_log(
+				write_pac_response(
 					factura_fiscal_mexico=factura_fiscal.name,
 					operation_type="Solicitud Cancelación",
 					success=False,
 					error_message=str(e)[:500],  # Truncar mensaje largo
 					status_code=error_details.get("status_code", "500"),
+					request_id=f"CANCELACION_ERROR_{frappe.generate_hash()[:8]}",
+					request_payload={
+						"sales_invoice": sales_invoice_name,
+						"action": "cancelar",
+						"error": str(e),
+					},
 				)
 
 			return {"success": False, "error": str(e), "message": f"Error al cancelar factura: {e!s}"}

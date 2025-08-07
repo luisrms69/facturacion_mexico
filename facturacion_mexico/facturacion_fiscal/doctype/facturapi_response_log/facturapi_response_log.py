@@ -22,80 +22,9 @@ class FacturAPIResponseLog(Document):
 		if not self.ip_address:
 			self.ip_address = getattr(frappe.local, "request_ip", None) or "Unknown"
 
-	def after_insert(self):
-		"""Actualizar estado fiscal después de insertar log."""
-		if self.factura_fiscal_mexico and self.success:
-			self.update_fiscal_status()
+	# after_insert() ELIMINADO - Nueva arquitectura usa PAC Response Writer + Status Calculator
 
-	def update_fiscal_status(self):
-		"""Actualizar estado fiscal y campos relacionados basado en el tipo de operación exitosa."""
-		if not self.success:
-			return
-
-		# Mapear operaciones a estados fiscales
-		status_map = {
-			"Timbrado": "Timbrada",
-			"Confirmación Cancelación": "Cancelada",
-			"Solicitud Cancelación": "Solicitud Cancelación",  # Estado intermedio
-		}
-
-		new_status = status_map.get(self.operation_type)
-		if not new_status:
-			return
-
-		try:
-			# Preparar campos a actualizar
-			update_fields = {"fm_fiscal_status": new_status}
-
-			# Si es timbrado exitoso, actualizar campos adicionales con datos de FacturAPI
-			if self.operation_type == "Timbrado" and self.facturapi_response:
-				response_data = self.facturapi_response
-				if isinstance(response_data, str):
-					import json
-
-					try:
-						response_data = json.loads(response_data)
-					except Exception:
-						response_data = {}
-
-				# Actualizar campos fiscales críticos
-				if response_data.get("id"):
-					update_fields["facturapi_id"] = response_data["id"]
-
-				if response_data.get("uuid"):
-					update_fields["uuid"] = response_data["uuid"]
-
-				if response_data.get("serie"):
-					update_fields["serie"] = response_data["serie"]
-
-				if response_data.get("folio"):
-					update_fields["folio"] = str(response_data["folio"])
-
-				if response_data.get("total"):
-					update_fields["total_fiscal"] = frappe.utils.flt(response_data["total"])
-
-				# Actualizar fecha de timbrado
-				update_fields["fecha_timbrado"] = self.timestamp or frappe.utils.now_datetime()
-
-			# Si es cancelación, actualizar fecha de cancelación
-			elif self.operation_type == "Confirmación Cancelación":
-				update_fields["cancellation_date"] = self.timestamp or frappe.utils.now_datetime()
-
-			# Actualizar todos los campos en una sola operación
-			frappe.db.set_value("Factura Fiscal Mexico", self.factura_fiscal_mexico, update_fields)
-
-			# Log del cambio con detalles
-			updated_fields = ", ".join([f"{k}={v}" for k, v in update_fields.items()])
-			frappe.logger().info(
-				f"Campos fiscales actualizados: {self.factura_fiscal_mexico} → {updated_fields} "
-				f"(basado en log {self.name})"
-			)
-
-		except Exception as e:
-			frappe.log_error(
-				f"Error actualizando campos fiscales para {self.factura_fiscal_mexico}: {e!s}",
-				"FacturAPI Response Log Update Error",
-			)
+	# update_fiscal_status() ELIMINADO - Nueva arquitectura usa Status Calculator stateless
 
 	@staticmethod
 	def create_log(
@@ -142,34 +71,7 @@ class FacturAPIResponseLog(Document):
 			)
 			return None
 
-	@staticmethod
-	def get_latest_status(factura_fiscal_mexico):
-		"""Obtener el último estado basado en logs exitosos."""
-		try:
-			latest_log = frappe.db.get_value(
-				"FacturAPI Response Log",
-				{
-					"factura_fiscal_mexico": factura_fiscal_mexico,
-					"success": 1,
-					"operation_type": ("in", ["Timbrado", "Confirmación Cancelación"]),
-				},
-				["operation_type", "timestamp"],
-				order_by="timestamp desc",
-			)
-
-			if latest_log:
-				operation_type = latest_log[0] if isinstance(latest_log, tuple) else latest_log
-				status_map = {"Timbrado": "Timbrada", "Confirmación Cancelación": "Cancelada"}
-				return status_map.get(operation_type, "Pendiente")
-
-			return "Pendiente"
-
-		except Exception as e:
-			frappe.log_error(
-				f"Error obteniendo último estado para {factura_fiscal_mexico}: {e!s}",
-				"FacturAPI Response Log Status Error",
-			)
-			return "Error"
+	# get_latest_status() ELIMINADO - Nueva arquitectura usa calculate_current_status() del Status Calculator
 
 	def validate(self):
 		"""Validaciones del documento."""
