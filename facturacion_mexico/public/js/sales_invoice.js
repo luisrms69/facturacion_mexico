@@ -4,17 +4,41 @@
 frappe.ui.form.on("Sales Invoice", {
 	refresh: function (frm) {
 		// Solo mostrar botón de timbrado si está submitted, tiene RFC y NO está timbrada
-		if (frm.doc.docstatus === 1 && has_customer_rfc(frm) && !is_already_timbrada(frm)) {
-			add_timbrar_button(frm);
-		} else if (frm.doc.docstatus === 1 && is_already_timbrada(frm)) {
-			add_view_fiscal_button(frm);
+		if (frm.doc.docstatus === 1) {
+			has_customer_rfc(frm, function (has_rfc) {
+				if (has_rfc && !is_already_timbrada(frm)) {
+					add_timbrar_button(frm);
+				} else if (is_already_timbrada(frm)) {
+					add_view_fiscal_button(frm);
+				}
+			});
 		}
 	},
 });
 
-function has_customer_rfc(frm) {
-	// Verificar si el cliente tiene RFC configurado
-	return frm.doc.customer && frm.doc.tax_id;
+function has_customer_rfc(frm, callback) {
+	// Verificar si el cliente tiene RFC configurado - RFC está en Customer, no en Sales Invoice
+	if (!frm.doc.customer) {
+		callback(false);
+		return;
+	}
+
+	// Obtener RFC del Customer vinculado
+	frappe.call({
+		method: "frappe.client.get_value",
+		args: {
+			doctype: "Customer",
+			filters: { name: frm.doc.customer },
+			fieldname: "tax_id",
+		},
+		callback: function (r) {
+			const has_rfc = !!(r.message && r.message.tax_id);
+			callback(has_rfc);
+		},
+		error: function (err) {
+			callback(false);
+		},
+	});
 }
 
 function is_already_timbrada(frm) {
