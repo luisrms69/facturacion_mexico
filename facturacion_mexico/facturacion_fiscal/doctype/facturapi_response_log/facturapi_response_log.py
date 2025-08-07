@@ -23,6 +23,7 @@ class FacturAPIResponseLog(Document):
 			self.ip_address = getattr(frappe.local, "request_ip", None) or "Unknown"
 
 	# after_insert() ELIMINADO - Nueva arquitectura usa PAC Response Writer + Status Calculator
+	# Hooks legacy eliminados - sistema ahora stateless
 
 	# update_fiscal_status() ELIMINADO - Nueva arquitectura usa Status Calculator stateless
 

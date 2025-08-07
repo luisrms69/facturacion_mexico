@@ -6,7 +6,7 @@ from frappe.utils import flt, now_datetime
 
 from facturacion_mexico.validaciones.api import _normalize_company_name_for_facturapi
 
-from .api import write_pac_response  # PAC Response Writer - Arquitectura resiliente
+from .api import write_pac_response  # PAC Response Writer - Arquitectura resiliente activada
 from .api_client import get_facturapi_client
 from .doctype.facturapi_response_log.facturapi_response_log import FacturAPIResponseLog
 from .doctype.fiscal_event_mx.fiscal_event_mx import FiscalEventMX
