@@ -2,6 +2,8 @@
 
 import frappe
 
+from facturacion_mexico.config.fiscal_states_config import FiscalStates, SyncStates
+
 
 def test_factura_fiscal_creation():
 	"""
@@ -41,7 +43,20 @@ def test_factura_fiscal_creation():
 			for field, value in resilient_fields.items():
 				print(f"   - {field}: {value}")
 
-			# 4. Verificar consistency entre documentos
+			# 4. Validar estados según nueva arquitectura
+			if not FiscalStates.is_valid(ffm.fm_fiscal_status):
+				print(f"❌ Estado fiscal inválido: {ffm.fm_fiscal_status}")
+				return False
+			else:
+				print(f"✅ Estado fiscal válido: {ffm.fm_fiscal_status}")
+
+			if ffm.fm_sync_status and not SyncStates.is_valid(ffm.fm_sync_status):
+				print(f"❌ Estado sync inválido: {ffm.fm_sync_status}")
+				return False
+			elif ffm.fm_sync_status:
+				print(f"✅ Estado sync válido: {ffm.fm_sync_status}")
+
+			# 5. Verificar consistency entre documentos
 			if si.fm_fiscal_status == ffm.fm_fiscal_status:
 				print(f"✅ Estados sincronizados: {si.fm_fiscal_status}")
 			else:
