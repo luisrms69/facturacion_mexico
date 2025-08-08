@@ -72,7 +72,8 @@
       "label": "Factura Fiscal Mexico",
       "options": "Factura Fiscal Mexico",
       "read_only": 1,
-      "reqd": 1
+      "reqd": 1,
+      "search_index": 1
     },
     {
       "fieldname": "timestamp",

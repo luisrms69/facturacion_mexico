@@ -81,7 +81,8 @@
       "in_list_view": 1,
       "label": "Factura de Venta",
       "options": "Sales Invoice",
-      "reqd": 1
+      "reqd": 1,
+      "search_index": 1
     },
     {
       "fieldname": "company",
@@ -181,7 +182,8 @@
       "label": "Estado Fiscal",
       "options": "BORRADOR\nPROCESANDO\nTIMBRADO\nERROR\nCANCELADO\nPENDIENTE_CANCELACION\nARCHIVADO",
       "read_only": 1,
-      "allow_on_submit": 1
+      "allow_on_submit": 1,
+      "search_index": 1
     },
     {
       "fieldname": "fm_serie_folio",
@@ -397,7 +399,8 @@
       "options": "synced\npending\nerror",
       "default": "pending",
       "allow_on_submit": 1,
-      "read_only": 1
+      "read_only": 1,
+      "search_index": 1
     },
     {
       "fieldname": "column_break_resiliente",

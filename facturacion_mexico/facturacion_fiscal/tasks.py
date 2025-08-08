@@ -53,7 +53,7 @@ def process_timeout_recovery():
 			AND scheduled_time <= %s
 			AND attempts < max_attempts
 			ORDER BY priority DESC, scheduled_time ASC
-			LIMIT 50
+			LIMIT 100
 		""",
 			(now(),),
 			as_dict=True,
@@ -82,9 +82,9 @@ def process_timeout_recovery():
 					recovered += 1
 					frappe.logger().info(f"✅ Recovery exitoso: {task.name}")
 				else:
-					# Incrementar intentos y reprogramar
+					# OPTIMIZACIÓN P2.2.2: Backoff más suave - Incrementar intentos y reprogramar
 					new_attempts = task.attempts + 1
-					next_scheduled = add_to_date(now(), minutes=5 * (2**new_attempts))  # Backoff exponencial
+					next_scheduled = add_to_date(now(), minutes=2 * new_attempts)  # Backoff lineal suave
 
 					if new_attempts >= task.max_attempts:
 						# Máximo intentos alcanzado, marcar como failed
@@ -158,7 +158,7 @@ def process_sync_errors():
 			AND scheduled_time <= %s
 			AND attempts < max_attempts
 			ORDER BY priority DESC, scheduled_time ASC
-			LIMIT 30
+			LIMIT 50
 		""",
 			(now(),),
 			as_dict=True,
