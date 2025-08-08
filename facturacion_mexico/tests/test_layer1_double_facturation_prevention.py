@@ -117,7 +117,7 @@ class TestLayer1DoubleFacturationPrevention(unittest.TestCase):
 		try:
 			doc.run_method("validate")
 			# Nota: puede fallar en otras validaciones, pero el método debe haberse llamado
-		except:
+		except Exception:  # Ignore other validation errors during test
 			pass  # Ignorar otras validaciones para este test
 
 		# Restaurar método original

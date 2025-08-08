@@ -13,11 +13,10 @@ en Factura Fiscal Mexico. Validar que siempre use estados arquitectura (BORRADOR
 TIMBRADO, ERROR, etc.) y nunca estados legacy (Pendiente, Timbrada, etc.)
 """
 
-import json
 from typing import Any
 
 import frappe
-from frappe.utils import add_days, now
+from frappe.utils import now
 
 
 class ResilienceArchitectureValidator:
@@ -480,22 +479,6 @@ class ResilienceArchitectureValidator:
 		for validation in all_validations:
 			if validation.get("warnings"):
 				self.validation_results["summary"]["warnings"] += len(validation["warnings"])
-
-	# TODO: Agregar función workflow completo Sales Invoice → Factura Fiscal → Validación
-	# def validate_sales_invoice_workflow(self, sales_invoice_name: str) -> dict[str, Any]:
-	#     """
-	#     Validar workflow completo desde Sales Invoice sin Factura Fiscal.
-	#
-	#     WORKFLOW:
-	#     1. Sales Invoice sin fm_factura_fiscal_mx
-	#     2. Crear Factura Fiscal Mexico automáticamente
-	#     3. Validar arquitectura resiliente completa
-	#
-	#     Args:
-	#         sales_invoice_name: Nombre Sales Invoice (ej: ACC-SINV-2025-00956)
-	#
-	#     Returns:
-	#         Dict con resultados validación workflow completo
 
 	def validate_shadow_mode_batch(
 		self, start_invoice: str = "ACC-SINV-2025-00917", count: int = 20

@@ -8,7 +8,6 @@ Incluye endpoints para exponer configuración de estados a JavaScript
 import json
 import os
 import traceback
-from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -39,7 +38,7 @@ class PACResponseWriter:
 		"""Garantizar que directorio fallback existe con permisos correctos."""
 		try:
 			Path(FALLBACK_DIR).mkdir(parents=True, exist_ok=True)
-			os.chmod(FALLBACK_DIR, 0o750)
+			os.chmod(FALLBACK_DIR, 0o700)  # Owner-only permissions for security
 		except Exception as e:
 			# Incluso si falla crear directorio, continuamos
 			frappe.log_error(f"Error creando directorio fallback: {e!s}", "PAC Writer Fallback")
@@ -188,8 +187,8 @@ class PACResponseWriter:
 		)
 
 		response_log.insert()
-		# Manual commit required: PAC Response critical data must persist immediately to guarantee 0% loss # nosemgrep
-		frappe.db.commit()
+		# Manual commit required: PAC Response critical data must persist immediately to guarantee 0% loss
+		frappe.db.commit()  # nosemgrep
 
 		return response_log
 

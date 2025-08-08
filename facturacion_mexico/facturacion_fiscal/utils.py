@@ -10,7 +10,7 @@ from typing import Any
 import frappe
 from frappe.utils import now
 
-from facturacion_mexico.config.fiscal_states_config import FiscalStates, SyncStates
+from facturacion_mexico.config.fiscal_states_config import FiscalStates
 
 
 def get_invoice_uuid(sales_invoice_name):
