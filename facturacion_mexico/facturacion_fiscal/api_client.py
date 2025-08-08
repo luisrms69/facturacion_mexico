@@ -338,5 +338,5 @@ def query_pac_status(factura_fiscal_name: str) -> dict[str, Any]:
 	except frappe.DoesNotExistError:
 		return {"success": False, "error": f"Factura Fiscal {factura_fiscal_name} no encontrada"}
 	except Exception as e:
-		frappe.log_error(f"Error consultando PAC: {str(e)}", "query_pac_status Error")
-		return {"success": False, "error": f"Error al consultar PAC: {str(e)}"}
+		frappe.log_error(f"Error consultando PAC: {e!s}", "query_pac_status Error")
+		return {"success": False, "error": f"Error al consultar PAC: {e!s}"}

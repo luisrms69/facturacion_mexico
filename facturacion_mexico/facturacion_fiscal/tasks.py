@@ -349,8 +349,8 @@ def _attempt_timeout_recovery(task: dict[str, Any]) -> dict[str, Any]:
 			}
 		except Exception as e:
 			# Cualquier otro error al consultar PAC
-			frappe.logger().error(f"Error consultando PAC para recovery: {str(e)}")
-			return {"success": False, "error": f"Error al consultar PAC: {str(e)}"}
+			frappe.logger().error(f"Error consultando PAC para recovery: {e!s}")
+			return {"success": False, "error": f"Error al consultar PAC: {e!s}"}
 
 		if pac_result.get("success"):
 			# PAC respondió, actualizar estado

@@ -571,7 +571,7 @@ class TimbradoAPI:
 			# Este método internamente usa el ORM y respeta allow_on_submit
 			frappe.set_value("Factura Fiscal Mexico", factura_fiscal.name, fields_to_update)
 
-			frappe.logger().info(f"Factura Fiscal actualizada exitosamente via frappe.set_value")
+			frappe.logger().info("Factura Fiscal actualizada exitosamente via frappe.set_value")
 
 			# Validar discrepancias de montos
 			self._validate_amount_discrepancies(factura_fiscal, response)
@@ -585,7 +585,7 @@ class TimbradoAPI:
 
 			frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure fiscal transaction is committed after successful stamping
 
-			frappe.logger().info(f"_process_timbrado_success completado exitosamente")
+			frappe.logger().info("_process_timbrado_success completado exitosamente")
 
 		except Exception as e:
 			frappe.logger().error(f"Error en _process_timbrado_success: {e}\n{traceback.format_exc()}")
