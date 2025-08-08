@@ -2,6 +2,8 @@ import frappe
 from frappe import _
 from frappe.utils import flt
 
+from facturacion_mexico.config.fiscal_states_config import FiscalStates
+
 
 def create_fiscal_event(doc, method):
 	"""Crear evento fiscal cuando se envía Sales Invoice."""
@@ -74,7 +76,7 @@ def _create_emission_event(doc):
 		)
 
 	# Actualizar estado fiscal
-	frappe.db.set_value("Sales Invoice", doc.name, "fm_fiscal_status", "BORRADOR")
+	frappe.db.set_value("Sales Invoice", doc.name, "fm_fiscal_status", FiscalStates.BORRADOR)
 
 
 def _get_or_create_factura_fiscal(doc):
@@ -88,7 +90,7 @@ def _get_or_create_factura_fiscal(doc):
 	factura_fiscal.customer = doc.customer
 	factura_fiscal.total_amount = doc.grand_total
 	factura_fiscal.currency = doc.currency
-	factura_fiscal.fm_fiscal_status = "BORRADOR"
+	factura_fiscal.fm_fiscal_status = FiscalStates.BORRADOR
 
 	# Agregar montos del Sales Invoice para validación posterior
 	frappe.log_error(

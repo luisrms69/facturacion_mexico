@@ -6,6 +6,7 @@ import frappe
 from frappe import _
 from frappe.utils import flt, now_datetime
 
+from facturacion_mexico.config.fiscal_states_config import FiscalStates, OperationTypes
 from facturacion_mexico.validaciones.api import _normalize_company_name_for_facturapi
 
 from .api import write_pac_response  # PAC Response Writer - Arquitectura resiliente activada
@@ -120,7 +121,7 @@ class TimbradoAPI:
 			# Preparar request para auditoría
 			pac_request = {
 				"factura_fiscal": factura_fiscal.name,
-				"request_id": f"TIMBRADO_{frappe.generate_hash()[:8]}",
+				"request_id": f"{OperationTypes.TIMBRADO}_{frappe.generate_hash()[:8]}",
 				"action": "timbrado",
 				"sales_invoice": sales_invoice_name,
 				"timestamp": frappe.utils.now(),
@@ -208,7 +209,9 @@ class TimbradoAPI:
 				)
 
 				# Actualizar estado a ERROR pero mantener UUID
-				frappe.db.set_value("Sales Invoice", sales_invoice_name, "fm_fiscal_status", "ERROR")
+				frappe.db.set_value(
+					"Sales Invoice", sales_invoice_name, "fm_fiscal_status", FiscalStates.ERROR
+				)
 				frappe.db.commit()
 
 				# Retornar éxito parcial para UI
@@ -236,7 +239,7 @@ class TimbradoAPI:
 				)
 
 			# Actualizar estado a ERROR
-			frappe.db.set_value("Sales Invoice", sales_invoice_name, "fm_fiscal_status", "ERROR")
+			frappe.db.set_value("Sales Invoice", sales_invoice_name, "fm_fiscal_status", FiscalStates.ERROR)
 			frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure error state is persisted
 
 			# Generar mensaje amigable SOLO para UI (nunca para Response Log)
@@ -257,7 +260,7 @@ class TimbradoAPI:
 			frappe.throw(_("La factura debe estar enviada para timbrar"))
 
 		# Verificar que no esté ya timbrada - MIGRADO A ARQUITECTURA RESILIENTE
-		if sales_invoice.fm_fiscal_status == "TIMBRADO":
+		if sales_invoice.fm_fiscal_status == FiscalStates.TIMBRADO:
 			frappe.throw(_("La factura ya está timbrada"))
 
 		# Verificar datos del cliente
@@ -535,7 +538,7 @@ class TimbradoAPI:
 			fields_to_update = {
 				"fm_uuid": response.get("uuid"),
 				"facturapi_id": response.get("id"),
-				"fm_fiscal_status": "TIMBRADO",
+				"fm_fiscal_status": FiscalStates.TIMBRADO,
 				"fecha_timbrado": response.get("stamp", {}).get("date") or now_datetime(),
 			}
 
@@ -577,7 +580,7 @@ class TimbradoAPI:
 			self._validate_amount_discrepancies(factura_fiscal, response)
 
 			# Actualizar Sales Invoice
-			frappe.set_value("Sales Invoice", sales_invoice.name, {"fm_fiscal_status": "TIMBRADO"})
+			frappe.set_value("Sales Invoice", sales_invoice.name, {"fm_fiscal_status": FiscalStates.TIMBRADO})
 
 			# Descargar archivos si está configurado
 			if self.settings.download_files_default:
@@ -708,7 +711,7 @@ class TimbradoAPI:
 			sales_invoice = frappe.get_doc("Sales Invoice", sales_invoice_name)
 
 			# Validar que se pueda cancelar
-			if sales_invoice.fm_fiscal_status != "TIMBRADO":
+			if sales_invoice.fm_fiscal_status != FiscalStates.TIMBRADO:
 				frappe.throw(_("Solo se pueden cancelar facturas timbradas"))
 
 			if not sales_invoice.fm_factura_fiscal_mx:
@@ -771,14 +774,16 @@ class TimbradoAPI:
 					"Factura Fiscal Mexico",
 					factura_fiscal.name,
 					{
-						"fm_fiscal_status": "CANCELADO",
+						"fm_fiscal_status": FiscalStates.CANCELADO,
 						"cancellation_date": now_datetime(),
 						"cancellation_reason": motivo,
 					},
 				)
 
 				# Actualizar Sales Invoice
-				frappe.set_value("Sales Invoice", sales_invoice_name, {"fm_fiscal_status": "CANCELADO"})
+				frappe.set_value(
+					"Sales Invoice", sales_invoice_name, {"fm_fiscal_status": FiscalStates.CANCELADO}
+				)
 
 				frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure cancellation transaction is committed
 

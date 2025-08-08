@@ -174,7 +174,7 @@
     },
     {
       "default": "BORRADOR",
-      "description": "Estado fiscal calculado automáticamente basado en respuestas de FacturAPI",
+      "description": "FUENTE DE VERDAD: facturacion_mexico/config/fiscal_states_config.py - NO modificar aquí sin actualizar archivo fuente",
       "fieldname": "fm_fiscal_status",
       "fieldtype": "Select",
       "in_list_view": 1,

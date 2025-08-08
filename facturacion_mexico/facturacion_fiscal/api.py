@@ -2,6 +2,7 @@
 PAC Response Writer API - Sistema Resiliente Estados Fiscales
 APIs ultra-resilientes para manejo de respuestas PAC con filesystem fallback
 CRÍTICO: Garantiza 0% pérdida respuestas PAC bajo cualquier circunstancia
+Incluye endpoints para exponer configuración de estados a JavaScript
 """
 
 import json
@@ -519,3 +520,70 @@ def get_fallback_files() -> list[dict[str, Any]]:
 	except Exception as e:
 		frappe.log_error(f"Error listando archivos fallback: {e!s}", "PAC Fallback List Error")
 		return []
+
+
+# =============================================================================
+# CONFIGURACIÓN DE ESTADOS FISCALES PARA JAVASCRIPT
+# =============================================================================
+
+
+@frappe.whitelist()
+def get_fiscal_states_config():
+	"""
+	Obtener configuración completa de estados fiscales para JavaScript.
+
+	Returns:
+		dict: Configuración completa de estados fiscales
+	"""
+	from facturacion_mexico.config.fiscal_states_config import get_complete_config
+
+	return get_complete_config()
+
+
+@frappe.whitelist()
+def get_fiscal_states():
+	"""
+	Obtener solo los estados fiscales principales.
+	Endpoint simplificado para JavaScript.
+
+	Returns:
+		dict: Estados fiscales principales
+	"""
+	from facturacion_mexico.config.fiscal_states_config import FiscalStates
+
+	return FiscalStates.to_dict()
+
+
+@frappe.whitelist()
+def validate_fiscal_state(state):
+	"""
+	Validar si un estado fiscal es válido.
+
+	Args:
+		state: Estado a validar
+
+	Returns:
+		dict: {"valid": bool, "state": str}
+	"""
+	from facturacion_mexico.config.fiscal_states_config import FiscalStates
+
+	return {"valid": FiscalStates.is_valid(state), "state": state}
+
+
+@frappe.whitelist()
+def get_next_fiscal_state(current_state, action):
+	"""
+	Obtener el siguiente estado basado en la acción.
+
+	Args:
+		current_state: Estado actual
+		action: Acción a realizar (timbrar, cancelar, etc.)
+
+	Returns:
+		dict: {"current": str, "action": str, "next": str|None}
+	"""
+	from facturacion_mexico.config.fiscal_states_config import FiscalStates
+
+	next_state = FiscalStates.get_next_state(current_state, action)
+
+	return {"current": current_state, "action": action, "next": next_state}

@@ -11,6 +11,8 @@ from typing import Any, Optional
 import frappe
 from frappe.utils import now
 
+from facturacion_mexico.config.fiscal_states_config import FiscalStates, SyncStates
+
 
 def get_invoice_uuid(sales_invoice_name):
 	"""
@@ -112,7 +114,7 @@ def is_invoice_stamped(sales_invoice_name):
 		fiscal_data = get_invoice_fiscal_data(sales_invoice_name)
 
 		# Verificar que tenga UUID y estado TIMBRADO
-		return fiscal_data.get("uuid") and fiscal_data.get("fm_fiscal_status") == "TIMBRADO"
+		return fiscal_data.get("uuid") and fiscal_data.get("fm_fiscal_status") == FiscalStates.TIMBRADO
 
 	except Exception:
 		return False
@@ -138,7 +140,7 @@ def calculate_current_status(factura_fiscal_name: str) -> dict[str, Any]:
 		# Verificar que existe el documento
 		if not frappe.db.exists("Factura Fiscal Mexico", factura_fiscal_name):
 			return {
-				"status": "ERROR",
+				"status": FiscalStates.ERROR,
 				"sub_status": "document_not_found",
 				"calculated_at": frappe.utils.now(),
 				"source": "status_calculator",
@@ -161,7 +163,7 @@ def calculate_current_status(factura_fiscal_name: str) -> dict[str, Any]:
 
 		if not logs:
 			return {
-				"status": "BORRADOR",
+				"status": FiscalStates.BORRADOR,
 				"sub_status": "no_pac_interaction",
 				"calculated_at": frappe.utils.now(),
 				"source": "status_calculator",
@@ -174,7 +176,7 @@ def calculate_current_status(factura_fiscal_name: str) -> dict[str, Any]:
 		# Si hay timeout pendiente, estado es PROCESANDO
 		if latest_log.get("timeout_flag"):
 			return {
-				"status": "PROCESANDO",
+				"status": FiscalStates.PROCESANDO,
 				"sub_status": "timeout_waiting_pac",
 				"calculated_at": frappe.utils.now(),
 				"source": "status_calculator",
@@ -200,7 +202,7 @@ def calculate_current_status(factura_fiscal_name: str) -> dict[str, Any]:
 			except (json.JSONDecodeError, Exception):
 				# Si no puede parsear respuesta pero success=True, asumir timbrado
 				return {
-					"status": "TIMBRADO",
+					"status": FiscalStates.TIMBRADO,
 					"sub_status": "success_unparseable_response",
 					"calculated_at": frappe.utils.now(),
 					"source": "status_calculator",
@@ -221,7 +223,7 @@ def calculate_current_status(factura_fiscal_name: str) -> dict[str, Any]:
 			if status_code >= 400 and status_code < 500:
 				# Errores del cliente (validación, autenticación)
 				return {
-					"status": "ERROR",
+					"status": FiscalStates.ERROR,
 					"sub_status": f"validation_error_{status_code}",
 					"calculated_at": frappe.utils.now(),
 					"source": "status_calculator",
@@ -231,7 +233,7 @@ def calculate_current_status(factura_fiscal_name: str) -> dict[str, Any]:
 			elif status_code >= 500:
 				# Errores del servidor PAC
 				return {
-					"status": "ERROR",
+					"status": FiscalStates.ERROR,
 					"sub_status": f"pac_error_{status_code}",
 					"calculated_at": frappe.utils.now(),
 					"source": "status_calculator",
@@ -241,7 +243,7 @@ def calculate_current_status(factura_fiscal_name: str) -> dict[str, Any]:
 			else:
 				# Error genérico
 				return {
-					"status": "ERROR",
+					"status": FiscalStates.ERROR,
 					"sub_status": "unknown_error",
 					"calculated_at": frappe.utils.now(),
 					"source": "status_calculator",
@@ -281,12 +283,12 @@ def get_status_from_response(response_payload: dict[str, Any]) -> dict[str, Any]
 
 		# Mapeo según arquitectura resiliente (ARQUITECTURA RESILIENTE)
 		status_mapping = {
-			"valid": {"status": "TIMBRADO", "sub_status": None},
-			"canceled": {"status": "CANCELADO", "sub_status": None},
+			"valid": {"status": FiscalStates.TIMBRADO, "sub_status": None},
+			"canceled": {"status": FiscalStates.CANCELADO, "sub_status": None},
 			"pending_cancellation": {"status": "PENDIENTE_CANCELACION", "sub_status": None},
-			"draft": {"status": "BORRADOR", "sub_status": "ereceipt_draft"},
+			"draft": {"status": FiscalStates.BORRADOR, "sub_status": "ereceipt_draft"},
 			"expired": {"status": "ARCHIVADO", "sub_status": "ereceipt_expired"},
-			"invoiced": {"status": "TIMBRADO", "sub_status": "ereceipt_converted"},
+			"invoiced": {"status": FiscalStates.TIMBRADO, "sub_status": "ereceipt_converted"},
 		}
 
 		# Si hay mapeo directo, usarlo
@@ -295,7 +297,7 @@ def get_status_from_response(response_payload: dict[str, Any]) -> dict[str, Any]
 
 		# Si no hay status pero hay UUID, asumir timbrado
 		if response_payload.get("uuid") or response_payload.get("id"):
-			return {"status": "TIMBRADO", "sub_status": None}
+			return {"status": FiscalStates.TIMBRADO, "sub_status": None}
 
 		# Si hay error específico de validación
 		if "error" in response_payload:
@@ -344,12 +346,12 @@ def should_override_status(current_status: str, calculated_status: str, factura_
 
 		# Lógica de precedencia de estados
 		precedence_order = [
-			"BORRADOR",  # 0 - Estado inicial
-			"PROCESANDO",  # 1 - En proceso
-			"ERROR",  # 2 - Error recuperable
-			"TIMBRADO",  # 3 - Éxito final
+			FiscalStates.BORRADOR,  # 0 - Estado inicial
+			FiscalStates.PROCESANDO,  # 1 - En proceso
+			FiscalStates.ERROR,  # 2 - Error recuperable
+			FiscalStates.TIMBRADO,  # 3 - Éxito final
 			"PENDIENTE_CANCELACION",  # 4 - Cancelación en proceso
-			"CANCELADO",  # 5 - Cancelación final
+			FiscalStates.CANCELADO,  # 5 - Cancelación final
 			"ARCHIVADO",  # 6 - Estado final archivado
 		]
 
@@ -369,7 +371,10 @@ def should_override_status(current_status: str, calculated_status: str, factura_
 		# O si vamos de Error -> cualquier estado exitoso
 		if calculated_idx > current_idx:
 			return True
-		elif current_status == "ERROR" and calculated_status in ["TIMBRADO", "CANCELADO"]:
+		elif current_status == FiscalStates.ERROR and calculated_status in [
+			FiscalStates.TIMBRADO,
+			FiscalStates.CANCELADO,
+		]:
 			# Permitir recuperación de errores a estados exitosos
 			return True
 

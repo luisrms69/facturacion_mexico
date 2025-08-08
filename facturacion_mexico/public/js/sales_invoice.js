@@ -1,6 +1,31 @@
 // Sales Invoice customizations for Facturacion Mexico - ARQUITECTURA MIGRADA
 // Funcionalidad fiscal centralizada en Factura Fiscal Mexico
 
+// Cargar configuración de estados fiscales al inicio
+let FISCAL_STATES = null;
+
+// Función para obtener estados fiscales desde el servidor
+function load_fiscal_states(callback) {
+	if (FISCAL_STATES) {
+		// Ya cargado, usar cache
+		if (callback) callback(FISCAL_STATES);
+		return;
+	}
+
+	frappe.call({
+		method: "facturacion_mexico.facturacion_fiscal.api.get_fiscal_states",
+		callback: function (r) {
+			if (r.message) {
+				FISCAL_STATES = r.message;
+				if (callback) callback(FISCAL_STATES);
+			}
+		},
+	});
+}
+
+// Cargar estados al inicio
+load_fiscal_states();
+
 frappe.ui.form.on("Sales Invoice", {
 	refresh: function (frm) {
 		// Solo mostrar botón de timbrado si está submitted, tiene RFC y NO está timbrada
@@ -75,16 +100,19 @@ function redirect_to_fiscal_document(frm) {
 				fieldname: "fm_fiscal_status",
 			},
 			callback: function (r) {
-				if (r.message && r.message.fm_fiscal_status === "TIMBRADO") {
-					frappe.msgprint({
-						title: __("Ya Timbrada"),
-						message: __(
-							"Esta Sales Invoice ya está timbrada. No se puede volver a timbrar."
-						),
-						indicator: "orange",
-					});
-					return;
-				}
+				// Usar estados desde configuración
+				load_fiscal_states(function (states) {
+					if (r.message && r.message.fm_fiscal_status === states.states.TIMBRADO) {
+						frappe.msgprint({
+							title: __("Ya Timbrada"),
+							message: __(
+								"Esta Sales Invoice ya está timbrada. No se puede volver a timbrar."
+							),
+							indicator: "orange",
+						});
+						return;
+					}
+				});
 				// Si no está timbrada, ir al documento para continuar proceso
 				frappe.set_route("Form", "Factura Fiscal Mexico", frm.doc.fm_factura_fiscal_mx);
 			},
@@ -116,7 +144,7 @@ function redirect_to_fiscal_document(frm) {
 				sales_invoice: frm.doc.name,
 				company: frm.doc.company,
 				customer: frm.doc.customer, // AÑADIR: Customer requerido
-				fm_fiscal_status: "BORRADOR", // Estado arquitectura resiliente
+				fm_fiscal_status: FISCAL_STATES ? FISCAL_STATES.states.BORRADOR : "BORRADOR", // Estado desde configuración
 				fm_payment_method_sat: "PUE", // Valor por defecto
 				// Agregar montos del Sales Invoice para validación posterior
 				si_total_antes_iva: frm.doc.net_total || 0,
