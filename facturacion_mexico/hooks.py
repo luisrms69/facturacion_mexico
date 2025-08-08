@@ -261,19 +261,26 @@ fixtures = [
 # ---------------
 # Hook on document methods and events
 
+# FASE 1: HOOKS FISCAL LEGACY DESHABILITADOS - ARQUITECTURA RESILIENTE ACTIVA
+# Fecha: 2025-08-07 - TAREA 2.4 Eliminación sistemas legacy
+# Rollback: Descomentar sección "Sales Invoice" para restaurar hooks legacy
+#
+# doc_events = {
+# 	"Sales Invoice": {
+# 		"validate": [
+# 			"facturacion_mexico.facturacion_fiscal.hooks_handlers.sales_invoice_validate.validate_fiscal_data",
+# 			"facturacion_mexico.hooks_handlers.sales_invoice_validate.sales_invoice_validate",
+# 			"facturacion_mexico.validaciones.sales_invoice.validate_ppd_vs_forma_pago",
+# 		],
+# 		"before_submit": "facturacion_mexico.validaciones.hooks_handlers.sales_invoice_validate.validate_lista_69b_customer",
+# 		"on_submit": [
+# 			"facturacion_mexico.hooks_handlers.sales_invoice_submit.sales_invoice_on_submit",
+# 		],
+# 		"on_cancel": "facturacion_mexico.facturacion_fiscal.hooks_handlers.sales_invoice_cancel.handle_fiscal_cancellation",
+# 	},
+
 doc_events = {
-	"Sales Invoice": {
-		"validate": [
-			"facturacion_mexico.facturacion_fiscal.hooks_handlers.sales_invoice_validate.validate_fiscal_data",
-			"facturacion_mexico.hooks_handlers.sales_invoice_validate.sales_invoice_validate",
-			"facturacion_mexico.validaciones.sales_invoice.validate_ppd_vs_forma_pago",
-		],
-		"before_submit": "facturacion_mexico.validaciones.hooks_handlers.sales_invoice_validate.validate_lista_69b_customer",
-		"on_submit": [
-			"facturacion_mexico.hooks_handlers.sales_invoice_submit.sales_invoice_on_submit",
-		],
-		"on_cancel": "facturacion_mexico.facturacion_fiscal.hooks_handlers.sales_invoice_cancel.handle_fiscal_cancellation",
-	},
+	# SALES INVOICE HOOKS DESHABILITADOS - Ver comentarios arriba para rollback
 	"Customer": {
 		"validate": "facturacion_mexico.validaciones.hooks_handlers.customer_validate.validate_rfc_format",
 		"before_save": "facturacion_mexico.validaciones.hooks_handlers.customer_validate.validate_rfc_format",

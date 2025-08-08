@@ -37,6 +37,12 @@
     "serie",
     "folio",
     "total_fiscal",
+    "section_break_montos_sales_invoice",
+    "si_total_antes_iva",
+    "si_iva",
+    "column_break_montos_si",
+    "si_otros_impuestos",
+    "si_total_neto",
     "section_break_archivos",
     "pdf_file",
     "xml_file",
@@ -106,11 +112,12 @@
       "fieldtype": "Column Break"
     },
     {
-      "default": "draft",
+      "default": "Draft",
       "fieldname": "status",
-      "fieldtype": "Data",
+      "fieldtype": "Select",
       "in_list_view": 1,
-      "label": "Estado",
+      "label": "Estado del Documento",
+      "options": "Draft\nSubmitted\nCancelled",
       "read_only": 1,
       "reqd": 1
     },
@@ -134,7 +141,8 @@
       "fieldname": "fecha_timbrado",
       "fieldtype": "Datetime",
       "label": "Fecha de Timbrado",
-      "read_only": 1
+      "read_only": 1,
+      "allow_on_submit": 1
     },
     {
       "fieldname": "section_break_facturapi",
@@ -146,15 +154,17 @@
       "fieldname": "facturapi_id",
       "fieldtype": "Data",
       "label": "FacturAPI ID",
-      "read_only": 1
+      "read_only": 1,
+      "allow_on_submit": 1
     },
     {
       "description": "UUID fiscal del SAT",
-      "fieldname": "uuid",
+      "fieldname": "fm_uuid",
       "fieldtype": "Data",
       "in_list_view": 1,
       "label": "UUID Fiscal",
-      "read_only": 1
+      "read_only": 1,
+      "allow_on_submit": 1
     },
     {
       "fieldname": "fm_cfdi_use",
@@ -170,7 +180,8 @@
       "in_list_view": 1,
       "label": "Estado Fiscal",
       "options": "BORRADOR\nPROCESANDO\nTIMBRADO\nERROR\nCANCELADO\nPENDIENTE_CANCELACION\nARCHIVADO",
-      "read_only": 1
+      "read_only": 1,
+      "allow_on_submit": 1
     },
     {
       "fieldname": "fm_serie_folio",
@@ -191,20 +202,60 @@
       "fieldname": "serie",
       "fieldtype": "Data",
       "label": "Serie",
-      "read_only": 1
+      "read_only": 1,
+      "allow_on_submit": 1
     },
     {
       "description": "Folio de la factura fiscal",
       "fieldname": "folio",
       "fieldtype": "Data",
       "label": "Folio",
-      "read_only": 1
+      "read_only": 1,
+      "allow_on_submit": 1
     },
     {
       "description": "Total de la factura fiscal",
       "fieldname": "total_fiscal",
       "fieldtype": "Currency",
       "label": "Total Fiscal",
+      "read_only": 1,
+      "allow_on_submit": 1
+    },
+    {
+      "fieldname": "section_break_montos_sales_invoice",
+      "fieldtype": "Section Break",
+      "label": "Montos Sales Invoice (Referencia)"
+    },
+    {
+      "description": "Subtotal antes de impuestos del Sales Invoice",
+      "fieldname": "si_total_antes_iva",
+      "fieldtype": "Currency",
+      "label": "Total antes de IVA (SI)",
+      "read_only": 1
+    },
+    {
+      "description": "Monto de IVA del Sales Invoice",
+      "fieldname": "si_iva",
+      "fieldtype": "Currency",
+      "label": "IVA (SI)",
+      "read_only": 1
+    },
+    {
+      "fieldname": "column_break_montos_si",
+      "fieldtype": "Column Break"
+    },
+    {
+      "description": "Otros impuestos del Sales Invoice",
+      "fieldname": "si_otros_impuestos",
+      "fieldtype": "Currency",
+      "label": "Otros Impuestos (SI)",
+      "read_only": 1
+    },
+    {
+      "description": "Total neto del Sales Invoice",
+      "fieldname": "si_total_neto",
+      "fieldtype": "Currency",
+      "label": "Total Neto (SI)",
       "read_only": 1
     },
     {
@@ -328,6 +379,7 @@
       "options": "invoice\nereceipt\ncomplement\nglobal\npayroll",
       "default": "invoice",
       "allow_on_submit": 1,
+      "read_only": 1,
       "reqd": 1
     },
     {

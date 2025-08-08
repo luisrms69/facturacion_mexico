@@ -17,3 +17,5 @@ facturacion_mexico.patches.v1.register_facturacion_fiscal_module
 facturacion_mexico.patches.v1.restore_facturapi_response_item
 # ARQUITECTURA RESILIENTE - Migrar estados fiscales legacy a arquitectura resiliente (TAREA 2.4)
 facturacion_mexico.patches.v2_0.migrate_fiscal_status_to_architecture
+# NAMESPACING - Renombrar campo uuid a fm_uuid siguiendo best practices Frappe
+facturacion_mexico.patches.v2_0.rename_uuid_field_to_fm_uuid

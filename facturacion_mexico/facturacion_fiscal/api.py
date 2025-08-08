@@ -175,7 +175,7 @@ class PACResponseWriter:
 				"error_message": response_data.get("error_message", ""),
 				"user_role": frappe.session.user if frappe.session else "System",
 				"ip_address": frappe.local.request.environ.get("REMOTE_ADDR", "localhost")
-				if frappe.local.request
+				if hasattr(frappe.local, "request") and frappe.local.request
 				else "system",
 				# Campos arquitectura resiliente
 				"request_id": request_data.get("request_id", frappe.generate_hash(length=16)),
@@ -264,12 +264,20 @@ class PACResponseWriter:
 
 	def _is_success_response(self, response_data: dict[str, Any]) -> bool:
 		"""Determinar si respuesta PAC fue exitosa."""
+		# Convertir status_code a int si viene como string
+		status_code = response_data.get("status_code", 0)
+		if isinstance(status_code, str):
+			try:
+				status_code = int(status_code)
+			except (ValueError, TypeError):
+				status_code = 0
+
 		# FacturAPI considera exitoso si tiene UUID o status válido
 		return bool(
 			response_data.get("id")
 			or response_data.get("uuid")
 			or response_data.get("status") == "valid"
-			or (response_data.get("status_code", 0) >= 200 and response_data.get("status_code", 0) < 300)
+			or (status_code >= 200 and status_code < 300)
 		)
 
 	def _determine_fiscal_status(self, response_data: dict[str, Any]) -> str | None:

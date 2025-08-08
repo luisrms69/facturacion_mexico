@@ -138,7 +138,7 @@ def calculate_current_status(factura_fiscal_name: str) -> dict[str, Any]:
 		# Verificar que existe el documento
 		if not frappe.db.exists("Factura Fiscal Mexico", factura_fiscal_name):
 			return {
-				"status": "Error",
+				"status": "ERROR",
 				"sub_status": "document_not_found",
 				"calculated_at": frappe.utils.now(),
 				"source": "status_calculator",
@@ -161,7 +161,7 @@ def calculate_current_status(factura_fiscal_name: str) -> dict[str, Any]:
 
 		if not logs:
 			return {
-				"status": "Borrador",
+				"status": "BORRADOR",
 				"sub_status": "no_pac_interaction",
 				"calculated_at": frappe.utils.now(),
 				"source": "status_calculator",
@@ -174,7 +174,7 @@ def calculate_current_status(factura_fiscal_name: str) -> dict[str, Any]:
 		# Si hay timeout pendiente, estado es PROCESANDO
 		if latest_log.get("timeout_flag"):
 			return {
-				"status": "Procesando",
+				"status": "PROCESANDO",
 				"sub_status": "timeout_waiting_pac",
 				"calculated_at": frappe.utils.now(),
 				"source": "status_calculator",
@@ -211,11 +211,17 @@ def calculate_current_status(factura_fiscal_name: str) -> dict[str, Any]:
 		# Si última operación falló, determinar tipo de error
 		else:
 			status_code = latest_log.get("status_code", 0)
+			# Convertir status_code a int si viene como string
+			if isinstance(status_code, str):
+				try:
+					status_code = int(status_code)
+				except (ValueError, TypeError):
+					status_code = 0
 
 			if status_code >= 400 and status_code < 500:
 				# Errores del cliente (validación, autenticación)
 				return {
-					"status": "Error",
+					"status": "ERROR",
 					"sub_status": f"validation_error_{status_code}",
 					"calculated_at": frappe.utils.now(),
 					"source": "status_calculator",
@@ -225,7 +231,7 @@ def calculate_current_status(factura_fiscal_name: str) -> dict[str, Any]:
 			elif status_code >= 500:
 				# Errores del servidor PAC
 				return {
-					"status": "Error",
+					"status": "ERROR",
 					"sub_status": f"pac_error_{status_code}",
 					"calculated_at": frappe.utils.now(),
 					"source": "status_calculator",
@@ -235,7 +241,7 @@ def calculate_current_status(factura_fiscal_name: str) -> dict[str, Any]:
 			else:
 				# Error genérico
 				return {
-					"status": "Error",
+					"status": "ERROR",
 					"sub_status": "unknown_error",
 					"calculated_at": frappe.utils.now(),
 					"source": "status_calculator",
@@ -246,7 +252,7 @@ def calculate_current_status(factura_fiscal_name: str) -> dict[str, Any]:
 	except Exception as e:
 		frappe.log_error(f"Error calculando estado fiscal: {e!s}", "Status Calculator Error")
 		return {
-			"status": "Error",
+			"status": "ERROR",
 			"sub_status": "calculation_failed",
 			"calculated_at": frappe.utils.now(),
 			"source": "status_calculator",
@@ -268,7 +274,7 @@ def get_status_from_response(response_payload: dict[str, Any]) -> dict[str, Any]
 	"""
 	try:
 		if not response_payload:
-			return {"status": "Error", "sub_status": "empty_response"}
+			return {"status": "ERROR", "sub_status": "empty_response"}
 
 		# Obtener status de FacturAPI
 		facturapi_status = response_payload.get("status", "").lower()
@@ -295,14 +301,14 @@ def get_status_from_response(response_payload: dict[str, Any]) -> dict[str, Any]
 		if "error" in response_payload:
 			error_type = response_payload.get("error", {}).get("type", "")
 			if "validation" in error_type.lower():
-				return {"status": "Error", "sub_status": f"validation_{error_type}"}
+				return {"status": "ERROR", "sub_status": f"validation_{error_type}"}
 
 		# Si no se puede determinar, marcar como desconocido
-		return {"status": "Error", "sub_status": "unknown_pac_status"}
+		return {"status": "ERROR", "sub_status": "unknown_pac_status"}
 
 	except Exception as e:
 		frappe.log_error(f"Error parseando respuesta PAC: {e!s}", "Status Mapping Error")
-		return {"status": "Error", "sub_status": "parse_error"}
+		return {"status": "ERROR", "sub_status": "parse_error"}
 
 
 def should_override_status(current_status: str, calculated_status: str, factura_fiscal_name: str) -> bool:

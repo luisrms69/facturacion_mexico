@@ -163,14 +163,17 @@ class FacturaFiscalMexico(Document):
 		if old_status == new_status:
 			return
 
-		# Definir transiciones válidas
+		# Definir transiciones válidas - ARQUITECTURA RESILIENTE
 		valid_transitions = {
-			None: ["Pendiente"],  # Documento nuevo puede ser Pendiente
-			"": ["Pendiente"],  # Estado vacío puede ir a Pendiente
-			"Pendiente": ["Timbrada", "Cancelada", "Error"],
-			"Timbrada": ["Cancelada"],
-			"Cancelada": [],  # Estado final
-			"Error": ["Pendiente", "Timbrada"],  # Puede reintentarse
+			None: ["BORRADOR"],  # Documento nuevo puede ser BORRADOR
+			"": ["BORRADOR"],  # Estado vacío puede ir a BORRADOR
+			"BORRADOR": ["PROCESANDO", "TIMBRADO", "CANCELADO", "ERROR"],
+			"PROCESANDO": ["TIMBRADO", "ERROR", "CANCELADO"],
+			"TIMBRADO": ["CANCELADO", "PENDIENTE_CANCELACION"],
+			"ERROR": ["BORRADOR", "PROCESANDO", "TIMBRADO"],  # Puede reintentarse
+			"CANCELADO": [],  # Estado final
+			"PENDIENTE_CANCELACION": ["CANCELADO", "TIMBRADO"],  # Puede confirmar cancelación o regresar
+			"ARCHIVADO": [],  # Estado final
 		}
 
 		if new_status not in valid_transitions.get(old_status, []):
@@ -192,7 +195,7 @@ class FacturaFiscalMexico(Document):
 				"Factura Fiscal Mexico", existing_fiscal_doc, "fm_fiscal_status"
 			)
 
-			if existing_status == "Timbrada":
+			if existing_status == "TIMBRADO":
 				frappe.throw(
 					_("Sales Invoice {0} ya ha sido timbrada en documento {1}").format(
 						self.sales_invoice, existing_fiscal_doc
@@ -204,7 +207,7 @@ class FacturaFiscalMexico(Document):
 			"Factura Fiscal Mexico",
 			filters={
 				"sales_invoice": self.sales_invoice,
-				"fm_fiscal_status": "Timbrada",
+				"fm_fiscal_status": "TIMBRADO",
 				"name": ["!=", self.name or "new-doc"],
 			},
 		)
@@ -251,8 +254,8 @@ class FacturaFiscalMexico(Document):
 		if self.has_value_changed("customer"):
 			self.populate_billing_data()
 
-		# Calcular status automáticamente basado en fm_fiscal_status
-		self.calculate_status_from_fiscal_status()
+		# NO actualizar campo status - es manejado por Frappe
+		# self.calculate_status_from_fiscal_status() # DEPRECADO - no usar campo status estándar
 
 		# Poblar datos de facturación desde customer
 		self.populate_billing_data()
@@ -277,9 +280,9 @@ class FacturaFiscalMexico(Document):
 				{
 					"old_status": self.get_doc_before_save().fm_fiscal_status
 					if self.get_doc_before_save()
-					else "Pendiente",
+					else "BORRADOR",
 					"new_status": self.fm_fiscal_status,
-					"uuid": self.uuid,
+					"uuid": self.fm_uuid,
 					"facturapi_id": getattr(self, "facturapi_id", None),
 				},
 			)
@@ -317,10 +320,13 @@ class FacturaFiscalMexico(Document):
 
 		# Mapear estados para Sales Invoice (ya están en español)
 		status_map = {
-			"Pendiente": "Pendiente",
-			"Timbrada": "Timbrada",
-			"Cancelada": "Cancelada",
-			"Error": "Error",
+			"BORRADOR": "BORRADOR",
+			"PROCESANDO": "PROCESANDO",
+			"TIMBRADO": "TIMBRADO",
+			"ERROR": "ERROR",
+			"CANCELADO": "CANCELADO",
+			"PENDIENTE_CANCELACION": "PENDIENTE_CANCELACION",
+			"ARCHIVADO": "ARCHIVADO",
 		}
 
 		try:
@@ -328,7 +334,7 @@ class FacturaFiscalMexico(Document):
 				"Sales Invoice",
 				self.sales_invoice,
 				{
-					"fm_fiscal_status": status_map.get(self.fm_fiscal_status, "Pendiente"),
+					"fm_fiscal_status": status_map.get(self.fm_fiscal_status, "BORRADOR"),
 					"fm_factura_fiscal_mx": self.name,
 				},
 			)
@@ -338,9 +344,9 @@ class FacturaFiscalMexico(Document):
 
 	def mark_as_stamped(self, facturapi_data):
 		"""Marcar como timbrada con datos de FacturAPI."""
-		self.fm_fiscal_status = "Timbrada"
+		self.fm_fiscal_status = "TIMBRADO"
 		self.facturapi_id = facturapi_data.get("id")
-		self.uuid = facturapi_data.get("uuid")
+		self.fm_uuid = facturapi_data.get("uuid")
 		self.serie = facturapi_data.get("serie")
 		self.folio = facturapi_data.get("folio")
 		self.total_fiscal = flt(facturapi_data.get("total", 0))
@@ -357,7 +363,7 @@ class FacturaFiscalMexico(Document):
 
 	def mark_as_cancelled(self, cancellation_reason=None):
 		"""Marcar como cancelada."""
-		self.fm_fiscal_status = "Cancelada"
+		self.fm_fiscal_status = "CANCELADO"
 		if cancellation_reason:
 			self.cancellation_reason = cancellation_reason
 		self.cancellation_date = now_datetime()
@@ -372,7 +378,7 @@ class FacturaFiscalMexico(Document):
 			response = requests.get(file_url)
 			response.raise_for_status()
 
-			filename = f"{self.name}_{self.uuid}.{file_type}"
+			filename = f"{self.name}_{self.fm_uuid}.{file_type}"
 			file_doc = save_file(filename, response.content, self.doctype, self.name, is_private=1)
 
 			# Actualizar campo correspondiente
@@ -387,8 +393,8 @@ class FacturaFiscalMexico(Document):
 	@frappe.whitelist()
 	def request_stamping(self):
 		"""Solicitar timbrado fiscal."""
-		if self.fm_fiscal_status != "Pendiente":
-			frappe.throw(_("Solo se pueden timbrar facturas en estado Pendiente"))
+		if self.fm_fiscal_status != "BORRADOR":
+			frappe.throw(_("Solo se pueden timbrar facturas en estado BORRADOR"))
 
 		# Aquí se integraría con FacturAPI.io
 		# Por ahora solo cambiar el estado para testing
@@ -398,10 +404,10 @@ class FacturaFiscalMexico(Document):
 	@frappe.whitelist()
 	def request_cancellation(self):
 		"""Solicitar cancelación fiscal."""
-		if self.fm_fiscal_status != "Timbrada":
+		if self.fm_fiscal_status != "TIMBRADO":
 			frappe.throw(_("Solo se pueden cancelar facturas timbradas"))
 
-		self.fm_fiscal_status = "Cancelada"
+		self.fm_fiscal_status = "CANCELADO"
 		self.save()
 		frappe.msgprint(_("Solicitud de cancelación enviada"))
 		return {"message": "Cancellation requested"}
@@ -457,7 +463,7 @@ class FacturaFiscalMexico(Document):
 	def validate_cfdi_use(self):
 		"""Validar uso de CFDI - MIGRADO desde Sales Invoice."""
 		# Solo validar si no es un documento nuevo en estado pendiente
-		if self.fm_fiscal_status == "Pendiente" and self.is_new():
+		if self.fm_fiscal_status == "BORRADOR" and self.is_new():
 			# Permitir guardar documentos nuevos sin CFDI para configuración posterior
 			return
 
@@ -641,15 +647,15 @@ class FacturaFiscalMexico(Document):
 			)
 
 			# Determinar nuevo estado basado en último log exitoso
-			new_status = "Pendiente"  # Estado por defecto
+			new_status = "BORRADOR"  # Estado por defecto
 
 			if latest_log:
 				operation_type = latest_log[0] if isinstance(latest_log, tuple) else latest_log
 
 				# Mapear operaciones a estados
-				status_map = {"Timbrado": "Timbrada", "Confirmación Cancelación": "Cancelada"}
+				status_map = {"Timbrado": "TIMBRADO", "Confirmación Cancelación": "CANCELADO"}
 
-				new_status = status_map.get(operation_type, "Pendiente")
+				new_status = status_map.get(operation_type, "BORRADOR")
 
 			# Verificar si hay solicitudes de cancelación pendientes
 			pending_cancellation = frappe.db.exists(
@@ -658,7 +664,7 @@ class FacturaFiscalMexico(Document):
 			)
 
 			# Si hay solicitud de cancelación pero no confirmación, estado intermedio
-			if pending_cancellation and new_status == "Timbrada":
+			if pending_cancellation and new_status == "TIMBRADO":
 				confirmation_exists = frappe.db.exists(
 					"FacturAPI Response Log",
 					{
@@ -669,7 +675,7 @@ class FacturaFiscalMexico(Document):
 				)
 
 				if not confirmation_exists:
-					new_status = "Solicitud Cancelación"
+					new_status = "PENDIENTE_CANCELACION"
 
 			# Verificar si hay errores recientes
 			recent_error = frappe.db.get_value(
@@ -688,7 +694,7 @@ class FacturaFiscalMexico(Document):
 
 			# Si hay error reciente y no hay éxito posterior, marcar como Error
 			if recent_error and not latest_log:
-				new_status = "Error"
+				new_status = "ERROR"
 
 			# Actualizar estado solo si cambió usando db_set (reconocido por semgrep)
 			if self.fm_fiscal_status != new_status:
@@ -710,9 +716,13 @@ class FacturaFiscalMexico(Document):
 		"""Calcular status automáticamente basado en fm_fiscal_status."""
 		# Mapear estados fiscales a status interno
 		status_map = {
-			"Pendiente": "draft",
-			"Timbrada": "stamped",
-			"Cancelada": "cancelled",
+			"BORRADOR": "draft",
+			"PROCESANDO": "processing",
+			"TIMBRADO": "stamped",
+			"ERROR": "error",
+			"CANCELADO": "cancelled",
+			"PENDIENTE_CANCELACION": "pending_cancellation",
+			"ARCHIVADO": "archived",
 			"Error": "draft",  # Error vuelve a draft para reintento
 			"Solicitud Cancelación": "cancel_requested",
 		}

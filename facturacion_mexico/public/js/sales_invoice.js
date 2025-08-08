@@ -75,7 +75,7 @@ function redirect_to_fiscal_document(frm) {
 				fieldname: "fm_fiscal_status",
 			},
 			callback: function (r) {
-				if (r.message && r.message.fm_fiscal_status === "Timbrada") {
+				if (r.message && r.message.fm_fiscal_status === "TIMBRADO") {
 					frappe.msgprint({
 						title: __("Ya Timbrada"),
 						message: __(
@@ -93,6 +93,21 @@ function redirect_to_fiscal_document(frm) {
 	}
 
 	// No existe, crear uno nuevo
+	// Calcular IVA y otros impuestos desde la tabla taxes
+	let iva_total = 0;
+	let otros_impuestos = 0;
+
+	if (frm.doc.taxes && frm.doc.taxes.length > 0) {
+		frm.doc.taxes.forEach(function (tax) {
+			// Identificar IVA por el account_head
+			if (tax.account_head && tax.account_head.toUpperCase().includes("IVA")) {
+				iva_total += tax.tax_amount || 0;
+			} else {
+				otros_impuestos += tax.tax_amount || 0;
+			}
+		});
+	}
+
 	frappe.call({
 		method: "frappe.client.insert",
 		args: {
@@ -103,6 +118,11 @@ function redirect_to_fiscal_document(frm) {
 				customer: frm.doc.customer, // AÑADIR: Customer requerido
 				fm_fiscal_status: "BORRADOR", // Estado arquitectura resiliente
 				fm_payment_method_sat: "PUE", // Valor por defecto
+				// Agregar montos del Sales Invoice para validación posterior
+				si_total_antes_iva: frm.doc.net_total || 0,
+				si_total_neto: frm.doc.grand_total || 0,
+				si_iva: iva_total,
+				si_otros_impuestos: otros_impuestos,
 			},
 		},
 		callback: function (r) {

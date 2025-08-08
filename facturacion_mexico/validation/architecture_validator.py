@@ -7,6 +7,10 @@ PROPÓSITO: Validar que la arquitectura resiliente esté funcionando correctamen
 - Variables actualizadas (PAC responses, timestamps, referencias)
 - Servicios ejecutándose (Status Calculator, Recovery Worker, Sync Service)
 - Flujos completos (Timbrado 4 etapas + Recovery)
+
+TODO: Tests deberán incluir monitoreo de estado correcto del campo "Estado Fiscal"
+en Factura Fiscal Mexico. Validar que siempre use estados arquitectura (BORRADOR,
+TIMBRADO, ERROR, etc.) y nunca estados legacy (Pendiente, Timbrada, etc.)
 """
 
 import json

@@ -2,6 +2,10 @@
 """
 Testing utilities for SHADOW MODE data creation
 Usando métodos oficiales Frappe para TAREA 2.0
+
+TODO: Tests deberán incluir monitoreo de estado correcto del campo "Estado Fiscal"
+en Factura Fiscal Mexico. Validar que siempre use estados arquitectura (BORRADOR,
+TIMBRADO, ERROR, etc.) y nunca estados legacy (Pendiente, Timbrada, etc.)
 """
 
 import frappe
