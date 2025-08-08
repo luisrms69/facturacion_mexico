@@ -5,8 +5,7 @@ Incluye Status Calculator para arquitectura resiliente
 """
 
 import json
-from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 import frappe
 from frappe.utils import now

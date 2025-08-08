@@ -7,6 +7,7 @@ Propósito: Cola de recuperación automática para estados fiscales inconsistent
 """
 
 import frappe
+from frappe import _
 from frappe.model.document import Document
 from frappe.utils import add_to_date, now
 
@@ -25,7 +26,7 @@ class FiscalRecoveryTask(Document):
 	def validate(self):
 		"""Validaciones antes de guardar."""
 		if self.attempts > self.max_attempts:
-			frappe.throw("Intentos realizados no pueden exceder el máximo permitido")
+			frappe.throw(_("Intentos realizados no pueden exceder el máximo permitido"))
 
 		if not self.scheduled_time:
 			self.scheduled_time = now()

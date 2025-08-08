@@ -58,6 +58,7 @@ def apply_custom_fields():
 		else:
 			print(f"⚠️ Ya existe: {f['fieldname']}")
 
+	# Manual commit required: Custom Fields setup script must persist changes immediately for next process steps # nosemgrep
 	frappe.db.commit()
 	print("🎉 Todos los Custom Fields aplicados")
 

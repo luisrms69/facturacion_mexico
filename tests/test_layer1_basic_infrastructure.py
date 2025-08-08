@@ -8,8 +8,6 @@ import unittest
 
 import frappe
 
-from facturacion_mexico.config.fiscal_states_config import FiscalStates
-
 
 class TestBasicInfrastructure(unittest.TestCase):
 	"""Layer 1: Tests básicos de infraestructura DocTypes"""

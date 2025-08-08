@@ -10,7 +10,7 @@ import os
 import traceback
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import frappe
 from frappe import _
@@ -39,7 +39,7 @@ class PACResponseWriter:
 		"""Garantizar que directorio fallback existe con permisos correctos."""
 		try:
 			Path(FALLBACK_DIR).mkdir(parents=True, exist_ok=True)
-			os.chmod(FALLBACK_DIR, 0o755)
+			os.chmod(FALLBACK_DIR, 0o750)
 		except Exception as e:
 			# Incluso si falla crear directorio, continuamos
 			frappe.log_error(f"Error creando directorio fallback: {e!s}", "PAC Writer Fallback")
@@ -188,6 +188,7 @@ class PACResponseWriter:
 		)
 
 		response_log.insert()
+		# Manual commit required: PAC Response critical data must persist immediately to guarantee 0% loss # nosemgrep
 		frappe.db.commit()
 
 		return response_log

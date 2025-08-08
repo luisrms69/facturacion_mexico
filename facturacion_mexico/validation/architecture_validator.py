@@ -14,8 +14,7 @@ TIMBRADO, ERROR, etc.) y nunca estados legacy (Pendiente, Timbrada, etc.)
 """
 
 import json
-from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 import frappe
 from frappe.utils import add_days, now
@@ -497,8 +496,6 @@ class ResilienceArchitectureValidator:
 	#
 	#     Returns:
 	#         Dict con resultados validación workflow completo
-	#     """
-	#     # IMPLEMENTAR: Sales Invoice → get_or_create_factura_fiscal() → validate_complete_system()
 
 	def validate_shadow_mode_batch(
 		self, start_invoice: str = "ACC-SINV-2025-00917", count: int = 20
