@@ -1,0 +1,128 @@
+{
+  "doctype": "Workspace",
+  "name": "facturacion_mexico",
+  "label": "Facturación México",
+  "title": "Facturación México",
+  "module": "Facturacion Mexico",
+  "public": 1,
+  "is_hidden": 0,
+  "disable_user_customization": 1,
+  "icon": "octicon octicon-file-submodule",
+
+  "shortcuts": [
+    {
+      "label": "Timbrar Facturas",
+      "type": "DocType",
+      "link_type": "DocType",
+      "link_to": "Sales Invoice",
+      "doc_view": "List"
+    },
+    {
+      "label": "Parámetros (Settings)",
+      "type": "DocType",
+      "link_type": "DocType",
+      "link_to": "Facturacion Mexico Settings",
+      "doc_view": "Form"
+    },
+    {
+      "label": "Dashboard Fiscal",
+      "type": "Dashboard",
+      "link_type": "Dashboard",
+      "link_to": "Facturacion Mexico",
+      "doc_view": "Dashboard"
+    }
+  ],
+
+  "links": [
+    {
+      "label": "Control Panel Admin",
+      "icon": "octicon octicon-dashboard",
+      "hidden": 0,
+      "items": [
+        {
+          "type": "DocType",
+          "label": "System Health Monitor",
+          "link_type": "DocType",
+          "link_to": "System Health Monitor",
+          "doc_view": "List"
+        },
+        {
+          "type": "DocType",
+          "label": "Recovery Operations",
+          "link_type": "DocType",
+          "link_to": "Recovery Operations",
+          "doc_view": "List"
+        },
+        {
+          "type": "DocType",
+          "label": "Control Panel Settings",
+          "link_type": "DocType",
+          "link_to": "Control Panel Settings",
+          "doc_view": "New"
+        },
+        {
+          "type": "DocType",
+          "label": "FacturAPI Response Log",
+          "link_type": "DocType",
+          "link_to": "FacturAPI Response Log",
+          "doc_view": "List"
+        },
+        {
+          "type": "DocType",
+          "label": "Fiscal Recovery Task",
+          "link_type": "DocType",
+          "link_to": "Fiscal Recovery Task",
+          "doc_view": "List"
+        }
+      ]
+    },
+    {
+      "label": "Configuración",
+      "icon": "octicon octicon-gear",
+      "hidden": 0,
+      "items": [
+        {
+          "type": "DocType",
+          "label": "Facturación Settings",
+          "link_type": "DocType",
+          "link_to": "Facturacion Mexico Settings",
+          "doc_view": "Form"
+        },
+        {
+          "type": "DocType",
+          "label": "Sales Invoice",
+          "link_type": "DocType",
+          "link_to": "Sales Invoice",
+          "doc_view": "List"
+        }
+      ]
+    },
+    {
+      "label": "Monitoreo",
+      "icon": "octicon octicon-pulse",
+      "hidden": 0,
+      "items": [
+        {
+          "type": "Dashboard",
+          "label": "Dashboard Fiscal",
+          "link_type": "Dashboard",
+          "link_to": "Facturacion Mexico",
+          "doc_view": "Dashboard"
+        },
+        {
+          "type": "DocType",
+          "label": "FacturAPI Response Log",
+          "link_type": "DocType",
+          "link_to": "FacturAPI Response Log",
+          "doc_view": "List"
+        }
+      ]
+    }
+  ],
+
+  "charts": [],
+  "number_cards": [],
+  "quick_lists": [],
+  "dynamic_links": [],
+  "roles": []
+}

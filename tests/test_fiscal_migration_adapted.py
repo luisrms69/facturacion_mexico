@@ -9,6 +9,8 @@ import unittest
 import frappe
 from frappe.test_runner import make_test_records
 
+from facturacion_mexico.config.fiscal_states_config import FiscalStates
+
 
 class TestFiscalMigrationAdapted(unittest.TestCase):
 	"""Unit tests para validar migración arquitectural fiscal"""
@@ -80,8 +82,8 @@ class TestFiscalMigrationAdapted(unittest.TestCase):
 			"Factura Fiscal Mexico", fields=["name", "fm_fiscal_status", "fm_uuid_fiscal"]
 		)
 
-		timbrados = [doc for doc in fiscal_docs if doc.get("fm_fiscal_status") == "Timbrada"]
-		print(f"  📊 Documentos con status 'Timbrada': {len(timbrados)}")
+		timbrados = [doc for doc in fiscal_docs if doc.get("fm_fiscal_status") == FiscalStates.TIMBRADO]
+		print(f"  📊 Documentos con status '{FiscalStates.TIMBRADO}': {len(timbrados)}")
 
 		if len(timbrados) == 0:
 			print("  ⚠️  No hay documentos timbrados todavía - normal en migración")
@@ -92,7 +94,7 @@ class TestFiscalMigrationAdapted(unittest.TestCase):
 		for doc in timbrados:
 			if not doc.get("fm_uuid_fiscal"):
 				missing_uuid += 1
-				print(f"  ❌ {doc.name}: Status='Timbrada' but missing UUID")
+				print(f"  ❌ {doc.name}: Status='{FiscalStates.TIMBRADO}' but missing UUID")
 
 		self.assertEqual(missing_uuid, 0, f"Found {missing_uuid} timbrados without UUID")
 		print("  ✅ PASS: Todos los documentos timbrados tienen UUID")

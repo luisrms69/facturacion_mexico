@@ -100,7 +100,7 @@ function setup_fiscal_interface(frm) {
 function setup_default_values(frm) {
 	// Establecer valores por defecto para nuevos documentos
 	if (frm.is_new()) {
-		frm.set_value("fm_fiscal_status", "Pendiente"); // Usar valor válido del DocType
+		frm.set_value("fm_fiscal_status", "BORRADOR"); // Migrado arquitectura resiliente
 
 		// Establecer método de pago por defecto
 		if (!frm.doc.fm_payment_method_sat) {
@@ -345,14 +345,14 @@ function add_fiscal_buttons(frm) {
 	// Save/Submit son manejados automáticamente por Frappe - NO interferir
 
 	// Solo ocultar Cancel cuando NO está cancelada (mantener comportamiento Frappe normal)
-	if (frm.doc.fm_fiscal_status === "Cancelada") {
+	if (frm.doc.fm_fiscal_status === "CANCELADO") {
 		// Para documentos cancelados, permitir comportamiento normal de Frappe
 		return;
 	}
 
 	if (
 		frm.doc.docstatus === 1 &&
-		(frm.doc.fm_fiscal_status === "Pendiente" || frm.doc.fm_fiscal_status === "Error")
+		(frm.doc.fm_fiscal_status === "BORRADOR" || frm.doc.fm_fiscal_status === "ERROR")
 	) {
 		// VALIDACIÓN CRÍTICA: tax_system es OBLIGATORIO para timbrado
 		if (
@@ -373,7 +373,7 @@ function add_fiscal_buttons(frm) {
 
 		// Tax system válido → Mostrar botón
 		const button_text =
-			frm.doc.fm_fiscal_status === "Error"
+			frm.doc.fm_fiscal_status === "ERROR"
 				? __("Reintentar Timbrado")
 				: __("Timbrar con FacturAPI");
 		frm.add_custom_button(button_text, function () {
@@ -381,7 +381,7 @@ function add_fiscal_buttons(frm) {
 		}).addClass("btn-primary");
 	}
 
-	if (frm.doc.docstatus === 1 && frm.doc.fm_fiscal_status === "Timbrada") {
+	if (frm.doc.docstatus === 1 && frm.doc.fm_fiscal_status === "TIMBRADO") {
 		// Botón FacturAPI: Cancelar solo facturas timbradas
 		frm.add_custom_button(__("Cancelar en FacturAPI"), function () {
 			cancelar_timbrado(frm);
@@ -443,7 +443,7 @@ function cancelar_timbrado(frm) {
 		frappe.call({
 			method: "facturacion_mexico.facturacion_fiscal.timbrado_api.cancelar_factura",
 			args: {
-				uuid: frm.doc.uuid,
+				uuid: frm.doc.fm_uuid,
 			},
 			callback: function (r) {
 				if (r.message && r.message.success) {
@@ -564,7 +564,7 @@ function validate_sales_invoice_availability(frm) {
 						callback: function (fiscal_r) {
 							if (
 								fiscal_r.message &&
-								fiscal_r.message.fm_fiscal_status === "Timbrada"
+								fiscal_r.message.fm_fiscal_status === "TIMBRADO"
 							) {
 								frappe.msgprint({
 									title: __("Sales Invoice No Disponible"),
@@ -880,7 +880,7 @@ function update_radio_button_highlighting(field, selected_value) {
 
 function control_field_visibility_by_status(frm) {
 	// Control dinámico de visibilidad según fm_fiscal_status
-	const fiscal_status = frm.doc.fm_fiscal_status || "Pendiente";
+	const fiscal_status = frm.doc.fm_fiscal_status || "BORRADOR"; // Migrado arquitectura resiliente
 
 	// Campos que vienen de FacturAPI response (Punto 8)
 	const facturapi_response_fields = [
@@ -908,36 +908,37 @@ function control_field_visibility_by_status(frm) {
 	// NUEVA FUNCIONALIDAD: Control de lugar_expedicion basado en multi-sucursal
 	control_multisucursal_field_visibility(frm);
 
-	// PROTECCIÓN: Ocultar botón Cancel del DocType cuando esté "Timbrada" (proteger facturas reales del SAT)
-	if (fiscal_status === "Timbrada") {
+	// PROTECCIÓN: Ocultar botón Cancel del DocType cuando esté "TIMBRADO" (proteger facturas reales del SAT)
+	if (fiscal_status === "TIMBRADO") {
 		// Ocultar botón Cancel de Frappe para proteger facturas timbradas en el SAT
 		frm.page.clear_secondary_action();
 		// Solo permitir botón Cancel personalizado de FacturAPI (si se implementa posteriormente)
 	}
 
 	// Lógica de visibilidad según estado
-	if (fiscal_status === "Pendiente") {
+	if (fiscal_status === "BORRADOR") {
+		// Migrado arquitectura resiliente
 		// ESTADO PENDIENTE: Ocultar todo lo que viene después del timbrado
 		hide_fields(frm, facturapi_response_fields);
 		hide_fields(frm, fiscal_files_fields);
 		hide_fields(frm, cancellation_fields);
 		hide_section(frm, "section_break_archivos"); // Sección Archivos Fiscales
 		hide_section(frm, "section_break_cancelacion"); // Sección Cancelación
-	} else if (fiscal_status === "Timbrada") {
+	} else if (fiscal_status === "TIMBRADO") {
 		// ESTADO TIMBRADA: Mostrar datos de FacturAPI, ocultar cancelación
 		show_fields(frm, facturapi_response_fields);
 		show_fields(frm, fiscal_files_fields);
 		hide_fields(frm, cancellation_fields);
 		show_section(frm, "section_break_archivos"); // Mostrar Archivos Fiscales
 		hide_section(frm, "section_break_cancelacion"); // Ocultar Cancelación
-	} else if (fiscal_status === "Cancelada") {
+	} else if (fiscal_status === "CANCELADO") {
 		// ESTADO CANCELADA: Mostrar todo incluyendo información de cancelación
 		show_fields(frm, facturapi_response_fields);
 		show_fields(frm, fiscal_files_fields);
 		show_fields(frm, cancellation_fields);
 		show_section(frm, "section_break_archivos"); // Mostrar Archivos Fiscales
 		show_section(frm, "section_break_cancelacion"); // Mostrar Cancelación
-	} else if (fiscal_status === "Error" || fiscal_status === "failed") {
+	} else if (fiscal_status === "ERROR" || fiscal_status === "failed") {
 		// ESTADO ERROR/FAILED: Mostrar campos básicos, ocultar respuesta y cancelación
 		hide_fields(frm, facturapi_response_fields);
 		hide_fields(frm, fiscal_files_fields);

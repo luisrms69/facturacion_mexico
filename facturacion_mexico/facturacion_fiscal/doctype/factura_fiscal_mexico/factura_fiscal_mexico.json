@@ -37,12 +37,33 @@
     "serie",
     "folio",
     "total_fiscal",
+    "section_break_montos_sales_invoice",
+    "si_total_antes_iva",
+    "si_iva",
+    "column_break_montos_si",
+    "si_otros_impuestos",
+    "si_total_neto",
     "section_break_archivos",
     "pdf_file",
     "xml_file",
     "section_break_cancelacion",
     "cancellation_reason",
     "cancellation_date",
+    "section_break_sistema_resiliente",
+    "fm_sub_status",
+    "fm_document_type",
+    "fm_last_pac_sync",
+    "fm_sync_status",
+    "column_break_resiliente",
+    "fm_sync_error",
+    "fm_manual_override",
+    "fm_override_reason",
+    "fm_override_by",
+    "fm_override_timestamp",
+    "section_break_urls_archivos",
+    "fm_xml_url",
+    "fm_pdf_url",
+    "fm_last_response_log",
     "section_break_historial_facturapi",
     "facturapi_response_history"
   ],
@@ -60,7 +81,8 @@
       "in_list_view": 1,
       "label": "Factura de Venta",
       "options": "Sales Invoice",
-      "reqd": 1
+      "reqd": 1,
+      "search_index": 1
     },
     {
       "fieldname": "company",
@@ -91,11 +113,12 @@
       "fieldtype": "Column Break"
     },
     {
-      "default": "draft",
+      "default": "Draft",
       "fieldname": "status",
-      "fieldtype": "Data",
+      "fieldtype": "Select",
       "in_list_view": 1,
-      "label": "Estado",
+      "label": "Estado del Documento",
+      "options": "Draft\nSubmitted\nCancelled",
       "read_only": 1,
       "reqd": 1
     },
@@ -119,7 +142,8 @@
       "fieldname": "fecha_timbrado",
       "fieldtype": "Datetime",
       "label": "Fecha de Timbrado",
-      "read_only": 1
+      "read_only": 1,
+      "allow_on_submit": 1
     },
     {
       "fieldname": "section_break_facturapi",
@@ -131,15 +155,17 @@
       "fieldname": "facturapi_id",
       "fieldtype": "Data",
       "label": "FacturAPI ID",
-      "read_only": 1
+      "read_only": 1,
+      "allow_on_submit": 1
     },
     {
       "description": "UUID fiscal del SAT",
-      "fieldname": "uuid",
+      "fieldname": "fm_uuid",
       "fieldtype": "Data",
       "in_list_view": 1,
       "label": "UUID Fiscal",
-      "read_only": 1
+      "read_only": 1,
+      "allow_on_submit": 1
     },
     {
       "fieldname": "fm_cfdi_use",
@@ -148,14 +174,16 @@
       "options": "Uso CFDI SAT"
     },
     {
-      "default": "Pendiente",
-      "description": "Estado fiscal calculado automáticamente basado en respuestas de FacturAPI",
+      "default": "BORRADOR",
+      "description": "FUENTE DE VERDAD: facturacion_mexico/config/fiscal_states_config.py - NO modificar aquí sin actualizar archivo fuente",
       "fieldname": "fm_fiscal_status",
       "fieldtype": "Select",
       "in_list_view": 1,
       "label": "Estado Fiscal",
-      "options": "Pendiente\nTimbrada\nCancelada\nError\nSolicitud Cancelación",
-      "read_only": 1
+      "options": "BORRADOR\nPROCESANDO\nTIMBRADO\nERROR\nCANCELADO\nPENDIENTE_CANCELACION\nARCHIVADO",
+      "read_only": 1,
+      "allow_on_submit": 1,
+      "search_index": 1
     },
     {
       "fieldname": "fm_serie_folio",
@@ -176,20 +204,60 @@
       "fieldname": "serie",
       "fieldtype": "Data",
       "label": "Serie",
-      "read_only": 1
+      "read_only": 1,
+      "allow_on_submit": 1
     },
     {
       "description": "Folio de la factura fiscal",
       "fieldname": "folio",
       "fieldtype": "Data",
       "label": "Folio",
-      "read_only": 1
+      "read_only": 1,
+      "allow_on_submit": 1
     },
     {
       "description": "Total de la factura fiscal",
       "fieldname": "total_fiscal",
       "fieldtype": "Currency",
       "label": "Total Fiscal",
+      "read_only": 1,
+      "allow_on_submit": 1
+    },
+    {
+      "fieldname": "section_break_montos_sales_invoice",
+      "fieldtype": "Section Break",
+      "label": "Montos Sales Invoice (Referencia)"
+    },
+    {
+      "description": "Subtotal antes de impuestos del Sales Invoice",
+      "fieldname": "si_total_antes_iva",
+      "fieldtype": "Currency",
+      "label": "Total antes de IVA (SI)",
+      "read_only": 1
+    },
+    {
+      "description": "Monto de IVA del Sales Invoice",
+      "fieldname": "si_iva",
+      "fieldtype": "Currency",
+      "label": "IVA (SI)",
+      "read_only": 1
+    },
+    {
+      "fieldname": "column_break_montos_si",
+      "fieldtype": "Column Break"
+    },
+    {
+      "description": "Otros impuestos del Sales Invoice",
+      "fieldname": "si_otros_impuestos",
+      "fieldtype": "Currency",
+      "label": "Otros Impuestos (SI)",
+      "read_only": 1
+    },
+    {
+      "description": "Total neto del Sales Invoice",
+      "fieldname": "si_total_neto",
+      "fieldtype": "Currency",
+      "label": "Total Neto (SI)",
       "read_only": 1
     },
     {
@@ -292,6 +360,124 @@
       "label": "Dirección Completa",
       "read_only": 1,
       "description": "Dirección principal formateada"
+    },
+    {
+      "fieldname": "section_break_sistema_resiliente",
+      "fieldtype": "Section Break",
+      "label": "Sistema Resiliente"
+    },
+    {
+      "fieldname": "fm_sub_status",
+      "fieldtype": "Data",
+      "label": "Sub-Estado",
+      "description": "Detalle adicional del estado fiscal",
+      "allow_on_submit": 1,
+      "read_only": 1
+    },
+    {
+      "fieldname": "fm_document_type",
+      "fieldtype": "Select",
+      "label": "Tipo de Documento",
+      "options": "invoice\nereceipt\ncomplement\nglobal\npayroll",
+      "default": "invoice",
+      "allow_on_submit": 1,
+      "read_only": 1,
+      "reqd": 1
+    },
+    {
+      "fieldname": "fm_last_pac_sync",
+      "fieldtype": "Datetime",
+      "label": "Última Sincronización PAC",
+      "description": "Última sincronización exitosa con PAC",
+      "allow_on_submit": 1,
+      "read_only": 1
+    },
+    {
+      "fieldname": "fm_sync_status",
+      "fieldtype": "Select",
+      "label": "Estado de Sincronización",
+      "options": "synced\npending\nerror",
+      "default": "pending",
+      "allow_on_submit": 1,
+      "read_only": 1,
+      "search_index": 1
+    },
+    {
+      "fieldname": "column_break_resiliente",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "fm_sync_error",
+      "fieldtype": "Text",
+      "label": "Error de Sincronización",
+      "description": "Último error de sincronización",
+      "allow_on_submit": 1,
+      "read_only": 1
+    },
+    {
+      "fieldname": "fm_manual_override",
+      "fieldtype": "Check",
+      "label": "Override Manual",
+      "description": "True si admin forzó estado manualmente",
+      "allow_on_submit": 1,
+      "default": 0
+    },
+    {
+      "fieldname": "fm_override_reason",
+      "fieldtype": "Text",
+      "label": "Razón del Override",
+      "description": "Razón del override manual",
+      "allow_on_submit": 1,
+      "depends_on": "eval:doc.fm_manual_override"
+    },
+    {
+      "fieldname": "fm_override_by",
+      "fieldtype": "Link",
+      "label": "Override Realizado Por",
+      "options": "User",
+      "description": "Usuario que realizó el override manual",
+      "allow_on_submit": 1,
+      "read_only": 1,
+      "depends_on": "eval:doc.fm_manual_override"
+    },
+    {
+      "fieldname": "fm_override_timestamp",
+      "fieldtype": "Datetime",
+      "label": "Fecha de Override",
+      "description": "Cuándo se realizó el override manual",
+      "allow_on_submit": 1,
+      "read_only": 1,
+      "depends_on": "eval:doc.fm_manual_override"
+    },
+    {
+      "fieldname": "section_break_urls_archivos",
+      "fieldtype": "Section Break",
+      "label": "URLs y Referencias"
+    },
+    {
+      "fieldname": "fm_xml_url",
+      "fieldtype": "Data",
+      "label": "URL del XML",
+      "description": "Link directo al archivo XML",
+      "allow_on_submit": 1,
+      "read_only": 1
+    },
+    {
+      "fieldname": "fm_pdf_url",
+      "fieldtype": "Data",
+      "label": "URL del PDF",
+      "description": "Link directo al archivo PDF",
+      "allow_on_submit": 1,
+      "read_only": 1
+    },
+    {
+      "fieldname": "fm_last_response_log",
+      "fieldtype": "Link",
+      "label": "Último Log de Respuesta",
+      "options": "FacturAPI Response Log",
+      "description": "Referencia al último log de FacturAPI",
+      "allow_on_submit": 1,
+      "read_only": 1
     }
   ],
   "index_web_pages_for_search": 1,

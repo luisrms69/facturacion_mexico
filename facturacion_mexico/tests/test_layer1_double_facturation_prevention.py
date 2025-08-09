@@ -9,6 +9,7 @@ Tests de infraestructura básica para prevención de doble facturación
 import unittest
 
 import frappe
+from facturacion_mexico.config.fiscal_states_config import FiscalStates
 
 
 class TestLayer1DoubleFacturationPrevention(unittest.TestCase):
@@ -100,7 +101,7 @@ class TestLayer1DoubleFacturationPrevention(unittest.TestCase):
 		doc = frappe.get_doc({
 			"doctype": "Factura Fiscal Mexico",
 			"sales_invoice": "TEST-VALIDATION-001",  # Sales Invoice mock
-			"fm_fiscal_status": "Pendiente"
+			"fm_fiscal_status": FiscalStates.BORRADOR
 		})
 
 		# Mock del método para verificar invocación (sin ejecutar validación real)
@@ -116,7 +117,7 @@ class TestLayer1DoubleFacturationPrevention(unittest.TestCase):
 		try:
 			doc.run_method("validate")
 			# Nota: puede fallar en otras validaciones, pero el método debe haberse llamado
-		except:
+		except Exception:  # Ignore other validation errors during test
 			pass  # Ignorar otras validaciones para este test
 
 		# Restaurar método original

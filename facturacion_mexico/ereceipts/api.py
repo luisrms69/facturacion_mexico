@@ -208,8 +208,8 @@ def invoice_ereceipt(ereceipt_name, customer_data):
 		sales_invoice.customer = customer_data.get("customer")
 		sales_invoice.customer_name = customer_data.get("customer_name")
 
-		# Limpiar campos fiscales para nuevo timbrado
-		sales_invoice.fm_fiscal_status = "Pendiente"
+		# Limpiar campos fiscales para nuevo timbrado - MIGRADO A ARQUITECTURA RESILIENTE
+		sales_invoice.fm_fiscal_status = "BORRADOR"  # Era: "Pendiente" (legacy)
 		sales_invoice.fm_factura_fiscal_mx = None
 
 		sales_invoice.insert()

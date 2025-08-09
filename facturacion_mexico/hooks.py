@@ -172,7 +172,10 @@ fixtures = [
 					"Sales Invoice-fm_ereceipt_section",
 					"Sales Invoice-fm_factorapi_draft_id",
 					"Sales Invoice-fm_factura_fiscal_mx",
-					# "Sales Invoice-fm_fiscal_status", # MIGRADO A Factura Fiscal Mexico
+					"Sales Invoice-fm_fiscal_section",
+					"Sales Invoice-fm_fiscal_status",
+					"Sales Invoice-fm_last_status_update",
+					"Sales Invoice-fm_quick_status",
 					"Sales Invoice-fm_folio_reserved",
 					# "Sales Invoice-fm_informacion_fiscal_section", # ELIMINADO - Sección vacía migrada a Factura Fiscal Mexico
 					# "Sales Invoice-fm_lugar_expedicion", # MIGRADO A Factura Fiscal Mexico
@@ -258,19 +261,26 @@ fixtures = [
 # ---------------
 # Hook on document methods and events
 
+# FASE 1: HOOKS FISCAL LEGACY DESHABILITADOS - ARQUITECTURA RESILIENTE ACTIVA
+# Fecha: 2025-08-07 - TAREA 2.4 Eliminación sistemas legacy
+# Rollback: Descomentar sección "Sales Invoice" para restaurar hooks legacy
+#
+# doc_events = {
+# 	"Sales Invoice": {
+# 		"validate": [
+# 			"facturacion_mexico.facturacion_fiscal.hooks_handlers.sales_invoice_validate.validate_fiscal_data",
+# 			"facturacion_mexico.hooks_handlers.sales_invoice_validate.sales_invoice_validate",
+# 			"facturacion_mexico.validaciones.sales_invoice.validate_ppd_vs_forma_pago",
+# 		],
+# 		"before_submit": "facturacion_mexico.validaciones.hooks_handlers.sales_invoice_validate.validate_lista_69b_customer",
+# 		"on_submit": [
+# 			"facturacion_mexico.hooks_handlers.sales_invoice_submit.sales_invoice_on_submit",
+# 		],
+# 		"on_cancel": "facturacion_mexico.facturacion_fiscal.hooks_handlers.sales_invoice_cancel.handle_fiscal_cancellation",
+# 	},
+
 doc_events = {
-	"Sales Invoice": {
-		"validate": [
-			"facturacion_mexico.facturacion_fiscal.hooks_handlers.sales_invoice_validate.validate_fiscal_data",
-			"facturacion_mexico.hooks_handlers.sales_invoice_validate.sales_invoice_validate",
-			"facturacion_mexico.validaciones.sales_invoice.validate_ppd_vs_forma_pago",
-		],
-		"before_submit": "facturacion_mexico.validaciones.hooks_handlers.sales_invoice_validate.validate_lista_69b_customer",
-		"on_submit": [
-			"facturacion_mexico.hooks_handlers.sales_invoice_submit.sales_invoice_on_submit",
-		],
-		"on_cancel": "facturacion_mexico.facturacion_fiscal.hooks_handlers.sales_invoice_cancel.handle_fiscal_cancellation",
-	},
+	# SALES INVOICE HOOKS DESHABILITADOS - Ver comentarios arriba para rollback
 	"Customer": {
 		"validate": "facturacion_mexico.validaciones.hooks_handlers.customer_validate.validate_rfc_format",
 		"before_save": "facturacion_mexico.validaciones.hooks_handlers.customer_validate.validate_rfc_format",
@@ -313,15 +323,29 @@ scheduler_events = {
 		"facturacion_mexico.complementos_pago.api.process_pending_complements",
 		"facturacion_mexico.ereceipts.api.expire_ereceipts",
 	],
+	# OPTIMIZACIÓN P2.2.1: Cambiar recovery jobs de "all" a intervalos específicos
+	"cron": {
+		# Recovery Worker - Timeout recovery cada 5 minutos
+		"*/5 * * * *": [
+			"facturacion_mexico.facturacion_fiscal.tasks.process_timeout_recovery",
+			"facturacion_mexico.facturacion_fiscal.tasks.process_bulk_sync",
+		],
+		# Recovery Worker - Sync errors cada 10 minutos
+		"*/10 * * * *": [
+			"facturacion_mexico.facturacion_fiscal.tasks.process_sync_errors",
+		],
+		# Validación RFC automática nocturna a las 2:00 AM todos los días
+		"0 2 * * *": [
+			"facturacion_mexico.validaciones.api.run_nightly_rfc_validation",
+			# Recovery Worker - Limpieza logs diaria a las 2:00 AM
+			"facturacion_mexico.facturacion_fiscal.tasks.cleanup_old_logs",
+		],
+	},
 	"daily": [
 		"facturacion_mexico.validaciones.api.bulk_validate_customers",
 		"facturacion_mexico.validaciones.doctype.sat_validation_cache.sat_validation_cache.cleanup_expired_cache",
 		"facturacion_mexico.ereceipts.doctype.ereceipt_mx.ereceipt_mx.bulk_expire_ereceipts",
 	],
-	"cron": {
-		# Validación RFC automática nocturna a las 2:00 AM todos los días
-		"0 2 * * *": ["facturacion_mexico.validaciones.api.run_nightly_rfc_validation"]
-	},
 	"weekly": [
 		"facturacion_mexico.complementos_pago.api.reconcile_payment_tracking",
 		"facturacion_mexico.facturacion_fiscal.tasks.cleanup_old_fiscal_events",

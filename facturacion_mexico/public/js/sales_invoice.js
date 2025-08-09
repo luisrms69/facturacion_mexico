@@ -1,20 +1,69 @@
 // Sales Invoice customizations for Facturacion Mexico - ARQUITECTURA MIGRADA
 // Funcionalidad fiscal centralizada en Factura Fiscal Mexico
 
+// Cargar configuración de estados fiscales al inicio
+let FISCAL_STATES = null;
+
+// Función para obtener estados fiscales desde el servidor
+function load_fiscal_states(callback) {
+	if (FISCAL_STATES) {
+		// Ya cargado, usar cache
+		if (callback) callback(FISCAL_STATES);
+		return;
+	}
+
+	frappe.call({
+		method: "facturacion_mexico.facturacion_fiscal.api.get_fiscal_states",
+		callback: function (r) {
+			if (r.message) {
+				FISCAL_STATES = r.message;
+				if (callback) callback(FISCAL_STATES);
+			}
+		},
+	});
+}
+
+// Cargar estados al inicio
+load_fiscal_states();
+
 frappe.ui.form.on("Sales Invoice", {
 	refresh: function (frm) {
 		// Solo mostrar botón de timbrado si está submitted, tiene RFC y NO está timbrada
-		if (frm.doc.docstatus === 1 && has_customer_rfc(frm) && !is_already_timbrada(frm)) {
-			add_timbrar_button(frm);
-		} else if (frm.doc.docstatus === 1 && is_already_timbrada(frm)) {
-			add_view_fiscal_button(frm);
+		if (frm.doc.docstatus === 1) {
+			has_customer_rfc(frm, function (has_rfc) {
+				if (has_rfc && !is_already_timbrada(frm)) {
+					add_timbrar_button(frm);
+				} else if (is_already_timbrada(frm)) {
+					add_view_fiscal_button(frm);
+				}
+			});
 		}
 	},
 });
 
-function has_customer_rfc(frm) {
-	// Verificar si el cliente tiene RFC configurado
-	return frm.doc.customer && frm.doc.tax_id;
+function has_customer_rfc(frm, callback) {
+	// Verificar si el cliente tiene RFC configurado - RFC está en Customer, no en Sales Invoice
+	if (!frm.doc.customer) {
+		callback(false);
+		return;
+	}
+
+	// Obtener RFC del Customer vinculado
+	frappe.call({
+		method: "frappe.client.get_value",
+		args: {
+			doctype: "Customer",
+			filters: { name: frm.doc.customer },
+			fieldname: "tax_id",
+		},
+		callback: function (r) {
+			const has_rfc = !!(r.message && r.message.tax_id);
+			callback(has_rfc);
+		},
+		error: function (err) {
+			callback(false);
+		},
+	});
 }
 
 function is_already_timbrada(frm) {
@@ -51,16 +100,19 @@ function redirect_to_fiscal_document(frm) {
 				fieldname: "fm_fiscal_status",
 			},
 			callback: function (r) {
-				if (r.message && r.message.fm_fiscal_status === "Timbrada") {
-					frappe.msgprint({
-						title: __("Ya Timbrada"),
-						message: __(
-							"Esta Sales Invoice ya está timbrada. No se puede volver a timbrar."
-						),
-						indicator: "orange",
-					});
-					return;
-				}
+				// Usar estados desde configuración
+				load_fiscal_states(function (states) {
+					if (r.message && r.message.fm_fiscal_status === states.states.TIMBRADO) {
+						frappe.msgprint({
+							title: __("Ya Timbrada"),
+							message: __(
+								"Esta Sales Invoice ya está timbrada. No se puede volver a timbrar."
+							),
+							indicator: "orange",
+						});
+						return;
+					}
+				});
 				// Si no está timbrada, ir al documento para continuar proceso
 				frappe.set_route("Form", "Factura Fiscal Mexico", frm.doc.fm_factura_fiscal_mx);
 			},
@@ -69,6 +121,21 @@ function redirect_to_fiscal_document(frm) {
 	}
 
 	// No existe, crear uno nuevo
+	// Calcular IVA y otros impuestos desde la tabla taxes
+	let iva_total = 0;
+	let otros_impuestos = 0;
+
+	if (frm.doc.taxes && frm.doc.taxes.length > 0) {
+		frm.doc.taxes.forEach(function (tax) {
+			// Identificar IVA por el account_head
+			if (tax.account_head && tax.account_head.toUpperCase().includes("IVA")) {
+				iva_total += tax.tax_amount || 0;
+			} else {
+				otros_impuestos += tax.tax_amount || 0;
+			}
+		});
+	}
+
 	frappe.call({
 		method: "frappe.client.insert",
 		args: {
@@ -77,8 +144,13 @@ function redirect_to_fiscal_document(frm) {
 				sales_invoice: frm.doc.name,
 				company: frm.doc.company,
 				customer: frm.doc.customer, // AÑADIR: Customer requerido
-				fm_fiscal_status: "Pendiente", // Valor correcto en español
+				fm_fiscal_status: FISCAL_STATES ? FISCAL_STATES.states.BORRADOR : "BORRADOR", // Estado desde configuración
 				fm_payment_method_sat: "PUE", // Valor por defecto
+				// Agregar montos del Sales Invoice para validación posterior
+				si_total_antes_iva: frm.doc.net_total || 0,
+				si_total_neto: frm.doc.grand_total || 0,
+				si_iva: iva_total,
+				si_otros_impuestos: otros_impuestos,
 			},
 		},
 		callback: function (r) {

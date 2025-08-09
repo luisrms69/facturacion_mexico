@@ -1,0 +1,8 @@
+{
+  "doctype": "Dashboard",
+  "dashboard_name": "Facturacion Mexico",
+  "module": "Facturacion Mexico",
+  "is_default": 0,
+  "charts": [],
+  "cards": []
+}
