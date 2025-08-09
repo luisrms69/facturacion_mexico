@@ -1,0 +1,151 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-08-08 19:01:12.346854",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "alerts_section",
+  "pac_failure_threshold",
+  "recovery_tasks_threshold",
+  "response_time_threshold",
+  "filesystem_usage_threshold",
+  "notification_section",
+  "email_notifications",
+  "email_recipients",
+  "system_notifications",
+  "webhook_notifications",
+  "webhook_url",
+  "monitoring_section",
+  "check_interval",
+  "alert_cooldown"
+ ],
+ "fields": [
+  {
+   "fieldname": "alerts_section",
+   "fieldtype": "Section Break",
+   "label": "Configuraci\u00f3n de Alertas"
+  },
+  {
+   "default": "5",
+   "description": "Alertar si tasa de falla PAC > este porcentaje",
+   "fieldname": "pac_failure_threshold",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Umbral PAC Failure Rate (%)",
+   "reqd": 1
+  },
+  {
+   "default": "10",
+   "description": "Alertar si recovery tasks pendientes > este n\u00famero",
+   "fieldname": "recovery_tasks_threshold",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Umbral Recovery Tasks Pendientes",
+   "reqd": 1
+  },
+  {
+   "default": "5000",
+   "description": "Alertar si tiempo promedio > este valor",
+   "fieldname": "response_time_threshold",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Umbral Tiempo Respuesta (ms)",
+   "reqd": 1
+  },
+  {
+   "default": "80",
+   "description": "Alertar si uso filesystem fallback > este porcentaje",
+   "fieldname": "filesystem_usage_threshold",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Umbral Filesystem Usage (%)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "notification_section",
+   "fieldtype": "Section Break",
+   "label": "Canales de Notificaci\u00f3n"
+  },
+  {
+   "default": "1",
+   "fieldname": "email_notifications",
+   "fieldtype": "Check",
+   "label": "Activar Notificaciones Email"
+  },
+  {
+   "depends_on": "email_notifications",
+   "description": "Lista de emails separados por coma",
+   "fieldname": "email_recipients",
+   "fieldtype": "Small Text",
+   "label": "Email Recipients (separados por coma)"
+  },
+  {
+   "default": "1",
+   "fieldname": "system_notifications",
+   "fieldtype": "Check",
+   "label": "Activar Notificaciones Sistema Frappe"
+  },
+  {
+   "default": "0",
+   "fieldname": "webhook_notifications",
+   "fieldtype": "Check",
+   "label": "Activar Webhook Notifications"
+  },
+  {
+   "depends_on": "webhook_notifications",
+   "fieldname": "webhook_url",
+   "fieldtype": "Data",
+   "label": "Webhook URL (Slack, Teams, etc.)"
+  },
+  {
+   "fieldname": "monitoring_section",
+   "fieldtype": "Section Break",
+   "label": "Configuraci\u00f3n de Monitoreo"
+  },
+  {
+   "default": "10 minutos",
+   "description": "Con qu\u00e9 frecuencia verificar las m\u00e9tricas",
+   "fieldname": "check_interval",
+   "fieldtype": "Select",
+   "label": "Frecuencia de Verificaci\u00f3n",
+   "options": "5 minutos\n10 minutos\n15 minutos\n30 minutos\n1 hora",
+   "reqd": 1
+  },
+  {
+   "default": "30",
+   "description": "Tiempo m\u00ednimo entre alertas del mismo tipo",
+   "fieldname": "alert_cooldown",
+   "fieldtype": "Int",
+   "label": "Cooldown Entre Alertas (minutos)",
+   "reqd": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-08-08 19:01:12.346854",
+ "modified_by": "Administrator",
+ "module": "Facturacion Fiscal",
+ "name": "Control Panel Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
