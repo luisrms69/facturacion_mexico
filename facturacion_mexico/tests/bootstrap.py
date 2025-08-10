@@ -6,33 +6,18 @@ def ensure_test_deps():
     _ensure_item_tax_template("_Test Account Excise Duty @ 12 - _TC", 12)
 
 def _ensure_erpnext_baseline_company_inr():
-    # Crea la _Test Company en INR si no existe (o si existe mal configurada, la repara)
-    from erpnext.tests.utils import create_test_company
+    # El test que falla busca específicamente "_Test Company" con abbr "_TC"
+    # Crear _Test Company si no existe (datos mínimos requeridos)
     if not frappe.db.exists("Company", "_Test Company"):
-        create_test_company()  # crea _Test Company con abbr _TC y baseline esperado (INR)
-
-    # Si alguien cambió la moneda, normalízala a INR para el runner
-    company = frappe.get_doc("Company", "_Test Company")
-    if company.default_currency != "INR":
-        company.default_currency = "INR"
-        company.save()
-
-        # Asegurar que cuentas de la _Test Company estén en INR (evita mismatch de Party Account)
-        frappe.db.sql("""
-            UPDATE `tabAccount`
-               SET account_currency = 'INR'
-             WHERE company = '_Test Company'
-               AND (account_currency IS NULL OR account_currency <> 'INR')
-        """)
-
-        # Ajusta Price Lists de prueba si existen
-        frappe.db.sql("""
-            UPDATE `tabPrice List`
-               SET currency = 'INR'
-             WHERE selling = 1 OR buying = 1
-        """)
-
-        frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure ERPNext baseline test company normalization
+        company = frappe.get_doc({
+            "doctype": "Company",
+            "company_name": "_Test Company",
+            "abbr": "_TC",
+            "default_currency": "INR",
+            "country": "India"
+        })
+        company.insert(ignore_permissions=True)
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure test company exists before other dependencies
 
 def _pick_any_tax_account_in_inr():
     # El baseline suele traer cuentas en INR; tomamos alguna válida (liability o cualquiera)
