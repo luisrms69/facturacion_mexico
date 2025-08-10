@@ -8,8 +8,16 @@ def ensure_test_deps():
 def _ensure_test_company():
     # Garantiza la compañía de pruebas que usan los tests de ERPNext
     if not frappe.db.exists("Company", "_Test Company"):
-        from erpnext.tests.utils import create_test_company
-        create_test_company()  # crea _Test Company con abbr _TC
+        # Crear la compañía de testing manualmente con datos mínimos
+        company = frappe.get_doc({
+            "doctype": "Company",
+            "company_name": "_Test Company",
+            "abbr": "_TC",
+            "default_currency": "MXN",
+            "country": "Mexico"
+        })
+        company.insert(ignore_permissions=True)
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure test company exists before other dependencies
 
 def _pick_any_tax_account():
     # Selecciona una cuenta válida para el template; ajusta si quieres algo más específico
