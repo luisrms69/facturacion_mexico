@@ -7,7 +7,6 @@ from facturacion_mexico.config.fiscal_states_config import FiscalStates
 
 def create_fiscal_event(doc, method):
 	"""Crear evento fiscal cuando se envía Sales Invoice."""
-	import frappe
 
 	frappe.log_error(f"🚀 INICIO create_fiscal_event para {doc.name}", "TIMBRADO TRACE")
 
@@ -48,32 +47,15 @@ def _should_create_fiscal_event(doc):
 
 def _create_emission_event(doc):
 	"""Crear evento de emisión de factura."""
-	from facturacion_mexico.facturacion_fiscal.doctype.fiscal_event_mx.fiscal_event_mx import FiscalEventMX
 
 	# Obtener o crear Factura Fiscal
 	factura_fiscal = _get_or_create_factura_fiscal(doc)
 
-	# Crear evento
-	event_data = {
-		"sales_invoice": doc.name,
-		"customer": doc.customer,
-		"total_amount": doc.grand_total,
-		"currency": doc.currency,
-	}
-
-	# Crear evento con parametros correctos: (event_type, reference_doctype, reference_name, event_data, status)
-	event_doc = FiscalEventMX.create_event(
-		"create", "Factura Fiscal Mexico", factura_fiscal.name, event_data, "pending"
+	# LEGACY: FiscalEventMX eliminado - reemplazado por FacturAPIResponseLog en nueva arquitectura
+	frappe.log_error(
+		f"Factura fiscal {factura_fiscal.name} creada para {doc.name}",
+		"Sales Invoice Fiscal Creation",
 	)
-
-	# Marcar como exitoso solo si el evento se creó correctamente
-	if event_doc:
-		FiscalEventMX.mark_event_success(event_doc.name, {"status": "emitted"})
-	else:
-		frappe.log_error(
-			message=f"create_event retornó None para factura_fiscal {factura_fiscal.name}",
-			title="Sales Invoice Fiscal Event Failed",
-		)
 
 	# Actualizar estado fiscal
 	frappe.db.set_value("Sales Invoice", doc.name, "fm_fiscal_status", FiscalStates.BORRADOR)
@@ -133,7 +115,6 @@ def _get_or_create_factura_fiscal(doc):
 
 def _should_auto_timbrar(doc):
 	"""Determinar si se debe auto-timbrar facturas normales VS ereceipts."""
-	import frappe
 
 	frappe.log_error(f"🔍 EVALUANDO auto-timbrado para {doc.name}", "Auto-Timbrado Check")
 
@@ -171,7 +152,6 @@ def _should_auto_timbrar(doc):
 
 def _auto_timbrar_factura(doc):
 	"""Auto-timbrar factura si está configurado."""
-	import frappe
 
 	frappe.log_error(f"🎯 EJECUTANDO _auto_timbrar_factura para {doc.name}", "TIMBRADO TRACE")
 
