@@ -67,9 +67,7 @@ class ControlPanelSettings(Document):
 				frappe.throw(_("Permisos System Manager requeridos"))
 
 			# Guardar en System Settings
-			frappe.db.set_value(
-				"System Settings", "System Settings", "fiscal_alerts_config", json.dumps(config)
-			)
+			frappe.db.set_single_value("System Settings", "fiscal_alerts_config", json.dumps(config))
 			frappe.db.commit()
 
 			return {"success": True, "message": _("Configuración de alertas guardada correctamente")}

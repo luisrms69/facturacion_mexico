@@ -153,7 +153,8 @@ def create_full_control_panel():
 	print(f"Content generado: {len(blocks)} bloques con métricas y funcionalidades")
 
 	ws.save()
-	frappe.db.commit()
+	# Manual commit necesario: Workspace modificado dinámicamente fuera flujo transaccional normal
+	frappe.db.commit()  # nosemgrep
 
 	print("✅ Control Panel completo creado con:")
 	print("   - Métricas en tiempo real")
