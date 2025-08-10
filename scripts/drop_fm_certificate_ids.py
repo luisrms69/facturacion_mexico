@@ -32,8 +32,8 @@ def drop_cf_and_ps():
 	if not ps_list:
 		print("✅ No hay Property Setters para este campo (ok).")
 
-	# Commit cambios
-	frappe.db.commit()
+	# Commit cambios - Required to ensure Custom Field elimination is persisted before verification
+	frappe.db.commit()  # nosemgrep: frappe-manual-commit
 	print("💾 Cambios confirmados en BD")
 
 	# Verificación columna tabla (esperado: False para Table MultiSelect)

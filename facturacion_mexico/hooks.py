@@ -358,6 +358,7 @@ scheduler_events = {
 before_tests = [
 	"facturacion_mexico.install.before_tests",
 	"facturacion_mexico.setup.testing.load_testing_fixtures",
+	"facturacion_mexico.tests.bootstrap.ensure_test_deps",
 ]
 
 # Overriding Methods
