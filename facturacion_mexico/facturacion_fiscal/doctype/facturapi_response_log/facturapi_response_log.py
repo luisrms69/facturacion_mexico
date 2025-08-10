@@ -27,50 +27,7 @@ class FacturAPIResponseLog(Document):
 
 	# update_fiscal_status() ELIMINADO - Nueva arquitectura usa Status Calculator stateless
 
-	@staticmethod
-	def create_log(
-		factura_fiscal_mexico,
-		operation_type,
-		success,
-		facturapi_response=None,
-		status_code=None,
-		error_message=None,
-	):
-		"""Método estático para crear logs de respuesta FacturAPI."""
-		try:
-			log_doc = frappe.new_doc("FacturAPI Response Log")
-			log_doc.factura_fiscal_mexico = factura_fiscal_mexico
-			log_doc.operation_type = operation_type
-			log_doc.success = success
-			log_doc.status_code = str(status_code) if status_code else None
-
-			# Manejar respuesta JSON
-			if facturapi_response:
-				if isinstance(facturapi_response, dict):
-					log_doc.facturapi_response = facturapi_response
-				else:
-					# Si es string, intentar parsear
-					import json
-
-					try:
-						log_doc.facturapi_response = json.loads(facturapi_response)
-					except Exception:
-						log_doc.facturapi_response = {"raw_response": str(facturapi_response)}
-
-			# Error message
-			if error_message:
-				log_doc.error_message = str(error_message)[:500]  # Limitar longitud
-
-			log_doc.insert(ignore_permissions=True)
-			frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required for API response logging to persist immediately
-
-			return log_doc
-
-		except Exception as e:
-			frappe.log_error(
-				f"Error creando FacturAPI Response Log: {e!s}", "FacturAPI Response Log Creation Error"
-			)
-			return None
+	# create_log() ELIMINADO - Nueva arquitectura usa write_pac_response() del PAC Response Writer
 
 	# get_latest_status() ELIMINADO - Nueva arquitectura usa calculate_current_status() del Status Calculator
 
