@@ -75,7 +75,7 @@ def get_system_health_metrics():
 		return metrics
 
 	except Exception as e:
-		frappe.log_error(f"Error obteniendo métricas sistema: {str(e)}", "Admin Tools Health Metrics")
+		frappe.log_error(f"Error obteniendo métricas sistema: {e}", "Admin Tools Health Metrics")
 		frappe.throw(_("Error obteniendo métricas de salud del sistema"))
 
 
@@ -144,7 +144,7 @@ def get_os_health_metrics():
 			"background_jobs": {"total": 0, "failed": 0, "success_rate": 100},
 		}
 	except Exception as e:
-		frappe.log_error(f"Error obteniendo métricas OS: {str(e)}", "Admin Tools OS Metrics")
+		frappe.log_error(f"Error obteniendo métricas OS: {e}", "Admin Tools OS Metrics")
 		frappe.throw(_("Error obteniendo métricas sistema operativo"))
 
 
@@ -208,7 +208,7 @@ def manual_recovery_invoice(invoice_name):
 		}
 
 	except Exception as e:
-		frappe.log_error(f"Error recovery manual {invoice_name}: {str(e)}", "Admin Tools Manual Recovery")
+		frappe.log_error(f"Error recovery manual {invoice_name}: {e}", "Admin Tools Manual Recovery")
 		frappe.throw(_("Error iniciando recovery manual: {0}").format(str(e)))
 
 
@@ -263,7 +263,7 @@ def reprocess_pac_failures():
 
 			except Exception as task_error:
 				frappe.log_error(
-					f"Error creando recovery task para {failed_response['name']}: {str(task_error)}",
+					f"Error creando recovery task para {failed_response['name']}: {task_error}",
 					"Admin Tools Reprocess Failures",
 				)
 
@@ -277,7 +277,7 @@ def reprocess_pac_failures():
 		}
 
 	except Exception as e:
-		frappe.log_error(f"Error reprocesando PAC failures: {str(e)}", "Admin Tools Reprocess Failures")
+		frappe.log_error(f"Error reprocesando PAC failures: {e}", "Admin Tools Reprocess Failures")
 		frappe.throw(_("Error reprocesando PAC failures: {0}").format(str(e)))
 
 
@@ -320,7 +320,7 @@ def cleanup_filesystem_fallback():
 
 					except Exception as file_error:
 						frappe.log_error(
-							f"Error eliminando archivo {filepath}: {str(file_error)}",
+							f"Error eliminando archivo {filepath}: {file_error}",
 							"Admin Tools Filesystem Cleanup",
 						)
 
@@ -334,7 +334,7 @@ def cleanup_filesystem_fallback():
 		}
 
 	except Exception as e:
-		frappe.log_error(f"Error limpiando filesystem fallback: {str(e)}", "Admin Tools Filesystem Cleanup")
+		frappe.log_error(f"Error limpiando filesystem fallback: {e}", "Admin Tools Filesystem Cleanup")
 		frappe.throw(_("Error limpiando filesystem fallback: {0}").format(str(e)))
 
 
@@ -380,7 +380,7 @@ def reset_recovery_tasks():
 
 			except Exception as task_error:
 				frappe.log_error(
-					f"Error reseteando task {task['name']}: {str(task_error)}", "Admin Tools Reset Tasks"
+					f"Error reseteando task {task['name']}: {task_error}", "Admin Tools Reset Tasks"
 				)
 
 		frappe.db.commit()
@@ -393,7 +393,7 @@ def reset_recovery_tasks():
 		}
 
 	except Exception as e:
-		frappe.log_error(f"Error reseteando recovery tasks: {str(e)}", "Admin Tools Reset Tasks")
+		frappe.log_error(f"Error reseteando recovery tasks: {e}", "Admin Tools Reset Tasks")
 		frappe.throw(_("Error reseteando recovery tasks: {0}").format(str(e)))
 
 
@@ -468,7 +468,7 @@ def get_audit_trail(filters=None):
 		return {"success": True, "audit_entries": audit_entries, "total_count": len(audit_entries)}
 
 	except Exception as e:
-		frappe.log_error(f"Error obteniendo audit trail: {str(e)}", "Admin Tools Audit Trail")
+		frappe.log_error(f"Error obteniendo audit trail: {e}", "Admin Tools Audit Trail")
 		frappe.throw(_("Error obteniendo audit trail: {0}").format(str(e)))
 
 
@@ -502,7 +502,7 @@ def get_alerts_configuration():
 				"alert_cooldown": 30,
 			}
 	except Exception as e:
-		frappe.log_error(f"Error obteniendo configuración alertas: {str(e)}", "Admin Tools Alerts Config")
+		frappe.log_error(f"Error obteniendo configuración alertas: {e}", "Admin Tools Alerts Config")
 		return {}
 
 
@@ -529,7 +529,7 @@ def save_alerts_configuration(config):
 		return {"success": True, "message": _("Configuración de alertas guardada correctamente")}
 
 	except Exception as e:
-		frappe.log_error(f"Error guardando configuración alertas: {str(e)}", "Admin Tools Save Alerts Config")
+		frappe.log_error(f"Error guardando configuración alertas: {e}", "Admin Tools Save Alerts Config")
 		frappe.throw(_("Error guardando configuración de alertas: {0}").format(str(e)))
 
 
@@ -569,7 +569,7 @@ def test_alerts_system():
 					{
 						"type": "email",
 						"status": "error",
-						"message": f"Error enviando email: {str(email_error)}",
+						"message": f"Error enviando email: {email_error}",
 					}
 				)
 
@@ -594,7 +594,7 @@ def test_alerts_system():
 					{
 						"type": "system",
 						"status": "error",
-						"message": f"Error notificación sistema: {str(system_error)}",
+						"message": f"Error notificación sistema: {system_error}",
 					}
 				)
 
@@ -630,13 +630,13 @@ def test_alerts_system():
 
 			except Exception as webhook_error:
 				test_results["tests"].append(
-					{"type": "webhook", "status": "error", "message": f"Error webhook: {str(webhook_error)}"}
+					{"type": "webhook", "status": "error", "message": f"Error webhook: {webhook_error}"}
 				)
 
 		return test_results
 
 	except Exception as e:
-		frappe.log_error(f"Error test sistema alertas: {str(e)}", "Admin Tools Test Alerts")
+		frappe.log_error(f"Error test sistema alertas: {e}", "Admin Tools Test Alerts")
 		return {"success": False, "error": str(e)}
 
 
@@ -719,7 +719,7 @@ def check_alert_conditions():
 		return {"success": True, "alerts_checked": len(alerts_triggered), "new_alerts": new_alerts}
 
 	except Exception as e:
-		frappe.log_error(f"Error verificando condiciones alerta: {str(e)}", "Admin Tools Check Alerts")
+		frappe.log_error(f"Error verificando condiciones alerta: {e}", "Admin Tools Check Alerts")
 		return {"success": False, "error": str(e)}
 
 
@@ -790,7 +790,7 @@ def send_alert(alert, config):
 			requests.post(config["webhook_url"], json=webhook_payload, timeout=5)
 
 	except Exception as e:
-		frappe.log_error(f"Error enviando alerta: {str(e)}", "Admin Tools Send Alert")
+		frappe.log_error(f"Error enviando alerta: {e}", "Admin Tools Send Alert")
 
 
 def record_alert_sent(alert_type):
@@ -817,12 +817,12 @@ def get_filesystem_usage(directory):
 
 		# Calcular tamaño total archivos
 		total_size = 0
-		for dirpath, dirnames, filenames in os.walk(directory):
+		for dirpath, _dirnames, filenames in os.walk(directory):
 			for filename in filenames:
 				filepath = os.path.join(dirpath, filename)
 				try:
 					total_size += os.path.getsize(filepath)
-				except (OSError, IOError):
+				except OSError:
 					pass
 
 		# Límite máximo 100MB para fallback

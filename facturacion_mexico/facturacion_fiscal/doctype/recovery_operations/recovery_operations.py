@@ -106,7 +106,7 @@ class RecoveryOperations(Document):
 			}
 
 		except Exception as e:
-			frappe.log_error(f"Error recovery manual {invoice_name}: {str(e)}", "Recovery Operations")
+			frappe.log_error(f"Error recovery manual {invoice_name}: {e}", "Recovery Operations")
 			frappe.throw(_("Error iniciando recovery manual: {0}").format(str(e)))
 
 	@staticmethod
@@ -173,7 +173,7 @@ class RecoveryOperations(Document):
 
 				except Exception as task_error:
 					frappe.log_error(
-						f"Error creando recovery task para {failed_response['name']}: {str(task_error)}",
+						f"Error creando recovery task para {failed_response['name']}: {task_error}",
 						"Recovery Operations",
 					)
 
@@ -195,7 +195,7 @@ class RecoveryOperations(Document):
 			}
 
 		except Exception as e:
-			frappe.log_error(f"Error reprocesando PAC failures: {str(e)}", "Recovery Operations")
+			frappe.log_error(f"Error reprocesando PAC failures: {e}", "Recovery Operations")
 			frappe.throw(_("Error reprocesando PAC failures: {0}").format(str(e)))
 
 	@staticmethod
@@ -261,7 +261,7 @@ class RecoveryOperations(Document):
 
 						except Exception as file_error:
 							frappe.log_error(
-								f"Error eliminando archivo {filepath}: {str(file_error)}",
+								f"Error eliminando archivo {filepath}: {file_error}",
 								"Recovery Operations",
 							)
 
@@ -283,7 +283,7 @@ class RecoveryOperations(Document):
 			}
 
 		except Exception as e:
-			frappe.log_error(f"Error limpiando filesystem fallback: {str(e)}", "Recovery Operations")
+			frappe.log_error(f"Error limpiando filesystem fallback: {e}", "Recovery Operations")
 			frappe.throw(_("Error limpiando filesystem fallback: {0}").format(str(e)))
 
 	@staticmethod
@@ -344,7 +344,7 @@ class RecoveryOperations(Document):
 
 				except Exception as task_error:
 					frappe.log_error(
-						f"Error reseteando task {task['name']}: {str(task_error)}", "Recovery Operations"
+						f"Error reseteando task {task['name']}: {task_error}", "Recovery Operations"
 					)
 
 			frappe.db.commit()
@@ -365,5 +365,5 @@ class RecoveryOperations(Document):
 			}
 
 		except Exception as e:
-			frappe.log_error(f"Error reseteando recovery tasks: {str(e)}", "Recovery Operations")
+			frappe.log_error(f"Error reseteando recovery tasks: {e}", "Recovery Operations")
 			frappe.throw(_("Error reseteando recovery tasks: {0}").format(str(e)))

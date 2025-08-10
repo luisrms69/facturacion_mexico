@@ -78,7 +78,7 @@ class SystemHealthMonitor(Document):
 			return metrics
 
 		except Exception as e:
-			frappe.log_error(f"Error obteniendo métricas sistema: {str(e)}", "System Health Monitor")
+			frappe.log_error(f"Error obteniendo métricas sistema: {e}", "System Health Monitor")
 			frappe.throw(_("Error obteniendo métricas de salud del sistema"))
 
 	@staticmethod
@@ -149,5 +149,5 @@ class SystemHealthMonitor(Document):
 			return metrics
 
 		except Exception as e:
-			frappe.log_error(f"Error obteniendo métricas OS: {str(e)}", "System Health Monitor")
+			frappe.log_error(f"Error obteniendo métricas OS: {e}", "System Health Monitor")
 			frappe.throw(_("Error obteniendo métricas sistema operativo"))

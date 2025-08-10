@@ -45,7 +45,7 @@ class ControlPanelSettings(Document):
 					"alert_cooldown": 30,
 				}
 		except Exception as e:
-			frappe.log_error(f"Error obteniendo configuración alertas: {str(e)}", "Control Panel Settings")
+			frappe.log_error(f"Error obteniendo configuración alertas: {e}", "Control Panel Settings")
 			return {}
 
 	@staticmethod
@@ -75,7 +75,7 @@ class ControlPanelSettings(Document):
 			return {"success": True, "message": _("Configuración de alertas guardada correctamente")}
 
 		except Exception as e:
-			frappe.log_error(f"Error guardando configuración alertas: {str(e)}", "Control Panel Settings")
+			frappe.log_error(f"Error guardando configuración alertas: {e}", "Control Panel Settings")
 			frappe.throw(_("Error guardando configuración de alertas: {0}").format(str(e)))
 
 	@staticmethod
@@ -116,7 +116,7 @@ class ControlPanelSettings(Document):
 						{
 							"type": "email",
 							"status": "error",
-							"message": f"Error enviando email: {str(email_error)}",
+							"message": f"Error enviando email: {email_error}",
 						}
 					)
 
@@ -141,7 +141,7 @@ class ControlPanelSettings(Document):
 						{
 							"type": "system",
 							"status": "error",
-							"message": f"Error notificación sistema: {str(system_error)}",
+							"message": f"Error notificación sistema: {system_error}",
 						}
 					)
 
@@ -180,14 +180,14 @@ class ControlPanelSettings(Document):
 						{
 							"type": "webhook",
 							"status": "error",
-							"message": f"Error webhook: {str(webhook_error)}",
+							"message": f"Error webhook: {webhook_error}",
 						}
 					)
 
 			return test_results
 
 		except Exception as e:
-			frappe.log_error(f"Error test sistema alertas: {str(e)}", "Control Panel Settings")
+			frappe.log_error(f"Error test sistema alertas: {e}", "Control Panel Settings")
 			return {"success": False, "error": str(e)}
 
 	@staticmethod
@@ -277,7 +277,7 @@ class ControlPanelSettings(Document):
 			return {"success": True, "alerts_checked": len(alerts_triggered), "new_alerts": new_alerts}
 
 		except Exception as e:
-			frappe.log_error(f"Error verificando condiciones alerta: {str(e)}", "Control Panel Settings")
+			frappe.log_error(f"Error verificando condiciones alerta: {e}", "Control Panel Settings")
 			return {"success": False, "error": str(e)}
 
 	@staticmethod
@@ -348,7 +348,7 @@ class ControlPanelSettings(Document):
 				requests.post(config["webhook_url"], json=webhook_payload, timeout=5)
 
 		except Exception as e:
-			frappe.log_error(f"Error enviando alerta: {str(e)}", "Control Panel Settings")
+			frappe.log_error(f"Error enviando alerta: {e}", "Control Panel Settings")
 
 	@staticmethod
 	def record_alert_sent(alert_type):
