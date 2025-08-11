@@ -370,7 +370,7 @@ scheduler_events = {
 # 	"Salutation",
 # ]
 
-before_tests = "facturacion_mexico.tests.bootstrap.ensure_test_deps"
+# before_tests = "facturacion_mexico.tests.bootstrap.ensure_test_deps"  # DESHABILITADO: usar pre-seed manual en CI
 
 # Overriding Methods
 # ------------------------------
