@@ -198,7 +198,7 @@ jobs:
           bench --site facturacion.dev set-config allow_tests true
           bench --site facturacion.dev set-config developer_mode true
           bench --site facturacion.dev set-config skip_before_tests false
-          bench --site facturacion.dev run-tests --app facturacion_mexico --coverage
+          bench --site facturacion.dev run-tests --app facturacion_mexico --skip-test-records
         env:
           TYPE: server
           FRAPPE_DEVELOPER_MODE: 1
