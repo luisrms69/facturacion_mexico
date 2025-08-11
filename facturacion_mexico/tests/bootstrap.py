@@ -14,9 +14,91 @@ def _create_basic_warehouse_types():
                 "name": wh_type,
             }).insert(ignore_permissions=True)
 
+def _create_basic_erpnext_accounts():
+    """Crear cuentas contables básicas de ERPNext requeridas para testing.
+
+    Crea específicamente _Test Account Excise Duty - _TC con account_type="Tax".
+    """
+    companies = frappe.get_all("Company", filters={"abbr": "_TC"}, fields=["name", "abbr"], limit=1)
+
+    if not companies:
+        return
+
+    company_name = companies[0].name
+    company_abbr = companies[0].abbr
+
+    # Cuentas básicas requeridas - especialmente Tax account
+    basic_accounts = [
+        ["_Test Bank", "Bank Accounts", 0, "Bank", None],
+        ["_Test Cash", "Cash In Hand", 0, "Cash", None],
+        ["_Test Receivable", "Current Assets", 0, "Receivable", None],
+        ["_Test Payable", "Current Liabilities", 0, "Payable", None],
+        ["_Test Account Excise Duty", "Current Assets", 0, "Tax", None],  # CRÍTICO: Tax account
+    ]
+
+    for account_name, parent_account, is_group, account_type, currency in basic_accounts:
+        full_account_name = f"{account_name} - {company_abbr}"
+        parent_account_name = f"{parent_account} - {company_abbr}"
+
+        if frappe.db.exists("Account", full_account_name):
+            continue
+
+        if not frappe.db.exists("Account", parent_account_name):
+            continue
+
+        try:
+            account_doc = {
+                "doctype": "Account",
+                "account_name": account_name,
+                "parent_account": parent_account_name,
+                "company": company_name,
+                "is_group": is_group,
+            }
+
+            if account_type:
+                account_doc["account_type"] = account_type
+
+            if currency:
+                account_doc["account_currency"] = currency
+
+            frappe.get_doc(account_doc).insert(ignore_permissions=True)
+        except Exception:
+            pass  # Continue with other accounts
+
+def _create_basic_cost_centers():
+    """Crear cost centers básicos requeridos para testing."""
+    companies = frappe.get_all("Company", filters={"abbr": "_TC"}, fields=["name", "abbr"], limit=1)
+
+    if not companies:
+        return
+
+    company_name = companies[0].name
+    company_abbr = companies[0].abbr
+
+    cost_centers = ["_Test Cost Center", "_Test Cost Center 2"]
+
+    for cost_center_base_name in cost_centers:
+        cost_center_name = f"{cost_center_base_name} - {company_abbr}"
+
+        if frappe.db.exists("Cost Center", cost_center_name):
+            continue
+
+        try:
+            frappe.get_doc({
+                "doctype": "Cost Center",
+                "cost_center_name": cost_center_base_name,
+                "company": company_name,
+                "is_group": 0,
+                "parent_cost_center": f"{company_name} - {company_abbr}",
+            }).insert(ignore_permissions=True)
+        except Exception:
+            pass  # Continue with other cost centers
+
 def ensure_test_deps():
     _create_basic_warehouse_types()
     _ensure_erpnext_baseline_company_inr()
+    _create_basic_erpnext_accounts()
+    _create_basic_cost_centers()
     _ensure_item_tax_template("_Test Account Excise Duty @ 10 - _TC", 10)
     _ensure_item_tax_template("_Test Account Excise Duty @ 12 - _TC", 12)
 
