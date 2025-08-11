@@ -9,7 +9,7 @@ def run():
             frappe.get_doc({"doctype":"Warehouse Type", "name": wt}).insert(ignore_permissions=True)
 
     # --- 2) UOMs mínimos que piden tus tests ---
-    for u in ("Nos", "Unit"):
+    for u in ("Nos", "Unit", "Piece"):
         if not frappe.db.exists("UOM", u):
             frappe.get_doc({"doctype":"UOM", "uom_name": u, "name": u}).insert(ignore_permissions=True)
 
@@ -64,18 +64,30 @@ def run():
             "parent_item_group":"All Item Groups"
         }).insert(ignore_permissions=True)
 
-    # --- 6) Item mínimo que tus tests intentan usar ---
+    # --- 6) Price Lists básicos para Sales Invoice ---
+    for currency in ("INR", "MXN"):
+        pl_name = f"Standard Selling ({currency})"
+        if not frappe.db.exists("Price List", pl_name):
+            frappe.get_doc({
+                "doctype":"Price List",
+                "price_list_name": pl_name,
+                "currency": currency,
+                "enabled": 1,
+                "selling": 1
+            }).insert(ignore_permissions=True)
+
+    # --- 7) Item mínimo que tus tests intentan usar ---
     if not frappe.db.exists("Item", "Test Item Default"):
         frappe.get_doc({
             "doctype":"Item",
             "item_code":"Test Item Default",
             "item_name":"Test Item Default",
             "item_group":"Products",
-            "stock_uom":"Nos",
+            "stock_uom":"Unit",  # Cambiar a Unit que es más estándar
             "is_stock_item":0   # que no pida inventario
         }).insert(ignore_permissions=True)
 
-    # --- 7) Addenda Types que reclaman tus pruebas (Link a "Addenda Type") ---
+    # --- 8) Addenda Types que reclaman tus pruebas (Link a "Addenda Type") ---
     try:
         for add_type in ("TEST_AUTOMOTIVE", "TEST_RETAIL", "TEST_GENERIC"):
             if not frappe.db.exists("Addenda Type", add_type):
@@ -87,7 +99,7 @@ def run():
     except Exception as e:
         log(f"Addenda Types failed (non-critical): {e}")  # Skip if can't create
 
-    # --- 8) Defaults suaves para evitar warnings de "lugar expedición" en branch factories ---
+    # --- 9) Defaults suaves para evitar warnings de "lugar expedición" en branch factories ---
     #     (Si tus factories no los setean, al menos deja un postal general válido)
     frappe.db.set_default("country", "Mexico")
     frappe.db.commit()
@@ -95,10 +107,11 @@ def run():
     # Reporte rápido
     report = {
         "warehouse_types": [wt for wt in ("Stores","Work In Progress","Finished Goods","Transit") if frappe.db.exists("Warehouse Type", wt)],
-        "uoms":            [u for u in ("Nos","Unit") if frappe.db.exists("UOM", u)],
+        "uoms":            [u for u in ("Nos","Unit","Piece") if frappe.db.exists("UOM", u)],
         "customer_groups": [g for g in ("All Customer Groups","Individual") if frappe.db.exists("Customer Group", g)],
         "territories":     [t for t in ("All Territories","Rest Of The World") if frappe.db.exists("Territory", t)],
         "item_groups":     [g for g in ("All Item Groups","Products") if frappe.db.exists("Item Group", g)],
+        "price_lists":     [p for p in ("Standard Selling (INR)","Standard Selling (MXN)") if frappe.db.exists("Price List", p)],
         "item_default":    bool(frappe.db.exists("Item", "Test Item Default")),
         "addenda_types":   [a for a in ("TEST_AUTOMOTIVE","TEST_RETAIL","TEST_GENERIC") if frappe.db.exists("Addenda Type", a)],
     }
