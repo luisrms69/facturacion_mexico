@@ -2,7 +2,7 @@ def register_status_changes(doc, method):
 	"""Registrar cambios de estado en Factura Fiscal Mexico."""
 	import frappe
 
-	from facturacion_mexico.facturacion_fiscal.doctype.fiscal_event_mx.fiscal_event_mx import FiscalEventMX
+	# LEGACY: FiscalEventMX eliminado - reemplazado por FacturAPIResponseLog
 
 	# Skip para documentos nuevos para evitar conflictos con validaciones
 	if doc.is_new():
@@ -18,18 +18,8 @@ def register_status_changes(doc, method):
 		if old_status == new_status:
 			return
 
-		# Usar customer directo del DocType (no de Sales Invoice)
-		event_data = {
-			"old_status": old_status,
-			"new_status": new_status,
-			"sales_invoice": doc.sales_invoice,
-			"customer": doc.customer,  # Usar customer directo del DocType
-			"company": doc.company,
-		}
-
-		# Crear evento con parametros correctos: (event_type, reference_doctype, reference_name, event_data)
-		event_doc = FiscalEventMX.create_event("status_change", "Factura Fiscal Mexico", doc.name, event_data)
-
-		# Marcar como exitoso solo si el evento se creó correctamente
-		if event_doc:
-			FiscalEventMX.mark_event_success(event_doc.name, {"status": "status_changed"})
+		# LEGACY: FiscalEventMX eliminado - solo logging
+		frappe.log_error(
+			f"Cambio estado fiscal {old_status} → {new_status} para {doc.name}",
+			"Factura Fiscal Status Change",
+		)

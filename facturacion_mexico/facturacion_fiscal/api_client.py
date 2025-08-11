@@ -263,3 +263,80 @@ def test_facturapi_connection():
 	except Exception as e:
 		frappe.msgprint(_(f"Error: {e!s}"))
 		return {"success": False, "message": str(e)}
+
+
+def query_pac_status(factura_fiscal_name: str) -> dict[str, Any]:
+	"""
+	Consultar estado actual de una factura en el PAC.
+	Útil para Recovery Worker y actualización de estados pendientes.
+
+	Args:
+		factura_fiscal_name: Nombre del documento Factura Fiscal Mexico
+
+	Returns:
+		Dict con resultado de la consulta:
+		- success: bool indicando si se obtuvo respuesta
+		- data: datos de la factura del PAC
+		- error: mensaje de error si falló
+	"""
+	try:
+		# Obtener datos de la factura fiscal
+		factura_fiscal = frappe.get_doc("Factura Fiscal Mexico", factura_fiscal_name)
+
+		# Verificar que tenga UUID para consultar
+		if not factura_fiscal.fm_uuid:
+			return {
+				"success": False,
+				"error": "No hay UUID para consultar. La factura no ha sido timbrada.",
+				"requires_stamp": True,
+			}
+
+		# Obtener cliente FacturAPI
+		client = get_facturapi_client()
+
+		# Consultar estado en PAC usando el UUID
+		# FacturAPI usa el ID que devuelve al crear, no el UUID SAT
+		# Necesitamos el facturapi_id almacenado
+		facturapi_id = factura_fiscal.get("facturapi_id")
+
+		if not facturapi_id:
+			# Si no tenemos el ID de FacturAPI, intentar con UUID
+			# Nota: Esto puede requerir ajuste según API de FacturAPI
+			return {
+				"success": False,
+				"error": "No se encontró ID de FacturAPI para consultar",
+				"uuid": factura_fiscal.fm_uuid,
+			}
+
+		# Consultar factura en FacturAPI
+		response = client.get_invoice(facturapi_id)
+
+		# Procesar respuesta
+		if response:
+			return {
+				"success": True,
+				"data": {
+					"status": response.get("status"),
+					"uuid": response.get("uuid"),
+					"cancellation_status": response.get("cancellation_status"),
+					"cancellation_date": response.get("canceled_at"),
+					"verification_url": response.get("verification_url"),
+					"sat_signature": response.get("sat_signature"),
+					"cfdi_version": response.get("cfdi_version"),
+					"created_at": response.get("created_at"),
+					"certified_at": response.get("certified_at"),
+					"pac_certificate": response.get("pac_certificate_number"),
+					"error_message": response.get("error", {}).get("message")
+					if response.get("error")
+					else None,
+				},
+				"raw_response": response,
+			}
+		else:
+			return {"success": False, "error": "No se recibió respuesta del PAC"}
+
+	except frappe.DoesNotExistError:
+		return {"success": False, "error": f"Factura Fiscal {factura_fiscal_name} no encontrada"}
+	except Exception as e:
+		frappe.log_error(f"Error consultando PAC: {e!s}", "query_pac_status Error")
+		return {"success": False, "error": f"Error al consultar PAC: {e!s}"}

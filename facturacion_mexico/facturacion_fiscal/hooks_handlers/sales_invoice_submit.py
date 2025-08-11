@@ -1,10 +1,12 @@
 import frappe
 from frappe import _
+from frappe.utils import flt
+
+from facturacion_mexico.config.fiscal_states_config import FiscalStates
 
 
 def create_fiscal_event(doc, method):
 	"""Crear evento fiscal cuando se envía Sales Invoice."""
-	import frappe
 
 	frappe.log_error(f"🚀 INICIO create_fiscal_event para {doc.name}", "TIMBRADO TRACE")
 
@@ -45,35 +47,18 @@ def _should_create_fiscal_event(doc):
 
 def _create_emission_event(doc):
 	"""Crear evento de emisión de factura."""
-	from facturacion_mexico.facturacion_fiscal.doctype.fiscal_event_mx.fiscal_event_mx import FiscalEventMX
 
 	# Obtener o crear Factura Fiscal
 	factura_fiscal = _get_or_create_factura_fiscal(doc)
 
-	# Crear evento
-	event_data = {
-		"sales_invoice": doc.name,
-		"customer": doc.customer,
-		"total_amount": doc.grand_total,
-		"currency": doc.currency,
-	}
-
-	# Crear evento con parametros correctos: (event_type, reference_doctype, reference_name, event_data, status)
-	event_doc = FiscalEventMX.create_event(
-		"create", "Factura Fiscal Mexico", factura_fiscal.name, event_data, "pending"
+	# LEGACY: FiscalEventMX eliminado - reemplazado por FacturAPIResponseLog en nueva arquitectura
+	frappe.log_error(
+		f"Factura fiscal {factura_fiscal.name} creada para {doc.name}",
+		"Sales Invoice Fiscal Creation",
 	)
 
-	# Marcar como exitoso solo si el evento se creó correctamente
-	if event_doc:
-		FiscalEventMX.mark_event_success(event_doc.name, {"status": "emitted"})
-	else:
-		frappe.log_error(
-			message=f"create_event retornó None para factura_fiscal {factura_fiscal.name}",
-			title="Sales Invoice Fiscal Event Failed",
-		)
-
 	# Actualizar estado fiscal
-	frappe.db.set_value("Sales Invoice", doc.name, "fm_fiscal_status", "Pendiente")
+	frappe.db.set_value("Sales Invoice", doc.name, "fm_fiscal_status", FiscalStates.BORRADOR)
 
 
 def _get_or_create_factura_fiscal(doc):
@@ -87,7 +72,39 @@ def _get_or_create_factura_fiscal(doc):
 	factura_fiscal.customer = doc.customer
 	factura_fiscal.total_amount = doc.grand_total
 	factura_fiscal.currency = doc.currency
-	factura_fiscal.fm_fiscal_status = "draft"
+	factura_fiscal.fm_fiscal_status = FiscalStates.BORRADOR
+
+	# Agregar montos del Sales Invoice para validación posterior
+	frappe.log_error(
+		f"DEBUG: doc.net_total={doc.net_total}, doc.grand_total={doc.grand_total}", "MONTOS DEBUG"
+	)
+	factura_fiscal.si_total_antes_iva = flt(doc.net_total)
+	factura_fiscal.si_total_neto = flt(doc.grand_total)
+
+	# Calcular IVA y otros impuestos
+	iva_total = 0
+	otros_impuestos = 0
+
+	if doc.get("taxes"):
+		frappe.log_error(f"DEBUG: Taxes count={len(doc.taxes)}", "MONTOS DEBUG")
+		for tax in doc.taxes:
+			tax_amount = flt(tax.tax_amount)
+			frappe.log_error(
+				f"DEBUG: tax.account_head={tax.account_head}, tax_amount={tax_amount}", "MONTOS DEBUG"
+			)
+			# Identificar IVA por el account_head
+			if tax.account_head and ("IVA" in tax.account_head.upper()):
+				iva_total += tax_amount
+			else:
+				otros_impuestos += tax_amount
+
+	factura_fiscal.si_iva = iva_total
+	factura_fiscal.si_otros_impuestos = otros_impuestos
+	frappe.log_error(
+		f"DEBUG: Final values - si_total_antes_iva={factura_fiscal.si_total_antes_iva}, si_iva={factura_fiscal.si_iva}, si_total_neto={factura_fiscal.si_total_neto}",
+		"MONTOS DEBUG",
+	)
+
 	factura_fiscal.save()
 
 	# Actualizar referencia en Sales Invoice
@@ -98,7 +115,6 @@ def _get_or_create_factura_fiscal(doc):
 
 def _should_auto_timbrar(doc):
 	"""Determinar si se debe auto-timbrar facturas normales VS ereceipts."""
-	import frappe
 
 	frappe.log_error(f"🔍 EVALUANDO auto-timbrado para {doc.name}", "Auto-Timbrado Check")
 
@@ -136,7 +152,6 @@ def _should_auto_timbrar(doc):
 
 def _auto_timbrar_factura(doc):
 	"""Auto-timbrar factura si está configurado."""
-	import frappe
 
 	frappe.log_error(f"🎯 EJECUTANDO _auto_timbrar_factura para {doc.name}", "TIMBRADO TRACE")
 

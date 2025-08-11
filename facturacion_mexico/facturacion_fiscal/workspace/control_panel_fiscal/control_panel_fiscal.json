@@ -1,0 +1,67 @@
+{
+ "charts": [],
+ "content": "[{\"id\": \"5eaab7e96d\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h3\\\"><b>Control Panel Fiscal</b></span>\", \"col\": 12}}, {\"id\": \"6827e33b7d\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>System Health Metrics</b></span>\", \"col\": 12}}, {\"id\": \"84eb67146b\", \"type\": \"paragraph\", \"data\": {\"text\": \"\\ud83d\\udcca <strong>PAC Success Rate:</strong> 100%\", \"col\": 4}}, {\"id\": \"81796c80da\", \"type\": \"paragraph\", \"data\": {\"text\": \"\\u26a0\\ufe0f <strong>Recovery Tasks:</strong> 0 pending\", \"col\": 4}}, {\"id\": \"3e201e6625\", \"type\": \"paragraph\", \"data\": {\"text\": \"\\u26a1 <strong>Avg Response:</strong> N/Ams\", \"col\": 4}}, {\"id\": \"f956e11e79\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"d403b9e479\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>Quick Access</b></span>\", \"col\": 12}}, {\"id\": \"c1384702c3\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"System Health Monitor\", \"col\": 3}}, {\"id\": \"64283cd3e3\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Recovery Operations\", \"col\": 3}}, {\"id\": \"a567adbec4\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Control Panel Settings\", \"col\": 3}}, {\"id\": \"5cdf20478e\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"FacturAPI Response Log\", \"col\": 3}}, {\"id\": \"e4efe750a6\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Fiscal Recovery Task\", \"col\": 3}}, {\"id\": \"b6a47bfe18\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"4ca35d22b1\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>Administration Tools</b></span>\", \"col\": 12}}, {\"id\": \"dbb93ea231\", \"type\": \"paragraph\", \"data\": {\"text\": \"\\u2022 <a href='/api/method/facturacion_mexico.facturacion_fiscal.api.admin_tools.execute_manual_recovery' class='btn btn-sm btn-primary'>\\ud83d\\udd27 Manual Recovery</a>\", \"col\": 3}}, {\"id\": \"8d82477ada\", \"type\": \"paragraph\", \"data\": {\"text\": \"\\u2022 <a href='/api/method/facturacion_mexico.facturacion_fiscal.api.admin_tools.generate_system_report' class='btn btn-sm btn-primary'>\\ud83d\\udcca Generate Report</a>\", \"col\": 3}}, {\"id\": \"253bfbaeca\", \"type\": \"paragraph\", \"data\": {\"text\": \"\\u2022 <a href='/api/method/facturacion_mexico.facturacion_fiscal.api.admin_tools.cleanup_old_logs' class='btn btn-sm btn-primary'>\\ud83e\\uddf9 Clean Old Logs</a>\", \"col\": 3}}, {\"id\": \"a08ba13013\", \"type\": \"paragraph\", \"data\": {\"text\": \"\\u2022 <a href='/api/method/facturacion_mexico.facturacion_fiscal.api.admin_tools.sync_fiscal_status' class='btn btn-sm btn-primary'>\\ud83d\\udd04 Sync Status</a>\", \"col\": 3}}]",
+ "creation": "2025-08-08 22:42:01.194512",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "hide_custom": 0,
+ "icon": "dashboard",
+ "idx": 0,
+ "indicator_color": "green",
+ "is_hidden": 0,
+ "label": "Control Panel Fiscal",
+ "links": [],
+ "modified": "2025-08-10 13:13:06.244767",
+ "modified_by": "Administrator",
+ "module": "Facturacion Fiscal",
+ "name": "Control Panel Fiscal",
+ "number_cards": [],
+ "owner": "Administrator",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [
+  {
+   "role": "System Manager"
+  }
+ ],
+ "sequence_id": 0.0,
+ "shortcuts": [
+  {
+   "color": "Green",
+   "doc_view": "List",
+   "label": "System Health Monitor",
+   "link_to": "System Health Monitor",
+   "type": "DocType"
+  },
+  {
+   "color": "Orange",
+   "doc_view": "List",
+   "label": "Recovery Operations",
+   "link_to": "Recovery Operations",
+   "type": "DocType"
+  },
+  {
+   "color": "Blue",
+   "doc_view": "New",
+   "label": "Control Panel Settings",
+   "link_to": "Control Panel Settings",
+   "type": "DocType"
+  },
+  {
+   "color": "Purple",
+   "doc_view": "List",
+   "label": "FacturAPI Response Log",
+   "link_to": "FacturAPI Response Log",
+   "type": "DocType"
+  },
+  {
+   "color": "Red",
+   "doc_view": "List",
+   "label": "Fiscal Recovery Task",
+   "link_to": "Fiscal Recovery Task",
+   "type": "DocType"
+  }
+ ],
+ "title": "Control Panel Fiscal"
+}

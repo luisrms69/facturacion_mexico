@@ -1,14 +1,17 @@
+import json
+import traceback
 from typing import Any
 
 import frappe
 from frappe import _
 from frappe.utils import flt, now_datetime
 
+from facturacion_mexico.config.fiscal_states_config import FiscalStates, OperationTypes
 from facturacion_mexico.validaciones.api import _normalize_company_name_for_facturapi
 
+from .api import write_pac_response  # PAC Response Writer - Arquitectura resiliente activada
 from .api_client import get_facturapi_client
 from .doctype.facturapi_response_log.facturapi_response_log import FacturAPIResponseLog
-from .doctype.fiscal_event_mx.fiscal_event_mx import FiscalEventMX
 
 
 def _extract_sat_code_from_uom(uom_name):
@@ -59,102 +62,188 @@ class TimbradoAPI:
 		self.settings = frappe.get_single("Facturacion Mexico Settings")
 
 	def timbrar_factura(self, sales_invoice_name: str) -> dict[str, Any]:
-		"""Timbrar factura de Sales Invoice."""
+		"""Timbrar factura de Sales Invoice con arquitectura resiliente de 3 fases.
+
+		Arquitectura de manejo de respuestas:
+		- FASE 1: Preparación - Validaciones y creación de documentos
+		- FASE 2: Comunicación PAC - Captura respuesta RAW inmediatamente
+		- FASE 3: Actualización Frappe - Puede fallar sin contaminar Response Log
+
+		Principio clave: Response Log SIEMPRE guarda la respuesta RAW del PAC,
+		nunca mensajes sanitizados o errores de Frappe.
+
+		Args:
+			sales_invoice_name: Nombre del Sales Invoice a timbrar
+
+		Returns:
+			dict con:
+			- success: bool indicando éxito
+			- uuid: UUID del timbrado si exitoso
+			- message: Mensaje para UI
+			- user_error: Mensaje amigable si hay error
+			- error: Error técnico si hay falla
+
+		Raises:
+			Exception: Solo si hay error antes de contactar PAC
+
+		Nota:
+			Los errores post-PAC exitoso retornan dict con success=False
+			pero incluyen UUID para recuperación manual.
+		"""
+		pac_response = None
+		pac_request = None
+		factura_fiscal = None
+
 		try:
+			# FASE 1: PREPARACIÓN (puede fallar antes de contactar PAC)
 			# Obtener Sales Invoice
 			sales_invoice = frappe.get_doc("Sales Invoice", sales_invoice_name)
 
 			# Validar que se pueda timbrar
 			self._validate_invoice_for_timbrado(sales_invoice)
 
-			# Crear o actualizar Factura Fiscal
-			factura_fiscal = self._get_or_create_factura_fiscal(sales_invoice)
+			# Obtener Factura Fiscal existente
+			factura_fiscal = self._get_factura_fiscal(sales_invoice)
+
+			# VALIDACIÓN CRÍTICA: Documento fiscal debe estar submitted
+			if factura_fiscal.docstatus != 1:
+				frappe.throw(
+					_(
+						"No se puede timbrar: el documento fiscal debe estar submitted (enviado). Use el botón Submit en Factura Fiscal Mexico primero."
+					),
+					title=_("Documento Fiscal Draft"),
+				)
 
 			# Preparar datos para FacturAPI
 			invoice_data = self._prepare_facturapi_data(sales_invoice, factura_fiscal)
 
-			# Crear evento fiscal - SIEMPRE NUEVO evento para cada intento
-
-			event_doc = FiscalEventMX.create_event(
-				event_type="stamp",
-				reference_doctype="Factura Fiscal Mexico",
-				reference_name=factura_fiscal.name,
-				event_data={
-					"sales_invoice": sales_invoice_name,
-					"attempt_timestamp": frappe.utils.now(),
-					"attempt_user": frappe.session.user,
-				},
-				status="pending",
-			)
-			if event_doc is None:
-				raise Exception("No se pudo crear evento fiscal - create_event retornó None")
-
-			# Llamar a FacturAPI
-			response = self.client.create_invoice(invoice_data)
-
-			# Procesar respuesta exitosa
-			self._process_timbrado_success(sales_invoice, factura_fiscal, response, event_doc)
-
-			return {
-				"success": True,
-				"uuid": response.get("uuid"),
+			# FASE 2: COMUNICACIÓN CON PAC - Captura respuesta REAL
+			# Preparar request para auditoría
+			pac_request = {
 				"factura_fiscal": factura_fiscal.name,
-				"message": "Factura timbrada exitosamente",
+				"request_id": f"{OperationTypes.TIMBRADO}_{frappe.generate_hash()[:8]}",
+				"action": "timbrado",
+				"sales_invoice": sales_invoice_name,
+				"timestamp": frappe.utils.now(),
+				"payload": invoice_data,
 			}
 
-		except Exception as e:
-			# Marcar evento como fallido - DEFENSIVE PROGRAMMING
-			if "event_doc" in locals() and event_doc is not None:
-				FiscalEventMX.mark_event_failed(event_doc.name, str(e))
-			else:
-				frappe.logger().error("event_doc no existe o es None - no se puede marcar como fallido")
+			try:
+				# CRÍTICO: Capturar respuesta RAW del PAC
+				pac_response = self.client.create_invoice(invoice_data)
 
-			# Procesar error específico del PAC
-			error_details = self._process_pac_error(e)
-
-			# Log de intento fallido ya manejado por FacturAPI Response Log
-
-			# Actualizar estado en Sales Invoice
-			frappe.db.set_value("Sales Invoice", sales_invoice_name, "fm_fiscal_status", "Error")
-			frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure error state is persisted
-
-			# Log error técnico
-			frappe.logger().error(f"Error timbrado factura {sales_invoice_name}: {e!s}")
-
-			# Crear log de error FacturAPI
-			factura_fiscal_name = None
-			if "factura_fiscal" in locals():
-				factura_fiscal_name = factura_fiscal.name
-			elif frappe.db.get_value("Sales Invoice", sales_invoice_name, "fm_factura_fiscal_mx"):
-				factura_fiscal_name = frappe.db.get_value(
-					"Sales Invoice", sales_invoice_name, "fm_factura_fiscal_mx"
+				# Guardar Response Log INMEDIATAMENTE con respuesta REAL del PAC
+				write_pac_response(
+					sales_invoice_name,
+					json.dumps(pac_request),
+					json.dumps(pac_response),  # ✅ Respuesta REAL del PAC
+					"timbrado",
 				)
 
-			# Crear log de respuesta FacturAPI - INDEPENDIENTE de FiscalEventMX
-			if factura_fiscal_name:
-				try:
-					# Determinar código de error específico (máximo 10 caracteres)
-					error_str = str(e)
-					if "customer.tax_system_required" in error_str:
-						internal_status_code = "VAL_ERROR"  # 9 caracteres
-					elif "customer.address_required" in error_str:
-						internal_status_code = "VAL_ERROR"  # 9 caracteres
-					elif "customer.address.country" in error_str:
-						internal_status_code = "VAL_ERROR"  # 9 caracteres
-					else:
-						internal_status_code = error_details.get("status_code", "500")  # PAC real
+			except Exception as pac_error:
+				# Error DURANTE comunicación con PAC
+				# Construir respuesta de error con datos RAW
+				pac_response = {
+					"success": False,
+					"status_code": getattr(pac_error.response, "status_code", 500)
+					if hasattr(pac_error, "response")
+					else 500,
+					"error": str(pac_error),
+					"raw_response": getattr(pac_error.response, "text", "")
+					if hasattr(pac_error, "response")
+					else str(pac_error),
+					"timestamp": frappe.utils.now(),
+				}
 
-					FacturAPIResponseLog.create_log(
-						factura_fiscal_mexico=factura_fiscal_name,
-						operation_type="Timbrado",
-						success=False,
-						error_message=error_str,
-						status_code=internal_status_code,
-					)
-				except Exception as log_error:
-					frappe.log_error(
-						f"Error creating FacturAPI Response Log: {log_error}", "FacturAPI Log Error"
-					)
+				# Guardar respuesta de error RAW del PAC
+				write_pac_response(
+					sales_invoice_name,
+					json.dumps(pac_request),
+					json.dumps(pac_response),  # ✅ Error REAL del PAC
+					"timbrado",
+				)
+
+				# Re-lanzar para manejo de UI
+				raise pac_error
+
+			# FASE 3: ACTUALIZACIÓN FRAPPE (puede fallar DESPUÉS de PAC exitoso)
+			try:
+				self._process_timbrado_success(sales_invoice, factura_fiscal, pac_response)
+
+				# Mostrar mensaje de éxito formateado
+				uuid = pac_response.get("uuid")
+				folio_completo = pac_response.get("folio_number", sales_invoice.name)
+				# Extraer solo el número del folio
+				folio = folio_completo.split("-")[-1] if "-" in str(folio_completo) else folio_completo
+				serie = pac_response.get("series", "F")
+				total = pac_response.get("total", 0)
+
+				frappe.msgprint(
+					msg=f"""
+					<div style="background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 5px; padding: 15px;">
+						<h4 style="color: #155724; margin-top: 0;">✅ Factura Timbrada Exitosamente</h4>
+						<p style="color: #155724; margin: 5px 0;"><strong>UUID:</strong> {uuid}</p>
+						<p style="color: #155724; margin: 5px 0;"><strong>Serie-Folio:</strong> {serie}-{folio}</p>
+						<p style="color: #155724; margin: 5px 0;"><strong>Total:</strong> ${total:,.2f}</p>
+					</div>
+					""",
+					title="Timbrado Exitoso",
+					indicator="green",
+					as_list=False,
+					primary_action={"label": "Cerrar", "action": "frappe.msg_dialog.hide()"},
+				)
+
+				return {
+					"success": True,
+					"uuid": uuid,
+					"factura_fiscal": factura_fiscal.name,
+					"message": "Factura timbrada exitosamente",  # Mensaje para UI
+				}
+
+			except Exception as frappe_error:
+				# PAC exitoso pero Frappe falló al actualizar
+				# Response Log YA tiene la respuesta correcta del PAC
+				frappe.log_error(
+					f"Error post-timbrado actualizando Frappe: {frappe_error}\nUUID: {pac_response.get('uuid')}",
+					"Post-Timbrado Error",
+				)
+
+				# Actualizar estado a ERROR pero mantener UUID
+				frappe.db.set_value(
+					"Sales Invoice", sales_invoice_name, "fm_fiscal_status", FiscalStates.ERROR
+				)
+				frappe.db.commit()
+
+				# Retornar éxito parcial para UI
+				return {
+					"success": False,
+					"uuid": pac_response.get("uuid"),  # ¡Tenemos UUID!
+					"facturapi_id": pac_response.get("id"),
+					"error": str(frappe_error),
+					"message": f"Timbrado exitoso (UUID: {pac_response.get('uuid')}) pero error al actualizar sistema",
+					"user_error": "La factura se timbró correctamente pero hubo un error actualizando el sistema. Contacte soporte con el UUID mostrado.",
+				}
+
+		except Exception as e:
+			# Error ANTES del PAC o error del PAC ya manejado arriba
+			if not pac_response:
+				# Error antes de llamar al PAC - NO guardar en Response Log (no es respuesta PAC)
+				frappe.log_error(
+					f"Error pre-timbrado (antes de contactar PAC): {e}\nSales Invoice: {sales_invoice_name}",
+					"Pre-Timbrado Error",
+				)
+			else:
+				# Error del PAC ya fue guardado en Response Log arriba
+				frappe.log_error(
+					f"Error timbrado PAC: {e}\nSales Invoice: {sales_invoice_name}", "PAC Timbrado Error"
+				)
+
+			# Actualizar estado a ERROR
+			frappe.db.set_value("Sales Invoice", sales_invoice_name, "fm_fiscal_status", FiscalStates.ERROR)
+			frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure error state is persisted
+
+			# Generar mensaje amigable SOLO para UI (nunca para Response Log)
+			error_details = self._process_pac_error(e)
 
 			return {
 				"success": False,
@@ -170,8 +259,8 @@ class TimbradoAPI:
 		if sales_invoice.docstatus != 1:
 			frappe.throw(_("La factura debe estar enviada para timbrar"))
 
-		# Verificar que no esté ya timbrada
-		if sales_invoice.fm_fiscal_status == "Timbrada":
+		# Verificar que no esté ya timbrada - MIGRADO A ARQUITECTURA RESILIENTE
+		if sales_invoice.fm_fiscal_status == FiscalStates.TIMBRADO:
 			frappe.throw(_("La factura ya está timbrada"))
 
 		# Verificar datos del cliente
@@ -209,24 +298,17 @@ class TimbradoAPI:
 		if not sales_invoice.items:
 			frappe.throw(_("La factura debe tener al menos un item"))
 
-	def _get_or_create_factura_fiscal(self, sales_invoice):
-		"""Obtener o crear Factura Fiscal México."""
-		if sales_invoice.fm_factura_fiscal_mx:
-			return frappe.get_doc("Factura Fiscal Mexico", sales_invoice.fm_factura_fiscal_mx)
+	def _get_factura_fiscal(self, sales_invoice):
+		"""Obtener Factura Fiscal México existente."""
+		if not sales_invoice.fm_factura_fiscal_mx:
+			frappe.throw(
+				_(
+					"No existe Factura Fiscal asociada. Debe crear y hacer submit de la Factura Fiscal antes de timbrar."
+				),
+				title=_("Factura Fiscal No Encontrada"),
+			)
 
-		# Crear nueva factura fiscal
-		factura_fiscal = frappe.new_doc("Factura Fiscal Mexico")
-		factura_fiscal.sales_invoice = sales_invoice.name
-		factura_fiscal.customer = sales_invoice.customer
-		factura_fiscal.total_amount = sales_invoice.grand_total
-		factura_fiscal.currency = sales_invoice.currency
-		factura_fiscal.fm_fiscal_status = "Pendiente"
-		factura_fiscal.save()
-
-		# Actualizar referencia en Sales Invoice
-		frappe.db.set_value("Sales Invoice", sales_invoice.name, "fm_factura_fiscal_mx", factura_fiscal.name)
-
-		return factura_fiscal
+		return frappe.get_doc("Factura Fiscal Mexico", sales_invoice.fm_factura_fiscal_mx)
 
 	def _prepare_facturapi_data(self, sales_invoice, factura_fiscal) -> dict[str, Any]:
 		"""Preparar datos para FacturAPI."""
@@ -289,6 +371,7 @@ class TimbradoAPI:
 						"description": item.description or item.item_name,
 						"product_key": item_doc.fm_producto_servicio_sat or "01010101",
 						"price": flt(item.rate),
+						"tax_included": False,  # Indicar que el precio NO incluye impuestos
 						"unit_key": _extract_sat_code_from_uom(item.uom),
 						"unit_name": item.uom or "Pieza",
 					},
@@ -300,12 +383,14 @@ class TimbradoAPI:
 
 		# Obtener uso CFDI desde Factura Fiscal Mexico
 		fiscal_doc = self._get_factura_fiscal_doc(sales_invoice)
-		cfdi_use = fiscal_doc.get("fm_cfdi_use") if fiscal_doc else sales_invoice.get("fm_cfdi_use")
+		cfdi_use = fiscal_doc.get("fm_cfdi_use") if fiscal_doc else None
 
 		if not cfdi_use:
 			frappe.throw(
-				_("No se puede timbrar: falta configurar el Uso CFDI en los datos fiscales."),
-				title=_("Uso CFDI Requerido"),
+				_(
+					"No se puede timbrar: falta configurar 'Uso CFDI Default' en el Customer. Configure el campo en Customer → Fiscal → Uso CFDI Default."
+				),
+				title=_("Uso CFDI Requerido en Customer"),
 			)
 
 		# Datos de la factura
@@ -436,43 +521,127 @@ class TimbradoAPI:
 		except Exception:
 			return "F"
 
-	def _process_timbrado_success(self, sales_invoice, factura_fiscal, response, event_doc):
-		"""Procesar respuesta exitosa de timbrado."""
-		# Actualizar Factura Fiscal
-		factura_fiscal.uuid = response.get("uuid")
-		factura_fiscal.facturapi_id = response.get("id")
-		factura_fiscal.fm_fiscal_status = (
-			"Timbrada"  # CORRECCIÓN: Usar valor en español que espera el DocType
-		)
-		factura_fiscal.stamped_at = now_datetime()
-		factura_fiscal.save()
+	def _process_timbrado_success(self, sales_invoice, factura_fiscal, response):
+		"""Procesar respuesta exitosa de timbrado.
 
-		# Log de intento exitoso ya manejado por FacturAPI Response Log
+		NOTA: El Response Log ya fue guardado ANTES de llamar este método.
+		Este método solo actualiza los documentos Frappe con los datos del timbrado.
+		"""
+		try:
+			# Log inicial para debugging
+			frappe.logger().info(f"Iniciando _process_timbrado_success para {factura_fiscal.name}")
+			frappe.logger().info(
+				f"Response contiene: uuid={response.get('uuid')}, total={response.get('total')}"
+			)
 
-		# Actualizar Sales Invoice
-		frappe.db.set_value(
-			"Sales Invoice",
-			sales_invoice.name,
-			{"fm_fiscal_status": "Timbrada"},
-		)
+			# Preparar campos a actualizar
+			fields_to_update = {
+				"fm_uuid": response.get("uuid"),
+				"facturapi_id": response.get("id"),
+				"fm_fiscal_status": FiscalStates.TIMBRADO,
+				"fecha_timbrado": response.get("stamp", {}).get("date") or now_datetime(),
+			}
 
-		# Marcar evento como exitoso
-		FiscalEventMX.mark_event_success(event_doc.name, response)
+			# Agregar campos opcionales si vienen en respuesta
+			if response.get("series"):
+				fields_to_update["serie"] = response.get("series")
+				frappe.logger().info(f"Serie a actualizar: {response.get('series')}")
 
-		# Crear log de respuesta FacturAPI
-		FacturAPIResponseLog.create_log(
-			factura_fiscal_mexico=factura_fiscal.name,
-			operation_type="Timbrado",
-			success=True,
-			facturapi_response=response,
-			status_code="200",
-		)
+			if response.get("folio_number"):
+				# TODO: Revisar Formación de Folio con FacturAPI
+				# La lógica actual extrae solo el número del Sales Invoice ID
+				# Ej: "ACC-SINV-2025-00965" -> "00965"
+				# Verificar si FacturAPI espera/devuelve el folio de otra manera
+				folio_completo = str(response.get("folio_number"))
+				folio_numero = folio_completo.split("-")[-1] if "-" in folio_completo else folio_completo
+				fields_to_update["folio"] = folio_numero
+				frappe.logger().info(f"Folio a actualizar: {folio_numero} (de {folio_completo})")
 
-		# Descargar archivos si está configurado
-		if self.settings.download_files_default:
-			self._download_fiscal_files(factura_fiscal, response.get("id"))
+			if response.get("total"):
+				fields_to_update["total_fiscal"] = flt(response.get("total"))
+				frappe.logger().info(f"Total fiscal a actualizar: {response.get('total')}")
 
-		frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure fiscal transaction is committed after successful stamping
+			# Guardar URLs de archivos si vienen en respuesta
+			if response.get("xml_url"):
+				fields_to_update["fm_xml_url"] = response.get("xml_url")
+			if response.get("pdf_url"):
+				fields_to_update["fm_pdf_url"] = response.get("pdf_url")
+
+			# IMPORTANTE: Logging antes de actualizar
+			frappe.logger().info(f"Actualizando Factura Fiscal {factura_fiscal.name} con: {fields_to_update}")
+
+			# Usar frappe.set_value que maneja correctamente documentos submitted
+			# Este método internamente usa el ORM y respeta allow_on_submit
+			frappe.set_value("Factura Fiscal Mexico", factura_fiscal.name, fields_to_update)
+
+			frappe.logger().info("Factura Fiscal actualizada exitosamente via frappe.set_value")
+
+			# Validar discrepancias de montos
+			self._validate_amount_discrepancies(factura_fiscal, response)
+
+			# Actualizar Sales Invoice
+			frappe.set_value("Sales Invoice", sales_invoice.name, {"fm_fiscal_status": FiscalStates.TIMBRADO})
+
+			# Descargar archivos si está configurado
+			if self.settings.download_files_default:
+				self._download_fiscal_files(factura_fiscal, response.get("id"))
+
+			frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure fiscal transaction is committed after successful stamping
+
+			frappe.logger().info("_process_timbrado_success completado exitosamente")
+
+		except Exception as e:
+			frappe.logger().error(f"Error en _process_timbrado_success: {e}\n{traceback.format_exc()}")
+			raise  # Re-lanzar para que se maneje arriba
+
+	def _validate_amount_discrepancies(self, factura_fiscal, response):
+		"""Validar discrepancias entre montos del Sales Invoice y respuesta del PAC."""
+		from frappe.utils import flt
+
+		# Obtener total fiscal del PAC
+		total_pac = flt(response.get("total", 0))
+
+		# Obtener totales del Sales Invoice guardados en Factura Fiscal
+		si_total_sin_iva = flt(factura_fiscal.si_total_antes_iva)
+		si_total_con_iva = flt(factura_fiscal.si_total_neto)
+
+		# Calcular diferencias
+		diff_sin_iva = abs(total_pac - si_total_sin_iva)
+		diff_con_iva = abs(total_pac - si_total_con_iva)
+
+		# Determinar cuál es la diferencia relevante (la menor)
+		# Si el PAC recibió sin IVA, debería coincidir con si_total_antes_iva
+		# Si el PAC recibió con IVA, debería coincidir con si_total_neto
+		min_diff = min(diff_sin_iva, diff_con_iva)
+
+		# Validar discrepancias
+		if min_diff > 1.0:  # Diferencia mayor a 1 peso
+			frappe.msgprint(
+				msg=f"""
+				<div style="color: red; font-weight: bold;">
+					⚠️ ADVERTENCIA: Discrepancia significativa en montos<br>
+					Total PAC: ${total_pac:,.2f}<br>
+					Total ERPNext (sin IVA): ${si_total_sin_iva:,.2f}<br>
+					Total ERPNext (con IVA): ${si_total_con_iva:,.2f}<br>
+					Diferencia: ${min_diff:,.2f}
+				</div>
+				""",
+				title="Discrepancia de Montos",
+				indicator="red",
+			)
+		elif min_diff > 0.01:  # Diferencia entre 0.01 y 1 peso
+			frappe.msgprint(
+				msg=f"""
+				<div style="color: orange;">
+					⚠️ Advertencia: Diferencia menor en montos<br>
+					Total PAC: ${total_pac:,.2f}<br>
+					Total ERPNext: ${si_total_sin_iva:,.2f} (sin IVA) / ${si_total_con_iva:,.2f} (con IVA)<br>
+					Diferencia: ${min_diff:,.2f}
+				</div>
+				""",
+				title="Diferencia de Redondeo",
+				indicator="orange",
+			)
 
 	def _download_fiscal_files(self, factura_fiscal, facturapi_id):
 		"""Descargar PDF y XML de la factura."""
@@ -509,12 +678,40 @@ class TimbradoAPI:
 		)
 
 	def cancelar_factura(self, sales_invoice_name: str, motivo: str = "02") -> dict[str, Any]:
-		"""Cancelar factura timbrada."""
+		"""Cancelar factura timbrada con arquitectura resiliente de 3 fases.
+
+		Sigue la misma arquitectura que timbrar_factura:
+		- Response Log guarda respuesta RAW del PAC
+		- Errores Frappe no contaminan el log de auditoría
+		- Mensajes UI se generan separadamente
+
+		Args:
+			sales_invoice_name: Nombre del Sales Invoice a cancelar
+			motivo: Código de motivo de cancelación SAT (default: "02")
+				- "01": Comprobantes emitidos con errores con relación
+				- "02": Comprobantes emitidos con errores sin relación
+				- "03": No se llevó a cabo la operación
+				- "04": Operación nominativa relacionada en factura global
+
+		Returns:
+			dict con:
+			- success: bool indicando éxito
+			- message: Mensaje para UI
+			- error: Error técnico si hay falla
+
+		Raises:
+			Exception: Solo si hay error antes de contactar PAC
+		"""
+		pac_response = None
+		pac_request = None
+		factura_fiscal = None
+
 		try:
+			# FASE 1: PREPARACIÓN Y VALIDACIONES
 			sales_invoice = frappe.get_doc("Sales Invoice", sales_invoice_name)
 
 			# Validar que se pueda cancelar
-			if sales_invoice.fm_fiscal_status != "Timbrada":
+			if sales_invoice.fm_fiscal_status != FiscalStates.TIMBRADO:
 				frappe.throw(_("Solo se pueden cancelar facturas timbradas"))
 
 			if not sales_invoice.fm_factura_fiscal_mx:
@@ -522,64 +719,133 @@ class TimbradoAPI:
 
 			factura_fiscal = frappe.get_doc("Factura Fiscal Mexico", sales_invoice.fm_factura_fiscal_mx)
 
-			# Crear evento fiscal
-			event_doc = FiscalEventMX.create_event(
-				factura_fiscal.name,
-				"cancellation_request",
-				{"sales_invoice": sales_invoice_name, "motive": motivo},
-			)
+			# FASE 2: COMUNICACIÓN CON PAC
+			# Preparar request para auditoría
+			pac_request = {
+				"factura_fiscal": factura_fiscal.name,
+				"request_id": f"CANCELACION_{frappe.generate_hash()[:8]}",
+				"action": "cancelacion",
+				"sales_invoice": sales_invoice_name,
+				"motivo": motivo,
+				"timestamp": frappe.utils.now(),
+			}
 
-			# Llamar a FacturAPI
-			response = self.client.cancel_invoice(factura_fiscal.facturapi_id, motivo)
+			try:
+				# CRÍTICO: Capturar respuesta RAW del PAC
+				pac_response = self.client.cancel_invoice(factura_fiscal.facturapi_id, motivo)
 
-			# Procesar respuesta exitosa
-			factura_fiscal.fm_fiscal_status = "Cancelada"
-			factura_fiscal.cancelled_at = now_datetime()
-			factura_fiscal.save()
-
-			# Actualizar Sales Invoice
-			frappe.db.set_value("Sales Invoice", sales_invoice_name, "fm_fiscal_status", "Cancelada")
-
-			# Marcar evento como exitoso
-			FiscalEventMX.mark_event_success(event_doc.name, response)
-
-			# Crear log de respuesta FacturAPI para cancelación
-			FacturAPIResponseLog.create_log(
-				factura_fiscal_mexico=factura_fiscal.name,
-				operation_type="Confirmación Cancelación",
-				success=True,
-				facturapi_response=response,
-				status_code="200",
-			)
-
-			frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure cancellation transaction is committed
-
-			return {"success": True, "message": "Factura cancelada exitosamente"}
-
-		except Exception as e:
-			# Marcar evento como fallido
-			if "event_doc" in locals():
-				FiscalEventMX.mark_event_failed(event_doc.name, str(e))
-
-			frappe.logger().error(f"Error cancelando factura {sales_invoice_name}: {e!s}")
-
-			# Procesar error específico del PAC
-			error_details = self._process_pac_error(e)
-
-			# Crear log de error FacturAPI para cancelación
-			if "factura_fiscal" in locals():
-				FacturAPIResponseLog.create_log(
-					factura_fiscal_mexico=factura_fiscal.name,
-					operation_type="Solicitud Cancelación",
-					success=False,
-					error_message=str(e)[:500],  # Truncar mensaje largo
-					status_code=error_details.get("status_code", "500"),
+				# Guardar Response Log INMEDIATAMENTE con respuesta REAL del PAC
+				write_pac_response(
+					sales_invoice_name,
+					json.dumps(pac_request),
+					json.dumps(pac_response),  # ✅ Respuesta REAL del PAC
+					"cancelacion",
 				)
 
-			return {"success": False, "error": str(e), "message": f"Error al cancelar factura: {e!s}"}
+			except Exception as pac_error:
+				# Error DURANTE comunicación con PAC
+				pac_response = {
+					"success": False,
+					"status_code": getattr(pac_error.response, "status_code", 500)
+					if hasattr(pac_error, "response")
+					else 500,
+					"error": str(pac_error),
+					"raw_response": getattr(pac_error.response, "text", "")
+					if hasattr(pac_error, "response")
+					else str(pac_error),
+					"timestamp": frappe.utils.now(),
+				}
+
+				# Guardar respuesta de error RAW del PAC
+				write_pac_response(
+					sales_invoice_name,
+					json.dumps(pac_request),
+					json.dumps(pac_response),  # ✅ Error REAL del PAC
+					"cancelacion",
+				)
+
+				# Re-lanzar para manejo de UI
+				raise pac_error
+
+			# FASE 3: ACTUALIZACIÓN FRAPPE
+			try:
+				# Procesar respuesta exitosa usando frappe.set_value para documentos submitted
+				frappe.set_value(
+					"Factura Fiscal Mexico",
+					factura_fiscal.name,
+					{
+						"fm_fiscal_status": FiscalStates.CANCELADO,
+						"cancellation_date": now_datetime(),
+						"cancellation_reason": motivo,
+					},
+				)
+
+				# Actualizar Sales Invoice
+				frappe.set_value(
+					"Sales Invoice", sales_invoice_name, {"fm_fiscal_status": FiscalStates.CANCELADO}
+				)
+
+				frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure cancellation transaction is committed
+
+				return {"success": True, "message": "Factura cancelada exitosamente"}
+
+			except Exception as frappe_error:
+				# PAC canceló exitosamente pero Frappe falló
+				frappe.log_error(
+					f"Error post-cancelación actualizando Frappe: {frappe_error}", "Post-Cancelación Error"
+				)
+
+				return {
+					"success": False,
+					"error": str(frappe_error),
+					"message": "Cancelación exitosa en PAC pero error actualizando sistema",
+					"user_error": "La factura se canceló correctamente en el SAT pero hubo un error actualizando el sistema. Contacte soporte.",
+				}
+
+		except Exception as e:
+			# Error ANTES del PAC o error del PAC ya manejado
+			if not pac_response:
+				# Error antes de llamar al PAC - NO guardar en Response Log
+				frappe.log_error(
+					f"Error pre-cancelación (antes de contactar PAC): {e}\nSales Invoice: {sales_invoice_name}",
+					"Pre-Cancelación Error",
+				)
+			else:
+				# Error del PAC ya fue guardado en Response Log
+				frappe.log_error(
+					f"Error cancelación PAC: {e}\nSales Invoice: {sales_invoice_name}",
+					"PAC Cancelación Error",
+				)
+
+			# Generar mensaje amigable SOLO para UI
+			error_details = self._process_pac_error(e)
+
+			return {
+				"success": False,
+				"error": str(e),
+				"message": error_details["user_message"],
+				"corrective_action": error_details["corrective_action"],
+			}
 
 	def _process_pac_error(self, error) -> dict[str, str]:
-		"""Procesar errores del PAC y generar mensajes útiles para el usuario."""
+		"""Procesar errores y generar mensajes amigables SOLO para UI.
+
+		IMPORTANTE: Los mensajes generados aquí son para mejorar UX,
+		NUNCA deben guardarse en Response Log que es solo auditoría.
+
+		Args:
+			error: Exception o error string a procesar
+
+		Returns:
+			dict con:
+			- user_message: Mensaje amigable para mostrar al usuario
+			- corrective_action: Acción sugerida para resolver el problema
+			- status_code: Código HTTP estimado del error
+
+		Nota:
+			Esta función interpreta errores técnicos y los convierte
+			en mensajes comprensibles para usuarios no técnicos.
+		"""
 		error_str = str(error).lower()
 
 		# Intentar extraer status code de diferentes tipos de errores

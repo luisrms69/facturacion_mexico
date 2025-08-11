@@ -40,7 +40,7 @@ class TestLayer2AddendaMultiSucursalIntegration(unittest.TestCase):
                     "doctype": "Branch",
                     "branch": "Test Branch Addenda",
                     "fm_enable_fiscal": 1,
-                    "fm_lugar_expedicion": "Test Location"
+                    "fm_lugar_expedicion": "01000"  # Código postal válido CDMX
                 })
                 self.test_branch.insert(ignore_permissions=True)
 

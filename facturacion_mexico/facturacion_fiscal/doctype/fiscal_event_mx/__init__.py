@@ -1,1 +1,0 @@
-# Fiscal Event MX DocType

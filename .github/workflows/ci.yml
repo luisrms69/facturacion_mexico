@@ -196,9 +196,13 @@ jobs:
         working-directory: /home/runner/frappe-bench
         run: |
           bench --site facturacion.dev set-config allow_tests true
-          bench --site facturacion.dev set-config developer_mode true
-          bench --site facturacion.dev set-config skip_before_tests false
-          bench --site facturacion.dev run-tests --app facturacion_mexico --coverage
+          bench --site facturacion.dev migrate
+          bench --site facturacion.dev clear-cache
+          
+          # pre-seed mínimo para que tus tests no revienten con --skip-test-records
+          bench --site facturacion.dev execute facturacion_mexico.tests.ci_pre_tests.run
+          
+          bench --site facturacion.dev run-tests --app facturacion_mexico --skip-test-records
         env:
           TYPE: server
           FRAPPE_DEVELOPER_MODE: 1

@@ -7,7 +7,7 @@ Sprint 6: Gestor centralizado de operaciones multi-sucursal
 Integra certificate_selector, configuraciones fiscales y health monitoring
 """
 
-from typing import Any, Optional
+from typing import Any
 
 import frappe
 from frappe import _

@@ -8,7 +8,6 @@ Sistema de migración para datos legacy multi-sucursal
 
 import json
 import re
-from typing import Any, Optional
 
 import frappe
 from frappe import _

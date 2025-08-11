@@ -668,10 +668,10 @@ def _create_basic_item_tax_templates():
 		company_name = companies[0].name
 		company_abbr = companies[0].abbr
 
-		# Tax templates requeridos
+		# Tax templates requeridos - NOMBRES EXACTOS que espera ERPNext testing
 		tax_templates = [
-			{"name": f"_Test Account Excise Duty @ 10 - {company_abbr}", "rate": 10},
-			{"name": f"_Test Account Excise Duty @ 12 - {company_abbr}", "rate": 12},
+			{"name": "_Test Account Excise Duty @ 10 - _TC", "rate": 10},
+			{"name": "_Test Account Excise Duty @ 12 - _TC", "rate": 12},
 		]
 
 		for template in tax_templates:

@@ -4,7 +4,7 @@ Sistema Draft/Preview - Issue #27
 """
 
 import json
-from typing import Any, Optional
+from typing import Any
 
 import frappe
 from frappe import _

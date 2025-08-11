@@ -172,7 +172,10 @@ fixtures = [
 					"Sales Invoice-fm_ereceipt_section",
 					"Sales Invoice-fm_factorapi_draft_id",
 					"Sales Invoice-fm_factura_fiscal_mx",
-					# "Sales Invoice-fm_fiscal_status", # MIGRADO A Factura Fiscal Mexico
+					"Sales Invoice-fm_fiscal_section",
+					"Sales Invoice-fm_fiscal_status",
+					"Sales Invoice-fm_last_status_update",
+					"Sales Invoice-fm_quick_status",
 					"Sales Invoice-fm_folio_reserved",
 					# "Sales Invoice-fm_informacion_fiscal_section", # ELIMINADO - Sección vacía migrada a Factura Fiscal Mexico
 					# "Sales Invoice-fm_lugar_expedicion", # MIGRADO A Factura Fiscal Mexico
@@ -259,49 +262,50 @@ fixtures = [
 # Hook on document methods and events
 
 doc_events = {
-	"Sales Invoice": {
-		"validate": [
-			"facturacion_mexico.facturacion_fiscal.hooks_handlers.sales_invoice_validate.validate_fiscal_data",
-			"facturacion_mexico.hooks_handlers.sales_invoice_validate.sales_invoice_validate",
-			"facturacion_mexico.validaciones.sales_invoice.validate_ppd_vs_forma_pago",
-		],
-		"before_submit": "facturacion_mexico.validaciones.hooks_handlers.sales_invoice_validate.validate_lista_69b_customer",
-		"on_submit": [
-			"facturacion_mexico.hooks_handlers.sales_invoice_submit.sales_invoice_on_submit",
-		],
-		"on_cancel": "facturacion_mexico.facturacion_fiscal.hooks_handlers.sales_invoice_cancel.handle_fiscal_cancellation",
-	},
+	# =============================================================================
+	# VALIDACIONES CRÍTICAS - PRIMERA PRIORIDAD
+	# =============================================================================
+	# Customer RFC Validation - Validación obligatoria México
 	"Customer": {
 		"validate": "facturacion_mexico.validaciones.hooks_handlers.customer_validate.validate_rfc_format",
 		"before_save": "facturacion_mexico.validaciones.hooks_handlers.customer_validate.validate_rfc_format",
 		"after_insert": "facturacion_mexico.validaciones.hooks_handlers.customer_validate.schedule_rfc_validation",
 	},
+	# =============================================================================
+	# MULTI-SUCURSAL - CONFIGURACIÓN FISCAL
+	# =============================================================================
+	# Branch Fiscal Configuration - Configuración multi-sucursal
 	"Branch": {
 		"validate": "facturacion_mexico.multi_sucursal.custom_fields.branch_fiscal_fields.validate_branch_fiscal_configuration",
 		"after_insert": "facturacion_mexico.multi_sucursal.custom_fields.branch_fiscal_fields.after_branch_insert",
 		"on_update": "facturacion_mexico.multi_sucursal.custom_fields.branch_fiscal_fields.on_branch_update",
 	},
+	# =============================================================================
+	# COMPLEMENTOS DE PAGO - AUTOMATIZACIÓN SAT
+	# =============================================================================
+	# Payment Entry PPD - Complementos automáticos
 	"Payment Entry": {
 		"validate": "facturacion_mexico.complementos_pago.hooks_handlers.payment_entry_validate.check_ppd_requirement",
 		"on_submit": "facturacion_mexico.complementos_pago.hooks_handlers.payment_entry_submit.create_complement_if_required",
 		"on_cancel": "facturacion_mexico.complementos_pago.hooks_handlers.payment_entry_cancel.cancel_related_complement",
 	},
+	# Complemento Pago Tracking - Seguimiento pagos
 	"Complemento Pago MX": {
 		"validate": "facturacion_mexico.complementos_pago.hooks_handlers.complemento_pago_validate.validate_payment_amounts",
 		"before_save": "facturacion_mexico.complementos_pago.hooks_handlers.complemento_pago_validate.calculate_payment_balances",
 		"after_insert": "facturacion_mexico.complementos_pago.hooks_handlers.complemento_pago_insert.create_fiscal_event",
 		"on_submit": "facturacion_mexico.complementos_pago.hooks_handlers.complemento_pago_submit.update_payment_tracking",
 	},
+	# =============================================================================
+	# ERECEIPTS - FACTURAPI INTEGRATION
+	# =============================================================================
+	# EReceipt Automation - Automatización recibos digitales
 	"EReceipt MX": {
 		"before_save": "facturacion_mexico.ereceipts.hooks_handlers.ereceipt_validate.calculate_expiry_date",
 		"after_insert": "facturacion_mexico.ereceipts.hooks_handlers.ereceipt_insert.generate_facturapi_ereceipt",
 	},
-	"Factura Fiscal Mexico": {
-		# TEMPORAL: Fiscal Events desactivados para eliminar error "Transición de estado inválida: pending → pending"
-		# Se reactivarán después de completar implementación workflow de prevención doble facturación
-		# "after_insert": "facturacion_mexico.facturacion_fiscal.hooks_handlers.factura_fiscal_insert.create_fiscal_event",
-		# "on_update": "facturacion_mexico.facturacion_fiscal.hooks_handlers.factura_fiscal_update.register_status_changes",
-	},
+	# P6.1.4d: Sales Invoice hooks eliminados - incompatibles con arquitectura resiliente
+	# P6.1.4d: Factura Fiscal Mexico hooks eliminados - solo logging legacy sin FiscalEventMX
 }
 
 # Scheduled Tasks
@@ -313,28 +317,54 @@ scheduler_events = {
 		"facturacion_mexico.complementos_pago.api.process_pending_complements",
 		"facturacion_mexico.ereceipts.api.expire_ereceipts",
 	],
+	# OPTIMIZACIÓN P2.2.1: Cambiar recovery jobs de "all" a intervalos específicos
+	"cron": {
+		# Recovery Worker - Timeout recovery cada 5 minutos
+		"*/5 * * * *": [
+			"facturacion_mexico.facturacion_fiscal.tasks.process_timeout_recovery",
+			"facturacion_mexico.facturacion_fiscal.tasks.process_bulk_sync",
+		],
+		# Recovery Worker - Sync errors cada 10 minutos
+		"*/10 * * * *": [
+			"facturacion_mexico.facturacion_fiscal.tasks.process_sync_errors",
+		],
+		# Validación RFC automática nocturna a las 2:00 AM todos los días
+		"0 2 * * *": [
+			"facturacion_mexico.validaciones.api.run_nightly_rfc_validation",
+			# Recovery Worker - Limpieza logs diaria a las 2:00 AM
+			"facturacion_mexico.facturacion_fiscal.tasks.cleanup_old_logs",
+		],
+	},
 	"daily": [
 		"facturacion_mexico.validaciones.api.bulk_validate_customers",
 		"facturacion_mexico.validaciones.doctype.sat_validation_cache.sat_validation_cache.cleanup_expired_cache",
 		"facturacion_mexico.ereceipts.doctype.ereceipt_mx.ereceipt_mx.bulk_expire_ereceipts",
 	],
-	"cron": {
-		# Validación RFC automática nocturna a las 2:00 AM todos los días
-		"0 2 * * *": ["facturacion_mexico.validaciones.api.run_nightly_rfc_validation"]
-	},
 	"weekly": [
 		"facturacion_mexico.complementos_pago.api.reconcile_payment_tracking",
-		"facturacion_mexico.facturacion_fiscal.tasks.cleanup_old_fiscal_events",
+		# P6.1.4d: cleanup_old_fiscal_events eliminado - FiscalEventMX no existe
 	],
 }
 
 # Testing
 # -------
 
-before_tests = [
-	"facturacion_mexico.install.before_tests",
-	"facturacion_mexico.setup.testing.load_testing_fixtures",
-]
+# Dependencias de test comentadas - causan error de orden de carga
+# test_dependencies = [
+# 	"Company",
+# 	"Account",
+# 	"Item Tax Template",
+# 	"Item Group",
+# 	"Customer Group",
+# 	"Supplier Group",
+# 	"UOM",
+# 	"Warehouse Type",
+# 	"Territory",
+# 	"Gender",
+# 	"Salutation",
+# ]
+
+# before_tests = "facturacion_mexico.tests.bootstrap.ensure_test_deps"  # DESHABILITADO: usar pre-seed manual en CI
 
 # Overriding Methods
 # ------------------------------

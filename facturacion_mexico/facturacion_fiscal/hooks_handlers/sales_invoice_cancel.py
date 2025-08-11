@@ -31,13 +31,13 @@ def _handle_cancellation_by_status(doc):
 	"""Manejar cancelación según estado fiscal actual."""
 	fm_fiscal_status = doc.fm_fiscal_status
 
-	if fm_fiscal_status == "Timbrada":
+	if fm_fiscal_status == "TIMBRADO":
 		# Factura timbrada: solicitar cancelación fiscal
 		_request_fiscal_cancellation(doc)
-	elif fm_fiscal_status == "Pendiente":
+	elif fm_fiscal_status == "BORRADOR":
 		# Factura pendiente: marcar como cancelada sin timbrar
 		_mark_as_cancelled_without_stamping(doc)
-	elif fm_fiscal_status == "Error":
+	elif fm_fiscal_status == "ERROR":
 		# Factura con error: solo marcar como cancelada
 		_mark_as_cancelled_with_error(doc)
 	else:
@@ -47,7 +47,7 @@ def _handle_cancellation_by_status(doc):
 
 def _request_fiscal_cancellation(doc):
 	"""Solicitar cancelación fiscal para factura timbrada."""
-	from facturacion_mexico.facturacion_fiscal.doctype.fiscal_event_mx.fiscal_event_mx import FiscalEventMX
+	# LEGACY: FiscalEventMX eliminado - reemplazado por FacturAPIResponseLog
 
 	try:
 		# Obtener Factura Fiscal
@@ -56,27 +56,13 @@ def _request_fiscal_cancellation(doc):
 
 		factura_fiscal = frappe.get_doc("Factura Fiscal Mexico", doc.fm_factura_fiscal_mx)
 
-		# Crear evento de solicitud de cancelación
-		event_data = {
-			"sales_invoice": doc.name,
-			"reason": "Sales Invoice cancelled",
-			"motive": "02",  # Comprobante emitido con errores con relación
-		}
-
-		# Crear evento con parametros correctos: (event_type, reference_doctype, reference_name, event_data)
-		event_doc = FiscalEventMX.create_event(
-			"cancellation_request", "Factura Fiscal Mexico", factura_fiscal.name, event_data
-		)
-
-		# Actualizar estado a "cancel_requested"
-		factura_fiscal.fm_fiscal_status = "cancel_requested"
+		# LEGACY: FiscalEventMX eliminado - solo actualizar estados
+		# Actualizar estado a PENDIENTE_CANCELACION
+		factura_fiscal.fm_fiscal_status = "PENDIENTE_CANCELACION"
 		factura_fiscal.save()
 
 		# Actualizar Sales Invoice
-		frappe.db.set_value("Sales Invoice", doc.name, "fm_fiscal_status", "Solicitud de Cancelación")
-
-		# Marcar evento como exitoso
-		FiscalEventMX.mark_event_success(event_doc.name, {"status": "cancel_requested"})
+		frappe.db.set_value("Sales Invoice", doc.name, "fm_fiscal_status", "PENDIENTE_CANCELACION")
 
 		# Intentar cancelación automática si está configurado
 		if _should_auto_cancel():
@@ -89,30 +75,28 @@ def _request_fiscal_cancellation(doc):
 
 def _mark_as_cancelled_without_stamping(doc):
 	"""Marcar como cancelada sin timbrar."""
-	from facturacion_mexico.facturacion_fiscal.doctype.fiscal_event_mx.fiscal_event_mx import FiscalEventMX
+	# LEGACY: FiscalEventMX eliminado - reemplazado por FacturAPIResponseLog
 
 	# Actualizar estado fiscal
-	frappe.db.set_value("Sales Invoice", doc.name, "fm_fiscal_status", "Cancelada")
+	frappe.db.set_value("Sales Invoice", doc.name, "fm_fiscal_status", "CANCELADO")
 
 	# Crear evento de cancelación
 	if doc.fm_factura_fiscal_mx:
 		factura_fiscal = frappe.get_doc("Factura Fiscal Mexico", doc.fm_factura_fiscal_mx)
-		factura_fiscal.fm_fiscal_status = "cancelled"
+		factura_fiscal.fm_fiscal_status = "CANCELADO"
 		factura_fiscal.save()
 
-		event_data = {"sales_invoice": doc.name, "reason": "Sales Invoice cancelled before stamping"}
-
-		event_doc = FiscalEventMX.create_event(
-			factura_fiscal.name, "cancellation_without_stamping", event_data
+		# LEGACY: FiscalEventMX eliminado - solo logging
+		frappe.log_error(
+			f"Factura {doc.name} cancelada sin timbrar",
+			"Sales Invoice Cancelled Without Stamping",
 		)
-
-		FiscalEventMX.mark_event_success(event_doc.name, {"status": "cancelled_without_stamping"})
 
 
 def _mark_as_cancelled_with_error(doc):
 	"""Marcar como cancelada con error previo."""
 	# Actualizar estado fiscal
-	frappe.db.set_value("Sales Invoice", doc.name, "fm_fiscal_status", "Cancelada")
+	frappe.db.set_value("Sales Invoice", doc.name, "fm_fiscal_status", "CANCELADO")
 
 	# Registrar evento si hay factura fiscal
 	if doc.fm_factura_fiscal_mx:
@@ -121,23 +105,16 @@ def _mark_as_cancelled_with_error(doc):
 
 def _create_cancellation_event(doc):
 	"""Crear evento de cancelación genérico."""
-	from facturacion_mexico.facturacion_fiscal.doctype.fiscal_event_mx.fiscal_event_mx import FiscalEventMX
+	# LEGACY: FiscalEventMX eliminado - reemplazado por FacturAPIResponseLog
 
 	if not doc.fm_factura_fiscal_mx:
 		return
 
-	event_data = {
-		"sales_invoice": doc.name,
-		"reason": "Sales Invoice cancelled",
-		"previous_status": doc.fm_fiscal_status,
-	}
-
-	# Crear evento con parametros correctos: (event_type, reference_doctype, reference_name, event_data)
-	event_doc = FiscalEventMX.create_event(
-		"invoice_cancellation", "Factura Fiscal Mexico", doc.fm_factura_fiscal_mx, event_data
+	# LEGACY: FiscalEventMX eliminado - solo logging
+	frappe.log_error(
+		f"Evento cancelación creado para {doc.name}",
+		"Sales Invoice Cancellation Event",
 	)
-
-	FiscalEventMX.mark_event_success(event_doc.name, {"status": "cancelled"})
 
 
 def _should_auto_cancel():

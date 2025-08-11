@@ -1,0 +1,93 @@
+{
+  "doctype": "Workspace",
+  "name": "facturacion_fiscal",
+  "label": "Control Panel Fiscal",
+  "title": "Control Panel Fiscal",
+  "module": "Facturacion Fiscal",
+  "public": 1,
+  "is_hidden": 0,
+  "disable_user_customization": 1,
+  "icon": "octicon octicon-dashboard",
+  "shortcuts": [
+    {
+      "label": "System Health Monitor",
+      "type": "DocType",
+      "link_type": "DocType",
+      "link_to": "System Health Monitor",
+      "doc_view": "List",
+      "color": "Green"
+    },
+    {
+      "label": "Recovery Operations",
+      "type": "DocType",
+      "link_type": "DocType",
+      "link_to": "Recovery Operations",
+      "doc_view": "List",
+      "color": "Orange"
+    },
+    {
+      "label": "Control Panel Settings",
+      "type": "DocType",
+      "link_type": "DocType",
+      "link_to": "Control Panel Settings",
+      "doc_view": "New",
+      "color": "Blue"
+    }
+  ],
+  "links": [
+    {
+      "label": "Monitoreo y Control",
+      "icon": "octicon octicon-dashboard",
+      "hidden": 0,
+      "items": [
+        {
+          "type": "DocType",
+          "label": "System Health Monitor",
+          "link_type": "DocType",
+          "link_to": "System Health Monitor",
+          "doc_view": "List"
+        },
+        {
+          "type": "DocType",
+          "label": "Recovery Operations",
+          "link_type": "DocType",
+          "link_to": "Recovery Operations",
+          "doc_view": "List"
+        },
+        {
+          "type": "DocType",
+          "label": "Control Panel Settings",
+          "link_type": "DocType",
+          "link_to": "Control Panel Settings",
+          "doc_view": "New"
+        }
+      ]
+    },
+    {
+      "label": "Logs y Auditoría",
+      "icon": "octicon octicon-pulse",
+      "hidden": 0,
+      "items": [
+        {
+          "type": "DocType",
+          "label": "FacturAPI Response Log",
+          "link_type": "DocType",
+          "link_to": "FacturAPI Response Log",
+          "doc_view": "List"
+        },
+        {
+          "type": "DocType",
+          "label": "Fiscal Recovery Task",
+          "link_type": "DocType",
+          "link_to": "Fiscal Recovery Task",
+          "doc_view": "List"
+        }
+      ]
+    }
+  ],
+  "charts": [],
+  "number_cards": [],
+  "quick_lists": [],
+  "dynamic_links": [],
+  "roles": []
+}

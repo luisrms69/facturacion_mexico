@@ -7,7 +7,7 @@ Sistema de auto-detección de requerimientos de addenda por cliente
 """
 
 import re
-from typing import Any, Optional
+from typing import Any
 
 import frappe
 from frappe import _
