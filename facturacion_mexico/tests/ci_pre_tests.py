@@ -76,16 +76,17 @@ def run():
                 "selling": 1
             }).insert(ignore_permissions=True)
 
-    # --- 7) Item mínimo que tus tests intentan usar ---
-    if not frappe.db.exists("Item", "Test Item Default"):
-        frappe.get_doc({
-            "doctype":"Item",
-            "item_code":"Test Item Default",
-            "item_name":"Test Item Default",
-            "item_group":"Products",
-            "stock_uom":"Unit",  # Cambiar a Unit que es más estándar
-            "is_stock_item":0   # que no pida inventario
-        }).insert(ignore_permissions=True)
+    # --- 7) Items mínimos que tus tests intentan usar ---
+    for item_code in ("Test Item Default", "_Test Item"):
+        if not frappe.db.exists("Item", item_code):
+            frappe.get_doc({
+                "doctype":"Item",
+                "item_code":item_code,
+                "item_name":item_code,
+                "item_group":"Products",
+                "stock_uom":"Unit",  # Requerido por ERPNext
+                "is_stock_item":0   # que no pida inventario
+            }).insert(ignore_permissions=True)
 
     # --- 8) Addenda Types que reclaman tus pruebas (Link a "Addenda Type") ---
     try:
@@ -112,7 +113,7 @@ def run():
         "territories":     [t for t in ("All Territories","Rest Of The World") if frappe.db.exists("Territory", t)],
         "item_groups":     [g for g in ("All Item Groups","Products") if frappe.db.exists("Item Group", g)],
         "price_lists":     [p for p in ("Standard Selling (INR)","Standard Selling (MXN)") if frappe.db.exists("Price List", p)],
-        "item_default":    bool(frappe.db.exists("Item", "Test Item Default")),
+        "items_created":   [i for i in ("Test Item Default", "_Test Item") if frappe.db.exists("Item", i)],
         "addenda_types":   [a for a in ("TEST_AUTOMOTIVE","TEST_RETAIL","TEST_GENERIC") if frappe.db.exists("Addenda Type", a)],
     }
     print("CI_PRE_REPORT", report)
