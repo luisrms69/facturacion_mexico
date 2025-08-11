@@ -117,11 +117,16 @@ def _ensure_erpnext_baseline_company_inr():
         frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure test company exists before other dependencies
 
 def _pick_any_tax_account_in_inr():
-    # El baseline suele traer cuentas en INR; tomamos alguna válida (liability o cualquiera)
+    # Buscar específicamente la cuenta Tax que creamos
     acc = frappe.db.get_value("Account",
-        {"company": "_Test Company", "root_type": "Liability"}, "name"
+        {"company": "_Test Company", "account_type": "Tax"}, "name"
     )
     if not acc:
+        # Fallback: buscar la cuenta específica que creamos
+        acc = "_Test Account Excise Duty - _TC"
+        if frappe.db.exists("Account", acc):
+            return acc
+        # Último fallback: cualquier cuenta de la compañía
         acc = frappe.db.get_value("Account", {"company": "_Test Company"}, "name")
     return acc
 
