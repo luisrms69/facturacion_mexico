@@ -104,13 +104,141 @@ def _create_basic_cost_centers():
         except Exception:
             pass  # Continue with other cost centers
 
+def _create_basic_customer_groups():
+    """Crear Customer Groups básicos requeridos por ERPNext."""
+    basic_groups = [
+        ["All Customer Groups", None, 1],  # Grupo padre principal
+        ["Individual", "All Customer Groups", 0],
+        ["Commercial", "All Customer Groups", 0],
+    ]
+
+    for group_name, parent_group, is_group in basic_groups:
+        if frappe.db.exists("Customer Group", group_name):
+            continue
+
+        try:
+            group_doc = {
+                "doctype": "Customer Group",
+                "customer_group_name": group_name,
+                "is_group": is_group,
+            }
+
+            if parent_group:
+                group_doc["parent_customer_group"] = parent_group
+
+            frappe.get_doc(group_doc).insert(ignore_permissions=True)
+        except Exception:
+            pass
+
+def _create_basic_supplier_groups():
+    """Crear Supplier Groups básicos requeridos por ERPNext."""
+    basic_groups = [
+        ["All Supplier Groups", None, 1],
+        ["Services", "All Supplier Groups", 0],
+        ["Hardware", "All Supplier Groups", 0],
+    ]
+
+    for group_name, parent_group, is_group in basic_groups:
+        if frappe.db.exists("Supplier Group", group_name):
+            continue
+
+        try:
+            group_doc = {
+                "doctype": "Supplier Group",
+                "supplier_group_name": group_name,
+                "is_group": is_group,
+            }
+
+            if parent_group:
+                group_doc["parent_supplier_group"] = parent_group
+
+            frappe.get_doc(group_doc).insert(ignore_permissions=True)
+        except Exception:
+            pass
+
+def _create_basic_territories():
+    """Crear Territories básicos requeridos por ERPNext."""
+    basic_territories = [
+        ["All Territories", None, 1],
+        ["Mexico", "All Territories", 0],
+        ["Rest Of The World", "All Territories", 0],
+    ]
+
+    for territory_name, parent_territory, is_group in basic_territories:
+        if frappe.db.exists("Territory", territory_name):
+            continue
+
+        try:
+            territory_doc = {
+                "doctype": "Territory",
+                "territory_name": territory_name,
+                "is_group": is_group,
+            }
+
+            if parent_territory:
+                territory_doc["parent_territory"] = parent_territory
+
+            frappe.get_doc(territory_doc).insert(ignore_permissions=True)
+        except Exception:
+            pass
+
+def _create_basic_item_groups():
+    """Crear Item Groups básicos requeridos por ERPNext."""
+    basic_groups = [
+        ["All Item Groups", None, 1],
+        ["Products", "All Item Groups", 0],
+        ["Services", "All Item Groups", 0],
+        ["Raw Material", "All Item Groups", 0],
+    ]
+
+    for group_name, parent_group, is_group in basic_groups:
+        if frappe.db.exists("Item Group", group_name):
+            continue
+
+        try:
+            group_doc = {
+                "doctype": "Item Group",
+                "item_group_name": group_name,
+                "is_group": is_group,
+            }
+
+            if parent_group:
+                group_doc["parent_item_group"] = parent_group
+
+            frappe.get_doc(group_doc).insert(ignore_permissions=True)
+        except Exception:
+            pass
+
+def _create_basic_uoms():
+    """Crear UOMs básicos requeridos por ERPNext."""
+    basic_uoms = [
+        "Unit", "Nos", "Box", "Kg", "Meter", "Liter", "Piece", "Set"
+    ]
+
+    for uom_name in basic_uoms:
+        if frappe.db.exists("UOM", uom_name):
+            continue
+
+        try:
+            frappe.get_doc({
+                "doctype": "UOM",
+                "uom_name": uom_name,
+            }).insert(ignore_permissions=True)
+        except Exception:
+            pass
+
 def ensure_test_deps():
     _create_basic_warehouse_types()
     _ensure_erpnext_baseline_company_inr()
     _create_basic_erpnext_accounts()
     _create_basic_cost_centers()
-    _ensure_item_tax_template("_Test Account Excise Duty @ 10 - _TC", 10)
-    _ensure_item_tax_template("_Test Account Excise Duty @ 12 - _TC", 12)
+    _create_basic_customer_groups()
+    _create_basic_supplier_groups()
+    _create_basic_territories()
+    _create_basic_item_groups()
+    _create_basic_uoms()
+    _ensure_item_tax_template("_Test Account Excise Duty @ 10", 10)
+    _ensure_item_tax_template("_Test Account Excise Duty @ 12", 12)
 
 def _ensure_erpnext_baseline_company_inr():
     # El test que falla busca específicamente "_Test Company" con abbr "_TC"
@@ -140,16 +268,20 @@ def _pick_any_tax_account_in_inr():
         acc = frappe.db.get_value("Account", {"company": "_Test Company"}, "name")
     return acc
 
-def _ensure_item_tax_template(name: str, rate_percent: float):
-    if frappe.db.exists("Item Tax Template", name):
+def _ensure_item_tax_template(base_name: str, rate_percent: float):
+    # Construir nombre completo con sufijo _TC
+    full_name = f"{base_name} - _TC"
+
+    if frappe.db.exists("Item Tax Template", full_name):
         return
+
     tax_account = _pick_any_tax_account_in_inr()
     doc = frappe.get_doc({
         "doctype": "Item Tax Template",
-        "title": name,
-        "name": name,  # nombre exacto que los tests esperan
+        "title": full_name,
+        "name": full_name,  # nombre exacto que los tests esperan
         "company": "_Test Company",
         "taxes": [{"tax_type": tax_account, "tax_rate": rate_percent}]
     })
-    doc.insert()
+    doc.insert(ignore_if_duplicate=True)
     frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure test dependencies are persisted before test execution
