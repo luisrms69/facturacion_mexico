@@ -1,287 +1,68 @@
 import frappe
-
-def _create_basic_warehouse_types():
-    """Crear tipos de warehouse básicos que Company necesita.
-
-    Evita el error 'Could not find Warehouse Type: Transit'.
-    """
-    warehouse_types = ["Stores", "Work In Progress", "Finished Goods", "Transit"]
-
-    for wh_type in warehouse_types:
-        if not frappe.db.exists("Warehouse Type", wh_type):
-            frappe.get_doc({
-                "doctype": "Warehouse Type",
-                "name": wh_type,
-            }).insert(ignore_permissions=True)
-
-def _create_basic_erpnext_accounts():
-    """Crear cuentas contables básicas de ERPNext requeridas para testing.
-
-    Crea específicamente _Test Account Excise Duty - _TC con account_type="Tax".
-    """
-    companies = frappe.get_all("Company", filters={"abbr": "_TC"}, fields=["name", "abbr"], limit=1)
-
-    if not companies:
-        return
-
-    company_name = companies[0].name
-    company_abbr = companies[0].abbr
-
-    # Cuentas básicas requeridas - especialmente Tax accounts y cuentas padre
-    basic_accounts = [
-        # Cuentas básicas principales
-        ["_Test Bank", "Bank Accounts", 0, "Bank", None],
-        ["_Test Cash", "Cash In Hand", 0, "Cash", None],
-        ["_Test Receivable", "Current Assets", 0, "Receivable", None],
-        ["_Test Payable", "Current Liabilities", 0, "Payable", None],
-
-        # Cuentas Tax padre requeridas por ERPNext test_account.py
-        ["_Test Account Tax Assets", "Current Assets", 1, None, None],  # Grupo padre para tax assets
-        ["_Test Account Excise Duty", "Current Assets", 0, "Tax", None],  # Tax account principal
-
-        # Cuentas Tax específicas que ERPNext tests requieren
-        ["_Test Account Education Cess", "_Test Account Tax Assets", 0, "Tax", None],
-        ["_Test Account S&H Education Cess", "_Test Account Tax Assets", 0, "Tax", None],
-        ["_Test Account VAT", "_Test Account Tax Assets", 0, "Tax", None],
-        ["_Test Account Service Tax", "_Test Account Tax Assets", 0, "Tax", None],
-    ]
-
-    for account_name, parent_account, is_group, account_type, currency in basic_accounts:
-        full_account_name = f"{account_name} - {company_abbr}"
-        parent_account_name = f"{parent_account} - {company_abbr}"
-
-        if frappe.db.exists("Account", full_account_name):
-            continue
-
-        if not frappe.db.exists("Account", parent_account_name):
-            continue
-
-        try:
-            account_doc = {
-                "doctype": "Account",
-                "account_name": account_name,
-                "parent_account": parent_account_name,
-                "company": company_name,
-                "is_group": is_group,
-            }
-
-            if account_type:
-                account_doc["account_type"] = account_type
-
-            if currency:
-                account_doc["account_currency"] = currency
-
-            frappe.get_doc(account_doc).insert(ignore_permissions=True)
-        except Exception:
-            pass  # Continue with other accounts
-
-def _create_basic_cost_centers():
-    """Crear cost centers básicos requeridos para testing."""
-    companies = frappe.get_all("Company", filters={"abbr": "_TC"}, fields=["name", "abbr"], limit=1)
-
-    if not companies:
-        return
-
-    company_name = companies[0].name
-    company_abbr = companies[0].abbr
-
-    cost_centers = ["_Test Cost Center", "_Test Cost Center 2"]
-
-    for cost_center_base_name in cost_centers:
-        cost_center_name = f"{cost_center_base_name} - {company_abbr}"
-
-        if frappe.db.exists("Cost Center", cost_center_name):
-            continue
-
-        try:
-            frappe.get_doc({
-                "doctype": "Cost Center",
-                "cost_center_name": cost_center_base_name,
-                "company": company_name,
-                "is_group": 0,
-                "parent_cost_center": f"{company_name} - {company_abbr}",
-            }).insert(ignore_permissions=True)
-        except Exception:
-            pass  # Continue with other cost centers
-
-def _create_basic_customer_groups():
-    """Crear Customer Groups básicos requeridos por ERPNext."""
-    basic_groups = [
-        ["All Customer Groups", None, 1],  # Grupo padre principal
-        ["Individual", "All Customer Groups", 0],
-        ["Commercial", "All Customer Groups", 0],
-    ]
-
-    for group_name, parent_group, is_group in basic_groups:
-        if frappe.db.exists("Customer Group", group_name):
-            continue
-
-        try:
-            group_doc = {
-                "doctype": "Customer Group",
-                "customer_group_name": group_name,
-                "is_group": is_group,
-            }
-
-            if parent_group:
-                group_doc["parent_customer_group"] = parent_group
-
-            frappe.get_doc(group_doc).insert(ignore_permissions=True)
-        except Exception:
-            pass
-
-def _create_basic_supplier_groups():
-    """Crear Supplier Groups básicos requeridos por ERPNext."""
-    basic_groups = [
-        ["All Supplier Groups", None, 1],
-        ["Services", "All Supplier Groups", 0],
-        ["Hardware", "All Supplier Groups", 0],
-    ]
-
-    for group_name, parent_group, is_group in basic_groups:
-        if frappe.db.exists("Supplier Group", group_name):
-            continue
-
-        try:
-            group_doc = {
-                "doctype": "Supplier Group",
-                "supplier_group_name": group_name,
-                "is_group": is_group,
-            }
-
-            if parent_group:
-                group_doc["parent_supplier_group"] = parent_group
-
-            frappe.get_doc(group_doc).insert(ignore_permissions=True)
-        except Exception:
-            pass
-
-def _create_basic_territories():
-    """Crear Territories básicos requeridos por ERPNext."""
-    basic_territories = [
-        ["All Territories", None, 1],
-        ["Mexico", "All Territories", 0],
-        ["Rest Of The World", "All Territories", 0],
-    ]
-
-    for territory_name, parent_territory, is_group in basic_territories:
-        if frappe.db.exists("Territory", territory_name):
-            continue
-
-        try:
-            territory_doc = {
-                "doctype": "Territory",
-                "territory_name": territory_name,
-                "is_group": is_group,
-            }
-
-            if parent_territory:
-                territory_doc["parent_territory"] = parent_territory
-
-            frappe.get_doc(territory_doc).insert(ignore_permissions=True)
-        except Exception:
-            pass
-
-def _create_basic_item_groups():
-    """Crear Item Groups básicos requeridos por ERPNext."""
-    basic_groups = [
-        ["All Item Groups", None, 1],
-        ["Products", "All Item Groups", 0],
-        ["Services", "All Item Groups", 0],
-        ["Raw Material", "All Item Groups", 0],
-    ]
-
-    for group_name, parent_group, is_group in basic_groups:
-        if frappe.db.exists("Item Group", group_name):
-            continue
-
-        try:
-            group_doc = {
-                "doctype": "Item Group",
-                "item_group_name": group_name,
-                "is_group": is_group,
-            }
-
-            if parent_group:
-                group_doc["parent_item_group"] = parent_group
-
-            frappe.get_doc(group_doc).insert(ignore_permissions=True)
-        except Exception:
-            pass
-
-def _create_basic_uoms():
-    """Crear UOMs básicos requeridos por ERPNext."""
-    basic_uoms = [
-        "Unit", "Nos", "Box", "Kg", "Meter", "Liter", "Piece", "Set"
-    ]
-
-    for uom_name in basic_uoms:
-        if frappe.db.exists("UOM", uom_name):
-            continue
-
-        try:
-            frappe.get_doc({
-                "doctype": "UOM",
-                "uom_name": uom_name,
-            }).insert(ignore_permissions=True)
-        except Exception:
-            pass
+import json
+import os
 
 def ensure_test_deps():
-    _create_basic_warehouse_types()
-    _ensure_erpnext_baseline_company_inr()
-    _create_basic_erpnext_accounts()
-    _create_basic_cost_centers()
-    _create_basic_customer_groups()
-    _create_basic_supplier_groups()
-    _create_basic_territories()
-    _create_basic_item_groups()
-    _create_basic_uoms()
-    _ensure_item_tax_template("_Test Account Excise Duty @ 10", 10)
-    _ensure_item_tax_template("_Test Account Excise Duty @ 12", 12)
+    """
+    Bootstrap estático según recomendación del experto - Opción B.
 
-def _ensure_erpnext_baseline_company_inr():
-    # El test que falla busca específicamente "_Test Company" con abbr "_TC"
-    # Crear _Test Company si no existe (datos mínimos requeridos)
-    if not frappe.db.exists("Company", "_Test Company"):
-        company = frappe.get_doc({
-            "doctype": "Company",
-            "company_name": "_Test Company",
-            "abbr": "_TC",
-            "default_currency": "INR",
-            "country": "India"
-        })
-        company.insert(ignore_permissions=True)
-        frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure test company exists before other dependencies
+    Carga fixtures estáticos desde JSON para evitar whack-a-mole infinito.
+    Solo hace frappe.get_doc(data).insert(ignore_if_duplicate=True).
+    """
+    _load_static_fixtures()
+    _normalize_currency_if_needed()
 
-def _pick_any_tax_account_in_inr():
-    # Buscar específicamente la cuenta Tax que creamos
-    acc = frappe.db.get_value("Account",
-        {"company": "_Test Company", "account_type": "Tax"}, "name"
+def _load_static_fixtures():
+    """Cargar todos los fixtures estáticos desde JSON."""
+
+    # Cargar Item Tax Templates
+    _load_json_fixtures("item_tax_template.json")
+
+    # Cargar Accounts (Tax hierarchy)
+    _load_json_fixtures("account.json")
+
+def _load_json_fixtures(filename):
+    """Cargar fixtures desde archivo JSON."""
+    fixtures_path = os.path.join(
+        frappe.get_app_path("facturacion_mexico"),
+        "tests", "test_records", filename
     )
-    if not acc:
-        # Fallback: buscar la cuenta específica que creamos
-        acc = "_Test Account Excise Duty - _TC"
-        if frappe.db.exists("Account", acc):
-            return acc
-        # Último fallback: cualquier cuenta de la compañía
-        acc = frappe.db.get_value("Account", {"company": "_Test Company"}, "name")
-    return acc
 
-def _ensure_item_tax_template(base_name: str, rate_percent: float):
-    # Construir nombre completo con sufijo _TC
-    full_name = f"{base_name} - _TC"
-
-    if frappe.db.exists("Item Tax Template", full_name):
+    if not os.path.exists(fixtures_path):
         return
 
-    tax_account = _pick_any_tax_account_in_inr()
-    doc = frappe.get_doc({
-        "doctype": "Item Tax Template",
-        "title": full_name,
-        "name": full_name,  # nombre exacto que los tests esperan
-        "company": "_Test Company",
-        "taxes": [{"tax_type": tax_account, "tax_rate": rate_percent}]
-    })
-    doc.insert(ignore_if_duplicate=True)
-    frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure test dependencies are persisted before test execution
+    with open(fixtures_path, 'r', encoding='utf-8') as f:
+        fixtures = json.load(f)
+
+    for data in fixtures:
+        try:
+            # Verificar si ya existe
+            if frappe.db.exists(data["doctype"], data["name"]):
+                continue
+
+            # Crear documento
+            doc = frappe.get_doc(data)
+            doc.insert(ignore_permissions=True, ignore_if_duplicate=True)
+
+        except Exception as e:
+            # Log pero continuar con otros fixtures
+            print(f"Warning: Failed to create {data['doctype']} {data['name']}: {e}")
+            continue
+
+def _normalize_currency_if_needed():
+    """Normalizar currency solo si es necesario."""
+    if frappe.db.exists("Company", "_Test Company"):
+        company = frappe.get_doc("Company", "_Test Company")
+        if company.default_currency != "INR":
+            company.default_currency = "INR"
+            company.save()
+
+            # Alinear accounts a INR para evitar mismatches
+            frappe.db.sql("""
+                UPDATE `tabAccount`
+                SET account_currency = %s
+                WHERE company = %s
+                AND (account_currency IS NULL OR account_currency <> %s)
+            """, ("INR", "_Test Company", "INR"))
+
+            frappe.db.commit()

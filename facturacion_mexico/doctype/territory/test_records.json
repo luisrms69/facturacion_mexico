@@ -1,0 +1,5 @@
+[
+  {"doctype":"Territory","name":"All Territories","is_group":1},
+  {"doctype":"Territory","name":"Mexico","parent_territory":"All Territories"},
+  {"doctype":"Territory","name":"Rest Of The World","parent_territory":"All Territories"}
+]

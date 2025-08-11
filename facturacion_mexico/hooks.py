@@ -355,6 +355,21 @@ scheduler_events = {
 # Testing
 # -------
 
+# Dependencias de test - el runner cargará test_records.json de estos doctypes
+test_dependencies = [
+	"Company",
+	"Account",
+	"Item Tax Template",
+	"Item Group",
+	"Customer Group",
+	"Supplier Group",
+	"UOM",
+	"Warehouse Type",
+	"Territory",
+	"Gender",
+	"Salutation",
+]
+
 before_tests = "facturacion_mexico.tests.bootstrap.ensure_test_deps"
 
 # Overriding Methods

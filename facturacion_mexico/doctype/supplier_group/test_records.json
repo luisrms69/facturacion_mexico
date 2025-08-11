@@ -1,0 +1,5 @@
+[
+  {"doctype":"Supplier Group","name":"All Supplier Groups","is_group":1},
+  {"doctype":"Supplier Group","name":"Services","parent_supplier_group":"All Supplier Groups"},
+  {"doctype":"Supplier Group","name":"Hardware","parent_supplier_group":"All Supplier Groups"}
+]

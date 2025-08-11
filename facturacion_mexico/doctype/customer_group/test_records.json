@@ -1,0 +1,5 @@
+[
+  {"doctype":"Customer Group","name":"All Customer Groups","is_group":1},
+  {"doctype":"Customer Group","name":"Individual","parent_customer_group":"All Customer Groups"},
+  {"doctype":"Customer Group","name":"Commercial","parent_customer_group":"All Customer Groups"}
+]
