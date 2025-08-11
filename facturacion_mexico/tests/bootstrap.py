@@ -27,13 +27,23 @@ def _create_basic_erpnext_accounts():
     company_name = companies[0].name
     company_abbr = companies[0].abbr
 
-    # Cuentas básicas requeridas - especialmente Tax account
+    # Cuentas básicas requeridas - especialmente Tax accounts y cuentas padre
     basic_accounts = [
+        # Cuentas básicas principales
         ["_Test Bank", "Bank Accounts", 0, "Bank", None],
         ["_Test Cash", "Cash In Hand", 0, "Cash", None],
         ["_Test Receivable", "Current Assets", 0, "Receivable", None],
         ["_Test Payable", "Current Liabilities", 0, "Payable", None],
-        ["_Test Account Excise Duty", "Current Assets", 0, "Tax", None],  # CRÍTICO: Tax account
+
+        # Cuentas Tax padre requeridas por ERPNext test_account.py
+        ["_Test Account Tax Assets", "Current Assets", 1, None, None],  # Grupo padre para tax assets
+        ["_Test Account Excise Duty", "Current Assets", 0, "Tax", None],  # Tax account principal
+
+        # Cuentas Tax específicas que ERPNext tests requieren
+        ["_Test Account Education Cess", "_Test Account Tax Assets", 0, "Tax", None],
+        ["_Test Account S&H Education Cess", "_Test Account Tax Assets", 0, "Tax", None],
+        ["_Test Account VAT", "_Test Account Tax Assets", 0, "Tax", None],
+        ["_Test Account Service Tax", "_Test Account Tax Assets", 0, "Tax", None],
     ]
 
     for account_name, parent_account, is_group, account_type, currency in basic_accounts:
