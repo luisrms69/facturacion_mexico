@@ -261,57 +261,51 @@ fixtures = [
 # ---------------
 # Hook on document methods and events
 
-# FASE 1: HOOKS FISCAL LEGACY DESHABILITADOS - ARQUITECTURA RESILIENTE ACTIVA
-# Fecha: 2025-08-07 - TAREA 2.4 Eliminación sistemas legacy
-# Rollback: Descomentar sección "Sales Invoice" para restaurar hooks legacy
-#
-# doc_events = {
-# 	"Sales Invoice": {
-# 		"validate": [
-# 			"facturacion_mexico.facturacion_fiscal.hooks_handlers.sales_invoice_validate.validate_fiscal_data",
-# 			"facturacion_mexico.hooks_handlers.sales_invoice_validate.sales_invoice_validate",
-# 			"facturacion_mexico.validaciones.sales_invoice.validate_ppd_vs_forma_pago",
-# 		],
-# 		"before_submit": "facturacion_mexico.validaciones.hooks_handlers.sales_invoice_validate.validate_lista_69b_customer",
-# 		"on_submit": [
-# 			"facturacion_mexico.hooks_handlers.sales_invoice_submit.sales_invoice_on_submit",
-# 		],
-# 		"on_cancel": "facturacion_mexico.facturacion_fiscal.hooks_handlers.sales_invoice_cancel.handle_fiscal_cancellation",
-# 	},
-
 doc_events = {
-	# SALES INVOICE HOOKS DESHABILITADOS - Ver comentarios arriba para rollback
+	# =============================================================================
+	# VALIDACIONES CRÍTICAS - PRIMERA PRIORIDAD
+	# =============================================================================
+	# Customer RFC Validation - Validación obligatoria México
 	"Customer": {
 		"validate": "facturacion_mexico.validaciones.hooks_handlers.customer_validate.validate_rfc_format",
 		"before_save": "facturacion_mexico.validaciones.hooks_handlers.customer_validate.validate_rfc_format",
 		"after_insert": "facturacion_mexico.validaciones.hooks_handlers.customer_validate.schedule_rfc_validation",
 	},
+	# =============================================================================
+	# MULTI-SUCURSAL - CONFIGURACIÓN FISCAL
+	# =============================================================================
+	# Branch Fiscal Configuration - Configuración multi-sucursal
 	"Branch": {
 		"validate": "facturacion_mexico.multi_sucursal.custom_fields.branch_fiscal_fields.validate_branch_fiscal_configuration",
 		"after_insert": "facturacion_mexico.multi_sucursal.custom_fields.branch_fiscal_fields.after_branch_insert",
 		"on_update": "facturacion_mexico.multi_sucursal.custom_fields.branch_fiscal_fields.on_branch_update",
 	},
+	# =============================================================================
+	# COMPLEMENTOS DE PAGO - AUTOMATIZACIÓN SAT
+	# =============================================================================
+	# Payment Entry PPD - Complementos automáticos
 	"Payment Entry": {
 		"validate": "facturacion_mexico.complementos_pago.hooks_handlers.payment_entry_validate.check_ppd_requirement",
 		"on_submit": "facturacion_mexico.complementos_pago.hooks_handlers.payment_entry_submit.create_complement_if_required",
 		"on_cancel": "facturacion_mexico.complementos_pago.hooks_handlers.payment_entry_cancel.cancel_related_complement",
 	},
+	# Complemento Pago Tracking - Seguimiento pagos
 	"Complemento Pago MX": {
 		"validate": "facturacion_mexico.complementos_pago.hooks_handlers.complemento_pago_validate.validate_payment_amounts",
 		"before_save": "facturacion_mexico.complementos_pago.hooks_handlers.complemento_pago_validate.calculate_payment_balances",
 		"after_insert": "facturacion_mexico.complementos_pago.hooks_handlers.complemento_pago_insert.create_fiscal_event",
 		"on_submit": "facturacion_mexico.complementos_pago.hooks_handlers.complemento_pago_submit.update_payment_tracking",
 	},
+	# =============================================================================
+	# ERECEIPTS - FACTURAPI INTEGRATION
+	# =============================================================================
+	# EReceipt Automation - Automatización recibos digitales
 	"EReceipt MX": {
 		"before_save": "facturacion_mexico.ereceipts.hooks_handlers.ereceipt_validate.calculate_expiry_date",
 		"after_insert": "facturacion_mexico.ereceipts.hooks_handlers.ereceipt_insert.generate_facturapi_ereceipt",
 	},
-	"Factura Fiscal Mexico": {
-		# TEMPORAL: Fiscal Events desactivados para eliminar error "Transición de estado inválida: pending → pending"
-		# Se reactivarán después de completar implementación workflow de prevención doble facturación
-		# "after_insert": "facturacion_mexico.facturacion_fiscal.hooks_handlers.factura_fiscal_insert.create_fiscal_event",
-		# "on_update": "facturacion_mexico.facturacion_fiscal.hooks_handlers.factura_fiscal_update.register_status_changes",
-	},
+	# P6.1.4d: Sales Invoice hooks eliminados - incompatibles con arquitectura resiliente
+	# P6.1.4d: Factura Fiscal Mexico hooks eliminados - solo logging legacy sin FiscalEventMX
 }
 
 # Scheduled Tasks
@@ -348,7 +342,7 @@ scheduler_events = {
 	],
 	"weekly": [
 		"facturacion_mexico.complementos_pago.api.reconcile_payment_tracking",
-		"facturacion_mexico.facturacion_fiscal.tasks.cleanup_old_fiscal_events",
+		# P6.1.4d: cleanup_old_fiscal_events eliminado - FiscalEventMX no existe
 	],
 }
 

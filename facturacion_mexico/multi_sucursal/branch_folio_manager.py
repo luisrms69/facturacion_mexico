@@ -6,7 +6,7 @@ Branch Folio Manager - Sprint 6 Phase 2 Step 7
 Sistema de gestión de series y folios por sucursal con semáforos
 """
 
-from typing import Any, Optional
+from typing import Any
 
 import frappe
 from frappe import _

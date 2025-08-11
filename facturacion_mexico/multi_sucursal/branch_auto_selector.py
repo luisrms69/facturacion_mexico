@@ -6,7 +6,7 @@ Branch Auto Selector - Sprint 6 Phase 2 Step 5
 Auto-selección inteligente de sucursal por usuario en Sales Invoice
 """
 
-from typing import Any, Optional
+from typing import Any
 
 import frappe
 from frappe import _

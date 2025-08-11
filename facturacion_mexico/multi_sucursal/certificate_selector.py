@@ -9,7 +9,6 @@ Extiende el sistema de certificados existente para soporte multi-branch
 
 import json
 from datetime import date, datetime
-from typing import Optional
 
 import frappe
 from frappe import _
