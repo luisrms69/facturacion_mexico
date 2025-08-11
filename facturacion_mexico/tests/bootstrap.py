@@ -1,6 +1,21 @@
 import frappe
 
+def _create_basic_warehouse_types():
+    """Crear tipos de warehouse básicos que Company necesita.
+
+    Evita el error 'Could not find Warehouse Type: Transit'.
+    """
+    warehouse_types = ["Stores", "Work In Progress", "Finished Goods", "Transit"]
+
+    for wh_type in warehouse_types:
+        if not frappe.db.exists("Warehouse Type", wh_type):
+            frappe.get_doc({
+                "doctype": "Warehouse Type",
+                "name": wh_type,
+            }).insert(ignore_permissions=True)
+
 def ensure_test_deps():
+    _create_basic_warehouse_types()
     _ensure_erpnext_baseline_company_inr()
     _ensure_item_tax_template("_Test Account Excise Duty @ 10 - _TC", 10)
     _ensure_item_tax_template("_Test Account Excise Duty @ 12 - _TC", 12)
