@@ -12,4 +12,4 @@ mkdocs-linkcheck==1.0.5
 interrogate==1.5.0
 pydocstyle==6.3.0
 flake8-docstrings==1.7.0
-pylint==3.0.3
+pylint==3.3.8
