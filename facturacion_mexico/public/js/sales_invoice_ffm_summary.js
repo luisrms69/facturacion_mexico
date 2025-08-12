@@ -112,3 +112,39 @@ function get_estado_color(estado) {
 			return "grey";
 	}
 }
+
+function show_pac_status_dialog(resp) {
+	const is_error = !resp || resp.ok === false;
+	const title = is_error ? __("Timbrado rechazado por PAC") : __("Timbrado exitoso");
+	const msg = frappe.utils.escape_html(
+		(resp && (resp.error_message || resp.message)) ||
+			(is_error ? __("Error desconocido del PAC") : __("Factura timbrada correctamente"))
+	);
+
+	// Normaliza el "estado de sincronización"
+	const sync_state = is_error ? "ERROR" : "OK";
+
+	const logLink =
+		resp && resp.response_log
+			? `<br><br><a class="btn btn-sm btn-default" href="#Form/FacturAPI Response Log/${
+					resp.response_log
+			  }">
+			 ${__("Ver registro de respuesta")}
+		   </a>`
+			: "";
+
+	const body = `
+		<div class="alert alert-${is_error ? "danger" : "success"}" role="alert" style="margin-top:8px">
+			<strong>${title}</strong><br>${msg}${logLink}
+			<div style="margin-top:6px"><small>${__(
+				"Estado de Sincronización"
+			)}: <b>${sync_state}</b></small></div>
+		</div>`;
+
+	frappe.msgprint({
+		title,
+		indicator: is_error ? "red" : "green",
+		message: body,
+		wide: true,
+	});
+}

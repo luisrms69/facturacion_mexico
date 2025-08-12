@@ -1,6 +1,23 @@
 // Sales Invoice customizations for Facturacion Mexico - ARQUITECTURA MIGRADA
 // Funcionalidad fiscal centralizada en Factura Fiscal Mexico
 
+// Helper de normalización y diagnóstico
+function norm(x) {
+	return (x || "").toString().trim().toUpperCase();
+}
+
+function log_ffm_debug(frm, context = "UNKNOWN") {
+	console.log(`[FFM DEBUG ${context}]`, {
+		si_name: frm.doc.name,
+		docstatus: frm.doc.docstatus,
+		fm_fiscal_status: frm.doc.fm_fiscal_status,
+		fm_uuid_fiscal: frm.doc.fm_uuid_fiscal,
+		fm_ffm_uuid: frm.doc.fm_ffm_uuid,
+		fm_factura_fiscal_mx: frm.doc.fm_factura_fiscal_mx,
+		timestamp: new Date().toISOString(),
+	});
+}
+
 // Cargar configuración de estados fiscales al inicio
 let FISCAL_STATES = null;
 
@@ -28,16 +45,27 @@ load_fiscal_states();
 
 frappe.ui.form.on("Sales Invoice", {
 	refresh: function (frm) {
-		// Solo mostrar botón de timbrado si está submitted, tiene RFC y NO está timbrada
+		// Diagnóstico inmediato
+		log_ffm_debug(frm, "REFRESH_START");
+
+		// Limpiar botones previos
+		frm.remove_custom_button(__("Timbrar Factura"));
+
 		if (frm.doc.docstatus === 1) {
 			has_customer_rfc(frm, function (has_rfc) {
-				if (has_rfc && !is_already_timbrada(frm)) {
-					add_timbrar_button(frm);
-				} else if (is_already_timbrada(frm)) {
-					add_view_fiscal_button(frm);
+				if (has_rfc) {
+					if (should_show_timbrar_button(frm)) {
+						add_timbrar_button(frm);
+						log_ffm_debug(frm, "TIMBRAR_BUTTON_ADDED");
+					} else if (is_already_timbrada(frm)) {
+						add_view_fiscal_button(frm);
+						log_ffm_debug(frm, "VIEW_FISCAL_BUTTON_ADDED");
+					}
 				}
 			});
 		}
+
+		log_ffm_debug(frm, "REFRESH_END");
 	},
 });
 
@@ -67,8 +95,24 @@ function has_customer_rfc(frm, callback) {
 }
 
 function is_already_timbrada(frm) {
-	// PREVENCIÓN DOBLE FACTURACIÓN: Verificar si ya está vinculada a una Factura Fiscal Mexico
-	return frm.doc.fm_factura_fiscal_mx && frm.doc.fm_factura_fiscal_mx.trim() !== "";
+	const status = norm(frm.doc.fm_fiscal_status);
+	const uuid_fiscal = (frm.doc.fm_uuid_fiscal || "").trim();
+	const ffm_uuid = (frm.doc.fm_ffm_uuid || "").trim();
+
+	// REGLA ESTRICTA: Timbrada solo si status=TIMBRADO Y tiene UUID
+	const is_timbrada = status === "TIMBRADO" && (uuid_fiscal || ffm_uuid);
+
+	log_ffm_debug(frm, `is_already_timbrada=${is_timbrada}`);
+	return is_timbrada;
+}
+
+function should_show_timbrar_button(frm) {
+	const status = norm(frm.doc.fm_fiscal_status);
+	const allowed_statuses = ["BORRADOR", "ERROR", ""]; // Incluir vacío como válido
+	const should_show = frm.doc.docstatus === 1 && allowed_statuses.includes(status);
+
+	log_ffm_debug(frm, `should_show_timbrar=${should_show}, status="${status}"`);
+	return should_show;
 }
 
 function add_timbrar_button(frm) {

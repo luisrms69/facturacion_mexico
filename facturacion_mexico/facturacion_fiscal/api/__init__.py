@@ -8,6 +8,7 @@ Incluye endpoints para exponer configuración de estados a JavaScript
 
 import json
 import os
+import re
 import traceback
 from pathlib import Path
 from typing import Any
@@ -18,6 +19,45 @@ from frappe.utils import add_to_date, now, now_datetime
 
 # Directorio fallback para respuestas PAC cuando DB no disponible
 FALLBACK_DIR = "/tmp/facturacion_mexico_pac_fallback"
+
+
+def _derive_http_status(data: dict, default=500) -> int:
+	# 1) Si ya viene numérico
+	for k in ("status_code", "code"):
+		val = data.get(k)
+		try:
+			if val is not None:
+				n = int(val)
+				if 100 <= n <= 599:
+					return n
+		except Exception:
+			pass
+
+	# 2) Parsear del mensaje: "Error FacturAPI 400: ..."
+	for k in ("error_message", "error", "message", "raw_response"):
+		msg = (data.get(k) or "").strip()
+		m = re.search(r"\b(\d{3})\b", msg)
+		if m:
+			try:
+				n = int(m.group(1))
+				if 100 <= n <= 599:
+					return n
+			except Exception:
+				pass
+	return default
+
+
+def _derive_error_message(data: dict) -> str:
+	return (
+		(data.get("error_message") or "").strip()
+		or (data.get("error") or "").strip()
+		or (data.get("message") or "").strip()
+		or (data.get("raw_response") or "").strip()
+	)
+
+
+def _norm_status(s: str) -> str:
+	return (s or "").strip().upper()
 
 
 class PACResponseWriter:
@@ -163,6 +203,35 @@ class PACResponseWriter:
 			"timeout_recovery": "Consulta Estado",
 		}
 
+		# Helper para extraer código de estado del mensaje de error
+		def _extract_status_code(err_text: str) -> int:
+			if not err_text:
+				return 500
+			import re
+
+			m = re.search(r"FacturAPI\s+(\d{3})", err_text)
+			if m:
+				try:
+					return int(m.group(1))
+				except Exception:
+					pass
+			return 500
+
+		# Helper para mapeo inteligente de mensaje de error
+		def _coalesce_error_message(d: dict) -> str:
+			# Orden de preferencia más robusto
+			return (
+				(d.get("error_message") or "").strip()
+				or (d.get("error") or "").strip()
+				or (d.get("message") or "").strip()
+				or (d.get("detail") or "").strip()
+				or (d.get("error_description") or "").strip()
+				or ""
+			)
+
+		error_msg = _derive_error_message(response_data or {})
+		status_code = _derive_http_status(response_data or {}, default=500)
+
 		# Crear log entry usando campos arquitecturales correctos
 		response_log = frappe.get_doc(
 			{
@@ -172,8 +241,8 @@ class PACResponseWriter:
 				"timestamp": now_datetime(),
 				"success": self._is_success_response(response_data),
 				"facturapi_response": json.dumps(response_data, default=str),
-				"status_code": str(response_data.get("status_code", 200)),
-				"error_message": response_data.get("error_message", ""),
+				"status_code": str(status_code),
+				"error_message": error_msg,
 				"user_role": frappe.session.user if frappe.session else "System",
 				"ip_address": frappe.local.request.environ.get("REMOTE_ADDR", "localhost")
 				if hasattr(frappe.local, "request") and frappe.local.request
@@ -188,6 +257,33 @@ class PACResponseWriter:
 		)
 
 		response_log.insert()
+
+		# Adjuntar JSON response como File para compatibilidad dfp_external_storage
+		try:
+			from frappe.utils.file_manager import save_file
+
+			filename = f"pac_response_{sales_invoice_name}_{operation_type}.json"
+			file_content = {
+				"sales_invoice": sales_invoice_name,
+				"operation_type": operation_type,
+				"request_data": request_data,
+				"response_data": response_data,
+				"timestamp": now(),
+			}
+
+			save_file(
+				fname=filename,
+				content=json.dumps(file_content, ensure_ascii=False, indent=2, default=str).encode("utf-8"),
+				dt="FacturAPI Response Log",
+				dn=response_log.name,
+				is_private=1,
+			)
+		except Exception as file_error:
+			# No fallar si no se puede adjuntar archivo - datos críticos ya están en BD
+			frappe.log_error(
+				f"Error adjuntando archivo PAC response: {file_error}", "PAC File Attachment Error"
+			)
+
 		# Manual commit required: PAC Response critical data must persist immediately to guarantee 0% loss
 		frappe.db.commit()  # nosemgrep
 
@@ -232,19 +328,24 @@ class PACResponseWriter:
 			if not factura_fiscal_name:
 				return
 
-			# Determinar nuevo estado basado en respuesta
-			new_status = self._determine_fiscal_status(response_data)
+			# Determinar nuevo estado con reglas estrictas
+			new_status, status_code, uuid = self._derive_status_from_response(response_data)
 
-			# Preparar campos a actualizar
+			# Preparar campos a actualizar - NORMALIZACIÓN CRÍTICA A MAYÚSCULAS
+			normalized_status = _norm_status(new_status)
 			update_fields = {
 				"fm_last_response_log": response_log_name,
 				"fm_last_pac_sync": now_datetime(),
-				"fm_sync_status": "synced" if self._is_success_response(response_data) else "error",
+				"fm_sync_status": _norm_status("synced" if normalized_status == "TIMBRADO" else "ERROR"),
+				"fm_fiscal_status": normalized_status,
 			}
 
-			# Solo actualizar estado si hay cambio
-			if new_status:
-				update_fields["fm_fiscal_status"] = new_status
+			# Actualizar UUID solo si es exitoso
+			if uuid:
+				update_fields["fm_uuid"] = uuid
+			elif new_status == "ERROR":
+				# Limpiar UUID si hay error para higiene
+				update_fields["fm_uuid"] = None
 
 			# Actualizar URLs si están en respuesta
 			if "download" in response_data:
@@ -283,21 +384,34 @@ class PACResponseWriter:
 		)
 
 	def _determine_fiscal_status(self, response_data: dict[str, Any]) -> str | None:
-		"""Determinar estado fiscal basado en respuesta PAC."""
-		if not self._is_success_response(response_data):
-			return "Error"
+		"""Determinar estado fiscal basado en respuesta PAC con reglas estrictas."""
+		# REGLA ESTRICTA: TIMBRADO solo si success=True, status_code 200/201 Y uuid presente
+		status, _status_code, _uuid = self._derive_status_from_response(response_data)
+		return status
 
-		status = response_data.get("status", "").lower()
+	def _derive_status_from_response(self, resp: dict[str, Any]) -> tuple[str, int, str]:
+		"""Derivar (fiscal_status, status_code, uuid) con reglas canónicas estrictas."""
+		import re
 
-		# Mapeo estados FacturAPI -> Estados internos (ARQUITECTURA RESILIENTE)
-		status_map = {
-			"valid": "TIMBRADO",
-			"canceled": "CANCELADO",
-			"pending_cancellation": "PENDIENTE_CANCELACION",
-			"draft": "BORRADOR",  # Para e-receipts
-		}
+		from frappe.utils import cint
 
-		return status_map.get(status, "TIMBRADO" if response_data.get("uuid") else None)
+		ok = bool(resp.get("success"))
+
+		# Extraer status_code del response o del mensaje de error
+		status_code = resp.get("status_code")
+		if not status_code:
+			error_text = resp.get("error") or resp.get("error_message") or resp.get("raw_response") or ""
+			m = re.search(r"FacturAPI\s+(\d{3})", error_text)
+			status_code = cint(m.group(1)) if m else 500
+
+		uuid = (resp.get("uuid") or "").strip()
+
+		# REGLA CANÓNICA: TIMBRADO solo si éxito real + código válido + UUID
+		if ok and status_code in (200, 201) and uuid:
+			return "TIMBRADO", status_code, uuid
+
+		# Cualquier otra combinación es ERROR
+		return "ERROR", status_code or 500, ""
 
 	def _schedule_recovery_task(self, fallback_file: str):
 		"""Programar tarea de recovery para archivo fallback."""

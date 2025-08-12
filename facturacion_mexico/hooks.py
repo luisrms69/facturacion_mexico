@@ -51,6 +51,7 @@ doctype_js = {
 		"public/js/sales_invoice_block_cancel.js",
 	],
 	"Customer": ["public/js/customer.js"],
+	"Factura Fiscal Mexico": "facturacion_fiscal/doctype/factura_fiscal_mexico/factura_fiscal_mexico.js",
 }
 
 # include css in doctype views
