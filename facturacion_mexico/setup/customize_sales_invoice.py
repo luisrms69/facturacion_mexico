@@ -38,18 +38,28 @@ def apply_customization():
 				"collapsible": 1,
 				"depends_on": f"eval:doc.{FFM_LINK_FIELD}",
 			},
+			# HTML de solo display (no ensucia el doc)
+			{
+				"fieldname": "fm_ffm_summary_html",
+				"fieldtype": "HTML",
+				"label": "Resumen CFDI",
+				"insert_after": "fm_ffm_section",
+			},
+			# Campos persistentes (con allow_on_submit=1 para evitar errores after submit)
 			{
 				"fieldname": "fm_ffm_estado",
 				"fieldtype": "Data",
 				"label": "Estado CFDI",
 				"read_only": 1,
-				"insert_after": "fm_ffm_section",
+				"allow_on_submit": 1,
+				"insert_after": "fm_ffm_summary_html",
 			},
 			{
 				"fieldname": "fm_ffm_numero",
 				"fieldtype": "Data",
 				"label": "Serie y Folio",
 				"read_only": 1,
+				"allow_on_submit": 1,
 				"insert_after": "fm_ffm_estado",
 			},
 			{
@@ -57,6 +67,7 @@ def apply_customization():
 				"fieldtype": "Data",
 				"label": "UUID Fiscal",
 				"read_only": 1,
+				"allow_on_submit": 1,
 				"insert_after": "fm_ffm_numero",
 			},
 			{
@@ -64,6 +75,7 @@ def apply_customization():
 				"fieldtype": "Datetime",
 				"label": "Fecha de Timbrado",
 				"read_only": 1,
+				"allow_on_submit": 1,
 				"insert_after": "fm_ffm_uuid",
 			},
 			{
@@ -71,6 +83,7 @@ def apply_customization():
 				"fieldtype": "Small Text",
 				"label": "Último mensaje PAC",
 				"read_only": 1,
+				"allow_on_submit": 1,
 				"insert_after": "fm_ffm_fecha",
 			},
 			{

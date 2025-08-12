@@ -48,6 +48,7 @@ doctype_js = {
 		"public/js/sales_invoice.js",
 		"public/js/ereceipt_handler.js",
 		"public/js/sales_invoice_ffm_summary.js",
+		"public/js/sales_invoice_block_cancel.js",
 	],
 	"Customer": ["public/js/customer.js"],
 }
@@ -272,6 +273,10 @@ doc_events = {
 	# =============================================================================
 	# VALIDACIONES CRÍTICAS - PRIMERA PRIORIDAD
 	# =============================================================================
+	# Sales Invoice Cancellation Guard - Bloqueo cancelación con FFM activa
+	"Sales Invoice": {
+		"before_cancel": "facturacion_mexico.validaciones.sales_invoice_cancel_guard.before_cancel",
+	},
 	# Customer RFC Validation - Validación obligatoria México
 	"Customer": {
 		"validate": "facturacion_mexico.validaciones.hooks_handlers.customer_validate.validate_rfc_format",

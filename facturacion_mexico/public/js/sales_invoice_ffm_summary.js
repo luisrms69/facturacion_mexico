@@ -1,48 +1,114 @@
 frappe.ui.form.on("Sales Invoice", {
 	refresh(frm) {
-		setTimeout(() => update_ffm_summary(frm), 0);
+		inject_ffm_summary(frm);
+		// Configurar botón una sola vez
+		if (frm.fields_dict.fm_ffm_open_btn && frm.fields_dict.fm_ffm_open_btn.$input) {
+			frm.fields_dict.fm_ffm_open_btn.$input.off("click").on("click", () => {
+				const ffm = frm.doc.fm_factura_fiscal_mx;
+				if (ffm) frappe.set_route("Form", "Factura Fiscal Mexico", ffm);
+				else frappe.msgprint("No hay Factura Fiscal MX vinculada.");
+			});
+		}
 	},
 	fm_factura_fiscal_mx(frm) {
-		update_ffm_summary(frm);
-	},
-	fm_ffm_open_btn(frm) {
-		const target = frm.doc.fm_factura_fiscal_mx;
-		if (target) frappe.set_route("Form", "Factura Fiscal Mexico", target);
-		else
-			frappe.show_alert({
-				message: __("No hay documento fiscal vinculado."),
-				indicator: "orange",
-			});
+		inject_ffm_summary(frm);
 	},
 });
 
-function update_ffm_summary(frm) {
-	const link = frm.doc.fm_factura_fiscal_mx;
-	if (!link) {
-		clear_ffm_summary(frm);
+function inject_ffm_summary(frm) {
+	const ffm = frm.doc.fm_factura_fiscal_mx;
+	const wrapper = frm.fields_dict.fm_ffm_summary_html?.$wrapper;
+
+	if (!wrapper) {
+		// Fallback: si no existe el campo HTML, usar el botón como antes
+		if (frm.fields_dict.fm_ffm_open_btn) {
+			frm.fields_dict.fm_ffm_open_btn.$input.off("click").on("click", () => {
+				const target = frm.doc.fm_factura_fiscal_mx;
+				if (target) frappe.set_route("Form", "Factura Fiscal Mexico", target);
+				else
+					frappe.show_alert({
+						message: __("No hay documento fiscal vinculado."),
+						indicator: "orange",
+					});
+			});
+		}
 		return;
 	}
+
+	if (!ffm) {
+		wrapper.html(
+			`<div class="text-muted" style="padding: 8px; font-style: italic;">Sin Factura Fiscal vinculada.</div>`
+		);
+		return;
+	}
+
+	// Mostrar loading
+	wrapper.html(`<div class="text-muted" style="padding: 8px;">
+		<i class="fa fa-spinner fa-spin"></i> Cargando información fiscal...
+	</div>`);
 
 	frappe
 		.call({
 			method: "facturacion_mexico.api.ffm_summary.get_ffm_summary",
-			args: { ffm_name: link },
+			args: { ffm_name: ffm },
 		})
 		.then((r) => {
-			const m = (r && r.message) || {};
-			frm.set_value("fm_ffm_estado", m.estado || "");
-			frm.set_value("fm_ffm_numero", m.folio || "");
-			frm.set_value("fm_ffm_uuid", m.uuid || "");
-			frm.set_value("fm_ffm_fecha", m.fecha || "");
-			frm.set_value("fm_ffm_pac_msg", m.pac_msg || "");
+			const d = r.message || {};
+			// Renderizamos en HTML sin tocar el doc → no aparece "Not Saved"
+			const estado_color = get_estado_color(d.estado);
+
+			wrapper.html(`
+				<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 8px; background: #f8f9fa; border-radius: 4px; font-size: 13px;">
+					<div><strong>Estado CFDI:</strong>
+						<span class="indicator ${estado_color}" style="margin-left: 4px;">${frappe.utils.escape_html(
+				d.estado || "-"
+			)}</span>
+					</div>
+					<div><strong>Serie y Folio:</strong>
+						<span style="font-family: monospace;">${frappe.utils.escape_html(d.folio || "-")}</span>
+					</div>
+					<div style="grid-column: span 2;"><strong>UUID:</strong>
+						<span style="font-family: monospace; font-size: 11px; word-break: break-all;">${frappe.utils.escape_html(
+							d.uuid || "-"
+						)}</span>
+					</div>
+					<div><strong>Fecha Timbrado:</strong>
+						${d.fecha ? frappe.datetime.str_to_user(d.fecha) : "-"}
+					</div>
+					<div><strong>Estado PAC:</strong>
+						${
+							d.pac_msg
+								? `<span class="text-muted">${frappe.utils.escape_html(
+										d.pac_msg.substring(0, 50)
+								  )}${d.pac_msg.length > 50 ? "..." : ""}</span>`
+								: "OK"
+						}
+					</div>
+				</div>
+			`);
 		})
-		.catch(() => clear_ffm_summary(frm));
+		.catch(() => {
+			wrapper.html(`<div class="text-danger" style="padding: 8px;">
+				<i class="fa fa-exclamation-triangle"></i> No fue posible cargar el resumen fiscal.
+			</div>`);
+		});
 }
 
-function clear_ffm_summary(frm) {
-	["fm_ffm_estado", "fm_ffm_numero", "fm_ffm_uuid", "fm_ffm_fecha", "fm_ffm_pac_msg"].forEach(
-		(f) => {
-			if (frm.get_field(f)) frm.set_value(f, null);
-		}
-	);
+function get_estado_color(estado) {
+	switch (estado) {
+		case "TIMBRADO":
+			return "green";
+		case "CANCELADO":
+			return "red";
+		case "PENDIENTE_CANCELACION":
+			return "orange";
+		case "ERROR":
+			return "red";
+		case "PROCESANDO":
+			return "blue";
+		case "BORRADOR":
+			return "grey";
+		default:
+			return "grey";
+	}
 }
