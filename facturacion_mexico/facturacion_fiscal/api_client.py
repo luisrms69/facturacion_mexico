@@ -53,9 +53,30 @@ class FacturAPIClient:
 			frappe.logger().info(f"FacturAPI {method} {endpoint}: {response.status_code}")
 
 			# Verificar respuesta exitosa
-			if response.status_code >= 400:
-				error_msg = self._parse_error_response(response)
-				frappe.throw(_(f"Error FacturAPI {response.status_code}: {error_msg}"))
+			if not response.ok:
+				try:
+					data = response.json()
+					# Intenta extraer un mensaje legible
+					error_msg = (
+						data.get("message")
+						or data.get("error")
+						or data.get("detail")
+						or data.get("errors")
+						or response.text
+						or "Error en FacturAPI"
+					)
+					# Asegura que sea string
+					if not isinstance(error_msg, str):
+						import json
+
+						error_msg = json.dumps(error_msg, ensure_ascii=False)
+				except Exception:
+					error_msg = response.text or "Error en FacturAPI"
+
+				# >>> CAMBIO CRÍTICO: adjunta el response a la excepción
+				ve = frappe.ValidationError(f"Error FacturAPI {response.status_code}: {error_msg}")
+				ve.response = response  # <-- clave: así timbrado_api.py podrá leer el status real
+				raise ve
 
 			return response.json()
 

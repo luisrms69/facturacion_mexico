@@ -229,8 +229,19 @@ class PACResponseWriter:
 				or ""
 			)
 
-		error_msg = _derive_error_message(response_data or {})
-		status_code = _derive_http_status(response_data or {}, default=500)
+		status_code = response_data.get("status_code") or response_data.get("data", {}).get("status_code")
+		if not status_code:
+			# Fallback por si algo llega sin status
+			import re
+
+			m = re.search(
+				r"Error\s+FacturAPI\s+(\d{3})",
+				(response_data.get("error_message") or response_data.get("error") or ""),
+			)
+			status_code = int(m.group(1)) if m else 500
+
+		# Log para confirmar qué se insertará
+		frappe.logger().info({"tag": "PAC_LOG_BUILD", "status_code_to_insert": status_code})
 
 		# Crear log entry usando campos arquitecturales correctos
 		response_log = frappe.get_doc(
@@ -240,9 +251,14 @@ class PACResponseWriter:
 				"operation_type": operation_type_mapping.get(operation_type, "Consulta Estado"),
 				"timestamp": now_datetime(),
 				"success": self._is_success_response(response_data),
-				"facturapi_response": json.dumps(response_data, default=str),
-				"status_code": str(status_code),
-				"error_message": error_msg,
+				"status_code": status_code,
+				"error_message": response_data.get("error_message") or response_data.get("error") or "",
+				"facturapi_response": json.dumps(
+					response_data.get("raw_response")
+					if response_data.get("raw_response") is not None
+					else None,
+					default=str,
+				),
 				"user_role": frappe.session.user if frappe.session else "System",
 				"ip_address": frappe.local.request.environ.get("REMOTE_ADDR", "localhost")
 				if hasattr(frappe.local, "request") and frappe.local.request

@@ -245,13 +245,56 @@ class TimbradoAPI:
 			# Generar mensaje amigable SOLO para UI (nunca para Response Log)
 			error_details = self._process_pac_error(e)
 
-			return {
+			# --- INICIO NORMALIZACIÓN ERROR FACTURAPI ---
+			status_code = 500
+			error_text = str(e)
+
+			resp = getattr(e, "response", None)
+			if resp is not None:
+				try:
+					status_code = getattr(resp, "status_code", 500) or 500
+				except Exception:
+					status_code = 500
+
+			# Extraer de la cadena "Error FacturAPI 400:" si existe
+			import re
+
+			m = re.search(r"Error\s+FacturAPI\s+(\d{3})", error_text)
+			if m:
+				try:
+					status_code = int(m.group(1))
+				except Exception:
+					pass
+
+			# Capturar respuesta cruda del PAC sin duplicar 'error_message'
+			raw_response = None
+			if resp is not None:
+				try:
+					raw_response = resp.json()
+				except Exception:
+					raw_response = getattr(resp, "text", None)
+
+			payload = {
 				"success": False,
-				"error": str(e),  # ERROR TÉCNICO ORIGINAL
+				"status_code": status_code,
+				"error_message": error_text,  # legible para UI/log
+				"raw_response": raw_response,  # JSON/texto crudo; no dupliques error_message aquí
 				"user_error": error_details["user_message"],  # MENSAJE AMIGABLE PARA UX
 				"corrective_action": error_details["corrective_action"],
 				"message": error_details["user_message"],  # UI usa este para mostrar al usuario
 			}
+
+			frappe.logger().info(
+				{
+					"tag": "PAC_TIMBRADO_EXTRACT",
+					"status_code_final": status_code,
+					"had_response_obj": bool(resp),
+					"error_text": error_text[:300],
+				}
+			)
+
+			return payload
+			# --- FIN NORMALIZACIÓN ERROR FACTURAPI ---
 
 	def _validate_invoice_for_timbrado(self, sales_invoice):
 		"""Validar que la factura se puede timbrar."""
