@@ -1636,8 +1636,7 @@ function validate_billing_data_visual(frm) {
 			return;
 		}
 
-		// Aplicar clase CSS
-		target_element.addClass(config.class);
+		// No aplicar clase CSS de fondo - solo mantener indicador de texto
 
 		// Buscar o crear indicador de estado
 		let status_indicator = target_element.find(".billing-status-indicator");
@@ -1663,12 +1662,12 @@ function validate_billing_data_visual(frm) {
 			}
 		}
 
-		// Actualizar contenido y estilo del indicador
+		// Actualizar contenido y estilo del indicador (solo texto, sin fondo)
 		if (status_indicator.length > 0) {
 			status_indicator.html(`${config.icon} ${message}`);
 			status_indicator.css({
-				"background-color": config.bg_color,
-				border: `1px solid ${config.border_color}`,
+				"background-color": "transparent",
+				border: "none",
 				color: config.text_color,
 			});
 		}
