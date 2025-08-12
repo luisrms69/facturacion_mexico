@@ -44,7 +44,11 @@ required_apps = ["erpnext"]
 
 # include js in doctype views
 doctype_js = {
-	"Sales Invoice": ["public/js/sales_invoice.js", "public/js/ereceipt_handler.js"],
+	"Sales Invoice": [
+		"public/js/sales_invoice.js",
+		"public/js/ereceipt_handler.js",
+		"public/js/sales_invoice_ffm_summary.js",
+	],
 	"Customer": ["public/js/customer.js"],
 }
 
@@ -92,6 +96,9 @@ doctype_css = {
 
 # before_install = "facturacion_mexico.install.before_install"
 after_install = "facturacion_mexico.install.after_install"
+after_migrate = [
+	"facturacion_mexico.setup.customize_sales_invoice.apply_customization",
+]
 
 # Custom Fields & SAT Catalogs Fixtures
 # -------------
