@@ -179,12 +179,37 @@ class TimbradoAPI:
 				self._process_timbrado_success(sales_invoice, factura_fiscal, pac_response)
 
 				# Mostrar mensaje de éxito formateado
-				uuid = pac_response.get("uuid")
-				folio_completo = pac_response.get("folio_number", sales_invoice.name)
+				# Asegurarse de desempaquetar el wrapper del PAC response
+				raw_pac = None
+				if isinstance(pac_response, dict):
+					raw_pac = (
+						pac_response.get("raw_response") if "raw_response" in pac_response else pac_response
+					)
+				raw_pac = raw_pac if isinstance(raw_pac, dict) else {}
+
+				uuid = raw_pac.get("uuid") or (
+					factura_fiscal.fm_uuid if hasattr(factura_fiscal, "fm_uuid") else None
+				)
+
+				folio_completo = raw_pac.get("folio_number", sales_invoice.name)
 				# Extraer solo el número del folio
 				folio = folio_completo.split("-")[-1] if "-" in str(folio_completo) else folio_completo
-				serie = pac_response.get("series", "F")
-				total = pac_response.get("total", 0)
+				serie = raw_pac.get("series", "F")
+
+				# Tomamos el total del JSON real del PAC; si aún no está, caemos al total ya guardado en el DocType
+				total = raw_pac.get("total")
+				if total is None:
+					try:
+						total = factura_fiscal.total_fiscal
+					except Exception:
+						total = None
+				if total is None:
+					try:
+						total = sales_invoice.grand_total
+					except Exception:
+						total = 0
+
+				total = flt(total or 0)
 
 				frappe.msgprint(
 					msg=f"""
@@ -198,7 +223,7 @@ class TimbradoAPI:
 					title="Timbrado Exitoso",
 					indicator="green",
 					as_list=False,
-					primary_action={"label": "Cerrar", "action": "frappe.msg_dialog.hide()"},
+					primary_action={"label": _("Cerrar"), "action": "frappe.hide_msgprint()"},
 				)
 
 				return {

@@ -133,7 +133,7 @@
 						test_pac_connection(frm);
 					} catch (e) {
 						console && console.error("[FFM] test_pac_connection no disponible:", e);
-						frappe.msgprint({
+						const d1 = frappe.msgprint({
 							title: __("Prueba de Conexión"),
 							message: __(
 								"La función de prueba no está disponible en este contexto."
@@ -141,7 +141,7 @@
 							indicator: "orange",
 							primary_action: {
 								label: __("Cerrar"),
-								action: () => cur_dialog && cur_dialog.hide(),
+								action: () => d1.hide(),
 							},
 						});
 					}
@@ -590,13 +590,13 @@
 
 						console.log("[FFM] mostrando msgprint de error de timbrado:", error_msg);
 
-						frappe.msgprint({
+						const d2 = frappe.msgprint({
 							title: __("Error de Timbrado"),
 							message: error_msg,
 							indicator: "red",
 							primary_action: {
 								label: __("Cerrar"),
-								action: () => cur_dialog && cur_dialog.hide(),
+								action: () => d2.hide(),
 							},
 						});
 						// Auto-refresh para mostrar estado actualizado (failed)
@@ -643,7 +643,7 @@
 			method: "facturacion_mexico.facturacion_fiscal.timbrado_api.test_connection",
 			callback: function (r) {
 				if (r.message && r.message.success) {
-					frappe.msgprint({
+					const d3 = frappe.msgprint({
 						title: __("Conexión Exitosa"),
 						message: __(
 							"La conexión con FacturAPI se estableció correctamente. El sistema está listo para timbrar facturas."
@@ -651,9 +651,7 @@
 						indicator: "green",
 						primary_action: {
 							label: __("Cerrar"),
-							action: function () {
-								cur_dialog.hide();
-							},
+							action: () => d3.hide(),
 						},
 					});
 				} else {
@@ -1981,7 +1979,7 @@ function validate_billing_data_visual(frm) {
 										`⚠️ FASE 4: Inconsistencia detectada - Factura: ${current_forma_pago}, Payment: ${payment_method}`
 									);
 
-									frappe.msgprint({
+									const d4 = frappe.msgprint({
 										title: __("⚠️ Forma de Pago Inconsistente"),
 										message: __(
 											"Se detectó una inconsistencia en la forma de pago:<br><br><b>Factura Fiscal Mexico:</b> {0}<br><b>Payment Entry:</b> {1}<br><br>Por favor, verifique y corrija la forma de pago antes de timbrar.",
@@ -1997,9 +1995,7 @@ function validate_billing_data_visual(frm) {
 										indicator: "orange",
 										primary_action: {
 											label: __("Cerrar"),
-											action: function () {
-												cur_dialog.hide();
-											},
+											action: () => d4.hide(),
 										},
 									});
 								}
@@ -2026,7 +2022,7 @@ function validate_billing_data_visual(frm) {
 
 							if (current_forma_pago) {
 								// Hay forma de pago pero no Payment Entry
-								frappe.msgprint({
+								const d5 = frappe.msgprint({
 									title: __("ℹ️ Sin Pago Registrado"),
 									message: __(
 										"No hay Payment Entry registrado para esta factura.<br><br><b>Forma de pago actual:</b> {0}<br><br>Considere crear un Payment Entry o verificar la forma de pago.",
@@ -2039,14 +2035,12 @@ function validate_billing_data_visual(frm) {
 									indicator: "blue",
 									primary_action: {
 										label: __("Cerrar"),
-										action: function () {
-											cur_dialog.hide();
-										},
+										action: () => d5.hide(),
 									},
 								});
 							} else {
 								// Sin forma de pago y sin Payment Entry
-								frappe.msgprint({
+								const d6 = frappe.msgprint({
 									title: __("ℹ️ Sin Pago Registrado"),
 									message: __(
 										"No hay Payment Entry registrado para esta factura.<br><br>Seleccione la forma de pago manualmente antes de timbrar."
@@ -2054,9 +2048,7 @@ function validate_billing_data_visual(frm) {
 									indicator: "blue",
 									primary_action: {
 										label: __("Cerrar"),
-										action: function () {
-											cur_dialog.hide();
-										},
+										action: () => d6.hide(),
 									},
 								});
 							}
