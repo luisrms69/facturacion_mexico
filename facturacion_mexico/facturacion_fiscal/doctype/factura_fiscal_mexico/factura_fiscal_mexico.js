@@ -93,11 +93,60 @@
 			if (frm.clear_custom_buttons) frm.clear_custom_buttons();
 			if (canTimbrar) addTimbrarButton(frm, status);
 
+			// --- BOTÓN DE CANCELACIÓN (repuesto) ---
+			const syncStatus = (frm.doc.fm_sync_status || "").trim().toLowerCase();
+
+			// Puede cancelar si:
+			// 1) el doc está enviado (docstatus=1)
+			// 2) el estado fiscal actual está en la lista de cancelables (desde API centralizada)
+			// 3) NO está en pendiente de cancelación (evita duplicar solicitudes)
+			const canCancelar =
+				frm.doc.docstatus === 1 &&
+				states.cancelable_states.includes(status) &&
+				syncStatus !== "pending";
+
+			// Muestra/oculta sección de cancelación y agrega botón
+			const cancelSection = frm.get_field("section_break_cancelacion");
+			if (canCancelar) {
+				if (cancelSection && cancelSection.$wrapper) cancelSection.$wrapper.show();
+
+				frm.add_custom_button(__("Cancelar en FacturAPI"), function () {
+					cancelar_timbrado(frm);
+				}).addClass("btn-danger");
+			} else {
+				if (cancelSection && cancelSection.$wrapper) cancelSection.$wrapper.hide();
+			}
+
 			// Reponer botón de navegación SIEMPRE que exista Sales Invoice
 			if (frm.doc.sales_invoice) {
 				frm.add_custom_button(__("Ver Sales Invoice"), function () {
 					frappe.set_route("Form", "Sales Invoice", frm.doc.sales_invoice);
 				});
+			}
+
+			// --- Dev only: botón de prueba de conexión PAC ---
+			// Evitar duplicados entre refresh con un flag simple
+			if (frappe.boot.developer_mode && !frm._ffm_dev_test_btn_added) {
+				frm.add_custom_button(__("Test Conexión PAC"), function () {
+					try {
+						// Esta función ya existe en el archivo (según tu código)
+						test_pac_connection(frm);
+					} catch (e) {
+						console && console.error("[FFM] test_pac_connection no disponible:", e);
+						frappe.msgprint({
+							title: __("Prueba de Conexión"),
+							message: __(
+								"La función de prueba no está disponible en este contexto."
+							),
+							indicator: "orange",
+							primary_action: {
+								label: __("Cerrar"),
+								action: () => cur_dialog && cur_dialog.hide(),
+							},
+						});
+					}
+				}).addClass("btn-secondary");
+				frm._ffm_dev_test_btn_added = true;
 			}
 		});
 	}
@@ -512,77 +561,6 @@
 
 			apply_billing_section_color(frm, color, message);
 		});
-	}
-
-	function add_fiscal_buttons(frm) {
-		// Solo botones específicos para operaciones FacturAPI
-		// Save/Submit son manejados automáticamente por Frappe - NO interferir
-
-		// Usar estados centralizados
-		load_fiscal_states(function (states) {
-			if (!states) return;
-
-			// Solo ocultar Cancel cuando NO está cancelada (mantener comportamiento Frappe normal)
-			if (states.final_states.includes(frm.doc.fm_fiscal_status)) {
-				// Para documentos en estado final, permitir comportamiento normal de Frappe
-				return;
-			}
-
-			if (
-				frm.doc.docstatus === 1 &&
-				states.timbrable_states.includes(frm.doc.fm_fiscal_status)
-			) {
-				// VALIDACIÓN CRÍTICA: tax_system es OBLIGATORIO para timbrado
-				if (
-					!frm.doc.fm_tax_system ||
-					frm.doc.fm_tax_system.startsWith("⚠️") ||
-					frm.doc.fm_tax_system.startsWith("❌")
-				) {
-					// NO mostrar botón, mostrar mensaje explicativo
-					frm.dashboard.add_comment(
-						__(
-							"Régimen Fiscal requerido: Configure Tax Category en el cliente para habilitar timbrado"
-						),
-						"red",
-						true
-					);
-					return; // No agregar botón de timbrado
-				}
-
-				// Tax system válido → Mostrar botón
-				const button_text =
-					frm.doc.fm_fiscal_status === states.states.ERROR
-						? __("Reintentar Timbrado")
-						: __("Timbrar con FacturAPI");
-				frm.add_custom_button(button_text, function () {
-					timbrar_factura(frm);
-				}).addClass("btn-primary");
-			}
-
-			if (
-				frm.doc.docstatus === 1 &&
-				states.cancelable_states.includes(frm.doc.fm_fiscal_status)
-			) {
-				// Botón FacturAPI: Cancelar solo facturas timbradas
-				frm.add_custom_button(__("Cancelar en FacturAPI"), function () {
-					cancelar_timbrado(frm);
-				}).addClass("btn-danger");
-			}
-		});
-
-		// Test conexión PAC (solo desarrollo)
-		if (frappe.boot.developer_mode) {
-			frm.add_custom_button(__("Test Conexión PAC"), function () {
-				test_pac_connection(frm);
-			}).addClass("btn-secondary");
-		}
-
-		// Navegación a Sales Invoice relacionada
-		if (frm.doc.sales_invoice) {
-			frm.add_custom_button(__("Ver Sales Invoice"), function () {
-				frappe.set_route("Form", "Sales Invoice", frm.doc.sales_invoice);
-			});
-		}
 	}
 
 	function timbrar_factura(frm) {
