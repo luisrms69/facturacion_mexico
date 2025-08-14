@@ -132,11 +132,19 @@ class TimbradoAPI:
 				# CRÍTICO: Capturar respuesta RAW del PAC
 				pac_response = self.client.create_invoice(invoice_data)
 
+				# Crear response_data limpio para éxito
+				response_data = {
+					"success": True,
+					"status_code": 200,
+					"error_message": "",
+					"raw_response": pac_response,  # el dict que te regresó FacturAPI
+				}
+
 				# Guardar Response Log INMEDIATAMENTE con respuesta REAL del PAC
 				write_pac_response(
 					sales_invoice_name,
 					json.dumps(pac_request),
-					json.dumps(pac_response),  # ✅ Respuesta REAL del PAC
+					json.dumps(response_data),
 					"timbrado",
 				)
 
@@ -171,12 +179,37 @@ class TimbradoAPI:
 				self._process_timbrado_success(sales_invoice, factura_fiscal, pac_response)
 
 				# Mostrar mensaje de éxito formateado
-				uuid = pac_response.get("uuid")
-				folio_completo = pac_response.get("folio_number", sales_invoice.name)
+				# Asegurarse de desempaquetar el wrapper del PAC response
+				raw_pac = None
+				if isinstance(pac_response, dict):
+					raw_pac = (
+						pac_response.get("raw_response") if "raw_response" in pac_response else pac_response
+					)
+				raw_pac = raw_pac if isinstance(raw_pac, dict) else {}
+
+				uuid = raw_pac.get("uuid") or (
+					factura_fiscal.fm_uuid if hasattr(factura_fiscal, "fm_uuid") else None
+				)
+
+				folio_completo = raw_pac.get("folio_number", sales_invoice.name)
 				# Extraer solo el número del folio
 				folio = folio_completo.split("-")[-1] if "-" in str(folio_completo) else folio_completo
-				serie = pac_response.get("series", "F")
-				total = pac_response.get("total", 0)
+				serie = raw_pac.get("series", "F")
+
+				# Tomamos el total del JSON real del PAC; si aún no está, caemos al total ya guardado en el DocType
+				total = raw_pac.get("total")
+				if total is None:
+					try:
+						total = factura_fiscal.total_fiscal
+					except Exception:
+						total = None
+				if total is None:
+					try:
+						total = sales_invoice.grand_total
+					except Exception:
+						total = 0
+
+				total = flt(total or 0)
 
 				frappe.msgprint(
 					msg=f"""
@@ -187,14 +220,20 @@ class TimbradoAPI:
 						<p style="color: #155724; margin: 5px 0;"><strong>Total:</strong> ${total:,.2f}</p>
 					</div>
 					""",
-					title="Timbrado Exitoso",
+					title=_("Timbrado Exitoso"),
 					indicator="green",
 					as_list=False,
-					primary_action={"label": "Cerrar", "action": "frappe.msg_dialog.hide()"},
+					primary_action={
+						"label": _("Cerrar"),
+						"client_action": "frappe.hide_msgprint()",
+						"hide_on_success": True,
+					},
 				)
 
 				return {
 					"success": True,
+					"status_code": 200,
+					"raw_response": pac_response,
 					"uuid": uuid,
 					"factura_fiscal": factura_fiscal.name,
 					"message": "Factura timbrada exitosamente",  # Mensaje para UI
@@ -245,13 +284,56 @@ class TimbradoAPI:
 			# Generar mensaje amigable SOLO para UI (nunca para Response Log)
 			error_details = self._process_pac_error(e)
 
-			return {
+			# --- INICIO NORMALIZACIÓN ERROR FACTURAPI ---
+			status_code = 500
+			error_text = str(e)
+
+			resp = getattr(e, "response", None)
+			if resp is not None:
+				try:
+					status_code = getattr(resp, "status_code", 500) or 500
+				except Exception:
+					status_code = 500
+
+			# Extraer de la cadena "Error FacturAPI 400:" si existe
+			import re
+
+			m = re.search(r"Error\s+FacturAPI\s+(\d{3})", error_text)
+			if m:
+				try:
+					status_code = int(m.group(1))
+				except Exception:
+					pass
+
+			# Capturar respuesta cruda del PAC sin duplicar 'error_message'
+			raw_response = None
+			if resp is not None:
+				try:
+					raw_response = resp.json()
+				except Exception:
+					raw_response = getattr(resp, "text", None)
+
+			payload = {
 				"success": False,
-				"error": str(e),  # ERROR TÉCNICO ORIGINAL
+				"status_code": status_code,
+				"error_message": error_text,  # legible para UI/log
+				"raw_response": raw_response,  # JSON/texto crudo; no dupliques error_message aquí
 				"user_error": error_details["user_message"],  # MENSAJE AMIGABLE PARA UX
 				"corrective_action": error_details["corrective_action"],
 				"message": error_details["user_message"],  # UI usa este para mostrar al usuario
 			}
+
+			frappe.logger().info(
+				{
+					"tag": "PAC_TIMBRADO_EXTRACT",
+					"status_code_final": status_code,
+					"had_response_obj": bool(resp),
+					"error_text": error_text[:300],
+				}
+			)
+
+			return payload
+			# --- FIN NORMALIZACIÓN ERROR FACTURAPI ---
 
 	def _validate_invoice_for_timbrado(self, sales_invoice):
 		"""Validar que la factura se puede timbrar."""
@@ -527,6 +609,15 @@ class TimbradoAPI:
 		NOTA: El Response Log ya fue guardado ANTES de llamar este método.
 		Este método solo actualiza los documentos Frappe con los datos del timbrado.
 		"""
+		# --- QUIRÚRGICO: asegurar que 'response' sea SIEMPRE el JSON crudo del PAC ---
+		if isinstance(response, dict) and "raw_response" in response:
+			# venía envuelto en response_data (wrapper); extraemos el JSON del PAC
+			response = response.get("raw_response") or {}
+		elif not isinstance(response, dict):
+			# por seguridad, que sea dict
+			response = {}
+		# -------------------------------------------------------------------------------
+
 		try:
 			# Log inicial para debugging
 			frappe.logger().info(f"Iniciando _process_timbrado_success para {factura_fiscal.name}")

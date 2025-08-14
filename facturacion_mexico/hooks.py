@@ -44,8 +44,14 @@ required_apps = ["erpnext"]
 
 # include js in doctype views
 doctype_js = {
-	"Sales Invoice": ["public/js/sales_invoice.js", "public/js/ereceipt_handler.js"],
+	"Sales Invoice": [
+		"public/js/sales_invoice.js",
+		"public/js/ereceipt_handler.js",
+		"public/js/sales_invoice_ffm_summary.js",
+		"public/js/sales_invoice_block_cancel.js",
+	],
 	"Customer": ["public/js/customer.js"],
+	"Factura Fiscal Mexico": "facturacion_fiscal/doctype/factura_fiscal_mexico/factura_fiscal_mexico.js",
 }
 
 # include css in doctype views
@@ -92,6 +98,9 @@ doctype_css = {
 
 # before_install = "facturacion_mexico.install.before_install"
 after_install = "facturacion_mexico.install.after_install"
+after_migrate = [
+	"facturacion_mexico.setup.customize_sales_invoice.apply_customization",
+]
 
 # Custom Fields & SAT Catalogs Fixtures
 # -------------
@@ -265,6 +274,10 @@ doc_events = {
 	# =============================================================================
 	# VALIDACIONES CRÍTICAS - PRIMERA PRIORIDAD
 	# =============================================================================
+	# Sales Invoice Cancellation Guard - Bloqueo cancelación con FFM activa
+	"Sales Invoice": {
+		"before_cancel": "facturacion_mexico.validaciones.sales_invoice_cancel_guard.before_cancel",
+	},
 	# Customer RFC Validation - Validación obligatoria México
 	"Customer": {
 		"validate": "facturacion_mexico.validaciones.hooks_handlers.customer_validate.validate_rfc_format",

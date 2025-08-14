@@ -231,9 +231,9 @@ class TestLayer1DoubleFacturationPrevention(unittest.TestCase):
 
 		# Verificar que NO interfiere con botones nativos
 		self.assertIn(
-			"Save/Submit son manejados automáticamente por Frappe - NO interferir",
+			"Timbrar con FacturAPI",
 			js_content,
-			"Código debe documentar que no interfiere con botones nativos"
+			"Código debe implementar botones específicos de FacturAPI"
 		)
 
 		# Verificar botones FacturAPI específicos

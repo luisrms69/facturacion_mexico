@@ -177,7 +177,7 @@ class TestLayer2CrossModuleValidation(unittest.TestCase):
 
         # Verificar validación de estado timbrado (usando arquitectura resiliente)
         self.assertIn(
-            f'fm_fiscal_status === "{FiscalStates.TIMBRADO}"',
+            "states.cancelable_states.includes",
             js_content,
             "Debe validar si Sales Invoice ya está timbrada usando estados resilientes"
         )

@@ -32,7 +32,9 @@ class FacturAPIResponseLog(Document):
 	# get_latest_status() ELIMINADO - Nueva arquitectura usa calculate_current_status() del Status Calculator
 
 	def validate(self):
-		"""Validaciones del documento."""
+		"""Validaciones del documento con auto-reparación."""
+		import json
+
 		# Validar que factura_fiscal_mexico existe
 		if self.factura_fiscal_mexico and not frappe.db.exists(
 			"Factura Fiscal Mexico", self.factura_fiscal_mexico
@@ -43,6 +45,26 @@ class FacturAPIResponseLog(Document):
 		if self.success and not self.facturapi_response:
 			frappe.throw(_("Respuesta FacturAPI es requerida para operaciones exitosas"))
 
-		# Si no es exitoso, validar que tenga mensaje de error
-		if not self.success and not self.error_message:
-			frappe.throw(_("Mensaje de error es requerido para operaciones fallidas"))
+		# Si no es exitoso, validar que tenga mensaje de error O respuesta FacturAPI
+		if not self.success:
+			if not (self.error_message or self.facturapi_response):
+				frappe.throw(_("Mensaje de error o respuesta FacturAPI requerida para operaciones fallidas"))
+
+		# Auto-reparar mensaje de error si está vacío pero hay respuesta JSON
+		if not self.success and not (self.error_message or "").strip() and self.facturapi_response:
+			# Intentar extraer del payload de respuesta
+			msg = None
+			try:
+				payload = json.loads(self.facturapi_response) if self.facturapi_response else {}
+				msg = (
+					(payload.get("error_message") or "").strip()
+					or (payload.get("error") or "").strip()
+					or (payload.get("message") or "").strip()
+					or (payload.get("detail") or "").strip()
+					or (payload.get("error_description") or "").strip()
+				)
+			except Exception:
+				pass
+
+			# Auto-rellenar con mensaje por defecto si no se encuentra nada
+			self.error_message = msg or _("Error desconocido del PAC")
