@@ -50,8 +50,14 @@ frappe.ui.form.on("Sales Invoice", {
 
 		// Limpiar botones previos
 		frm.remove_custom_button(__("Timbrar Factura"));
+		frm.remove_custom_button(__("Ver Factura Fiscal")); // evitar duplicados
 
 		if (frm.doc.docstatus === 1) {
+			// Mostrar botón de navegación si existe vínculo, independiente del estado
+			if (frm.doc.fm_factura_fiscal_mx) {
+				add_view_fiscal_button(frm);
+			}
+
 			has_customer_rfc(frm, function (has_rfc) {
 				if (has_rfc) {
 					if (should_show_timbrar_button(frm)) {
