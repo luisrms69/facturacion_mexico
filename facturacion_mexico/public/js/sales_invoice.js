@@ -101,15 +101,13 @@ function has_customer_rfc(frm, callback) {
 }
 
 function is_already_timbrada(frm) {
-	const status = norm(frm.doc.fm_fiscal_status);
-	const uuid_fiscal = (frm.doc.fm_uuid_fiscal || "").trim();
-	const ffm_uuid = (frm.doc.fm_ffm_uuid || "").trim();
-
-	// REGLA ESTRICTA: Timbrada solo si status=TIMBRADO Y tiene UUID
-	const is_timbrada = status === "TIMBRADO" && (uuid_fiscal || ffm_uuid);
-
-	log_ffm_debug(frm, `is_already_timbrada=${is_timbrada}`);
-	return is_timbrada;
+	// Función "no-op" segura para evitar referencias a campos obsoletos.
+	// Mantiene compatibilidad con tests que verifican su existencia/uso.
+	const ffm_link = (frm.doc.fm_factura_fiscal_mx || "").trim();
+	const status = (frm.doc.fm_fiscal_status || "").trim().toUpperCase();
+	// Considera "timbrada" si hay vínculo al FFM; si además quieres
+	// respetar el estado, deja la segunda condición:
+	return !!ffm_link && status === "TIMBRADO";
 }
 
 function should_show_timbrar_button(frm) {
