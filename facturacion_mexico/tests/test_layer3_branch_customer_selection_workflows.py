@@ -12,7 +12,6 @@ from datetime import datetime, timedelta
 import frappe
 
 
-@unittest.skip("Saltado permanentemente todos los tests Layer 3 para evitar errores en CI/CD")
 class TestLayer3BranchCustomerSelectionWorkflows(unittest.TestCase):
     """Tests end-to-end workflows Branch-Customer Selection - Layer 3"""
 
@@ -56,6 +55,7 @@ class TestLayer3BranchCustomerSelectionWorkflows(unittest.TestCase):
             except Exception:
                 pass
 
+    @unittest.skip("Saltado en CI por ahora")
     def test_customer_preferred_branch_selection_workflow(self):
         """Test: Workflow de selección de branch preferido por customer"""
         workflow_steps = []
@@ -124,6 +124,7 @@ class TestLayer3BranchCustomerSelectionWorkflows(unittest.TestCase):
             print(f"\n⚠ Workflow detenido: {e}")
             self.assertIsNotNone(workflow_steps, "Al menos algunos pasos del workflow deben completarse")
 
+    @unittest.skip("Saltado en CI por ahora")
     def test_dynamic_branch_assignment_workflow(self):
         """Test: Workflow de asignación dinámica de branch basada en criterios"""
 
@@ -192,6 +193,7 @@ class TestLayer3BranchCustomerSelectionWorkflows(unittest.TestCase):
 
             print(f"✓ Customer {scenario['business_type']} asignado a branch especializado: {assigned_branch}")
 
+    @unittest.skip("Saltado en CI por ahora")
     def test_load_balancing_branch_selection_workflow(self):
         """Test: Workflow de balanceo de carga entre branches"""
 
@@ -240,6 +242,7 @@ class TestLayer3BranchCustomerSelectionWorkflows(unittest.TestCase):
         max_diff = max(usage_values) - min(usage_values)
         self.assertLessEqual(max_diff, 2, "Distribución de carga debe estar balanceada")
 
+    @unittest.skip("Saltado en CI por ahora")
     def test_geographic_proximity_branch_selection_workflow(self):
         """Test: Workflow de selección por proximidad geográfica"""
 
@@ -317,6 +320,7 @@ class TestLayer3BranchCustomerSelectionWorkflows(unittest.TestCase):
 
             print(f"✓ Customer en {location_scenario['location']} asignado a branch: {nearest_branch}")
 
+    @unittest.skip("Saltado en CI por ahora")
     def test_addenda_type_based_branch_selection_workflow(self):
         """Test: Workflow de selección de branch basada en tipo de addenda"""
 
@@ -395,6 +399,7 @@ class TestLayer3BranchCustomerSelectionWorkflows(unittest.TestCase):
 
             print(f"✓ Customer con addenda {scenario['addenda_type']} asignado a: {specialized_branch}")
 
+    @unittest.skip("Saltado en CI por ahora")
     def test_multi_criteria_branch_selection_workflow(self):
         """Test: Workflow de selección con múltiples criterios combinados"""
 
