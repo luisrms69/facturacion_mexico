@@ -220,10 +220,14 @@ class TimbradoAPI:
 						<p style="color: #155724; margin: 5px 0;"><strong>Total:</strong> ${total:,.2f}</p>
 					</div>
 					""",
-					title="Timbrado Exitoso",
+					title=_("Timbrado Exitoso"),
 					indicator="green",
 					as_list=False,
-					primary_action={"label": _("Cerrar"), "action": "frappe.hide_msgprint()"},
+					primary_action={
+						"label": _("Cerrar"),
+						"client_action": "frappe.hide_msgprint()",
+						"hide_on_success": True,
+					},
 				)
 
 				return {
