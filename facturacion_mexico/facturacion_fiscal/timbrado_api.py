@@ -132,11 +132,19 @@ class TimbradoAPI:
 				# CRÍTICO: Capturar respuesta RAW del PAC
 				pac_response = self.client.create_invoice(invoice_data)
 
+				# Crear response_data limpio para éxito
+				response_data = {
+					"success": True,
+					"status_code": 200,
+					"error_message": "",
+					"raw_response": pac_response,  # el dict que te regresó FacturAPI
+				}
+
 				# Guardar Response Log INMEDIATAMENTE con respuesta REAL del PAC
 				write_pac_response(
 					sales_invoice_name,
 					json.dumps(pac_request),
-					json.dumps(pac_response),  # ✅ Respuesta REAL del PAC
+					json.dumps(response_data),
 					"timbrado",
 				)
 
@@ -195,6 +203,8 @@ class TimbradoAPI:
 
 				return {
 					"success": True,
+					"status_code": 200,
+					"raw_response": pac_response,
 					"uuid": uuid,
 					"factura_fiscal": factura_fiscal.name,
 					"message": "Factura timbrada exitosamente",  # Mensaje para UI
@@ -570,6 +580,15 @@ class TimbradoAPI:
 		NOTA: El Response Log ya fue guardado ANTES de llamar este método.
 		Este método solo actualiza los documentos Frappe con los datos del timbrado.
 		"""
+		# --- QUIRÚRGICO: asegurar que 'response' sea SIEMPRE el JSON crudo del PAC ---
+		if isinstance(response, dict) and "raw_response" in response:
+			# venía envuelto en response_data (wrapper); extraemos el JSON del PAC
+			response = response.get("raw_response") or {}
+		elif not isinstance(response, dict):
+			# por seguridad, que sea dict
+			response = {}
+		# -------------------------------------------------------------------------------
+
 		try:
 			# Log inicial para debugging
 			frappe.logger().info(f"Iniciando _process_timbrado_success para {factura_fiscal.name}")

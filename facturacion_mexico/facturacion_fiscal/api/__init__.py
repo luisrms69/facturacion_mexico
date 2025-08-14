@@ -22,6 +22,10 @@ FALLBACK_DIR = "/tmp/facturacion_mexico_pac_fallback"
 
 
 def _derive_http_status(data: dict, default=500) -> int:
+	# Éxito explícito → 200 fijo, ignorar 'status_code' dentro del payload y cualquier regex
+	if isinstance(data, dict) and data.get("success") is True:
+		return 200
+
 	# 1) Si ya viene numérico
 	for k in ("status_code", "code"):
 		val = data.get(k)
@@ -229,19 +233,38 @@ class PACResponseWriter:
 				or ""
 			)
 
-		status_code = response_data.get("status_code") or response_data.get("data", {}).get("status_code")
-		if not status_code:
-			# Fallback por si algo llega sin status
-			import re
+		success = bool(response_data.get("success"))
 
-			m = re.search(
-				r"Error\s+FacturAPI\s+(\d{3})",
-				(response_data.get("error_message") or response_data.get("error") or ""),
+		if success:
+			# ÉXITO REAL → NO usar regex ni derivaciones
+			status_code = 200
+			error_message = ""
+		else:
+			# SOLO en error usar derivación/regex
+			status_code = response_data.get("status_code")
+			if not status_code:
+				# mantener tu método auxiliar si lo tienes:
+				try:
+					status_code = _derive_http_status(response_data, default=500)
+				except Exception:
+					status_code = 500
+			error_message = (
+				response_data.get("error_message")
+				or response_data.get("error")
+				or "Error desconocido del PAC"
 			)
-			status_code = int(m.group(1)) if m else 500
+
+		# Guardar JSON completo SIEMPRE que exista, y si no, raw_response; nunca null en éxito
+		full_payload = response_data.get("raw_response")
+		if full_payload is None:
+			full_payload = response_data
+
+		facturapi_response_json = json.dumps(full_payload, ensure_ascii=False, default=str)
 
 		# Log para confirmar qué se insertará
-		frappe.logger().info({"tag": "PAC_LOG_BUILD", "status_code_to_insert": status_code})
+		frappe.logger().info(
+			{"tag": "PAC_LOG_BUILD", "status_code_to_insert": status_code, "success": success}
+		)
 
 		# Crear log entry usando campos arquitecturales correctos
 		response_log = frappe.get_doc(
@@ -250,15 +273,10 @@ class PACResponseWriter:
 				"factura_fiscal_mexico": factura_fiscal,
 				"operation_type": operation_type_mapping.get(operation_type, "Consulta Estado"),
 				"timestamp": now_datetime(),
-				"success": self._is_success_response(response_data),
+				"success": 1 if success else 0,
 				"status_code": status_code,
-				"error_message": response_data.get("error_message") or response_data.get("error") or "",
-				"facturapi_response": json.dumps(
-					response_data.get("raw_response")
-					if response_data.get("raw_response") is not None
-					else None,
-					default=str,
-				),
+				"error_message": error_message,
+				"facturapi_response": facturapi_response_json,
 				"user_role": frappe.session.user if frappe.session else "System",
 				"ip_address": frappe.local.request.environ.get("REMOTE_ADDR", "localhost")
 				if hasattr(frappe.local, "request") and frappe.local.request
@@ -349,10 +367,11 @@ class PACResponseWriter:
 
 			# Preparar campos a actualizar - NORMALIZACIÓN CRÍTICA A MAYÚSCULAS
 			normalized_status = _norm_status(new_status)
+			success = bool(response_data.get("success"))
 			update_fields = {
 				"fm_last_response_log": response_log_name,
 				"fm_last_pac_sync": now_datetime(),
-				"fm_sync_status": _norm_status("synced" if normalized_status == "TIMBRADO" else "ERROR"),
+				"fm_sync_status": "synced" if success else "pending",
 				"fm_fiscal_status": normalized_status,
 			}
 

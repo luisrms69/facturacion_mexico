@@ -3,6 +3,65 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import flt, now_datetime
 
+# Lista blanca de campos permisibles tras submit (operativos, no fiscales)
+MUTABLE_AFTER_SUBMIT = {
+	"fm_sync_status",  # Select: synced/pending/error
+	"fm_sync_error",  # Texto de error técnico
+	"fm_last_sync_ts",  # Timestamp último intento (si existe)
+	"facturapi_response_log",  # Link al log
+	"fm_pac_attempts",  # Contador interno (si existe)
+	"fm_last_response_log",  # Link al último log de respuesta
+	"fm_last_pac_sync",  # Timestamp última sincronización PAC
+}
+
+# Estados en los que el CFDI ya no debe alterarse
+FISCAL_FROZEN_STATES = {"TIMBRADO", "CANCELADO", "PENDIENTE_CANCELACION"}
+
+# Estados de sincronización permitidos (minúsculas)
+ALLOWED_SYNC = {"synced", "pending", "error"}
+
+# === START: FFM IMMUTABILITY CONSTANTS & HELPERS ===
+# Campos de ENTRADA del usuario que NO deben cambiar post-submit
+_LOCKED_AFTER_SUBMIT_FIELDS = [
+	"fm_payment_method_sat",  # PUE / PPD (Método de Pago)
+	"fm_forma_pago_timbrado",  # Forma de Pago
+]
+
+# Campos que devuelve/actualiza el SAT (SÍ deben poder cambiar por el proceso backend)
+_SAT_UPDATABLE_FIELDS = [
+	# Identificación fiscal
+	"fm_uuid",  # UUID timbrado
+	"fm_rfc_pac",  # RFC del PAC
+	"fm_no_certificado_sat",  # No. certificado SAT
+	# Serie/Folio/Fechas/Sellos
+	"fm_serie_folio",  # Serie-Folio completo si lo guardan así
+	"fm_serie",  # Serie (si lo guardan separado)
+	"fm_folio",  # Folio (si lo guardan separado)
+	"fm_fecha_timbrado",  # Fecha/hora de timbrado
+	"fm_sello_sat",  # Sello SAT
+	"fm_sello_cfd",  # Sello CFDI (si aplica)
+	"fm_cadena_original",  # Cadena original del complemento timbre
+	# Archivos/Representaciones
+	"fm_xml_cfdi",  # XML CFDI (string/base64/path)
+	"fm_xml_uuid",  # Si guardan xml específico por uuid
+	"fm_qr",  # QR o datos para QR
+	"fm_pdf_url",  # URL PDF si PAC lo provee
+	"fm_xml_url",  # URL XML si PAC lo provee
+	# Estado y sincronización que el backend controla
+	"fm_fiscal_status",  # Estado fiscal (BORRADOR, ERROR, TIMBRADO, CANCELADO, …)
+	"fm_sync_status",  # synced/pending/error (normalizado a minúsculas en before_validate)
+	"fm_sync_error",  # último error textual de sincronización
+]
+# === END: FFM IMMUTABILITY CONSTANTS & HELPERS ===
+
+
+def _normalize_sync_status(val: str) -> str:
+	"""Normalizar estado de sincronización a minúsculas válidas."""
+	if not val:
+		return "pending"
+	v = str(val).strip().lower()
+	return v if v in ALLOWED_SYNC else "pending"
+
 
 def get_payment_entry_by_invoice(invoice_name):
 	"""
@@ -65,8 +124,36 @@ def get_payment_entry_for_javascript(invoice_name):
 class FacturaFiscalMexico(Document):
 	"""Documento principal para facturas fiscales de México."""
 
+	def before_validate(self):
+		"""Ejecutar antes de validate() - timing crítico para Select."""
+		# CRÍTICO: Se ejecuta ANTES de _validate_selects()
+		self._normalize_sync()
+
+		# Bloqueo de cambios manuales a PUE/PPD y Forma de Pago tras submit
+		self._assert_payment_fields_immutable_after_submit()
+
+	def before_save(self):
+		"""Ejecutar antes de guardar."""
+		# Redundancia defensiva por si algo se cuela después de before_validate
+		self._normalize_sync()
+
+		# Cargar datos desde Sales Invoice si no están establecidos
+		if self.sales_invoice:
+			sales_invoice = frappe.get_doc("Sales Invoice", self.sales_invoice)
+
+			# Si no hay empresa vendedora, obtenerla de Sales Invoice
+			if not self.company:
+				self.company = sales_invoice.company
+
+			# Si no hay customer, obtenerlo de Sales Invoice
+			if not self.customer:
+				self.customer = sales_invoice.customer
+
 	def validate(self):
 		"""Validar factura fiscal antes de guardar."""
+		# NUEVAS VALIDACIONES: Inmutabilidad (normalización ya hecha en before_validate)
+
+		# Validaciones existentes
 		self.validate_sales_invoice()
 		self.validate_company_match()
 		self.validate_customer_fiscal_change()
@@ -76,6 +163,49 @@ class FacturaFiscalMexico(Document):
 		self.validate_cfdi_use()
 		self.validate_payment_method()
 		self.validate_ppd_vs_forma_pago()
+
+	def _normalize_sync(self):
+		"""Normalizar estado de sincronización a minúsculas."""
+		if hasattr(self, "fm_sync_status") and self.fm_sync_status:
+			self.fm_sync_status = _normalize_sync_status(self.fm_sync_status)
+
+	def _assert_payment_fields_immutable_after_submit(self):
+		"""Bloquea cambios MANUALES a PUE/PPD y Forma de Pago cuando docstatus == 1.
+		Permite escrituras del proceso SAT si se fija self.flags.fm_system_write = True."""
+		if getattr(self, "docstatus", 0) != 1:
+			return
+
+		# Si viene del proceso de timbrado/SAT, permitir
+		if getattr(self, "flags", None) and getattr(self.flags, "fm_system_write", False):
+			return
+		if frappe.flags.get("ignore_ffm_lock"):
+			return
+
+		if not self.name:
+			return
+
+		prev = frappe.db.get_value(self.doctype, self.name, _LOCKED_AFTER_SUBMIT_FIELDS, as_dict=True)
+		if not prev:
+			return
+
+		changed = []
+		for field in _LOCKED_AFTER_SUBMIT_FIELDS:
+			old = prev.get(field)
+			new = getattr(self, field, None)
+			if old != new:
+				changed.append((field, old, new))
+
+		if changed:
+			details = "<br>".join(
+				[
+					f"• {f}: {frappe.utils.escape_html(str(o))} → {frappe.utils.escape_html(str(n))}"
+					for f, o, n in changed
+				]
+			)
+			frappe.throw(
+				_("No se permite modificar Método/Forma de Pago después de Submit.<br>{0}").format(details),
+				frappe.ValidationError,
+			)
 
 	def validate_sales_invoice(self):
 		"""Validar que Sales Invoice existe y está submitted."""
@@ -235,20 +365,6 @@ class FacturaFiscalMexico(Document):
 				frappe.logger().info(
 					f"Auto-actualizada forma de pago en onload: {old_forma_pago} → {self.fm_forma_pago_timbrado}"
 				)
-
-	def before_save(self):
-		"""Ejecutar antes de guardar."""
-		# Cargar datos desde Sales Invoice si no están establecidos
-		if self.sales_invoice:
-			sales_invoice = frappe.get_doc("Sales Invoice", self.sales_invoice)
-
-			# Si no hay empresa vendedora, obtenerla de Sales Invoice
-			if not self.company:
-				self.company = sales_invoice.company
-
-			# Si no hay customer, obtenerlo de Sales Invoice
-			if not self.customer:
-				self.customer = sales_invoice.customer
 
 		# Detectar cambio de customer y repoblar datos
 		if self.has_value_changed("customer"):

@@ -53,7 +53,17 @@ class FacturAPIClient:
 			frappe.logger().info(f"FacturAPI {method} {endpoint}: {response.status_code}")
 
 			# Verificar respuesta exitosa
-			if not response.ok:
+			if response.ok:
+				# RUTA DE ÉXITO: devolver estructura completa
+				return {
+					"success": True,
+					"status_code": response.status_code,  # 200/201 según el PAC
+					"raw_response": response.json()
+					if response.headers.get("Content-Type", "").startswith("application/json")
+					else response.text,
+				}
+			else:
+				# RUTA DE ERROR: manejar respuesta de error
 				try:
 					data = response.json()
 					# Intenta extraer un mensaje legible
@@ -78,14 +88,39 @@ class FacturAPIClient:
 				ve.response = response  # <-- clave: así timbrado_api.py podrá leer el status real
 				raise ve
 
-			return response.json()
-
 		except requests.exceptions.Timeout:
-			frappe.throw(_("Timeout al conectar con FacturAPI"))
+			return {
+				"success": False,
+				"status_code": 500,
+				"error": "Timeout al conectar con FacturAPI",
+				"raw_response": None,
+			}
 		except requests.exceptions.ConnectionError:
-			frappe.throw(_("Error de conexión con FacturAPI"))
+			return {
+				"success": False,
+				"status_code": 500,
+				"error": "Error de conexión con FacturAPI",
+				"raw_response": None,
+			}
 		except requests.exceptions.RequestException as e:
-			frappe.throw(_(f"Error en petición FacturAPI: {e!s}"))
+			err_status = getattr(getattr(e, "response", None), "status_code", None)
+			err_body = None
+			if hasattr(e, "response") and e.response is not None:
+				try:
+					err_body = e.response.json()
+				except Exception:
+					err_body = e.response.text
+
+			return {
+				"success": False,
+				"status_code": err_status or 500,
+				"error": (
+					err_body.get("message")
+					if isinstance(err_body, dict) and err_body.get("message")
+					else (str(err_body) if err_body else f"Error en petición FacturAPI: {e!s}")
+				),
+				"raw_response": err_body,
+			}
 
 		return None
 

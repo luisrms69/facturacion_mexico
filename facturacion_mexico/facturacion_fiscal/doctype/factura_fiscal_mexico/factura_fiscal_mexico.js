@@ -61,6 +61,13 @@
 		controlCancelSection(frm, showCancel);
 		if (frm.clear_custom_buttons) frm.clear_custom_buttons();
 		if (canTimbrar) addTimbrarButton(frm, status);
+
+		// Reponer navegación también en fallback
+		if (frm.doc.sales_invoice) {
+			frm.add_custom_button(__("Ver Sales Invoice"), function () {
+				frappe.set_route("Form", "Sales Invoice", frm.doc.sales_invoice);
+			});
+		}
 	}
 
 	function applyFFMUi(frm) {
@@ -85,23 +92,96 @@
 			controlCancelSection(frm, showCancel);
 			if (frm.clear_custom_buttons) frm.clear_custom_buttons();
 			if (canTimbrar) addTimbrarButton(frm, status);
+
+			// Reponer botón de navegación SIEMPRE que exista Sales Invoice
+			if (frm.doc.sales_invoice) {
+				frm.add_custom_button(__("Ver Sales Invoice"), function () {
+					frappe.set_route("Form", "Sales Invoice", frm.doc.sales_invoice);
+				});
+			}
 		});
 	}
 
+	function freeze_fiscal_fields_after_submit(frm) {
+		/**
+		 * Bloquear campos fiscales críticos después de Submit
+		 * Evita que el form quede en "Update / Not saved" por toques accidentales
+		 */
+		const is_submitted = frm.doc.docstatus === 1;
+
+		// Campos fiscales que NO deben tocarse post-submit
+		const fiscal_fields = [
+			"fm_tax_system", // Régimen fiscal
+			"fm_payment_method", // PUE/PPD (CRÍTICO)
+			"fm_forma_pago_timbrado", // Forma de pago específica
+			"fm_cfdi_use", // Uso CFDI
+			"fm_rfc_cliente", // RFC del cliente
+			"fm_cp_cliente", // CP del cliente
+			"fm_email_facturacion", // Email facturación
+			"customer", // Customer (crítico)
+			"sales_invoice", // Sales Invoice (crítico)
+			"company", // Company (crítico)
+		];
+
+		fiscal_fields.forEach((field) => {
+			if (frm.get_field(field)) {
+				frm.set_df_property(field, "read_only", is_submitted ? 1 : 0);
+			}
+		});
+
+		// Log para debugging
+		if (is_submitted) {
+			console.log("[FFM] Campos fiscales bloqueados post-submit");
+		}
+	}
+
+	// === START: FREEZE PAYMENT SELECTS POST-SUBMIT (UI ONLY) ===
+	function freeze_payment_fields_after_submit(frm) {
+		if (frm.doc.docstatus !== 1) return;
+
+		const FIELDS = ["fm_payment_method", "fm_payment_form"]; // ajusta a tus fieldnames
+
+		FIELDS.forEach((f) => {
+			const df = frm.get_field(f);
+			if (!df) return;
+
+			// 1) meta read-only
+			frm.set_df_property(f, "read_only", 1);
+
+			// 2) hard disable del input para evitar el dropdown
+			try {
+				if (df.$input) df.$input.prop("disabled", true);
+				if (df.$wrapper) df.$wrapper.addClass("disabled");
+			} catch (e) {
+				// Ignorar errores al deshabilitar controles
+			}
+		});
+	}
+	// === END: FREEZE PAYMENT SELECTS POST-SUBMIT (UI ONLY) ===
+
 	frappe.ui.form.on("Factura Fiscal Mexico", {
 		refresh: function (frm) {
-			setup_fiscal_interface(frm);
-			setup_payment_method_radio_buttons(frm);
-			control_field_visibility_by_status(frm);
+			// PROTECCIÓN: Bloquear campos fiscales post-submit
+			freeze_fiscal_fields_after_submit(frm);
+			freeze_payment_fields_after_submit(frm);
 
 			// Aplicar nueva lógica de botones con estados centralizados
 			applyFFMUi(frm);
+
+			setup_fiscal_interface(frm);
+			setup_payment_method_radio_buttons(frm);
+			control_field_visibility_by_status(frm);
 
 			// Verificar y mostrar estado de datos de facturación
 			setTimeout(() => {
 				check_and_show_billing_data_status(frm);
 				check_customer_fiscal_warning(frm);
 			}, 1500);
+		},
+
+		// NUEVO: después de save/reload
+		after_save: function (frm) {
+			setTimeout(() => setup_payment_method_radio_buttons(frm), 100);
 		},
 
 		onload: function (frm) {
@@ -776,6 +856,8 @@
 		// Ocultar el select original
 		field.$wrapper.find("select").hide();
 		field.$wrapper.find(".control-label").hide();
+		field.$wrapper.find(".control-input").hide(); // Oculta el input/valor
+		field.$wrapper.find(".control-value").hide(); // Oculta display del valor
 
 		// Configurar radio buttons
 		setup_radio_buttons(frm, field);
@@ -783,6 +865,12 @@
 
 	function setup_radio_buttons(frm, field) {
 		const current_value = frm.doc.fm_payment_method_sat || "PUE";
+		const is_submitted = frm.doc.docstatus === 1;
+		const disabled_attr = is_submitted ? "disabled" : "";
+		const disabled_class = is_submitted ? "radio-disabled" : "";
+		const cursor_style = is_submitted
+			? "cursor: not-allowed; opacity: 0.6;"
+			: "cursor: pointer;";
 
 		const radio_html = `
 		<div class="payment-method-radio-container" style="padding: 8px 0;">
@@ -790,15 +878,17 @@
 				Método de Pago SAT <span class="text-danger">*</span>
 			</label>
 			<div class="radio-group" style="display: flex; gap: 20px; align-items: center;">
-				<label class="radio-option" style="display: flex; align-items: center; cursor: pointer; margin: 0;">
+				<label class="radio-option ${disabled_class}" style="display: flex; align-items: center; ${cursor_style} margin: 0;">
 					<input type="radio" name="fm_payment_method_sat_radio" value="PUE"
 						   ${current_value === "PUE" ? "checked" : ""}
+						   ${disabled_attr}
 						   style="margin-right: 8px;">
 					<span><strong>PUE</strong> - Pago en una exhibición</span>
 				</label>
-				<label class="radio-option" style="display: flex; align-items: center; cursor: pointer; margin: 0;">
+				<label class="radio-option ${disabled_class}" style="display: flex; align-items: center; ${cursor_style} margin: 0;">
 					<input type="radio" name="fm_payment_method_sat_radio" value="PPD"
 						   ${current_value === "PPD" ? "checked" : ""}
+						   ${disabled_attr}
 						   style="margin-right: 8px;">
 					<span><strong>PPD</strong> - Pago en parcialidades o diferido</span>
 				</label>
@@ -811,6 +901,17 @@
 
 		// Configurar event listeners
 		field.$wrapper.find('input[name="fm_payment_method_sat_radio"]').on("change", function () {
+			// Guard para documentos enviados
+			if (frm.doc.docstatus === 1) {
+				frappe.msgprint(__("No se puede cambiar PUE/PPD en documentos enviados"));
+				// Revertir selección
+				$(this).prop("checked", false);
+				field.$wrapper
+					.find(`input[value="${frm.doc.fm_payment_method_sat || "PUE"}"]`)
+					.prop("checked", true);
+				return false;
+			}
+
 			const selected_value = $(this).val();
 			const previous_value = frm.doc.fm_payment_method_sat;
 
@@ -846,15 +947,34 @@
 
 		// Aplicar resaltado inicial
 		update_radio_button_highlighting(field, current_value);
+
+		// CSS adicional para documentos enviados
+		if (is_submitted) {
+			field.$wrapper.find(".radio-option").addClass("text-muted");
+			field.$wrapper.find("input[type=radio]").prop("disabled", true);
+		}
 	}
 
 	function sync_radio_buttons_with_field(frm, field_name) {
 		const current_value = frm.doc[field_name] || "PUE";
 		const field = frm.fields_dict[field_name];
+		const is_submitted = frm.doc.docstatus === 1;
 		const radio_container = field.$wrapper.find(".payment-method-radio-container");
 
 		if (radio_container.length > 0) {
 			radio_container.find(`input[value="${current_value}"]`).prop("checked", true);
+
+			// Re-aplicar disabled si es necesario
+			if (is_submitted) {
+				field.$wrapper
+					.find('input[name="fm_payment_method_sat_radio"]')
+					.prop("disabled", true);
+				field.$wrapper.find(".radio-option").css({
+					opacity: "0.6",
+					cursor: "not-allowed",
+				});
+			}
+
 			update_radio_button_highlighting(field, current_value);
 		}
 	}
