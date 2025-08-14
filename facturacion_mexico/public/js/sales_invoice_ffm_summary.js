@@ -6,7 +6,7 @@ frappe.ui.form.on("Sales Invoice", {
 			frm.fields_dict.fm_ffm_open_btn.$input.off("click").on("click", () => {
 				const ffm = frm.doc.fm_factura_fiscal_mx;
 				if (ffm) frappe.set_route("Form", "Factura Fiscal Mexico", ffm);
-				else frappe.msgprint("No hay Factura Fiscal MX vinculada.");
+				else frappe.msgprint(__("No hay Factura Fiscal MX vinculada."));
 			});
 		}
 	},

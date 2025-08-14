@@ -104,4 +104,4 @@ def apply_customization():
 
 def run_once_now():
 	apply_customization()
-	frappe.db.commit()
+	frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to persist custom fields changes during setup/installation
