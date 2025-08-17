@@ -51,12 +51,24 @@ doctype_js = {
 		"public/js/sales_invoice_block_cancel.js",
 	],
 	"Customer": ["public/js/customer.js"],
-	"Factura Fiscal Mexico": "facturacion_fiscal/doctype/factura_fiscal_mexico/factura_fiscal_mexico.js",
+	"Factura Fiscal Mexico": [
+		"public/js/fm_enums.js",
+		"public/js/fm_policy.js",
+		"ffm_cancel_ui_v2.js",
+		"facturacion_fiscal/doctype/factura_fiscal_mexico/factura_fiscal_mexico.js",
+	],
 }
 
 # include css in doctype views
 doctype_css = {
 	"Factura Fiscal Mexico": ["public/css/fiscal_dashboard.css"],
+}
+
+doctype_list_js = {
+	"Factura Fiscal Mexico": [
+		"public/js/fm_enums.js",  # enum/colores primero
+		"facturacion_fiscal/doctype/factura_fiscal_mexico/factura_fiscal_mexico_list.js",
+	]
 }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}

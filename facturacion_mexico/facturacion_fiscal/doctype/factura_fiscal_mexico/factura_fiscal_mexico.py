@@ -1043,3 +1043,9 @@ class FacturaFiscalMexico(Document):
 
 		# Si no tiene formato esperado, retornar el valor completo limpio
 		return tax_category.strip() if tax_category else None
+
+	def before_cancel(self):
+		"""Guardia para prevenir cancelación por vía nativa de ERPNext."""
+		frappe.throw(
+			_("Usa el botón 'Cancelar en FacturAPI' para cancelar el CFDI."), title=_("Acción no permitida")
+		)
