@@ -890,7 +890,20 @@ class TimbradoAPI:
 
 				frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure cancellation transaction is committed
 
-				return {"success": True, "message": "Factura cancelada exitosamente"}
+				# Obtener estados actualizados para response coherente
+				si_doc = frappe.get_doc("Sales Invoice", sales_invoice_name)
+
+				return {
+					"ok": True,  # Para consistencia con propuesta UX
+					"success": True,  # Backward compatibility
+					"ffm": factura_fiscal.name,
+					"sales_invoice": sales_invoice_name,
+					"status_ffm": "CANCELADO",
+					"status_si": si_doc.fm_fiscal_status,
+					"uuid": factura_fiscal.fm_uuid,
+					"cancellation_date": frappe.utils.now_datetime().strftime("%Y-%m-%d %H:%M:%S"),
+					"message": "Factura cancelada exitosamente",
+				}
 
 			except Exception as frappe_error:
 				# PAC canceló exitosamente pero Frappe falló - CREAR RECOVERY TASK

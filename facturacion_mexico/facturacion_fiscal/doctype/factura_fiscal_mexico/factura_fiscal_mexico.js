@@ -607,7 +607,10 @@
 		});
 	}
 
-	function cancelar_timbrado(frm) {
+	async function cancelar_timbrado(frm) {
+		// Evitar doble clic durante cancelación
+		if (frm.__cancelling) return;
+
 		// Función de cancelación de timbrado con selección de motivo desde enum SAT
 		frappe.call({
 			method: "facturacion_mexico.facturacion_fiscal.timbrado_api.get_sat_cancellation_motives",
@@ -642,39 +645,81 @@
 							),
 						},
 					],
-					function (values) {
-						frappe.call({
-							method: "facturacion_mexico.facturacion_fiscal.timbrado_api.cancelar_factura",
-							args: {
-								sales_invoice: frm.doc.sales_invoice,
-								uuid: frm.doc.fm_uuid,
-								motivo: values.motive,
-								substitution_uuid: values.substitution_uuid,
-							},
-							callback: function (r) {
-								if (r.message && r.message.success) {
-									frappe.show_alert({
-										message: __("Timbrado cancelado exitosamente"),
-										indicator: "orange",
-									});
-									frm.reload_doc();
-								} else {
-									frappe.msgprint({
-										title: __("Error en Cancelación"),
-										message: r.message
-											? r.message.error
-											: __("Error desconocido"),
-										indicator: "red",
-									});
-								}
-							},
-						});
+					async function (values) {
+						await cancelar_cfdi(frm, values);
 					},
 					__("Cancelación Fiscal SAT"),
 					__("Enviar")
 				);
 			},
 		});
+	}
+
+	async function cancelar_cfdi(frm, args) {
+		if (frm.__cancelling) return; // evita doble clic
+		frm.__cancelling = true;
+
+		// 3.4: feedback de carga
+		frappe.dom.freeze(__("Cancelando factura en FacturAPI…"));
+
+		try {
+			const r = await frappe.call({
+				method: "facturacion_mexico.facturacion_fiscal.timbrado_api.cancelar_factura",
+				args: {
+					uuid: frm.doc.fm_uuid,
+					sales_invoice: frm.doc.sales_invoice,
+					motivo: args.motive,
+					substitution_uuid: args.substitution_uuid || null,
+				},
+				freeze: false,
+			});
+
+			// 3.6a se maneja abajo (mensaje de éxito)
+			handle_cancel_success(frm, r && r.message);
+		} catch (e) {
+			// errores ya se muestran por Frappe; aquí solo aseguramos unfreeze
+		} finally {
+			frappe.dom.unfreeze();
+			frm.__cancelling = false;
+		}
+	}
+
+	function handle_cancel_success(frm, msg) {
+		// msg esperado del backend:
+		// { ok: true, ffm: "FFMX-0001", sales_invoice: "ACC-SINV-0001",
+		//   status_ffm: "CANCELADO", status_si: "CANCELADO",
+		//   uuid: "....", cancellation_date: "2025-08-16 15:58:22" }
+
+		if (msg && (msg.ok || msg.success)) {
+			frappe.show_alert({
+				message: __("✅ Factura cancelada exitosamente"),
+				indicator: "green",
+			});
+
+			const lines = [
+				`<b>FFM:</b> ${frappe.utils.escape_html(msg.ffm || frm.doc.name)}`,
+				`<b>Sales Invoice:</b> ${frappe.utils.escape_html(
+					msg.sales_invoice || frm.doc.sales_invoice
+				)}`,
+				`<b>Estado FFM:</b> ${frappe.utils.escape_html(msg.status_ffm || "")}`,
+				`<b>Estado SI:</b> ${frappe.utils.escape_html(msg.status_si || "")}`,
+				`<b>UUID:</b> ${frappe.utils.escape_html(msg.uuid || "")}`,
+				`<b>Fecha cancelación:</b> ${frappe.utils.escape_html(
+					msg.cancellation_date || ""
+				)}`,
+			]
+				.filter(Boolean)
+				.join("<br>");
+
+			frappe.msgprint({
+				title: __("Cancelación exitosa"),
+				message: lines,
+				indicator: "green",
+			});
+
+			// refrescar para que botones/estado cambien
+			frm.reload_doc();
+		}
 	}
 
 	function test_pac_connection(frm) {
