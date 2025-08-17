@@ -608,33 +608,73 @@
 	}
 
 	function cancelar_timbrado(frm) {
-		// Función de cancelación de timbrado
-		frappe.confirm(
-			__("¿Confirma que desea cancelar el timbrado de esta factura?"),
-			function () {
-				frappe.call({
-					method: "facturacion_mexico.facturacion_fiscal.timbrado_api.cancelar_factura",
-					args: {
-						uuid: frm.doc.fm_uuid,
+		// Función de cancelación de timbrado con selección de motivo desde enum SAT
+		frappe.call({
+			method: "facturacion_mexico.facturacion_fiscal.timbrado_api.get_sat_cancellation_motives",
+			callback: function (motives_response) {
+				if (!motives_response.message) {
+					frappe.msgprint(__("Error cargando motivos de cancelación SAT"));
+					return;
+				}
+
+				const motives_config = motives_response.message;
+
+				frappe.prompt(
+					[
+						{
+							fieldname: "motive",
+							label: __("Motivo de Cancelación SAT"),
+							fieldtype: "Select",
+							reqd: 1,
+							options: motives_config.select_options,
+							description: __(
+								"Seleccione el motivo de cancelación según catálogo SAT"
+							),
+						},
+						{
+							fieldname: "substitution_uuid",
+							label: __("UUID de Sustitución"),
+							fieldtype: "Data",
+							depends_on: "eval:doc.motive=='01'",
+							mandatory_depends_on: "eval:doc.motive=='01'",
+							description: __(
+								"Requerido solo para motivo 01 - Comprobantes con errores con relación"
+							),
+						},
+					],
+					function (values) {
+						frappe.call({
+							method: "facturacion_mexico.facturacion_fiscal.timbrado_api.cancelar_factura",
+							args: {
+								sales_invoice: frm.doc.sales_invoice,
+								uuid: frm.doc.fm_uuid,
+								motivo: values.motive,
+								substitution_uuid: values.substitution_uuid,
+							},
+							callback: function (r) {
+								if (r.message && r.message.success) {
+									frappe.show_alert({
+										message: __("Timbrado cancelado exitosamente"),
+										indicator: "orange",
+									});
+									frm.reload_doc();
+								} else {
+									frappe.msgprint({
+										title: __("Error en Cancelación"),
+										message: r.message
+											? r.message.error
+											: __("Error desconocido"),
+										indicator: "red",
+									});
+								}
+							},
+						});
 					},
-					callback: function (r) {
-						if (r.message && r.message.success) {
-							frappe.show_alert({
-								message: __("Timbrado cancelado exitosamente"),
-								indicator: "orange",
-							});
-							frm.reload_doc();
-						} else {
-							frappe.msgprint({
-								title: __("Error en Cancelación"),
-								message: r.message ? r.message.error : __("Error desconocido"),
-								indicator: "red",
-							});
-						}
-					},
-				});
-			}
-		);
+					__("Cancelación Fiscal SAT"),
+					__("Enviar")
+				);
+			},
+		});
 	}
 
 	function test_pac_connection(frm) {

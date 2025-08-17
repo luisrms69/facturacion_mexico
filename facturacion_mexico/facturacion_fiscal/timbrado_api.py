@@ -768,7 +768,9 @@ class TimbradoAPI:
 			is_private=1,
 		)
 
-	def cancelar_factura(self, sales_invoice_name: str, motivo: str = "02") -> dict[str, Any]:
+	def cancelar_factura(
+		self, sales_invoice_name: str, motivo: str, substitution_uuid: str | None = None
+	) -> dict[str, Any]:
 		"""Cancelar factura timbrada con arquitectura resiliente de 3 fases.
 
 		Sigue la misma arquitectura que timbrar_factura:
@@ -817,13 +819,21 @@ class TimbradoAPI:
 				"request_id": f"CANCELACION_{frappe.generate_hash()[:8]}",
 				"action": "cancelacion",
 				"sales_invoice": sales_invoice_name,
-				"motivo": motivo,
+				"facturapi_id": factura_fiscal.facturapi_id,  # ID enviado a FacturAPI
+				"motive": motivo,
 				"timestamp": frappe.utils.now(),
 			}
 
 			try:
+				# Debug logging para verificar parámetros
+				frappe.logger().info(
+					f"Enviando cancelación a FacturAPI: invoice_id={factura_fiscal.facturapi_id}, motivo='{motivo}', substitution_uuid='{substitution_uuid}'"
+				)
+
 				# CRÍTICO: Capturar respuesta RAW del PAC
-				pac_response = self.client.cancel_invoice(factura_fiscal.facturapi_id, motivo)
+				pac_response = self.client.cancel_invoice(
+					factura_fiscal.facturapi_id, motivo, substitution_uuid
+				)
 
 				# Guardar Response Log INMEDIATAMENTE con respuesta REAL del PAC
 				write_pac_response(
@@ -860,14 +870,16 @@ class TimbradoAPI:
 
 			# FASE 3: ACTUALIZACIÓN FRAPPE
 			try:
-				# Procesar respuesta exitosa usando frappe.set_value para documentos submitted
+				# Construir valor EXACTO esperado por campo Select del DocType
+				motivo_completo = _build_cancellation_reason_for_select(motivo)
+
 				frappe.set_value(
 					"Factura Fiscal Mexico",
 					factura_fiscal.name,
 					{
 						"fm_fiscal_status": FiscalStates.CANCELADO,
 						"cancellation_date": now_datetime(),
-						"cancellation_reason": motivo,
+						"cancellation_reason": motivo_completo,
 					},
 				)
 
@@ -881,16 +893,51 @@ class TimbradoAPI:
 				return {"success": True, "message": "Factura cancelada exitosamente"}
 
 			except Exception as frappe_error:
-				# PAC canceló exitosamente pero Frappe falló
+				# PAC canceló exitosamente pero Frappe falló - CREAR RECOVERY TASK
 				frappe.log_error(
 					f"Error post-cancelación actualizando Frappe: {frappe_error}", "Post-Cancelación Error"
 				)
 
+				# CRÍTICO: Crear Recovery Task para que jobs automáticos corrijan el estado
+				try:
+					recovery_task = frappe.get_doc(
+						{
+							"doctype": "Fiscal Recovery Task",
+							"task_type": "sync_error",
+							"reference_name": factura_fiscal.name,
+							"priority": 5,  # Alta prioridad
+							"status": "pending",
+							"attempts": 0,
+							"max_attempts": 5,
+							"scheduled_time": frappe.utils.now(),
+							"last_error": str(frappe_error),
+							"recovery_data": frappe.as_json(
+								{
+									"sales_invoice": sales_invoice_name,
+									"motivo": motivo,
+									"pac_success": True,
+									"error_type": "frappe_validation",
+								}
+							),
+						}
+					)
+					recovery_task.insert(ignore_permissions=True)
+					frappe.db.commit()
+
+					frappe.logger().info(
+						f"✅ Recovery Task creado: {recovery_task.name} para {factura_fiscal.name}"
+					)
+
+				except Exception as recovery_error:
+					frappe.log_error(
+						f"Error creando Recovery Task: {recovery_error}", "Recovery Task Creation Error"
+					)
+
 				return {
 					"success": False,
 					"error": str(frappe_error),
-					"message": "Cancelación exitosa en PAC pero error actualizando sistema",
-					"user_error": "La factura se canceló correctamente en el SAT pero hubo un error actualizando el sistema. Contacte soporte.",
+					"message": "Cancelación exitosa en PAC pero error actualizando sistema. Recovery automático programado.",
+					"user_error": "La factura se canceló correctamente en el SAT. El sistema se corregirá automáticamente en unos minutos.",
 				}
 
 		except Exception as e:
@@ -1195,6 +1242,34 @@ class TimbradoAPI:
 			return False
 
 
+def _build_cancellation_reason_for_select(motive_code: str) -> str:
+	"""Devuelve el texto EXACTO esperado por el campo Select, validando contra el DocType."""
+	from facturacion_mexico.config.sat_cancellation_motives import SATCancellationMotives
+
+	desc = SATCancellationMotives.get_description(
+		motive_code
+	)  # p.ej. "Comprobantes emitidos con errores sin relación"
+	candidate = f"{motive_code} - {desc}"  # con guión, no con tab
+
+	# Validar contra opciones del DocType (evita drift)
+	meta = frappe.get_meta("Factura Fiscal Mexico")
+	field = meta.get_field("cancellation_reason")
+	opts = [(o or "").strip() for o in (field.options or "").split("\n") if (o or "").strip()]
+
+	# Si existe exactamente, úsalo. Si no, intenta por prefijo "NN -"
+	if candidate in opts:
+		return candidate
+	for o in opts:
+		if o.startswith(f"{motive_code} -"):
+			return o
+
+	# Último recurso: lanza error claro para ajustar catálogo/doctype
+	frappe.throw(
+		f"No se encontró opción válida para motivo {motive_code}. Ajusta DocType u opciones.",
+		title="Opciones de cancelación inválidas",
+	)
+
+
 # API endpoints para uso desde interfaz
 @frappe.whitelist()
 def timbrar_factura(sales_invoice: str):
@@ -1204,10 +1279,55 @@ def timbrar_factura(sales_invoice: str):
 
 
 @frappe.whitelist()
-def cancelar_factura(sales_invoice: str, motivo: str = "02"):
-	"""API para cancelar factura desde interfaz."""
+def cancelar_factura(sales_invoice=None, uuid=None, ffm_name=None, motivo=None, substitution_uuid=None):
+	"""API para cancelar factura desde interfaz - tolerante a múltiples parámetros."""
+	# Si no se proporciona sales_invoice, intentar derivarlo
+	if not sales_invoice:
+		if uuid:
+			# Buscar sales_invoice por UUID
+			ffm_doc = frappe.get_all(
+				"Factura Fiscal Mexico", filters={"fm_uuid": uuid}, fields=["sales_invoice"], limit=1
+			)
+			if ffm_doc:
+				sales_invoice = ffm_doc[0].sales_invoice
+		elif ffm_name:
+			# Buscar sales_invoice por nombre FFM
+			ffm_doc = frappe.get_doc("Factura Fiscal Mexico", ffm_name)
+			sales_invoice = ffm_doc.sales_invoice
+
+	if not sales_invoice:
+		frappe.throw("No se pudo determinar el Sales Invoice para cancelación")
+
+	# Importar enum de motivos SAT
+	from facturacion_mexico.config.sat_cancellation_motives import SAT_MOTIVES
+
+	# Validación motivo es obligatorio
+	if not motivo:
+		frappe.throw("El motivo de cancelación es obligatorio. Debe seleccionar una opción.")
+
+	# Extraer solo el código del valor del select (formato: "02\tDescripción")
+	motivo_code = motivo.split("\t")[0] if "\t" in motivo else motivo
+
+	# Validación motivo es válido según SAT
+	if not SAT_MOTIVES.is_valid_code(motivo_code):
+		valid_codes = ", ".join(SAT_MOTIVES.VALID_CODES)
+		frappe.throw(f"Motivo de cancelación '{motivo}' no es válido. Códigos válidos SAT: {valid_codes}")
+
+	# Validación motivos que requieren UUID sustitución
+	if SAT_MOTIVES.requires_substitution_uuid(motivo_code) and not substitution_uuid:
+		description = SAT_MOTIVES.get_description(motivo_code)
+		frappe.throw(f"El motivo '{motivo_code}' ({description}) requiere UUID de sustitución obligatorio")
+
 	api = TimbradoAPI()
-	return api.cancelar_factura(sales_invoice, motivo)
+	return api.cancelar_factura(sales_invoice, motivo_code, substitution_uuid)
+
+
+@frappe.whitelist()
+def get_sat_cancellation_motives():
+	"""API para obtener motivos de cancelación SAT para UI."""
+	from facturacion_mexico.config.sat_cancellation_motives import SAT_MOTIVES
+
+	return SAT_MOTIVES.get_config()
 
 
 @frappe.whitelist()
