@@ -49,6 +49,7 @@ doctype_js = {
 		"public/js/ereceipt_handler.js",
 		"public/js/sales_invoice_ffm_summary.js",
 		"public/js/sales_invoice_block_cancel.js",
+		"public/js/si_post_fiscal_actions.js",
 	],
 	"Customer": ["public/js/customer.js"],
 	"Factura Fiscal Mexico": [

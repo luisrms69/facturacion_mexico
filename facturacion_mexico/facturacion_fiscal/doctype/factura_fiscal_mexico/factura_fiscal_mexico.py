@@ -1045,7 +1045,16 @@ class FacturaFiscalMexico(Document):
 		return tax_category.strip() if tax_category else None
 
 	def before_cancel(self):
-		"""Guardia para prevenir cancelación por vía nativa de ERPNext."""
-		frappe.throw(
-			_("Usa el botón 'Cancelar en FacturAPI' para cancelar el CFDI."), title=_("Acción no permitida")
-		)
+		"""Hook contextual: Permitir cancelación FFM solo si ya cancelada fiscalmente."""
+		if self.sales_invoice and self.fm_fiscal_status != "CANCELADO":
+			frappe.throw(
+				_(
+					"No puede cancelarse la FFM: primero cancela fiscalmente en el PAC.<br><br>"
+					"<b>Secuencia correcta:</b><br>"
+					"1️⃣ Cancelar en FacturAPI (botón 'Cancelar en FacturAPI')<br>"
+					"2️⃣ Cancelar FFM (botón 'Cancel' de Frappe)<br>"
+					"3️⃣ Cancelar Sales Invoice (desde Sales Invoice)"
+				),
+				title=_("Secuencia de cancelación requerida"),
+			)
+		# Si fm_fiscal_status="CANCELADO" → permite cancelación DocType
