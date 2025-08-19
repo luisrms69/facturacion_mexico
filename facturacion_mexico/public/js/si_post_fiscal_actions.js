@@ -1,12 +1,13 @@
 // si_post_fiscal_actions.js - Acciones post-cancelación fiscal para Sales Invoice
 (function () {
-	const S = (window.FM_ENUMS || {}).FiscalStates || {};
-
-	function norm(s) {
-		return ("" + (s || ""))
-			.toUpperCase()
-			.replace("CANCELACION_PENDIENTE", "CANCELACIÓN_PENDIENTE");
-	}
+	const E = window.FM_ENUMS || {};
+	const S = E.FiscalStates || {};
+	const norm =
+		E.norm ||
+		((x) =>
+			("" + (x || ""))
+				.toUpperCase()
+				.replace("CANCELACION_PENDIENTE", "CANCELACIÓN_PENDIENTE"));
 
 	function hide_native_cancel_always_if_ffm_linked(frm) {
 		const linked = !!(frm.doc && frm.doc.fm_factura_fiscal_mx);
@@ -38,165 +39,145 @@
 	}
 
 	function add_post_fiscal_actions(frm) {
-		const status = norm(frm.doc.fm_fiscal_status || "");
+		if (frm.doc.docstatus !== 1) return;
+		const st = norm(frm.doc.fm_fiscal_status || "");
+		if (st !== S.CANCELADO && st !== "CANCELADO") return;
 
-		// Solo mostrar opciones si FFM cancelada fiscalmente
-		if (status === S.CANCELADO || status === "CANCELADO") {
-			// Verificar estado actual para mostrar botones apropiados
-			frappe.call({
-				method: "facturacion_mexico.api.cancel_operations.get_cancellation_status",
-				args: { si_name: frm.doc.name },
-				callback: function (r) {
-					if (r.message && !r.message.error) {
-						const state = r.message;
+		// Limpiar botones existentes del grupo
+		frm.remove_custom_button(__("🔄 Nueva factura fiscal"), __("Acciones Post-Fiscal"));
+		frm.remove_custom_button(__("❌ Cancelar Sales Invoice"), __("Acciones Post-Fiscal"));
 
-						// Limpiar botones existentes del grupo
-						frm.remove_custom_button(
-							__("Generar nueva factura fiscal"),
-							__("Acciones Fiscales")
-						);
-						frm.remove_custom_button(
-							__("Cancelar Sales Invoice"),
-							__("Acciones Fiscales")
-						);
+		// --- Botón: Nueva factura fiscal (misma Sales Invoice) ---
+		frm.add_custom_button(
+			__("🔄 Nueva factura fiscal"),
+			() => {
+				const ffm_prev = frm.doc.fm_factura_fiscal_mx || "N/A";
+				const msg = [
+					__("¿Crear nueva factura fiscal para este Sales Invoice?"),
+					"<br><br>",
+					`• ${__("Sales Invoice")}: ${frappe.utils.escape_html(frm.doc.name)}<br>`,
+					`• ${__("FFM anterior")}: ${frappe.utils.escape_html(ffm_prev)}<br><br>`,
+					__("Se creará una nueva FFM vinculada al mismo Sales Invoice."),
+				].join("");
 
-						// Solo mostrar si SI está submitted
-						if (state.si_docstatus === 1) {
-							// Opción A: Re-facturación
-							if (state.can_refacturar) {
-								frm.add_custom_button(
-									__("🔄 Generar nueva factura fiscal"),
-									() => {
-										// Mostrar confirmación con información
-										frappe.confirm(
-											__(
-												"¿Crear nueva factura fiscal para este Sales Invoice?<br><br>" +
-													"<b>Situación actual:</b><br>" +
-													"• Sales Invoice: {0} (activo)<br>" +
-													"• FFM anterior: {1} (cancelada)<br><br>" +
-													"<b>Resultado:</b><br>" +
-													"• Se creará nueva FFM vinculada al mismo SI<br>" +
-													"• La FFM cancelada se conserva para auditoría"
-											).format(frm.doc.name, state.ffm_info?.name || "N/A"),
-											() => {
-												// Aquí iría la llamada al método de re-facturación
-												// Por ahora mostrar mensaje de implementación pendiente
-												frappe.msgprint({
-													title: __("Función en desarrollo"),
-													message: __(
-														"La re-facturación automática estará disponible en la próxima actualización.<br><br>" +
-															"<b>Alternativa actual:</b><br>" +
-															"1. Crear nueva Factura Fiscal Mexico manualmente<br>" +
-															"2. Vincular al mismo Sales Invoice<br>" +
-															"3. Proceder con timbrado normal"
-													),
-													indicator: "orange",
-												});
-											},
-											__("Re-facturación"),
-											__("Crear nueva FFM"),
-											__("Cancelar")
-										);
-									},
-									__("Acciones Fiscales")
-								).attr(
-									"title",
-									__(
-										"Crear nueva factura fiscal para este Sales Invoice. " +
-											"La FFM cancelada se conserva para auditoría."
-									)
-								);
+				frappe.confirm(msg, () => {
+					frappe.dom.freeze(__("Generando nueva factura fiscal..."));
+					frappe
+						.call({
+							method: "facturacion_mexico.api.fiscal_operations.refacturar_misma_si",
+							args: { si_name: frm.doc.name },
+						})
+						.then((r) => {
+							const out = (r && r.message) || {};
+							if (out.ok) {
+								frappe.show_alert({
+									message: __("Nueva FFM creada: ") + (out.ffm || ""),
+									indicator: "green",
+								});
+								frm.reload_doc();
+							} else {
+								frappe.msgprint({
+									title: __("Re-facturación"),
+									message: __(out.error || "Operación sin respuesta"),
+									indicator: "red",
+								});
 							}
+						})
+						.catch((e) => {
+							frappe.msgprint({
+								title: __("Re-facturación"),
+								message: __(e.message || "Error inesperado"),
+								indicator: "red",
+							});
+						})
+						.finally(() => frappe.dom.unfreeze());
+				});
+			},
+			__("Acciones Post-Fiscal")
+		);
 
-							// Opción B: Cancelar Sales Invoice
-							if (state.can_cancel_si) {
-								frm.add_custom_button(
-									__("❌ Cancelar Sales Invoice"),
-									() => {
-										// Mostrar confirmación detallada con secuencia
-										frappe.confirm(
-											__(
-												"¿Confirma cancelar definitivamente este Sales Invoice?<br><br>" +
-													"<b>Secuencia automática:</b><br>" +
-													"1️⃣ Cancelar FFM {0} (si aún activa)<br>" +
-													"2️⃣ Cancelar Sales Invoice {1}<br><br>" +
-													"<b>⚠️ Importante:</b><br>" +
-													"• Esta acción NO es reversible<br>" +
-													"• El documento queda permanentemente cancelado<br>" +
-													"• Los datos se conservan para auditoría"
-											).format(state.ffm_info?.name || "N/A", frm.doc.name),
-											() => {
-												// Mostrar loading
+		// --- Botón: Cancelar Sales Invoice orquestado ---
+		frappe.call({
+			method: "facturacion_mexico.api.cancel_operations.get_cancellation_status",
+			args: { si_name: frm.doc.name },
+			callback: function (r) {
+				if (r.message && !r.message.error && r.message.can_cancel_si) {
+					const state = r.message;
+
+					frm.add_custom_button(
+						__("❌ Cancelar Sales Invoice"),
+						() => {
+							const msg = [
+								__("¿Confirma cancelar definitivamente este Sales Invoice?"),
+								"<br><br>",
+								"<b>Secuencia automática:</b><br>",
+								`1️⃣ Cancelar FFM ${
+									state.ffm_info?.name || "N/A"
+								} (si aún activa)<br>`,
+								`2️⃣ Cancelar Sales Invoice ${frm.doc.name}<br><br>`,
+								"<b>⚠️ Importante:</b><br>",
+								"• Esta acción NO es reversible<br>",
+								"• El documento queda permanentemente cancelado<br>",
+								"• Los datos se conservan para auditoría",
+							].join("");
+
+							frappe.confirm(
+								msg,
+								() => {
+									frappe.show_alert({
+										message: __("Procesando cancelación..."),
+										indicator: "blue",
+									});
+
+									frappe.call({
+										method: "facturacion_mexico.api.cancel_operations.cancel_sales_invoice_after_ffm",
+										args: { si_name: frm.doc.name },
+										callback: function (r) {
+											if (r.message && r.message.success) {
 												frappe.show_alert({
-													message: __("Procesando cancelación..."),
-													indicator: "blue",
+													message: __(
+														"Sales Invoice cancelado exitosamente"
+													),
+													indicator: "green",
 												});
 
-												// Ejecutar cancelación orquestada
-												frappe.call({
-													method: "facturacion_mexico.api.cancel_operations.cancel_sales_invoice_after_ffm",
-													args: { si_name: frm.doc.name },
-													callback: function (r) {
-														if (r.message && r.message.success) {
-															frappe.show_alert({
-																message: __(
-																	"Sales Invoice cancelado exitosamente"
-																),
-																indicator: "green",
-															});
-
-															// Mostrar detalles del resultado
-															frappe.msgprint({
-																title: __(
-																	"Cancelación completada"
-																),
-																message: __("✅ {0}").format(
-																	r.message.message
-																),
-																indicator: "green",
-															});
-
-															// Recargar documento
-															frm.reload_doc();
-														}
-													},
-													error: function (r) {
-														// Error ya manejado por el API, solo recargar
-														frm.reload_doc();
-													},
+												frappe.msgprint({
+													title: __("Cancelación completada"),
+													message: "✅ " + r.message.message,
+													indicator: "green",
 												});
-											},
-											__("Confirmar cancelación"),
-											__("Sí, cancelar definitivamente"),
-											__("No, mantener activo")
-										);
-									},
-									__("Acciones Fiscales")
-								)
-									.addClass("btn-danger")
-									.attr(
-										"title",
-										__(
-											"Cancelar definitivamente este Sales Invoice. " +
-												"La FFM se cancelará automáticamente primero."
-										)
-									);
-							}
-						}
-					}
-				},
-			});
-		} else {
-			// Limpiar botones si no aplican
-			frm.remove_custom_button(__("Generar nueva factura fiscal"), __("Acciones Fiscales"));
-			frm.remove_custom_button(__("Cancelar Sales Invoice"), __("Acciones Fiscales"));
-		}
+
+												frm.reload_doc();
+											}
+										},
+										error: function (r) {
+											frm.reload_doc();
+										},
+									});
+								},
+								__("Confirmar cancelación"),
+								__("Sí, cancelar definitivamente"),
+								__("No, mantener activo")
+							);
+						},
+						__("Acciones Post-Fiscal")
+					)
+						.addClass("btn-danger")
+						.attr(
+							"title",
+							__(
+								"Cancelar definitivamente este Sales Invoice. La FFM se cancelará automáticamente primero."
+							)
+						);
+				}
+			},
+		});
 	}
 
 	function add_fiscal_status_indicator(frm) {
 		const status = norm(frm.doc.fm_fiscal_status || "");
 
-		// Alert específico para estado post-cancelación fiscal (al mismo nivel que otros mensajes)
+		// Alert específico para estado post-cancelación fiscal
 		if (status === S.CANCELADO || status === "CANCELADO") {
 			frm.dashboard &&
 				frm.dashboard.set_headline_alert(

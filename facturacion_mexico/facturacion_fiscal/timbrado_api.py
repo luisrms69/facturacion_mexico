@@ -475,13 +475,23 @@ class TimbradoAPI:
 				title=_("Uso CFDI Requerido en Customer"),
 			)
 
+		# MILESTONE 1: Usar sistema multisucursal existente para resolver serie
+		serie_for_pac = "F"  # Default básico
+
+		# Si el SI tiene Branch configurado, usar su serie
+		if sales_invoice.get("branch"):
+			branch_doc = frappe.get_cached_doc("Branch", sales_invoice.branch)
+			if branch_doc.get("fm_enable_fiscal") and branch_doc.get("fm_serie_pattern"):
+				# Extraer solo la parte alfabética del patrón para enviar al PAC
+				serie_for_pac = self._extract_series_from_pattern(branch_doc.fm_serie_pattern)
+
 		# Datos de la factura
 		invoice_data = {
 			"customer": customer_data,
 			"items": items,
 			"payment_form": payment_form,
-			"folio_number": branch_data.get("folio_number", sales_invoice.name),
-			"series": branch_data.get("series", "F"),
+			# MILESTONE 1: NO enviar folio_number - deja autoincremento del PAC
+			"series": serie_for_pac,  # Serie resuelta por Branch o default
 			"use": cfdi_use,
 		}
 
@@ -550,8 +560,8 @@ class TimbradoAPI:
 		try:
 			# Datos por defecto
 			branch_data = {
-				"folio_number": sales_invoice.name,
-				"series": "F",
+				# MILESTONE 1: Eliminado folio_number - el PAC asigna autoincremental
+				"series": "F",  # Será sobrescrito por series_resolver
 				"lugar_expedicion": None,
 				"branch_name": None,
 			}
@@ -573,9 +583,8 @@ class TimbradoAPI:
 				}
 			)
 
-			# Si hay serie y folio específicos de la sucursal, usarlos
-			if hasattr(sales_invoice, "fm_serie_folio") and sales_invoice.fm_serie_folio:
-				branch_data["folio_number"] = sales_invoice.fm_serie_folio
+			# MILESTONE 1: Eliminado asignación folio_number específico
+			# El PAC manejará autoincremento de folios por serie
 
 			return branch_data
 
@@ -585,8 +594,8 @@ class TimbradoAPI:
 			)
 			# Retornar datos por defecto en caso de error
 			return {
-				"folio_number": sales_invoice.name,
-				"series": "F",
+				# MILESTONE 1: Eliminado folio_number - el PAC asigna autoincremental
+				"series": "F",  # Será sobrescrito por series_resolver
 				"lugar_expedicion": None,
 				"branch_name": None,
 			}
