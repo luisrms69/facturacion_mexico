@@ -18,6 +18,11 @@ def refacturar_misma_si(si_name: str):
 		if ffm.fm_fiscal_status != "CANCELADO":
 			frappe.throw(_("No puedes re-facturar: la FFM ligada no está CANCELADA fiscalmente."))
 
+	# MILESTONE 2: Validación previa para re-facturación con misma SI (02/03/04)
+	from facturacion_mexico.facturacion_fiscal.timbrado_api import validate_refacturacion_misma_si
+
+	validate_refacturacion_misma_si(si.name)
+
 	# Invoca la ruta estándar de timbrado de TU app.
 	# Intenta primero el método usual; si no existe, usa fallback.
 	new_ffm = None

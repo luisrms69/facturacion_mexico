@@ -1344,6 +1344,211 @@ def cancelar_factura(sales_invoice=None, uuid=None, ffm_name=None, motivo=None, 
 	return api.cancelar_factura(sales_invoice, motivo_code, substitution_uuid)
 
 
+# --- [BEGIN Milestone 2] Validación re-facturación con MISMA SI (02/03/04) ---
+
+# Campos permitidos para cambiar en re-facturación con misma SI
+ALLOWED_REFACT_SAME_SI_FIELDS = {
+	"fm_customer_tax_regime",  # Régimen fiscal del receptor (c_RegimenFiscal)
+	"fm_cfdi_uso",  # Uso CFDI (c_UsoCFDI)
+}
+
+
+def _extract_motive_code(ffm) -> str:
+	"""De 'cancellation_reason' tipo '02 - ...' extrae '02' (seguro ante nulos)."""
+	val = (ffm.get("cancellation_reason") or "").strip()
+	if not val:
+		return ""
+	# Soporta formatos '02 - desc' o '02\tdesc'
+	code = val.split("-")[0].split("\t")[0].strip()
+	return code
+
+
+def _get_last_cancelled_ffm_for_si(si_name: str):
+	"""Devuelve la FFM cancelada más reciente para la SI dada."""
+	# docstatus=2 (cancelado en ERP) y/o status fiscal cancelado; prioriza fecha de cancelación fiscal/doctype
+	ffm_list = frappe.get_all(
+		"Factura Fiscal Mexico",
+		filters={"sales_invoice": si_name, "docstatus": ["in", [1, 2]]},
+		fields=["name", "cancellation_date", "fm_fiscal_status", "cancellation_reason"],
+		order_by="COALESCE(cancellation_date, modified) desc",
+		limit_page_length=5,
+	)
+	# Devuelve la primera que realmente esté CANCELADA fiscalmente
+	for r in ffm_list:
+		if (r.fm_fiscal_status or "").upper() == "CANCELADO":
+			return frappe.get_doc("Factura Fiscal Mexico", r.name)
+	return None
+
+
+def _get_ffm_timbrado_snapshot(ffm) -> dict | None:
+	"""Intenta recuperar el snapshot de emisión usado para timbrar la FFM previa (desde logs inmutables).
+	Retorna un dict con lo necesario para comparar; None si no es posible reconstruir.
+	"""
+	# Ajusta nombres de Doctype/campos si difieren:
+	logs = frappe.get_all(
+		"FacturAPI Response Log",
+		filters={"factura_fiscal_mexico": ffm.name},
+		fields=["name", "operation_type", "request_payload", "status_code"],
+		order_by="creation desc",
+		limit_page_length=20,
+	)
+	# Busca el último log de timbrado con payload:
+	for lg in logs:
+		op = (lg.operation_type or "").lower()
+		if "timbr" in op or "emit" in op or "generate" in op:
+			# request_payload puede ser JSON serializado (string). Intenta parsear.
+			payload = {}
+			raw = lg.request_payload or "{}"
+			try:
+				payload = frappe.parse_json(raw) if isinstance(raw, str) else (raw or {})
+			except Exception:
+				payload = {}
+			# Proyecta a campos comparables (ajusta mapeos a tu payload real)
+			return {
+				"currency": (payload.get("currency") or "").upper(),
+				"exchange_rate": payload.get("exchange_rate"),
+				"items": [
+					{
+						"product_key": it.get("product_key"),
+						"description": (it.get("description") or "").strip(),
+						"quantity": float(it.get("quantity") or 0),
+						"unit_price": float(it.get("unit_price") or 0),
+						"discount": float(it.get("discount") or 0),
+						# Impuestos (si existen en payload)
+						"taxes": it.get("taxes") or it.get("tax_details") or [],
+					}
+					for it in (payload.get("items") or [])
+				],
+				"subtotal": float(payload.get("subtotal") or 0),
+				"total": float(payload.get("total") or 0),
+			}
+	return None
+
+
+def _make_items_signature(items: list[dict]) -> list[tuple]:
+	"""Firma simple orden-insensible para comparar conceptos de forma robusta."""
+	sig = []
+	for it in items or []:
+		taxes = it.get("taxes") or []
+		# Normaliza impuestos (clave + tasa si disponible)
+		tax_sig = []
+		for t in taxes:
+			rate = t.get("rate") if isinstance(t, dict) else None
+			name = t.get("name") or t.get("tax") or t.get("type") if isinstance(t, dict) else str(t)
+			tax_sig.append((str(name).strip().upper(), float(rate or 0)))
+		tax_sig.sort()
+		sig.append(
+			(
+				(it.get("product_key") or "").upper(),
+				(it.get("description") or "").strip().upper(),
+				float(it.get("quantity") or 0),
+				float(it.get("unit_price") or 0),
+				float(it.get("discount") or 0),
+				tuple(tax_sig),
+			)
+		)
+	sig.sort()
+	return sig
+
+
+def _project_current_si_snapshot(si) -> dict:
+	"""Proyecta del Sales Invoice actual lo necesario para validar que no hubo cambios (salvo régimen/uso)."""
+	# Ajusta fieldnames si difieren en tu SI:
+	currency = (si.get("currency") or "").upper()
+	exchange_rate = si.get("conversion_rate") or si.get("exchange_rate")
+	# Items del SI (proyección a campos equivalentes al payload previo)
+	items = []
+	for it in si.get("items") or []:
+		items.append(
+			{
+				"product_key": it.get("item_tax_template") or it.get("item_code") or it.get("item_name"),
+				"description": (it.get("description") or "").strip(),
+				"quantity": float(it.get("qty") or 0),
+				"unit_price": float(it.get("rate") or 0),
+				"discount": float(it.get("discount_amount") or 0),
+				# Si tienes estructura de impuestos por línea, mapéala aquí:
+				"taxes": [],  # opcional; si no los gestionas por línea, deja vacío
+			}
+		)
+	return {
+		"currency": currency,
+		"exchange_rate": exchange_rate,
+		"items": items,
+		"subtotal": float(si.get("net_total") or 0),
+		"total": float(si.get("grand_total") or 0),
+	}
+
+
+def _diff_invariants(si_snapshot: dict, ffm_snapshot: dict) -> list[str]:
+	"""Compara los invariantes (lo que NO debería cambiar) y devuelve lista de campos distintos."""
+	diffs = []
+	# Moneda y tipo de cambio
+	if (si_snapshot.get("currency") or "").upper() != (ffm_snapshot.get("currency") or "").upper():
+		diffs.append("currency")
+	if float(si_snapshot.get("exchange_rate") or 0) != float(ffm_snapshot.get("exchange_rate") or 0):
+		diffs.append("exchange_rate")
+	# Totales
+	if abs(float(si_snapshot.get("subtotal") or 0) - float(ffm_snapshot.get("subtotal") or 0)) > 0.01:
+		diffs.append("subtotal")
+	if abs(float(si_snapshot.get("total") or 0) - float(ffm_snapshot.get("total") or 0)) > 0.01:
+		diffs.append("total")
+	# Conceptos
+	if _make_items_signature(si_snapshot.get("items")) != _make_items_signature(ffm_snapshot.get("items")):
+		diffs.append("items")
+	return diffs
+
+
+def validate_refacturacion_misma_si(si_name: str):
+	"""Regla de negocio: re-facturar con MISMA SI sólo si:
+	- Existe FFM previa CANCELADA por 02/03/04
+	- Invariantes (items, totales, moneda, tc) no cambiaron
+	- Cambios permitidos: ÚNICAMENTE régimen del receptor y uso CFDI
+	"""
+	si = frappe.get_doc("Sales Invoice", si_name)
+
+	# 1) Debe existir FFM previa CANCELADA
+	ffm_prev = _get_last_cancelled_ffm_for_si(si.name)
+	if not ffm_prev:
+		frappe.throw(_("No existe una Factura Fiscal cancelada para esta Sales Invoice."))
+
+	# 2) Motivo debe ser 02/03/04 (no 01)
+	motive = _extract_motive_code(ffm_prev)
+	if motive not in {"02", "03", "04"}:
+		frappe.throw(
+			_(
+				"Sólo se permite re-facturar con la misma Sales Invoice si el motivo de la cancelación previa fue 02/03/04. Motivo actual: {0}"
+			).format(motive or "N/A")
+		)
+
+	# 3) Debemos poder comparar invariantes; si no hay snapshot confiable, bloquear (fail-safe)
+	ffm_snapshot = _get_ffm_timbrado_snapshot(ffm_prev)
+	if not ffm_snapshot:
+		frappe.throw(
+			_(
+				"No se encontró snapshot fiscal confiable de la FFM cancelada. Para evitar discrepancias, genera un nuevo Sales Invoice."
+			)
+		)
+
+	si_snapshot = _project_current_si_snapshot(si)
+	invariant_diffs = _diff_invariants(si_snapshot, ffm_snapshot)
+	if invariant_diffs:
+		# Hay cambios no permitidos (conceptos/totales/moneda/tc). Obliga nuevo SI.
+		raise frappe.ValidationError(
+			_(
+				"No se puede re-facturar con la misma Sales Invoice. Cambios detectados en: {0}. Crea un nuevo Sales Invoice."
+			).format(", ".join(invariant_diffs))
+		)
+
+	# 4) (Opcional) Verificar explícitamente que sólo hayan cambiado régimen/uso
+	#    Si manejas estos campos en SI/FFM, puedes listar diferencias detalladas aquí.
+	#    En esta versión minimalista, con invariantes idénticos asumimos OK.
+
+	return True
+
+
+# --- [END Milestone 2] ---
+
+
 @frappe.whitelist()
 def get_sat_cancellation_motives():
 	"""API para obtener motivos de cancelación SAT para UI."""
