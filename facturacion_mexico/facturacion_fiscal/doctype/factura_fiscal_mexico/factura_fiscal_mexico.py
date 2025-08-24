@@ -414,8 +414,15 @@ class FacturaFiscalMexico(Document):
 		self.calculate_fiscal_status_from_logs()
 
 	def create_fiscal_event(self, event_type, event_data):
-		"""Crear evento fiscal para auditoría."""
+		"""Crear evento fiscal - ELIMINACIÓN EN PROGRESO (FASE 0)."""
 		try:
+			# GUARD INMEDIATO: Verificar existencia DocType
+			if not frappe.db.exists("DocType", "Fiscal Event MX"):
+				# FALLBACK: Usar Response Log como única fuente verdad
+				self._log_event_to_response_log(event_type, event_data)
+				return None
+
+			# Código original (si DocType existe - transición suave)
 			fiscal_event = frappe.new_doc("Fiscal Event MX")
 			fiscal_event.event_type = event_type
 			fiscal_event.reference_doctype = self.doctype
@@ -426,8 +433,37 @@ class FacturaFiscalMexico(Document):
 				frappe.get_roles(frappe.session.user)[0] if frappe.get_roles(frappe.session.user) else "Guest"
 			)
 			fiscal_event.save(ignore_permissions=True)
+
 		except Exception as e:
+			# ERROR: También loggear en Response Log
+			self._log_event_to_response_log(
+				f"error_{event_type}", {"error": str(e), "original_data": event_data}
+			)
 			frappe.log_error(f"Error creating fiscal event: {e!s}", "Fiscal Event Creation Error")
+
+	def _log_event_to_response_log(self, event_type, event_data):
+		"""Fallback: usar Response Log para eventos fiscales."""
+		try:
+			import json
+
+			from facturacion_mexico.facturacion_fiscal.doctype.facturapi_response_log.facturapi_response_log import (
+				write_pac_response,
+			)
+
+			write_pac_response(
+				self.sales_invoice or self.name,
+				json.dumps({"event_type": event_type, "source": "fiscal_event_fallback"}),
+				json.dumps(event_data),
+				f"fiscal_event_{event_type}",
+			)
+
+			frappe.logger().info(f"Fiscal event logged to Response Log: {event_type} for {self.name}")
+
+		except Exception as fallback_error:
+			frappe.log_error(
+				f"Error in fiscal event fallback: {fallback_error!s}\nOriginal event: {event_type}\nData: {event_data}",
+				"Fiscal Event Fallback Error",
+			)
 
 	def update_sales_invoice_fiscal_info(self):
 		"""Actualizar información fiscal en Sales Invoice."""
