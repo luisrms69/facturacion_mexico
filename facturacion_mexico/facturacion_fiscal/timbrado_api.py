@@ -495,6 +495,17 @@ class TimbradoAPI:
 			"use": cfdi_use,
 		}
 
+		# [Milestone 3] Inyectar relación 04 si el SI trae 'ffm_substitution_source_uuid'
+		src_uuid = (sales_invoice.get("ffm_substitution_source_uuid") or "").strip()
+		if src_uuid:
+			# FacturAPI (relación CFDI): estructura correcta para sustitución CFDI previo
+			invoice_data["related_documents"] = [
+				{
+					"relationship": "04",  # Sustitución de los CFDI previos
+					"documents": [src_uuid],
+				}
+			]
+
 		# Sprint 6 Phase 2: Agregar datos específicos de sucursal
 		if branch_data.get("lugar_expedicion"):
 			invoice_data["place_of_issue"] = branch_data["lugar_expedicion"]
@@ -685,6 +696,18 @@ class TimbradoAPI:
 			# Descargar archivos si está configurado
 			if self.settings.download_files_default:
 				self._download_fiscal_files(factura_fiscal, response.get("id"))
+
+			# [Milestone 3] Cascada post-timbrado: cancelar CFDI previo y SI original si es sustitución
+			try:
+				# Solo si hay UUID de origen en la SI (indica sustitución 01)
+				si = frappe.get_doc("Sales Invoice", sales_invoice.name)
+				if (getattr(si, "ffm_substitution_source_uuid", "") or "").strip():
+					_cascade_cancel_previous_after_substitute(factura_fiscal.name)
+					frappe.logger().info(f"Cascada sustitución ejecutada para FFM {factura_fiscal.name}")
+			except Exception as e:
+				frappe.log_error(frappe.get_traceback(), "Post-Timbrado: cascada sustitución")
+				frappe.logger().warning(f"Cascada sustitución falló para FFM {factura_fiscal.name}: {e}")
+				# NO usar frappe.throw aquí (el timbrado ya fue exitoso)
 
 			frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure fiscal transaction is committed after successful stamping
 
@@ -1340,6 +1363,17 @@ def cancelar_factura(sales_invoice=None, uuid=None, ffm_name=None, motivo=None, 
 		description = SAT_MOTIVES.get_description(motivo_code)
 		frappe.throw(f"El motivo '{motivo_code}' ({description}) requiere UUID de sustitución obligatorio")
 
+	# [Milestone 3] Guard backend: motivo 01 solo desde flujo sustitución
+	# Obtener FFM doc para el guard
+	ffm_doc = None
+	if sales_invoice:
+		ffm_list = frappe.get_all("Factura Fiscal Mexico", filters={"sales_invoice": sales_invoice}, limit=1)
+		if ffm_list:
+			ffm_doc = frappe.get_doc("Factura Fiscal Mexico", ffm_list[0].name)
+
+	if ffm_doc:
+		_guard_motive_01_only_from_substitution(ffm_doc, motivo_code, substitution_uuid)
+
 	api = TimbradoAPI()
 	return api.cancelar_factura(sales_invoice, motivo_code, substitution_uuid)
 
@@ -1547,6 +1581,192 @@ def validate_refacturacion_misma_si(si_name: str):
 
 
 # --- [END Milestone 2] ---
+
+
+# --- [BEGIN Milestone 3] Flujo 01 (Sustitución con CFDI sustituto) ---
+
+
+@frappe.whitelist()
+def create_substitution_si(si_name: str):
+	"""Crear Sales Invoice de reemplazo para workflow 01 (sustitución).
+	Copia el SI original y transporta el UUID del CFDI a sustituir.
+	"""
+	si = frappe.get_doc("Sales Invoice", si_name)
+
+	# 1) Verificar que exista FFM vigente ligada (timbrada)
+	ffm = frappe.db.get_value(
+		"Factura Fiscal Mexico",
+		{"sales_invoice": si.name, "fm_fiscal_status": "TIMBRADO"},
+		["name", "fm_uuid"],
+		as_dict=True,
+	)
+	if not ffm or not ffm.get("fm_uuid"):
+		frappe.throw(_("No se encontró una Factura Fiscal vigente para sustituir."))
+
+	# 2) Copiar SI a borrador (sin enviar, sin pagos)
+	new_si = frappe.copy_doc(si)
+	new_si.name = None  # forzar nuevo nombre
+	new_si.docstatus = 0
+
+	# 1) Fechas coherentes
+	new_si.posting_date = frappe.utils.today()
+
+	# 2) Limpiar vencimientos/schedules del SI original
+	new_si.payment_schedule = []  # importante si usas Payment Schedule
+	new_si.due_date = None  # recalcularemos o, mínimo, la igualamos a posting_date
+
+	# 3) Recalcular due_date de forma simple (fail-safe)
+	if new_si.payment_terms_template:
+		# iguala al menos a posting_date para evitar validación:
+		new_si.due_date = new_si.posting_date
+	else:
+		# sin plantilla, asegura mínimo válido:
+		new_si.due_date = new_si.posting_date
+
+	# 4) Limpiezas habituales de copia
+	new_si.amended_from = None  # no usamos 'amend', flujo es independiente
+	new_si.set_posting_time = 1  # opcional si permites fijar hora
+
+	# Limpiar campos fiscales del SI nuevo
+	new_si.fm_factura_fiscal_mx = None
+	new_si.fm_fiscal_status = None
+	new_si.fm_last_status_update = None
+
+	# 3) Guardar el UUID a sustituir (campo custom ffm_substitution_source_uuid)
+	new_si.set("ffm_substitution_source_uuid", ffm["fm_uuid"])
+
+	new_si.insert(ignore_permissions=True)
+
+	return {"new_si": new_si.name, "src_uuid": ffm["fm_uuid"]}
+
+
+def _cascade_cancel_previous_after_substitute(new_ffm_name: str):
+	"""Post-éxito: cancelar CFDI previo con motivo 01 y cancelar SI/FFM originales."""
+	try:
+		new_ffm = frappe.get_doc("Factura Fiscal Mexico", new_ffm_name)
+		new_uuid = (new_ffm.get("fm_uuid") or "").strip()
+		if not new_uuid:
+			return  # nada que hacer
+
+		# Ubicar el SI de reemplazo y su uuid origen
+		si = frappe.get_doc("Sales Invoice", new_ffm.sales_invoice)
+		src_uuid = (si.get("ffm_substitution_source_uuid") or "").strip()
+		if not src_uuid:
+			return  # No es una sustitución
+
+		# Encontrar FFM original por UUID (previo a sustituir)
+		orig_ffm_name = frappe.db.get_value("Factura Fiscal Mexico", {"fm_uuid": src_uuid}, "name")
+		if not orig_ffm_name:
+			frappe.logger().warning(f"No se encontró FFM original con UUID {src_uuid}")
+			return
+
+		orig_ffm = frappe.get_doc("Factura Fiscal Mexico", orig_ffm_name)
+		orig_si_name = orig_ffm.sales_invoice
+
+		frappe.logger().info(f"Iniciando cascada: cancelar FFM {orig_ffm_name} y SI {orig_si_name}")
+
+		# 1) Cancelar fiscalmente el CFDI previo con motivo 01 (pasando substitution_uuid=new_uuid)
+		try:
+			api = TimbradoAPI()
+			cancel_result = api.cancelar_factura(orig_si_name, "01", new_uuid)
+			frappe.logger().info(f"Cancelación fiscal 01 exitosa: {cancel_result}")
+		except Exception as e:
+			frappe.logger().error(f"Error cancelando CFDI previo: {e}")
+			# No fallar toda la operación por error en cancelación
+			return
+
+		# 2) Cancelar FFM original (DocType)
+		try:
+			if orig_ffm.docstatus == 1:
+				orig_ffm.cancel()
+				frappe.logger().info(f"FFM {orig_ffm_name} cancelada")
+		except Exception as e:
+			frappe.logger().error(f"Error cancelando FFM original: {e}")
+
+		# 3) Cancelar SI original
+		try:
+			if orig_si_name:
+				orig_si = frappe.get_doc("Sales Invoice", orig_si_name)
+				if orig_si.docstatus == 1:
+					orig_si.cancel()
+					frappe.logger().info(f"SI {orig_si_name} cancelada")
+		except Exception as e:
+			frappe.logger().error(f"Error cancelando SI original: {e}")
+
+	except Exception as e:
+		frappe.logger().error(f"Error en cascada de cancelación: {e}")
+		# No fallar toda la operación
+
+
+# --- [END Milestone 3] ---
+
+
+# --- [BEGIN Milestone 3] Guard backend motivo 01 ---
+
+
+# [M3-BE] Obtener código de sustitución desde ENUM SAT (sin hardcode)
+def _get_substitution_code() -> str:
+	"""
+	Intenta obtener el código de 'Sustitución' desde SATCancellationMotives.
+	Fallback: '01' (no rompe si cambia estructura).
+	"""
+	try:
+		from facturacion_mexico.config.sat_cancellation_motives import SATCancellationMotives
+	except Exception:
+		return "01"
+
+	# Intentos comunes sin asumir API exacta del enum:
+	# 1) Atributo directo tipo constante (e.g. SATCancellationMotives.SUSTITUCION == '01')
+	for attr in ("SUSTITUCION", "SUBSTITUCION", "ERRORES_CON_RELACION"):
+		val = getattr(SATCancellationMotives, attr, None)
+		if isinstance(val, str) and val.strip():
+			return val.strip()
+		# Si es un objeto con 'code'
+		if hasattr(val, "code"):
+			try:
+				code = val.code
+				if isinstance(code, str) and code.strip():
+					return code.strip()
+			except Exception:
+				pass
+
+	# 2) Método utilitario (si existiera) para obtener por clave
+	for candidate in ("get_code", "code_for", "get"):
+		if hasattr(SATCancellationMotives, candidate):
+			try:
+				meth = getattr(SATCancellationMotives, candidate)
+				code = meth("SUSTITUCION")
+				if isinstance(code, str) and code.strip():
+					return code.strip()
+			except Exception:
+				pass
+
+	# 3) Fallback seguro
+	return "01"
+
+
+# [M3-BE] Guard de negocio para 01
+def _guard_motive_01_only_from_substitution(ffm_doc, motive: str, substitution_uuid: str | None):
+	from frappe import _
+
+	code_01 = _get_substitution_code()
+	motive = (motive or "").strip()
+	if motive != code_01:
+		return
+
+	has_linked_si = bool(getattr(ffm_doc, "sales_invoice", None))
+	status = (getattr(ffm_doc, "fm_fiscal_status", "") or "").upper()
+
+	# Regla: si FFM pertenece a un SI y está TIMBRADO, 01 solo desde flujo de sustitución (debe traer substitution_uuid)
+	if has_linked_si and status == "TIMBRADO" and not (substitution_uuid or "").strip():
+		frappe.throw(
+			_(
+				"La cancelación con motivo {0} (Sustitución) solo se permite desde el Sales Invoice (flujo de sustitución), proporcionando 'substitution_uuid'."
+			).format(code_01)
+		)
+
+
+# --- [END Milestone 3] Guard backend motivo 01 ---
 
 
 @frappe.whitelist()
