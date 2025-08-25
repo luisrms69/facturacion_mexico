@@ -71,7 +71,7 @@ def refacturar_misma_si(si_name: str):
 
 	# M4-FIX-03: Refuerzo estado limpio para evitar validaciones residuales
 	si.reload()
-	frappe.db.commit()
+	frappe.db.commit()  # nosemgrep: required to persist unlink before subsequent validations (M4 workflow)
 	frappe.clear_cache()
 
 	return {

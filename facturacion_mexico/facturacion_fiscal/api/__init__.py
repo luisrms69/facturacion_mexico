@@ -25,8 +25,6 @@ FALLBACK_DIR = None  # Se calcula dinámicamente por sitio
 def _get_fallback_dir():
 	"""Calcular directorio fallback por sitio para compatibilidad multi-sitio."""
 	try:
-		import os
-
 		base = frappe.utils.get_site_path("private", "files", "facturacion_mexico_pac_fallback")
 		frappe.create_folder(base)
 		return base

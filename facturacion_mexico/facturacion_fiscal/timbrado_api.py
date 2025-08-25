@@ -1314,8 +1314,8 @@ def _build_cancellation_reason_for_select(motive_code: str) -> str:
 
 	# Último recurso: lanza error claro para ajustar catálogo/doctype
 	frappe.throw(
-		f"No se encontró opción válida para motivo {motive_code}. Ajusta DocType u opciones.",
-		title="Opciones de cancelación inválidas",
+		_("No se encontró opción válida para motivo {0}. Ajusta DocType u opciones.").format(motive_code),
+		title=_("Opciones de cancelación inválidas"),
 	)
 
 
@@ -1345,14 +1345,14 @@ def cancelar_factura(sales_invoice=None, uuid=None, ffm_name=None, motivo=None, 
 			sales_invoice = ffm_doc.sales_invoice
 
 	if not sales_invoice:
-		frappe.throw("No se pudo determinar el Sales Invoice para cancelación")
+		frappe.throw(_("No se pudo determinar el Sales Invoice para cancelación"))
 
 	# Importar enum de motivos SAT
 	from facturacion_mexico.config.sat_cancellation_motives import SAT_MOTIVES
 
 	# Validación motivo es obligatorio
 	if not motivo:
-		frappe.throw("El motivo de cancelación es obligatorio. Debe seleccionar una opción.")
+		frappe.throw(_("El motivo de cancelación es obligatorio. Debe seleccionar una opción."))
 
 	# Extraer solo el código del valor del select (formato: "02\tDescripción")
 	motivo_code = motivo.split("\t")[0] if "\t" in motivo else motivo

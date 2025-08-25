@@ -228,7 +228,7 @@
 									const out = (r && r.message) || {};
 									if (!out || !out.new_si) return;
 									frappe.show_alert({
-										message: __("SI de reemplazo creado: ") + out.new_si,
+										message: __("SI de reemplazo creado:") + " " + out.new_si,
 										indicator: "green",
 									});
 									// Abrir el SI de reemplazo para que el usuario corrija datos antes de timbrar
