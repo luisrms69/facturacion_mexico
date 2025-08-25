@@ -12,6 +12,18 @@ CANCELADO_FISCAL = {"CANCELADO", "CANCELADA", "CANCELED", "CANCELLED", "CANCELLE
 class FacturaFiscalMexico(FFMBase):
 	"""Override class para Factura Fiscal Mexico - Manejo LinkExistsError múltiples FFMs"""
 
+	def validate(self):
+		"""Override validate para bloquear amend definitivamente"""
+		super().validate()
+		# Bloquear "Amend" - si intentan crear documento con amended_from poblado
+		if self.get("amended_from"):
+			frappe.throw(
+				_(
+					"No se permite 'Corregir' en Factura Fiscal México. "
+					"Cree un nuevo documento en su lugar."
+				)
+			)
+
 	def cancel(self):
 		"""Override cancel para evitar LinkExistsError cuando FFM fiscalmente cancelada"""
 		# Guard: Solo permitir cancelar en Frappe si el estado fiscal ya es "cancelado" (PAC)

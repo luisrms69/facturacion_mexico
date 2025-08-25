@@ -219,7 +219,6 @@ def create_facturacion_roles():
 			existing_roles.append(role_name)
 			print(f"⚠️ Rol ya existe: {role_name}")
 
-	frappe.db.commit()
 	print(f"\n✅ PASO 1 COMPLETADO: {len(created_roles)} roles creados, {len(existing_roles)} ya existían")
 
 	return {"success": True, "created_roles": created_roles, "existing_roles": existing_roles}
@@ -292,7 +291,6 @@ def assign_facturacion_permissions():
 			created_permissions.append(f"{role_name} → {doctype_name}")
 			print(f"✅ Permisos creados: {role_name} en {doctype_name}")
 
-	frappe.db.commit()
 	print(f"\n✅ PASO 2 COMPLETADO: Permisos asignados para {len(permissions_config)} configuraciones")
 
 	return {"success": True, "created_permissions": created_permissions}

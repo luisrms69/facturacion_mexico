@@ -316,6 +316,16 @@
 			freeze_fiscal_fields_after_submit(frm);
 			freeze_payment_fields_after_submit(frm);
 
+			// BLOQUEO DEFINITIVO: Quitar "Amend" del menú de acciones
+			setTimeout(() => {
+				if (frm.page && frm.page.remove_menu_item) {
+					frm.page.remove_menu_item(__("Amend")); // idioma base
+					frm.page.remove_menu_item(__("Corregir")); // español México
+					frm.page.remove_menu_item(__("Enmendar")); // otra traducción
+					frm.page.remove_menu_item(__("Amendment")); // variante inglés
+				}
+			}, 100);
+
 			// Aplicar nueva lógica de botones con estados centralizados
 			applyFFMUi(frm);
 
