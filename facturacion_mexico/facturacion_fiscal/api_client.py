@@ -192,10 +192,25 @@ class FacturAPIClient:
 		"""Obtener factura de FacturAPI."""
 		return self._make_request("GET", f"/invoices/{invoice_id}")
 
-	def cancel_invoice(self, invoice_id: str, motive: str = "02") -> dict[str, Any]:
+	def cancel_invoice(
+		self, invoice_id: str, motive: str, substitution_uuid: str | None = None
+	) -> dict[str, Any]:
 		"""Cancelar factura en FacturAPI."""
-		cancel_data = {"motive": motive}
-		return self._make_request("DELETE", f"/invoices/{invoice_id}", cancel_data)
+		# Debug logging para verificar parámetros en cliente API
+		frappe.logger().info(
+			f"API Client cancel_invoice: invoice_id={invoice_id}, motive='{motive}', substitution_uuid='{substitution_uuid}'"
+		)
+
+		# FacturAPI requiere motive como query parameter, NO como body
+		endpoint = f"/invoices/{invoice_id}?motive={motive}"
+		if substitution_uuid:
+			endpoint += f"&substitution_uuid={substitution_uuid}"
+
+		# Debug logging del endpoint final
+		frappe.logger().info(f"Endpoint FacturAPI: {endpoint}")
+
+		# DELETE sin body data - solo query parameters
+		return self._make_request("DELETE", endpoint, None)
 
 	def download_pdf(self, invoice_id: str) -> bytes:
 		"""Descargar PDF de factura."""

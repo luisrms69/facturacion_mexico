@@ -58,7 +58,7 @@
     {
       "fieldname": "request_payload",
       "fieldtype": "JSON",
-      "label": "Payload de Solicitud"
+      "label": "Payload de Auditoría (no payload real a FacturAPI)"
     },
     {
       "fieldname": "column_break_request",

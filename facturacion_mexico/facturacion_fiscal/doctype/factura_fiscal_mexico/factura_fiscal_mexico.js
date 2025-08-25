@@ -10,6 +10,108 @@
 
 	let FISCAL_STATES = null;
 
+	// [M3-FFM] Obtener código de "Sustitución" (01) desde ENUMS (con fallback seguro)
+	function getSubstitutionCodeFromEnums() {
+		const E = window.FM_ENUMS || {};
+		// 1) Si existe un namespace explícito de códigos:
+		if (
+			E.CancellationCodes &&
+			(E.CancellationCodes.SUSTITUCION || E.CancellationCodes.SUBSTITUCION)
+		) {
+			return E.CancellationCodes.SUSTITUCION || E.CancellationCodes.SUBSTITUCION;
+		}
+		// 2) Buscar en la colección de motivos
+		if (Array.isArray(E.CancellationMotives)) {
+			const hit = E.CancellationMotives.find((m) => {
+				const k = String(m.key || m.code || "").toUpperCase();
+				const lbl = String(m.label || m.name || "").toUpperCase();
+				return k.includes("SUSTITUC") || lbl.includes("SUSTITUC");
+			});
+			if (hit && hit.code) return hit.code;
+		}
+		// 3) Último recurso (evitar romper UI): '01'
+		return "01";
+	}
+
+	// [M3-FFM] Fuente de motivos desde ENUMS
+	function getCancellationMotivesFromEnums() {
+		const E = window.FM_ENUMS || {};
+		if (Array.isArray(E.CancellationMotives) && E.CancellationMotives.length) {
+			// Se espera forma: [{code:'01', label:'01 - ...'}, ...]
+			return E.CancellationMotives.map((m) => ({
+				code: m.code,
+				label: m.label || m.name || m.code,
+			}));
+		}
+		// Fallback: si por alguna razón no está cargado el ENUM (evitar crash del formulario)
+		return [
+			{ code: "01", label: "01 - Sustitución de los CFDI previos" },
+			{ code: "02", label: "02 - Comprobantes emitidos con errores sin relación" },
+			{ code: "03", label: "03 - No se llevó a cabo la operación" },
+			{ code: "04", label: "04 - Operación nominativa relacionada en factura global" },
+		];
+	}
+
+	// [M3-FFM] Motivos visibles en FFM (filtra 01 si hay SI ligado y está timbrado)
+	function getCancellationMotivesForFFM(frm) {
+		const motives = getCancellationMotivesFromEnums();
+		const SUB_01 = getSubstitutionCodeFromEnums();
+		const status = String(frm.doc.fm_fiscal_status || "").toUpperCase();
+		const hasLinkedSI = !!frm.doc.sales_invoice;
+
+		if (hasLinkedSI && status === "TIMBRADO") {
+			return motives.filter((m) => String(m.code) !== SUB_01);
+		}
+		return motives;
+	}
+
+	// [M3-FFM] Interceptar elección 01 en FFM y redirigir a SI
+	function interceptMotive01InFFM(frm, selectedCode) {
+		const SUB_01 = getSubstitutionCodeFromEnums();
+		const status = String(frm.doc.fm_fiscal_status || "").toUpperCase();
+		if (String(selectedCode) === SUB_01 && frm.doc.sales_invoice && status === "TIMBRADO") {
+			frappe.msgprint({
+				title: __("Sustitución CFDI (01)"),
+				message: __(
+					'Para sustitución, use el botón <b>"Sustituir CFDI (01)"</b> en el Sales Invoice.'
+				),
+				indicator: "orange",
+				primary_action: {
+					label: __("Ir al Sales Invoice"),
+					action: () => frappe.set_route("Form", "Sales Invoice", frm.doc.sales_invoice),
+				},
+			});
+			return false; // abortar la cancelación desde FFM
+		}
+		return true;
+	}
+
+	// [M3-FFM] Botón de ayuda contextual sobre sustitución
+	function addHelpButtonForSubstitution(frm) {
+		// Agregar botón de ayuda contextual sobre sustitución
+		if (frm.doc.sales_invoice && frm.doc.docstatus === 1) {
+			frm.add_custom_button(
+				__("¿Cómo sustituir?"),
+				() => {
+					const siName = frm.doc.sales_invoice;
+					frappe.msgprint({
+						title: __("Ayuda: Sustitución CFDI"),
+						message: __(
+							`<strong>Para sustituir este CFDI (motivo 01):</strong><br><br>` +
+								`1️⃣ Vaya al Sales Invoice: <strong>${siName}</strong><br>` +
+								`2️⃣ Use el botón "🔄 Sustituir CFDI (01)"<br>` +
+								`3️⃣ Se creará un SI de reemplazo para correcciones<br>` +
+								`4️⃣ El sistema manejará la relación TipoRelación 04 automáticamente<br><br>` +
+								`<em>La cancelación desde aquí es solo para motivos 02/03/04.</em>`
+						),
+						indicator: "blue",
+					});
+				},
+				__("Ayuda")
+			);
+		}
+	}
+
 	function load_fiscal_states(cb) {
 		if (FISCAL_STATES) {
 			cb && cb(FISCAL_STATES);
@@ -214,6 +316,16 @@
 			freeze_fiscal_fields_after_submit(frm);
 			freeze_payment_fields_after_submit(frm);
 
+			// BLOQUEO DEFINITIVO: Quitar "Amend" del menú de acciones
+			setTimeout(() => {
+				if (frm.page && frm.page.remove_menu_item) {
+					frm.page.remove_menu_item(__("Amend")); // idioma base
+					frm.page.remove_menu_item(__("Corregir")); // español México
+					frm.page.remove_menu_item(__("Enmendar")); // otra traducción
+					frm.page.remove_menu_item(__("Amendment")); // variante inglés
+				}
+			}, 100);
+
 			// Aplicar nueva lógica de botones con estados centralizados
 			applyFFMUi(frm);
 
@@ -226,6 +338,9 @@
 				check_and_show_billing_data_status(frm);
 				check_customer_fiscal_warning(frm);
 			}, 1500);
+
+			// [Milestone 3] Botón ayuda para sustitución
+			addHelpButtonForSubstitution(frm);
 		},
 
 		// NUEVO: después de save/reload
@@ -607,34 +722,139 @@
 		});
 	}
 
-	function cancelar_timbrado(frm) {
-		// Función de cancelación de timbrado
-		frappe.confirm(
-			__("¿Confirma que desea cancelar el timbrado de esta factura?"),
-			function () {
-				frappe.call({
-					method: "facturacion_mexico.facturacion_fiscal.timbrado_api.cancelar_factura",
-					args: {
-						uuid: frm.doc.fm_uuid,
+	async function cancelar_timbrado(frm) {
+		// Evitar doble clic durante cancelación
+		if (frm.__cancelling) return;
+
+		// Función de cancelación de timbrado con selección de motivo desde enum SAT
+		frappe.call({
+			method: "facturacion_mexico.facturacion_fiscal.timbrado_api.get_sat_cancellation_motives",
+			callback: function (motives_response) {
+				if (!motives_response.message) {
+					frappe.msgprint(__("Error cargando motivos de cancelación SAT"));
+					return;
+				}
+
+				const motives_config = motives_response.message;
+
+				// [M3-FFM] Filtrar opciones (quitar 01 si aplica) del formato original que ya funciona
+				const SUB_01 = getSubstitutionCodeFromEnums();
+				const status = String(frm.doc.fm_fiscal_status || "").toUpperCase();
+				const hasLinkedSI = !!frm.doc.sales_invoice;
+
+				let filtered_options = motives_config.select_options;
+				if (hasLinkedSI && status === "TIMBRADO") {
+					// Filtrar opciones que empiecen con "01\t"
+					filtered_options = motives_config.select_options.filter(
+						(option) => !option.startsWith(SUB_01 + "\t")
+					);
+				}
+
+				frappe.prompt(
+					[
+						{
+							fieldname: "motive",
+							label: __("Motivo de Cancelación SAT"),
+							fieldtype: "Select",
+							reqd: 1,
+							options: filtered_options,
+							description: __(
+								"Seleccione el motivo de cancelación según catálogo SAT"
+							),
+						},
+						{
+							fieldname: "substitution_uuid",
+							label: __("UUID de Sustitución"),
+							fieldtype: "Data",
+							depends_on: "eval:doc.motive=='01'",
+							mandatory_depends_on: "eval:doc.motive=='01'",
+							description: __(
+								"Requerido solo para motivo 01 - Comprobantes con errores con relación"
+							),
+						},
+					],
+					async function (values) {
+						// [M3-FFM] Interceptor para 01 (extraer código como ya funcionaba)
+						const chosenCode = values.motive.includes("\t")
+							? values.motive.split("\t")[0]
+							: values.motive;
+						if (!interceptMotive01InFFM(frm, chosenCode)) return;
+
+						// Continuar con cancelación normal
+						await cancelar_cfdi(frm, values);
 					},
-					callback: function (r) {
-						if (r.message && r.message.success) {
-							frappe.show_alert({
-								message: __("Timbrado cancelado exitosamente"),
-								indicator: "orange",
-							});
-							frm.reload_doc();
-						} else {
-							frappe.msgprint({
-								title: __("Error en Cancelación"),
-								message: r.message ? r.message.error : __("Error desconocido"),
-								indicator: "red",
-							});
-						}
-					},
-				});
-			}
-		);
+					__("Cancelación Fiscal SAT"),
+					__("Enviar")
+				);
+			},
+		});
+	}
+
+	async function cancelar_cfdi(frm, args) {
+		if (frm.__cancelling) return; // evita doble clic
+		frm.__cancelling = true;
+
+		// 3.4: feedback de carga
+		frappe.dom.freeze(__("Cancelando factura en FacturAPI…"));
+
+		try {
+			const r = await frappe.call({
+				method: "facturacion_mexico.facturacion_fiscal.timbrado_api.cancelar_factura",
+				args: {
+					uuid: frm.doc.fm_uuid,
+					sales_invoice: frm.doc.sales_invoice,
+					motivo: args.motive,
+					substitution_uuid: args.substitution_uuid || null,
+				},
+				freeze: false,
+			});
+
+			// 3.6a se maneja abajo (mensaje de éxito)
+			handle_cancel_success(frm, r && r.message);
+		} catch (e) {
+			// errores ya se muestran por Frappe; aquí solo aseguramos unfreeze
+		} finally {
+			frappe.dom.unfreeze();
+			frm.__cancelling = false;
+		}
+	}
+
+	function handle_cancel_success(frm, msg) {
+		// msg esperado del backend:
+		// { ok: true, ffm: "FFMX-0001", sales_invoice: "ACC-SINV-0001",
+		//   status_ffm: "CANCELADO", status_si: "CANCELADO",
+		//   uuid: "....", cancellation_date: "2025-08-16 15:58:22" }
+
+		if (msg && (msg.ok || msg.success)) {
+			frappe.show_alert({
+				message: __("✅ Factura cancelada exitosamente"),
+				indicator: "green",
+			});
+
+			const lines = [
+				`<b>FFM:</b> ${frappe.utils.escape_html(msg.ffm || frm.doc.name)}`,
+				`<b>Sales Invoice:</b> ${frappe.utils.escape_html(
+					msg.sales_invoice || frm.doc.sales_invoice
+				)}`,
+				`<b>Estado FFM:</b> ${frappe.utils.escape_html(msg.status_ffm || "")}`,
+				`<b>Estado SI:</b> ${frappe.utils.escape_html(msg.status_si || "")}`,
+				`<b>UUID:</b> ${frappe.utils.escape_html(msg.uuid || "")}`,
+				`<b>Fecha cancelación:</b> ${frappe.utils.escape_html(
+					msg.cancellation_date || ""
+				)}`,
+			]
+				.filter(Boolean)
+				.join("<br>");
+
+			frappe.msgprint({
+				title: __("Cancelación exitosa"),
+				message: lines,
+				indicator: "green",
+			});
+
+			// refrescar para que botones/estado cambien
+			frm.reload_doc();
+		}
 	}
 
 	function test_pac_connection(frm) {

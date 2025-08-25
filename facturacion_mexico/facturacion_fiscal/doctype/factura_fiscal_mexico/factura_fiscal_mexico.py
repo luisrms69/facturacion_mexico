@@ -223,17 +223,18 @@ class FacturaFiscalMexico(Document):
 		if sales_invoice.docstatus != 1:
 			frappe.throw(_("Sales Invoice debe estar enviada (submitted) para crear factura fiscal"))
 
-		# Verificar que no exista ya una factura fiscal para esta Sales Invoice
-		existing = frappe.db.exists(
+		# M4-02/03/04: Solo bloquear si existe una FFM ACTIVA (no drafts, no canceladas)
+		active_exists = frappe.db.exists(
 			"Factura Fiscal Mexico",
 			{
 				"sales_invoice": self.sales_invoice,
 				"name": ("!=", self.name),
-				"status": ("not in", ["cancelled"]),
+				"docstatus": 1,  # Solo enviadas
+				"fm_fiscal_status": ("in", ["TIMBRADO", "PENDIENTE_CANCELACION", "PROCESANDO"]),
 			},
 		)
 
-		if existing:
+		if active_exists:
 			frappe.throw(
 				_("Ya existe una factura fiscal activa para la Sales Invoice {0}").format(self.sales_invoice)
 			)
@@ -414,8 +415,15 @@ class FacturaFiscalMexico(Document):
 		self.calculate_fiscal_status_from_logs()
 
 	def create_fiscal_event(self, event_type, event_data):
-		"""Crear evento fiscal para auditoría."""
+		"""Crear evento fiscal - ELIMINACIÓN EN PROGRESO (FASE 0)."""
 		try:
+			# GUARD INMEDIATO: Verificar existencia DocType
+			if not frappe.db.exists("DocType", "Fiscal Event MX"):
+				# FALLBACK: Usar Response Log como única fuente verdad
+				self._log_event_to_response_log(event_type, event_data)
+				return None
+
+			# Código original (si DocType existe - transición suave)
 			fiscal_event = frappe.new_doc("Fiscal Event MX")
 			fiscal_event.event_type = event_type
 			fiscal_event.reference_doctype = self.doctype
@@ -426,8 +434,37 @@ class FacturaFiscalMexico(Document):
 				frappe.get_roles(frappe.session.user)[0] if frappe.get_roles(frappe.session.user) else "Guest"
 			)
 			fiscal_event.save(ignore_permissions=True)
+
 		except Exception as e:
+			# ERROR: También loggear en Response Log
+			self._log_event_to_response_log(
+				f"error_{event_type}", {"error": str(e), "original_data": event_data}
+			)
 			frappe.log_error(f"Error creating fiscal event: {e!s}", "Fiscal Event Creation Error")
+
+	def _log_event_to_response_log(self, event_type, event_data):
+		"""Fallback: usar Response Log para eventos fiscales."""
+		try:
+			import json
+
+			from facturacion_mexico.facturacion_fiscal.doctype.facturapi_response_log.facturapi_response_log import (
+				write_pac_response,
+			)
+
+			write_pac_response(
+				self.sales_invoice or self.name,
+				json.dumps({"event_type": event_type, "source": "fiscal_event_fallback"}),
+				json.dumps(event_data),
+				f"fiscal_event_{event_type}",
+			)
+
+			frappe.logger().info(f"Fiscal event logged to Response Log: {event_type} for {self.name}")
+
+		except Exception as fallback_error:
+			frappe.log_error(
+				f"Error in fiscal event fallback: {fallback_error!s}\nOriginal event: {event_type}\nData: {event_data}",
+				"Fiscal Event Fallback Error",
+			)
 
 	def update_sales_invoice_fiscal_info(self):
 		"""Actualizar información fiscal en Sales Invoice."""
@@ -1043,3 +1080,18 @@ class FacturaFiscalMexico(Document):
 
 		# Si no tiene formato esperado, retornar el valor completo limpio
 		return tax_category.strip() if tax_category else None
+
+	def before_cancel(self):
+		"""Hook contextual: Permitir cancelación FFM solo si ya cancelada fiscalmente."""
+		if self.sales_invoice and self.fm_fiscal_status != "CANCELADO":
+			frappe.throw(
+				_(
+					"No puede cancelarse la FFM: primero cancela fiscalmente en el PAC.<br><br>"
+					"<b>Secuencia correcta:</b><br>"
+					"1️⃣ Cancelar en FacturAPI (botón 'Cancelar en FacturAPI')<br>"
+					"2️⃣ Cancelar FFM (botón 'Cancel' de Frappe)<br>"
+					"3️⃣ Cancelar Sales Invoice (desde Sales Invoice)"
+				),
+				title=_("Secuencia de cancelación requerida"),
+			)
+		# Si fm_fiscal_status="CANCELADO" → permite cancelación DocType

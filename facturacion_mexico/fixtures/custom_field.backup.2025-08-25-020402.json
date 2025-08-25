@@ -2314,7 +2314,7 @@
   "link_filters": null,
   "mandatory_depends_on": null,
   "modified": "2025-08-19 02:34:17.585809",
-  "module": "Facturacion Mexico",
+  "module": "Facturacion Fiscal",
   "name": "Sales Invoice-ffm_substitution_source_uuid",
   "no_copy": 1,
   "non_negative": 0,

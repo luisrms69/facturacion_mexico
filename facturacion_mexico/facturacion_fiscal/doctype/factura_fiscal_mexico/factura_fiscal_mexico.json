@@ -285,6 +285,7 @@
       "label": "Información de Cancelación"
     },
     {
+      "allow_on_submit": 1,
       "fieldname": "cancellation_reason",
       "fieldtype": "Select",
       "label": "Motivo de Cancelación",
@@ -294,7 +295,8 @@
       "fieldname": "cancellation_date",
       "fieldtype": "Datetime",
       "label": "Fecha de Cancelación",
-      "read_only": 1
+      "read_only": 1,
+      "allow_on_submit": 1
     },
     {
       "fieldname": "section_break_historial_facturapi",
@@ -490,6 +492,7 @@
   "owner": "Administrator",
   "permissions": [
     {
+      "amend": 0,
       "create": 1,
       "delete": 1,
       "email": 1,
@@ -502,6 +505,7 @@
       "write": 1
     },
     {
+      "amend": 0,
       "create": 1,
       "email": 1,
       "export": 1,
@@ -513,6 +517,7 @@
       "write": 1
     },
     {
+      "amend": 0,
       "create": 1,
       "delete": 1,
       "email": 1,

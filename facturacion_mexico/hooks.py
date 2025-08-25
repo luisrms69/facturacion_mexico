@@ -49,14 +49,27 @@ doctype_js = {
 		"public/js/ereceipt_handler.js",
 		"public/js/sales_invoice_ffm_summary.js",
 		"public/js/sales_invoice_block_cancel.js",
+		"public/js/si_post_fiscal_actions.js",
 	],
 	"Customer": ["public/js/customer.js"],
-	"Factura Fiscal Mexico": "facturacion_fiscal/doctype/factura_fiscal_mexico/factura_fiscal_mexico.js",
+	"Factura Fiscal Mexico": [
+		"public/js/fm_enums.js",
+		"public/js/fm_policy.js",
+		"ffm_cancel_ui_v2.js",
+		"facturacion_fiscal/doctype/factura_fiscal_mexico/factura_fiscal_mexico.js",
+	],
 }
 
 # include css in doctype views
 doctype_css = {
 	"Factura Fiscal Mexico": ["public/css/fiscal_dashboard.css"],
+}
+
+doctype_list_js = {
+	"Factura Fiscal Mexico": [
+		"public/js/fm_enums.js",  # enum/colores primero
+		"facturacion_fiscal/doctype/factura_fiscal_mexico/factura_fiscal_mexico_list.js",
+	]
 }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
@@ -194,6 +207,7 @@ fixtures = [
 					"Sales Invoice-fm_pending_amount",
 					# "Sales Invoice-fm_serie_folio", # MIGRADO A Factura Fiscal Mexico
 					"Sales Invoice-fm_timbrado_section",
+					"Sales Invoice-ffm_substitution_source_uuid",
 					# "Sales Invoice-fm_uuid_fiscal", # ELIMINADO: Usar función puente get_invoice_uuid() - NO duplicar UUID
 					# Factura Fiscal Mexico custom fields - ELIMINADOS (migrados a JSON nativo del DocType)
 					# NOTA: Estos campos ahora están definidos directamente en factura_fiscal_mexico.json
@@ -216,6 +230,43 @@ fixtures = [
 	{"dt": "Mode of Payment", "filters": [["name", "like", "%-%"]]},
 	# UOM SAT - Unidades de medida con códigos SAT (20 principales)
 	{"dt": "UOM", "filters": [["uom_name", "like", "% - %"]]},
+	# FASE 4: Roles y permisos sistema facturación México
+	{
+		"dt": "Role",
+		"filters": [
+			[
+				"role_name",
+				"in",
+				[
+					"Facturacion Mexico User",
+					"Facturacion Mexico Manager",
+					"Facturacion Mexico System Manager",
+				],
+			]
+		],
+	},
+	{
+		"dt": "DocPerm",
+		"filters": [
+			[
+				"parent",
+				"in",
+				[
+					"Factura Fiscal Mexico",
+					"Sales Invoice",
+				],
+			],
+			[
+				"role",
+				"in",
+				[
+					"Facturacion Mexico User",
+					"Facturacion Mexico Manager",
+					"Facturacion Mexico System Manager",
+				],
+			],
+		],
+	},
 ]
 
 # Uninstallation
@@ -262,9 +313,9 @@ fixtures = [
 # ---------------
 # Override standard doctype classes
 
-# override_doctype_class = {
-# 	"ToDo": "custom_app.overrides.CustomToDo"
-# }
+override_doctype_class = {
+	"Factura Fiscal Mexico": "facturacion_mexico.facturacion_fiscal.doctype.factura_fiscal_mexico.overrides.FacturaFiscalMexico"
+}
 
 # Document Events
 # ---------------
@@ -274,10 +325,10 @@ doc_events = {
 	# =============================================================================
 	# VALIDACIONES CRÍTICAS - PRIMERA PRIORIDAD
 	# =============================================================================
-	# Sales Invoice Cancellation Guard - Bloqueo cancelación con FFM activa
-	"Sales Invoice": {
-		"before_cancel": "facturacion_mexico.validaciones.sales_invoice_cancel_guard.before_cancel",
-	},
+	# Sales Invoice Cancellation - REMOVIDO: Override class FFM maneja LinkExistsError
+	# "Sales Invoice": {
+	# 	"before_cancel": "facturacion_mexico.api.fiscal_operations.before_cancel_sales_invoice_orchestrator",
+	# },
 	# Customer RFC Validation - Validación obligatoria México
 	"Customer": {
 		"validate": "facturacion_mexico.validaciones.hooks_handlers.customer_validate.validate_rfc_format",

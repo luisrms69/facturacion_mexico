@@ -18,7 +18,21 @@ from frappe import _
 from frappe.utils import add_to_date, now, now_datetime
 
 # Directorio fallback para respuestas PAC cuando DB no disponible
-FALLBACK_DIR = "/tmp/facturacion_mexico_pac_fallback"
+# Usar directorio sites para compatibilidad multi-sitio
+FALLBACK_DIR = None  # Se calcula dinámicamente por sitio
+
+
+def _get_fallback_dir():
+	"""Calcular directorio fallback por sitio para compatibilidad multi-sitio."""
+	try:
+		base = frappe.utils.get_site_path("private", "files", "facturacion_mexico_pac_fallback")
+		frappe.create_folder(base)
+		return base
+	except Exception:
+		# Fallback a directorio temporal como último recurso
+		fallback_path = "/tmp/facturacion_mexico_pac_fallback"
+		os.makedirs(fallback_path, exist_ok=True)
+		return fallback_path
 
 
 def _derive_http_status(data: dict, default=500) -> int:
@@ -82,8 +96,9 @@ class PACResponseWriter:
 	def ensure_fallback_directory(self):
 		"""Garantizar que directorio fallback existe con permisos correctos."""
 		try:
-			Path(FALLBACK_DIR).mkdir(parents=True, exist_ok=True)
-			os.chmod(FALLBACK_DIR, 0o700)  # Owner-only permissions for security
+			fallback_dir = _get_fallback_dir()
+			Path(fallback_dir).mkdir(parents=True, exist_ok=True)
+			os.chmod(fallback_dir, 0o700)  # Owner-only permissions for security
 		except Exception as e:
 			# Incluso si falla crear directorio, continuamos
 			frappe.log_error(f"Error creando directorio fallback: {e!s}", "PAC Writer Fallback")
@@ -127,7 +142,9 @@ class PACResponseWriter:
 				result["method"] = "database"
 
 				# PASO 2: Actualizar Factura Fiscal Mexico si existe
-				self._update_factura_fiscal(sales_invoice_name, response_data, response_log.name)
+				self._update_factura_fiscal(
+					sales_invoice_name, response_data, response_log.name, operation_type
+				)
 
 				return result
 
@@ -202,7 +219,7 @@ class PACResponseWriter:
 		# Mapear operation_type a valores válidos del DocType (ARQUITECTURA RESILIENTE)
 		operation_type_mapping = {
 			"timbrado": "Timbrado",
-			"cancelacion": "PENDIENTE_CANCELACION",
+			"cancelacion": "Solicitud Cancelación",
 			"consulta": "Consulta Estado",
 			"timeout_recovery": "Consulta Estado",
 		}
@@ -333,7 +350,8 @@ class PACResponseWriter:
 		"""Escribir respuesta a filesystem como fallback."""
 		timestamp = now().replace(" ", "_").replace(":", "-")
 		filename = f"pac_response_{sales_invoice_name}_{operation_type}_{timestamp}.json"
-		filepath = os.path.join(FALLBACK_DIR, filename)
+		fallback_dir = _get_fallback_dir()
+		filepath = os.path.join(fallback_dir, filename)
 
 		fallback_data = {
 			"sales_invoice": sales_invoice_name,
@@ -351,7 +369,11 @@ class PACResponseWriter:
 		return filepath
 
 	def _update_factura_fiscal(
-		self, sales_invoice_name: str, response_data: dict[str, Any], response_log_name: str
+		self,
+		sales_invoice_name: str,
+		response_data: dict[str, Any],
+		response_log_name: str,
+		operation_type: str = "Timbrado",
 	):
 		"""Actualizar Factura Fiscal Mexico con datos de respuesta."""
 		try:
@@ -362,24 +384,27 @@ class PACResponseWriter:
 			if not factura_fiscal_name:
 				return
 
-			# Determinar nuevo estado con reglas estrictas
-			new_status, status_code, uuid = self._derive_status_from_response(response_data)
+			# Determinar nuevo estado con reglas estrictas según tipo de operación
+			new_status, status_code, uuid = self._derive_status_from_response(response_data, operation_type)
 
 			# Preparar campos a actualizar - NORMALIZACIÓN CRÍTICA A MAYÚSCULAS
-			normalized_status = _norm_status(new_status)
 			success = bool(response_data.get("success"))
 			update_fields = {
 				"fm_last_response_log": response_log_name,
 				"fm_last_pac_sync": now_datetime(),
 				"fm_sync_status": "synced" if success else "pending",
-				"fm_fiscal_status": normalized_status,
 			}
+
+			# Solo actualizar estado fiscal si la operación lo requiere (new_status no es None)
+			if new_status is not None:
+				normalized_status = _norm_status(new_status)
+				update_fields["fm_fiscal_status"] = normalized_status
 
 			# Actualizar UUID solo si es exitoso
 			if uuid:
 				update_fields["fm_uuid"] = uuid
 			elif new_status == "ERROR":
-				# Limpiar UUID si hay error para higiene
+				# Limpiar UUID si hay error de timbrado para higiene
 				update_fields["fm_uuid"] = None
 
 			# Actualizar URLs si están en respuesta
@@ -421,10 +446,12 @@ class PACResponseWriter:
 	def _determine_fiscal_status(self, response_data: dict[str, Any]) -> str | None:
 		"""Determinar estado fiscal basado en respuesta PAC con reglas estrictas."""
 		# REGLA ESTRICTA: TIMBRADO solo si success=True, status_code 200/201 Y uuid presente
-		status, _status_code, _uuid = self._derive_status_from_response(response_data)
+		status, _status_code, _uuid = self._derive_status_from_response(response_data, "timbrado")
 		return status
 
-	def _derive_status_from_response(self, resp: dict[str, Any]) -> tuple[str, int, str]:
+	def _derive_status_from_response(
+		self, resp: dict[str, Any], operation_type: str = "timbrado"
+	) -> tuple[str, int, str]:
 		"""Derivar (fiscal_status, status_code, uuid) con reglas canónicas estrictas."""
 		import re
 
@@ -441,12 +468,24 @@ class PACResponseWriter:
 
 		uuid = (resp.get("uuid") or "").strip()
 
-		# REGLA CANÓNICA: TIMBRADO solo si éxito real + código válido + UUID
-		if ok and status_code in (200, 201) and uuid:
-			return "TIMBRADO", status_code, uuid
+		# REGLA CANÓNICA POR TIPO DE OPERACIÓN
+		if operation_type == "Timbrado":
+			# Para timbrado: TIMBRADO solo si éxito real + código válido + UUID
+			if ok and status_code in (200, 201) and uuid:
+				return "TIMBRADO", status_code, uuid
+			# Error en timbrado = ERROR
+			return "ERROR", status_code or 500, ""
 
-		# Cualquier otra combinación es ERROR
-		return "ERROR", status_code or 500, ""
+		elif operation_type == "Solicitud Cancelación":
+			# Para cancelación: éxito = CANCELADO, error = mantener estado actual (no cambiar)
+			if ok and status_code in (200, 201):
+				return "CANCELADO", status_code, ""
+			# ERROR EN CANCELACIÓN: NO cambiar estado fiscal (return None = no update)
+			return None, status_code or 500, ""
+
+		else:
+			# Otras operaciones (consulta, etc): no cambian estado fiscal
+			return None, status_code or 500, ""
 
 	def _schedule_recovery_task(self, fallback_file: str):
 		"""Programar tarea de recovery para archivo fallback."""
@@ -633,14 +672,15 @@ def get_fallback_files() -> list[dict[str, Any]]:
 		Lista de archivos fallback con metadata
 	"""
 	try:
-		if not os.path.exists(FALLBACK_DIR):
+		fallback_dir = _get_fallback_dir()
+		if not os.path.exists(fallback_dir):
 			return []
 
 		fallback_files = []
 
-		for filename in os.listdir(FALLBACK_DIR):
+		for filename in os.listdir(fallback_dir):
 			if filename.startswith("pac_response_") and filename.endswith(".json"):
-				filepath = os.path.join(FALLBACK_DIR, filename)
+				filepath = os.path.join(fallback_dir, filename)
 
 				try:
 					with open(filepath) as f:
