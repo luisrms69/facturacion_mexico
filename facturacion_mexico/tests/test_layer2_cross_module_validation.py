@@ -10,6 +10,7 @@ import unittest
 
 import frappe
 from facturacion_mexico.config.fiscal_states_config import FiscalStates, SyncStates, OperationTypes
+from facturacion_mexico.tests.legacy_allowlist import LEGACY_CF_ALLOWLIST
 
 
 class TestLayer2CrossModuleValidation(unittest.TestCase):
@@ -60,21 +61,24 @@ class TestLayer2CrossModuleValidation(unittest.TestCase):
             AND fieldname NOT LIKE 'section_%'
         """, as_dict=True)
 
-        # Filtrar campos que podrían ser del sistema base o legacy
+        # Filtrar campos del sistema base ERPNext y legados autorizados
         system_fields = [
             'informacion_fiscal_mx_section', 'cfdi_use', 'payment_method_sat',
             'column_break_fiscal_mx', 'fiscal_status', 'uuid_fiscal',
             'fm_factura_fiscal_mx', 'rfc', 'column_break_fiscal_customer',
             'regimen_fiscal', 'uso_cfdi_default', 'clasificacion_sat_section',
             'producto_servicio_sat', 'column_break_item_sat', 'fm_unidad_sat',
-            # Campos legacy o secciones sin prefijo (grandfathered)
+            # Secciones legacy sin prefijo (grandfathered)
             'certificate_management_section', 'fiscal_configuration_section',
             'folio_management_section', 'statistics_section', 'exempt_from_sales_tax',
             'branch'  # Campo nativo ERPNext
         ]
 
+        # Combinar system_fields con allowlist centralizada
+        allowed_fields = system_fields + list(LEGACY_CF_ALLOWLIST)
+
         real_inconsistent = [f for f in inconsistent_fields
-                           if f.fieldname not in system_fields]
+                           if f.fieldname not in allowed_fields]
 
         if real_inconsistent:
             print(f"⚠ Campos sin prefijo fm_: {[(f.dt, f.fieldname) for f in real_inconsistent[:5]]}")
@@ -82,7 +86,9 @@ class TestLayer2CrossModuleValidation(unittest.TestCase):
             print("✓ Todos los custom fields nuevos siguen nomenclatura fm_*")
 
         self.assertEqual(len(real_inconsistent), 0,
-            "Todos los custom fields deben usar prefijo fm_")
+            f"Custom Fields sin prefijo 'fm_': {[(f.dt, f.fieldname) for f in real_inconsistent]}. "
+            "Los campos nuevos deben iniciar con 'fm_'. "
+            "Si un campo es realmente legado, agréguelo a LEGACY_CF_ALLOWLIST.")
 
     def test_sales_invoice_filters_implementation(self):
         """
