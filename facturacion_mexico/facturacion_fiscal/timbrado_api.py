@@ -702,12 +702,16 @@ class TimbradoAPI:
 				# Solo si hay UUID de origen en la SI (indica sustitución 01)
 				si = frappe.get_doc("Sales Invoice", sales_invoice.name)
 				if (getattr(si, "ffm_substitution_source_uuid", "") or "").strip():
-					_cascade_cancel_previous_after_substitute(factura_fiscal.name)
-					frappe.logger().info(f"Cascada sustitución ejecutada para FFM {factura_fiscal.name}")
+					cascade_result = _cascade_cancel_previous_after_substitute(factura_fiscal.name)
+					if cascade_result.get("cascade") == "completed":
+						frappe.logger().info(f"Cascada sustitución completada para FFM {factura_fiscal.name}")
+					else:
+						frappe.logger().warning(f"Cascada sustitución con warnings: {cascade_result}")
 			except Exception as e:
+				# CONCURRENCY FIX: No re-raise - timbrado ya fue exitoso
 				frappe.log_error(frappe.get_traceback(), "Post-Timbrado: cascada sustitución")
-				frappe.logger().warning(f"Cascada sustitución falló para FFM {factura_fiscal.name}: {e}")
-				# NO usar frappe.throw aquí (el timbrado ya fue exitoso)
+				frappe.logger().error(f"Cascada sustitución falló para FFM {factura_fiscal.name}: {e}")
+				# NO usar frappe.throw aquí - preservar timbrado exitoso
 
 			frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure fiscal transaction is committed after successful stamping
 
@@ -1642,60 +1646,216 @@ def create_substitution_si(si_name: str):
 
 def _cascade_cancel_previous_after_substitute(new_ffm_name: str):
 	"""Post-éxito: cancelar CFDI previo con motivo 01 y cancelar SI/FFM originales."""
+	from frappe.utils import cstr
+
 	try:
 		new_ffm = frappe.get_doc("Factura Fiscal Mexico", new_ffm_name)
 		new_uuid = (new_ffm.get("fm_uuid") or "").strip()
 		if not new_uuid:
-			return  # nada que hacer
+			return {"skipped": "no_new_uuid"}
 
 		# Ubicar el SI de reemplazo y su uuid origen
 		si = frappe.get_doc("Sales Invoice", new_ffm.sales_invoice)
 		src_uuid = (si.get("ffm_substitution_source_uuid") or "").strip()
 		if not src_uuid:
-			return  # No es una sustitución
+			return {"skipped": "no_source_uuid"}
 
 		# Encontrar FFM original por UUID (previo a sustituir)
 		orig_ffm_name = frappe.db.get_value("Factura Fiscal Mexico", {"fm_uuid": src_uuid}, "name")
 		if not orig_ffm_name:
 			frappe.logger().warning(f"No se encontró FFM original con UUID {src_uuid}")
-			return
+			return {"skipped": "no_original_ffm"}
 
+		# CRITICAL FIX: Resolver SI original a partir de la FFM original
+		orig_si_name = frappe.db.get_value("Factura Fiscal Mexico", {"name": orig_ffm_name}, "sales_invoice")
+		if not orig_si_name:
+			frappe.log_error(f"Cascade01: no Sales Invoice for FFM {orig_ffm_name}", "Cascade01")
+			return {"error": "no_original_si"}
+
+		# IDEMPOTENCIA: Verificar si ambos ya están cancelados
 		orig_ffm = frappe.get_doc("Factura Fiscal Mexico", orig_ffm_name)
-		orig_si_name = orig_ffm.sales_invoice
+		orig_si = frappe.get_doc("Sales Invoice", orig_si_name)
 
-		frappe.logger().info(f"Iniciando cascada: cancelar FFM {orig_ffm_name} y SI {orig_si_name}")
+		if orig_si.docstatus == 2 and orig_ffm.docstatus == 2:
+			return {"skipped": "already_cancelled"}
 
-		# 1) Cancelar fiscalmente el CFDI previo con motivo 01 (pasando substitution_uuid=new_uuid)
-		try:
-			api = TimbradoAPI()
-			cancel_result = api.cancelar_factura(orig_si_name, "01", new_uuid)
-			frappe.logger().info(f"Cancelación fiscal 01 exitosa: {cancel_result}")
-		except Exception as e:
-			frappe.logger().error(f"Error cancelando CFDI previo: {e}")
-			# No fallar toda la operación por error en cancelación
-			return
+		orig_status = frappe.db.get_value("Factura Fiscal Mexico", orig_ffm_name, "fm_fiscal_status")
+		if (orig_status or "").upper() in {"CANCELADO", "CANCELADA"}:
+			return {"skipped": "already_cancelled"}
 
-		# 2) Cancelar FFM original (DocType)
-		try:
-			if orig_ffm.docstatus == 1:
-				orig_ffm.cancel()
-				frappe.logger().info(f"FFM {orig_ffm_name} cancelada")
-		except Exception as e:
-			frappe.logger().error(f"Error cancelando FFM original: {e}")
+		# CONCURRENCY FIX: Lock per-document para evitar race conditions
+		lock_key = f"ffm:cascade:{orig_ffm_name}"
+		with frappe.cache().lock(lock_key, timeout=30):
+			frappe.logger().info(
+				f"Iniciando cascada REORDENADA con lock: FFM {orig_ffm_name} via SI {orig_si_name}"
+			)
 
-		# 3) Cancelar SI original
-		try:
-			if orig_si_name:
-				orig_si = frappe.get_doc("Sales Invoice", orig_si_name)
-				if orig_si.docstatus == 1:
+			cancel_result = None
+
+			# 1) Cancelar fiscalmente el CFDI previo con motivo 01 (PAC)
+			try:
+				api = TimbradoAPI()
+				# CRITICAL FIX: Usar orig_si_name en lugar de orig_ffm_name
+				cancel_result = api.cancelar_factura(orig_si_name, "01", new_uuid)
+				frappe.logger().info(f"Cancelación fiscal PAC exitosa: {cancel_result}")
+			except Exception as e:
+				frappe.logger().error(f"Error cancelando CFDI previo en PAC: {e}")
+				# No fallar toda la operación por error en cancelación PAC
+				cancel_result = None
+
+			# 2) REORDER: Marcar FFM original con estado fiscal CANCELADO (sin cancelar DocType aún)
+			try:
+				orig_ffm.reload()
+				orig_ffm.set("fm_fiscal_status", "CANCELADO")
+				orig_ffm.save()
+				frappe.logger().info(f"FFM {orig_ffm_name} marcada como CANCELADO fiscalmente")
+			except Exception as e:
+				frappe.logger().error(f"Error marcando FFM como CANCELADO: {e}")
+
+			# 2.5) HARDENING PREVENTIVO - ANTES de cancelar (CONFIRMADO POR EXPERTO)
+			try:
+				orig_si.reload()
+				orig_ffm.reload()
+
+				# Limpiar SI → FFM link ANTES de cancel()
+				if getattr(orig_si, "fm_factura_fiscal_mx", None):
+					ffm_ref = orig_si.fm_factura_fiscal_mx
+					orig_si.db_set("fm_factura_fiscal_mx", "")
+					frappe.db.commit()  # Forzar commit inmediato
+					orig_si.add_comment("Info", f"Link FFM limpiado preventivo: {ffm_ref}")
+					frappe.logger().info(f"Hardening preventivo 1: SI {orig_si_name} → FFM link limpiado")
+
+				# Limpiar FFM → SI link ANTES de cancel()
+				if getattr(orig_ffm, "sales_invoice", None):
+					si_ref = orig_ffm.sales_invoice
+					orig_ffm.db_set("sales_invoice", "")
+					frappe.db.commit()  # Forzar commit inmediato
+					orig_ffm.add_comment("Info", f"Link SI limpiado preventivo: {si_ref}")
+					frappe.logger().info(f"Hardening preventivo 2: FFM {orig_ffm_name} → SI link limpiado")
+
+			except Exception as e:
+				frappe.logger().error(f"Error en hardening preventivo: {e}")
+
+			# 3) REORDER: Cancelar SI original PRIMERO (sin links que validen)
+			try:
+				orig_si.reload()  # CONCURRENCY FIX: reload antes de cancelar
+				if cstr(orig_si.docstatus) == "1":
 					orig_si.cancel()
-					frappe.logger().info(f"SI {orig_si_name} cancelada")
-		except Exception as e:
-			frappe.logger().error(f"Error cancelando SI original: {e}")
+					frappe.logger().info(f"SI {orig_si_name} cancelado (docstatus=2)")
+			except Exception as e:
+				frappe.logger().error(f"Error cancelando SI original: {e}")
+
+			# 4) REORDER: Cancelar FFM original DESPUÉS (con reload)
+			try:
+				orig_ffm.reload()  # CONCURRENCY FIX: reload antes de cancelar
+				if cstr(orig_ffm.docstatus) == "1":
+					orig_ffm.cancel()
+					frappe.logger().info(f"FFM {orig_ffm_name} cancelada (docstatus=2)")
+			except Exception as e:
+				frappe.logger().error(f"Error cancelando FFM original: {e}")
+
+			# 5) Garantizar acuse de cancelación en FFM original (tras cancelar FFM)
+			if cancel_result and cancel_result.get("status") in ["accepted", "accepted_with_details"]:
+				try:
+					_download_and_attach_cancellation_ack(
+						ffm_name=orig_ffm_name,
+						uuid=getattr(orig_ffm, "fm_uuid", src_uuid),
+						cancel_result=cancel_result,
+					)
+				except Exception as e:
+					frappe.log_error(f"Acuse cancelación pendiente o error descarga: {e}", "FFM Cancel Ack")
+					# Marcar como pendiente para reintento manual
+					try:
+						orig_ffm.db_set("ack_pending", 1)
+					except Exception:
+						pass
+
+		return {"cascade": "completed"}
 
 	except Exception as e:
 		frappe.logger().error(f"Error en cascada de cancelación: {e}")
-		# No fallar toda la operación
+		return {"cascade": "error", "message": str(e)}
+
+
+def _download_and_attach_cancellation_ack(ffm_name: str, uuid: str, cancel_result: dict):
+	"""Descargar y adjuntar acuse de cancelación del PAC a la FFM original."""
+	import requests
+
+	# Buscar URL del acuse en respuesta PAC (varios alias posibles)
+	ack_url = None
+	ack_aliases = [
+		"cancellation_ack_url",
+		"cancellation_pdf_url",
+		"acuse_cancelacion_url",
+		"ack_url",
+		"cancellation_ack",
+		"cancellation_receipt_url",
+	]
+
+	for alias in ack_aliases:
+		if cancel_result.get(alias):
+			ack_url = cancel_result[alias]
+			break
+
+	if not ack_url:
+		# Si no viene inline, intentar consultar comprobante para obtener acuse
+		frappe.logger().info(f"No acuse inline para {uuid}, marcando ack_pending")
+		ffm_doc = frappe.get_doc("Factura Fiscal Mexico", ffm_name)
+		ffm_doc.db_set("ack_pending", 1)
+		return
+
+	try:
+		# Verificar si ya existe acuse adjunto (evitar duplicados)
+		existing_files = frappe.get_all(
+			"File",
+			filters={
+				"attached_to_doctype": "Factura Fiscal Mexico",
+				"attached_to_name": ffm_name,
+				"file_name": ["like", f"%AcuseCancelacion_{uuid[:8]}%"],
+			},
+		)
+
+		if existing_files:
+			frappe.logger().info(f"Acuse ya existe para FFM {ffm_name}, saltando descarga")
+			return
+
+		# Descargar acuse
+		response = requests.get(ack_url, timeout=30)
+		response.raise_for_status()
+
+		# Determinar tipo de archivo por content-type o extensión
+		content_type = response.headers.get("content-type", "").lower()
+		if "pdf" in content_type:
+			file_ext = "pdf"
+		elif "xml" in content_type:
+			file_ext = "xml"
+		else:
+			# Fallback: asumir PDF
+			file_ext = "pdf"
+
+		# Crear archivo adjunto
+		file_name = f"AcuseCancelacion_{uuid[:8]}_SAT.{file_ext}"
+
+		file_doc = frappe.get_doc(
+			{
+				"doctype": "File",
+				"file_name": file_name,
+				"attached_to_doctype": "Factura Fiscal Mexico",
+				"attached_to_name": ffm_name,
+				"content": response.content,
+				"decode": False,
+				"is_private": 1,
+			}
+		)
+
+		file_doc.insert()
+		frappe.logger().info(f"Acuse adjuntado exitosamente: {file_name} a FFM {ffm_name}")
+
+	except Exception as e:
+		frappe.logger().error(f"Error descargando acuse para FFM {ffm_name}: {e}")
+		# Marcar como pendiente para reintento manual
+		ffm_doc = frappe.get_doc("Factura Fiscal Mexico", ffm_name)
+		ffm_doc.db_set("ack_pending", 1)
 
 
 # --- [END Milestone 3] ---

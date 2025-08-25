@@ -250,6 +250,20 @@
 				add_post_fiscal_actions(frm);
 				add_fiscal_status_indicator(frm);
 				add_substitute_button_mx(frm); // [Milestone 3] Botón sustitución
+
+				// CONCURRENCY FIX: Mejorar UX post-sustitución exitosa
+				if (
+					frm.doc.fm_fiscal_status === "TIMBRADO" &&
+					frm.doc.ffm_substitution_source_uuid
+				) {
+					// Si es un SI sustituto que se timbró exitosamente
+					frappe.show_alert({
+						message: __(
+							"Sustitución CFDI completada exitosamente - Cascada automática ejecutada"
+						),
+						indicator: "green",
+					});
+				}
 			}
 		},
 	});
