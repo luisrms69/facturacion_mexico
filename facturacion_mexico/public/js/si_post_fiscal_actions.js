@@ -53,15 +53,19 @@
 			() => {
 				const ffm_prev = frm.doc.fm_factura_fiscal_mx || "N/A";
 				const msg = [
-					__("¿Crear nueva factura fiscal para este Sales Invoice?"),
+					__(
+						"Se desvinculará este Sales Invoice de la FFM cancelada para que puedas volver a timbrar desde Factura Fiscal. ¿Continuar?"
+					),
 					"<br><br>",
 					`• ${__("Sales Invoice")}: ${frappe.utils.escape_html(frm.doc.name)}<br>`,
 					`• ${__("FFM anterior")}: ${frappe.utils.escape_html(ffm_prev)}<br><br>`,
-					__("Se creará una nueva FFM vinculada al mismo Sales Invoice."),
+					__(
+						"Después podrás modificar lo necesario y usar 'Generar Factura Fiscal' (flujo normal)."
+					),
 				].join("");
 
 				frappe.confirm(msg, () => {
-					frappe.dom.freeze(__("Generando nueva factura fiscal..."));
+					frappe.dom.freeze(__("Preparando re-facturación..."));
 					frappe
 						.call({
 							method: "facturacion_mexico.api.fiscal_operations.refacturar_misma_si",
@@ -70,10 +74,22 @@
 						.then((r) => {
 							const out = (r && r.message) || {};
 							if (out.ok) {
-								frappe.show_alert({
-									message: __("Nueva FFM creada: ") + (out.ffm || ""),
-									indicator: "green",
-								});
+								if (out.already_unlinked) {
+									frappe.show_alert({
+										message: __(
+											out.message ||
+												"Sales Invoice ya está listo para re-facturar"
+										),
+										indicator: "blue",
+									});
+								} else {
+									frappe.show_alert({
+										message: __(
+											"Listo. Modifica lo necesario y usa 'Generar Factura Fiscal' (flujo normal)."
+										),
+										indicator: "green",
+									});
+								}
 								frm.reload_doc();
 							} else {
 								frappe.msgprint({
@@ -90,7 +106,7 @@
 								indicator: "red",
 							});
 						})
-						.finally(() => frappe.dom.unfreeze());
+						.always(() => frappe.dom.unfreeze());
 				});
 			},
 			__("Acciones Post-Fiscal")

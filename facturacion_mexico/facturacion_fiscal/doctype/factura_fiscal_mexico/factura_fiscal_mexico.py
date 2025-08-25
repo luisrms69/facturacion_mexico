@@ -223,17 +223,18 @@ class FacturaFiscalMexico(Document):
 		if sales_invoice.docstatus != 1:
 			frappe.throw(_("Sales Invoice debe estar enviada (submitted) para crear factura fiscal"))
 
-		# Verificar que no exista ya una factura fiscal para esta Sales Invoice
-		existing = frappe.db.exists(
+		# M4-02/03/04: Solo bloquear si existe una FFM ACTIVA (no drafts, no canceladas)
+		active_exists = frappe.db.exists(
 			"Factura Fiscal Mexico",
 			{
 				"sales_invoice": self.sales_invoice,
 				"name": ("!=", self.name),
-				"status": ("not in", ["cancelled"]),
+				"docstatus": 1,  # Solo enviadas
+				"fm_fiscal_status": ("in", ["TIMBRADO", "PENDIENTE_CANCELACION", "PROCESANDO"]),
 			},
 		)
 
-		if existing:
+		if active_exists:
 			frappe.throw(
 				_("Ya existe una factura fiscal activa para la Sales Invoice {0}").format(self.sales_invoice)
 			)
