@@ -230,6 +230,43 @@ fixtures = [
 	{"dt": "Mode of Payment", "filters": [["name", "like", "%-%"]]},
 	# UOM SAT - Unidades de medida con códigos SAT (20 principales)
 	{"dt": "UOM", "filters": [["uom_name", "like", "% - %"]]},
+	# FASE 4: Roles y permisos sistema facturación México
+	{
+		"dt": "Role",
+		"filters": [
+			[
+				"role_name",
+				"in",
+				[
+					"Facturacion Mexico User",
+					"Facturacion Mexico Manager",
+					"Facturacion Mexico System Manager",
+				],
+			]
+		],
+	},
+	{
+		"dt": "DocPerm",
+		"filters": [
+			[
+				"parent",
+				"in",
+				[
+					"Factura Fiscal Mexico",
+					"Sales Invoice",
+				],
+			],
+			[
+				"role",
+				"in",
+				[
+					"Facturacion Mexico User",
+					"Facturacion Mexico Manager",
+					"Facturacion Mexico System Manager",
+				],
+			],
+		],
+	},
 ]
 
 # Uninstallation
@@ -276,9 +313,9 @@ fixtures = [
 # ---------------
 # Override standard doctype classes
 
-# override_doctype_class = {
-# 	"ToDo": "custom_app.overrides.CustomToDo"
-# }
+override_doctype_class = {
+	"Factura Fiscal Mexico": "facturacion_mexico.facturacion_fiscal.doctype.factura_fiscal_mexico.overrides.FacturaFiscalMexico"
+}
 
 # Document Events
 # ---------------
@@ -288,10 +325,10 @@ doc_events = {
 	# =============================================================================
 	# VALIDACIONES CRÍTICAS - PRIMERA PRIORIDAD
 	# =============================================================================
-	# Sales Invoice Cancellation Guard - Bloqueo cancelación con FFM activa
-	"Sales Invoice": {
-		"before_cancel": "facturacion_mexico.validaciones.sales_invoice_cancel_guard.before_cancel",
-	},
+	# Sales Invoice Cancellation - REMOVIDO: Override class FFM maneja LinkExistsError
+	# "Sales Invoice": {
+	# 	"before_cancel": "facturacion_mexico.api.fiscal_operations.before_cancel_sales_invoice_orchestrator",
+	# },
 	# Customer RFC Validation - Validación obligatoria México
 	"Customer": {
 		"validate": "facturacion_mexico.validaciones.hooks_handlers.customer_validate.validate_rfc_format",

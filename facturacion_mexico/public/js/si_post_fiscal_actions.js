@@ -9,12 +9,21 @@
 				.toUpperCase()
 				.replace("CANCELACION_PENDIENTE", "CANCELACIÓN_PENDIENTE"));
 
-	function hide_native_cancel_always_if_ffm_linked(frm) {
+	function hide_native_cancel_conditionally(frm) {
 		const linked = !!(frm.doc && frm.doc.fm_factura_fiscal_mx);
 
-		// Solo proceder si hay FFM vinculada
+		// Si no hay FFM vinculada, permitir Cancel nativo siempre
 		if (!linked) return;
 
+		const fiscal_status = norm(frm.doc.fm_fiscal_status || "");
+
+		// NUEVO: Si FFM está CANCELADA fiscalmente, permitir Cancel nativo (workflow 02/03/04)
+		if (fiscal_status === "CANCELADO") {
+			// No ocultar botón - permitir cancelación nativa con interceptor
+			return;
+		}
+
+		// MANTENER: Ocultar Cancel nativo si FFM está activa (TIMBRADO/PENDIENTE)
 		const $w = $(frm.page.wrapper);
 
 		// Botón secundario "Cancel" (en la barra)
@@ -112,82 +121,9 @@
 			__("Acciones Post-Fiscal")
 		);
 
-		// --- Botón: Cancelar Sales Invoice orquestado ---
-		frappe.call({
-			method: "facturacion_mexico.api.cancel_operations.get_cancellation_status",
-			args: { si_name: frm.doc.name },
-			callback: function (r) {
-				if (r.message && !r.message.error && r.message.can_cancel_si) {
-					const state = r.message;
-
-					frm.add_custom_button(
-						__("❌ Cancelar Sales Invoice"),
-						() => {
-							const msg = [
-								__("¿Confirma cancelar definitivamente este Sales Invoice?"),
-								"<br><br>",
-								"<b>Secuencia automática:</b><br>",
-								`1️⃣ Cancelar FFM ${
-									state.ffm_info?.name || "N/A"
-								} (si aún activa)<br>`,
-								`2️⃣ Cancelar Sales Invoice ${frm.doc.name}<br><br>`,
-								"<b>⚠️ Importante:</b><br>",
-								"• Esta acción NO es reversible<br>",
-								"• El documento queda permanentemente cancelado<br>",
-								"• Los datos se conservan para auditoría",
-							].join("");
-
-							frappe.confirm(
-								msg,
-								() => {
-									frappe.show_alert({
-										message: __("Procesando cancelación..."),
-										indicator: "blue",
-									});
-
-									frappe.call({
-										method: "facturacion_mexico.api.cancel_operations.cancel_sales_invoice_after_ffm",
-										args: { si_name: frm.doc.name },
-										callback: function (r) {
-											if (r.message && r.message.success) {
-												frappe.show_alert({
-													message: __(
-														"Sales Invoice cancelado exitosamente"
-													),
-													indicator: "green",
-												});
-
-												frappe.msgprint({
-													title: __("Cancelación completada"),
-													message: "✅ " + r.message.message,
-													indicator: "green",
-												});
-
-												frm.reload_doc();
-											}
-										},
-										error: function (r) {
-											frm.reload_doc();
-										},
-									});
-								},
-								__("Confirmar cancelación"),
-								__("Sí, cancelar definitivamente"),
-								__("No, mantener activo")
-							);
-						},
-						__("Acciones Post-Fiscal")
-					)
-						.addClass("btn-danger")
-						.attr(
-							"title",
-							__(
-								"Cancelar definitivamente este Sales Invoice. La FFM se cancelará automáticamente primero."
-							)
-						);
-				}
-			},
-		});
+		// ELIMINADO: Botón "❌ Cancelar Sales Invoice" custom deprecado
+		// El workflow 02/03/04 ahora usa cancelación nativa con interceptor backend.
+		// El interceptor hook before_cancel_sales_invoice_orchestrator() maneja la cancelación automáticamente.
 	}
 
 	function add_fiscal_status_indicator(frm) {
@@ -244,8 +180,8 @@
 
 	frappe.ui.form.on("Sales Invoice", {
 		refresh: function (frm) {
-			// PRIMERO: Ocultar botón Cancel nativo si hay FFM (propuesta experto)
-			hide_native_cancel_always_if_ffm_linked(frm);
+			// PRIMERO: Evaluar visibilidad botón Cancel nativo según estado fiscal
+			hide_native_cancel_conditionally(frm);
 
 			// DESPUÉS: Lógica existente de botones contextuales
 			if (frm.doc.docstatus === 1) {
@@ -257,7 +193,7 @@
 
 		// NUEVO: Si cambia el link FFM en runtime
 		fm_factura_fiscal_mx: function (frm) {
-			hide_native_cancel_always_if_ffm_linked(frm);
+			hide_native_cancel_conditionally(frm);
 		},
 
 		fm_fiscal_status: function (frm) {
