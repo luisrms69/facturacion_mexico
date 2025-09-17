@@ -1,0 +1,121 @@
+# Configuración Plan Testing - Datos Reales con RFC Válidos
+# Generado automáticamente desde: facturacion.dev
+
+plan:
+  nombre: "testing-ui-ux-sistema-facturacion"
+  categoria: "testing"
+  version: "1.1"
+  creado: "2025-09-17"
+  actualizado: "2025-09-17"
+
+sistema:
+  sitio: "facturacion.dev"
+  app: "facturacion_mexico"
+  empresa: "_Test Company"
+  empresa_rfc: null  # NOTA: Empresa sin RFC configurado
+
+datos_disponibles:
+  total_clientes_con_rfc: 18
+  total_items: 15
+  total_centros_costo: 10
+
+# CLIENTES REALES CON RFC VÁLIDOS (sin testing/E2E)
+clientes_testing:
+  # Los 5 mejores clientes con RFC para testing
+  cliente_01:
+    name: "CONCESIONARIA VUELA COMPAÑIA DE AVIACION"
+    customer_name: "CONCESIONARIA VUELA COMPAÑIA DE AVIACION"
+    tax_id: "CVA041027H80"
+    notas: "RFC real empresa aviación"
+
+  cliente_02:
+    name: "Cervecería Cuauhtémoc Moctezuma S.A."
+    customer_name: "Cervecería Cuauhtémoc Moctezuma S.A."
+    tax_id: "CCM920814BC1"
+    notas: "RFC real empresa cervecera"
+
+  cliente_03:
+    name: "Pemex Transformación Industrial"
+    customer_name: "Pemex Transformación Industrial"
+    tax_id: "PTI850715XX1"
+    notas: "RFC real empresa petrolera"
+
+  cliente_04:
+    name: "Liverpool S.A. de C.V."
+    customer_name: "Liverpool S.A. de C.V."
+    tax_id: "LIV921201P24"
+    notas: "RFC real empresa retail"
+
+  cliente_05:
+    name: "Telmex S.A.B. de C.V."
+    customer_name: "Telmex S.A.B. de C.V."
+    tax_id: "TEL8503159G1"
+    notas: "RFC real empresa telecomunicaciones"
+
+# CLIENTES ADICIONALES DISPONIBLES (backup)
+clientes_backup:
+  - name: "Telmex S.A.B. de C.V."
+    tax_id: "TEL8503159G1"
+  - name: "María Elena Rodríguez López"
+    tax_id: "ROLM750420MH8"
+  - name: "Nueva Wal mart de México, S. de R.L. de C.V."
+    tax_id: "NWM9709244W4"
+  - name: "Aaron José Morales Pensado"
+    tax_id: "MOPA941220QR3"
+  - name: "Abraham Enrique Hernández Chávez"
+    tax_id: "HECA850212MQ2"
+
+productos_testing:
+  # Usando productos reales del sistema
+  producto_01:
+    name: "Servicio E2E Test"
+    item_name: "Servicio de Testing E2E"
+    item_group: "_Test Item Group B - 3"
+    stock_uom: "E48 - Servicio"
+    tipo: "Servicio testing"
+
+  producto_02:
+    name: "Test Item Default"
+    item_name: "Test Item Default"
+    item_group: "Products"
+    stock_uom: "Nos"
+    tipo: "Producto estándar"
+
+  producto_03:
+    name: "138-CMS Shoe"
+    item_name: "138-CMS Shoe"
+    item_group: "_Test Item Group"
+    stock_uom: "_Test UOM"
+    tipo: "Producto físico"
+
+centros_costo:
+  centro_01:
+    name: "Main - _TC"
+    cost_center_name: "Main"
+    company: "_Test Company"
+
+# CONFIGURACIÓN TESTING ACTUALIZADA
+ejecucion:
+  tiempo_objetivo_total: "06:00"  # 6 horas
+  tiempo_objetivo_caso: "6 min"
+  success_rate_minimo: 95
+  evidencias_requeridas: 4
+
+metricas:
+  kpis_criticos:
+    - "Zero data loss: 100%"
+    - "Fiscal compliance: 100% (RFC válidos)"
+    - "User experience: ≥95%"
+
+# CAPACIDADES FISCALES REALES
+capacidades_fiscales:
+  validacion_rfc: "✅ Disponible - Clientes con RFC reales"
+  timbrado_facturapi: "⚠️ Requiere empresa con RFC configurado"
+  validaciones_sat: "✅ Disponible - RFC válidos del SAT"
+  complementos: "✅ Disponible si empresa configurada"
+
+# ADAPTACIONES PARA TESTING
+adaptaciones:
+  empresa_sin_rfc: "Configurar RFC empresa si se requiere timbrado real"
+  modo_testing: "UI/UX + validaciones fiscales básicas disponibles"
+  escalamiento: "Puede escalar a timbrado real configurando empresa"

@@ -234,14 +234,38 @@ with patch("frappe.get_doc") as mock_get:
 - ✅ **UBICACIÓN OBLIGATORIA:** `{app_name}/one_offs/` dentro estructura del app
 - ✅ **EJEMPLO:** `/home/erpnext/frappe-bench/apps/facturacion_mexico/one_offs/`
 - ✅ **PROPÓSITO:** Scripts para `bench execute` que NO se commitean al repositorio
-- ✅ **NAMING CONVENTION:** `{fecha}_{proposito}.py` (e.g., `20250916_migrar_customers.py`)
+- ✅ **SETUP INICIAL OBLIGATORIO:**
+  ```bash
+  # Crear directorio y __init__.py
+  mkdir -p {app_name}/one_offs/
+  echo "# one_offs module" > {app_name}/one_offs/__init__.py
+  ```
+- ✅ **NAMING CONVENTION:** Nombres Python válidos (sin números al inicio)
+  - ❌ INCORRECTO: `20250916_script.py` (números al inicio)
+  - ✅ CORRECTO: `script_20250916.py` o `migrar_customers.py`
+- ✅ **EJECUCIÓN MÓDULO:**
+  ```bash
+  # Para scripts en one_offs/ (requiere __init__.py)
+  bench --site sitio.dev execute "{app_name}.one_offs.script_name.function_name"
+
+  # Para scripts en módulo principal (alternativa)
+  bench --site sitio.dev execute "{app_name}.script_name.function_name"
+  ```
 - ✅ **CONTENIDO TÍPICO:** Migraciones datos, correcciones one-time, scripts diagnóstico
 - ❌ **PROHIBIDO:** Commitear scripts one-off al repositorio del proyecto
-- ✅ **COMANDO EJECUCIÓN:**
-  ```bash
-  bench --site sitio.dev execute facturacion_mexico/one_offs/script_name.py
-  ```
 - ⚠️ **IMPORTANTE:** Scripts deben ser idempotentes y con validaciones previas
+
+### **RG-011: PLANES IMPLEMENTACIÓN AUTOCONTENIDOS**
+- ✅ **Estructura obligatoria:** `docs/testing/planes/plan-[categoria]-[objetivo]/`
+- ✅ **Nombre descriptivo:** Archivo principal con nombre específico (no genérico)
+- ✅ **Subdirectorios estándar:** evidencias/ + resultados/ + config/
+- ✅ **Índice central:** docs/testing/PLAN-INDEX.md lista todos los planes
+- ✅ **Templates:** Usar docs/testing/templates/ para nuevos planes
+- ✅ **Aislamiento:** Cada plan completamente autocontenido
+- ❌ **Prohibido:** Carpetas compartidas entre múltiples planes
+- ❌ **Prohibido:** Nombres genéricos (plan.md, README.md)
+- ✅ **Categorías:** testing, performance, migracion, integracion, security, compliance
+- ✅ **Estados:** ⏳ Pendiente, 🔄 En ejecución, ✅ Completado, ❌ Fallido, 🕐 Programado, 🚫 Cancelado
 
 ### **RG-005: MULTI-LAYER SECURITY**
 - ✅ **3 capas:** Permisos DocType + Backend Guards + UI Removal
@@ -549,6 +573,7 @@ bench --site "$SITE" execute "$APP"/one_offs/script_name.py
 |------|-----------|
 | Arquitectura técnica | `buzola-internal/projects/facturacion_mexico/ARQUITECTURA_*.md` |
 | Testing detallado | `buzola-internal/projects/facturacion_mexico/TESTING_*.md` |
+| **Planes implementación** | `docs/testing/PLAN-INDEX.md` |
 | Docs usuario | `docs/user-guide/` |
 | APIs detalladas | `docs/api/` |
 
