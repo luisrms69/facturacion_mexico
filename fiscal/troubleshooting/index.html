@@ -1,0 +1,1982 @@
+
+<!doctype html>
+<html lang="es" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentación completa del sistema de facturación electrónica para México">
+      
+      
+        <meta name="author" content="Equipo Desarrollo Facturación México">
+      
+      
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.3">
+    
+    
+      
+        <title>🔧 Troubleshooting - Problemas Fiscales Comunes - Facturación México - Documentación Técnica</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.50c56a3b.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/advanced.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function n(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],n("js",new Date),n("config","G-XXXXXXXXXX"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){this.value&&n("event","search",{search_term:this.value})}),document$.subscribe(function(){var a=document.forms.feedback;if(void 0!==a)for(var e of a.querySelectorAll("[type=submit]"))e.addEventListener("click",function(e){e.preventDefault();var t=document.location.pathname,e=this.getAttribute("data-md-value");n("event","feedback",{page:t,data:e}),a.firstElementChild.disabled=!0;e=a.querySelector(".md-feedback__note [data-md-value='"+e+"']");e&&(e.hidden=!1)}),a.hidden=!1}),location$.subscribe(function(e){n("config","G-XXXXXXXXXX",{page_path:e.pathname})})});var e=document.createElement("script");e.async=!0,e.src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX",document.getElementById("__analytics").insertAdjacentElement("afterEnd",e)}</script>
+  
+    <script>var consent;"undefined"==typeof __md_analytics||(consent=__md_get("__consent"))&&consent.analytics&&__md_analytics()</script>
+  
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#troubleshooting-problemas-fiscales-comunes" class="md-skip">
+          Saltar a contenido
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabecera">
+    <a href="../.." title="Facturación México - Documentación Técnica" class="md-header__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Facturación México - Documentación Técnica
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              🔧 Troubleshooting - Problemas Fiscales Comunes
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo oscuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo oscuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Búsqueda" placeholder="Búsqueda" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Buscar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpiar" aria-label="Limpiar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando búsqueda
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Pestañas" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+    
+  
+  Inicio
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../user-guide/" class="md-tabs__link">
+          
+  
+  Guía de Usuario
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/" class="md-tabs__link">
+          
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/" class="md-tabs__link">
+          
+  
+  Desarrollo
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navegación" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Facturación México - Documentación Técnica" class="md-nav__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Facturación México - Documentación Técnica
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Inicio
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Guía de Usuario
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Guía de Usuario
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Usuario - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/getting-started/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Primeros Pasos
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/draft-invoices/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Facturas en Borrador
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/troubleshooting/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    API Reference
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    API Reference - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/cfdi/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CFDI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/draft-management/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Draft Management
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/catalogos/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Catalogos SAT
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/hooks/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Hooks
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Desarrollo
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Desarrollo
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Desarrollo - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Setup Desarrollo
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/draft-workflow/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Draft Workflow
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#problemas-de-timbrado" class="md-nav__link">
+    <span class="md-ellipsis">
+      🚨 Problemas de Timbrado
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🚨 Problemas de Timbrado">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#error-rfc-del-emisor-no-valido" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error: "RFC del emisor no válido"
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Error: "RFC del emisor no válido"">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sintomas" class="md-nav__link">
+    <span class="md-ellipsis">
+      Síntomas
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#causas-comunes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Causas Comunes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#soluciones" class="md-nav__link">
+    <span class="md-ellipsis">
+      Soluciones
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-certificado-vencido" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error: "Certificado vencido"
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Error: "Certificado vencido"">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sintomas_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Síntomas
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#soluciones_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Soluciones
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-serie-no-configurada" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error: "Serie no configurada"
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Error: "Serie no configurada"">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sintomas_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Síntomas
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#soluciones_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Soluciones
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#problemas-de-cancelacion" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔄 Problemas de Cancelación
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔄 Problemas de Cancelación">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#error-cfdi-no-encontrado-para-cancelar" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error: "CFDI no encontrado para cancelar"
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Error: "CFDI no encontrado para cancelar"">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sintomas_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Síntomas
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#causas" class="md-nav__link">
+    <span class="md-ellipsis">
+      Causas
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#soluciones_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Soluciones
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-plazo-de-cancelacion-vencido" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error: "Plazo de cancelación vencido"
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Error: "Plazo de cancelación vencido"">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sintomas_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      Síntomas
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#soluciones_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      Soluciones
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#problemas-de-clientes" class="md-nav__link">
+    <span class="md-ellipsis">
+      👥 Problemas de Clientes
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="👥 Problemas de Clientes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#error-rfc-del-receptor-invalido" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error: "RFC del receptor inválido"
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Error: "RFC del receptor inválido"">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sintomas_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      Síntomas
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#soluciones_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      Soluciones
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-codigo-postal-no-valido" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error: "Código postal no válido"
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Error: "Código postal no válido"">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sintomas_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      Síntomas
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#soluciones_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      Soluciones
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#problemas-de-productos" class="md-nav__link">
+    <span class="md-ellipsis">
+      🛒 Problemas de Productos
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🛒 Problemas de Productos">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#error-clave-de-producto-no-valida" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error: "Clave de producto no válida"
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Error: "Clave de producto no válida"">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sintomas_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      Síntomas
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#soluciones_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      Soluciones
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-unidad-de-medida-incorrecta" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error: "Unidad de medida incorrecta"
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Error: "Unidad de medida incorrecta"">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sintomas_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      Síntomas
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#soluciones_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      Soluciones
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#problemas-tecnicos" class="md-nav__link">
+    <span class="md-ellipsis">
+      💻 Problemas Técnicos
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="💻 Problemas Técnicos">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#error-conexion-con-facturapi-fallida" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error: "Conexión con FacturAPI fallida"
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Error: "Conexión con FacturAPI fallida"">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sintomas_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      Síntomas
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#soluciones_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      Soluciones
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-base-de-datos-inconsistente" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error: "Base de datos inconsistente"
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Error: "Base de datos inconsistente"">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sintomas_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      Síntomas
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#soluciones_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      Soluciones
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#herramientas-de-diagnostico" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔍 Herramientas de Diagnóstico
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔍 Herramientas de Diagnóstico">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#verificar-estado-sistema" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verificar Estado Sistema
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logs-de-depuracion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Logs de Depuración
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Logs de Depuración">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ubicaciones-de-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ubicaciones de Logs
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#habilitar-debug-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      Habilitar Debug Mode
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#procedimientos-de-emergencia" class="md-nav__link">
+    <span class="md-ellipsis">
+      📋 Procedimientos de Emergencia
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📋 Procedimientos de Emergencia">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#recuperacion-de-sesion-colgada" class="md-nav__link">
+    <span class="md-ellipsis">
+      Recuperación de Sesión Colgada
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rollback-de-cambios" class="md-nav__link">
+    <span class="md-ellipsis">
+      Rollback de Cambios
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#escalacion" class="md-nav__link">
+    <span class="md-ellipsis">
+      📞 Escalación
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📞 Escalación">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cuando-contactar-soporte" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cuándo Contactar Soporte
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#informacion-a-proporcionar" class="md-nav__link">
+    <span class="md-ellipsis">
+      Información a Proporcionar
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prevencion" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Prevención
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="✅ Prevención">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mantenimiento-regular" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mantenimiento Regular
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mejores-practicas" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mejores Prácticas
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="troubleshooting-problemas-fiscales-comunes">🔧 Troubleshooting - Problemas Fiscales Comunes<a class="headerlink" href="#troubleshooting-problemas-fiscales-comunes" title="Permanent link">&para;</a></h1>
+<p>Esta guía te ayuda a resolver los problemas más frecuentes en el sistema de facturación fiscal.</p>
+<h2 id="problemas-de-timbrado">🚨 <strong>Problemas de Timbrado</strong><a class="headerlink" href="#problemas-de-timbrado" title="Permanent link">&para;</a></h2>
+<h3 id="error-rfc-del-emisor-no-valido"><strong>Error: "RFC del emisor no válido"</strong><a class="headerlink" href="#error-rfc-del-emisor-no-valido" title="Permanent link">&para;</a></h3>
+<h4 id="sintomas"><strong>Síntomas</strong><a class="headerlink" href="#sintomas" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Error al intentar timbrar</li>
+<li>Mensaje: "RFC no encontrado en padrón SAT"</li>
+<li>Proceso se detiene antes de enviar a FacturAPI</li>
+</ul>
+<h4 id="causas-comunes"><strong>Causas Comunes</strong><a class="headerlink" href="#causas-comunes" title="Permanent link">&para;</a></h4>
+<ul>
+<li>RFC mal capturado en configuración empresa</li>
+<li>Certificados no corresponden al RFC</li>
+<li>RFC dado de baja en SAT</li>
+</ul>
+<h4 id="soluciones"><strong>Soluciones</strong><a class="headerlink" href="#soluciones" title="Permanent link">&para;</a></h4>
+<ol>
+<li><strong>Verificar RFC empresa:</strong></li>
+<li>Ir a Company → RFC debe ser exacto</li>
+<li>Confirmar en sitio SAT que esté activo</li>
+<li>
+<p>Validar formato (12-13 caracteres)</p>
+</li>
+<li>
+<p><strong>Validar certificados:</strong></p>
+</li>
+<li>Confirmar que certificados pertenecen al RFC</li>
+<li>Verificar vigencia de certificados</li>
+<li>Re-subir certificados si es necesario</li>
+</ol>
+<hr />
+<h3 id="error-certificado-vencido"><strong>Error: "Certificado vencido"</strong><a class="headerlink" href="#error-certificado-vencido" title="Permanent link">&para;</a></h3>
+<h4 id="sintomas_1"><strong>Síntomas</strong><a class="headerlink" href="#sintomas_1" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Falla timbrado con error de certificado</li>
+<li>Mensaje relacionado con vigencia</li>
+<li>FacturAPI rechaza la petición</li>
+</ul>
+<h4 id="soluciones_1"><strong>Soluciones</strong><a class="headerlink" href="#soluciones_1" title="Permanent link">&para;</a></h4>
+<ol>
+<li><strong>Renovar certificados:</strong></li>
+<li>Obtener nuevos certificados del SAT</li>
+<li>Actualizar en FacturAPI</li>
+<li>
+<p>Configurar nuevas rutas en sistema</p>
+</li>
+<li>
+<p><strong>Verificar fechas:</strong>
+   <div class="highlight"><pre><span></span><code>openssl<span class="w"> </span>x509<span class="w"> </span>-in<span class="w"> </span>certificado.cer<span class="w"> </span>-text<span class="w"> </span>-noout<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;Not After&quot;</span>
+</code></pre></div></p>
+</li>
+</ol>
+<hr />
+<h3 id="error-serie-no-configurada"><strong>Error: "Serie no configurada"</strong><a class="headerlink" href="#error-serie-no-configurada" title="Permanent link">&para;</a></h3>
+<h4 id="sintomas_2"><strong>Síntomas</strong><a class="headerlink" href="#sintomas_2" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Error: "No se encontró serie para centro de costo"</li>
+<li>Usa serie default inesperadamente</li>
+<li>Folios inconsistentes</li>
+</ul>
+<h4 id="soluciones_2"><strong>Soluciones</strong><a class="headerlink" href="#soluciones_2" title="Permanent link">&para;</a></h4>
+<ol>
+<li>
+<p><strong>Configurar mapeo series:</strong>
+   <div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;fm_series_mapping&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;Centro Costo&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Serie SAT&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Verificar en FacturAPI:</strong></p>
+</li>
+<li>Confirmar que serie existe</li>
+<li>Validar folios disponibles</li>
+<li>Revisar configuración Series Group</li>
+</ol>
+<hr />
+<h2 id="problemas-de-cancelacion">🔄 <strong>Problemas de Cancelación</strong><a class="headerlink" href="#problemas-de-cancelacion" title="Permanent link">&para;</a></h2>
+<h3 id="error-cfdi-no-encontrado-para-cancelar"><strong>Error: "CFDI no encontrado para cancelar"</strong><a class="headerlink" href="#error-cfdi-no-encontrado-para-cancelar" title="Permanent link">&para;</a></h3>
+<h4 id="sintomas_3"><strong>Síntomas</strong><a class="headerlink" href="#sintomas_3" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Error al intentar cancelar</li>
+<li>UUID no reconocido por FacturAPI</li>
+<li>Cancelación falla silenciosamente</li>
+</ul>
+<h4 id="causas"><strong>Causas</strong><a class="headerlink" href="#causas" title="Permanent link">&para;</a></h4>
+<ul>
+<li>UUID mal formado o corrupto</li>
+<li>CFDI fue cancelado manualmente</li>
+<li>Problema de sincronización</li>
+</ul>
+<h4 id="soluciones_3"><strong>Soluciones</strong><a class="headerlink" href="#soluciones_3" title="Permanent link">&para;</a></h4>
+<ol>
+<li><strong>Verificar UUID:</strong></li>
+<li>Confirmar formato (36 caracteres con guiones)</li>
+<li>Validar en portal FacturAPI</li>
+<li>
+<p>Verificar en sistema SAT</p>
+</li>
+<li>
+<p><strong>Sincronizar estado:</strong>
+   <div class="highlight"><pre><span></span><code>bench<span class="w"> </span>--site<span class="w"> </span>sitio.dev<span class="w"> </span>execute<span class="w"> </span>facturacion_mexico.utils.sync_fiscal_status<span class="w"> </span>--args<span class="w"> </span><span class="s2">&quot;[&#39;SI-2024-00001&#39;]&quot;</span>
+</code></pre></div></p>
+</li>
+</ol>
+<hr />
+<h3 id="error-plazo-de-cancelacion-vencido"><strong>Error: "Plazo de cancelación vencido"</strong><a class="headerlink" href="#error-plazo-de-cancelacion-vencido" title="Permanent link">&para;</a></h3>
+<h4 id="sintomas_4"><strong>Síntomas</strong><a class="headerlink" href="#sintomas_4" title="Permanent link">&para;</a></h4>
+<ul>
+<li>SAT rechaza cancelación</li>
+<li>Error de tiempo excedido</li>
+<li>CFDI queda en estado inconsistente</li>
+</ul>
+<h4 id="soluciones_4"><strong>Soluciones</strong><a class="headerlink" href="#soluciones_4" title="Permanent link">&para;</a></h4>
+<ol>
+<li><strong>Para CFDIs recientes (72 horas):</strong></li>
+<li>Cancelación directa permitida</li>
+<li>
+<p>Reintentar proceso</p>
+</li>
+<li>
+<p><strong>Para CFDIs antiguos:</strong></p>
+</li>
+<li>Requiere solicitud de cancelación</li>
+<li>Cliente debe aceptar/rechazar</li>
+<li>Proceso puede tomar días</li>
+</ol>
+<hr />
+<h2 id="problemas-de-clientes">👥 <strong>Problemas de Clientes</strong><a class="headerlink" href="#problemas-de-clientes" title="Permanent link">&para;</a></h2>
+<h3 id="error-rfc-del-receptor-invalido"><strong>Error: "RFC del receptor inválido"</strong><a class="headerlink" href="#error-rfc-del-receptor-invalido" title="Permanent link">&para;</a></h3>
+<h4 id="sintomas_5"><strong>Síntomas</strong><a class="headerlink" href="#sintomas_5" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Validación falla al timbrar</li>
+<li>Error específico de RFC receptor</li>
+<li>Rechazo por formato o existencia</li>
+</ul>
+<h4 id="soluciones_5"><strong>Soluciones</strong><a class="headerlink" href="#soluciones_5" title="Permanent link">&para;</a></h4>
+<ol>
+<li>
+<p><strong>Validar formato RFC:</strong>
+   <div class="highlight"><pre><span></span><code><span class="c1"># Personas físicas: 13 caracteres</span>
+<span class="c1"># Personas morales: 12 caracteres</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Verificar en SAT:</strong></p>
+</li>
+<li>Consultar padrón de contribuyentes</li>
+<li>Confirmar que esté activo</li>
+<li>
+<p>Validar régimen fiscal</p>
+</li>
+<li>
+<p><strong>Corregir en sistema:</strong></p>
+</li>
+<li>Actualizar RFC en Customer</li>
+<li>Verificar homoclave si aplica</li>
+<li>Confirmar datos fiscales completos</li>
+</ol>
+<hr />
+<h3 id="error-codigo-postal-no-valido"><strong>Error: "Código postal no válido"</strong><a class="headerlink" href="#error-codigo-postal-no-valido" title="Permanent link">&para;</a></h3>
+<h4 id="sintomas_6"><strong>Síntomas</strong><a class="headerlink" href="#sintomas_6" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Error de domicilio fiscal</li>
+<li>Rechazo por CP incorrecto</li>
+<li>Validación SAT falla</li>
+</ul>
+<h4 id="soluciones_6"><strong>Soluciones</strong><a class="headerlink" href="#soluciones_6" title="Permanent link">&para;</a></h4>
+<ol>
+<li><strong>Verificar código postal:</strong></li>
+<li>Usar catálogo oficial SAT</li>
+<li>Confirmar que corresponda a estado/municipio</li>
+<li>
+<p>Validar formato (5 dígitos)</p>
+</li>
+<li>
+<p><strong>Actualizar dirección:</strong></p>
+</li>
+<li>Corregir en Customer Address</li>
+<li>Sincronizar con datos SAT</li>
+<li>Verificar consistencia estatal</li>
+</ol>
+<hr />
+<h2 id="problemas-de-productos">🛒 <strong>Problemas de Productos</strong><a class="headerlink" href="#problemas-de-productos" title="Permanent link">&para;</a></h2>
+<h3 id="error-clave-de-producto-no-valida"><strong>Error: "Clave de producto no válida"</strong><a class="headerlink" href="#error-clave-de-producto-no-valida" title="Permanent link">&para;</a></h3>
+<h4 id="sintomas_7"><strong>Síntomas</strong><a class="headerlink" href="#sintomas_7" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Rechazo al timbrar por clave SAT</li>
+<li>Error de catálogo no actualizado</li>
+<li>Validación falla en items</li>
+</ul>
+<h4 id="soluciones_7"><strong>Soluciones</strong><a class="headerlink" href="#soluciones_7" title="Permanent link">&para;</a></h4>
+<ol>
+<li><strong>Actualizar catálogo SAT:</strong></li>
+<li>Descargar última versión</li>
+<li>Actualizar claves en productos</li>
+<li>
+<p>Verificar vigencia</p>
+</li>
+<li>
+<p><strong>Corregir claves:</strong></p>
+</li>
+<li>Buscar clave correcta en SAT</li>
+<li>Actualizar en Item Master</li>
+<li>Validar clave de unidad también</li>
+</ol>
+<hr />
+<h3 id="error-unidad-de-medida-incorrecta"><strong>Error: "Unidad de medida incorrecta"</strong><a class="headerlink" href="#error-unidad-de-medida-incorrecta" title="Permanent link">&para;</a></h3>
+<h4 id="sintomas_8"><strong>Síntomas</strong><a class="headerlink" href="#sintomas_8" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Error de clave de unidad</li>
+<li>Incompatibilidad producto-unidad</li>
+<li>Rechazo de validación SAT</li>
+</ul>
+<h4 id="soluciones_8"><strong>Soluciones</strong><a class="headerlink" href="#soluciones_8" title="Permanent link">&para;</a></h4>
+<ol>
+<li><strong>Verificar combinación:</strong></li>
+<li>Producto debe ser compatible con unidad</li>
+<li>Consultar catálogo SAT oficial</li>
+<li>Corregir en Item Master</li>
+</ol>
+<hr />
+<h2 id="problemas-tecnicos">💻 <strong>Problemas Técnicos</strong><a class="headerlink" href="#problemas-tecnicos" title="Permanent link">&para;</a></h2>
+<h3 id="error-conexion-con-facturapi-fallida"><strong>Error: "Conexión con FacturAPI fallida"</strong><a class="headerlink" href="#error-conexion-con-facturapi-fallida" title="Permanent link">&para;</a></h3>
+<h4 id="sintomas_9"><strong>Síntomas</strong><a class="headerlink" href="#sintomas_9" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Timeouts frecuentes</li>
+<li>Errores de red</li>
+<li>Credenciales rechazadas</li>
+</ul>
+<h4 id="soluciones_9"><strong>Soluciones</strong><a class="headerlink" href="#soluciones_9" title="Permanent link">&para;</a></h4>
+<ol>
+<li>
+<p><strong>Verificar credenciales:</strong>
+   <div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;facturapi_secret_key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sk_test_...&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;facturapi_test_mode&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="p">}</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Probar conectividad:</strong>
+   <div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer sk_test_...&quot;</span><span class="w"> </span>https://facturapi.io/v1/invoices
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Verificar red:</strong></p>
+</li>
+<li>Confirmar acceso a Internet</li>
+<li>Revisar firewall/proxy</li>
+<li>Validar DNS resolution</li>
+</ol>
+<hr />
+<h3 id="error-base-de-datos-inconsistente"><strong>Error: "Base de datos inconsistente"</strong><a class="headerlink" href="#error-base-de-datos-inconsistente" title="Permanent link">&para;</a></h3>
+<h4 id="sintomas_10"><strong>Síntomas</strong><a class="headerlink" href="#sintomas_10" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Estados fiscales incorrectos</li>
+<li>Links rotos SI ↔ FFM</li>
+<li>Datos duplicados</li>
+</ul>
+<h4 id="soluciones_10"><strong>Soluciones</strong><a class="headerlink" href="#soluciones_10" title="Permanent link">&para;</a></h4>
+<ol>
+<li>
+<p><strong>Reparar links:</strong>
+   <div class="highlight"><pre><span></span><code>bench<span class="w"> </span>--site<span class="w"> </span>sitio.dev<span class="w"> </span>execute<span class="w"> </span>facturacion_mexico.utils.repair_fiscal_links
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Limpiar duplicados:</strong>
+   <div class="highlight"><pre><span></span><code>bench<span class="w"> </span>--site<span class="w"> </span>sitio.dev<span class="w"> </span>execute<span class="w"> </span>facturacion_mexico.utils.cleanup_duplicate_ffm
+</code></pre></div></p>
+</li>
+</ol>
+<hr />
+<h2 id="herramientas-de-diagnostico">🔍 <strong>Herramientas de Diagnóstico</strong><a class="headerlink" href="#herramientas-de-diagnostico" title="Permanent link">&para;</a></h2>
+<h3 id="verificar-estado-sistema"><strong>Verificar Estado Sistema</strong><a class="headerlink" href="#verificar-estado-sistema" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Estado general del sitio</span>
+bench<span class="w"> </span>--site<span class="w"> </span>sitio.dev<span class="w"> </span>execute<span class="w"> </span>facturacion_mexico.utils.system_health_check
+
+<span class="c1"># Verificar configuración FacturAPI</span>
+bench<span class="w"> </span>--site<span class="w"> </span>sitio.dev<span class="w"> </span>execute<span class="w"> </span>facturacion_mexico.utils.test_facturapi_connection
+
+<span class="c1"># Sincronizar estados fiscales</span>
+bench<span class="w"> </span>--site<span class="w"> </span>sitio.dev<span class="w"> </span>execute<span class="w"> </span>facturacion_mexico.utils.sync_all_fiscal_status
+</code></pre></div>
+<h3 id="logs-de-depuracion"><strong>Logs de Depuración</strong><a class="headerlink" href="#logs-de-depuracion" title="Permanent link">&para;</a></h3>
+<h4 id="ubicaciones-de-logs"><strong>Ubicaciones de Logs</strong><a class="headerlink" href="#ubicaciones-de-logs" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Sistema general: <code>logs/bench.log</code></li>
+<li>Errores específicos: <code>logs/error.log</code></li>
+<li>FacturAPI requests: buscar "facturapi" en logs</li>
+</ul>
+<h4 id="habilitar-debug-mode"><strong>Habilitar Debug Mode</strong><a class="headerlink" href="#habilitar-debug-mode" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;developer_mode&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;facturapi_debug&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="p">}</span>
+</code></pre></div>
+<hr />
+<h2 id="procedimientos-de-emergencia">📋 <strong>Procedimientos de Emergencia</strong><a class="headerlink" href="#procedimientos-de-emergencia" title="Permanent link">&para;</a></h2>
+<h3 id="recuperacion-de-sesion-colgada"><strong>Recuperación de Sesión Colgada</strong><a class="headerlink" href="#recuperacion-de-sesion-colgada" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p><strong>Identificar proceso:</strong>
+   <div class="highlight"><pre><span></span><code>ps<span class="w"> </span>aux<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>bench
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Terminar proceso seguro:</strong>
+   <div class="highlight"><pre><span></span><code>bench<span class="w"> </span>--site<span class="w"> </span>sitio.dev<span class="w"> </span>migrate
+bench<span class="w"> </span>--site<span class="w"> </span>sitio.dev<span class="w"> </span>clear-cache
+</code></pre></div></p>
+</li>
+</ol>
+<h3 id="rollback-de-cambios"><strong>Rollback de Cambios</strong><a class="headerlink" href="#rollback-de-cambios" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Rollback última migración</span>
+bench<span class="w"> </span>--site<span class="w"> </span>sitio.dev<span class="w"> </span>migrate<span class="w"> </span>--skip-failing
+
+<span class="c1"># Restaurar backup</span>
+bench<span class="w"> </span>--site<span class="w"> </span>sitio.dev<span class="w"> </span>restore<span class="w"> </span>database_backup.sql
+</code></pre></div>
+<hr />
+<h2 id="escalacion">📞 <strong>Escalación</strong><a class="headerlink" href="#escalacion" title="Permanent link">&para;</a></h2>
+<h3 id="cuando-contactar-soporte"><strong>Cuándo Contactar Soporte</strong><a class="headerlink" href="#cuando-contactar-soporte" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Errores persistentes no documentados</li>
+<li>Inconsistencias de datos críticas</li>
+<li>Problemas de conectividad complejos</li>
+<li>Fallos de migración/actualización</li>
+</ul>
+<h3 id="informacion-a-proporcionar"><strong>Información a Proporcionar</strong><a class="headerlink" href="#informacion-a-proporcionar" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Descripción exacta del error</li>
+<li>[ ] Pasos para reproducir</li>
+<li>[ ] Screenshots de errores</li>
+<li>[ ] Logs relevantes del sistema</li>
+<li>[ ] Configuración actual (sin credenciales)</li>
+</ul>
+<hr />
+<h2 id="prevencion">✅ <strong>Prevención</strong><a class="headerlink" href="#prevencion" title="Permanent link">&para;</a></h2>
+<h3 id="mantenimiento-regular"><strong>Mantenimiento Regular</strong><a class="headerlink" href="#mantenimiento-regular" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Actualizar catálogos SAT mensualmente</li>
+<li>[ ] Verificar vigencia certificados</li>
+<li>[ ] Monitorear logs de errores</li>
+<li>[ ] Backup regular de configuración</li>
+<li>[ ] Pruebas de conectividad semanales</li>
+</ul>
+<h3 id="mejores-practicas"><strong>Mejores Prácticas</strong><a class="headerlink" href="#mejores-practicas" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Validar datos antes de timbrar</li>
+<li>Mantener usuarios capacitados</li>
+<li>Documentar cambios de configuración</li>
+<li>Monitorear reportes fiscales regularmente</li>
+</ul>
+<hr />
+<p><em>Para problemas no cubiertos en esta guía, consultar documentación técnica completa o contactar soporte especializado</em></p>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Volver al principio
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 Facturación México - Documentación Técnica
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/tu-org/facturacion_mexico" target="_blank" rel="noopener" title="GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+      <div class="md-consent" data-md-component="consent" id="__consent" hidden>
+        <div class="md-consent__overlay"></div>
+        <aside class="md-consent__inner">
+          <form class="md-consent__form md-grid md-typeset" name="consent">
+            
+
+  
+    
+  
+
+
+
+
+
+<h4>Consentimiento de cookies</h4>
+<p>Utilizamos cookies para reconocer tus visitas repetidas y preferencias, así como para medir la efectividad de nuestra documentación y si los usuarios encuentran lo que están buscando. Con tu consentimiento, nos ayudas a mejorar nuestra documentación.
+</p>
+<input class="md-toggle" type="checkbox" id="__settings" >
+<div class="md-consent__settings">
+  <ul class="task-list">
+    
+      
+      
+        
+        
+      
+      <li class="task-list-item">
+        <label class="task-list-control">
+          <input type="checkbox" name="analytics" checked>
+          <span class="task-list-indicator"></span>
+          Google Analytics
+        </label>
+      </li>
+    
+  </ul>
+</div>
+<div class="md-consent__controls">
+  
+    
+      <button class="md-button md-button--primary">Aceptar</button>
+    
+    
+    
+  
+    
+    
+      <button type="reset" class="md-button md-button--primary">Rechazar</button>
+    
+    
+  
+    
+    
+    
+      <label class="md-button" for="__settings">Gestionar cookies</label>
+    
+  
+</div>
+          </form>
+        </aside>
+      </div>
+      <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout(function(){document.querySelector("[data-md-component=consent]").hidden=!1},250);var action,form=document.forms.consent;for(action of["submit","reset"])form.addEventListener(action,function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map(function(e){return[e,!0]}))),location.hash="",location.reload()})</script>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.expand", "navigation.instant", "navigation.sections", "navigation.tabs", "navigation.top", "search.highlight", "search.suggest"], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copiado al portapapeles", "clipboard.copy": "Copiar al portapapeles", "search.result.more.one": "1 m\u00e1s en esta p\u00e1gina", "search.result.more.other": "# m\u00e1s en esta p\u00e1gina", "search.result.none": "No se encontraron documentos", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Teclee para comenzar b\u00fasqueda", "search.result.term.missing": "Falta", "select.version": "Seleccionar versi\u00f3n"}, "version": {"default": "latest", "provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7c377c4.min.js"></script>
+      
+        <script src="../../assets/javascripts/extra.js"></script>
+      
+        <script src="../../assets/javascripts/advanced.js"></script>
+      
+    
+  </body>
+</html>
