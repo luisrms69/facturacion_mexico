@@ -6,18 +6,6 @@ function norm(x) {
 	return (x || "").toString().trim().toUpperCase();
 }
 
-function log_ffm_debug(frm, context = "UNKNOWN") {
-	console.log(`[FFM DEBUG ${context}]`, {
-		si_name: frm.doc.name,
-		docstatus: frm.doc.docstatus,
-		fm_fiscal_status: frm.doc.fm_fiscal_status,
-		fm_uuid_fiscal: frm.doc.fm_uuid_fiscal,
-		fm_ffm_uuid: frm.doc.fm_ffm_uuid,
-		fm_factura_fiscal_mx: frm.doc.fm_factura_fiscal_mx,
-		timestamp: new Date().toISOString(),
-	});
-}
-
 // Cargar configuración de estados fiscales al inicio
 let FISCAL_STATES = null;
 
@@ -45,9 +33,6 @@ load_fiscal_states();
 
 frappe.ui.form.on("Sales Invoice", {
 	refresh: function (frm) {
-		// Diagnóstico inmediato
-		log_ffm_debug(frm, "REFRESH_START");
-
 		// Limpiar botones previos
 		frm.remove_custom_button(__("Timbrar Factura"));
 		frm.remove_custom_button(__("Ver Factura Fiscal")); // evitar duplicados
@@ -62,16 +47,12 @@ frappe.ui.form.on("Sales Invoice", {
 				if (has_rfc) {
 					if (should_show_timbrar_button(frm)) {
 						add_timbrar_button(frm);
-						log_ffm_debug(frm, "TIMBRAR_BUTTON_ADDED");
 					} else if (is_already_timbrada(frm)) {
 						add_view_fiscal_button(frm);
-						log_ffm_debug(frm, "VIEW_FISCAL_BUTTON_ADDED");
 					}
 				}
 			});
 		}
-
-		log_ffm_debug(frm, "REFRESH_END");
 	},
 });
 
@@ -115,7 +96,6 @@ function should_show_timbrar_button(frm) {
 	const allowed_statuses = ["BORRADOR", "ERROR", ""]; // Incluir vacío como válido
 	const should_show = frm.doc.docstatus === 1 && allowed_statuses.includes(status);
 
-	log_ffm_debug(frm, `should_show_timbrar=${should_show}, status="${status}"`);
 	return should_show;
 }
 
