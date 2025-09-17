@@ -77,7 +77,7 @@ Gates:
 1. **G01:** Sales Invoice nuevo (pantalla inicial limpia)
 2. **G02:** Cliente y producto seleccionados, importe calculado
 3. **G03:** Submit exitoso, documento en estado "Submitted"
-4. **G04:** Botón "Generar Factura Fiscal" visible y activo
+4. **G04:** Botón "Timbrar Factura" visible y activo
 
 **Invariantes UI/UX:**
 - Cliente seleccionado correctamente de dropdown

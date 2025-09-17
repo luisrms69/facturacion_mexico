@@ -110,6 +110,7 @@ metricas:
 # CAPACIDADES FISCALES REALES
 capacidades_fiscales:
   validacion_rfc: "✅ Disponible - Clientes con RFC reales"
+  sistema_moneda: "✅ Completamente configurado - Empresa y cuentas en MXN"
   timbrado_facturapi: "⚠️ Requiere empresa con RFC configurado"
   validaciones_sat: "✅ Disponible - RFC válidos del SAT"
   complementos: "✅ Disponible si empresa configurada"

@@ -60,6 +60,7 @@
   ```bash
   git checkout main && git pull origin main
   git checkout -b feature/[modulo]-[descripcion]
+  bench --site facturacion.dev backup --with-files  # Backup al crear rama nueva
   # Desarrollo...
   git log --oneline main..HEAD  # Verificar commits únicos
   gh pr list --state open --head feature/[branch-name]  # Verificar PR no existe
@@ -231,26 +232,45 @@ with patch("frappe.get_doc") as mock_get:
 - ✅ **ZERO-CONFIG:** Nuevas instalaciones deben funcionar sin configuración manual
 
 ### **RG-010: ONE-OFF SCRIPTS STORAGE**
-- ✅ **UBICACIÓN OBLIGATORIA:** `{app_name}/one_offs/` dentro estructura del app
-- ✅ **EJEMPLO:** `/home/erpnext/frappe-bench/apps/facturacion_mexico/one_offs/`
+- ✅ **UBICACIÓN OBLIGATORIA:** `{app_name}/{app_name}/one_offs/` dentro del paquete Python
+- ✅ **EJEMPLO:** `/home/erpnext/frappe-bench/apps/facturacion_mexico/facturacion_mexico/one_offs/`
 - ✅ **PROPÓSITO:** Scripts para `bench execute` que NO se commitean al repositorio
 - ✅ **SETUP INICIAL OBLIGATORIO:**
   ```bash
-  # Crear directorio y __init__.py
-  mkdir -p {app_name}/one_offs/
-  echo "# one_offs module" > {app_name}/one_offs/__init__.py
+  # Crear directorio dentro del paquete Python
+  mkdir -p {app_name}/{app_name}/one_offs/
+  echo "# one_offs module" > {app_name}/{app_name}/one_offs/__init__.py
   ```
 - ✅ **NAMING CONVENTION:** Nombres Python válidos (sin números al inicio)
   - ❌ INCORRECTO: `20250916_script.py` (números al inicio)
   - ✅ CORRECTO: `script_20250916.py` o `migrar_customers.py`
-- ✅ **EJECUCIÓN MÓDULO:**
+- ✅ **EJECUCIÓN SCRIPTS - INSTRUCCIONES EXACTAS:**
   ```bash
-  # Para scripts en one_offs/ (requiere __init__.py)
-  bench --site sitio.dev execute "{app_name}.one_offs.script_name.function_name"
+  # 1. OBLIGATORIO: one_offs/ debe estar dentro del paquete Python
+  # UBICACIÓN CORRECTA: apps/{app}/facturacion_mexico/one_offs/
+  # NO: apps/{app}/one_offs/ (no funciona con bench execute)
 
-  # Para scripts en módulo principal (alternativa)
-  bench --site sitio.dev execute "{app_name}.script_name.function_name"
+  # 2. ESTRUCTURA OBLIGATORIA del script:
+  # #!/usr/bin/env python3
+  # import frappe
+  # def run():  # ← NOMBRE FUNCIÓN ESTÁNDAR
+  #     # código aquí
+  #     return True
+  # if __name__ == "__main__":
+  #     run()
+
+  # 3. EJECUCIÓN (funciona con paquete Python):
+  bench --site facturacion.dev execute "{app_name}.one_offs.script_name.run"
+
+  # EJEMPLO WORKING:
+  bench --site facturacion.dev execute "facturacion_mexico.one_offs.fix_customers_currency.run"
   ```
+- ❌ **ERRORES COMUNES QUE NO FUNCIONAN:**
+  - Poner one_offs/ fuera del paquete Python principal
+  - Scripts sin `__init__.py` en one_offs/
+  - Nombres archivo con números al inicio
+  - Usar python3 -c o ejecución directa (PROHIBIDO)
+  - Funciones con nombres distintos a `run()`
 - ✅ **CONTENIDO TÍPICO:** Migraciones datos, correcciones one-time, scripts diagnóstico
 - ❌ **PROHIBIDO:** Commitear scripts one-off al repositorio del proyecto
 - ⚠️ **IMPORTANTE:** Scripts deben ser idempotentes y con validaciones previas
