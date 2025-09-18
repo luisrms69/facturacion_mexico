@@ -1,5 +1,6 @@
 import frappe
 from frappe import _
+from frappe.contacts.doctype.address.address import get_address_display
 from frappe.model.document import Document
 from frappe.utils import flt, now_datetime
 
@@ -999,7 +1000,7 @@ class FacturaFiscalMexico(Document):
 				self.fm_cp_cliente = primary_address.pincode or "⚠️ FALTA CP EN DIRECCIÓN"
 				self.fm_email_facturacion = primary_address.email_id or "⚠️ FALTA EMAIL EN DIRECCIÓN"
 				self.fm_direccion_principal_link = primary_address.name
-				self.fm_direccion_principal_display = self._format_address(primary_address)
+				self.fm_direccion_principal_display = self._get_primary_address_display()
 				# Datos poblados desde dirección principal
 			else:
 				# No hay dirección principal - marcar campos como faltantes
@@ -1023,53 +1024,62 @@ class FacturaFiscalMexico(Document):
 			self.fm_direccion_principal_display = f"❌ Error: {e!s}"
 
 	def _get_primary_address(self):
-		"""Obtener la dirección principal del customer."""
+		"""Usar la misma fuente que ERPNext: default address del Customer, con fallback a customer_primary_address y, por último, a links."""
 		if not self.customer:
 			return None
 
-		# Buscar direcciones vinculadas al customer
-		linked_addresses = frappe.get_all(
-			"Dynamic Link",
-			filters={"link_doctype": "Customer", "link_name": self.customer, "parenttype": "Address"},
-			fields=["parent"],
-			pluck="parent",
-		)
+		# 1) Igual que ERPNext: default address (simulamos get_default_address ya que no está disponible en v15)
+		addr_name = None
+		try:
+			# Buscar address marcada como is_primary_address para este customer
+			primary_addresses = frappe.get_all("Address", filters={"is_primary_address": 1}, fields=["name"])
 
-		if not linked_addresses:
-			return None
+			for addr in primary_addresses:
+				# Verificar si esta address está vinculada a nuestro customer
+				linked = frappe.db.exists(
+					"Dynamic Link",
+					{
+						"link_doctype": "Customer",
+						"link_name": self.customer,
+						"parent": addr.name,
+						"parenttype": "Address",
+					},
+				)
+				if linked:
+					addr_name = addr.name
+					break
+		except Exception:
+			pass
 
-		# Buscar dirección marcada como principal
-		for address_name in linked_addresses:
-			address_doc = frappe.get_doc("Address", address_name)
-			if address_doc.is_primary_address:
-				return address_doc
+		# 2) Fallback: campo customer_primary_address si estuviera lleno
+		if not addr_name:
+			addr_name = frappe.db.get_value("Customer", self.customer, "customer_primary_address")
 
-		# Si no hay dirección principal, retornar la primera disponible
-		if linked_addresses:
-			return frappe.get_doc("Address", linked_addresses[0])
+		# 3) Fallback final: primera Address ligada por Dynamic Link (como tenías)
+		if not addr_name:
+			linked = frappe.get_all(
+				"Dynamic Link",
+				filters={"link_doctype": "Customer", "link_name": self.customer, "parenttype": "Address"},
+				pluck="parent",
+			)
+			if linked:
+				addr_name = linked[0]
 
-		return None
+		return frappe.get_doc("Address", addr_name) if addr_name else None
+
+	def _get_primary_address_display(self):
+		"""Formateo estándar de Frappe, igual que en Customer UI."""
+		addr = self._get_primary_address()
+		if not addr:
+			return ""
+		return get_address_display(addr.as_dict()) or ""
 
 	def _format_address(self, address_doc):
-		"""Formatear dirección para display."""
+		"""Formatear dirección para display (DEPRECATED - usar _get_primary_address_display)."""
 		if not address_doc:
 			return ""
-
-		parts = []
-		if address_doc.address_line1:
-			parts.append(address_doc.address_line1)
-		if address_doc.address_line2:
-			parts.append(address_doc.address_line2)
-		if address_doc.city:
-			parts.append(address_doc.city)
-		if address_doc.state:
-			parts.append(address_doc.state)
-		if address_doc.pincode:
-			parts.append(f"CP {address_doc.pincode}")
-		if address_doc.country:
-			parts.append(address_doc.country)
-
-		return ", ".join(parts)
+		# Delegar al método estándar para consistencia
+		return get_address_display(address_doc.as_dict()) or ""
 
 	def _set_validation_status_color(self, customer_doc, primary_address):
 		"""Determinar color de sección Datos de Facturación basado en validación SAT."""
