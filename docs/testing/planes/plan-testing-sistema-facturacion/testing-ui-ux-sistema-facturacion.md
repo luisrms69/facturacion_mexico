@@ -110,6 +110,11 @@ Gates:
 
 **Nota:** Cliente con RFC real. Validar estructura UI + datos fiscales correctos.
 
+**✅ RESULTADO TC-B-002:** Completado exitosamente
+- **Hallazgo:** Botón validación SAT aparece cuando se define dirección principal del cliente
+- **Resolución:** Mensaje "Se requiere dirección principal" desaparece al configurar dirección
+- **Status:** Datos fiscales verificados correctamente, validación SAT funcional
+
 ### **TC-B-003: Configurar Producto con Claves SAT**
 **Tiempo objetivo:** 5 min | **Gates:** 4 evidencias
 
@@ -128,6 +133,18 @@ Gates:
 - Clave unidad compatible
 - Descripción fiscal presente
 - Impuestos configurados correctamente
+
+**✅ RESULTADO TC-B-003:** Completado exitosamente
+- **Rollback aplicado:** title_field = descripcion, autoname = field:codigo
+- **Filtros optimizados:** Sin duplicidad, muestra Código + Descripción
+- **Status:** Configuración SAT Producto Servicio funcionando correctamente
+- **Naming verificado:** doc.name = codigo, filtros sin duplicidad
+
+**🚧 ISSUE IDENTIFICADO TC-B-003:**
+- **Problema:** Material oficina no aplica impuestos automáticamente en Sales Invoice
+- **Contexto:** SAT Producto Servicio tiene "incluye_objeto_impuesto = 02" (Sí es objeto de impuestos)
+- **Gap:** Falta vinculación entre catálogo SAT y plantillas impuestos ERPNext
+- **Bloqueador:** Requiere migración catálogo impuestos y configuración automática
 
 ### **TC-B-004: Cancelar CFDI Motivo 03**
 **Tiempo objetivo:** 6 min | **Gates:** 4 evidencias
