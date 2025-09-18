@@ -17,6 +17,7 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
 - Override class para múltiples FFMs (LinkExistsError)
 - Testing framework simplificado y eficaz
 - Documentación oficial estructura docs/
+- Armonización direcciones FFM-ERPNext para consistencia completa
 
 ### Changed
 - RG-003 simplificado: eliminadas 4 capas complejas por 3 niveles prácticos
@@ -28,6 +29,7 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
 - Arquitectura resiliente estados fiscales
 - API structure conflict resolution
 - Critical State Fixes migración categorías fiscales
+- Inconsistencia direcciones entre Customer UI y FFM ("Dirección Principal Formateada" vacía)
 
 ### Removed
 - SQL directo en tests (reemplazado por rollback transaccional)

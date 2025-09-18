@@ -581,21 +581,46 @@ Gates:
 - JSON serialization correcta
 - Respuesta FacturAPI válida
 
-### **TC-A-049-062: [Casos Avanzados Adicionales]**
-- TC-A-049: Migración datos legacy
-- TC-A-050: Backup/restore configuración
-- TC-A-051: Certificados vencidos durante operación
-- TC-A-052: Pérdida conectividad FacturAPI
-- TC-A-053: Timeout operaciones largas
-- TC-A-054: Validación cruzada SAT-FacturAPI
-- TC-A-055: Auditoría fiscal completa
-- TC-A-056: Exportación masiva reportes
-- TC-A-057: Importación catálogos SAT
-- TC-A-058: Configuración roles/permisos granulares
-- TC-A-059: Integración sistemas terceros
-- TC-A-060: API webhook callbacks
-- TC-A-061: Logs debugging avanzado
-- TC-A-062: Performance testing carga
+### **TC-A-049: Armonización Direcciones FFM-ERPNext**
+**Tiempo objetivo:** 5 min | **Gates:** 4 evidencias
+
+**Preparación:**
+- Customer con dirección principal configurada
+- Verificar consistencia direcciones Customer UI vs FFM
+
+**Ejecución:**
+1. **G01:** Customer form muestra "Dirección Primaria" correctamente formateada
+2. **G02:** FFM._get_primary_address_display() retorna misma dirección que ERPNext
+3. **G03:** Campo "Dirección Principal Formateada" en FFM ya no aparece vacío
+4. **G04:** Ambos sistemas usan get_address_display() estándar de Frappe
+
+**Invariantes:**
+- Misma fuente: customer_primary_address + fallbacks
+- Mismo formato: get_address_display() de Frappe
+- Sin discrepancias entre Customer UI y FFM
+- Campo FFM poblado correctamente
+
+**✅ RESULTADO TC-A-049:** Completado exitosamente
+- **Implementación:** Patch armonización direcciones aplicado según propuesta ChatGPT
+- **Cambios:** _get_primary_address() usa misma lógica que ERPNext, _get_primary_address_display() usa get_address_display() estándar
+- **Verificación:** FFM ahora muestra exactamente la misma dirección que Customer UI
+- **Status:** Inconsistencia direcciones Customer ↔ FFM eliminada completamente
+
+### **TC-A-050-062: [Casos Avanzados Adicionales]**
+- TC-A-050: Migración datos legacy
+- TC-A-051: Backup/restore configuración
+- TC-A-052: Certificados vencidos durante operación
+- TC-A-053: Pérdida conectividad FacturAPI
+- TC-A-054: Timeout operaciones largas
+- TC-A-055: Validación cruzada SAT-FacturAPI
+- TC-A-056: Auditoría fiscal completa
+- TC-A-057: Exportación masiva reportes
+- TC-A-058: Importación catálogos SAT
+- TC-A-059: Configuración roles/permisos granulares
+- TC-A-060: Integración sistemas terceros
+- TC-A-061: API webhook callbacks
+- TC-A-062: Logs debugging avanzado
+- TC-A-063: Performance testing carga
 
 ---
 
@@ -603,7 +628,7 @@ Gates:
 
 ### **Métricas por Ejecución**
 ```yaml
-Tiempo total objetivo: 6 horas (62 casos × 6 min promedio)
+Tiempo total objetivo: 6.2 horas (63 casos × 6 min promedio)
 Success rate target: ≥95%
 Coverage areas:
   - UI/UX: 100% workflows críticos
@@ -611,12 +636,14 @@ Coverage areas:
   - Integration: 95% endpoints FacturAPI
   - Error handling: 90% casos edge
   - Tipo Comprobante: 100% workflows I/E/T
+  - Armonización Direcciones: 100% consistency FFM ↔ ERPNext
 
 KPIs críticos:
   - Zero data loss: 100%
   - Fiscal compliance: 100%
   - User experience: ≥95% satisfaction
   - Tipo comprobante SAT: 100% compliance
+  - Consistencia direcciones: 100% armonización
 
 Nuevas funcionalidades incluidas:
   - TC-B-006: Tipo Comprobante Ingreso (I) por defecto
@@ -628,6 +655,7 @@ Nuevas funcionalidades incluidas:
   - TC-A-046: Validaciones server-side estrictas
   - TC-A-047: Compatibilidad backwards facturas legacy
   - TC-A-048: Casos edge payload FacturAPI múltiple
+  - TC-A-049: Armonización direcciones FFM-ERPNext ✅ COMPLETADO
 ```
 
 ### **Reporte Template**
