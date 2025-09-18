@@ -46,7 +46,10 @@
     "dashboard_admin_roles",
     "ereceipt_monthly_limit",
     "global_invoice_monthly_limit",
-    "customer_email_fallback"
+    "customer_email_fallback",
+    "section_break_tipo_comprobante",
+    "habilitar_traslado",
+    "permitir_editar_relacion_en_egreso"
   ],
   "fields": [
     {
@@ -319,6 +322,24 @@
       "fieldname": "customer_email_fallback",
       "fieldtype": "Data",
       "label": "Email Fallback Cliente"
+    },
+    {
+      "fieldname": "section_break_tipo_comprobante",
+      "fieldtype": "Section Break",
+      "label": "Configuración Tipo de Comprobante"
+    },
+    {
+      "fieldname": "habilitar_traslado",
+      "label": "Habilitar Traslado (T)",
+      "fieldtype": "Check",
+      "default": 0,
+      "description": "No implementado: debe permanecer desactivado."
+    },
+    {
+      "fieldname": "permitir_editar_relacion_en_egreso",
+      "label": "Permitir editar relación en Egreso (avanzado)",
+      "fieldtype": "Check",
+      "default": 0
     }
   ],
   "issingle": 1,

@@ -495,16 +495,47 @@ class TimbradoAPI:
 			"use": cfdi_use,
 		}
 
+		# TIPO DE COMPROBANTE: Obtener desde Factura Fiscal Mexico
+		tipo_comprobante = factura_fiscal.get("fm_tipo_comprobante", "I").strip()
+		if tipo_comprobante:
+			# Extraer solo el código (formato "I - Ingreso" -> "I")
+			tipo_code = (
+				tipo_comprobante.split(" - ")[0].strip() if " - " in tipo_comprobante else tipo_comprobante
+			)
+			invoice_data["type"] = tipo_code
+
+		# DOCUMENTOS RELACIONADOS: Para tipo Egreso (E), incluir relación SAT y UUID relacionado
+		if invoice_data.get("type") == "E":
+			tipo_relacion = factura_fiscal.get("fm_tipo_relacion_sat", "").strip()
+			uuid_relacionado = factura_fiscal.get("fm_uuid_relacionado", "").strip()
+
+			if tipo_relacion and uuid_relacionado:
+				# Extraer código de relación (formato "01 - Descripción" -> "01")
+				relacion_code = (
+					tipo_relacion.split(" - ")[0].strip() if " - " in tipo_relacion else tipo_relacion
+				)
+
+				invoice_data["related_documents"] = [
+					{
+						"relationship": relacion_code,
+						"documents": [uuid_relacionado],
+					}
+				]
+
 		# [Milestone 3] Inyectar relación 04 si el SI trae 'ffm_substitution_source_uuid'
 		src_uuid = (sales_invoice.get("ffm_substitution_source_uuid") or "").strip()
 		if src_uuid:
 			# FacturAPI (relación CFDI): estructura correcta para sustitución CFDI previo
-			invoice_data["related_documents"] = [
+			# NOTA: Si ya hay related_documents de tipo E, agregar a la lista
+			if "related_documents" not in invoice_data:
+				invoice_data["related_documents"] = []
+
+			invoice_data["related_documents"].append(
 				{
 					"relationship": "04",  # Sustitución de los CFDI previos
 					"documents": [src_uuid],
 				}
-			]
+			)
 
 		# Sprint 6 Phase 2: Agregar datos específicos de sucursal
 		if branch_data.get("lugar_expedicion"):

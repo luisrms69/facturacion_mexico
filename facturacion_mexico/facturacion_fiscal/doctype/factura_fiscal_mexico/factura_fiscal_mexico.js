@@ -312,6 +312,45 @@
 
 	frappe.ui.form.on("Factura Fiscal Mexico", {
 		refresh: function (frm) {
+			// Poblar opciones SAT desde el servidor
+			if (!frm._sat_opts_loaded) {
+				frappe.call({
+					method: "facturacion_mexico.facturacion_fiscal.doctype.factura_fiscal_mexico.factura_fiscal_mexico.sat_options",
+					callback: function (r) {
+						if (r.message) {
+							const { tipo_comprobante_options, tipo_relacion_options } = r.message;
+							if (tipo_comprobante_options && tipo_comprobante_options.length) {
+								frm.set_df_property(
+									"fm_tipo_comprobante",
+									"options",
+									tipo_comprobante_options.join("\n")
+								);
+							}
+							if (tipo_relacion_options && tipo_relacion_options.length) {
+								frm.set_df_property(
+									"fm_tipo_relacion_sat",
+									"options",
+									tipo_relacion_options.join("\n")
+								);
+							}
+						}
+					},
+				});
+				frm._sat_opts_loaded = true;
+			}
+
+			// Espejo de reglas: SI retorno => E (solo lectura), si no => I (solo lectura)
+			const is_return = frm.doc.sales_invoice_is_return || frm.doc.is_return;
+			if (is_return) {
+				frm.set_value("fm_tipo_comprobante", "E - Egreso");
+				frm.set_df_property("fm_tipo_comprobante", "read_only", 1);
+				frm.set_df_property("fm_tipo_relacion_sat", "read_only", 1);
+				frm.set_df_property("fm_uuid_relacionado", "read_only", 1);
+			} else {
+				frm.set_value("fm_tipo_comprobante", "I - Ingreso");
+				frm.set_df_property("fm_tipo_comprobante", "read_only", 1);
+			}
+
 			// PROTECCIÓN: Bloquear campos fiscales post-submit
 			freeze_fiscal_fields_after_submit(frm);
 			freeze_payment_fields_after_submit(frm);

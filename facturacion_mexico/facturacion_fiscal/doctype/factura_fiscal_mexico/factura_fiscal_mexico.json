@@ -16,6 +16,9 @@
     "column_break_payment_methods",
     "fm_payment_method_sat",
     "fm_forma_pago_timbrado",
+    "fm_tipo_comprobante",
+    "fm_tipo_relacion_sat",
+    "fm_uuid_relacionado",
     "section_break_datos_facturacion",
     "fm_cp_cliente",
     "fm_email_facturacion",
@@ -137,6 +140,34 @@
       "fieldtype": "Link",
       "label": "Forma de Pago para Timbrado",
       "options": "Mode of Payment"
+    },
+    {
+      "fieldname": "fm_tipo_comprobante",
+      "label": "Tipo de comprobante (SAT)",
+      "fieldtype": "Select",
+      "options": "",
+      "default": "I - Ingreso",
+      "reqd": 1,
+      "read_only": 1
+    },
+    {
+      "fieldname": "fm_tipo_relacion_sat",
+      "label": "Tipo de Relación (SAT)",
+      "fieldtype": "Select",
+      "options": "",
+      "depends_on": "eval:doc.fm_tipo_comprobante && doc.fm_tipo_comprobante.startsWith('E')",
+      "mandatory_depends_on": "eval:doc.fm_tipo_comprobante && doc.fm_tipo_comprobante.startsWith('E')",
+      "default": "01 - Nota de crédito de los documentos relacionados",
+      "read_only": 1
+    },
+    {
+      "fieldname": "fm_uuid_relacionado",
+      "label": "UUID relacionado",
+      "fieldtype": "Data",
+      "depends_on": "eval:doc.fm_tipo_comprobante && doc.fm_tipo_comprobante.startsWith('E')",
+      "mandatory_depends_on": "eval:doc.fm_tipo_comprobante && doc.fm_tipo_comprobante.startsWith('E')",
+      "read_only": 1,
+      "description": "Se autollenará desde la factura origen (SI/FFM)."
     },
     {
       "fieldname": "fecha_timbrado",

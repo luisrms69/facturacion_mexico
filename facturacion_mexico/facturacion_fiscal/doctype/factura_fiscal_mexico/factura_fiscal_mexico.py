@@ -3,6 +3,8 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import flt, now_datetime
 
+from facturacion_mexico.sat.constants import TIPO_COMPROBANTE, TIPO_RELACION, parse_select_code
+
 # Lista blanca de campos permisibles tras submit (operativos, no fiscales)
 MUTABLE_AFTER_SUBMIT = {
 	"fm_sync_status",  # Select: synced/pending/error
@@ -153,6 +155,12 @@ class FacturaFiscalMexico(Document):
 		"""Validar factura fiscal antes de guardar."""
 		# NUEVAS VALIDACIONES: Inmutabilidad (normalización ya hecha en before_validate)
 
+		# Establecer automáticamente el tipo según la SI origen
+		self._set_tipo_from_context()
+
+		# Validaciones tipo de comprobante
+		self.validate_tipo_comprobante()
+
 		# Validaciones existentes
 		self.validate_sales_invoice()
 		self.validate_company_match()
@@ -206,6 +214,66 @@ class FacturaFiscalMexico(Document):
 				_("No se permite modificar Método/Forma de Pago después de Submit.<br>{0}").format(details),
 				frappe.ValidationError,
 			)
+
+	def validate_tipo_comprobante(self):
+		"""Validar tipo de comprobante según propuesta ChatGPT."""
+		# Reglas: solo I/E; T no implementado
+		tipo = parse_select_code(self.fm_tipo_comprobante)
+		if tipo not in ("I", "E"):
+			frappe.throw(
+				"Traslado (T) no está habilitado en esta versión.", title="Tipo de comprobante no permitido"
+			)
+
+		# SI normal => I
+		if not self._is_sales_invoice_return() and tipo != "I":
+			frappe.throw("Factura normal debe timbrarse como Ingreso (I).", title="Validación FFM")
+
+		# SI retorno => E + relación obligatoria
+		if self._is_sales_invoice_return():
+			if tipo != "E":
+				frappe.throw("Factura de retorno debe timbrarse como Egreso (E).", title="Validación FFM")
+			# Relación
+			rel = parse_select_code(self.fm_tipo_relacion_sat or "")
+			if rel not in TIPO_RELACION:
+				frappe.throw("Tipo de Relación SAT inválido o vacío.", title="Validación FFM")
+			if not self.fm_uuid_relacionado:
+				frappe.throw(
+					"UUID relacionado es obligatorio para Egreso (nota de crédito).", title="Validación FFM"
+				)
+			self._validate_uuid_origen()
+
+	def _is_sales_invoice_return(self) -> bool:
+		"""Determinar si la Sales Invoice es un retorno."""
+		if not self.sales_invoice:
+			return False
+		sales_invoice = frappe.get_doc("Sales Invoice", self.sales_invoice)
+		return bool(getattr(sales_invoice, "is_return", 0))
+
+	def _set_tipo_from_context(self):
+		"""Establecer tipo automáticamente según contexto."""
+		if self._is_sales_invoice_return():
+			self.fm_tipo_comprobante = "E - Egreso"
+			# autollenar relación
+			self.fm_tipo_relacion_sat = self.fm_tipo_relacion_sat or "01 - " + TIPO_RELACION["01"]
+			self.fm_uuid_relacionado = self.fm_uuid_relacionado or self._find_uuid_cfdi_origen()
+		else:
+			self.fm_tipo_comprobante = "I - Ingreso"
+			self.fm_tipo_relacion_sat = None
+			self.fm_uuid_relacionado = None
+
+	def _find_uuid_cfdi_origen(self) -> str | None:
+		"""Buscar UUID del CFDI original."""
+		# TODO: Implementar lógica que busque el UUID del CFDI original
+		# 1) FFM relacionado a la SI origen, o
+		# 2) Campo en la Sales Invoice original.
+		return getattr(self, "uuid_origen", None)
+
+	def _validate_uuid_origen(self):
+		"""Validar UUID relacionado."""
+		uuid = self.fm_uuid_relacionado
+		if not uuid or len(uuid) < 36:
+			frappe.throw("UUID relacionado no parece válido.", title="Validación FFM")
+		# TODO: Verificar en tabla/log de timbrados si ese UUID pertenece al receptor actual
 
 	def validate_sales_invoice(self):
 		"""Validar que Sales Invoice existe y está submitted."""
@@ -1095,3 +1163,14 @@ class FacturaFiscalMexico(Document):
 				title=_("Secuencia de cancelación requerida"),
 			)
 		# Si fm_fiscal_status="CANCELADO" → permite cancelación DocType
+
+
+@frappe.whitelist()
+def sat_options():
+	"""API para obtener opciones SAT centralizadas."""
+	from facturacion_mexico.sat.constants import select_options_tipo_comprobante, select_options_tipo_relacion
+
+	return {
+		"tipo_comprobante_options": select_options_tipo_comprobante(),  # ["I - Ingreso","E - Egreso"]
+		"tipo_relacion_options": select_options_tipo_relacion(),  # ["01 - Nota ...", "03 - ...", ...]
+	}
