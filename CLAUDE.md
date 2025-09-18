@@ -244,6 +244,8 @@ with patch("frappe.get_doc") as mock_get:
 - ✅ **NAMING CONVENTION:** Nombres Python válidos (sin números al inicio)
   - ❌ INCORRECTO: `20250916_script.py` (números al inicio)
   - ✅ CORRECTO: `script_20250916.py` o `migrar_customers.py`
+- ❌ **PROHIBIDO ABSOLUTO:** Comandos python directos (`python3 script.py`)
+- ✅ **OBLIGATORIO:** Solo usar `bench execute` para todos los scripts
 - ✅ **EJECUCIÓN SCRIPTS - INSTRUCCIONES EXACTAS:**
   ```bash
   # 1. OBLIGATORIO: one_offs/ debe estar dentro del paquete Python
@@ -449,6 +451,77 @@ with patch("frappe.get_doc") as mock_get:
 - ✅ **CHANGELOG.md** - Historial cambios en raíz proyecto
 - ✅ **Formato:** Según [Keep a Changelog](https://keepachangelog.com/es/)
 - ✅ **Mantenimiento:** Actualizar cada release/milestone
+
+#### **RG-011: CHANGELOG.md VERSIONING OBLIGATORIO**
+- ✅ **Estructura requerida:** Secciones [Unreleased] + versiones numeradas
+- ✅ **Versionado semántico:** MAJOR.MINOR.PATCH según [SemVer](https://semver.org/lang/es/)
+- ✅ **Fechas ISO:** YYYY-MM-DD para todas las versiones
+- ✅ **Categorías obligatorias:** Added, Changed, Deprecated, Removed, Fixed, Security
+
+#### **RG-011.1: Workflow Versioning**
+```bash
+# Durante desarrollo: acumular en [Unreleased]
+# Al hacer release: mover [Unreleased] → [X.Y.Z] - YYYY-MM-DD
+
+# Ejemplo release minor (nueva funcionalidad):
+git tag v5.1.0
+# Mover contenido [Unreleased] → [5.1.0] - 2025-09-17
+
+# Ejemplo release patch (solo fixes):
+git tag v5.0.1
+# Solo fixes acumulados → [5.0.1] - 2025-09-17
+```
+
+#### **RG-011.2: Criterios Versioning (0.x.x para Alpha)**
+- **MINOR (0.X.0):** Nueva funcionalidad mayor, cambios API
+- **PATCH (0.X.Y):** Bug fixes, pequeñas mejoras, funcionalidad menor
+- **Nota:** Versión 0.x.x indica software alpha en desarrollo activo
+
+#### **RG-011.3: Template Obligatorio**
+```markdown
+# Changelog
+
+## [Unreleased]
+
+### Added
+- Nueva funcionalidad pendiente release
+
+### Changed
+- Cambios en funcionalidad existente
+
+### Fixed
+- Bug fixes pendientes
+
+## [0.5.1] - 2025-09-17
+
+### Added
+- Sistema unificado validación RFC/CSF Customer con banner único
+- Armonización direcciones FFM-ERPNext para consistencia completa
+
+### Fixed
+- Mensajes contradictorios validación RFC/CSF
+- Inconsistencia direcciones entre Customer UI y FFM
+
+## [0.5.0] - 2025-09-16
+[Versiones anteriores...]
+```
+
+#### **RG-011.4: Comandos Release**
+```bash
+# 1. Verificar cambios pendientes
+git log --oneline v5.0.0..HEAD
+
+# 2. Actualizar CHANGELOG.md (mover [Unreleased] → [0.5.1])
+# 3. Commit de release
+git add CHANGELOG.md
+git commit -m "docs(release): preparar changelog v0.5.1"
+
+# 4. Crear tag
+git tag -a v0.5.1 -m "Release v0.5.1: Sistema validación RFC unificado"
+
+# 5. Push con tags
+git push origin main --tags
+```
 
 #### **Navegación Independiente**
 | Propósito | Ubicación Principal | Backup/Complemento |

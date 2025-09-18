@@ -606,21 +606,61 @@ Gates:
 - **Verificación:** FFM ahora muestra exactamente la misma dirección que Customer UI
 - **Status:** Inconsistencia direcciones Customer ↔ FFM eliminada completamente
 
-### **TC-A-050-062: [Casos Avanzados Adicionales]**
-- TC-A-050: Migración datos legacy
-- TC-A-051: Backup/restore configuración
-- TC-A-052: Certificados vencidos durante operación
-- TC-A-053: Pérdida conectividad FacturAPI
-- TC-A-054: Timeout operaciones largas
-- TC-A-055: Validación cruzada SAT-FacturAPI
-- TC-A-056: Auditoría fiscal completa
-- TC-A-057: Exportación masiva reportes
-- TC-A-058: Importación catálogos SAT
-- TC-A-059: Configuración roles/permisos granulares
-- TC-A-060: Integración sistemas terceros
-- TC-A-061: API webhook callbacks
-- TC-A-062: Logs debugging avanzado
-- TC-A-063: Performance testing carga
+### **TC-A-050: Eliminación Campos Duplicados Customer**
+
+**Objetivo:** Validar que eliminación de campos "Régimen Fiscal" duplicados en Customer no afecta funcionalidad fiscal
+
+**Pre-condiciones:**
+- Customer con tax_category configurado (único campo régimen fiscal)
+- FFM existentes que usen tax_category
+- Sistema actualizado con fixture limpio
+
+**Pasos de prueba:**
+1. **Customer UI:**
+   - Abrir cualquier Customer
+   - Verificar que solo existe 1 campo régimen fiscal: "Categoría de Impuestos"
+   - Verificar que NO existe sección "Información Fiscal México"
+   - Verificar que "Uso CFDI por Defecto" está junto a campos fiscales nativos
+
+2. **FFM Creation:**
+   - Crear FFM para Customer con tax_category configurado
+   - Verificar que FFM obtiene régimen fiscal de tax_category
+   - Verificar que campo "Régimen Fiscal Customer" se puebla correctamente
+
+3. **Funcionalidad Timbrado:**
+   - Completar timbrado FFM
+   - Verificar que XML contiene régimen fiscal correcto
+   - Verificar que proceso fiscal NO tiene errores
+
+**Resultados esperados:**
+- Un solo campo régimen fiscal visible en Customer UI
+- FFM funciona correctamente con tax_category nativo
+- Sin errores en proceso de timbrado
+- Limpieza UI eliminando confusión duplicados
+
+**✅ RESULTADO TC-A-050:** Completado exitosamente
+- **Implementación:** Eliminación campos duplicados completada según propuesta ChatGPT exacta
+- **Script:** eliminar_regimen_fiscal_duplicado.py ejecutado via bench execute
+- **Fixture:** Eliminados 3 objetos JSON (fm_regimen_fiscal, fm_informacion_fiscal_mx_section, fm_column_break_fiscal_customer)
+- **Verificación:** Greps confirman eliminación completa, FFM usa tax_category nativo correctamente
+- **UI:** Customer ahora tiene solo 1 campo régimen fiscal, sección eliminada, fm_uso_cfdi_default reubicado limpiamente
+- **Status:** Duplicación campos Customer eliminada definitivamente, arquitectura fiscal limpia
+
+### **TC-A-051-063: [Casos Avanzados Adicionales]**
+- TC-A-051: Migración datos legacy
+- TC-A-052: Backup/restore configuración
+- TC-A-053: Certificados vencidos durante operación
+- TC-A-054: Pérdida conectividad FacturAPI
+- TC-A-055: Timeout operaciones largas
+- TC-A-056: Validación cruzada SAT-FacturAPI
+- TC-A-057: Auditoría fiscal completa
+- TC-A-058: Exportación masiva reportes
+- TC-A-059: Importación catálogos SAT
+- TC-A-060: Configuración roles/permisos granulares
+- TC-A-061: Integración sistemas terceros
+- TC-A-062: API webhook callbacks
+- TC-A-063: Logs debugging avanzado
+- TC-A-064: Performance testing carga
 
 ---
 
@@ -628,7 +668,7 @@ Gates:
 
 ### **Métricas por Ejecución**
 ```yaml
-Tiempo total objetivo: 6.2 horas (63 casos × 6 min promedio)
+Tiempo total objetivo: 6.4 horas (64 casos × 6 min promedio)
 Success rate target: ≥95%
 Coverage areas:
   - UI/UX: 100% workflows críticos
@@ -644,6 +684,7 @@ KPIs críticos:
   - User experience: ≥95% satisfaction
   - Tipo comprobante SAT: 100% compliance
   - Consistencia direcciones: 100% armonización
+  - Campos Customer limpios: 100% eliminación duplicados
 
 Nuevas funcionalidades incluidas:
   - TC-B-006: Tipo Comprobante Ingreso (I) por defecto
@@ -656,6 +697,7 @@ Nuevas funcionalidades incluidas:
   - TC-A-047: Compatibilidad backwards facturas legacy
   - TC-A-048: Casos edge payload FacturAPI múltiple
   - TC-A-049: Armonización direcciones FFM-ERPNext ✅ COMPLETADO
+  - TC-A-050: Eliminación campos duplicados Customer ✅ COMPLETADO
 ```
 
 ### **Reporte Template**
@@ -663,7 +705,7 @@ Nuevas funcionalidades incluidas:
 # Reporte Ejecución Testing - [FECHA]
 
 ## Resumen Ejecutivo
-- Casos ejecutados: X/62
+- Casos ejecutados: X/64
 - Success rate: XX%
 - Tiempo total: XX horas
 - Issues críticos: X
@@ -697,7 +739,7 @@ Nuevas funcionalidades incluidas:
 ### **Definición "Testing Completo"**
 1. Todos los casos TC-B-001 a TC-B-020 al 100%
 2. ≥90% casos TC-I-021 a TC-I-040 exitosos
-3. ≥80% casos TC-A-041 a TC-A-062 exitosos
+3. ≥80% casos TC-A-041 a TC-A-064 exitosos
 4. Documentación evidencias completa
 5. Plan corrección issues identificados
 

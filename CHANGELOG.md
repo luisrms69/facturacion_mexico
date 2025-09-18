@@ -7,18 +7,25 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
 ## [Unreleased]
 
 ### Added
+- [Funcionalidades pendientes de release]
+
+### Changed
+- [Cambios en funcionalidad existente]
+
+### Fixed
+- [Bug fixes pendientes]
+
+## [0.5.1] - 2025-09-17
+
+### Added
 - Sistema tipo de comprobante CFDI (I=Ingreso, E=Egreso, T=Traslado bloqueado)
 - Configuración SAT para tipos de comprobante y relaciones fiscales
 - Validaciones automáticas tipo comprobante basadas en contexto Sales Invoice
 - API SAT options para obtener catálogos fiscales dinámicamente
 - Soporte relaciones fiscales para notas de crédito (tipo E)
-- Sistema completo cancelaciones fiscales CFDI
-- Workflows 01/02/03/04 según normativa SAT
-- Override class para múltiples FFMs (LinkExistsError)
-- Testing framework simplificado y eficaz
-- Documentación oficial estructura docs/
 - Armonización direcciones FFM-ERPNext para consistencia completa
 - Sistema unificado validación RFC/CSF Customer con banner único y sección oculta
+- Eliminación definitiva campos duplicados "Régimen Fiscal" en Customer DocType
 
 ### Changed
 - RG-003 simplificado: eliminadas 4 capas complejas por 3 niveles prácticos
@@ -32,11 +39,13 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
 - Critical State Fixes migración categorías fiscales
 - Inconsistencia direcciones entre Customer UI y FFM ("Dirección Principal Formateada" vacía)
 - Mensajes contradictorios validación RFC/CSF (múltiples indicadores con estados diferentes)
+- Duplicación confusa campos "Régimen Fiscal" en Customer (eliminados fm_regimen_fiscal, fm_informacion_fiscal_mx_section, fm_column_break_fiscal_customer)
 
 ### Removed
 - SQL directo en tests (reemplazado por rollback transaccional)
 - Layer 4 config testing (over-engineering)
 - setUpClass/tearDownClass SQL cleanup patterns
+- Sección "Información Fiscal México" completa en Customer (limpieza arquitectónica)
 
 ## [5.0.0] - 2025-09-16
 
