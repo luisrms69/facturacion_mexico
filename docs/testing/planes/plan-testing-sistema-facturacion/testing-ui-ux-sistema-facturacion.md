@@ -184,22 +184,76 @@ Gates:
 - FFM anterior en historial
 - Vínculo SI ↔ FFM actualizado
 
-### **TC-B-006-020: [Casos Básicos Adicionales]**
-- TC-B-006: Factura con múltiples productos
-- TC-B-007: Aplicar descuentos
-- TC-B-008: IVA 0% productos exentos
-- TC-B-009: Cliente público general
-- TC-B-010: Verificar cálculo impuestos automático
-- TC-B-011: Formato PDF generado
-- TC-B-012: Archivo XML estructura
-- TC-B-013: Serie fiscal automática
-- TC-B-014: Folio consecutivo
-- TC-B-015: Validación RFC emisor
-- TC-B-016: Centro de costos multisucursal
-- TC-B-017: Uso CFDI por defecto
-- TC-B-018: Forma de pago 99 (PUE)
-- TC-B-019: Método de pago transferencia
-- TC-B-020: Moneda nacional (MXN)
+### **TC-B-006: Tipo de Comprobante - Ingreso (I)**
+**Tiempo objetivo:** 5 min | **Gates:** 4 evidencias
+
+**Preparación:**
+- Factura nueva con cliente RFC válido
+- Verificar tipo comprobante por defecto
+
+**Ejecución:**
+1. **G01:** Nueva Factura Fiscal México, tipo comprobante "I - Ingreso" por defecto
+2. **G02:** Campo tipo comprobante read-only, no editable
+3. **G03:** Timbrado exitoso con tipo "I" en payload FacturAPI
+4. **G04:** CFDI generado con TipoDeComprobante="I"
+
+**Invariantes:**
+- `fm_tipo_comprobante = "I - Ingreso"` por defecto
+- Campo read-only en interfaz
+- Payload FacturAPI incluye `"type": "I"`
+- XML CFDI con atributo correcto
+
+### **TC-B-007: Sales Invoice Return - Tipo Egreso (E)**
+**Tiempo objetivo:** 6 min | **Gates:** 4 evidencias
+
+**Preparación:**
+- Sales Invoice original timbrada
+- Crear Sales Invoice de devolución
+
+**Ejecución:**
+1. **G01:** Return Sales Invoice, tipo comprobante automático "E - Egreso"
+2. **G02:** Campos relación SAT visibles: tipo relación y UUID relacionado
+3. **G03:** Configurar relación "03 - Devolución de mercancía" + UUID original
+4. **G04:** Timbrado exitoso con related_documents en payload
+
+**Invariantes:**
+- `fm_tipo_comprobante = "E - Egreso"` automático para returns
+- Campos relacionados visibles condicionalmente
+- Payload incluye `"type": "E"` y `related_documents`
+- Validación UUID relacionado obligatorio
+
+### **TC-B-008: Configuración Settings - Tipo Traslado**
+**Tiempo objetivo:** 3 min | **Gates:** 4 evidencias
+
+**Preparación:**
+- Acceso a Facturacion Mexico Settings
+- Verificar configuración tipo comprobante
+
+**Ejecución:**
+1. **G01:** Settings form, sección "Configuración Tipo de Comprobante"
+2. **G02:** Campo "Habilitar Traslado (T)" desactivado por defecto
+3. **G03:** Descripción indica "No implementado: debe permanecer desactivado"
+4. **G04:** Campo "Permitir editar relación en Egreso" disponible
+
+**Invariantes:**
+- `habilitar_traslado = 0` (desactivado)
+- Descripción preventiva visible
+- Campo avanzado edición relaciones presente
+- Configuración preservada después de save
+
+### **TC-B-009-020: [Casos Básicos Adicionales]**
+- TC-B-009: Factura con múltiples productos
+- TC-B-010: Aplicar descuentos
+- TC-B-011: IVA 0% productos exentos
+- TC-B-012: Cliente público general
+- TC-B-013: Verificar cálculo impuestos automático
+- TC-B-014: Formato PDF generado
+- TC-B-015: Archivo XML estructura
+- TC-B-016: Serie fiscal automática
+- TC-B-017: Folio consecutivo
+- TC-B-018: Validación RFC emisor
+- TC-B-019: Centro de costos multisucursal
+- TC-B-020: Uso CFDI por defecto
 
 ---
 
@@ -300,22 +354,76 @@ Gates:
 - Cliente-addenda vinculación correcta
 - XML completo generado
 
-### **TC-I-026-040: [Casos Intermedios Adicionales]**
-- TC-I-026: Forma pago 02 (Dación en pago)
-- TC-I-027: Forma pago 23 (Novación)
-- TC-I-028: Forma pago 30 (Aplicación anticipos)
-- TC-I-029: Complemento pagos (no facturación)
-- TC-I-030: Retenciones ISR servicios profesionales
-- TC-I-031: IEPS productos específicos
-- TC-I-032: Factura con moneda extranjera
-- TC-I-033: Tipo cambio automático
-- TC-I-034: Nota de crédito fiscal
-- TC-I-035: Factura de egresos
-- TC-I-036: Múltiples impuestos mismo concepto
-- TC-I-037: Descuentos a nivel línea
-- TC-I-038: Descuentos globales
-- TC-I-039: Validación límites facturación
-- TC-I-040: Configuración certificados SAT
+### **TC-I-026: Validación Tipo Comprobante en Contexto**
+**Tiempo objetivo:** 5 min | **Gates:** 4 evidencias
+
+**Preparación:**
+- Sales Invoice normal vs Return Sales Invoice
+- Verificar comportamiento automático
+
+**Ejecución:**
+1. **G01:** Función `_is_sales_invoice_return()` detecta returns correctamente
+2. **G02:** Tipo comprobante se asigna automáticamente según contexto
+3. **G03:** Campo read-only impide modificación manual
+4. **G04:** API `sat_options()` devuelve catálogos SAT correctos
+
+**Invariantes:**
+- Detección automática return funcional
+- Asignación tipo correcta (I vs E)
+- Validaciones backend activas
+- API SAT responde catálogos válidos
+
+### **TC-I-027: Relaciones SAT - Tipo Egreso Completo**
+**Tiempo objetivo:** 6 min | **Gates:** 4 evidencias
+
+**Preparación:**
+- Sales Invoice Return configurada
+- UUID original disponible para relación
+
+**Ejecución:**
+1. **G01:** Tipo Egreso (E) seleccionado, campos relación visibles
+2. **G02:** Dropdown tipo relación SAT poblado correctamente
+3. **G03:** Validación UUID relacionado (36 caracteres, formato válido)
+4. **G04:** Payload FacturAPI con related_documents estructura correcta
+
+**Invariantes:**
+- Visibility condicional campos relación
+- Opciones SAT catálogo tipo relación
+- Validación formato UUID estricta
+- Estructura payload conforme FacturAPI
+
+### **TC-I-028: Combinación Sustitución + Tipo Comprobante**
+**Tiempo objetivo:** 6 min | **Gates:** 4 evidencias
+
+**Preparación:**
+- CFDI original para sustituir (workflow 01)
+- Sales Invoice nueva con modificaciones
+
+**Ejecución:**
+1. **G01:** Sustitución 01 con tipo Egreso por cambio conceptos
+2. **G02:** Relación 04 (sustitución) + relación específica (01/03/etc)
+3. **G03:** Payload con múltiples related_documents
+4. **G04:** Cancelación automática original motivo 01
+
+**Invariantes:**
+- Múltiples relaciones en mismo payload
+- Combinación sustitución + tipo comprobante
+- Cancelación cascada correcta
+- Estructura related_documents válida
+
+### **TC-I-029-040: [Casos Intermedios Adicionales]**
+- TC-I-029: Forma pago 02 (Dación en pago)
+- TC-I-030: Forma pago 23 (Novación)
+- TC-I-031: Forma pago 30 (Aplicación anticipos)
+- TC-I-032: Complemento pagos (no facturación)
+- TC-I-033: Retenciones ISR servicios profesionales
+- TC-I-034: IEPS productos específicos
+- TC-I-035: Factura con moneda extranjera
+- TC-I-036: Tipo cambio automático
+- TC-I-037: Nota de crédito fiscal
+- TC-I-038: Múltiples impuestos mismo concepto
+- TC-I-039: Descuentos a nivel línea
+- TC-I-040: Descuentos globales
 
 ---
 
@@ -416,24 +524,78 @@ Gates:
 - Locks apropiados aplicados
 - Notificaciones conflicto
 
-### **TC-A-046-062: [Casos Avanzados Adicionales]**
-- TC-A-046: Migración datos legacy
-- TC-A-047: Backup/restore configuración
-- TC-A-048: Certificados vencidos durante operación
-- TC-A-049: Pérdida conectividad FacturAPI
-- TC-A-050: Timeout operaciones largas
-- TC-A-051: Validación cruzada SAT-FacturAPI
-- TC-A-052: Auditoría fiscal completa
-- TC-A-053: Exportación masiva reportes
-- TC-A-054: Importación catálogos SAT
-- TC-A-055: Configuración roles/permisos granulares
-- TC-A-056: Integración sistemas terceros
-- TC-A-057: API webhook callbacks
-- TC-A-058: Logs debugging avanzado
-- TC-A-059: Performance testing carga
-- TC-A-060: Disaster recovery
-- TC-A-061: Compliance audit trail
-- TC-A-062: Security penetration testing
+### **TC-A-046: Validación Server-Side Tipo Comprobante**
+**Tiempo objetivo:** 6 min | **Gates:** 4 evidencias
+
+**Preparación:**
+- Bypassing frontend, llamadas directas API
+- Casos edge manipulación datos
+
+**Ejecución:**
+1. **G01:** Intento modificar tipo comprobante via API directa
+2. **G02:** Validación `validate_tipo_comprobante()` rechaza cambios inválidos
+3. **G03:** Tipo E sin UUID relacionado genera error apropiado
+4. **G04:** Función `_find_uuid_cfdi_origen()` maneja casos sin CFDI origen
+
+**Invariantes:**
+- Validaciones server-side estrictas
+- Errores descriptivos para usuarios
+- Protección contra manipulación API
+- Manejo robusto casos edge
+
+### **TC-A-047: Compatibilidad Backwards - Facturas Legacy**
+**Tiempo objetivo:** 6 min | **Gates:** 4 evidencias
+
+**Preparación:**
+- Facturas existentes sin fm_tipo_comprobante
+- Migración automática en validación
+
+**Ejecución:**
+1. **G01:** Factura legacy sin tipo comprobante
+2. **G02:** Función `_set_tipo_from_context()` asigna tipo automáticamente
+3. **G03:** Save/update preserva compatibilidad
+4. **G04:** Timbrado exitoso con tipo inferido
+
+**Invariantes:**
+- Zero breaking changes facturas existentes
+- Migración automática transparente
+- Comportamiento consistente legacy vs nuevo
+- Performance no degradado
+
+### **TC-A-048: Casos Edge Payload FacturAPI**
+**Tiempo objetivo:** 6 min | **Gates:** 4 evidencias
+
+**Preparación:**
+- Combinar multiple related_documents
+- Sustitución + Egreso + UUID relacionado
+
+**Ejecución:**
+1. **G01:** Payload con related_documents múltiples (tipo E + sustitución)
+2. **G02:** Estructura JSON válida para FacturAPI
+3. **G03:** Orden elementos preservado
+4. **G04:** Respuesta FacturAPI exitosa con estructura compleja
+
+**Invariantes:**
+- Estructura related_documents conforme API
+- Múltiples relaciones en mismo documento
+- JSON serialization correcta
+- Respuesta FacturAPI válida
+
+### **TC-A-049-062: [Casos Avanzados Adicionales]**
+- TC-A-049: Migración datos legacy
+- TC-A-050: Backup/restore configuración
+- TC-A-051: Certificados vencidos durante operación
+- TC-A-052: Pérdida conectividad FacturAPI
+- TC-A-053: Timeout operaciones largas
+- TC-A-054: Validación cruzada SAT-FacturAPI
+- TC-A-055: Auditoría fiscal completa
+- TC-A-056: Exportación masiva reportes
+- TC-A-057: Importación catálogos SAT
+- TC-A-058: Configuración roles/permisos granulares
+- TC-A-059: Integración sistemas terceros
+- TC-A-060: API webhook callbacks
+- TC-A-061: Logs debugging avanzado
+- TC-A-062: Performance testing carga
 
 ---
 
@@ -448,11 +610,24 @@ Coverage areas:
   - Business logic: 100% reglas SAT
   - Integration: 95% endpoints FacturAPI
   - Error handling: 90% casos edge
+  - Tipo Comprobante: 100% workflows I/E/T
 
 KPIs críticos:
   - Zero data loss: 100%
   - Fiscal compliance: 100%
   - User experience: ≥95% satisfaction
+  - Tipo comprobante SAT: 100% compliance
+
+Nuevas funcionalidades incluidas:
+  - TC-B-006: Tipo Comprobante Ingreso (I) por defecto
+  - TC-B-007: Sales Invoice Return → Egreso (E) automático
+  - TC-B-008: Configuración Settings tipo comprobante
+  - TC-I-026: Validaciones contexto automático
+  - TC-I-027: Relaciones SAT completas
+  - TC-I-028: Combinación sustitución + tipo comprobante
+  - TC-A-046: Validaciones server-side estrictas
+  - TC-A-047: Compatibilidad backwards facturas legacy
+  - TC-A-048: Casos edge payload FacturAPI múltiple
 ```
 
 ### **Reporte Template**

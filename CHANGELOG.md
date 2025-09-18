@@ -7,6 +7,11 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
 ## [Unreleased]
 
 ### Added
+- Sistema tipo de comprobante CFDI (I=Ingreso, E=Egreso, T=Traslado bloqueado)
+- Configuración SAT para tipos de comprobante y relaciones fiscales
+- Validaciones automáticas tipo comprobante basadas en contexto Sales Invoice
+- API SAT options para obtener catálogos fiscales dinámicamente
+- Soporte relaciones fiscales para notas de crédito (tipo E)
 - Sistema completo cancelaciones fiscales CFDI
 - Workflows 01/02/03/04 según normativa SAT
 - Override class para múltiples FFMs (LinkExistsError)
