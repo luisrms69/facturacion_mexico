@@ -10,6 +10,7 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
 - Validación RFC SAT automática con integración FacturAPI
 - Sistema deadlock resolution para FFM sin timbre (cancel_ffm_keep_si)
 - Filtro guard cancelación SI: solo FFM submitted bloquean cancelación
+- Descarga automática acuse de cancelación CFDI (PDF + XML) tras cancelación exitosa
 
 ### Changed
 - Normalización Unicode NFC para preservar caracteres especiales (Ñ) en validación RFC

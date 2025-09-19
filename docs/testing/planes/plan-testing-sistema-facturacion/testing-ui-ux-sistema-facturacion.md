@@ -157,13 +157,20 @@ Gates:
 1. **G01:** CFDI timbrado en Sales Invoice
 2. **G02:** Diálogo cancelación, motivo 03 seleccionado
 3. **G03:** Confirmación SAT recibida
-4. **G04:** Estado "CANCELADO", acuse disponible
+4. **G04:** Estado "CANCELADO", acuse disponible automáticamente
 
 **Invariantes:**
 - `fm_fiscal_status = "CANCELADO"`
 - `fm_motivo_cancelacion = "03"`
-- Acuse cancelación presente
+- Acuse cancelación presente (PDF + XML)
 - CFDI original preservado
+- Archivos descargados automáticamente: `{FFM_NAME}_acuse_cancelacion.pdf/xml`
+
+**✅ RESULTADO TC-B-004:** Completado exitosamente
+- **Funcionalidad:** Descarga automática acuse cancelación implementada
+- **Archivos:** PDF y XML del acuse se descargan automáticamente usando endpoints FacturAPI
+- **Integración:** Usa mismo patrón que descarga PDF/XML timbrado para consistencia
+- **Status:** Cancelación motivo 03 funciona correctamente con acuse automático
 
 ### **TC-B-005: Re-facturar Mismo Sales Invoice**
 **Tiempo objetivo:** 6 min | **Gates:** 4 evidencias
@@ -646,21 +653,47 @@ Gates:
 - **UI:** Customer ahora tiene solo 1 campo régimen fiscal, sección eliminada, fm_uso_cfdi_default reubicado limpiamente
 - **Status:** Duplicación campos Customer eliminada definitivamente, arquitectura fiscal limpia
 
-### **TC-A-051-063: [Casos Avanzados Adicionales]**
-- TC-A-051: Migración datos legacy
-- TC-A-052: Backup/restore configuración
-- TC-A-053: Certificados vencidos durante operación
-- TC-A-054: Pérdida conectividad FacturAPI
-- TC-A-055: Timeout operaciones largas
-- TC-A-056: Validación cruzada SAT-FacturAPI
-- TC-A-057: Auditoría fiscal completa
-- TC-A-058: Exportación masiva reportes
-- TC-A-059: Importación catálogos SAT
-- TC-A-060: Configuración roles/permisos granulares
-- TC-A-061: Integración sistemas terceros
-- TC-A-062: API webhook callbacks
-- TC-A-063: Logs debugging avanzado
-- TC-A-064: Performance testing carga
+### **TC-A-051: Descarga Automática Acuse Cancelación**
+**Tiempo objetivo:** 6 min | **Gates:** 4 evidencias
+
+**Preparación:**
+- CFDI timbrado para cancelar (cualquier motivo)
+- Verificar funcionamiento endpoints FacturAPI
+
+**Ejecución:**
+1. **G01:** CFDI listo para cancelación, archivos PDF/XML timbrado presentes
+2. **G02:** Ejecutar cancelación, verificar llamada automática descarga acuse
+3. **G03:** Confirmar archivos `{FFM_NAME}_acuse_cancelacion.pdf/xml` generados
+4. **G04:** Validar integridad archivos y vinculación correcta en FFM
+
+**Invariantes:**
+- Descarga automática sin intervención usuario
+- Archivos PDF y XML del acuse presentes en attachments
+- Nomenclatura consistente con patrón sistema
+- Manejo errores sin afectar flujo principal de cancelación
+- Uso correcto endpoints `/invoices/{id}/cancellation_receipt/pdf|xml`
+
+**✅ RESULTADO TC-A-051:** Completado exitosamente
+- **Implementación:** Sistema descarga automática acuse funcionando correctamente
+- **Endpoints:** `/v2/invoices/{id}/cancellation_receipt/xml` y `/cancellation_receipt/pdf` confirmados
+- **Patrón:** Reutiliza `_save_file_attachment()` existente para consistencia
+- **Status:** Funcionalidad automática completa, archivos disponibles inmediatamente post-cancelación
+
+### **TC-A-052-064: [Casos Avanzados Adicionales]**
+- TC-A-052: Migración datos legacy
+- TC-A-053: Backup/restore configuración
+- TC-A-054: Certificados vencidos durante operación
+- TC-A-055: Pérdida conectividad FacturAPI
+- TC-A-056: Timeout operaciones largas
+- TC-A-057: Validación cruzada SAT-FacturAPI
+- TC-A-058: Auditoría fiscal completa
+- TC-A-059: Exportación masiva reportes
+- TC-A-060: Importación catálogos SAT
+- TC-A-061: Configuración roles/permisos granulares
+- TC-A-062: Integración sistemas terceros
+- TC-A-063: API webhook callbacks
+- TC-A-064: Logs debugging avanzado
+- TC-A-065: Performance testing carga
 
 ---
 
@@ -687,6 +720,7 @@ KPIs críticos:
   - Campos Customer limpios: 100% eliminación duplicados
 
 Nuevas funcionalidades incluidas:
+  - TC-B-004: Descarga automática acuse cancelación (PDF+XML) ✅ COMPLETADO
   - TC-B-006: Tipo Comprobante Ingreso (I) por defecto
   - TC-B-007: Sales Invoice Return → Egreso (E) automático
   - TC-B-008: Configuración Settings tipo comprobante
