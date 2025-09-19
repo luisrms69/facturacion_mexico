@@ -1161,6 +1161,11 @@ class FacturaFiscalMexico(Document):
 
 	def before_cancel(self):
 		"""Hook contextual: Permitir cancelación FFM solo si ya cancelada fiscalmente."""
+		# BYPASS CONTROLADO: solo para FFM sin timbre, invocado por nuestro endpoint
+		if not getattr(self, "fm_uuid", None) and getattr(self.flags, "allow_local_cancel", False):
+			# No aplicar validaciones PAC; cancelación local permitida
+			return
+
 		if self.sales_invoice and self.fm_fiscal_status != "CANCELADO":
 			frappe.throw(
 				_(
@@ -1239,3 +1244,35 @@ def check_si_customer_rfc_validated(si_name: str):
 	if not row:
 		return {"ok": False}
 	return {"ok": bool(row[0].ok and row[0].rfc)}
+
+
+@frappe.whitelist()
+def cancel_ffm_keep_si(ffm_name: str):
+	"""Cancela SOLO la FFM (sin cfdi_uuid) y libera la Sales Invoice enlazada.
+	- Requiere rol: System Manager o Facturacion Mexico System Manager
+	- Deja la SI viva (docstatus=1) y sin link a FFM, lista para reintentar.
+	"""
+	frappe.only_for(("System Manager", "Facturacion Mexico System Manager"))
+
+	ffm = frappe.get_doc("Factura Fiscal Mexico", ffm_name)
+	if ffm.docstatus != 1 or getattr(ffm, "fm_uuid", None):
+		frappe.throw(_("Solo disponible para FFM enviadas SIN timbre."))
+
+	si_name = ffm.sales_invoice
+	frappe.db.begin()
+	try:
+		# 1) Romper vínculo en SI (si existe)
+		if si_name and frappe.db.get_value("Sales Invoice", si_name, "fm_factura_fiscal_mx"):
+			frappe.db.set_value("Sales Invoice", si_name, "fm_factura_fiscal_mx", None)
+
+		# 2) Cancelar FFM con flag de bypass
+		ffm.add_comment("Workflow", _("Cancelación FFM (sin timbre). SI liberada para reintento."))
+		ffm.flags.allow_local_cancel = True
+		ffm.cancel()
+
+		frappe.db.commit()
+		return {"status": "ok", "ffm": ffm.name, "si": si_name}
+	except Exception:
+		frappe.db.rollback()
+		frappe.log_error(frappe.get_traceback(), "cancel_ffm_keep_si failed")
+		raise

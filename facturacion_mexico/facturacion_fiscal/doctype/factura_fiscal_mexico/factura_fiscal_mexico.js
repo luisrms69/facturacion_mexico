@@ -88,8 +88,8 @@
 
 	// [M3-FFM] Botón de ayuda contextual sobre sustitución
 	function addHelpButtonForSubstitution(frm) {
-		// Agregar botón de ayuda contextual sobre sustitución
-		if (frm.doc.sales_invoice && frm.doc.docstatus === 1) {
+		// Agregar botón de ayuda contextual sobre sustitución - SOLO si tiene cfdi_uuid
+		if (frm.doc.sales_invoice && frm.doc.docstatus === 1 && frm.doc.fm_uuid) {
 			frm.add_custom_button(
 				__("¿Cómo sustituir?"),
 				() => {
@@ -2432,4 +2432,35 @@ function validate_billing_data_visual(frm) {
 			});
 		}
 	}
+
+	// ========================================
+	// BOTÓN CANCELAR FFM (LIBERAR SI) - DEADLOCK RESOLUTION
+	// ========================================
+
+	// Agregar el botón usando el patrón frappe.ui.form.on
+	frappe.ui.form.on("Factura Fiscal Mexico", {
+		refresh(frm) {
+			if (frm.doc.docstatus === 1 && !frm.doc.fm_uuid) {
+				// Ocultar botón Cancel nativo para claridad de UX
+				frm.page.clear_secondary_action();
+
+				// Agregar botón personalizado para deadlock resolution
+				frm.add_custom_button(
+					__("Cancelar FFM (liberar SI)"),
+					async () => {
+						await frappe.call({
+							method: "facturacion_mexico.facturacion_fiscal.doctype.factura_fiscal_mexico.factura_fiscal_mexico.cancel_ffm_keep_si",
+							args: { ffm_name: frm.doc.name },
+						});
+						frappe.show_alert({
+							message: __("FFM cancelada y SI liberada."),
+							indicator: "green",
+						});
+						frm.reload_doc();
+					},
+					__("Acciones")
+				);
+			}
+		},
+	});
 })(); // Cierre del IIFE

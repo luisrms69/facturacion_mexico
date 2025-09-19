@@ -17,7 +17,7 @@ def _get_linked_ffm(si_name: str):
 	# 1) por campo link directo
 	ffm = frappe.db.get_value(
 		FFM_DOCTYPE,
-		{"sales_invoice": si_name},  # si tu FFM guarda la SI
+		{"sales_invoice": si_name, "docstatus": 1},  # ← SOLO SUBMITTED
 		["name", FFM_STATUS_FIELD],
 		as_dict=True,
 	)
@@ -26,16 +26,28 @@ def _get_linked_ffm(si_name: str):
 
 	# 2) por campo link en la propia SI (más común)
 	ffm_name = frappe.db.get_value("Sales Invoice", si_name, FFM_LINK_FIELD)
-	if ffm_name:
-		vals = frappe.db.get_value(FFM_DOCTYPE, ffm_name, ["name", FFM_STATUS_FIELD], as_dict=True)
-		return vals
-	return None
+	if not ffm_name:
+		return None
+
+	return frappe.db.get_value(
+		FFM_DOCTYPE,
+		{"name": ffm_name, "docstatus": 1},  # ← SOLO SUBMITTED
+		["name", FFM_STATUS_FIELD],
+		as_dict=True,
+	)
 
 
 def _ffm_allows_cancellation(ffm: dict) -> (bool, str):
-	"""Regresa (allowed, reason). allowed=True solo si FFM está 100% cancelada."""
+	"""allowed=True si la FFM está cancelada (docstatus=2) o cumple estados PAC permitidos."""
 	if not ffm:
 		return True, ""
+
+	docstatus = frappe.db.get_value("Factura Fiscal Mexico", ffm["name"], "docstatus")
+	if docstatus == 2:
+		return True, ""
+	if docstatus != 1:  # draft (0) u otros → no bloquean
+		return True, ""
+
 	status = (ffm.get(FFM_STATUS_FIELD) or "").upper().strip()
 	if status in ALLOWED_FFM_CANCELLED_STATES:
 		return True, ""
