@@ -1,17 +1,47 @@
 import json
+import re
 import traceback
+import unicodedata
 from typing import Any
 
 import frappe
 from frappe import _
 from frappe.utils import flt, now_datetime
 
+
+def _log_text(label, s: str):
+	if s is None:
+		s = ""
+	frappe.logger("facturapi-wire").info(
+		{
+			"label": label,
+			"text": s,
+			"repr": repr(s),
+			"codepoints": [hex(ord(ch)) for ch in s],
+			"is_nfc": s == unicodedata.normalize("NFC", s),
+		}
+	)
+
+
+def _log_payload_checkpoint(tag, payload: dict):
+	name = payload.get("customer", {}).get("legal_name") or payload.get("legal_name")
+	_log_text(f"{tag}.customer.legal_name", name)
+
+
 from facturacion_mexico.config.fiscal_states_config import FiscalStates, OperationTypes
-from facturacion_mexico.validaciones.api import _normalize_company_name_for_facturapi
 
 from .api import write_pac_response  # PAC Response Writer - Arquitectura resiliente activada
 from .api_client import get_facturapi_client
 from .doctype.facturapi_response_log.facturapi_response_log import FacturAPIResponseLog
+
+
+def _nfc_collapse_upper(s: str) -> str:
+	"""PASO 3: Normaliza a NFC, colapsa espacios, preserva Ñ y comillas."""
+	if not s:
+		return ""
+	s = unicodedata.normalize("NFC", s)
+	s = re.sub(r"\s+", " ", s.strip())
+	return s.upper()  # Si requieres mayúsculas
 
 
 def _extract_sat_code_from_uom(uom_name):
@@ -401,9 +431,9 @@ class TimbradoAPI:
 
 		# Datos del cliente
 		customer_data = {
-			"legal_name": _normalize_company_name_for_facturapi(
+			"legal_name": _nfc_collapse_upper(
 				customer.customer_name
-			),  # CFDI 4.0: función idéntica a validación RFC/CSF
+			),  # ← SIN mapas de acentos, PRESERVA Ñ y comillas
 			"tax_id": customer.get("tax_id"),
 			"email": customer.email_id or self.settings.get("customer_email_fallback"),
 		}

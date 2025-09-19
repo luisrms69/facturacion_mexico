@@ -940,28 +940,42 @@
 		 * - Sin Factura Fiscal Mexico timbrada asociada
 		 */
 		frm.set_query("sales_invoice", function () {
-			console.log("🔍 DEBUG: Aplicando filtros Sales Invoice - Solo submitted sin timbrar");
-
 			return {
-				filters: [
-					// 1. CRÍTICO: Solo Sales Invoice submitted (docstatus = 1)
-					// Evita facturas draft (0) y canceladas (2)
-					["docstatus", "=", 1],
-
-					// 2. CRÍTICO: Sin Factura Fiscal Mexico ya asignada
-					// Evita doble facturación fiscal
-					["fm_factura_fiscal_mx", "in", ["", null]],
-
-					// 3. Tener RFC del cliente (requerido para facturación fiscal)
-					// Sin RFC no se puede timbrar
-					["tax_id", "!=", ""],
-				],
+				query: "facturacion_mexico.facturacion_fiscal.doctype.factura_fiscal_mexico.factura_fiscal_mexico.get_sales_invoice_for_ffm",
+				filters: { company: frm.doc.company || null },
 			};
 		});
 
 		console.log(
 			"✅ Filtros Sales Invoice configurados - Solo facturas disponibles para timbrado"
 		);
+
+		// Respaldo: validar RFC si usuario trae SI por link directo
+		frm.set_value = (function (original_set_value) {
+			return function (fieldname, value, if_missing) {
+				const result = original_set_value.call(this, fieldname, value, if_missing);
+
+				if (fieldname === "sales_invoice" && value) {
+					frappe
+						.call({
+							method: "facturacion_mexico.facturacion_fiscal.doctype.factura_fiscal_mexico.factura_fiscal_mexico.check_si_customer_rfc_validated",
+							args: { si_name: value },
+						})
+						.then((r) => {
+							if (!r.message || !r.message.ok) {
+								frappe.msgprint(
+									__(
+										"El RFC del cliente de la Sales Invoice seleccionada NO está validado con SAT. No puedes continuar."
+									)
+								);
+								frm.set_value("sales_invoice", null);
+							}
+						});
+				}
+
+				return result;
+			};
+		})(frm.set_value);
 	}
 
 	function validate_sales_invoice_availability(frm) {

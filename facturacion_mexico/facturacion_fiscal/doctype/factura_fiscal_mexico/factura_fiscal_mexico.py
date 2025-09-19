@@ -1184,3 +1184,58 @@ def sat_options():
 		"tipo_comprobante_options": select_options_tipo_comprobante(),  # ["I - Ingreso","E - Egreso"]
 		"tipo_relacion_options": select_options_tipo_relacion(),  # ["01 - Nota ...", "03 - ...", ...]
 	}
+
+
+@frappe.whitelist()
+def get_sales_invoice_for_ffm(doctype, txt, searchfield, start, page_len, filters):
+	"""
+	Devuelve SOLO Sales Invoices elegibles para FFM:
+	  - si.docstatus = 1 (enviadas)
+	  - Customer con RFC validado (fm_rfc_validated = 1) y tax_id no vacío
+	  - Sin FFM activa asociada (evita doble timbrado)
+	  - (opcional) misma company si viene en filters
+	"""
+	company = (filters or {}).get("company")
+	allowed = {"name", "customer", "posting_date"}
+	sf = searchfield if searchfield in allowed else "name"
+	return frappe.db.sql(
+		f"""
+		SELECT
+			si.name, si.customer, si.posting_date
+		FROM `tabSales Invoice` si
+		INNER JOIN `tabCustomer` c ON c.name = si.customer
+		LEFT JOIN `tabFactura Fiscal Mexico` ffm
+			   ON ffm.sales_invoice = si.name AND ffm.docstatus < 2
+		WHERE si.docstatus = 1
+		  AND (%(company)s IS NULL OR si.company = %(company)s)
+		  AND COALESCE(NULLIF(TRIM(c.tax_id), ''), '') <> ''
+		  AND COALESCE(c.fm_rfc_validated, 0) = 1
+		  AND ffm.name IS NULL
+		  AND si.{sf} LIKE %(txt)s
+		ORDER BY si.posting_date DESC
+		LIMIT %(start)s, %(page_len)s
+	""",
+		{"company": company, "txt": f"%{txt}%", "start": start, "page_len": page_len},
+	)
+
+
+@frappe.whitelist()
+def check_si_customer_rfc_validated(si_name: str):
+	"""Valida que la SI seleccionada tenga cliente con RFC validado (respaldo en on_change)."""
+	if not si_name:
+		return {"ok": False}
+	row = frappe.db.sql(
+		"""
+		SELECT
+			COALESCE(c.fm_rfc_validated,0) AS ok,
+			COALESCE(NULLIF(TRIM(c.tax_id),''),'') AS rfc
+		FROM `tabSales Invoice` si
+		INNER JOIN `tabCustomer` c ON c.name = si.customer
+		WHERE si.name = %s
+	""",
+		(si_name,),
+		as_dict=True,
+	)
+	if not row:
+		return {"ok": False}
+	return {"ok": bool(row[0].ok and row[0].rfc)}

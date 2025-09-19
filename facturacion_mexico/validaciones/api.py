@@ -4,6 +4,7 @@ Sistema de validación con cache inteligente
 """
 
 import re
+import unicodedata
 from datetime import datetime
 
 import frappe
@@ -854,8 +855,8 @@ def _validate_rfc_with_facturapi_full(rfc, customer_doc, primary_address):
 			"605" if is_persona_fisica else "601"
 		)  # 605=Sueldos y Salarios, 601=General Ley Personas Morales
 
-		# Normalizar nombre para FacturAPI (sin acentos, sin régimen societario, mayúsculas)
-		normalized_name = _normalize_company_name_for_facturapi(customer_doc.customer_name)
+		# Normalizar nombre para FacturAPI usando NFC (preserva Ñ y comillas)
+		normalized_name = _nfc_upper_collapse(customer_doc.customer_name)
 
 		# Construir datos del customer temporal usando datos REALES
 		temp_customer_data = {
@@ -904,8 +905,8 @@ def _validate_rfc_with_facturapi_full(rfc, customer_doc, primary_address):
 						or "Nombre no disponible"
 					)
 
-				# Comparar nombres - usar el nombre normalizado que se envió a FacturAPI
-				name_matches = _compare_customer_names(sat_name, normalized_name)
+				# Comparar nombres - usar función NFC que preserva Ñ y comillas
+				name_matches = names_match_sat(customer_doc.customer_name, sat_name)
 
 				return {
 					"success": True,
@@ -1690,3 +1691,23 @@ def get_customers_validation_summary():
 	except Exception as e:
 		frappe.log_error(f"Error getting customers validation summary: {e!s}", "Validation Summary Error")
 		return {"success": False, "error": str(e)}
+
+
+# ═══════════════════════════════════════════════════════════════════
+# FUNCIONES NFC PARA PRESERVAR CARACTERES ESPECIALES (Ñ, COMILLAS)
+# ═══════════════════════════════════════════════════════════════════
+
+
+def _nfc_upper_collapse(s: str) -> str:
+	"""Normaliza a NFC, quita espacios extremos y colapsa espacios; preserva Ñ y comillas."""
+	if not s:
+		return ""
+	s = unicodedata.normalize("NFC", s)  # preserva acentos y Ñ
+	s = s.strip()
+	s = re.sub(r"\s+", " ", s)
+	return s.upper()
+
+
+def names_match_sat(customer_name: str, sat_name: str) -> bool:
+	"""Comparación tolerante a espacios/caso, pero **sin** destruir Ñ/comillas."""
+	return _nfc_upper_collapse(customer_name) == _nfc_upper_collapse(sat_name)

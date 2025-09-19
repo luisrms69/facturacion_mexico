@@ -44,6 +44,15 @@ class FacturAPIClient:
 		url = f"{self.base_url}{endpoint}"
 
 		try:
+			# PASO 2: Log inmediato antes de enviar al PAC
+			if data and "customer" in data and "legal_name" in data.get("customer", {}):
+				frappe.logger("facturapi").info(
+					{
+						"where": "pre_request",
+						"legal_name": repr(data.get("customer", {}).get("legal_name")),
+					}
+				)
+
 			# Usar requests que ya viene con Frappe
 			response = requests.request(
 				method=method, url=url, headers=self.headers, json=data, timeout=self.timeout

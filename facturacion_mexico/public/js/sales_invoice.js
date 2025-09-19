@@ -45,11 +45,30 @@ frappe.ui.form.on("Sales Invoice", {
 
 			has_customer_rfc(frm, function (has_rfc) {
 				if (has_rfc) {
-					if (should_show_timbrar_button(frm)) {
-						add_timbrar_button(frm);
-					} else if (is_already_timbrada(frm)) {
-						add_view_fiscal_button(frm);
-					}
+					// NUEVO: Verificar RFC validado
+					frappe.db
+						.get_value("Customer", frm.doc.customer, ["fm_rfc_validated"])
+						.then((r) => {
+							const is_validated = !!(
+								r.message &&
+								(r.message.fm_rfc_validated === 1 ||
+									r.message.fm_rfc_validated === "1")
+							);
+							if (is_validated) {
+								if (should_show_timbrar_button(frm)) {
+									add_timbrar_button(frm);
+								} else if (is_already_timbrada(frm)) {
+									add_view_fiscal_button(frm);
+								}
+							} else {
+								frm.dashboard.set_headline_alert(
+									__(
+										"No puedes timbrar: el RFC del cliente no está validado con SAT."
+									),
+									"orange"
+								);
+							}
+						});
 				}
 			});
 		}
