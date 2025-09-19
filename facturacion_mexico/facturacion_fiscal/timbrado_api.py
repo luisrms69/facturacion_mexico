@@ -865,6 +865,30 @@ class TimbradoAPI:
 			is_private=1,
 		)
 
+	def _download_cancellation_receipt_files(self, factura_fiscal, facturapi_id):
+		"""Descargar PDF y XML del acuse de cancelación."""
+		try:
+			# Descargar PDF del acuse
+			pdf_content = self.client.download_cancellation_receipt_pdf(facturapi_id)
+			self._save_file_attachment(
+				factura_fiscal.name,
+				f"{factura_fiscal.name}_acuse_cancelacion.pdf",
+				pdf_content,
+				"application/pdf",
+			)
+
+			# Descargar XML del acuse
+			xml_content = self.client.download_cancellation_receipt_xml(facturapi_id)
+			self._save_file_attachment(
+				factura_fiscal.name,
+				f"{factura_fiscal.name}_acuse_cancelacion.xml",
+				xml_content.encode("utf-8"),
+				"application/xml",
+			)
+
+		except Exception as e:
+			frappe.logger().error(f"Error descargando archivos de acuse de cancelación: {e!s}")
+
 	def cancelar_factura(
 		self, sales_invoice_name: str, motivo: str, substitution_uuid: str | None = None
 	) -> dict[str, Any]:
@@ -986,6 +1010,14 @@ class TimbradoAPI:
 				)
 
 				frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure cancellation transaction is committed
+
+				# Descargar acuse de cancelación automáticamente
+				try:
+					self._download_cancellation_receipt_files(factura_fiscal, factura_fiscal.facturapi_id)
+					frappe.logger().info(f"Acuse cancelación descargado para FFM {factura_fiscal.name}")
+				except Exception as e:
+					frappe.logger().error(f"Error descargando acuse cancelación: {e}")
+					# No fallar el flujo principal por error de descarga
 
 				# Obtener estados actualizados para response coherente
 				si_doc = frappe.get_doc("Sales Invoice", sales_invoice_name)
