@@ -7,13 +7,19 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
 ## [Unreleased]
 
 ### Added
-- [Funcionalidades pendientes de release]
+- Validación RFC SAT automática con integración FacturAPI
+- Sistema deadlock resolution para FFM sin timbre (cancel_ffm_keep_si)
+- Filtro guard cancelación SI: solo FFM submitted bloquean cancelación
 
 ### Changed
-- [Cambios en funcionalidad existente]
+- Normalización Unicode NFC para preservar caracteres especiales (Ñ) en validación RFC
+- Guard cancelación Sales Invoice: docstatus != 2 → docstatus = 1 (solo submitted)
 
 ### Fixed
-- [Bug fixes pendientes]
+- Mensaje persistente "Cancelación bloqueada" por FFM en borrador vinculadas
+- Sanitización caracteres especiales (Ñ) en payload RFC validation y timbrado
+- Error AttributeError cfdi_uuid → fm_uuid en funciones cancelación
+- Bypass controlado cancelación FFM local sin timbre con flags.allow_local_cancel
 
 ## [0.5.1] - 2025-09-17
 
