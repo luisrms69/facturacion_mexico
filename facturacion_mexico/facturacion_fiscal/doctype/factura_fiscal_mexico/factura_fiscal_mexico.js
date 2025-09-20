@@ -471,10 +471,10 @@
 
 			// Cuando se selecciona Sales Invoice, cargar datos del cliente
 			if (frm.doc.sales_invoice) {
+				frm.__loading_fiscal_autofill = true;
 				load_customer_data_from_sales_invoice(frm);
-
-				// FASE 4: Auto-cargar forma de pago desde Payment Entry
 				auto_load_payment_method_from_sales_invoice(frm);
+				frm.__loading_fiscal_autofill = false;
 			}
 
 			// Verificar cliente fiscal después de cargar Sales Invoice
@@ -651,16 +651,13 @@
 
 					// Actualizar otros campos fiscales del customer si existen (legacy)
 					if (r.message.tax_category) {
-						frm.set_value("fm_regimen_fiscal_customer", r.message.tax_category);
+						frm.set_value("fm_tax_system", r.message.tax_category);
 					}
 					if (r.message.fm_codigo_postal_customer) {
-						frm.set_value(
-							"fm_codigo_postal_customer",
-							r.message.fm_codigo_postal_customer
-						);
+						frm.set_value("fm_cp_cliente", r.message.fm_codigo_postal_customer);
 					}
 					if (r.message.fm_rfc_customer) {
-						frm.set_value("fm_rfc_customer", r.message.fm_rfc_customer);
+						frm.set_value("fm_rfc_cliente", r.message.fm_rfc_customer);
 					}
 
 					// PASO 2: Activar función backend para poblar datos de facturación automáticamente
@@ -683,6 +680,9 @@
 	}
 
 	function validate_fiscal_data(frm) {
+		// No validar mientras se está autocompletando por selección de Sales Invoice
+		if (frm.__loading_fiscal_autofill) return;
+
 		// Solo validar si el documento no es nuevo o si está intentando guardar
 		if (frm.doc.__islocal && !frm.is_dirty()) {
 			// Documento nuevo sin cambios - no validar aún

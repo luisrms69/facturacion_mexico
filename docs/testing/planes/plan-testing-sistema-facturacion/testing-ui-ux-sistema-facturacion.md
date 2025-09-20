@@ -196,6 +196,12 @@ Gates:
 - FFM anterior en historial
 - Vínculo SI ↔ FFM actualizado
 
+**✅ RESULTADO TC-B-005:** Completado exitosamente
+- **Funcionalidad:** Re-facturación del mismo Sales Invoice implementada y funcionando
+- **Override class:** Manejo correcto LinkExistsError con ignore_links
+- **Workflow:** Nueva FFM se crea correctamente para mismo SI
+- **Status:** Funcionalidad de re-facturación verificada y operativa
+
 ### **TC-B-006: Tipo de Comprobante - Ingreso (I)**
 **Tiempo objetivo:** 5 min | **Gates:** 4 evidencias
 
@@ -214,6 +220,10 @@ Gates:
 - Campo read-only en interfaz
 - Payload FacturAPI incluye `"type": "I"`
 - XML CFDI con atributo correcto
+
+**✅ RESULTADO TC-B-006:** Completado exitosamente
+
+**Status:** Tipo de comprobante "I - Ingreso" configurado correctamente por defecto
 
 ### **TC-B-007: Sales Invoice Return - Tipo Egreso (E)**
 **Tiempo objetivo:** 6 min | **Gates:** 4 evidencias
@@ -259,11 +269,11 @@ Gates:
 - TC-B-011: IVA 0% productos exentos
 - TC-B-012: Cliente público general
 - TC-B-013: Verificar cálculo impuestos automático
-- TC-B-014: Formato PDF generado
-- TC-B-015: Archivo XML estructura
-- TC-B-016: Serie fiscal automática
-- TC-B-017: Folio consecutivo
-- TC-B-018: Validación RFC emisor
+- TC-B-014: Formato PDF generado ✅ COMPLETADO
+- TC-B-015: Archivo XML estructura ✅ COMPLETADO
+- TC-B-016: Serie fiscal automática ✅ COMPLETADO
+- TC-B-017: Folio consecutivo ✅ COMPLETADO
+- TC-B-018: Validación RFC emisor ✅ COMPLETADO
 - TC-B-019: Centro de costos multisucursal
 - TC-B-020: Uso CFDI por defecto
 
@@ -761,7 +771,7 @@ Gates:
 
 ### **Métricas por Ejecución**
 ```yaml
-Tiempo total objetivo: 6.6 horas (67 casos × 6 min promedio)
+Tiempo total objetivo: 6.9 horas (69 casos × 6 min promedio)
 Success rate target: ≥95%
 Coverage areas:
   - UI/UX: 100% workflows críticos
@@ -784,9 +794,12 @@ KPIs críticos:
 
 Nuevas funcionalidades incluidas:
   - TC-B-001: UI limpia - botón Cancel/Cancelar nativo oculto ✅ COMPLETADO (commit 53289d1)
+  - TC-B-002: Verificar datos fiscales cliente ✅ COMPLETADO
+  - TC-B-003: Configurar producto con claves SAT ✅ COMPLETADO
   - TC-B-004: Descarga automática acuse cancelación (PDF+XML) ✅ COMPLETADO (commit 2a8b134)
   - TC-B-004: Fix mapeo estados fiscales FacturAPI ✅ COMPLETADO (commit 642a8a8)
-  - TC-B-006: Tipo Comprobante Ingreso (I) por defecto
+  - TC-B-005: Re-facturar mismo Sales Invoice ✅ COMPLETADO
+  - TC-B-006: Tipo Comprobante Ingreso (I) por defecto ✅ COMPLETADO
   - TC-B-007: Sales Invoice Return → Egreso (E) automático
   - TC-B-008: Configuración Settings tipo comprobante
   - TC-I-026: Validaciones contexto automático
@@ -800,6 +813,7 @@ Nuevas funcionalidades incluidas:
   - TC-A-051: Descarga automática acuse cancelación ✅ COMPLETADO
   - TC-A-052: Campo motivo cancelación SAT persistencia ✅ COMPLETADO
   - TC-A-053: Fix doble timbrado protección UI + Backend ✅ COMPLETADO
+  - TC-A-054: Fix campos Customer → FFM mapping ✅ COMPLETADO (corrección fm_regimen_fiscal_customer)
 ```
 
 ### **Reporte Template**
