@@ -17,6 +17,7 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
 - Guard cancelación Sales Invoice: docstatus != 2 → docstatus = 1 (solo submitted)
 
 ### Fixed
+- Bug crítico mapeo estados fiscales cancelación: sistema forzaba "CANCELADO" sin leer respuesta PAC real
 - Mensaje persistente "Cancelación bloqueada" por FFM en borrador vinculadas
 - Sanitización caracteres especiales (Ñ) en payload RFC validation y timbrado
 - Error AttributeError cfdi_uuid → fm_uuid en funciones cancelación

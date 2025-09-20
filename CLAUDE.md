@@ -67,6 +67,7 @@
   gh pr create --base main --head feature/[branch-name]  # Target MAIN siempre
   ```
 - ⚠️ **AUTORIZACIÓN:** Todo commit debe ser aprobado por el usuario
+- ❌ **TESTS OBLIGATORIOS:** NO se permite commit si algún test falla. Todos los tests deben pasar al 100% antes de cualquier commit
 - ✅ **ISSUES TEMPORALES:** Crear GitHub issue cuando problema no puede resolverse
 - ✅ **DOCUMENTACIÓN ISSUE:**
   ```markdown

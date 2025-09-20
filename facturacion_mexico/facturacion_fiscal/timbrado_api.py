@@ -994,20 +994,47 @@ class TimbradoAPI:
 				# Construir valor EXACTO esperado por campo Select del DocType
 				motivo_completo = _build_cancellation_reason_for_select(motivo)
 
-				frappe.set_value(
-					"Factura Fiscal Mexico",
-					factura_fiscal.name,
-					{
-						"fm_fiscal_status": FiscalStates.CANCELADO,
-						"cancellation_date": now_datetime(),
-						"cancellation_reason": motivo_completo,
-					},
+				# CORRECCIÓN BUG: Mapear estado fiscal según respuesta real del PAC
+				raw_response = pac_response.get("raw_response", {})
+				response_status = raw_response.get("status", "")
+				cancellation_status = raw_response.get("cancellation_status", "")
+
+				# Log respuesta para auditoría
+				frappe.logger().info(
+					f"Respuesta PAC para FFM {factura_fiscal.name}: status='{response_status}', cancellation_status='{cancellation_status}'"
 				)
 
-				# Actualizar Sales Invoice
-				frappe.set_value(
-					"Sales Invoice", sales_invoice_name, {"fm_fiscal_status": FiscalStates.CANCELADO}
-				)
+				# Mapeo correcto según documentación FacturAPI
+				if response_status == "canceled" or cancellation_status == "accepted":
+					fiscal_status = FiscalStates.CANCELADO
+					cancellation_date = now_datetime()
+				elif cancellation_status == "pending":
+					fiscal_status = FiscalStates.PENDIENTE_CANCELACION
+					cancellation_date = None
+				elif cancellation_status == "rejected":
+					# Mantener como timbrado - no cambiar estado fiscal
+					fiscal_status = FiscalStates.TIMBRADO
+					cancellation_date = None
+				else:
+					# Fallback conservador para respuestas inesperadas
+					fiscal_status = FiscalStates.PENDIENTE_CANCELACION
+					cancellation_date = None
+					frappe.logger().warning(
+						f"Respuesta PAC inesperada para FFM {factura_fiscal.name}: status='{response_status}', cancellation_status='{cancellation_status}'. Usando fallback PENDIENTE_CANCELACION"
+					)
+
+				# Actualizar FFM con estado correcto
+				update_data = {
+					"fm_fiscal_status": fiscal_status,
+					"cancellation_reason": motivo_completo,
+				}
+				if cancellation_date:
+					update_data["cancellation_date"] = cancellation_date
+
+				frappe.set_value("Factura Fiscal Mexico", factura_fiscal.name, update_data)
+
+				# Actualizar Sales Invoice con mismo estado fiscal
+				frappe.set_value("Sales Invoice", sales_invoice_name, {"fm_fiscal_status": fiscal_status})
 
 				frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure cancellation transaction is committed
 
@@ -1027,11 +1054,13 @@ class TimbradoAPI:
 					"success": True,  # Backward compatibility
 					"ffm": factura_fiscal.name,
 					"sales_invoice": sales_invoice_name,
-					"status_ffm": "CANCELADO",
+					"status_ffm": fiscal_status,  # Estado correcto basado en respuesta PAC
 					"status_si": si_doc.fm_fiscal_status,
 					"uuid": factura_fiscal.fm_uuid,
-					"cancellation_date": frappe.utils.now_datetime().strftime("%Y-%m-%d %H:%M:%S"),
-					"message": "Factura cancelada exitosamente",
+					"cancellation_date": cancellation_date.strftime("%Y-%m-%d %H:%M:%S")
+					if cancellation_date
+					else None,
+					"message": "Solicitud de cancelación procesada exitosamente",
 				}
 
 			except Exception as frappe_error:
