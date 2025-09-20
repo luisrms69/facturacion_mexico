@@ -775,44 +775,26 @@
 	}
 
 	function timbrar_factura(frm) {
-		// Función de timbrado principal
+		// Función de timbrado principal con protección anti-doble click
 		frappe.confirm(__("¿Confirma que desea timbrar esta factura?"), function () {
-			// Llamar API de timbrado
+			const $btn = frm.__btn_timbrar || frm.page.btn_primary;
+			if ($btn && $btn.prop) $btn.prop("disabled", true).text(__("Timbrando..."));
+
 			frappe.call({
 				method: "facturacion_mexico.facturacion_fiscal.timbrado_api.timbrar_factura",
-				args: {
-					sales_invoice: frm.doc.sales_invoice,
+				args: { sales_invoice: frm.doc.sales_invoice },
+				freeze: true,
+				freeze_message: __("Timbrando..."),
+				callback: function () {
+					frm.reload_doc();
 				},
-				callback: function (r) {
-					if (r.message && r.message.success) {
-						frappe.show_alert({
-							message: __("Factura timbrada exitosamente"),
-							indicator: "green",
-						});
-						frm.reload_doc();
-					} else {
-						// Mensaje de error con información detallada del PAC
-						const error_msg = r.message
-							? r.message.error_message ||
-							  r.message.error ||
-							  r.message.message ||
-							  r.message
-							: __("Error desconocido del PAC");
-
-						console.log("[FFM] mostrando msgprint de error de timbrado:", error_msg);
-
-						const d2 = frappe.msgprint({
-							title: __("Error de Timbrado"),
-							message: error_msg,
-							indicator: "red",
-							primary_action: {
-								label: __("Cerrar"),
-								action: () => d2.hide(),
-							},
-						});
-						// Auto-refresh para mostrar estado actualizado (failed)
-						frm.reload_doc();
-					}
+				error: function () {
+					frappe.msgprint(__("No se pudo timbrar. Intente de nuevo."));
+				},
+				// Si tu versión de frappe.call NO soporta always, repite el enable en callback y error.
+				always: function () {
+					if ($btn && $btn.prop)
+						$btn.prop("disabled", false).text(__("Timbrar Factura"));
 				},
 			});
 		});

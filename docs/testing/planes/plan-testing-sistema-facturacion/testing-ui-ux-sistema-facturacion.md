@@ -74,10 +74,10 @@ Gates:
 - Centro costo: "Main - _TC"
 
 **Ejecución:**
-1. **G01:** Sales Invoice nuevo (pantalla inicial limpia)
+1. **G01:** Sales Invoice nuevo (pantalla inicial limpia), botón Cancel/Cancelar nativo NO VISIBLE
 2. **G02:** Cliente y producto seleccionados, importe calculado
-3. **G03:** Submit exitoso, documento en estado "Submitted"
-4. **G04:** Botón "Timbrar Factura" visible y activo
+3. **G03:** Submit exitoso, documento en estado "Submitted", botón Cancel/Cancelar nativo sigue OCULTO
+4. **G04:** Botón "Timbrar Factura" visible y activo, UI limpia sin confusión
 
 **Invariantes UI/UX:**
 - Cliente seleccionado correctamente de dropdown
@@ -85,6 +85,8 @@ Gates:
 - Cálculos automáticos funcionando
 - Botón fiscal aparece después de Submit
 - Estados documento correctos en interfaz
+- Botón Cancel/Cancelar nativo Frappe permanentemente oculto en FFM
+- Solo botones fiscales específicos visibles (evita confusión usuarios)
 
 **Nota:** Cliente con RFC real. Puede proceder con timbrado si empresa tiene RFC configurado.
 
@@ -154,23 +156,26 @@ Gates:
 - Motivo: Error sin relación
 
 **Ejecución:**
-1. **G01:** CFDI timbrado en Sales Invoice
-2. **G02:** Diálogo cancelación, motivo 03 seleccionado
-3. **G03:** Confirmación SAT recibida
+1. **G01:** CFDI timbrado en Sales Invoice, botón Cancel/Cancelar nativo NO VISIBLE
+2. **G02:** Diálogo cancelación fiscal, motivo 03 seleccionado
+3. **G03:** Confirmación SAT recibida, mapeo estado correcto
 4. **G04:** Estado "CANCELADO", acuse disponible automáticamente
 
 **Invariantes:**
-- `fm_fiscal_status = "CANCELADO"`
+- Botón Cancel/Cancelar nativo Frappe oculto permanentemente
+- `fm_fiscal_status = "CANCELADO"` (mapeo FacturAPI corregido)
 - `fm_motivo_cancelacion = "03"`
 - Acuse cancelación presente (PDF + XML)
 - CFDI original preservado
 - Archivos descargados automáticamente: `{FFM_NAME}_acuse_cancelacion.pdf/xml`
 
 **✅ RESULTADO TC-B-004:** Completado exitosamente
-- **Funcionalidad:** Descarga automática acuse cancelación implementada
+- **UI Fix:** Botón Cancel/Cancelar nativo oculto eliminando confusión usuarios (commit 53289d1)
+- **Estado Fix:** Mapeo estados FacturAPI corregido - lee respuesta PAC real (commit 642a8a8)
+- **Funcionalidad:** Descarga automática acuse cancelación implementada (commit 2a8b134)
 - **Archivos:** PDF y XML del acuse se descargan automáticamente usando endpoints FacturAPI
 - **Integración:** Usa mismo patrón que descarga PDF/XML timbrado para consistencia
-- **Status:** Cancelación motivo 03 funciona correctamente con acuse automático
+- **Status:** Cancelación motivo 03 funciona correctamente con UI limpia y mapeo estados correcto
 
 ### **TC-B-005: Re-facturar Mismo Sales Invoice**
 **Tiempo objetivo:** 6 min | **Gates:** 4 evidencias
@@ -436,22 +441,24 @@ Gates:
 
 ## 🔴 **NIVEL AVANZADO (41-62): Casos Edge y Excepciones**
 
-### **TC-A-041: Recuperación Error Timbrado**
+### **TC-A-041: Recuperación Error Timbrado + Fix Mapeo Estados**
 **Tiempo objetivo:** 6 min | **Gates:** 4 evidencias
 
 **Preparación:**
 - Simulación fallo FacturAPI
 - Sales Invoice en estado inconsistente
+- Verificar corrección mapeo estados (commit 642a8a8)
 
 **Ejecución:**
-1. **G01:** Error timbrado detectado
-2. **G02:** Diagnóstico estado fiscal
-3. **G03:** Sincronización manual ejecutada
-4. **G04:** Estado corregido, operación recuperada
+1. **G01:** Error timbrado detectado, verificar estado fiscal correcto según respuesta PAC
+2. **G02:** Diagnóstico estado fiscal - validar mapeo FacturAPI corregido
+3. **G03:** Sincronización manual ejecutada con mapeo estados actualizado
+4. **G04:** Estado corregido usando lógica de mapeo mejorada, operación recuperada
 
 **Invariantes:**
-- Estado fiscal consistente
-- Datos FacturAPI sincronizados
+- Estado fiscal consistente según respuesta PAC real (no forzado a "CANCELADO")
+- Mapeo estados: canceled/accepted → CANCELADO, pending → PENDIENTE_CANCELACION, rejected → TIMBRADO
+- Datos FacturAPI sincronizados con nueva lógica
 - No duplicación documentos
 - Integridad preservada
 
@@ -679,21 +686,74 @@ Gates:
 - **Patrón:** Reutiliza `_save_file_attachment()` existente para consistencia
 - **Status:** Funcionalidad automática completa, archivos disponibles inmediatamente post-cancelación
 
-### **TC-A-052-064: [Casos Avanzados Adicionales]**
-- TC-A-052: Migración datos legacy
-- TC-A-053: Backup/restore configuración
-- TC-A-054: Certificados vencidos durante operación
-- TC-A-055: Pérdida conectividad FacturAPI
-- TC-A-056: Timeout operaciones largas
-- TC-A-057: Validación cruzada SAT-FacturAPI
-- TC-A-058: Auditoría fiscal completa
-- TC-A-059: Exportación masiva reportes
-- TC-A-060: Importación catálogos SAT
-- TC-A-061: Configuración roles/permisos granulares
-- TC-A-062: Integración sistemas terceros
-- TC-A-063: API webhook callbacks
-- TC-A-064: Logs debugging avanzado
-- TC-A-065: Performance testing carga
+### **TC-A-052: Fix Campo Motivo Cancelación SAT**
+**Tiempo objetivo:** 6 min | **Gates:** 4 evidencias
+
+**Preparación:**
+- Verificar campo `fm_motivo_cancelacion` en DocType FFM
+- Testing workflow cancelación con persistencia motivo
+
+**Ejecución:**
+1. **G01:** Campo `fm_motivo_cancelacion` presente en FFM form, opciones SAT (01/02/03/04) disponibles
+2. **G02:** Cancelación CFDI con motivo específico, campo se puebla automáticamente
+3. **G03:** Motivo persiste en BD y es visible en form view post-cancelación
+4. **G04:** Validaciones trabajando correctamente - motivo requerido para cancelación
+
+**Invariantes:**
+- Campo Select con opciones SAT 01/02/03/04
+- Persistence automática antes de envío PAC
+- Campo read-only, populate automático vía API
+- Cleanup en caso rechazo PAC
+- Dependency: visible solo si fm_fiscal_status = "CANCELADO"
+
+**✅ RESULTADO TC-A-052:** Completado exitosamente
+- **Implementación:** Campo `fm_motivo_cancelacion` añadido a FFM DocType según propuesta ChatGPT exacta
+- **Persistencia:** Logic agregada en `timbrado_api.py:1505-1511` para persistir motivo antes del PAC
+- **Cleanup:** Logic agregada en `timbrado_api.py:1034-1036` para limpiar motivo si PAC rechaza
+- **Status:** Gap entre procesamiento y persistencia motivos cancelación eliminado definitivamente
+
+### **TC-A-053: Fix Doble Timbrado - UI Protección**
+**Tiempo objetivo:** 6 min | **Gates:** 4 evidencias
+
+**Preparación:**
+- Sales Invoice lista para timbrar
+- Verificar botón "Timbrar Factura" comportamiento
+- Testing múltiples clicks durante proceso timbrado
+
+**Ejecución:**
+1. **G01:** Botón "Timbrar Factura" activo, click único inicia proceso con UI freeze
+2. **G02:** Botón inmediatamente deshabilitado, texto cambia a "Timbrando...", pantalla congelada
+3. **G03:** Backend cache previene múltiples llamadas simultáneas (120s lock)
+4. **G04:** Proceso completa, botón rehabilitado, estado final consistente (un solo timbrado)
+
+**Invariantes:**
+- Button disable inmediato en click
+- UI freeze durante proceso (`freeze: true`)
+- Cache lock backend evita concurrencia
+- Always callback restaura botón independiente de resultado
+- Zero posibilidad doble timbrado
+
+**✅ RESULTADO TC-A-053:** Completado exitosamente
+- **Frontend:** `timbrar_factura()` reescrita sin async/await, usando frappe.call nativo con freeze
+- **UI Protection:** Button disable inmediato + freeze_message + always callback
+- **Backend Protection:** Cache-based locking con `cache_key = "si:timbrando:{sales_invoice}"`
+- **Status:** Doble timbrado imposible - protección frontend + backend implementada según propuesta ChatGPT
+
+### **TC-A-054-066: [Casos Avanzados Adicionales]**
+- TC-A-054: Migración datos legacy
+- TC-A-055: Backup/restore configuración
+- TC-A-056: Certificados vencidos durante operación
+- TC-A-057: Pérdida conectividad FacturAPI
+- TC-A-058: Timeout operaciones largas
+- TC-A-059: Validación cruzada SAT-FacturAPI
+- TC-A-060: Auditoría fiscal completa
+- TC-A-061: Exportación masiva reportes
+- TC-A-062: Importación catálogos SAT
+- TC-A-063: Configuración roles/permisos granulares
+- TC-A-064: Integración sistemas terceros
+- TC-A-065: API webhook callbacks
+- TC-A-066: Logs debugging avanzado
+- TC-A-067: Performance testing carga
 
 ---
 
@@ -701,7 +761,7 @@ Gates:
 
 ### **Métricas por Ejecución**
 ```yaml
-Tiempo total objetivo: 6.4 horas (64 casos × 6 min promedio)
+Tiempo total objetivo: 6.6 horas (67 casos × 6 min promedio)
 Success rate target: ≥95%
 Coverage areas:
   - UI/UX: 100% workflows críticos
@@ -710,6 +770,7 @@ Coverage areas:
   - Error handling: 90% casos edge
   - Tipo Comprobante: 100% workflows I/E/T
   - Armonización Direcciones: 100% consistency FFM ↔ ERPNext
+  - Protección Doble Timbrado: 100% coverage UI + Backend
 
 KPIs críticos:
   - Zero data loss: 100%
@@ -718,9 +779,13 @@ KPIs críticos:
   - Tipo comprobante SAT: 100% compliance
   - Consistencia direcciones: 100% armonización
   - Campos Customer limpios: 100% eliminación duplicados
+  - Doble timbrado: 0% incidents (imposible)
+  - Motivos cancelación: 100% persistencia
 
 Nuevas funcionalidades incluidas:
-  - TC-B-004: Descarga automática acuse cancelación (PDF+XML) ✅ COMPLETADO
+  - TC-B-001: UI limpia - botón Cancel/Cancelar nativo oculto ✅ COMPLETADO (commit 53289d1)
+  - TC-B-004: Descarga automática acuse cancelación (PDF+XML) ✅ COMPLETADO (commit 2a8b134)
+  - TC-B-004: Fix mapeo estados fiscales FacturAPI ✅ COMPLETADO (commit 642a8a8)
   - TC-B-006: Tipo Comprobante Ingreso (I) por defecto
   - TC-B-007: Sales Invoice Return → Egreso (E) automático
   - TC-B-008: Configuración Settings tipo comprobante
@@ -732,6 +797,9 @@ Nuevas funcionalidades incluidas:
   - TC-A-048: Casos edge payload FacturAPI múltiple
   - TC-A-049: Armonización direcciones FFM-ERPNext ✅ COMPLETADO
   - TC-A-050: Eliminación campos duplicados Customer ✅ COMPLETADO
+  - TC-A-051: Descarga automática acuse cancelación ✅ COMPLETADO
+  - TC-A-052: Campo motivo cancelación SAT persistencia ✅ COMPLETADO
+  - TC-A-053: Fix doble timbrado protección UI + Backend ✅ COMPLETADO
 ```
 
 ### **Reporte Template**

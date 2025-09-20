@@ -1031,6 +1031,10 @@ class TimbradoAPI:
 				if cancellation_date:
 					update_data["cancellation_date"] = cancellation_date
 
+				# Limpiar motivo de cancelación si PAC rechazó la solicitud
+				if fiscal_status != FiscalStates.CANCELADO:
+					update_data["fm_motivo_cancelacion"] = None
+
 				frappe.set_value("Factura Fiscal Mexico", factura_fiscal.name, update_data)
 
 				# Actualizar Sales Invoice con mismo estado fiscal
@@ -1445,8 +1449,20 @@ def _build_cancellation_reason_for_select(motive_code: str) -> str:
 @frappe.whitelist()
 def timbrar_factura(sales_invoice: str):
 	"""API para timbrar factura desde interfaz."""
-	api = TimbradoAPI()
-	return api.timbrar_factura(sales_invoice)
+	cache_key = f"si:timbrando:{sales_invoice}"
+	if frappe.cache().get_value(cache_key):
+		frappe.throw(_("Ya hay un timbrado en proceso. Intente en unos segundos."))
+	frappe.cache().set_value(cache_key, frappe.utils.now(), expires_in_sec=120)
+	try:
+		ffm_name = frappe.db.get_value(
+			"Factura Fiscal Mexico", {"sales_invoice": sales_invoice, "docstatus": 1}, "name"
+		)
+		if ffm_name and frappe.db.get_value("Factura Fiscal Mexico", ffm_name, "fm_uuid"):
+			frappe.throw(_("Esta factura fiscal ya está timbrada."))
+		api = TimbradoAPI()
+		return api.timbrar_factura(sales_invoice)
+	finally:
+		frappe.cache().delete_value(cache_key)
 
 
 @frappe.whitelist()
@@ -1490,15 +1506,21 @@ def cancelar_factura(sales_invoice=None, uuid=None, ffm_name=None, motivo=None, 
 		frappe.throw(f"El motivo '{motivo_code}' ({description}) requiere UUID de sustitución obligatorio")
 
 	# [Milestone 3] Guard backend: motivo 01 solo desde flujo sustitución
-	# Obtener FFM doc para el guard
+	# Obtener FFM doc para el guard y persistencia
 	ffm_doc = None
+	ffm_name = None
 	if sales_invoice:
 		ffm_list = frappe.get_all("Factura Fiscal Mexico", filters={"sales_invoice": sales_invoice}, limit=1)
 		if ffm_list:
-			ffm_doc = frappe.get_doc("Factura Fiscal Mexico", ffm_list[0].name)
+			ffm_name = ffm_list[0].name
+			ffm_doc = frappe.get_doc("Factura Fiscal Mexico", ffm_name)
 
 	if ffm_doc:
 		_guard_motive_01_only_from_substitution(ffm_doc, motivo_code, substitution_uuid)
+
+	# Persistir motivo de cancelación antes de enviar al PAC
+	if ffm_name:
+		frappe.db.set_value("Factura Fiscal Mexico", ffm_name, {"fm_motivo_cancelacion": motivo_code})
 
 	api = TimbradoAPI()
 	return api.cancelar_factura(sales_invoice, motivo_code, substitution_uuid)
