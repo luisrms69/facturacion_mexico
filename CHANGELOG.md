@@ -18,6 +18,7 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
 
 ### Fixed
 - Bug crítico mapeo estados fiscales cancelación: sistema forzaba "CANCELADO" sin leer respuesta PAC real
+- Botón "Cancel/Cancelar" nativo aparecía indebidamente en FFM causando confusión de usuarios
 - Mensaje persistente "Cancelación bloqueada" por FFM en borrador vinculadas
 - Sanitización caracteres especiales (Ñ) en payload RFC validation y timbrado
 - Error AttributeError cfdi_uuid → fm_uuid en funciones cancelación
