@@ -339,6 +339,63 @@
 				frm._sat_opts_loaded = true;
 			}
 
+			// === 1) Matar SIEMPRE el botón nativo Cancel/Cancelar (sin tocar Guardar/Validar) ===
+			(function alwaysHideNativeCancel() {
+				const nuke = () => {
+					try {
+						// Quitar permiso de cancelar SOLO en UI (no afecta permisos reales en BD)
+						frm.perm ||= [];
+						frm.perm[0] ||= {};
+						frm.perm[0].cancel = 0;
+						frm.toolbar && frm.toolbar.refresh && frm.toolbar.refresh();
+
+						// Cinturón y tirantes
+						// - botón secundario "Cancel" (v14/v15)
+						frm.page.clear_secondary_action && frm.page.clear_secondary_action();
+						// - item de menú "Cancel" (inglés) y "Cancelar" (ES)
+						frm.page.remove_menu_item && frm.page.remove_menu_item("Cancel");
+						frm.page.remove_menu_item && frm.page.remove_menu_item(__("Cancel"));
+						frm.page.remove_menu_item && frm.page.remove_menu_item("Cancelar");
+
+						// - limpiar si algún app lo reinyecta en el menú
+						const $menu = frm.page.menu || frm.page.actions_menu;
+						if ($menu && $menu.length) {
+							$menu.find("a, .dropdown-item, .menu-item").each(function () {
+								const t = (this.innerText || "").trim().toUpperCase();
+								if (t === "CANCEL" || t === "CANCELAR") this.remove();
+							});
+						}
+					} catch (e) {
+						/* ignore */
+					}
+				};
+
+				// ejecuta ahora y después del render, por si Frappe lo reinyecta
+				nuke();
+				setTimeout(nuke, 0);
+				frappe.after_ajax && frappe.after_ajax(nuke);
+			})();
+
+			// === 2) Mostrar ayuda SOLO si la FFM está TIMBRADA (opcional, deja tu handler actual) ===
+			(function toggleHelpOnlyWhenTimbrada() {
+				const HELP_LABEL = __("¿Cómo sustituir?"); // ajustado al texto real
+				const fiscal = String(frm.doc.fm_fiscal_status || "").toUpperCase();
+				const isTimbrada = !!frm.doc.fm_uuid && fiscal === "TIMBRADO";
+
+				try {
+					frm.remove_custom_button && frm.remove_custom_button(HELP_LABEL);
+				} catch (e) {
+					// ignore errors removing button
+				}
+
+				if (isTimbrada) {
+					frm.add_custom_button(HELP_LABEL, () => {
+						// conserva tu lógica de ayuda actual aquí
+						frappe.msgprint(__("Guía para cancelación/sustitución en SAT…"));
+					});
+				}
+			})();
+
 			// Espejo de reglas: SI retorno => E (solo lectura), si no => I (solo lectura)
 			const is_return = frm.doc.sales_invoice_is_return || frm.doc.is_return;
 			if (is_return) {
