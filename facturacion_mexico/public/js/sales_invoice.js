@@ -192,7 +192,7 @@ function redirect_to_fiscal_document(frm) {
 				company: frm.doc.company,
 				customer: frm.doc.customer, // AÑADIR: Customer requerido
 				fm_fiscal_status: FISCAL_STATES ? FISCAL_STATES.states.BORRADOR : "BORRADOR", // Estado desde configuración
-				fm_payment_method_sat: "PUE", // Valor por defecto
+				// fm_payment_method_sat será asignado por validate_payment_method() usando settings
 				// Agregar montos del Sales Invoice para validación posterior
 				si_total_antes_iva: frm.doc.net_total || 0,
 				si_total_neto: frm.doc.grand_total || 0,

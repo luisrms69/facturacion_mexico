@@ -48,6 +48,7 @@
     "global_invoice_monthly_limit",
     "customer_email_fallback",
     "section_break_tipo_comprobante",
+    "metodo_pago_default",
     "habilitar_traslado",
     "permitir_editar_relacion_en_egreso"
   ],
@@ -327,6 +328,14 @@
       "fieldname": "section_break_tipo_comprobante",
       "fieldtype": "Section Break",
       "label": "Configuración Tipo de Comprobante"
+    },
+    {
+      "fieldname": "metodo_pago_default",
+      "fieldtype": "Select",
+      "label": "Método de Pago por Defecto",
+      "options": "PUE\nPPD",
+      "default": "PUE",
+      "description": "Método de pago SAT que se asignará automáticamente a nuevas FFM cuando no esté especificado"
     },
     {
       "fieldname": "habilitar_traslado",

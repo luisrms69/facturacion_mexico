@@ -152,6 +152,12 @@ class FacturaFiscalMexico(Document):
 			if not self.customer:
 				self.customer = sales_invoice.customer
 
+	def before_insert(self):
+		if not (self.fm_payment_method_sat or "").strip() or self.fm_payment_method_sat == "PUE":
+			self.fm_payment_method_sat = (
+				frappe.db.get_single_value("Facturacion Mexico Settings", "metodo_pago_default") or "PUE"
+			)
+
 	def validate(self):
 		"""Validar factura fiscal antes de guardar."""
 		# NUEVAS VALIDACIONES: Inmutabilidad (normalización ya hecha en before_validate)
@@ -709,9 +715,13 @@ class FacturaFiscalMexico(Document):
 
 	def validate_payment_method(self):
 		"""Validar método de pago SAT - MIGRADO desde Sales Invoice."""
-		if not self.fm_payment_method_sat:
-			# Asignar método por defecto
-			self.fm_payment_method_sat = "PUE"  # Pago en una sola exhibición
+		# Solo si sigue vacío (no sobreescribir elección del usuario)
+		if not (self.fm_payment_method_sat or "").strip():
+			try:
+				settings = frappe.get_single("Facturacion Mexico Settings")
+				self.fm_payment_method_sat = (getattr(settings, "metodo_pago_default", None) or "PUE").strip()
+			except Exception:
+				self.fm_payment_method_sat = "PUE"
 
 		# Validar que el método existe
 		valid_methods = ["PUE", "PPD"]
@@ -723,6 +733,15 @@ class FacturaFiscalMexico(Document):
 			sales_invoice = frappe.get_doc("Sales Invoice", self.sales_invoice)
 			if sales_invoice.is_return:
 				frappe.throw(_("Las notas de crédito no pueden usar método PPD"))
+
+	def _ensure_payment_method_default(self):
+		# Solo si sigue vacío (no sobreescribir elección del usuario)
+		if not (self.fm_payment_method_sat or "").strip():
+			try:
+				settings = frappe.get_single("Facturacion Mexico Settings")
+				self.fm_payment_method_sat = (getattr(settings, "metodo_pago_default", None) or "PUE").strip()
+			except Exception:
+				self.fm_payment_method_sat = "PUE"
 
 	def validate_ppd_vs_forma_pago(self):
 		"""Validar compatibilidad entre PPD/PUE y forma de pago SAT - MIGRADO desde Sales Invoice."""

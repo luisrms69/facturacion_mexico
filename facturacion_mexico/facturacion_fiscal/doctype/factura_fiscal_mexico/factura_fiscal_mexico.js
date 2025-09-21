@@ -529,10 +529,8 @@
 		if (frm.is_new()) {
 			frm.set_value("fm_fiscal_status", "BORRADOR"); // Migrado arquitectura resiliente
 
-			// Establecer método de pago por defecto
-			if (!frm.doc.fm_payment_method_sat) {
-				frm.set_value("fm_payment_method_sat", "PUE");
-			}
+			// REMOVIDO: Auto-asignación PUE centralizada en validate_payment_method() Python
+			// El método de pago se asigna automáticamente desde settings en server-side
 		}
 
 		// Si hay Sales Invoice pero no customer, cargar customer desde Sales Invoice
@@ -2478,6 +2476,28 @@ function validate_billing_data_visual(frm) {
 
 	// Agregar el botón usando el patrón frappe.ui.form.on
 	frappe.ui.form.on("Factura Fiscal Mexico", {
+		onload(frm) {
+			if (!frm.is_new()) return;
+
+			// Frappe ya puso "PUE" por ser la primera opción.
+			// Aquí lo reemplazamos por el valor de Settings, si difiere.
+			frappe.after_ajax(() => {
+				frappe.db
+					.get_single_value("Facturacion Mexico Settings", "metodo_pago_default")
+					.then((val) => {
+						const def = val || "PUE";
+						if (
+							!frm.doc.fm_payment_method_sat ||
+							frm.doc.fm_payment_method_sat === "PUE"
+						) {
+							frm.set_value("fm_payment_method_sat", def);
+						}
+					})
+					.catch(() => {
+						// si falla, dejamos "PUE" (fallback)
+					});
+			});
+		},
 		refresh(frm) {
 			if (frm.doc.docstatus === 1 && !frm.doc.fm_uuid) {
 				// Ocultar botón Cancel nativo para claridad de UX
