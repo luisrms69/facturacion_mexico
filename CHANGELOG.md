@@ -7,6 +7,12 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
 ## [Unreleased]
 
 ### Added
+- **Sistema completo envío automático CFDI por email** con configuración cascada Settings → Customer → FFM
+  - Custom field Customer `fm_envio_email_cliente` (tri-estado: Default/Enviar/No enviar)
+  - Custom field FFM `fm_enviar_email_timbrado` (check auto-configurado por cascada)
+  - Lógica Python completa: resolución destinatario, envío FacturAPI, manejo errores
+  - Botones JavaScript: "Descargar CFDI (PDF+XML)" y "Enviar CFDI por email"
+  - Integración automática post-timbrado: envío email al asignar UUID exitosamente
 - Validación RFC SAT automática con integración FacturAPI
 - Sistema deadlock resolution para FFM sin timbre (cancel_ffm_keep_si)
 - Filtro guard cancelación SI: solo FFM submitted bloquean cancelación

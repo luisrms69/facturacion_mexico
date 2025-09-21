@@ -748,6 +748,13 @@ class TimbradoAPI:
 
 			frappe.logger().info("Factura Fiscal actualizada exitosamente via frappe.set_value")
 
+			# Envío automático de email CFDI después del timbrado exitoso
+			try:
+				ffm_doc = frappe.get_doc("Factura Fiscal Mexico", factura_fiscal.name)
+				ffm_doc.on_successful_stamp()
+			except Exception as e:
+				frappe.logger().warning(f"[FFM auto-email] No se pudo enviar email automático: {e}")
+
 			# Validar discrepancias de montos
 			self._validate_amount_discrepancies(factura_fiscal, response)
 

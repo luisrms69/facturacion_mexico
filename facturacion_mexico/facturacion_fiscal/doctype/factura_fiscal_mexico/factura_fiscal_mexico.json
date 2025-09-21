@@ -50,6 +50,7 @@
     "section_break_archivos",
     "pdf_file",
     "xml_file",
+    "fm_enviar_email_timbrado",
     "section_break_cancelacion",
     "cancellation_reason",
     "cancellation_date",
@@ -319,6 +320,12 @@
       "fieldtype": "Attach",
       "label": "Archivo XML",
       "read_only": 1
+    },
+    {
+      "default": 0,
+      "fieldname": "fm_enviar_email_timbrado",
+      "fieldtype": "Check",
+      "label": "Enviar CFDI por email al timbrar"
     },
     {
       "fieldname": "section_break_cancelacion",

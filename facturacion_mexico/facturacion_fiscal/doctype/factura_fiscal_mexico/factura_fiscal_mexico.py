@@ -1295,3 +1295,105 @@ def cancel_ffm_keep_si(ffm_name: str):
 		frappe.db.rollback()
 		frappe.log_error(frappe.get_traceback(), "cancel_ffm_keep_si failed")
 		raise
+
+
+# ========== EMAIL AUTOMATION LOGIC ==========
+
+
+def _get_settings_email_defaults():
+	"""Lee settings existentes (NO crear campos nuevos).
+	Debe devolver:
+		- default_on: 0/1 (enviar por defecto)
+		- fallback_email: str o None
+	"""
+	from frappe.utils import cint
+
+	settings = frappe.get_single("Facturacion Mexico Settings")
+	# AJUSTAR nombres de fields existentes en settings
+	default_on = cint(getattr(settings, "send_email_default", 0))
+	fallback_email = getattr(settings, "customer_email_fallback", None)
+	return default_on, (fallback_email or "").strip() or None
+
+
+def _resolve_auto_email_flag(customer_name: str) -> int:
+	"""Aplica la cascada Settings -> Customer tri-estado. Devuelve 0/1."""
+	from frappe.utils import cint
+
+	default_on, _ = _get_settings_email_defaults()
+
+	opt = None
+	if customer_name:
+		opt = frappe.db.get_value("Customer", customer_name, "fm_envio_email_cliente")
+
+	# Customer decide:
+	if opt == "Enviar":
+		return 1
+	if opt == "No enviar":
+		return 0
+	# Default (usar settings) o None -> usar settings:
+	return default_on
+
+
+def _resolve_recipient_email(ffm_doc) -> str | None:
+	"""Devuelve el email final según regla estricta:
+	1) FFM.fm_email_facturacion
+	2) Settings.customer_email_fallback
+	3) None si no hay
+	"""
+	_, fallback = _get_settings_email_defaults()
+	ffm_email = (getattr(ffm_doc, "fm_email_facturacion", "") or "").strip()
+	return ffm_email or fallback or None
+
+
+def _send_cfdi_email(self, to_override: str | None = None) -> dict:
+	"""Envía el CFDI por email usando el endpoint/método EXISTENTE.
+	No inventa rutas nuevas; aquí solo orquestamos.
+	"""
+	# Visibilidad: sólo si está timbrada
+	if not getattr(self, "fm_uuid", None):
+		frappe.throw("La FFM no está timbrada (no tiene UUID).")
+
+	to_email = to_override or _resolve_recipient_email(self)
+	if not to_email:
+		self.add_comment("Comment", "No se envió CFDI: no hay destinatario (FFM ni fallback settings).")
+		return {"sent": False, "reason": "no-recipient"}
+
+	try:
+		# BLOQUE A AJUSTAR a tu integración vigente
+		from facturacion_mexico.facturacion_fiscal.api_client import FacturAPIClient
+
+		api = FacturAPIClient()
+		facturapi_id = getattr(self, "facturapi_id", None)
+		if not facturapi_id:
+			frappe.throw("No se encontró el identificador de FacturAPI para enviar el email.")
+		api.send_invoice_email(facturapi_id, to_email)
+
+		self.add_comment("Comment", f"CFDI enviado por email a: {to_email}")
+		return {"sent": True, "to": to_email}
+	except Exception as e:
+		self.add_comment("Comment", f"Error al enviar CFDI por email: {e}")
+		return {"sent": False, "error": str(e)}
+
+
+def on_successful_stamp(self):
+	"""Llamar esto al final del flujo de timbrado exitoso (donde ya asignaste fm_uuid).
+	Reusar el endpoint/método existente; aquí sólo decidimos si hay que enviar.
+	"""
+	from frappe.utils import cint
+
+	if cint(getattr(self, "fm_enviar_email_timbrado", 0)) != 1:
+		return
+
+	# Enviar si hay destinatario (reglas estrictas)
+	_ = _send_cfdi_email(self)
+
+
+@frappe.whitelist()
+def action_send_cfdi_email(ffm_name: str, to: str | None = None):
+	"""Whitelisted para el botón manual en FFM (usa el MISMO flujo).
+	NO crea endpoints nuevos de integraciones; sólo orquesta.
+	"""
+	doc = frappe.get_doc("Factura Fiscal Mexico", ffm_name)
+	frappe.has_permission(doctype="Factura Fiscal Mexico", ptype="write", doc=doc, throw=True)
+	out = _send_cfdi_email(doc, to_override=to)
+	return out

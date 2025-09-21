@@ -437,6 +437,77 @@
 
 			// [Milestone 3] Botón ayuda para sustitución
 			addHelpButtonForSubstitution(frm);
+
+			// Email automation buttons
+			const is_submitted = frm.doc.docstatus === 1;
+			const is_stamped = !!frm.doc.fm_uuid;
+
+			if (is_submitted && is_stamped) {
+				// 1) Descargar CFDI (PDF+XML)
+				frm.add_custom_button(__("Descargar CFDI (PDF+XML)"), async () => {
+					try {
+						await frappe.call({
+							method: "facturacion_mexico.facturacion_fiscal.api_client.download_xml",
+							args: { ffm_name: frm.doc.name },
+						});
+						await frappe.call({
+							method: "facturacion_mexico.facturacion_fiscal.api_client.download_pdf",
+							args: { ffm_name: frm.doc.name },
+						});
+					} catch (e) {
+						frappe.msgprint({
+							title: __("Error de descarga"),
+							message: __(String(e)),
+							indicator: "red",
+						});
+					}
+				});
+
+				// 2) Enviar CFDI por email
+				frm.add_custom_button(__("Enviar CFDI por email"), async () => {
+					const { value: to } = await frappe.prompt(
+						{
+							fieldname: "to",
+							fieldtype: "Data",
+							label: __("Destinatario (email)"),
+							reqd: 0,
+							default: frm.doc.fm_email_facturacion || "",
+							description: __(
+								"Si se deja vacío, se usará el fallback de Settings (si existe)."
+							),
+						},
+						null,
+						__("Enviar CFDI por email"),
+						__("Enviar")
+					);
+
+					try {
+						const r = await frappe.call({
+							method: "facturacion_mexico.facturacion_fiscal.doctype.factura_fiscal_mexico.factura_fiscal_mexico.action_send_cfdi_email",
+							args: { ffm_name: frm.doc.name, to: to || null },
+						});
+						const res = r && r.message;
+						if (res && res.sent) {
+							frappe.msgprint({
+								message: __("CFDI enviado a: {0}", [res.to]),
+								indicator: "green",
+							});
+						} else if (res && res.reason === "no-recipient") {
+							frappe.msgprint({
+								message: __("No se envió: no hay destinatario (FFM ni Settings)."),
+								indicator: "orange",
+							});
+						} else {
+							frappe.msgprint({
+								message: __("No se pudo enviar: {0}", [(res && res.error) || ""]),
+								indicator: "red",
+							});
+						}
+					} catch (e) {
+						frappe.msgprint({ message: __(String(e)), indicator: "red" });
+					}
+				});
+			}
 		},
 
 		// NUEVO: después de save/reload
