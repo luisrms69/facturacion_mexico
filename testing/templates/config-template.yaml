@@ -1,0 +1,65 @@
+# Configuración Plan Template
+# Copia y modifica para cada plan específico
+
+plan:
+  nombre: "[NOMBRE_PLAN]"
+  categoria: "[CATEGORIA]"
+  version: "1.0"
+  creado: "[YYYY-MM-DD]"
+  actualizado: "[YYYY-MM-DD]"
+
+ejecucion:
+  tiempo_objetivo_total: "[HH:MM]"
+  tiempo_objetivo_caso: "[MM] min"
+  success_rate_minimo: 95
+  evidencias_requeridas: 4  # Gates por caso
+
+datos_testing:
+  sitio: "facturacion.dev"
+  app: "facturacion_mexico"
+
+  # Datos específicos del plan
+  clientes_minimos: 5
+  productos_minimos: 8
+
+  # Configuraciones especiales
+  timezone: "America/Mexico_City"
+  currency: "MXN"
+
+metricas:
+  kpis_criticos:
+    - "Zero data loss: 100%"
+    - "Fiscal compliance: 100%"
+    - "User experience: ≥95%"
+
+  reportes:
+    formato: "markdown"
+    incluir_screenshots: true
+    incluir_metricas_json: true
+
+estructura:
+  niveles:
+    - nombre: "BASICO"
+      rango: "1-20"
+      descripcion: "Operaciones fundamentales"
+      tiempo_objetivo: "4-6 min"
+
+    - nombre: "INTERMEDIO"
+      rango: "21-40"
+      descripcion: "Workflows complejos"
+      tiempo_objetivo: "5-6 min"
+
+    - nombre: "AVANZADO"
+      rango: "41-62"
+      descripcion: "Casos edge y excepciones"
+      tiempo_objetivo: "6 min"
+
+nomenclatura:
+  casos: "TC-{nivel}-{numero}-{descripcion}"
+  evidencias: "TC-{nivel}-{numero}-{descripcion}-G{gate}.png"
+
+  gates:
+    G01: "Estado inicial"
+    G02: "Datos capturados"
+    G03: "Validación exitosa"
+    G04: "Resultado final"

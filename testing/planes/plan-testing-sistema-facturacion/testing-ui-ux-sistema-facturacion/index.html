@@ -1,0 +1,2224 @@
+
+<!doctype html>
+<html lang="es" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentación completa del sistema de facturación electrónica para México">
+      
+      
+        <meta name="author" content="Equipo Desarrollo Facturación México">
+      
+      
+      
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.3">
+    
+    
+      
+        <title>🧪 Plan Testing Sistema Facturación México - Facturación México - Documentación Técnica</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.50c56a3b.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/advanced.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function n(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],n("js",new Date),n("config","G-XXXXXXXXXX"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){this.value&&n("event","search",{search_term:this.value})}),document$.subscribe(function(){var a=document.forms.feedback;if(void 0!==a)for(var e of a.querySelectorAll("[type=submit]"))e.addEventListener("click",function(e){e.preventDefault();var t=document.location.pathname,e=this.getAttribute("data-md-value");n("event","feedback",{page:t,data:e}),a.firstElementChild.disabled=!0;e=a.querySelector(".md-feedback__note [data-md-value='"+e+"']");e&&(e.hidden=!1)}),a.hidden=!1}),location$.subscribe(function(e){n("config","G-XXXXXXXXXX",{page_path:e.pathname})})});var e=document.createElement("script");e.async=!0,e.src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX",document.getElementById("__analytics").insertAdjacentElement("afterEnd",e)}</script>
+  
+    <script>var consent;"undefined"==typeof __md_analytics||(consent=__md_get("__consent"))&&consent.analytics&&__md_analytics()</script>
+  
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#plan-testing-sistema-facturacion-mexico" class="md-skip">
+          Saltar a contenido
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabecera">
+    <a href="../../../.." title="Facturación México - Documentación Técnica" class="md-header__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Facturación México - Documentación Técnica
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              🧪 Plan Testing Sistema Facturación México
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo oscuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo oscuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Búsqueda" placeholder="Búsqueda" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Buscar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpiar" aria-label="Limpiar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando búsqueda
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Pestañas" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+    
+  
+  Inicio
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../user-guide/" class="md-tabs__link">
+          
+  
+  Guía de Usuario
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/" class="md-tabs__link">
+          
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../development/" class="md-tabs__link">
+          
+  
+  Desarrollo
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navegación" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Facturación México - Documentación Técnica" class="md-nav__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Facturación México - Documentación Técnica
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Inicio
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Guía de Usuario
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Guía de Usuario
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../user-guide/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Usuario - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../user-guide/getting-started/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Primeros Pasos
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../user-guide/multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../user-guide/addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../user-guide/draft-invoices/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Facturas en Borrador
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../user-guide/troubleshooting/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    API Reference
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    API Reference - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/cfdi/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CFDI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/draft-management/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Draft Management
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/catalogos/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Catalogos SAT
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/hooks/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Hooks
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Desarrollo
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Desarrollo
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../development/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Desarrollo - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../development/setup/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Setup Desarrollo
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../development/draft-workflow/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Draft Workflow
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#configuracion-base-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      📋 Configuración Base Testing
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📋 Configuración Base Testing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#datos-reales-sistema-facturaciondev" class="md-nav__link">
+    <span class="md-ellipsis">
+      Datos Reales Sistema (facturacion.dev)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nomenclatura-evidencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      Nomenclatura Evidencias
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#nivel-basico-1-20-operaciones-fundamentales" class="md-nav__link">
+    <span class="md-ellipsis">
+      🟢 NIVEL BÁSICO (1-20): Operaciones Fundamentales
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🟢 NIVEL BÁSICO (1-20): Operaciones Fundamentales">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tc-b-001-crear-factura-simple" class="md-nav__link">
+    <span class="md-ellipsis">
+      TC-B-001: Crear Factura Simple
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tc-b-002-verificar-datos-fiscales-cliente" class="md-nav__link">
+    <span class="md-ellipsis">
+      TC-B-002: Verificar Datos Fiscales Cliente
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tc-b-003-configurar-producto-con-claves-sat" class="md-nav__link">
+    <span class="md-ellipsis">
+      TC-B-003: Configurar Producto con Claves SAT
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tc-b-004-cancelar-cfdi-motivo-03" class="md-nav__link">
+    <span class="md-ellipsis">
+      TC-B-004: Cancelar CFDI Motivo 03
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tc-b-005-re-facturar-mismo-sales-invoice" class="md-nav__link">
+    <span class="md-ellipsis">
+      TC-B-005: Re-facturar Mismo Sales Invoice
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tc-b-006-tipo-de-comprobante-ingreso-i" class="md-nav__link">
+    <span class="md-ellipsis">
+      TC-B-006: Tipo de Comprobante - Ingreso (I)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tc-b-007-sales-invoice-return-tipo-egreso-e" class="md-nav__link">
+    <span class="md-ellipsis">
+      TC-B-007: Sales Invoice Return - Tipo Egreso (E)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tc-b-008-configuracion-settings-tipo-traslado" class="md-nav__link">
+    <span class="md-ellipsis">
+      TC-B-008: Configuración Settings - Tipo Traslado
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tc-b-009-020-casos-basicos-adicionales" class="md-nav__link">
+    <span class="md-ellipsis">
+      TC-B-009-020: [Casos Básicos Adicionales]
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#nivel-intermedio-21-40-workflows-complejos" class="md-nav__link">
+    <span class="md-ellipsis">
+      🟡 NIVEL INTERMEDIO (21-40): Workflows Complejos
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🟡 NIVEL INTERMEDIO (21-40): Workflows Complejos">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tc-i-021-sustitucion-cfdi-motivo-01" class="md-nav__link">
+    <span class="md-ellipsis">
+      TC-I-021: Sustitución CFDI (Motivo 01)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tc-i-022-workflow-04-con-uuid-sustitucion" class="md-nav__link">
+    <span class="md-ellipsis">
+      TC-I-022: Workflow 04 con UUID Sustitución
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tc-i-023-cancelacion-con-plazo-vencido" class="md-nav__link">
+    <span class="md-ellipsis">
+      TC-I-023: Cancelación con Plazo Vencido
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tc-i-024-multisucursal-series-especificas" class="md-nav__link">
+    <span class="md-ellipsis">
+      TC-I-024: Multisucursal - Series Específicas
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tc-i-025-addenda-personalizada" class="md-nav__link">
+    <span class="md-ellipsis">
+      TC-I-025: Addenda Personalizada
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tc-i-026-validacion-tipo-comprobante-en-contexto" class="md-nav__link">
+    <span class="md-ellipsis">
+      TC-I-026: Validación Tipo Comprobante en Contexto
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tc-i-027-relaciones-sat-tipo-egreso-completo" class="md-nav__link">
+    <span class="md-ellipsis">
+      TC-I-027: Relaciones SAT - Tipo Egreso Completo
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tc-i-028-combinacion-sustitucion-tipo-comprobante" class="md-nav__link">
+    <span class="md-ellipsis">
+      TC-I-028: Combinación Sustitución + Tipo Comprobante
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tc-i-029-040-casos-intermedios-adicionales" class="md-nav__link">
+    <span class="md-ellipsis">
+      TC-I-029-040: [Casos Intermedios Adicionales]
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#nivel-avanzado-41-62-casos-edge-y-excepciones" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔴 NIVEL AVANZADO (41-62): Casos Edge y Excepciones
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔴 NIVEL AVANZADO (41-62): Casos Edge y Excepciones">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tc-a-041-recuperacion-error-timbrado-fix-mapeo-estados" class="md-nav__link">
+    <span class="md-ellipsis">
+      TC-A-041: Recuperación Error Timbrado + Fix Mapeo Estados
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tc-a-042-multiples-ffm-misma-si" class="md-nav__link">
+    <span class="md-ellipsis">
+      TC-A-042: Múltiples FFM Misma SI
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tc-a-043-cancelacion-masiva-lote" class="md-nav__link">
+    <span class="md-ellipsis">
+      TC-A-043: Cancelación Masiva (Lote)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tc-a-044-archivos-corruptosperdidos" class="md-nav__link">
+    <span class="md-ellipsis">
+      TC-A-044: Archivos Corruptos/Perdidos
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tc-a-045-concurrencia-usuarios" class="md-nav__link">
+    <span class="md-ellipsis">
+      TC-A-045: Concurrencia Usuarios
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tc-a-046-validacion-server-side-tipo-comprobante" class="md-nav__link">
+    <span class="md-ellipsis">
+      TC-A-046: Validación Server-Side Tipo Comprobante
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tc-a-047-compatibilidad-backwards-facturas-legacy" class="md-nav__link">
+    <span class="md-ellipsis">
+      TC-A-047: Compatibilidad Backwards - Facturas Legacy
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tc-a-048-casos-edge-payload-facturapi" class="md-nav__link">
+    <span class="md-ellipsis">
+      TC-A-048: Casos Edge Payload FacturAPI
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tc-a-049-armonizacion-direcciones-ffm-erpnext" class="md-nav__link">
+    <span class="md-ellipsis">
+      TC-A-049: Armonización Direcciones FFM-ERPNext
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tc-a-050-eliminacion-campos-duplicados-customer" class="md-nav__link">
+    <span class="md-ellipsis">
+      TC-A-050: Eliminación Campos Duplicados Customer
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tc-a-051-descarga-automatica-acuse-cancelacion" class="md-nav__link">
+    <span class="md-ellipsis">
+      TC-A-051: Descarga Automática Acuse Cancelación
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tc-a-052-fix-campo-motivo-cancelacion-sat" class="md-nav__link">
+    <span class="md-ellipsis">
+      TC-A-052: Fix Campo Motivo Cancelación SAT
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tc-a-053-fix-doble-timbrado-ui-proteccion" class="md-nav__link">
+    <span class="md-ellipsis">
+      TC-A-053: Fix Doble Timbrado - UI Protección
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tc-a-054-066-casos-avanzados-adicionales" class="md-nav__link">
+    <span class="md-ellipsis">
+      TC-A-054-066: [Casos Avanzados Adicionales]
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#metricas-y-reportes" class="md-nav__link">
+    <span class="md-ellipsis">
+      📊 Métricas y Reportes
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📊 Métricas y Reportes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#metricas-por-ejecucion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Métricas por Ejecución
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reporte-template" class="md-nav__link">
+    <span class="md-ellipsis">
+      Reporte Template
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#criterios-exito-global" class="md-nav__link">
+    <span class="md-ellipsis">
+      🎯 Criterios Éxito Global
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🎯 Criterios Éxito Global">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gates-de-aceptacion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Gates de Aceptación
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#definicion-testing-completo" class="md-nav__link">
+    <span class="md-ellipsis">
+      Definición "Testing Completo"
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#iniciar-ejecucion" class="md-nav__link">
+    <span class="md-ellipsis">
+      🚀 INICIAR EJECUCIÓN
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🚀 INICIAR EJECUCIÓN">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#comandos-preparacion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Comandos Preparación
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#primer-caso-tc-b-001" class="md-nav__link">
+    <span class="md-ellipsis">
+      Primer Caso: TC-B-001
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#directorio-evidencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      Directorio Evidencias
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="plan-testing-sistema-facturacion-mexico">🧪 Plan Testing Sistema Facturación México<a class="headerlink" href="#plan-testing-sistema-facturacion-mexico" title="Permanent link">&para;</a></h1>
+<p><strong>Objetivo:</strong> Validación completa UI/UX y lógica de negocio - Sistema facturación fiscal mexicana
+<strong>Meta temporal:</strong> 6 minutos máximo por caso de prueba
+<strong>Cobertura:</strong> Desde operaciones básicas hasta flujos complejos con addendas y formas de pago especiales</p>
+<hr />
+<h2 id="configuracion-base-testing">📋 <strong>Configuración Base Testing</strong><a class="headerlink" href="#configuracion-base-testing" title="Permanent link">&para;</a></h2>
+<h3 id="datos-reales-sistema-facturaciondev"><strong>Datos Reales Sistema (facturacion.dev)</strong><a class="headerlink" href="#datos-reales-sistema-facturaciondev" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nt">Empresa Testing</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Nombre</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;_Test</span><span class="nv"> </span><span class="s">Company&quot;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">RFC</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">No configurado</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Sitio</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">facturacion.dev</span>
+
+<span class="nt">Clientes Reales con RFC (5 principales)</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;CONCESIONARIA</span><span class="nv"> </span><span class="s">VUELA</span><span class="nv"> </span><span class="s">COMPAÑIA</span><span class="nv"> </span><span class="s">DE</span><span class="nv"> </span><span class="s">AVIACION&quot;</span><span class="nt">: Vuela Compañía (RFC</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CVA041027H80)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;Cervecería</span><span class="nv"> </span><span class="s">Cuauhtémoc</span><span class="nv"> </span><span class="s">Moctezuma</span><span class="nv"> </span><span class="s">S.A.&quot;</span><span class="nt">: CCM (RFC</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CCM920814BC1)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;Pemex</span><span class="nv"> </span><span class="s">Transformación</span><span class="nv"> </span><span class="s">Industrial&quot;</span><span class="nt">: Pemex TI (RFC</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PTI850715XX1)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;Liverpool</span><span class="nv"> </span><span class="s">S.A.</span><span class="nv"> </span><span class="s">de</span><span class="nv"> </span><span class="s">C.V.&quot;</span><span class="nt">: Liverpool (RFC</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LIV921201P24)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;Telmex</span><span class="nv"> </span><span class="s">S.A.B.</span><span class="nv"> </span><span class="s">de</span><span class="nv"> </span><span class="s">C.V.&quot;</span><span class="nt">: Telmex (RFC</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TEL8503159G1)</span>
+
+<span class="nt">Productos Disponibles (8 seleccionados)</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;Servicio</span><span class="nv"> </span><span class="s">E2E</span><span class="nv"> </span><span class="s">Test&quot;</span><span class="nt">: Servicio de Testing E2E (UOM</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">E48 - Servicio)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;Test</span><span class="nv"> </span><span class="s">Item</span><span class="nv"> </span><span class="s">Default&quot;</span><span class="nt">: Test Item Default (UOM</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Nos)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;138-CMS</span><span class="nv"> </span><span class="s">Shoe&quot;</span><span class="nt">: 138-CMS Shoe (UOM</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">_Test UOM)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;_Test</span><span class="nv"> </span><span class="s">Item</span><span class="nv"> </span><span class="s">With</span><span class="nv"> </span><span class="s">Item</span><span class="nv"> </span><span class="s">Tax</span><span class="nv"> </span><span class="s">Template&quot;</span><span class="nt">: Con impuestos (UOM</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">_Test UOM)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;_Test</span><span class="nv"> </span><span class="s">Serialized</span><span class="nv"> </span><span class="s">Item&quot;</span><span class="nt">: Producto serializado (UOM</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">_Test UOM)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;_Test</span><span class="nv"> </span><span class="s">Non</span><span class="nv"> </span><span class="s">Stock</span><span class="nv"> </span><span class="s">Item&quot;</span><span class="nt">: Producto no stock (UOM</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">_Test UOM)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;_Test</span><span class="nv"> </span><span class="s">FG</span><span class="nv"> </span><span class="s">Item&quot;</span><span class="nt">: Producto terminado (UOM</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">_Test UOM)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;_Test</span><span class="nv"> </span><span class="s">Variant</span><span class="nv"> </span><span class="s">Item&quot;</span><span class="nt">: Producto con variantes (UOM</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">_Test UOM)</span>
+
+<span class="nt">Centros de Costo</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;Main</span><span class="nv"> </span><span class="s">-</span><span class="nv"> </span><span class="s">_TC&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Main (_Test Company)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;_Test</span><span class="nv"> </span><span class="s">Company</span><span class="nv"> </span><span class="s">-</span><span class="nv"> </span><span class="s">_TC&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">_Test Company (_Test Company)</span>
+
+<span class="nt">✅ CONFIGURACIÓN FISCAL VÁLIDA</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">✅ Clientes con RFC reales del SAT</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">✅ 18 clientes disponibles con RFC válidos</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">⚠️ Empresa &quot;_Test Company&quot; sin RFC (configurar si necesario)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">🎯 Testing incluye UI/UX + validación fiscal básica</span>
+</code></pre></div>
+<h3 id="nomenclatura-evidencias"><strong>Nomenclatura Evidencias</strong><a class="headerlink" href="#nomenclatura-evidencias" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>Formato: TC-{nivel}-{numero}-{descripcion}-{gate}.png
+Ejemplo: TC-B-001-crear-factura-G02.png
+
+Niveles:
+- B: Básico (1-20)
+- I: Intermedio (21-40)
+- A: Avanzado (41-62)
+
+Gates:
+- G01: Estado inicial
+- G02: Datos capturados
+- G03: Validación exitosa
+- G04: Resultado final
+</code></pre></div>
+<hr />
+<h2 id="nivel-basico-1-20-operaciones-fundamentales">🟢 <strong>NIVEL BÁSICO (1-20): Operaciones Fundamentales</strong><a class="headerlink" href="#nivel-basico-1-20-operaciones-fundamentales" title="Permanent link">&para;</a></h2>
+<h3 id="tc-b-001-crear-factura-simple"><strong>TC-B-001: Crear Factura Simple</strong><a class="headerlink" href="#tc-b-001-crear-factura-simple" title="Permanent link">&para;</a></h3>
+<p><strong>Tiempo objetivo:</strong> 4 min | <strong>Gates:</strong> 4 evidencias</p>
+<p><strong>Preparación:</strong>
+- Cliente: "CONCESIONARIA VUELA COMPAÑIA DE AVIACION" (RFC: CVA041027H80)
+- Producto: "Servicio E2E Test"
+- Importe: $1,000.00 MXN
+- Centro costo: "Main - _TC"</p>
+<p><strong>Ejecución:</strong>
+1. <strong>G01:</strong> Sales Invoice nuevo (pantalla inicial limpia), botón Cancel/Cancelar nativo NO VISIBLE
+2. <strong>G02:</strong> Cliente y producto seleccionados, importe calculado
+3. <strong>G03:</strong> Submit exitoso, documento en estado "Submitted", botón Cancel/Cancelar nativo sigue OCULTO
+4. <strong>G04:</strong> Botón "Timbrar Factura" visible y activo, UI limpia sin confusión</p>
+<p><strong>Invariantes UI/UX:</strong>
+- Cliente seleccionado correctamente de dropdown
+- Producto autocompletado funcionando
+- Cálculos automáticos funcionando
+- Botón fiscal aparece después de Submit
+- Estados documento correctos en interfaz
+- Botón Cancel/Cancelar nativo Frappe permanentemente oculto en FFM
+- Solo botones fiscales específicos visibles (evita confusión usuarios)</p>
+<p><strong>Nota:</strong> Cliente con RFC real. Puede proceder con timbrado si empresa tiene RFC configurado.</p>
+<h3 id="tc-b-002-verificar-datos-fiscales-cliente"><strong>TC-B-002: Verificar Datos Fiscales Cliente</strong><a class="headerlink" href="#tc-b-002-verificar-datos-fiscales-cliente" title="Permanent link">&para;</a></h3>
+<p><strong>Tiempo objetivo:</strong> 3 min | <strong>Gates:</strong> 4 evidencias</p>
+<p><strong>Preparación:</strong>
+- Cliente: "Cervecería Cuauhtémoc Moctezuma S.A." (RFC: CCM920814BC1)
+- Navegar a master Customer</p>
+<p><strong>Ejecución:</strong>
+1. <strong>G01:</strong> Customer form abierto desde listado
+2. <strong>G02:</strong> Campos fiscales visibles (tax_id, address, etc)
+3. <strong>G03:</strong> Estructura de campos correcta en interfaz
+4. <strong>G04:</strong> Capacidad de editar campos fiscales</p>
+<p><strong>Invariantes UI/UX:</strong>
+- Customer form carga correctamente
+- Campos fiscales están presentes en form
+- Navegación Customer ↔ Address funcional
+- Campos editables según permisos usuario
+- Validaciones frontend funcionando</p>
+<p><strong>Nota:</strong> Cliente con RFC real. Validar estructura UI + datos fiscales correctos.</p>
+<p><strong>✅ RESULTADO TC-B-002:</strong> Completado exitosamente
+- <strong>Hallazgo:</strong> Botón validación SAT aparece cuando se define dirección principal del cliente
+- <strong>Resolución:</strong> Mensaje "Se requiere dirección principal" desaparece al configurar dirección
+- <strong>Status:</strong> Datos fiscales verificados correctamente, validación SAT funcional</p>
+<h3 id="tc-b-003-configurar-producto-con-claves-sat"><strong>TC-B-003: Configurar Producto con Claves SAT</strong><a class="headerlink" href="#tc-b-003-configurar-producto-con-claves-sat" title="Permanent link">&para;</a></h3>
+<p><strong>Tiempo objetivo:</strong> 5 min | <strong>Gates:</strong> 4 evidencias</p>
+<p><strong>Preparación:</strong>
+- Producto nuevo: Material oficina
+- Claves SAT: 52121500 / H87</p>
+<p><strong>Ejecución:</strong>
+1. <strong>G01:</strong> Item form nuevo
+2. <strong>G02:</strong> Claves SAT configuradas
+3. <strong>G03:</strong> Validación catálogo SAT exitosa
+4. <strong>G04:</strong> Producto disponible para facturación</p>
+<p><strong>Invariantes:</strong>
+- Clave producto SAT válida
+- Clave unidad compatible
+- Descripción fiscal presente
+- Impuestos configurados correctamente</p>
+<p><strong>✅ RESULTADO TC-B-003:</strong> Completado exitosamente
+- <strong>Rollback aplicado:</strong> title_field = descripcion, autoname = field:codigo
+- <strong>Filtros optimizados:</strong> Sin duplicidad, muestra Código + Descripción
+- <strong>Status:</strong> Configuración SAT Producto Servicio funcionando correctamente
+- <strong>Naming verificado:</strong> doc.name = codigo, filtros sin duplicidad</p>
+<p><strong>🚧 ISSUE IDENTIFICADO TC-B-003:</strong>
+- <strong>Problema:</strong> Material oficina no aplica impuestos automáticamente en Sales Invoice
+- <strong>Contexto:</strong> SAT Producto Servicio tiene "incluye_objeto_impuesto = 02" (Sí es objeto de impuestos)
+- <strong>Gap:</strong> Falta vinculación entre catálogo SAT y plantillas impuestos ERPNext
+- <strong>Bloqueador:</strong> Requiere migración catálogo impuestos y configuración automática</p>
+<h3 id="tc-b-004-cancelar-cfdi-motivo-03"><strong>TC-B-004: Cancelar CFDI Motivo 03</strong><a class="headerlink" href="#tc-b-004-cancelar-cfdi-motivo-03" title="Permanent link">&para;</a></h3>
+<p><strong>Tiempo objetivo:</strong> 6 min | <strong>Gates:</strong> 4 evidencias</p>
+<p><strong>Preparación:</strong>
+- Factura timbrada disponible
+- Motivo: Error sin relación</p>
+<p><strong>Ejecución:</strong>
+1. <strong>G01:</strong> CFDI timbrado en Sales Invoice, botón Cancel/Cancelar nativo NO VISIBLE
+2. <strong>G02:</strong> Diálogo cancelación fiscal, motivo 03 seleccionado
+3. <strong>G03:</strong> Confirmación SAT recibida, mapeo estado correcto
+4. <strong>G04:</strong> Estado "CANCELADO", acuse disponible automáticamente</p>
+<p><strong>Invariantes:</strong>
+- Botón Cancel/Cancelar nativo Frappe oculto permanentemente
+- <code>fm_fiscal_status = "CANCELADO"</code> (mapeo FacturAPI corregido)
+- <code>fm_motivo_cancelacion = "03"</code>
+- Acuse cancelación presente (PDF + XML)
+- CFDI original preservado
+- Archivos descargados automáticamente: <code>{FFM_NAME}_acuse_cancelacion.pdf/xml</code></p>
+<p><strong>✅ RESULTADO TC-B-004:</strong> Completado exitosamente
+- <strong>UI Fix:</strong> Botón Cancel/Cancelar nativo oculto eliminando confusión usuarios (commit 53289d1)
+- <strong>Estado Fix:</strong> Mapeo estados FacturAPI corregido - lee respuesta PAC real (commit 642a8a8)
+- <strong>Funcionalidad:</strong> Descarga automática acuse cancelación implementada (commit 2a8b134)
+- <strong>Archivos:</strong> PDF y XML del acuse se descargan automáticamente usando endpoints FacturAPI
+- <strong>Integración:</strong> Usa mismo patrón que descarga PDF/XML timbrado para consistencia
+- <strong>Status:</strong> Cancelación motivo 03 funciona correctamente con UI limpia y mapeo estados correcto</p>
+<h3 id="tc-b-005-re-facturar-mismo-sales-invoice"><strong>TC-B-005: Re-facturar Mismo Sales Invoice</strong><a class="headerlink" href="#tc-b-005-re-facturar-mismo-sales-invoice" title="Permanent link">&para;</a></h3>
+<p><strong>Tiempo objetivo:</strong> 6 min | <strong>Gates:</strong> 4 evidencias</p>
+<p><strong>Preparación:</strong>
+- CFDI cancelado motivo 02/03
+- Cambio solo régimen fiscal</p>
+<p><strong>Ejecución:</strong>
+1. <strong>G01:</strong> SI con CFDI cancelado, botón "Nueva FFM (misma SI)"
+2. <strong>G02:</strong> Solo régimen fiscal modificable
+3. <strong>G03:</strong> Nuevo CFDI generado
+4. <strong>G04:</strong> Etiqueta "Re-facturado", historial fiscal visible</p>
+<p><strong>Invariantes:</strong>
+- Mismo Sales Invoice ID
+- Nueva FFM con UUID diferente
+- FFM anterior en historial
+- Vínculo SI ↔ FFM actualizado</p>
+<p><strong>✅ RESULTADO TC-B-005:</strong> Completado exitosamente
+- <strong>Funcionalidad:</strong> Re-facturación del mismo Sales Invoice implementada y funcionando
+- <strong>Override class:</strong> Manejo correcto LinkExistsError con ignore_links
+- <strong>Workflow:</strong> Nueva FFM se crea correctamente para mismo SI
+- <strong>Status:</strong> Funcionalidad de re-facturación verificada y operativa</p>
+<h3 id="tc-b-006-tipo-de-comprobante-ingreso-i"><strong>TC-B-006: Tipo de Comprobante - Ingreso (I)</strong><a class="headerlink" href="#tc-b-006-tipo-de-comprobante-ingreso-i" title="Permanent link">&para;</a></h3>
+<p><strong>Tiempo objetivo:</strong> 5 min | <strong>Gates:</strong> 4 evidencias</p>
+<p><strong>Preparación:</strong>
+- Factura nueva con cliente RFC válido
+- Verificar tipo comprobante por defecto</p>
+<p><strong>Ejecución:</strong>
+1. <strong>G01:</strong> Nueva Factura Fiscal México, tipo comprobante "I - Ingreso" por defecto
+2. <strong>G02:</strong> Campo tipo comprobante read-only, no editable
+3. <strong>G03:</strong> Timbrado exitoso con tipo "I" en payload FacturAPI
+4. <strong>G04:</strong> CFDI generado con TipoDeComprobante="I"</p>
+<p><strong>Invariantes:</strong>
+- <code>fm_tipo_comprobante = "I - Ingreso"</code> por defecto
+- Campo read-only en interfaz
+- Payload FacturAPI incluye <code>"type": "I"</code>
+- XML CFDI con atributo correcto</p>
+<p><strong>✅ RESULTADO TC-B-006:</strong> Completado exitosamente</p>
+<p><strong>Status:</strong> Tipo de comprobante "I - Ingreso" configurado correctamente por defecto</p>
+<h3 id="tc-b-007-sales-invoice-return-tipo-egreso-e"><strong>TC-B-007: Sales Invoice Return - Tipo Egreso (E)</strong><a class="headerlink" href="#tc-b-007-sales-invoice-return-tipo-egreso-e" title="Permanent link">&para;</a></h3>
+<p><strong>Tiempo objetivo:</strong> 6 min | <strong>Gates:</strong> 4 evidencias</p>
+<p><strong>Preparación:</strong>
+- Sales Invoice original timbrada
+- Crear Sales Invoice de devolución</p>
+<p><strong>Ejecución:</strong>
+1. <strong>G01:</strong> Return Sales Invoice, tipo comprobante automático "E - Egreso"
+2. <strong>G02:</strong> Campos relación SAT visibles: tipo relación y UUID relacionado
+3. <strong>G03:</strong> Configurar relación "03 - Devolución de mercancía" + UUID original
+4. <strong>G04:</strong> Timbrado exitoso con related_documents en payload</p>
+<p><strong>Invariantes:</strong>
+- <code>fm_tipo_comprobante = "E - Egreso"</code> automático para returns
+- Campos relacionados visibles condicionalmente
+- Payload incluye <code>"type": "E"</code> y <code>related_documents</code>
+- Validación UUID relacionado obligatorio</p>
+<h3 id="tc-b-008-configuracion-settings-tipo-traslado"><strong>TC-B-008: Configuración Settings - Tipo Traslado</strong><a class="headerlink" href="#tc-b-008-configuracion-settings-tipo-traslado" title="Permanent link">&para;</a></h3>
+<p><strong>Tiempo objetivo:</strong> 3 min | <strong>Gates:</strong> 4 evidencias</p>
+<p><strong>Preparación:</strong>
+- Acceso a Facturacion Mexico Settings
+- Verificar configuración tipo comprobante</p>
+<p><strong>Ejecución:</strong>
+1. <strong>G01:</strong> Settings form, sección "Configuración Tipo de Comprobante"
+2. <strong>G02:</strong> Campo "Habilitar Traslado (T)" desactivado por defecto
+3. <strong>G03:</strong> Descripción indica "No implementado: debe permanecer desactivado"
+4. <strong>G04:</strong> Campo "Permitir editar relación en Egreso" disponible</p>
+<p><strong>Invariantes:</strong>
+- <code>habilitar_traslado = 0</code> (desactivado)
+- Descripción preventiva visible
+- Campo avanzado edición relaciones presente
+- Configuración preservada después de save</p>
+<h3 id="tc-b-009-020-casos-basicos-adicionales"><strong>TC-B-009-020: [Casos Básicos Adicionales]</strong><a class="headerlink" href="#tc-b-009-020-casos-basicos-adicionales" title="Permanent link">&para;</a></h3>
+<ul>
+<li>TC-B-009: Factura con múltiples productos</li>
+<li>TC-B-010: Aplicar descuentos</li>
+<li>TC-B-011: IVA 0% productos exentos</li>
+<li>TC-B-012: Cliente público general</li>
+<li>TC-B-013: Verificar cálculo impuestos automático</li>
+<li>TC-B-014: Formato PDF generado ✅ COMPLETADO</li>
+<li>TC-B-015: Archivo XML estructura ✅ COMPLETADO</li>
+<li>TC-B-016: Serie fiscal automática ✅ COMPLETADO</li>
+<li>TC-B-017: Folio consecutivo ✅ COMPLETADO</li>
+<li>TC-B-018: Validación RFC emisor ✅ COMPLETADO</li>
+<li>TC-B-019: Centro de costos multisucursal</li>
+<li>TC-B-020: Uso CFDI por defecto</li>
+</ul>
+<hr />
+<h2 id="nivel-intermedio-21-40-workflows-complejos">🟡 <strong>NIVEL INTERMEDIO (21-40): Workflows Complejos</strong><a class="headerlink" href="#nivel-intermedio-21-40-workflows-complejos" title="Permanent link">&para;</a></h2>
+<h3 id="tc-i-021-sustitucion-cfdi-motivo-01"><strong>TC-I-021: Sustitución CFDI (Motivo 01)</strong><a class="headerlink" href="#tc-i-021-sustitucion-cfdi-motivo-01" title="Permanent link">&para;</a></h3>
+<p><strong>Tiempo objetivo:</strong> 6 min | <strong>Gates:</strong> 4 evidencias</p>
+<p><strong>Preparación:</strong>
+- CFDI timbrado con error conceptos
+- Corrección: cambio cantidad/precio</p>
+<p><strong>Ejecución:</strong>
+1. <strong>G01:</strong> SI original, botón "Sustituir CFDI (01)"
+2. <strong>G02:</strong> Nueva SI creada, modificaciones aplicadas
+3. <strong>G03:</strong> TipoRelación 04 configurado, nueva factura timbrada
+4. <strong>G04:</strong> SI original cancelada, vínculo sustitución establecido</p>
+<p><strong>Invariantes:</strong>
+- Nueva Sales Invoice ID
+- SI original <code>docstatus = 2</code>
+- Relación "sustituye a" / "sustituida por"
+- Cancelación automática motivo 01</p>
+<h3 id="tc-i-022-workflow-04-con-uuid-sustitucion"><strong>TC-I-022: Workflow 04 con UUID Sustitución</strong><a class="headerlink" href="#tc-i-022-workflow-04-con-uuid-sustitucion" title="Permanent link">&para;</a></h3>
+<p><strong>Tiempo objetivo:</strong> 6 min | <strong>Gates:</strong> 4 evidencias</p>
+<p><strong>Preparación:</strong>
+- CFDI para cancelar motivo 04
+- UUID sustituto válido disponible</p>
+<p><strong>Ejecución:</strong>
+1. <strong>G01:</strong> Diálogo cancelación motivo 04
+2. <strong>G02:</strong> UUID sustitución capturado
+3. <strong>G03:</strong> Validación UUID exitosa
+4. <strong>G04:</strong> Cancelación confirmada con relación</p>
+<p><strong>Invariantes:</strong>
+- Motivo cancelación "04"
+- UUID sustitución 36 caracteres
+- Validación FacturAPI exitosa
+- Relación sustitución registrada</p>
+<h3 id="tc-i-023-cancelacion-con-plazo-vencido"><strong>TC-I-023: Cancelación con Plazo Vencido</strong><a class="headerlink" href="#tc-i-023-cancelacion-con-plazo-vencido" title="Permanent link">&para;</a></h3>
+<p><strong>Tiempo objetivo:</strong> 5 min | <strong>Gates:</strong> 4 evidencias</p>
+<p><strong>Preparación:</strong>
+- CFDI con más de 72 horas
+- Simular restricción temporal</p>
+<p><strong>Ejecución:</strong>
+1. <strong>G01:</strong> CFDI antiguo seleccionado
+2. <strong>G02:</strong> Aviso plazo vencido mostrado
+3. <strong>G03:</strong> Confirmación requerida explícita
+4. <strong>G04:</strong> Solicitud cancelación enviada</p>
+<p><strong>Invariantes:</strong>
+- Advertencia plazo visible
+- Confirmación adicional requerida
+- Proceso solicitud (no cancelación directa)
+- Estado pendiente apropiado</p>
+<h3 id="tc-i-024-multisucursal-series-especificas"><strong>TC-I-024: Multisucursal - Series Específicas</strong><a class="headerlink" href="#tc-i-024-multisucursal-series-especificas" title="Permanent link">&para;</a></h3>
+<p><strong>Tiempo objetivo:</strong> 5 min | <strong>Gates:</strong> 4 evidencias</p>
+<p><strong>Preparación:</strong>
+- 2 centros de costo configurados
+- Series fiscales mapeadas</p>
+<p><strong>Ejecución:</strong>
+1. <strong>G01:</strong> Sales Invoice, selección centro costo
+2. <strong>G02:</strong> Serie fiscal determinada automáticamente
+3. <strong>G03:</strong> Aviso serie mostrado pre-timbrado
+4. <strong>G04:</strong> CFDI generado con serie correcta</p>
+<p><strong>Invariantes:</strong>
+- Serie según centro de costo
+- Aviso serie visible
+- Folio secuencial por serie
+- Configuración preservada</p>
+<h3 id="tc-i-025-addenda-personalizada"><strong>TC-I-025: Addenda Personalizada</strong><a class="headerlink" href="#tc-i-025-addenda-personalizada" title="Permanent link">&para;</a></h3>
+<p><strong>Tiempo objetivo:</strong> 6 min | <strong>Gates:</strong> 4 evidencias</p>
+<p><strong>Preparación:</strong>
+- Cliente con addenda requerida
+- XML addenda configurado</p>
+<p><strong>Ejecución:</strong>
+1. <strong>G01:</strong> Configuración addenda en Customer
+2. <strong>G02:</strong> Sales Invoice con cliente addenda
+3. <strong>G03:</strong> Timbrado incluyendo addenda
+4. <strong>G04:</strong> XML final con addenda validada</p>
+<p><strong>Invariantes:</strong>
+- Addenda incluida en XML
+- Estructura addenda válida
+- Cliente-addenda vinculación correcta
+- XML completo generado</p>
+<h3 id="tc-i-026-validacion-tipo-comprobante-en-contexto"><strong>TC-I-026: Validación Tipo Comprobante en Contexto</strong><a class="headerlink" href="#tc-i-026-validacion-tipo-comprobante-en-contexto" title="Permanent link">&para;</a></h3>
+<p><strong>Tiempo objetivo:</strong> 5 min | <strong>Gates:</strong> 4 evidencias</p>
+<p><strong>Preparación:</strong>
+- Sales Invoice normal vs Return Sales Invoice
+- Verificar comportamiento automático</p>
+<p><strong>Ejecución:</strong>
+1. <strong>G01:</strong> Función <code>_is_sales_invoice_return()</code> detecta returns correctamente
+2. <strong>G02:</strong> Tipo comprobante se asigna automáticamente según contexto
+3. <strong>G03:</strong> Campo read-only impide modificación manual
+4. <strong>G04:</strong> API <code>sat_options()</code> devuelve catálogos SAT correctos</p>
+<p><strong>Invariantes:</strong>
+- Detección automática return funcional
+- Asignación tipo correcta (I vs E)
+- Validaciones backend activas
+- API SAT responde catálogos válidos</p>
+<h3 id="tc-i-027-relaciones-sat-tipo-egreso-completo"><strong>TC-I-027: Relaciones SAT - Tipo Egreso Completo</strong><a class="headerlink" href="#tc-i-027-relaciones-sat-tipo-egreso-completo" title="Permanent link">&para;</a></h3>
+<p><strong>Tiempo objetivo:</strong> 6 min | <strong>Gates:</strong> 4 evidencias</p>
+<p><strong>Preparación:</strong>
+- Sales Invoice Return configurada
+- UUID original disponible para relación</p>
+<p><strong>Ejecución:</strong>
+1. <strong>G01:</strong> Tipo Egreso (E) seleccionado, campos relación visibles
+2. <strong>G02:</strong> Dropdown tipo relación SAT poblado correctamente
+3. <strong>G03:</strong> Validación UUID relacionado (36 caracteres, formato válido)
+4. <strong>G04:</strong> Payload FacturAPI con related_documents estructura correcta</p>
+<p><strong>Invariantes:</strong>
+- Visibility condicional campos relación
+- Opciones SAT catálogo tipo relación
+- Validación formato UUID estricta
+- Estructura payload conforme FacturAPI</p>
+<h3 id="tc-i-028-combinacion-sustitucion-tipo-comprobante"><strong>TC-I-028: Combinación Sustitución + Tipo Comprobante</strong><a class="headerlink" href="#tc-i-028-combinacion-sustitucion-tipo-comprobante" title="Permanent link">&para;</a></h3>
+<p><strong>Tiempo objetivo:</strong> 6 min | <strong>Gates:</strong> 4 evidencias</p>
+<p><strong>Preparación:</strong>
+- CFDI original para sustituir (workflow 01)
+- Sales Invoice nueva con modificaciones</p>
+<p><strong>Ejecución:</strong>
+1. <strong>G01:</strong> Sustitución 01 con tipo Egreso por cambio conceptos
+2. <strong>G02:</strong> Relación 04 (sustitución) + relación específica (01/03/etc)
+3. <strong>G03:</strong> Payload con múltiples related_documents
+4. <strong>G04:</strong> Cancelación automática original motivo 01</p>
+<p><strong>Invariantes:</strong>
+- Múltiples relaciones en mismo payload
+- Combinación sustitución + tipo comprobante
+- Cancelación cascada correcta
+- Estructura related_documents válida</p>
+<h3 id="tc-i-029-040-casos-intermedios-adicionales"><strong>TC-I-029-040: [Casos Intermedios Adicionales]</strong><a class="headerlink" href="#tc-i-029-040-casos-intermedios-adicionales" title="Permanent link">&para;</a></h3>
+<ul>
+<li>TC-I-029: Forma pago 02 (Dación en pago)</li>
+<li>TC-I-030: Forma pago 23 (Novación)</li>
+<li>TC-I-031: Forma pago 30 (Aplicación anticipos)</li>
+<li>TC-I-032: Complemento pagos (no facturación)</li>
+<li>TC-I-033: Retenciones ISR servicios profesionales</li>
+<li>TC-I-034: IEPS productos específicos</li>
+<li>TC-I-035: Factura con moneda extranjera</li>
+<li>TC-I-036: Tipo cambio automático</li>
+<li>TC-I-037: Nota de crédito fiscal</li>
+<li>TC-I-038: Múltiples impuestos mismo concepto</li>
+<li>TC-I-039: Descuentos a nivel línea</li>
+<li>TC-I-040: Descuentos globales</li>
+</ul>
+<hr />
+<h2 id="nivel-avanzado-41-62-casos-edge-y-excepciones">🔴 <strong>NIVEL AVANZADO (41-62): Casos Edge y Excepciones</strong><a class="headerlink" href="#nivel-avanzado-41-62-casos-edge-y-excepciones" title="Permanent link">&para;</a></h2>
+<h3 id="tc-a-041-recuperacion-error-timbrado-fix-mapeo-estados"><strong>TC-A-041: Recuperación Error Timbrado + Fix Mapeo Estados</strong><a class="headerlink" href="#tc-a-041-recuperacion-error-timbrado-fix-mapeo-estados" title="Permanent link">&para;</a></h3>
+<p><strong>Tiempo objetivo:</strong> 6 min | <strong>Gates:</strong> 4 evidencias</p>
+<p><strong>Preparación:</strong>
+- Simulación fallo FacturAPI
+- Sales Invoice en estado inconsistente
+- Verificar corrección mapeo estados (commit 642a8a8)</p>
+<p><strong>Ejecución:</strong>
+1. <strong>G01:</strong> Error timbrado detectado, verificar estado fiscal correcto según respuesta PAC
+2. <strong>G02:</strong> Diagnóstico estado fiscal - validar mapeo FacturAPI corregido
+3. <strong>G03:</strong> Sincronización manual ejecutada con mapeo estados actualizado
+4. <strong>G04:</strong> Estado corregido usando lógica de mapeo mejorada, operación recuperada</p>
+<p><strong>Invariantes:</strong>
+- Estado fiscal consistente según respuesta PAC real (no forzado a "CANCELADO")
+- Mapeo estados: canceled/accepted → CANCELADO, pending → PENDIENTE_CANCELACION, rejected → TIMBRADO
+- Datos FacturAPI sincronizados con nueva lógica
+- No duplicación documentos
+- Integridad preservada</p>
+<h3 id="tc-a-042-multiples-ffm-misma-si"><strong>TC-A-042: Múltiples FFM Misma SI</strong><a class="headerlink" href="#tc-a-042-multiples-ffm-misma-si" title="Permanent link">&para;</a></h3>
+<p><strong>Tiempo objetivo:</strong> 6 min | <strong>Gates:</strong> 4 evidencias</p>
+<p><strong>Preparación:</strong>
+- SI con múltiples intentos facturación
+- Manejo LinkExistsError</p>
+<p><strong>Ejecución:</strong>
+1. <strong>G01:</strong> SI con FFM existente
+2. <strong>G02:</strong> Intento segunda facturación
+3. <strong>G03:</strong> Override automático LinkExistsError
+4. <strong>G04:</strong> Nueva FFM creada, relaciones correctas</p>
+<p><strong>Invariantes:</strong>
+- Una FFM vigente por SI
+- FFM anteriores preservadas
+- <code>ignore_links = True</code> aplicado
+- Historial fiscal completo</p>
+<h3 id="tc-a-043-cancelacion-masiva-lote"><strong>TC-A-043: Cancelación Masiva (Lote)</strong><a class="headerlink" href="#tc-a-043-cancelacion-masiva-lote" title="Permanent link">&para;</a></h3>
+<p><strong>Tiempo objetivo:</strong> 6 min | <strong>Gates:</strong> 4 evidencias</p>
+<p><strong>Preparación:</strong>
+- 5 CFDIs para cancelación simultánea
+- Diferentes motivos cancelación</p>
+<p><strong>Ejecución:</strong>
+1. <strong>G01:</strong> Selección múltiple CFDIs
+2. <strong>G02:</strong> Configuración motivos por lote
+3. <strong>G03:</strong> Procesamiento paralelo
+4. <strong>G04:</strong> Resultados consolidados, errores identificados</p>
+<p><strong>Invariantes:</strong>
+- Procesamiento atómico por CFDI
+- Errores no bloquean lote completo
+- Reporte resultados detallado
+- Rollback parcial en fallos</p>
+<h3 id="tc-a-044-archivos-corruptosperdidos"><strong>TC-A-044: Archivos Corruptos/Perdidos</strong><a class="headerlink" href="#tc-a-044-archivos-corruptosperdidos" title="Permanent link">&para;</a></h3>
+<p><strong>Tiempo objetivo:</strong> 6 min | <strong>Gates:</strong> 4 evidencias</p>
+<p><strong>Preparación:</strong>
+- CFDI con archivos PDF/XML faltantes
+- Simulación corrupción</p>
+<p><strong>Ejecución:</strong>
+1. <strong>G01:</strong> Detección archivos faltantes
+2. <strong>G02:</strong> Re-descarga desde FacturAPI
+3. <strong>G03:</strong> Validación integridad archivos
+4. <strong>G04:</strong> Restauración completa exitosa</p>
+<p><strong>Invariantes:</strong>
+- Archivos íntegros restaurados
+- Checksums validados
+- Vínculos reparados
+- Historial preservado</p>
+<h3 id="tc-a-045-concurrencia-usuarios"><strong>TC-A-045: Concurrencia Usuarios</strong><a class="headerlink" href="#tc-a-045-concurrencia-usuarios" title="Permanent link">&para;</a></h3>
+<p><strong>Tiempo objetivo:</strong> 6 min | <strong>Gates:</strong> 4 evidencias</p>
+<p><strong>Preparación:</strong>
+- 2 usuarios modificando misma SI
+- Simulación conflicto concurrencia</p>
+<p><strong>Ejecución:</strong>
+1. <strong>G01:</strong> Usuarios simultáneos en SI
+2. <strong>G02:</strong> Modificaciones conflictivas detectadas
+3. <strong>G03:</strong> Resolución conflicto automática/manual
+4. <strong>G04:</strong> Estado final consistente</p>
+<p><strong>Invariantes:</strong>
+- Sin pérdida datos
+- Timestamp updates correctos
+- Locks apropiados aplicados
+- Notificaciones conflicto</p>
+<h3 id="tc-a-046-validacion-server-side-tipo-comprobante"><strong>TC-A-046: Validación Server-Side Tipo Comprobante</strong><a class="headerlink" href="#tc-a-046-validacion-server-side-tipo-comprobante" title="Permanent link">&para;</a></h3>
+<p><strong>Tiempo objetivo:</strong> 6 min | <strong>Gates:</strong> 4 evidencias</p>
+<p><strong>Preparación:</strong>
+- Bypassing frontend, llamadas directas API
+- Casos edge manipulación datos</p>
+<p><strong>Ejecución:</strong>
+1. <strong>G01:</strong> Intento modificar tipo comprobante via API directa
+2. <strong>G02:</strong> Validación <code>validate_tipo_comprobante()</code> rechaza cambios inválidos
+3. <strong>G03:</strong> Tipo E sin UUID relacionado genera error apropiado
+4. <strong>G04:</strong> Función <code>_find_uuid_cfdi_origen()</code> maneja casos sin CFDI origen</p>
+<p><strong>Invariantes:</strong>
+- Validaciones server-side estrictas
+- Errores descriptivos para usuarios
+- Protección contra manipulación API
+- Manejo robusto casos edge</p>
+<h3 id="tc-a-047-compatibilidad-backwards-facturas-legacy"><strong>TC-A-047: Compatibilidad Backwards - Facturas Legacy</strong><a class="headerlink" href="#tc-a-047-compatibilidad-backwards-facturas-legacy" title="Permanent link">&para;</a></h3>
+<p><strong>Tiempo objetivo:</strong> 6 min | <strong>Gates:</strong> 4 evidencias</p>
+<p><strong>Preparación:</strong>
+- Facturas existentes sin fm_tipo_comprobante
+- Migración automática en validación</p>
+<p><strong>Ejecución:</strong>
+1. <strong>G01:</strong> Factura legacy sin tipo comprobante
+2. <strong>G02:</strong> Función <code>_set_tipo_from_context()</code> asigna tipo automáticamente
+3. <strong>G03:</strong> Save/update preserva compatibilidad
+4. <strong>G04:</strong> Timbrado exitoso con tipo inferido</p>
+<p><strong>Invariantes:</strong>
+- Zero breaking changes facturas existentes
+- Migración automática transparente
+- Comportamiento consistente legacy vs nuevo
+- Performance no degradado</p>
+<h3 id="tc-a-048-casos-edge-payload-facturapi"><strong>TC-A-048: Casos Edge Payload FacturAPI</strong><a class="headerlink" href="#tc-a-048-casos-edge-payload-facturapi" title="Permanent link">&para;</a></h3>
+<p><strong>Tiempo objetivo:</strong> 6 min | <strong>Gates:</strong> 4 evidencias</p>
+<p><strong>Preparación:</strong>
+- Combinar multiple related_documents
+- Sustitución + Egreso + UUID relacionado</p>
+<p><strong>Ejecución:</strong>
+1. <strong>G01:</strong> Payload con related_documents múltiples (tipo E + sustitución)
+2. <strong>G02:</strong> Estructura JSON válida para FacturAPI
+3. <strong>G03:</strong> Orden elementos preservado
+4. <strong>G04:</strong> Respuesta FacturAPI exitosa con estructura compleja</p>
+<p><strong>Invariantes:</strong>
+- Estructura related_documents conforme API
+- Múltiples relaciones en mismo documento
+- JSON serialization correcta
+- Respuesta FacturAPI válida</p>
+<h3 id="tc-a-049-armonizacion-direcciones-ffm-erpnext"><strong>TC-A-049: Armonización Direcciones FFM-ERPNext</strong><a class="headerlink" href="#tc-a-049-armonizacion-direcciones-ffm-erpnext" title="Permanent link">&para;</a></h3>
+<p><strong>Tiempo objetivo:</strong> 5 min | <strong>Gates:</strong> 4 evidencias</p>
+<p><strong>Preparación:</strong>
+- Customer con dirección principal configurada
+- Verificar consistencia direcciones Customer UI vs FFM</p>
+<p><strong>Ejecución:</strong>
+1. <strong>G01:</strong> Customer form muestra "Dirección Primaria" correctamente formateada
+2. <strong>G02:</strong> FFM._get_primary_address_display() retorna misma dirección que ERPNext
+3. <strong>G03:</strong> Campo "Dirección Principal Formateada" en FFM ya no aparece vacío
+4. <strong>G04:</strong> Ambos sistemas usan get_address_display() estándar de Frappe</p>
+<p><strong>Invariantes:</strong>
+- Misma fuente: customer_primary_address + fallbacks
+- Mismo formato: get_address_display() de Frappe
+- Sin discrepancias entre Customer UI y FFM
+- Campo FFM poblado correctamente</p>
+<p><strong>✅ RESULTADO TC-A-049:</strong> Completado exitosamente
+- <strong>Implementación:</strong> Patch armonización direcciones aplicado según propuesta ChatGPT
+- <strong>Cambios:</strong> _get_primary_address() usa misma lógica que ERPNext, _get_primary_address_display() usa get_address_display() estándar
+- <strong>Verificación:</strong> FFM ahora muestra exactamente la misma dirección que Customer UI
+- <strong>Status:</strong> Inconsistencia direcciones Customer ↔ FFM eliminada completamente</p>
+<h3 id="tc-a-050-eliminacion-campos-duplicados-customer"><strong>TC-A-050: Eliminación Campos Duplicados Customer</strong><a class="headerlink" href="#tc-a-050-eliminacion-campos-duplicados-customer" title="Permanent link">&para;</a></h3>
+<p><strong>Objetivo:</strong> Validar que eliminación de campos "Régimen Fiscal" duplicados en Customer no afecta funcionalidad fiscal</p>
+<p><strong>Pre-condiciones:</strong>
+- Customer con tax_category configurado (único campo régimen fiscal)
+- FFM existentes que usen tax_category
+- Sistema actualizado con fixture limpio</p>
+<p><strong>Pasos de prueba:</strong>
+1. <strong>Customer UI:</strong>
+   - Abrir cualquier Customer
+   - Verificar que solo existe 1 campo régimen fiscal: "Categoría de Impuestos"
+   - Verificar que NO existe sección "Información Fiscal México"
+   - Verificar que "Uso CFDI por Defecto" está junto a campos fiscales nativos</p>
+<ol>
+<li><strong>FFM Creation:</strong></li>
+<li>Crear FFM para Customer con tax_category configurado</li>
+<li>Verificar que FFM obtiene régimen fiscal de tax_category</li>
+<li>
+<p>Verificar que campo "Régimen Fiscal Customer" se puebla correctamente</p>
+</li>
+<li>
+<p><strong>Funcionalidad Timbrado:</strong></p>
+</li>
+<li>Completar timbrado FFM</li>
+<li>Verificar que XML contiene régimen fiscal correcto</li>
+<li>Verificar que proceso fiscal NO tiene errores</li>
+</ol>
+<p><strong>Resultados esperados:</strong>
+- Un solo campo régimen fiscal visible en Customer UI
+- FFM funciona correctamente con tax_category nativo
+- Sin errores en proceso de timbrado
+- Limpieza UI eliminando confusión duplicados</p>
+<p><strong>✅ RESULTADO TC-A-050:</strong> Completado exitosamente
+- <strong>Implementación:</strong> Eliminación campos duplicados completada según propuesta ChatGPT exacta
+- <strong>Script:</strong> eliminar_regimen_fiscal_duplicado.py ejecutado via bench execute
+- <strong>Fixture:</strong> Eliminados 3 objetos JSON (fm_regimen_fiscal, fm_informacion_fiscal_mx_section, fm_column_break_fiscal_customer)
+- <strong>Verificación:</strong> Greps confirman eliminación completa, FFM usa tax_category nativo correctamente
+- <strong>UI:</strong> Customer ahora tiene solo 1 campo régimen fiscal, sección eliminada, fm_uso_cfdi_default reubicado limpiamente
+- <strong>Status:</strong> Duplicación campos Customer eliminada definitivamente, arquitectura fiscal limpia</p>
+<h3 id="tc-a-051-descarga-automatica-acuse-cancelacion"><strong>TC-A-051: Descarga Automática Acuse Cancelación</strong><a class="headerlink" href="#tc-a-051-descarga-automatica-acuse-cancelacion" title="Permanent link">&para;</a></h3>
+<p><strong>Tiempo objetivo:</strong> 6 min | <strong>Gates:</strong> 4 evidencias</p>
+<p><strong>Preparación:</strong>
+- CFDI timbrado para cancelar (cualquier motivo)
+- Verificar funcionamiento endpoints FacturAPI</p>
+<p><strong>Ejecución:</strong>
+1. <strong>G01:</strong> CFDI listo para cancelación, archivos PDF/XML timbrado presentes
+2. <strong>G02:</strong> Ejecutar cancelación, verificar llamada automática descarga acuse
+3. <strong>G03:</strong> Confirmar archivos <code>{FFM_NAME}_acuse_cancelacion.pdf/xml</code> generados
+4. <strong>G04:</strong> Validar integridad archivos y vinculación correcta en FFM</p>
+<p><strong>Invariantes:</strong>
+- Descarga automática sin intervención usuario
+- Archivos PDF y XML del acuse presentes en attachments
+- Nomenclatura consistente con patrón sistema
+- Manejo errores sin afectar flujo principal de cancelación
+- Uso correcto endpoints <code>/invoices/{id}/cancellation_receipt/pdf|xml</code></p>
+<p><strong>✅ RESULTADO TC-A-051:</strong> Completado exitosamente
+- <strong>Implementación:</strong> Sistema descarga automática acuse funcionando correctamente
+- <strong>Endpoints:</strong> <code>/v2/invoices/{id}/cancellation_receipt/xml</code> y <code>/cancellation_receipt/pdf</code> confirmados
+- <strong>Patrón:</strong> Reutiliza <code>_save_file_attachment()</code> existente para consistencia
+- <strong>Status:</strong> Funcionalidad automática completa, archivos disponibles inmediatamente post-cancelación</p>
+<h3 id="tc-a-052-fix-campo-motivo-cancelacion-sat"><strong>TC-A-052: Fix Campo Motivo Cancelación SAT</strong><a class="headerlink" href="#tc-a-052-fix-campo-motivo-cancelacion-sat" title="Permanent link">&para;</a></h3>
+<p><strong>Tiempo objetivo:</strong> 6 min | <strong>Gates:</strong> 4 evidencias</p>
+<p><strong>Preparación:</strong>
+- Verificar campo <code>fm_motivo_cancelacion</code> en DocType FFM
+- Testing workflow cancelación con persistencia motivo</p>
+<p><strong>Ejecución:</strong>
+1. <strong>G01:</strong> Campo <code>fm_motivo_cancelacion</code> presente en FFM form, opciones SAT (01/02/03/04) disponibles
+2. <strong>G02:</strong> Cancelación CFDI con motivo específico, campo se puebla automáticamente
+3. <strong>G03:</strong> Motivo persiste en BD y es visible en form view post-cancelación
+4. <strong>G04:</strong> Validaciones trabajando correctamente - motivo requerido para cancelación</p>
+<p><strong>Invariantes:</strong>
+- Campo Select con opciones SAT 01/02/03/04
+- Persistence automática antes de envío PAC
+- Campo read-only, populate automático vía API
+- Cleanup en caso rechazo PAC
+- Dependency: visible solo si fm_fiscal_status = "CANCELADO"</p>
+<p><strong>✅ RESULTADO TC-A-052:</strong> Completado exitosamente
+- <strong>Implementación:</strong> Campo <code>fm_motivo_cancelacion</code> añadido a FFM DocType según propuesta ChatGPT exacta
+- <strong>Persistencia:</strong> Logic agregada en <code>timbrado_api.py:1505-1511</code> para persistir motivo antes del PAC
+- <strong>Cleanup:</strong> Logic agregada en <code>timbrado_api.py:1034-1036</code> para limpiar motivo si PAC rechaza
+- <strong>Status:</strong> Gap entre procesamiento y persistencia motivos cancelación eliminado definitivamente</p>
+<h3 id="tc-a-053-fix-doble-timbrado-ui-proteccion"><strong>TC-A-053: Fix Doble Timbrado - UI Protección</strong><a class="headerlink" href="#tc-a-053-fix-doble-timbrado-ui-proteccion" title="Permanent link">&para;</a></h3>
+<p><strong>Tiempo objetivo:</strong> 6 min | <strong>Gates:</strong> 4 evidencias</p>
+<p><strong>Preparación:</strong>
+- Sales Invoice lista para timbrar
+- Verificar botón "Timbrar Factura" comportamiento
+- Testing múltiples clicks durante proceso timbrado</p>
+<p><strong>Ejecución:</strong>
+1. <strong>G01:</strong> Botón "Timbrar Factura" activo, click único inicia proceso con UI freeze
+2. <strong>G02:</strong> Botón inmediatamente deshabilitado, texto cambia a "Timbrando...", pantalla congelada
+3. <strong>G03:</strong> Backend cache previene múltiples llamadas simultáneas (120s lock)
+4. <strong>G04:</strong> Proceso completa, botón rehabilitado, estado final consistente (un solo timbrado)</p>
+<p><strong>Invariantes:</strong>
+- Button disable inmediato en click
+- UI freeze durante proceso (<code>freeze: true</code>)
+- Cache lock backend evita concurrencia
+- Always callback restaura botón independiente de resultado
+- Zero posibilidad doble timbrado</p>
+<p><strong>✅ RESULTADO TC-A-053:</strong> Completado exitosamente
+- <strong>Frontend:</strong> <code>timbrar_factura()</code> reescrita sin async/await, usando frappe.call nativo con freeze
+- <strong>UI Protection:</strong> Button disable inmediato + freeze_message + always callback
+- <strong>Backend Protection:</strong> Cache-based locking con <code>cache_key = "si:timbrando:{sales_invoice}"</code>
+- <strong>Status:</strong> Doble timbrado imposible - protección frontend + backend implementada según propuesta ChatGPT</p>
+<h3 id="tc-a-054-066-casos-avanzados-adicionales"><strong>TC-A-054-066: [Casos Avanzados Adicionales]</strong><a class="headerlink" href="#tc-a-054-066-casos-avanzados-adicionales" title="Permanent link">&para;</a></h3>
+<ul>
+<li>TC-A-054: Migración datos legacy</li>
+<li>TC-A-055: Backup/restore configuración</li>
+<li>TC-A-056: Certificados vencidos durante operación</li>
+<li>TC-A-057: Pérdida conectividad FacturAPI</li>
+<li>TC-A-058: Timeout operaciones largas</li>
+<li>TC-A-059: Validación cruzada SAT-FacturAPI</li>
+<li>TC-A-060: Auditoría fiscal completa</li>
+<li>TC-A-061: Exportación masiva reportes</li>
+<li>TC-A-062: Importación catálogos SAT</li>
+<li>TC-A-063: Configuración roles/permisos granulares</li>
+<li>TC-A-064: Integración sistemas terceros</li>
+<li>TC-A-065: API webhook callbacks</li>
+<li>TC-A-066: Logs debugging avanzado</li>
+<li>TC-A-067: Performance testing carga</li>
+</ul>
+<hr />
+<h2 id="metricas-y-reportes">📊 <strong>Métricas y Reportes</strong><a class="headerlink" href="#metricas-y-reportes" title="Permanent link">&para;</a></h2>
+<h3 id="metricas-por-ejecucion"><strong>Métricas por Ejecución</strong><a class="headerlink" href="#metricas-por-ejecucion" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nt">Tiempo total objetivo</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">6.9 horas (69 casos × 6 min promedio)</span>
+<span class="nt">Success rate target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">≥95%</span>
+<span class="nt">Coverage areas</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">UI/UX</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100% workflows críticos</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Business logic</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100% reglas SAT</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Integration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">95% endpoints FacturAPI</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Error handling</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">90% casos edge</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Tipo Comprobante</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100% workflows I/E/T</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Armonización Direcciones</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100% consistency FFM ↔ ERPNext</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Protección Doble Timbrado</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100% coverage UI + Backend</span>
+
+<span class="nt">KPIs críticos</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Zero data loss</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100%</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Fiscal compliance</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100%</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">User experience</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">≥95% satisfaction</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Tipo comprobante SAT</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100% compliance</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Consistencia direcciones</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100% armonización</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Campos Customer limpios</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100% eliminación duplicados</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Doble timbrado</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0% incidents (imposible)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Motivos cancelación</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100% persistencia</span>
+
+<span class="nt">Nuevas funcionalidades incluidas</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">TC-B-001</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">UI limpia - botón Cancel/Cancelar nativo oculto ✅ COMPLETADO (commit 53289d1)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">TC-B-002</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Verificar datos fiscales cliente ✅ COMPLETADO</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">TC-B-003</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Configurar producto con claves SAT ✅ COMPLETADO</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">TC-B-004</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Descarga automática acuse cancelación (PDF+XML) ✅ COMPLETADO (commit 2a8b134)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">TC-B-004</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Fix mapeo estados fiscales FacturAPI ✅ COMPLETADO (commit 642a8a8)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">TC-B-005</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Re-facturar mismo Sales Invoice ✅ COMPLETADO</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">TC-B-006</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Tipo Comprobante Ingreso (I) por defecto ✅ COMPLETADO</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">TC-B-007</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Sales Invoice Return → Egreso (E) automático</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">TC-B-008</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Configuración Settings tipo comprobante</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">TC-I-026</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Validaciones contexto automático</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">TC-I-027</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Relaciones SAT completas</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">TC-I-028</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Combinación sustitución + tipo comprobante</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">TC-A-046</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Validaciones server-side estrictas</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">TC-A-047</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Compatibilidad backwards facturas legacy</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">TC-A-048</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Casos edge payload FacturAPI múltiple</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">TC-A-049</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Armonización direcciones FFM-ERPNext ✅ COMPLETADO</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">TC-A-050</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Eliminación campos duplicados Customer ✅ COMPLETADO</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">TC-A-051</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Descarga automática acuse cancelación ✅ COMPLETADO</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">TC-A-052</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Campo motivo cancelación SAT persistencia ✅ COMPLETADO</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">TC-A-053</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Fix doble timbrado protección UI + Backend ✅ COMPLETADO</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">TC-A-054</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Fix campos Customer → FFM mapping ✅ COMPLETADO (corrección fm_regimen_fiscal_customer)</span>
+</code></pre></div>
+<h3 id="reporte-template"><strong>Reporte Template</strong><a class="headerlink" href="#reporte-template" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="gh"># Reporte Ejecución Testing - [FECHA]</span>
+
+<span class="gu">## Resumen Ejecutivo</span>
+<span class="k">-</span><span class="w"> </span>Casos ejecutados: X/64
+<span class="k">-</span><span class="w"> </span>Success rate: XX%
+<span class="k">-</span><span class="w"> </span>Tiempo total: XX horas
+<span class="k">-</span><span class="w"> </span>Issues críticos: X
+
+<span class="gu">## Resultados por Nivel</span>
+<span class="gu">### Básico (1-20): XX% success</span>
+<span class="gu">### Intermedio (21-40): XX% success</span>
+<span class="gu">### Avanzado (41-62): XX% success</span>
+
+<span class="gu">## Issues Identificados</span>
+[Lista priorizada con severidad]
+
+<span class="gu">## Evidencias</span>
+[Links a screenshots por caso]
+
+<span class="gu">## Recomendaciones</span>
+[Acciones correctivas prioritarias]
+</code></pre></div>
+<hr />
+<h2 id="criterios-exito-global">🎯 <strong>Criterios Éxito Global</strong><a class="headerlink" href="#criterios-exito-global" title="Permanent link">&para;</a></h2>
+<h3 id="gates-de-aceptacion"><strong>Gates de Aceptación</strong><a class="headerlink" href="#gates-de-aceptacion" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ <strong>Funcional:</strong> 100% workflows básicos operativos</li>
+<li>✅ <strong>Fiscal:</strong> 100% compliance normativa SAT</li>
+<li>✅ <strong>Performance:</strong> ≤6 min promedio por caso</li>
+<li>✅ <strong>UX:</strong> Navegación intuitiva, mensajes claros</li>
+<li>✅ <strong>Robustez:</strong> Manejo errors, recuperación automática</li>
+</ul>
+<h3 id="definicion-testing-completo"><strong>Definición "Testing Completo"</strong><a class="headerlink" href="#definicion-testing-completo" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Todos los casos TC-B-001 a TC-B-020 al 100%</li>
+<li>≥90% casos TC-I-021 a TC-I-040 exitosos</li>
+<li>≥80% casos TC-A-041 a TC-A-064 exitosos</li>
+<li>Documentación evidencias completa</li>
+<li>Plan corrección issues identificados</li>
+</ol>
+<p><strong>¡SISTEMA TESTING UI/UX COMPLETADO!</strong> 🚀</p>
+<hr />
+<h2 id="iniciar-ejecucion">🚀 <strong>INICIAR EJECUCIÓN</strong><a class="headerlink" href="#iniciar-ejecucion" title="Permanent link">&para;</a></h2>
+<h3 id="comandos-preparacion"><strong>Comandos Preparación</strong><a class="headerlink" href="#comandos-preparacion" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Verificar sitio</span>
+bench<span class="w"> </span>--site<span class="w"> </span>facturacion.dev<span class="w"> </span>list-apps
+
+<span class="c1"># Acceso sistema</span>
+http://facturacion.dev:8000
+
+<span class="c1"># Usuario sugerido: Administrator (todos los permisos)</span>
+</code></pre></div>
+<h3 id="primer-caso-tc-b-001"><strong>Primer Caso: TC-B-001</strong><a class="headerlink" href="#primer-caso-tc-b-001" title="Permanent link">&para;</a></h3>
+<p><strong>COMENZAR:</strong> Crear Sales Invoice con "CONCESIONARIA VUELA COMPAÑIA DE AVIACION" (RFC: CVA041027H80) + "Servicio E2E Test"</p>
+<p><strong>Comando verificación datos:</strong>
+<div class="highlight"><pre><span></span><code>bench<span class="w"> </span>--site<span class="w"> </span>facturacion.dev<span class="w"> </span>execute<span class="w"> </span><span class="s2">&quot;facturacion_mexico.obtener_datos_testing.obtener_datos_testing&quot;</span>
+</code></pre></div></p>
+<h3 id="directorio-evidencias"><strong>Directorio Evidencias</strong><a class="headerlink" href="#directorio-evidencias" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Crear: <code>docs/testing/planes/plan-testing-sistema-facturacion/evidencias/TC-B-001-crear-factura/</code></li>
+<li>Capturar: <code>TC-B-001-crear-factura-G01.png</code>, <code>TC-B-001-crear-factura-G02.png</code>, etc.</li>
+</ul>
+<p><strong>¡EMPEZAR TESTING!</strong> 🎯</p>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Volver al principio
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 Facturación México - Documentación Técnica
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/tu-org/facturacion_mexico" target="_blank" rel="noopener" title="GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+      <div class="md-consent" data-md-component="consent" id="__consent" hidden>
+        <div class="md-consent__overlay"></div>
+        <aside class="md-consent__inner">
+          <form class="md-consent__form md-grid md-typeset" name="consent">
+            
+
+  
+    
+  
+
+
+
+
+
+<h4>Consentimiento de cookies</h4>
+<p>Utilizamos cookies para reconocer tus visitas repetidas y preferencias, así como para medir la efectividad de nuestra documentación y si los usuarios encuentran lo que están buscando. Con tu consentimiento, nos ayudas a mejorar nuestra documentación.
+</p>
+<input class="md-toggle" type="checkbox" id="__settings" >
+<div class="md-consent__settings">
+  <ul class="task-list">
+    
+      
+      
+        
+        
+      
+      <li class="task-list-item">
+        <label class="task-list-control">
+          <input type="checkbox" name="analytics" checked>
+          <span class="task-list-indicator"></span>
+          Google Analytics
+        </label>
+      </li>
+    
+  </ul>
+</div>
+<div class="md-consent__controls">
+  
+    
+      <button class="md-button md-button--primary">Aceptar</button>
+    
+    
+    
+  
+    
+    
+      <button type="reset" class="md-button md-button--primary">Rechazar</button>
+    
+    
+  
+    
+    
+    
+      <label class="md-button" for="__settings">Gestionar cookies</label>
+    
+  
+</div>
+          </form>
+        </aside>
+      </div>
+      <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout(function(){document.querySelector("[data-md-component=consent]").hidden=!1},250);var action,form=document.forms.consent;for(action of["submit","reset"])form.addEventListener(action,function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map(function(e){return[e,!0]}))),location.hash="",location.reload()})</script>
+    
+    <script id="__config" type="application/json">{"base": "../../../..", "features": ["content.code.copy", "navigation.expand", "navigation.instant", "navigation.sections", "navigation.tabs", "navigation.top", "search.highlight", "search.suggest"], "search": "../../../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copiado al portapapeles", "clipboard.copy": "Copiar al portapapeles", "search.result.more.one": "1 m\u00e1s en esta p\u00e1gina", "search.result.more.other": "# m\u00e1s en esta p\u00e1gina", "search.result.none": "No se encontraron documentos", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Teclee para comenzar b\u00fasqueda", "search.result.term.missing": "Falta", "select.version": "Seleccionar versi\u00f3n"}, "version": {"default": "latest", "provider": "mike"}}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.d7c377c4.min.js"></script>
+      
+        <script src="../../../../assets/javascripts/extra.js"></script>
+      
+        <script src="../../../../assets/javascripts/advanced.js"></script>
+      
+    
+  </body>
+</html>
