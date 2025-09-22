@@ -178,17 +178,19 @@ class TestPR68EmailSystem(FrappeTestCase):
         with patch("facturacion_mexico.facturacion_fiscal.doctype.factura_fiscal_mexico.factura_fiscal_mexico._resolve_recipient_email") as mock_resolve_email:
             mock_resolve_email.return_value = "test@email.com"
 
-            # Mock TimbradoAPI y client
-            api = TimbradoAPI()
-            api.client = MagicMock()
-            api.client.send_invoice_email.return_value = {"status": "success"}
+            # Mock constructor TimbradoAPI para evitar dependencias de configuración real
+            with patch('facturacion_mexico.facturacion_fiscal.timbrado_api.get_facturapi_client') as mock_get_client:
+                mock_client = MagicMock()
+                mock_client.send_invoice_email.return_value = {"status": "success"}
+                mock_get_client.return_value = mock_client
 
-            # Test method
-            api._send_fiscal_email(self.mock_ffm, "test-facturapi-id")
+                # Test method
+                api = TimbradoAPI()
+                api._send_fiscal_email(self.mock_ffm, "test-facturapi-id")
 
-            # Verificaciones
-            mock_resolve_email.assert_called_once_with(self.mock_ffm)
-            api.client.send_invoice_email.assert_called_once_with("test-facturapi-id", "test@email.com")
+                # Verificaciones
+                mock_resolve_email.assert_called_once_with(self.mock_ffm)
+                mock_client.send_invoice_email.assert_called_once_with("test-facturapi-id", "test@email.com")
 
     def test_send_fiscal_email_no_recipient(self):
         """Test TimbradoAPI - manejo correcto cuando no hay email recipient"""
@@ -199,19 +201,27 @@ class TestPR68EmailSystem(FrappeTestCase):
 
             with patch("frappe.logger") as mock_logger:
                 with patch("frappe.msgprint") as mock_msgprint:
-                    # Mock TimbradoAPI
-                    api = TimbradoAPI()
-                    api.client = MagicMock()
+                    # Mock constructor TimbradoAPI para evitar dependencias de configuración real
+                    with patch('facturacion_mexico.facturacion_fiscal.timbrado_api.get_facturapi_client') as mock_get_client:
+                        mock_client = MagicMock()
+                        mock_get_client.return_value = mock_client
 
-                    # Test method
-                    api._send_fiscal_email(self.mock_ffm, "test-facturapi-id")
+                        # Test method
+                        api = TimbradoAPI()
+                        api._send_fiscal_email(self.mock_ffm, "test-facturapi-id")
 
-                    # Verificaciones
-                    mock_resolve_email.assert_called_once_with(self.mock_ffm)
-                    # No debe llamar API cuando no hay recipient
-                    api.client.send_invoice_email.assert_not_called()
-                    # Debe mostrar mensaje al usuario
-                    mock_msgprint.assert_called_once()
+                        # Verificaciones
+                        mock_resolve_email.assert_called_once_with(self.mock_ffm)
+                        # No debe llamar API cuando no hay recipient
+                        mock_client.send_invoice_email.assert_not_called()
+
+                        # Verificar que se muestra mensaje específico al usuario (más robusto)
+                        user_notification_calls = [
+                            call for call in mock_msgprint.call_args_list
+                            if "Email no enviado" in str(call) or "no se pudo enviar" in str(call).lower()
+                        ]
+                        self.assertGreaterEqual(len(user_notification_calls), 1,
+                                             "Debe mostrar notificación al usuario sobre email no enviado")
 
     def test_send_fiscal_email_api_exception(self):
         """Test TimbradoAPI - manejo robusto de excepciones en API"""
@@ -221,16 +231,18 @@ class TestPR68EmailSystem(FrappeTestCase):
             mock_resolve_email.return_value = "test@email.com"
 
             with patch("frappe.logger") as mock_logger:
-                # Mock TimbradoAPI con excepción
-                api = TimbradoAPI()
-                api.client = MagicMock()
-                api.client.send_invoice_email.side_effect = Exception("API Error")
+                # Mock constructor TimbradoAPI para evitar dependencias de configuración real
+                with patch('facturacion_mexico.facturacion_fiscal.timbrado_api.get_facturapi_client') as mock_get_client:
+                    mock_client = MagicMock()
+                    mock_client.send_invoice_email.side_effect = Exception("API Error")
+                    mock_get_client.return_value = mock_client
 
-                # Test method - no debe re-raise excepción
-                try:
-                    api._send_fiscal_email(self.mock_ffm, "test-facturapi-id")
-                except Exception:
-                    self.fail("_send_fiscal_email() no debe re-raise excepciones")
+                    # Test method - no debe re-raise excepción
+                    try:
+                        api = TimbradoAPI()
+                        api._send_fiscal_email(self.mock_ffm, "test-facturapi-id")
+                    except Exception:
+                        self.fail("_send_fiscal_email() no debe re-raise excepciones")
 
-                # Debe logear el error
-                mock_logger.assert_called()
+                    # Debe logear el error
+                    mock_logger.assert_called()
