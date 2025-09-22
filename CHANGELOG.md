@@ -7,6 +7,14 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
 ## [Unreleased]
 
 ### Added
+- **Plan implementación fiscal mexicano E0-E8** para Issues #65 y #66
+  - Documentación completa 8 etapas: Items SAT, IVA automático, IEPS, Retenciones, CFDI 4.0, Anticipos/Pagos 2.0
+  - Análisis arquitectura SAT Items existente: ClaveProdServ, ClaveUnidad (UOM nativo), ObjetoImp
+  - Decisión arquitectónica fundamentada: ObjetoImp por ClaveProdServ suficiente según normativa SAT
+  - E0 completado: arquitectura actual es correcta, casos edge manejados vía Tax Rules
+  - Plan autocontenido en `docs/testing/planes/plan-fiscal-implementacion-mx-e0-e8/`
+  - Branch `feat/mx-fiscal-E0-E3-issues-65-66` preparado para desarrollo
+  - Reporte técnico completo con matriz decisión y ejemplos SAT oficiales
 - **Testing unitario completo PR #68** - Suite de 11 test cases para sistema email automático CFDI
   - Cobertura 100% métodos nuevos: `send_invoice_email()`, `_resolve_recipient_email()`, `_resolve_auto_email_flag()`, `_send_fiscal_email()`
   - Tests determinísticos con mocks solo de gateway externo (FacturAPI)

@@ -27,7 +27,15 @@
 
 ## 🟡 **Planes Programados**
 
-*[Espacio para futuros planes programados]*
+### **Integración y Compliance**
+- **[PLAN-FISCAL-IMPLEMENTACION-MX-E0-E8.md](planes/plan-fiscal-implementacion-mx-e0-e8/PLAN-FISCAL-IMPLEMENTACION-MX-E0-E8.md)**
+  - **Estado:** 🔄 En ejecución
+  - **Objetivo:** Implementación completa sistema fiscal mexicano (E0-E8)
+  - **Issues:** #65, #66
+  - **Rama:** `feat/mx-fiscal-E0-E3-issues-65-66`
+  - **Cobertura:** Items SAT, IVA automático, IEPS, Retenciones, CFDI 4.0, Anticipos/Pagos 2.0
+  - **Tiempo estimado:** 8 etapas progresivas
+  - **Última actualización:** 2025-09-22
 
 ---
 

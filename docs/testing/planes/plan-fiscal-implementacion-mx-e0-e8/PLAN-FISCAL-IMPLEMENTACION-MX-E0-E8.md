@@ -1,0 +1,319 @@
+# PLAN FISCAL IMPLEMENTACIÓN MX (E0-E8) - Issues #65 y #66
+
+**Estado:** 🔄 En ejecución
+**Fecha creación:** 2025-09-22
+**Categoría:** integracion
+**Issues relacionados:** #65, #66
+**Rama de trabajo:** `feat/mx-fiscal-E0-E3-issues-65-66`
+
+## Resumen Ejecutivo
+
+Plan de implementación completa del sistema fiscal mexicano en 8 etapas (E0-E8), incluyendo:
+- Normalización Items con catálogos SAT
+- Configuración automática IVA (16/8/0/Exento)
+- Soporte IEPS + Retenciones
+- Emisión CFDI 4.0 completa
+- Flujo anticipos + Pagos 2.0
+
+## Convenciones del Plan
+
+### Control de Versiones
+- **Branch base:** `feat/mx-fiscal-E0-E3-issues-65-66`
+- **Prefijo commits:** `[E0]`, `[E1]`, `[E2]`, ..., `[E8]`, `[TS]` (tests), `[DOC]` (docs)
+- **Tags checkpoint:** `mx-fiscal-E1-ready`, `mx-fiscal-E3-ready`, etc.
+- **PRs vinculados:** Issues #65 y #66
+
+### Aislamiento Operacional
+- Feature flags para no impactar producción hasta E3
+- Validaciones progresivas por etapa
+- Rollback points en cada checkpoint
+
+---
+
+## E0) PREPARACIÓN Y DATOS SAT EN ITEMS
+
+**Objetivo:** Normalizar productos con campos SAT para enganche al flujo nativo
+
+### Criterios Objetivos E0 (según instruct.txt)
+
+#### 1) Cobertura Campos SAT en Items
+- [ ] **E0.1** - 100% Items activos vendibles con **ClaveProdServ** válida (catálogo c_ClaveProdServ)
+- [ ] **E0.2** - 100% Items activos vendibles con **ClaveUnidad** válida (catálogo c_ClaveUnidad)
+- [ ] **E0.3** - 100% Items activos vendibles con **ObjetoImp** válido (catálogo c_ObjetoImp vigente)
+- [ ] **E0.4** - Item Group hereda campos por defecto sin sobre-escrituras obligatorias
+
+#### 2) Catálogos SAT Selectivos (ESTRATEGIA AJUSTADA)
+- [ ] **E0.5** - Fuente única catálogos con versión/vigencia visible: c_ClaveProdServ, c_ClaveUnidad, c_ObjetoImp
+- [ ] **E0.6** - **SOLO catálogos necesarios por empresa** (no completos - per instruct.txt)
+- [ ] **E0.7** - Selección valores desde catálogos controlados (no texto libre)
+- [ ] **E0.8** - c_ObjetoImp refleja último corte SAT o documenta versión/fecha
+
+#### 3) Calidad Datos (Integridad y Vigencia)
+- [ ] **E0.9** - 0 Items con claves inexistentes/expiradas según vigencias SAT
+- [ ] **E0.10** - 0 Items con ObjetoImp vacío
+- [ ] **E0.11** - Lista excepciones aprobada (Items servicio interno no facturables)
+
+#### 4) Preparación Cascada (Sin Activar Cálculo)
+- [ ] **E0.12** - ITT por defecto definido como referencia (no cuadrar con STCT aún)
+- [ ] **E0.13** - NO modificar STCT/Tax Rules (E0 no cambia cálculo impuestos actual)
+
+#### 5) Evidencia y Señal Salida
+- [ ] **E0.14** - Reporte cobertura: Total Items vendibles, % cobertura 100%, 0 inválidos
+- [ ] **E0.15** - Pantallazo/Reporte versión/fecha catálogos (especialmente c_ObjetoImp)
+- [ ] **E0.16** - Factura prueba "en seco" 3 renglones (gravado/0%/exento) - ObjetoImp baja al concepto
+
+### Criterios DoD E0 (REFINADOS)
+✅ **Arquitectura definida** - Decisión ObjetoImp por ClaveProdServ vs Item (ver evidencias/REPORTE-ARQUITECTURA-E0-FINAL.md)
+✅ **100% cobertura** Items vendibles con campos SAT válidos/vigentes
+✅ **0 inválidos** - claves existentes en catálogos SAT selectivos
+✅ **Evidencias** - Reporte cobertura + versión catálogos + factura prueba
+✅ **Sin scope creep** - NO crear STCT/Tax Rules, NO validar cálculo impuestos
+
+### ✅ **Estado Actual E0 (2025-09-22) - COMPLETADO**
+🎯 **DECISIÓN ARQUITECTÓNICA TOMADA:** **OPCIÓN A - ObjetoImp por ClaveProdServ**
+
+**Justificación SAT:**
+- ✅ No hay casos sólidos donde se requiera ObjetoImp por Item individual
+- ✅ Diferencias aparentes son: contexto transaccional (Tax Rules) o clasificación incorrecta
+- ✅ Ejemplos SAT confirmados: exportaciones, región fronteriza, restaurantes → Tax Rules, no Item override
+
+**Arquitectura final E0:**
+- ✅ **ClaveProdServ:** `fm_producto_servicio_sat` → SAT Producto Servicio
+- ✅ **ClaveUnidad:** `stock_uom` → UOM nativo ERPNext
+- ✅ **ObjetoImp:** `incluye_objeto_impuesto` en SAT Producto Servicio (por ClaveProdServ)
+
+**E0 COMPLETADO - Arquitectura actual es suficiente y correcta según normativa SAT**
+
+---
+
+## E1) ASIGNACIÓN AUTOMÁTICA IVA CON CASCADA NATIVA
+
+**Objetivo:** ERPNext selecciona STCT correcto y aplica ITT coherente
+
+### Checklist Operativo E1 (basado en decisión E0)
+
+#### 1) STCT Base por Compañía
+- [ ] **E1.1** - STCT General 16% IVA (default nacional)
+- [ ] **E1.2** - STCT Frontera 8% IVA (región fronteriza)
+- [ ] **E1.3** - STCT Cero 0% IVA (productos básicos/exportación)
+- [ ] **E1.4** - STCT Exento (sin IVA, no objeto impuesto)
+
+#### 2) Tax Rules Inteligentes
+- [ ] **E1.5** - Tax Rule por territorio (nacional vs frontera)
+- [ ] **E1.6** - Tax Rule por tipo cliente (nacional vs exportación)
+- [ ] **E1.7** - Tax Rule por categoría producto (si aplica)
+- [ ] **E1.8** - Validar autoselección STCT según contexto transaccional
+
+#### 3) ITT Coherente con STCT
+- [ ] **E1.9** - ITT IVA 16% con `tax_type` matching `account_head` STCT 16%
+- [ ] **E1.10** - ITT IVA 8% con `tax_type` matching `account_head` STCT 8%
+- [ ] **E1.11** - ITT IVA 0% con `tax_type` matching `account_head` STCT 0%
+- [ ] **E1.12** - ITT configurado por Item Group (herencia automática)
+
+#### 4) Respeto ObjetoImp (desde ClaveProdServ)
+- [ ] **E1.13** - ObjetoImp 01/03: NO genera nodo impuestos en concepto CFDI
+- [ ] **E1.14** - ObjetoImp 02: SÍ genera nodo impuestos con desglose correcto
+- [ ] **E1.15** - Validación ObjetoImp vs STCT seleccionado (coherencia fiscal)
+
+#### 5) Testing & Evidencia
+- [ ] **E1.16** - Factura 16% IVA nacional → verificar STCT + ITT + CFDI
+- [ ] **E1.17** - Factura 8% frontera → verificar Tax Rules + STCT + CFDI
+- [ ] **E1.18** - Factura 0% exportación → verificar Tax Rules + ObjetoImp 02 + tasa 0
+- [ ] **E1.19** - Factura exenta → verificar ObjetoImp 01/03 + sin nodo impuestos
+- [ ] **E1.20** - Factura mixta (múltiples tasas) → verificar desglose por concepto
+
+### Criterios DoD E1 (refinados post-E0)
+✅ **4 escenarios fiscales** operando correctamente (16%, 8%, 0%, exento)
+✅ **Tax Rules automáticas** seleccionan STCT según contexto transaccional
+✅ **ObjetoImp respetado** desde ClaveProdServ → nodo impuestos coherente
+✅ **ITT alineado** con STCT (`tax_type` ↔ `account_head` match)
+✅ **CFDI válido** con desglose correcto por concepto
+✅ **Tests exitosos** - 5 facturas ejemplo + validación PAC
+
+---
+
+## E2) IEPS + IVA (TAX-ON-TAX)
+
+**Objetivo:** IVA calculado sobre Neto + IEPS
+
+### Tareas E2
+- [ ] **E2.1** - STCT con filas encadenadas (IEPS primero, IVA sobre fila previa)
+- [ ] **E2.2** - ITT correspondientes alineados al `account_head`
+- [ ] **E2.3** - [TS] 2 facturas con IEPS (bebidas) + cuadre IVA sobre Neto+IEPS
+
+### Criterios DoD E2
+✅ Cálculo IEPS+IVA consistente ERPNext y CFDI
+✅ Tests: verificación totales en cadena de impuestos
+
+---
+
+## E3) RETENCIONES (ISR/IVA) ESCENARIOS TÍPICOS
+
+**Objetivo:** Honorarios, arrendamiento, autotransporte, RESICO
+
+### Tareas E3
+- [ ] **E3.1** - STCT retenciones (filas `Deduct`)
+- [ ] **E3.2** - ITT para ítems/grupos con retención
+- [ ] **E3.3** - Reglas por cliente/grupo si aplica
+- [ ] **E3.4** - [TS] 3 facturas (honorarios, arrendamiento, autotransporte)
+
+### Criterios DoD E3
+✅ Retenciones correctas ERPNext y CFDI
+✅ Tests: cuadre retenciones por renglón y totales
+
+---
+
+## E4) CFDI 4.0 - MAPEO CONCEPTOS E IMPUESTOS
+
+**Objetivo:** Cálculos reflejados exactamente en CFDI
+
+### Tareas E4
+- [ ] **E4.1** - Conceptos completos: ClaveProdServ, ClaveUnidad, Cantidad, ValorUnitario, Descuento, ObjetoImp
+- [ ] **E4.2** - Impuestos por concepto: Traslados/Retenciones con Impuesto/TipoFactor/TasaOCuota/Base
+- [ ] **E4.3** - Manejo "sin impuestos" si ObjetoImp 01/03
+- [ ] **E4.4** - [TS] Validación PAC/validador en 3 escenarios mixtos
+
+### Criterios DoD E4
+✅ CFDIs válidos en estructura y reglas de impuestos
+✅ Tests: validación PAC exitosa
+
+---
+
+## E5) DESCUENTOS (LÍNEA Y GLOBAL)
+
+**Objetivo:** Base impuestos respeta descuentos línea y globales
+
+### Tareas E5
+- [ ] **E5.1** - Descuento por renglón → reduce base del concepto
+- [ ] **E5.2** - Descuento global (Additional Discount) → proporción consistente
+- [ ] **E5.3** - [TS] 3 combinaciones (línea, global, mixto) + tolerancia ≤ $0.01 MXN
+
+### Criterios DoD E5
+✅ Cuadre exacto breakdown por renglón y totales
+✅ Tests: tolerancia redondeo verificada
+
+---
+
+## E6) ANTICIPOS + PAGOS 2.0
+
+**Objetivo:** Flujo fiscal completo anticipos + Complemento Recepción Pagos 2.0
+
+### Tareas E6
+- [ ] **E6.1** - Modelado anticipo como operación separada + relación factura final
+- [ ] **E6.2** - Emisión Complemento Recepción Pagos 2.0 (PPD)
+- [ ] **E6.3** - [TS] 2 flujos completos (anticipo parcial/total) + relaciones válidas
+
+### Criterios DoD E6
+✅ Flujo anticipo conforme guía SAT/Pagos 2.0
+✅ Tests: complementos válidos
+
+---
+
+## E7) NORMALIZACIÓN CATÁLOGOS SAT
+
+**Objetivo:** Catálogos vigentes y trazables
+
+### Tareas E7
+- [ ] **E7.1** - Cargar catálogos: ClaveProdServ, ClaveUnidad, ObjetoImp, Impuesto, TipoFactor, TasaOCuota
+- [ ] **E7.2** - Detectar cambios y marcar obsoletos sin romper históricos
+- [ ] **E7.3** - [TS] Actualización simulada + reporte diferencias
+
+### Criterios DoD E7
+✅ Catálogos vigentes, sin ítems con claves expiradas
+✅ Tests: gestión cambios catálogos
+
+---
+
+## E8) QA INTEGRAL Y CIERRE
+
+**Objetivo:** Verificación end-to-end e idempotencia
+
+### Tareas E8
+- [ ] **E8.1** - Readiness fiscal por compañía (STCT/Tax Rules/ITT/cuentas)
+- [ ] **E8.2** - Integridad ítems con catálogos vigentes
+- [ ] **E8.3** - Idempotencia: re-ejecución sin duplicados ni drift
+- [ ] **E8.4** - UAT con casos reales + criterio aceptación firmado
+- [ ] **E8.5** - [TS] Suite completa E1-E7 en sitio limpio + re-ejecución
+
+### Criterios DoD E8
+✅ UAT aprobado
+✅ Issues #65/#66 cerrados
+✅ Tests: suite completa verificada
+
+---
+
+## DOCUMENTOS RECTORES (Post-Implementación)
+
+> **Nota:** Se generan DESPUÉS de código/metodología definidos para evitar retrabajos
+
+### Documentos Pendientes
+- [ ] **DR-01** - Documento Rector (mapeo Role→Account, versiones, políticas)
+- [ ] **MV-01** - Matriz Verificación (checklist campos SAT, casos cálculo)
+- [ ] **DOC-01** - Guía instalación/operación (fixtures/patches, troubleshooting)
+
+---
+
+## PLAN DE TESTS (TS)
+
+### Niveles Testing
+- **Unitarios:** Validaciones datos SAT, consistencia ITT↔STCT
+- **Integración:** Cálculo impuestos por escenario (IVA/IEPS/Retenciones/Descuentos)
+- **End-to-End:** Emisión/cancelación facturas, anticipo→factura→pagos 2.0
+
+### Datos Prueba
+- Items representativos por tasa, exento, IEPS, retenciones, descuentos, anticipo
+
+### Criterios Aceptación
+- Tolerancia redondeo ≤ $0.01 MXN
+- Sin diferencias breakdown vs totales
+- Validación CFDI/PAC exitosa E4-E6
+
+---
+
+## CHECKPOINTS Y ENTREGABLES
+
+| Etapa | Entregable Principal | Tag Git | PR Target |
+|-------|---------------------|---------|-----------|
+| E0 | Items con campos SAT | `mx-fiscal-E0-ready` | #65 |
+| E1 | IVA automático funcionando | `mx-fiscal-E1-ready` | #65 |
+| E2 | IEPS + IVA operativo | `mx-fiscal-E2-ready` | #65 |
+| E3 | Retenciones completas | `mx-fiscal-E3-ready` | #65 |
+| E4 | CFDI 4.0 válidos | `mx-fiscal-E4-ready` | #66 |
+| E5 | Descuentos integrados | `mx-fiscal-E5-ready` | #66 |
+| E6 | Anticipos + Pagos 2.0 | `mx-fiscal-E6-ready` | #66 |
+| E7 | Catálogos SAT actualizables | `mx-fiscal-E7-ready` | #66 |
+| E8 | Sistema completo + UAT | `mx-fiscal-E8-ready` | Cierre #65/#66 |
+
+---
+
+## RIESGOS Y MITIGACIONES
+
+### Riesgos Técnicos
+- **R1:** Complejidad tax-on-tax ERPNext → Mitigación: PoC E2 temprano
+- **R2:** Validaciones CFDI PAC → Mitigación: Ambiente sandbox E4
+- **R3:** Performance catálogos SAT → Mitigación: Índices + caching E7
+
+### Riesgos Operacionales
+- **R4:** Cambios catálogos SAT durante desarrollo → Mitigación: Versionado E7
+- **R5:** Casos edge no contemplados → Mitigación: UAT extensivo E8
+
+---
+
+## PRÓXIMOS PASOS
+
+### Checkpoint E0 Inmediato
+1. Ejecutar creación rama: `git checkout -b feat/mx-fiscal-E0-E3-issues-65-66`
+2. Integrar andamiaje DocTypes Setup ya preparado
+3. Cargar catálogos SAT mínimos
+4. Completar dataset piloto ítems/grupos
+5. **PR objetivo:** `[E0] Campos SAT en Items/Groups`
+
+### Mini Checklist Operativo E0 (10-15 min c/u)
+- [ ] Git branch creation + first commit
+- [ ] Load minimal SAT catalogs fixture
+- [ ] Add SAT fields to Item DocType
+- [ ] Create pilot dataset (10 items)
+- [ ] Validation report warnings
+- [ ] Basic tests for SAT field inheritance
+
+**Meta E0:** Checklist íntegramente "Hecho", rama con commits `[E0]`, PR abierto enlazando #65 y #66.
