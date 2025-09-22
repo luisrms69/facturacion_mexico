@@ -404,6 +404,7 @@ with patch("frappe.get_doc") as mock_get:
 - ⚠️ **REGLA ABSOLUTA:** Todo cambio técnico requiere autorización explícita usuario
 - ❌ **PROHIBIDO:** Modificar código sin autorización explícita
 - ❌ **PROHIBIDO:** Asumir que "arreglar" significa "hacer lo que sea"
+- ❌ **CRÍTICO:** Toda actualización de CLAUDE.md debe ser autorizada explícitamente por el usuario
 - ✅ **PROCESO OBLIGATORIO:**
   ```
   1. Describir específicamente qué hará
