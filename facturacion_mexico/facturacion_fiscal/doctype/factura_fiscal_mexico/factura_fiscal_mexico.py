@@ -239,24 +239,28 @@ class FacturaFiscalMexico(Document):
 		tipo = parse_select_code(self.fm_tipo_comprobante)
 		if tipo not in ("I", "E"):
 			frappe.throw(
-				"Traslado (T) no está habilitado en esta versión.", title="Tipo de comprobante no permitido"
+				_("Traslado (T) no está habilitado en esta versión."),
+				title=_("Tipo de comprobante no permitido"),
 			)
 
 		# SI normal => I
 		if not self._is_sales_invoice_return() and tipo != "I":
-			frappe.throw("Factura normal debe timbrarse como Ingreso (I).", title="Validación FFM")
+			frappe.throw(_("Factura normal debe timbrarse como Ingreso (I)."), title=_("Validación FFM"))
 
 		# SI retorno => E + relación obligatoria
 		if self._is_sales_invoice_return():
 			if tipo != "E":
-				frappe.throw("Factura de retorno debe timbrarse como Egreso (E).", title="Validación FFM")
+				frappe.throw(
+					_("Factura de retorno debe timbrarse como Egreso (E)."), title=_("Validación FFM")
+				)
 			# Relación
 			rel = parse_select_code(self.fm_tipo_relacion_sat or "")
 			if rel not in TIPO_RELACION:
-				frappe.throw("Tipo de Relación SAT inválido o vacío.", title="Validación FFM")
+				frappe.throw(_("Tipo de Relación SAT inválido o vacío."), title=_("Validación FFM"))
 			if not self.fm_uuid_relacionado:
 				frappe.throw(
-					"UUID relacionado es obligatorio para Egreso (nota de crédito).", title="Validación FFM"
+					_("UUID relacionado es obligatorio para Egreso (nota de crédito)."),
+					title=_("Validación FFM"),
 				)
 			self._validate_uuid_origen()
 
