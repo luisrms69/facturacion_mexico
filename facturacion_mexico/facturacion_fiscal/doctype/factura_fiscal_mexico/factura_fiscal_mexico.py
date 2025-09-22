@@ -294,7 +294,7 @@ class FacturaFiscalMexico(Document):
 		"""Validar UUID relacionado."""
 		uuid = self.fm_uuid_relacionado
 		if not uuid or len(uuid) < 36:
-			frappe.throw("UUID relacionado no parece válido.", title="Validación FFM")
+			frappe.throw(_("UUID relacionado no parece válido."), title=_("Validación FFM"))
 		# TODO: Verificar en tabla/log de timbrados si ese UUID pertenece al receptor actual
 
 	def validate_sales_invoice(self):
@@ -1369,7 +1369,7 @@ def _send_cfdi_email(self, to_override: str | None = None) -> dict:
 	# Visibilidad: sólo si está timbrada
 	uuid_value = getattr(self, "fm_uuid", None)
 	if not uuid_value:
-		frappe.throw("La FFM no está timbrada (no tiene UUID).")
+		frappe.throw(_("La FFM no está timbrada (no tiene UUID)."))
 
 	to_email = to_override or _resolve_recipient_email(self)
 	if not to_email:
@@ -1383,7 +1383,7 @@ def _send_cfdi_email(self, to_override: str | None = None) -> dict:
 		api = FacturAPIClient()
 		facturapi_id = getattr(self, "facturapi_id", None)
 		if not facturapi_id:
-			frappe.throw("No se encontró el identificador de FacturAPI para enviar el email.")
+			frappe.throw(_("No se encontró el identificador de FacturAPI para enviar el email."))
 
 		api.send_invoice_email(facturapi_id, to_email)
 
