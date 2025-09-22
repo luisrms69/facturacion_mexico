@@ -18,6 +18,13 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
   - Método `send_invoice_email()` en FacturAPIClient para integración completa
 
 ### Fixed
+- **Envío automático email CFDI** corregido problema resolución destinatario
+  - Unificada lógica email recipient: eliminada función duplicada `_resolve_email_recipient()`
+  - Envío automático ahora usa misma función que botón manual (`_resolve_recipient_email()`)
+  - Prioridad correcta: `FFM.fm_email_facturacion` → `Settings.customer_email_fallback`
+  - Agregada notificación usuario cuando falta configuración email
+  - Eliminado código obsoleto de trigger duplicado y logs debugging
+  - Corregidos errores sintaxis después de limpieza código
 - Corregida indentación `on_successful_stamp()` (era función independiente, ahora método de clase)
 - Eliminado prompt innecesario en botón "Enviar CFDI por email" - ahora envía directamente
 - Persistencia botones UI después de refresh (Ctrl+Shift+R) mediante gestión centralizada

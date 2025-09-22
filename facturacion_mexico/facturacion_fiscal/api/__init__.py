@@ -415,6 +415,8 @@ class PACResponseWriter:
 				if download.get("pdf"):
 					update_fields["fm_pdf_url"] = download["pdf"]
 
+				# Email automático ahora se maneja directamente en timbrado_api.py durante el timbrado
+
 			# Actualizar usando set_value para evitar triggers pesados
 			for field, value in update_fields.items():
 				frappe.db.set_value("Factura Fiscal Mexico", factura_fiscal_name, field, value)

@@ -1353,15 +1353,18 @@ def _resolve_recipient_email(ffm_doc) -> str | None:
 	"""
 	_, fallback = _get_settings_email_defaults()
 	ffm_email = (getattr(ffm_doc, "fm_email_facturacion", "") or "").strip()
-	return ffm_email or fallback or None
+	result = ffm_email or fallback or None
+	return result
 
 
 def _send_cfdi_email(self, to_override: str | None = None) -> dict:
 	"""Envía el CFDI por email usando el endpoint/método EXISTENTE.
 	No inventa rutas nuevas; aquí solo orquestamos.
 	"""
+
 	# Visibilidad: sólo si está timbrada
-	if not getattr(self, "fm_uuid", None):
+	uuid_value = getattr(self, "fm_uuid", None)
+	if not uuid_value:
 		frappe.throw("La FFM no está timbrada (no tiene UUID).")
 
 	to_email = to_override or _resolve_recipient_email(self)
@@ -1377,6 +1380,7 @@ def _send_cfdi_email(self, to_override: str | None = None) -> dict:
 		facturapi_id = getattr(self, "facturapi_id", None)
 		if not facturapi_id:
 			frappe.throw("No se encontró el identificador de FacturAPI para enviar el email.")
+
 		api.send_invoice_email(facturapi_id, to_email)
 
 		self.add_comment("Comment", f"CFDI enviado por email a: {to_email}")
@@ -1384,18 +1388,6 @@ def _send_cfdi_email(self, to_override: str | None = None) -> dict:
 	except Exception as e:
 		self.add_comment("Comment", f"Error al enviar CFDI por email: {e}")
 		return {"sent": False, "error": str(e)}
-
-	def on_successful_stamp(self):
-		"""Llamar esto al final del flujo de timbrado exitoso (donde ya asignaste fm_uuid).
-		Reusar el endpoint/método existente; aquí sólo decidimos si hay que enviar.
-		"""
-		from frappe.utils import cint
-
-		if cint(getattr(self, "fm_enviar_email_timbrado", 0)) != 1:
-			return
-
-		# Enviar si hay destinatario (reglas estrictas)
-		_ = _send_cfdi_email(self)
 
 
 @frappe.whitelist()

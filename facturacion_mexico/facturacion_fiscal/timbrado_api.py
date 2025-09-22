@@ -749,13 +749,6 @@ class TimbradoAPI:
 
 			frappe.logger().info("Factura Fiscal actualizada exitosamente via frappe.set_value")
 
-			# Envío automático de email CFDI después del timbrado exitoso
-			try:
-				ffm_doc = frappe.get_doc("Factura Fiscal Mexico", factura_fiscal.name)
-				ffm_doc.on_successful_stamp()
-			except Exception as e:
-				frappe.logger().warning(f"[FFM auto-email] No se pudo enviar email automático: {e}")
-
 			# Validar discrepancias de montos
 			self._validate_amount_discrepancies(factura_fiscal, response)
 
@@ -765,6 +758,13 @@ class TimbradoAPI:
 			# Descargar archivos si está configurado
 			if self.settings.download_files_default:
 				self._download_fiscal_files(factura_fiscal, response.get("id"))
+
+			# Enviar email si está configurado (ESPEJO EXACTO de descarga archivos)
+			email_flag = getattr(factura_fiscal, "fm_enviar_email_timbrado", 0)
+			if email_flag:
+				self._send_fiscal_email(factura_fiscal, response.get("id"))
+			else:
+				pass
 
 			# [Milestone 3] Cascada post-timbrado: cancelar CFDI previo y SI original si es sustitución
 			try:
@@ -859,6 +859,36 @@ class TimbradoAPI:
 
 		except Exception as e:
 			frappe.logger().error(f"Error descargando archivos: {e!s}")
+
+	def _send_fiscal_email(self, factura_fiscal, facturapi_id):
+		"""Enviar email CFDI - ESPEJO de _download_fiscal_files."""
+		try:
+			# Resolver destinatario usando la misma función que el botón manual
+			from facturacion_mexico.facturacion_fiscal.doctype.factura_fiscal_mexico.factura_fiscal_mexico import (
+				_resolve_recipient_email,
+			)
+
+			to_email = _resolve_recipient_email(factura_fiscal)
+			if not to_email:
+				frappe.logger().warning(f"[FFM email] No recipient for {factura_fiscal.name}")
+				# Notificar al usuario que no se envió el email
+				frappe.msgprint(
+					f"No se pudo enviar el email automático para {factura_fiscal.name}: "
+					f"Configure el email en el campo 'Email Facturación' del documento.",
+					title="Email no enviado",
+					indicator="orange",
+				)
+				return
+
+			# Llamada API FacturAPI
+			self.client.send_invoice_email(facturapi_id, to_email)
+			frappe.logger().info(f"[FFM email] Enviado a {to_email} para {factura_fiscal.name}")
+
+		except Exception as e:
+			frappe.logger().error(f"[FFM email] Error enviando: {e}")
+			import traceback
+
+			frappe.logger().error(f"[FFM email] Traceback: {traceback.format_exc()}")
 
 	def _save_file_attachment(self, docname, filename, content, content_type):
 		"""Guardar archivo como attachment."""
