@@ -154,6 +154,7 @@ fixtures = [
 					"Customer-fm_rfc_validation_date",
 					"Customer-fm_uso_cfdi_default",
 					"Customer-fm_validacion_sat_section",
+					"Customer-fm_envio_email_cliente",
 					# Item custom fields (2 existentes + 2 faltantes = 4 total)
 					"Item-fm_clasificacion_sat_section",
 					"Item-fm_producto_servicio_sat",

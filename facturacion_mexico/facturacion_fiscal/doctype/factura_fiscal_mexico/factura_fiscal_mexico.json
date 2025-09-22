@@ -12,10 +12,14 @@
     "sales_invoice",
     "company",
     "customer",
+    "fm_enviar_email_timbrado",
     "status",
     "column_break_payment_methods",
     "fm_payment_method_sat",
     "fm_forma_pago_timbrado",
+    "fm_tipo_comprobante",
+    "fm_tipo_relacion_sat",
+    "fm_uuid_relacionado",
     "section_break_datos_facturacion",
     "fm_cp_cliente",
     "fm_email_facturacion",
@@ -31,6 +35,7 @@
     "uuid",
     "fm_cfdi_use",
     "fm_fiscal_status",
+    "fm_motivo_cancelacion",
     "fm_serie_folio",
     "fm_lugar_expedicion",
     "column_break_fiscal",
@@ -139,6 +144,34 @@
       "options": "Mode of Payment"
     },
     {
+      "fieldname": "fm_tipo_comprobante",
+      "label": "Tipo de comprobante (SAT)",
+      "fieldtype": "Select",
+      "options": "",
+      "default": "I - Ingreso",
+      "reqd": 1,
+      "read_only": 1
+    },
+    {
+      "fieldname": "fm_tipo_relacion_sat",
+      "label": "Tipo de Relación (SAT)",
+      "fieldtype": "Select",
+      "options": "",
+      "depends_on": "eval:doc.fm_tipo_comprobante && doc.fm_tipo_comprobante.startsWith('E')",
+      "mandatory_depends_on": "eval:doc.fm_tipo_comprobante && doc.fm_tipo_comprobante.startsWith('E')",
+      "default": "01 - Nota de crédito de los documentos relacionados",
+      "read_only": 1
+    },
+    {
+      "fieldname": "fm_uuid_relacionado",
+      "label": "UUID relacionado",
+      "fieldtype": "Data",
+      "depends_on": "eval:doc.fm_tipo_comprobante && doc.fm_tipo_comprobante.startsWith('E')",
+      "mandatory_depends_on": "eval:doc.fm_tipo_comprobante && doc.fm_tipo_comprobante.startsWith('E')",
+      "read_only": 1,
+      "description": "Se autollenará desde la factura origen (SI/FFM)."
+    },
+    {
       "fieldname": "fecha_timbrado",
       "fieldtype": "Datetime",
       "label": "Fecha de Timbrado",
@@ -184,6 +217,15 @@
       "read_only": 1,
       "allow_on_submit": 1,
       "search_index": 1
+    },
+    {
+      "fieldname": "fm_motivo_cancelacion",
+      "fieldtype": "Select",
+      "label": "Motivo Cancelación SAT",
+      "options": "01\n02\n03\n04",
+      "read_only": 1,
+      "in_list_view": 0,
+      "depends_on": "eval:doc.fm_fiscal_status === 'CANCELADO'"
     },
     {
       "fieldname": "fm_serie_folio",
@@ -278,6 +320,12 @@
       "fieldtype": "Attach",
       "label": "Archivo XML",
       "read_only": 1
+    },
+    {
+      "default": 0,
+      "fieldname": "fm_enviar_email_timbrado",
+      "fieldtype": "Check",
+      "label": "Enviar CFDI por email al timbrar"
     },
     {
       "fieldname": "section_break_cancelacion",

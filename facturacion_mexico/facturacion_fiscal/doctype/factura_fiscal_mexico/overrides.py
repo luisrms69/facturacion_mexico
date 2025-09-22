@@ -26,6 +26,10 @@ class FacturaFiscalMexico(FFMBase):
 
 	def cancel(self):
 		"""Override cancel para evitar LinkExistsError cuando FFM fiscalmente cancelada"""
+		# Bypass controlado: Permitir cancelación local sin timbre
+		if not self.fm_uuid and getattr(self.flags, "allow_local_cancel", False):
+			return super().cancel()
+
 		# Guard: Solo permitir cancelar en Frappe si el estado fiscal ya es "cancelado" (PAC)
 		status = (self.get("fm_fiscal_status") or "").strip().upper()
 		if status not in CANCELADO_FISCAL:

@@ -1,7 +1,10 @@
 import frappe
 from frappe import _
+from frappe.contacts.doctype.address.address import get_address_display
 from frappe.model.document import Document
 from frappe.utils import flt, now_datetime
+
+from facturacion_mexico.sat.constants import TIPO_COMPROBANTE, TIPO_RELACION, parse_select_code
 
 # Lista blanca de campos permisibles tras submit (operativos, no fiscales)
 MUTABLE_AFTER_SUBMIT = {
@@ -149,9 +152,32 @@ class FacturaFiscalMexico(Document):
 			if not self.customer:
 				self.customer = sales_invoice.customer
 
+	def before_insert(self):
+		if not (self.fm_payment_method_sat or "").strip() or self.fm_payment_method_sat == "PUE":
+			self.fm_payment_method_sat = (
+				frappe.db.get_single_value("Facturacion Mexico Settings", "metodo_pago_default") or "PUE"
+			)
+
+		# Asignar fm_enviar_email_timbrado usando lógica cascade Customer/Settings
+		try:
+			from frappe.utils import cint
+
+			flag = _resolve_auto_email_flag(self.customer)
+			self.fm_enviar_email_timbrado = cint(flag)
+		except Exception as e:
+			# Si algo falla, NO forzar; dejar en 0 (seguro)
+			self.fm_enviar_email_timbrado = 0
+			frappe.logger().warning(f"[FFM before_insert] No se pudo resolver auto-email: {e}")
+
 	def validate(self):
 		"""Validar factura fiscal antes de guardar."""
 		# NUEVAS VALIDACIONES: Inmutabilidad (normalización ya hecha en before_validate)
+
+		# Establecer automáticamente el tipo según la SI origen
+		self._set_tipo_from_context()
+
+		# Validaciones tipo de comprobante
+		self.validate_tipo_comprobante()
 
 		# Validaciones existentes
 		self.validate_sales_invoice()
@@ -206,6 +232,70 @@ class FacturaFiscalMexico(Document):
 				_("No se permite modificar Método/Forma de Pago después de Submit.<br>{0}").format(details),
 				frappe.ValidationError,
 			)
+
+	def validate_tipo_comprobante(self):
+		"""Validar tipo de comprobante según propuesta ChatGPT."""
+		# Reglas: solo I/E; T no implementado
+		tipo = parse_select_code(self.fm_tipo_comprobante)
+		if tipo not in ("I", "E"):
+			frappe.throw(
+				_("Traslado (T) no está habilitado en esta versión."),
+				title=_("Tipo de comprobante no permitido"),
+			)
+
+		# SI normal => I
+		if not self._is_sales_invoice_return() and tipo != "I":
+			frappe.throw(_("Factura normal debe timbrarse como Ingreso (I)."), title=_("Validación FFM"))
+
+		# SI retorno => E + relación obligatoria
+		if self._is_sales_invoice_return():
+			if tipo != "E":
+				frappe.throw(
+					_("Factura de retorno debe timbrarse como Egreso (E)."), title=_("Validación FFM")
+				)
+			# Relación
+			rel = parse_select_code(self.fm_tipo_relacion_sat or "")
+			if rel not in TIPO_RELACION:
+				frappe.throw(_("Tipo de Relación SAT inválido o vacío."), title=_("Validación FFM"))
+			if not self.fm_uuid_relacionado:
+				frappe.throw(
+					_("UUID relacionado es obligatorio para Egreso (nota de crédito)."),
+					title=_("Validación FFM"),
+				)
+			self._validate_uuid_origen()
+
+	def _is_sales_invoice_return(self) -> bool:
+		"""Determinar si la Sales Invoice es un retorno."""
+		if not self.sales_invoice:
+			return False
+		sales_invoice = frappe.get_doc("Sales Invoice", self.sales_invoice)
+		return bool(getattr(sales_invoice, "is_return", 0))
+
+	def _set_tipo_from_context(self):
+		"""Establecer tipo automáticamente según contexto."""
+		if self._is_sales_invoice_return():
+			self.fm_tipo_comprobante = "E - Egreso"
+			# autollenar relación
+			self.fm_tipo_relacion_sat = self.fm_tipo_relacion_sat or "01 - " + TIPO_RELACION["01"]
+			self.fm_uuid_relacionado = self.fm_uuid_relacionado or self._find_uuid_cfdi_origen()
+		else:
+			self.fm_tipo_comprobante = "I - Ingreso"
+			self.fm_tipo_relacion_sat = None
+			self.fm_uuid_relacionado = None
+
+	def _find_uuid_cfdi_origen(self) -> str | None:
+		"""Buscar UUID del CFDI original."""
+		# TODO: Implementar lógica que busque el UUID del CFDI original
+		# 1) FFM relacionado a la SI origen, o
+		# 2) Campo en la Sales Invoice original.
+		return getattr(self, "uuid_origen", None)
+
+	def _validate_uuid_origen(self):
+		"""Validar UUID relacionado."""
+		uuid = self.fm_uuid_relacionado
+		if not uuid or len(uuid) < 36:
+			frappe.throw(_("UUID relacionado no parece válido."), title=_("Validación FFM"))
+		# TODO: Verificar en tabla/log de timbrados si ese UUID pertenece al receptor actual
 
 	def validate_sales_invoice(self):
 		"""Validar que Sales Invoice existe y está submitted."""
@@ -640,9 +730,13 @@ class FacturaFiscalMexico(Document):
 
 	def validate_payment_method(self):
 		"""Validar método de pago SAT - MIGRADO desde Sales Invoice."""
-		if not self.fm_payment_method_sat:
-			# Asignar método por defecto
-			self.fm_payment_method_sat = "PUE"  # Pago en una sola exhibición
+		# Solo si sigue vacío (no sobreescribir elección del usuario)
+		if not (self.fm_payment_method_sat or "").strip():
+			try:
+				settings = frappe.get_single("Facturacion Mexico Settings")
+				self.fm_payment_method_sat = (getattr(settings, "metodo_pago_default", None) or "PUE").strip()
+			except Exception:
+				self.fm_payment_method_sat = "PUE"
 
 		# Validar que el método existe
 		valid_methods = ["PUE", "PPD"]
@@ -654,6 +748,15 @@ class FacturaFiscalMexico(Document):
 			sales_invoice = frappe.get_doc("Sales Invoice", self.sales_invoice)
 			if sales_invoice.is_return:
 				frappe.throw(_("Las notas de crédito no pueden usar método PPD"))
+
+	def _ensure_payment_method_default(self):
+		# Solo si sigue vacío (no sobreescribir elección del usuario)
+		if not (self.fm_payment_method_sat or "").strip():
+			try:
+				settings = frappe.get_single("Facturacion Mexico Settings")
+				self.fm_payment_method_sat = (getattr(settings, "metodo_pago_default", None) or "PUE").strip()
+			except Exception:
+				self.fm_payment_method_sat = "PUE"
 
 	def validate_ppd_vs_forma_pago(self):
 		"""Validar compatibilidad entre PPD/PUE y forma de pago SAT - MIGRADO desde Sales Invoice."""
@@ -931,7 +1034,7 @@ class FacturaFiscalMexico(Document):
 				self.fm_cp_cliente = primary_address.pincode or "⚠️ FALTA CP EN DIRECCIÓN"
 				self.fm_email_facturacion = primary_address.email_id or "⚠️ FALTA EMAIL EN DIRECCIÓN"
 				self.fm_direccion_principal_link = primary_address.name
-				self.fm_direccion_principal_display = self._format_address(primary_address)
+				self.fm_direccion_principal_display = self._get_primary_address_display()
 				# Datos poblados desde dirección principal
 			else:
 				# No hay dirección principal - marcar campos como faltantes
@@ -955,53 +1058,62 @@ class FacturaFiscalMexico(Document):
 			self.fm_direccion_principal_display = f"❌ Error: {e!s}"
 
 	def _get_primary_address(self):
-		"""Obtener la dirección principal del customer."""
+		"""Usar la misma fuente que ERPNext: default address del Customer, con fallback a customer_primary_address y, por último, a links."""
 		if not self.customer:
 			return None
 
-		# Buscar direcciones vinculadas al customer
-		linked_addresses = frappe.get_all(
-			"Dynamic Link",
-			filters={"link_doctype": "Customer", "link_name": self.customer, "parenttype": "Address"},
-			fields=["parent"],
-			pluck="parent",
-		)
+		# 1) Igual que ERPNext: default address (simulamos get_default_address ya que no está disponible en v15)
+		addr_name = None
+		try:
+			# Buscar address marcada como is_primary_address para este customer
+			primary_addresses = frappe.get_all("Address", filters={"is_primary_address": 1}, fields=["name"])
 
-		if not linked_addresses:
-			return None
+			for addr in primary_addresses:
+				# Verificar si esta address está vinculada a nuestro customer
+				linked = frappe.db.exists(
+					"Dynamic Link",
+					{
+						"link_doctype": "Customer",
+						"link_name": self.customer,
+						"parent": addr.name,
+						"parenttype": "Address",
+					},
+				)
+				if linked:
+					addr_name = addr.name
+					break
+		except Exception:
+			pass
 
-		# Buscar dirección marcada como principal
-		for address_name in linked_addresses:
-			address_doc = frappe.get_doc("Address", address_name)
-			if address_doc.is_primary_address:
-				return address_doc
+		# 2) Fallback: campo customer_primary_address si estuviera lleno
+		if not addr_name:
+			addr_name = frappe.db.get_value("Customer", self.customer, "customer_primary_address")
 
-		# Si no hay dirección principal, retornar la primera disponible
-		if linked_addresses:
-			return frappe.get_doc("Address", linked_addresses[0])
+		# 3) Fallback final: primera Address ligada por Dynamic Link (como tenías)
+		if not addr_name:
+			linked = frappe.get_all(
+				"Dynamic Link",
+				filters={"link_doctype": "Customer", "link_name": self.customer, "parenttype": "Address"},
+				pluck="parent",
+			)
+			if linked:
+				addr_name = linked[0]
 
-		return None
+		return frappe.get_doc("Address", addr_name) if addr_name else None
+
+	def _get_primary_address_display(self):
+		"""Formateo estándar de Frappe, igual que en Customer UI."""
+		addr = self._get_primary_address()
+		if not addr:
+			return ""
+		return get_address_display(addr.as_dict()) or ""
 
 	def _format_address(self, address_doc):
-		"""Formatear dirección para display."""
+		"""Formatear dirección para display (DEPRECATED - usar _get_primary_address_display)."""
 		if not address_doc:
 			return ""
-
-		parts = []
-		if address_doc.address_line1:
-			parts.append(address_doc.address_line1)
-		if address_doc.address_line2:
-			parts.append(address_doc.address_line2)
-		if address_doc.city:
-			parts.append(address_doc.city)
-		if address_doc.state:
-			parts.append(address_doc.state)
-		if address_doc.pincode:
-			parts.append(f"CP {address_doc.pincode}")
-		if address_doc.country:
-			parts.append(address_doc.country)
-
-		return ", ".join(parts)
+		# Delegar al método estándar para consistencia
+		return get_address_display(address_doc.as_dict()) or ""
 
 	def _set_validation_status_color(self, customer_doc, primary_address):
 		"""Determinar color de sección Datos de Facturación basado en validación SAT."""
@@ -1083,6 +1195,11 @@ class FacturaFiscalMexico(Document):
 
 	def before_cancel(self):
 		"""Hook contextual: Permitir cancelación FFM solo si ya cancelada fiscalmente."""
+		# BYPASS CONTROLADO: solo para FFM sin timbre, invocado por nuestro endpoint
+		if not getattr(self, "fm_uuid", None) and getattr(self.flags, "allow_local_cancel", False):
+			# No aplicar validaciones PAC; cancelación local permitida
+			return
+
 		if self.sales_invoice and self.fm_fiscal_status != "CANCELADO":
 			frappe.throw(
 				_(
@@ -1095,3 +1212,194 @@ class FacturaFiscalMexico(Document):
 				title=_("Secuencia de cancelación requerida"),
 			)
 		# Si fm_fiscal_status="CANCELADO" → permite cancelación DocType
+
+
+@frappe.whitelist()
+def sat_options():
+	"""API para obtener opciones SAT centralizadas."""
+	from facturacion_mexico.sat.constants import select_options_tipo_comprobante, select_options_tipo_relacion
+
+	return {
+		"tipo_comprobante_options": select_options_tipo_comprobante(),  # ["I - Ingreso","E - Egreso"]
+		"tipo_relacion_options": select_options_tipo_relacion(),  # ["01 - Nota ...", "03 - ...", ...]
+	}
+
+
+@frappe.whitelist()
+def get_sales_invoice_for_ffm(doctype, txt, searchfield, start, page_len, filters):
+	"""
+	Devuelve SOLO Sales Invoices elegibles para FFM:
+	  - si.docstatus = 1 (enviadas)
+	  - Customer con RFC validado (fm_rfc_validated = 1) y tax_id no vacío
+	  - Sin FFM activa asociada (evita doble timbrado)
+	  - (opcional) misma company si viene en filters
+	"""
+	company = (filters or {}).get("company")
+	allowed = {"name", "customer", "posting_date"}
+	sf = searchfield if searchfield in allowed else "name"
+	return frappe.db.sql(
+		f"""
+		SELECT
+			si.name, si.customer, si.posting_date
+		FROM `tabSales Invoice` si
+		INNER JOIN `tabCustomer` c ON c.name = si.customer
+		LEFT JOIN `tabFactura Fiscal Mexico` ffm
+			   ON ffm.sales_invoice = si.name AND ffm.docstatus < 2
+		WHERE si.docstatus = 1
+		  AND (%(company)s IS NULL OR si.company = %(company)s)
+		  AND COALESCE(NULLIF(TRIM(c.tax_id), ''), '') <> ''
+		  AND COALESCE(c.fm_rfc_validated, 0) = 1
+		  AND ffm.name IS NULL
+		  AND si.{sf} LIKE %(txt)s
+		ORDER BY si.posting_date DESC
+		LIMIT %(start)s, %(page_len)s
+	""",
+		{"company": company, "txt": f"%{txt}%", "start": start, "page_len": page_len},
+	)
+
+
+@frappe.whitelist()
+def check_si_customer_rfc_validated(si_name: str):
+	"""Valida que la SI seleccionada tenga cliente con RFC validado (respaldo en on_change)."""
+	if not si_name:
+		return {"ok": False}
+	row = frappe.db.sql(
+		"""
+		SELECT
+			COALESCE(c.fm_rfc_validated,0) AS ok,
+			COALESCE(NULLIF(TRIM(c.tax_id),''),'') AS rfc
+		FROM `tabSales Invoice` si
+		INNER JOIN `tabCustomer` c ON c.name = si.customer
+		WHERE si.name = %s
+	""",
+		(si_name,),
+		as_dict=True,
+	)
+	if not row:
+		return {"ok": False}
+	return {"ok": bool(row[0].ok and row[0].rfc)}
+
+
+@frappe.whitelist()
+def cancel_ffm_keep_si(ffm_name: str):
+	"""Cancela SOLO la FFM (sin cfdi_uuid) y libera la Sales Invoice enlazada.
+	- Requiere rol: System Manager o Facturacion Mexico System Manager
+	- Deja la SI viva (docstatus=1) y sin link a FFM, lista para reintentar.
+	"""
+	frappe.only_for(("System Manager", "Facturacion Mexico System Manager"))
+
+	ffm = frappe.get_doc("Factura Fiscal Mexico", ffm_name)
+	if ffm.docstatus != 1 or getattr(ffm, "fm_uuid", None):
+		frappe.throw(_("Solo disponible para FFM enviadas SIN timbre."))
+
+	si_name = ffm.sales_invoice
+	frappe.db.begin()
+	try:
+		# 1) Romper vínculo en SI (si existe)
+		if si_name and frappe.db.get_value("Sales Invoice", si_name, "fm_factura_fiscal_mx"):
+			frappe.db.set_value("Sales Invoice", si_name, "fm_factura_fiscal_mx", None)
+
+		# 2) Cancelar FFM con flag de bypass
+		ffm.add_comment("Workflow", _("Cancelación FFM (sin timbre). SI liberada para reintento."))
+		ffm.flags.allow_local_cancel = True
+		ffm.cancel()
+
+		frappe.db.commit()
+		return {"status": "ok", "ffm": ffm.name, "si": si_name}
+	except Exception:
+		frappe.db.rollback()
+		frappe.log_error(frappe.get_traceback(), "cancel_ffm_keep_si failed")
+		raise
+
+
+# ========== EMAIL AUTOMATION LOGIC ==========
+
+
+def _get_settings_email_defaults():
+	"""Lee settings existentes (NO crear campos nuevos).
+	Debe devolver:
+		- default_on: 0/1 (enviar por defecto)
+		- fallback_email: str o None
+	"""
+	from frappe.utils import cint
+
+	settings = frappe.get_single("Facturacion Mexico Settings")
+	# AJUSTAR nombres de fields existentes en settings
+	default_on = cint(getattr(settings, "send_email_default", 0))
+	fallback_email = getattr(settings, "customer_email_fallback", None)
+	return default_on, (fallback_email or "").strip() or None
+
+
+def _resolve_auto_email_flag(customer_name: str) -> int:
+	"""Aplica la cascada Settings -> Customer tri-estado. Devuelve 0/1."""
+	from frappe.utils import cint
+
+	default_on, _ = _get_settings_email_defaults()
+
+	opt = None
+	if customer_name:
+		opt = frappe.db.get_value("Customer", customer_name, "fm_envio_email_cliente")
+
+	# Customer decide:
+	if opt == "Enviar":
+		return 1
+	if opt == "No enviar":
+		return 0
+	# Default (usar settings) o None -> usar settings:
+	return default_on
+
+
+def _resolve_recipient_email(ffm_doc) -> str | None:
+	"""Devuelve el email final según regla estricta:
+	1) FFM.fm_email_facturacion
+	2) Settings.customer_email_fallback
+	3) None si no hay
+	"""
+	_, fallback = _get_settings_email_defaults()
+	ffm_email = (getattr(ffm_doc, "fm_email_facturacion", "") or "").strip()
+	result = ffm_email or fallback or None
+	return result
+
+
+def _send_cfdi_email(self, to_override: str | None = None) -> dict:
+	"""Envía el CFDI por email usando el endpoint/método EXISTENTE.
+	No inventa rutas nuevas; aquí solo orquestamos.
+	"""
+
+	# Visibilidad: sólo si está timbrada
+	uuid_value = getattr(self, "fm_uuid", None)
+	if not uuid_value:
+		frappe.throw(_("La FFM no está timbrada (no tiene UUID)."))
+
+	to_email = to_override or _resolve_recipient_email(self)
+	if not to_email:
+		self.add_comment("Comment", "No se envió CFDI: no hay destinatario (FFM ni fallback settings).")
+		return {"sent": False, "reason": "no-recipient"}
+
+	try:
+		# BLOQUE A AJUSTAR a tu integración vigente
+		from facturacion_mexico.facturacion_fiscal.api_client import FacturAPIClient
+
+		api = FacturAPIClient()
+		facturapi_id = getattr(self, "facturapi_id", None)
+		if not facturapi_id:
+			frappe.throw(_("No se encontró el identificador de FacturAPI para enviar el email."))
+
+		api.send_invoice_email(facturapi_id, to_email)
+
+		self.add_comment("Comment", f"CFDI enviado por email a: {to_email}")
+		return {"sent": True, "to": to_email}
+	except Exception as e:
+		self.add_comment("Comment", f"Error al enviar CFDI por email: {e}")
+		return {"sent": False, "error": str(e)}
+
+
+@frappe.whitelist()
+def action_send_cfdi_email(ffm_name: str, to: str | None = None):
+	"""Whitelisted para el botón manual en FFM (usa el MISMO flujo).
+	NO crea endpoints nuevos de integraciones; sólo orquesta.
+	"""
+	doc = frappe.get_doc("Factura Fiscal Mexico", ffm_name)
+	frappe.has_permission(doctype="Factura Fiscal Mexico", ptype="write", doc=doc, throw=True)
+	out = _send_cfdi_email(doc, to_override=to)
+	return out

@@ -20,6 +20,8 @@ frappe.ui.form.on("Sales Invoice", {
 							]),
 							"orange"
 						);
+				} else {
+					frm.dashboard && frm.dashboard.clear_headline(); // ← limpia mensajes viejos
 				}
 			})
 			.catch(() => {

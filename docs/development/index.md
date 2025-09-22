@@ -33,6 +33,7 @@ bench --site development.local run-tests --app facturacion_mexico
 - `multisucursal/` - Gestión branches
 - `addendas/` - Generación dinámica
 - `catalogos_sat/` - Sincronización SAT
+- `email_system/` - [Sistema automático email CFDI](email-system.md)
 
 ### Testing Framework
 - Layer 1: Unit tests

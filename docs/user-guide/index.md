@@ -13,6 +13,7 @@ Documentación completa para usuarios del sistema de facturación electrónica.
 - **CFDI 4.0** - Timbrado y validación
 - **Multi-sucursal** - Gestión de branches
 - **Addendas** - Generación dinámica
+- **Email Automático** - [Automatización CFDI por email](email-automation.md)
 - **Reportes** - Analytics y métricas
 
 ### Casos de Uso Comunes

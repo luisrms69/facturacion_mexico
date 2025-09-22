@@ -88,8 +88,8 @@
 
 	// [M3-FFM] Botón de ayuda contextual sobre sustitución
 	function addHelpButtonForSubstitution(frm) {
-		// Agregar botón de ayuda contextual sobre sustitución
-		if (frm.doc.sales_invoice && frm.doc.docstatus === 1) {
+		// Agregar botón de ayuda contextual sobre sustitución - SOLO si tiene cfdi_uuid
+		if (frm.doc.sales_invoice && frm.doc.docstatus === 1 && frm.doc.fm_uuid) {
 			frm.add_custom_button(
 				__("¿Cómo sustituir?"),
 				() => {
@@ -219,36 +219,101 @@
 				if (cancelSection && cancelSection.$wrapper) cancelSection.$wrapper.hide();
 			}
 
+			// --- BOTONES DESCARGA Y EMAIL (mismo patrón que Cancelar) ---
+			const is_submitted = frm.doc.docstatus === 1;
+			const is_stamped = !!frm.doc.fm_uuid;
+
+			if (is_submitted && is_stamped) {
+				// 1) Descargar CFDI (PDF+XML) - Agrupado en "Comprobantes"
+				frm.add_custom_button(
+					__("Descargar PDF+XML"),
+					async () => {
+						try {
+							await frappe.call({
+								method: "facturacion_mexico.facturacion_fiscal.api_client.download_xml",
+								args: { ffm_name: frm.doc.name },
+							});
+							await frappe.call({
+								method: "facturacion_mexico.facturacion_fiscal.api_client.download_pdf",
+								args: { ffm_name: frm.doc.name },
+							});
+						} catch (e) {
+							frappe.msgprint({
+								title: __("Error de descarga"),
+								message: __(String(e)),
+								indicator: "red",
+							});
+						}
+					},
+					__("Comprobantes")
+				);
+
+				// 2) Enviar CFDI por email - Agrupado en "Comprobantes"
+				frm.add_custom_button(
+					__("Enviar por email"),
+					async () => {
+						try {
+							const r = await frappe.call({
+								method: "facturacion_mexico.facturacion_fiscal.doctype.factura_fiscal_mexico.factura_fiscal_mexico.action_send_cfdi_email",
+								args: { ffm_name: frm.doc.name, to: null },
+							});
+							const res = r && r.message;
+							if (res && res.sent) {
+								frappe.msgprint({
+									message: __("CFDI enviado a: {0}", [res.to]),
+									indicator: "green",
+								});
+							} else if (res && res.reason === "no-recipient") {
+								frappe.msgprint({
+									message: __(
+										"No se envió: no hay destinatario (FFM ni Settings)."
+									),
+									indicator: "orange",
+								});
+							} else {
+								frappe.msgprint({
+									message: __("No se pudo enviar: {0}", [
+										(res && res.error) || "",
+									]),
+									indicator: "red",
+								});
+							}
+						} catch (e) {
+							frappe.msgprint({ message: __(String(e)), indicator: "red" });
+						}
+					},
+					__("Comprobantes")
+				);
+			}
+
+			// --- BOTÓN AYUDA (mismo patrón que Cancelar/Descarga/Email) ---
+			if (frm.doc.sales_invoice && frm.doc.docstatus === 1 && frm.doc.fm_uuid) {
+				frm.add_custom_button(
+					__("¿Cómo sustituir?"),
+					() => {
+						const siName = frm.doc.sales_invoice;
+						frappe.msgprint({
+							title: __("Ayuda: Sustitución CFDI"),
+							message: __(
+								`<strong>Para sustituir este CFDI (motivo 01):</strong><br><br>` +
+									`1️⃣ Vaya al Sales Invoice: <strong>${siName}</strong><br>` +
+									`2️⃣ Use el botón "🔄 Sustituir CFDI (01)"<br>` +
+									`3️⃣ Se creará un SI de reemplazo para correcciones<br>` +
+									`4️⃣ El sistema manejará la relación TipoRelación 04 automáticamente<br><br>` +
+									`<em>La cancelación desde aquí es solo para motivos 02/03/04.</em>`
+							),
+							indicator: "blue",
+						});
+					},
+					__("Ayuda")
+				);
+			}
+
 			// Reponer botón de navegación SIEMPRE que exista Sales Invoice
 			if (frm.doc.sales_invoice) {
 				frm.add_custom_button(__("Ver Sales Invoice"), function () {
 					frappe.set_route("Form", "Sales Invoice", frm.doc.sales_invoice);
 				});
-			}
-
-			// --- Dev only: botón de prueba de conexión PAC ---
-			// Evitar duplicados entre refresh con un flag simple
-			if (frappe.boot.developer_mode && !frm._ffm_dev_test_btn_added) {
-				frm.add_custom_button(__("Test Conexión PAC"), function () {
-					try {
-						// Esta función ya existe en el archivo (según tu código)
-						test_pac_connection(frm);
-					} catch (e) {
-						console && console.error("[FFM] test_pac_connection no disponible:", e);
-						const d1 = frappe.msgprint({
-							title: __("Prueba de Conexión"),
-							message: __(
-								"La función de prueba no está disponible en este contexto."
-							),
-							indicator: "orange",
-							primary_action: {
-								label: __("Cerrar"),
-								action: () => d1.hide(),
-							},
-						});
-					}
-				}).addClass("btn-secondary");
-				frm._ffm_dev_test_btn_added = true;
 			}
 		});
 	}
@@ -312,6 +377,102 @@
 
 	frappe.ui.form.on("Factura Fiscal Mexico", {
 		refresh: function (frm) {
+			// Poblar opciones SAT desde el servidor
+			if (!frm._sat_opts_loaded) {
+				frappe.call({
+					method: "facturacion_mexico.facturacion_fiscal.doctype.factura_fiscal_mexico.factura_fiscal_mexico.sat_options",
+					callback: function (r) {
+						if (r.message) {
+							const { tipo_comprobante_options, tipo_relacion_options } = r.message;
+							if (tipo_comprobante_options && tipo_comprobante_options.length) {
+								frm.set_df_property(
+									"fm_tipo_comprobante",
+									"options",
+									tipo_comprobante_options.join("\n")
+								);
+							}
+							if (tipo_relacion_options && tipo_relacion_options.length) {
+								frm.set_df_property(
+									"fm_tipo_relacion_sat",
+									"options",
+									tipo_relacion_options.join("\n")
+								);
+							}
+						}
+					},
+				});
+				frm._sat_opts_loaded = true;
+			}
+
+			// === 1) Matar SIEMPRE el botón nativo Cancel/Cancelar (sin tocar Guardar/Validar) ===
+			(function alwaysHideNativeCancel() {
+				const nuke = () => {
+					try {
+						// Quitar permiso de cancelar SOLO en UI (no afecta permisos reales en BD)
+						frm.perm ||= [];
+						frm.perm[0] ||= {};
+						frm.perm[0].cancel = 0;
+						frm.toolbar && frm.toolbar.refresh && frm.toolbar.refresh();
+
+						// Cinturón y tirantes
+						// - botón secundario "Cancel" (v14/v15)
+						frm.page.clear_secondary_action && frm.page.clear_secondary_action();
+						// - item de menú "Cancel" (inglés) y "Cancelar" (ES)
+						frm.page.remove_menu_item && frm.page.remove_menu_item("Cancel");
+						frm.page.remove_menu_item && frm.page.remove_menu_item(__("Cancel"));
+						frm.page.remove_menu_item && frm.page.remove_menu_item("Cancelar");
+
+						// - limpiar si algún app lo reinyecta en el menú
+						const $menu = frm.page.menu || frm.page.actions_menu;
+						if ($menu && $menu.length) {
+							$menu.find("a, .dropdown-item, .menu-item").each(function () {
+								const t = (this.innerText || "").trim().toUpperCase();
+								if (t === "CANCEL" || t === "CANCELAR") this.remove();
+							});
+						}
+					} catch (e) {
+						/* ignore */
+					}
+				};
+
+				// ejecuta ahora y después del render, por si Frappe lo reinyecta
+				nuke();
+				setTimeout(nuke, 0);
+				frappe.after_ajax && frappe.after_ajax(nuke);
+			})();
+
+			// === 2) Mostrar ayuda SOLO si la FFM está TIMBRADA (opcional, deja tu handler actual) ===
+			(function toggleHelpOnlyWhenTimbrada() {
+				const HELP_LABEL = __("¿Cómo sustituir?"); // ajustado al texto real
+				const fiscal = String(frm.doc.fm_fiscal_status || "").toUpperCase();
+				const isTimbrada = !!frm.doc.fm_uuid && fiscal === "TIMBRADO";
+
+				try {
+					frm.remove_custom_button && frm.remove_custom_button(HELP_LABEL);
+				} catch (e) {
+					// ignore errors removing button
+				}
+
+				if (isTimbrada) {
+					frm.add_custom_button(HELP_LABEL, () => {
+						// conserva tu lógica de ayuda actual aquí
+						frappe.msgprint(__("Guía para cancelación/sustitución en SAT…"));
+					});
+				}
+			})();
+
+			// Espejo de reglas: SI retorno => E (solo lectura), si no => I (solo lectura)
+			const is_return = frm.doc.sales_invoice_is_return || frm.doc.is_return;
+			if (is_return) {
+				frm.set_value("fm_tipo_comprobante", "E - Egreso");
+				frm.set_df_property("fm_tipo_comprobante", "read_only", 1);
+				frm.set_df_property("fm_tipo_relacion_sat", "read_only", 1);
+				frm.set_df_property("fm_uuid_relacionado", "read_only", 1);
+			} else {
+				frm.set_value("fm_tipo_comprobante", "I - Ingreso");
+				frm.set_df_property("fm_tipo_comprobante", "read_only", 1);
+			}
+
 			// PROTECCIÓN: Bloquear campos fiscales post-submit
 			freeze_fiscal_fields_after_submit(frm);
 			freeze_payment_fields_after_submit(frm);
@@ -338,9 +499,6 @@
 				check_and_show_billing_data_status(frm);
 				check_customer_fiscal_warning(frm);
 			}, 1500);
-
-			// [Milestone 3] Botón ayuda para sustitución
-			addHelpButtonForSubstitution(frm);
 		},
 
 		// NUEVO: después de save/reload
@@ -375,10 +533,10 @@
 
 			// Cuando se selecciona Sales Invoice, cargar datos del cliente
 			if (frm.doc.sales_invoice) {
+				frm.__loading_fiscal_autofill = true;
 				load_customer_data_from_sales_invoice(frm);
-
-				// FASE 4: Auto-cargar forma de pago desde Payment Entry
 				auto_load_payment_method_from_sales_invoice(frm);
+				frm.__loading_fiscal_autofill = false;
 			}
 
 			// Verificar cliente fiscal después de cargar Sales Invoice
@@ -433,10 +591,8 @@
 		if (frm.is_new()) {
 			frm.set_value("fm_fiscal_status", "BORRADOR"); // Migrado arquitectura resiliente
 
-			// Establecer método de pago por defecto
-			if (!frm.doc.fm_payment_method_sat) {
-				frm.set_value("fm_payment_method_sat", "PUE");
-			}
+			// REMOVIDO: Auto-asignación PUE centralizada en validate_payment_method() Python
+			// El método de pago se asigna automáticamente desde settings en server-side
 		}
 
 		// Si hay Sales Invoice pero no customer, cargar customer desde Sales Invoice
@@ -555,16 +711,13 @@
 
 					// Actualizar otros campos fiscales del customer si existen (legacy)
 					if (r.message.tax_category) {
-						frm.set_value("fm_regimen_fiscal_customer", r.message.tax_category);
+						frm.set_value("fm_tax_system", r.message.tax_category);
 					}
 					if (r.message.fm_codigo_postal_customer) {
-						frm.set_value(
-							"fm_codigo_postal_customer",
-							r.message.fm_codigo_postal_customer
-						);
+						frm.set_value("fm_cp_cliente", r.message.fm_codigo_postal_customer);
 					}
 					if (r.message.fm_rfc_customer) {
-						frm.set_value("fm_rfc_customer", r.message.fm_rfc_customer);
+						frm.set_value("fm_rfc_cliente", r.message.fm_rfc_customer);
 					}
 
 					// PASO 2: Activar función backend para poblar datos de facturación automáticamente
@@ -587,6 +740,9 @@
 	}
 
 	function validate_fiscal_data(frm) {
+		// No validar mientras se está autocompletando por selección de Sales Invoice
+		if (frm.__loading_fiscal_autofill) return;
+
 		// Solo validar si el documento no es nuevo o si está intentando guardar
 		if (frm.doc.__islocal && !frm.is_dirty()) {
 			// Documento nuevo sin cambios - no validar aún
@@ -679,44 +835,26 @@
 	}
 
 	function timbrar_factura(frm) {
-		// Función de timbrado principal
+		// Función de timbrado principal con protección anti-doble click
 		frappe.confirm(__("¿Confirma que desea timbrar esta factura?"), function () {
-			// Llamar API de timbrado
+			const $btn = frm.__btn_timbrar || frm.page.btn_primary;
+			if ($btn && $btn.prop) $btn.prop("disabled", true).text(__("Timbrando..."));
+
 			frappe.call({
 				method: "facturacion_mexico.facturacion_fiscal.timbrado_api.timbrar_factura",
-				args: {
-					sales_invoice: frm.doc.sales_invoice,
+				args: { sales_invoice: frm.doc.sales_invoice },
+				freeze: true,
+				freeze_message: __("Timbrando..."),
+				callback: function () {
+					frm.reload_doc();
 				},
-				callback: function (r) {
-					if (r.message && r.message.success) {
-						frappe.show_alert({
-							message: __("Factura timbrada exitosamente"),
-							indicator: "green",
-						});
-						frm.reload_doc();
-					} else {
-						// Mensaje de error con información detallada del PAC
-						const error_msg = r.message
-							? r.message.error_message ||
-							  r.message.error ||
-							  r.message.message ||
-							  r.message
-							: __("Error desconocido del PAC");
-
-						console.log("[FFM] mostrando msgprint de error de timbrado:", error_msg);
-
-						const d2 = frappe.msgprint({
-							title: __("Error de Timbrado"),
-							message: error_msg,
-							indicator: "red",
-							primary_action: {
-								label: __("Cerrar"),
-								action: () => d2.hide(),
-							},
-						});
-						// Auto-refresh para mostrar estado actualizado (failed)
-						frm.reload_doc();
-					}
+				error: function () {
+					frappe.msgprint(__("No se pudo timbrar. Intente de nuevo."));
+				},
+				// Si tu versión de frappe.call NO soporta always, repite el enable en callback y error.
+				always: function () {
+					if ($btn && $btn.prop)
+						$btn.prop("disabled", false).text(__("Timbrar Factura"));
 				},
 			});
 		});
@@ -901,28 +1039,42 @@
 		 * - Sin Factura Fiscal Mexico timbrada asociada
 		 */
 		frm.set_query("sales_invoice", function () {
-			console.log("🔍 DEBUG: Aplicando filtros Sales Invoice - Solo submitted sin timbrar");
-
 			return {
-				filters: [
-					// 1. CRÍTICO: Solo Sales Invoice submitted (docstatus = 1)
-					// Evita facturas draft (0) y canceladas (2)
-					["docstatus", "=", 1],
-
-					// 2. CRÍTICO: Sin Factura Fiscal Mexico ya asignada
-					// Evita doble facturación fiscal
-					["fm_factura_fiscal_mx", "in", ["", null]],
-
-					// 3. Tener RFC del cliente (requerido para facturación fiscal)
-					// Sin RFC no se puede timbrar
-					["tax_id", "!=", ""],
-				],
+				query: "facturacion_mexico.facturacion_fiscal.doctype.factura_fiscal_mexico.factura_fiscal_mexico.get_sales_invoice_for_ffm",
+				filters: { company: frm.doc.company || null },
 			};
 		});
 
 		console.log(
 			"✅ Filtros Sales Invoice configurados - Solo facturas disponibles para timbrado"
 		);
+
+		// Respaldo: validar RFC si usuario trae SI por link directo
+		frm.set_value = (function (original_set_value) {
+			return function (fieldname, value, if_missing) {
+				const result = original_set_value.call(this, fieldname, value, if_missing);
+
+				if (fieldname === "sales_invoice" && value) {
+					frappe
+						.call({
+							method: "facturacion_mexico.facturacion_fiscal.doctype.factura_fiscal_mexico.factura_fiscal_mexico.check_si_customer_rfc_validated",
+							args: { si_name: value },
+						})
+						.then((r) => {
+							if (!r.message || !r.message.ok) {
+								frappe.msgprint(
+									__(
+										"El RFC del cliente de la Sales Invoice seleccionada NO está validado con SAT. No puedes continuar."
+									)
+								);
+								frm.set_value("sales_invoice", null);
+							}
+						});
+				}
+
+				return result;
+			};
+		})(frm.set_value);
 	}
 
 	function validate_sales_invoice_availability(frm) {
@@ -2379,4 +2531,57 @@ function validate_billing_data_visual(frm) {
 			});
 		}
 	}
+
+	// ========================================
+	// BOTÓN CANCELAR FFM (LIBERAR SI) - DEADLOCK RESOLUTION
+	// ========================================
+
+	// Agregar el botón usando el patrón frappe.ui.form.on
+	frappe.ui.form.on("Factura Fiscal Mexico", {
+		onload(frm) {
+			if (!frm.is_new()) return;
+
+			// Frappe ya puso "PUE" por ser la primera opción.
+			// Aquí lo reemplazamos por el valor de Settings, si difiere.
+			frappe.after_ajax(() => {
+				frappe.db
+					.get_single_value("Facturacion Mexico Settings", "metodo_pago_default")
+					.then((val) => {
+						const def = val || "PUE";
+						if (
+							!frm.doc.fm_payment_method_sat ||
+							frm.doc.fm_payment_method_sat === "PUE"
+						) {
+							frm.set_value("fm_payment_method_sat", def);
+						}
+					})
+					.catch(() => {
+						// si falla, dejamos "PUE" (fallback)
+					});
+			});
+		},
+		refresh(frm) {
+			if (frm.doc.docstatus === 1 && !frm.doc.fm_uuid) {
+				// Ocultar botón Cancel nativo para claridad de UX
+				frm.page.clear_secondary_action();
+
+				// Agregar botón personalizado para deadlock resolution
+				frm.add_custom_button(
+					__("Cancelar FFM (liberar SI)"),
+					async () => {
+						await frappe.call({
+							method: "facturacion_mexico.facturacion_fiscal.doctype.factura_fiscal_mexico.factura_fiscal_mexico.cancel_ffm_keep_si",
+							args: { ffm_name: frm.doc.name },
+						});
+						frappe.show_alert({
+							message: __("FFM cancelada y SI liberada."),
+							indicator: "green",
+						});
+						frm.reload_doc();
+					},
+					__("Acciones")
+				);
+			}
+		},
+	});
 })(); // Cierre del IIFE

@@ -44,6 +44,15 @@ class FacturAPIClient:
 		url = f"{self.base_url}{endpoint}"
 
 		try:
+			# PASO 2: Log inmediato antes de enviar al PAC
+			if data and "customer" in data and "legal_name" in data.get("customer", {}):
+				frappe.logger("facturapi").info(
+					{
+						"where": "pre_request",
+						"legal_name": repr(data.get("customer", {}).get("legal_name")),
+					}
+				)
+
 			# Usar requests que ya viene con Frappe
 			response = requests.request(
 				method=method, url=url, headers=self.headers, json=data, timeout=self.timeout
@@ -229,6 +238,12 @@ class FacturAPIClient:
 		except Exception as e:
 			frappe.throw(_(f"Error descargando PDF: {e!s}"))
 
+	def send_invoice_email(self, invoice_id: str, email: str) -> dict[str, Any]:
+		"""Enviar CFDI por email via FacturAPI."""
+		endpoint = f"/invoices/{invoice_id}/email"
+		data = {"email": email}
+		return self._make_request("POST", endpoint, data)
+
 	def download_xml(self, invoice_id: str) -> str:
 		"""Descargar XML de factura."""
 		url = f"{self.base_url}/invoices/{invoice_id}/xml"
@@ -245,6 +260,40 @@ class FacturAPIClient:
 
 		except Exception as e:
 			frappe.throw(_(f"Error descargando XML: {e!s}"))
+
+	def download_cancellation_receipt_xml(self, invoice_id: str) -> str:
+		"""Descargar XML del acuse de cancelación."""
+		url = f"{self.base_url}/invoices/{invoice_id}/cancellation_receipt/xml"
+
+		try:
+			response = requests.get(
+				url, headers={"Authorization": f"Bearer {self.api_key}"}, timeout=self.timeout
+			)
+
+			if response.status_code >= 400:
+				frappe.throw(_(f"Error al descargar acuse de cancelación XML: {response.status_code}"))
+
+			return response.text
+
+		except Exception as e:
+			frappe.throw(_(f"Error descargando acuse de cancelación XML: {e!s}"))
+
+	def download_cancellation_receipt_pdf(self, invoice_id: str) -> bytes:
+		"""Descargar PDF del acuse de cancelación."""
+		url = f"{self.base_url}/invoices/{invoice_id}/cancellation_receipt/pdf"
+
+		try:
+			response = requests.get(
+				url, headers={"Authorization": f"Bearer {self.api_key}"}, timeout=self.timeout
+			)
+
+			if response.status_code >= 400:
+				frappe.throw(_(f"Error al descargar acuse de cancelación PDF: {response.status_code}"))
+
+			return response.content
+
+		except Exception as e:
+			frappe.throw(_(f"Error descargando acuse de cancelación PDF: {e!s}"))
 
 	def create_receipt(self, receipt_data: dict) -> dict[str, Any]:
 		"""Crear E-Receipt (recibo electrónico) en FacturAPI.

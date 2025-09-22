@@ -4,12 +4,15 @@
  */
 
 frappe.ui.form.on("Customer", {
-	refresh: function (frm) {
+	refresh(frm) {
 		// Agregar botón "Validar RFC/CSF" si es necesario
 		add_rfc_validation_button(frm);
 
-		// Mostrar estado de validación RFC
-		show_rfc_validation_status(frm);
+		// 1) Pintar UN solo aviso arriba
+		render_sat_rfc_status(frm);
+
+		// 2) Ocultar sección "Validación SAT" y sus campos (pero conservar datos para FFM)
+		hide_sat_validation_section(frm);
 	},
 
 	tax_id: function (frm) {
@@ -54,51 +57,70 @@ function add_rfc_validation_button(frm) {
 	}
 }
 
-function show_rfc_validation_status(frm) {
-	// Mostrar indicador visual inteligente del estado de validación
-	const tax_id_field = frm.get_field("tax_id");
-	const rfc_validated_field = frm.get_field("fm_rfc_validated");
+// --- Aviso único (Punto 1: RFC) ---
+function render_sat_rfc_status(frm) {
+	const id = "sat-rfc-status-banner";
+	const existing = document.getElementById(id);
+	if (existing) existing.remove();
 
-	if (!frm.doc.tax_id) {
-		// Sin RFC
-		if (tax_id_field) {
-			tax_id_field.$wrapper.find(".control-label").css("color", "#d73925");
-			tax_id_field.set_description("⚠️ RFC requerido para facturación fiscal mexicana");
-		}
-	} else if (frm.doc.fm_rfc_validated) {
-		// RFC validado - mostrar información útil y posibilidad de revalidar
-		if (rfc_validated_field) {
-			rfc_validated_field.$wrapper.find(".control-label").css("color", "#28a745");
-			rfc_validated_field.set_description(
-				`✅ RFC validado exitosamente el ${
-					frm.doc.fm_rfc_validation_date || "fecha no disponible"
-				}. Puede revalidar si hay cambios.`
-			);
-		}
+	const tax_id = (frm.doc.tax_id || "").trim().toUpperCase();
+	const validated = !!frm.doc.fm_rfc_validated; // Check (1/0)
+	const validation_date = frm.doc.fm_rfc_validation_date; // Date (YYYY-MM-DD)
+
+	let bsColor, message;
+	if (!tax_id) {
+		bsColor = "danger";
+		message = "⚠️ RFC requerido.";
+	} else if (validated) {
+		const fecha = validation_date
+			? frappe.datetime.str_to_user(validation_date)
+			: frappe.datetime.str_to_user(frappe.datetime.get_today());
+		bsColor = "success";
+		message = `✅ RFC validado exitosamente el ${fecha}`;
 	} else {
-		// RFC sin validar - verificar qué falta específicamente
-		if (rfc_validated_field) {
-			rfc_validated_field.$wrapper.find(".control-label").css("color", "#fd7e14");
-
-			// Verificar qué falta para ser más específicos
-			if (!frm.doc.customer_primary_address) {
-				rfc_validated_field.set_description(
-					"⚠️ Se requiere dirección principal completa para validar RFC"
-				);
-			} else {
-				// Verificar completitud de dirección
-				check_address_completeness(frm, function (is_complete, missing_fields) {
-					if (!is_complete && missing_fields.length > 0) {
-						rfc_validated_field.set_description(
-							`⚠️ Complete la dirección principal: ${missing_fields.join(", ")}`
-						);
-					} else {
-						rfc_validated_field.set_description("📋 RFC listo para validar con SAT");
-					}
-				});
-			}
-		}
+		bsColor = "warning";
+		message = "📋 RFC listo para validar con SAT";
 	}
+
+	const html = `
+		<div id="${id}" class="alert alert-${_bs_color(bsColor)}" role="alert" style="margin-top:8px">
+			${frappe.utils.escape_html(message)}
+		</div>
+	`;
+
+	const target =
+		frm.fields_dict.tax_id && frm.fields_dict.tax_id.$wrapper
+			? frm.fields_dict.tax_id.$wrapper
+			: frm.$wrapper;
+
+	$(html).insertAfter(target);
+}
+
+function _bs_color(color) {
+	return (
+		{ success: "success", warning: "warning", danger: "danger", secondary: "secondary" }[
+			color
+		] || "secondary"
+	);
+}
+
+// --- Ocultar la sección y limpiar descripciones antiguas ---
+function hide_sat_validation_section(frm) {
+	// 1) Ocultar campos de datos (se siguen guardando en BD; FFM los lee)
+	["fm_rfc_validated", "fm_rfc_validation_date"].forEach((fn) => {
+		if (frm.get_field(fn)) {
+			frm.set_df_property(fn, "hidden", 1);
+			// Evita descripciones previas contradictorias:
+			frm.get_field(fn).set_description("");
+		}
+	});
+
+	// 2) Ocultar Section Break "Validación SAT" (si el fieldname no se conoce, localizar por label)
+	(frm.fields || []).forEach((f) => {
+		if (f.df.fieldtype === "Section Break" && f.df.label === "Validación SAT") {
+			frm.toggle_display(f.df.fieldname, false);
+		}
+	});
 }
 
 function validate_customer_rfc_with_facturapi(frm) {
@@ -336,7 +358,7 @@ function show_validation_results(frm, validation_data) {
 			frm.reload_doc().then(() => {
 				// Después del reload, actualizar estado visual
 				setTimeout(() => {
-					show_rfc_validation_status(frm);
+					render_sat_rfc_status(frm);
 					add_rfc_validation_button(frm);
 				}, 500);
 			});

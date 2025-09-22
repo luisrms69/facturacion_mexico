@@ -60,12 +60,14 @@
   ```bash
   git checkout main && git pull origin main
   git checkout -b feature/[modulo]-[descripcion]
+  bench --site facturacion.dev backup --with-files  # Backup al crear rama nueva
   # Desarrollo...
   git log --oneline main..HEAD  # Verificar commits únicos
   gh pr list --state open --head feature/[branch-name]  # Verificar PR no existe
   gh pr create --base main --head feature/[branch-name]  # Target MAIN siempre
   ```
 - ⚠️ **AUTORIZACIÓN:** Todo commit debe ser aprobado por el usuario
+- ❌ **TESTS OBLIGATORIOS:** NO se permite commit si algún test falla. Todos los tests deben pasar al 100% antes de cualquier commit
 - ✅ **ISSUES TEMPORALES:** Crear GitHub issue cuando problema no puede resolverse
 - ✅ **DOCUMENTACIÓN ISSUE:**
   ```markdown
@@ -231,17 +233,63 @@ with patch("frappe.get_doc") as mock_get:
 - ✅ **ZERO-CONFIG:** Nuevas instalaciones deben funcionar sin configuración manual
 
 ### **RG-010: ONE-OFF SCRIPTS STORAGE**
-- ✅ **UBICACIÓN OBLIGATORIA:** `{app_name}/one_offs/` dentro estructura del app
-- ✅ **EJEMPLO:** `/home/erpnext/frappe-bench/apps/facturacion_mexico/one_offs/`
+- ✅ **UBICACIÓN OBLIGATORIA:** `{app_name}/{app_name}/one_offs/` dentro del paquete Python
+- ✅ **EJEMPLO:** `/home/erpnext/frappe-bench/apps/facturacion_mexico/facturacion_mexico/one_offs/`
 - ✅ **PROPÓSITO:** Scripts para `bench execute` que NO se commitean al repositorio
-- ✅ **NAMING CONVENTION:** `{fecha}_{proposito}.py` (e.g., `20250916_migrar_customers.py`)
+- ✅ **SETUP INICIAL OBLIGATORIO:**
+  ```bash
+  # Crear directorio dentro del paquete Python
+  mkdir -p {app_name}/{app_name}/one_offs/
+  echo "# one_offs module" > {app_name}/{app_name}/one_offs/__init__.py
+  ```
+- ✅ **NAMING CONVENTION:** Nombres Python válidos (sin números al inicio)
+  - ❌ INCORRECTO: `20250916_script.py` (números al inicio - Python no permite)
+  - ✅ CORRECTO: `script_20250916.py`, `migrar_customers.py`, `compare_ffm_docs.py`
+  - ✅ REGLA: Usar formato `{accion}_{fecha}.py` o `{descripcion_funcional}.py`
+- ❌ **PROHIBIDO ABSOLUTO:** Comandos python directos (`python3 script.py`)
+- ✅ **OBLIGATORIO:** Solo usar `bench execute` para todos los scripts
+- ✅ **EJECUCIÓN SCRIPTS - INSTRUCCIONES EXACTAS:**
+  ```bash
+  # 1. OBLIGATORIO: one_offs/ debe estar dentro del paquete Python
+  # UBICACIÓN CORRECTA: apps/{app}/facturacion_mexico/one_offs/
+  # NO: apps/{app}/one_offs/ (no funciona con bench execute)
+
+  # 2. ESTRUCTURA OBLIGATORIA del script:
+  # #!/usr/bin/env python3
+  # import frappe
+  # def run():  # ← NOMBRE FUNCIÓN ESTÁNDAR
+  #     # código aquí
+  #     return True
+  # if __name__ == "__main__":
+  #     run()
+
+  # 3. EJECUCIÓN (funciona con paquete Python):
+  bench --site facturacion.dev execute "{app_name}.one_offs.script_name.run"
+
+  # EJEMPLO WORKING:
+  bench --site facturacion.dev execute "facturacion_mexico.one_offs.fix_customers_currency.run"
+  ```
+- ❌ **ERRORES COMUNES QUE NO FUNCIONAN:**
+  - Poner one_offs/ fuera del paquete Python principal
+  - Scripts sin `__init__.py` en one_offs/
+  - Nombres archivo con números al inicio
+  - Usar python3 -c o ejecución directa (PROHIBIDO)
+  - Funciones con nombres distintos a `run()`
 - ✅ **CONTENIDO TÍPICO:** Migraciones datos, correcciones one-time, scripts diagnóstico
 - ❌ **PROHIBIDO:** Commitear scripts one-off al repositorio del proyecto
-- ✅ **COMANDO EJECUCIÓN:**
-  ```bash
-  bench --site sitio.dev execute facturacion_mexico/one_offs/script_name.py
-  ```
 - ⚠️ **IMPORTANTE:** Scripts deben ser idempotentes y con validaciones previas
+
+### **RG-011: PLANES IMPLEMENTACIÓN AUTOCONTENIDOS**
+- ✅ **Estructura obligatoria:** `docs/testing/planes/plan-[categoria]-[objetivo]/`
+- ✅ **Nombre descriptivo:** Archivo principal con nombre específico (no genérico)
+- ✅ **Subdirectorios estándar:** evidencias/ + resultados/ + config/
+- ✅ **Índice central:** docs/testing/PLAN-INDEX.md lista todos los planes
+- ✅ **Templates:** Usar docs/testing/templates/ para nuevos planes
+- ✅ **Aislamiento:** Cada plan completamente autocontenido
+- ❌ **Prohibido:** Carpetas compartidas entre múltiples planes
+- ❌ **Prohibido:** Nombres genéricos (plan.md, README.md)
+- ✅ **Categorías:** testing, performance, migracion, integracion, security, compliance
+- ✅ **Estados:** ⏳ Pendiente, 🔄 En ejecución, ✅ Completado, ❌ Fallido, 🕐 Programado, 🚫 Cancelado
 
 ### **RG-005: MULTI-LAYER SECURITY**
 - ✅ **3 capas:** Permisos DocType + Backend Guards + UI Removal
@@ -406,6 +454,77 @@ with patch("frappe.get_doc") as mock_get:
 - ✅ **Formato:** Según [Keep a Changelog](https://keepachangelog.com/es/)
 - ✅ **Mantenimiento:** Actualizar cada release/milestone
 
+#### **RG-011: CHANGELOG.md VERSIONING OBLIGATORIO**
+- ✅ **Estructura requerida:** Secciones [Unreleased] + versiones numeradas
+- ✅ **Versionado semántico:** MAJOR.MINOR.PATCH según [SemVer](https://semver.org/lang/es/)
+- ✅ **Fechas ISO:** YYYY-MM-DD para todas las versiones
+- ✅ **Categorías obligatorias:** Added, Changed, Deprecated, Removed, Fixed, Security
+
+#### **RG-011.1: Workflow Versioning**
+```bash
+# Durante desarrollo: acumular en [Unreleased]
+# Al hacer release: mover [Unreleased] → [X.Y.Z] - YYYY-MM-DD
+
+# Ejemplo release minor (nueva funcionalidad):
+git tag v5.1.0
+# Mover contenido [Unreleased] → [5.1.0] - 2025-09-17
+
+# Ejemplo release patch (solo fixes):
+git tag v5.0.1
+# Solo fixes acumulados → [5.0.1] - 2025-09-17
+```
+
+#### **RG-011.2: Criterios Versioning (0.x.x para Alpha)**
+- **MINOR (0.X.0):** Nueva funcionalidad mayor, cambios API
+- **PATCH (0.X.Y):** Bug fixes, pequeñas mejoras, funcionalidad menor
+- **Nota:** Versión 0.x.x indica software alpha en desarrollo activo
+
+#### **RG-011.3: Template Obligatorio**
+```markdown
+# Changelog
+
+## [Unreleased]
+
+### Added
+- Nueva funcionalidad pendiente release
+
+### Changed
+- Cambios en funcionalidad existente
+
+### Fixed
+- Bug fixes pendientes
+
+## [0.5.1] - 2025-09-17
+
+### Added
+- Sistema unificado validación RFC/CSF Customer con banner único
+- Armonización direcciones FFM-ERPNext para consistencia completa
+
+### Fixed
+- Mensajes contradictorios validación RFC/CSF
+- Inconsistencia direcciones entre Customer UI y FFM
+
+## [0.5.0] - 2025-09-16
+[Versiones anteriores...]
+```
+
+#### **RG-011.4: Comandos Release**
+```bash
+# 1. Verificar cambios pendientes
+git log --oneline v5.0.0..HEAD
+
+# 2. Actualizar CHANGELOG.md (mover [Unreleased] → [0.5.1])
+# 3. Commit de release
+git add CHANGELOG.md
+git commit -m "docs(release): preparar changelog v0.5.1"
+
+# 4. Crear tag
+git tag -a v0.5.1 -m "Release v0.5.1: Sistema validación RFC unificado"
+
+# 5. Push con tags
+git push origin main --tags
+```
+
 #### **Navegación Independiente**
 | Propósito | Ubicación Principal | Backup/Complemento |
 |-----------|-------------------|-------------------|
@@ -549,6 +668,7 @@ bench --site "$SITE" execute "$APP"/one_offs/script_name.py
 |------|-----------|
 | Arquitectura técnica | `buzola-internal/projects/facturacion_mexico/ARQUITECTURA_*.md` |
 | Testing detallado | `buzola-internal/projects/facturacion_mexico/TESTING_*.md` |
+| **Planes implementación** | `docs/testing/PLAN-INDEX.md` |
 | Docs usuario | `docs/user-guide/` |
 | APIs detalladas | `docs/api/` |
 

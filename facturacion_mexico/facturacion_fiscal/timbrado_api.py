@@ -1,17 +1,47 @@
 import json
+import re
 import traceback
+import unicodedata
 from typing import Any
 
 import frappe
 from frappe import _
 from frappe.utils import flt, now_datetime
 
+
+def _log_text(label, s: str):
+	if s is None:
+		s = ""
+	frappe.logger("facturapi-wire").info(
+		{
+			"label": label,
+			"text": s,
+			"repr": repr(s),
+			"codepoints": [hex(ord(ch)) for ch in s],
+			"is_nfc": s == unicodedata.normalize("NFC", s),
+		}
+	)
+
+
+def _log_payload_checkpoint(tag, payload: dict):
+	name = payload.get("customer", {}).get("legal_name") or payload.get("legal_name")
+	_log_text(f"{tag}.customer.legal_name", name)
+
+
 from facturacion_mexico.config.fiscal_states_config import FiscalStates, OperationTypes
-from facturacion_mexico.validaciones.api import _normalize_company_name_for_facturapi
 
 from .api import write_pac_response  # PAC Response Writer - Arquitectura resiliente activada
 from .api_client import get_facturapi_client
 from .doctype.facturapi_response_log.facturapi_response_log import FacturAPIResponseLog
+
+
+def _nfc_collapse_upper(s: str) -> str:
+	"""PASO 3: Normaliza a NFC, colapsa espacios, preserva Ñ y comillas."""
+	if not s:
+		return ""
+	s = unicodedata.normalize("NFC", s)
+	s = re.sub(r"\s+", " ", s.strip())
+	return s.upper()  # Si requieres mayúsculas
 
 
 def _extract_sat_code_from_uom(uom_name):
@@ -401,9 +431,9 @@ class TimbradoAPI:
 
 		# Datos del cliente
 		customer_data = {
-			"legal_name": _normalize_company_name_for_facturapi(
+			"legal_name": _nfc_collapse_upper(
 				customer.customer_name
-			),  # CFDI 4.0: función idéntica a validación RFC/CSF
+			),  # ← SIN mapas de acentos, PRESERVA Ñ y comillas
 			"tax_id": customer.get("tax_id"),
 			"email": customer.email_id or self.settings.get("customer_email_fallback"),
 		}
@@ -490,21 +520,53 @@ class TimbradoAPI:
 			"customer": customer_data,
 			"items": items,
 			"payment_form": payment_form,
+			"payment_method": factura_fiscal.get("fm_payment_method_sat", "PUE"),  # PUE/PPD explícito
 			# MILESTONE 1: NO enviar folio_number - deja autoincremento del PAC
 			"series": serie_for_pac,  # Serie resuelta por Branch o default
 			"use": cfdi_use,
 		}
 
+		# TIPO DE COMPROBANTE: Obtener desde Factura Fiscal Mexico
+		tipo_comprobante = factura_fiscal.get("fm_tipo_comprobante", "I").strip()
+		if tipo_comprobante:
+			# Extraer solo el código (formato "I - Ingreso" -> "I")
+			tipo_code = (
+				tipo_comprobante.split(" - ")[0].strip() if " - " in tipo_comprobante else tipo_comprobante
+			)
+			invoice_data["type"] = tipo_code
+
+		# DOCUMENTOS RELACIONADOS: Para tipo Egreso (E), incluir relación SAT y UUID relacionado
+		if invoice_data.get("type") == "E":
+			tipo_relacion = factura_fiscal.get("fm_tipo_relacion_sat", "").strip()
+			uuid_relacionado = factura_fiscal.get("fm_uuid_relacionado", "").strip()
+
+			if tipo_relacion and uuid_relacionado:
+				# Extraer código de relación (formato "01 - Descripción" -> "01")
+				relacion_code = (
+					tipo_relacion.split(" - ")[0].strip() if " - " in tipo_relacion else tipo_relacion
+				)
+
+				invoice_data["related_documents"] = [
+					{
+						"relationship": relacion_code,
+						"documents": [uuid_relacionado],
+					}
+				]
+
 		# [Milestone 3] Inyectar relación 04 si el SI trae 'ffm_substitution_source_uuid'
 		src_uuid = (sales_invoice.get("ffm_substitution_source_uuid") or "").strip()
 		if src_uuid:
 			# FacturAPI (relación CFDI): estructura correcta para sustitución CFDI previo
-			invoice_data["related_documents"] = [
+			# NOTA: Si ya hay related_documents de tipo E, agregar a la lista
+			if "related_documents" not in invoice_data:
+				invoice_data["related_documents"] = []
+
+			invoice_data["related_documents"].append(
 				{
 					"relationship": "04",  # Sustitución de los CFDI previos
 					"documents": [src_uuid],
 				}
-			]
+			)
 
 		# Sprint 6 Phase 2: Agregar datos específicos de sucursal
 		if branch_data.get("lugar_expedicion"):
@@ -697,6 +759,13 @@ class TimbradoAPI:
 			if self.settings.download_files_default:
 				self._download_fiscal_files(factura_fiscal, response.get("id"))
 
+			# Enviar email si está configurado (ESPEJO EXACTO de descarga archivos)
+			email_flag = getattr(factura_fiscal, "fm_enviar_email_timbrado", 0)
+			if email_flag:
+				self._send_fiscal_email(factura_fiscal, response.get("id"))
+			else:
+				pass
+
 			# [Milestone 3] Cascada post-timbrado: cancelar CFDI previo y SI original si es sustitución
 			try:
 				# Solo si hay UUID de origen en la SI (indica sustitución 01)
@@ -791,6 +860,36 @@ class TimbradoAPI:
 		except Exception as e:
 			frappe.logger().error(f"Error descargando archivos: {e!s}")
 
+	def _send_fiscal_email(self, factura_fiscal, facturapi_id):
+		"""Enviar email CFDI - ESPEJO de _download_fiscal_files."""
+		try:
+			# Resolver destinatario usando la misma función que el botón manual
+			from facturacion_mexico.facturacion_fiscal.doctype.factura_fiscal_mexico.factura_fiscal_mexico import (
+				_resolve_recipient_email,
+			)
+
+			to_email = _resolve_recipient_email(factura_fiscal)
+			if not to_email:
+				frappe.logger().warning(f"[FFM email] No recipient for {factura_fiscal.name}")
+				# Notificar al usuario que no se envió el email
+				frappe.msgprint(
+					f"No se pudo enviar el email automático para {factura_fiscal.name}: "
+					f"Configure el email en el campo 'Email Facturación' del documento.",
+					title="Email no enviado",
+					indicator="orange",
+				)
+				return
+
+			# Llamada API FacturAPI
+			self.client.send_invoice_email(facturapi_id, to_email)
+			frappe.logger().info(f"[FFM email] Enviado a {to_email} para {factura_fiscal.name}")
+
+		except Exception as e:
+			frappe.logger().error(f"[FFM email] Error enviando: {e}")
+			import traceback
+
+			frappe.logger().error(f"[FFM email] Traceback: {traceback.format_exc()}")
+
 	def _save_file_attachment(self, docname, filename, content, content_type):
 		"""Guardar archivo como attachment."""
 		from frappe.utils.file_manager import save_file
@@ -803,6 +902,30 @@ class TimbradoAPI:
 			decode=False,
 			is_private=1,
 		)
+
+	def _download_cancellation_receipt_files(self, factura_fiscal, facturapi_id):
+		"""Descargar PDF y XML del acuse de cancelación."""
+		try:
+			# Descargar PDF del acuse
+			pdf_content = self.client.download_cancellation_receipt_pdf(facturapi_id)
+			self._save_file_attachment(
+				factura_fiscal.name,
+				f"{factura_fiscal.name}_acuse_cancelacion.pdf",
+				pdf_content,
+				"application/pdf",
+			)
+
+			# Descargar XML del acuse
+			xml_content = self.client.download_cancellation_receipt_xml(facturapi_id)
+			self._save_file_attachment(
+				factura_fiscal.name,
+				f"{factura_fiscal.name}_acuse_cancelacion.xml",
+				xml_content.encode("utf-8"),
+				"application/xml",
+			)
+
+		except Exception as e:
+			frappe.logger().error(f"Error descargando archivos de acuse de cancelación: {e!s}")
 
 	def cancelar_factura(
 		self, sales_invoice_name: str, motivo: str, substitution_uuid: str | None = None
@@ -909,22 +1032,61 @@ class TimbradoAPI:
 				# Construir valor EXACTO esperado por campo Select del DocType
 				motivo_completo = _build_cancellation_reason_for_select(motivo)
 
-				frappe.set_value(
-					"Factura Fiscal Mexico",
-					factura_fiscal.name,
-					{
-						"fm_fiscal_status": FiscalStates.CANCELADO,
-						"cancellation_date": now_datetime(),
-						"cancellation_reason": motivo_completo,
-					},
+				# CORRECCIÓN BUG: Mapear estado fiscal según respuesta real del PAC
+				raw_response = pac_response.get("raw_response", {})
+				response_status = raw_response.get("status", "")
+				cancellation_status = raw_response.get("cancellation_status", "")
+
+				# Log respuesta para auditoría
+				frappe.logger().info(
+					f"Respuesta PAC para FFM {factura_fiscal.name}: status='{response_status}', cancellation_status='{cancellation_status}'"
 				)
 
-				# Actualizar Sales Invoice
-				frappe.set_value(
-					"Sales Invoice", sales_invoice_name, {"fm_fiscal_status": FiscalStates.CANCELADO}
-				)
+				# Mapeo correcto según documentación FacturAPI
+				if response_status == "canceled" or cancellation_status == "accepted":
+					fiscal_status = FiscalStates.CANCELADO
+					cancellation_date = now_datetime()
+				elif cancellation_status == "pending":
+					fiscal_status = FiscalStates.PENDIENTE_CANCELACION
+					cancellation_date = None
+				elif cancellation_status == "rejected":
+					# Mantener como timbrado - no cambiar estado fiscal
+					fiscal_status = FiscalStates.TIMBRADO
+					cancellation_date = None
+				else:
+					# Fallback conservador para respuestas inesperadas
+					fiscal_status = FiscalStates.PENDIENTE_CANCELACION
+					cancellation_date = None
+					frappe.logger().warning(
+						f"Respuesta PAC inesperada para FFM {factura_fiscal.name}: status='{response_status}', cancellation_status='{cancellation_status}'. Usando fallback PENDIENTE_CANCELACION"
+					)
+
+				# Actualizar FFM con estado correcto
+				update_data = {
+					"fm_fiscal_status": fiscal_status,
+					"cancellation_reason": motivo_completo,
+				}
+				if cancellation_date:
+					update_data["cancellation_date"] = cancellation_date
+
+				# Limpiar motivo de cancelación si PAC rechazó la solicitud
+				if fiscal_status != FiscalStates.CANCELADO:
+					update_data["fm_motivo_cancelacion"] = None
+
+				frappe.set_value("Factura Fiscal Mexico", factura_fiscal.name, update_data)
+
+				# Actualizar Sales Invoice con mismo estado fiscal
+				frappe.set_value("Sales Invoice", sales_invoice_name, {"fm_fiscal_status": fiscal_status})
 
 				frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure cancellation transaction is committed
+
+				# Descargar acuse de cancelación automáticamente
+				try:
+					self._download_cancellation_receipt_files(factura_fiscal, factura_fiscal.facturapi_id)
+					frappe.logger().info(f"Acuse cancelación descargado para FFM {factura_fiscal.name}")
+				except Exception as e:
+					frappe.logger().error(f"Error descargando acuse cancelación: {e}")
+					# No fallar el flujo principal por error de descarga
 
 				# Obtener estados actualizados para response coherente
 				si_doc = frappe.get_doc("Sales Invoice", sales_invoice_name)
@@ -934,11 +1096,13 @@ class TimbradoAPI:
 					"success": True,  # Backward compatibility
 					"ffm": factura_fiscal.name,
 					"sales_invoice": sales_invoice_name,
-					"status_ffm": "CANCELADO",
+					"status_ffm": fiscal_status,  # Estado correcto basado en respuesta PAC
 					"status_si": si_doc.fm_fiscal_status,
 					"uuid": factura_fiscal.fm_uuid,
-					"cancellation_date": frappe.utils.now_datetime().strftime("%Y-%m-%d %H:%M:%S"),
-					"message": "Factura cancelada exitosamente",
+					"cancellation_date": cancellation_date.strftime("%Y-%m-%d %H:%M:%S")
+					if cancellation_date
+					else None,
+					"message": "Solicitud de cancelación procesada exitosamente",
 				}
 
 			except Exception as frappe_error:
@@ -1323,8 +1487,20 @@ def _build_cancellation_reason_for_select(motive_code: str) -> str:
 @frappe.whitelist()
 def timbrar_factura(sales_invoice: str):
 	"""API para timbrar factura desde interfaz."""
-	api = TimbradoAPI()
-	return api.timbrar_factura(sales_invoice)
+	cache_key = f"si:timbrando:{sales_invoice}"
+	if frappe.cache().get_value(cache_key):
+		frappe.throw(_("Ya hay un timbrado en proceso. Intente en unos segundos."))
+	frappe.cache().set_value(cache_key, frappe.utils.now(), expires_in_sec=120)
+	try:
+		ffm_name = frappe.db.get_value(
+			"Factura Fiscal Mexico", {"sales_invoice": sales_invoice, "docstatus": 1}, "name"
+		)
+		if ffm_name and frappe.db.get_value("Factura Fiscal Mexico", ffm_name, "fm_uuid"):
+			frappe.throw(_("Esta factura fiscal ya está timbrada."))
+		api = TimbradoAPI()
+		return api.timbrar_factura(sales_invoice)
+	finally:
+		frappe.cache().delete_value(cache_key)
 
 
 @frappe.whitelist()
@@ -1368,15 +1544,21 @@ def cancelar_factura(sales_invoice=None, uuid=None, ffm_name=None, motivo=None, 
 		frappe.throw(f"El motivo '{motivo_code}' ({description}) requiere UUID de sustitución obligatorio")
 
 	# [Milestone 3] Guard backend: motivo 01 solo desde flujo sustitución
-	# Obtener FFM doc para el guard
+	# Obtener FFM doc para el guard y persistencia
 	ffm_doc = None
+	ffm_name = None
 	if sales_invoice:
 		ffm_list = frappe.get_all("Factura Fiscal Mexico", filters={"sales_invoice": sales_invoice}, limit=1)
 		if ffm_list:
-			ffm_doc = frappe.get_doc("Factura Fiscal Mexico", ffm_list[0].name)
+			ffm_name = ffm_list[0].name
+			ffm_doc = frappe.get_doc("Factura Fiscal Mexico", ffm_name)
 
 	if ffm_doc:
 		_guard_motive_01_only_from_substitution(ffm_doc, motivo_code, substitution_uuid)
+
+	# Persistir motivo de cancelación antes de enviar al PAC
+	if ffm_name:
+		frappe.db.set_value("Factura Fiscal Mexico", ffm_name, {"fm_motivo_cancelacion": motivo_code})
 
 	api = TimbradoAPI()
 	return api.cancelar_factura(sales_invoice, motivo_code, substitution_uuid)
