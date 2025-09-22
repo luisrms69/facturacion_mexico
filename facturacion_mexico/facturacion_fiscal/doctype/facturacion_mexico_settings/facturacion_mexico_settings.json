@@ -334,7 +334,6 @@
       "fieldtype": "Select",
       "label": "Método de Pago por Defecto",
       "options": "PUE\nPPD",
-      "default": "PUE",
       "description": "Método de pago SAT que se asignará automáticamente a nuevas FFM cuando no esté especificado"
     },
     {

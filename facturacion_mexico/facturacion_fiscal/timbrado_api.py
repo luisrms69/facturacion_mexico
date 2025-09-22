@@ -520,6 +520,7 @@ class TimbradoAPI:
 			"customer": customer_data,
 			"items": items,
 			"payment_form": payment_form,
+			"payment_method": factura_fiscal.get("fm_payment_method_sat", "PUE"),  # PUE/PPD explícito
 			# MILESTONE 1: NO enviar folio_number - deja autoincremento del PAC
 			"series": serie_for_pac,  # Serie resuelta por Branch o default
 			"use": cfdi_use,
