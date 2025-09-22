@@ -15,6 +15,14 @@
   - **Tiempo estimado:** 6 horas
   - **Última actualización:** 2025-09-17
 
+### **Arquitectura y Framework**
+- **[arquitectura-testing.md](arquitectura-testing.md)**
+  - **Estado:** ✅ Documentado
+  - **Objetivo:** Framework 4-layer testing comprehensivo
+  - **Metodología:** REGLA #33 (progresivo) + REGLA #34 (strengthening)
+  - **Cobertura:** 49 archivos, 105+ tests, 4700+ líneas código
+  - **Última actualización:** 2025-09-22
+
 ---
 
 ## 🟡 **Planes Programados**
