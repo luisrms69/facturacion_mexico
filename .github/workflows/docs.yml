@@ -26,7 +26,7 @@ jobs:
     name: Verificar Calidad de Documentación
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       
       - name: Configurar Python
         uses: actions/setup-python@v4
@@ -63,7 +63,7 @@ jobs:
     name: Lint de Documentación
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       
       - name: Configurar Python
         uses: actions/setup-python@v4
@@ -86,7 +86,7 @@ jobs:
     if: github.event_name != 'pull_request'
     
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0  # Necesario para mike y git history
       
@@ -172,7 +172,7 @@ jobs:
     if: github.event_name == 'pull_request'
     
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       
       - name: Configurar Python
         uses: actions/setup-python@v4
