@@ -7,6 +7,12 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
 ## [Unreleased]
 
 ### Added
+- **Testing unitario completo PR #68** - Suite de 11 test cases para sistema email automático CFDI
+  - Cobertura 100% métodos nuevos: `send_invoice_email()`, `_resolve_recipient_email()`, `_resolve_auto_email_flag()`, `_send_fiscal_email()`
+  - Tests determinísticos con mocks solo de gateway externo (FacturAPI)
+  - Casos cubiertos: happy path, edge cases, error handling, lógica cascade customer tri-estado
+  - Cumplimiento RG-003 CLAUDE.md: suite rápida (0.030s), sin dependencias externas
+  - Archivo: `facturacion_mexico/tests/test_pr68_email_system.py`
 - **Sistema completo envío automático CFDI por email** con configuración cascada Settings → Customer → FFM
   - Custom field Customer `fm_envio_email_cliente` (tri-estado: Default/Enviar/No enviar)
   - Custom field FFM `fm_enviar_email_timbrado` (check auto-configurado por cascada)
