@@ -158,6 +158,17 @@ class FacturaFiscalMexico(Document):
 				frappe.db.get_single_value("Facturacion Mexico Settings", "metodo_pago_default") or "PUE"
 			)
 
+		# Asignar fm_enviar_email_timbrado usando lógica cascade Customer/Settings
+		try:
+			from frappe.utils import cint
+
+			flag = _resolve_auto_email_flag(self.customer)
+			self.fm_enviar_email_timbrado = cint(flag)
+		except Exception as e:
+			# Si algo falla, NO forzar; dejar en 0 (seguro)
+			self.fm_enviar_email_timbrado = 0
+			frappe.logger().warning(f"[FFM before_insert] No se pudo resolver auto-email: {e}")
+
 	def validate(self):
 		"""Validar factura fiscal antes de guardar."""
 		# NUEVAS VALIDACIONES: Inmutabilidad (normalización ya hecha en before_validate)
@@ -1374,18 +1385,17 @@ def _send_cfdi_email(self, to_override: str | None = None) -> dict:
 		self.add_comment("Comment", f"Error al enviar CFDI por email: {e}")
 		return {"sent": False, "error": str(e)}
 
+	def on_successful_stamp(self):
+		"""Llamar esto al final del flujo de timbrado exitoso (donde ya asignaste fm_uuid).
+		Reusar el endpoint/método existente; aquí sólo decidimos si hay que enviar.
+		"""
+		from frappe.utils import cint
 
-def on_successful_stamp(self):
-	"""Llamar esto al final del flujo de timbrado exitoso (donde ya asignaste fm_uuid).
-	Reusar el endpoint/método existente; aquí sólo decidimos si hay que enviar.
-	"""
-	from frappe.utils import cint
+		if cint(getattr(self, "fm_enviar_email_timbrado", 0)) != 1:
+			return
 
-	if cint(getattr(self, "fm_enviar_email_timbrado", 0)) != 1:
-		return
-
-	# Enviar si hay destinatario (reglas estrictas)
-	_ = _send_cfdi_email(self)
+		# Enviar si hay destinatario (reglas estrictas)
+		_ = _send_cfdi_email(self)
 
 
 @frappe.whitelist()

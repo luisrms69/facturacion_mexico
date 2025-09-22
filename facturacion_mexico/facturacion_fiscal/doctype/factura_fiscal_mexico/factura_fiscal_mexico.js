@@ -219,36 +219,101 @@
 				if (cancelSection && cancelSection.$wrapper) cancelSection.$wrapper.hide();
 			}
 
+			// --- BOTONES DESCARGA Y EMAIL (mismo patrón que Cancelar) ---
+			const is_submitted = frm.doc.docstatus === 1;
+			const is_stamped = !!frm.doc.fm_uuid;
+
+			if (is_submitted && is_stamped) {
+				// 1) Descargar CFDI (PDF+XML) - Agrupado en "Comprobantes"
+				frm.add_custom_button(
+					__("Descargar PDF+XML"),
+					async () => {
+						try {
+							await frappe.call({
+								method: "facturacion_mexico.facturacion_fiscal.api_client.download_xml",
+								args: { ffm_name: frm.doc.name },
+							});
+							await frappe.call({
+								method: "facturacion_mexico.facturacion_fiscal.api_client.download_pdf",
+								args: { ffm_name: frm.doc.name },
+							});
+						} catch (e) {
+							frappe.msgprint({
+								title: __("Error de descarga"),
+								message: __(String(e)),
+								indicator: "red",
+							});
+						}
+					},
+					__("Comprobantes")
+				);
+
+				// 2) Enviar CFDI por email - Agrupado en "Comprobantes"
+				frm.add_custom_button(
+					__("Enviar por email"),
+					async () => {
+						try {
+							const r = await frappe.call({
+								method: "facturacion_mexico.facturacion_fiscal.doctype.factura_fiscal_mexico.factura_fiscal_mexico.action_send_cfdi_email",
+								args: { ffm_name: frm.doc.name, to: null },
+							});
+							const res = r && r.message;
+							if (res && res.sent) {
+								frappe.msgprint({
+									message: __("CFDI enviado a: {0}", [res.to]),
+									indicator: "green",
+								});
+							} else if (res && res.reason === "no-recipient") {
+								frappe.msgprint({
+									message: __(
+										"No se envió: no hay destinatario (FFM ni Settings)."
+									),
+									indicator: "orange",
+								});
+							} else {
+								frappe.msgprint({
+									message: __("No se pudo enviar: {0}", [
+										(res && res.error) || "",
+									]),
+									indicator: "red",
+								});
+							}
+						} catch (e) {
+							frappe.msgprint({ message: __(String(e)), indicator: "red" });
+						}
+					},
+					__("Comprobantes")
+				);
+			}
+
+			// --- BOTÓN AYUDA (mismo patrón que Cancelar/Descarga/Email) ---
+			if (frm.doc.sales_invoice && frm.doc.docstatus === 1 && frm.doc.fm_uuid) {
+				frm.add_custom_button(
+					__("¿Cómo sustituir?"),
+					() => {
+						const siName = frm.doc.sales_invoice;
+						frappe.msgprint({
+							title: __("Ayuda: Sustitución CFDI"),
+							message: __(
+								`<strong>Para sustituir este CFDI (motivo 01):</strong><br><br>` +
+									`1️⃣ Vaya al Sales Invoice: <strong>${siName}</strong><br>` +
+									`2️⃣ Use el botón "🔄 Sustituir CFDI (01)"<br>` +
+									`3️⃣ Se creará un SI de reemplazo para correcciones<br>` +
+									`4️⃣ El sistema manejará la relación TipoRelación 04 automáticamente<br><br>` +
+									`<em>La cancelación desde aquí es solo para motivos 02/03/04.</em>`
+							),
+							indicator: "blue",
+						});
+					},
+					__("Ayuda")
+				);
+			}
+
 			// Reponer botón de navegación SIEMPRE que exista Sales Invoice
 			if (frm.doc.sales_invoice) {
 				frm.add_custom_button(__("Ver Sales Invoice"), function () {
 					frappe.set_route("Form", "Sales Invoice", frm.doc.sales_invoice);
 				});
-			}
-
-			// --- Dev only: botón de prueba de conexión PAC ---
-			// Evitar duplicados entre refresh con un flag simple
-			if (frappe.boot.developer_mode && !frm._ffm_dev_test_btn_added) {
-				frm.add_custom_button(__("Test Conexión PAC"), function () {
-					try {
-						// Esta función ya existe en el archivo (según tu código)
-						test_pac_connection(frm);
-					} catch (e) {
-						console && console.error("[FFM] test_pac_connection no disponible:", e);
-						const d1 = frappe.msgprint({
-							title: __("Prueba de Conexión"),
-							message: __(
-								"La función de prueba no está disponible en este contexto."
-							),
-							indicator: "orange",
-							primary_action: {
-								label: __("Cerrar"),
-								action: () => d1.hide(),
-							},
-						});
-					}
-				}).addClass("btn-secondary");
-				frm._ffm_dev_test_btn_added = true;
 			}
 		});
 	}
@@ -434,80 +499,6 @@
 				check_and_show_billing_data_status(frm);
 				check_customer_fiscal_warning(frm);
 			}, 1500);
-
-			// [Milestone 3] Botón ayuda para sustitución
-			addHelpButtonForSubstitution(frm);
-
-			// Email automation buttons
-			const is_submitted = frm.doc.docstatus === 1;
-			const is_stamped = !!frm.doc.fm_uuid;
-
-			if (is_submitted && is_stamped) {
-				// 1) Descargar CFDI (PDF+XML)
-				frm.add_custom_button(__("Descargar CFDI (PDF+XML)"), async () => {
-					try {
-						await frappe.call({
-							method: "facturacion_mexico.facturacion_fiscal.api_client.download_xml",
-							args: { ffm_name: frm.doc.name },
-						});
-						await frappe.call({
-							method: "facturacion_mexico.facturacion_fiscal.api_client.download_pdf",
-							args: { ffm_name: frm.doc.name },
-						});
-					} catch (e) {
-						frappe.msgprint({
-							title: __("Error de descarga"),
-							message: __(String(e)),
-							indicator: "red",
-						});
-					}
-				});
-
-				// 2) Enviar CFDI por email
-				frm.add_custom_button(__("Enviar CFDI por email"), async () => {
-					const { value: to } = await frappe.prompt(
-						{
-							fieldname: "to",
-							fieldtype: "Data",
-							label: __("Destinatario (email)"),
-							reqd: 0,
-							default: frm.doc.fm_email_facturacion || "",
-							description: __(
-								"Si se deja vacío, se usará el fallback de Settings (si existe)."
-							),
-						},
-						null,
-						__("Enviar CFDI por email"),
-						__("Enviar")
-					);
-
-					try {
-						const r = await frappe.call({
-							method: "facturacion_mexico.facturacion_fiscal.doctype.factura_fiscal_mexico.factura_fiscal_mexico.action_send_cfdi_email",
-							args: { ffm_name: frm.doc.name, to: to || null },
-						});
-						const res = r && r.message;
-						if (res && res.sent) {
-							frappe.msgprint({
-								message: __("CFDI enviado a: {0}", [res.to]),
-								indicator: "green",
-							});
-						} else if (res && res.reason === "no-recipient") {
-							frappe.msgprint({
-								message: __("No se envió: no hay destinatario (FFM ni Settings)."),
-								indicator: "orange",
-							});
-						} else {
-							frappe.msgprint({
-								message: __("No se pudo enviar: {0}", [(res && res.error) || ""]),
-								indicator: "red",
-							});
-						}
-					} catch (e) {
-						frappe.msgprint({ message: __(String(e)), indicator: "red" });
-					}
-				});
-			}
 		},
 
 		// NUEVO: después de save/reload

@@ -243,8 +243,9 @@ with patch("frappe.get_doc") as mock_get:
   echo "# one_offs module" > {app_name}/{app_name}/one_offs/__init__.py
   ```
 - ✅ **NAMING CONVENTION:** Nombres Python válidos (sin números al inicio)
-  - ❌ INCORRECTO: `20250916_script.py` (números al inicio)
-  - ✅ CORRECTO: `script_20250916.py` o `migrar_customers.py`
+  - ❌ INCORRECTO: `20250916_script.py` (números al inicio - Python no permite)
+  - ✅ CORRECTO: `script_20250916.py`, `migrar_customers.py`, `compare_ffm_docs.py`
+  - ✅ REGLA: Usar formato `{accion}_{fecha}.py` o `{descripcion_funcional}.py`
 - ❌ **PROHIBIDO ABSOLUTO:** Comandos python directos (`python3 script.py`)
 - ✅ **OBLIGATORIO:** Solo usar `bench execute` para todos los scripts
 - ✅ **EJECUCIÓN SCRIPTS - INSTRUCCIONES EXACTAS:**

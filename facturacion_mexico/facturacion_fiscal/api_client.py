@@ -238,6 +238,12 @@ class FacturAPIClient:
 		except Exception as e:
 			frappe.throw(_(f"Error descargando PDF: {e!s}"))
 
+	def send_invoice_email(self, invoice_id: str, email: str) -> dict[str, Any]:
+		"""Enviar CFDI por email via FacturAPI."""
+		endpoint = f"/invoices/{invoice_id}/email"
+		data = {"email": email}
+		return self._make_request("POST", endpoint, data)
+
 	def download_xml(self, invoice_id: str) -> str:
 		"""Descargar XML de factura."""
 		url = f"{self.base_url}/invoices/{invoice_id}/xml"

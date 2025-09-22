@@ -11,8 +11,29 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
   - Custom field Customer `fm_envio_email_cliente` (tri-estado: Default/Enviar/No enviar)
   - Custom field FFM `fm_enviar_email_timbrado` (check auto-configurado por cascada)
   - Lógica Python completa: resolución destinatario, envío FacturAPI, manejo errores
-  - Botones JavaScript: "Descargar CFDI (PDF+XML)" y "Enviar CFDI por email"
+  - Botones JavaScript agrupados en dropdown "Comprobantes": "Descargar PDF+XML" y "Enviar por email"
   - Integración automática post-timbrado: envío email al asignar UUID exitosamente
+  - Auto-configuración campo `fm_enviar_email_timbrado` en before_insert() con lógica cascade
+  - Gestión centralizada botones UI en `applyFFMUi()` para comportamiento consistente
+  - Método `send_invoice_email()` en FacturAPIClient para integración completa
+
+### Fixed
+- Corregida indentación `on_successful_stamp()` (era función independiente, ahora método de clase)
+- Eliminado prompt innecesario en botón "Enviar CFDI por email" - ahora envía directamente
+- Persistencia botones UI después de refresh (Ctrl+Shift+R) mediante gestión centralizada
+- Comportamiento consistente botones custom siguiendo patrón "Cancelar en FacturAPI"
+
+### Changed
+- Reposicionado campo `fm_enviar_email_timbrado` a sección principal (después de customer)
+- Botones "Descargar" y "Enviar" agrupados en dropdown "Comprobantes" para mejor UX
+- Todos los botones custom gestionados centralizadamente en `applyFFMUi()` en lugar de `refresh()`
+- Títulos botones simplificados: "Descargar PDF+XML" y "Enviar por email" (más concisos)
+
+### Removed
+- Botón "Test Conexión PAC" (ya no requerido según especificaciones)
+- Código duplicado gestión botones en función `refresh()`
+- Función `addHelpButtonForSubstitution()` (lógica movida inline para consistencia)
+
 - Validación RFC SAT automática con integración FacturAPI
 - Sistema deadlock resolution para FFM sin timbre (cancel_ffm_keep_si)
 - Filtro guard cancelación SI: solo FFM submitted bloquean cancelación
