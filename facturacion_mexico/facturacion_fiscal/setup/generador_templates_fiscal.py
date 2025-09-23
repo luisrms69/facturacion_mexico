@@ -495,7 +495,6 @@ class GeneradorTemplatesFiscales:
 		for config in itt_configs:
 			itt_name = self._crear_o_actualizar_itt(config, mapeo_cuentas)
 			itt_generados.append(itt_name)
-
 		return itt_generados
 
 	def _obtener_itt_base(self) -> list[dict]:
@@ -700,79 +699,135 @@ class GeneradorTemplatesFiscales:
 		return doc.name
 
 	def _generar_tax_rules(self) -> list[str]:
-		"""Generar Tax Rules para selección automática."""
-		rules_generados = []
+		"""
+		Generar Tax Rules SOLO para STCT existentes.
 
-		# Rules base
-		rules_config = [
-			{"tax_category": "General 16", "priority": 10},
-			{"tax_category": "Zero 0", "priority": 20},
-			{"tax_category": "Exempt", "priority": 30},
-		]
+		Busca todos los STCT creados para la empresa y genera Tax Rules correspondientes.
+		Esto evita errores "Tax Template is mandatory" al intentar crear reglas sin STCT.
 
-		# Rules condicionales según alcance
-		if self.config_fiscal.enable_frontera:
-			rules_config.append({"tax_category": "Border 8", "priority": 15})
+		Returns:
+			Lista de nombres de Tax Rules generadas
+		"""
+		tax_rules = []
 
-		# Rules IEPS
-		if self.config_fiscal.enable_ieps_alcohol:
-			rules_config.append({"tax_category": "IEPS Alcohol", "priority": 40})
-		if self.config_fiscal.enable_ieps_azucar:
-			rules_config.append({"tax_category": "IEPS Azucar", "priority": 41})
-		if self.config_fiscal.enable_ieps_combustibles:
-			rules_config.append({"tax_category": "IEPS Combustibles", "priority": 42})
-		if self.config_fiscal.enable_ieps_tabaco:
-			rules_config.append({"tax_category": "IEPS Tabaco", "priority": 43})
+		# Obtener todos los STCT existentes para esta empresa
+		stct_existentes = frappe.get_all(
+			"Sales Taxes and Charges Template",
+			filters={"company": self.company},
+			fields=["name", "tax_category"],
+			order_by="tax_category",
+		)
 
-		# Rules Retenciones
-		if self.config_fiscal.enable_ret_honorarios:
-			rules_config.append({"tax_category": "Retenciones Honorarios", "priority": 50})
-		if self.config_fiscal.enable_ret_arrendamiento:
-			rules_config.append({"tax_category": "Retenciones Arrendamiento", "priority": 51})
-		if self.config_fiscal.enable_ret_autotransporte:
-			rules_config.append({"tax_category": "Retenciones Autotransporte", "priority": 52})
+		if not stct_existentes:
+			frappe.msgprint("No se encontraron STCT para generar Tax Rules")
+			return tax_rules
 
-		for rule_config in rules_config:
-			rule_name = self._crear_o_actualizar_tax_rule(rule_config)
-			if rule_name:
-				rules_generados.append(rule_name)
+		# Generar Tax Rule para cada STCT existente con prioridades específicas
+		# Prioridades: General 16% (máxima) > Frontera > Zero 0 > Exempt > IEPS > Retenciones
+		priority_map = {
+			# Prioridades principales (más comunes)
+			"General 16": 100,  # Máxima prioridad - default más común
+			"Border 8": 90,  # Frontera - segunda prioridad
+			"Zero 0": 80,  # Exportación - tercera prioridad
+			"Exempt": 70,  # Exento - cuarta prioridad
+			# Prioridades IEPS (casos específicos)
+			"IEPS Alcohol": 60,  # IEPS + IVA
+			"IEPS Azucar": 55,  # IEPS + IVA
+			"IEPS Combustibles": 50,  # IEPS + IVA
+			"IEPS Tabaco": 45,  # IEPS + IVA
+			# Prioridades Retenciones (casos muy específicos)
+			"Retenciones Honorarios": 40,  # Retenciones específicas
+			"Retenciones Arrendamiento": 35,  # Retenciones específicas
+			"Retenciones Autotransporte": 30,  # Retenciones específicas
+		}
 
-		return rules_generados
+		for stct in stct_existentes:
+			if not stct.tax_category:
+				continue  # Skip STCT sin tax_category
+
+			tax_category = stct.tax_category
+
+			# Configuración base del Tax Rule con prioridad específica
+			priority = priority_map.get(tax_category, 10)  # Default 10 si no está en el mapa
+			config = {
+				"tax_category": tax_category,
+				"priority": priority,
+				"sales_tax_template": stct.name,  # CORREGIDO: Campo correcto es sales_tax_template
+			}
+
+			try:
+				rule_name = self._crear_o_actualizar_tax_rule(config)
+				if rule_name:
+					tax_rules.append(rule_name)
+
+			except Exception as e:
+				frappe.log_error(f"Error creando Tax Rule para {tax_category}: {e!s}")
+				continue
+
+		return tax_rules
+
+	def _find_stct_by_tax_category(self, tax_category: str) -> str | None:
+		"""
+		Buscar STCT existente por tax_category y company.
+
+		Args:
+			tax_category: Categoría fiscal a buscar
+
+		Returns:
+			Nombre del STCT encontrado o None si no existe
+		"""
+		rows = frappe.get_all(
+			"Sales Taxes and Charges Template",
+			filters={"company": self.company, "tax_category": tax_category},
+			fields=["name"],
+			order_by="modified desc",
+		)
+		return rows[0].name if rows else None
 
 	def _crear_o_actualizar_tax_rule(self, config: dict) -> str | None:
-		"""Crear o actualizar Tax Rule."""
+		"""
+		Crear o actualizar Tax Rule con validación robusta de STCT.
+
+		Args:
+			config: Diccionario con configuración de la regla
+
+		Returns:
+			Nombre de la Tax Rule creada/actualizada o None si falla
+		"""
 		tax_category = config["tax_category"]
 		title = f"MX {tax_category} - {self.company}"
 
-		# Buscar STCT correspondiente
-		stct_name = frappe.db.get_value(
-			"Sales Taxes and Charges Template",
-			{"company": self.company, "tax_category": tax_category},
-			"name",
-		)
+		# 1. Resolver STCT por tax_category y validar existencia
+		stct_name = config.get("sales_tax_template") or self._find_stct_by_tax_category(tax_category)
 
 		if not stct_name:
-			frappe.msgprint(f"No se encontró STCT para Tax Category {tax_category}")
-			return None
+			frappe.throw(
+				f"No existe STCT para tax_category '{tax_category}'. Genera STCT antes del Tax Rule."
+			)
 
-		# Buscar existente
-		existing = frappe.db.exists("Tax Rule", {"name": title})
+		# Buscar regla existente
+		existing = frappe.db.exists("Tax Rule", {"title": title, "company": self.company})
 
 		if existing:
 			doc = frappe.get_doc("Tax Rule", existing)
 		else:
 			doc = frappe.new_doc("Tax Rule")
+			doc.title = title
+			doc.company = self.company
 
-		doc.update(
-			{
-				"name": title,
-				"company": self.company,
-				"tax_type": "Sales",
-				"tax_category": tax_category,
-				"priority": config.get("priority", 10),
-				"sales_taxes_and_charges_template": stct_name,
-			}
-		)
+		# 2. Configurar campos clave
+		doc.tax_type = "Sales"
+		doc.tax_category = tax_category
+		doc.sales_tax_template = stct_name  # CORREGIDO: Campo correcto es sales_tax_template
+		doc.priority = config.get("priority", 10)
+		doc.enabled = 1
+
+		# Configurar condiciones específicas
+		if "customer_group" in config:
+			doc.customer_group = config["customer_group"]
+
+		if "item_group" in config:
+			doc.item_group = config["item_group"]
 
 		doc.save(ignore_permissions=True)
 		return doc.name

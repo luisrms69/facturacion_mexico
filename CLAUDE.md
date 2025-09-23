@@ -415,6 +415,15 @@ with patch("frappe.get_doc") as mock_get:
 - ✅ **FORMATO:** 🔐 CONFIRMACIÓN REQUERIDA: [acción específica] ¿Proceder? (si/no)
 - ❌ **EXCEPCIÓN:** No pedir confirmación para acciones EXPLÍCITAS en instrucciones
 
+### **RC-006: PROHIBICIÓN ABSOLUTA OPERACIONES SISTEMA**
+- ❌ **PROHIBIDO ABSOLUTO:** Reiniciar servicios del sistema (systemctl, service, etc.)
+- ❌ **PROHIBIDO ABSOLUTO:** Modificar configuración del servidor
+- ❌ **PROHIBIDO ABSOLUTO:** Operaciones sudo que afecten servicios del sistema
+- ❌ **PROHIBIDO ABSOLUTO:** Reiniciar procesos del servidor web, base de datos, o servicios
+- ✅ **PERMITIDO ÚNICAMENTE:** Comandos bench (migrate, clear-cache, console, execute)
+- ⚠️ **CRÍTICO:** Cualquier comando sudo relacionado con servicios sistema DEBE ser autorizado explícitamente
+- 🚨 **NUNCA ASUMIR:** Que problemas de código requieren reinicio de servicios
+
 ### **RC-006: PROHIBICIÓN OPERACIONES FORZADAS**
 - ❌ **PROHIBIDO:** Forzar migraciones, cache clearing, operaciones inconsistentes
 - ❌ **PROHIBIDO:** Modificar BD directa cuando migrate falla

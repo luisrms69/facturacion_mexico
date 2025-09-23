@@ -59,6 +59,10 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
   - Método `send_invoice_email()` en FacturAPIClient para integración completa
 
 ### Fixed
+- **Error crítico "Tax Template is mandatory"** en generación Tax Rules del wizard fiscal E0.5
+  - Root cause: campo incorrecto `sales_taxes_and_charges_template` → `sales_tax_template` (ERPNext core validation)
+  - Fix aplicado: corrección nombre campo + prioridades jerárquicas Tax Rules (General 16% máxima prioridad)
+  - Resultado: generación exitosa 9 templates (4 STCT + 5 ITT + 4 Tax Rules) sin errores validación
 - **Envío automático email CFDI** corregido problema resolución destinatario
   - Unificada lógica email recipient: eliminada función duplicada `_resolve_email_recipient()`
   - Envío automático ahora usa misma función que botón manual (`_resolve_recipient_email()`)
