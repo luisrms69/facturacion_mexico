@@ -7,13 +7,22 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
 ## [Unreleased]
 
 ### Added
-- **Wizard mapeo fiscal México E0.5 - DocTypes fundacionales** para resolver Chart of Accounts empresariales
+- **Wizard mapeo fiscal México E0.5 - Sistema mapeo manual completo** para configuración empresarial
   - DocType `Configuracion Fiscal Mexico`: configuración principal con checkboxes alcance fiscal
   - DocType `Mapeo Cuenta Fiscal Mexico`: tabla mapeo cuentas con validaciones y auditoría
   - UI inteligente: sincronización automática tabla ↔ checkboxes, filtrado cuentas por empresa
   - Matriz roles SAT completa: IVA (16%/8%/0%), IEPS, Retenciones ISR/IVA
   - Sistema read-only roles auto-generados, cannot_add_rows, validación Tax accounts
-  - Base sólida para auto-detección y generación templates (Puntos 2-5 pendientes)
+  - **Botón Preview Templates funcional** con diálogo preview de STCT/ITT a generar
+  - **Manual usuario completo** 6 pasos detallados con troubleshooting (48 páginas)
+- **Reportes técnicos sistema templates** para análisis y refactoring futuro
+  - Reporte AS-IS estado actual: 29% implementación (4/14 templates)
+  - Reporte técnico ChatGPT: propuesta refactoring arquitectura parametrizada
+
+### Changed
+- **Eliminación auto-detección cuentas** - Sistema 100% mapeo manual para mayor control
+- **Menú botones cambiado** de "Acciones" a "Templates" para mayor claridad
+- **Manual simplificado** eliminando Step 3.1 y 3.2 de auto-detección
 - **Plan implementación fiscal mexicano E0-E8** para Issues #65 y #66
   - Documentación completa 8 etapas: Items SAT, IVA automático, IEPS, Retenciones, CFDI 4.0, Anticipos/Pagos 2.0
   - Análisis arquitectura SAT Items existente: ClaveProdServ, ClaveUnidad (UOM nativo), ObjetoImp

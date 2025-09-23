@@ -24,26 +24,64 @@ frappe.ui.form.on("Configuracion Fiscal Mexico", {
 			});
 		}
 
-		// Agregar botón para sugerir cuentas explícito
+		// Agregar botones solo para documentos guardados
 		if (!frm.doc.__islocal && frm.doc.company) {
+			// Botón Preview Templates (siempre disponible)
 			frm.add_custom_button(
-				__("🔍 Sugerir Cuentas"),
+				__("👁️ Preview Templates"),
 				function () {
 					frappe.call({
-						method: "sugerir_cuentas_explicito",
+						method: "preview_templates",
 						doc: frm.doc,
 						callback: function (r) {
 							if (r.message) {
-								frm.refresh_field("mapeo_cuentas");
-								frappe.show_alert({
-									message: `Sugerencias aplicadas: ${r.message.sugerencias_aplicadas}/${r.message.roles_requeridos.length} roles`,
-									indicator: "green",
+								// Mostrar preview en dialog
+								let dialog = new frappe.ui.Dialog({
+									title: "Preview Templates a Generar",
+									fields: [
+										{
+											label: "Preview",
+											fieldname: "preview_content",
+											fieldtype: "HTML",
+										},
+									],
 								});
+
+								let html = "<h4>Templates que se generarán:</h4>";
+								if (r.message.stct_preview) {
+									html += "<h5>Sales Tax and Charges Templates:</h5><ul>";
+									r.message.stct_preview.forEach((template_name) => {
+										html += `<li>${template_name}</li>`;
+									});
+									html += "</ul>";
+								}
+								if (r.message.itt_preview) {
+									html += "<h5>Item Tax Templates:</h5><ul>";
+									r.message.itt_preview.forEach((template_name) => {
+										html += `<li>${template_name}</li>`;
+									});
+									html += "</ul>";
+								}
+								if (
+									r.message.mapeo_cuentas &&
+									Object.keys(r.message.mapeo_cuentas).length > 0
+								) {
+									html += "<h5>Mapeo de Cuentas:</h5><ul>";
+									Object.entries(r.message.mapeo_cuentas).forEach(
+										([rol, cuenta]) => {
+											html += `<li>${rol} → ${cuenta}</li>`;
+										}
+									);
+									html += "</ul>";
+								}
+
+								dialog.fields_dict.preview_content.$wrapper.html(html);
+								dialog.show();
 							}
 						},
 					});
 				},
-				__("Acciones")
+				__("Templates")
 			);
 
 			// Botón para generar templates (solo si configuración completa)
@@ -68,7 +106,7 @@ frappe.ui.form.on("Configuracion Fiscal Mexico", {
 							},
 						});
 					},
-					__("Acciones")
+					__("Templates")
 				);
 			}
 		}

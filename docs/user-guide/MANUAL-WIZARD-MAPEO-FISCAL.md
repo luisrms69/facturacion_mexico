@@ -115,6 +115,7 @@ Antes de usar el wizard, verifica que tu empresa tenga cuentas de impuestos:
 ```
 Tabla "Cuentas de Impuestos":
 • IVA por Pagar (16%)                    → [Cuenta requerida]
+• IVA Exento                             → [Cuenta requerida]
 • IVA por Pagar (8% frontera)           → [Cuenta requerida]
 • ISR Retenido (Honorarios)             → [Cuenta requerida]
 • IVA Retenido (Servicios Profesionales) → [Cuenta requerida]
@@ -126,35 +127,8 @@ Tabla "Cuentas de Impuestos":
 
 ## 🔍 **PASO 3: MAPEO DE CUENTAS (CRÍTICO)**
 
-### **3.1 Auto-detección Automática:**
 
-Después de guardar, el sistema **automáticamente** sugerirá cuentas:
-
-```
-📊 MAPEO DE CUENTAS DE IMPUESTOS
-
-Tipo de Impuesto              | Cuenta Sugerida        | Estado
-------------------------------|------------------------|--------
-IVA por Pagar (16%)          | IVA por Pagar - TC     | ✅ Válido
-IVA por Pagar (0% exportación)| IVA Exportación - TC   | ✅ Válido
-IVA Exento                   | [Buscar cuenta...]     | ❌ Error
-```
-
-### **3.2 Revisar Sugerencias:**
-
-**✅ Cuentas Válidas (Verde):**
-- Sistema encontró cuenta apropiada automáticamente
-- **Verificar que sea correcta** antes de continuar
-
-**⚠️ Cuentas con Advertencia (Amarillo):**
-- Sistema sugiere cuenta pero con baja confianza
-- **Revisar manualmente** y cambiar si es necesario
-
-**❌ Cuentas con Error (Rojo):**
-- Sistema no encontró cuenta apropiada
-- **Mapear manualmente** es obligatorio
-
-### **3.3 Mapeo Manual:**
+### **3.1 Mapeo Manual:**
 
 Para mapear manualmente:
 
@@ -163,7 +137,7 @@ Para mapear manualmente:
 3. **Seleccionar cuenta correcta**
 4. **Estado cambia automáticamente** a Válido/Error
 
-### **3.4 Reglas de Mapeo:**
+### **3.2 Reglas de Mapeo:**
 
 **✅ Permitido:**
 - Usar **misma cuenta para roles diferentes** (ej. misma cuenta para IVA 16% y 0%)
@@ -196,8 +170,8 @@ Templates Generados: 0 (pendiente)
 
 Antes de generar, puedes ver qué se creará:
 
-1. **Click botón "Preview Templates"**
-2. **Revisa lista de STCT/ITT** que se generarán
+1. **Click botón "👁️ Preview Templates"** (en menú Templates)
+2. **Revisa lista de STCT/ITT** que se generarán en el diálogo
 3. **Verifica cuentas mapeadas** en preview
 
 **Ejemplo Preview:**
@@ -225,7 +199,7 @@ Mapeo cuentas:
 
 Cuando todo esté correcto:
 
-1. **Click "Aplicar Mapeo y Generar Templates"**
+1. **Click "⚙️ Generar Templates"** (en menú Templates)
 2. **Esperar mensaje de confirmación**
 3. **Verificar cantidad de templates creados**
 
@@ -304,7 +278,7 @@ Si tu empresa cambia de alcance (ej. empieza a vender IEPS):
 1. **Editar configuración existente**
 2. **Marcar nuevos checkboxes** (ej. IEPS Alcohol)
 3. **Mapear nuevas cuentas** requeridas
-4. **Re-ejecutar "Aplicar Mapeo"**
+4. **Re-ejecutar "⚙️ Generar Templates"** (en menú Templates)
 5. **Sistema actualiza** sin duplicar templates existentes
 
 ### **7.2 Cambios de Cuentas:**

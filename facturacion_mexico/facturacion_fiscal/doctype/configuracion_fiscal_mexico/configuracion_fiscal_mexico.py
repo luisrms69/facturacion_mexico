@@ -5,8 +5,6 @@ Configuración Fiscal México - DocType principal para wizard de mapeo fiscal.
 import frappe
 from frappe.model.document import Document
 
-from facturacion_mexico.facturacion_fiscal.setup.autodeteccion_cuentas import AutodetectorCuentasFiscales
-
 
 class ConfiguracionFiscalMexico(Document):
 	"""
@@ -14,7 +12,6 @@ class ConfiguracionFiscalMexico(Document):
 
 	Funcionalidades principales:
 	- Mapeo transparente roles fiscales → cuentas contables
-	- Auto-detección inteligente de cuentas por patrones
 	- Validación tiempo real de completitud
 	- Configuración de alcance (frontera/IEPS/retenciones)
 	- Bloqueo hasta mapeo completo y válido
@@ -34,7 +31,7 @@ class ConfiguracionFiscalMexico(Document):
 		config = frappe.new_doc("Configuracion Fiscal Mexico")
 		config.company = "Mi Empresa S.A."
 		config.enable_frontera = 1
-		config.save()  # Trigger auto-detección
+		config.save()
 	"""
 
 	def autoname(self):
@@ -44,78 +41,9 @@ class ConfiguracionFiscalMexico(Document):
 
 	def before_save(self):
 		"""Ejecutar validaciones antes de guardar."""
-		# CORRECCIÓN: NO agregar filas automáticamente en before_save
 		# Las filas se agregan via JavaScript cuando cambian los checkboxes
 		self._validar_mapeo_completo()
 		self._actualizar_estado_completitud()
-
-	def _auto_detectar_cuentas_faltantes(self):
-		"""
-		LEGACY: Auto-detectar y sugerir cuentas faltantes.
-		Redirige a nueva estrategia MERGE.
-		"""
-		if not self.company:
-			return
-
-		roles_requeridos = self._obtener_roles_requeridos()
-		detector = AutodetectorCuentasFiscales(self.company)
-		sugerencias = detector.sugerir_mapeo_completo()
-
-		self._merge_roles_en_tabla(roles_requeridos, sugerencias)
-
-	def _merge_roles_en_tabla(self, roles_requeridos: set, sugerencias: dict):
-		"""
-		Estrategia MERGE según propuesta ChatGPT:
-		- Si una fila existe para un rol → ACTUALIZAR
-		- Si no existe → INSERTAR
-		- No borrar otras filas
-		"""
-		# Mapear roles existentes por índice
-		roles_existentes = {}
-		for idx, row in enumerate(self.mapeo_cuentas):
-			if row.rol_fiscal:
-				roles_existentes[row.rol_fiscal] = idx
-
-		# MERGE strategy: actualizar existentes, insertar faltantes
-		for rol_fiscal in roles_requeridos:
-			if rol_fiscal in roles_existentes:
-				# ACTUALIZAR fila existente si hay sugerencia nueva
-				idx = roles_existentes[rol_fiscal]
-				row = self.mapeo_cuentas[idx]
-
-				if rol_fiscal in sugerencias and not row.cuenta_impuesto:
-					# Solo actualizar si no tiene cuenta ya asignada
-					sugerencia = sugerencias[rol_fiscal]
-					row.cuenta_impuesto = sugerencia["cuenta"]
-					row.sugerido_automaticamente = 1
-					row.justificacion_sugerencia = sugerencia["justificacion"]
-					row.estado_validacion = "Válido" if sugerencia["confianza"] >= 80 else "Advertencia"
-			else:
-				# INSERTAR nueva fila
-				if rol_fiscal in sugerencias:
-					sugerencia = sugerencias[rol_fiscal]
-					self.append(
-						"mapeo_cuentas",
-						{
-							"rol_fiscal": rol_fiscal,
-							"cuenta_impuesto": sugerencia["cuenta"],
-							"sugerido_automaticamente": 1,
-							"justificacion_sugerencia": sugerencia["justificacion"],
-							"estado_validacion": "Válido" if sugerencia["confianza"] >= 80 else "Advertencia",
-						},
-					)
-				else:
-					# Agregar rol sin cuenta (mapeo manual requerido)
-					self.append(
-						"mapeo_cuentas",
-						{
-							"rol_fiscal": rol_fiscal,
-							"cuenta_impuesto": "",
-							"sugerido_automaticamente": 0,
-							"justificacion_sugerencia": "Mapeo manual requerido",
-							"estado_validacion": "Error",
-						},
-					)
 
 	def _rol_requerido_por_alcance(self, rol_fiscal: str) -> bool:
 		"""Determinar si un rol fiscal es requerido según alcance configurado."""
@@ -356,57 +284,6 @@ class ConfiguracionFiscalMexico(Document):
 		)
 
 		return preview_templates_a_generar(self.company)
-
-	@frappe.whitelist()
-	def sugerir_cuentas_explicito(self):
-		"""
-		Botón explícito 'Sugerir cuentas' - Ejecutar auto-detección según propuesta ChatGPT.
-
-		Garantiza que el operador puede forzar la auto-detección y ver resultado ANTES de guardar.
-		"""
-		if not self.company:
-			frappe.throw("Debe seleccionar una empresa antes de sugerir cuentas")
-
-		# Obtener roles requeridos según alcance actual
-		roles_requeridos = self._obtener_roles_requeridos()
-
-		# Obtener sugerencias de auto-detección
-		from facturacion_mexico.facturacion_fiscal.setup.autodeteccion_cuentas import (
-			AutodetectorCuentasFiscales,
-		)
-
-		detector = AutodetectorCuentasFiscales(self.company)
-		sugerencias = detector.sugerir_mapeo_completo()
-
-		# MERGE strategy: actualizar existentes, insertar nuevos
-		self._merge_roles_en_tabla(roles_requeridos, sugerencias)
-
-		# Recalcular completitud
-		self._actualizar_estado_completitud()
-
-		# Estadísticas para el usuario
-		roles_con_sugerencia = len([r for r in roles_requeridos if r in sugerencias])
-		roles_sin_sugerencia = len(roles_requeridos) - roles_con_sugerencia
-
-		frappe.msgprint(
-			f"""Sugerencias procesadas:
-			• {roles_con_sugerencia} roles con cuenta sugerida
-			• {roles_sin_sugerencia} roles requieren mapeo manual
-			• Total roles: {len(roles_requeridos)}""",
-			title="Cuentas Sugeridas",
-			alert=True,
-		)
-
-		return {
-			"roles_requeridos": list(roles_requeridos),
-			"sugerencias_aplicadas": roles_con_sugerencia,
-			"mapeo_manual_pendiente": roles_sin_sugerencia,
-		}
-
-	@frappe.whitelist()
-	def ejecutar_auto_deteccion(self):
-		"""LEGACY: Mantener compatibilidad - redirige a nuevo método."""
-		return self.sugerir_cuentas_explicito()
 
 	@frappe.whitelist()
 	def agregar_filas_por_alcance(self):
