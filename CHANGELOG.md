@@ -18,6 +18,12 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
 - **Reportes técnicos sistema templates** para análisis y refactoring futuro
   - Reporte AS-IS estado actual: 29% implementación (4/14 templates)
   - Reporte técnico ChatGPT: propuesta refactoring arquitectura parametrizada
+- **Sistema constantes centralizadas fiscales México** - Hito 1 refactoring templates
+  - Módulo `constantes_fiscales.py`: punto único configuración tasas SAT (IVA, IEPS, retenciones)
+  - Templates IEPS completos: 4 tipos con cascada IVA automática (alcohol, azúcar, combustibles, tabaco)
+  - Templates retenciones completos: 6 tipos ISR/IVA con behavior "Deduct"
+  - Funciones helper: obtener_tasa(), obtener_configuracion_por_rol(), es_impuesto_cascada()
+  - Cobertura 14/14 templates (era 4/14): 100% sistema funcional
 
 ### Changed
 - **Eliminación auto-detección cuentas** - Sistema 100% mapeo manual para mayor control
@@ -28,6 +34,11 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
   - Análisis arquitectura SAT Items existente: ClaveProdServ, ClaveUnidad (UOM nativo), ObjetoImp
   - Decisión arquitectónica fundamentada: ObjetoImp por ClaveProdServ suficiente según normativa SAT
   - E0 completado: arquitectura actual es correcta, casos edge manejados vía Tax Rules
+- **Generador templates fiscales refactorizado** - Arquitectura modular sin hardcode
+  - Métodos especializados por tipo impuesto: IVA base, IEPS cascada, retenciones
+  - Eliminado 100% hardcode tasas dispersas por constantes centralizadas
+  - Cascada IEPS → IVA implementada con "On Previous Row Amount"
+  - Retenciones configuradas correctamente como "Deduct" vs "Add"
   - Plan autocontenido en `docs/testing/planes/plan-fiscal-implementacion-mx-e0-e8/`
   - Branch `feat/mx-fiscal-E0-E3-issues-65-66` preparado para desarrollo
   - Reporte técnico completo con matriz decisión y ejemplos SAT oficiales
@@ -56,6 +67,9 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
   - Eliminado código obsoleto de trigger duplicado y logs debugging
   - Corregidos errores sintaxis después de limpieza código
 - Corregida indentación `on_successful_stamp()` (era función independiente, ahora método de clase)
+- **Sistema templates incompleto** - IEPS y retenciones prometidas por wizard ahora generadas
+- **Hardcode tasas fiscales** - Centralización permite mantenimiento sencillo
+- **Testing inconsistente** - Suite 22 tests validando constantes y generación completa
 - Eliminado prompt innecesario en botón "Enviar CFDI por email" - ahora envía directamente
 - Persistencia botones UI después de refresh (Ctrl+Shift+R) mediante gestión centralizada
 - Comportamiento consistente botones custom siguiendo patrón "Cancelar en FacturAPI"

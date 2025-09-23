@@ -1,6 +1,6 @@
-# 📊 REPORTE AS-IS: SISTEMA TEMPLATES FISCALES MÉXICO
+# 📊 REPORTE AS-IS: SISTEMA TEMPLATES FISCALES MÉXICO (POST-HITO 1)
 
-**Fecha:** 2025-09-22
+**Fecha:** 2025-09-22 (Actualizado post-Hito 1)
 **Audiencia:** Operador del Sistema
 **Propósito:** Documentar estado actual del sistema de generación de templates fiscales
 
@@ -8,18 +8,22 @@
 
 ## 🎯 **RESUMEN EJECUTIVO**
 
-El sistema de templates fiscales está **parcialmente implementado**. Solo genera templates básicos de IVA, pero **NO genera templates para IEPS ni retenciones**, a pesar de que el wizard permite configurarlos.
+El sistema de templates fiscales está **completamente funcional** tras la implementación del Hito 1. Genera templates completos para todos los tipos de impuestos mexicanos con tasas centralizadas.
 
-### **✅ QUÉ FUNCIONA:**
-- Wizard de mapeo fiscal completo
-- Generación templates IVA (16%, 8%, 0%, exento)
-- Preview funcional de templates
-- Mapeo manual de cuentas
+### **✅ QUÉ FUNCIONA (POST-HITO 1):**
+- ✅ **Wizard de mapeo fiscal completo** - Mapeo manual 100% operativo
+- ✅ **Generación templates IVA** (16%, 8%, 0%, exento) - Constantes centralizadas
+- ✅ **Generación templates IEPS** (alcohol, azúcar, combustibles, tabaco) + IVA cascada
+- ✅ **Generación templates retenciones** (ISR/IVA honorarios, arrendamiento, autotransporte)
+- ✅ **Preview funcional completo** - Dinámico según alcance real
+- ✅ **Constantes centralizadas** - Zero hardcode en generador
+- ✅ **Mapeo manual de cuentas** - Control total usuario
 
-### **❌ QUÉ NO FUNCIONA:**
-- **Templates IEPS no se generan** (alcohol, azúcar, combustibles, tabaco)
-- **Templates retenciones no se generan** (honorarios, arrendamiento, autotransporte)
-- **Código excesivamente hardcodeado** (tasas, estructuras fijas)
+### **🔧 MEJORAS IMPLEMENTADAS HITO 1:**
+- **Arquitectura modular** - Métodos especializados por tipo impuesto
+- **Tax Categories automáticas** - Creación según alcance habilitado
+- **Cascada IEPS → IVA** - "On Previous Row Amount" correctamente implementado
+- **Retenciones como "Deduct"** - Add/Deduct correcto según tipo impuesto
 
 ---
 
@@ -41,66 +45,97 @@ El sistema de templates fiscales está **parcialmente implementado**. Solo gener
 
 ---
 
-## 📋 **TEMPLATES GENERADOS ACTUALMENTE**
+## 📋 **TEMPLATES GENERADOS ACTUALMENTE (POST-HITO 1)**
 
 ### **Sales Tax and Charges Templates (STCT):**
-✅ **IVA 16% - México - [Empresa]**
-✅ **IVA 0% - México - [Empresa]** (exportación)
-✅ **Sin Impuestos - México - [Empresa]** (exento)
-✅ **IVA 8% Frontera - México - [Empresa]** (condicional)
+
+**✅ Base IVA (4 templates):**
+- **IVA 16% - México - [Empresa]** (tasa desde constantes)
+- **IVA 0% - México - [Empresa]** (exportación)
+- **Sin Impuestos - México - [Empresa]** (exento)
+- **IVA 8% Frontera - México - [Empresa]** (condicional)
+
+**✅ IEPS + IVA Cascada (4 templates condicionales):**
+- **IEPS Alcohol + IVA - México - [Empresa]** (26.5% + 16% cascada)
+- **IEPS Azúcar + IVA - México - [Empresa]** (1.0 + 16% cascada)
+- **IEPS Combustibles + IVA - México - [Empresa]** (4.58 + 16% cascada)
+- **IEPS Tabaco + IVA - México - [Empresa]** (160% + 16% cascada)
+
+**✅ Retenciones (3 templates condicionales):**
+- **Retenciones Honorarios - México - [Empresa]** (ISR 10% + IVA 10.67% Deduct)
+- **Retenciones Arrendamiento - México - [Empresa]** (ISR 10% + IVA 10.67% Deduct)
+- **Retenciones Autotransporte - México - [Empresa]** (ISR 4% + IVA 4% Deduct)
 
 ### **Item Tax Templates (ITT):**
-✅ **ITT IVA 16% - [Empresa]**
-✅ **ITT IVA 0% - [Empresa]**
-✅ **ITT Exento - [Empresa]**
-✅ **ITT IVA 8% Frontera - [Empresa]** (condicional)
+
+**✅ Base IVA (4 templates):**
+- **ITT IVA 16% - [Empresa]**
+- **ITT IVA 0% - [Empresa]**
+- **ITT Exento - [Empresa]**
+- **ITT IVA 8% Frontera - [Empresa]** (condicional)
+
+**✅ IEPS (4 templates condicionales):**
+- **ITT IEPS Alcohol - [Empresa]**
+- **ITT IEPS Azúcar - [Empresa]**
+- **ITT IEPS Combustibles - [Empresa]**
+- **ITT IEPS Tabaco - [Empresa]**
+
+**✅ Retenciones (6 templates condicionales):**
+- **ITT ISR Honorarios - [Empresa]**
+- **ITT IVA Retenido Servicios - [Empresa]**
+- **ITT ISR Arrendamiento - [Empresa]**
+- **ITT IVA Retenido Arrendamiento - [Empresa]**
+- **ITT ISR Autotransporte - [Empresa]**
+- **ITT IVA Retenido Autotransporte - [Empresa]**
 
 ### **Tax Rules:**
-✅ **MX General 16 - [Empresa]**
-✅ **MX Zero 0 - [Empresa]**
-✅ **MX Exempt - [Empresa]**
-✅ **MX Border 8 - [Empresa]** (condicional)
+
+**✅ Base + Todas las categorías según alcance (hasta 10 rules):**
+- **MX General 16 - [Empresa]**
+- **MX Zero 0 - [Empresa]**
+- **MX Exempt - [Empresa]**
+- **MX Border 8 - [Empresa]** (condicional)
+- **MX IEPS Alcohol - [Empresa]** (condicional)
+- **MX IEPS Azucar - [Empresa]** (condicional)
+- **MX IEPS Combustibles - [Empresa]** (condicional)
+- **MX IEPS Tabaco - [Empresa]** (condicional)
+- **MX Retenciones Honorarios - [Empresa]** (condicional)
+- **MX Retenciones Arrendamiento - [Empresa]** (condicional)
+- **MX Retenciones Autotransporte - [Empresa]** (condicional)
 
 ---
 
-## ❌ **TEMPLATES NO IMPLEMENTADOS**
+## 🔧 **UBICACIONES CRÍTICAS PARA MANTENIMIENTO (POST-HITO 1)**
 
-### **IEPS Faltantes:**
-❌ **IEPS Alcohol** - Usuario puede mapear cuenta pero no se genera template
-❌ **IEPS Azúcar/Bebidas** - Usuario puede mapear cuenta pero no se genera template
-❌ **IEPS Combustibles** - Usuario puede mapear cuenta pero no se genera template
-❌ **IEPS Tabaco** - Usuario puede mapear cuenta pero no se genera template
-
-### **Retenciones Faltantes:**
-❌ **ISR Retenido (Honorarios)** - Usuario puede mapear cuenta pero no se genera template
-❌ **IVA Retenido (Servicios Profesionales)** - Usuario puede mapear cuenta pero no se genera template
-❌ **ISR Retenido (Arrendamiento)** - Usuario puede mapear cuenta pero no se genera template
-❌ **IVA Retenido (Arrendamiento)** - Usuario puede mapear cuenta pero no se genera template
-❌ **ISR Retenido (Autotransporte)** - Usuario puede mapear cuenta pero no se genera template
-❌ **IVA Retenido (Autotransporte)** - Usuario puede mapear cuenta pero no se genera template
-
----
-
-## 🔧 **UBICACIONES CRÍTICAS PARA MANTENIMIENTO**
-
-### **Configuración de Tasas (HARDCODED):**
-📍 **Archivo:** `generador_templates_fiscal.py`
-📍 **Líneas:** 107-153 (templates IVA)
+### **✅ Configuración de Tasas (CENTRALIZADAS):**
+📍 **Archivo:** `constantes_fiscales.py` - **PUNTO ÚNICO DE VERDAD**
+📍 **Secciones:** TASAS_IVA, TASAS_IEPS, TASAS_RETENCIONES
+📍 **Helper functions:** `obtener_tasa()`, `obtener_configuracion_por_rol()`
 
 ```python
-# HARDCODED - Tasas IVA
-"rate": 16.0,  # IVA General
-"rate": 8.0,   # IVA Frontera
-"rate": 0.0,   # IVA Exportación
+# ✅ CONSTANTES CENTRALIZADAS - Ejemplo
+TASAS_IVA = {
+    "general": {"tasa": 16.0, "descripcion": "IVA 16%", "add_deduct_tax": "Add"},
+    "frontera": {"tasa": 8.0, "descripcion": "IVA Frontera 8%", "add_deduct_tax": "Add"}
+}
 ```
 
 ### **Roles Fiscales:**
 📍 **Archivo:** `configuracion_fiscal_mexico.py`
 📍 **Líneas:** 145-197 (método `_obtener_roles_requeridos`)
 
-### **Estructura Templates:**
+### **✅ Generación Templates (MODULAR):**
 📍 **Archivo:** `generador_templates_fiscal.py`
-📍 **Líneas:** 107-290 (métodos `_generar_stct`, `_generar_itt`, `_generar_tax_rules`)
+📍 **Métodos especializados:**
+- `_obtener_templates_iva_base()` - Templates IVA base
+- `_obtener_templates_ieps_cascada()` - IEPS + IVA cascada
+- `_obtener_templates_retenciones()` - Retenciones ISR/IVA
+- `_obtener_itt_base()`, `_obtener_itt_ieps()`, `_obtener_itt_retenciones()` - ITT por tipo
+
+### **✅ Mapeo Rol → Configuración:**
+📍 **Archivo:** `constantes_fiscales.py`
+📍 **Variable:** `MAPEO_ROLES_CONFIGURACION`
+📍 **Propósito:** Traducir roles wizard → configuraciones centralizadas
 
 ---
 

@@ -5,7 +5,7 @@
 **Fecha:** 2025-09-16
 **Sistema Control:** Claude Code + Sistema Buzola Integrado
 
-**Última actualización:** 2025-09-17
+**Última actualización:** 2025-09-22
 **Versión compatible:** Frappe v15, Claude Code
 
 ---
