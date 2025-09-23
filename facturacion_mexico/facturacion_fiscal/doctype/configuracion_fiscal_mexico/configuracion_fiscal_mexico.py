@@ -1,0 +1,468 @@
+"""
+Configuración Fiscal México - DocType principal para wizard de mapeo fiscal.
+"""
+
+import frappe
+from frappe.model.document import Document
+
+from facturacion_mexico.facturacion_fiscal.setup.autodeteccion_cuentas import AutodetectorCuentasFiscales
+
+
+class ConfiguracionFiscalMexico(Document):
+	"""
+	Configuración Fiscal México - Wizard de mapeo de cuentas fiscales por empresa.
+
+	Funcionalidades principales:
+	- Mapeo transparente roles fiscales → cuentas contables
+	- Auto-detección inteligente de cuentas por patrones
+	- Validación tiempo real de completitud
+	- Configuración de alcance (frontera/IEPS/retenciones)
+	- Bloqueo hasta mapeo completo y válido
+
+	Parámetros importantes:
+		company (Link): Empresa para la cual se configura
+		mapeo_cuentas (Table): Tabla child con mapeos rol → cuenta
+		enable_frontera (Check): Habilitar zona fronteriza IVA 8%
+		configuracion_completa (Check): Estado de completitud automático
+
+	Errores comunes:
+		ValidationError: Mapeo incompleto según alcance configurado
+		ValidationError: Cuentas duplicadas en mapeo
+		ValidationError: Cuenta no es tipo Tax o empresa incorrecta
+
+	Ejemplo de uso:
+		config = frappe.new_doc("Configuracion Fiscal Mexico")
+		config.company = "Mi Empresa S.A."
+		config.enable_frontera = 1
+		config.save()  # Trigger auto-detección
+	"""
+
+	def autoname(self):
+		"""Generar nombre automático único por empresa."""
+		if self.company:
+			self.name = f"CFM-{self.company}"
+
+	def before_save(self):
+		"""Ejecutar validaciones antes de guardar."""
+		# CORRECCIÓN: NO agregar filas automáticamente en before_save
+		# Las filas se agregan via JavaScript cuando cambian los checkboxes
+		self._validar_mapeo_completo()
+		self._actualizar_estado_completitud()
+
+	def _auto_detectar_cuentas_faltantes(self):
+		"""
+		LEGACY: Auto-detectar y sugerir cuentas faltantes.
+		Redirige a nueva estrategia MERGE.
+		"""
+		if not self.company:
+			return
+
+		roles_requeridos = self._obtener_roles_requeridos()
+		detector = AutodetectorCuentasFiscales(self.company)
+		sugerencias = detector.sugerir_mapeo_completo()
+
+		self._merge_roles_en_tabla(roles_requeridos, sugerencias)
+
+	def _merge_roles_en_tabla(self, roles_requeridos: set, sugerencias: dict):
+		"""
+		Estrategia MERGE según propuesta ChatGPT:
+		- Si una fila existe para un rol → ACTUALIZAR
+		- Si no existe → INSERTAR
+		- No borrar otras filas
+		"""
+		# Mapear roles existentes por índice
+		roles_existentes = {}
+		for idx, row in enumerate(self.mapeo_cuentas):
+			if row.rol_fiscal:
+				roles_existentes[row.rol_fiscal] = idx
+
+		# MERGE strategy: actualizar existentes, insertar faltantes
+		for rol_fiscal in roles_requeridos:
+			if rol_fiscal in roles_existentes:
+				# ACTUALIZAR fila existente si hay sugerencia nueva
+				idx = roles_existentes[rol_fiscal]
+				row = self.mapeo_cuentas[idx]
+
+				if rol_fiscal in sugerencias and not row.cuenta_impuesto:
+					# Solo actualizar si no tiene cuenta ya asignada
+					sugerencia = sugerencias[rol_fiscal]
+					row.cuenta_impuesto = sugerencia["cuenta"]
+					row.sugerido_automaticamente = 1
+					row.justificacion_sugerencia = sugerencia["justificacion"]
+					row.estado_validacion = "Válido" if sugerencia["confianza"] >= 80 else "Advertencia"
+			else:
+				# INSERTAR nueva fila
+				if rol_fiscal in sugerencias:
+					sugerencia = sugerencias[rol_fiscal]
+					self.append(
+						"mapeo_cuentas",
+						{
+							"rol_fiscal": rol_fiscal,
+							"cuenta_impuesto": sugerencia["cuenta"],
+							"sugerido_automaticamente": 1,
+							"justificacion_sugerencia": sugerencia["justificacion"],
+							"estado_validacion": "Válido" if sugerencia["confianza"] >= 80 else "Advertencia",
+						},
+					)
+				else:
+					# Agregar rol sin cuenta (mapeo manual requerido)
+					self.append(
+						"mapeo_cuentas",
+						{
+							"rol_fiscal": rol_fiscal,
+							"cuenta_impuesto": "",
+							"sugerido_automaticamente": 0,
+							"justificacion_sugerencia": "Mapeo manual requerido",
+							"estado_validacion": "Error",
+						},
+					)
+
+	def _rol_requerido_por_alcance(self, rol_fiscal: str) -> bool:
+		"""Determinar si un rol fiscal es requerido según alcance configurado."""
+		# Roles siempre requeridos
+		roles_base = ["IVA por Pagar (16%)", "IVA Exento"]
+		if rol_fiscal in roles_base:
+			return True
+
+		# Roles condicionales por alcance
+		if self.enable_frontera and "8% frontera" in rol_fiscal:
+			return True
+		if self.enable_exportacion and "0% exportación" in rol_fiscal:
+			return True
+		if self.enable_ieps_alcohol and "IEPS por Pagar (Alcohol)" in rol_fiscal:
+			return True
+		if self.enable_ieps_azucar and "IEPS por Pagar (Azúcar" in rol_fiscal:
+			return True
+		if self.enable_ieps_combustibles and "IEPS por Pagar (Combustibles)" in rol_fiscal:
+			return True
+		if self.enable_ieps_tabaco and "IEPS por Pagar (Tabaco)" in rol_fiscal:
+			return True
+		if self.enable_ret_honorarios and "ISR Retenido (Honorarios)" in rol_fiscal:
+			return True
+		if self.enable_ret_arrendamiento and "IVA Retenido (Arrendamiento)" in rol_fiscal:
+			return True
+		if self.enable_ret_autotransporte and ("Autotransporte" in rol_fiscal):
+			return True
+
+		return False
+
+	def _validar_mapeo_completo(self):
+		"""Validar que el mapeo esté completo según alcance."""
+		roles_requeridos = self._obtener_roles_requeridos()
+		roles_mapeados = {
+			row.rol_fiscal for row in self.mapeo_cuentas if row.rol_fiscal and row.cuenta_impuesto
+		}
+
+		roles_faltantes = roles_requeridos - roles_mapeados
+		if roles_faltantes:
+			frappe.msgprint(
+				f"Advertencia: Faltan mapeos para roles: {', '.join(sorted(roles_faltantes))}", alert=True
+			)
+
+		# Validar cada cuenta de impuesto
+		for row in self.mapeo_cuentas:
+			if row.cuenta_impuesto:
+				self._validar_cuenta_impuesto(row)
+
+		# Validar duplicados (permitir misma cuenta para roles diferentes si es necesario)
+		# Solo validar que no haya duplicado del mismo rol
+		roles_usados = []
+		for row in self.mapeo_cuentas:
+			if row.rol_fiscal and row.rol_fiscal in roles_usados:
+				frappe.throw(f"El rol fiscal {row.rol_fiscal} está duplicado en el mapeo")
+			if row.rol_fiscal:
+				roles_usados.append(row.rol_fiscal)
+
+	def _validar_cuenta_impuesto(self, row):
+		"""Validar que cuenta de impuesto sea correcta."""
+		if not row.cuenta_impuesto:
+			return
+
+		# Verificar que la cuenta existe
+		if not frappe.db.exists("Account", row.cuenta_impuesto):
+			frappe.throw(f"La cuenta {row.cuenta_impuesto} no existe")
+
+		# Obtener datos de la cuenta
+		account_data = frappe.db.get_value(
+			"Account", row.cuenta_impuesto, ["account_type", "company", "is_group", "disabled"], as_dict=True
+		)
+
+		if not account_data:
+			frappe.throw(f"No se pueden obtener datos de la cuenta {row.cuenta_impuesto}")
+
+		# Validar tipo Tax
+		if account_data.account_type != "Tax":
+			frappe.throw(
+				f"La cuenta {row.cuenta_impuesto} no es tipo Tax. Tipo actual: {account_data.account_type}"
+			)
+
+		# Validar empresa
+		if account_data.company != self.company:
+			frappe.throw(
+				f"La cuenta {row.cuenta_impuesto} pertenece a la empresa {account_data.company}, no a {self.company}"
+			)
+
+		# Validar que no sea grupo
+		if account_data.is_group:
+			frappe.throw(f"La cuenta {row.cuenta_impuesto} es un grupo. Seleccione una cuenta específica.")
+
+		# Validar que esté habilitada
+		if account_data.disabled:
+			frappe.throw(f"La cuenta {row.cuenta_impuesto} está deshabilitada")
+
+	def _obtener_roles_requeridos(self) -> set:
+		"""
+		Obtener conjunto de roles fiscales requeridos según alcance.
+
+		MATRIZ CANÓNICA según propuesta ChatGPT con nombres descriptivos en español.
+		"""
+		# SIEMPRE requeridos
+		roles_requeridos = {"IVA por Pagar (16%)", "IVA Exento"}
+
+		# CONDICIONALES según alcance
+		if self.enable_frontera:
+			roles_requeridos.add("IVA por Pagar (8% frontera)")
+
+		if self.enable_exportacion:
+			roles_requeridos.add("IVA por Pagar (0% exportación)")
+
+		# RETENCIONES - Servicios Profesionales (Honorarios)
+		if self.enable_ret_honorarios:
+			roles_requeridos.update(
+				[
+					"ISR Retenido (Honorarios)",  # RET_ISR_10 en propuesta
+					"IVA Retenido (Servicios Profesionales)",  # RET_IVA_2_3_SERVPROF en propuesta
+				]
+			)
+
+		# RETENCIONES - Arrendamiento
+		if self.enable_ret_arrendamiento:
+			roles_requeridos.update(
+				[
+					"ISR Retenido (Arrendamiento)",  # RET_ISR_10 + RET_IVA_ARR
+					"IVA Retenido (Arrendamiento)",
+				]
+			)
+
+		# RETENCIONES - Autotransporte
+		if self.enable_ret_autotransporte:
+			roles_requeridos.update(
+				[
+					"ISR Retenido (Autotransporte)",  # RET_ISR_4_AUTOT
+					"IVA Retenido (Autotransporte)",  # RET_IVA_AUTOT
+				]
+			)
+
+		# IEPS según habilitados
+		if self.enable_ieps_alcohol:
+			roles_requeridos.add("IEPS por Pagar (Alcohol)")
+		if self.enable_ieps_azucar:
+			roles_requeridos.add("IEPS por Pagar (Azúcar/Bebidas)")
+		if self.enable_ieps_combustibles:
+			roles_requeridos.add("IEPS por Pagar (Combustibles)")
+		if self.enable_ieps_tabaco:
+			roles_requeridos.add("IEPS por Pagar (Tabaco)")
+
+		return roles_requeridos
+
+	def _actualizar_estado_completitud(self):
+		"""
+		Actualizar estado de completitud automáticamente.
+		Incluye barra de cobertura según propuesta ChatGPT.
+		"""
+		roles_requeridos = self._obtener_roles_requeridos()
+		roles_validos = {
+			row.rol_fiscal
+			for row in self.mapeo_cuentas
+			if row.rol_fiscal and row.cuenta_impuesto and row.estado_validacion == "Válido"
+		}
+
+		# Calcular cobertura
+		total_requeridos = len(roles_requeridos)
+		total_mapeados = len(roles_validos.intersection(roles_requeridos))
+
+		# Estado de completitud
+		self.configuracion_completa = total_requeridos > 0 and roles_requeridos.issubset(roles_validos)
+
+		# Almacenar estadísticas para mostrar en UI (campos calculados)
+		frappe.logger().info(f"Cobertura mapeo fiscal: {total_mapeados}/{total_requeridos} roles mapeados")
+
+	@frappe.whitelist()
+	def aplicar_mapeo_y_generar_templates(self):
+		"""
+		Aplicar mapeo y generar templates fiscales.
+		Método principal del wizard llamado desde UI.
+		"""
+		# GUARD: Solo permitir desde UI o CLI con flag explícito
+		if not getattr(frappe.flags, "allow_fiscal_generation", False) and not frappe.local.form_dict.get(
+			"from_ui"
+		):
+			frappe.throw("Generación fiscal solo permitida desde UI del wizard o CLI con flag explícito")
+
+		if not self.configuracion_completa:
+			frappe.throw("No se puede generar templates. La configuración no está completa.")
+
+		# Registrar auditoría de ejecución
+		self._registrar_auditoria_generacion()
+
+		# Importar aquí para evitar circular imports
+		from facturacion_mexico.facturacion_fiscal.setup.generador_templates_fiscal import (
+			GeneradorTemplatesFiscales,
+		)
+
+		try:
+			generador = GeneradorTemplatesFiscales(self.company)
+			resultados = generador.generar_templates_completos()
+
+			# Mostrar mensaje de éxito
+			total_templates = len(resultados["stct_generados"]) + len(resultados["itt_generados"])
+			frappe.msgprint(
+				f"✅ Se generaron/actualizaron {total_templates} templates fiscales para {self.company}",
+				title="Templates Generados",
+				indicator="green",
+			)
+
+			return resultados
+
+		except Exception as e:
+			frappe.log_error(f"Error generando templates: {e!s}")
+			frappe.throw(f"Error generando templates: {e!s}")
+
+	def _registrar_auditoria_generacion(self):
+		"""Registrar snapshot de auditoría para generación fiscal."""
+		try:
+			auditoria = {
+				"usuario": frappe.session.user,
+				"timestamp": frappe.utils.now(),
+				"empresa": self.company,
+				"alcance": {
+					"frontera": self.enable_frontera,
+					"exportacion": self.enable_exportacion,
+					"retenciones_honorarios": self.enable_ret_honorarios,
+					"retenciones_arrendamiento": self.enable_ret_arrendamiento,
+					"retenciones_autotransporte": self.enable_ret_autotransporte,
+				},
+				"roles_mapeados": len(self.mapeo_cuentas),
+			}
+			frappe.logger().info(f"Auditoría generación fiscal: {auditoria}")
+		except Exception as e:
+			frappe.logger().warning(f"Error registrando auditoría: {e}")
+
+	@frappe.whitelist()
+	def preview_templates(self):
+		"""Obtener preview de templates que se van a generar."""
+		from facturacion_mexico.facturacion_fiscal.setup.generador_templates_fiscal import (
+			preview_templates_a_generar,
+		)
+
+		return preview_templates_a_generar(self.company)
+
+	@frappe.whitelist()
+	def sugerir_cuentas_explicito(self):
+		"""
+		Botón explícito 'Sugerir cuentas' - Ejecutar auto-detección según propuesta ChatGPT.
+
+		Garantiza que el operador puede forzar la auto-detección y ver resultado ANTES de guardar.
+		"""
+		if not self.company:
+			frappe.throw("Debe seleccionar una empresa antes de sugerir cuentas")
+
+		# Obtener roles requeridos según alcance actual
+		roles_requeridos = self._obtener_roles_requeridos()
+
+		# Obtener sugerencias de auto-detección
+		from facturacion_mexico.facturacion_fiscal.setup.autodeteccion_cuentas import (
+			AutodetectorCuentasFiscales,
+		)
+
+		detector = AutodetectorCuentasFiscales(self.company)
+		sugerencias = detector.sugerir_mapeo_completo()
+
+		# MERGE strategy: actualizar existentes, insertar nuevos
+		self._merge_roles_en_tabla(roles_requeridos, sugerencias)
+
+		# Recalcular completitud
+		self._actualizar_estado_completitud()
+
+		# Estadísticas para el usuario
+		roles_con_sugerencia = len([r for r in roles_requeridos if r in sugerencias])
+		roles_sin_sugerencia = len(roles_requeridos) - roles_con_sugerencia
+
+		frappe.msgprint(
+			f"""Sugerencias procesadas:
+			• {roles_con_sugerencia} roles con cuenta sugerida
+			• {roles_sin_sugerencia} roles requieren mapeo manual
+			• Total roles: {len(roles_requeridos)}""",
+			title="Cuentas Sugeridas",
+			alert=True,
+		)
+
+		return {
+			"roles_requeridos": list(roles_requeridos),
+			"sugerencias_aplicadas": roles_con_sugerencia,
+			"mapeo_manual_pendiente": roles_sin_sugerencia,
+		}
+
+	@frappe.whitelist()
+	def ejecutar_auto_deteccion(self):
+		"""LEGACY: Mantener compatibilidad - redirige a nuevo método."""
+		return self.sugerir_cuentas_explicito()
+
+	@frappe.whitelist()
+	def agregar_filas_por_alcance(self):
+		"""
+		LEGACY: Mantener compatibilidad.
+		Redirige a sincronizar_tabla_con_alcance.
+		"""
+		return self.sincronizar_tabla_con_alcance()
+
+	@frappe.whitelist()
+	def sincronizar_tabla_con_alcance(self):
+		"""
+		Sincronizar tabla con alcance seleccionado: AGREGAR y ELIMINAR filas.
+		Llamado desde JavaScript cuando cambian los checkboxes.
+		"""
+		if not self.company:
+			frappe.throw("Debe seleccionar una empresa antes de configurar alcance")
+
+		# Obtener roles requeridos según alcance actual
+		roles_requeridos = self._obtener_roles_requeridos()
+
+		# Obtener roles ya existentes
+		roles_existentes = {row.rol_fiscal: row for row in self.mapeo_cuentas if row.rol_fiscal}
+
+		# AGREGAR roles faltantes
+		nuevas_filas = 0
+		for rol_fiscal in roles_requeridos:
+			if rol_fiscal not in roles_existentes:
+				self.append(
+					"mapeo_cuentas",
+					{
+						"rol_fiscal": rol_fiscal,
+						"cuenta_impuesto": "",  # Usuario debe mapear manualmente
+						"sugerido_automaticamente": 0,
+						"justificacion_sugerencia": "Mapeo manual requerido",
+						"estado_validacion": "Error",
+					},
+				)
+				nuevas_filas += 1
+
+		# ELIMINAR roles no requeridos (excepto roles base que siempre se mantienen)
+		roles_base = {"IVA por Pagar (16%)", "IVA Exento"}
+		filas_eliminadas = 0
+
+		# Iterar en reversa para evitar problemas de índices al eliminar
+		for i in range(len(self.mapeo_cuentas) - 1, -1, -1):
+			row = self.mapeo_cuentas[i]
+			if row.rol_fiscal and row.rol_fiscal not in roles_requeridos and row.rol_fiscal not in roles_base:
+				# Solo eliminar si no tiene cuenta mapeada (no destruir trabajo del usuario)
+				if not row.cuenta_impuesto:
+					self.remove(self.mapeo_cuentas[i])
+					filas_eliminadas += 1
+
+		return {
+			"filas_agregadas": nuevas_filas,
+			"filas_eliminadas": filas_eliminadas,
+			"total_roles": len(roles_requeridos),
+			"roles_actuales": list(roles_requeridos),
+		}

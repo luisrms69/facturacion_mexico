@@ -1,0 +1,156 @@
+{
+  "doctype": "DocType",
+  "name": "Configuracion Fiscal Mexico",
+  "module": "Facturacion Fiscal",
+  "custom": 0,
+  "is_submittable": 0,
+  "editable_grid": 1,
+  "track_changes": 1,
+  "engine": "InnoDB",
+  "naming_rule": "Expression",
+  "autoname": "format:CFM-{company}",
+  "fields": [
+    {
+      "fieldname": "company",
+      "label": "Empresa",
+      "fieldtype": "Link",
+      "options": "Company",
+      "reqd": 1,
+      "unique": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "section_alcance",
+      "label": "Alcance Fiscal",
+      "fieldtype": "Section Break"
+    },
+    {
+      "fieldname": "enable_frontera",
+      "label": "Zona Fronteriza (IVA 8%)",
+      "fieldtype": "Check",
+      "default": "0"
+    },
+    {
+      "fieldname": "enable_exportacion",
+      "label": "Exportación (IVA 0%)",
+      "fieldtype": "Check",
+      "default": "1"
+    },
+    {
+      "fieldname": "column_break_1",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "enable_ieps_alcohol",
+      "label": "IEPS Alcohol",
+      "fieldtype": "Check",
+      "default": "0"
+    },
+    {
+      "fieldname": "enable_ieps_azucar",
+      "label": "IEPS Azúcar/Bebidas",
+      "fieldtype": "Check",
+      "default": "0"
+    },
+    {
+      "fieldname": "enable_ieps_combustibles",
+      "label": "IEPS Combustibles",
+      "fieldtype": "Check",
+      "default": "0"
+    },
+    {
+      "fieldname": "enable_ieps_tabaco",
+      "label": "IEPS Tabaco",
+      "fieldtype": "Check",
+      "default": "0"
+    },
+    {
+      "fieldname": "section_retenciones",
+      "label": "Retenciones",
+      "fieldtype": "Section Break"
+    },
+    {
+      "fieldname": "enable_ret_honorarios",
+      "label": "Retenciones Honorarios",
+      "fieldtype": "Check",
+      "default": "0"
+    },
+    {
+      "fieldname": "enable_ret_arrendamiento",
+      "label": "Retenciones Arrendamiento",
+      "fieldtype": "Check",
+      "default": "0"
+    },
+    {
+      "fieldname": "enable_ret_autotransporte",
+      "label": "Retenciones Autotransporte",
+      "fieldtype": "Check",
+      "default": "0"
+    },
+    {
+      "fieldname": "section_mapeo",
+      "label": "Mapeo de Cuentas de Impuestos",
+      "fieldtype": "Section Break"
+    },
+    {
+      "fieldname": "mapeo_cuentas",
+      "label": "Cuentas de Impuestos",
+      "fieldtype": "Table",
+      "options": "Mapeo Cuenta Fiscal Mexico",
+      "reqd": 1
+    },
+    {
+      "fieldname": "section_estado",
+      "label": "Estado de Configuración",
+      "fieldtype": "Section Break"
+    },
+    {
+      "fieldname": "configuracion_completa",
+      "label": "Configuración Completa",
+      "fieldtype": "Check",
+      "read_only": 1,
+      "default": "0"
+    },
+    {
+      "fieldname": "ultima_actualizacion",
+      "label": "Última Actualización",
+      "fieldtype": "Datetime",
+      "read_only": 1
+    },
+    {
+      "fieldname": "column_break_2",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "templates_generados",
+      "label": "Templates Generados",
+      "fieldtype": "Int",
+      "read_only": 1,
+      "default": "0"
+    },
+    {
+      "fieldname": "version_esquema",
+      "label": "Versión Esquema",
+      "fieldtype": "Data",
+      "read_only": 1,
+      "default": "MX-2025.09"
+    }
+  ],
+  "permissions": [
+    {
+      "role": "System Manager",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 1
+    },
+    {
+      "role": "Accounts Manager",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 1
+    }
+  ],
+  "title_field": "company"
+}

@@ -1,0 +1,66 @@
+{
+  "doctype": "DocType",
+  "name": "Mapeo Cuenta Fiscal Mexico",
+  "module": "Facturacion Fiscal",
+  "custom": 0,
+  "istable": 1,
+  "editable_grid": 1,
+  "engine": "InnoDB",
+  "track_changes": 1,
+  "fields": [
+    {
+      "fieldname": "rol_fiscal",
+      "label": "Tipo de Impuesto",
+      "fieldtype": "Select",
+      "in_list_view": 1,
+      "reqd": 1,
+      "read_only": 1,
+      "options": "IVA por Pagar (16%)\nIVA por Pagar (8% frontera)\nIVA por Pagar (0% exportación)\nIVA Exento\nIEPS por Pagar (Alcohol)\nIEPS por Pagar (Azúcar/Bebidas)\nIEPS por Pagar (Combustibles)\nIEPS por Pagar (Tabaco)\nIVA Retenido (Servicios Profesionales)\nIVA Retenido (Arrendamiento)\nIVA Retenido (Autotransporte)\nISR Retenido (Honorarios)\nISR Retenido (RESICO)\nISR Retenido (Autotransporte)"
+    },
+    {
+      "fieldname": "cuenta_impuesto",
+      "label": "Cuenta de Impuesto",
+      "fieldtype": "Link",
+      "options": "Account",
+      "in_list_view": 1,
+      "reqd": 1
+    },
+    {
+      "fieldname": "sugerido_automaticamente",
+      "label": "Sugerido Automáticamente",
+      "fieldtype": "Check",
+      "read_only": 1,
+      "default": "0"
+    },
+    {
+      "fieldname": "justificacion_sugerencia",
+      "label": "Justificación",
+      "fieldtype": "Small Text",
+      "read_only": 1
+    },
+    {
+      "fieldname": "estado_validacion",
+      "label": "Estado",
+      "fieldtype": "Select",
+      "options": "Válido\nAdvertencia\nError",
+      "read_only": 1,
+      "default": "Error"
+    }
+  ],
+  "permissions": [
+    {
+      "role": "System Manager",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 1
+    },
+    {
+      "role": "Accounts Manager",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 1
+    }
+  ]
+}

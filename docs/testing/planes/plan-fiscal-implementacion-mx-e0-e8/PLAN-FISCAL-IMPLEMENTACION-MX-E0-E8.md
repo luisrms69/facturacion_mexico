@@ -86,6 +86,56 @@ Plan de implementación completa del sistema fiscal mexicano en 8 etapas (E0-E8)
 
 ---
 
+## E0.5) CONFIGURACIÓN CUENTAS CONTABLES Y TEMPLATES IMPUESTOS
+
+**Objetivo:** Implementar setup wizard fiscal completo con cuentas contables y templates STCT/ITT
+
+### Estado Actual Identificado
+⚠️ **GAP CRÍTICO:** Análisis revela configuración fiscal INSUFICIENTE
+- ❌ **0 templates mexicanos** configurados en company principal
+- ❌ **0 cuentas impuestos mexicanas** (IVA, ISR, IEPS)
+- ✅ **Setup wizard fiscal** identificado en install.py (16+ templates preparados)
+- ⚠️ **Requiere ejecución** setup fiscal antes de E1
+
+### Tareas E0.5 (CRÍTICAS antes de E1)
+- [ ] **E0.5.1** - Ejecutar create_fiscal_setup_wizard() en company principal
+- [ ] **E0.5.2** - Verificar creación 13+ cuentas contables impuestos mexicanos
+- [ ] **E0.5.3** - Validar 16+ templates STCT (8 ventas + 8 retenciones)
+- [ ] **E0.5.4** - Crear ITT base con matching tax_type ↔ account_head
+- [ ] **E0.5.5** - Configurar templates default por company
+- [ ] **E0.5.6** - Verificar templates IEPS complejos (tax-on-tax)
+- [ ] **E0.5.7** - Testing selección automática templates
+
+### Templates Identificados (según install.py)
+**🟢 VENTAS (8 templates):**
+- IVA 16% - México
+- IVA 8% - Zona Fronteriza
+- IVA 0% - Exportación
+- Sin Impuestos - Exento
+- IEPS + IVA 16% - Bebidas Alcohólicas (53%)
+- IEPS + IVA 16% - Tabaco (160%)
+- IEPS + IVA 16% - Combustibles
+- IEPS + IVA 16% - Bebidas Azucaradas (8%)
+
+**🟡 RETENCIONES (8+ templates):**
+- Honorarios - ISR 10% + IVA Ret 2/3
+- Honorarios RESICO - ISR 1.25% + IVA Ret 2/3
+- Arrendamientos - ISR 10% + IVA Ret 2/3
+- Autotransporte - ISR 4% + IVA Ret 4%
+- Autotransporte RESICO - ISR 1.25% + IVA Ret 4%
+- Dividendos - ISR 10%
+- Intereses - ISR 10%
+- Regalías - ISR 10%
+
+### Criterios DoD E0.5
+✅ **Setup wizard ejecutado** - 16+ templates fiscales creados
+✅ **Cuentas contables** - 13+ cuentas impuestos mexicanos
+✅ **ITT configurados** - tax_type matching con STCT accounts
+✅ **Templates funcionales** - Testing automático selección
+✅ **Base E1 preparada** - STCT listos para Tax Rules automáticas
+
+---
+
 ## E1) ASIGNACIÓN AUTOMÁTICA IVA CON CASCADA NATIVA
 
 **Objetivo:** ERPNext selecciona STCT correcto y aplica ITT coherente

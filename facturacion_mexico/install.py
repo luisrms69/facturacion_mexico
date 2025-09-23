@@ -4,12 +4,16 @@ from frappe.utils import now_datetime
 
 
 def after_install():
-	"""Ejecutar después de instalar la app."""
+	"""Ejecutar después de instalar la app - SOLO catálogos/fixtures/custom fields."""
 	frappe.logger().info("Starting Facturacion Mexico installation...")
 	create_initial_configuration()
 	create_basic_sat_catalogs()  # PRIMERO: crear catálogos SAT
 	create_custom_fields_for_erpnext()  # SEGUNDO: crear custom fields que referencian catálogos
 	setup_multi_sucursal_system()  # TERCERO: configurar sistema multi-sucursal Sprint 6
+
+	# MANUAL FIRST: NO crear automáticamente setup fiscal, STCT, ITT, Tax Rules
+	# Estos se crean SOLO desde el Wizard de Configuración Fiscal México
+
 	frappe.logger().info("Facturacion Mexico installation completed successfully.")
 	frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure installation process completes successfully
 
@@ -141,6 +145,9 @@ def before_tests():
 	_create_basic_test_items()
 	_create_basic_test_customers()
 	setup_multi_sucursal_system()
+
+	# MANUAL FIRST: NO crear automáticamente templates fiscales en testing
+	# Usar el Wizard de Configuración Fiscal México para crear templates
 
 	# Setup roles - usar ERPNext si disponible
 	try:
