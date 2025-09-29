@@ -141,7 +141,6 @@ fixtures = [
 					"Branch-fm_serie_pattern",
 					"Branch-fm_share_certificates",
 					"Branch-fm_test_field_unique_2025",
-					# Customer custom fields (11 campos - movidos a Tax tab)
 					"Customer-fm_addenda_info_section",
 					"Customer-fm_column_break_fiscal_customer",
 					"Customer-fm_column_break_validacion",
@@ -155,7 +154,6 @@ fixtures = [
 					"Customer-fm_uso_cfdi_default",
 					"Customer-fm_validacion_sat_section",
 					"Customer-fm_envio_email_cliente",
-					# Item custom fields (2 existentes + 2 faltantes = 4 total)
 					"Item-fm_clasificacion_sat_section",
 					"Item-fm_producto_servicio_sat",
 					"Item-fm_column_break_item_sat",
@@ -369,7 +367,6 @@ doc_events = {
 		"before_save": "facturacion_mexico.ereceipts.hooks_handlers.ereceipt_validate.calculate_expiry_date",
 		"after_insert": "facturacion_mexico.ereceipts.hooks_handlers.ereceipt_insert.generate_facturapi_ereceipt",
 	},
-	# P6.1.4d: Sales Invoice hooks eliminados - incompatibles con arquitectura resiliente
 	# P6.1.4d: Factura Fiscal Mexico hooks eliminados - solo logging legacy sin FiscalEventMX
 }
 

@@ -90,12 +90,25 @@ Plan de implementación completa del sistema fiscal mexicano en 8 etapas (E0-E8)
 
 **Objetivo:** Implementar setup wizard fiscal completo con cuentas contables y templates STCT/ITT
 
+### ✅ **LIMPIEZA E1-H COMPLETADA (2025-09-29)**
+🎯 **PREREQUISITO E1 CUMPLIDO:** Sistema limpio y optimizado
+
+**Acciones realizadas:**
+- ✅ **Custom fields duplicados eliminados** - 4 campos problemáticos removidos (Customer/Branch)
+- ✅ **Campo Cost Center optimizado** - `fm_mapped_branch` con filtros inteligentes por company
+- ✅ **Backup completo creado** - `PRE_E1_CLEANUP_COMPLETE` estado seguro para rollback
+- ✅ **Naming convention unificado** - Todo custom field usa prefijo `fm_`
+- ✅ **Database limpia** - Sin duplicaciones ni conflictos E1-H
+
+**Documentación:** `REPORTE-LIMPIEZA-E1H-2025-09-29.md`
+
 ### Estado Actual Identificado
 ⚠️ **GAP CRÍTICO:** Análisis revela configuración fiscal INSUFICIENTE
 - ❌ **0 templates mexicanos** configurados en company principal
 - ❌ **0 cuentas impuestos mexicanas** (IVA, ISR, IEPS)
 - ✅ **Setup wizard fiscal** identificado en install.py (16+ templates preparados)
 - ⚠️ **Requiere ejecución** setup fiscal antes de E1
+- ✅ **Sistema limpio** post-cleanup E1-H, listo para implementación correcta
 
 ### Tareas E0.5 (CRÍTICAS antes de E1)
 - [ ] **E0.5.1** - Ejecutar create_fiscal_setup_wizard() en company principal
@@ -367,3 +380,31 @@ Plan de implementación completa del sistema fiscal mexicano en 8 etapas (E0-E8)
 - [ ] Basic tests for SAT field inheritance
 
 **Meta E0:** Checklist íntegramente "Hecho", rama con commits `[E0]`, PR abierto enlazando #65 y #66.
+
+---
+
+## HISTORIAL DE LIMPIEZA Y OPTIMIZACIONES
+
+### ✅ **Limpieza E1-H (2025-09-29) - COMPLETADO**
+
+#### Objetivo Logrado
+Eliminar completamente implementación fallida E1-H y optimizar campos existentes para preparar E1 formal.
+
+#### Resultados Obtenidos
+- ✅ **4 custom fields eliminados** - Duplicados problemáticos en Customer/Branch
+- ✅ **1 campo optimizado** - Cost Center `fm_mapped_branch` con filtros inteligentes
+- ✅ **Sistema respaldado** - Backup `PRE_E1_CLEANUP_COMPLETE` creado
+- ✅ **Naming unified** - Todo custom field usa prefijo `fm_`
+- ✅ **Zero blocking issues** - Listo para implementación E1 formal
+
+#### Documentación Generada
+- 📄 **`REPORTE-LIMPIEZA-E1H-2025-09-29.md`** - Reporte completo de limpieza
+- 🧪 **Scripts diagnóstico** - 4 scripts reutilizables para validaciones
+- 💾 **Backups completos** - Estado seguro para rollback
+
+#### Impacto en Plan E0-E8
+- 🎯 **E0.5 desbloqueado** - Sin conflictos custom fields para setup wizard
+- 🎯 **E1 preparado** - Base limpia para Tax Rules/STCT implementation
+- 🎯 **E2-E8 facilitado** - Arquitectura consistente establecida
+
+**Status:** ✅ **LISTO PARA E1** - Prerequisitos técnicos cumplidos
