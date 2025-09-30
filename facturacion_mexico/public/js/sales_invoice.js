@@ -246,7 +246,7 @@ function redirect_to_fiscal_document(frm) {
 }
 
 // =============================
-// AUTOMATED TAX SYSTEM - Sales Invoice - PASO 2 COMPLETO
+// AUTOMATED TAX SYSTEM - Sales Invoice - PASO 2 + PASO 3 COMPLETO
 // Sistema Automatizado de Impuestos
 // =============================
 
@@ -254,18 +254,71 @@ frappe.ui.form.on("Sales Invoice", {
 	refresh(frm) {
 		// Visibilidad: que el usuario vea que es obligatorio desde el form
 		frm.set_df_property("cost_center", "reqd", 1);
+
+		// FIX #2: Filtrar Cost Centers por Company actual
+		frm.set_query("cost_center", function () {
+			return {
+				filters: {
+					company: frm.doc.company,
+					disabled: 0,
+				},
+			};
+		});
 	},
 
-	// Al cambiar Customer: proponer CC (servidor lo hará en before_validate)
-	// Aquí solo UX inmediato: preguntar si quiere cargar defaults ahora.
-	customer(frm) {
+	// AJUSTES UX - Propuesta ChatGPT: avisos 6-7s, mensajes negocio, condicionalidad correcta
+	async customer(frm) {
 		if (!frm.doc.customer) return;
 
-		// Para UX, mostramos aviso. La asignación definitiva vive en server (before_validate).
-		frappe.show_alert({
-			message: __("Se propondrá Centro de Costos, Sucursal y Price List según el cliente."),
-			indicator: "blue",
-		});
+		try {
+			// Obtener configuración del Customer
+			const customer_data = await frappe.db.get_value("Customer", frm.doc.customer, [
+				"fm_customer_default_cost_center",
+				"default_price_list",
+			]);
+
+			if (customer_data && customer_data.message) {
+				const { fm_customer_default_cost_center } = customer_data.message;
+
+				// Condicionalidad correcta según configuración Customer
+				if (fm_customer_default_cost_center) {
+					await frm.set_value("cost_center", fm_customer_default_cost_center);
+					// Mensaje negocio sin referencias técnicas, 6-7 segundos
+					frappe.show_alert(
+						{
+							message: __("Centro de Costos asignado automáticamente."),
+							indicator: "green",
+						},
+						6
+					);
+
+					// Disparar evento cost_center para que recalcule Branch/Price List
+					// (El handler cost_center() ya existe y maneja esto)
+				} else {
+					// Solo avisar cuando NO hay CC por defecto, 6-7 segundos
+					frappe.show_alert(
+						{
+							message: __(
+								"Este cliente no tiene Centro de Costos configurado. Selecciónalo para continuar."
+							),
+							indicator: "orange",
+						},
+						6
+					);
+				}
+			}
+		} catch (e) {
+			console.error("Error al cargar configuración del cliente:", e);
+			frappe.show_alert(
+				{
+					message: __(
+						"Error al cargar configuración del cliente. Configura manualmente."
+					),
+					indicator: "red",
+				},
+				6
+			);
+		}
 	},
 
 	// Si el usuario cambia el cost_center manualmente, refrescar Branch/Price List en UI
@@ -274,11 +327,13 @@ frappe.ui.form.on("Sales Invoice", {
 		if (!cc) return;
 
 		// 1) Branch desde CC
+		let derived_branch = null;
 		try {
 			const branch = await frappe.db.get_value("Cost Center", cc, "fm_mapped_branch");
 			if (branch && branch.message && branch.message.fm_mapped_branch) {
+				derived_branch = branch.message.fm_mapped_branch;
 				if (frm.fields_dict.fm_branch) {
-					frm.set_value("fm_branch", branch.message.fm_mapped_branch);
+					frm.set_value("fm_branch", derived_branch);
 				}
 			}
 		} catch (e) {
@@ -330,13 +385,44 @@ frappe.ui.form.on("Sales Invoice", {
 
 			if (picked && frm.doc.selling_price_list !== picked) {
 				await frm.set_value("selling_price_list", picked);
-				frappe.show_alert({
-					message: __(`Price List seleccionado: <b>${picked}</b> (fuente: ${source}).`),
-					indicator: "green",
-				});
+				// Mensaje negocio sin referencias técnicas, 6-7 segundos
+				frappe.show_alert(
+					{
+						message: __("Lista de precios asignada automáticamente."),
+						indicator: "green",
+					},
+					6
+				);
 			}
 		} catch (e) {
 			// silencio
+		}
+
+		// 3) PASO 3: Mostrar información STCT que se seleccionará automáticamente
+		if (derived_branch) {
+			try {
+				const branch_info = await frappe.db.get_value(
+					"Branch",
+					derived_branch,
+					"fm_is_border_zone"
+				);
+				if (branch_info && branch_info.message !== undefined) {
+					const is_border = branch_info.message.fm_is_border_zone;
+					const stct_type = is_border ? "IVA 8% (Zona Fronteriza)" : "IVA 16% (México)";
+					// Mensaje simplificado sin "STCT", 6-7 segundos
+					frappe.show_alert(
+						{
+							message: __(
+								`Impuestos configurados automáticamente: <b>${stct_type}</b>`
+							),
+							indicator: "blue",
+						},
+						6
+					);
+				}
+			} catch (e) {
+				// silencio
+			}
 		}
 	},
 
@@ -358,6 +444,39 @@ frappe.ui.form.on("Sales Invoice", {
 				return;
 			}
 			// Nota: Validación completa de SAT se hace en server-side via Item.fm_producto_servicio_sat
+		}
+	},
+
+	// FIX #2: Al cambiar Company, limpiar Cost Center si no pertenece a la nueva Company
+	async company(frm) {
+		if (!frm.doc.company || !frm.doc.cost_center) return;
+
+		// Verificar si el Cost Center actual pertenece a la nueva Company
+		try {
+			const cc_company = await frappe.db.get_value(
+				"Cost Center",
+				frm.doc.cost_center,
+				"company"
+			);
+			if (
+				cc_company &&
+				cc_company.message &&
+				cc_company.message.company !== frm.doc.company
+			) {
+				// Cost Center no pertenece a la nueva Company, limpiarlo
+				frm.set_value("cost_center", "");
+				frappe.show_alert(
+					{
+						message: __(
+							"Centro de Costos limpiado: no pertenece a la nueva Company seleccionada."
+						),
+						indicator: "orange",
+					},
+					6
+				);
+			}
+		} catch (e) {
+			// silencio: en caso de error, dejamos que el usuario maneje manualmente
 		}
 	},
 });

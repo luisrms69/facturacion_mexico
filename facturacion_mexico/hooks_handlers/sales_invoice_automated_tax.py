@@ -81,6 +81,88 @@ def _maybe_set_company_address_from_branch(doc, branch: str | None):
 	#     # Nota: No seteamos tax_category. Deja a Tax Rules/ERPNext hacer lo suyo.
 
 
+def _get_border_zone_status(branch: str | None) -> bool | None:
+	"""Verificar si la sucursal está en zona fronteriza."""
+	if not branch:
+		return None
+	return frappe.db.get_value("Branch", branch, "fm_is_border_zone")
+
+
+def _find_stct_by_pattern(company: str, is_border: bool) -> str | None:
+	"""
+	Buscar STCT por patrón de título según convención E0.5.
+	Busca por título conteniendo:
+	- IVA 8% - Zona Fronteriza - {abbr} (para zona fronteriza)
+	- IVA 16% - México - {abbr} (para zona no fronteriza)
+	"""
+	if not company:
+		return None
+
+	# Obtener company abbr
+	company_abbr = frappe.db.get_value("Company", company, "abbr")
+	if not company_abbr:
+		return None
+
+	if is_border:
+		# Buscar STCT 8% para zona fronteriza
+		patterns = [
+			f"IVA 8% - Zona Fronteriza - {company_abbr}",
+			f"IVA 8%{company_abbr}",  # Fallback más flexible
+		]
+	else:
+		# Buscar STCT 16% para zona no fronteriza
+		patterns = [
+			f"IVA 16% - México - {company_abbr}",
+			f"IVA 16%{company_abbr}",  # Fallback más flexible
+		]
+
+	# Buscar por cada patrón
+	for pattern in patterns:
+		stct = frappe.db.get_value(
+			"Sales Taxes and Charges Template",
+			{"title": ["like", f"%{pattern}%"], "company": company, "disabled": 0},
+			"name",
+		)
+		if stct:
+			return stct
+
+	return None
+
+
+def _set_stct_by_branch(doc, branch: str | None):
+	"""
+	PASO 3: Seleccionar STCT automáticamente según si Branch es zona fronteriza.
+	- fm_is_border_zone = 1 → STCT 8%
+	- fm_is_border_zone = 0 → STCT 16%
+	"""
+	if not branch or not getattr(doc, "company", None):
+		return
+
+	# Verificar si es zona fronteriza
+	is_border = _get_border_zone_status(branch)
+	if is_border is None:
+		return
+
+	# Buscar STCT apropiado
+	stct = _find_stct_by_pattern(doc.company, bool(is_border))
+
+	if stct:
+		# Asignar STCT encontrado
+		if getattr(doc, "taxes_and_charges", None) != stct:
+			doc.taxes_and_charges = stct
+			zone_type = "Zona Fronteriza (8%)" if is_border else "México (16%)"
+			frappe.msgprint(
+				f"Impuestos configurados automáticamente: <b>{zone_type}</b>", alert=True, indicator="green"
+			)
+	else:
+		# STCT no encontrado - bloquear con mensaje accionable
+		zone_type = "8% (Zona Fronteriza)" if is_border else "16% (México)"
+		company_abbr = frappe.db.get_value("Company", doc.company, "abbr")
+		errormsg = f"No se encontró STCT de IVA {zone_type} para {doc.company}. "
+		errormsg += f"Genere el template 'IVA {'8% - Zona Fronteriza' if is_border else '16% - México'} - {company_abbr}' desde el wizard fiscal."
+		frappe.throw(errormsg)
+
+
 # ---- Handlers Doc Events ------------------------------------------------
 
 
@@ -100,7 +182,7 @@ def before_validate(doc, method=None):
 		if cc:
 			doc.cost_center = cc
 			frappe.msgprint(
-				f"Se asignó Centro de Costos por defecto del Cliente: <b>{cc}</b>.",
+				"Centro de Costos asignado automáticamente.",
 				alert=True,
 				indicator="blue",
 			)
@@ -117,12 +199,13 @@ def before_validate(doc, method=None):
 		pl, source = _pick_price_list(doc.customer, cc_now)
 		if pl and getattr(doc, "selling_price_list", None) != pl:
 			doc.selling_price_list = pl
-			frappe.msgprint(
-				f"Price List seleccionado: <b>{pl}</b> (fuente: {source}).", alert=True, indicator="green"
-			)
+			frappe.msgprint("Lista de precios asignada automáticamente.", alert=True, indicator="green")
 
 		# 2.3) (Opcional) Company Address desde Branch (si tu Branch lo maneja)
 		_maybe_set_company_address_from_branch(doc, branch)
+
+		# 2.4) PASO 3: Seleccionar STCT automáticamente según Branch (fronteriza/no fronteriza)
+		_set_stct_by_branch(doc, branch)
 
 
 def validate(doc, method=None):
