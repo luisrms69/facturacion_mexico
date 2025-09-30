@@ -1394,11 +1394,11 @@ class TimbradoAPI:
 
 			# CORRECCIÓN: Detectar None (null) y repoblar automáticamente ANTES de validaciones
 			if raw_value is None:
-				# Intentar repoblar desde customer.tax_category
+				# Intentar repoblar desde customer.fm_tax_regime
 				customer = frappe.get_doc("Customer", factura_fiscal.customer)
-				if customer and customer.tax_category:
-					# Extraer código del tax_category (formato: "601 - Descripción" -> "601")
-					tax_code = customer.tax_category.split(" - ")[0].strip()
+				if customer and customer.fm_tax_regime:
+					# Extraer código del fm_tax_regime (formato: "601 - Descripción" -> "601")
+					tax_code = customer.fm_tax_regime.split(" - ")[0].strip()
 
 					# Actualizar el campo en la Factura Fiscal
 					factura_fiscal.fm_tax_system = tax_code

@@ -693,7 +693,7 @@
 				name: frm.doc.customer,
 				fields: [
 					"fm_uso_cfdi_default",
-					"tax_category",
+					"fm_tax_regime",
 					"fm_codigo_postal_customer",
 					"fm_rfc_customer",
 					"tax_id", // RFC principal del customer
@@ -710,8 +710,8 @@
 					}
 
 					// Actualizar otros campos fiscales del customer si existen (legacy)
-					if (r.message.tax_category) {
-						frm.set_value("fm_tax_system", r.message.tax_category);
+					if (r.message.fm_tax_regime) {
+						frm.set_value("fm_tax_system", r.message.fm_tax_regime);
 					}
 					if (r.message.fm_codigo_postal_customer) {
 						frm.set_value("fm_cp_cliente", r.message.fm_codigo_postal_customer);
