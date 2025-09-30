@@ -408,3 +408,87 @@ Eliminar completamente implementación fallida E1-H y optimizar campos existente
 - 🎯 **E2-E8 facilitado** - Arquitectura consistente establecida
 
 **Status:** ✅ **LISTO PARA E1** - Prerequisitos técnicos cumplidos
+
+---
+
+## VERIFICACIÓN SISTEMA ACTUAL - PASO 1 E1-H
+
+### ✅ **Verificación Completa Sistema (2025-09-29) - COMPLETADO**
+
+#### Objetivo Logrado
+Ejecutar verificación sistemática completa del estado actual del sistema ERPNext según propuesta ChatGPT para preparación E1-H.
+
+#### Resultados Obtenidos - 8 Componentes Verificados
+- ✅ **1.1 Empresa piloto** - `_Test Company` configurada (Mexico, MXN)
+- ✅ **1.2 Customer Cost Center** - Campo `fm_customer_default_cost_center` único identificado
+- ✅ **1.3 Cost Center → Branch** - Relación 1:1 perfecta con `fm_mapped_branch`
+- ✅ **1.4 Branch frontera** - Campo `fm_is_border_zone` configurado
+- ✅ **1.5 Tax Categories** - 26 categorías SAT mapeadas, 3 críticas operativas
+- ✅ **1.6 Items SAT** - Campo `fm_producto_servicio_sat` con datos (60% muestra)
+- ✅ **1.7 Price Lists** - 4 price lists MXN habilitadas para venta
+- ✅ **1.8 Sales Invoice** - 46 campos fiscales `fm_*` + campos clave E1-H disponibles
+
+#### Infraestructura Fiscal Identificada
+**🟢 SISTEMA TÉCNICAMENTE PREPARADO PARA E1-H**
+
+- ✅ **Flujo completo disponible:** `Customer → Cost Center → Branch → Tax Category → STCT → Sales Invoice`
+- ✅ **46 campos fiscales** configurados con prefijo `fm_`
+- ✅ **Tax system robusto** con 26 categorías SAT (601-626)
+- ✅ **Multi-sucursal** soportado con campos frontera IVA 8%/16%
+- ✅ **Sales Invoice Items** con Cost Center nivel línea
+
+#### Documentación Generada
+- 📄 **`EVIDENCIAS-PASO-1-VERIFICACION-SISTEMA.md`** - Reporte completo verificación
+- 🧪 **9 scripts verificación** - Ejecutados exitosamente, reutilizables
+- 📊 **Métricas detalladas** - Estado actual documentado por componente
+
+#### Impacto en Plan E0-E8
+- 🎯 **E1 desbloqueado** - Infraestructura completa para automatización confirmada
+- 🎯 **E1-H implementable** - Flujo Customer→Cost Center→Branch→Tax verificado
+- 🎯 **Oportunidades identificadas** - Datos vacíos para automatización documentados
+
+**Status:** ✅ **LISTO PARA E1-H PASO 2** - Sistema preparado para automatización
+
+---
+
+## IMPLEMENTACIÓN AUTOMATED TAX SYSTEM - PASO 1
+
+### ✅ **Paso 1: Estructura Base Completado (2025-09-29)**
+
+#### Objetivo Logrado
+Implementar estructura base del sistema automatizado de impuestos (Automated Tax System) siguiendo convenciones Frappe estándar.
+
+#### Resultados Obtenidos
+- ✅ **Estructura Frappe compliant** - hooks_handlers/, JS consolidado, nomenclatura descriptiva
+- ✅ **doc_events registrados** - before_validate/validate para Sales Invoice
+- ✅ **JavaScript integrado** - Validaciones UI en sales_invoice.js existente
+- ✅ **Refactorización completa** - Eliminación E1-H críptico, convenciones correctas
+
+#### Implementación Técnica
+**Archivos Creados/Modificados:**
+- 📄 **`hooks_handlers/sales_invoice_automated_tax.py`** - Python handlers (esqueleto)
+- 📄 **`public/js/sales_invoice.js`** - Sección automated tax integrada
+- 📄 **`hooks.py`** - doc_events Sales Invoice registrados
+
+**Funcionalidades Base:**
+- ✅ **Cost center obligatorio** - UI requirement enforced
+- ✅ **Customer alerts** - Notificación automatización al seleccionar customer
+- ✅ **Items validation** - Verificación items seleccionados
+- ✅ **Server hooks** - Placeholder before_validate/validate preparados
+
+#### Verificaciones Exitosas
+- ✅ **Build frontend:** 178ms sin errores
+- ✅ **Python import:** Handlers cargan correctamente
+- ✅ **Frappe compliance:** Estructura según convenciones estándar
+- ✅ **No conflictos:** JS consolidado sin duplicaciones
+
+#### Documentación Generada
+- 📄 **Reporte implementación Paso 1** - Proceso completo documentado
+- 🔧 **Estructura refactorizada** - Convenciones Frappe aplicadas
+- 📊 **76 líneas código base** - Foundation para automatización
+
+#### Próximo Milestone
+- 🎯 **Paso 2:** Implementar lógica server-side (Customer→Cost Center→Branch→Tax automation)
+- 🎯 **Testing:** Verificar flujo completo con datos reales _Test Company
+
+**Status:** ✅ **BASE AUTOMATED TAX SYSTEM LISTA** - Estructura preparada para lógica

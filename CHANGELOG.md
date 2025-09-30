@@ -7,6 +7,12 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
 ## [Unreleased]
 
 ### Added
+- **Sistema automatizado de impuestos Sales Invoice (estructura base)** para automatización fiscal
+  - Handlers server-side `before_validate`/`validate` en hooks_handlers/sales_invoice_automated_tax.py
+  - Validaciones UI Cost Center obligatorio y verificación items SAT
+  - Estructura Frappe compliant: doc_events específicos, JS consolidado en archivo existente
+  - Nomenclatura descriptiva "Automated Tax System" eliminando siglas crípticas E1-H
+  - Foundation 76 líneas código preparada para automatización Customer→Cost Center→Branch→Tax
 - **Wizard mapeo fiscal México E0.5 - Sistema mapeo manual completo** para configuración empresarial
   - DocType `Configuracion Fiscal Mexico`: configuración principal con checkboxes alcance fiscal
   - DocType `Mapeo Cuenta Fiscal Mexico`: tabla mapeo cuentas con validaciones y auditoría

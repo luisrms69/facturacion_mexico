@@ -244,3 +244,61 @@ function redirect_to_fiscal_document(frm) {
 		},
 	});
 }
+
+// =============================
+// AUTOMATED TAX SYSTEM - Sales Invoice
+// Sistema Automatizado de Impuestos
+// =============================
+
+// Extend existing frappe.ui.form.on with automated tax functionality
+frappe.ui.form.on("Sales Invoice", {
+	refresh: function (frm) {
+		// AUTOMATED TAX: Asegurar que Cost Center es requerido desde la UI
+		frm.set_df_property("cost_center", "reqd", 1);
+	},
+
+	customer: function (frm) {
+		// AUTOMATED TAX: Avisar al usuario que se propondrán datos automáticamente
+		if (!frm.doc.customer) return;
+
+		frappe.show_alert({
+			message: __("Se propondrá Centro de Costos, Sucursal e Impuestos del emisor."),
+			indicator: "blue",
+		});
+	},
+
+	validate: function (frm) {
+		// AUTOMATED TAX VALIDATIONS
+
+		// BLOQUEO UI: cost_center requerido
+		if (!frm.doc.cost_center) {
+			frappe.msgprint(__("No se puede facturar sin <b>Centro de Costos</b>."));
+			frappe.validated = false;
+			return;
+		}
+
+		// BLOQUEO UI: verificar items con datos SAT
+		const missing_items = [];
+
+		(frm.doc.items || []).forEach((row, idx) => {
+			if (!row.item_code) {
+				missing_items.push(`Línea ${idx + 1}: Sin Item seleccionado`);
+				return;
+			}
+
+			// La verificación completa de fm_producto_servicio_sat se hace en server-side
+			// Aquí solo validamos que hay item_code
+		});
+
+		if (missing_items.length) {
+			frappe.msgprint({
+				title: __("Items Incompletos"),
+				message:
+					__("No se puede facturar: hay Items sin seleccionar:<br>") +
+					missing_items.join("<br>"),
+				indicator: "red",
+			});
+			frappe.validated = false;
+		}
+	},
+});

@@ -335,6 +335,14 @@ doc_events = {
 		"after_insert": "facturacion_mexico.validaciones.hooks_handlers.customer_validate.schedule_rfc_validation",
 	},
 	# =============================================================================
+	# AUTOMATED TAX SYSTEM - SALES INVOICE AUTOMATION
+	# =============================================================================
+	# Sales Invoice Automated Tax - Sistema automatizado impuestos
+	"Sales Invoice": {
+		"before_validate": "facturacion_mexico.hooks_handlers.sales_invoice_automated_tax.before_validate",
+		"validate": "facturacion_mexico.hooks_handlers.sales_invoice_automated_tax.validate",
+	},
+	# =============================================================================
 	# MULTI-SUCURSAL - CONFIGURACIÓN FISCAL
 	# =============================================================================
 	# Branch Fiscal Configuration - Configuración multi-sucursal
