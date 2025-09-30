@@ -7,12 +7,17 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
 ## [Unreleased]
 
 ### Added
-- **Sistema automatizado de impuestos Sales Invoice (estructura base)** para automatización fiscal
-  - Handlers server-side `before_validate`/`validate` en hooks_handlers/sales_invoice_automated_tax.py
-  - Validaciones UI Cost Center obligatorio y verificación items SAT
-  - Estructura Frappe compliant: doc_events específicos, JS consolidado en archivo existente
-  - Nomenclatura descriptiva "Automated Tax System" eliminando siglas crípticas E1-H
-  - Foundation 76 líneas código preparada para automatización Customer→Cost Center→Branch→Tax
+- **Sistema automatizado de impuestos Sales Invoice Paso 2 completo** para automatización fiscal
+  - Custom field Cost Center.fm_default_selling_price_list via fixture con filtro selling=1
+  - Handlers Python completos con funciones helper robustas en sales_invoice_automated_tax.py
+  - Prioridad Price List: Customer.default_price_list → Cost Center.fm_default_selling_price_list → Selling Settings.selling_price_list
+  - Validación SAT corregida via Item.fm_producto_servicio_sat (no Sales Invoice Item)
+  - JavaScript moderno async/await para UX inmediato en cambios cost_center
+  - Bloqueos duales UI/servidor: obligatorio Cost Center y SAT configurado en Items
+  - Arquitectura sin tax_category (ERPNext resuelve impuestos via STCT/Tax Rules)
+  - Mapeo 1:1 Cost Center → Branch respetado con recálculo automático
+  - Zero-config deployment con fixtures para campos custom
+  - Testing checklist 6 casos aceptación + verificación automática campos
 - **Wizard mapeo fiscal México E0.5 - Sistema mapeo manual completo** para configuración empresarial
   - DocType `Configuracion Fiscal Mexico`: configuración principal con checkboxes alcance fiscal
   - DocType `Mapeo Cuenta Fiscal Mexico`: tabla mapeo cuentas con validaciones y auditoría

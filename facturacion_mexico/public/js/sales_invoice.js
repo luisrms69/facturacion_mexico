@@ -246,59 +246,118 @@ function redirect_to_fiscal_document(frm) {
 }
 
 // =============================
-// AUTOMATED TAX SYSTEM - Sales Invoice
+// AUTOMATED TAX SYSTEM - Sales Invoice - PASO 2 COMPLETO
 // Sistema Automatizado de Impuestos
 // =============================
 
-// Extend existing frappe.ui.form.on with automated tax functionality
 frappe.ui.form.on("Sales Invoice", {
-	refresh: function (frm) {
-		// AUTOMATED TAX: Asegurar que Cost Center es requerido desde la UI
+	refresh(frm) {
+		// Visibilidad: que el usuario vea que es obligatorio desde el form
 		frm.set_df_property("cost_center", "reqd", 1);
 	},
 
-	customer: function (frm) {
-		// AUTOMATED TAX: Avisar al usuario que se propondrán datos automáticamente
+	// Al cambiar Customer: proponer CC (servidor lo hará en before_validate)
+	// Aquí solo UX inmediato: preguntar si quiere cargar defaults ahora.
+	customer(frm) {
 		if (!frm.doc.customer) return;
 
+		// Para UX, mostramos aviso. La asignación definitiva vive en server (before_validate).
 		frappe.show_alert({
-			message: __("Se propondrá Centro de Costos, Sucursal e Impuestos del emisor."),
+			message: __("Se propondrá Centro de Costos, Sucursal y Price List según el cliente."),
 			indicator: "blue",
 		});
 	},
 
-	validate: function (frm) {
-		// AUTOMATED TAX VALIDATIONS
+	// Si el usuario cambia el cost_center manualmente, refrescar Branch/Price List en UI
+	cost_center: async function (frm) {
+		const cc = frm.doc.cost_center;
+		if (!cc) return;
 
-		// BLOQUEO UI: cost_center requerido
+		// 1) Branch desde CC
+		try {
+			const branch = await frappe.db.get_value("Cost Center", cc, "fm_mapped_branch");
+			if (branch && branch.message && branch.message.fm_mapped_branch) {
+				if (frm.fields_dict.fm_branch) {
+					frm.set_value("fm_branch", branch.message.fm_mapped_branch);
+				}
+			}
+		} catch (e) {
+			// silencio: el server-side hará la asignación de todos modos
+		}
+
+		// 2) Price List por prioridad (Customer → CC → Company)
+		try {
+			// Customer.default_price_list
+			let picked = null;
+			let source = null;
+
+			if (frm.doc.customer) {
+				const cust = await frappe.db.get_value(
+					"Customer",
+					frm.doc.customer,
+					"default_price_list"
+				);
+				if (cust && cust.message && cust.message.default_price_list) {
+					picked = cust.message.default_price_list;
+					source = "Customer.default_price_list";
+				}
+			}
+
+			// CC.fm_default_selling_price_list
+			if (!picked) {
+				const ccpl = await frappe.db.get_value(
+					"Cost Center",
+					cc,
+					"fm_default_selling_price_list"
+				);
+				if (ccpl && ccpl.message && ccpl.message.fm_default_selling_price_list) {
+					picked = ccpl.message.fm_default_selling_price_list;
+					source = "Cost Center.fm_default_selling_price_list";
+				}
+			}
+
+			// Selling Settings.selling_price_list
+			if (!picked) {
+				const ss = await frappe.db.get_single_value(
+					"Selling Settings",
+					"selling_price_list"
+				);
+				if (ss) {
+					picked = ss;
+					source = "Selling Settings.selling_price_list";
+				}
+			}
+
+			if (picked && frm.doc.selling_price_list !== picked) {
+				await frm.set_value("selling_price_list", picked);
+				frappe.show_alert({
+					message: __(`Price List seleccionado: <b>${picked}</b> (fuente: ${source}).`),
+					indicator: "green",
+				});
+			}
+		} catch (e) {
+			// silencio
+		}
+	},
+
+	// Bloqueos UI (refuerzo — el bloqueo real también está en validate server-side)
+	validate(frm) {
 		if (!frm.doc.cost_center) {
-			frappe.msgprint(__("No se puede facturar sin <b>Centro de Costos</b>."));
+			frappe.msgprint(__("No se puede guardar: <b>Centro de Costos</b> es obligatorio."));
 			frappe.validated = false;
 			return;
 		}
 
-		// BLOQUEO UI: verificar items con datos SAT
-		const missing_items = [];
-
-		(frm.doc.items || []).forEach((row, idx) => {
+		// Validación SAT: verificar items tienen fm_producto_servicio_sat en Item
+		const items = frm.doc.items || [];
+		for (let i = 0; i < items.length; i++) {
+			const row = items[i];
 			if (!row.item_code) {
-				missing_items.push(`Línea ${idx + 1}: Sin Item seleccionado`);
+				frappe.msgprint(__(`Línea ${i + 1} sin <b>Item Code</b>. No se puede guardar.`));
+				frappe.validated = false;
 				return;
 			}
-
-			// La verificación completa de fm_producto_servicio_sat se hace en server-side
-			// Aquí solo validamos que hay item_code
-		});
-
-		if (missing_items.length) {
-			frappe.msgprint({
-				title: __("Items Incompletos"),
-				message:
-					__("No se puede facturar: hay Items sin seleccionar:<br>") +
-					missing_items.join("<br>"),
-				indicator: "red",
-			});
-			frappe.validated = false;
+			// Nota: Validación completa de SAT se hace en server-side via Item.fm_producto_servicio_sat
 		}
 	},
 });
