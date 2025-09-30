@@ -70,6 +70,27 @@ class TestTaxRegimeMigration(unittest.TestCase):
         self.assertEqual(fm_field.fieldtype, "Link")
         self.assertEqual(fm_field.options, "Tax Category")
 
+    def test_extract_tax_system_function_uses_fm_tax_regime(self):
+        """Test: verificar que _extract_tax_system_from_customer usa fm_tax_regime."""
+        from facturacion_mexico.facturacion_fiscal.doctype.factura_fiscal_mexico.factura_fiscal_mexico import FacturaFiscalMexico
+
+        # Crear mock customer con fm_tax_regime
+        mock_customer = frappe._dict({
+            'fm_tax_regime': '601 - General de Ley Personas Morales'
+        })
+
+        # Crear instancia FFM directamente para test
+        ffm_doc = frappe.get_doc({"doctype": "Factura Fiscal Mexico"})
+        result = ffm_doc._extract_tax_system_from_customer(mock_customer)
+
+        # Debe extraer código "601"
+        self.assertEqual(result, "601")
+
+        # Test customer sin fm_tax_regime
+        mock_customer_empty = frappe._dict({})
+        result_empty = ffm_doc._extract_tax_system_from_customer(mock_customer_empty)
+        self.assertIsNone(result_empty)
+
     def test_javascript_references_updated(self):
         """Test: verificar que JavaScript usa fm_tax_regime."""
         js_path = "/home/erpnext/frappe-bench/apps/facturacion_mexico/facturacion_mexico/facturacion_fiscal/doctype/factura_fiscal_mexico/factura_fiscal_mexico.js"

@@ -1163,10 +1163,10 @@ class FacturaFiscalMexico(Document):
 
 	def _extract_tax_system_from_customer(self, customer_doc):
 		"""
-		Extraer código de régimen fiscal desde Tax Category del cliente.
+		Extraer código de régimen fiscal desde fm_tax_regime del cliente.
 
-		MIGRACIÓN ARQUITECTURAL: fm_regimen_fiscal → tax_category
-		Tax Category tiene formato "601 - General de Ley Personas Morales"
+		MIGRACIÓN ARQUITECTURAL: tax_category → fm_tax_regime
+		fm_tax_regime tiene formato "601 - General de Ley Personas Morales"
 		Extraer código "601" para FacturAPI.
 
 		Args:
@@ -1175,23 +1175,23 @@ class FacturaFiscalMexico(Document):
 		Returns:
 			str: Código del régimen fiscal (ej: "601") o None si no disponible
 		"""
-		if not customer_doc or not hasattr(customer_doc, "tax_category"):
+		if not customer_doc or not hasattr(customer_doc, "fm_tax_regime"):
 			return None
 
-		tax_category = customer_doc.tax_category
-		if not tax_category:
+		fm_tax_regime = customer_doc.fm_tax_regime
+		if not fm_tax_regime:
 			return None
 
-		# Tax Category tiene formato "601 - General de Ley Personas Morales"
+		# fm_tax_regime tiene formato "601 - General de Ley Personas Morales"
 		# Extraer código "601"
-		if " - " in tax_category:
-			code = tax_category.split(" - ")[0].strip()
+		if " - " in fm_tax_regime:
+			code = fm_tax_regime.split(" - ")[0].strip()
 			# Validar que el código sea numérico SAT (3 dígitos)
 			if code.isdigit() and len(code) == 3:
 				return code
 
 		# Si no tiene formato esperado, retornar el valor completo limpio
-		return tax_category.strip() if tax_category else None
+		return fm_tax_regime.strip() if fm_tax_regime else None
 
 	def before_cancel(self):
 		"""Hook contextual: Permitir cancelación FFM solo si ya cancelada fiscalmente."""

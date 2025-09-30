@@ -6,7 +6,19 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
 
 ## [Unreleased]
 
+### Fixed
+- **Función extracción SAT régimen fiscal** - Corregida `_extract_tax_system_from_customer()` para usar `fm_tax_regime` en lugar de `tax_category` deprecado
+  - factura_fiscal_mexico.py líneas 1178-1194 actualizadas
+  - Auto-población FFM.fm_tax_system ahora funciona con campo migrado
+  - Lógica extracción código SAT ("601") mantiene compatibilidad total
+  - Test específico agregado: `test_extract_tax_system_function_uses_fm_tax_regime()`
+  - Coverage testing función crítica CFDI completado (6/6 tests pasando)
+
 ### Added
+- **Testing migración tax_category → fm_tax_regime** - Test específico función `_extract_tax_system_from_customer()`
+  - Validación fm_tax_regime usado correctamente en extracción código SAT
+  - Verificación código "601" extraído de "601 - General de Ley Personas Morales"
+  - Test customer vacío retorna None correctamente
 - **Sistema automatizado de impuestos Sales Invoice Paso 2 completo** para automatización fiscal
   - Custom field Cost Center.fm_default_selling_price_list via fixture con filtro selling=1
   - Handlers Python completos con funciones helper robustas en sales_invoice_automated_tax.py

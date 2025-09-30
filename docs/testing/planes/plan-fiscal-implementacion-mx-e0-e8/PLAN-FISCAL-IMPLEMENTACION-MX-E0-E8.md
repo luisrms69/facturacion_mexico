@@ -492,3 +492,102 @@ Implementar estructura base del sistema automatizado de impuestos (Automated Tax
 - 🎯 **Testing:** Verificar flujo completo con datos reales _Test Company
 
 **Status:** ✅ **BASE AUTOMATED TAX SYSTEM LISTA** - Estructura preparada para lógica
+
+---
+
+## 🚨 ARQUITECTURA CRÍTICA: DocType Régimen Fiscal SAT
+
+### ⚠️ **Problema Identificado Durante Migración tax_category → fm_tax_regime**
+
+#### Contexto del Problema
+Durante la implementación de la migración Customer.tax_category → Customer.fm_tax_regime (parte del plan fiscal E0-E8), se identificó un **problema arquitectural crítico** que requiere resolución antes de E3:
+
+**SITUACIÓN ACTUAL PROBLEMÁTICA:**
+- Script `populate_tax_category_sat.py` creó **20 Tax Categories** con formato "601 - General de Ley Personas Morales"
+- Tax Category DocType (ERPNext core) ahora contiene **mezcla incorrecta**:
+  1. ✅ Tax Categories normales (propósito contable ERPNext)
+  2. ❌ Regímenes fiscales SAT (propósito CFDI México)
+
+**RIESGOS ACTUALES:**
+- ✅ **Funcional:** Sistema actual funciona correctamente
+- ❌ **Arquitectural:** Violación principio separación concerns (contabilidad vs fiscal)
+- ❌ **UI/UX:** Confusión en selectores Tax Category - aparecen regímenes fiscales donde no deberían
+- ❌ **Mantenibilidad:** Dependencia innecesaria de DocType core ERPNext para datos SAT
+
+#### Antecedentes Técnicos
+```python
+# Script actual problemático: populate_tax_category_sat.py
+# Crea Tax Categories con formato SAT en lugar de DocType específico
+category_name = f"{regimen.code} - {regimen.description}"  # "601 - General..."
+category_doc = frappe.get_doc({
+    "doctype": "Tax Category",  # ← PROBLEMA: Usa DocType contable para datos fiscales
+    "title": category_name,
+})
+```
+
+**Estado actual verificado:**
+- ✅ 20 Tax Categories SAT creadas y habilitadas
+- ✅ Campo `fm_tax_regime` (Link → Tax Category) funcionando
+- ✅ Función `_extract_tax_system_from_customer()` actualizada correctamente
+- ✅ Tests migración 6/6 pasando
+
+### 🎯 **Solución Requerida: DocType Independiente**
+
+#### TODO: Crear `Regimen Fiscal SAT` DocType
+
+**Especificaciones Técnicas:**
+```json
+{
+    "doctype": "DocType",
+    "name": "Regimen Fiscal SAT",
+    "module": "Catalogos SAT",
+    "fields": [
+        {"fieldname": "code", "fieldtype": "Data", "label": "Código", "reqd": 1, "unique": 1},
+        {"fieldname": "description", "fieldtype": "Data", "label": "Descripción", "reqd": 1},
+        {"fieldname": "vigente", "fieldtype": "Check", "label": "Vigente", "default": 1},
+        {"fieldname": "fecha_inicio", "fieldtype": "Date", "label": "Fecha Inicio Vigencia"},
+        {"fieldname": "fecha_fin", "fieldtype": "Date", "label": "Fecha Fin Vigencia"},
+        {"fieldname": "persona_fisica", "fieldtype": "Check", "label": "Aplica Persona Física"},
+        {"fieldname": "persona_moral", "fieldtype": "Check", "label": "Aplica Persona Moral"}
+    ],
+    "title_field": "description",
+    "sort_field": "code",
+    "sort_order": "ASC"
+}
+```
+
+#### TODO: Plan Migración (Prioridad MEDIA-ALTA)
+
+**Fase 1: Crear Infrastructure (E3)**
+- [ ] Crear DocType `Regimen Fiscal SAT`
+- [ ] Poblar desde catálogo SAT oficial c_RegimenFiscal (20 registros)
+- [ ] Fixtures para zero-config deployment
+
+**Fase 2: Migración Datos (E3)**
+- [ ] Actualizar custom field `fm_tax_regime`: Link Tax Category → Link Regimen Fiscal SAT
+- [ ] Patch migración datos existentes Tax Categories SAT → Regimen Fiscal SAT
+- [ ] Verificar integridad 3 Customer.fm_tax_regime migrados
+
+**Fase 3: Cleanup (E4)**
+- [ ] Limpiar 20 Tax Categories creadas por populate_tax_category_sat.py
+- [ ] Refactor script → populate_regimen_fiscal_sat.py
+- [ ] Actualizar tests referencias
+
+#### Beneficios Arquitectónicos
+✅ **Separación clara:** Contabilidad (Tax Category) vs Fiscal (Regimen Fiscal SAT)
+✅ **Control total:** Campos específicos SAT sin dependencias ERPNext core
+✅ **Mantenibilidad:** Actualizaciones catálogo SAT independientes
+✅ **Claridad UI:** Selectores específicos sin confusión conceptual
+✅ **Escalabilidad:** Preparado para nuevos campos SAT (persona física/moral, vigencias)
+
+#### Referencias Issue
+- **GitHub Issue:** #65 (comment agregado)
+- **Archivos afectados:** `scripts/populate_tax_category_sat.py`, `fixtures/custom_field.json`
+- **Tests:** `test_migration_compatibility.py` (actualización requerida)
+
+### Impacto en Cronograma E0-E8
+- **E3 milestone:** Resolver antes de E3 para arquitectura limpia
+- **No bloquea E1-E2:** Sistema actual funcional, migración puede ser paralela
+- **Preparación E4:** CFDI mapping beneficiará de campos específicos SAT
+
+**Status TODO:** 🔄 **PENDIENTE E3** - Arquitectura crítica por resolver
