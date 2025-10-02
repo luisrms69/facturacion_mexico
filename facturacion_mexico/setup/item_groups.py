@@ -65,10 +65,14 @@ def _resolve_itt_name(base_pattern: str, company_doc) -> str | None:
 	"""Intenta resolver el nombre exacto del ITT para la compañía probando varios sufijos."""
 	for suf in _find_company_suffixes(company_doc):
 		candidate = base_pattern.format(suffix=suf)
-		# Buscar por title (no por name) ya que name tiene doble sufijo pero title tiene sufijo simple
-		existing = frappe.db.get_value("Item Tax Template", {"title": candidate}, "name")
-		if existing:
-			return existing  # Retornar el name real del documento
+		# Preferir búsqueda por name exacto (post-normalización)
+		by_name = frappe.db.exists("Item Tax Template", candidate)
+		if by_name:
+			return by_name
+		# Fallback por title (para compatibilidad con templates viejos si existen)
+		by_title = frappe.db.get_value("Item Tax Template", {"title": candidate}, "name")
+		if by_title:
+			return by_title
 	return None
 
 

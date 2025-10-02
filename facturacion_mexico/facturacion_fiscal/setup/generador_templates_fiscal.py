@@ -470,18 +470,21 @@ class GeneradorTemplatesFiscales:
 
 		if existing:
 			doc = frappe.get_doc("Sales Taxes and Charges Template", existing)
+			# Limpiar taxes para actualizar
+			doc.taxes = []
+			doc.is_default = template_config.get("is_default", 0)
 		else:
-			doc = frappe.new_doc("Sales Taxes and Charges Template")
-
-		# Configurar campos principales
-		doc.update(
-			{
-				"title": title,
-				"company": self.company,
-				"is_default": template_config.get("is_default", 0),
-				"taxes": [],
-			}
-		)
+			# SOLUCIÓN CHATGPT: usar get_doc(dict) con name pre-establecido
+			doc = frappe.get_doc(
+				{
+					"doctype": "Sales Taxes and Charges Template",
+					"name": title,  # name fijo = title
+					"title": title,
+					"company": self.company,
+					"is_default": template_config.get("is_default", 0),
+					"taxes": [],
+				}
+			)
 
 		# Solo agregar tax_category si no está vacía (evitar problemas con templates sin categoria)
 		if template_config.get("tax_category"):
@@ -711,10 +714,19 @@ class GeneradorTemplatesFiscales:
 
 		if existing:
 			doc = frappe.get_doc("Item Tax Template", existing)
+			# Limpiar taxes para actualizar
+			doc.taxes = []
 		else:
-			doc = frappe.new_doc("Item Tax Template")
-
-		doc.update({"title": title, "company": self.company, "taxes": []})
+			# SOLUCIÓN CHATGPT: usar get_doc(dict) con name pre-establecido
+			doc = frappe.get_doc(
+				{
+					"doctype": "Item Tax Template",
+					"name": title,  # name fijo = title
+					"title": title,
+					"company": self.company,
+					"taxes": [],
+				}
+			)
 
 		# Agregar filas tax
 		for idx, tax_config in enumerate(config.get("taxes", []), start=1):

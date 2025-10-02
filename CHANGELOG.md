@@ -7,6 +7,16 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
 ## [Unreleased]
 
 ### Added
+- **Sistema automatizado Item Groups con ITT assignment** - Garantía estructura fiscal en todos los sites
+  - Módulo `facturacion_mexico/setup/item_groups.py` con funciones idempotentes
+  - Creación automática grupos raíz: "Artículos con IVA al 0%" y "Artículos Exentos"
+  - Hook after_install: ensure_groups_after_install() crea estructura base
+  - Hook after_migrate: assign_itt_to_groups() asigna ITT por compañía
+  - Búsqueda inteligente ITT por company suffix con fallback múltiple
+  - Fixture `item_group_fiscal_structure.json` para zero-config deployment
+  - Integración wizard E0.5: asignación ITT post-generación templates
+  - Sistema multi-company: soporta múltiples empresas con ITT específicos
+  - Idempotencia garantizada: re-ejecución sin duplicados ni errores
 - **Sistema mixto ITT 0% + IVA normal en misma factura E1** - Implementación completa propuesta ChatGPT
   - Wizard E0.5 generador templates modificado: STCT con 3 filas fijas (16%/8%, 0%, exento)
   - ITT override con 3 entradas todas tax_rate=0 para anular STCT y dirigir base
@@ -105,6 +115,15 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
   - Método `send_invoice_email()` en FacturAPIClient para integración completa
 
 ### Fixed
+- **Problema doble sufijo templates fiscales** - Normalización completa 23 templates (15 ITT + 8 STCT)
+  - Root cause identificado: ERPNext autoname() concatenaba company_abbr al title que YA incluía sufijo
+  - FASE 1: Generador modificado `frappe.new_doc()` → `frappe.get_doc(dict)` con name pre-establecido
+  - FASE 2: Script normalización `normalize_template_names.py` ejecutado exitosamente
+  - FASE 3: Búsqueda Item Groups optimizada con preferencia name exacto + fallback title
+  - Resultado: name == title en 100% templates, Item Groups funcionales con ITT assignment
+  - Archivos modificados: `generador_templates_fiscal.py`, `item_groups.py`
+  - Scripts one-off: `normalize_template_names.py`, `verificar_solucion_completa.py`
+  - Documentación: `docs/audit/reporte-problema-doble-sufijo-templates-2025-10-02.md`
 - **Error crítico "Tax Template is mandatory"** en generación Tax Rules del wizard fiscal E0.5
   - Root cause: campo incorrecto `sales_taxes_and_charges_template` → `sales_tax_template` (ERPNext core validation)
   - Fix aplicado: corrección nombre campo + prioridades jerárquicas Tax Rules (General 16% máxima prioridad)

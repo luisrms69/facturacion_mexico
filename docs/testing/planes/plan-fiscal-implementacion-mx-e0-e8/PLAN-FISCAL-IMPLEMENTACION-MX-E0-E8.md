@@ -698,3 +698,187 @@ Customer.tax_category → Tax Rules → STCT → Sales Invoice
 - **7866ccc:** fix(fiscal): corrección función extracción SAT
 
 **Status:** ✅ **LIMPIEZA COMPLETADA** - Arquitectura optimizada para E1-E8
+
+---
+
+## 🏗️ **MEJORAS POST-E1 (2025-10-02) - COMPLETADO**
+
+### ✅ **Sistema Automatizado Item Groups con ITT Assignment**
+
+#### **Objetivo Logrado**
+Implementar sistema automatizado que garantiza la creación de estructura Item Groups fiscal en todos los sites con asignación automática de ITT (Item Tax Templates) correspondientes.
+
+#### **Implementación Técnica**
+
+**Módulo creado:** `facturacion_mexico/setup/item_groups.py`
+
+**Estructura Item Groups implementada:**
+```
+All Item Groups (raíz)
+├── Artículos con IVA al 0%    ← IG_ZERO
+│   └── ITT: "ITT IVA 0% - {company_abbr}"
+└── Artículos Exentos          ← IG_EXENTO
+    └── ITT: "ITT Exento - {company_abbr}"
+```
+
+**Funcionalidades clave:**
+- ✅ **Hook after_install:** Creación automática grupos raíz en instalación nueva
+- ✅ **Hook after_migrate:** Asignación idempotente ITT post-migración
+- ✅ **Búsqueda inteligente:** Resolución ITT por company suffix con fallback múltiple
+- ✅ **Fixture estructura:** `item_group_fiscal_structure.json` para deployment
+
+**Componentes técnicos:**
+```python
+# Funciones principales implementadas
+def ensure_groups_after_install():
+    """Garantiza existencia grupos raíz (after_install)"""
+
+def assign_itt_to_groups():
+    """Asigna ITT a grupos por compañía (after_migrate + wizard E0.5)"""
+
+def _resolve_itt_name(base_pattern: str, company_doc):
+    """Resuelve nombre ITT exacto por compañía con fallback"""
+
+def _assign_group_itt(group_name: str, itt_name: str):
+    """Asigna ITT a tabla taxes del Item Group (idempotente)"""
+```
+
+**Integración sistema:**
+- ✅ `hooks.py`: after_migrate → assign_itt_to_groups()
+- ✅ `install.py`: after_install() → ensure_groups_after_install()
+- ✅ `configuracion_fiscal_mexico.py`: Wizard E0.5 → assign_itt_to_groups()
+
+#### **Criterios DoD Cumplidos**
+- ✅ **Creación automática:** Grupos raíz existen en todos los sites post-install
+- ✅ **Asignación ITT:** Templates asignados automáticamente a grupos correspondientes
+- ✅ **Idempotencia:** Re-ejecución no duplica assignments ni genera errores
+- ✅ **Zero-config:** Nuevas instalaciones funcionan sin configuración manual
+- ✅ **Multi-company:** Soporta múltiples compañías con ITT por company suffix
+
+---
+
+### ✅ **Solución Problema Doble Sufijo Templates Fiscales**
+
+#### **Contexto del Problema RESUELTO**
+
+**Problema original identificado:**
+- ❌ **Templates con doble sufijo:** name = "ITT IVA 0% - _TC - _TC" (incorrecto)
+- ✅ **Title correcto:** title = "ITT IVA 0% - _TC"
+- 🔍 **Root cause:** ERPNext autoname() concatenaba company_abbr automático al title que YA incluía sufijo
+
+**Impacto crítico:**
+- ❌ Item Groups no encontraban ITT (búsqueda por title fallaba)
+- ❌ Inconsistencia name vs title en 23 templates (15 ITT + 8 STCT)
+- ❌ Sistema Item Groups no operativo por mismatch nombres
+
+#### **Solución Implementada - Propuesta ChatGPT 3 Fases**
+
+**FASE 1: Prevenir doble sufijo en nuevos templates**
+- ✅ Modificado generador `generador_templates_fiscal.py`
+- ✅ Cambio técnico: `frappe.new_doc()` → `frappe.get_doc(dict)` con name pre-establecido
+- ✅ Fix aplicado a ambos: `_crear_o_actualizar_stct()` y `_crear_o_actualizar_itt()`
+- ✅ Resultado: Nuevos templates generados tienen name == title (sin duplicación)
+
+**Código clave implementado:**
+```python
+# ANTES (causaba doble sufijo):
+doc = frappe.new_doc("Item Tax Template")  # ← autoname() agrega sufijo extra
+doc.update({"title": title, "company": company, ...})
+
+# DESPUÉS (previene doble sufijo):
+doc = frappe.get_doc({
+    "doctype": "Item Tax Template",
+    "name": title,      # ← name fijo = title (evita autoname)
+    "title": title,
+    "company": company,
+    ...
+})
+```
+
+**FASE 2: Normalizar templates existentes con doble sufijo**
+- ✅ Script creado: `one_offs/normalize_template_names.py`
+- ✅ Funcionalidad: Detecta doble sufijo con regex, renombra usando frappe.rename_doc()
+- ✅ Ejecución: `bench execute facturacion_mexico.one_offs.normalize_template_names.run --kwargs "{'dry_run': 0}"`
+- ✅ Resultado: 23 templates normalizados exitosamente (15 ITT + 8 STCT)
+
+**Detección regex implementada:**
+```python
+def _ends_with_double_suffix(name: str, abbr: str) -> bool:
+    """Detecta templates con doble sufijo al final"""
+    pattern = rf"\s-\s{re.escape(abbr)}\s-\s{re.escape(abbr)}$"
+    return re.search(pattern, name) is not None
+```
+
+**FASE 3: Optimizar búsqueda Item Groups**
+- ✅ Modificado `item_groups.py` función `_resolve_itt_name()`
+- ✅ Estrategia: Buscar primero por name exacto (post-normalización), fallback por title
+- ✅ Resultado: Item Groups encuentran ITT correctamente con templates normalizados
+
+**Búsqueda optimizada:**
+```python
+def _resolve_itt_name(base_pattern: str, company_doc) -> str | None:
+    """Busca ITT por name exacto primero, fallback title"""
+    for suf in _find_company_suffixes(company_doc):
+        candidate = base_pattern.format(suffix=suf)
+        # POST-NORMALIZACIÓN: Preferir name exacto
+        by_name = frappe.db.exists("Item Tax Template", candidate)
+        if by_name:
+            return by_name
+        # FALLBACK: Por title (compatibilidad)
+        by_title = frappe.db.get_value("Item Tax Template", {"title": candidate}, "name")
+        if by_title:
+            return by_title
+    return None
+```
+
+#### **Verificación Solución Completa**
+
+**Script verificación:** `one_offs/verificar_solucion_completa.py`
+
+**Validaciones ejecutadas:**
+- ✅ **Templates normalizados:** 100% templates tienen name == title
+- ✅ **Búsqueda funcional:** Item Groups encuentra ITT correctamente
+- ✅ **ITT asignados:** Grupos tienen ITT en tabla taxes con valid_from = 2025-10-01
+- ✅ **Sistema operativo:** Listo para uso en UI sin errores
+
+**Resultado verificación:**
+```
+✅ ✅ ✅ SOLUCIÓN FUNCIONANDO CORRECTAMENTE ✅ ✅ ✅
+
+1. Templates normalizados: name == title
+2. Búsqueda item_groups funciona
+3. Item Groups tienen ITT asignados
+
+¡Listo para usar en UI!
+```
+
+#### **Documentación Generada**
+
+- 📄 **Reporte técnico completo:** `docs/audit/reporte-problema-doble-sufijo-templates-2025-10-02.md`
+- 📄 **Análisis root cause:** ERPNext autoname() behavior documentado
+- 📄 **Scripts diagnóstico:** 6 scripts verificación reutilizables
+- 🧪 **Script normalización:** normalize_template_names.py (one-off ejecutado)
+- 🧪 **Script verificación:** verificar_solucion_completa.py (validación final)
+
+#### **Impacto en Plan E0-E8**
+
+**E1 - IVA AUTOMÁTICO (COMPLETADO):**
+- ✅ **Sistema Item Groups operativo** con ITT asignados correctamente
+- ✅ **Templates normalizados** sin doble sufijo problemático
+- ✅ **Herencia ITT funcional** desde Item Groups a Items
+
+**E2-E8 (PREPARADO):**
+- ✅ **Base templates sólida** sin inconsistencias nombre/title
+- ✅ **Sistema extensible** para nuevos templates (prevención doble sufijo)
+- ✅ **Búsqueda optimizada** lista para escalar múltiples compañías
+
+#### **Criterios DoD Cumplidos**
+
+- ✅ **Problema identificado:** Root cause ERPNext autoname() documentado
+- ✅ **Solución 3 fases:** Prevención + Normalización + Optimización
+- ✅ **23 templates corregidos:** 15 ITT + 8 STCT normalizados
+- ✅ **Item Groups funcional:** ITT assignment operativo 100%
+- ✅ **Zero errores:** Verificación completa exitosa
+- ✅ **Documentación completa:** Reporte técnico + scripts + evidencias
+
+**Status:** ✅ **MEJORAS POST-E1 COMPLETADAS** - Sistema Item Groups + Templates optimizados

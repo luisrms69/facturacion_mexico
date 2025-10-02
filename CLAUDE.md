@@ -60,11 +60,23 @@
   ```bash
   git checkout main && git pull origin main
   git checkout -b feature/[modulo]-[descripcion]
-  bench --site facturacion.dev backup --with-files  # Backup al crear rama nueva
   # Desarrollo...
   git log --oneline main..HEAD  # Verificar commits únicos
   gh pr list --state open --head feature/[branch-name]  # Verificar PR no existe
   gh pr create --base main --head feature/[branch-name]  # Target MAIN siempre
+  ```
+- ✅ **BACKUP OBLIGATORIO:** Antes de cambios mayores:
+  ```bash
+  # 1. Crear backup automático
+  bench --site [site] backup --with-files
+
+  # 2. Renombrar para identificación
+  cd sites/[site]/private/backups
+  cp [timestamp]-[site]-database.sql.gz backup-pre-[descripcion]-YYYY-MM-DD.sql.gz
+
+  # Ejemplos:
+  cp 20251001_214145-facturacion_dev-database.sql.gz backup-pre-e1-automated-tax-2025-10-01.sql.gz
+  cp 20251001_214145-facturacion_dev-database.sql.gz backup-pre-migration-customers-2025-10-01.sql.gz
   ```
 - ⚠️ **AUTORIZACIÓN:** Todo commit debe ser aprobado por el usuario
 - ❌ **TESTS OBLIGATORIOS:** NO se permite commit si algún test falla. Todos los tests deben pasar al 100% antes de cualquier commit
