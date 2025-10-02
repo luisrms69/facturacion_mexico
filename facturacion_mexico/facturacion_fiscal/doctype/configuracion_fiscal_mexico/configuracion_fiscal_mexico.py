@@ -242,6 +242,11 @@ class ConfiguracionFiscalMexico(Document):
 			generador = GeneradorTemplatesFiscales(self.company)
 			resultados = generador.generar_templates_completos()
 
+			# Asignar ITT a Item Groups después de generar templates
+			from facturacion_mexico.setup.item_groups import assign_itt_to_groups
+
+			assign_itt_to_groups()
+
 			# Mostrar mensaje de éxito
 			total_templates = len(resultados["stct_generados"]) + len(resultados["itt_generados"])
 			frappe.msgprint(

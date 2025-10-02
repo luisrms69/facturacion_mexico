@@ -11,6 +11,15 @@ def after_install():
 	create_custom_fields_for_erpnext()  # SEGUNDO: crear custom fields que referencian catálogos
 	setup_multi_sucursal_system()  # TERCERO: configurar sistema multi-sucursal Sprint 6
 
+	# AUTOMATIC ITEM GROUPS (0% / EXENTO) - crear grupos raíz fiscal
+	try:
+		from facturacion_mexico.setup.item_groups import ensure_groups_after_install
+
+		ensure_groups_after_install()
+	except Exception as e:
+		frappe.log_error(frappe.get_traceback(), "[FMX][Install] Error creating fiscal item groups")
+		frappe.logger().warning(f"⚠️ No se pudieron crear Item Groups fiscales: {e}")
+
 	# MANUAL FIRST: NO crear automáticamente setup fiscal, STCT, ITT, Tax Rules
 	# Estos se crean SOLO desde el Wizard de Configuración Fiscal México
 
