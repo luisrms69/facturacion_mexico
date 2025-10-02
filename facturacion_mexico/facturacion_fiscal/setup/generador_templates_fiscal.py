@@ -67,7 +67,7 @@ class GeneradorTemplatesFiscales:
 		resultados = {
 			"stct_generados": self._generar_stct(mapeo_cuentas),
 			"itt_generados": self._generar_itt(mapeo_cuentas),
-			"tax_rules_generados": self._generar_tax_rules(),
+			# "tax_rules_generados": self._generar_tax_rules(),  # << removido (se hará en E1)
 			"company": self.company,
 			"timestamp": frappe.utils.now(),
 			"version_esquema": self.config_fiscal.version_esquema,
