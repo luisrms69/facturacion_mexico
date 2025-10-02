@@ -6,6 +6,15 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
 
 ## [Unreleased]
 
+### Added
+- **Sistema mixto ITT 0% + IVA normal en misma factura E1** - Implementación completa propuesta ChatGPT
+  - Wizard E0.5 generador templates modificado: STCT con 3 filas fijas (16%/8%, 0%, exento)
+  - ITT override con 3 entradas todas tax_rate=0 para anular STCT y dirigir base
+  - ERPNext Item-wise Tax Detail funciona automáticamente con distribución correcta por línea
+  - Validación real ACC-SINV-2025-01572: capacitación 0% + material oficina 8% funcionando
+  - Hooks mejorados con integración get_item_tax_template() nativo ERPNext
+  - JavaScript corregido: eliminado filtro for_selling problemático en búsqueda STCT
+
 ### Changed
 - **Eliminación definitiva Tax Categories SAT obsoletas** - Sistema completamente limpio de dependencias SAT legacy
   - 20/20 Tax Categories formato SAT (patrón ^\d{3}\s-\s) eliminadas definitivamente

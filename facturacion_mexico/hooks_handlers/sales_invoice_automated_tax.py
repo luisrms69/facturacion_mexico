@@ -163,6 +163,30 @@ def _set_stct_by_branch(doc, branch: str | None):
 		frappe.throw(errormsg)
 
 
+def _get_item_master_itt(item_code: str, **kwargs) -> str | None:
+	"""
+	Obtener ITT sugerido desde el Item usando función ERPNext nativa.
+	Usa get_item_tax_template() que maneja Tax Category, rangos, etc.
+	"""
+	if not item_code:
+		return None
+
+	try:
+		from erpnext.stock.get_item_details import get_item_tax_template
+
+		args = {
+			"item_code": item_code,
+			"company": kwargs.get("company"),
+			"tax_category": kwargs.get("tax_category"),
+			"base_net_rate": kwargs.get("base_net_rate", 0),
+		}
+
+		return get_item_tax_template(args)
+	except Exception:
+		# Fallback silencioso si no funciona
+		return None
+
+
 # ---- Handlers Doc Events ------------------------------------------------
 
 
@@ -206,6 +230,18 @@ def before_validate(doc, method=None):
 
 		# 2.4) PASO 3: Seleccionar STCT automáticamente según Branch (fronteriza/no fronteriza)
 		_set_stct_by_branch(doc, branch)
+
+	# 3) Para cada línea: asegurar ITT desde Item (si existe en el maestro) para excepciones 0%/Exento
+	for row in getattr(doc, "items", []):
+		if not getattr(row, "item_tax_template", None):
+			itt = _get_item_master_itt(
+				row.item_code,
+				company=doc.company,
+				tax_category=getattr(doc, "tax_category", None),
+				base_net_rate=getattr(row, "rate", 0),
+			)
+			if itt:
+				row.item_tax_template = itt
 
 
 def validate(doc, method=None):

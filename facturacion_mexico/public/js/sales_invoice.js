@@ -480,3 +480,172 @@ frappe.ui.form.on("Sales Invoice", {
 		}
 	},
 });
+
+// =============================
+// AUTOMATED TAX SYSTEM - Sales Invoice (UI helpers)
+// =============================
+
+frappe.ui.form.on("Sales Invoice", {
+	refresh(frm) {
+		// Requerido en UI; server valida también
+		frm.set_df_property("cost_center", "reqd", 1);
+	},
+
+	customer: async function (frm) {
+		if (!frm.doc.customer) return;
+
+		// 1) Cargar CC por defecto del cliente
+		try {
+			const { message } = await frappe.db.get_value("Customer", frm.doc.customer, [
+				"fm_customer_default_cost_center",
+				"default_price_list",
+			]);
+			const cc = message ? message.fm_customer_default_cost_center : null;
+			const pl = message ? message.default_price_list : null;
+
+			if (cc) {
+				await frm.set_value("cost_center", cc);
+				frappe.show_alert(
+					{ message: "Centro de Costos asignado automáticamente.", indicator: "green" },
+					6
+				);
+			} else {
+				frappe.show_alert(
+					{
+						message: "El cliente no tiene Centro de Costos por defecto.",
+						indicator: "orange",
+					},
+					6
+				);
+			}
+
+			// 2) Price List por prioridad (si no está ya)
+			if (!frm.doc.selling_price_list) {
+				if (pl) {
+					await frm.set_value("selling_price_list", pl);
+				} else {
+					// si no hay en Customer, cuando setee cost_center se recalculará abajo
+				}
+			}
+
+			// 3) Resolver STCT por sucursal emisora, si taxes_and_charges está vacío
+			await _fm_apply_branch_tax_template(frm);
+		} catch (e) {
+			console.log("customer handler error", e);
+		}
+	},
+
+	cost_center: async function (frm) {
+		if (!frm.doc.cost_center) return;
+
+		// 1) Resolver Branch y STCT por sucursal (si no hay STCT ya)
+		await _fm_apply_branch_tax_template(frm);
+
+		// 2) Price List por prioridad si sigue vacío
+		if (!frm.doc.selling_price_list) {
+			try {
+				const { message: ccRow } = await frappe.db.get_value(
+					"Cost Center",
+					frm.doc.cost_center,
+					["fm_default_selling_price_list"]
+				);
+				if (ccRow && ccRow.fm_default_selling_price_list) {
+					await frm.set_value("selling_price_list", ccRow.fm_default_selling_price_list);
+				} else {
+					const companyPL = await frappe.db.get_single_value(
+						"Selling Settings",
+						"selling_price_list"
+					);
+					if (companyPL) await frm.set_value("selling_price_list", companyPL);
+				}
+			} catch (e) {
+				console.log("cost_center handler price list error", e);
+			}
+		}
+	},
+
+	before_save(frm) {
+		if (!frm.doc.cost_center) {
+			frappe.msgprint("No se puede guardar sin <b>Cost Center</b> en el encabezado.");
+			frappe.validated = false;
+		}
+	},
+});
+
+// Helper: determina Branch por CC y aplica STCT 16/8 si taxes_and_charges está vacío
+async function _fm_apply_branch_tax_template(frm) {
+	try {
+		if (!frm.doc.cost_center) return;
+
+		// Branch por CC (persistimos en fm_branch si existe el campo)
+		const { message: cc } = await frappe.db.get_value("Cost Center", frm.doc.cost_center, [
+			"fm_mapped_branch",
+		]);
+		const branch = cc ? cc.fm_mapped_branch : null;
+
+		if (branch && frm.fields_dict["fm_branch"]) {
+			await frm.set_value("fm_branch", branch);
+		}
+
+		// Si ya hay STCT, respetamos al usuario
+		if (frm.doc.taxes_and_charges) return;
+
+		// ¿Es frontera?
+		let is_border = false;
+		if (branch) {
+			const { message: b } = await frappe.db.get_value("Branch", branch, [
+				"fm_is_border_zone",
+			]);
+			is_border = !!(b && cint(b.fm_is_border_zone));
+		}
+
+		// Elegir plantilla: buscar por nombre "IVA 8" o "IVA 16" (venta) en esta compañía
+		const rateTxt = is_border ? "8" : "16";
+		const r = await frappe.call({
+			method: "frappe.client.get_list",
+			args: {
+				doctype: "Sales Taxes and Charges Template",
+				filters: {
+					company: frm.doc.company,
+					disabled: 0,
+					name: ["like", `%IVA ${rateTxt}%`],
+				},
+				fields: ["name"],
+				limit_page_length: 1,
+			},
+		});
+		if (r && r.message && r.message.length > 0) {
+			await frm.set_value("taxes_and_charges", r.message[0].name);
+			frappe.show_alert(
+				{
+					message: `Plantilla de impuestos aplicada (${
+						is_border ? "IVA 8%" : "IVA 16%"
+					}).`,
+					indicator: "green",
+				},
+				6
+			);
+		} else {
+			// No se encontró STCT apropiado - mostrar mensaje informativo
+			const taxType = is_border ? "IVA 8% (Zona Fronteriza)" : "IVA 16% (México)";
+			frappe.show_alert(
+				{
+					message: `No se encontró plantilla ${taxType} para ${frm.doc.company}. Debe configurarse desde el Wizard Fiscal.`,
+					indicator: "orange",
+				},
+				8
+			);
+			console.log(`STCT no encontrado: ${taxType} para company ${frm.doc.company}`);
+		}
+	} catch (e) {
+		console.log("_fm_apply_branch_tax_template error", e);
+	}
+}
+
+function cint(v) {
+	try {
+		return parseInt(v, 10) || 0;
+	} catch (e) {
+		return 0;
+	}
+}

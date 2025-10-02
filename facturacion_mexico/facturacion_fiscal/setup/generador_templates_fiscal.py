@@ -152,21 +152,37 @@ class GeneradorTemplatesFiscales:
 		"""Obtener templates IVA base usando constantes."""
 		templates = []
 
-		# IVA General 16% - Siempre incluido
+		# IVA General 16% - STCT con 3 filas fijas (propuesta ChatGPT)
 		iva_general_config = obtener_configuracion_por_rol("IVA por Pagar (16%)")
+		iva_0_config = obtener_configuracion_por_rol("IVA por Pagar (0% exportación)")
+		iva_exento_config = obtener_configuracion_por_rol("IVA Exento")
 		templates.append(
 			{
 				"title": STCT_TEMPLATES["iva_general"],
 				"tax_category": "General 16",
-				"is_default": 1,
+				"is_default": 0,
 				"taxes": [
 					{
 						"rol_fiscal": "IVA por Pagar (16%)",
-						"charge_type": iva_general_config["charge_type"],
-						"rate": iva_general_config["tasa"],
+						"charge_type": "On Net Total",
+						"rate": 16,
 						"description": iva_general_config["descripcion"],
-						"add_deduct_tax": iva_general_config["add_deduct_tax"],
-					}
+						"add_deduct_tax": "Add",
+					},
+					{
+						"rol_fiscal": "IVA por Pagar (0% exportación)",
+						"charge_type": "On Net Total",
+						"rate": 0,
+						"description": iva_0_config["descripcion"],
+						"add_deduct_tax": "Add",
+					},
+					{
+						"rol_fiscal": "IVA Exento",
+						"charge_type": "On Net Total",
+						"rate": 0,
+						"description": iva_exento_config["descripcion"],
+						"add_deduct_tax": "Add",
+					},
 				],
 			}
 		)
@@ -198,9 +214,11 @@ class GeneradorTemplatesFiscales:
 			}
 		)
 
-		# IVA Frontera 8% - Solo si habilitado
+		# IVA Frontera 8% - STCT con 3 filas fijas (propuesta ChatGPT)
 		if self.config_fiscal.enable_frontera:
 			iva_frontera_config = obtener_configuracion_por_rol("IVA por Pagar (8% frontera)")
+			iva_0_config = obtener_configuracion_por_rol("IVA por Pagar (0% exportación)")
+			iva_exento_config = obtener_configuracion_por_rol("IVA Exento")
 			templates.append(
 				{
 					"title": STCT_TEMPLATES["iva_frontera"],
@@ -208,11 +226,25 @@ class GeneradorTemplatesFiscales:
 					"taxes": [
 						{
 							"rol_fiscal": "IVA por Pagar (8% frontera)",
-							"charge_type": iva_frontera_config["charge_type"],
-							"rate": iva_frontera_config["tasa"],
+							"charge_type": "On Net Total",
+							"rate": 8,
 							"description": iva_frontera_config["descripcion"],
-							"add_deduct_tax": iva_frontera_config["add_deduct_tax"],
-						}
+							"add_deduct_tax": "Add",
+						},
+						{
+							"rol_fiscal": "IVA por Pagar (0% exportación)",
+							"charge_type": "On Net Total",
+							"rate": 0,
+							"description": iva_0_config["descripcion"],
+							"add_deduct_tax": "Add",
+						},
+						{
+							"rol_fiscal": "IVA Exento",
+							"charge_type": "On Net Total",
+							"rate": 0,
+							"description": iva_exento_config["descripcion"],
+							"add_deduct_tax": "Add",
+						},
 					],
 				}
 			)
@@ -510,23 +542,27 @@ class GeneradorTemplatesFiscales:
 			}
 		)
 
-		# ITT IVA 0%
-		iva_export_config = obtener_configuracion_por_rol("IVA por Pagar (0% exportación)")
+		# ITT IVA 0% - Con 3 entradas para mixto (propuesta ChatGPT)
 		configs.append(
 			{
 				"title": ITT_TEMPLATES["iva_exportacion"],
 				"taxes": [
-					{"rol_fiscal": "IVA por Pagar (0% exportación)", "tax_rate": iva_export_config["tasa"]}
+					{"rol_fiscal": "IVA por Pagar (16%)", "tax_rate": 0},
+					{"rol_fiscal": "IVA por Pagar (8% frontera)", "tax_rate": 0},
+					{"rol_fiscal": "IVA por Pagar (0% exportación)", "tax_rate": 0},
 				],
 			}
 		)
 
-		# ITT Exento
-		iva_exento_config = obtener_configuracion_por_rol("IVA Exento")
+		# ITT Exento - Con 3 entradas para mixto (propuesta ChatGPT)
 		configs.append(
 			{
 				"title": ITT_TEMPLATES["exento"],
-				"taxes": [{"rol_fiscal": "IVA Exento", "tax_rate": iva_exento_config["tasa"]}],
+				"taxes": [
+					{"rol_fiscal": "IVA por Pagar (16%)", "tax_rate": 0},
+					{"rol_fiscal": "IVA por Pagar (8% frontera)", "tax_rate": 0},
+					{"rol_fiscal": "IVA Exento", "tax_rate": 0},
+				],
 			}
 		)
 
