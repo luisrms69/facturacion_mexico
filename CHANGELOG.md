@@ -6,6 +6,17 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
 
 ## [Unreleased]
 
+### Changed
+- **Eliminación definitiva Tax Categories SAT obsoletas** - Sistema completamente limpio de dependencias SAT legacy
+  - 20/20 Tax Categories formato SAT (patrón ^\d{3}\s-\s) eliminadas definitivamente
+  - 6 Tax Categories normales conservadas (Retenciones, Exempt, Zero 0, General 16, _Test 1, _Test 2)
+  - 131 referencias históricas Sales Invoice.tax_category limpiadas antes de eliminación
+  - Customer.fm_tax_regime establecido como fuente canónica única para régimen fiscal
+- **Optimización arquitectura régimen fiscal** - Eliminación redundancias y simplificación flujo datos
+  - Custom field Sales Invoice.fm_tax_regime eliminado (redundante - FFM siempre usa Customer.fm_tax_regime)
+  - Arquitectura optimizada: Customer.fm_tax_regime → FFM.fm_tax_system → CFDI/PAC
+  - DocType Regimen Fiscal SAT disponible para futuras mejoras
+
 ### Fixed
 - **Función extracción SAT régimen fiscal** - Corregida `_extract_tax_system_from_customer()` para usar `fm_tax_regime` en lugar de `tax_category` deprecado
   - factura_fiscal_mexico.py líneas 1178-1194 actualizadas
@@ -13,6 +24,9 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
   - Lógica extracción código SAT ("601") mantiene compatibilidad total
   - Test específico agregado: `test_extract_tax_system_function_uses_fm_tax_regime()`
   - Coverage testing función crítica CFDI completado (6/6 tests pasando)
+- **Tests migration compatibility** - Actualizado para reflejar eliminación Sales Invoice custom field redundante
+  - test_sales_invoice_custom_field_removed() verifica eliminación exitosa
+  - Comentarios explicativos sobre razón eliminación (FFM no usa Sales Invoice.fm_tax_regime)
 
 ### Added
 - **Testing migración tax_category → fm_tax_regime** - Test específico función `_extract_tax_system_from_customer()`

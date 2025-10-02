@@ -58,17 +58,16 @@ class TestTaxRegimeMigration(unittest.TestCase):
         self.assertEqual(fm_field.options, "Tax Category")
         self.assertEqual(fm_field.label, "Régimen Fiscal SAT")
 
-    def test_sales_invoice_custom_field_exists(self):
-        """Test: verificar que Sales Invoice también tiene fm_tax_regime."""
+    def test_sales_invoice_custom_field_removed(self):
+        """Test: verificar que Sales Invoice ya NO tiene fm_tax_regime (eliminado como redundante)."""
         meta = frappe.get_meta("Sales Invoice")
 
-        # Verificar campo existe en Sales Invoice también
+        # Verificar campo ya NO existe en Sales Invoice (eliminado por redundante)
         fm_field = next((f for f in meta.fields if f.fieldname == "fm_tax_regime"), None)
-        self.assertIsNotNone(fm_field, "Custom field fm_tax_regime no existe en Sales Invoice")
+        self.assertIsNone(fm_field, "Custom field fm_tax_regime aún existe en Sales Invoice (debería estar eliminado)")
 
-        # Verificar configuración correcta
-        self.assertEqual(fm_field.fieldtype, "Link")
-        self.assertEqual(fm_field.options, "Tax Category")
+        # Comentario: Sales Invoice.fm_tax_regime era redundante porque FFM siempre obtiene
+        # tax regime desde Customer.fm_tax_regime, nunca desde Sales Invoice
 
     def test_extract_tax_system_function_uses_fm_tax_regime(self):
         """Test: verificar que _extract_tax_system_from_customer usa fm_tax_regime."""

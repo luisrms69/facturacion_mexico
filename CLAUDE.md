@@ -104,6 +104,29 @@
 - ✅ **Pre-commit:** Hooks automáticos en `.pre-commit-config.yaml`
 - ✅ **Commits:** `feat(scope): descripción en español`
 
+### **RG-002.1: ESTRATEGIA BACKUP OBLIGATORIA**
+- ✅ **BACKUP AUTOMÁTICO:** Antes de crear rama nueva (ya implementado)
+- ✅ **BACKUP PLANES:** Obligatorio antes de planes que modifiquen BD considerablemente
+- ✅ **NOMENCLATURA ESPECÍFICA:** Formato identificable para backups críticos
+- ✅ **COMANDO ESTÁNDAR:**
+  ```bash
+  # Backup rama nueva (existente)
+  bench --site facturacion.dev backup --with-files  # Al crear feature branch
+
+  # Backup plan implementación (NUEVO)
+  bench --site facturacion.dev backup --with-files --backup-path-suffix="plan-[categoria]-[objetivo]-$(date +%Y%m%d-%H%M)"
+
+  # Ejemplos específicos:
+  bench --site facturacion.dev backup --with-files --backup-path-suffix="plan-testing-pr68-email-20250922-1430"
+  bench --site facturacion.dev backup --with-files --backup-path-suffix="plan-migracion-ffm-workflow-20250922-0900"
+  ```
+- ✅ **TRIGGERS OBLIGATORIOS:**
+  - Antes de ejecutar planes en docs/testing/planes/
+  - Antes de migraciones de schema considerables
+  - Antes de cambios DocTypes/Custom Fields masivos
+  - Antes de modificaciones datos críticos (FFMs, Customers)
+- ❌ **NO REQUERIDO:** Cambios menores código sin BD impact
+
 ### **RG-003: TESTING FRAMEWORK**
 **Meta:** Suite rápida, determinista y útil (≤ 5 min), sin dependencias externas.
 
