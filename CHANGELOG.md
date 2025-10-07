@@ -7,6 +7,15 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
 ## [Unreleased]
 
 ### Added
+- **Sistema IEPS granular + Retenciones E2-E3 (Opción B)** - Arquitectura consolidada para supermercados y acreditamiento IEPS
+  - Función `_obtener_stct_opcion_b()` genera STCT consolidados sin tax_category
+  - Estructura 13 filas por STCT: pares IEPS+IVA cascada + IVA base + retenciones + mixto E1
+  - Extracción dinámica tipos IEPS de MAPEO_ROLES_CONFIGURACION (4 tipos: Alcohol, Azúcar, Combustibles, Tabaco)
+  - Cascada fiscal explícita: IVA "On Previous Row Amount" sobre cada tipo IEPS
+  - Retenciones IVA/ISR con rate 0 (tasa real vía ITT por ítem)
+  - Compatible mixto E1: filas IVA 0% y Exento neutralizan IVA por ítem
+  - Flexibilidad única: granular (cuentas separadas IEPS) o consolidado (misma cuenta) según mapeo GL
+  - Cumple requisito legal SAT: acreditamiento IEPS por tipo separado para supermercados
 - **Sistema automatizado Item Groups con ITT assignment** - Garantía estructura fiscal en todos los sites
   - Módulo `facturacion_mexico/setup/item_groups.py` con funciones idempotentes
   - Creación automática grupos raíz: "Artículos con IVA al 0%" y "Artículos Exentos"
@@ -26,6 +35,12 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
   - JavaScript corregido: eliminado filtro for_selling problemático en búsqueda STCT
 
 ### Changed
+- **Arquitectura templates STCT migrada a Opción B consolidada** - Reemplazo completo arquitectura Hito 1 separada
+  - Eliminadas 3 funciones obsoletas: `_obtener_templates_iva_base()`, `_obtener_templates_ieps_cascada()`, `_obtener_templates_retenciones()`
+  - Función `_generar_stct()` modificada: usa solo `_obtener_stct_opcion_b()` como fuente única
+  - Templates con tax_category (arquitectura separada Hito 1) no se generan más
+  - BREAKING: Sites existentes requieren regeneración templates con wizard E0.5
+  - Beneficio: un solo STCT consolidado por tasa IVA (16% y 8% frontera) en lugar de múltiples templates separados
 - **Eliminación definitiva Tax Categories SAT obsoletas** - Sistema completamente limpio de dependencias SAT legacy
   - 20/20 Tax Categories formato SAT (patrón ^\d{3}\s-\s) eliminadas definitivamente
   - 6 Tax Categories normales conservadas (Retenciones, Exempt, Zero 0, General 16, _Test 1, _Test 2)

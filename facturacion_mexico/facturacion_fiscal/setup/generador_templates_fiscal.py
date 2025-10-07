@@ -10,6 +10,7 @@ from frappe.utils import flt
 
 from facturacion_mexico.facturacion_fiscal.config.constantes_fiscales import (
 	ITT_TEMPLATES,
+	MAPEO_ROLES_CONFIGURACION,
 	STCT_TEMPLATES,
 	TAX_CATEGORIES,
 	es_impuesto_cascada,
@@ -125,339 +126,204 @@ class GeneradorTemplatesFiscales:
 				tax_cat = frappe.get_doc({"doctype": "Tax Category", "name": category, "title": category})
 				tax_cat.insert(ignore_permissions=True)
 
+	def _obtener_stct_opcion_b(self) -> list[dict]:
+		"""
+		Genera STCT consolidado (Opción B):
+		- Pares IEPS_t + IVA sobre IEPS_t (contiguos)
+		- IVA base (sobre neto)
+		- Retenciones (Deduct)
+		- IVA 0% y Exento (para mixto E1)
+		Sin tax_category.
+		"""
+		# Detectar roles IEPS definidos en constantes (granulares)
+		IEPS_TIPOS = [rol for rol in MAPEO_ROLES_CONFIGURACION.keys() if rol.startswith("IEPS por Pagar")]
+
+		templates = []
+
+		# ---------- IVA 16% ----------
+		taxes_16 = []
+		for rol_ieps in IEPS_TIPOS:
+			# (1) IEPS tipo (rate 0; la tasa real llega por ITT del ítem)
+			taxes_16.append(
+				{
+					"rol_fiscal": rol_ieps,
+					"charge_type": "On Net Total",
+					"rate": 0.0,
+					"add_deduct_tax": "Add",
+					"description": f"IEPS {rol_ieps.split('(')[1].rstrip(')')} - tasa via ITT",
+				}
+			)
+			# (2) IVA 16% sobre IEPS tipo (cascada explícita)
+			taxes_16.append(
+				{
+					"rol_fiscal": "IVA por Pagar (16%)",
+					"charge_type": "On Previous Row Amount",
+					"rate": 16.0,
+					"add_deduct_tax": "Add",
+					"description": f"IVA 16% sobre IEPS {rol_ieps.split('(')[1].rstrip(')')}",
+				}
+			)
+
+		# (3) IVA 16% base (sobre neto)
+		taxes_16.append(
+			{
+				"rol_fiscal": "IVA por Pagar (16%)",
+				"charge_type": "On Net Total",
+				"rate": 16.0,
+				"add_deduct_tax": "Add",
+				"description": "IVA 16% base (neto)",
+			}
+		)
+
+		# (4) Retenciones (rate 0; la tasa real via ITT de cada ítem/servicio)
+		taxes_16.append(
+			{
+				"rol_fiscal": "IVA Retenido (Servicios Profesionales)",
+				"charge_type": "On Net Total",
+				"rate": 0.0,
+				"add_deduct_tax": "Deduct",
+				"description": "Retención IVA (servicios), tasa via ITT",
+			}
+		)
+		taxes_16.append(
+			{
+				"rol_fiscal": "ISR Retenido (Honorarios)",
+				"charge_type": "On Net Total",
+				"rate": 0.0,
+				"add_deduct_tax": "Deduct",
+				"description": "Retención ISR (honorarios), tasa via ITT",
+			}
+		)
+
+		# (5) Mixto E1: 0% y Exento (neutralizan IVA por ítem vía ITT)
+		taxes_16.append(
+			{
+				"rol_fiscal": "IVA por Pagar (0% exportación)",
+				"charge_type": "On Net Total",
+				"rate": 0.0,
+				"add_deduct_tax": "Add",
+				"description": "IVA 0% - neutraliza IVA por ítem (E1 ITT 0%)",
+			}
+		)
+		taxes_16.append(
+			{
+				"rol_fiscal": "IVA Exento",
+				"charge_type": "On Net Total",
+				"rate": 0.0,
+				"add_deduct_tax": "Add",
+				"description": "IVA Exento - neutraliza IVA por ítem (E1 ITT Exento)",
+			}
+		)
+
+		templates.append(
+			{
+				"title": STCT_TEMPLATES.get("iva_general", "IVA 16% - México"),
+				"is_default": 1,
+				"taxes": taxes_16,
+			}
+		)
+
+		# ---------- IVA 8% Frontera ----------
+		taxes_8 = []
+		for rol_ieps in IEPS_TIPOS:
+			taxes_8.append(
+				{
+					"rol_fiscal": rol_ieps,
+					"charge_type": "On Net Total",
+					"rate": 0.0,
+					"add_deduct_tax": "Add",
+					"description": f"IEPS {rol_ieps.split('(')[1].rstrip(')')} - tasa via ITT",
+				}
+			)
+			taxes_8.append(
+				{
+					"rol_fiscal": "IVA por Pagar (8% frontera)",
+					"charge_type": "On Previous Row Amount",
+					"rate": 8.0,
+					"add_deduct_tax": "Add",
+					"description": f"IVA 8% sobre IEPS {rol_ieps.split('(')[1].rstrip(')')}",
+				}
+			)
+
+		taxes_8.append(
+			{
+				"rol_fiscal": "IVA por Pagar (8% frontera)",
+				"charge_type": "On Net Total",
+				"rate": 8.0,
+				"add_deduct_tax": "Add",
+				"description": "IVA 8% frontera base (neto)",
+			}
+		)
+
+		taxes_8.append(
+			{
+				"rol_fiscal": "IVA Retenido (Servicios Profesionales)",
+				"charge_type": "On Net Total",
+				"rate": 0.0,
+				"add_deduct_tax": "Deduct",
+				"description": "Retención IVA (servicios), tasa via ITT",
+			}
+		)
+		taxes_8.append(
+			{
+				"rol_fiscal": "ISR Retenido (Honorarios)",
+				"charge_type": "On Net Total",
+				"rate": 0.0,
+				"add_deduct_tax": "Deduct",
+				"description": "Retención ISR (honorarios), tasa via ITT",
+			}
+		)
+
+		taxes_8.append(
+			{
+				"rol_fiscal": "IVA por Pagar (0% exportación)",
+				"charge_type": "On Net Total",
+				"rate": 0.0,
+				"add_deduct_tax": "Add",
+				"description": "IVA 0% - neutraliza IVA por ítem (E1 ITT 0%)",
+			}
+		)
+		taxes_8.append(
+			{
+				"rol_fiscal": "IVA Exento",
+				"charge_type": "On Net Total",
+				"rate": 0.0,
+				"add_deduct_tax": "Add",
+				"description": "IVA Exento - neutraliza IVA por ítem (E1 ITT Exento)",
+			}
+		)
+
+		templates.append(
+			{
+				"title": STCT_TEMPLATES.get("iva_frontera", "IVA 8% Frontera - México"),
+				"is_default": 0,
+				"taxes": taxes_8,
+			}
+		)
+
+		return templates
+
 	def _generar_stct(self, mapeo_cuentas: dict[str, str]) -> list[str]:
-		"""Generar Sales Taxes and Charges Templates usando constantes centralizadas."""
+		"""Generar Sales Taxes and Charges Templates usando Opción B (consolidado)."""
 		stct_generados = []
 
-		# TEMPLATES BASE IVA - Siempre generados
-		templates_base = self._obtener_templates_iva_base()
-
-		# TEMPLATES IEPS + IVA CASCADA - Según alcance
-		templates_ieps = self._obtener_templates_ieps_cascada()
-
-		# TEMPLATES RETENCIONES - Según alcance
-		templates_retenciones = self._obtener_templates_retenciones()
-
-		# Combinar todos los templates
-		all_templates = templates_base + templates_ieps + templates_retenciones
+		# OPCIÓN B: STCT consolidados (IVA 16% + IVA 8% Frontera)
+		# Cada uno con: IEPS granular + retenciones + mixto E1
+		stct_configs = self._obtener_stct_opcion_b()
 
 		# Generar cada template
-		for template_config in all_templates:
+		for template_config in stct_configs:
 			stct_name = self._crear_o_actualizar_stct(template_config, mapeo_cuentas)
 			stct_generados.append(stct_name)
 
 		return stct_generados
 
-	def _obtener_templates_iva_base(self) -> list[dict]:
-		"""Obtener templates IVA base usando constantes."""
-		templates = []
-
-		# IVA General 16% - STCT con 3 filas fijas (propuesta ChatGPT)
-		iva_general_config = obtener_configuracion_por_rol("IVA por Pagar (16%)")
-		iva_0_config = obtener_configuracion_por_rol("IVA por Pagar (0% exportación)")
-		iva_exento_config = obtener_configuracion_por_rol("IVA Exento")
-		templates.append(
-			{
-				"title": STCT_TEMPLATES["iva_general"],
-				"tax_category": "General 16",
-				"is_default": 0,
-				"taxes": [
-					{
-						"rol_fiscal": "IVA por Pagar (16%)",
-						"charge_type": "On Net Total",
-						"rate": 16,
-						"description": iva_general_config["descripcion"],
-						"add_deduct_tax": "Add",
-					},
-					{
-						"rol_fiscal": "IVA por Pagar (0% exportación)",
-						"charge_type": "On Net Total",
-						"rate": 0,
-						"description": iva_0_config["descripcion"],
-						"add_deduct_tax": "Add",
-					},
-					{
-						"rol_fiscal": "IVA Exento",
-						"charge_type": "On Net Total",
-						"rate": 0,
-						"description": iva_exento_config["descripcion"],
-						"add_deduct_tax": "Add",
-					},
-				],
-			}
-		)
-
-		# IVA Exportación 0% - Siempre incluido
-		iva_export_config = obtener_configuracion_por_rol("IVA por Pagar (0% exportación)")
-		templates.append(
-			{
-				"title": STCT_TEMPLATES["iva_exportacion"],
-				"tax_category": "Zero 0",
-				"taxes": [
-					{
-						"rol_fiscal": "IVA por Pagar (0% exportación)",
-						"charge_type": iva_export_config["charge_type"],
-						"rate": iva_export_config["tasa"],
-						"description": iva_export_config["descripcion"],
-						"add_deduct_tax": iva_export_config["add_deduct_tax"],
-					}
-				],
-			}
-		)
-
-		# Sin Impuestos / Exento - Siempre incluido
-		templates.append(
-			{
-				"title": STCT_TEMPLATES["sin_impuestos"],
-				"tax_category": "Exempt",
-				"taxes": [],  # Template exento sin filas
-			}
-		)
-
-		# IVA Frontera 8% - STCT con 3 filas fijas (propuesta ChatGPT)
-		if self.config_fiscal.enable_frontera:
-			iva_frontera_config = obtener_configuracion_por_rol("IVA por Pagar (8% frontera)")
-			iva_0_config = obtener_configuracion_por_rol("IVA por Pagar (0% exportación)")
-			iva_exento_config = obtener_configuracion_por_rol("IVA Exento")
-			templates.append(
-				{
-					"title": STCT_TEMPLATES["iva_frontera"],
-					"tax_category": "Border 8",
-					"taxes": [
-						{
-							"rol_fiscal": "IVA por Pagar (8% frontera)",
-							"charge_type": "On Net Total",
-							"rate": 8,
-							"description": iva_frontera_config["descripcion"],
-							"add_deduct_tax": "Add",
-						},
-						{
-							"rol_fiscal": "IVA por Pagar (0% exportación)",
-							"charge_type": "On Net Total",
-							"rate": 0,
-							"description": iva_0_config["descripcion"],
-							"add_deduct_tax": "Add",
-						},
-						{
-							"rol_fiscal": "IVA Exento",
-							"charge_type": "On Net Total",
-							"rate": 0,
-							"description": iva_exento_config["descripcion"],
-							"add_deduct_tax": "Add",
-						},
-					],
-				}
-			)
-
-		return templates
-
-	def _obtener_templates_ieps_cascada(self) -> list[dict]:
-		"""Obtener templates IEPS + IVA en cascada según alcance."""
-		templates = []
-
-		# IEPS Alcohol + IVA
-		if self.config_fiscal.enable_ieps_alcohol:
-			ieps_config = obtener_configuracion_por_rol("IEPS por Pagar (Alcohol)")
-			iva_config = obtener_configuracion_por_rol("IVA por Pagar (16%)")
-
-			templates.append(
-				{
-					"title": "IEPS Alcohol + IVA - México",
-					"tax_category": "IEPS Alcohol",
-					"taxes": [
-						{
-							"rol_fiscal": "IEPS por Pagar (Alcohol)",
-							"charge_type": ieps_config["charge_type"],
-							"rate": ieps_config["tasa"],
-							"description": ieps_config["descripcion"],
-							"add_deduct_tax": ieps_config["add_deduct_tax"],
-						},
-						{
-							"rol_fiscal": "IVA por Pagar (16%)",
-							"charge_type": "On Previous Row Amount",  # Cascada: IVA sobre (base + IEPS)
-							"rate": iva_config["tasa"],
-							"description": f"{iva_config['descripcion']} (sobre base + IEPS)",
-							"add_deduct_tax": iva_config["add_deduct_tax"],
-						},
-					],
-				}
-			)
-
-		# IEPS Azúcar + IVA
-		if self.config_fiscal.enable_ieps_azucar:
-			ieps_config = obtener_configuracion_por_rol("IEPS por Pagar (Azúcar/Bebidas)")
-			iva_config = obtener_configuracion_por_rol("IVA por Pagar (16%)")
-
-			templates.append(
-				{
-					"title": "IEPS Azúcar + IVA - México",
-					"tax_category": "IEPS Azucar",
-					"taxes": [
-						{
-							"rol_fiscal": "IEPS por Pagar (Azúcar/Bebidas)",
-							"charge_type": ieps_config["charge_type"],
-							"rate": ieps_config["tasa"],
-							"description": ieps_config["descripcion"],
-							"add_deduct_tax": ieps_config["add_deduct_tax"],
-						},
-						{
-							"rol_fiscal": "IVA por Pagar (16%)",
-							"charge_type": "On Previous Row Amount",
-							"rate": iva_config["tasa"],
-							"description": f"{iva_config['descripcion']} (sobre base + IEPS)",
-							"add_deduct_tax": iva_config["add_deduct_tax"],
-						},
-					],
-				}
-			)
-
-		# IEPS Combustibles + IVA
-		if self.config_fiscal.enable_ieps_combustibles:
-			ieps_config = obtener_configuracion_por_rol("IEPS por Pagar (Combustibles)")
-			iva_config = obtener_configuracion_por_rol("IVA por Pagar (16%)")
-
-			templates.append(
-				{
-					"title": "IEPS Combustibles + IVA - México",
-					"tax_category": "IEPS Combustibles",
-					"taxes": [
-						{
-							"rol_fiscal": "IEPS por Pagar (Combustibles)",
-							"charge_type": ieps_config["charge_type"],
-							"rate": ieps_config["tasa"],
-							"description": ieps_config["descripcion"],
-							"add_deduct_tax": ieps_config["add_deduct_tax"],
-						},
-						{
-							"rol_fiscal": "IVA por Pagar (16%)",
-							"charge_type": "On Previous Row Amount",
-							"rate": iva_config["tasa"],
-							"description": f"{iva_config['descripcion']} (sobre base + IEPS)",
-							"add_deduct_tax": iva_config["add_deduct_tax"],
-						},
-					],
-				}
-			)
-
-		# IEPS Tabaco + IVA
-		if self.config_fiscal.enable_ieps_tabaco:
-			ieps_config = obtener_configuracion_por_rol("IEPS por Pagar (Tabaco)")
-			iva_config = obtener_configuracion_por_rol("IVA por Pagar (16%)")
-
-			templates.append(
-				{
-					"title": "IEPS Tabaco + IVA - México",
-					"tax_category": "IEPS Tabaco",
-					"taxes": [
-						{
-							"rol_fiscal": "IEPS por Pagar (Tabaco)",
-							"charge_type": ieps_config["charge_type"],
-							"rate": ieps_config["tasa"],
-							"description": ieps_config["descripcion"],
-							"add_deduct_tax": ieps_config["add_deduct_tax"],
-						},
-						{
-							"rol_fiscal": "IVA por Pagar (16%)",
-							"charge_type": "On Previous Row Amount",
-							"rate": iva_config["tasa"],
-							"description": f"{iva_config['descripcion']} (sobre base + IEPS)",
-							"add_deduct_tax": iva_config["add_deduct_tax"],
-						},
-					],
-				}
-			)
-
-		return templates
-
-	def _obtener_templates_retenciones(self) -> list[dict]:
-		"""Obtener templates de retenciones según alcance."""
-		templates = []
-
-		# Retenciones Honorarios (ISR + IVA)
-		if self.config_fiscal.enable_ret_honorarios:
-			isr_config = obtener_configuracion_por_rol("ISR Retenido (Honorarios)")
-			iva_config = obtener_configuracion_por_rol("IVA Retenido (Servicios Profesionales)")
-
-			templates.append(
-				{
-					"title": "Retenciones Honorarios - México",
-					"tax_category": "Retenciones Honorarios",
-					"taxes": [
-						{
-							"rol_fiscal": "ISR Retenido (Honorarios)",
-							"charge_type": isr_config["charge_type"],
-							"rate": isr_config["tasa"],
-							"description": isr_config["descripcion"],
-							"add_deduct_tax": isr_config["add_deduct_tax"],
-						},
-						{
-							"rol_fiscal": "IVA Retenido (Servicios Profesionales)",
-							"charge_type": iva_config["charge_type"],
-							"rate": iva_config["tasa"],
-							"description": iva_config["descripcion"],
-							"add_deduct_tax": iva_config["add_deduct_tax"],
-						},
-					],
-				}
-			)
-
-		# Retenciones Arrendamiento (ISR + IVA)
-		if self.config_fiscal.enable_ret_arrendamiento:
-			isr_config = obtener_configuracion_por_rol("ISR Retenido (Arrendamiento)")
-			iva_config = obtener_configuracion_por_rol("IVA Retenido (Arrendamiento)")
-
-			templates.append(
-				{
-					"title": "Retenciones Arrendamiento - México",
-					"tax_category": "Retenciones Arrendamiento",
-					"taxes": [
-						{
-							"rol_fiscal": "ISR Retenido (Arrendamiento)",
-							"charge_type": isr_config["charge_type"],
-							"rate": isr_config["tasa"],
-							"description": isr_config["descripcion"],
-							"add_deduct_tax": isr_config["add_deduct_tax"],
-						},
-						{
-							"rol_fiscal": "IVA Retenido (Arrendamiento)",
-							"charge_type": iva_config["charge_type"],
-							"rate": iva_config["tasa"],
-							"description": iva_config["descripcion"],
-							"add_deduct_tax": iva_config["add_deduct_tax"],
-						},
-					],
-				}
-			)
-
-		# Retenciones Autotransporte (ISR + IVA)
-		if self.config_fiscal.enable_ret_autotransporte:
-			isr_config = obtener_configuracion_por_rol("ISR Retenido (Autotransporte)")
-			iva_config = obtener_configuracion_por_rol("IVA Retenido (Autotransporte)")
-
-			templates.append(
-				{
-					"title": "Retenciones Autotransporte - México",
-					"tax_category": "Retenciones Autotransporte",
-					"taxes": [
-						{
-							"rol_fiscal": "ISR Retenido (Autotransporte)",
-							"charge_type": isr_config["charge_type"],
-							"rate": isr_config["tasa"],
-							"description": isr_config["descripcion"],
-							"add_deduct_tax": isr_config["add_deduct_tax"],
-						},
-						{
-							"rol_fiscal": "IVA Retenido (Autotransporte)",
-							"charge_type": iva_config["charge_type"],
-							"rate": iva_config["tasa"],
-							"description": iva_config["descripcion"],
-							"add_deduct_tax": iva_config["add_deduct_tax"],
-						},
-					],
-				}
-			)
-
-		return templates
+	# ============================================================================
+	# FUNCIONES OBSOLETAS ELIMINADAS (Opción B reemplaza arquitectura separada)
+	# - _obtener_templates_iva_base() → eliminada
+	# - _obtener_templates_ieps_cascada() → eliminada
+	# - _obtener_templates_retenciones() → eliminada
+	# ============================================================================
 
 	def _crear_o_actualizar_stct(self, template_config: dict, mapeo_cuentas: dict[str, str]) -> str:
 		"""Crear o actualizar un Sales Taxes and Charges Template."""
