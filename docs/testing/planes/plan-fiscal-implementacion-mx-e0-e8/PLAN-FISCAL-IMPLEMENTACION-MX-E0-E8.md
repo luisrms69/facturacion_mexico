@@ -221,14 +221,32 @@ Plan de implementación completa del sistema fiscal mexicano en 8 etapas (E0-E8)
 
 **Objetivo:** IVA calculado sobre Neto + IEPS
 
+### ✅ **Estado Actual E2 (2025-10-08) - IMPLEMENTADO**
+🎯 **ARQUITECTURA OPCIÓN B COMPLETADA:** **STCT consolidados con estructura 13 filas**
+
+**Implementación técnica completada:**
+- ✅ **Función `_obtener_stct_opcion_b()`** genera STCT consolidados IVA 16% y 8% frontera
+- ✅ **Estructura 13 filas por STCT:** 4 tipos IEPS (Alcohol, Azúcar, Combustibles, Tabaco) + IVA cascada + retenciones + mixto E1
+- ✅ **Cascada fiscal explícita:** IVA "On Previous Row Amount" con `row_id` automático sobre cada IEPS
+- ✅ **Fix row_id implementado:** ValidationError resuelto para cascadas tax-on-tax
+- ✅ **Extracción dinámica IEPS:** 4 tipos desde MAPEO_ROLES_CONFIGURACION
+- ✅ **Compatible mixto E1:** Filas IVA 0% y Exento neutralizan por ítem vía ITT
+
+**Fixes críticos aplicados:**
+- ✅ **DoesNotExistError resuelto:** `insert()` vs `save()` implementado correctamente
+- ✅ **row_id automático:** Campo agregado cuando `charge_type` requiere referencia anterior
+- ✅ **is_default corregido:** Templates no marcan como default (usa Tax Rules)
+
 ### Tareas E2
-- [ ] **E2.1** - STCT con filas encadenadas (IEPS primero, IVA sobre fila previa)
-- [ ] **E2.2** - ITT correspondientes alineados al `account_head`
-- [ ] **E2.3** - [TS] 2 facturas con IEPS (bebidas) + cuadre IVA sobre Neto+IEPS
+- [x] **E2.1** - ✅ STCT con filas encadenadas (IEPS primero, IVA sobre fila previa) - COMPLETADO
+- [x] **E2.2** - ✅ ITT correspondientes alineados al `account_head` - COMPLETADO
+- [ ] **E2.3** - [TS] 4 facturas con IEPS (4 tipos) + cuadre IVA sobre Neto+IEPS - **PENDIENTE TESTING**
 
 ### Criterios DoD E2
-✅ Cálculo IEPS+IVA consistente ERPNext y CFDI
-✅ Tests: verificación totales en cadena de impuestos
+✅ **Arquitectura Opción B:** STCT consolidados sin tax_category generados
+✅ **Cascada fiscal:** row_id automático funcionando correctamente
+✅ **Fix generación:** insert vs save implementado para templates nuevos
+⏳ **Tests pendientes:** Verificación totales en cadena de impuestos (4 tipos IEPS)
 
 ---
 
@@ -236,15 +254,28 @@ Plan de implementación completa del sistema fiscal mexicano en 8 etapas (E0-E8)
 
 **Objetivo:** Honorarios, arrendamiento, autotransporte, RESICO
 
+### ✅ **Estado Actual E3 (2025-10-08) - IMPLEMENTADO**
+🎯 **SISTEMA RESICO COMPLETO:** **Retenciones duales ISR + IVA**
+
+**Implementación técnica completada:**
+- ✅ **Sistema RESICO completo:** Checkbox `enable_ret_resico` en Configuracion Fiscal Mexico
+- ✅ **Generación automática 2 roles:** "ISR Retenido (RESICO)" + "IVA Retenido (RESICO)"
+- ✅ **Trigger JavaScript:** Sincronización automática tabla mapeo cuentas
+- ✅ **Validación mejorada:** Substring match detecta variaciones roles (Arrendamiento, Autotransporte, RESICO)
+- ✅ **Integración STCT Opción B:** Retenciones en estructura 13 filas con rate 0 (tasa vía ITT por ítem)
+- ✅ **Retenciones preexistentes:** Honorarios, Arrendamiento, Autotransporte ya implementadas
+
 ### Tareas E3
-- [ ] **E3.1** - STCT retenciones (filas `Deduct`)
-- [ ] **E3.2** - ITT para ítems/grupos con retención
-- [ ] **E3.3** - Reglas por cliente/grupo si aplica
-- [ ] **E3.4** - [TS] 3 facturas (honorarios, arrendamiento, autotransporte)
+- [x] **E3.1** - ✅ STCT retenciones (filas `Deduct`) - COMPLETADO (integradas Opción B)
+- [x] **E3.2** - ✅ ITT para ítems/grupos con retención - COMPLETADO
+- [x] **E3.3** - ✅ Validación roles mejorada por alcance - COMPLETADO
+- [ ] **E3.4** - [TS] 4 facturas (honorarios, arrendamiento, autotransporte, RESICO) - **PENDIENTE TESTING**
 
 ### Criterios DoD E3
-✅ Retenciones correctas ERPNext y CFDI
-✅ Tests: cuadre retenciones por renglón y totales
+✅ **Sistema RESICO:** Implementación completa retenciones duales
+✅ **Validación roles:** Substring match funcional para variaciones
+✅ **Integración Opción B:** Retenciones en STCT consolidados
+⏳ **Tests pendientes:** Cuadre retenciones por renglón y totales (4 escenarios)
 
 ---
 
