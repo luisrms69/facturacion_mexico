@@ -133,6 +133,10 @@ frappe.ui.form.on("Configuracion Fiscal Mexico", {
 		update_roles_table(frm);
 	},
 
+	enable_ret_resico: function (frm) {
+		update_roles_table(frm);
+	},
+
 	enable_ieps_alcohol: function (frm) {
 		update_roles_table(frm);
 	},

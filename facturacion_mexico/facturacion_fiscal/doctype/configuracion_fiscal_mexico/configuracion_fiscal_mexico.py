@@ -67,9 +67,11 @@ class ConfiguracionFiscalMexico(Document):
 			return True
 		if self.enable_ret_honorarios and "ISR Retenido (Honorarios)" in rol_fiscal:
 			return True
-		if self.enable_ret_arrendamiento and "IVA Retenido (Arrendamiento)" in rol_fiscal:
+		if self.enable_ret_arrendamiento and "Arrendamiento" in rol_fiscal:
 			return True
-		if self.enable_ret_autotransporte and ("Autotransporte" in rol_fiscal):
+		if self.enable_ret_autotransporte and "Autotransporte" in rol_fiscal:
+			return True
+		if self.enable_ret_resico and "RESICO" in rol_fiscal:
 			return True
 
 		return False
@@ -178,6 +180,15 @@ class ConfiguracionFiscalMexico(Document):
 				[
 					"ISR Retenido (Autotransporte)",  # RET_ISR_4_AUTOT
 					"IVA Retenido (Autotransporte)",  # RET_IVA_AUTOT
+				]
+			)
+
+		# RETENCIONES - RESICO
+		if self.enable_ret_resico:
+			roles_requeridos.update(
+				[
+					"ISR Retenido (RESICO)",  # RET_ISR_RESICO
+					"IVA Retenido (RESICO)",  # RET_IVA_RESICO
 				]
 			)
 

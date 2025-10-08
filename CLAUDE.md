@@ -52,7 +52,11 @@
 
   Co-Authored-By: Claude <noreply@anthropic.com>
   ```
-- ❌ **PROHIBIDO:** `git commit --no-verify` bajo cualquier circunstancia
+- ❌ **PROHIBIDO ABSOLUTO:** `git commit --no-verify` bajo cualquier circunstancia
+- ❌ **PROHIBIDO ABSOLUTO:** `git checkout <archivo>` o `git reset` para revertir cambios
+- ❌ **PROHIBIDO ABSOLUTO:** Cualquier comando git que deshaga cambios locales
+- ⚠️ **CRÍTICO:** Si un archivo tiene cambios importantes, NUNCA usar git para revertirlos
+- ✅ **ALTERNATIVA CORRECTA:** Si hay error, corregir manualmente o usar Edit tool
 - ❌ **PROHIBIDO:** Trabajar directamente en main o develop
 - ✅ **BRANCH STRATEGY:** Siempre feature/ branches
 - ✅ **Convención:** `feature/[modulo]-[descripcion]`

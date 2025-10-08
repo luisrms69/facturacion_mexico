@@ -15,7 +15,7 @@
       "in_list_view": 1,
       "reqd": 1,
       "read_only": 1,
-      "options": "IVA por Pagar (16%)\nIVA por Pagar (8% frontera)\nIVA por Pagar (0% exportación)\nIVA Exento\nIEPS por Pagar (Alcohol)\nIEPS por Pagar (Azúcar/Bebidas)\nIEPS por Pagar (Combustibles)\nIEPS por Pagar (Tabaco)\nIVA Retenido (Servicios Profesionales)\nIVA Retenido (Arrendamiento)\nIVA Retenido (Autotransporte)\nISR Retenido (Honorarios)\nISR Retenido (RESICO)\nISR Retenido (Autotransporte)"
+      "options": "IVA por Pagar (16%)\nIVA por Pagar (8% frontera)\nIVA por Pagar (0% exportación)\nIVA Exento\nIEPS por Pagar (Alcohol)\nIEPS por Pagar (Azúcar/Bebidas)\nIEPS por Pagar (Combustibles)\nIEPS por Pagar (Tabaco)\nIVA Retenido (Servicios Profesionales)\nIVA Retenido (Arrendamiento)\nIVA Retenido (Autotransporte)\nIVA Retenido (RESICO)\nISR Retenido (Honorarios)\nISR Retenido (Arrendamiento)\nISR Retenido (RESICO)\nISR Retenido (Autotransporte)"
     },
     {
       "fieldname": "cuenta_impuesto",

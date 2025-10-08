@@ -88,6 +88,12 @@
       "default": "0"
     },
     {
+      "fieldname": "enable_ret_resico",
+      "label": "Retenciones RESICO",
+      "fieldtype": "Check",
+      "default": "0"
+    },
+    {
       "fieldname": "section_mapeo",
       "label": "Mapeo de Cuentas de Impuestos",
       "fieldtype": "Section Break"

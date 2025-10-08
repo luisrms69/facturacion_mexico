@@ -7,6 +7,12 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
 ## [Unreleased]
 
 ### Added
+- **Sistema completo retenciones RESICO (ISR + IVA)** - Soporte régimen fiscal simplificado
+  - Checkbox `enable_ret_resico` en Configuracion Fiscal Mexico
+  - Generación automática 2 roles fiscales: "ISR Retenido (RESICO)" + "IVA Retenido (RESICO)"
+  - Trigger JavaScript para sincronización automática tabla mapeo cuentas
+  - Validación roles mejorada con substring match para RESICO/Arrendamiento/Autotransporte
+  - Integrado en STCT Opción B con rate 0 (tasa real vía ITT por ítem)
 - **Sistema IEPS granular + Retenciones E2-E3 (Opción B)** - Arquitectura consolidada para supermercados y acreditamiento IEPS
   - Función `_obtener_stct_opcion_b()` genera STCT consolidados sin tax_category
   - Estructura 13 filas por STCT: pares IEPS+IVA cascada + IVA base + retenciones + mixto E1
@@ -52,6 +58,28 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
   - DocType Regimen Fiscal SAT disponible para futuras mejoras
 
 ### Fixed
+- **Fix crítico generación templates ITT/STCT** - Solución `DoesNotExistError` al crear templates nuevos
+  - Método `_crear_o_actualizar_itt()` corregido: usa `frappe.new_doc()` + `doc.name = title` para nuevos
+  - Método `_crear_o_actualizar_stct()` corregido: mismo patrón consistente
+  - Lógica condicional: `insert()` para nuevos vs `save()` para existentes
+  - Evita doble sufijo company en nombres templates (mantiene `name == title`)
+  - Soluciona error framework Frappe intentando cargar documentos inexistentes
+- **Fix row_id requerido para cascada fiscal** - STCT con "On Previous Row Amount" ahora funcionales
+  - Agregado campo `row_id` automático cuando `charge_type` requiere referencia fila anterior
+  - Soporta tanto "On Previous Row Amount" como "On Previous Row Total"
+  - Soluciona ValidationError en save de STCT con impuestos cascada (IEPS → IVA)
+- **Wrapper `_obtener_itt_granular()`** - Función helper consolidada para preview templates
+  - Consolida llamadas a `_obtener_itt_base()`, `_obtener_itt_ieps()`, `_obtener_itt_retenciones()`
+  - Protección `or []` previene errores si métodos devuelven None
+  - Mejora mantenibilidad y reutilización código preview
+- **Corrección `is_default` reintroducido** - STCT "IVA 16% - México" ya no marca como default automático
+  - Valor corregido de `is_default: 1` → `is_default: 0` en `_obtener_stct_opcion_b()`
+  - Previene aplicación automática incorrecta de template
+  - Sistema usa Tax Rules con prioridades automáticas según contexto
+- **Validación roles ampliada** - Mejora detección roles fiscales con substring match
+  - Roles Arrendamiento, Autotransporte, RESICO ahora detectados correctamente
+  - Función `_es_rol_requerido_segun_alcance()` usa substring en lugar de match exacto
+  - Soluciona problema roles no reconocidos por variaciones nombre
 - **Función extracción SAT régimen fiscal** - Corregida `_extract_tax_system_from_customer()` para usar `fm_tax_regime` en lugar de `tax_category` deprecado
   - factura_fiscal_mexico.py líneas 1178-1194 actualizadas
   - Auto-población FFM.fm_tax_system ahora funciona con campo migrado

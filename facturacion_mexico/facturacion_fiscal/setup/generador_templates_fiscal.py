@@ -218,7 +218,7 @@ class GeneradorTemplatesFiscales:
 		templates.append(
 			{
 				"title": STCT_TEMPLATES.get("iva_general", "IVA 16% - México"),
-				"is_default": 1,
+				"is_default": 0,
 				"taxes": taxes_16,
 			}
 		)
@@ -336,21 +336,15 @@ class GeneradorTemplatesFiscales:
 
 		if existing:
 			doc = frappe.get_doc("Sales Taxes and Charges Template", existing)
-			# Limpiar taxes para actualizar
-			doc.taxes = []
+			doc.taxes = []  # limpiar para rearmar
 			doc.is_default = template_config.get("is_default", 0)
 		else:
-			# SOLUCIÓN CHATGPT: usar get_doc(dict) con name pre-establecido
-			doc = frappe.get_doc(
-				{
-					"doctype": "Sales Taxes and Charges Template",
-					"name": title,  # name fijo = title
-					"title": title,
-					"company": self.company,
-					"is_default": template_config.get("is_default", 0),
-					"taxes": [],
-				}
-			)
+			# NUEVO: fija name=title para evitar doble sufijo y usa insert()
+			doc = frappe.new_doc("Sales Taxes and Charges Template")
+			doc.title = title
+			doc.company = self.company
+			doc.name = title
+			doc.is_default = template_config.get("is_default", 0)
 
 		# Solo agregar tax_category si no está vacía (evitar problemas con templates sin categoria)
 		if template_config.get("tax_category"):
@@ -365,19 +359,28 @@ class GeneradorTemplatesFiscales:
 				frappe.msgprint(f"No se encontró cuenta para rol {rol_fiscal}, omitiendo...")
 				continue
 
-			doc.append(
-				"taxes",
-				{
-					"charge_type": tax_config.get("charge_type", "On Net Total"),
-					"account_head": cuenta_impuesto,
-					"rate": flt(tax_config.get("rate", 0.0)),
-					"description": tax_config.get("description", rol_fiscal),
-					"add_deduct_tax": tax_config.get("add_deduct_tax", "Add"),
-					"idx": idx,
-				},
-			)
+			charge_type = tax_config.get("charge_type", "On Net Total")
 
-		doc.save(ignore_permissions=True)
+			tax_row = {
+				"charge_type": charge_type,
+				"account_head": cuenta_impuesto,
+				"rate": flt(tax_config.get("rate", 0.0)),
+				"description": tax_config.get("description", rol_fiscal),
+				"add_deduct_tax": tax_config.get("add_deduct_tax", "Add"),
+				"idx": idx,
+			}
+
+			if charge_type in ("On Previous Row Amount", "On Previous Row Total") and idx > 1:
+				tax_row["row_id"] = str(idx - 1)  # referencia a la fila inmediatamente anterior
+
+			doc.append("taxes", tax_row)
+
+		# guardar
+		if existing:
+			doc.save(ignore_permissions=True)
+		else:
+			doc.insert(ignore_permissions=True)
+
 		return doc.name
 
 	def _generar_itt(self, mapeo_cuentas: dict[str, str]) -> list[str]:
@@ -571,6 +574,13 @@ class GeneradorTemplatesFiscales:
 
 		return configs
 
+	def _obtener_itt_granular(self) -> list[dict]:
+		"""Wrapper: devuelve TODOS los ITT (base + IEPS + retenciones)."""
+		configs = list(self._obtener_itt_base() or [])
+		configs.extend(self._obtener_itt_ieps() or [])
+		configs.extend(self._obtener_itt_retenciones() or [])
+		return configs
+
 	def _crear_o_actualizar_itt(self, config: dict, mapeo_cuentas: dict[str, str]) -> str:
 		"""Crear o actualizar Item Tax Template."""
 		title = f"{config['title']} - {self.company_abbr}"
@@ -580,36 +590,35 @@ class GeneradorTemplatesFiscales:
 
 		if existing:
 			doc = frappe.get_doc("Item Tax Template", existing)
-			# Limpiar taxes para actualizar
-			doc.taxes = []
+			doc.taxes = []  # limpiar para rearmar
 		else:
-			# SOLUCIÓN CHATGPT: usar get_doc(dict) con name pre-establecido
-			doc = frappe.get_doc(
-				{
-					"doctype": "Item Tax Template",
-					"name": title,  # name fijo = title
-					"title": title,
-					"company": self.company,
-					"taxes": [],
-				}
-			)
+			# NUEVO: fija name=title para evitar doble sufijo y usa insert()
+			doc = frappe.new_doc("Item Tax Template")
+			doc.title = title
+			doc.company = self.company
+			doc.name = title
 
-		# Agregar filas tax
+		# común: reconstruir taxes
 		for idx, tax_config in enumerate(config.get("taxes", []), start=1):
 			rol_fiscal = tax_config["rol_fiscal"]
 			cuenta_impuesto = mapeo_cuentas.get(rol_fiscal)
+			if not cuenta_impuesto:
+				continue
+			doc.append(
+				"taxes",
+				{
+					"tax_type": cuenta_impuesto,
+					"tax_rate": flt(tax_config.get("tax_rate", 0.0)),
+					"idx": idx,
+				},
+			)
 
-			if cuenta_impuesto:
-				doc.append(
-					"taxes",
-					{
-						"tax_type": cuenta_impuesto,  # CRÍTICO: debe coincidir exacto con account_head de STCT
-						"tax_rate": flt(tax_config.get("tax_rate", 0.0)),
-						"idx": idx,
-					},
-				)
+		# guardar
+		if existing:
+			doc.save(ignore_permissions=True)
+		else:
+			doc.insert(ignore_permissions=True)
 
-		doc.save(ignore_permissions=True)
 		return doc.name
 
 	def _generar_tax_rules(self) -> list[str]:
@@ -793,25 +802,13 @@ def preview_templates_a_generar(company: str) -> dict:
 	stct_preview = []
 	itt_preview = []
 
-	# STCT Base IVA
-	templates_iva = generador._obtener_templates_iva_base()
-	for template in templates_iva:
+	# STCT Opción B (consolidado con IEPS + retenciones)
+	templates_stct = generador._obtener_stct_opcion_b()
+	for template in templates_stct:
 		stct_preview.append(f"{template['title']} - {generador.company_abbr}")
 
-	# STCT IEPS + IVA
-	templates_ieps = generador._obtener_templates_ieps_cascada()
-	for template in templates_ieps:
-		stct_preview.append(f"{template['title']} - {generador.company_abbr}")
-
-	# STCT Retenciones
-	templates_retenciones = generador._obtener_templates_retenciones()
-	for template in templates_retenciones:
-		stct_preview.append(f"{template['title']} - {generador.company_abbr}")
-
-	# ITT Preview
-	itt_configs_all = generador._obtener_itt_base()
-	itt_configs_all.extend(generador._obtener_itt_ieps())
-	itt_configs_all.extend(generador._obtener_itt_retenciones())
+	# ITT Preview (todos los tipos)
+	itt_configs_all = generador._obtener_itt_granular()
 
 	for config in itt_configs_all:
 		itt_preview.append(f"{config['title']} - {generador.company_abbr}")
