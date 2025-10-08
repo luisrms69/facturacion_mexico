@@ -336,15 +336,24 @@ class GeneradorTemplatesFiscales:
 
 		if existing:
 			doc = frappe.get_doc("Sales Taxes and Charges Template", existing)
+
+			# FIX: Normalizar name si tiene doble sufijo (name != title)
+			if doc.name != title:
+				frappe.rename_doc("Sales Taxes and Charges Template", doc.name, title, force=1)
+				doc = frappe.get_doc("Sales Taxes and Charges Template", title)  # Recargar después de rename
+
 			doc.taxes = []  # limpiar para rearmar
-			doc.is_default = template_config.get("is_default", 0)
 		else:
-			# NUEVO: fija name=title para evitar doble sufijo y usa insert()
-			doc = frappe.new_doc("Sales Taxes and Charges Template")
-			doc.title = title
-			doc.company = self.company
-			doc.name = title
-			doc.is_default = template_config.get("is_default", 0)
+			doc = frappe.get_doc(
+				{
+					"doctype": "Sales Taxes and Charges Template",
+					"name": title,  # ← name fijo = title (evita doble sufijo)
+					"title": title,
+					"company": self.company,
+					"is_default": template_config.get("is_default", 0),
+				}
+			)
+			doc.taxes = []
 
 		# Solo agregar tax_category si no está vacía (evitar problemas con templates sin categoria)
 		if template_config.get("tax_category"):
@@ -590,13 +599,23 @@ class GeneradorTemplatesFiscales:
 
 		if existing:
 			doc = frappe.get_doc("Item Tax Template", existing)
+
+			# FIX: Normalizar name si tiene doble sufijo (name != title)
+			if doc.name != title:
+				frappe.rename_doc("Item Tax Template", doc.name, title, force=1)
+				doc = frappe.get_doc("Item Tax Template", title)  # Recargar después de rename
+
 			doc.taxes = []  # limpiar para rearmar
 		else:
-			# NUEVO: fija name=title para evitar doble sufijo y usa insert()
-			doc = frappe.new_doc("Item Tax Template")
-			doc.title = title
-			doc.company = self.company
-			doc.name = title
+			doc = frappe.get_doc(
+				{
+					"doctype": "Item Tax Template",
+					"name": title,  # ← name fijo = title (evita doble sufijo)
+					"title": title,
+					"company": self.company,
+				}
+			)
+			doc.taxes = []
 
 		# común: reconstruir taxes
 		for idx, tax_config in enumerate(config.get("taxes", []), start=1):

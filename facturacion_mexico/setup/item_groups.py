@@ -4,12 +4,42 @@ from frappe.utils import cint
 # Nombres fijos de los grupos (raíz)
 IG_ZERO = "Artículos con IVA al 0%"
 IG_EXENTO = "Artículos Exentos"
+IG_IEPS_ALCOHOL = "Artículos IEPS Alcohol"
+IG_IEPS_AZUCAR = "Artículos IEPS Azúcar"
+IG_IEPS_COMBUSTIBLES = "Artículos IEPS Combustibles"
+IG_IEPS_TABACO = "Artículos IEPS Tabaco"
+IG_RET_HONORARIOS = "Servicios Profesionales (Honorarios)"
+IG_RET_ARRENDAMIENTO = "Arrendamiento"
+IG_RET_AUTOTRANSPORTE = "Autotransporte"
+IG_RET_RESICO = "RESICO"
 ROOT_IG = "All Item Groups"
 
 # Patrones de nombres de ITT generados por tu wizard E0.5
 # Nota: Buscar por title (formato simple) no por name (formato con doble sufijo)
 ITT_ZERO_TITLE = "ITT IVA 0% - {suffix}"
 ITT_EXENTO_TITLE = "ITT Exento - {suffix}"
+ITT_IEPS_ALCOHOL_TITLE = "ITT IEPS Alcohol - {suffix}"
+ITT_IEPS_AZUCAR_TITLE = "ITT IEPS Azúcar - {suffix}"
+ITT_IEPS_COMBUSTIBLES_TITLE = "ITT IEPS Combustibles - {suffix}"
+ITT_IEPS_TABACO_TITLE = "ITT IEPS Tabaco - {suffix}"
+ITT_RET_HONORARIOS_TITLE = "ITT ISR + IVA Ret Honorarios - {suffix}"
+ITT_RET_ARRENDAMIENTO_TITLE = "ITT ISR + IVA Ret Arrendamiento - {suffix}"
+ITT_RET_AUTOTRANSPORTE_TITLE = "ITT ISR + IVA Ret Autotransporte - {suffix}"
+ITT_RET_RESICO_TITLE = "ITT ISR + IVA Ret RESICO - {suffix}"
+
+# Mapa completo Item Group → ITT pattern
+ITEM_GROUP_ITT_MAP = {
+	IG_ZERO: ITT_ZERO_TITLE,
+	IG_EXENTO: ITT_EXENTO_TITLE,
+	IG_IEPS_ALCOHOL: ITT_IEPS_ALCOHOL_TITLE,
+	IG_IEPS_AZUCAR: ITT_IEPS_AZUCAR_TITLE,
+	IG_IEPS_COMBUSTIBLES: ITT_IEPS_COMBUSTIBLES_TITLE,
+	IG_IEPS_TABACO: ITT_IEPS_TABACO_TITLE,
+	IG_RET_HONORARIOS: ITT_RET_HONORARIOS_TITLE,
+	IG_RET_ARRENDAMIENTO: ITT_RET_ARRENDAMIENTO_TITLE,
+	IG_RET_AUTOTRANSPORTE: ITT_RET_AUTOTRANSPORTE_TITLE,
+	IG_RET_RESICO: ITT_RET_RESICO_TITLE,
+}
 
 
 def _ensure_item_group(name: str) -> str:
@@ -33,11 +63,15 @@ def _ensure_item_group(name: str) -> str:
 
 
 def ensure_groups_after_install():
-	"""Hook after_install: solo garantizar que EXISTAN los dos grupos raíz (sin asignar ITT)."""
+	"""Hook after_install: garantizar que EXISTAN todos los grupos raíz (sin asignar ITT)."""
 	try:
-		_ensure_item_group(IG_ZERO)
-		_ensure_item_group(IG_EXENTO)
-		frappe.logger().info("[FMX][ItemGroups] Grupos raíz creados/verificados (after_install).")
+		# Crear todos los grupos del mapa
+		for group_name in ITEM_GROUP_ITT_MAP.keys():
+			_ensure_item_group(group_name)
+
+		frappe.logger().info(
+			f"[FMX][ItemGroups] {len(ITEM_GROUP_ITT_MAP)} grupos raíz creados/verificados (after_install)."
+		)
 	except Exception:
 		frappe.log_error(frappe.get_traceback(), "[FMX][ItemGroups] Error ensure_groups_after_install")
 		raise
@@ -99,39 +133,44 @@ def _assign_group_itt(group_name: str, itt_name: str) -> bool:
 
 def assign_itt_to_groups():
 	"""
-	Hook idempotente para asignar ITT a los dos grupos raíz.
+	Hook idempotente para asignar ITT a todos los grupos raíz.
 	- Llamar desde after_migrate y desde el cierre del wizard E0.5.
 	- Si los ITT aún no existen, loguea y sale sin error (se reintenta en próxima ejecución).
 	"""
 	try:
-		# Asegurar que los grupos existen
-		_ensure_item_group(IG_ZERO)
-		_ensure_item_group(IG_EXENTO)
+		# Asegurar que todos los grupos existen
+		for group_name in ITEM_GROUP_ITT_MAP.keys():
+			_ensure_item_group(group_name)
 
 		# Obtener todas las compañías activas
 		companies = frappe.get_all("Company", fields=["name", "company_name", "abbr"])
 		changes = []
+		missing_log = []
 
 		for c in companies:
 			company = frappe._dict(c)
 
-			itt_zero = _resolve_itt_name(ITT_ZERO_TITLE, company)
-			itt_exento = _resolve_itt_name(ITT_EXENTO_TITLE, company)
+			# Iterar sobre todos los grupos del mapa
+			for group_name, itt_pattern in ITEM_GROUP_ITT_MAP.items():
+				itt_name = _resolve_itt_name(itt_pattern, company)
 
-			# Si no existen aún los ITT, log y continuar (reintento posterior)
-			if not itt_zero or not itt_exento:
-				frappe.logger().info(
-					f"[FMX][ItemGroups] ITT faltantes para '{company.name}': "
-					f"zero={'OK' if itt_zero else 'MISSING'}, exento={'OK' if itt_exento else 'MISSING'}"
-				)
-				continue
+				# Si no existe aún el ITT, log y continuar (reintento posterior)
+				if not itt_name:
+					missing_log.append(f"{group_name} (pattern: {itt_pattern.format(suffix=company.abbr)})")
+					continue
 
-			# Asignar solo si cambia
-			if _assign_group_itt(IG_ZERO, itt_zero):
-				changes.append((company.name, IG_ZERO, itt_zero))
-			if _assign_group_itt(IG_EXENTO, itt_exento):
-				changes.append((company.name, IG_EXENTO, itt_exento))
+				# Asignar solo si cambia
+				if _assign_group_itt(group_name, itt_name):
+					changes.append((company.name, group_name, itt_name))
 
+		# Log de ITT faltantes
+		if missing_log:
+			frappe.logger().info(
+				f"[FMX][ItemGroups] ITT faltantes: {', '.join(missing_log[:5])}"
+				+ (f" (+{len(missing_log) - 5} más)" if len(missing_log) > 5 else "")
+			)
+
+		# Log de asignaciones realizadas
 		if changes:
 			for comp, grp, itt in changes:
 				frappe.logger().info(
