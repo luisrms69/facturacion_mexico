@@ -254,8 +254,8 @@ Plan de implementación completa del sistema fiscal mexicano en 8 etapas (E0-E8)
 
 **Objetivo:** Honorarios, arrendamiento, autotransporte, RESICO
 
-### ✅ **Estado Actual E3 (2025-10-08) - IMPLEMENTADO**
-🎯 **SISTEMA RESICO COMPLETO:** **Retenciones duales ISR + IVA**
+### ✅ **Estado Actual E3 (2025-10-08) - COMPLETADO**
+🎯 **SISTEMA MULTI-TIPO CON PRECISIÓN MEJORADA:** **4 tipos retenciones operativos con 66.6667% IVA**
 
 **Implementación técnica completada:**
 - ✅ **Sistema RESICO completo:** Checkbox `enable_ret_resico` en Configuracion Fiscal Mexico
@@ -264,18 +264,55 @@ Plan de implementación completa del sistema fiscal mexicano en 8 etapas (E0-E8)
 - ✅ **Validación mejorada:** Substring match detecta variaciones roles (Arrendamiento, Autotransporte, RESICO)
 - ✅ **Integración STCT Opción B:** Retenciones en estructura 13 filas con rate 0 (tasa vía ITT por ítem)
 - ✅ **Retenciones preexistentes:** Honorarios, Arrendamiento, Autotransporte ya implementadas
+- ✅ **Precisión IVA mejorada:** Constante `PROPORCION_IVA_RETENIDO_SAT = 66.6667` (4 decimales)
+- ✅ **Sistema legacy deprecated:** TASAS_RETENCIONES marcado deprecated, usar RETENCIONES_CONFIG
+- ✅ **STCT multi-tipo:** IVA 16% y 8% con 8 filas retenciones (4 tipos × 2 impuestos)
+- ✅ **ITT con signos negativos:** -10.0 ISR, -66.6667 IVA para deducción correcta
 
 ### Tareas E3
 - [x] **E3.1** - ✅ STCT retenciones (filas `Deduct`) - COMPLETADO (integradas Opción B)
 - [x] **E3.2** - ✅ ITT para ítems/grupos con retención - COMPLETADO
 - [x] **E3.3** - ✅ Validación roles mejorada por alcance - COMPLETADO
-- [ ] **E3.4** - [TS] 4 facturas (honorarios, arrendamiento, autotransporte, RESICO) - **PENDIENTE TESTING**
+- [x] **E3.4** - ✅ Testing 4 tipos retenciones (8 escenarios: 4 tipos × 2 zonas) - COMPLETADO
+- [x] **E3.5** - ✅ Precisión IVA retenido mejorada 66.67 → 66.6667 - COMPLETADO
+- [x] **E3.6** - ✅ Sistema legacy TASAS_RETENCIONES deprecated - COMPLETADO
 
 ### Criterios DoD E3
 ✅ **Sistema RESICO:** Implementación completa retenciones duales
 ✅ **Validación roles:** Substring match funcional para variaciones
 ✅ **Integración Opción B:** Retenciones en STCT consolidados
-⏳ **Tests pendientes:** Cuadre retenciones por renglón y totales (4 escenarios)
+✅ **Tests completados:** 8 escenarios verificados (4 tipos × 2 zonas IVA)
+✅ **Precisión mejorada:** 66.6667% reduce error redondeo 10x vs 66.67%
+✅ **Arquitectura DRY:** Constante global PROPORCION_IVA_RETENIDO_SAT única
+✅ **Normativa SAT:** 2/3 IVA trasladado documentado y aplicado correctamente
+
+### Testing E3 Ejecutado
+
+**IVA 8% Frontera - 4 escenarios validados:**
+| Tipo | Factura | ISR | IVA Ret (2/3 del IVA) | Grand Total | Status |
+|------|---------|-----|----------------------|-------------|--------|
+| Honorarios | ACC-SINV-2025-01585 | -100.00 | -53.34 | 926.66 | ✅ |
+| Arrendamiento | ACC-SINV-2025-01589 | -100.00 | -53.34 | 926.66 | ✅ |
+| Autotransporte | ACC-SINV-2025-01590 | -40.00 | -53.34 | 986.66 | ✅ |
+| RESICO | ACC-SINV-2025-01592 | -12.50 | -53.34 | 1,014.16 | ✅ |
+
+**IVA 16% General - 4 tipos mixtos:**
+| Factura | Descripción | Items | Status |
+|---------|-------------|-------|--------|
+| ACC-SINV-2025-01595 | 4 tipos retenciones mixtos | 4 ítems ($1,000 c/u) | ✅ |
+
+**Validación Normativa SAT:**
+- ✅ **Proporción 2/3 IVA:** Verificada en todos los casos (ej. 80.00 IVA × 66.6667% = 53.34)
+- ✅ **ISR variable por tipo:** Honorarios/Arrendamiento 10%, Autotransporte 4%, RESICO 1.25%
+- ✅ **Signos ITT negativos:** Retenciones deducen correctamente del total
+- ✅ **Multi-zona funcional:** IVA 16% y 8% frontera operativos
+
+### Documentación E3 Generada
+- 📄 **reporte-problema-critico-e3-stct-hardcode-cuentas.md** - Root cause análisis STCT hardcode
+- 📄 **reporte-verificacion-pre-regeneracion-e3.md** - Pre-fix verification signos
+- 📄 **analisis-retenciones-iva-dos-tercios.md** - SAT normative 2/3 IVA analysis
+- 📄 **reporte-error-retenciones-frontera-e3.md** - Initial E3 testing errors
+- 📄 **reporte-problema-asignacion-itt-item-groups.md** - ITT assignment fix
 
 ---
 

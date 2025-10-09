@@ -94,6 +94,18 @@
       "default": "0"
     },
     {
+      "fieldname": "column_break_3",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "tasa_isr_resico",
+      "label": "Tasa ISR RESICO",
+      "fieldtype": "Percent",
+      "description": "Retención ISR para RESICO (default 1.25%)",
+      "default": "1.25",
+      "depends_on": "eval:doc.enable_ret_resico"
+    },
+    {
       "fieldname": "section_mapeo",
       "label": "Mapeo de Cuentas de Impuestos",
       "fieldtype": "Section Break"

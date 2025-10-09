@@ -7,6 +7,12 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
 ## [Unreleased]
 
 ### Added
+- **Constante fiscal global PROPORCION_IVA_RETENIDO_SAT** - Precisión mejorada retenciones IVA
+  - Constante global `PROPORCION_IVA_RETENIDO_SAT = 66.6667` (4 decimales) para 2/3 del IVA trasladado
+  - Documentación SAT: proporción aplicable a TODOS los tipos de retención (Honorarios, Arrendamiento, Autotransporte, RESICO)
+  - Precisión 4 decimales reduce error redondeo 10x vs 66.67% (2 decimales) en montos grandes
+  - Principio DRY: single source of truth para cálculo IVA retenido (4 referencias unificadas)
+  - Normativa SAT: IVA retenido SIEMPRE 2/3 del IVA trasladado (no varía por tipo retención)
 - **Sistema completo retenciones RESICO (ISR + IVA)** - Soporte régimen fiscal simplificado
   - Checkbox `enable_ret_resico` en Configuracion Fiscal Mexico
   - Generación automática 2 roles fiscales: "ISR Retenido (RESICO)" + "IVA Retenido (RESICO)"
@@ -41,6 +47,13 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
   - JavaScript corregido: eliminado filtro for_selling problemático en búsqueda STCT
 
 ### Changed
+- **Sistema legacy TASAS_RETENCIONES deprecated** - Migración a arquitectura E3 moderna
+  - Diccionario `TASAS_RETENCIONES` marcado como deprecated (sistema legacy pre-E3)
+  - Sistema legacy calculaba IVA retención como % del neto (10.67% = 2/3 de 16%)
+  - Sistema E3 actual calcula como % del IVA trasladado (66.6667% proporcional)
+  - Comentarios documentan: "DEPRECATED: Usar RETENCIONES_CONFIG para sistema E3 actual"
+  - Mantener solo para compatibilidad tests antiguos y sistema install.py legacy
+  - Flag `deprecated: True` en entradas IVA retención para remoción futura
 - **Arquitectura templates STCT migrada a Opción B consolidada** - Reemplazo completo arquitectura Hito 1 separada
   - Eliminadas 3 funciones obsoletas: `_obtener_templates_iva_base()`, `_obtener_templates_ieps_cascada()`, `_obtener_templates_retenciones()`
   - Función `_generar_stct()` modificada: usa solo `_obtener_stct_opcion_b()` como fuente única

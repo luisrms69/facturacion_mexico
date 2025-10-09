@@ -77,6 +77,18 @@ class GeneradorTemplatesFiscales:
 		# Actualizar estado configuración
 		self._actualizar_estado_configuracion(resultados)
 
+		# NUEVO: Asignar ITT a Item Groups automáticamente
+		try:
+			from facturacion_mexico.setup.item_groups import assign_itt_to_groups
+
+			assign_itt_to_groups(company_name=self.company)
+			frappe.logger().info(f"[FMX][Wizard] ITT asignados a Item Groups para {self.company}.")
+		except Exception:
+			frappe.log_error(
+				frappe.get_traceback(), f"[FMX][Wizard] Error asignando ITT a Item Groups para {self.company}"
+			)
+			# No bloquear wizard si falla (migrate corrige)
+
 		return resultados
 
 	def _validar_mapeo_completo(self, mapeo_cuentas: dict[str, str]):
@@ -135,6 +147,8 @@ class GeneradorTemplatesFiscales:
 		- IVA 0% y Exento (para mixto E1)
 		Sin tax_category.
 		"""
+		from facturacion_mexico.facturacion_fiscal.config.constantes_fiscales import RETENCIONES_CONFIG
+
 		# Detectar roles IEPS definidos en constantes (granulares)
 		IEPS_TIPOS = [rol for rol in MAPEO_ROLES_CONFIGURACION.keys() if rol.startswith("IEPS por Pagar")]
 
@@ -165,6 +179,7 @@ class GeneradorTemplatesFiscales:
 			)
 
 		# (3) IVA 16% base (sobre neto)
+		idx_iva_base_16 = len(taxes_16) + 1  # Guardar índice para retenciones
 		taxes_16.append(
 			{
 				"rol_fiscal": "IVA por Pagar (16%)",
@@ -175,25 +190,31 @@ class GeneradorTemplatesFiscales:
 			}
 		)
 
-		# (4) Retenciones (rate 0; la tasa real via ITT de cada ítem/servicio)
-		taxes_16.append(
-			{
-				"rol_fiscal": "IVA Retenido (Servicios Profesionales)",
-				"charge_type": "On Net Total",
-				"rate": 0.0,
-				"add_deduct_tax": "Deduct",
-				"description": "Retención IVA (servicios), tasa via ITT",
-			}
-		)
-		taxes_16.append(
-			{
-				"rol_fiscal": "ISR Retenido (Honorarios)",
-				"charge_type": "On Net Total",
-				"rate": 0.0,
-				"add_deduct_tax": "Deduct",
-				"description": "Retención ISR (honorarios), tasa via ITT",
-			}
-		)
+		# (4) Retenciones - MULTI-TIPO (Honorarios, Arrendamiento, Autotransporte, RESICO)
+		# Bucle por cada tipo en RETENCIONES_CONFIG para crear filas placeholder en STCT
+		# El ITT del item inyecta tasas solo en las filas cuyas cuentas coinciden
+		for tipo_key, cfg in RETENCIONES_CONFIG.items():
+			# Retención IVA: 2/3 del IVA trasladado (On Previous Row Amount sobre fila IVA base)
+			taxes_16.append(
+				{
+					"rol_fiscal": cfg["rol_iva"],
+					"charge_type": "On Previous Row Amount",
+					"rate": 0.0,  # ITT inyecta 66.67 (negativo)
+					"add_deduct_tax": "Deduct",
+					"description": f"Retención IVA {tipo_key.title()} (2/3 IVA trasladado, tasa via ITT)",
+					"_row_ref_prev": idx_iva_base_16,  # Todas apuntan a la misma fila IVA base
+				}
+			)
+			# Retención ISR: % sobre neto
+			taxes_16.append(
+				{
+					"rol_fiscal": cfg["rol_isr"],
+					"charge_type": "On Net Total",
+					"rate": 0.0,  # ITT inyecta tasa ISR (negativo: -10%, -4%, -1.25%)
+					"add_deduct_tax": "Deduct",
+					"description": f"Retención ISR {tipo_key.title()} (tasa via ITT)",
+				}
+			)
 
 		# (5) Mixto E1: 0% y Exento (neutralizan IVA por ítem vía ITT)
 		taxes_16.append(
@@ -245,6 +266,7 @@ class GeneradorTemplatesFiscales:
 				}
 			)
 
+		idx_iva_base_8 = len(taxes_8) + 1  # Guardar índice para retenciones
 		taxes_8.append(
 			{
 				"rol_fiscal": "IVA por Pagar (8% frontera)",
@@ -255,24 +277,31 @@ class GeneradorTemplatesFiscales:
 			}
 		)
 
-		taxes_8.append(
-			{
-				"rol_fiscal": "IVA Retenido (Servicios Profesionales)",
-				"charge_type": "On Net Total",
-				"rate": 0.0,
-				"add_deduct_tax": "Deduct",
-				"description": "Retención IVA (servicios), tasa via ITT",
-			}
-		)
-		taxes_8.append(
-			{
-				"rol_fiscal": "ISR Retenido (Honorarios)",
-				"charge_type": "On Net Total",
-				"rate": 0.0,
-				"add_deduct_tax": "Deduct",
-				"description": "Retención ISR (honorarios), tasa via ITT",
-			}
-		)
+		# Retenciones - MULTI-TIPO (Honorarios, Arrendamiento, Autotransporte, RESICO)
+		# Bucle por cada tipo en RETENCIONES_CONFIG para crear filas placeholder en STCT
+		# El ITT del item inyecta tasas solo en las filas cuyas cuentas coinciden
+		for tipo_key, cfg in RETENCIONES_CONFIG.items():
+			# Retención IVA: 2/3 del IVA trasladado (On Previous Row Amount sobre fila IVA base)
+			taxes_8.append(
+				{
+					"rol_fiscal": cfg["rol_iva"],
+					"charge_type": "On Previous Row Amount",
+					"rate": 0.0,  # ITT inyecta 66.67 (negativo)
+					"add_deduct_tax": "Deduct",
+					"description": f"Retención IVA {tipo_key.title()} (2/3 IVA trasladado, tasa via ITT)",
+					"_row_ref_prev": idx_iva_base_8,  # Todas apuntan a la misma fila IVA base
+				}
+			)
+			# Retención ISR: % sobre neto
+			taxes_8.append(
+				{
+					"rol_fiscal": cfg["rol_isr"],
+					"charge_type": "On Net Total",
+					"rate": 0.0,  # ITT inyecta tasa ISR (negativo: -10%, -4%, -1.25%)
+					"add_deduct_tax": "Deduct",
+					"description": f"Retención ISR {tipo_key.title()} (tasa via ITT)",
+				}
+			)
 
 		taxes_8.append(
 			{
@@ -379,8 +408,11 @@ class GeneradorTemplatesFiscales:
 				"idx": idx,
 			}
 
-			if charge_type in ("On Previous Row Amount", "On Previous Row Total") and idx > 1:
-				tax_row["row_id"] = str(idx - 1)  # referencia a la fila inmediatamente anterior
+			if charge_type in ("On Previous Row Amount", "On Previous Row Total"):
+				# Usar _row_ref_prev si está disponible, sino fila anterior
+				prior_idx = tax_config.get("_row_ref_prev", idx - 1 if idx > 1 else None)
+				if prior_idx and prior_idx > 0:
+					tax_row["row_id"] = str(prior_idx)
 
 			doc.append("taxes", tax_row)
 
@@ -512,73 +544,85 @@ class GeneradorTemplatesFiscales:
 		return configs
 
 	def _obtener_itt_retenciones(self) -> list[dict]:
-		"""Obtener ITT para retenciones según alcance."""
+		"""
+		ITT COMBINADOS por tipo de retención (ISR + IVA en el mismo ITT).
+		IVA retenido usa proporción 66.67% (2/3 del IVA trasladado) que se aplica
+		en STCT con charge_type='On Previous Row Amount'.
+
+		IMPORTANTE: Tasas deben ser NEGATIVAS porque son retenciones (deducción).
+		ERPNext usa el signo del rate para determinar si suma o resta.
+		"""
+		from facturacion_mexico.facturacion_fiscal.config.constantes_fiscales import RETENCIONES_CONFIG
+
 		configs = []
 
-		# ITT Retenciones Honorarios
+		# Honorarios (Servicios Profesionales)
 		if self.config_fiscal.enable_ret_honorarios:
-			isr_config = obtener_configuracion_por_rol("ISR Retenido (Honorarios)")
-			iva_config = obtener_configuracion_por_rol("IVA Retenido (Servicios Profesionales)")
-			configs.extend(
-				[
-					{
-						"title": "ITT ISR Honorarios",
-						"taxes": [
-							{"rol_fiscal": "ISR Retenido (Honorarios)", "tax_rate": isr_config["tasa"]}
-						],
-					},
-					{
-						"title": "ITT IVA Retenido Servicios",
-						"taxes": [
-							{
-								"rol_fiscal": "IVA Retenido (Servicios Profesionales)",
-								"tax_rate": iva_config["tasa"],
-							}
-						],
-					},
-				]
+			cfg = RETENCIONES_CONFIG["honorarios"]
+			configs.append(
+				{
+					"title": "ITT ISR + IVA Ret Honorarios",
+					"taxes": [
+						{"rol_fiscal": cfg["rol_isr"], "tax_rate": -1 * cfg["tasa_isr"]},  # Negativo
+						{
+							"rol_fiscal": cfg["rol_iva"],
+							"tax_rate": -1 * cfg["proporcion_iva_retenido"],
+						},  # Negativo
+					],
+				}
 			)
 
-		# ITT Retenciones Arrendamiento
+		# Arrendamiento
 		if self.config_fiscal.enable_ret_arrendamiento:
-			isr_config = obtener_configuracion_por_rol("ISR Retenido (Arrendamiento)")
-			iva_config = obtener_configuracion_por_rol("IVA Retenido (Arrendamiento)")
-			configs.extend(
-				[
-					{
-						"title": "ITT ISR Arrendamiento",
-						"taxes": [
-							{"rol_fiscal": "ISR Retenido (Arrendamiento)", "tax_rate": isr_config["tasa"]}
-						],
-					},
-					{
-						"title": "ITT IVA Retenido Arrendamiento",
-						"taxes": [
-							{"rol_fiscal": "IVA Retenido (Arrendamiento)", "tax_rate": iva_config["tasa"]}
-						],
-					},
-				]
+			cfg = RETENCIONES_CONFIG["arrendamiento"]
+			configs.append(
+				{
+					"title": "ITT ISR + IVA Ret Arrendamiento",
+					"taxes": [
+						{"rol_fiscal": cfg["rol_isr"], "tax_rate": -1 * cfg["tasa_isr"]},  # Negativo
+						{
+							"rol_fiscal": cfg["rol_iva"],
+							"tax_rate": -1 * cfg["proporcion_iva_retenido"],
+						},  # Negativo
+					],
+				}
 			)
 
-		# ITT Retenciones Autotransporte
+		# Autotransporte
 		if self.config_fiscal.enable_ret_autotransporte:
-			isr_config = obtener_configuracion_por_rol("ISR Retenido (Autotransporte)")
-			iva_config = obtener_configuracion_por_rol("IVA Retenido (Autotransporte)")
-			configs.extend(
-				[
-					{
-						"title": "ITT ISR Autotransporte",
-						"taxes": [
-							{"rol_fiscal": "ISR Retenido (Autotransporte)", "tax_rate": isr_config["tasa"]}
-						],
-					},
-					{
-						"title": "ITT IVA Retenido Autotransporte",
-						"taxes": [
-							{"rol_fiscal": "IVA Retenido (Autotransporte)", "tax_rate": iva_config["tasa"]}
-						],
-					},
-				]
+			cfg = RETENCIONES_CONFIG["autotransporte"]
+			configs.append(
+				{
+					"title": "ITT ISR + IVA Ret Autotransporte",
+					"taxes": [
+						{"rol_fiscal": cfg["rol_isr"], "tax_rate": -1 * cfg["tasa_isr"]},  # Negativo
+						{
+							"rol_fiscal": cfg["rol_iva"],
+							"tax_rate": -1 * cfg["proporcion_iva_retenido"],
+						},  # Negativo
+					],
+				}
+			)
+
+		# RESICO (ISR configurable vía settings, IVA siempre 66.67%)
+		if self.config_fiscal.enable_ret_resico:
+			cfg = RETENCIONES_CONFIG["resico"]
+			# ISR: usar tasa de settings si está configurada
+			tasa_isr_resico = cfg["tasa_isr"]
+			if hasattr(self.config_fiscal, "tasa_isr_resico") and self.config_fiscal.tasa_isr_resico:
+				tasa_isr_resico = flt(self.config_fiscal.tasa_isr_resico)
+
+			configs.append(
+				{
+					"title": "ITT ISR + IVA Ret RESICO",
+					"taxes": [
+						{"rol_fiscal": cfg["rol_isr"], "tax_rate": -1 * tasa_isr_resico},  # Negativo
+						{
+							"rol_fiscal": cfg["rol_iva"],
+							"tax_rate": -1 * cfg["proporcion_iva_retenido"],
+						},  # Negativo
+					],
+				}
 			)
 
 		return configs
@@ -857,6 +901,7 @@ def preview_templates_a_generar(company: str) -> dict:
 					generador.config_fiscal.enable_ret_honorarios,
 					generador.config_fiscal.enable_ret_arrendamiento,
 					generador.config_fiscal.enable_ret_autotransporte,
+					generador.config_fiscal.enable_ret_resico,
 				]
 			),
 		},

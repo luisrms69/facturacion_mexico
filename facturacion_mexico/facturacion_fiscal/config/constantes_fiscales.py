@@ -6,6 +6,15 @@ Reemplaza hardcode disperso por punto único de configuración.
 from typing import Any
 
 # =============================================================================
+# CONSTANTES FISCALES SAT - NORMATIVA FISCAL
+# =============================================================================
+
+# Proporción IVA retenido según normativa SAT (2/3 del IVA trasladado)
+# Aplicable a TODOS los tipos de retención (Honorarios, Arrendamiento, Autotransporte, RESICO)
+# Precisión 4 decimales para cálculos exactos en montos grandes
+PROPORCION_IVA_RETENIDO_SAT = 66.6667  # 2/3 = 0.666667 → 66.6667%
+
+# =============================================================================
 # TASAS IVA - IMPUESTO AL VALOR AGREGADO
 # =============================================================================
 
@@ -72,8 +81,11 @@ TASAS_IEPS = {
 }
 
 # =============================================================================
-# TASAS RETENCIONES - ISR E IVA RETENIDOS
+# TASAS RETENCIONES - ISR E IVA RETENIDO (LEGACY - PRE E3)
 # =============================================================================
+# DEPRECATED: Este diccionario usa enfoque antiguo (retención IVA como % del neto)
+# USAR: RETENCIONES_CONFIG para sistema E3 actual (retención IVA como % del IVA trasladado)
+# MANTENER: Solo para compatibilidad con tests antiguos y sistema install.py legacy
 
 TASAS_RETENCIONES = {
 	# ISR Retenciones
@@ -95,24 +107,43 @@ TASAS_RETENCIONES = {
 		"charge_type": "On Net Total",
 		"add_deduct_tax": "Deduct",
 	},
-	# IVA Retenciones
+	# IVA Retenciones (DEPRECATED: 10.67% del neto ≠ sistema E3 correcto: 66.67% del IVA trasladado)
 	"iva_servicios": {
-		"tasa": 10.67,
+		"tasa": 10.67,  # DEPRECATED: Usar RETENCIONES_CONFIG["honorarios"]["proporcion_iva_retenido"]
 		"descripcion": "IVA Retenido Servicios Profesionales 10.67%",
 		"charge_type": "On Net Total",
 		"add_deduct_tax": "Deduct",
+		"deprecated": True,  # Marcado para remoción futura
 	},
 	"iva_arrendamiento": {
-		"tasa": 10.67,
+		"tasa": 10.67,  # DEPRECATED: Usar RETENCIONES_CONFIG["arrendamiento"]["proporcion_iva_retenido"]
 		"descripcion": "IVA Retenido Arrendamiento 10.67%",
 		"charge_type": "On Net Total",
 		"add_deduct_tax": "Deduct",
+		"deprecated": True,  # Marcado para remoción futura
 	},
 	"iva_autotransporte": {
 		"tasa": 4.0,
 		"descripcion": "IVA Retenido Autotransporte 4%",
 		"charge_type": "On Net Total",
 		"add_deduct_tax": "Deduct",
+		"deprecated": True,  # Marcado para remoción futura
+	},
+	# RESICO (Régimen Simplificado de Confianza) - Tasas configurables
+	"isr_resico": {
+		"tasa": 1.25,  # Fallback default
+		"descripcion": "ISR Retenido RESICO 1.25%",
+		"charge_type": "On Net Total",
+		"add_deduct_tax": "Deduct",
+		"configurable": True,  # Indica que puede tomar valor de settings
+	},
+	"iva_resico": {
+		"tasa": 10.67,  # DEPRECATED: Usar RETENCIONES_CONFIG["resico"]["proporcion_iva_retenido"]
+		"descripcion": "IVA Retenido RESICO 10.67%",
+		"charge_type": "On Net Total",
+		"add_deduct_tax": "Deduct",
+		"configurable": True,
+		"deprecated": True,  # Marcado para remoción futura
 	},
 }
 
@@ -139,6 +170,9 @@ MAPEO_ROLES_CONFIGURACION = {
 	"IVA Retenido (Servicios Profesionales)": ("retenciones", "iva_servicios"),
 	"IVA Retenido (Arrendamiento)": ("retenciones", "iva_arrendamiento"),
 	"IVA Retenido (Autotransporte)": ("retenciones", "iva_autotransporte"),
+	# RESICO
+	"ISR Retenido (RESICO)": ("retenciones", "isr_resico"),
+	"IVA Retenido (RESICO)": ("retenciones", "iva_resico"),
 }
 
 # =============================================================================
@@ -163,6 +197,7 @@ COMBINACIONES_ALCANCE = {
 	"retenciones_honorarios": ["ISR Retenido (Honorarios)", "IVA Retenido (Servicios Profesionales)"],
 	"retenciones_arrendamiento": ["ISR Retenido (Arrendamiento)", "IVA Retenido (Arrendamiento)"],
 	"retenciones_autotransporte": ["ISR Retenido (Autotransporte)", "IVA Retenido (Autotransporte)"],
+	"retenciones_resico": ["ISR Retenido (RESICO)", "IVA Retenido (RESICO)"],
 }
 
 # =============================================================================
@@ -190,6 +225,37 @@ ITT_TEMPLATES = {
 	"iva_frontera": "ITT IVA 8% Frontera",
 	"iva_exportacion": "ITT IVA 0%",
 	"exento": "ITT Exento",
+}
+
+# =============================================================================
+# RETENCIONES - CONFIGURACIÓN PROPORCIONAL (E3)
+# =============================================================================
+
+RETENCIONES_CONFIG = {
+	"honorarios": {
+		"proporcion_iva_retenido": PROPORCION_IVA_RETENIDO_SAT,
+		"rol_iva": "IVA Retenido (Servicios Profesionales)",
+		"rol_isr": "ISR Retenido (Honorarios)",
+		"tasa_isr": 10.0,
+	},
+	"arrendamiento": {
+		"proporcion_iva_retenido": PROPORCION_IVA_RETENIDO_SAT,
+		"rol_iva": "IVA Retenido (Arrendamiento)",
+		"rol_isr": "ISR Retenido (Arrendamiento)",
+		"tasa_isr": 10.0,
+	},
+	"autotransporte": {
+		"proporcion_iva_retenido": PROPORCION_IVA_RETENIDO_SAT,
+		"rol_iva": "IVA Retenido (Autotransporte)",
+		"rol_isr": "ISR Retenido (Autotransporte)",
+		"tasa_isr": 4.0,
+	},
+	"resico": {
+		"proporcion_iva_retenido": PROPORCION_IVA_RETENIDO_SAT,
+		"rol_iva": "IVA Retenido (RESICO)",
+		"rol_isr": "ISR Retenido (RESICO)",
+		"tasa_isr": 1.25,  # Configurable vía Configuracion Fiscal Mexico (tasa_isr_resico)
+	},
 }
 
 # =============================================================================
@@ -227,12 +293,13 @@ def obtener_tasa(categoria: str, tipo: str | None = None) -> dict[str, Any]:
 	return configuraciones[categoria][tipo]
 
 
-def obtener_configuracion_por_rol(rol_fiscal: str) -> dict[str, Any]:
+def obtener_configuracion_por_rol(rol_fiscal: str, config_fiscal=None) -> dict[str, Any]:
 	"""
 	Obtener configuración completa por rol fiscal.
 
 	Args:
 	    rol_fiscal: Nombre del rol (ej. "IVA por Pagar (16%)")
+	    config_fiscal: Documento Configuracion Fiscal Mexico (opcional, para tasas configurables)
 
 	Returns:
 	    Dict con configuración completa del impuesto
@@ -240,11 +307,23 @@ def obtener_configuracion_por_rol(rol_fiscal: str) -> dict[str, Any]:
 	Raises:
 	    ValueError: Si el rol fiscal no existe
 	"""
+	import frappe
+	from frappe.utils import flt
+
 	if rol_fiscal not in MAPEO_ROLES_CONFIGURACION:
 		raise ValueError(f"Rol fiscal '{rol_fiscal}' no reconocido")
 
 	categoria, tipo = MAPEO_ROLES_CONFIGURACION[rol_fiscal]
-	return obtener_tasa(categoria, tipo)
+	config = obtener_tasa(categoria, tipo).copy()
+
+	# Resolver tasas configurables desde settings (solo ISR RESICO)
+	if config.get("configurable") and config_fiscal:
+		if tipo == "isr_resico" and hasattr(config_fiscal, "tasa_isr_resico"):
+			tasa_custom = flt(config_fiscal.tasa_isr_resico)
+			if tasa_custom > 0:
+				config["tasa"] = tasa_custom
+
+	return config
 
 
 def es_impuesto_cascada(rol_fiscal: str) -> bool:

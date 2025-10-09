@@ -131,19 +131,29 @@ def _assign_group_itt(group_name: str, itt_name: str) -> bool:
 	return True
 
 
-def assign_itt_to_groups():
+def assign_itt_to_groups(company_name: str | None = None):
 	"""
 	Hook idempotente para asignar ITT a todos los grupos raíz.
-	- Llamar desde after_migrate y desde el cierre del wizard E0.5.
+	- Llamar desde after_migrate (sin company_name) para procesar todas las companies
+	- Llamar desde wizard (con company_name) para procesar solo una company
 	- Si los ITT aún no existen, loguea y sale sin error (se reintenta en próxima ejecución).
+
+	Args:
+		company_name: Nombre de company a procesar (None = todas)
 	"""
 	try:
 		# Asegurar que todos los grupos existen
 		for group_name in ITEM_GROUP_ITT_MAP.keys():
 			_ensure_item_group(group_name)
 
-		# Obtener todas las compañías activas
-		companies = frappe.get_all("Company", fields=["name", "company_name", "abbr"])
+		# Companies a procesar (filtrado opcional)
+		if company_name:
+			companies = frappe.get_all(
+				"Company", filters={"name": company_name}, fields=["name", "company_name", "abbr"]
+			)
+		else:
+			companies = frappe.get_all("Company", fields=["name", "company_name", "abbr"])
+
 		changes = []
 		missing_log = []
 
@@ -156,7 +166,7 @@ def assign_itt_to_groups():
 
 				# Si no existe aún el ITT, log y continuar (reintento posterior)
 				if not itt_name:
-					missing_log.append(f"{group_name} (pattern: {itt_pattern.format(suffix=company.abbr)})")
+					missing_log.append(f"{group_name} ({itt_pattern.format(suffix=company.abbr)})")
 					continue
 
 				# Asignar solo si cambia
@@ -173,12 +183,10 @@ def assign_itt_to_groups():
 		# Log de asignaciones realizadas
 		if changes:
 			for comp, grp, itt in changes:
-				frappe.logger().info(
-					f"[FMX][ItemGroups] Asignado ITT '{itt}' a grupo '{grp}' (Company={comp})."
-				)
+				frappe.logger().info(f"[FMX][ItemGroups] Asignado ITT '{itt}' a '{grp}' (Company={comp}).")
 			frappe.db.commit()
 		else:
-			frappe.logger().info("[FMX][ItemGroups] Sin cambios (ITT ya asignados o faltantes).")
+			frappe.logger().info("[FMX][ItemGroups] Sin cambios.")
 
 	except Exception:
 		frappe.log_error(frappe.get_traceback(), "[FMX][ItemGroups] Error assign_itt_to_groups")
