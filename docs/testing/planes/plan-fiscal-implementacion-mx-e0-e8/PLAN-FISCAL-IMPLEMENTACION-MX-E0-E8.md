@@ -320,15 +320,101 @@ Plan de implementación completa del sistema fiscal mexicano en 8 etapas (E0-E8)
 
 **Objetivo:** Cálculos reflejados exactamente en CFDI
 
+### ✅ **Estado Actual E4 (2025-10-16) - EN PROGRESO (Paso 0-2 COMPLETADOS)**
+🎯 **ARQUITECTURA E4-RO IMPLEMENTADA:** **Puente read-only Sales Invoice → PAC con validaciones**
+
+**Implementación técnica completada:**
+- ✅ **E4.8 Validación completitud payload** - Sistema bloqueante antes envío PAC
+- ✅ **Script verificación mapeos SAT** - Diagnóstico cuentas sin mapeo
+- ✅ **Documentación setup mapeos** - Guía completa sitios nuevos
+- ✅ **Suite tests E4.1-E4.8** - 17 tests unitarios passing (0.058s)
+
+**Componentes implementados:**
+- ✅ **Función `_validate_payload_completeness_ro()`** - E4.8 validación estructural
+- ✅ **Script `verificar_mapeos_sat.py`** - Identificación gaps configuración
+- ✅ **Guía `setup-mapeos-sat.md`** - 5 ejemplos + troubleshooting
+- ✅ **Tests `test_e4_puente_si_pac.py`** - 510 líneas, 17 tests RG-003 compliant
+
+**Fixes críticos aplicados:**
+- ✅ **Validación customer data** - legal_name, tax_id, tax_system obligatorios
+- ✅ **Validación invoice data** - payment_form, use (Uso CFDI) obligatorios
+- ✅ **Validación items structure** - product_key, unit_key, description, tax_object
+- ✅ **Validación taxes completeness** - type, factor, rate, withholding por ítem
+
 ### Tareas E4
-- [ ] **E4.1** - Conceptos completos: ClaveProdServ, ClaveUnidad, Cantidad, ValorUnitario, Descuento, ObjetoImp
-- [ ] **E4.2** - Impuestos por concepto: Traslados/Retenciones con Impuesto/TipoFactor/TasaOCuota/Base
-- [ ] **E4.3** - Manejo "sin impuestos" si ObjetoImp 01/03
-- [ ] **E4.4** - [TS] Validación PAC/validador en 3 escenarios mixtos
+- [x] **E4.0** - ✅ **PASO 0:** Validación completitud payload E4.8 (commit cd18930)
+- [x] **E4.1-A** - ✅ **PASO 1:** Checklist mapeos SAT - Script verificación + Documentación
+- [x] **E4.1-B** - ✅ **PASO 2:** Suite tests E4.1-E4.8 (17 tests passing)
+- [ ] **E4.2** - **PASO 3:** PAC Sandbox - timbrar 4 facturas prueba - **PENDIENTE**
+- [ ] **E4.3** - **PASO 4:** Runbook + Tag mx-fiscal-E4-ready - **PENDIENTE**
 
 ### Criterios DoD E4
-✅ CFDIs válidos en estructura y reglas de impuestos
-✅ Tests: validación PAC exitosa
+✅ **Arquitectura E4-RO:** Puente read-only SI → PAC implementado
+✅ **Validación E4.8:** Sistema bloqueante payload incompleto
+✅ **Tests unitarios:** 17/17 passing (E4.1-E4.8) en 0.058s
+✅ **Documentación mapeos:** Guía completa + 5 ejemplos comunes
+⏳ **Tests PAC sandbox:** 4 escenarios canónicos - PENDIENTE
+⏳ **Tag checkpoint:** mx-fiscal-E4-ready - PENDIENTE
+
+### Testing E4 Completado (Paso 2)
+
+**Suite tests E4.1-E4.8 (17 tests, 510 líneas):**
+| Función | Tests | Casos |
+|---------|-------|-------|
+| E4.1: _read_taxes_from_sales_invoice_item() | 2 | Lectura taxes SI estándar + fallback vacío |
+| E4.2: _get_tax_amount_for_item_robust() | 3 | Fallback row.name → item_code → item_name |
+| E4.3: _resolve_objeto_impuesto() | 1 | Resolución ObjetoImp desde catálogo |
+| E4.4: _map_tax_account_to_sat() | 1 | Mapeo cuenta → SAT metadata |
+| E4.6: _validate_objeto_imp_consistency() | 3 | Validación ObjetoImp 01/02/03 vs taxes |
+| E4.7: _validate_currency_consistency() | 2 | Validación moneda SI = payload |
+| E4.8: _validate_payload_completeness_ro() | 4 | Validación estructural completa |
+| Integración smoke | 1 | Validaciones E4.7 + E4.8 payload completo |
+
+**Tiempo ejecución:** 0.058s (cumple RG-003: ≤ 5 min)
+
+**Características testing:**
+- ✅ **Determinista:** Sin red, sin reloj real, mock solo FacturAPI
+- ✅ **Aislamiento:** Cada test crea datos únicos con setUp()
+- ✅ **Simplicidad:** Prueba reglas negocio, no UI
+- ✅ **Pirámide:** Unit (prioridad) + 1 smoke integración
+
+### Documentación E4 Generada (Paso 1)
+
+**Guía setup mapeos SAT (~600 líneas):**
+- 📄 **¿Qué son los Mapeos SAT?** - Explicación conexión ERPNext → CFDI
+- 📄 **¿Por qué obligatorios?** - Normativa SAT + Arquitectura E4-RO
+- 📄 **Campos requeridos** - Tabla completa con tipos y ejemplos
+- 📄 **Paso a paso** - 8 pasos configuración sitios nuevos
+- 📄 **5 ejemplos comunes con XML:**
+  - IVA Trasladado 16%
+  - ISR Retenido 10% (Honorarios)
+  - IVA Retenido 10.66% (Arrendamiento)
+  - IEPS Cuota Fija (Combustibles)
+  - IVA Exento 0%
+- 📄 **Troubleshooting** - 3 casos frecuentes + soluciones
+- 📄 **Script verificación** - Uso `verificar_mapeos_sat.py` documentado
+- 📄 **Checklist sitio nuevo** - 8 pasos verificación
+
+**Script verificación mapeos:**
+- 🧪 **Propósito:** Identificar cuentas fiscales sin mapeo SAT (solo diagnóstico)
+- 🧪 **Ejecución:** `bench --site [sitio] execute "facturacion_mexico.one_offs.verificar_mapeos_sat.run"`
+- 🧪 **Output:** Reporte completo/incompleto/faltante con campos específicos
+- 🧪 **Safe:** Solo lectura, no modifica BD
+
+### Próximos Pasos E4
+
+**PASO 3: PAC Sandbox (4 facturas canónicas)**
+1. Timbrar IVA 16% estándar
+2. Timbrar IEPS + IVA cascada
+3. Timbrar Retenciones ISR + IVA (2/3)
+4. Timbrar Mixto (exento + gravado)
+5. Guardar evidencias XML + acuses
+
+**PASO 4: Runbook + Tag**
+1. Documentar reglas validación E4-RO
+2. Actualizar CHANGELOG.md
+3. Crear tag `mx-fiscal-E4-ready`
+4. Merge PR a main
 
 ---
 

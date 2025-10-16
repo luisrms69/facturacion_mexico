@@ -7,6 +7,28 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
 ## [Unreleased]
 
 ### Added
+- **Suite tests completa E4 puente SI→PAC** - Testing E4.1-E4.8 (17 tests passing)
+  - Archivo `facturacion_mexico/tests/test_e4_puente_si_pac.py` (510 líneas)
+  - Tests unitarios E4.1: _read_taxes_from_sales_invoice_item() (2 tests)
+  - Tests unitarios E4.2: _get_tax_amount_for_item_robust() fallback (3 tests)
+  - Tests unitarios E4.3: _resolve_objeto_impuesto() (1 test)
+  - Tests unitarios E4.4: _map_tax_account_to_sat() (1 test)
+  - Tests unitarios E4.6: _validate_objeto_imp_consistency() (3 tests)
+  - Tests unitarios E4.7: _validate_currency_consistency() (2 tests)
+  - Tests unitarios E4.8: _validate_payload_completeness_ro() (4 tests)
+  - Test smoke integración: validaciones E4.7 + E4.8 con payload completo (1 test)
+  - Tiempo ejecución: 0.058s (cumple RG-003: ≤ 5 min)
+  - Determinista: sin red, sin reloj real, mock solo gateway FacturAPI
+  - Aislamiento: cada test crea datos únicos con setUp()
+  - Cumplimiento RG-003: simplicidad, determinismo, pirámide testing
+- **Documentación setup mapeos SAT** - Guía completa configuración sitios nuevos
+  - Archivo `docs/user-guide/setup-mapeos-sat.md` (~600 líneas)
+  - 5 ejemplos comunes: IVA 16%, ISR Ret 10%, IVA Ret 10.66%, IEPS Cuota, IVA 0%
+  - Troubleshooting 3 casos frecuentes con soluciones
+  - Script verificación: `verificar_mapeos_sat.py` uso documentado
+  - Checklist setup sitio nuevo (8 pasos)
+  - Campos requeridos tabla Mapeos Cuentas Fiscales explicados
+  - Validaciones E4.8 explicadas (bloqueo timbrado sin mapeos)
 - **Constante fiscal global PROPORCION_IVA_RETENIDO_SAT** - Precisión mejorada retenciones IVA
   - Constante global `PROPORCION_IVA_RETENIDO_SAT = 66.6667` (4 decimales) para 2/3 del IVA trasladado
   - Documentación SAT: proporción aplicable a TODOS los tipos de retención (Honorarios, Arrendamiento, Autotransporte, RESICO)
