@@ -609,6 +609,9 @@ class TimbradoAPI:
 		# E4.7: Validación moneda (CAMBIO 3 APROBADO)
 		self._validate_currency_consistency(invoice_data, sales_invoice)
 
+		# E4.8: Validación completitud payload
+		self._validate_payload_completeness_ro(invoice_data, sales_invoice)
+
 		return invoice_data
 
 	def _get_payment_form_for_invoice(self, sales_invoice) -> str:
@@ -1922,6 +1925,104 @@ class TimbradoAPI:
 				f"SI {sales_invoice.name} con tipo cambio {sales_invoice.conversion_rate}. "
 				f"Amounts ya están convertidos a {si_currency}."
 			)
+
+	def _validate_payload_completeness_ro(self, invoice_data, sales_invoice):
+		"""
+		E4.8: Validar completitud payload E4-RO antes de envío al PAC.
+
+		CONTEXTO:
+		Esta función implementa la validación crítica de completitud del payload
+		generado por las funciones E4.1-E4.7. No realiza cálculos, solo verifica
+		que todos los campos requeridos por FacturAPI estén presentes.
+
+		VALIDACIONES:
+		1. Datos del cliente (customer): legal_name, tax_id, tax_system
+		2. Datos de la factura: payment_form, use (Uso CFDI)
+		3. Estructura items[]: presencia de conceptos
+		4. Por cada item: product_key, unit_key, description, tax_object
+		5. Por cada tax del item: type, factor, rate, withholding
+
+		Args:
+			invoice_data: Payload completo generado para FacturAPI
+			sales_invoice: Documento Sales Invoice (referencia para logs)
+
+		Raises:
+			frappe.ValidationError: Si encuentra campos faltantes
+
+		Returns:
+			bool: True si validación exitosa
+
+		Ejemplo de error:
+			Payload incompleto (3 errores):
+			❌ customer.tax_system faltante
+			❌ payment_form faltante
+			❌ Item 1: product.tax_object faltante
+		"""
+		errors = []
+
+		# === DATOS CLIENTE ===
+		customer_data = invoice_data.get("customer", {})
+		required_customer_fields = ["legal_name", "tax_id", "tax_system"]
+
+		for field in required_customer_fields:
+			if not customer_data.get(field):
+				errors.append(f"❌ customer.{field} faltante")
+
+		# === DATOS FACTURA ===
+		if not invoice_data.get("payment_form"):
+			errors.append("❌ payment_form faltante")
+
+		if not invoice_data.get("use"):
+			errors.append("❌ use (Uso CFDI) faltante")
+
+		# === ITEMS Y CONCEPTOS ===
+		items = invoice_data.get("items", [])
+
+		if not items:
+			errors.append("❌ items[] vacío - no hay conceptos para facturar")
+
+		for idx, item_payload in enumerate(items, 1):
+			product = item_payload.get("product", {})
+
+			# Campos requeridos del producto
+			required_product_fields = ["product_key", "unit_key", "description", "tax_object"]
+			for field in required_product_fields:
+				if not product.get(field):
+					errors.append(f"❌ Item {idx}: product.{field} faltante")
+
+			# Validar taxes si existen
+			taxes_payload = product.get("taxes", [])
+			for tax_idx, tax in enumerate(taxes_payload, 1):
+				if not tax.get("type"):
+					errors.append(f"❌ Item {idx}, Tax {tax_idx}: type faltante")
+				if not tax.get("factor"):
+					errors.append(f"❌ Item {idx}, Tax {tax_idx}: factor faltante")
+				if tax.get("rate") is None:  # rate puede ser 0, validar None
+					errors.append(f"❌ Item {idx}, Tax {tax_idx}: rate faltante")
+				if "withholding" not in tax:  # withholding puede ser False, validar presencia
+					errors.append(f"❌ Item {idx}, Tax {tax_idx}: withholding faltante")
+
+		# === RESULTADO ===
+		if errors:
+			# Mostrar máximo 10 errores para no saturar UI
+			error_summary = "\n".join(errors[:10])
+			if len(errors) > 10:
+				error_summary += f"\n... y {len(errors) - 10} errores más"
+
+			frappe.throw(
+				f"Payload incompleto para {sales_invoice.name} ({len(errors)} errores):\n\n"
+				f"{error_summary}\n\n"
+				f"Corrija los datos faltantes antes de timbrar.",
+				title="Validación E4-RO Falló",
+			)
+
+		# Log éxito validación
+		frappe.logger().info(
+			f"E4.8: Payload validado OK para {sales_invoice.name} "
+			f"({len(items)} items, cliente: {customer_data.get('legal_name', 'N/A')})"
+		)
+
+		return True
 
 
 def _build_cancellation_reason_for_select(motive_code: str) -> str:
