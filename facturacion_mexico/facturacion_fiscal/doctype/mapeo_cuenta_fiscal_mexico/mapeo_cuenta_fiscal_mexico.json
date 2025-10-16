@@ -45,6 +45,13 @@
       "options": "Válido\nAdvertencia\nError",
       "read_only": 1,
       "default": "Error"
+    },
+    {
+      "fieldname": "es_retencion",
+      "label": "Es Retención",
+      "fieldtype": "Check",
+      "description": "Marcar si es impuesto retenido (withholding=True en CFDI)",
+      "default": "0"
     }
   ],
   "permissions": [

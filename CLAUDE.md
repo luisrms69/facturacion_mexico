@@ -1,3 +1,40 @@
+# ⚠️⚠️⚠️ MULTI-APP MODE ⚠️⚠️⚠️
+**SITE:** facturacion.dev | **APP:** facturacion_mexico
+**COMANDOS:** `bench --site facturacion.dev [comando]`
+**NO:** `bench start` (tmux) | `bench migrate` (sin --site)
+
+## 🚨 REGLAS ABSOLUTAS MULTI-APP (LEER PRIMERO)
+
+Este workspace comparte un bench con **llantascs_customs** y **condominium_management**.
+
+### ✅ COMANDOS OBLIGATORIOS:
+```bash
+bench --site facturacion.dev migrate
+bench --site facturacion.dev export-fixtures --apps facturacion_mexico
+bench --site facturacion.dev run-tests --app facturacion_mexico
+bench build --apps facturacion_mexico
+```
+
+### ❌ NUNCA EJECUTAR:
+```bash
+bench start                  # Ya corre en tmux global
+bench migrate                # Sin --site (afectaría otros sites)
+bench --site llantascs.dev   # Site de OTRA app
+bench --site admin1.dev      # Site de OTRA app
+```
+
+### 📍 Sites en este Bench:
+- **facturacion.dev** ← **ESTE workspace** (facturacion_mexico)
+- llantascs.dev (llantascs_customs - OTRO workspace)
+- admin1.dev (condominium_management - OTRO workspace)
+
+### 🌐 URL Desarrollo:
+http://facturacion.dev:8000
+
+**Comando recordatorio:** `/remind-site` (slash command disponible)
+
+---
+
 # 🤖 CLAUDE.md - FACTURACIÓN MÉXICO v5.0
 
 **Proyecto:** Facturación México
@@ -5,7 +42,7 @@
 **Fecha:** 2025-09-16
 **Sistema Control:** Claude Code + Sistema Buzola Integrado
 
-**Última actualización:** 2025-09-22
+**Última actualización:** 2025-10-15
 **Versión compatible:** Frappe v15, Claude Code
 
 ---

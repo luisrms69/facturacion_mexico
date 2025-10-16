@@ -427,7 +427,8 @@ class TimbradoAPI:
 		customer = frappe.get_doc("Customer", sales_invoice.customer)
 
 		# Sprint 6 Phase 2: Obtener datos de sucursal si está configurada
-		branch_data = self._get_branch_data_for_invoice(sales_invoice)
+		# TODO: Integrar branch_data cuando se implemente Sprint 6 Phase 2
+		# branch_data = self._get_branch_data_for_invoice(sales_invoice)
 
 		# Datos del cliente
 		customer_data = {
@@ -471,24 +472,55 @@ class TimbradoAPI:
 			"zip": primary_address.get("pincode") or "",
 		}
 
-		# Items de la factura
+		# Items de la factura - E4-RO: Puente SI → Payload PAC
 		items = []
 		for item in sales_invoice.items:
 			item_doc = frappe.get_doc("Item", item.item_code)
 
-			items.append(
-				{
-					"quantity": item.qty,
-					"product": {
-						"description": item.description or item.item_name,
-						"product_key": item_doc.fm_producto_servicio_sat or "01010101",
-						"price": flt(item.rate),
-						"tax_included": False,  # Indicar que el precio NO incluye impuestos
-						"unit_key": _extract_sat_code_from_uom(item.uom),
-						"unit_name": item.uom or "Pieza",
-					},
-				}
-			)
+			# E4.1: Leer taxes desde SI (NO calcular)
+			item_taxes_data = self._read_taxes_from_sales_invoice_item(item, sales_invoice)
+
+			# E4.3: Resolver ObjetoImp desde catálogo SAT
+			objeto_imp = self._resolve_objeto_impuesto(item_doc)
+
+			# E4.4: Mapear taxes a estructura FacturAPI
+			taxes_payload = []
+			for tax_data in item_taxes_data:
+				sat_mapping = self._map_tax_account_to_sat(tax_data["account_head"])
+
+				taxes_payload.append(
+					{
+						"type": sat_mapping["nombre_sat"],  # "IVA", "ISR", "IEPS"
+						"factor": sat_mapping["tipo_factor"],  # "Tasa"
+						"rate": abs(tax_data["rate"]) / 100,  # 16.0 → 0.16
+						"withholding": sat_mapping["es_retencion"],  # CAMBIO 4: desde mapeo
+					}
+				)
+
+			# E4.6: Validación estricta ObjetoImp vs taxes (CAMBIO 2)
+			self._validate_objeto_imp_consistency(objeto_imp, taxes_payload, item)
+
+			# Construir concepto
+			item_payload = {
+				"quantity": item.qty,
+				"product": {
+					"description": item.description or item.item_name,
+					"product_key": item_doc.fm_producto_servicio_sat or "01010101",
+					"price": flt(item.rate),
+					"tax_included": False,
+					"unit_key": _extract_sat_code_from_uom(item.uom),
+					"unit_name": item.uom or "Pieza",
+				},
+			}
+
+			# E4-RO: Solo agregar taxes[] si hay impuestos
+			# FacturAPI calcula tax_object automáticamente según presencia de taxes
+			# - Si taxes[] presente → ObjetoImp "02" (automático)
+			# - Si NO taxes[] → ObjetoImp "01" (automático)
+			if taxes_payload:
+				item_payload["product"]["taxes"] = taxes_payload
+
+			items.append(item_payload)
 
 		# Obtener forma de pago desde Factura Fiscal Mexico
 		payment_form = self._get_payment_form_for_invoice(sales_invoice)
@@ -568,12 +600,14 @@ class TimbradoAPI:
 				}
 			)
 
-		# Sprint 6 Phase 2: Agregar datos específicos de sucursal
-		if branch_data.get("lugar_expedicion"):
-			invoice_data["place_of_issue"] = branch_data["lugar_expedicion"]
+		# Sprint 6 Phase 2: Datos específicos de sucursal
+		# NOTA: place_of_issue y branch_office removidos
+		# RAZÓN: Deben coincidir exactamente con CSD registrado en PAC
+		# FacturAPI auto-calcula estos campos desde configuración del emisor en PAC
+		# Incluirlos manualmente puede causar rechazo por inconsistencia con CSD
 
-		if branch_data.get("branch_name"):
-			invoice_data["branch_office"] = branch_data["branch_name"]
+		# E4.7: Validación moneda (CAMBIO 3 APROBADO)
+		self._validate_currency_consistency(invoice_data, sales_invoice)
 
 		return invoice_data
 
@@ -1197,6 +1231,22 @@ class TimbradoAPI:
 			Esta función interpreta errores técnicos y los convierte
 			en mensajes comprensibles para usuarios no técnicos.
 		"""
+		import json
+
+		# PRIORIDAD: Intentar extraer mensaje directo del JSON del PAC
+		if hasattr(error, "response"):
+			try:
+				pac_json = error.response.json()
+				if isinstance(pac_json, dict) and "message" in pac_json:
+					# Retornar mensaje directo del PAC
+					return {
+						"user_message": f"ERROR PAC: {pac_json['message']}",
+						"corrective_action": pac_json.get("path", "Revisar datos de la factura"),
+						"status_code": str(getattr(error.response, "status_code", 400)),
+					}
+			except Exception:
+				pass  # Si falla parsing, continuar con lógica legacy
+
 		error_str = str(error).lower()
 
 		# Intentar extraer status code de diferentes tipos de errores
@@ -1453,6 +1503,425 @@ class TimbradoAPI:
 		except (ValueError, TypeError):
 			# No es número válido
 			return False
+
+	# ========================================================================
+	# E4-RO: FUNCIONES PUENTE SALES INVOICE → PAYLOAD PAC (READ-ONLY)
+	# ========================================================================
+
+	def _read_taxes_from_sales_invoice_item(self, item, sales_invoice):
+		"""
+		E4.1: Leer impuestos de un item desde Sales Invoice.
+
+		E4-RO: Solo lectura, sin cálculos.
+
+		FUENTES (prioridad):
+		1. item.item_tax_rate (cuando ITT explícito)
+		2. FALLBACK: sales_invoice.taxes con item_wise_tax_detail (template global)
+
+		Precisiones read-only:
+		- P1: Si item_wise_tax_detail trae amount pero rate=0, usar tax.rate de la fila SI
+		- P2: Duplicados por account_head se serializan ambos (sin consolidar)
+
+		Args:
+			item: Row de Sales Invoice.items
+			sales_invoice: Documento Sales Invoice completo
+
+		Returns:
+			List[dict]: [
+				{
+					"account_head": str,
+					"rate": float,
+					"amount": float
+				}
+			]
+		"""
+		import json
+
+		# INTENTO 1: Leer desde item.item_tax_rate (ITT explícito)
+		if item.item_tax_rate:
+			try:
+				item_tax_rate = json.loads(item.item_tax_rate)
+			except (json.JSONDecodeError, TypeError):
+				item_tax_rate = {}
+
+			# Solo usar si tiene datos (no dict vacío '{}')
+			if item_tax_rate:
+				taxes_data = []
+				for account_head, rate in item_tax_rate.items():
+					# Buscar amount desde SI con lectura robusta (Cambio 3)
+					amount = self._get_tax_amount_for_item_robust(
+						sales_invoice,
+						account_head,
+						item.item_code,
+						item.item_name,
+						item.name,  # row.name
+					)
+
+					taxes_data.append({"account_head": account_head, "rate": rate, "amount": amount})
+
+				frappe.logger().info(
+					f"E4.1 - Item {item.item_code}: Impuestos leídos desde item_tax_rate (ITT explícito)"
+				)
+				return taxes_data
+
+		# FALLBACK: Leer desde sales_invoice.taxes (template global aplicado)
+		# Caso: Item sin ITT pero taxes aplicados por ubicación/branch
+		taxes_dict = {}  # Usar dict para deduplicar por account_head
+
+		for tax in sales_invoice.taxes:
+			if not tax.item_wise_tax_detail:
+				continue
+
+			# Parse item_wise_tax_detail
+			try:
+				item_wise = json.loads(tax.item_wise_tax_detail)
+			except (json.JSONDecodeError, TypeError):
+				continue
+
+			# Buscar este item con fallback de llaves (Cambio 3)
+			rate_from_json = 0.0
+			amount = 0.0
+			key_used = None
+
+			for key in [item.name, item.item_code, item.item_name]:
+				if key in item_wise:
+					rate_from_json = float(item_wise[key][0])  # Position 0 = rate
+					amount = float(item_wise[key][1])  # Position 1 = amount
+					key_used = key
+					break
+
+			# Solo agregar si hay rate o amount != 0
+			if rate_from_json != 0 or amount != 0:
+				# P1: Si rate en JSON es 0 pero hay amount, usar tax.rate de la fila SI
+				final_rate = rate_from_json if rate_from_json != 0 else tax.rate
+
+				# DEDUPLICAR: Solo guardar si no existe ya esta cuenta
+				# (ERPNext puede tener múltiples filas con misma account_head)
+				if tax.account_head not in taxes_dict:
+					taxes_dict[tax.account_head] = {
+						"account_head": tax.account_head,
+						"rate": final_rate,
+						"amount": amount,
+					}
+
+					frappe.logger().info(
+						f"E4.1 FALLBACK - Item {item.item_code}: Tax {tax.account_head} "
+						f"leído desde item_wise_tax_detail (llave={key_used}, rate={final_rate}, amount={amount})"
+					)
+
+		# Convertir dict a list
+		taxes_data = list(taxes_dict.values())
+
+		# P2: Duplicados por account_head se preservan (no consolidamos)
+		# Ya están serializados tal cual SI los registró
+
+		if taxes_data:
+			frappe.logger().info(
+				f"E4.1 - Item {item.item_code}: {len(taxes_data)} impuestos leídos desde fallback (template global)"
+			)
+
+		return taxes_data
+
+	def _get_tax_amount_for_item_robust(self, sales_invoice, account_head, item_code, item_name, row_name):
+		"""
+		E4.2: Extraer amount con fallback de llaves.
+
+		CAMBIO 3 APROBADO: Lectura robusta según versión ERPNext.
+
+		Prioridad llaves en item_wise_tax_detail:
+		1. row.name (row interno SI)
+		2. item_code
+		3. item_name
+
+		Args:
+			sales_invoice: Documento SI
+			account_head: Cuenta impuesto
+			item_code: Código item
+			item_name: Nombre item
+			row_name: row.name interno
+
+		Returns:
+			float: Tax amount para el item
+		"""
+		import json
+
+		# Buscar tax row en SI
+		tax_row = None
+		for tax in sales_invoice.taxes:
+			if tax.account_head == account_head:
+				tax_row = tax
+				break
+
+		if not tax_row or not tax_row.item_wise_tax_detail:
+			return 0.0
+
+		# Parse JSON
+		item_wise = json.loads(tax_row.item_wise_tax_detail)
+
+		# CAMBIO 3: Fallback de llaves (row.name → item_code → item_name)
+		for key in [row_name, item_code, item_name]:
+			if key in item_wise:
+				# item_wise[key] = [rate, amount]
+				return float(item_wise[key][1])  # Posición 1 = amount
+
+		# No encontrado
+		frappe.logger().warning(f"Tax amount no encontrado para item {item_code} en {account_head}")
+		return 0.0
+
+	def _resolve_objeto_impuesto(self, item_doc):
+		"""
+		E4.3: Resolver ObjetoImp desde catálogo SAT Producto Servicio.
+
+		E4-RO: Solo lookup, sin inferencias.
+
+		Pipeline:
+		1. Leer Item.fm_producto_servicio_sat
+		2. Lookup SAT Producto Servicio.incluye_objeto_impuesto
+		3. Retornar "01", "02", "03", o "04"
+
+		Returns:
+			str: ObjetoImp
+		"""
+		clave_prod_serv = item_doc.get("fm_producto_servicio_sat")
+
+		if not clave_prod_serv:
+			frappe.throw(
+				f"Item {item_doc.name} no tiene ClaveProdServ (fm_producto_servicio_sat) configurada.\n"
+				f"Configure el campo SAT en Item.",
+				title="ClaveProdServ Faltante",
+			)
+
+		# Lookup en catálogo interno
+		sat_producto = frappe.db.get_value(
+			"SAT Producto Servicio", clave_prod_serv, "incluye_objeto_impuesto"
+		)
+
+		if not sat_producto:
+			frappe.throw(
+				f"ClaveProdServ '{clave_prod_serv}' no encontrada en catálogo SAT.\n"
+				f"Verifique que existe en DocType 'SAT Producto Servicio'.",
+				title="ClaveProdServ No Encontrada",
+			)
+
+		return sat_producto
+
+	def _map_tax_account_to_sat(self, account_head):
+		"""
+		E4.4: Mapear cuenta ERPNext → metadata SAT.
+
+		CAMBIO 4 APROBADO: Usar campo es_retencion del mapeo.
+
+		Fuente: Configuración Fiscal México → mapeos (child table)
+
+		Args:
+			account_head: Nombre cuenta (ej: "123456 - iva 16% - _TC")
+
+		Returns:
+			{
+				"impuesto_sat": str,      # "002"
+				"tipo_factor": str,       # "Tasa"
+				"nombre_sat": str,        # "IVA"
+				"es_retencion": bool      # True/False
+			}
+
+		Raises:
+			frappe.ValidationError: Si cuenta no mapeada
+		"""
+		# Obtener company desde settings (asumiendo que está configurado)
+		settings = frappe.get_single("Facturacion Mexico Settings")
+		company = (
+			settings.company
+			if hasattr(settings, "company")
+			else frappe.defaults.get_global_default("company")
+		)
+
+		if not company:
+			frappe.throw(
+				"<div style='font-family: -apple-system, BlinkMacSystemFont, sans-serif;'>"
+				"<p style='margin: 0 0 15px 0;'>No se pudo determinar la empresa para buscar configuración fiscal.</p>"
+				"<p style='margin: 15px 0 8px 0; font-weight: 600;'>Solución:</p>"
+				"<ol style='margin: 0; padding-left: 20px;'>"
+				"<li>Configurar empresa en <strong>Facturacion Mexico Settings</strong></li>"
+				"</ol>"
+				"</div>",
+				title="Empresa No Configurada",
+			)
+
+		# Buscar en configuración fiscal por company
+		config_name = frappe.db.get_value("Configuracion Fiscal Mexico", {"company": company}, "name")
+
+		if not config_name:
+			frappe.throw(
+				f"<div style='font-family: -apple-system, BlinkMacSystemFont, sans-serif;'>"
+				f"<p style='margin: 0 0 15px 0;'>No existe configuración fiscal para la empresa <strong>{company}</strong>.</p>"
+				f"<div style='background: #f8d7da; border-left: 4px solid #dc3545; padding: 12px; margin: 15px 0;'>"
+				f"<p style='margin: 5px 0; font-size: 13px;'><strong>Cuenta a mapear:</strong> <code>{account_head}</code></p>"
+				f"</div>"
+				f"<p style='margin: 15px 0 8px 0; font-weight: 600;'>Solución:</p>"
+				f"<ol style='margin: 0; padding-left: 20px;'>"
+				f"<li>Crear documento: <strong>Configuración Fiscal México</strong></li>"
+				f"<li>Seleccionar empresa: <strong>{company}</strong></li>"
+				f"<li>Usar el wizard para generar mapeos automáticamente</li>"
+				f"</ol>"
+				f"</div>",
+				title="Configuración Fiscal No Existe",
+			)
+
+		config = frappe.get_doc("Configuracion Fiscal Mexico", config_name)
+
+		# Buscar en child table mapeo_cuentas (no "mapeos")
+		if hasattr(config, "mapeo_cuentas") and config.mapeo_cuentas:
+			for mapeo in config.mapeo_cuentas:
+				if mapeo.cuenta_impuesto == account_head:
+					# Determinar metadata SAT desde rol_fiscal
+					# IMPORTANTE: Convertir explícitamente a bool (Frappe Check fields son 0/1)
+					es_retencion = bool(mapeo.get("es_retencion", 0))
+					return self._extract_sat_metadata_from_rol(mapeo.rol_fiscal, es_retencion)
+
+		# Cuenta no mapeada = error (datos incompletos)
+		frappe.throw(
+			f"<div style='font-family: -apple-system, BlinkMacSystemFont, sans-serif;'>"
+			f"<p style='margin: 0 0 15px 0;'>Cuenta de impuesto sin mapeo SAT.</p>"
+			f"<div style='background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; margin: 15px 0;'>"
+			f"<p style='margin: 5px 0; font-size: 13px;'><strong>Cuenta:</strong> <code>{account_head}</code></p>"
+			f"<p style='margin: 5px 0; font-size: 13px;'><strong>Empresa:</strong> {company}</p>"
+			f"</div>"
+			f"<p style='margin: 15px 0 8px 0; font-weight: 600;'>Solución:</p>"
+			f"<ol style='margin: 0; padding-left: 20px;'>"
+			f"<li>Ir a: <strong>Configuración Fiscal México</strong> (empresa {company})</li>"
+			f"<li>Sección: <strong>Mapeos</strong></li>"
+			f"<li>Usar el wizard para generar mapeos automáticamente</li>"
+			f"<li>O agregar mapeo manual para esta cuenta</li>"
+			f"</ol>"
+			f"</div>",
+			title="Mapeo SAT Faltante",
+		)
+
+	def _extract_sat_metadata_from_rol(self, rol_fiscal, es_retencion):
+		"""
+		Helper: Extraer metadata SAT desde rol_fiscal.
+
+		Args:
+			rol_fiscal: str (ej: "IVA por Pagar (16%)")
+			es_retencion: bool
+
+		Returns:
+			dict con impuesto_sat, tipo_factor, nombre_sat, es_retencion
+		"""
+		# Mapeo rol_fiscal → metadata SAT
+		if "IVA" in rol_fiscal:
+			return {
+				"impuesto_sat": "002",
+				"tipo_factor": "Tasa",
+				"nombre_sat": "IVA",
+				"es_retencion": es_retencion,
+			}
+		elif "IEPS" in rol_fiscal:
+			return {
+				"impuesto_sat": "003",
+				"tipo_factor": "Tasa",
+				"nombre_sat": "IEPS",
+				"es_retencion": es_retencion,
+			}
+		elif "ISR" in rol_fiscal:
+			return {
+				"impuesto_sat": "001",
+				"tipo_factor": "Tasa",
+				"nombre_sat": "ISR",
+				"es_retencion": es_retencion,
+			}
+		else:
+			frappe.throw(
+				f"Rol fiscal '{rol_fiscal}' no reconocido para mapeo SAT", title="Rol Fiscal Inválido"
+			)
+
+	def _validate_objeto_imp_consistency(self, objeto_imp, taxes_payload, item):
+		"""
+		E4.6: Validar coherencia ObjetoImp vs presencia de impuestos.
+
+		CAMBIO 2 APROBADO: Validación estricta sin arreglos automáticos.
+
+		Reglas:
+		- ObjetoImp 01/03/04 (sin impuestos) → NO debe tener taxes
+		- ObjetoImp 02 (con impuestos) → DEBE tener taxes
+
+		Args:
+			objeto_imp: str ("01", "02", "03", "04")
+			taxes_payload: list de impuestos
+			item: Row de Sales Invoice.items
+
+		Raises:
+			frappe.ValidationError: Si inconsistencia detectada
+		"""
+		# Si ObjetoImp indica "sin impuestos" pero SI tiene taxes
+		if objeto_imp in ["01", "03", "04"] and taxes_payload:
+			frappe.throw(
+				f"<div style='font-family: -apple-system, BlinkMacSystemFont, sans-serif;'>"
+				f"<p style='margin: 0 0 15px 0; font-size: 14px;'><strong>Item:</strong> <code>{item.item_code}</code> - {item.item_name or item.description}</p>"
+				f"<div style='background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; margin: 15px 0;'>"
+				f"<p style='margin: 5px 0; font-size: 13px;'><strong>ObjetoImp (Catálogo SAT):</strong> <code>{objeto_imp}</code> - No objeto de impuesto</p>"
+				f"<p style='margin: 5px 0; font-size: 13px;'><strong>Sales Invoice:</strong> {len(taxes_payload)} impuesto(s) configurado(s)</p>"
+				f"</div>"
+				f"<p style='margin: 15px 0 8px 0; font-weight: 600;'>Soluciones:</p>"
+				f"<ol style='margin: 0; padding-left: 20px;'>"
+				f"<li style='margin-bottom: 8px;'><strong>Si el item SÍ causa impuestos:</strong> Actualizar catálogo SAT a ObjetoImp <code>02</code></li>"
+				f"<li style='margin-bottom: 8px;'><strong>Si el item NO causa impuestos:</strong> Quitar Item Tax Template</li>"
+				f"</ol>"
+				f"<p style='margin: 15px 0 0 0; color: #6c757d; font-size: 12px;'>📘 CFDI 4.0 c_ObjetoImp - SAT Anexo 20</p>"
+				f"</div>",
+				title="Validación Fiscal CFDI 4.0",
+			)
+
+		# Si ObjetoImp indica "con impuestos" pero SI NO tiene taxes
+		if objeto_imp == "02" and not taxes_payload:
+			frappe.throw(
+				f"<div style='font-family: -apple-system, BlinkMacSystemFont, sans-serif;'>"
+				f"<p style='margin: 0 0 15px 0; font-size: 14px;'><strong>Item:</strong> <code>{item.item_code}</code> - {item.item_name or item.description}</p>"
+				f"<div style='background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; margin: 15px 0;'>"
+				f"<p style='margin: 5px 0; font-size: 13px;'><strong>ObjetoImp (Catálogo SAT):</strong> <code>02</code> - Sí objeto de impuesto</p>"
+				f"<p style='margin: 5px 0; font-size: 13px;'><strong>Sales Invoice:</strong> Sin impuestos configurados</p>"
+				f"</div>"
+				f"<p style='margin: 15px 0 8px 0; font-weight: 600;'>Soluciones:</p>"
+				f"<ol style='margin: 0; padding-left: 20px;'>"
+				f"<li style='margin-bottom: 8px;'><strong>Si el item causa impuestos:</strong> Configurar Item Tax Template o verificar template por defecto del branch</li>"
+				f"<li style='margin-bottom: 8px;'><strong>Si el item NO causa impuestos:</strong> Actualizar catálogo SAT a ObjetoImp <code>01</code></li>"
+				f"</ol>"
+				f"<p style='margin: 15px 0 0 0; color: #6c757d; font-size: 12px;'>📘 CFDI 4.0 c_ObjetoImp - SAT Anexo 20</p>"
+				f"</div>",
+				title="Validación Fiscal CFDI 4.0",
+			)
+
+	def _validate_currency_consistency(self, invoice_data, sales_invoice):
+		"""
+		E4.7: Validar consistencia moneda payload vs SI.
+
+		CAMBIO 3 APROBADO: Validación simplificada sin conversiones.
+
+		Args:
+			invoice_data: Payload FacturAPI
+			sales_invoice: Documento Sales Invoice
+
+		Raises:
+			frappe.ValidationError: Si moneda inconsistente
+		"""
+		payload_currency = invoice_data.get("currency", "MXN")
+		si_currency = sales_invoice.currency
+
+		if payload_currency != si_currency:
+			frappe.throw(
+				f"Moneda inconsistente:\n\n"
+				f"• Payload: {payload_currency}\n"
+				f"• Sales Invoice: {si_currency}\n\n"
+				f"El payload debe usar la misma moneda que Sales Invoice.",
+				title="Moneda Inconsistente",
+			)
+
+		# Log informativo si hay tipo de cambio
+		if sales_invoice.conversion_rate and sales_invoice.conversion_rate != 1.0:
+			frappe.logger().info(
+				f"SI {sales_invoice.name} con tipo cambio {sales_invoice.conversion_rate}. "
+				f"Amounts ya están convertidos a {si_currency}."
+			)
 
 
 def _build_cancellation_reason_for_select(motive_code: str) -> str:

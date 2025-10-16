@@ -845,13 +845,40 @@
 				args: { sales_invoice: frm.doc.sales_invoice },
 				freeze: true,
 				freeze_message: __("Timbrando..."),
-				callback: function () {
-					frm.reload_doc();
+				callback: function (r) {
+					// Verificar si hubo éxito
+					if (r.message && r.message.success) {
+						frappe.show_alert({
+							message: __("Factura timbrada exitosamente"),
+							indicator: "green",
+						});
+						frm.reload_doc();
+					} else if (r.message && r.message.user_error) {
+						// Mostrar error amigable del PAC
+						frappe.msgprint({
+							title: __("Error al Timbrar"),
+							indicator: "red",
+							message:
+								r.message.user_error || r.message.error || __("Error desconocido"),
+						});
+						frm.reload_doc();
+					} else {
+						// Fallback
+						frm.reload_doc();
+					}
 				},
-				error: function () {
-					frappe.msgprint(__("No se pudo timbrar. Intente de nuevo."));
+				error: function (r) {
+					// Error de red o servidor
+					const error_msg =
+						r.message ||
+						r._server_messages ||
+						__("Error de comunicación con el servidor");
+					frappe.msgprint({
+						title: __("Error al Timbrar"),
+						indicator: "red",
+						message: error_msg,
+					});
 				},
-				// Si tu versión de frappe.call NO soporta always, repite el enable en callback y error.
 				always: function () {
 					if ($btn && $btn.prop)
 						$btn.prop("disabled", false).text(__("Timbrar Factura"));
