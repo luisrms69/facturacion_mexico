@@ -240,13 +240,13 @@ Plan de implementación completa del sistema fiscal mexicano en 8 etapas (E0-E8)
 ### Tareas E2
 - [x] **E2.1** - ✅ STCT con filas encadenadas (IEPS primero, IVA sobre fila previa) - COMPLETADO
 - [x] **E2.2** - ✅ ITT correspondientes alineados al `account_head` - COMPLETADO
-- [ ] **E2.3** - [TS] 4 facturas con IEPS (4 tipos) + cuadre IVA sobre Neto+IEPS - **PENDIENTE TESTING**
+- [x] **E2.3** - ✅ 4 facturas con IEPS (4 tipos) + cuadre IVA sobre Neto+IEPS - COMPLETADO
 
 ### Criterios DoD E2
 ✅ **Arquitectura Opción B:** STCT consolidados sin tax_category generados
 ✅ **Cascada fiscal:** row_id automático funcionando correctamente
 ✅ **Fix generación:** insert vs save implementado para templates nuevos
-⏳ **Tests pendientes:** Verificación totales en cadena de impuestos (4 tipos IEPS)
+✅ **Tests completados:** Verificación totales en cadena de impuestos (4 tipos IEPS)
 
 ---
 

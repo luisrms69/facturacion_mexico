@@ -375,9 +375,9 @@ class TestE4ValidatePayloadCompleteness(FrappeTestCase):
 			service._validate_payload_completeness_ro(invoice_data, sales_invoice)
 
 		error_msg = str(context.exception)
-		self.assertIn("Payload incompleto", error_msg)
-		self.assertIn("customer.tax_id faltante", error_msg)
-		self.assertIn("customer.tax_system faltante", error_msg)
+		self.assertIn("No se puede timbrar", error_msg)
+		self.assertIn("RFC del Cliente faltante", error_msg)
+		self.assertIn("Régimen Fiscal del Cliente faltante", error_msg)
 
 	def test_throw_when_items_empty(self):
 		"""Test: error si items[] vacío."""
@@ -396,7 +396,7 @@ class TestE4ValidatePayloadCompleteness(FrappeTestCase):
 		with self.assertRaises(frappe.ValidationError) as context:
 			service._validate_payload_completeness_ro(invoice_data, sales_invoice)
 
-		self.assertIn("items[] vacío", str(context.exception))
+		self.assertIn("La factura no tiene productos/conceptos para timbrar", str(context.exception))
 
 	def test_throw_when_tax_fields_incomplete(self):
 		"""Test: error si faltan campos en taxes del item."""
@@ -414,7 +414,7 @@ class TestE4ValidatePayloadCompleteness(FrappeTestCase):
 						"product_key": "01010101",
 						"unit_key": "E48",
 						"description": "Test",
-						"tax_object": "02",
+						"taxability": "02",
 						"taxes": [
 							{
 								"type": "002",
@@ -451,7 +451,7 @@ class TestE4ValidatePayloadCompleteness(FrappeTestCase):
 						"product_key": "01010101",
 						"unit_key": "E48",
 						"description": "Test Item",
-						"tax_object": "02",
+						"taxability": "02",
 						"taxes": [{"type": "002", "factor": "Tasa", "rate": 0.16, "withholding": False}],
 					}
 				}
@@ -496,7 +496,7 @@ class TestE4IntegrationSmoke(FrappeTestCase):
 						"product_key": "01010101",
 						"unit_key": "E48",
 						"description": "Test Item",
-						"tax_object": "02",
+						"taxability": "02",
 						"taxes": [{"type": "002", "factor": "Tasa", "rate": 0.16, "withholding": False}],
 					},
 					"quantity": 1,

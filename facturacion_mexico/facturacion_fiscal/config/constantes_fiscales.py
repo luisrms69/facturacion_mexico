@@ -58,15 +58,15 @@ TASAS_IEPS = {
 		"iva_aplicable": True,  # IEPS + IVA en cascada
 	},
 	"azucar": {
-		"tasa": 1.0,
-		"descripcion": "IEPS Azúcar/Bebidas 1 peso por litro",
+		"tasa": 0.0,  # IEPS Cuota: rate=0, cálculo automático por hook desde tabla IEPS Cuota SAT
+		"descripcion": "IEPS Azúcar/Bebidas (Cuota variable por litro)",
 		"charge_type": "On Net Total",
 		"add_deduct_tax": "Add",
 		"iva_aplicable": True,
 	},
 	"combustibles": {
-		"tasa": 4.58,
-		"descripcion": "IEPS Combustibles 4.58 pesos por litro",
+		"tasa": 0.0,  # IEPS Cuota: rate=0, cálculo automático por hook desde tabla IEPS Cuota SAT
+		"descripcion": "IEPS Combustibles (Cuota variable por litro)",
 		"charge_type": "On Net Total",
 		"add_deduct_tax": "Add",
 		"iva_aplicable": True,

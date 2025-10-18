@@ -342,6 +342,10 @@ doc_events = {
 	"Sales Invoice": {
 		"before_validate": "facturacion_mexico.hooks_handlers.sales_invoice_automated_tax.before_validate",
 		"validate": "facturacion_mexico.hooks_handlers.sales_invoice_automated_tax.validate",
+		"before_save": [
+			"facturacion_mexico.hooks_handlers.sales_invoice_ieps.calcular_ieps_cuota",
+			"facturacion_mexico.hooks_handlers.sales_invoice_ieps.ajustar_base_iva_combustibles",
+		],
 	},
 	# =============================================================================
 	# MULTI-SUCURSAL - CONFIGURACIÓN FISCAL

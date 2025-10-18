@@ -8,6 +8,10 @@ import frappe
 from frappe import _
 from frappe.utils import flt, now_datetime
 
+from facturacion_mexico.config.sat_objeto_impuesto import SATObjetoImpuesto
+from facturacion_mexico.config.sat_tax_rates import FacturAPITaxRates
+from facturacion_mexico.config.sat_tipo_factor import SATTipoFactor
+
 
 def _log_text(label, s: str):
 	if s is None:
@@ -488,14 +492,37 @@ class TimbradoAPI:
 			for tax_data in item_taxes_data:
 				sat_mapping = self._map_tax_account_to_sat(tax_data["account_head"])
 
-				taxes_payload.append(
-					{
-						"type": sat_mapping["nombre_sat"],  # "IVA", "ISR", "IEPS"
-						"factor": sat_mapping["tipo_factor"],  # "Tasa"
-						"rate": abs(tax_data["rate"]) / 100,  # 16.0 → 0.16
-						"withholding": sat_mapping["es_retencion"],  # CAMBIO 4: desde mapeo
-					}
-				)
+				# IEPS CUOTA: Lógica diferenciada combustibles vs bebidas
+				# Arquitectura E4 (Opción C Híbrida):
+				# - Combustibles (integra_base_iva=0): OMITIR del payload (LIEPS Art. 2-A)
+				# - Bebidas (integra_base_iva=1): INCLUIR con Base=qty física, TasaOCuota=cuota
+				if sat_mapping["tipo_factor"] == "Cuota" and sat_mapping["nombre_sat"] == "IEPS":
+					if not sat_mapping["integra_base_iva"]:
+						# Combustibles: Skip - IEPS implícito en precio
+						# La base IVA ya fue ajustada por hook ajustar_base_iva_combustibles()
+						continue
+					# Bebidas: Continuar para incluir en payload con cuota específica
+
+				# Construir tax payload base
+				tax_item = {
+					"type": sat_mapping["nombre_sat"],  # "IVA", "ISR", "IEPS"
+					"factor": sat_mapping["tipo_factor"],  # "Tasa" o "Cuota"
+					"withholding": sat_mapping["es_retencion"],
+				}
+
+				# CRÍTICO: FacturAPI requiere campos específicos según tipo_factor
+				if sat_mapping["tipo_factor"] == "Tasa":
+					# Tasa: enviar porcentaje como decimal (16% → 0.16)
+					rate_decimal = abs(tax_data["rate"]) / 100
+					tax_item["rate"] = rate_decimal
+				elif sat_mapping["tipo_factor"] == "Cuota":
+					# Cuota (solo bebidas llegan aquí - combustibles skip arriba)
+					# E4-RO: Base=qty física (litros), TasaOCuota=cuota/litro
+					# LEER cuota directamente de item_wise_tax_detail (no calcular!)
+					tax_item["rate"] = flt(tax_data["rate"], 6)  # Cuota por unidad desde hook
+					tax_item["base"] = flt(item.qty, 6)  # Base = cantidad física
+
+				taxes_payload.append(tax_item)
 
 			# E4.6: Validación estricta ObjetoImp vs taxes (CAMBIO 2)
 			self._validate_objeto_imp_consistency(objeto_imp, taxes_payload, item)
@@ -510,13 +537,11 @@ class TimbradoAPI:
 					"tax_included": False,
 					"unit_key": _extract_sat_code_from_uom(item.uom),
 					"unit_name": item.uom or "Pieza",
+					"taxability": objeto_imp,  # E4.3: ObjetoImp desde catálogo SAT
 				},
 			}
 
 			# E4-RO: Solo agregar taxes[] si hay impuestos
-			# FacturAPI calcula tax_object automáticamente según presencia de taxes
-			# - Si taxes[] presente → ObjetoImp "02" (automático)
-			# - Si NO taxes[] → ObjetoImp "01" (automático)
 			if taxes_payload:
 				item_payload["product"]["taxes"] = taxes_payload
 
@@ -1540,35 +1565,8 @@ class TimbradoAPI:
 		"""
 		import json
 
-		# INTENTO 1: Leer desde item.item_tax_rate (ITT explícito)
-		if item.item_tax_rate:
-			try:
-				item_tax_rate = json.loads(item.item_tax_rate)
-			except (json.JSONDecodeError, TypeError):
-				item_tax_rate = {}
-
-			# Solo usar si tiene datos (no dict vacío '{}')
-			if item_tax_rate:
-				taxes_data = []
-				for account_head, rate in item_tax_rate.items():
-					# Buscar amount desde SI con lectura robusta (Cambio 3)
-					amount = self._get_tax_amount_for_item_robust(
-						sales_invoice,
-						account_head,
-						item.item_code,
-						item.item_name,
-						item.name,  # row.name
-					)
-
-					taxes_data.append({"account_head": account_head, "rate": rate, "amount": amount})
-
-				frappe.logger().info(
-					f"E4.1 - Item {item.item_code}: Impuestos leídos desde item_tax_rate (ITT explícito)"
-				)
-				return taxes_data
-
-		# FALLBACK: Leer desde sales_invoice.taxes (template global aplicado)
-		# Caso: Item sin ITT pero taxes aplicados por ubicación/branch
+		# E4-RO: Leer TODOS los taxes directamente desde sales_invoice.taxes
+		# NO usar item.item_tax_rate como filtro - solo leer lo que SI ya calculó
 		taxes_dict = {}  # Usar dict para deduplicar por account_head
 
 		for tax in sales_invoice.taxes:
@@ -1595,11 +1593,11 @@ class TimbradoAPI:
 
 			# Solo agregar si hay rate o amount != 0
 			if rate_from_json != 0 or amount != 0:
-				# P1: Si rate en JSON es 0 pero hay amount, usar tax.rate de la fila SI
-				final_rate = rate_from_json if rate_from_json != 0 else tax.rate
+				# E4-RO: Usar rate exacto de item_wise_tax_detail (NO fallback a tax.rate)
+				# Para IEPS Cuota, hook guardó [0, amount], así que rate=0.0
+				final_rate = rate_from_json
 
-				# DEDUPLICAR: Solo guardar si no existe ya esta cuenta
-				# (ERPNext puede tener múltiples filas con misma account_head)
+				# DEDUPLICAR: Solo guardar si NO existe ya esta cuenta
 				if tax.account_head not in taxes_dict:
 					taxes_dict[tax.account_head] = {
 						"account_head": tax.account_head,
@@ -1608,19 +1606,16 @@ class TimbradoAPI:
 					}
 
 					frappe.logger().info(
-						f"E4.1 FALLBACK - Item {item.item_code}: Tax {tax.account_head} "
-						f"leído desde item_wise_tax_detail (llave={key_used}, rate={final_rate}, amount={amount})"
+						f"E4-RO - Item {item.item_code}: Tax {tax.account_head} "
+						f"leído desde SI item_wise_tax_detail (llave={key_used}, rate={final_rate}, amount={amount})"
 					)
 
 		# Convertir dict a list
 		taxes_data = list(taxes_dict.values())
 
-		# P2: Duplicados por account_head se preservan (no consolidamos)
-		# Ya están serializados tal cual SI los registró
-
 		if taxes_data:
 			frappe.logger().info(
-				f"E4.1 - Item {item.item_code}: {len(taxes_data)} impuestos leídos desde fallback (template global)"
+				f"E4-RO - Item {item.item_code}: {len(taxes_data)} impuestos leídos (READ-ONLY desde SI)"
 			)
 
 		return taxes_data
@@ -1779,7 +1774,10 @@ class TimbradoAPI:
 					# Determinar metadata SAT desde rol_fiscal
 					# IMPORTANTE: Convertir explícitamente a bool (Frappe Check fields son 0/1)
 					es_retencion = bool(mapeo.get("es_retencion", 0))
-					return self._extract_sat_metadata_from_rol(mapeo.rol_fiscal, es_retencion)
+					integra_base_iva = bool(mapeo.get("integra_base_iva", 1))  # Default True
+					return self._extract_sat_metadata_from_rol(
+						mapeo.rol_fiscal, es_retencion, integra_base_iva
+					)
 
 		# Cuenta no mapeada = error (datos incompletos)
 		frappe.throw(
@@ -1800,43 +1798,30 @@ class TimbradoAPI:
 			title="Mapeo SAT Faltante",
 		)
 
-	def _extract_sat_metadata_from_rol(self, rol_fiscal, es_retencion):
+	def _extract_sat_metadata_from_rol(self, rol_fiscal, es_retencion, integra_base_iva=True):
 		"""
-		Helper: Extraer metadata SAT desde rol_fiscal.
+		Helper: Extraer metadata SAT desde rol_fiscal usando catálogo oficial.
 
 		Args:
 			rol_fiscal: str (ej: "IVA por Pagar (16%)")
 			es_retencion: bool
+			integra_base_iva: bool - Si este impuesto integra la base del IVA (default True)
 
 		Returns:
-			dict con impuesto_sat, tipo_factor, nombre_sat, es_retencion
+			dict con impuesto_sat, tipo_factor, nombre_sat, es_retencion, integra_base_iva
 		"""
-		# Mapeo rol_fiscal → metadata SAT
-		if "IVA" in rol_fiscal:
+		# Obtener metadata desde catálogo oficial (single source of truth)
+		try:
+			config = SATTipoFactor.get_metadata_completa(rol_fiscal)
 			return {
-				"impuesto_sat": "002",
-				"tipo_factor": "Tasa",
-				"nombre_sat": "IVA",
+				"impuesto_sat": config["impuesto_sat"],
+				"tipo_factor": config["tipo_factor"],  # "Tasa" o "Cuota" desde catálogo
+				"nombre_sat": config["nombre_sat"],
 				"es_retencion": es_retencion,
+				"integra_base_iva": integra_base_iva,  # IEPS Combustibles = False, resto = True
 			}
-		elif "IEPS" in rol_fiscal:
-			return {
-				"impuesto_sat": "003",
-				"tipo_factor": "Tasa",
-				"nombre_sat": "IEPS",
-				"es_retencion": es_retencion,
-			}
-		elif "ISR" in rol_fiscal:
-			return {
-				"impuesto_sat": "001",
-				"tipo_factor": "Tasa",
-				"nombre_sat": "ISR",
-				"es_retencion": es_retencion,
-			}
-		else:
-			frappe.throw(
-				f"Rol fiscal '{rol_fiscal}' no reconocido para mapeo SAT", title="Rol Fiscal Inválido"
-			)
+		except ValueError as e:
+			frappe.throw(str(e), title="Rol Fiscal No Configurado")
 
 	def _validate_objeto_imp_consistency(self, objeto_imp, taxes_payload, item):
 		"""
@@ -1844,20 +1829,20 @@ class TimbradoAPI:
 
 		CAMBIO 2 APROBADO: Validación estricta sin arreglos automáticos.
 
-		Reglas:
-		- ObjetoImp 01/03/04 (sin impuestos) → NO debe tener taxes
-		- ObjetoImp 02 (con impuestos) → DEBE tener taxes
+		Reglas (según catálogo SAT c_ObjetoImp):
+		- ObjetoImp que NO permiten desglose → NO debe tener taxes
+		- ObjetoImp que REQUIEREN desglose (02) → DEBE tener taxes
 
 		Args:
-			objeto_imp: str ("01", "02", "03", "04")
+			objeto_imp: str - Código ObjetoImp ("01"-"08")
 			taxes_payload: list de impuestos
 			item: Row de Sales Invoice.items
 
 		Raises:
 			frappe.ValidationError: Si inconsistencia detectada
 		"""
-		# Si ObjetoImp indica "sin impuestos" pero SI tiene taxes
-		if objeto_imp in ["01", "03", "04"] and taxes_payload:
+		# Si ObjetoImp prohíbe desglose pero SI tiene taxes
+		if SATObjetoImpuesto.forbids_tax_breakdown(objeto_imp) and taxes_payload:
 			frappe.throw(
 				f"<div style='font-family: -apple-system, BlinkMacSystemFont, sans-serif;'>"
 				f"<p style='margin: 0 0 15px 0; font-size: 14px;'><strong>Item:</strong> <code>{item.item_code}</code> - {item.item_name or item.description}</p>"
@@ -1875,8 +1860,8 @@ class TimbradoAPI:
 				title="Validación Fiscal CFDI 4.0",
 			)
 
-		# Si ObjetoImp indica "con impuestos" pero SI NO tiene taxes
-		if objeto_imp == "02" and not taxes_payload:
+		# Si ObjetoImp requiere desglose pero NO tiene taxes
+		if SATObjetoImpuesto.requires_tax_breakdown(objeto_imp) and not taxes_payload:
 			frappe.throw(
 				f"<div style='font-family: -apple-system, BlinkMacSystemFont, sans-serif;'>"
 				f"<p style='margin: 0 0 15px 0; font-size: 14px;'><strong>Item:</strong> <code>{item.item_code}</code> - {item.item_name or item.description}</p>"
@@ -1960,35 +1945,52 @@ class TimbradoAPI:
 		"""
 		errors = []
 
+		# Mapeo de campos técnicos a nombres amigables para el usuario
+		field_labels = {
+			"legal_name": "Razón Social del Cliente",
+			"tax_id": "RFC del Cliente",
+			"tax_system": "Régimen Fiscal del Cliente",
+			"payment_form": "Forma de Pago",
+			"use": "Uso CFDI",
+			"product_key": "Clave Producto/Servicio SAT",
+			"unit_key": "Clave Unidad SAT",
+			"description": "Descripción del Producto",
+			"taxability": "Objeto de Impuesto (ObjetoImp)",
+		}
+
 		# === DATOS CLIENTE ===
 		customer_data = invoice_data.get("customer", {})
 		required_customer_fields = ["legal_name", "tax_id", "tax_system"]
 
 		for field in required_customer_fields:
 			if not customer_data.get(field):
-				errors.append(f"❌ customer.{field} faltante")
+				label = field_labels.get(field, field)
+				errors.append(f"❌ {label} faltante en el Cliente")
 
 		# === DATOS FACTURA ===
 		if not invoice_data.get("payment_form"):
-			errors.append("❌ payment_form faltante")
+			errors.append(f"❌ {field_labels['payment_form']} faltante en la Factura")
 
 		if not invoice_data.get("use"):
-			errors.append("❌ use (Uso CFDI) faltante")
+			errors.append(f"❌ {field_labels['use']} faltante en el Cliente")
 
 		# === ITEMS Y CONCEPTOS ===
 		items = invoice_data.get("items", [])
 
 		if not items:
-			errors.append("❌ items[] vacío - no hay conceptos para facturar")
+			errors.append("❌ La factura no tiene productos/conceptos para timbrar")
 
 		for idx, item_payload in enumerate(items, 1):
 			product = item_payload.get("product", {})
 
 			# Campos requeridos del producto
-			required_product_fields = ["product_key", "unit_key", "description", "tax_object"]
+			required_product_fields = ["product_key", "unit_key", "description", "taxability"]
 			for field in required_product_fields:
 				if not product.get(field):
-					errors.append(f"❌ Item {idx}: product.{field} faltante")
+					label = field_labels.get(field, field)
+					# Obtener nombre del item si está disponible
+					item_name = product.get("description", f"Item {idx}")
+					errors.append(f"❌ {label} faltante en '{item_name}'")
 
 			# Validar taxes si existen
 			taxes_payload = product.get("taxes", [])
@@ -1997,23 +1999,77 @@ class TimbradoAPI:
 					errors.append(f"❌ Item {idx}, Tax {tax_idx}: type faltante")
 				if not tax.get("factor"):
 					errors.append(f"❌ Item {idx}, Tax {tax_idx}: factor faltante")
-				if tax.get("rate") is None:  # rate puede ser 0, validar None
-					errors.append(f"❌ Item {idx}, Tax {tax_idx}: rate faltante")
+
+				# Validar rate según tipo de factor
+				factor = tax.get("factor")
+				rate = tax.get("rate")
+
+				if factor == "Tasa":
+					# Para Tasa, rate es obligatorio
+					if rate is None:
+						errors.append(f"❌ Item {idx}, Tax {tax_idx}: rate faltante (requerido para Tasa)")
+					elif not FacturAPITaxRates.validar_rate_por_tipo(
+						tax.get("type", ""),
+						rate,
+						tax.get("withholding", False),
+					):
+						# Rate no está en lista permitida FacturAPI
+						rates_permitidas = FacturAPITaxRates.get_rates_permitidas(
+							tax.get("type", ""), tax.get("withholding", False)
+						)
+						rates_str = ", ".join([f"{r*100:.2f}%" for r in rates_permitidas[:5]])
+						if len(rates_permitidas) > 5:
+							rates_str += "..."
+						errors.append(
+							f"❌ Item {idx}, Tax {tax_idx}: rate {rate*100:.2f}% no permitido por FacturAPI "
+							f"(permitidos: {rates_str})"
+						)
+				elif factor == "Cuota":
+					# Para Cuota, FacturAPI requiere rate=0.0
+					if rate is None:
+						errors.append(f"❌ Item {idx}, Tax {tax_idx}: rate faltante (enviar 0.0 para Cuota)")
+					elif rate != 0.0:
+						errors.append(
+							f"⚠️ Item {idx}, Tax {tax_idx}: Cuota debe tener rate=0.0, encontrado {rate} "
+							f"(la cuota específica ya está en el cálculo del monto)"
+						)
+
 				if "withholding" not in tax:  # withholding puede ser False, validar presencia
 					errors.append(f"❌ Item {idx}, Tax {tax_idx}: withholding faltante")
 
 		# === RESULTADO ===
 		if errors:
-			# Mostrar máximo 10 errores para no saturar UI
-			error_summary = "\n".join(errors[:10])
+			# Construir lista de errores en HTML (máximo 10)
+			error_items = ""
+			for error in errors[:10]:
+				error_items += f"<li style='margin-bottom: 8px; font-size: 13px;'>{error}</li>"
+
 			if len(errors) > 10:
-				error_summary += f"\n... y {len(errors) - 10} errores más"
+				error_items += f"<li style='margin-bottom: 8px; font-size: 13px; color: #6c757d;'>... y {len(errors) - 10} errores más</li>"
+
+			# Mensaje de ayuda según tipo de error
+			help_items = ""
+			if any("Cliente" in e for e in errors):
+				help_items += "<li style='margin-bottom: 8px;'>Revise los datos fiscales del Cliente (RFC, Régimen Fiscal, Uso CFDI)</li>"
+			if any("Forma de Pago" in e for e in errors):
+				help_items += (
+					"<li style='margin-bottom: 8px;'>Configure la Forma de Pago en la Factura Fiscal</li>"
+				)
+			if any("Clave Producto" in e or "ObjetoImp" in e for e in errors):
+				help_items += "<li style='margin-bottom: 8px;'>Revise que todos los productos tengan configurada la Clave Producto/Servicio SAT</li>"
+			if any("Cuota" in e for e in errors):
+				help_items += "<li style='margin-bottom: 8px;'>IEPS Cuota: Verificar que hook calcule correctamente (rate debe ser 0.0 en item_wise_tax_detail)</li>"
 
 			frappe.throw(
-				f"Payload incompleto para {sales_invoice.name} ({len(errors)} errores):\n\n"
-				f"{error_summary}\n\n"
-				f"Corrija los datos faltantes antes de timbrar.",
-				title="Validación E4-RO Falló",
+				f"<div style='font-family: -apple-system, BlinkMacSystemFont, sans-serif;'>"
+				f"<p style='margin: 0 0 15px 0;'>No se puede timbrar <strong>{sales_invoice.name}</strong> porque faltan datos requeridos:</p>"
+				f"<div style='background: #f8d7da; border-left: 4px solid #dc3545; padding: 12px; margin: 15px 0;'>"
+				f"<ul style='margin: 0; padding-left: 20px;'>{error_items}</ul>"
+				f"</div>"
+				f"<p style='margin: 15px 0 8px 0; font-weight: 600;'>💡 Para corregir estos errores:</p>"
+				f"<ol style='margin: 0; padding-left: 20px;'>{help_items}</ol>"
+				f"</div>",
+				title="Datos Incompletos para Timbrado CFDI",
 			)
 
 		# Log éxito validación

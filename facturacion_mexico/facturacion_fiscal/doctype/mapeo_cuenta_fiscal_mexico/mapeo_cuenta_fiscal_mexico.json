@@ -52,6 +52,22 @@
       "fieldtype": "Check",
       "description": "Marcar si es impuesto retenido (withholding=True en CFDI)",
       "default": "0"
+    },
+    {
+      "fieldname": "tipo_factor",
+      "label": "Tipo de Factor SAT",
+      "fieldtype": "Select",
+      "options": "Tasa\nCuota",
+      "description": "Tipo de factor según catálogo SAT (configurado automáticamente, no modificar)",
+      "read_only": 1,
+      "default": "Tasa"
+    },
+    {
+      "fieldname": "integra_base_iva",
+      "label": "Integra Base IVA",
+      "fieldtype": "Check",
+      "default": "1",
+      "description": "Marcar si este impuesto integra la base del IVA. Desmarcar SOLO para cuotas IEPS combustibles no objeto de IVA según LIEPS Art. 2-A."
     }
   ],
   "permissions": [
