@@ -63,7 +63,7 @@ class ConfiguracionFiscalMexico(Document):
 			return True
 		if self.enable_ieps_combustibles and "IEPS por Pagar (Combustibles)" in rol_fiscal:
 			return True
-		if self.enable_ieps_tabaco and "IEPS por Pagar (Tabaco)" in rol_fiscal:
+		if self.enable_ieps_tabaco and ("IEPS por Pagar (Tabaco)" in rol_fiscal):
 			return True
 		if self.enable_ret_honorarios and "ISR Retenido (Honorarios)" in rol_fiscal:
 			return True
@@ -200,7 +200,8 @@ class ConfiguracionFiscalMexico(Document):
 		if self.enable_ieps_combustibles:
 			roles_requeridos.add("IEPS por Pagar (Combustibles)")
 		if self.enable_ieps_tabaco:
-			roles_requeridos.add("IEPS por Pagar (Tabaco)")
+			roles_requeridos.add("IEPS por Pagar (Tabaco)")  # Tasa 160%
+			roles_requeridos.add("IEPS por Pagar (Tabaco Cuota)")  # Cuota variable por cigarro
 
 		return roles_requeridos
 

@@ -10,6 +10,10 @@
 
 	let FISCAL_STATES = null;
 
+	// Constantes globales para duración de mensajes frappe.show_alert()
+	const ALERT_DURATION_DEFAULT = 6; // segundos - duración estándar para mensajes informativos
+	const ALERT_DURATION_IMPORTANT = 9; // segundos - duración extendida para mensajes críticos (reservado para futuro)
+
 	// [M3-FFM] Obtener código de "Sustitución" (01) desde ENUMS (con fallback seguro)
 	function getSubstitutionCodeFromEnums() {
 		const E = window.FM_ENUMS || {};
@@ -655,7 +659,8 @@
 							message: __("Uso CFDI cargado desde configuración del Cliente"),
 							indicator: "green",
 						},
-						4
+						7,
+						ALERT_DURATION_DEFAULT
 					);
 				} else {
 					// Customer no tiene uso CFDI configurado - dejar vacío
@@ -680,10 +685,13 @@
 			return;
 		}
 
-		frappe.show_alert({
-			message: __("Actualizando datos fiscales del cliente..."),
-			indicator: "blue",
-		});
+		frappe.show_alert(
+			{
+				message: __("Actualizando datos fiscales del cliente..."),
+				indicator: "blue",
+			},
+			ALERT_DURATION_DEFAULT
+		);
 
 		// PASO 1: Obtener datos básicos del customer para uso CFDI y campos fiscales legacy
 		frappe.call({
@@ -724,17 +732,23 @@
 					// Esta función usa populate_billing_data() que maneja dirección principal, CP, email, etc.
 					trigger_billing_data_population(frm);
 
-					frappe.show_alert({
-						message: __("Datos fiscales y de facturación actualizados"),
-						indicator: "green",
-					});
+					frappe.show_alert(
+						{
+							message: __("Datos fiscales y de facturación actualizados"),
+							indicator: "green",
+						},
+						ALERT_DURATION_DEFAULT
+					);
 				}
 			},
 			error: function () {
-				frappe.show_alert({
-					message: __("Error al cargar datos fiscales del Cliente"),
-					indicator: "red",
-				});
+				frappe.show_alert(
+					{
+						message: __("Error al cargar datos fiscales del Cliente"),
+						indicator: "red",
+					},
+					ALERT_DURATION_DEFAULT
+				);
 			},
 		});
 	}
@@ -848,10 +862,13 @@
 				callback: function (r) {
 					// Verificar si hubo éxito
 					if (r.message && r.message.success) {
-						frappe.show_alert({
-							message: __("Factura timbrada exitosamente"),
-							indicator: "green",
-						});
+						frappe.show_alert(
+							{
+								message: __("Factura timbrada exitosamente"),
+								indicator: "green",
+							},
+							ALERT_DURATION_DEFAULT
+						);
 						frm.reload_doc();
 					} else if (r.message && r.message.user_error) {
 						// Mostrar error amigable del PAC
@@ -991,10 +1008,13 @@
 		//   uuid: "....", cancellation_date: "2025-08-16 15:58:22" }
 
 		if (msg && (msg.ok || msg.success)) {
-			frappe.show_alert({
-				message: __("✅ Factura cancelada exitosamente"),
-				indicator: "green",
-			});
+			frappe.show_alert(
+				{
+					message: __("✅ Factura cancelada exitosamente"),
+					indicator: "green",
+				},
+				ALERT_DURATION_DEFAULT
+			);
 
 			const lines = [
 				`<b>FFM:</b> ${frappe.utils.escape_html(msg.ffm || frm.doc.name)}`,
@@ -1390,8 +1410,8 @@
 					message: `<strong>${__(title)}</strong><br>${__(message)}`,
 					indicator: indicator,
 				},
-				8
-			); // 8 segundos de duración
+				ALERT_DURATION_DEFAULT
+			); // Duración extendida para mensaje crítico PPD/PUE
 		}
 	}
 
@@ -1413,10 +1433,13 @@
 
 			frm.set_value("fm_forma_pago_timbrado", "99 - Por definir");
 
-			frappe.show_alert({
-				message: __("Forma de pago asignada automáticamente: 99 - Por definir"),
-				indicator: "orange",
-			});
+			frappe.show_alert(
+				{
+					message: __("Forma de pago asignada automáticamente: 99 - Por definir"),
+					indicator: "orange",
+				},
+				ALERT_DURATION_DEFAULT
+			);
 		} else if (payment_method === "PUE") {
 			// Para PUE: Mostrar campo y filtrar opciones (sin "99 - Por definir")
 			frm.set_df_property("fm_forma_pago_timbrado", "hidden", 0);
@@ -1432,10 +1455,13 @@
 			if (frm.doc.fm_forma_pago_timbrado === "99 - Por definir") {
 				frm.set_value("fm_forma_pago_timbrado", "");
 
-				frappe.show_alert({
-					message: __("Debe seleccionar una forma de pago específica para PUE"),
-					indicator: "yellow",
-				});
+				frappe.show_alert(
+					{
+						message: __("Debe seleccionar una forma de pago específica para PUE"),
+						indicator: "yellow",
+					},
+					ALERT_DURATION_DEFAULT
+				);
 			}
 		}
 	}
@@ -1454,10 +1480,13 @@
 		}
 
 		if (message) {
-			frappe.show_alert({
-				message: __(message),
-				indicator: color,
-			});
+			frappe.show_alert(
+				{
+					message: __(message),
+					indicator: color,
+				},
+				ALERT_DURATION_DEFAULT
+			);
 		}
 	}
 
@@ -1674,7 +1703,8 @@
 					message: __("Modo Multi-Sucursal activado - Lugar de expedición disponible"),
 					indicator: "blue",
 				},
-				3
+				3,
+				ALERT_DURATION_DEFAULT
 			);
 			frm.doc.__multisucursal_indicator_shown = true;
 		}
@@ -1967,7 +1997,7 @@ function validate_billing_data_visual(frm) {
 				message: `⚠️ Datos de facturación incompletos: ${missing_list}. Configure estos datos en el Cliente.`,
 				indicator: "orange",
 			},
-			8
+			ALERT_DURATION_DEFAULT
 		);
 	}
 
@@ -2412,7 +2442,8 @@ function validate_billing_data_visual(frm) {
 											payment_method,
 										indicator: "green",
 									},
-									5
+									5,
+									ALERT_DURATION_DEFAULT
 								);
 							}
 						} else {
@@ -2459,7 +2490,8 @@ function validate_billing_data_visual(frm) {
 								message: "❌ Error verificando consistencia de forma de pago",
 								indicator: "red",
 							},
-							3
+							3,
+							ALERT_DURATION_DEFAULT
 						);
 					}
 				},
@@ -2528,7 +2560,8 @@ function validate_billing_data_visual(frm) {
 									).format(payment_entry.name),
 									indicator: "green",
 								},
-								4
+								4,
+								ALERT_DURATION_DEFAULT
 							);
 
 							console.log(
@@ -2548,7 +2581,8 @@ function validate_billing_data_visual(frm) {
 								),
 								indicator: "yellow",
 							},
-							3
+							3,
+							ALERT_DURATION_DEFAULT
 						);
 					}
 				},
@@ -2600,10 +2634,13 @@ function validate_billing_data_visual(frm) {
 							method: "facturacion_mexico.facturacion_fiscal.doctype.factura_fiscal_mexico.factura_fiscal_mexico.cancel_ffm_keep_si",
 							args: { ffm_name: frm.doc.name },
 						});
-						frappe.show_alert({
-							message: __("FFM cancelada y SI liberada."),
-							indicator: "green",
-						});
+						frappe.show_alert(
+							{
+								message: __("FFM cancelada y SI liberada."),
+								indicator: "green",
+							},
+							ALERT_DURATION_DEFAULT
+						);
 						frm.reload_doc();
 					},
 					__("Acciones")

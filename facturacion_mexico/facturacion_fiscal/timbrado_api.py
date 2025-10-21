@@ -6,11 +6,17 @@ from typing import Any
 
 import frappe
 from frappe import _
-from frappe.utils import flt, now_datetime
+from frappe.utils import flt, now_datetime, today
 
 from facturacion_mexico.config.sat_objeto_impuesto import SATObjetoImpuesto
 from facturacion_mexico.config.sat_tax_rates import FacturAPITaxRates
 from facturacion_mexico.config.sat_tipo_factor import SATTipoFactor
+
+# Import para conversión UOM (IEPS Cuota en litros)
+try:
+	from erpnext.stock.get_item_details import get_conversion_factor
+except ImportError:
+	get_conversion_factor = None
 
 
 def _log_text(label, s: str):
@@ -492,17 +498,6 @@ class TimbradoAPI:
 			for tax_data in item_taxes_data:
 				sat_mapping = self._map_tax_account_to_sat(tax_data["account_head"])
 
-				# IEPS CUOTA: Lógica diferenciada combustibles vs bebidas
-				# Arquitectura E4 (Opción C Híbrida):
-				# - Combustibles (integra_base_iva=0): OMITIR del payload (LIEPS Art. 2-A)
-				# - Bebidas (integra_base_iva=1): INCLUIR con Base=qty física, TasaOCuota=cuota
-				if sat_mapping["tipo_factor"] == "Cuota" and sat_mapping["nombre_sat"] == "IEPS":
-					if not sat_mapping["integra_base_iva"]:
-						# Combustibles: Skip - IEPS implícito en precio
-						# La base IVA ya fue ajustada por hook ajustar_base_iva_combustibles()
-						continue
-					# Bebidas: Continuar para incluir en payload con cuota específica
-
 				# Construir tax payload base
 				tax_item = {
 					"type": sat_mapping["nombre_sat"],  # "IVA", "ISR", "IEPS"
@@ -515,12 +510,108 @@ class TimbradoAPI:
 					# Tasa: enviar porcentaje como decimal (16% → 0.16)
 					rate_decimal = abs(tax_data["rate"]) / 100
 					tax_item["rate"] = rate_decimal
+
+					# FIX E4.1: Para IVA, enviar base UNITARIA (FacturAPI multiplica x qty)
+					# Esto controla integración IEPS: bebidas integran, combustibles NO
+					if sat_mapping["nombre_sat"] == "IVA":
+						# Determinar si IEPS integra base IVA (buscar en taxes del item)
+						integra_base = True  # Default: sí integra (bebidas/tabaco/alcohol)
+
+						for tax_check in item_taxes_data:
+							sat_map_check = self._map_tax_account_to_sat(tax_check["account_head"])
+							if (
+								sat_map_check["tipo_factor"] == "Cuota"
+								and sat_map_check["nombre_sat"] == "IEPS"
+								and not sat_map_check.get("integra_base_iva", True)
+							):
+								integra_base = False
+								break
+
+						# Calcular base IVA UNITARIA según integración
+						if integra_base:
+							# Bebidas/Tabaco/Alcohol: base unitaria = precio + IEPS por unidad
+							ieps_cuota_unitario = 0.0
+							ieps_tasa_unitario = 0.0
+
+							for tax_check in item_taxes_data:
+								sat_map_check = self._map_tax_account_to_sat(tax_check["account_head"])
+								if sat_map_check["nombre_sat"] == "IEPS":
+									if sat_map_check["tipo_factor"] == "Cuota":
+										# IEPS Cuota: ya es por unidad ($/litro)
+										if item.qty > 0:
+											ieps_cuota_unitario = flt(tax_check["amount"]) / flt(item.qty)
+									elif sat_map_check["tipo_factor"] == "Tasa":
+										# IEPS Tasa: porcentaje sobre precio
+										ieps_tasa_unitario = flt(item.rate) * (
+											abs(flt(tax_check["rate"])) / 100
+										)
+
+							base_iva_unitaria = flt(item.rate) + ieps_cuota_unitario + ieps_tasa_unitario
+						else:
+							# Combustibles: base unitaria = solo precio (sin IEPS)
+							base_iva_unitaria = flt(item.rate)
+
+						tax_item["base"] = flt(base_iva_unitaria, 6)
+
 				elif sat_mapping["tipo_factor"] == "Cuota":
-					# Cuota (solo bebidas llegan aquí - combustibles skip arriba)
-					# E4-RO: Base=qty física (litros), TasaOCuota=cuota/litro
-					# LEER cuota directamente de item_wise_tax_detail (no calcular!)
-					tax_item["rate"] = flt(tax_data["rate"], 6)  # Cuota por unidad desde hook
-					tax_item["base"] = flt(item.qty, 6)  # Base = cantidad física
+					# IEPS CUOTA: TODOS se serializan al payload (combustibles Y bebidas)
+					# E4-RO: Base=qty física, TasaOCuota=cuota/unidad
+					# NOTA: integra_base_iva solo afecta cálculo base IVA (hook separado),
+					#       NO la inclusión del IEPS en el payload PAC
+
+					# FIX E4.1: Obtener cuota ORIGINAL de tabla SAT (no calcularla desde amount)
+					# RAZÓN: amount ya está multiplicado por qty, dividirlo causa error de precisión
+					# Ejemplo: Refresco 30 piezas x 0.6L x $1.27/L = $22.86
+					#          Si dividimos: $22.86 / 30 piezas = $0.762/pieza (INCORRECTO)
+					#          Debe ser: $1.27/litro (cuota original de tabla SAT)
+					cuota_por_uom_base = self._get_cuota_from_tabla_sat(item_doc, tax_data["account_head"])
+
+					if not cuota_por_uom_base:
+						frappe.throw(
+							_(
+								"No se encontró cuota IEPS en tabla 'IEPS Cuota SAT' para item {0}.\n\n"
+								"Verifique que exista un registro vigente para:\n"
+								"- Clave SAT: {1}\n"
+								"- Cuenta IEPS: {2}\n"
+								"- Fecha: {3}"
+							).format(
+								item_doc.item_code,
+								item_doc.get("fm_producto_servicio_sat") or "N/A",
+								tax_data["account_head"],
+								today(),
+							),
+							title=_("Cuota IEPS No Encontrada"),
+						)
+
+					# Obtener UOM base desde tabla IEPS Cuota SAT (dinámico: LTR, H87, etc.)
+					uom_base = self._get_uom_base_from_tabla_sat(item_doc, tax_data["account_head"])
+					if not uom_base:
+						frappe.throw(
+							_(
+								"No se encontró UOM base en tabla IEPS Cuota SAT para item {0}.\n\n"
+								"Verifique que exista un registro vigente en 'IEPS Cuota SAT' para:\n"
+								"- Clave SAT: {1}\n"
+								"- Cuenta IEPS: {2}\n"
+								"- Fecha: {3}"
+							).format(
+								item_doc.item_code,
+								item_doc.get("fm_producto_servicio_sat") or "N/A",
+								tax_data["account_head"],
+								today(),
+							),
+							title=_("UOM Base No Encontrada"),
+						)
+
+					# Calcular factor conversión: item.uom → uom_base
+					# Ejemplo: Combustible LTR→LTR factor=1.0, Refresco 600ml→LTR factor=0.6, Tabaco H87→H87 factor=1.0
+					factor_conversion = self._get_uom_conversion_factor(item_doc, item.uom, uom_base)
+
+					tax_item["rate"] = flt(
+						cuota_por_uom_base, 6
+					)  # TasaOCuota (cuota/unidad base desde tabla SAT)
+					tax_item["base"] = flt(
+						factor_conversion, 6
+					)  # Factor conversión (FacturAPI x qty = unidades base)
 
 				taxes_payload.append(tax_item)
 
@@ -1798,6 +1889,142 @@ class TimbradoAPI:
 			title="Mapeo SAT Faltante",
 		)
 
+	def _get_uom_base_from_tabla_sat(self, item_doc, account_head):
+		"""
+		Obtener UOM base desde tabla IEPS Cuota SAT.
+
+		Args:
+			item_doc: Item doc
+			account_head: Cuenta IEPS
+
+		Returns:
+			str: UOM base (ej: "LTR", "H87") o None si no encuentra
+
+		Ejemplo:
+			>>> uom_base = self._get_uom_base_from_tabla_sat(item_doc, "2117002 - IEPS Azucar Bebidas")
+			>>> # Retorna "LTR" para bebidas azucaradas
+		"""
+		clave_sat = item_doc.get("fm_producto_servicio_sat")
+		if not clave_sat:
+			return None
+
+		# Buscar en tabla IEPS Cuota SAT
+		result = frappe.db.sql(
+			"""
+			SELECT uom
+			FROM `tabIEPS Cuota SAT`
+			WHERE clave_prod_serv = %(clave_sat)s
+			  AND cuenta_ieps = %(cuenta_ieps)s
+			  AND vigencia_desde <= %(fecha)s
+			  AND IFNULL(vigencia_hasta, '2099-12-31') >= %(fecha)s
+			  AND docstatus < 2
+			LIMIT 1
+			""",
+			{
+				"clave_sat": clave_sat,
+				"cuenta_ieps": account_head,
+				"fecha": today(),
+			},
+			as_dict=True,
+		)
+
+		if result and len(result) > 0:
+			return result[0].get("uom")
+
+		return None
+
+	def _get_cuota_from_tabla_sat(self, item_doc, account_head):
+		"""
+		Obtener cuota IEPS por UOM base desde tabla IEPS Cuota SAT.
+
+		Args:
+			item_doc: Item doc
+			account_head: Cuenta IEPS
+
+		Returns:
+			float: Cuota por UOM base (ej: $1.27/litro, $5.49/litro) o None si no encuentra
+
+		Ejemplo:
+			>>> cuota = self._get_cuota_from_tabla_sat(item_doc, "2117002 - IEPS Azucar Bebidas")
+			>>> # Retorna 1.27 para bebidas azucaradas ($1.27/litro)
+		"""
+		clave_sat = item_doc.get("fm_producto_servicio_sat")
+		if not clave_sat:
+			return None
+
+		# Buscar en tabla IEPS Cuota SAT
+		result = frappe.db.sql(
+			"""
+			SELECT cuota
+			FROM `tabIEPS Cuota SAT`
+			WHERE clave_prod_serv = %(clave_sat)s
+			  AND cuenta_ieps = %(cuenta_ieps)s
+			  AND vigencia_desde <= %(fecha)s
+			  AND IFNULL(vigencia_hasta, '2099-12-31') >= %(fecha)s
+			  AND docstatus < 2
+			LIMIT 1
+			""",
+			{
+				"clave_sat": clave_sat,
+				"cuenta_ieps": account_head,
+				"fecha": today(),
+			},
+			as_dict=True,
+		)
+
+		if result and len(result) > 0:
+			return flt(result[0].get("cuota"))
+
+		return None
+
+	def _get_uom_conversion_factor(self, item_doc, item_uom, target_uom):
+		"""
+		Obtener factor conversión entre UOMs para IEPS Cuota.
+
+		FIX E4.1: FacturAPI multiplica 'base' por cantidad, entonces necesitamos
+		enviar factor conversión unitario (unidades_base por unidad_venta).
+
+		Args:
+			item_doc: Item doc
+			item_uom: UOM del item en la factura (ej: "H87 - Pieza", "Nos")
+			target_uom: UOM base desde tabla SAT (ej: "LTR", "H87")
+
+		Returns:
+			float: Factor conversión (ejemplo: 0.6 para botella 600ml, 1.0 si mismo UOM)
+
+		Raises:
+			ValidationError: Si UOM no tiene conversión configurada
+
+		Ejemplo:
+			>>> factor = self._get_uom_conversion_factor(item_doc, "Nos", "LTR")
+			>>> # Retorna 0.6 si item tiene configurado 600ml por unidad
+		"""
+		# Si ya está en UOM base, factor = 1.0
+		if item_uom == target_uom:
+			return 1.0
+
+		# Intentar obtener conversión desde ERPNext
+		if get_conversion_factor:
+			try:
+				conversion_data = get_conversion_factor(item_doc.name, target_uom)
+				factor = flt(conversion_data.get("conversion_factor", 0))
+
+				if factor > 0:
+					return factor
+			except Exception:
+				pass
+
+		# Si no hay conversión configurada, ERROR
+		frappe.throw(
+			_(
+				"No se puede calcular IEPS Cuota: falta configurar conversión de UOM '{item_uom}' a '{target_uom}' para el item '{item}'.\n\n"
+				"Soluciones:\n"
+				"1. Configurar 'UOM Conversion Factor' en el Item para convertir {item_uom} → {target_uom}\n"
+				"2. O cambiar el UOM del item en la factura a '{target_uom}' directamente"
+			).format(item_uom=item_uom, target_uom=target_uom, item=item_doc.item_name or item_doc.name),
+			title=_("Factor Conversión UOM Requerido"),
+		)
+
 	def _extract_sat_metadata_from_rol(self, rol_fiscal, es_retencion, integra_base_iva=True):
 		"""
 		Helper: Extraer metadata SAT desde rol_fiscal usando catálogo oficial.
@@ -2025,13 +2252,23 @@ class TimbradoAPI:
 							f"(permitidos: {rates_str})"
 						)
 				elif factor == "Cuota":
-					# Para Cuota, FacturAPI requiere rate=0.0
+					# Para Cuota, FacturAPI requiere rate=cuota/unidad y base=cantidad física
 					if rate is None:
-						errors.append(f"❌ Item {idx}, Tax {tax_idx}: rate faltante (enviar 0.0 para Cuota)")
-					elif rate != 0.0:
 						errors.append(
-							f"⚠️ Item {idx}, Tax {tax_idx}: Cuota debe tener rate=0.0, encontrado {rate} "
-							f"(la cuota específica ya está en el cálculo del monto)"
+							f"❌ Item {idx}, Tax {tax_idx}: rate faltante (debe ser cuota por unidad)"
+						)
+					elif rate < 0:
+						errors.append(
+							f"❌ Item {idx}, Tax {tax_idx}: Cuota debe tener rate > 0 (cuota/unidad), encontrado {rate}"
+						)
+					# Validar que base existe para Cuota
+					if "base" not in tax:
+						errors.append(
+							f"❌ Item {idx}, Tax {tax_idx}: base faltante (cantidad física requerida para Cuota)"
+						)
+					elif flt(tax.get("base", 0)) <= 0:
+						errors.append(
+							f"❌ Item {idx}, Tax {tax_idx}: base debe ser > 0 para Cuota, encontrado {tax.get('base')}"
 						)
 
 				if "withholding" not in tax:  # withholding puede ser False, validar presencia
@@ -2058,7 +2295,7 @@ class TimbradoAPI:
 			if any("Clave Producto" in e or "ObjetoImp" in e for e in errors):
 				help_items += "<li style='margin-bottom: 8px;'>Revise que todos los productos tengan configurada la Clave Producto/Servicio SAT</li>"
 			if any("Cuota" in e for e in errors):
-				help_items += "<li style='margin-bottom: 8px;'>IEPS Cuota: Verificar que hook calcule correctamente (rate debe ser 0.0 en item_wise_tax_detail)</li>"
+				help_items += "<li style='margin-bottom: 8px;'>IEPS Cuota: Verificar que hook calcule correctamente el monto (cuota/unidad x cantidad)</li>"
 
 			frappe.throw(
 				f"<div style='font-family: -apple-system, BlinkMacSystemFont, sans-serif;'>"

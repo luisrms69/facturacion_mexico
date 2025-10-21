@@ -83,6 +83,12 @@ class SATTipoFactor:
 			"nombre_sat": "IEPS",
 			"descripcion": "IEPS Combustibles cuota variable (cuota específica)",
 		},
+		"IEPS por Pagar (Tabaco Cuota)": {
+			"tipo_factor": CUOTA,
+			"impuesto_sat": "003",
+			"nombre_sat": "IEPS",
+			"descripcion": "IEPS Tabaco cuota variable/cigarro (cuota específica según tabla SAT)",
+		},
 		# === Retenciones IVA (siempre Tasa) ===
 		"IVA Retenido (Servicios Profesionales)": {
 			"tipo_factor": TASA,

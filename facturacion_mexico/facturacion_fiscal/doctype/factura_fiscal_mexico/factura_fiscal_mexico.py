@@ -464,12 +464,6 @@ class FacturaFiscalMexico(Document):
 		# NO actualizar campo status - es manejado por Frappe
 		# self.calculate_status_from_fiscal_status() # DEPRECADO - no usar campo status estándar
 
-		# Poblar datos de facturación desde customer
-		self.populate_billing_data()
-
-		# FASE 4: Auto-cargar forma de pago desde Payment Entry
-		self.auto_load_payment_method_from_sales_invoice()
-
 	def after_insert(self):
 		"""Ejecutar después de insertar."""
 		# Crear evento fiscal

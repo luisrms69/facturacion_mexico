@@ -507,6 +507,19 @@ with patch("frappe.get_doc") as mock_get:
 - ✅ **PROCESO CORRECTO:** Reportar problema → Esperar autorización → Solo proceder con permiso
 - ⚠️ **CRÍTICO:** Solo usar flujo normal actualizaciones del sitio
 
+### **RC-007: PROHIBICIÓN ABSOLUTA MODIFICAR DATOS EXISTENTES**
+- ❌ **PROHIBIDO ABSOLUTO:** Modificar registros existentes con scripts
+- ❌ **PROHIBIDO ABSOLUTO:** `doc.save()` en documentos ya creados (excepto flujo normal app)
+- ❌ **PROHIBIDO ABSOLUTO:** `frappe.db.set_value()` en registros existentes
+- ❌ **PROHIBIDO ABSOLUTO:** `frappe.db.sql("UPDATE...")` en datos existentes
+- ❌ **PROHIBIDO ABSOLUTO:** Cualquier operación que modifique datos creados previamente
+- ✅ **ÚNICO FLUJO PERMITIDO:** Usuario crea/modifica datos vía UI o API normal
+- ✅ **SCRIPTS ONE-OFF:** Solo para lectura/diagnóstico, NUNCA para corrección
+- ⚠️ **CRÍTICO:** Si hay datos incorrectos → Usuario los borra y crea nuevos
+- 🚨 **SIN EXCEPCIONES:** Esta regla no tiene excepciones, incluso en desarrollo
+- 🚨 **NUNCA:** Sugerir, proponer o intentar modificar base de datos con scripts
+- 🚨 **NUNCA:** Decir "Ahora corrijo el SI" o "Creo script para arreglar"
+
 ---
 
 ## 🇲🇽 **REGLAS ESPECÍFICAS FACTURACIÓN MÉXICO**

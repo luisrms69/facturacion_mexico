@@ -30,6 +30,12 @@ import json
 import frappe
 from frappe.utils import flt, today
 
+# Import para conversión UOM (IEPS Cuota siempre en litros)
+try:
+	from erpnext.stock.get_item_details import get_conversion_factor
+except ImportError:
+	get_conversion_factor = None
+
 # =============================================================================
 # HELPERS - CONFIGURACIÓN FISCAL
 # =============================================================================
@@ -122,14 +128,13 @@ def _item_contribuye_a_cuenta_ieps(item, account_head: str) -> bool:
 # =============================================================================
 
 
-def _get_cuota_prioridad(item, account_head: str, doc) -> float:
+def _get_cuota_prioridad(item, account_head: str, doc) -> dict:
 	"""
 	Obtener cuota IEPS con prioridad de fuentes.
 
 	Prioridad:
-	P1: Item.fm_ieps_cuota_unitaria (override explícito)
-	P2: Tabla IEPS Cuota SAT (vigente, por clave SAT + UOM)
-	P3: Error en prod, constante en test (solo desarrollo)
+	P1: Tabla IEPS Cuota SAT (vigente, por clave SAT)
+	P2: Error en prod, constante en test (solo desarrollo)
 
 	Args:
 		item: Sales Invoice Item row
@@ -137,27 +142,21 @@ def _get_cuota_prioridad(item, account_head: str, doc) -> float:
 		doc: Sales Invoice document
 
 	Returns:
-		float: Cuota por unidad o 0 si no encontrada
+		dict: {"cuota": float, "uom_base": str} o None si no encontrada
 
 	Raises:
 		frappe.ValidationError: Si no hay cuota en producción
 	"""
-	# P1: Custom field en Item
-	cuota_item = flt(item.get("fm_ieps_cuota_unitaria", 0))
-	if cuota_item > 0:
-		return cuota_item
-
-	# P2: Tabla IEPS Cuota SAT
+	# P1: Tabla IEPS Cuota SAT
 	item_sat = frappe.db.get_value("Item", item.item_code, "fm_producto_servicio_sat")
 	if item_sat:
 		# Usar SQL para manejar IFNULL en vigencia_hasta
 		cuota_sat = frappe.db.sql(
 			"""
-			SELECT cuota
+			SELECT cuota, uom
 			FROM `tabIEPS Cuota SAT`
 			WHERE company = %(company)s
 			  AND clave_prod_serv = %(clave_prod_serv)s
-			  AND uom = %(uom)s
 			  AND cuenta_ieps = %(cuenta_ieps)s
 			  AND vigencia_desde <= %(fecha)s
 			  AND IFNULL(vigencia_hasta, '2099-12-31') >= %(fecha)s
@@ -167,25 +166,25 @@ def _get_cuota_prioridad(item, account_head: str, doc) -> float:
 			{
 				"company": doc.company,
 				"clave_prod_serv": item_sat,
-				"uom": item.uom,
 				"cuenta_ieps": account_head,
 				"fecha": today(),
 			},
+			as_dict=True,
 		)
 
-		if cuota_sat and cuota_sat[0][0]:
-			return flt(cuota_sat[0][0])
+		if cuota_sat and len(cuota_sat) > 0:
+			return {"cuota": flt(cuota_sat[0].cuota), "uom_base": cuota_sat[0].uom}
 
-	# P3: Error en prod, constante en desarrollo
+	# P2: Error en prod, constante en desarrollo
 	if not frappe.conf.get("developer_mode"):
 		frappe.throw(
-			f"No se encontró cuota IEPS vigente para item {item.item_code} (Clave SAT: {item_sat or 'NO CONFIG'}, UOM: {item.uom}). "
+			f"No se encontró cuota IEPS vigente para item {item.item_code} (Clave SAT: {item_sat or 'NO CONFIG'}). "
 			f"Configure en: IEPS Cuota SAT",
 			title="Cuota IEPS No Encontrada",
 		)
 
-	# Constante desarrollo (solo para tests)
-	return 0.0
+	# Constante desarrollo (solo para tests) - retornar None
+	return None
 
 
 # =============================================================================
@@ -227,29 +226,54 @@ def calcular_ieps_cuota(doc, method=None):
 			# Verificar si item contribuye a esta cuenta IEPS
 			if not _item_contribuye_a_cuenta_ieps(item, tax_row.account_head):
 				# Fallback: si tiene cuota vigente, contribuye
-				cuota = _get_cuota_prioridad(item, tax_row.account_head, doc)
-				if cuota <= 0:
+				cuota_data = _get_cuota_prioridad(item, tax_row.account_head, doc)
+				if not cuota_data:
 					continue  # No contribuye
 
 			else:
 				# Item contribuye, obtener cuota
-				cuota = _get_cuota_prioridad(item, tax_row.account_head, doc)
-				if cuota <= 0:
+				cuota_data = _get_cuota_prioridad(item, tax_row.account_head, doc)
+				if not cuota_data:
 					frappe.throw(
 						f"Item {item.item_code} usa IEPS Cuota pero no tiene cuota configurada",
 						title="Cuota IEPS Faltante",
 					)
 
-			# Calcular IEPS para este item
-			# TODO: Validar UOM y aplicar conversiones si es necesario
-			qty = flt(item.qty)
-			item_ieps = qty * cuota
+			# Extraer cuota y UOM base
+			cuota_per_uom_base = flt(cuota_data["cuota"])
+			uom_base = cuota_data["uom_base"]
+
+			# Calcular IEPS para este item con conversión UOM
+			# Obtener conversión de item.uom → uom_base
+			if item.uom == uom_base:
+				conversion_factor = 1.0
+			else:
+				# Usar ERPNext UOM conversion
+				if get_conversion_factor:
+					try:
+						conversion_data = get_conversion_factor(item.item_code, uom_base)
+						conversion_factor = flt(conversion_data.get("conversion_factor", 0))
+					except Exception:
+						conversion_factor = 0
+				else:
+					conversion_factor = 0
+
+				if conversion_factor <= 0:
+					frappe.throw(
+						f"Item {item.item_code}: Falta conversión de UOM '{item.uom}' a '{uom_base}' para IEPS Cuota. "
+						f"Configure en: Item → UOMs",
+						title="Conversión UOM Faltante",
+					)
+
+			# Calcular unidades base y IEPS
+			unidades_base = flt(item.qty) * conversion_factor
+			item_ieps = unidades_base * cuota_per_uom_base
 			total_ieps += item_ieps
 
 			# Guardar distribución (para item_wise_tax_detail)
 			# E4-RO: Para IEPS Cuota, rate=cuota_unitaria (no 0!)
 			# Formato: [cuota_por_unidad, monto_total]
-			distribucion_items[item.name] = [cuota, item_ieps]
+			distribucion_items[item.name] = [0.0, item_ieps]
 
 		# Actualizar tax row
 		tax_row.charge_type = "Actual"
@@ -329,3 +353,347 @@ def ajustar_base_iva_combustibles(doc, method=None):
 	# TODO: Implementar ajuste real de base IVA
 	# Esto puede requerir modificar item_wise_tax_detail de filas IVA
 	# o usar un campo custom temporal para guardar el ajuste
+
+
+# =============================================================================
+# HOOK PRINCIPAL - BEFORE_SUBMIT (Corrección Final Post-Redistribución)
+# =============================================================================
+
+
+def corregir_ieps_cuota_final(doc, method=None):
+	"""
+	Hook before_submit: Corrección final post-redistribución ERPNext.
+
+	ERPNext redistribuye automáticamente los impuestos con charge_type="Actual"
+	de forma proporcional entre todos los items. Este hook corrige ese
+	comportamiento para IEPS Cuota, restaurando la asignación correcta por item.
+
+	4 Acciones implementadas:
+	1. Corregir item_wise_tax_detail de IEPS Cuota (ceros en no-aplicables)
+	2. Ajustar item_wise_tax_detail de IVA para combustibles (base sin IEPS)
+	3. Validar tolerancias redondeo (±$0.01/item, ±$0.05/total)
+	4. Validar orden fiscal IEPS→IVA (bloqueante)
+
+	Args:
+		doc: Sales Invoice document
+		method: Hook method (no usado)
+
+	Raises:
+		frappe.ValidationError: Si orden fiscal incorrecto o redondeos fuera de tolerancia
+	"""
+	if not doc.taxes or not doc.items:
+		return
+
+	# Obtener configuración fiscal
+	config_fiscal = _obtener_config_fiscal(doc.company)
+	if not config_fiscal:
+		return
+
+	# Construir mapa cuenta → metadata
+	cuenta_metadata = _construir_mapa_metadata(config_fiscal)
+
+	# ACCIÓN 1: Corregir IEPS Cuota item_wise_tax_detail
+	_corregir_item_wise_tax_detail_ieps_cuota(doc, cuenta_metadata)
+
+	# ACCIÓN 2: Ajustar IVA combustibles (base sin IEPS no integrable)
+	_ajustar_item_wise_tax_detail_iva_combustibles(doc, cuenta_metadata)
+
+	# ACCIÓN 3: Validar tolerancias de redondeo
+	_validar_tolerancias_redondeo(doc, cuenta_metadata)
+
+	# ACCIÓN 4: Validar orden fiscal IEPS→IVA
+	_validar_orden_fiscal_ieps_iva(doc, cuenta_metadata)
+
+
+# =============================================================================
+# ACCIÓN 1: Corregir IEPS Cuota item_wise_tax_detail
+# =============================================================================
+
+
+def _corregir_item_wise_tax_detail_ieps_cuota(doc, cuenta_metadata: dict):
+	"""
+	Corregir item_wise_tax_detail de IEPS Cuota sobrescribiendo con ceros
+	en items que NO aplican este impuesto.
+
+	Neutraliza la redistribución proporcional de ERPNext.
+
+	Args:
+		doc: Sales Invoice document
+		cuenta_metadata: Mapa cuenta → metadata fiscal
+	"""
+	for tax_row in doc.taxes:
+		metadata = cuenta_metadata.get(tax_row.account_head)
+
+		# Solo procesar IEPS Cuota
+		if not metadata or metadata["tipo_factor"] != "Cuota":
+			continue
+
+		# Reconstruir distribución correcta por item
+		distribucion_correcta = {}
+		total_ieps = 0
+
+		for item in doc.items:
+			# Verificar si item contribuye a esta cuenta IEPS
+			if _item_contribuye_a_cuenta_ieps(item, tax_row.account_head):
+				# Item contribuye: calcular cuota con conversión UOM
+				cuota_data = _get_cuota_prioridad(item, tax_row.account_head, doc)
+				if not cuota_data:
+					# No debería llegar aquí si _item_contribuye es correcto
+					distribucion_correcta[item.name] = [0.0, 0.0]
+					continue
+
+				cuota_per_uom_base = flt(cuota_data["cuota"])
+				uom_base = cuota_data["uom_base"]
+
+				# Aplicar conversión UOM
+				if item.uom == uom_base:
+					conversion_factor = 1.0
+				else:
+					if get_conversion_factor:
+						try:
+							conversion_data = get_conversion_factor(item.item_code, uom_base)
+							conversion_factor = flt(conversion_data.get("conversion_factor", 0))
+						except Exception:
+							conversion_factor = 0
+					else:
+						conversion_factor = 0
+
+					if conversion_factor <= 0:
+						frappe.throw(
+							f"Item {item.item_code}: Falta conversión de UOM '{item.uom}' a '{uom_base}' para IEPS Cuota. "
+							f"Configure en: Item → UOMs",
+							title="Conversión UOM Faltante",
+						)
+
+				unidades_base = flt(item.qty) * conversion_factor
+				item_ieps = unidades_base * cuota_per_uom_base
+				total_ieps += item_ieps
+				# CRÍTICO: rate=0.0 para charge_type="Actual"
+				distribucion_correcta[item.name] = [0.0, item_ieps]
+			else:
+				# Item NO contribuye: asignar ceros (clave para E4)
+				distribucion_correcta[item.name] = [0.0, 0.0]
+
+		# Sobrescribir item_wise_tax_detail y tax_amount
+		tax_row.item_wise_tax_detail = json.dumps(distribucion_correcta)
+		tax_row.tax_amount = flt(total_ieps, 2)
+
+
+# =============================================================================
+# ACCIÓN 2: Ajustar IVA combustibles
+# =============================================================================
+
+
+def _ajustar_item_wise_tax_detail_iva_combustibles(doc, cuenta_metadata: dict):
+	"""
+	Ajustar item_wise_tax_detail de IVA para items con IEPS Cuota
+	que NO integran base IVA (combustibles).
+
+	Opción B (quirúrgica): Solo corregir item_wise_tax_detail del IVA,
+	sin recalcular todo el impuesto.
+
+	Args:
+		doc: Sales Invoice document
+		cuenta_metadata: Mapa cuenta → metadata fiscal
+	"""
+	# Identificar cuentas IEPS Cuota que NO integran base IVA
+	ieps_no_integra = {}  # {cuenta: {item_name: monto_ieps}}
+
+	for tax_row in doc.taxes:
+		metadata = cuenta_metadata.get(tax_row.account_head)
+
+		# Solo IEPS Cuota que NO integra
+		if not metadata or metadata["tipo_factor"] != "Cuota":
+			continue
+
+		if metadata.get("integra_base_iva", True):
+			continue  # Sí integra, skip
+
+		# Esta cuenta IEPS no integra base IVA (combustibles)
+		item_wise = json.loads(tax_row.item_wise_tax_detail or "{}")
+		ieps_no_integra[tax_row.account_head] = item_wise
+
+	if not ieps_no_integra:
+		return  # No hay IEPS combustibles, skip
+
+	# Ajustar item_wise_tax_detail de filas IVA
+	for tax_row in doc.taxes:
+		metadata = cuenta_metadata.get(tax_row.account_head)
+
+		# Solo filas IVA (impuesto_sat="002")
+		if not metadata or metadata.get("impuesto_sat") != "002":
+			continue
+
+		# Parsear item_wise_tax_detail actual
+		iva_item_wise = json.loads(tax_row.item_wise_tax_detail or "{}")
+
+		# Ajustar base IVA por item
+		for item in doc.items:
+			if item.name not in iva_item_wise:
+				continue
+
+			# Sumar IEPS combustibles para este item
+			total_ieps_item = 0
+			for _cuenta_ieps, ieps_item_wise in ieps_no_integra.items():
+				if item.name in ieps_item_wise:
+					total_ieps_item += flt(ieps_item_wise[item.name][1])  # [rate, amount]
+
+			if total_ieps_item > 0:
+				# Ajustar: Base IVA = importe item (sin IEPS)
+				# IVA item = (item.amount) * tasa_iva
+				rate_iva = flt(iva_item_wise[item.name][0])  # Tasa IVA
+				base_iva_ajustada = flt(item.amount)  # Sin IEPS
+				iva_ajustado = base_iva_ajustada * (rate_iva / 100.0)
+
+				iva_item_wise[item.name] = [rate_iva, flt(iva_ajustado, 2)]
+
+		# Actualizar item_wise_tax_detail y recalcular tax_amount
+		tax_row.item_wise_tax_detail = json.dumps(iva_item_wise)
+		tax_row.tax_amount = flt(sum(v[1] for v in iva_item_wise.values()), 2)
+
+
+# =============================================================================
+# ACCIÓN 3: Validar tolerancias redondeo
+# =============================================================================
+
+
+def _validar_tolerancias_redondeo(doc, cuenta_metadata: dict):
+	"""
+	Validar que las diferencias por redondeo estén dentro de tolerancias.
+
+	Tolerancias permitidas:
+	- ±$0.01 por renglón (item)
+	- ±$0.05 por factura (total)
+
+	Si hay drift, compensar 1 centavo en el último item afectado.
+
+	Args:
+		doc: Sales Invoice document
+		cuenta_metadata: Mapa cuenta → metadata fiscal
+
+	Raises:
+		frappe.ValidationError: Si redondeos exceden tolerancias
+	"""
+	TOL_ITEM = 0.01  # ±$0.01 por item
+	TOL_TOTAL = 0.05  # ±$0.05 por factura
+
+	for tax_row in doc.taxes:
+		# Validar que sum(item_wise_tax_detail) == tax_amount
+		item_wise = json.loads(tax_row.item_wise_tax_detail or "{}")
+
+		if not item_wise:
+			continue
+
+		suma_items = flt(sum(v[1] for v in item_wise.values()), 2)
+		tax_amount = flt(tax_row.tax_amount, 2)
+		diferencia = abs(suma_items - tax_amount)
+
+		if diferencia > TOL_TOTAL:
+			frappe.throw(
+				f"Diferencia de redondeo excede tolerancia en {tax_row.account_head}<br>"
+				f"Suma items: ${suma_items:.2f}<br>"
+				f"Tax amount: ${tax_amount:.2f}<br>"
+				f"Diferencia: ${diferencia:.2f} (máximo permitido: ${TOL_TOTAL:.2f})",
+				title="Error Redondeo",
+			)
+
+		# Si hay diferencia pequeña, compensar en último item
+		if 0 < diferencia <= TOL_ITEM:
+			# Encontrar último item con monto > 0
+			ultimo_item_key = None
+			for item_key, values in item_wise.items():
+				if flt(values[1]) > 0:
+					ultimo_item_key = item_key
+
+			if ultimo_item_key:
+				# Ajustar 1 centavo
+				ajuste = tax_amount - suma_items
+				rate, amount = item_wise[ultimo_item_key]
+				item_wise[ultimo_item_key] = [rate, flt(amount + ajuste, 2)]
+
+				# Actualizar
+				tax_row.item_wise_tax_detail = json.dumps(item_wise)
+
+
+# =============================================================================
+# ACCIÓN 4: Validar orden fiscal IEPS→IVA
+# =============================================================================
+
+
+def _validar_orden_fiscal_ieps_iva(doc, cuenta_metadata: dict):
+	"""
+	Validar que IEPS Cuota aparece ANTES de IVA en la tabla de impuestos.
+
+	Regla fiscal: LIEPS Art. 2-A requiere que IEPS se aplique antes de IVA.
+
+	Args:
+		doc: Sales Invoice document
+		cuenta_metadata: Mapa cuenta → metadata fiscal
+
+	Raises:
+		frappe.ValidationError: Si orden incorrecto
+	"""
+	# Identificar índices de IEPS Cuota e IVA
+	ieps_cuota_indices = []
+	iva_indices = []
+
+	for tax_row in doc.taxes:
+		metadata = cuenta_metadata.get(tax_row.account_head)
+
+		if not metadata:
+			continue
+
+		# IEPS Cuota: impuesto_sat="003" + tipo_factor="Cuota"
+		if metadata.get("impuesto_sat") == "003" and metadata["tipo_factor"] == "Cuota":
+			ieps_cuota_indices.append(tax_row.idx)
+
+		# IVA: impuesto_sat="002"
+		if metadata.get("impuesto_sat") == "002":
+			iva_indices.append(tax_row.idx)
+
+	# Si tiene ambos, validar orden
+	if ieps_cuota_indices and iva_indices:
+		min_ieps = min(ieps_cuota_indices)
+		min_iva = min(iva_indices)
+
+		if min_ieps > min_iva:
+			frappe.throw(
+				f"<b>Orden fiscal incorrecto en impuestos</b><br><br>"
+				f"IEPS-Cuota debe aparecer ANTES de IVA en la tabla de impuestos.<br><br>"
+				f"<b>Orden actual:</b><br>"
+				f"• IEPS Cuota en índice: {min_ieps}<br>"
+				f"• IVA en índice: {min_iva}<br><br>"
+				f"<b>Solución:</b> Actualice la plantilla de impuestos (Sales Taxes and Charges Template) "
+				f"para que IEPS aparezca antes de IVA. Esto es requerido por LIEPS Art. 2-A.",
+				title="Orden Fiscal Incorrecto",
+			)
+
+
+# =============================================================================
+# HELPERS
+# =============================================================================
+
+
+def _construir_mapa_metadata(config_fiscal) -> dict:
+	"""
+	Construir mapa cuenta → metadata fiscal para rápido acceso.
+
+	Args:
+		config_fiscal: Document Configuracion Fiscal Mexico
+
+	Returns:
+		dict: {cuenta: {tipo_factor, integra_base_iva, impuesto_sat, ...}}
+	"""
+	mapa = {}
+
+	for mapeo in config_fiscal.mapeo_cuentas:
+		mapa[mapeo.cuenta_impuesto] = {
+			"tipo_factor": mapeo.get("tipo_factor", "Tasa"),
+			"integra_base_iva": bool(mapeo.get("integra_base_iva", 1)),
+			"impuesto_sat": mapeo.get("impuesto_sat"),
+			"nombre_sat": mapeo.get("nombre_impuesto_sat"),
+			"rol_fiscal": mapeo.rol_fiscal,
+			"es_retencion": bool(mapeo.get("es_retencion", 0)),
+		}
+
+	return mapa

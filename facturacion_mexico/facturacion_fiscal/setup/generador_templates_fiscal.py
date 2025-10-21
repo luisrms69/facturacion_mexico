@@ -167,16 +167,20 @@ class GeneradorTemplatesFiscales:
 					"description": f"IEPS {rol_ieps.split('(')[1].rstrip(')')} - tasa via ITT",
 				}
 			)
+
 			# (2) IVA 16% sobre IEPS tipo (cascada explícita)
-			taxes_16.append(
-				{
-					"rol_fiscal": "IVA por Pagar (16%)",
-					"charge_type": "On Previous Row Amount",
-					"rate": 16.0,
-					"add_deduct_tax": "Add",
-					"description": f"IVA 16% sobre IEPS {rol_ieps.split('(')[1].rstrip(')')}",
-				}
-			)
+			# SOLUCIÓN CHATGPT: Combustibles NO integran base IVA (LIEPS Art. 2-A)
+			# Solo agregar IVA "On Previous Row Amount" para IEPS que SÍ integran (Alcohol, Tabaco, Azúcar)
+			if "Combustibles" not in rol_ieps:
+				taxes_16.append(
+					{
+						"rol_fiscal": "IVA por Pagar (16%)",
+						"charge_type": "On Previous Row Amount",
+						"rate": 16.0,
+						"add_deduct_tax": "Add",
+						"description": f"IVA 16% sobre IEPS {rol_ieps.split('(')[1].rstrip(')')}",
+					}
+				)
 
 		# (3) IVA 16% base (sobre neto)
 		idx_iva_base_16 = len(taxes_16) + 1  # Guardar índice para retenciones
@@ -256,15 +260,19 @@ class GeneradorTemplatesFiscales:
 					"description": f"IEPS {rol_ieps.split('(')[1].rstrip(')')} - tasa via ITT",
 				}
 			)
-			taxes_8.append(
-				{
-					"rol_fiscal": "IVA por Pagar (8% frontera)",
-					"charge_type": "On Previous Row Amount",
-					"rate": 8.0,
-					"add_deduct_tax": "Add",
-					"description": f"IVA 8% sobre IEPS {rol_ieps.split('(')[1].rstrip(')')}",
-				}
-			)
+
+			# SOLUCIÓN CHATGPT: Combustibles NO integran base IVA (LIEPS Art. 2-A)
+			# Solo agregar IVA "On Previous Row Amount" para IEPS que SÍ integran
+			if "Combustibles" not in rol_ieps:
+				taxes_8.append(
+					{
+						"rol_fiscal": "IVA por Pagar (8% frontera)",
+						"charge_type": "On Previous Row Amount",
+						"rate": 8.0,
+						"add_deduct_tax": "Add",
+						"description": f"IVA 8% sobre IEPS {rol_ieps.split('(')[1].rstrip(')')}",
+					}
+				)
 
 		idx_iva_base_8 = len(taxes_8) + 1  # Guardar índice para retenciones
 		taxes_8.append(
@@ -634,6 +642,77 @@ class GeneradorTemplatesFiscales:
 		configs.extend(self._obtener_itt_retenciones() or [])
 		return configs
 
+	def _validate_itt_tax_order(self, itt_doc):
+		"""
+		Validar orden fiscal IEPS→IVA en Item Tax Template.
+
+		Regla: Si el ITT incluye IEPS Cuota (impuesto_sat="003", tipo_factor="Cuota")
+		Y también incluye IVA (impuesto_sat="002"), entonces IEPS debe aparecer
+		ANTES de IVA en la tabla.
+
+		Args:
+			itt_doc: Document Item Tax Template
+
+		Raises:
+			frappe.ValidationError: Si IEPS Cuota aparece después de IVA
+		"""
+		# Obtener metadata fiscal para identificar tipos de impuesto
+		ieps_cuota_indices = []
+		iva_indices = []
+
+		for tax_row in itt_doc.taxes:
+			# Obtener metadata de la cuenta desde mapeo fiscal
+			metadata = self._obtener_metadata_cuenta_itt(tax_row.tax_type)
+
+			if not metadata:
+				continue
+
+			# Detectar IEPS Cuota: impuesto_sat="003" + tipo_factor="Cuota"
+			if metadata.get("impuesto_sat") == "003" and metadata.get("tipo_factor") == "Cuota":
+				ieps_cuota_indices.append(tax_row.idx)
+
+			# Detectar IVA: impuesto_sat="002"
+			if metadata.get("impuesto_sat") == "002":
+				iva_indices.append(tax_row.idx)
+
+		# Si tiene ambos tipos, validar orden
+		if ieps_cuota_indices and iva_indices:
+			min_ieps_idx = min(ieps_cuota_indices)
+			min_iva_idx = min(iva_indices)
+
+			if min_ieps_idx > min_iva_idx:
+				frappe.throw(
+					f"IEPS-Cuota debe ir ANTES de IVA en el ITT: {itt_doc.name}<br><br>"
+					f"<b>Orden actual:</b><br>"
+					f"• IEPS Cuota en índice: {min_ieps_idx}<br>"
+					f"• IVA en índice: {min_iva_idx}<br><br>"
+					f"<b>Solución:</b> Actualice la plantilla de impuestos para que "
+					f"IEPS Cuota aparezca antes de IVA. Esto es requerido por la "
+					f"normativa fiscal mexicana (LIEPS Art. 2-A).",
+					title="Orden Fiscal Incorrecto",
+				)
+
+	def _obtener_metadata_cuenta_itt(self, account_head: str) -> dict | None:
+		"""
+		Obtener metadata fiscal de una cuenta para validación ITT.
+
+		Args:
+			account_head: Cuenta de impuesto
+
+		Returns:
+			dict con impuesto_sat, tipo_factor, nombre_sat o None
+		"""
+		# Buscar en mapeo fiscal de esta empresa
+		for mapeo in self.config_fiscal.mapeo_cuentas:
+			if mapeo.cuenta_impuesto == account_head:
+				return {
+					"impuesto_sat": mapeo.get("impuesto_sat"),
+					"tipo_factor": mapeo.get("tipo_factor", "Tasa"),
+					"nombre_sat": mapeo.get("nombre_impuesto_sat"),
+				}
+
+		return None
+
 	def _crear_o_actualizar_itt(self, config: dict, mapeo_cuentas: dict[str, str]) -> str:
 		"""Crear o actualizar Item Tax Template."""
 		title = f"{config['title']} - {self.company_abbr}"
@@ -681,6 +760,9 @@ class GeneradorTemplatesFiscales:
 			doc.save(ignore_permissions=True)
 		else:
 			doc.insert(ignore_permissions=True)
+
+		# Validar orden IEPS→IVA después de guardar
+		self._validate_itt_tax_order(doc)
 
 		return doc.name
 

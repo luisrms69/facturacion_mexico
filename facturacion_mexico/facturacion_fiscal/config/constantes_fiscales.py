@@ -78,6 +78,13 @@ TASAS_IEPS = {
 		"add_deduct_tax": "Add",
 		"iva_aplicable": True,
 	},
+	"tabaco_cuota": {
+		"tasa": 0.0,  # IEPS Cuota: rate=0, cálculo automático por hook desde tabla IEPS Cuota SAT
+		"descripcion": "IEPS Tabaco (Cuota variable por cigarro)",
+		"charge_type": "On Net Total",
+		"add_deduct_tax": "Add",
+		"iva_aplicable": True,
+	},
 }
 
 # =============================================================================
@@ -162,6 +169,7 @@ MAPEO_ROLES_CONFIGURACION = {
 	"IEPS por Pagar (Azúcar/Bebidas)": ("ieps", "azucar"),
 	"IEPS por Pagar (Combustibles)": ("ieps", "combustibles"),
 	"IEPS por Pagar (Tabaco)": ("ieps", "tabaco"),
+	"IEPS por Pagar (Tabaco Cuota)": ("ieps", "tabaco_cuota"),
 	# Retenciones ISR
 	"ISR Retenido (Honorarios)": ("retenciones", "isr_honorarios"),
 	"ISR Retenido (Arrendamiento)": ("retenciones", "isr_arrendamiento"),
@@ -193,7 +201,11 @@ COMBINACIONES_ALCANCE = {
 	],
 	"ieps_azucar": ["IEPS por Pagar (Azúcar/Bebidas)", "IVA por Pagar (16%)"],
 	"ieps_combustibles": ["IEPS por Pagar (Combustibles)", "IVA por Pagar (16%)"],
-	"ieps_tabaco": ["IEPS por Pagar (Tabaco)", "IVA por Pagar (16%)"],
+	"ieps_tabaco": [
+		"IEPS por Pagar (Tabaco)",  # IEPS Tasa 160%
+		"IEPS por Pagar (Tabaco Cuota)",  # IEPS Cuota $0.35/cigarro
+		"IVA por Pagar (16%)",  # IVA sobre precio + ambos IEPS
+	],
 	"retenciones_honorarios": ["ISR Retenido (Honorarios)", "IVA Retenido (Servicios Profesionales)"],
 	"retenciones_arrendamiento": ["ISR Retenido (Arrendamiento)", "IVA Retenido (Arrendamiento)"],
 	"retenciones_autotransporte": ["ISR Retenido (Autotransporte)", "IVA Retenido (Autotransporte)"],
