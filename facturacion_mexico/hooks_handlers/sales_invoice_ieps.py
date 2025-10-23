@@ -192,6 +192,53 @@ def _get_cuota_prioridad(item, account_head: str, doc) -> dict:
 # =============================================================================
 
 
+def _congelar_iva_sobre_ieps_cuota(doc, ieps_tax_row, distribucion_ieps):
+	"""
+	Congela el IVA "On Previous Row Amount" que se calcula sobre IEPS Cuota.
+
+	Problema: ERPNext redistribuye el IVA proporcionalmente entre todos los items.
+	Solución: Setear manualmente item_wise_tax_detail solo para items con IEPS.
+
+	Args:
+		doc: Sales Invoice document
+		ieps_tax_row: Tax row del IEPS Cuota (ya procesado)
+		distribucion_ieps: Dict con distribución IEPS {item_code: [0.0, amount]}
+	"""
+	# Buscar el índice del IEPS Cuota actual
+	ieps_idx = None
+	for idx, tax in enumerate(doc.taxes):
+		if tax.name == ieps_tax_row.name:
+			ieps_idx = idx
+			break
+
+	if ieps_idx is None:
+		return  # No encontrado (no debería pasar)
+
+	# Buscar el siguiente tax que sea "On Previous Row Amount"
+	for idx in range(ieps_idx + 1, len(doc.taxes)):
+		iva_tax = doc.taxes[idx]
+
+		# Verificar si es IVA "On Previous Row Amount" que referencia el IEPS Cuota
+		if iva_tax.charge_type == "On Previous Row Amount":
+			# Verificar si row_id apunta al IEPS Cuota (idx+1 porque row_id es 1-indexed)
+			if iva_tax.row_id and int(iva_tax.row_id) == ieps_idx + 1:
+				# Calcular IVA manualmente solo para items con IEPS
+				iva_distribucion = {}
+				iva_rate = flt(iva_tax.rate)
+
+				for item_code, values in distribucion_ieps.items():
+					ieps_amount = values[1]  # [0.0, amount]
+					iva_amount = ieps_amount * iva_rate / 100
+					iva_distribucion[item_code] = [iva_rate, iva_amount]
+
+				# Setear item_wise_tax_detail y congelar
+				if iva_distribucion:
+					iva_tax.item_wise_tax_detail = json.dumps(iva_distribucion)
+					iva_tax.dont_recompute_tax = 1
+
+				break  # Solo el primer IVA "On Previous Row Amount"
+
+
 def calcular_ieps_cuota(doc, method=None):
 	"""
 	Hook validate: Detectar y calcular tax rows IEPS Cuota.
@@ -273,7 +320,7 @@ def calcular_ieps_cuota(doc, method=None):
 			# Guardar distribución (para item_wise_tax_detail)
 			# E4-RO: Para IEPS Cuota, rate=cuota_unitaria (no 0!)
 			# Formato: [cuota_por_unidad, monto_total]
-			distribucion_items[item.name] = [0.0, item_ieps]
+			distribucion_items[item.item_code] = [0.0, item_ieps]
 
 		# Actualizar tax row
 		tax_row.charge_type = "Actual"
@@ -283,6 +330,15 @@ def calcular_ieps_cuota(doc, method=None):
 		# Guardar item_wise_tax_detail (CRÍTICO para E4)
 		if distribucion_items:
 			tax_row.item_wise_tax_detail = json.dumps(distribucion_items)
+
+			# Prevenir que ERPNext redistribuya este impuesto proporcionalmente
+			# ERPNext por default redistribuye "Actual" entre items según net_amount
+			# Este flag congela nuestra distribución custom (item_wise_tax_detail)
+			tax_row.dont_recompute_tax = 1
+
+			# CRÍTICO E4: Congelar también el IVA "On Previous Row Amount" que sigue
+			# Si no lo hacemos, ERPNext redistribuirá el IVA entre todos los items
+			_congelar_iva_sobre_ieps_cuota(doc, tax_row, distribucion_items)
 
 
 # =============================================================================
