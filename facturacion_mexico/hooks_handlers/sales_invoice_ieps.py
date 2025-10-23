@@ -222,18 +222,23 @@ def _congelar_iva_sobre_ieps_cuota(doc, ieps_tax_row, distribucion_ieps):
 		if iva_tax.charge_type == "On Previous Row Amount":
 			# Verificar si row_id apunta al IEPS Cuota (idx+1 porque row_id es 1-indexed)
 			if iva_tax.row_id and int(iva_tax.row_id) == ieps_idx + 1:
+				# Seguridad: Verificar que sea IVA (no otro impuesto cascada)
+				if "IVA" not in iva_tax.description.upper():
+					continue
+
 				# Calcular IVA manualmente solo para items con IEPS
 				iva_distribucion = {}
 				iva_rate = flt(iva_tax.rate)
 
 				for item_code, values in distribucion_ieps.items():
 					ieps_amount = values[1]  # [0.0, amount]
-					iva_amount = ieps_amount * iva_rate / 100
+					# Usar precisión del campo tax_amount para evitar diferencias redondeo
+					iva_amount = flt(ieps_amount * iva_rate / 100, iva_tax.precision("tax_amount"))
 					iva_distribucion[item_code] = [iva_rate, iva_amount]
 
 				# Setear item_wise_tax_detail y congelar
 				if iva_distribucion:
-					iva_tax.item_wise_tax_detail = json.dumps(iva_distribucion)
+					iva_tax.item_wise_tax_detail = json.dumps(iva_distribucion, ensure_ascii=False)
 					iva_tax.dont_recompute_tax = 1
 
 				break  # Solo el primer IVA "On Previous Row Amount"
@@ -267,7 +272,7 @@ def calcular_ieps_cuota(doc, method=None):
 
 		# Esta tax row es IEPS Cuota, recalcular amount
 		total_ieps = 0
-		distribucion_items = {}  # {item.name: [rate, amount]}
+		distribucion_items = {}  # {item.item_code: [rate, amount]}
 
 		for item in doc.items:
 			# Verificar si item contribuye a esta cuenta IEPS
@@ -275,7 +280,9 @@ def calcular_ieps_cuota(doc, method=None):
 				# Fallback: si tiene cuota vigente, contribuye
 				cuota_data = _get_cuota_prioridad(item, tax_row.account_head, doc)
 				if not cuota_data:
-					continue  # No contribuye
+					# No contribuye - agregar con ceros (CRÍTICO para E4)
+					distribucion_items[item.item_code] = [0.0, 0.0]
+					continue
 
 			else:
 				# Item contribuye, obtener cuota
@@ -329,7 +336,7 @@ def calcular_ieps_cuota(doc, method=None):
 
 		# Guardar item_wise_tax_detail (CRÍTICO para E4)
 		if distribucion_items:
-			tax_row.item_wise_tax_detail = json.dumps(distribucion_items)
+			tax_row.item_wise_tax_detail = json.dumps(distribucion_items, ensure_ascii=False)
 
 			# Prevenir que ERPNext redistribuya este impuesto proporcionalmente
 			# ERPNext por default redistribuye "Actual" entre items según net_amount
@@ -495,7 +502,7 @@ def _corregir_item_wise_tax_detail_ieps_cuota(doc, cuenta_metadata: dict):
 				cuota_data = _get_cuota_prioridad(item, tax_row.account_head, doc)
 				if not cuota_data:
 					# No debería llegar aquí si _item_contribuye es correcto
-					distribucion_correcta[item.name] = [0.0, 0.0]
+					distribucion_correcta[item.item_code] = [0.0, 0.0]
 					continue
 
 				cuota_per_uom_base = flt(cuota_data["cuota"])
@@ -525,10 +532,10 @@ def _corregir_item_wise_tax_detail_ieps_cuota(doc, cuenta_metadata: dict):
 				item_ieps = unidades_base * cuota_per_uom_base
 				total_ieps += item_ieps
 				# CRÍTICO: rate=0.0 para charge_type="Actual"
-				distribucion_correcta[item.name] = [0.0, item_ieps]
+				distribucion_correcta[item.item_code] = [0.0, item_ieps]
 			else:
 				# Item NO contribuye: asignar ceros (clave para E4)
-				distribucion_correcta[item.name] = [0.0, 0.0]
+				distribucion_correcta[item.item_code] = [0.0, 0.0]
 
 		# Sobrescribir item_wise_tax_detail y tax_amount
 		tax_row.item_wise_tax_detail = json.dumps(distribucion_correcta)
@@ -585,23 +592,23 @@ def _ajustar_item_wise_tax_detail_iva_combustibles(doc, cuenta_metadata: dict):
 
 		# Ajustar base IVA por item
 		for item in doc.items:
-			if item.name not in iva_item_wise:
+			if item.item_code not in iva_item_wise:
 				continue
 
 			# Sumar IEPS combustibles para este item
 			total_ieps_item = 0
 			for _cuenta_ieps, ieps_item_wise in ieps_no_integra.items():
-				if item.name in ieps_item_wise:
-					total_ieps_item += flt(ieps_item_wise[item.name][1])  # [rate, amount]
+				if item.item_code in ieps_item_wise:
+					total_ieps_item += flt(ieps_item_wise[item.item_code][1])  # [rate, amount]
 
 			if total_ieps_item > 0:
 				# Ajustar: Base IVA = importe item (sin IEPS)
 				# IVA item = (item.amount) * tasa_iva
-				rate_iva = flt(iva_item_wise[item.name][0])  # Tasa IVA
+				rate_iva = flt(iva_item_wise[item.item_code][0])  # Tasa IVA
 				base_iva_ajustada = flt(item.amount)  # Sin IEPS
 				iva_ajustado = base_iva_ajustada * (rate_iva / 100.0)
 
-				iva_item_wise[item.name] = [rate_iva, flt(iva_ajustado, 2)]
+				iva_item_wise[item.item_code] = [rate_iva, flt(iva_ajustado, 2)]
 
 		# Actualizar item_wise_tax_detail y recalcular tax_amount
 		tax_row.item_wise_tax_detail = json.dumps(iva_item_wise)

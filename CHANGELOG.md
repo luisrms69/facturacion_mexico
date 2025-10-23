@@ -93,6 +93,13 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
   - DocType Regimen Fiscal SAT disponible para futuras mejoras
 
 ### Fixed
+- **IEPS Cuota item_wise_tax_detail con keys incorrectas** - Corregido uso de item.name en lugar de item.item_code
+  - Problema: Función `_corregir_item_wise_tax_detail_ieps_cuota()` y `_ajustar_item_wise_tax_detail_iva_combustibles()` usaban `item.name` (ID interno como "svk1s4kt7p") en lugar de `item.item_code` (código legible como "TEST-IEPS-AZUCAR-001") como keys del diccionario
+  - Impacto: ERPNext UI Tax Breakup mostraba datos inconsistentes, aunque payload PAC era correcto
+  - Solución: 9 correcciones de `item.name` → `item.item_code` en funciones `calcular_ieps_cuota()`, `_congelar_iva_sobre_ieps_cuota()`, `_corregir_item_wise_tax_detail_ieps_cuota()`, y `_ajustar_item_wise_tax_detail_iva_combustibles()`
+  - Validación PAC exitosa: Sales Invoice ACC-SINV-2025-01619, FFM FFMX-2025-00166, UUID 3B66AB8C-50E8-4E0A-A5EE-15B74C25EA95 (status: valid, timbrado exitoso)
+  - Mejoras adicionales: agregar items no aplicables con [0.0, 0.0] para completitud UI, ensure_ascii=False en JSON dumps, precisión flt() para redondeo, verificación descripción IVA
+  - Resultado: item_wise_tax_detail completo (4/4 items), keys correctas (item.item_code), montos correctos (IEPS Azúcar $7.62, IEPS Combustibles $219.60)
 - **Fix crítico generación templates ITT/STCT** - Solución `DoesNotExistError` al crear templates nuevos
   - Método `_crear_o_actualizar_itt()` corregido: usa `frappe.new_doc()` + `doc.name = title` para nuevos
   - Método `_crear_o_actualizar_stct()` corregido: mismo patrón consistente
