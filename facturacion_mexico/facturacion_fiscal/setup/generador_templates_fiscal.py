@@ -17,6 +17,31 @@ ROL_RET_IVA_HON = "Retención IVA Honorarios"
 ROL_RET_ISR_HON = "Retención ISR Honorarios"
 
 
+# -----------------------------------------------------------
+# NORMALIZACIÓN DE TÍTULOS
+# -----------------------------------------------------------
+def _normalize_title(s: str) -> str:
+	"""
+	Normaliza guiones y espacios en títulos STCT/ITT.
+
+	Corrige:
+	- Guión largo → guión corto (-)
+	- Espacios múltiples → espacio simple
+	- Espacios inconsistentes alrededor de guiones
+
+	Args:
+		s: Título a normalizar
+
+	Returns:
+		str: Título normalizado
+	"""
+	s = (s or "").replace("\u2013", "-").strip()  # EN DASH → HYPHEN-MINUS
+	while "  " in s:
+		s = s.replace("  ", " ")
+	s = " - ".join(part.strip() for part in s.split("-"))
+	return s
+
+
 def _get_company_abbr(company: str) -> str:
 	return frappe.db.get_value("Company", company, "abbr") or "TC"
 
@@ -166,19 +191,70 @@ def _build_rows(company: str, zona: str, iva_rate: float, variant: str) -> list[
 
 
 def _make_stct(company: str, title: str, rows: list[dict]) -> str:
-	exists = frappe.db.exists("Sales Taxes and Charges Template", {"title": title, "company": company})
-	if exists:
-		return exists
+	"""
+	Crea o actualiza Sales Taxes and Charges Template.
 
-	doc = frappe.new_doc("Sales Taxes and Charges Template")
-	doc.company = company
-	doc.title = title  # << SIN números de tasa
-	doc.is_sales_tax_template = 1
-	doc.disabled = 0
+	Características:
+	- Normaliza title (guiones, espacios)
+	- Usa método install.py (Frappe auto-naming agrega abbr)
+	- Actualiza existentes (reutiliza templates)
+	- Idempotente: re-ejecutar no crea duplicados
+
+	Args:
+		company: Company name
+		title: Template title (SIN abbr - Frappe lo agrega automáticamente)
+		rows: Tax rows configuration
+
+	Returns:
+		str: Template name (title + " - " + abbr)
+	"""
+	# Normalizar title (guiones, espacios)
+	title = _normalize_title(title)
+
+	# Obtener company abbr para búsqueda
+	company_abbr = frappe.db.get_value("Company", company, "abbr")
+	if not company_abbr:
+		frappe.throw(f"No se encontró company abbr para {company}")
+
+	# Buscar template existente por title CON abbr (como Frappe lo guarda)
+	title_with_abbr = f"{title} - {company_abbr}"
+	existing_name = frappe.db.get_value(
+		"Sales Taxes and Charges Template", {"title": title_with_abbr, "company": company}, "name"
+	)
+
+	if existing_name:
+		# ACTUALIZAR template existente (reutilizar)
+		doc = frappe.get_doc("Sales Taxes and Charges Template", existing_name)
+		doc.title = title_with_abbr  # Asegurar title normalizado con abbr
+		doc.company = company
+		doc.is_sales_tax_template = 1
+		doc.disabled = 0
+		# Limpiar taxes viejas
+		doc.set("taxes", [])
+	else:
+		# CREAR nuevo template - método install.py
+		# NO pre-establecer 'name' - Frappe maneja auto-naming (agrega abbr)
+		doc = frappe.get_doc(
+			{
+				"doctype": "Sales Taxes and Charges Template",
+				"title": title,  # ← Solo title, Frappe auto-naming agrega abbr
+				"company": company,
+				"is_sales_tax_template": 1,
+				"disabled": 0,
+			}
+		)
+
+	# Agregar filas taxes (común para create/update)
 	for idx, r in enumerate(rows, start=1):
 		r["idx"] = idx
 		doc.append("taxes", r)
-	doc.insert()
+
+	# Guardar (insert para nuevos, save para existentes)
+	if existing_name:
+		doc.save()
+	else:
+		doc.insert()
+
 	frappe.db.commit()
 	return doc.name
 
@@ -229,7 +305,8 @@ def generate_8_stct_for_company(
 	created = []
 	for zona, rate in (("Nacional", iva_nat), ("Frontera", iva_fro)):
 		for variant in ("Básico", "IEPS", "Retenciones", "Total"):
-			title = f"IVA {zona} - {variant} - {abbr}"
+			# Title SIN abbr - Frappe auto-naming lo agregará
+			title = f"IVA {zona} - {variant}"
 			rows = _build_rows(company, zona, rate, variant)
 			name = _make_stct(company, title, rows)
 			created.append(name)

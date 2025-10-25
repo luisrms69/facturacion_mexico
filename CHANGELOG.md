@@ -7,6 +7,20 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
 ## [Unreleased]
 
 ### Added
+- **Autoselección inteligente STCT** - Sistema automático según clasificación items y zona fiscal
+  - Función `_determinar_variante_stct()` clasifica documento y retorna variante apropiada
+  - Función `_find_stct_by_variant()` busca STCT exacto por zona + variante
+  - Matriz decisión 2×4 = 8 combinaciones: Nacional/Frontera × Básico/IEPS/Retenciones/Total
+  - Integración con hook `before_validate()` en Sales Invoice
+  - Mensajes informativos: "Impuestos configurados automáticamente: IVA {tasa} - {variante}"
+  - Eliminación completa filas $0 en facturas (solo filas necesarias según items)
+  - Workflow: Sales Invoice → clasificar items → determinar zona → seleccionar STCT específico
+- **Suite tests autoselección STCT** - Cobertura completa (7 tests - 0.420s)
+  - Archivo facturacion_mexico/tests/test_autoseleccion_stct.py
+  - Tests variantes: Básico, IEPS, Retenciones, Total
+  - Tests búsqueda STCT por zona y variante
+  - Test matriz decisión completa (8 combinaciones)
+  - Determinista: sin red, sin reloj real, setUp() único
 - **Fuente de verdad única Item Groups fiscales** - Consolidación TABLA_MAESTRA_GRUPOS_FISCALES
   - Tabla maestra única (10 filas): Item Group + ITT Pattern + Categoría Fiscal + Tipo
   - 5 constantes auto-generadas: ITEM_GROUP_ITT_MAP, ITEM_GROUP_CATEGORIA, CATEGORIAS_IEPS, CATEGORIAS_RETENCION, ITEM_GROUPS_FISCALES
@@ -146,6 +160,29 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
   - DocType Regimen Fiscal SAT disponible para futuras mejoras
 
 ### Fixed
+- **Generación templates STCT** - Corrección método creación templates para carga correcta tax rows en UI
+  - Fix root cause: pre-establecer 'name' impedía inicialización child tables en Frappe framework
+  - Implementado método install.py: title SIN abbr, Frappe auto-naming agrega abbr automáticamente
+  - Cambio generador línea 304: `title = f"IVA {zona} - {variant}"` (SIN abbr)
+  - Cambio generador línea 234: Eliminado `"name": title` (NO pre-establecer 'name')
+  - Búsqueda templates existentes ajustada para `title_with_abbr = f"{title} - {company_abbr}"`
+  - Templates generados ahora cargan tax rows completas en UI correctamente
+  - Eliminado doble sufijo " - _TC - _TC" en templates (ahora solo " - _TC")
+  - Evidencia: Template "IVA 0% - México - _TC" (install.py) funcionaba, nuevos templates (name pre-establecido) no funcionaban
+- **Carga automática tax rows en autoselección STCT** - Hook Python ahora carga filas completas desde template
+  - Agregado `get_taxes_and_charges()` nativo ERPNext en `_set_stct_by_branch()`
+  - Líneas 202-208 sales_invoice_automated_tax.py: import función + limpiar taxes + extend tax_rows
+  - Fix crítico: antes solo seteaba `doc.taxes_and_charges` (campo template name), ahora carga tabla `taxes` completa
+  - Resultado: autoselección STCT funcional con todas las filas de impuestos visibles en UI
+  - Workflow completo: clasificar items → determinar STCT → asignar template → cargar tax rows
+- **Código JavaScript legacy eliminado** - Limpieza completa lógica duplicada y mensajes legacy
+  - Eliminada función `_fm_apply_branch_tax_template()` completa (68 líneas código legacy)
+  - Eliminados mensajes duplicados "Impuestos configurados automáticamente: IVA 16% (México)"
+  - Eliminada lógica búsqueda templates viejos (`like '%IVA 16%'`) en JavaScript
+  - Función reemplazada por stub vacío con documentación delegación a Python hook
+  - JavaScript 100% delegado a Python hook `before_validate()` en sales_invoice_automated_tax.py
+  - Sin búsquedas duplicadas, sin mensajes legacy, sin conflictos Python ↔ JavaScript
+  - Resultado: Sistema limpio, mensajes únicos, autoselección 100% server-side
 - **IEPS Cuota item_wise_tax_detail con keys incorrectas** - Corregido uso de item.name en lugar de item.item_code
   - Problema: Función `_corregir_item_wise_tax_detail_ieps_cuota()` y `_ajustar_item_wise_tax_detail_iva_combustibles()` usaban `item.name` (ID interno como "svk1s4kt7p") en lugar de `item.item_code` (código legible como "TEST-IEPS-AZUCAR-001") como keys del diccionario
   - Impacto: ERPNext UI Tax Breakup mostraba datos inconsistentes, aunque payload PAC era correcto

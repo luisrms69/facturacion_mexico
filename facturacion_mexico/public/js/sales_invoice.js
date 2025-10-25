@@ -398,32 +398,9 @@ frappe.ui.form.on("Sales Invoice", {
 			// silencio
 		}
 
-		// 3) PASO 3: Mostrar información STCT que se seleccionará automáticamente
-		if (derived_branch) {
-			try {
-				const branch_info = await frappe.db.get_value(
-					"Branch",
-					derived_branch,
-					"fm_is_border_zone"
-				);
-				if (branch_info && branch_info.message !== undefined) {
-					const is_border = branch_info.message.fm_is_border_zone;
-					const stct_type = is_border ? "IVA 8% (Zona Fronteriza)" : "IVA 16% (México)";
-					// Mensaje simplificado sin "STCT", 6-7 segundos
-					frappe.show_alert(
-						{
-							message: __(
-								`Impuestos configurados automáticamente: <b>${stct_type}</b>`
-							),
-							indicator: "blue",
-						},
-						6
-					);
-				}
-			} catch (e) {
-				// silencio
-			}
-		}
+		// PASO 3: STCT autoselección ahora manejada 100% por Python hook
+		// Ver: facturacion_mexico/hooks_handlers/sales_invoice_automated_tax.py
+		// El hook Python muestra mensaje correcto después de clasificar items
 	},
 
 	// Bloqueos UI (refuerzo — el bloqueo real también está en validate server-side)
@@ -572,74 +549,15 @@ frappe.ui.form.on("Sales Invoice", {
 	},
 });
 
-// Helper: determina Branch por CC y aplica STCT 16/8 si taxes_and_charges está vacío
+// DEPRECADO: Autoselección STCT ahora manejada por Python hook before_validate()
+// Ver: facturacion_mexico/hooks_handlers/sales_invoice_automated_tax.py
 async function _fm_apply_branch_tax_template(frm) {
-	try {
-		if (!frm.doc.cost_center) return;
-
-		// Branch por CC (persistimos en fm_branch si existe el campo)
-		const { message: cc } = await frappe.db.get_value("Cost Center", frm.doc.cost_center, [
-			"fm_mapped_branch",
-		]);
-		const branch = cc ? cc.fm_mapped_branch : null;
-
-		if (branch && frm.fields_dict["fm_branch"]) {
-			await frm.set_value("fm_branch", branch);
-		}
-
-		// Si ya hay STCT, respetamos al usuario
-		if (frm.doc.taxes_and_charges) return;
-
-		// ¿Es frontera?
-		let is_border = false;
-		if (branch) {
-			const { message: b } = await frappe.db.get_value("Branch", branch, [
-				"fm_is_border_zone",
-			]);
-			is_border = !!(b && cint(b.fm_is_border_zone));
-		}
-
-		// Elegir plantilla: buscar por nombre "IVA 8" o "IVA 16" (venta) en esta compañía
-		const rateTxt = is_border ? "8" : "16";
-		const r = await frappe.call({
-			method: "frappe.client.get_list",
-			args: {
-				doctype: "Sales Taxes and Charges Template",
-				filters: {
-					company: frm.doc.company,
-					disabled: 0,
-					name: ["like", `%IVA ${rateTxt}%`],
-				},
-				fields: ["name"],
-				limit_page_length: 1,
-			},
-		});
-		if (r && r.message && r.message.length > 0) {
-			await frm.set_value("taxes_and_charges", r.message[0].name);
-			frappe.show_alert(
-				{
-					message: `Plantilla de impuestos aplicada (${
-						is_border ? "IVA 8%" : "IVA 16%"
-					}).`,
-					indicator: "green",
-				},
-				6
-			);
-		} else {
-			// No se encontró STCT apropiado - mostrar mensaje informativo
-			const taxType = is_border ? "IVA 8% (Zona Fronteriza)" : "IVA 16% (México)";
-			frappe.show_alert(
-				{
-					message: `No se encontró plantilla ${taxType} para ${frm.doc.company}. Debe configurarse desde el Wizard Fiscal.`,
-					indicator: "orange",
-				},
-				8
-			);
-			console.log(`STCT no encontrado: ${taxType} para company ${frm.doc.company}`);
-		}
-	} catch (e) {
-		console.log("_fm_apply_branch_tax_template error", e);
-	}
+	// Función vacía - lógica migrada a Python hook
+	// Python hook maneja:
+	// 1. Cost Center → Branch derivación
+	// 2. Clasificación items (IEPS, Retenciones)
+	// 3. Autoselección 8 STCT específicos (Nacional/Frontera × 4 variantes)
+	return;
 }
 
 function cint(v) {

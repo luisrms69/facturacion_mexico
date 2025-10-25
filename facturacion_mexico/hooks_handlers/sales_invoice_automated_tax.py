@@ -4,6 +4,8 @@
 
 import frappe
 
+from facturacion_mexico.utils.clasificacion_items import clasificar_items_documento
+
 # ---- Utilidades internas -----------------------------------------------
 
 
@@ -88,12 +90,57 @@ def _get_border_zone_status(branch: str | None) -> bool | None:
 	return frappe.db.get_value("Branch", branch, "fm_is_border_zone")
 
 
-def _find_stct_by_pattern(company: str, is_border: bool) -> str | None:
+def _determinar_variante_stct(doc) -> str:
 	"""
-	Buscar STCT por patrón de título según convención E0.5.
-	Busca por título conteniendo:
-	- IVA 8% - Zona Fronteriza - {abbr} (para zona fronteriza)
-	- IVA 16% - México - {abbr} (para zona no fronteriza)
+	Determinar variante STCT según clasificación items del documento.
+
+	Matriz decisión:
+	- tiene_ieps=False, tiene_retenciones=False → "Básico"
+	- tiene_ieps=True, tiene_retenciones=False → "IEPS"
+	- tiene_ieps=False, tiene_retenciones=True → "Retenciones"
+	- tiene_ieps=True, tiene_retenciones=True → "Total"
+
+	Args:
+		doc: Sales Invoice document
+
+	Returns:
+		str: Una de las 4 variantes: "Básico", "IEPS", "Retenciones", "Total"
+	"""
+	# Clasificar items del documento
+	clasificacion = clasificar_items_documento(doc)
+
+	# Matriz decisión
+	if clasificacion["tiene_ieps"] and clasificacion["tiene_retenciones"]:
+		return "Total"
+	elif clasificacion["tiene_ieps"]:
+		return "IEPS"
+	elif clasificacion["tiene_retenciones"]:
+		return "Retenciones"
+	else:
+		return "Básico"
+
+
+def _find_stct_by_variant(company: str, zona: str, variant: str) -> str | None:
+	"""
+	Buscar STCT por zona y variante según convención E1.
+
+	Patrón de búsqueda:
+	- "IVA Nacional - Básico - {abbr}"
+	- "IVA Nacional - IEPS - {abbr}"
+	- "IVA Nacional - Retenciones - {abbr}"
+	- "IVA Nacional - Total - {abbr}"
+	- "IVA Frontera - Básico - {abbr}"
+	- "IVA Frontera - IEPS - {abbr}"
+	- "IVA Frontera - Retenciones - {abbr}"
+	- "IVA Frontera - Total - {abbr}"
+
+	Args:
+		company: Company name
+		zona: "Nacional" o "Frontera"
+		variant: "Básico", "IEPS", "Retenciones", "Total"
+
+	Returns:
+		str | None: STCT name or None if not found
 	"""
 	if not company:
 		return None
@@ -103,37 +150,32 @@ def _find_stct_by_pattern(company: str, is_border: bool) -> str | None:
 	if not company_abbr:
 		return None
 
-	if is_border:
-		# Buscar STCT 8% para zona fronteriza
-		patterns = [
-			f"IVA 8% - Zona Fronteriza - {company_abbr}",
-			f"IVA 8%{company_abbr}",  # Fallback más flexible
-		]
-	else:
-		# Buscar STCT 16% para zona no fronteriza
-		patterns = [
-			f"IVA 16% - México - {company_abbr}",
-			f"IVA 16%{company_abbr}",  # Fallback más flexible
-		]
+	# Patrón exacto según convención E1
+	title_pattern = f"IVA {zona} - {variant} - {company_abbr}"
 
-	# Buscar por cada patrón
-	for pattern in patterns:
-		stct = frappe.db.get_value(
-			"Sales Taxes and Charges Template",
-			{"title": ["like", f"%{pattern}%"], "company": company, "disabled": 0},
-			"name",
-		)
-		if stct:
-			return stct
+	# Buscar por título exacto
+	stct = frappe.db.get_value(
+		"Sales Taxes and Charges Template",
+		{"title": title_pattern, "company": company, "disabled": 0},
+		"name",
+	)
 
-	return None
+	return stct
 
 
 def _set_stct_by_branch(doc, branch: str | None):
 	"""
-	PASO 3: Seleccionar STCT automáticamente según si Branch es zona fronteriza.
-	- fm_is_border_zone = 1 → STCT 8%
-	- fm_is_border_zone = 0 → STCT 16%
+	PASO 3: Seleccionar STCT automáticamente según Branch y clasificación items.
+
+	Autoselección inteligente:
+	1. Determinar zona fiscal (Nacional/Frontera) desde Branch.fm_is_border_zone
+	2. Clasificar items del documento (tiene_ieps, tiene_retenciones)
+	3. Matriz decisión: zona x (tiene_ieps, tiene_retenciones) → 8 STCT específicos
+
+	Ejemplo:
+	- Zona Nacional + items IEPS (sin retenciones) → "IVA Nacional - IEPS - {abbr}"
+	- Zona Frontera + items básicos (sin IEPS/retenciones) → "IVA Frontera - Básico - {abbr}"
+	- Zona Nacional + items IEPS + retenciones → "IVA Nacional - Total - {abbr}"
 	"""
 	if not branch or not getattr(doc, "company", None):
 		return
@@ -143,23 +185,40 @@ def _set_stct_by_branch(doc, branch: str | None):
 	if is_border is None:
 		return
 
-	# Buscar STCT apropiado
-	stct = _find_stct_by_pattern(doc.company, bool(is_border))
+	# Determinar zona según Branch
+	zona = "Frontera" if is_border else "Nacional"
+
+	# Determinar variante según clasificación items
+	variant = _determinar_variante_stct(doc)
+
+	# Buscar STCT específico
+	stct = _find_stct_by_variant(doc.company, zona, variant)
 
 	if stct:
 		# Asignar STCT encontrado
 		if getattr(doc, "taxes_and_charges", None) != stct:
 			doc.taxes_and_charges = stct
-			zone_type = "Zona Fronteriza (8%)" if is_border else "México (16%)"
+
+			# Cargar tax rows desde template (función nativa ERPNext)
+			from erpnext.controllers.accounts_controller import get_taxes_and_charges
+
+			# Limpiar taxes actuales y cargar desde template
+			doc.set("taxes", [])
+			tax_rows = get_taxes_and_charges("Sales Taxes and Charges Template", stct)
+			doc.extend("taxes", tax_rows)
+
+			iva_label = "8%" if is_border else "16%"
 			frappe.msgprint(
-				f"Impuestos configurados automáticamente: <b>{zone_type}</b>", alert=True, indicator="green"
+				f"Impuestos configurados automáticamente: <b>IVA {iva_label} - {variant}</b>",
+				alert=True,
+				indicator="green",
 			)
 	else:
 		# STCT no encontrado - bloquear con mensaje accionable
-		zone_type = "8% (Zona Fronteriza)" if is_border else "16% (México)"
 		company_abbr = frappe.db.get_value("Company", doc.company, "abbr")
-		errormsg = f"No se encontró STCT de IVA {zone_type} para {doc.company}. "
-		errormsg += f"Genere el template 'IVA {'8% - Zona Fronteriza' if is_border else '16% - México'} - {company_abbr}' desde el wizard fiscal."
+		title_expected = f"IVA {zona} - {variant} - {company_abbr}"
+		errormsg = f"No se encontró STCT específico para esta factura: <b>{title_expected}</b>.<br>"
+		errormsg += "Genere los 8 STCT específicos desde <b>Configuracion Fiscal Mexico</b> (botón 'Generate Templates')."
 		frappe.throw(errormsg)
 
 
