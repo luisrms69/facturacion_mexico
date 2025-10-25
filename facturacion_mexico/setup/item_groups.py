@@ -1,45 +1,53 @@
 import frappe
 from frappe.utils import cint
 
-# Nombres fijos de los grupos (raíz)
-IG_ZERO = "Artículos con IVA al 0%"
-IG_EXENTO = "Artículos Exentos"
-IG_IEPS_ALCOHOL = "Artículos IEPS Alcohol"
-IG_IEPS_AZUCAR = "Artículos IEPS Azúcar"
-IG_IEPS_COMBUSTIBLES = "Artículos IEPS Combustibles"
-IG_IEPS_TABACO = "Artículos IEPS Tabaco"
-IG_RET_HONORARIOS = "Servicios Profesionales (Honorarios)"
-IG_RET_ARRENDAMIENTO = "Arrendamiento"
-IG_RET_AUTOTRANSPORTE = "Autotransporte"
-IG_RET_RESICO = "RESICO"
+# -----------------------------------------------------------
+# TABLA MAESTRA ÚNICA - FUENTE DE VERDAD
+# -----------------------------------------------------------
+# Esta tabla define TODO: Item Group, ITT pattern, Categoría fiscal
+# De aquí derivan todas las demás estructuras (sin duplicación)
+
+TABLA_MAESTRA_GRUPOS_FISCALES = [
+	# (Item Group Name, ITT Pattern, Categoría Fiscal, Tipo)
+	# Resto (IVA normal, 0%, exento)
+	("Artículos con IVA al 0%", "ITT IVA 0% - {suffix}", "Resto", "IVA_ESPECIAL"),
+	("Artículos Exentos", "ITT Exento - {suffix}", "Resto", "IVA_ESPECIAL"),
+	# IEPS (4 categorías)
+	("Artículos IEPS Alcohol", "ITT IEPS Alcohol - {suffix}", "Alcohol", "IEPS"),
+	("Artículos IEPS Azúcar", "ITT IEPS Azúcar - {suffix}", "Azucar", "IEPS"),
+	("Artículos IEPS Combustibles", "ITT IEPS Combustibles - {suffix}", "Combustibles", "IEPS"),
+	("Artículos IEPS Tabaco", "ITT IEPS Tabaco - {suffix}", "Tabaco", "IEPS"),
+	# Retenciones (4 tipos, misma categoría fiscal)
+	(
+		"Servicios Profesionales (Honorarios)",
+		"ITT ISR + IVA Ret Honorarios - {suffix}",
+		"Retenciones",
+		"RETENCION",
+	),
+	("Arrendamiento", "ITT ISR + IVA Ret Arrendamiento - {suffix}", "Retenciones", "RETENCION"),
+	("Autotransporte", "ITT ISR + IVA Ret Autotransporte - {suffix}", "Retenciones", "RETENCION"),
+	("RESICO", "ITT ISR + IVA Ret RESICO - {suffix}", "Retenciones", "RETENCION"),
+]
+
+# -----------------------------------------------------------
+# CONSTANTES DERIVADAS (generadas automáticamente)
+# -----------------------------------------------------------
 ROOT_IG = "All Item Groups"
 
-# Patrones de nombres de ITT generados por tu wizard E0.5
-# Nota: Buscar por title (formato simple) no por name (formato con doble sufijo)
-ITT_ZERO_TITLE = "ITT IVA 0% - {suffix}"
-ITT_EXENTO_TITLE = "ITT Exento - {suffix}"
-ITT_IEPS_ALCOHOL_TITLE = "ITT IEPS Alcohol - {suffix}"
-ITT_IEPS_AZUCAR_TITLE = "ITT IEPS Azúcar - {suffix}"
-ITT_IEPS_COMBUSTIBLES_TITLE = "ITT IEPS Combustibles - {suffix}"
-ITT_IEPS_TABACO_TITLE = "ITT IEPS Tabaco - {suffix}"
-ITT_RET_HONORARIOS_TITLE = "ITT ISR + IVA Ret Honorarios - {suffix}"
-ITT_RET_ARRENDAMIENTO_TITLE = "ITT ISR + IVA Ret Arrendamiento - {suffix}"
-ITT_RET_AUTOTRANSPORTE_TITLE = "ITT ISR + IVA Ret Autotransporte - {suffix}"
-ITT_RET_RESICO_TITLE = "ITT ISR + IVA Ret RESICO - {suffix}"
+# Diccionario Item Group → ITT pattern (para asignación)
+ITEM_GROUP_ITT_MAP = {row[0]: row[1] for row in TABLA_MAESTRA_GRUPOS_FISCALES}
 
-# Mapa completo Item Group → ITT pattern
-ITEM_GROUP_ITT_MAP = {
-	IG_ZERO: ITT_ZERO_TITLE,
-	IG_EXENTO: ITT_EXENTO_TITLE,
-	IG_IEPS_ALCOHOL: ITT_IEPS_ALCOHOL_TITLE,
-	IG_IEPS_AZUCAR: ITT_IEPS_AZUCAR_TITLE,
-	IG_IEPS_COMBUSTIBLES: ITT_IEPS_COMBUSTIBLES_TITLE,
-	IG_IEPS_TABACO: ITT_IEPS_TABACO_TITLE,
-	IG_RET_HONORARIOS: ITT_RET_HONORARIOS_TITLE,
-	IG_RET_ARRENDAMIENTO: ITT_RET_ARRENDAMIENTO_TITLE,
-	IG_RET_AUTOTRANSPORTE: ITT_RET_AUTOTRANSPORTE_TITLE,
-	IG_RET_RESICO: ITT_RET_RESICO_TITLE,
-}
+# Diccionario Item Group → Categoría fiscal (para clasificación)
+ITEM_GROUP_CATEGORIA = {row[0]: row[2] for row in TABLA_MAESTRA_GRUPOS_FISCALES}
+
+# Set de categorías IEPS (para clasificación rápida)
+CATEGORIAS_IEPS = {row[2] for row in TABLA_MAESTRA_GRUPOS_FISCALES if row[3] == "IEPS"}
+
+# Set de categorías Retención (para clasificación rápida)
+CATEGORIAS_RETENCION = {row[2] for row in TABLA_MAESTRA_GRUPOS_FISCALES if row[3] == "RETENCION"}
+
+# Lista de nombres Item Groups (para creación/validación)
+ITEM_GROUPS_FISCALES = [row[0] for row in TABLA_MAESTRA_GRUPOS_FISCALES]
 
 
 def _ensure_item_group(name: str) -> str:
@@ -99,14 +107,10 @@ def _resolve_itt_name(base_pattern: str, company_doc) -> str | None:
 	"""Intenta resolver el nombre exacto del ITT para la compañía probando varios sufijos."""
 	for suf in _find_company_suffixes(company_doc):
 		candidate = base_pattern.format(suffix=suf)
-		# Preferir búsqueda por name exacto (post-normalización)
+		# Búsqueda por name exacto (único método válido)
 		by_name = frappe.db.exists("Item Tax Template", candidate)
 		if by_name:
 			return by_name
-		# Fallback por title (para compatibilidad con templates viejos si existen)
-		by_title = frappe.db.get_value("Item Tax Template", {"title": candidate}, "name")
-		if by_title:
-			return by_title
 	return None
 
 

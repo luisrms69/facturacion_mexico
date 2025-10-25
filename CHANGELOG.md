@@ -7,6 +7,24 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
 ## [Unreleased]
 
 ### Added
+- **Fuente de verdad única Item Groups fiscales** - Consolidación TABLA_MAESTRA_GRUPOS_FISCALES
+  - Tabla maestra única (10 filas): Item Group + ITT Pattern + Categoría Fiscal + Tipo
+  - 5 constantes auto-generadas: ITEM_GROUP_ITT_MAP, ITEM_GROUP_CATEGORIA, CATEGORIAS_IEPS, CATEGORIAS_RETENCION, ITEM_GROUPS_FISCALES
+  - Eliminadas 20+ constantes dispersas (IG_*, ITT_*_TITLE)
+  - Código fallback legacy removido (búsqueda por title en _resolve_itt_name)
+  - Mantenimiento simplificado: un solo lugar para modificar mapeos fiscales
+- **Función clasificación items por categoría fiscal** - Preparación autoselección STCT
+  - Función `clasificar_items_documento()` en facturacion_mexico/utils/clasificacion_items.py
+  - Lee item.item_group directo (con cache Frappe)
+  - Mapea Item Group → Categoría fiscal vía ITEM_GROUP_CATEGORIA
+  - Detecta flags: tiene_ieps, tiene_retenciones
+  - Retorna clasificación agregada: categorias[], items_por_categoria{}
+  - Workflow: Sales Invoice items → categorías → preparado para matriz decisión STCT
+- **Suite tests clasificación items** - Cobertura completa (7 tests - 0.455s)
+  - Archivo facturacion_mexico/tests/test_clasificacion_items.py
+  - Tests categorías: IEPS (4 tipos), Retenciones, Resto, documentos mixtos
+  - Verificación constantes derivadas correctas
+  - Determinista: sin red, sin reloj real, setUp() único
 - **Sistema 8 STCT específicos para eliminar filas $0 en facturas** - Reemplazo templates consolidados
   - 8 templates nuevos: Nacional/Frontera × Básico/IEPS/Retenciones/Total
   - Template "IVA Nacional – Básico" (1 fila): solo IVA para facturas simples
