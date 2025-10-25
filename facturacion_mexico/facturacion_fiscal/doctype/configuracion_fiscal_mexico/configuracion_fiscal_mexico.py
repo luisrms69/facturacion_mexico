@@ -5,6 +5,27 @@ Configuración Fiscal México - DocType principal para wizard de mapeo fiscal.
 import frappe
 from frappe.model.document import Document
 
+# Importar constantes roles fiscales - Single source of truth
+from facturacion_mexico.utils.roles_fiscales import (
+	ROL_IEPS_ALC,
+	ROL_IEPS_AZU,
+	ROL_IEPS_COMB,
+	ROL_IEPS_TAB,
+	ROL_IEPS_TABQ,
+	ROL_IVA_CERO,
+	ROL_IVA_EXENTO,
+	ROL_IVA_FRO,
+	ROL_IVA_NAC,
+	ROL_RET_ISR_ARR,
+	ROL_RET_ISR_AUTO,
+	ROL_RET_ISR_HON,
+	ROL_RET_ISR_RESICO,
+	ROL_RET_IVA_ARR,
+	ROL_RET_IVA_AUTO,
+	ROL_RET_IVA_HON,
+	ROL_RET_IVA_RESICO,
+)
+
 
 class ConfiguracionFiscalMexico(Document):
 	"""
@@ -47,31 +68,33 @@ class ConfiguracionFiscalMexico(Document):
 
 	def _rol_requerido_por_alcance(self, rol_fiscal: str) -> bool:
 		"""Determinar si un rol fiscal es requerido según alcance configurado."""
-		# Roles siempre requeridos
-		roles_base = ["IVA por Pagar (16%)", "IVA Exento"]
+		# Roles siempre requeridos - usar constantes
+		roles_base = [ROL_IVA_NAC, ROL_IVA_EXENTO]
 		if rol_fiscal in roles_base:
 			return True
 
-		# Roles condicionales por alcance
-		if self.enable_frontera and "8% frontera" in rol_fiscal:
+		# Roles condicionales por alcance - usar constantes
+		if self.enable_frontera and rol_fiscal == ROL_IVA_FRO:
 			return True
-		if self.enable_exportacion and "0% exportación" in rol_fiscal:
+		if self.enable_exportacion and rol_fiscal == ROL_IVA_CERO:
 			return True
-		if self.enable_ieps_alcohol and "IEPS por Pagar (Alcohol)" in rol_fiscal:
+		if self.enable_ieps_alcohol and rol_fiscal == ROL_IEPS_ALC:
 			return True
-		if self.enable_ieps_azucar and "IEPS por Pagar (Azúcar" in rol_fiscal:
+		if self.enable_ieps_azucar and rol_fiscal == ROL_IEPS_AZU:
 			return True
-		if self.enable_ieps_combustibles and "IEPS por Pagar (Combustibles)" in rol_fiscal:
+		if self.enable_ieps_combustibles and rol_fiscal == ROL_IEPS_COMB:
 			return True
-		if self.enable_ieps_tabaco and ("IEPS por Pagar (Tabaco)" in rol_fiscal):
+		if self.enable_ieps_tabaco and (rol_fiscal == ROL_IEPS_TAB or rol_fiscal == ROL_IEPS_TABQ):
 			return True
-		if self.enable_ret_honorarios and "ISR Retenido (Honorarios)" in rol_fiscal:
+		if self.enable_ret_honorarios and (rol_fiscal == ROL_RET_ISR_HON or rol_fiscal == ROL_RET_IVA_HON):
 			return True
-		if self.enable_ret_arrendamiento and "Arrendamiento" in rol_fiscal:
+		if self.enable_ret_arrendamiento and (rol_fiscal == ROL_RET_ISR_ARR or rol_fiscal == ROL_RET_IVA_ARR):
 			return True
-		if self.enable_ret_autotransporte and "Autotransporte" in rol_fiscal:
+		if self.enable_ret_autotransporte and (
+			rol_fiscal == ROL_RET_ISR_AUTO or rol_fiscal == ROL_RET_IVA_AUTO
+		):
 			return True
-		if self.enable_ret_resico and "RESICO" in rol_fiscal:
+		if self.enable_ret_resico and (rol_fiscal == ROL_RET_ISR_RESICO or rol_fiscal == ROL_RET_IVA_RESICO):
 			return True
 
 		return False
@@ -146,62 +169,42 @@ class ConfiguracionFiscalMexico(Document):
 
 		MATRIZ CANÓNICA según propuesta ChatGPT con nombres descriptivos en español.
 		"""
-		# SIEMPRE requeridos
-		roles_requeridos = {"IVA por Pagar (16%)", "IVA Exento"}
+		# SIEMPRE requeridos - usar constantes
+		roles_requeridos = {ROL_IVA_NAC, ROL_IVA_EXENTO}
 
 		# CONDICIONALES según alcance
 		if self.enable_frontera:
-			roles_requeridos.add("IVA por Pagar (8% frontera)")
+			roles_requeridos.add(ROL_IVA_FRO)
 
 		if self.enable_exportacion:
-			roles_requeridos.add("IVA por Pagar (0% exportación)")
+			roles_requeridos.add(ROL_IVA_CERO)
 
 		# RETENCIONES - Servicios Profesionales (Honorarios)
 		if self.enable_ret_honorarios:
-			roles_requeridos.update(
-				[
-					"ISR Retenido (Honorarios)",  # RET_ISR_10 en propuesta
-					"IVA Retenido (Servicios Profesionales)",  # RET_IVA_2_3_SERVPROF en propuesta
-				]
-			)
+			roles_requeridos.update([ROL_RET_ISR_HON, ROL_RET_IVA_HON])
 
 		# RETENCIONES - Arrendamiento
 		if self.enable_ret_arrendamiento:
-			roles_requeridos.update(
-				[
-					"ISR Retenido (Arrendamiento)",  # RET_ISR_10 + RET_IVA_ARR
-					"IVA Retenido (Arrendamiento)",
-				]
-			)
+			roles_requeridos.update([ROL_RET_ISR_ARR, ROL_RET_IVA_ARR])
 
 		# RETENCIONES - Autotransporte
 		if self.enable_ret_autotransporte:
-			roles_requeridos.update(
-				[
-					"ISR Retenido (Autotransporte)",  # RET_ISR_4_AUTOT
-					"IVA Retenido (Autotransporte)",  # RET_IVA_AUTOT
-				]
-			)
+			roles_requeridos.update([ROL_RET_ISR_AUTO, ROL_RET_IVA_AUTO])
 
 		# RETENCIONES - RESICO
 		if self.enable_ret_resico:
-			roles_requeridos.update(
-				[
-					"ISR Retenido (RESICO)",  # RET_ISR_RESICO
-					"IVA Retenido (RESICO)",  # RET_IVA_RESICO
-				]
-			)
+			roles_requeridos.update([ROL_RET_ISR_RESICO, ROL_RET_IVA_RESICO])
 
 		# IEPS según habilitados
 		if self.enable_ieps_alcohol:
-			roles_requeridos.add("IEPS por Pagar (Alcohol)")
+			roles_requeridos.add(ROL_IEPS_ALC)
 		if self.enable_ieps_azucar:
-			roles_requeridos.add("IEPS por Pagar (Azúcar/Bebidas)")
+			roles_requeridos.add(ROL_IEPS_AZU)
 		if self.enable_ieps_combustibles:
-			roles_requeridos.add("IEPS por Pagar (Combustibles)")
+			roles_requeridos.add(ROL_IEPS_COMB)
 		if self.enable_ieps_tabaco:
-			roles_requeridos.add("IEPS por Pagar (Tabaco)")  # Tasa 160%
-			roles_requeridos.add("IEPS por Pagar (Tabaco Cuota)")  # Cuota variable por cigarro
+			roles_requeridos.add(ROL_IEPS_TAB)  # Tasa 160%
+			roles_requeridos.add(ROL_IEPS_TABQ)  # Cuota variable por cigarro
 
 		return roles_requeridos
 
@@ -361,7 +364,7 @@ class ConfiguracionFiscalMexico(Document):
 				nuevas_filas += 1
 
 		# ELIMINAR roles no requeridos (excepto roles base que siempre se mantienen)
-		roles_base = {"IVA por Pagar (16%)", "IVA Exento"}
+		roles_base = {ROL_IVA_NAC, ROL_IVA_EXENTO}
 		filas_eliminadas = 0
 
 		# Iterar en reversa para evitar problemas de índices al eliminar

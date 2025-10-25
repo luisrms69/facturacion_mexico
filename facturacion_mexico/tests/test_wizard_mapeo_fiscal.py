@@ -22,6 +22,20 @@ from facturacion_mexico.facturacion_fiscal.config.constantes_fiscales import (
     es_impuesto_cascada,
     obtener_roles_por_alcance
 )
+from facturacion_mexico.utils.roles_fiscales import (
+    ROL_IVA_NAC,
+    ROL_IVA_FRO,
+    ROL_IVA_CERO,
+    ROL_IVA_EXENTO,
+    ROL_IEPS_ALC,
+    ROL_IEPS_AZU,
+    ROL_IEPS_COMB,
+    ROL_IEPS_TAB,
+    ROL_RET_ISR_HON,
+    ROL_RET_IVA_HON,
+    ROL_RET_ISR_AUTO,
+    ROL_RET_IVA_AUTO,
+)
 
 
 class TestWizardMapeoFiscalPostHito1(FrappeTestCase):
@@ -110,68 +124,68 @@ class TestWizardMapeoFiscalPostHito1(FrappeTestCase):
     def test_mapeo_roles_fiscal_completo(self):
         """Test que el mapeo de roles fiscales a configuraciones funciona."""
         # Roles IVA
-        config_iva16 = obtener_configuracion_por_rol("IVA por Pagar (16%)")
+        config_iva16 = obtener_configuracion_por_rol(ROL_IVA_NAC)
         self.assertEqual(config_iva16["tasa"], 16.0)
 
-        config_iva8 = obtener_configuracion_por_rol("IVA por Pagar (8% frontera)")
+        config_iva8 = obtener_configuracion_por_rol(ROL_IVA_FRO)
         self.assertEqual(config_iva8["tasa"], 8.0)
 
-        config_iva0 = obtener_configuracion_por_rol("IVA por Pagar (0% exportación)")
+        config_iva0 = obtener_configuracion_por_rol(ROL_IVA_CERO)
         self.assertEqual(config_iva0["tasa"], 0.0)
 
-        config_exento = obtener_configuracion_por_rol("IVA Exento")
+        config_exento = obtener_configuracion_por_rol(ROL_IVA_EXENTO)
         self.assertEqual(config_exento["tasa"], 0.0)
 
         # Roles IEPS (NUEVOS HITO 1)
-        config_ieps_alcohol = obtener_configuracion_por_rol("IEPS por Pagar (Alcohol)")
+        config_ieps_alcohol = obtener_configuracion_por_rol(ROL_IEPS_ALC)
         self.assertEqual(config_ieps_alcohol["tasa"], 26.5)
 
-        config_ieps_tabaco = obtener_configuracion_por_rol("IEPS por Pagar (Tabaco)")
+        config_ieps_tabaco = obtener_configuracion_por_rol(ROL_IEPS_TAB)
         self.assertEqual(config_ieps_tabaco["tasa"], 160.0)
 
         # Roles Retenciones (NUEVOS HITO 1)
-        config_isr_hon = obtener_configuracion_por_rol("ISR Retenido (Honorarios)")
+        config_isr_hon = obtener_configuracion_por_rol(ROL_RET_ISR_HON)
         self.assertEqual(config_isr_hon["tasa"], 10.0)
         self.assertEqual(config_isr_hon["add_deduct_tax"], "Deduct")
 
-        config_iva_ret_serv = obtener_configuracion_por_rol("IVA Retenido (Servicios Profesionales)")
+        config_iva_ret_serv = obtener_configuracion_por_rol(ROL_RET_IVA_HON)
         self.assertEqual(config_iva_ret_serv["tasa"], 10.67)
         self.assertEqual(config_iva_ret_serv["add_deduct_tax"], "Deduct")
 
     def test_deteccion_impuestos_cascada(self):
         """Test que la detección de impuestos en cascada funciona correctamente."""
         # IEPS requieren cascada con IVA
-        self.assertTrue(es_impuesto_cascada("IEPS por Pagar (Alcohol)"))
-        self.assertTrue(es_impuesto_cascada("IEPS por Pagar (Azúcar/Bebidas)"))
-        self.assertTrue(es_impuesto_cascada("IEPS por Pagar (Combustibles)"))
-        self.assertTrue(es_impuesto_cascada("IEPS por Pagar (Tabaco)"))
+        self.assertTrue(es_impuesto_cascada(ROL_IEPS_ALC))
+        self.assertTrue(es_impuesto_cascada(ROL_IEPS_AZU))
+        self.assertTrue(es_impuesto_cascada(ROL_IEPS_COMB))
+        self.assertTrue(es_impuesto_cascada(ROL_IEPS_TAB))
 
         # IVA y retenciones NO requieren cascada
-        self.assertFalse(es_impuesto_cascada("IVA por Pagar (16%)"))
-        self.assertFalse(es_impuesto_cascada("ISR Retenido (Honorarios)"))
-        self.assertFalse(es_impuesto_cascada("IVA Retenido (Servicios Profesionales)"))
+        self.assertFalse(es_impuesto_cascada(ROL_IVA_NAC))
+        self.assertFalse(es_impuesto_cascada(ROL_RET_ISR_HON))
+        self.assertFalse(es_impuesto_cascada(ROL_RET_IVA_HON))
 
     def test_combinaciones_alcance_empresarial(self):
         """Test que las combinaciones por alcance funcionan."""
         # Alcance básico
         roles_basico = obtener_roles_por_alcance("basico")
-        self.assertIn("IVA por Pagar (16%)", roles_basico)
-        self.assertIn("IVA por Pagar (0% exportación)", roles_basico)
-        self.assertIn("IVA Exento", roles_basico)
+        self.assertIn(ROL_IVA_NAC, roles_basico)
+        self.assertIn(ROL_IVA_CERO, roles_basico)
+        self.assertIn(ROL_IVA_EXENTO, roles_basico)
 
         # Alcance frontera
         roles_frontera = obtener_roles_por_alcance("frontera")
-        self.assertIn("IVA por Pagar (8% frontera)", roles_frontera)
+        self.assertIn(ROL_IVA_FRO, roles_frontera)
 
         # Alcance IEPS alcohol
         roles_ieps_alcohol = obtener_roles_por_alcance("ieps_alcohol")
-        self.assertIn("IEPS por Pagar (Alcohol)", roles_ieps_alcohol)
-        self.assertIn("IVA por Pagar (16%)", roles_ieps_alcohol)  # Cascada
+        self.assertIn(ROL_IEPS_ALC, roles_ieps_alcohol)
+        self.assertIn("IVA por Pagar (Nacional)", roles_ieps_alcohol)  # Cascada
 
         # Alcance retenciones honorarios
         roles_ret_honorarios = obtener_roles_por_alcance("retenciones_honorarios")
-        self.assertIn("ISR Retenido (Honorarios)", roles_ret_honorarios)
-        self.assertIn("IVA Retenido (Servicios Profesionales)", roles_ret_honorarios)
+        self.assertIn(ROL_RET_ISR_HON, roles_ret_honorarios)
+        self.assertIn(ROL_RET_IVA_HON, roles_ret_honorarios)
 
     # ============================================================================
     # VALIDACIONES Y ERROR HANDLING
@@ -289,33 +303,33 @@ class TestWizardMapeoFiscalPostHito1(FrappeTestCase):
             roles = obtener_roles_por_alcance(alcance)
             # Estos dos roles deben estar siempre presentes
             if alcance == "basico":
-                self.assertIn("IVA por Pagar (16%)", roles)
-                self.assertIn("IVA Exento", roles)
+                self.assertIn(ROL_IVA_NAC, roles)
+                self.assertIn(ROL_IVA_EXENTO, roles)
 
     def test_alcance_frontera_incluye_iva8(self):
         """Test que el alcance frontera incluye IVA 8%."""
         roles_frontera = obtener_roles_por_alcance("frontera")
-        self.assertIn("IVA por Pagar (8% frontera)", roles_frontera)
-        self.assertIn("IVA por Pagar (16%)", roles_frontera)  # Debe incluir general también
+        self.assertIn(ROL_IVA_FRO, roles_frontera)
+        self.assertIn("IVA por Pagar (Nacional)", roles_frontera)  # Debe incluir general también
 
     def test_alcance_ieps_incluye_cascada_iva(self):
         """Test que los alcances IEPS incluyen IVA para cascada."""
         # IEPS alcohol debe incluir IVA 16% para cascada
         roles_ieps_alcohol = obtener_roles_por_alcance("ieps_alcohol")
-        self.assertIn("IEPS por Pagar (Alcohol)", roles_ieps_alcohol)
-        self.assertIn("IVA por Pagar (16%)", roles_ieps_alcohol)
+        self.assertIn(ROL_IEPS_ALC, roles_ieps_alcohol)
+        self.assertIn("IVA por Pagar (Nacional)", roles_ieps_alcohol)
 
     def test_alcance_retenciones_incluye_isr_e_iva(self):
         """Test que los alcances retenciones incluyen tanto ISR como IVA retenido."""
         # Retenciones honorarios debe incluir ISR e IVA retenido
         roles_ret_honorarios = obtener_roles_por_alcance("retenciones_honorarios")
-        self.assertIn("ISR Retenido (Honorarios)", roles_ret_honorarios)
-        self.assertIn("IVA Retenido (Servicios Profesionales)", roles_ret_honorarios)
+        self.assertIn(ROL_RET_ISR_HON, roles_ret_honorarios)
+        self.assertIn(ROL_RET_IVA_HON, roles_ret_honorarios)
 
         # Retenciones autotransporte debe incluir ambos tipos
         roles_ret_auto = obtener_roles_por_alcance("retenciones_autotransporte")
-        self.assertIn("ISR Retenido (Autotransporte)", roles_ret_auto)
-        self.assertIn("IVA Retenido (Autotransporte)", roles_ret_auto)
+        self.assertIn(ROL_RET_ISR_AUTO, roles_ret_auto)
+        self.assertIn(ROL_RET_IVA_AUTO, roles_ret_auto)
 
 
 if __name__ == "__main__":

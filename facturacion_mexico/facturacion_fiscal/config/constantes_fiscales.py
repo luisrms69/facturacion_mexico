@@ -5,6 +5,27 @@ Reemplaza hardcode disperso por punto único de configuración.
 
 from typing import Any
 
+# Importar constantes roles fiscales - Single source of truth
+from facturacion_mexico.utils.roles_fiscales import (
+	ROL_IEPS_ALC,
+	ROL_IEPS_AZU,
+	ROL_IEPS_COMB,
+	ROL_IEPS_TAB,
+	ROL_IEPS_TABQ,
+	ROL_IVA_CERO,
+	ROL_IVA_EXENTO,
+	ROL_IVA_FRO,
+	ROL_IVA_NAC,
+	ROL_RET_ISR_ARR,
+	ROL_RET_ISR_AUTO,
+	ROL_RET_ISR_HON,
+	ROL_RET_ISR_RESICO,
+	ROL_RET_IVA_ARR,
+	ROL_RET_IVA_AUTO,
+	ROL_RET_IVA_HON,
+	ROL_RET_IVA_RESICO,
+)
+
 # =============================================================================
 # CONSTANTES FISCALES SAT - NORMATIVA FISCAL
 # =============================================================================
@@ -159,28 +180,27 @@ TASAS_RETENCIONES = {
 # =============================================================================
 
 MAPEO_ROLES_CONFIGURACION = {
-	# IVA
-	"IVA por Pagar (16%)": ("iva", "general"),
-	"IVA por Pagar (8% frontera)": ("iva", "frontera"),
-	"IVA por Pagar (0% exportación)": ("iva", "exportacion"),
-	"IVA Exento": ("iva", "exento"),
+	# IVA - Usar constantes como keys (single source of truth)
+	ROL_IVA_NAC: ("iva", "general"),
+	ROL_IVA_FRO: ("iva", "frontera"),
+	ROL_IVA_CERO: ("iva", "exportacion"),
+	ROL_IVA_EXENTO: ("iva", "exento"),
 	# IEPS
-	"IEPS por Pagar (Alcohol)": ("ieps", "alcohol"),
-	"IEPS por Pagar (Azúcar/Bebidas)": ("ieps", "azucar"),
-	"IEPS por Pagar (Combustibles)": ("ieps", "combustibles"),
-	"IEPS por Pagar (Tabaco)": ("ieps", "tabaco"),
-	"IEPS por Pagar (Tabaco Cuota)": ("ieps", "tabaco_cuota"),
+	ROL_IEPS_ALC: ("ieps", "alcohol"),
+	ROL_IEPS_AZU: ("ieps", "azucar"),
+	ROL_IEPS_COMB: ("ieps", "combustibles"),
+	ROL_IEPS_TAB: ("ieps", "tabaco"),
+	ROL_IEPS_TABQ: ("ieps", "tabaco_cuota"),
 	# Retenciones ISR
-	"ISR Retenido (Honorarios)": ("retenciones", "isr_honorarios"),
-	"ISR Retenido (Arrendamiento)": ("retenciones", "isr_arrendamiento"),
-	"ISR Retenido (Autotransporte)": ("retenciones", "isr_autotransporte"),
+	ROL_RET_ISR_HON: ("retenciones", "isr_honorarios"),
+	ROL_RET_ISR_ARR: ("retenciones", "isr_arrendamiento"),
+	ROL_RET_ISR_AUTO: ("retenciones", "isr_autotransporte"),
+	ROL_RET_ISR_RESICO: ("retenciones", "isr_resico"),
 	# Retenciones IVA
-	"IVA Retenido (Servicios Profesionales)": ("retenciones", "iva_servicios"),
-	"IVA Retenido (Arrendamiento)": ("retenciones", "iva_arrendamiento"),
-	"IVA Retenido (Autotransporte)": ("retenciones", "iva_autotransporte"),
-	# RESICO
-	"ISR Retenido (RESICO)": ("retenciones", "isr_resico"),
-	"IVA Retenido (RESICO)": ("retenciones", "iva_resico"),
+	ROL_RET_IVA_HON: ("retenciones", "iva_servicios"),
+	ROL_RET_IVA_ARR: ("retenciones", "iva_arrendamiento"),
+	ROL_RET_IVA_AUTO: ("retenciones", "iva_autotransporte"),
+	ROL_RET_IVA_RESICO: ("retenciones", "iva_resico"),
 }
 
 # =============================================================================
@@ -188,28 +208,28 @@ MAPEO_ROLES_CONFIGURACION = {
 # =============================================================================
 
 COMBINACIONES_ALCANCE = {
-	"basico": ["IVA por Pagar (16%)", "IVA por Pagar (0% exportación)", "IVA Exento"],
+	"basico": [ROL_IVA_NAC, ROL_IVA_CERO, ROL_IVA_EXENTO],
 	"frontera": [
-		"IVA por Pagar (16%)",
-		"IVA por Pagar (8% frontera)",
-		"IVA por Pagar (0% exportación)",
-		"IVA Exento",
+		ROL_IVA_NAC,
+		ROL_IVA_FRO,
+		ROL_IVA_CERO,
+		ROL_IVA_EXENTO,
 	],
 	"ieps_alcohol": [
-		"IEPS por Pagar (Alcohol)",
-		"IVA por Pagar (16%)",  # Cascada IEPS → IVA
+		ROL_IEPS_ALC,
+		ROL_IVA_NAC,  # Cascada IEPS → IVA
 	],
-	"ieps_azucar": ["IEPS por Pagar (Azúcar/Bebidas)", "IVA por Pagar (16%)"],
-	"ieps_combustibles": ["IEPS por Pagar (Combustibles)", "IVA por Pagar (16%)"],
+	"ieps_azucar": [ROL_IEPS_AZU, ROL_IVA_NAC],
+	"ieps_combustibles": [ROL_IEPS_COMB, ROL_IVA_NAC],
 	"ieps_tabaco": [
-		"IEPS por Pagar (Tabaco)",  # IEPS Tasa 160%
-		"IEPS por Pagar (Tabaco Cuota)",  # IEPS Cuota $0.35/cigarro
-		"IVA por Pagar (16%)",  # IVA sobre precio + ambos IEPS
+		ROL_IEPS_TAB,  # IEPS Tasa 160%
+		ROL_IEPS_TABQ,  # IEPS Cuota $0.35/cigarro
+		ROL_IVA_NAC,  # IVA sobre precio + ambos IEPS
 	],
-	"retenciones_honorarios": ["ISR Retenido (Honorarios)", "IVA Retenido (Servicios Profesionales)"],
-	"retenciones_arrendamiento": ["ISR Retenido (Arrendamiento)", "IVA Retenido (Arrendamiento)"],
-	"retenciones_autotransporte": ["ISR Retenido (Autotransporte)", "IVA Retenido (Autotransporte)"],
-	"retenciones_resico": ["ISR Retenido (RESICO)", "IVA Retenido (RESICO)"],
+	"retenciones_honorarios": [ROL_RET_ISR_HON, ROL_RET_IVA_HON],
+	"retenciones_arrendamiento": [ROL_RET_ISR_ARR, ROL_RET_IVA_ARR],
+	"retenciones_autotransporte": [ROL_RET_ISR_AUTO, ROL_RET_IVA_AUTO],
+	"retenciones_resico": [ROL_RET_ISR_RESICO, ROL_RET_IVA_RESICO],
 }
 
 # =============================================================================
@@ -246,26 +266,26 @@ ITT_TEMPLATES = {
 RETENCIONES_CONFIG = {
 	"honorarios": {
 		"proporcion_iva_retenido": PROPORCION_IVA_RETENIDO_SAT,
-		"rol_iva": "IVA Retenido (Servicios Profesionales)",
-		"rol_isr": "ISR Retenido (Honorarios)",
+		"rol_iva": ROL_RET_IVA_HON,
+		"rol_isr": ROL_RET_ISR_HON,
 		"tasa_isr": 10.0,
 	},
 	"arrendamiento": {
 		"proporcion_iva_retenido": PROPORCION_IVA_RETENIDO_SAT,
-		"rol_iva": "IVA Retenido (Arrendamiento)",
-		"rol_isr": "ISR Retenido (Arrendamiento)",
+		"rol_iva": ROL_RET_IVA_ARR,
+		"rol_isr": ROL_RET_ISR_ARR,
 		"tasa_isr": 10.0,
 	},
 	"autotransporte": {
 		"proporcion_iva_retenido": PROPORCION_IVA_RETENIDO_SAT,
-		"rol_iva": "IVA Retenido (Autotransporte)",
-		"rol_isr": "ISR Retenido (Autotransporte)",
+		"rol_iva": ROL_RET_IVA_AUTO,
+		"rol_isr": ROL_RET_ISR_AUTO,
 		"tasa_isr": 4.0,
 	},
 	"resico": {
 		"proporcion_iva_retenido": PROPORCION_IVA_RETENIDO_SAT,
-		"rol_iva": "IVA Retenido (RESICO)",
-		"rol_isr": "ISR Retenido (RESICO)",
+		"rol_iva": ROL_RET_IVA_RESICO,
+		"rol_isr": ROL_RET_ISR_RESICO,
 		"tasa_isr": 1.25,  # Configurable vía Configuracion Fiscal Mexico (tasa_isr_resico)
 	},
 }

@@ -13,6 +13,27 @@ Referencia:
 
 from typing import ClassVar
 
+# Importar constantes roles fiscales - Single source of truth
+from facturacion_mexico.utils.roles_fiscales import (
+	ROL_IEPS_ALC,
+	ROL_IEPS_AZU,
+	ROL_IEPS_COMB,
+	ROL_IEPS_TAB,
+	ROL_IEPS_TABQ,
+	ROL_IVA_CERO,
+	ROL_IVA_EXENTO,
+	ROL_IVA_FRO,
+	ROL_IVA_NAC,
+	ROL_RET_ISR_ARR,
+	ROL_RET_ISR_AUTO,
+	ROL_RET_ISR_HON,
+	ROL_RET_ISR_RESICO,
+	ROL_RET_IVA_ARR,
+	ROL_RET_IVA_AUTO,
+	ROL_RET_IVA_HON,
+	ROL_RET_IVA_RESICO,
+)
+
 
 class SATTipoFactor:
 	"""
@@ -31,109 +52,110 @@ class SATTipoFactor:
 
 	# Mapeo ROL FISCAL → TIPO FACTOR
 	# Este es el catálogo autoritativo que se usa en la configuración automática
+	# Usando constantes de roles_fiscales.py (single source of truth)
 	CONFIGURACION: ClassVar[dict] = {
 		# === IVA (siempre Tasa) ===
-		"IVA por Pagar (16%)": {
+		ROL_IVA_NAC: {
 			"tipo_factor": TASA,
 			"impuesto_sat": "002",
 			"nombre_sat": "IVA",
-			"descripcion": "IVA General 16%",
+			"descripcion": "IVA Nacional 16%",
 		},
-		"IVA por Pagar (8% frontera)": {
+		ROL_IVA_FRO: {
 			"tipo_factor": TASA,
 			"impuesto_sat": "002",
 			"nombre_sat": "IVA",
 			"descripcion": "IVA Frontera 8%",
 		},
-		"IVA por Pagar (0% exportación)": {
+		ROL_IVA_CERO: {
 			"tipo_factor": TASA,
 			"impuesto_sat": "002",
 			"nombre_sat": "IVA",
 			"descripcion": "IVA Exportación 0%",
 		},
-		"IVA Exento": {
+		ROL_IVA_EXENTO: {
 			"tipo_factor": TASA,
 			"impuesto_sat": "002",
 			"nombre_sat": "IVA",
 			"descripcion": "IVA Exento 0%",
 		},
 		# === IEPS Tasa (porcentajes fijos) ===
-		"IEPS por Pagar (Alcohol)": {
+		ROL_IEPS_ALC: {
 			"tipo_factor": TASA,
 			"impuesto_sat": "003",
 			"nombre_sat": "IEPS",
 			"descripcion": "IEPS Alcohol 26.5% (tasa fija)",
 		},
-		"IEPS por Pagar (Tabaco)": {
+		ROL_IEPS_TAB: {
 			"tipo_factor": TASA,
 			"impuesto_sat": "003",
 			"nombre_sat": "IEPS",
 			"descripcion": "IEPS Tabaco 160% (tasa fija)",
 		},
 		# === IEPS Cuota (montos específicos por unidad) ===
-		"IEPS por Pagar (Azúcar/Bebidas)": {
+		ROL_IEPS_AZU: {
 			"tipo_factor": CUOTA,
 			"impuesto_sat": "003",
 			"nombre_sat": "IEPS",
 			"descripcion": "IEPS Bebidas $1.27/litro (cuota específica)",
 		},
-		"IEPS por Pagar (Combustibles)": {
+		ROL_IEPS_COMB: {
 			"tipo_factor": CUOTA,
 			"impuesto_sat": "003",
 			"nombre_sat": "IEPS",
 			"descripcion": "IEPS Combustibles cuota variable (cuota específica)",
 		},
-		"IEPS por Pagar (Tabaco Cuota)": {
+		ROL_IEPS_TABQ: {
 			"tipo_factor": CUOTA,
 			"impuesto_sat": "003",
 			"nombre_sat": "IEPS",
 			"descripcion": "IEPS Tabaco cuota variable/cigarro (cuota específica según tabla SAT)",
 		},
 		# === Retenciones IVA (siempre Tasa) ===
-		"IVA Retenido (Servicios Profesionales)": {
+		ROL_RET_IVA_HON: {
 			"tipo_factor": TASA,
 			"impuesto_sat": "002",
 			"nombre_sat": "IVA",
 			"descripcion": "IVA Retenido 66.67% del IVA trasladado",
 		},
-		"IVA Retenido (Arrendamiento)": {
+		ROL_RET_IVA_ARR: {
 			"tipo_factor": TASA,
 			"impuesto_sat": "002",
 			"nombre_sat": "IVA",
 			"descripcion": "IVA Retenido 66.67% del IVA trasladado",
 		},
-		"IVA Retenido (Autotransporte)": {
+		ROL_RET_IVA_AUTO: {
 			"tipo_factor": TASA,
 			"impuesto_sat": "002",
 			"nombre_sat": "IVA",
 			"descripcion": "IVA Retenido 66.67% del IVA trasladado",
 		},
-		"IVA Retenido (RESICO)": {
+		ROL_RET_IVA_RESICO: {
 			"tipo_factor": TASA,
 			"impuesto_sat": "002",
 			"nombre_sat": "IVA",
 			"descripcion": "IVA Retenido 66.67% del IVA trasladado",
 		},
 		# === Retenciones ISR (siempre Tasa) ===
-		"ISR Retenido (Honorarios)": {
+		ROL_RET_ISR_HON: {
 			"tipo_factor": TASA,
 			"impuesto_sat": "001",
 			"nombre_sat": "ISR",
 			"descripcion": "ISR Retenido 10%",
 		},
-		"ISR Retenido (Arrendamiento)": {
+		ROL_RET_ISR_ARR: {
 			"tipo_factor": TASA,
 			"impuesto_sat": "001",
 			"nombre_sat": "ISR",
 			"descripcion": "ISR Retenido 10%",
 		},
-		"ISR Retenido (Autotransporte)": {
+		ROL_RET_ISR_AUTO: {
 			"tipo_factor": TASA,
 			"impuesto_sat": "001",
 			"nombre_sat": "ISR",
 			"descripcion": "ISR Retenido 4%",
 		},
-		"ISR Retenido (RESICO)": {
+		ROL_RET_ISR_RESICO: {
 			"tipo_factor": TASA,
 			"impuesto_sat": "001",
 			"nombre_sat": "ISR",

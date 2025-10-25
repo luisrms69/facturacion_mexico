@@ -7,6 +7,31 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
 ## [Unreleased]
 
 ### Added
+- **Sistema single source of truth roles fiscales** - Eliminación completa hardcoded strings nomenclatura fiscal
+  - Archivo `facturacion_mexico/utils/roles_fiscales.py` con TABLA_MAESTRA_ROLES_FISCALES (18 roles)
+  - Constantes auto-generadas: ROL_IVA_NAC, ROL_IVA_FRO, ROL_IEPS_ALC, ROL_RET_ISR_HON, etc.
+  - Nomenclatura semántica SAT: "IVA Nacional/Frontera" (NO hardcoded "16%/8%")
+  - Retenciones unificadas: "IVA Retenido (Honorarios/Arrendamiento/Autotransporte/RESICO)"
+  - Diccionarios derivados automáticos: ROLES_POR_CATEGORIA, TODOS_LOS_ROLES, ROL_TO_CONST
+  - Pattern consistente con TABLA_MAESTRA_GRUPOS_FISCALES existente
+- **Constantes roles fiscales completas** - Soporte matriz completa 8 retenciones + 5 IEPS
+  - Agregadas 6 constantes retenciones: RET_IVA_ARR, RET_ISR_ARR, RET_IVA_AUTO, RET_ISR_AUTO, RET_IVA_RESICO, RET_ISR_RESICO
+  - Total 18 constantes: 4 IVA + 5 IEPS + 8 Retenciones (IVA+ISR) + 1 Exento
+  - Preparación para generación templates parcial (commit separado)
+- **Sistema IEPS parcial - Generación templates con mapeos disponibles** - Soporte empresas con configuración fiscal incompleta
+  - Función `_verificar_mapeos_disponibles()` - Verificación granular por cada IEPS/Retención (performance cache)
+  - Generación parcial templates: solo filas con mapeos configurados (no bloqueo all-or-nothing)
+  - Función `_build_rows()` retorna tuple `(rows, omitted)` - tracking filas omitidas por template
+  - Función `_mostrar_resumen_generacion()` - Reporte consolidado: creados/omitidos/parciales
+  - Autoselección fallback: si template específico no existe → usa "Básico" de misma zona
+  - Try-catch per template: errores individuales no detienen batch generación
+  - Validación IVA Nacional obligatorio (bloqueo temprano si falta mapeo crítico)
+  - Caso uso: Licorería con solo IEPS Alcohol → template "IEPS" con 2 filas (IVA + Alcohol)
+- **Testing E1 IEPS parcial** - Suite completa 6 casos verificados
+  - Script test_ieps_parcial_e1.py: verificación mapeos/generación/idempotencia/naming/tax_rows
+  - Validado: 8 templates generados sin errores, tax rows cargadas correctamente
+  - Idempotencia verificada: re-ejecución no crea duplicados
+  - Naming format: sin guiones largos "–", formato estándar " - "
 - **Autoselección inteligente STCT** - Sistema automático según clasificación items y zona fiscal
   - Función `_determinar_variante_stct()` clasifica documento y retorna variante apropiada
   - Función `_find_stct_by_variant()` busca STCT exacto por zona + variante
@@ -128,6 +153,22 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
   - JavaScript corregido: eliminado filtro for_selling problemático en búsqueda STCT
 
 ### Changed
+- **Migración nomenclatura fiscal a constantes centralizadas** - Eliminación ~134 hardcoded strings
+  - Archivo `constantes_fiscales.py`: 3 dicts principales usan constantes como keys
+    - MAPEO_ROLES_CONFIGURACION: 18 roles con constantes (era strings hardcoded)
+    - COMBINACIONES_ALCANCE: 10 alcances con listas de constantes
+    - RETENCIONES_CONFIG: 4 tipos retención con campos rol_iva/rol_isr usando constantes
+  - Archivo `sat_tipo_factor.py`: Dict CONFIGURACION con 16 constantes como keys
+  - Archivo `configuracion_fiscal_mexico.py`: Todas las comparaciones rol_fiscal usan constantes
+    - Método `_rol_requerido_por_alcance()`: 12 condiciones con constantes
+    - Método `_obtener_roles_requeridos()`: Sets y adds con constantes
+    - Variables roles_base usando constantes (era strings)
+  - Tests actualizados (3 archivos): 51 líneas cambiadas de strings a constantes
+    - test_hito1_constantes.py: 22 reemplazos
+    - test_wizard_mapeo_fiscal.py: 26 reemplazos
+    - test_e3_retenciones_precision.py: 3 reemplazos
+  - Beneficio: Type safety en dicts, autocomplete IDE, refactoring seguro
+  - BREAKING: Bases de datos existentes requieren migración datos (rol_fiscal strings → nuevos nombres)
 - **UI Configuracion Fiscal Mexico** - Botón "Generate Templates" en toolbar principal
   - Eliminado botón "Preview Templates" (funcionalidad innecesaria)
   - Botón principal sin submenu para acceso directo

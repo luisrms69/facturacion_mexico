@@ -18,6 +18,11 @@ from facturacion_mexico.facturacion_fiscal.config.constantes_fiscales import (
 	TASAS_RETENCIONES,
 	obtener_configuracion_por_rol,
 )
+from facturacion_mexico.utils.roles_fiscales import (
+	ROL_RET_IVA_HON,
+	ROL_RET_IVA_ARR,
+	ROL_RET_IVA_AUTO,
+)
 
 
 class TestE3RetencionesConstante(FrappeTestCase):
@@ -243,19 +248,19 @@ class TestE3IntegracionRoles(FrappeTestCase):
 
 	def test_rol_honorarios_usa_nueva_precision(self):
 		"""Test que rol Honorarios usa nueva precisión."""
-		config = obtener_configuracion_por_rol("IVA Retenido (Servicios Profesionales)")
+		config = obtener_configuracion_por_rol(ROL_RET_IVA_HON)
 		# Sistema legacy deprecated tiene 10.67
 		# Sistema E3 moderno usa proporcion_iva_retenido en RETENCIONES_CONFIG
 		self.assertEqual(config["tasa"], 10.67)  # Legacy aún disponible para compatibilidad
 
 	def test_rol_arrendamiento_usa_nueva_precision(self):
 		"""Test que rol Arrendamiento usa nueva precisión."""
-		config = obtener_configuracion_por_rol("IVA Retenido (Arrendamiento)")
+		config = obtener_configuracion_por_rol(ROL_RET_IVA_ARR)
 		self.assertEqual(config["tasa"], 10.67)  # Legacy
 
 	def test_rol_autotransporte_usa_nueva_precision(self):
 		"""Test que rol Autotransporte usa nueva precisión."""
-		config = obtener_configuracion_por_rol("IVA Retenido (Autotransporte)")
+		config = obtener_configuracion_por_rol(ROL_RET_IVA_AUTO)
 		self.assertEqual(config["tasa"], 4.0)  # Autotransporte usa 4% (no 2/3)
 
 	def test_retenciones_config_accesible(self):
