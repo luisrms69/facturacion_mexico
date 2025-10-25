@@ -7,6 +7,33 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
 ## [Unreleased]
 
 ### Added
+- **Sistema 8 STCT específicos para eliminar filas $0 en facturas** - Reemplazo templates consolidados
+  - 8 templates nuevos: Nacional/Frontera × Básico/IEPS/Retenciones/Total
+  - Template "IVA Nacional – Básico" (1 fila): solo IVA para facturas simples
+  - Template "IVA Nacional – IEPS" (6 filas): IVA + 4 IEPS con cascada IVA
+  - Template "IVA Nacional – Retenciones" (3 filas): IVA + ISR Ret + IVA Ret
+  - Template "IVA Nacional – Total" (8 filas): todas las filas fiscales
+  - Templates Frontera (4 variantes) con IVA 8% zona fronteriza
+  - Deshabilitados 2 templates consolidados viejos (19 filas cada uno)
+  - Naming semántico sin porcentajes hardcoded en títulos
+  - Objetivo: eliminación completa de filas en $0.00 en Sales Invoices
+- **Generación automática 18 Item Tax Templates (ITT)** - Desde Configuracion Fiscal Mexico
+  - Función `generate_itt_for_company()` genera ITT basándose en mapeo cuentas
+  - ITT Base IVA: 16%, 0%, Exento, 8% Frontera (4 templates)
+  - ITT IEPS: Alcohol, Azúcar, Combustibles, Tabaco (4 templates)
+  - ITT Retenciones: Honorarios, Arrendamiento, Autotransporte, RESICO (10 templates combinados)
+  - Actualización automática al cambiar mapeo de cuentas
+  - Asignación automática ITT a Item Groups después de generación
+- **Resolución fuzzy de roles fiscales** - Mapeo flexible cuentas impuestos
+  - Función `_get_account_head_by_role()` con match exacto + fuzzy fallback
+  - Soporta nombres genéricos ("IVA Nacional") y legacy ("IVA 16%")
+  - Keywords matching para variaciones: ["IVA por Pagar", "16"] → "IVA por Pagar (16%)"
+  - Evita errores por diferencias nomenclatura entre sitios
+- **Reescritura completa generador_templates_fiscal.py** - Simplificación arquitectura (-546 líneas)
+  - Eliminada clase GeneradorTemplatesFiscales (arquitectura compleja)
+  - Sistema funcional directo con 3 funciones principales
+  - Sin dependencias constantes_fiscales.py
+  - Código más mantenible y testeable
 - **Suite tests completa E4 puente SI→PAC** - Testing E4.1-E4.8 (17 tests passing)
   - Archivo `facturacion_mexico/tests/test_e4_puente_si_pac.py` (510 líneas)
   - Tests unitarios E4.1: _read_taxes_from_sales_invoice_item() (2 tests)
@@ -69,6 +96,14 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
   - JavaScript corregido: eliminado filtro for_selling problemático en búsqueda STCT
 
 ### Changed
+- **UI Configuracion Fiscal Mexico** - Botón "Generate Templates" en toolbar principal
+  - Eliminado botón "Preview Templates" (funcionalidad innecesaria)
+  - Botón principal sin submenu para acceso directo
+  - Mensaje éxito detallado muestra: STCT generados/deshabilitados + ITT actualizados
+- **Estructura documentación** - Separación clara instrucciones usuario vs documentación técnica
+  - `docs/instructions/` EXCLUSIVAMENTE para instrucciones usuario
+  - `docs/development/` para planes implementación y reportes técnicos
+  - Plan completo FASE 1-4 en `docs/development/PLAN_IMPLEMENTACION_8_STCT_AUTOSELECCION.md`
 - **Sistema legacy TASAS_RETENCIONES deprecated** - Migración a arquitectura E3 moderna
   - Diccionario `TASAS_RETENCIONES` marcado como deprecated (sistema legacy pre-E3)
   - Sistema legacy calculaba IVA retención como % del neto (10.67% = 2/3 de 16%)

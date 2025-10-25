@@ -540,8 +540,12 @@ with patch("frappe.get_doc") as mock_get:
 #### **Documentación Complementaria (docs/)**
 - ✅ **API referencias** - docs/api/ (endpoints detallados)
 - ✅ **User guides** - docs/user-guide/ (tutoriales paso a paso)
-- ✅ **Development** - docs/development/ (setup detallado)
+- ✅ **Development** - docs/development/ (setup detallado, planes implementación)
 - ✅ **Audit reports** - docs/audit/ (reportes automáticos)
+- ⚠️ **CRÍTICO:** docs/instructions/ es EXCLUSIVAMENTE para instrucciones del usuario
+- ❌ **PROHIBIDO:** Colocar reportes, planes o documentación técnica en docs/instructions/
+- ✅ **Planes implementación** → docs/development/
+- ✅ **Reportes técnicos** → docs/development/ o docs/audit/
 
 #### **Arquitectura Técnica (buzola-internal/)**
 - ✅ **PRIVADO:** buzola-internal/projects/facturacion_mexico/

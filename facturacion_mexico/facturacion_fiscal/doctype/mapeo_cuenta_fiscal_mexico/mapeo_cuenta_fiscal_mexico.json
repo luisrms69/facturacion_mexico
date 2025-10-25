@@ -58,8 +58,8 @@
       "label": "Tipo de Factor SAT",
       "fieldtype": "Select",
       "options": "Tasa\nCuota",
-      "description": "Tipo de factor según catálogo SAT (configurado automáticamente, no modificar)",
-      "read_only": 1,
+      "description": "Tipo de factor según catálogo SAT",
+      "read_only": 0,
       "default": "Tasa"
     },
     {

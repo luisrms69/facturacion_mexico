@@ -218,8 +218,8 @@ def _congelar_iva_sobre_ieps_cuota(doc, ieps_tax_row, distribucion_ieps):
 	for idx in range(ieps_idx + 1, len(doc.taxes)):
 		iva_tax = doc.taxes[idx]
 
-		# Verificar si es IVA "On Previous Row Amount" que referencia el IEPS Cuota
-		if iva_tax.charge_type == "On Previous Row Amount":
+		# Verificar si es IVA "On Previous Row Amount/Total" que referencia el IEPS Cuota
+		if iva_tax.charge_type in ["On Previous Row Amount", "On Previous Row Total"]:
 			# Verificar si row_id apunta al IEPS Cuota (idx+1 porque row_id es 1-indexed)
 			if iva_tax.row_id and int(iva_tax.row_id) == ieps_idx + 1:
 				# Seguridad: Verificar que sea IVA (no otro impuesto cascada)
@@ -230,15 +230,28 @@ def _congelar_iva_sobre_ieps_cuota(doc, ieps_tax_row, distribucion_ieps):
 				iva_distribucion = {}
 				iva_rate = flt(iva_tax.rate)
 
-				for item_code, values in distribucion_ieps.items():
-					ieps_amount = values[1]  # [0.0, amount]
-					# Usar precisión del campo tax_amount para evitar diferencias redondeo
-					iva_amount = flt(ieps_amount * iva_rate / 100, iva_tax.precision("tax_amount"))
-					iva_distribucion[item_code] = [iva_rate, iva_amount]
+				# Iterar sobre items para acceder a net_amount (base IVA)
+				for item in doc.items:
+					if item.item_code in distribucion_ieps:
+						# Solo calcular IVA para items que tienen IEPS en esta fila específica
+						ieps_amount = distribucion_ieps[item.item_code][1]
+						if ieps_amount > 0:
+							# Usar net_amount del item como base IVA (según XML PAC)
+							base_iva = flt(item.net_amount)
+							# Usar precisión del campo tax_amount para evitar diferencias redondeo
+							iva_amount = flt(base_iva * iva_rate / 100, iva_tax.precision("tax_amount"))
+							iva_distribucion[item.item_code] = [iva_rate, iva_amount]
 
 				# Setear item_wise_tax_detail y congelar
 				if iva_distribucion:
 					iva_tax.item_wise_tax_detail = json.dumps(iva_distribucion, ensure_ascii=False)
+					# Cambiar a Actual y sincronizar tax_amount (fix discrepancia PAC)
+					iva_tax.charge_type = "Actual"
+					iva_tax.row_id = None  # Actual no puede tener row_id
+					iva_tax.rate = 0  # Actual no usa tasa porcentual
+					iva_tax.tax_amount = sum(
+						flt(v[1], iva_tax.precision("tax_amount")) for v in iva_distribucion.values()
+					)
 					iva_tax.dont_recompute_tax = 1
 
 				break  # Solo el primer IVA "On Previous Row Amount"

@@ -245,29 +245,57 @@ class ConfiguracionFiscalMexico(Document):
 		# Registrar auditoría de ejecución
 		self._registrar_auditoria_generacion()
 
-		# Importar aquí para evitar circular imports
+		# Importar generador 8 STCT e ITT
 		from facturacion_mexico.facturacion_fiscal.setup.generador_templates_fiscal import (
-			GeneradorTemplatesFiscales,
+			generate_8_stct_for_company,
+			generate_itt_for_company,
 		)
 
 		try:
-			generador = GeneradorTemplatesFiscales(self.company)
-			resultados = generador.generar_templates_completos()
+			# Generar 8 STCT específicos (Nacional/Frontera x Básico/IEPS/Retenciones/Total)
+			resultados_stct = generate_8_stct_for_company(company=self.company)
+
+			# Generar ITT basados en Configuracion Fiscal Mexico
+			resultados_itt = generate_itt_for_company(company=self.company)
 
 			# Asignar ITT a Item Groups después de generar templates
 			from facturacion_mexico.setup.item_groups import assign_itt_to_groups
 
 			assign_itt_to_groups()
 
-			# Mostrar mensaje de éxito
-			total_templates = len(resultados["stct_generados"]) + len(resultados["itt_generados"])
+			# Mostrar mensaje de éxito detallado
+			total_creados_stct = len(resultados_stct.get("created", []))
+			total_deshabilitados = 2 if resultados_stct.get("disabled_old") else 0
+			total_creados_itt = len(resultados_itt.get("created", []))
+
+			mensaje = f"""
+			<h4>✅ Generación de Templates Completada</h4>
+			<p><strong>Sales Taxes and Charges Templates (STCT):</strong></p>
+			<ul>
+				<li>✅ Se generaron {total_creados_stct} templates STCT específicos (Nacional/Frontera x Básico/IEPS/Retenciones/Total)</li>
+				<li>🔴 Se deshabilitaron {total_deshabilitados} templates consolidados viejos (con 16%/8% en el título)</li>
+			</ul>
+			<p><strong>Item Tax Templates (ITT):</strong></p>
+			<ul>
+				<li>✅ Se generaron/actualizaron {total_creados_itt} templates ITT</li>
+				<li>✅ Se asignaron los ITT a sus Item Groups correspondientes</li>
+			</ul>
+			<hr>
+			<p><em>Empresa: {self.company}</em></p>
+			"""
+
 			frappe.msgprint(
-				f"✅ Se generaron/actualizaron {total_templates} templates fiscales para {self.company}",
-				title="Templates Generados",
+				mensaje,
+				title="Templates Generados Exitosamente",
 				indicator="green",
 			)
 
-			return resultados
+			return {
+				"stct_generados": resultados_stct.get("created", []),
+				"stct_deshabilitados": total_deshabilitados,
+				"itt_generados": resultados_itt.get("created", []),
+				"itt_count": total_creados_itt,
+			}
 
 		except Exception as e:
 			frappe.log_error(f"Error generando templates: {e!s}")
@@ -292,15 +320,6 @@ class ConfiguracionFiscalMexico(Document):
 			frappe.logger().info(f"Auditoría generación fiscal: {auditoria}")
 		except Exception as e:
 			frappe.logger().warning(f"Error registrando auditoría: {e}")
-
-	@frappe.whitelist()
-	def preview_templates(self):
-		"""Obtener preview de templates que se van a generar."""
-		from facturacion_mexico.facturacion_fiscal.setup.generador_templates_fiscal import (
-			preview_templates_a_generar,
-		)
-
-		return preview_templates_a_generar(self.company)
 
 	@frappe.whitelist()
 	def agregar_filas_por_alcance(self):
