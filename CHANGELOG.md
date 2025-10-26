@@ -6,6 +6,19 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
 
 ## [Unreleased]
 
+### Changed
+- **Documentación sincronización JSON-Python roles fiscales** - Guía explícita proceso modificación roles
+  - Agregada sección ⚠️ IMPORTANTE en `roles_fiscales.py` documentando limitación Frappe framework
+  - Proceso 5 pasos: actualizar Python → actualizar JSON manualmente → migrate → script migración → tests validación
+  - Referencia test sincronización: test_sync_roles_fiscales_json_python.py falla si JSON ≠ Python
+  - Razón técnica: Select field en JSON DocType no puede importar constantes Python (framework limitation)
+  - Archivo afectado: mapeo_cuenta_fiscal_mexico.json campo rol_fiscal.options
+- **Reglas docs/instructions/ en CLAUDE.md** - Prohibición absoluta modificación por Claude
+  - Sección nueva: "⚠️ REGLA ABSOLUTA: docs/instructions/"
+  - Prohibido: crear/modificar/eliminar archivos en docs/instructions/
+  - Permitido: solo lectura de archivos que usuario coloque
+  - Clarificación: reportes → docs/development/, planes → docs/development/, análisis → docs/development/
+
 ### Added
 - **Sistema single source of truth roles fiscales** - Eliminación completa hardcoded strings nomenclatura fiscal
   - Archivo `facturacion_mexico/utils/roles_fiscales.py` con TABLA_MAESTRA_ROLES_FISCALES (18 roles)

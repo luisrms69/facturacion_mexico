@@ -9,6 +9,26 @@ Nomenclatura:
 - IEPS: Por categoría producto
 - Retenciones: IVA/ISR por tipo servicio
 
+⚠️ IMPORTANTE - SINCRONIZACIÓN CON JSON DOCTYPE:
+--------------------------------------------------
+Este archivo es la FUENTE CANÓNICA de roles fiscales.
+Sin embargo, el campo Select en DocType JSON requiere duplicación:
+
+Archivo: facturacion_mexico/facturacion_fiscal/doctype/mapeo_cuenta_fiscal_mexico/mapeo_cuenta_fiscal_mexico.json
+Campo: rol_fiscal.options
+
+RAZÓN: Frappe framework requiere opciones Select en JSON (no puede importar Python).
+
+PROCESO AL MODIFICAR ROLES:
+1. Actualizar TABLA_MAESTRA_ROLES_FISCALES aquí
+2. Actualizar opciones Select en JSON DocType manualmente
+3. Ejecutar bench migrate
+4. Ejecutar script migración datos (one_offs/)
+5. Tests de sincronización validan que JSON == constantes Python
+
+TEST VALIDACIÓN: test_sync_roles_fiscales_json_python.py
+Falla automáticamente si JSON y Python se desincronizaron.
+
 Uso:
     from facturacion_mexico.utils.roles_fiscales import ROL_IVA_NAC, ROL_IVA_FRO, ...
 """
