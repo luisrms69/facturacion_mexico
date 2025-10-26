@@ -193,9 +193,16 @@ def _set_stct_by_branch(doc, branch: str | None):
 
 	# Buscar STCT específico
 	stct = _find_stct_by_variant(doc.company, zona, variant)
+	used_fallback = False
+
+	# FALLBACK: Si no existe variante específica, buscar Básico de la misma zona
+	if not stct and variant != "Básico":
+		stct = _find_stct_by_variant(doc.company, zona, "Básico")
+		if stct:
+			used_fallback = True
 
 	if stct:
-		# Asignar STCT encontrado
+		# Asignar STCT encontrado (específico o fallback)
 		if getattr(doc, "taxes_and_charges", None) != stct:
 			doc.taxes_and_charges = stct
 
@@ -207,17 +214,34 @@ def _set_stct_by_branch(doc, branch: str | None):
 			tax_rows = get_taxes_and_charges("Sales Taxes and Charges Template", stct)
 			doc.extend("taxes", tax_rows)
 
+			# Mensaje según si usó fallback o no
 			iva_label = "8%" if is_border else "16%"
-			frappe.msgprint(
-				f"Impuestos configurados automáticamente: <b>IVA {iva_label} - {variant}</b>",
-				alert=True,
-				indicator="green",
-			)
+			if used_fallback:
+				frappe.msgprint(
+					f"⚠️ Template <b>IVA {iva_label} - {variant}</b> no disponible.<br>"
+					f"Se usó <b>IVA {iva_label} - Básico</b> como alternativa.<br>"
+					f"<small>Configure mapeos faltantes en Mapeo Cuenta Fiscal Mexico para obtener template completo.</small>",
+					alert=True,
+					indicator="orange",
+				)
+			else:
+				frappe.msgprint(
+					f"Impuestos configurados automáticamente: <b>IVA {iva_label} - {variant}</b>",
+					alert=True,
+					indicator="green",
+				)
 	else:
-		# STCT no encontrado - bloquear con mensaje accionable
+		# STCT no encontrado (ni específico ni Básico) - bloquear con mensaje accionable
 		company_abbr = frappe.db.get_value("Company", doc.company, "abbr")
-		title_expected = f"IVA {zona} - {variant} - {company_abbr}"
-		errormsg = f"No se encontró STCT específico para esta factura: <b>{title_expected}</b>.<br>"
+		if variant == "Básico":
+			# Si ya estaba buscando Básico y no existe
+			title_expected = f"IVA {zona} - Básico - {company_abbr}"
+			errormsg = f"No se encontró template STCT mínimo requerido: <b>{title_expected}</b>.<br>"
+		else:
+			# Si buscó variante específica y tampoco existe Básico
+			title_expected = f"IVA {zona} - {variant} - {company_abbr}"
+			title_fallback = f"IVA {zona} - Básico - {company_abbr}"
+			errormsg = f"No se encontró STCT específico <b>{title_expected}</b> ni fallback <b>{title_fallback}</b>.<br>"
 		errormsg += "Genere los 8 STCT específicos desde <b>Configuracion Fiscal Mexico</b> (botón 'Generate Templates')."
 		frappe.throw(errormsg)
 

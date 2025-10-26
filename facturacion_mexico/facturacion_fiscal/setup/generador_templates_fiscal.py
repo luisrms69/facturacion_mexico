@@ -1,20 +1,26 @@
 import frappe
 from frappe.utils import flt
 
-# -----------------------------------------------------------
-# RESOLUCIÓN DE CUENTAS POR "ROL" (ajusta si tus nombres difieren)
-# -----------------------------------------------------------
-ROL_IVA_NAC = "IVA por Pagar (Nacional)"
-ROL_IVA_FRO = "IVA por Pagar (Frontera)"
-
-ROL_IEPS_ALC = "IEPS por Pagar (Alcohol)"
-ROL_IEPS_AZU = "IEPS por Pagar (Azúcar/Bebidas)"
-ROL_IEPS_COMB = "IEPS por Pagar (Combustibles)"
-ROL_IEPS_TAB = "IEPS por Pagar (Tabaco)"
-ROL_IEPS_TABQ = "IEPS por Pagar (Tabaco Cuota)"
-
-ROL_RET_IVA_HON = "Retención IVA Honorarios"
-ROL_RET_ISR_HON = "Retención ISR Honorarios"
+# Single source of truth - Roles fiscales
+from facturacion_mexico.utils.roles_fiscales import (
+	ROL_IEPS_ALC,
+	ROL_IEPS_AZU,
+	ROL_IEPS_COMB,
+	ROL_IEPS_TAB,
+	ROL_IEPS_TABQ,
+	ROL_IVA_CERO,
+	ROL_IVA_EXENTO,
+	ROL_IVA_FRO,
+	ROL_IVA_NAC,
+	ROL_RET_ISR_ARR,
+	ROL_RET_ISR_AUTO,
+	ROL_RET_ISR_HON,
+	ROL_RET_ISR_RESICO,
+	ROL_RET_IVA_ARR,
+	ROL_RET_IVA_AUTO,
+	ROL_RET_IVA_HON,
+	ROL_RET_IVA_RESICO,
+)
 
 
 # -----------------------------------------------------------
@@ -58,30 +64,126 @@ def _get_account_head_by_role(company: str, rol: str) -> str:
 		"Mapeo Cuenta Fiscal Mexico", filters={"parent": cfg_name}, fields=["rol_fiscal", "cuenta_impuesto"]
 	)
 
-	# Buscar primero match exacto
+	# Buscar match exacto por rol_fiscal
 	for m in mapeos:
 		if m.rol_fiscal == rol:
 			return m.cuenta_impuesto
 
-	# Si no encuentra exacto, buscar con lógica fuzzy para roles legacy con porcentajes
-	role_keywords = {
-		"IVA por Pagar (Nacional)": ["IVA por Pagar", "16"],
-		"IVA por Pagar (Frontera)": ["IVA por Pagar", "frontera"],
-		"Retención IVA Honorarios": ["IVA Retenido", "Profesionales"],
-		"Retención ISR Honorarios": ["ISR Retenido", "Honorarios"],
-	}
-
-	keywords = role_keywords.get(rol, [])
-	if keywords:
-		for m in mapeos:
-			if all(kw.lower() in m.rol_fiscal.lower() for kw in keywords):
-				return m.cuenta_impuesto
-
-	# Si aún no encuentra, error
+	# Si no encuentra, error
 	available = ", ".join([m.rol_fiscal for m in mapeos])
 	frappe.throw(f"No se encontró mapeo para '{rol}' en '{company}'.\n" f"Roles disponibles: {available}")
 
 	return ""  # Never reached
+
+
+def _verificar_mapeos_disponibles(company: str) -> dict:
+	"""
+	Verifica qué roles fiscales están HABILITADOS (checkbox) Y tienen mapeo contable.
+
+	LÓGICA CORRECTA:
+	1. Lee checkboxes enable_* del documento Configuracion Fiscal Mexico
+	2. Para cada checkbox=True, verifica si existe mapeo en mapeo_cuentas
+	3. Solo marca disponible si checkbox=True AND mapeo existe con cuenta contable
+
+	IMPORTANTE:
+	- Si checkbox=False → rol NO disponible (aunque exista mapeo)
+	- Si checkbox=True pero sin mapeo → rol NO disponible
+	- Si checkbox=True AND mapeo existe → rol disponible
+
+	Args:
+		company: Company name
+
+	Returns:
+		dict: {
+			"tiene_iva_nacional": bool,
+			"tiene_iva_frontera": bool,
+			"ieps_disponibles": dict,  # {"Alcohol": bool, "Azucar": bool, ...}
+			"retenciones_disponibles": dict,  # {"IVA_Honorarios": bool, ...}
+			"tiene_algun_ieps": bool,
+			"tiene_alguna_retencion": bool,
+			"mapeos_por_rol": dict  # Cache: rol → cuenta (performance)
+		}
+	"""
+	# Obtener configuración fiscal de la company
+	config_name = frappe.db.get_value("Configuracion Fiscal Mexico", {"company": company}, "name")
+	if not config_name:
+		# Sin configuración fiscal = sin mapeos
+		return {
+			"tiene_iva_nacional": False,
+			"tiene_iva_frontera": False,
+			"ieps_disponibles": {
+				"Alcohol": False,
+				"Azucar": False,
+				"Combustibles": False,
+				"Tabaco_Tasa": False,
+				"Tabaco_Cuota": False,
+			},
+			"retenciones_disponibles": {
+				"IVA_Honorarios": False,
+				"ISR_Honorarios": False,
+				"IVA_Arrendamiento": False,
+				"ISR_Arrendamiento": False,
+				"IVA_Autotransporte": False,
+				"ISR_Autotransporte": False,
+				"IVA_RESICO": False,
+				"ISR_RESICO": False,
+			},
+			"tiene_algun_ieps": False,
+			"tiene_alguna_retencion": False,
+			"mapeos_por_rol": {},
+		}
+
+	# Obtener documento completo para acceder checkboxes y mapeos
+	config = frappe.get_doc("Configuracion Fiscal Mexico", config_name)
+	mapeos = config.mapeo_cuentas or []
+
+	# Cache para performance - evita múltiples llamadas _get_account_head_by_role
+	mapeos_por_rol = {m.rol_fiscal: m.cuenta_impuesto for m in mapeos}
+	roles_disponibles = set(mapeos_por_rol.keys())
+
+	# Helper: verifica checkbox enabled AND mapeo existe
+	def _disponible(checkbox_enabled: bool, rol: str) -> bool:
+		"""Retorna True solo si checkbox=True AND mapeo con cuenta existe."""
+		return checkbox_enabled and rol in roles_disponibles
+
+	# IVA Nacional (siempre obligatorio - no tiene checkbox)
+	tiene_iva_nacional = ROL_IVA_NAC in roles_disponibles
+
+	# IVA Frontera (solo si checkbox enabled)
+	tiene_iva_frontera = _disponible(config.enable_frontera, ROL_IVA_FRO)
+
+	# IEPS (granular - checkbox + mapeo)
+	ieps_disponibles = {
+		"Alcohol": _disponible(config.enable_ieps_alcohol, ROL_IEPS_ALC),
+		"Azucar": _disponible(config.enable_ieps_azucar, ROL_IEPS_AZU),
+		"Combustibles": _disponible(config.enable_ieps_combustibles, ROL_IEPS_COMB),
+		"Tabaco_Tasa": _disponible(config.enable_ieps_tabaco, ROL_IEPS_TAB),
+		"Tabaco_Cuota": _disponible(config.enable_ieps_tabaco, ROL_IEPS_TABQ),
+	}
+	tiene_algun_ieps = any(ieps_disponibles.values())
+
+	# Retenciones (granular - checkbox + mapeo - 8 retenciones totales)
+	retenciones_disponibles = {
+		"IVA_Honorarios": _disponible(config.enable_ret_honorarios, ROL_RET_IVA_HON),
+		"ISR_Honorarios": _disponible(config.enable_ret_honorarios, ROL_RET_ISR_HON),
+		"IVA_Arrendamiento": _disponible(config.enable_ret_arrendamiento, ROL_RET_IVA_ARR),
+		"ISR_Arrendamiento": _disponible(config.enable_ret_arrendamiento, ROL_RET_ISR_ARR),
+		"IVA_Autotransporte": _disponible(config.enable_ret_autotransporte, ROL_RET_IVA_AUTO),
+		"ISR_Autotransporte": _disponible(config.enable_ret_autotransporte, ROL_RET_ISR_AUTO),
+		"IVA_RESICO": _disponible(config.enable_ret_resico, ROL_RET_IVA_RESICO),
+		"ISR_RESICO": _disponible(config.enable_ret_resico, ROL_RET_ISR_RESICO),
+	}
+	tiene_alguna_retencion = any(retenciones_disponibles.values())
+
+	return {
+		"tiene_iva_nacional": tiene_iva_nacional,
+		"tiene_iva_frontera": tiene_iva_frontera,
+		"ieps_disponibles": ieps_disponibles,
+		"retenciones_disponibles": retenciones_disponibles,
+		"tiene_algun_ieps": tiene_algun_ieps,
+		"tiene_alguna_retencion": tiene_alguna_retencion,
+		"mapeos_por_rol": mapeos_por_rol,
+	}
 
 
 def _get_iva_rates(
@@ -163,31 +265,145 @@ def fila_retencion(account_head: str, desc: str, rate: float | None = None) -> d
 # -----------------------------------------------------------
 # CONSTRUCCIÓN DE CADA VARIANTE (solo filas necesarias)
 # -----------------------------------------------------------
-def _build_rows(company: str, zona: str, iva_rate: float, variant: str) -> list[dict]:
-	rows: list[dict] = []
+def _build_rows(
+	company: str, zona: str, iva_rate: float, variant: str, mapeos_disponibles: dict
+) -> tuple[list[dict], list[str]]:
+	"""
+	Construye filas para variante STCT con generación parcial.
 
-	# IVA base (una sola fila por variante)
-	iva_acc = _get_account_head_by_role(company, ROL_IVA_NAC if zona == "Nacional" else ROL_IVA_FRO)
+	Solo agrega filas para las que existe mapeo contable. Reporta omisiones.
+
+	Args:
+		company: Company name
+		zona: "Nacional" o "Frontera"
+		iva_rate: Tasa IVA (16.0 o 8.0)
+		variant: "Básico", "IEPS", "Retenciones", "Total"
+		mapeos_disponibles: Dict de _verificar_mapeos_disponibles()
+
+	Returns:
+		tuple[list[dict], list[str]]: (rows, omitted_rows)
+		rows: Filas tax rows generadas
+		omitted_rows: Lista descriptiva de filas omitidas (por falta mapeo)
+	"""
+	rows = []
+	omitted = []
+
+	# IVA base (obligatorio)
+	rol_iva = ROL_IVA_NAC if zona == "Nacional" else ROL_IVA_FRO
+	tiene_iva = (
+		mapeos_disponibles["tiene_iva_nacional"]
+		if zona == "Nacional"
+		else mapeos_disponibles["tiene_iva_frontera"]
+	)
+
+	if not tiene_iva:
+		return [], [f"IVA {zona} (obligatorio)"]
+
+	# Usar cache de mapeos (performance)
+	iva_acc = mapeos_disponibles["mapeos_por_rol"].get(rol_iva)
+	if not iva_acc:
+		# Fallback a búsqueda tradicional si cache no tiene
+		iva_acc = _get_account_head_by_role(company, rol_iva)
+
 	rows.append(fila_iva_base(iva_acc, zona, iva_rate))
 
-	# IEPS (solo si aplica)
+	# IEPS (parcial - agregar solo disponibles)
 	if variant in ("IEPS", "Total"):
-		rows.append(fila_ieps_tasa(_get_account_head_by_role(company, ROL_IEPS_ALC), "Alcohol"))
-		rows.append(fila_ieps_cuota(_get_account_head_by_role(company, ROL_IEPS_AZU), "Azúcar/Bebidas"))
-		rows.append(fila_ieps_cuota(_get_account_head_by_role(company, ROL_IEPS_COMB), "Combustibles"))
-		rows.append(fila_ieps_tasa(_get_account_head_by_role(company, ROL_IEPS_TAB), "Tabaco"))
-		rows.append(fila_ieps_cuota(_get_account_head_by_role(company, ROL_IEPS_TABQ), "Tabaco"))
+		ieps = mapeos_disponibles["ieps_disponibles"]
+		mapeos_cache = mapeos_disponibles["mapeos_por_rol"]
 
-	# Retenciones (solo si aplica)
+		if ieps["Alcohol"]:
+			acc = mapeos_cache.get(ROL_IEPS_ALC) or _get_account_head_by_role(company, ROL_IEPS_ALC)
+			rows.append(fila_ieps_tasa(acc, "Alcohol"))
+		else:
+			omitted.append("IEPS Alcohol (tasa)")
+
+		if ieps["Azucar"]:
+			acc = mapeos_cache.get(ROL_IEPS_AZU) or _get_account_head_by_role(company, ROL_IEPS_AZU)
+			rows.append(fila_ieps_cuota(acc, "Azúcar/Bebidas"))
+		else:
+			omitted.append("IEPS Azúcar (cuota)")
+
+		if ieps["Combustibles"]:
+			acc = mapeos_cache.get(ROL_IEPS_COMB) or _get_account_head_by_role(company, ROL_IEPS_COMB)
+			rows.append(fila_ieps_cuota(acc, "Combustibles"))
+		else:
+			omitted.append("IEPS Combustibles (cuota)")
+
+		if ieps["Tabaco_Tasa"]:
+			acc = mapeos_cache.get(ROL_IEPS_TAB) or _get_account_head_by_role(company, ROL_IEPS_TAB)
+			rows.append(fila_ieps_tasa(acc, "Tabaco"))
+		else:
+			omitted.append("IEPS Tabaco (tasa)")
+
+		if ieps["Tabaco_Cuota"]:
+			acc = mapeos_cache.get(ROL_IEPS_TABQ) or _get_account_head_by_role(company, ROL_IEPS_TABQ)
+			rows.append(fila_ieps_cuota(acc, "Tabaco"))
+		else:
+			omitted.append("IEPS Tabaco (cuota)")
+
+	# Retenciones (parcial - agregar solo disponibles - 8 retenciones totales)
 	if variant in ("Retenciones", "Total"):
-		rows.append(
-			fila_retencion(_get_account_head_by_role(company, ROL_RET_IVA_HON), "Retención IVA - Honorarios")
-		)
-		rows.append(
-			fila_retencion(_get_account_head_by_role(company, ROL_RET_ISR_HON), "Retención ISR - Honorarios")
-		)
+		rets = mapeos_disponibles["retenciones_disponibles"]
+		mapeos_cache = mapeos_disponibles["mapeos_por_rol"]
 
-	return rows
+		# Retenciones Honorarios
+		if rets["IVA_Honorarios"]:
+			acc = mapeos_cache.get(ROL_RET_IVA_HON) or _get_account_head_by_role(company, ROL_RET_IVA_HON)
+			rows.append(fila_retencion(acc, "Retención IVA - Honorarios"))
+		else:
+			omitted.append("Retención IVA Honorarios")
+
+		if rets["ISR_Honorarios"]:
+			acc = mapeos_cache.get(ROL_RET_ISR_HON) or _get_account_head_by_role(company, ROL_RET_ISR_HON)
+			rows.append(fila_retencion(acc, "Retención ISR - Honorarios"))
+		else:
+			omitted.append("Retención ISR Honorarios")
+
+		# Retenciones Arrendamiento
+		if rets["IVA_Arrendamiento"]:
+			acc = mapeos_cache.get(ROL_RET_IVA_ARR) or _get_account_head_by_role(company, ROL_RET_IVA_ARR)
+			rows.append(fila_retencion(acc, "Retención IVA - Arrendamiento"))
+		else:
+			omitted.append("Retención IVA Arrendamiento")
+
+		if rets["ISR_Arrendamiento"]:
+			acc = mapeos_cache.get(ROL_RET_ISR_ARR) or _get_account_head_by_role(company, ROL_RET_ISR_ARR)
+			rows.append(fila_retencion(acc, "Retención ISR - Arrendamiento"))
+		else:
+			omitted.append("Retención ISR Arrendamiento")
+
+		# Retenciones Autotransporte
+		if rets["IVA_Autotransporte"]:
+			acc = mapeos_cache.get(ROL_RET_IVA_AUTO) or _get_account_head_by_role(company, ROL_RET_IVA_AUTO)
+			rows.append(fila_retencion(acc, "Retención IVA - Autotransporte"))
+		else:
+			omitted.append("Retención IVA Autotransporte")
+
+		if rets["ISR_Autotransporte"]:
+			acc = mapeos_cache.get(ROL_RET_ISR_AUTO) or _get_account_head_by_role(company, ROL_RET_ISR_AUTO)
+			rows.append(fila_retencion(acc, "Retención ISR - Autotransporte"))
+		else:
+			omitted.append("Retención ISR Autotransporte")
+
+		# Retenciones RESICO
+		if rets["IVA_RESICO"]:
+			acc = mapeos_cache.get(ROL_RET_IVA_RESICO) or _get_account_head_by_role(
+				company, ROL_RET_IVA_RESICO
+			)
+			rows.append(fila_retencion(acc, "Retención IVA - RESICO"))
+		else:
+			omitted.append("Retención IVA RESICO")
+
+		if rets["ISR_RESICO"]:
+			acc = mapeos_cache.get(ROL_RET_ISR_RESICO) or _get_account_head_by_role(
+				company, ROL_RET_ISR_RESICO
+			)
+			rows.append(fila_retencion(acc, "Retención ISR - RESICO"))
+		else:
+			omitted.append("Retención ISR RESICO")
+
+	return rows, omitted
 
 
 def _make_stct(company: str, title: str, rows: list[dict]) -> str:
@@ -284,6 +500,92 @@ def _disable_old_percent_named_templates(company: str):
 		frappe.db.commit()
 
 
+def _mostrar_resumen_generacion(result: dict):
+	"""
+	Muestra resumen consolidado de generación templates al usuario.
+
+	Args:
+		result: Dict retornado por generate_8_stct_for_company() con:
+			- created: list[str] - Templates creados
+			- skipped: list[dict] - Templates omitidos {template, reason}
+			- omitted_rows_por_template: dict - Filas omitidas por template
+			- disabled_old: bool
+	"""
+	created = result.get("created", [])
+	skipped = result.get("skipped", [])
+	omitted_rows = result.get("omitted_rows_por_template", {})
+
+	# Construir mensaje HTML consolidado
+	msg_parts = []
+
+	# SECCIÓN 1: Templates creados exitosamente
+	if created:
+		msg_parts.append(f"<h4 style='color: green;'>✅ Templates creados ({len(created)}):</h4>")
+		msg_parts.append("<ul>")
+		for name in created:
+			# Indicar si tiene filas omitidas
+			if name in omitted_rows:
+				msg_parts.append(
+					f"<li><b>{name}</b> <span style='color: orange;'>(con filas parciales)</span></li>"
+				)
+			else:
+				msg_parts.append(f"<li><b>{name}</b></li>")
+		msg_parts.append("</ul>")
+
+	# SECCIÓN 2: Templates omitidos
+	if skipped:
+		msg_parts.append(f"<h4 style='color: orange;'>⚠️ Templates omitidos ({len(skipped)}):</h4>")
+		msg_parts.append("<ul>")
+		for item in skipped:
+			template = item.get("template", "Desconocido")
+			reason = item.get("reason", "Sin razón")
+			msg_parts.append(f"<li><b>{template}</b>: {reason}</li>")
+		msg_parts.append("</ul>")
+
+	# SECCIÓN 3: Filas omitidas por template
+	if omitted_rows:
+		msg_parts.append("<h4 style='color: blue;'>📋 Filas omitidas por template:</h4>")
+		msg_parts.append("<ul>")
+		for template, rows in omitted_rows.items():
+			msg_parts.append(f"<li><b>{template}</b>:")
+			msg_parts.append("<ul>")
+			for row in rows:
+				msg_parts.append(f"<li>{row}</li>")
+			msg_parts.append("</ul>")
+			msg_parts.append("</li>")
+		msg_parts.append("</ul>")
+
+	# SECCIÓN 4: Mensaje consolidado final
+	total_esperados = 8  # Siempre se intentan generar 8 templates
+	total_creados = len(created)
+	total_omitidos = len(skipped)
+
+	msg_parts.append("<hr>")
+	msg_parts.append(f"<p><b>Resumen:</b> {total_creados}/{total_esperados} templates generados")
+	if total_omitidos > 0:
+		msg_parts.append(f", {total_omitidos} omitidos")
+	if omitted_rows:
+		msg_parts.append(f", {len(omitted_rows)} templates con filas parciales")
+	msg_parts.append(".</p>")
+
+	# Recomendación si hay omisiones
+	if skipped or omitted_rows:
+		msg_parts.append(
+			"<p style='color: orange;'><b>Recomendación:</b> "
+			"Configure los mapeos faltantes en <b>Mapeo Cuenta Fiscal Mexico</b> "
+			"para obtener templates completos.</p>"
+		)
+
+	# Mostrar mensaje consolidado
+	final_msg = "".join(msg_parts)
+	frappe.msgprint(
+		final_msg,
+		title="Generación Templates STCT - Reporte",
+		indicator="blue" if (skipped or omitted_rows) else "green",
+		wide=True,
+	)
+
+
 @frappe.whitelist()
 def generate_8_stct_for_company(
 	company: str,
@@ -292,27 +594,115 @@ def generate_8_stct_for_company(
 	iva_frontera_rate: float | None = None,
 ):
 	"""
-    Crea 8 STCT (Nacional/Frontera x Básico/IEPS/Retenciones/Total) con nombres SEMÁNTICOS
-    ('IVA Nacional - ...', 'IVA Frontera - ...') y sin números de tasa en títulos/descripciones.
+	Genera 8 STCT (Nacional/Frontera x Básico/IEPS/Retenciones/Total) con lógica parcial.
 
-    USO (bench):
-    bench --site <site> execute facturacion_mexico.facturacion_fiscal.setup.stct8.generate_8_stct_for_company \
-      --kwargs "{'company':'Mi Empresa SA de CV','abbr':'_TC','iva_nacional_rate':16,'iva_frontera_rate':8}"
-    """
+	Cambios E1 (IEPS parcial):
+	- Verificación granular de mapeos disponibles (por cada IEPS/Retención)
+	- Generación parcial: templates con solo las filas cuyos mapeos existan
+	- Reporte detallado: created/skipped/omitted_rows_por_template
+	- Try-catch per template: errores no detienen el batch
+
+	Args:
+		company: Company name
+		abbr: Company abbreviation (auto-detected if None)
+		iva_nacional_rate: IVA rate Nacional (auto-detected if None)
+		iva_frontera_rate: IVA rate Frontera (auto-detected if None)
+
+	Returns:
+		dict: {
+			"created": list[str],  # Template names creados
+			"skipped": list[dict],  # {template, reason}
+			"omitted_rows_por_template": dict,  # {template: [omitted_rows]}
+			"disabled_old": bool
+		}
+
+	USO (bench):
+	bench --site <site> execute facturacion_mexico.facturacion_fiscal.setup.generador_templates_fiscal.generate_8_stct_for_company \
+	  --kwargs "{'company':'Mi Empresa SA de CV','abbr':'_TC','iva_nacional_rate':16,'iva_frontera_rate':8}"
+	"""
 	abbr = abbr or _get_company_abbr(company)
 	iva_nat, iva_fro = _get_iva_rates(company, iva_nacional_rate, iva_frontera_rate)
 
-	created = []
-	for zona, rate in (("Nacional", iva_nat), ("Frontera", iva_fro)):
-		for variant in ("Básico", "IEPS", "Retenciones", "Total"):
-			# Title SIN abbr - Frappe auto-naming lo agregará
-			title = f"IVA {zona} - {variant}"
-			rows = _build_rows(company, zona, rate, variant)
-			name = _make_stct(company, title, rows)
-			created.append(name)
+	# PASO 1: Verificar mapeos disponibles (única vez, cache)
+	mapeos_disponibles = _verificar_mapeos_disponibles(company)
 
+	# PASO 2: Validación obligatoria - IVA Nacional debe existir
+	if not mapeos_disponibles["tiene_iva_nacional"]:
+		frappe.throw(
+			"No se puede generar templates STCT: falta mapeo obligatorio <b>IVA Nacional</b>.<br>"
+			"Configure el mapeo en <b>Mapeo Cuenta Fiscal Mexico</b> antes de continuar."
+		)
+
+	# PASO 3: Generación con lógica parcial
+	created = []
+	skipped = []
+	omitted_rows_por_template = {}
+
+	for zona, rate in (("Nacional", iva_nat), ("Frontera", iva_fro)):
+		# Verificar si zona tiene IVA disponible
+		tiene_iva_zona = (
+			mapeos_disponibles["tiene_iva_nacional"]
+			if zona == "Nacional"
+			else mapeos_disponibles["tiene_iva_frontera"]
+		)
+
+		if not tiene_iva_zona:
+			# Skip toda la zona si no tiene IVA
+			for variant in ("Básico", "IEPS", "Retenciones", "Total"):
+				title = f"IVA {zona} - {variant}"
+				skipped.append({"template": title, "reason": f"Sin mapeo IVA {zona}"})
+			continue
+
+		for variant in ("Básico", "IEPS", "Retenciones", "Total"):
+			title = f"IVA {zona} - {variant}"
+
+			try:
+				# PASO 3.1: Build rows con lógica parcial (retorna tuple)
+				rows, omitted = _build_rows(company, zona, rate, variant, mapeos_disponibles)
+
+				# PASO 3.2: Verificar si hay filas para crear
+				if not rows:
+					# Sin filas disponibles - skip template
+					skipped.append(
+						{
+							"template": title,
+							"reason": f"Sin mapeos disponibles: {', '.join(omitted) if omitted else 'desconocido'}",
+						}
+					)
+					continue
+
+				# PASO 3.3: Crear/actualizar template (con filas parciales)
+				name = _make_stct(company, title, rows)
+				created.append(name)
+
+				# PASO 3.4: Registrar filas omitidas (si las hay)
+				if omitted:
+					omitted_rows_por_template[title] = omitted
+
+			except Exception as e:
+				# Try-catch per template: errores no detienen batch
+				skipped.append({"template": title, "reason": f"Error: {e!s}"})
+				frappe.log_error(
+					message=f"Error generando template {title}: {e!s}",
+					title=f"STCT Generation Error - {title}",
+				)
+
+	# PASO 4: Deshabilitar templates viejos con porcentajes
 	_disable_old_percent_named_templates(company)
-	return {"created": created, "disabled_old": True}
+
+	# PASO 5: Preparar resultado detallado
+	result = {
+		"created": created,
+		"skipped": skipped,
+		"omitted_rows_por_template": omitted_rows_por_template,
+		"disabled_old": True,
+	}
+
+	# PASO 6: Mostrar resumen consolidado al usuario
+	_mostrar_resumen_generacion(result)
+
+	# PASO 7: Return para uso programático
+	return result
 
 
 # =============================================================================
@@ -392,8 +782,8 @@ def generate_itt_for_company(company: str) -> dict:
 		_crear_o_actualizar_itt(
 			company,
 			abbr,
-			"ITT IVA 16%",
-			[{"rol_fiscal": "IVA por Pagar (16%)", "tax_rate": 16.0}],
+			"ITT IVA Nacional",
+			[{"rol_fiscal": ROL_IVA_NAC, "tax_rate": 16.0}],
 			mapeo_cuentas,
 		)
 	)
@@ -404,9 +794,9 @@ def generate_itt_for_company(company: str) -> dict:
 			abbr,
 			"ITT IVA 0%",
 			[
-				{"rol_fiscal": "IVA por Pagar (16%)", "tax_rate": 0},
-				{"rol_fiscal": "IVA por Pagar (8% frontera)", "tax_rate": 0},
-				{"rol_fiscal": "IVA por Pagar (0% exportación)", "tax_rate": 0},
+				{"rol_fiscal": ROL_IVA_NAC, "tax_rate": 0},
+				{"rol_fiscal": ROL_IVA_FRO, "tax_rate": 0},
+				{"rol_fiscal": ROL_IVA_CERO, "tax_rate": 0},
 			],
 			mapeo_cuentas,
 		)
@@ -418,22 +808,22 @@ def generate_itt_for_company(company: str) -> dict:
 			abbr,
 			"ITT Exento",
 			[
-				{"rol_fiscal": "IVA por Pagar (16%)", "tax_rate": 0},
-				{"rol_fiscal": "IVA por Pagar (8% frontera)", "tax_rate": 0},
-				{"rol_fiscal": "IVA Exento", "tax_rate": 0},
+				{"rol_fiscal": ROL_IVA_NAC, "tax_rate": 0},
+				{"rol_fiscal": ROL_IVA_FRO, "tax_rate": 0},
+				{"rol_fiscal": ROL_IVA_EXENTO, "tax_rate": 0},
 			],
 			mapeo_cuentas,
 		)
 	)
 
-	# ITT IVA Frontera 8%
+	# ITT IVA Frontera
 	if cfg.enable_frontera:
 		created.append(
 			_crear_o_actualizar_itt(
 				company,
 				abbr,
-				"ITT IVA 8% Frontera",
-				[{"rol_fiscal": "IVA por Pagar (8% frontera)", "tax_rate": 8.0}],
+				"ITT IVA Frontera",
+				[{"rol_fiscal": ROL_IVA_FRO, "tax_rate": 8.0}],
 				mapeo_cuentas,
 			)
 		)
@@ -490,7 +880,7 @@ def generate_itt_for_company(company: str) -> dict:
 				company,
 				abbr,
 				"ITT ISR Honorarios",
-				[{"rol_fiscal": "ISR Retenido (Honorarios)", "tax_rate": 0}],
+				[{"rol_fiscal": ROL_RET_ISR_HON, "tax_rate": 0}],
 				mapeo_cuentas,
 			)
 		)
@@ -498,8 +888,8 @@ def generate_itt_for_company(company: str) -> dict:
 			_crear_o_actualizar_itt(
 				company,
 				abbr,
-				"ITT IVA Retenido Servicios",
-				[{"rol_fiscal": "IVA Retenido (Servicios Profesionales)", "tax_rate": 0}],
+				"ITT IVA Retenido Honorarios",
+				[{"rol_fiscal": ROL_RET_IVA_HON, "tax_rate": 0}],
 				mapeo_cuentas,
 			)
 		)
@@ -510,8 +900,8 @@ def generate_itt_for_company(company: str) -> dict:
 				abbr,
 				"ITT ISR + IVA Ret Honorarios",
 				[
-					{"rol_fiscal": "ISR Retenido (Honorarios)", "tax_rate": 0},
-					{"rol_fiscal": "IVA Retenido (Servicios Profesionales)", "tax_rate": 0},
+					{"rol_fiscal": ROL_RET_ISR_HON, "tax_rate": 0},
+					{"rol_fiscal": ROL_RET_IVA_HON, "tax_rate": 0},
 				],
 				mapeo_cuentas,
 			)
@@ -524,7 +914,7 @@ def generate_itt_for_company(company: str) -> dict:
 				company,
 				abbr,
 				"ITT ISR Arrendamiento",
-				[{"rol_fiscal": "ISR Retenido (Arrendamiento)", "tax_rate": 0}],
+				[{"rol_fiscal": ROL_RET_ISR_ARR, "tax_rate": 0}],
 				mapeo_cuentas,
 			)
 		)
@@ -533,7 +923,7 @@ def generate_itt_for_company(company: str) -> dict:
 				company,
 				abbr,
 				"ITT IVA Retenido Arrendamiento",
-				[{"rol_fiscal": "IVA Retenido (Arrendamiento)", "tax_rate": 0}],
+				[{"rol_fiscal": ROL_RET_IVA_ARR, "tax_rate": 0}],
 				mapeo_cuentas,
 			)
 		)
@@ -544,8 +934,8 @@ def generate_itt_for_company(company: str) -> dict:
 				abbr,
 				"ITT ISR + IVA Ret Arrendamiento",
 				[
-					{"rol_fiscal": "ISR Retenido (Arrendamiento)", "tax_rate": 0},
-					{"rol_fiscal": "IVA Retenido (Arrendamiento)", "tax_rate": 0},
+					{"rol_fiscal": ROL_RET_ISR_ARR, "tax_rate": 0},
+					{"rol_fiscal": ROL_RET_IVA_ARR, "tax_rate": 0},
 				],
 				mapeo_cuentas,
 			)
@@ -558,7 +948,7 @@ def generate_itt_for_company(company: str) -> dict:
 				company,
 				abbr,
 				"ITT ISR Autotransporte",
-				[{"rol_fiscal": "ISR Retenido (Autotransporte)", "tax_rate": 0}],
+				[{"rol_fiscal": ROL_RET_ISR_AUTO, "tax_rate": 0}],
 				mapeo_cuentas,
 			)
 		)
@@ -567,7 +957,7 @@ def generate_itt_for_company(company: str) -> dict:
 				company,
 				abbr,
 				"ITT IVA Retenido Autotransporte",
-				[{"rol_fiscal": "IVA Retenido (Autotransporte)", "tax_rate": 0}],
+				[{"rol_fiscal": ROL_RET_IVA_AUTO, "tax_rate": 0}],
 				mapeo_cuentas,
 			)
 		)
@@ -578,8 +968,8 @@ def generate_itt_for_company(company: str) -> dict:
 				abbr,
 				"ITT ISR + IVA Ret Autotransporte",
 				[
-					{"rol_fiscal": "ISR Retenido (Autotransporte)", "tax_rate": 0},
-					{"rol_fiscal": "IVA Retenido (Autotransporte)", "tax_rate": 0},
+					{"rol_fiscal": ROL_RET_ISR_AUTO, "tax_rate": 0},
+					{"rol_fiscal": ROL_RET_IVA_AUTO, "tax_rate": 0},
 				],
 				mapeo_cuentas,
 			)
@@ -593,8 +983,8 @@ def generate_itt_for_company(company: str) -> dict:
 				abbr,
 				"ITT ISR + IVA Ret RESICO",
 				[
-					{"rol_fiscal": "ISR Retenido (RESICO)", "tax_rate": 0},
-					{"rol_fiscal": "IVA Retenido (RESICO)", "tax_rate": 0},
+					{"rol_fiscal": ROL_RET_ISR_RESICO, "tax_rate": 0},
+					{"rol_fiscal": ROL_RET_IVA_RESICO, "tax_rate": 0},
 				],
 				mapeo_cuentas,
 			)

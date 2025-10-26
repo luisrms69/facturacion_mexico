@@ -46,6 +46,34 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
   - Tests búsqueda STCT por zona y variante
   - Test matriz decisión completa (8 combinaciones)
   - Determinista: sin red, sin reloj real, setUp() único
+- **Documentación caso base templates fiscales** - Referencia completa templates generados post-migración nomenclatura
+  - Archivo `docs/development/CASO_BASE_TEMPLATES_FISCALES.md` con estructura validada
+  - Tabla detallada templates críticos: 0%, exentos, IEPS (4), Retenciones (4 categorías)
+  - Análisis completo 14 STCT + 21 ITT generados
+  - Detección 4 STCT + 3 ITT obsoletos (nomenclatura antigua pre-migración)
+  - Resumen estadístico: 10 STCT habilitados, clasificación ITT por propósito
+  - Guía uso recomendado templates según tipo documento
+  - Notas técnicas: Rate 0% intencional, Tipo Factor SAT, Integra Base IVA, Withholding flag
+  - Integración Sistema E1 Automated Tax: prelación templates vs cálculo dinámico
+  - Procedimientos mantenimiento futuro: regeneración, validación, migración roles
+- **Documentación validación generación parcial** - Tabla comparativa antes/después corrección checkboxes
+  - Archivo `docs/development/TABLA_COMPARATIVA_GENERACION_PARCIAL.md` con validación completa
+  - Comparación detallada: caso base (14 filas) vs generación parcial (8 filas)
+  - Estado actual checkboxes: 4 IEPS disabled, 2 retenciones disabled
+  - Validación 8/8 casos: checkbox disabled → fila omitida correctamente
+  - Análisis ITT: generación independiente de checkboxes (decisión arquitectónica pendiente)
+  - Resumen ejecutivo: 24 filas omitidas correctamente en templates Total/IEPS/Retenciones
+
+### Fixed
+- **Generación parcial templates - Lectura checkboxes incorrecta** - FIX CRÍTICO función `_verificar_mapeos_disponibles()`
+  - Problema: Función leía solo `mapeo_cuentas` (child table) sin verificar checkboxes `enable_*`
+  - Impacto: Templates generaban TODAS las filas aunque checkboxes disabled
+  - Causa raíz: Implementación original no consideraba workflow UI (checkboxes → mapeos)
+  - Corrección: Helper `_disponible(checkbox, rol)` valida `checkbox=True AND mapeo existe`
+  - Archivo modificado: `generador_templates_fiscal.py:79-186`
+  - Lógica correcta: IVA Nacional obligatorio, resto requiere checkbox enabled + mapeo
+  - Validación: STCT "Total" redujo de 14 a 8 filas (6 omitidas según checkboxes disabled)
+  - Testing: Script validación confirma 100% consistencia checkboxes ↔ templates generados
 - **Fuente de verdad única Item Groups fiscales** - Consolidación TABLA_MAESTRA_GRUPOS_FISCALES
   - Tabla maestra única (10 filas): Item Group + ITT Pattern + Categoría Fiscal + Tipo
   - 5 constantes auto-generadas: ITEM_GROUP_ITT_MAP, ITEM_GROUP_CATEGORIA, CATEGORIAS_IEPS, CATEGORIAS_RETENCION, ITEM_GROUPS_FISCALES
