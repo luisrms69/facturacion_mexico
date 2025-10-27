@@ -6,6 +6,66 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
 
 ## [Unreleased]
 
+### Added
+- **Implementación IEPS Tasa desde constantes (E1)** - Sistema automatizado tasas IEPS Alcohol/Tabaco
+  - Función generador templates lee tasas desde TASAS_IEPS en constantes_fiscales.py
+  - ITT IEPS Alcohol generado con tasa 26.5% (antes 0%)
+  - ITT IEPS Tabaco generado con tasa 160% (antes 0%)
+  - Comentarios aclarados: IEPS Cuota rate=0 correcto (hook dinámico), IEPS Tasa rate desde constantes
+  - Scripts one-off testing: regenerar_itt_tasas_ieps.py, crear_si_final_stct_actualizado.py
+  - Scripts one-off investigación: investigar_si_timeline.py, analizar_diferencia_stct.py, diagnosticar_si_taxes.py
+  - Scripts one-off validación: test_stct_sin_items.py, test_stct_dos_items.py, comparar_tres_si.py
+  - Documentación completa: REPORTE_IMPLEMENTACION_TASAS_IEPS_E1.md (390 líneas)
+
+### Changed
+- **Arquitectura IEPS Tasa clarificada** - Diferencias IEPS Cuota vs IEPS Tasa documentadas
+  - IEPS Cuota: DocType lookup + hook cálculo dinámico (rate=0 correcto)
+  - IEPS Tasa: ITT heredan tasas desde Item Group (rate debe estar configurado)
+  - Item Group → ITT → Item inheritance pattern documentado
+  - charge_type dinámico: "On Net Total" para IEPS Tasa, "Actual" para IEPS Cuota
+
+### Fixed
+- **STCT enabled ignoraba filas IVA en Sales Invoice** - Fix carga incondicional taxes
+  - Problema: Hook _set_stct_by_branch() solo cargaba taxes si taxes_and_charges cambiaba de valor
+  - Impacto: SI con STCT asignado perdía filas IVA al recargar (solo 4 de 11 filas)
+  - Grand Total incorrecto: $6,078.40 en lugar de $8,020.82 (-$1,942.42 / -25.9%)
+  - Solución: Forzar carga taxes SIEMPRE + flag __stct_applied para evitar duplicados
+  - Archivo: sales_invoice_automated_tax.py líneas 207-226
+  - Resultado: 11 filas correctas (IVA + IEPS Tasa + IVA cascada), Grand Total +32%
+  - Bugs ERPNext detectados (pendientes): charge_type="Actual" no suma ($234.84) + cuotas=$0 post-submit
+- **ITT IEPS Tasa con tasas incorrectas** - Corregido generador templates fiscal
+  - Problema: ITT IEPS Alcohol/Tabaco se generaban con rate=0
+  - Impacto: Sales Invoice no calculaba IEPS Tasa ($1,674.50 faltantes)
+  - Solución: Import TASAS_IEPS desde constantes_fiscales.py en generador_templates_fiscal.py
+  - Archivo modificado: generador_templates_fiscal.py líneas 28-29 (import), 1052 (Alcohol), 1085 (Tabaco)
+  - Resultado: IEPS Tasa ahora calcula correctamente (+$1,674.50 en SI de prueba)
+  - Bloqueador identificado: ERPNext setting `add_taxes_from_item_tax_template=1` causa pérdida filas IVA con múltiples items
+
+### Added
+- **Sistema reglas cálculo fiscal - Tabla maestra única** - Single source of truth para cálculos fiscales (FASE 3)
+  - Archivo `facturacion_mexico/utils/reglas_calculo_fiscal.py` con TABLA_MAESTRA_REGLAS_CALCULO (17 roles)
+  - Reglas completas: regla_base, regla_calculo, cascada, alcance, habilitada, fundamento_legal, notas_calculo
+  - Metadatos control: version (formato YYYY.MM), deprecada_desde (None si vigente)
+  - Constantes derivadas automáticas: REGLAS_POR_ROL, ROLES_CON_REGLA, ROLES_POR_BASE, ROLES_POR_CALCULO
+  - Función `obtener_regla_calculo(rol_fiscal)` - Acceso único a reglas desde cualquier módulo
+  - Función `validar_cobertura_reglas()` - Test sincronización con roles_fiscales.py
+  - Funciones helper: `obtener_reglas_activas()`, `obtener_reglas_por_version()`
+  - Cobertura 100%: 17 roles fiscales = 17 reglas definidas (6 porcentual, 3 cuota, 8 retención)
+  - Zero-config deployment: tabla maestra se despliega con código automáticamente
+  - Pattern consistente: coherente con roles_fiscales.py e item_groups.py
+  - Corrección IEPS según LIEPS 2025: Azúcar y Combustibles con regla_calculo="cuota" (antes "porcentual")
+  - Documentación integra_base_iva: Combustibles NO integra base IVA (Art. 2-A), Bebidas/Tabaco SÍ integran
+- **Función rectora cálculo impuestos** - Implementación centralizada aplicar_reglas_calculo_impuestos()
+  - Archivo `facturacion_mexico/utils/calculo_impuestos.py` con función rectora única
+  - Función principal: `aplicar_reglas_calculo_impuestos(doc, tax_row, metadata)` - Lee reglas y calcula
+  - Helper `_obtener_base()` - 5 reglas soportadas: monto_neto, cantidad, fila_previa_monto, fila_previa_total, iva_trasladado
+  - Helper `_calcular_monto()` - Dispatcher según regla_calculo (porcentual, cuota, retención)
+  - Helpers cálculo específicos: `_calcular_porcentual()`, `_calcular_cuota()`, `_calcular_retencion()`
+  - Bypass graceful: warning si falta regla, skip si deshabilitada (no bloquea operación)
+  - Cache reglas en frappe.local para performance (evita lookups repetidos por documento)
+  - Validación completa parámetros: tasa para porcentual/retención, cuota_unitaria para cuota
+  - Tests helpers validados: IVA 16%, IEPS cuota, retención 2/3
+
 ### Changed
 - **Documentación sincronización JSON-Python roles fiscales** - Guía explícita proceso modificación roles
   - Agregada sección ⚠️ IMPORTANTE en `roles_fiscales.py` documentando limitación Frappe framework

@@ -1,6 +1,12 @@
 import frappe
 from frappe.utils import flt
 
+# Import tasas IEPS para generación ITT
+from facturacion_mexico.facturacion_fiscal.config.constantes_fiscales import TASAS_IEPS
+
+# Import para tabla maestra reglas cálculo
+from facturacion_mexico.utils.reglas_calculo_fiscal import obtener_regla_calculo
+
 # Single source of truth - Roles fiscales
 from facturacion_mexico.utils.roles_fiscales import (
 	ROL_IEPS_ALC,
@@ -21,6 +27,44 @@ from facturacion_mexico.utils.roles_fiscales import (
 	ROL_RET_IVA_HON,
 	ROL_RET_IVA_RESICO,
 )
+
+# -----------------------------------------------------------
+# CHARGE TYPE DINÁMICO (tabla maestra)
+# -----------------------------------------------------------
+
+# Mapeo regla_base → charge_type ERPNext
+_MAPEO_CHARGE_TYPE = {
+	"monto_neto": "On Net Total",
+	"cantidad": "Actual",
+	"fila_previa_monto": "On Previous Row Amount",
+	"fila_previa_total": "On Previous Row Total",
+	"iva_trasladado": "On Previous Row Amount",
+}
+
+
+def _charge_type_por_rol(rol_fiscal: str) -> str:
+	"""
+	Obtiene charge_type de ERPNext según rol fiscal desde tabla maestra.
+
+	Lee reglas de cálculo de la tabla maestra y mapea regla_base al
+	charge_type correspondiente de ERPNext para configuración correcta
+	de filas de impuestos en STCT.
+
+	Args:
+		rol_fiscal: Rol fiscal del impuesto (e.g., ROL_IVA_NAC, ROL_IEPS_ALC)
+
+	Returns:
+		str: charge_type de ERPNext ("On Net Total", "Actual", "On Previous Row Amount", etc.)
+
+	Ejemplo:
+		>>> _charge_type_por_rol(ROL_IVA_NAC)
+		"On Net Total"
+		>>> _charge_type_por_rol(ROL_IEPS_AZU)
+		"Actual"
+	"""
+	reglas = obtener_regla_calculo(rol_fiscal) or {}
+	base = reglas.get("regla_base", "monto_neto")
+	return _MAPEO_CHARGE_TYPE.get(base, "On Net Total")
 
 
 # -----------------------------------------------------------
@@ -206,12 +250,41 @@ def _get_iva_rates(
 # -----------------------------------------------------------
 # FILAS: nombres/descr. SEMÁNTICOS (sin números)
 # -----------------------------------------------------------
-def fila_iva_base(account_head: str, zona: str, tasa_valor: float) -> dict:
+
+# LEGACY: Función con charge_type hardcodeado - COMENTADO PARA MIGRACIÓN E1
+# def fila_iva_base(account_head: str, zona: str, tasa_valor: float) -> dict:
+# 	"""
+# 	IVA base sobre neto. La tasa se aplica aquí (valor), pero NO se escribe en la descripción.
+# 	"""
+# 	return {
+# 		"charge_type": "On Net Total",
+# 		"row_id": None,
+# 		"rate": tasa_valor,  # valor numérico, no en texto
+# 		"description": f"IVA {zona} - Base (Resto)",
+# 		"account_head": account_head,
+# 		"add_deduct_tax": "Add",
+# 		"category": "Valuation and Total",
+# 	}
+
+
+def fila_iva_base(account_head: str, zona: str, tasa_valor: float, rol_fiscal: str) -> dict:
 	"""
-	IVA base sobre neto. La tasa se aplica aquí (valor), pero NO se escribe en la descripción.
+	IVA base sobre neto con charge_type dinámico desde tabla maestra.
+
+	La tasa se aplica aquí (valor), pero NO se escribe en la descripción.
+	Migración E1: Lee charge_type desde tabla maestra vía rol_fiscal.
+
+	Args:
+		account_head: Cuenta contable del impuesto
+		zona: "Nacional" o "Frontera"
+		tasa_valor: Tasa IVA numérica (16.0 o 8.0)
+		rol_fiscal: Rol fiscal para obtener charge_type dinámico (ROL_IVA_NAC, ROL_IVA_FRO)
+
+	Returns:
+		dict: Configuración fila impuesto para STCT
 	"""
 	return {
-		"charge_type": "On Net Total",
+		"charge_type": _charge_type_por_rol(rol_fiscal),  # Dinámico desde tabla maestra
 		"row_id": None,
 		"rate": tasa_valor,  # valor numérico, no en texto
 		"description": f"IVA {zona} - Base (Resto)",
@@ -221,10 +294,37 @@ def fila_iva_base(account_head: str, zona: str, tasa_valor: float) -> dict:
 	}
 
 
-def fila_ieps_tasa(account_head: str, concepto: str) -> dict:
-	"""IEPS tasa via ITT (rate=0 aquí; lo fija el ITT/ítem)."""
+# LEGACY: Función con charge_type hardcodeado - COMENTADO PARA MIGRACIÓN E1
+# def fila_ieps_tasa(account_head: str, concepto: str) -> dict:
+# 	"""IEPS tasa via ITT (rate=0 aquí; lo fija el ITT/ítem)."""
+# 	return {
+# 		"charge_type": "On Net Total",
+# 		"row_id": None,
+# 		"rate": 0.0,
+# 		"description": f"IEPS {concepto} - Tasa (via ITT)",
+# 		"account_head": account_head,
+# 		"add_deduct_tax": "Add",
+# 		"category": "Valuation and Total",
+# 	}
+
+
+def fila_ieps_tasa(account_head: str, concepto: str, rol_fiscal: str) -> dict:
+	"""
+	IEPS tasa via ITT con charge_type dinámico desde tabla maestra.
+
+	rate=0 aquí; el ITT/ítem fija la tasa específica heredada desde Item Group.
+	Migración E1: Lee charge_type desde tabla maestra vía rol_fiscal.
+
+	Args:
+		account_head: Cuenta contable del IEPS
+		concepto: Descripción del concepto (e.g., "Alcohol", "Tabaco")
+		rol_fiscal: Rol fiscal para obtener charge_type dinámico (ROL_IEPS_ALC, ROL_IEPS_TAB)
+
+	Returns:
+		dict: Configuración fila impuesto para STCT
+	"""
 	return {
-		"charge_type": "On Net Total",
+		"charge_type": _charge_type_por_rol(rol_fiscal),  # Dinámico desde tabla maestra
 		"row_id": None,
 		"rate": 0.0,
 		"description": f"IEPS {concepto} - Tasa (via ITT)",
@@ -234,10 +334,38 @@ def fila_ieps_tasa(account_head: str, concepto: str) -> dict:
 	}
 
 
-def fila_ieps_cuota(account_head: str, concepto: str) -> dict:
-	"""IEPS cuota (Actual; el monto lo calcula el hook existente)."""
+# LEGACY: Función con charge_type hardcodeado - COMENTADO PARA MIGRACIÓN E1
+# def fila_ieps_cuota(account_head: str, concepto: str) -> dict:
+# 	"""IEPS cuota (Actual; el monto lo calcula el hook existente)."""
+# 	return {
+# 		"charge_type": "Actual",
+# 		"row_id": None,
+# 		"rate": 0.0,
+# 		"description": f"IEPS {concepto} - Cuota (via ITT)",
+# 		"account_head": account_head,
+# 		"add_deduct_tax": "Add",
+# 		"category": "Valuation and Total",
+# 	}
+
+
+def fila_ieps_cuota(account_head: str, concepto: str, rol_fiscal: str) -> dict:
+	"""
+	IEPS cuota con charge_type dinámico desde tabla maestra.
+
+	El monto lo calcula el hook existente basado en cantidad.
+	Hook setea tax_amount dinámicamente según cuota IEPS del item.
+	Migración E1: Lee charge_type desde tabla maestra vía rol_fiscal.
+
+	Args:
+		account_head: Cuenta contable del IEPS
+		concepto: Descripción del concepto (e.g., "Azúcar/Bebidas", "Combustibles", "Tabaco")
+		rol_fiscal: Rol fiscal para obtener charge_type dinámico (ROL_IEPS_AZU, ROL_IEPS_COMB, ROL_IEPS_TABQ)
+
+	Returns:
+		dict: Configuración fila impuesto para STCT
+	"""
 	return {
-		"charge_type": "Actual",
+		"charge_type": _charge_type_por_rol(rol_fiscal),  # Dinámico desde tabla maestra
 		"row_id": None,
 		"rate": 0.0,
 		"description": f"IEPS {concepto} - Cuota (via ITT)",
@@ -247,18 +375,79 @@ def fila_ieps_cuota(account_head: str, concepto: str) -> dict:
 	}
 
 
-def fila_retencion(account_head: str, desc: str, rate: float | None = None) -> dict:
+# LEGACY: Función con charge_type hardcodeado - COMENTADO PARA MIGRACIÓN E1
+# def fila_retencion(account_head: str, desc: str, rate: float | None = None) -> dict:
+# 	"""
+# 	Retenciones; si vienen por ITT, deja rate=0 y el ITT/hook lo fija.
+# 	"""
+# 	return {
+# 		"charge_type": "On Net Total",
+# 		"row_id": None,
+# 		"rate": flt(rate) if rate is not None else 0.0,
+# 		"description": desc,
+# 		"account_head": account_head,
+# 		"add_deduct_tax": "Deduct",
+# 		"category": "Total",
+# 	}
+
+
+def fila_retencion(account_head: str, desc: str, rol_fiscal: str, rate: float | None = None) -> dict:
 	"""
-	Retenciones; si vienen por ITT, deja rate=0 y el ITT/hook lo fija.
+	Retenciones con charge_type dinámico desde tabla maestra.
+
+	Si vienen por ITT, deja rate=0 y el ITT/hook lo fija.
+	Migración E1: Lee charge_type desde tabla maestra vía rol_fiscal.
+
+	Args:
+		account_head: Cuenta contable de la retención
+		desc: Descripción de la retención
+		rol_fiscal: Rol fiscal para obtener charge_type dinámico (ROL_RET_*)
+		rate: Tasa de retención (opcional, default 0.0 para ITT)
+
+	Returns:
+		dict: Configuración fila retención para STCT
 	"""
 	return {
-		"charge_type": "On Net Total",
+		"charge_type": _charge_type_por_rol(rol_fiscal),  # Dinámico desde tabla maestra
 		"row_id": None,
 		"rate": flt(rate) if rate is not None else 0.0,
 		"description": desc,
 		"account_head": account_head,
 		"add_deduct_tax": "Deduct",
 		"category": "Total",
+	}
+
+
+def fila_iva_cascada_ieps(account_head: str, concepto_ieps: str, iva_rate: float, rol_fiscal: str) -> dict:
+	"""
+	IVA cascada sobre IEPS (calcula IVA sobre el monto del IEPS anterior).
+
+	HARDCODEA charge_type "On Previous Row Amount" porque IVA cascada sobre IEPS:
+	- NO es un rol fiscal independiente (usa misma cuenta IVA)
+	- SIEMPRE calcula sobre fila previa (IEPS)
+	- Es lógica específica de generador templates, no de tabla maestra
+
+	Args:
+		account_head: Cuenta contable del IVA
+		concepto_ieps: Descripción del concepto IEPS (e.g., "Alcohol", "Tabaco")
+		iva_rate: Tasa IVA numérica (16.0 o 8.0)
+		rol_fiscal: Rol fiscal IVA (no usado actualmente, para compatibilidad futura)
+
+	Returns:
+		dict: Configuración fila IVA cascada para STCT
+
+	Ejemplo:
+		# Después de fila IEPS Alcohol ($874.50)
+		# Esta fila calcula: $874.50 * 16% = $139.92
+	"""
+	return {
+		"charge_type": "On Previous Row Amount",  # HARDCODE - IVA cascada siempre usa prev row
+		"row_id": None,  # Se asigna después en _build_rows()
+		"rate": iva_rate,
+		"description": f"IVA sobre IEPS {concepto_ieps}",
+		"account_head": account_head,
+		"add_deduct_tax": "Add",
+		"category": "Valuation and Total",
 	}
 
 
@@ -305,40 +494,68 @@ def _build_rows(
 		# Fallback a búsqueda tradicional si cache no tiene
 		iva_acc = _get_account_head_by_role(company, rol_iva)
 
-	rows.append(fila_iva_base(iva_acc, zona, iva_rate))
+	# IVA Base PRIMERO - truco ERPNext: primera fila con (account_head, add_deduct, charge_type) gana
+	# Si IVA Base está primero, ERPNext NO la reemplaza con filas del ITT
+	rows.append(fila_iva_base(iva_acc, zona, iva_rate, rol_iva))
 
-	# IEPS (parcial - agregar solo disponibles)
+	# IEPS (parcial - agregar solo disponibles) + IVA cascada
 	if variant in ("IEPS", "Total"):
 		ieps = mapeos_disponibles["ieps_disponibles"]
 		mapeos_cache = mapeos_disponibles["mapeos_por_rol"]
 
 		if ieps["Alcohol"]:
 			acc = mapeos_cache.get(ROL_IEPS_ALC) or _get_account_head_by_role(company, ROL_IEPS_ALC)
-			rows.append(fila_ieps_tasa(acc, "Alcohol"))
+			rows.append(fila_ieps_tasa(acc, "Alcohol", ROL_IEPS_ALC))  # Migración E1: + rol_fiscal
+			# IVA cascada sobre IEPS Alcohol (E1: nueva fila)
+			# row_id apunta al idx de la fila IEPS recién agregada
+			ieps_row_idx = len(rows)  # idx será len(rows) porque se asigna en _make_stct
+			fila_iva = fila_iva_cascada_ieps(iva_acc, "Alcohol", iva_rate, rol_iva)
+			fila_iva["row_id"] = ieps_row_idx  # Asignar row_id explícito
+			rows.append(fila_iva)
 		else:
 			omitted.append("IEPS Alcohol (tasa)")
 
 		if ieps["Azucar"]:
 			acc = mapeos_cache.get(ROL_IEPS_AZU) or _get_account_head_by_role(company, ROL_IEPS_AZU)
-			rows.append(fila_ieps_cuota(acc, "Azúcar/Bebidas"))
+			rows.append(fila_ieps_cuota(acc, "Azúcar/Bebidas", ROL_IEPS_AZU))  # Migración E1: + rol_fiscal
+			# IVA cascada sobre IEPS Azúcar (E1: nueva fila)
+			ieps_row_idx = len(rows)
+			fila_iva = fila_iva_cascada_ieps(iva_acc, "Azúcar/Bebidas", iva_rate, rol_iva)
+			fila_iva["row_id"] = ieps_row_idx
+			rows.append(fila_iva)
 		else:
 			omitted.append("IEPS Azúcar (cuota)")
 
 		if ieps["Combustibles"]:
 			acc = mapeos_cache.get(ROL_IEPS_COMB) or _get_account_head_by_role(company, ROL_IEPS_COMB)
-			rows.append(fila_ieps_cuota(acc, "Combustibles"))
+			rows.append(fila_ieps_cuota(acc, "Combustibles", ROL_IEPS_COMB))  # Migración E1: + rol_fiscal
+			# IVA cascada sobre IEPS Combustibles (E1: nueva fila)
+			ieps_row_idx = len(rows)
+			fila_iva = fila_iva_cascada_ieps(iva_acc, "Combustibles", iva_rate, rol_iva)
+			fila_iva["row_id"] = ieps_row_idx
+			rows.append(fila_iva)
 		else:
 			omitted.append("IEPS Combustibles (cuota)")
 
 		if ieps["Tabaco_Tasa"]:
 			acc = mapeos_cache.get(ROL_IEPS_TAB) or _get_account_head_by_role(company, ROL_IEPS_TAB)
-			rows.append(fila_ieps_tasa(acc, "Tabaco"))
+			rows.append(fila_ieps_tasa(acc, "Tabaco", ROL_IEPS_TAB))  # Migración E1: + rol_fiscal
+			# IVA cascada sobre IEPS Tabaco Tasa (E1: nueva fila)
+			ieps_row_idx = len(rows)
+			fila_iva = fila_iva_cascada_ieps(iva_acc, "Tabaco (Tasa)", iva_rate, rol_iva)
+			fila_iva["row_id"] = ieps_row_idx
+			rows.append(fila_iva)
 		else:
 			omitted.append("IEPS Tabaco (tasa)")
 
 		if ieps["Tabaco_Cuota"]:
 			acc = mapeos_cache.get(ROL_IEPS_TABQ) or _get_account_head_by_role(company, ROL_IEPS_TABQ)
-			rows.append(fila_ieps_cuota(acc, "Tabaco"))
+			rows.append(fila_ieps_cuota(acc, "Tabaco", ROL_IEPS_TABQ))  # Migración E1: + rol_fiscal
+			# IVA cascada sobre IEPS Tabaco Cuota (E1: nueva fila)
+			ieps_row_idx = len(rows)
+			fila_iva = fila_iva_cascada_ieps(iva_acc, "Tabaco (Cuota)", iva_rate, rol_iva)
+			fila_iva["row_id"] = ieps_row_idx
+			rows.append(fila_iva)
 		else:
 			omitted.append("IEPS Tabaco (cuota)")
 
@@ -350,39 +567,43 @@ def _build_rows(
 		# Retenciones Honorarios
 		if rets["IVA_Honorarios"]:
 			acc = mapeos_cache.get(ROL_RET_IVA_HON) or _get_account_head_by_role(company, ROL_RET_IVA_HON)
-			rows.append(fila_retencion(acc, "Retención IVA - Honorarios"))
+			rows.append(fila_retencion(acc, "Retención IVA - Honorarios", ROL_RET_IVA_HON))  # Migración E1
 		else:
 			omitted.append("Retención IVA Honorarios")
 
 		if rets["ISR_Honorarios"]:
 			acc = mapeos_cache.get(ROL_RET_ISR_HON) or _get_account_head_by_role(company, ROL_RET_ISR_HON)
-			rows.append(fila_retencion(acc, "Retención ISR - Honorarios"))
+			rows.append(fila_retencion(acc, "Retención ISR - Honorarios", ROL_RET_ISR_HON))  # Migración E1
 		else:
 			omitted.append("Retención ISR Honorarios")
 
 		# Retenciones Arrendamiento
 		if rets["IVA_Arrendamiento"]:
 			acc = mapeos_cache.get(ROL_RET_IVA_ARR) or _get_account_head_by_role(company, ROL_RET_IVA_ARR)
-			rows.append(fila_retencion(acc, "Retención IVA - Arrendamiento"))
+			rows.append(fila_retencion(acc, "Retención IVA - Arrendamiento", ROL_RET_IVA_ARR))  # Migración E1
 		else:
 			omitted.append("Retención IVA Arrendamiento")
 
 		if rets["ISR_Arrendamiento"]:
 			acc = mapeos_cache.get(ROL_RET_ISR_ARR) or _get_account_head_by_role(company, ROL_RET_ISR_ARR)
-			rows.append(fila_retencion(acc, "Retención ISR - Arrendamiento"))
+			rows.append(fila_retencion(acc, "Retención ISR - Arrendamiento", ROL_RET_ISR_ARR))  # Migración E1
 		else:
 			omitted.append("Retención ISR Arrendamiento")
 
 		# Retenciones Autotransporte
 		if rets["IVA_Autotransporte"]:
 			acc = mapeos_cache.get(ROL_RET_IVA_AUTO) or _get_account_head_by_role(company, ROL_RET_IVA_AUTO)
-			rows.append(fila_retencion(acc, "Retención IVA - Autotransporte"))
+			rows.append(
+				fila_retencion(acc, "Retención IVA - Autotransporte", ROL_RET_IVA_AUTO)
+			)  # Migración E1
 		else:
 			omitted.append("Retención IVA Autotransporte")
 
 		if rets["ISR_Autotransporte"]:
 			acc = mapeos_cache.get(ROL_RET_ISR_AUTO) or _get_account_head_by_role(company, ROL_RET_ISR_AUTO)
-			rows.append(fila_retencion(acc, "Retención ISR - Autotransporte"))
+			rows.append(
+				fila_retencion(acc, "Retención ISR - Autotransporte", ROL_RET_ISR_AUTO)
+			)  # Migración E1
 		else:
 			omitted.append("Retención ISR Autotransporte")
 
@@ -391,7 +612,7 @@ def _build_rows(
 			acc = mapeos_cache.get(ROL_RET_IVA_RESICO) or _get_account_head_by_role(
 				company, ROL_RET_IVA_RESICO
 			)
-			rows.append(fila_retencion(acc, "Retención IVA - RESICO"))
+			rows.append(fila_retencion(acc, "Retención IVA - RESICO", ROL_RET_IVA_RESICO))  # Migración E1
 		else:
 			omitted.append("Retención IVA RESICO")
 
@@ -399,7 +620,7 @@ def _build_rows(
 			acc = mapeos_cache.get(ROL_RET_ISR_RESICO) or _get_account_head_by_role(
 				company, ROL_RET_ISR_RESICO
 			)
-			rows.append(fila_retencion(acc, "Retención ISR - RESICO"))
+			rows.append(fila_retencion(acc, "Retención ISR - RESICO", ROL_RET_ISR_RESICO))  # Migración E1
 		else:
 			omitted.append("Retención ISR RESICO")
 
@@ -835,7 +1056,9 @@ def generate_itt_for_company(company: str) -> dict:
 				company,
 				abbr,
 				"ITT IEPS Alcohol",
-				[{"rol_fiscal": "IEPS por Pagar (Alcohol)", "tax_rate": 0}],  # Tasa se fija en ITT del item
+				[
+					{"rol_fiscal": "IEPS por Pagar (Alcohol)", "tax_rate": TASAS_IEPS["alcohol"]["tasa"]}
+				],  # Tasa desde constantes - heredada por items vía Item Group
 				mapeo_cuentas,
 			)
 		)
@@ -846,7 +1069,9 @@ def generate_itt_for_company(company: str) -> dict:
 				company,
 				abbr,
 				"ITT IEPS Azúcar",
-				[{"rol_fiscal": "IEPS por Pagar (Azúcar/Bebidas)", "tax_rate": 0}],
+				[
+					{"rol_fiscal": "IEPS por Pagar (Azúcar/Bebidas)", "tax_rate": 0}
+				],  # Rate 0 correcto: hook calcular_ieps_cuota() asigna monto dinámicamente
 				mapeo_cuentas,
 			)
 		)
@@ -857,7 +1082,9 @@ def generate_itt_for_company(company: str) -> dict:
 				company,
 				abbr,
 				"ITT IEPS Combustibles",
-				[{"rol_fiscal": "IEPS por Pagar (Combustibles)", "tax_rate": 0}],
+				[
+					{"rol_fiscal": "IEPS por Pagar (Combustibles)", "tax_rate": 0}
+				],  # Rate 0 correcto: hook calcular_ieps_cuota() asigna monto dinámicamente
 				mapeo_cuentas,
 			)
 		)
@@ -868,7 +1095,9 @@ def generate_itt_for_company(company: str) -> dict:
 				company,
 				abbr,
 				"ITT IEPS Tabaco",
-				[{"rol_fiscal": "IEPS por Pagar (Tabaco)", "tax_rate": 0}],
+				[
+					{"rol_fiscal": "IEPS por Pagar (Tabaco)", "tax_rate": TASAS_IEPS["tabaco"]["tasa"]}
+				],  # Tasa desde constantes - heredada por items vía Item Group
 				mapeo_cuentas,
 			)
 		)

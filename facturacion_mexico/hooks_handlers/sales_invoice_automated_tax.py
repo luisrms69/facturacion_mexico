@@ -176,6 +176,9 @@ def _set_stct_by_branch(doc, branch: str | None):
 	- Zona Nacional + items IEPS (sin retenciones) → "IVA Nacional - IEPS - {abbr}"
 	- Zona Frontera + items básicos (sin IEPS/retenciones) → "IVA Frontera - Básico - {abbr}"
 	- Zona Nacional + items IEPS + retenciones → "IVA Nacional - Total - {abbr}"
+
+	NOTA E1: Fuerza carga de taxes desde STCT incluso si ya estaba asignado,
+	         para garantizar que STCT + ITT se combinen correctamente (fix issue #STCT-enabled).
 	"""
 	if not branch or not getattr(doc, "company", None):
 		return
@@ -202,34 +205,42 @@ def _set_stct_by_branch(doc, branch: str | None):
 			used_fallback = True
 
 	if stct:
+		# Flag para evitar múltiples cargas en mismo request
+		if getattr(doc.flags, "__stct_applied", False):
+			return
+
 		# Asignar STCT encontrado (específico o fallback)
 		if getattr(doc, "taxes_and_charges", None) != stct:
 			doc.taxes_and_charges = stct
 
-			# Cargar tax rows desde template (función nativa ERPNext)
-			from erpnext.controllers.accounts_controller import get_taxes_and_charges
+		# FORZAR carga de taxes desde STCT (incluso si ya estaba asignado)
+		# Esto replica comportamiento "STCT disabled → enabled" que funciona correctamente
+		from erpnext.controllers.accounts_controller import get_taxes_and_charges
 
-			# Limpiar taxes actuales y cargar desde template
-			doc.set("taxes", [])
-			tax_rows = get_taxes_and_charges("Sales Taxes and Charges Template", stct)
-			doc.extend("taxes", tax_rows)
+		# Limpiar taxes actuales y cargar desde template
+		doc.set("taxes", [])
+		tax_rows = get_taxes_and_charges("Sales Taxes and Charges Template", stct)
+		doc.extend("taxes", tax_rows)
 
-			# Mensaje según si usó fallback o no
-			iva_label = "8%" if is_border else "16%"
-			if used_fallback:
-				frappe.msgprint(
-					f"⚠️ Template <b>IVA {iva_label} - {variant}</b> no disponible.<br>"
-					f"Se usó <b>IVA {iva_label} - Básico</b> como alternativa.<br>"
-					f"<small>Configure mapeos faltantes en Mapeo Cuenta Fiscal Mexico para obtener template completo.</small>",
-					alert=True,
-					indicator="orange",
-				)
-			else:
-				frappe.msgprint(
-					f"Impuestos configurados automáticamente: <b>IVA {iva_label} - {variant}</b>",
-					alert=True,
-					indicator="green",
-				)
+		# Marcar que ya aplicamos STCT en este request
+		doc.flags.__stct_applied = True
+
+		# Mensaje según si usó fallback o no
+		iva_label = "8%" if is_border else "16%"
+		if used_fallback:
+			frappe.msgprint(
+				f"⚠️ Template <b>IVA {iva_label} - {variant}</b> no disponible.<br>"
+				f"Se usó <b>IVA {iva_label} - Básico</b> como alternativa.<br>"
+				f"<small>Configure mapeos faltantes en Mapeo Cuenta Fiscal Mexico para obtener template completo.</small>",
+				alert=True,
+				indicator="orange",
+			)
+		else:
+			frappe.msgprint(
+				f"Impuestos configurados automáticamente: <b>IVA {iva_label} - {variant}</b>",
+				alert=True,
+				indicator="green",
+			)
 	else:
 		# STCT no encontrado (ni específico ni Básico) - bloquear con mensaje accionable
 		company_abbr = frappe.db.get_value("Company", doc.company, "abbr")

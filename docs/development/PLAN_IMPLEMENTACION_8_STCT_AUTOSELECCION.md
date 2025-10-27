@@ -934,102 +934,210 @@ for item in doc.items:
 
 ## 🎯 PLAN DE IMPLEMENTACIÓN RECOMENDADO
 
-### FASE 1: CREAR 8 STCT + CLASIFICACIÓN (Semana 1-2)
-**Objetivo:** Implementar estructura base (8 templates + clasificación)
+### FASE 1: CREAR 8 STCT + CLASIFICACIÓN (Semana 1-2) - ✅ COMPLETADA
+
+**Estado:** ✅ **COMPLETADA** (26h implementadas)
+
+**Commits:**
+- `3fdb47b` (oct 24): Crear 8 STCT específicos + generación automática ITT
+- `26e8bc5` (oct 24): Consolidar fuente verdad Item Groups + clasificación
+
+**Implementación:**
 
 ```
-✅ 2.1 - Función clasificación items (6h)
-     ├─ clasificar_items_documento()
-     ├─ _inferir_categoria_desde_itt()
-     ├─ Constantes CATEGORIAS_IEPS / CATEGORIAS_RETENCION
-     └─ Tests unitarios clasificación
+✅ 2.1 - Función clasificación items (6h) - COMMIT 26e8bc5
+     ├─ clasificar_items_documento() en utils/clasificacion_items.py
+     ├─ TABLA_MAESTRA_GRUPOS_FISCALES (fuente verdad única)
+     ├─ Constantes auto-generadas: CATEGORIAS_IEPS, CATEGORIAS_RETENCION
+     ├─ Diccionario ITEM_GROUP_CATEGORIA para mapeo directo
+     └─ Suite tests unitarios (7 tests, 0.455s) - test_clasificacion_items.py
 
-✅ 1.1 - Crear 8 STCT (20h)
-     ├─ Modificar generador_templates_fiscal.py
-     │   ├─ Generar 4 variantes base
-     │   └─ × 2 zonas (Nacional/Frontera) = 8 totales
-     ├─ Definir estructura filas por variante:
-     │   ├─ Básico: solo IVA 0% + IVA base
-     │   ├─ IEPS: IVA + slots IEPS (4 categorías)
-     │   ├─ Retenciones: IVA + Ret IVA + Ret ISR
-     │   └─ Total: todos los slots combinados
-     ├─ Script generación para empresas existentes
-     ├─ Tests generación templates
-     └─ Ejecutar en dev/testing
+✅ 1.1 - Crear 8 STCT (20h) - COMMIT 3fdb47b
+     ├─ Reescritura generador_templates_fiscal.py (-546 líneas)
+     ├─ Función generate_8_stct_for_company() con 4 variantes × 2 zonas
+     ├─ Templates específicos generados:
+     │   ├─ Básico: 1 fila (solo IVA)
+     │   ├─ IEPS: 6 filas (IVA + 4 IEPS + cascada)
+     │   ├─ Retenciones: 3 filas (IVA + ISR + IVA Ret)
+     │   └─ Total: 8 filas (todas combinadas)
+     ├─ Templates consolidados viejos deshabilitados automáticamente
+     ├─ Generación automática 18 ITT desde UI
+     └─ Fuzzy matching roles fiscales (sin hardcode nombres)
 
-✅ 1.2 - Normalizar descripciones (incluido en §1.1)
+✅ 1.2 - Normalizar descripciones (incluido en §1.1) - COMMIT 3fdb47b
+     └─ Nombres semánticos: "IVA Nacional - Básico" (sin porcentajes)
 
-Total Fase 1: 26 horas
+Total Fase 1: 26 horas ✅
 ```
 
-**Criterio éxito:**
-- 8 STCT creados en todas las empresas ✅
-- Nombres sin "16%"/"8%" → "Nacional"/"Frontera" ✅
-- Descripciones normalizadas ✅
+**Criterios éxito:**
+- ✅ 8 STCT creados en todas las empresas
+- ✅ Nombres sin "16%"/"8%" → "Nacional"/"Frontera"
+- ✅ Descripciones normalizadas
+- ✅ Templates consolidados viejos deshabilitados
+- ✅ Clasificación items implementada y testeada
 
 ---
 
-### FASE 2: AUTOSELECCIÓN STCT (Semana 3)
-**Objetivo:** Implementar lógica autoselección inteligente
+### FASE 2: AUTOSELECCIÓN STCT (Semana 3) - ✅ COMPLETADA
+
+**Estado:** ✅ **COMPLETADA** (6h implementadas)
+
+**Commits:**
+- `3eae7c9` (oct 25): Fix generación templates + carga tax rows + autoselección
+
+**Implementación:**
 
 ```
-✅ 3.1 - Autoselección STCT según categorías (6h)
-     ├─ Función seleccionar_stct_automatico()
-     ├─ Matriz decisión (zona + tiene_ieps + tiene_ret)
-     ├─ Hook before_validate() actualizado
-     └─ Tests integración con §2.1
+✅ 3.1 - Autoselección STCT según categorías (6h) - COMMIT 3eae7c9
+     ├─ Función _determinar_variante_stct(doc) en sales_invoice_automated_tax.py
+     ├─ Función _find_stct_by_variant(company, zona, variant) para búsqueda exacta
+     ├─ Matriz decisión implementada:
+     │   • zona × (tiene_ieps, tiene_retenciones) → 8 STCT específicos
+     │   • Fallback a "Básico" si template específico no existe
+     ├─ Hook before_validate() actualizado:
+     │   • Clasifica items con clasificar_items_documento()
+     │   • Determina zona desde Branch.fm_is_border_zone
+     │   • Selecciona STCT apropiado automáticamente
+     │   • Carga tax rows usando get_taxes_and_charges() nativo ERPNext
+     ├─ Mensaje UI: "Impuestos configurados automáticamente: IVA {tasa} - {variante}"
+     ├─ Eliminado código JavaScript legacy (_fm_apply_branch_tax_template)
+     └─ Tests unitarios autoselección (7 tests, 0.803s) - test_autoseleccion_stct.py
 
-Total Fase 2: 6 horas
+Total Fase 2: 6 horas ✅
 ```
 
-**Criterio éxito:**
-- Autoselección funciona según matriz decisión ✅
-- Sales Invoices SIN filas en $0 ✅
-- Template cambia al agregar/quitar items ✅
+**Criterios éxito:**
+- ✅ Autoselección funciona según matriz decisión (2×4 = 8 combinaciones)
+- ✅ Sales Invoices SIN filas en $0 (solo template necesario)
+- ✅ Template cambia automáticamente al modificar items
+- ✅ Tax rows se cargan correctamente en UI
+- ✅ Suite tests unitarios completa
 
 ---
 
-### FASE 3: FUNCIÓN RECTORA + VALIDACIÓN (Semana 4)
-**Objetivo:** Documentar reglas + validación extra
+### FASE 3: FUNCIÓN RECTORA + VALIDACIÓN (Semana 4) - ❌ NO IMPLEMENTADA
+
+**Estado:** ❌ **NO IMPLEMENTADA** (0h de 6h)
+
+**Commits:** NINGUNO
+
+**Pendiente:**
 
 ```
-✅ 4.1 - Función rectora reglas IVA (4h)
-     ├─ Constante REGLAS_IVA_POR_CATEGORIA
-     ├─ Función aplicar_reglas_iva_por_categoria()
-     └─ Tests unitarios reglas
+❌ 4.1 - Función rectora reglas IVA e ISR (4h) - NO EXISTE
+     ├─ Tabla REGLAS_CALCULO_IMPUESTOS en Mapeo Cuenta Fiscal Mexico
+     │   ├─ Agregar campos: regla_base, regla_calculo, tipo_calculo
+     │   ├─ Configurar reglas por rol fiscal:
+     │   │   • IVA Nacional: base=net_amount, tipo=porcentual
+     │   │   • IEPS Alcohol: base=net_amount, tipo=porcentual, integra_iva=true
+     │   │   • IEPS Combustibles: base=qty, tipo=cuota, integra_iva=false
+     │   │   • Ret IVA Honorarios: base=iva_trasladado, tipo=porcentual
+     │   └─ Migrar lógica hardcoded desde sales_invoice_ieps.py
+     ├─ Función rectora aplicar_reglas_calculo_impuestos(doc, tax_row)
+     │   ├─ Lee reglas desde Mapeo Cuenta Fiscal Mexico
+     │   ├─ Aplica regla según tipo_calculo
+     │   ├─ Retorna: {base_calculada, monto_impuesto, item_wise_detail}
+     │   └─ Centraliza toda la lógica de cálculo
+     ├─ Refactorizar hooks:
+     │   • calcular_ieps_cuota() → usa función rectora
+     │   • _congelar_iva_sobre_ieps_cuota() → usa función rectora
+     │   • ajustar_base_iva_combustibles() → usa función rectora
+     └─ Tests unitarios reglas (mínimo 10 tests cubriendo todos los tipos)
 
-✅ 4.2 - Validación post-cálculo (2h)
-     └─ Hook validar_aplicacion_reglas_iva()
+❌ 4.2 - Validación post-cálculo (2h) - NO EXISTE
+     ├─ Hook validar_aplicacion_reglas_fiscales(doc)
+     │   ├─ Ejecuta en before_submit
+     │   ├─ Verifica: suma item_wise_tax_detail == tax_amount
+     │   ├─ Verifica: reglas aplicadas correctamente por categoría
+     │   ├─ Verifica: tolerancias redondeo (±$0.01 item, ±$0.05 total)
+     │   └─ Log errores sin bloquear (solo alertas)
+     └─ Validación orden fiscal IEPS→IVA (ya existe parcialmente)
 
-Total Fase 3: 6 horas
+Total Fase 3: 6 horas ❌ PENDIENTE
 ```
 
-**Criterio éxito:**
-- Reglas IVA documentadas explícitamente ✅
-- Validación detecta inconsistencias ✅
+**Criterios éxito PENDIENTES:**
+- ❌ Tabla reglas configuración creada y migrada
+- ❌ Función rectora implementada y centralizada
+- ❌ Lógica hardcoded refactorizada
+- ❌ Validación post-cálculo implementada
+- ❌ Tests unitarios completos
 
 ---
 
-### FASE 4: SUITE TESTS E2E (Post-implementación)
-**Objetivo:** Validar implementación completa con tests E2E
+### FASE 4: SUITE TESTS E2E (Post-implementación) - ⚠️ PARCIAL
+
+**Estado:** ⚠️ **PARCIAL** (2h de 12h - solo tests unitarios)
+
+**Commits:**
+- `f15e46f` (oct 25): Tests autoselección STCT (UNITARIOS, no E2E)
+
+**Implementación PARCIAL:**
 
 ```
-✅ 6.1 - Crear suite tests E2E autoselección (12h)
-     ├─ Test escenario Básico (solo Resto)
-     ├─ Test escenario IEPS (Alcohol/Tabaco/etc)
-     ├─ Test escenario Retenciones (Honorarios)
-     ├─ Test escenario Total (mixto)
-     ├─ Test zona frontera (IVA 8%)
-     ├─ Test cambio STCT al agregar/quitar items
-     └─ Test sin filas en $0
+⚠️ 6.1 - Suite tests autoselección (2h) - COMMIT f15e46f
+     ✅ test_autoseleccion_stct.py (7 tests unitarios, 246 líneas)
+        ├─ test_determinar_variante_basico()
+        ├─ test_determinar_variante_ieps()
+        ├─ test_determinar_variante_retenciones()
+        ├─ test_determinar_variante_total()
+        ├─ test_find_stct_by_variant_nacional_basico()
+        ├─ test_find_stct_by_variant_frontera_ieps()
+        └─ test_matriz_decision_completa()
 
-Total Fase 4: 12 horas
+     ❌ LIMITACIÓN: Tests UNITARIOS (funciones aisladas), NO E2E
+        • NO crean Sales Invoice completa
+        • NO verifican cálculos fiscales reales
+        • NO validan grand_total correcto
+        • NO verifican payload CFDI
 ```
 
-**Criterio éxito:**
-- Suite tests E2E completa ✅
-- Todos los tests PASANDO (green) ✅
-- Cobertura escenarios principales ✅
+**Pendiente (10h):**
+
+```
+❌ 6.2 - Suite tests E2E completos (10h) - NO EXISTE
+     ├─ test_e2e_escenario_1_basico_iva()
+     │   • Crear SI con items normales → STCT Básico
+     │   • Verificar tax_amount correcto
+     │   • Verificar grand_total coherente
+     │   • Verificar sin filas $0
+     ├─ test_e2e_escenario_2_ieps_alcohol()
+     │   • Crear SI con items IEPS Alcohol → STCT IEPS
+     │   • Verificar cálculo IEPS correcto
+     │   • Verificar IVA cascada sobre IEPS
+     │   • Verificar item_wise_tax_detail granular
+     ├─ test_e2e_escenario_3_retenciones_honorarios()
+     │   • Crear SI con servicios honorarios → STCT Retenciones
+     │   • Verificar retención ISR correcta
+     │   • Verificar retención IVA 2/3 IVA trasladado
+     │   • Verificar grand_total neto correcto
+     ├─ test_e2e_escenario_4_total_mixto()
+     │   • Crear SI IEPS + Retenciones → STCT Total
+     │   • Verificar todos impuestos aplicados
+     │   • Verificar coherencia grand_total
+     ├─ test_e2e_escenario_5_zona_frontera()
+     │   • Crear SI zona frontera → STCT Frontera
+     │   • Verificar IVA 8% aplicado
+     │   • Verificar mensaje UI correcto
+     ├─ test_e2e_escenario_6_cambio_stct_dinamico()
+     │   • Crear SI normal → STCT Básico
+     │   • Agregar item IEPS → STCT cambia a IEPS
+     │   • Verificar tax rows recargadas
+     │   • Verificar cálculos actualizados
+     └─ test_e2e_escenario_7_sin_filas_cero()
+         • Crear SI Básico → verificar SOLO 1 fila IVA
+         • Verificar NO aparecen filas IEPS/Retenciones en $0
+
+Total Fase 4: 12 horas ⚠️ PENDIENTE (2h completadas, 10h faltantes)
+```
+
+**Criterios éxito:**
+- ⚠️ Suite tests parcial (solo unitarios, falta E2E)
+- ⚠️ Cobertura FUNCIONES completa, cobertura ESCENARIOS pendiente
+- ❌ Tests E2E con Sales Invoice completas NO IMPLEMENTADOS
+- ❌ Validación cálculos fiscales completos NO IMPLEMENTADA
+- ❌ Verificación payload CFDI NO IMPLEMENTADA
 
 ---
 
@@ -1173,7 +1281,252 @@ La propuesta debe implementarse COMPLETA:
 ---
 
 **Elaborado por:** Claude Code
-**Estado:** LISTO PARA IMPLEMENTACIÓN
-**Próximo paso:** Crear 8 STCT + Función clasificación (FASE 1)
-**Estimación total:** 50 horas (~6 días)
+**Estado original:** LISTO PARA IMPLEMENTACIÓN (oct 24, 2025)
+**Estado actualizado:** PARCIAL - FASE 1-2 COMPLETAS, FASE 3-4 PENDIENTES (oct 25, 2025)
+**Progreso:** 34h de 50h (68% completado)
+**Pendiente:** FASE 3 (función rectora) + FASE 4 (tests E2E) = 16h
+
+---
+
+## 📊 **RESUMEN EJECUTIVO - ESTADO ACTUAL**
+
+### **Completado (34h / 50h = 68%)**
+
+| Fase | Horas | Estado | Commits | Resultado |
+|------|-------|--------|---------|-----------|
+| FASE 1 | 26h | ✅ COMPLETA | 3fdb47b, 26e8bc5 | 8 STCT generados + clasificación items |
+| FASE 2 | 6h | ✅ COMPLETA | 3eae7c9 | Autoselección inteligente + carga tax rows |
+| FASE 3 | 0h | ❌ PENDIENTE | - | Función rectora + validación NO EXISTE |
+| FASE 4 | 2h | ⚠️ PARCIAL | f15e46f | Tests unitarios (falta E2E) |
+
+### **Pendiente (16h / 50h = 32%)**
+
+1. **FASE 3: Función Rectora** (6h)
+   - Tabla reglas cálculo unificada
+   - Centralizar lógica hardcoded
+   - Validación post-cálculo
+
+2. **FASE 4: Tests E2E** (10h)
+   - 7 escenarios completos
+   - Validación cálculos fiscales
+   - Verificación payload CFDI
+
+### **Validaciones UI: FALTANTES**
+
+❌ JavaScript validaciones críticas:
+- Branch obligatorio
+- Cost Center obligatorio
+- Items vacíos
+- RFC validado
+- Zona frontera coherente
+
+---
+
+## 🏗️ **PROPUESTA ARQUITECTURA: FUNCIÓN RECTORA (FASE 3)**
+
+### **Problema Actual**
+
+**Cálculos dispersos en múltiples lugares:**
+
+```
+sales_invoice_ieps.py (776 líneas):
+├─ calcular_ieps_cuota() - líneas 260-362
+├─ _congelar_iva_sobre_ieps_cuota() - líneas 195-257
+├─ ajustar_base_iva_combustibles() - líneas 369-432
+├─ _corregir_item_wise_tax_detail_ieps_cuota() - líneas 489-556
+├─ _ajustar_item_wise_tax_detail_iva_combustibles() - líneas 563-629
+├─ _validar_tolerancias_redondeo() - líneas 636-692
+└─ _validar_orden_fiscal_ieps_iva() - líneas 699-746
+
+Problemas:
+❌ Lógica hardcoded dispersa (integra_base_iva, tipo_factor)
+❌ Reglas duplicadas en múltiples funciones
+❌ Difícil mantener coherencia
+❌ Imposible extender sin modificar código
+❌ Sin centralización de reglas fiscales
+```
+
+### **Solución Propuesta: Tabla Reglas + Función Rectora**
+
+**Arquitectura unificada:**
+
+```
+┌─────────────────────────────────────────────────┐
+│ Mapeo Cuenta Fiscal Mexico (Child Table)       │
+│ ─────────────────────────────────────────────── │
+│ CAMPOS EXISTENTES:                              │
+│ • rol_fiscal (Select)                           │
+│ • cuenta_impuesto (Link)                        │
+│ • tipo_factor (Tasa/Cuota)                      │
+│ • integra_base_iva (Check)                      │
+│ • es_retencion (Check)                          │
+│ ─────────────────────────────────────────────── │
+│ CAMPOS NUEVOS (FASE 3):                         │
+│ • regla_base (Select): net_amount, qty,         │
+│                        iva_trasladado, previous │
+│ • regla_calculo (Select): porcentual, cuota,    │
+│                          cascada, retencion     │
+│ • fundamento_legal (Text): LIEPS Art.2-A        │
+│ • notas_calculo (Text): Especificaciones        │
+└─────────────────────────────────────────────────┘
+           ▼
+┌─────────────────────────────────────────────────┐
+│ aplicar_reglas_calculo_impuestos(doc, tax_row) │
+│ ─────────────────────────────────────────────── │
+│ 1. Lee metadata desde Mapeo Cuenta Fiscal      │
+│ 2. Identifica regla_base + regla_calculo       │
+│ 3. Aplica cálculo según regla:                 │
+│    • porcentual: base × tasa / 100             │
+│    • cuota: qty × cuota_unitaria               │
+│    • cascada: (base + impuesto_previo) × tasa  │
+│    • retencion: iva_trasladado × tasa_ret      │
+│ 4. Retorna: {base, monto, item_wise_detail}    │
+└─────────────────────────────────────────────────┘
+           ▼
+┌─────────────────────────────────────────────────┐
+│ generador_templates_fiscal.py                  │
+│ ─────────────────────────────────────────────── │
+│ UNIFICA GENERACIÓN STCT + ITT:                  │
+│ • Lee MISMA tabla Mapeo Cuenta Fiscal          │
+│ • Genera tax rows según regla_base/calculo     │
+│ • Estructura charge_type según regla:          │
+│   - regla_base=net_amount → "On Net Total"     │
+│   - regla_base=previous → "On Previous Row"    │
+│   - regla_calculo=cuota → "Actual"             │
+│ • Coherencia 100% templates ↔ cálculo runtime  │
+└─────────────────────────────────────────────────┘
+```
+
+### **Ejemplo Configuración Tabla**
+
+| rol_fiscal | tipo_factor | integra_base_iva | regla_base | regla_calculo | fundamento_legal |
+|------------|-------------|------------------|------------|---------------|------------------|
+| IVA por Pagar (Nacional) | Tasa | N/A | net_amount | porcentual | Ley IVA Art. 12 |
+| IEPS por Pagar (Alcohol) | Tasa | ✓ | net_amount | porcentual | LIEPS Art. 2 |
+| IEPS por Pagar (Combustibles) | Cuota | ✗ | qty | cuota | LIEPS Art. 2-A II |
+| IEPS por Pagar (Tabaco) | Tasa | ✓ | net_amount | porcentual | LIEPS Art. 2-I-C |
+| IEPS por Pagar (Tabaco Cuota) | Cuota | ✓ | qty | cuota | LIEPS Art. 2-I-C |
+| IVA Retenido (Honorarios) | Tasa | N/A | iva_trasladado | retencion | CFF Art. 1-A III |
+| ISR Retenido (Honorarios) | Tasa | N/A | net_amount | porcentual | LISR Art. 106 |
+
+### **Refactorización Código**
+
+**ANTES (hardcoded disperso):**
+```python
+# sales_invoice_ieps.py - línea 281
+metadata = _obtener_metadata_cuenta(tax_row.account_head, doc.company)
+if metadata["tipo_factor"] != "Cuota":
+    continue  # Lógica hardcoded
+
+# Línea 310
+if item.uom == uom_base:
+    conversion_factor = 1.0  # Lógica duplicada
+
+# Línea 416
+if metadata["tipo_factor"] == "Cuota" and not metadata["integra_base_iva"]:
+    # Más lógica hardcoded
+```
+
+**DESPUÉS (tabla + función rectora):**
+```python
+# facturacion_mexico/utils/reglas_fiscales.py (NUEVO)
+def aplicar_reglas_calculo_impuestos(doc, tax_row, metadata):
+    """
+    Función rectora: aplica reglas cálculo impuestos desde configuración.
+
+    Args:
+        doc: Sales Invoice
+        tax_row: Tax row a calcular
+        metadata: Metadata desde Mapeo Cuenta Fiscal
+
+    Returns:
+        dict: {base_calculada, monto_impuesto, item_wise_detail}
+    """
+    regla_base = metadata["regla_base"]
+    regla_calculo = metadata["regla_calculo"]
+
+    if regla_calculo == "porcentual":
+        return _calcular_porcentual(doc, tax_row, regla_base, metadata)
+    elif regla_calculo == "cuota":
+        return _calcular_cuota(doc, tax_row, regla_base, metadata)
+    elif regla_calculo == "cascada":
+        return _calcular_cascada(doc, tax_row, regla_base, metadata)
+    elif regla_calculo == "retencion":
+        return _calcular_retencion(doc, tax_row, regla_base, metadata)
+
+    frappe.throw(f"Regla de cálculo desconocida: {regla_calculo}")
+
+# sales_invoice_ieps.py (REFACTORIZADO)
+def calcular_impuestos_automaticos(doc, method=None):
+    """Hook único que aplica todas las reglas fiscales."""
+    config_fiscal = _obtener_config_fiscal(doc.company)
+
+    for tax_row in doc.taxes:
+        metadata = _obtener_metadata_cuenta(tax_row.account_head, doc.company)
+        if not metadata:
+            continue
+
+        # Función rectora centralizada
+        resultado = aplicar_reglas_calculo_impuestos(doc, tax_row, metadata)
+
+        # Aplicar resultado
+        tax_row.tax_amount = resultado["monto_impuesto"]
+        tax_row.item_wise_tax_detail = json.dumps(resultado["item_wise_detail"])
+```
+
+### **Beneficios Arquitectura Unificada**
+
+✅ **Single Source of Truth:**
+- Tabla Mapeo Cuenta Fiscal = ÚNICA fuente reglas
+- Generación templates lee MISMA tabla
+- Cálculo runtime lee MISMA tabla
+- Coherencia 100% garantizada
+
+✅ **Mantenibilidad:**
+- Agregar nuevo impuesto = agregar fila en tabla
+- Sin modificar código Python
+- Reglas visibles en UI (no hardcoded)
+
+✅ **Extensibilidad:**
+- Soporta nuevos tipos cálculo sin código
+- Fundamento legal documentado por regla
+- Fácil auditar coherencia fiscal
+
+✅ **Testing:**
+- Tests unitarios por tipo_calculo
+- Validación automática tabla ↔ código
+- Detección temprana desincronización
+
+### **Plan Implementación FASE 3**
+
+```
+PASO 1: Agregar campos Mapeo Cuenta Fiscal (1h)
+├─ regla_base (Select): net_amount, qty, iva_trasladado, previous
+├─ regla_calculo (Select): porcentual, cuota, cascada, retencion
+├─ fundamento_legal (Text)
+└─ Migración: bench migrate
+
+PASO 2: Migrar metadata existente (1h)
+├─ Script migración one_offs/
+├─ Poblar regla_base/regla_calculo desde tipo_factor actual
+└─ Validar coherencia post-migración
+
+PASO 3: Crear función rectora (2h)
+├─ Archivo: facturacion_mexico/utils/reglas_fiscales.py
+├─ Función aplicar_reglas_calculo_impuestos()
+├─ Helpers: _calcular_porcentual, _calcular_cuota, etc.
+└─ Tests unitarios (10 tests mínimo)
+
+PASO 4: Refactorizar hooks (2h)
+├─ Unificar calcular_ieps_cuota() → usa función rectora
+├─ Eliminar lógica hardcoded dispersa
+├─ Mantener validaciones (tolerancias, orden fiscal)
+└─ Tests regresión (verificar NO ROMPE cálculos actuales)
+
+Total FASE 3: 6 horas
+```
+
+---
+
+**🤖 Generated with [Claude Code](https://claude.com/claude-code)**
 

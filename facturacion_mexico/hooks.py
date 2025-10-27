@@ -345,8 +345,8 @@ doc_events = {
 		"before_save": [
 			"facturacion_mexico.hooks_handlers.sales_invoice_ieps.calcular_ieps_cuota",
 			"facturacion_mexico.hooks_handlers.sales_invoice_ieps.ajustar_base_iva_combustibles",
+			"facturacion_mexico.hooks_handlers.sales_invoice_ieps.corregir_ieps_cuota_final",
 		],
-		"before_submit": "facturacion_mexico.hooks_handlers.sales_invoice_ieps.corregir_ieps_cuota_final",
 	},
 	# =============================================================================
 	# MULTI-SUCURSAL - CONFIGURACIÓN FISCAL
