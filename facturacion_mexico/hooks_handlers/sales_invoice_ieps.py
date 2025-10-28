@@ -360,6 +360,11 @@ def calcular_ieps_cuota(doc, method=None):
 			# Si no lo hacemos, ERPNext redistribuirá el IVA entre todos los items
 			_congelar_iva_sobre_ieps_cuota(doc, tax_row, distribucion_items)
 
+	# FIX-V1: FORZAR recálculo completo para que ERPNext sume cuotas
+	# CRÍTICO: Esto hace que ERPNext sume las cuotas "Actual" al grand_total
+	# También calcula IVA sobre cuotas (filas "On Previous Row Amount")
+	doc.calculate_taxes_and_totals()
+
 
 # =============================================================================
 # HOOK SECUNDARIO - BEFORE_SAVE

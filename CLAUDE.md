@@ -89,11 +89,22 @@ http://facturacion.dev:8000
 
   Co-Authored-By: Claude <noreply@anthropic.com>
   ```
-- ❌ **PROHIBIDO ABSOLUTO:** `git commit --no-verify` bajo cualquier circunstancia
-- ❌ **PROHIBIDO ABSOLUTO:** `git checkout <archivo>` o `git reset` para revertir cambios
+
+### **🚨 RG-002.1: PROHIBICIÓN ABSOLUTA GIT REVERT (INVIOLABLE)**
+- ❌ **PROHIBIDO ABSOLUTO:** `git checkout <archivo>` - **SIN EXCEPCIONES**
+- ❌ **PROHIBIDO ABSOLUTO:** `git checkout -- <archivo>` - **SIN EXCEPCIONES**
+- ❌ **PROHIBIDO ABSOLUTO:** `git restore <archivo>` - **SIN EXCEPCIONES**
+- ❌ **PROHIBIDO ABSOLUTO:** `git reset <archivo>` - **SIN EXCEPCIONES**
+- ❌ **PROHIBIDO ABSOLUTO:** `git reset --hard` - **SIN EXCEPCIONES**
 - ❌ **PROHIBIDO ABSOLUTO:** Cualquier comando git que deshaga cambios locales
+- ❌ **PROHIBIDO ABSOLUTO:** `git commit --no-verify` bajo cualquier circunstancia
 - ⚠️ **CRÍTICO:** Si un archivo tiene cambios importantes, NUNCA usar git para revertirlos
-- ✅ **ALTERNATIVA CORRECTA:** Si hay error, corregir manualmente o usar Edit tool
+- 🚨 **NUNCA ASUMIR:** Que cambios no commiteados no son importantes
+- 🚨 **INCIDENTE 2025-10-27:** Claude usó `git checkout` y perdió FIX-V1 (doc.calculate_taxes_and_totals)
+- 🚨 **DAÑO CAUSADO:** Regresión funcionalidad, pérdida trabajo, pérdida confianza usuario
+- ✅ **ALTERNATIVA ÚNICA CORRECTA:** Si hay error, corregir manualmente con Edit tool
+- ✅ **ALTERNATIVA ÚNICA CORRECTA:** Leer archivo actual y hacer cambios incrementales
+- ❌ **NUNCA:** Pedir permiso para usar git checkout - LA RESPUESTA ES NO SIEMPRE
 - ❌ **PROHIBIDO:** Trabajar directamente en main o develop
 - ✅ **BRANCH STRATEGY:** Siempre feature/ branches
 - ✅ **Convención:** `feature/[modulo]-[descripcion]`
