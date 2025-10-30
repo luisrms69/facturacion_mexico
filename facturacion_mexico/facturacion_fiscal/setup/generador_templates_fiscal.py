@@ -4,6 +4,9 @@ from frappe.utils import flt
 # Import tasas IEPS para generación ITT
 from facturacion_mexico.facturacion_fiscal.config.constantes_fiscales import TASAS_IEPS
 
+# Import para mapeo charge_type (E4: refactorización a tabla constantes)
+from facturacion_mexico.utils.mapeo_charge_type import obtener_charge_type
+
 # Import para tabla maestra reglas cálculo
 from facturacion_mexico.utils.reglas_calculo_fiscal import obtener_regla_calculo
 
@@ -32,15 +35,6 @@ from facturacion_mexico.utils.roles_fiscales import (
 # CHARGE TYPE DINÁMICO (tabla maestra)
 # -----------------------------------------------------------
 
-# Mapeo regla_base → charge_type ERPNext
-_MAPEO_CHARGE_TYPE = {
-	"monto_neto": "On Net Total",
-	"cantidad": "Actual",
-	"fila_previa_monto": "On Previous Row Amount",
-	"fila_previa_total": "On Previous Row Total",
-	"iva_trasladado": "On Previous Row Amount",
-}
-
 
 def _charge_type_por_rol(rol_fiscal: str) -> str:
 	"""
@@ -50,21 +44,24 @@ def _charge_type_por_rol(rol_fiscal: str) -> str:
 	charge_type correspondiente de ERPNext para configuración correcta
 	de filas de impuestos en STCT.
 
+	E4 REFACTORING: Usa obtener_charge_type() desde utils/mapeo_charge_type.py
+	en lugar de diccionario hardcodeado local (eliminado).
+
 	Args:
 		rol_fiscal: Rol fiscal del impuesto (e.g., ROL_IVA_NAC, ROL_IEPS_ALC)
 
 	Returns:
-		str: charge_type de ERPNext ("On Net Total", "Actual", "On Previous Row Amount", etc.)
+		str: charge_type de ERPNext ("On Net Total", "On Item Quantity", "On Previous Row Amount", etc.)
 
 	Ejemplo:
 		>>> _charge_type_por_rol(ROL_IVA_NAC)
 		"On Net Total"
 		>>> _charge_type_por_rol(ROL_IEPS_AZU)
-		"Actual"
+		"On Item Quantity"  # E4: Cambio de "Actual" a "On Item Quantity"
 	"""
 	reglas = obtener_regla_calculo(rol_fiscal) or {}
 	base = reglas.get("regla_base", "monto_neto")
-	return _MAPEO_CHARGE_TYPE.get(base, "On Net Total")
+	return obtener_charge_type(base, fallback="On Net Total")
 
 
 # -----------------------------------------------------------

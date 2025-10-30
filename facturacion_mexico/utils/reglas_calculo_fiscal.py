@@ -155,43 +155,45 @@ TABLA_MAESTRA_REGLAS_CALCULO = [
 	# - Combustibles: integra_base_iva=0 (NO integra, ajuste en hook ajustar_base_iva_combustibles)
 	# - Bebidas/Tabaco: integra_base_iva=1 (SÍ integra, regla general LIEPS)
 	#
-	# NOTA E1: Aunque fiscalmente IEPS Cuota se calcula por cantidad, usamos "monto_neto"
-	# como regla_base para generar charge_type="On Net Total" en STCT. Esto evita que
-	# ERPNext reemplace filas STCT cuando items tienen ITT (add_taxes_from_item_tax_template=1).
-	# El hook calcular_ieps_cuota() setea charge_type="Actual" + tax_amount dinámicamente.
+	# E4 MIGRATION: Cambiamos regla_base de "monto_neto" a "cantidad"
+	# ANTES (Pre-E4): "monto_neto" generaba charge_type="On Net Total", hooks mutaban a "Actual"
+	# DESPUÉS (E4): "cantidad" genera charge_type="On Item Quantity" (nativo ERPNext)
+	# - ERPNext calcula automáticamente: rate x qty en UOM canónica
+	# - No requiere hooks para mutar charge_type o calcular tax_amount
+	# - Estable en Draft ↔ Submit (sin mutaciones)
 	(
 		ROL_IEPS_AZU,
-		"monto_neto",
+		"cantidad",  # E4: Cambio de "monto_neto" a "cantidad"
 		"cuota",
 		False,
 		"por_item",
 		True,
 		"LIEPS Art. 2 I-G",
-		"IEPS Bebidas azucaradas cuota. Base = monto neto (generador STCT). Hook calcula por cantidad. Cuota $1.6451/litro (2025). INTEGRA base IVA.",
+		"IEPS Bebidas azucaradas cuota. Base = cantidad en UOM canónica. ERPNext calcula: cuota_unitaria x qty_canónica. Cuota $1.27/litro (2025). INTEGRA base IVA.",
 		"2025.01",
 		None,
 	),
 	(
 		ROL_IEPS_COMB,
-		"monto_neto",
+		"cantidad",  # E4: Cambio de "monto_neto" a "cantidad"
 		"cuota",
 		False,
 		"por_item",
 		True,
 		"LIEPS Art. 2-A",
-		"IEPS Combustibles cuota. Base = monto neto (generador STCT). Hook calcula por cantidad. Cuotas variables por tipo ($0.57-$7.09/litro 2025). NO INTEGRA base IVA (ajuste especial Art. 2-A).",
+		"IEPS Combustibles cuota. Base = cantidad en UOM canónica. ERPNext calcula: cuota_unitaria x qty_canónica. Cuota $5.49/litro (2025). NO INTEGRA base IVA (ajuste especial Art. 2-A).",
 		"2025.01",
 		None,
 	),
 	(
 		ROL_IEPS_TABQ,
-		"monto_neto",
+		"cantidad",  # E4: Cambio de "monto_neto" a "cantidad"
 		"cuota",
 		False,
 		"por_item",
 		True,
 		"LIEPS Art. 2-A",
-		"IEPS Tabaco cuota. Base = monto neto (generador STCT). Hook calcula por cantidad. Cuota fija por cigarro vendido (actualizada anualmente SAT). INTEGRA base IVA.",
+		"IEPS Tabaco cuota. Base = cantidad en UOM canónica. ERPNext calcula: cuota_unitaria x qty_canónica. Cuota $0.35/pieza (2025). INTEGRA base IVA.",
 		"2025.01",
 		None,
 	),

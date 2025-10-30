@@ -342,10 +342,16 @@ doc_events = {
 	"Sales Invoice": {
 		"before_validate": "facturacion_mexico.hooks_handlers.sales_invoice_automated_tax.before_validate",
 		"validate": "facturacion_mexico.hooks_handlers.sales_invoice_automated_tax.validate",
+		# E4: TODOS los hooks manipulación impuestos COMENTADOS
+		# Objetivo: ERPNext debe calcular impuestos 100% nativo
+		# STCT con charge_type="On Item Quantity" + cuotas en ITT = cálculo nativo
 		"before_save": [
-			"facturacion_mexico.hooks_handlers.sales_invoice_ieps.calcular_ieps_cuota",
-			"facturacion_mexico.hooks_handlers.sales_invoice_ieps.ajustar_base_iva_combustibles",
-			"facturacion_mexico.hooks_handlers.sales_invoice_ieps.corregir_ieps_cuota_final",
+			# E4 DISABLED: Hook calculaba IEPS Cuota manualmente
+			# "facturacion_mexico.hooks_handlers.sales_invoice_ieps.calcular_ieps_cuota",
+			# E4 DISABLED: Hook ajustaba base IVA combustibles (IEPS no integra base)
+			# "facturacion_mexico.hooks_handlers.sales_invoice_ieps.ajustar_base_iva_combustibles",
+			# E4 DISABLED: Hook corregía redistribución ERPNext post-submit
+			# "facturacion_mexico.hooks_handlers.sales_invoice_ieps.corregir_ieps_cuota_final",
 		],
 	},
 	# =============================================================================

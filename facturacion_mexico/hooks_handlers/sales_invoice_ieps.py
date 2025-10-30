@@ -245,10 +245,12 @@ def _congelar_iva_sobre_ieps_cuota(doc, ieps_tax_row, distribucion_ieps):
 				# Setear item_wise_tax_detail y congelar
 				if iva_distribucion:
 					iva_tax.item_wise_tax_detail = json.dumps(iva_distribucion, ensure_ascii=False)
-					# Cambiar a Actual y sincronizar tax_amount (fix discrepancia PAC)
-					iva_tax.charge_type = "Actual"
-					iva_tax.row_id = None  # Actual no puede tener row_id
-					iva_tax.rate = 0  # Actual no usa tasa porcentual
+					# DEPRECATED E4: No mutar charge_type - debe permanecer "On Previous Row Amount"
+					# ANTES (Pre-E4): Mutábamos a "Actual" para sincronizar con PAC
+					# DESPUÉS (E4): ERPNext calcula correctamente con "On Previous Row Amount" nativo
+					# iva_tax.charge_type = "Actual"  # DEPRECATED E4
+					# iva_tax.row_id = None  # DEPRECATED E4
+					# iva_tax.rate = 0  # DEPRECATED E4
 					iva_tax.tax_amount = sum(
 						flt(v[1], iva_tax.precision("tax_amount")) for v in iva_distribucion.values()
 					)
@@ -259,15 +261,15 @@ def _congelar_iva_sobre_ieps_cuota(doc, ieps_tax_row, distribucion_ieps):
 
 def calcular_ieps_cuota(doc, method=None):
 	"""
-	Hook validate: Detectar y calcular tax rows IEPS Cuota.
+	Hook validate: Configurar rates IEPS Cuota para cálculo nativo ERPNext.
+
+	E4 ARQUITECTURA: Hook MÍNIMO - solo configura rates, ERPNext calcula TODO.
 
 	Flujo:
 	1. Identificar tax rows con tipo_factor="Cuota" (desde Mapeo Fiscal)
-	2. Para cada tax row IEPS Cuota:
-	   - Identificar items que contribuyen (ITT o cuota vigente)
-	   - Calcular: qty x cuota (con validación UOM)
-	   - Sumar total IEPS
-	   - Guardar distribución por item
+	2. Para cada item en factura, obtener cuota vigente (tabla IEPS Cuota SAT)
+	3. Poner rate en item_wise_tax_detail: {item_code: [cuota_per_uom, 0]}
+	4. ERPNext calcula automáticamente: tax_amount = sum(cuota x qty x conversion_factor)
 
 	Args:
 		doc: Sales Invoice document
@@ -283,20 +285,17 @@ def calcular_ieps_cuota(doc, method=None):
 		if not metadata or metadata["tipo_factor"] != "Cuota":
 			continue  # No es IEPS Cuota, skip
 
-		# Esta tax row es IEPS Cuota, recalcular amount
-		total_ieps = 0
-		distribucion_items = {}  # {item.item_code: [rate, amount]}
+		# E4: Solo configurar rates en item_wise_tax_detail, ERPNext calcula
+		item_wise_detail = {}
 
 		for item in doc.items:
 			# Verificar si item contribuye a esta cuenta IEPS
 			if not _item_contribuye_a_cuenta_ieps(item, tax_row.account_head):
-				# Fallback: si tiene cuota vigente, contribuye
 				cuota_data = _get_cuota_prioridad(item, tax_row.account_head, doc)
 				if not cuota_data:
-					# No contribuye - agregar con ceros (CRÍTICO para E4)
-					distribucion_items[item.item_code] = [0.0, 0.0]
+					# No contribuye - rate=0
+					item_wise_detail[item.item_code] = [0.0, 0.0]
 					continue
-
 			else:
 				# Item contribuye, obtener cuota
 				cuota_data = _get_cuota_prioridad(item, tax_row.account_head, doc)
@@ -310,60 +309,35 @@ def calcular_ieps_cuota(doc, method=None):
 			cuota_per_uom_base = flt(cuota_data["cuota"])
 			uom_base = cuota_data["uom_base"]
 
-			# Calcular IEPS para este item con conversión UOM
-			# Obtener conversión de item.uom → uom_base
-			if item.uom == uom_base:
-				conversion_factor = 1.0
-			else:
-				# Usar ERPNext UOM conversion
+			# E4: SOLO validar que conversion_factor existe
+			# ERPNext usará conversion_factor automáticamente en su cálculo
+			if item.uom != uom_base:
 				if get_conversion_factor:
 					try:
 						conversion_data = get_conversion_factor(item.item_code, uom_base)
 						conversion_factor = flt(conversion_data.get("conversion_factor", 0))
+						if conversion_factor <= 0:
+							raise ValueError("Factor de conversión 0 o negativo")
 					except Exception:
-						conversion_factor = 0
-				else:
-					conversion_factor = 0
+						frappe.throw(
+							f"Item {item.item_code}: Falta conversión de UOM '{item.uom}' a '{uom_base}' para IEPS Cuota. "
+							f"Configure en: Item → UOMs",
+							title="Conversión UOM Faltante",
+						)
 
-				if conversion_factor <= 0:
-					frappe.throw(
-						f"Item {item.item_code}: Falta conversión de UOM '{item.uom}' a '{uom_base}' para IEPS Cuota. "
-						f"Configure en: Item → UOMs",
-						title="Conversión UOM Faltante",
-					)
+			# E4: SOLO poner rate en item_wise_detail
+			# Formato: [cuota_por_unidad, 0] - ERPNext calculará el amount
+			item_wise_detail[item.item_code] = [cuota_per_uom_base, 0.0]
 
-			# Calcular unidades base y IEPS
-			unidades_base = flt(item.qty) * conversion_factor
-			item_ieps = unidades_base * cuota_per_uom_base
-			total_ieps += item_ieps
+		# E4: Guardar item_wise_detail - ERPNext usará estos rates para calcular
+		if item_wise_detail:
+			tax_row.item_wise_tax_detail = json.dumps(item_wise_detail, ensure_ascii=False)
+			# NOTE: NO ponemos dont_recompute_tax - queremos que ERPNext calcule
 
-			# Guardar distribución (para item_wise_tax_detail)
-			# E4-RO: Para IEPS Cuota, rate=cuota_unitaria (no 0!)
-			# Formato: [cuota_por_unidad, monto_total]
-			distribucion_items[item.item_code] = [0.0, item_ieps]
-
-		# Actualizar tax row
-		tax_row.charge_type = "Actual"
-		tax_row.rate = None  # No aplica para Actual
-		tax_row.tax_amount = flt(total_ieps, 2)
-
-		# Guardar item_wise_tax_detail (CRÍTICO para E4)
-		if distribucion_items:
-			tax_row.item_wise_tax_detail = json.dumps(distribucion_items, ensure_ascii=False)
-
-			# Prevenir que ERPNext redistribuya este impuesto proporcionalmente
-			# ERPNext por default redistribuye "Actual" entre items según net_amount
-			# Este flag congela nuestra distribución custom (item_wise_tax_detail)
-			tax_row.dont_recompute_tax = 1
-
-			# CRÍTICO E4: Congelar también el IVA "On Previous Row Amount" que sigue
-			# Si no lo hacemos, ERPNext redistribuirá el IVA entre todos los items
-			_congelar_iva_sobre_ieps_cuota(doc, tax_row, distribucion_items)
-
-	# FIX-V1: FORZAR recálculo completo para que ERPNext sume cuotas
-	# CRÍTICO: Esto hace que ERPNext sume las cuotas "Actual" al grand_total
-	# También calcula IVA sobre cuotas (filas "On Previous Row Amount")
-	doc.calculate_taxes_and_totals()
+	# E4: NO llamar calculate_taxes_and_totals() - ERPNext lo hace en lifecycle normal
+	# El lifecycle: validate() → calculate_taxes_and_totals() → before_save()
+	# Nosotros solo configuramos item_wise_tax_detail con rates correctos
+	# doc.calculate_taxes_and_totals()  # COMENTADO E4
 
 
 # =============================================================================

@@ -2,6 +2,8 @@
 # AUTOMATED TAX SYSTEM - Sales Invoice
 # Sistema Automatizado de Impuestos
 
+import json
+
 import frappe
 
 from facturacion_mexico.utils.clasificacion_items import clasificar_items_documento
@@ -279,6 +281,97 @@ def _get_item_master_itt(item_code: str, **kwargs) -> str | None:
 	except Exception:
 		# Fallback silencioso si no funciona
 		return None
+
+
+# ---- E4: IEPS Cuota Helpers ---------------------------------------------
+
+
+def _obtener_cuotas_vigentes(company: str, clave_sat: str, fecha) -> list[dict]:
+	"""
+	Obtener cuotas IEPS vigentes desde tabla IEPS Cuota SAT.
+
+	Args:
+		company: Company name
+		clave_sat: ClaveProdServ SAT del producto (ej: "50202301")
+		fecha: Fecha de vigencia (posting_date del documento)
+
+	Returns:
+		list[dict]: Lista de cuotas vigentes con campos:
+			- cuenta_ieps: Cuenta contable IEPS
+			- cuota: Cuota en $/UOM
+			- uom: UOM canónica SAT (LTR, H87, etc)
+	"""
+	if not company or not clave_sat or not fecha:
+		return []
+
+	return frappe.db.sql(
+		"""
+		SELECT
+			cuenta_ieps,
+			cuota,
+			uom
+		FROM `tabIEPS Cuota SAT`
+		WHERE company = %(company)s
+		  AND clave_prod_serv = %(clave_sat)s
+		  AND vigencia_desde <= %(fecha)s
+		  AND (vigencia_hasta IS NULL OR vigencia_hasta >= %(fecha)s)
+		  AND docstatus < 2
+		ORDER BY vigencia_desde DESC
+		""",
+		{"company": company, "clave_sat": clave_sat, "fecha": fecha},
+		as_dict=True,
+	)
+
+
+def _convertir_cuota_a_uom_item(cuota: float, uom_base: str, item_code: str, item_uom: str) -> float:
+	"""
+	Convertir cuota de UOM canónica SAT a UOM del item en SI.
+
+	Ejemplo:
+		Cuota SAT: $1.27/litro (LTR)
+		Item UOM: Pieza (H87)
+		Conversión: 1 pieza = 0.6 litros
+		Cuota convertida: $1.27 x 0.6 = $0.762/pieza
+
+	Args:
+		cuota: Cuota en UOM base (ej: 1.27)
+		uom_base: UOM canónica SAT (ej: "LTR")
+		item_code: Código del item
+		item_uom: UOM del item en SI (ej: "H87")
+
+	Returns:
+		float: Cuota convertida a UOM del item
+
+	Raises:
+		frappe.ValidationError: Si no existe conversión UOM configurada
+	"""
+	# Si UOMs son iguales, no hay conversión
+	if uom_base == item_uom:
+		return cuota
+
+	# Obtener factor conversión usando función ERPNext nativa
+	try:
+		from erpnext.stock.get_item_details import get_conversion_factor
+
+		conversion_data = get_conversion_factor(item_code, uom_base)
+		factor = conversion_data.get("conversion_factor", 0)
+
+		if factor <= 0:
+			frappe.throw(
+				f"Item <b>{item_code}</b>: Falta configurar conversión UOM "
+				f"de <b>{item_uom}</b> → <b>{uom_base}</b> (UOM SAT).<br>"
+				f"Configure conversión en Item Master → UOMs."
+			)
+
+		# Convertir cuota: cuota_base x factor
+		# Ejemplo: $1.27/litro x 0.6 litros/pieza = $0.762/pieza
+		return cuota * factor
+
+	except Exception as e:
+		frappe.throw(
+			f"Error conversión UOM para Item <b>{item_code}</b>: {e!s}<br>"
+			f"UOM Item: <b>{item_uom}</b>, UOM SAT: <b>{uom_base}</b>"
+		)
 
 
 # ---- Handlers Doc Events ------------------------------------------------

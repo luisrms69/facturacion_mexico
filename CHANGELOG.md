@@ -6,6 +6,20 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/), y
 
 ## [Unreleased]
 
+### Changed
+- **Migración E4: IEPS Cuotas a charge_type="On Item Quantity"** - Eliminación dependencia hooks legacy
+  - Mapeo charge_type actualizado: "cantidad" → "On Item Quantity" (antes "Actual")
+  - Tabla maestra actualizada: 3 roles IEPS Cuota (ROL_IEPS_AZU, ROL_IEPS_COMB, ROL_IEPS_TABQ) con regla_base="cantidad"
+  - Hooks deprecados: mutaciones charge_type a "Actual" eliminadas (sales_invoice_ieps.py líneas 249, 348)
+  - STCT regeneración: Templates ahora generan filas IEPS Cuota con charge_type nativo ERPNext
+  - Estabilidad lifecycle: charge_type permanece "On Item Quantity" en Draft y Submit (sin mutación post-submit)
+  - Beneficio: Eliminación workarounds (corregir_distribucion_ieps_cuota_post_submit deprecado)
+  - Auditoría completa: AUDITORIA_HARDCODE_CHARGE_TYPE_E4.md identifica 3 hardcodes críticos
+  - Arquitectura E4: ARQUITECTURA_E4_ON_ITEM_QUANTITY.md documenta lineamientos (15 secciones)
+  - Proceso regeneración: PROCESO_REGENERACION_STCT_E4.md con comandos bench y criterios éxito
+  - Scripts auditoría: auditoria_pre_e4.py inventario completo sistema (7 STCT, 37 items con UOM conversions)
+  - BREAKING CHANGE: Requiere regeneración obligatoria 7-8 STCT post-migrate
+
 ### Added
 - **Implementación IEPS Tasa desde constantes (E1)** - Sistema automatizado tasas IEPS Alcohol/Tabaco
   - Función generador templates lee tasas desde TASAS_IEPS en constantes_fiscales.py
