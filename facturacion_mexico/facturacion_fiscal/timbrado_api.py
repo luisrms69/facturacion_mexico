@@ -1662,6 +1662,21 @@ class TimbradoAPI:
 
 		for tax in sales_invoice.taxes:
 			if not tax.item_wise_tax_detail:
+				# Fallback para On Net Total sin item_wise_tax_detail (p.ej. SI creada via API
+				# o cuando ERPNext v16 no persistió el desglose por item).
+				# Solo aplica a tasas sobre base neta: amount = net_amount × rate / 100.
+				if getattr(tax, "charge_type", None) == "On Net Total" and flt(tax.rate):
+					amount = flt(item.net_amount) * flt(tax.rate) / 100
+					if amount and tax.account_head not in taxes_dict:
+						taxes_dict[tax.account_head] = {
+							"account_head": tax.account_head,
+							"rate": flt(tax.rate),
+							"amount": amount,
+						}
+						frappe.logger().info(
+							f"E4-RO - Item {item.item_code}: Tax {tax.account_head} "
+							f"calculado por fallback On Net Total (rate={tax.rate}, amount={amount})"
+						)
 				continue
 
 			# Parse item_wise_tax_detail
@@ -1670,7 +1685,8 @@ class TimbradoAPI:
 			except (json.JSONDecodeError, TypeError):
 				continue
 
-			# Buscar este item con fallback de llaves (Cambio 3)
+			# Buscar este item con fallback de llaves:
+			# ERPNext v16 usa item.name (row UUID); versiones anteriores usan item.item_code.
 			rate_from_json = 0.0
 			amount = 0.0
 			key_used = None
