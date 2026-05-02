@@ -1233,6 +1233,18 @@ class TimbradoAPI:
 
 				frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure cancellation transaction is committed
 
+				# Notificar al formulario SI si está abierto en otro tab
+				frappe.publish_realtime(
+					event="fiscal_status_changed",
+					message={
+						"sales_invoice": sales_invoice_name,
+						"fm_fiscal_status": fiscal_status,
+						"ffm": factura_fiscal.name,
+					},
+					doctype="Sales Invoice",
+					docname=sales_invoice_name,
+				)
+
 				# Descargar acuse de cancelación automáticamente
 				try:
 					self._download_cancellation_receipt_files(factura_fiscal, factura_fiscal.facturapi_id)
