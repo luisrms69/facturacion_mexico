@@ -54,7 +54,26 @@ con soporte multi-sucursal, addendas, e-receipts y complementos de pago.
 | `FacturAPI Response Log` | Trazabilidad de respuestas del PAC. | ✅ Funcional |
 
 Catálogos SAT propios: `Uso CFDI SAT`, `Forma Pago SAT`, `Metodo Pago SAT`,
-`Regimen Fiscal SAT`, `SAT Producto Servicio`.
+`Regimen Fiscal SAT`, `Moneda SAT`, `Impuesto SAT`, `SAT Producto Servicio`, `IEPS Cuota SAT`.
+
+---
+
+## Funcionalidades y su estado
+
+| Funcionalidad | Estado |
+|---|---|
+| Timbrado CFDI (I/E/N) | ✅ Funcional |
+| Complemento de Pago PPD | ✅ Funcional |
+| E-Receipts / autofactura | ✅ Funcional |
+| Factura Global | ✅ Funcional |
+| Cancelación CFDI | ✅ Funcional |
+| Multi-sucursal (Branch) | ✅ Funcional |
+| Addendas genéricas | ✅ Funcional |
+| Validación RFC contra SAT | ✅ Funcional |
+| Recovery / resiliencia PAC | ⚠️ Funcional pero defecto crítico (datos en /tmp) |
+| Draft management | ❌ No funcional — todo MOCK |
+| Motor de reglas | ⚠️ Parcial — acciones clave deshabilitadas |
+| Dashboard KPIs | ⚠️ Parcial — alertas siempre en 0 |
 
 ---
 
@@ -73,7 +92,7 @@ Sales Invoice (submit)
 
 ### Custom Fields sobre DocTypes de ERPNext
 
-- **Sales Invoice:** ~35 campos (estado fiscal, timbrado, multi-sucursal, addenda)
+- **Sales Invoice:** ~40 campos (estado fiscal, timbrado, multi-sucursal, addenda)
 - **Branch:** 14 campos (folios, series, certificados)
 - **Customer:** 12 campos (RFC, régimen fiscal, uso CFDI)
 - **Item:** 3 campos (clave SAT)
@@ -94,6 +113,42 @@ Prefijo obligatorio: `fm_*` para todos los custom fields.
 - **FacturAPI.io** — PAC para timbrado CFDI
 - Sandbox/producción configurable en `Facturacion Mexico Settings`
 - Cliente HTTP en `facturacion_fiscal/timbrado_api.py`
+
+---
+
+## Dependencias
+
+**Apps de Frappe requeridas:** erpnext (declarado en `required_apps`)  
+**Apps en el mismo bench (v16):** hrms, payments, facturacion_mexico  
+**API externa:** FacturAPI.io (credenciales en Facturacion Mexico Settings)
+
+---
+
+## Fixtures
+
+Declarados en `hooks.py`:
+- Custom Fields (filtro por nombre `fm_*`)
+- Mode of Payment (formas de pago SAT)
+- UOM (unidades SAT)
+- 3 Roles: Facturacion Mexico User/Manager/System Manager
+- DocPerms para Factura Fiscal Mexico y Sales Invoice
+
+Catálogos SAT (`sat_uso_cfdi.json`, etc.) — exportados pero comentados en hooks.py. Se poblan via `after_install`.
+
+---
+
+## Patches registrados
+
+```
+facturacion_mexico.patches.migrate_custom_field_prefixes
+facturacion_mexico.patches.create_missing_item_custom_fields
+facturacion_mexico.patches.migrate_sat_catalogs_to_fixtures
+facturacion_mexico.patches.v1.register_facturacion_fiscal_module
+facturacion_mexico.patches.v1.restore_facturapi_response_item
+facturacion_mexico.patches.v2_0.migrate_fiscal_status_to_architecture
+facturacion_mexico.patches.v2_0.rename_uuid_field_to_fm_uuid
+facturacion_mexico.patches.v1_0.migrate_customer_tax_category_to_fm_tax_regime
+```
 
 ---
 
@@ -184,3 +239,9 @@ bench --site facturacion-v16.dev execute "facturacion_mexico.one_offs.script_nam
 - [ ] Patch creado si hay cambios de esquema con datos existentes
 - [ ] Sin secretos (credenciales FacturAPI nunca en código)
 - [ ] `bench --site facturacion-v16.dev migrate` limpio
+
+---
+
+## Auditoría pre-migración
+
+Ver `docs/adr/0000-estado-real-pre-migracion.md` para el estado documentado el 2026-04-25.
