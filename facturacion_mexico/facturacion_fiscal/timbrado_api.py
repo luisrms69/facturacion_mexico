@@ -6,7 +6,17 @@ from typing import Any
 
 import frappe
 from frappe import _
-from frappe.utils import flt, now_datetime
+from frappe.utils import flt, now_datetime, today
+
+from facturacion_mexico.config.sat_objeto_impuesto import SATObjetoImpuesto
+from facturacion_mexico.config.sat_tax_rates import FacturAPITaxRates
+from facturacion_mexico.config.sat_tipo_factor import SATTipoFactor
+
+# Import para conversión UOM (IEPS Cuota en litros)
+try:
+	from erpnext.stock.get_item_details import get_conversion_factor
+except ImportError:
+	get_conversion_factor = None
 
 
 def _log_text(label, s: str):
@@ -427,7 +437,8 @@ class TimbradoAPI:
 		customer = frappe.get_doc("Customer", sales_invoice.customer)
 
 		# Sprint 6 Phase 2: Obtener datos de sucursal si está configurada
-		branch_data = self._get_branch_data_for_invoice(sales_invoice)
+		# TODO: Integrar branch_data cuando se implemente Sprint 6 Phase 2
+		# branch_data = self._get_branch_data_for_invoice(sales_invoice)
 
 		# Datos del cliente
 		customer_data = {
@@ -471,24 +482,161 @@ class TimbradoAPI:
 			"zip": primary_address.get("pincode") or "",
 		}
 
-		# Items de la factura
+		# Items de la factura - E4-RO: Puente SI → Payload PAC
 		items = []
 		for item in sales_invoice.items:
 			item_doc = frappe.get_doc("Item", item.item_code)
 
-			items.append(
-				{
-					"quantity": item.qty,
-					"product": {
-						"description": item.description or item.item_name,
-						"product_key": item_doc.fm_producto_servicio_sat or "01010101",
-						"price": flt(item.rate),
-						"tax_included": False,  # Indicar que el precio NO incluye impuestos
-						"unit_key": _extract_sat_code_from_uom(item.uom),
-						"unit_name": item.uom or "Pieza",
-					},
+			# E4.1: Leer taxes desde SI (NO calcular)
+			item_taxes_data = self._read_taxes_from_sales_invoice_item(item, sales_invoice)
+
+			# E4.3: Resolver ObjetoImp desde catálogo SAT
+			objeto_imp = self._resolve_objeto_impuesto(item_doc)
+
+			# E4.4: Mapear taxes a estructura FacturAPI
+			taxes_payload = []
+			for tax_data in item_taxes_data:
+				sat_mapping = self._map_tax_account_to_sat(tax_data["account_head"])
+
+				# Construir tax payload base
+				tax_item = {
+					"type": sat_mapping["nombre_sat"],  # "IVA", "ISR", "IEPS"
+					"factor": sat_mapping["tipo_factor"],  # "Tasa" o "Cuota"
+					"withholding": sat_mapping["es_retencion"],
 				}
-			)
+
+				# CRÍTICO: FacturAPI requiere campos específicos según tipo_factor
+				if sat_mapping["tipo_factor"] == "Tasa":
+					# Tasa: enviar porcentaje como decimal (16% → 0.16)
+					rate_decimal = abs(tax_data["rate"]) / 100
+					tax_item["rate"] = rate_decimal
+
+					# FIX E4.1: Para IVA, enviar base UNITARIA (FacturAPI multiplica x qty)
+					# Esto controla integración IEPS: bebidas integran, combustibles NO
+					if sat_mapping["nombre_sat"] == "IVA":
+						# Determinar si IEPS integra base IVA (buscar en taxes del item)
+						integra_base = True  # Default: sí integra (bebidas/tabaco/alcohol)
+
+						for tax_check in item_taxes_data:
+							sat_map_check = self._map_tax_account_to_sat(tax_check["account_head"])
+							if (
+								sat_map_check["tipo_factor"] == "Cuota"
+								and sat_map_check["nombre_sat"] == "IEPS"
+								and not sat_map_check.get("integra_base_iva", True)
+							):
+								integra_base = False
+								break
+
+						# Calcular base IVA UNITARIA según integración
+						if integra_base:
+							# Bebidas/Tabaco/Alcohol: base unitaria = precio + IEPS por unidad
+							ieps_cuota_unitario = 0.0
+							ieps_tasa_unitario = 0.0
+
+							for tax_check in item_taxes_data:
+								sat_map_check = self._map_tax_account_to_sat(tax_check["account_head"])
+								if sat_map_check["nombre_sat"] == "IEPS":
+									if sat_map_check["tipo_factor"] == "Cuota":
+										# IEPS Cuota: ya es por unidad ($/litro)
+										if item.qty > 0:
+											ieps_cuota_unitario = flt(tax_check["amount"]) / flt(item.qty)
+									elif sat_map_check["tipo_factor"] == "Tasa":
+										# IEPS Tasa: porcentaje sobre precio
+										ieps_tasa_unitario = flt(item.rate) * (
+											abs(flt(tax_check["rate"])) / 100
+										)
+
+							base_iva_unitaria = flt(item.rate) + ieps_cuota_unitario + ieps_tasa_unitario
+						else:
+							# Combustibles: base unitaria = solo precio (sin IEPS)
+							base_iva_unitaria = flt(item.rate)
+
+						tax_item["base"] = flt(base_iva_unitaria, 6)
+
+				elif sat_mapping["tipo_factor"] == "Cuota":
+					# IEPS CUOTA: TODOS se serializan al payload (combustibles Y bebidas)
+					# E4-RO: Base=qty física, TasaOCuota=cuota/unidad
+					# NOTA: integra_base_iva solo afecta cálculo base IVA (hook separado),
+					#       NO la inclusión del IEPS en el payload PAC
+
+					# FIX E4.1: Obtener cuota ORIGINAL de tabla SAT (no calcularla desde amount)
+					# RAZÓN: amount ya está multiplicado por qty, dividirlo causa error de precisión
+					# Ejemplo: Refresco 30 piezas x 0.6L x $1.27/L = $22.86
+					#          Si dividimos: $22.86 / 30 piezas = $0.762/pieza (INCORRECTO)
+					#          Debe ser: $1.27/litro (cuota original de tabla SAT)
+					cuota_por_uom_base = self._get_cuota_from_tabla_sat(item_doc, tax_data["account_head"])
+
+					if not cuota_por_uom_base:
+						frappe.throw(
+							_(
+								"No se encontró cuota IEPS en tabla 'IEPS Cuota SAT' para item {0}.\n\n"
+								"Verifique que exista un registro vigente para:\n"
+								"- Clave SAT: {1}\n"
+								"- Cuenta IEPS: {2}\n"
+								"- Fecha: {3}"
+							).format(
+								item_doc.item_code,
+								item_doc.get("fm_producto_servicio_sat") or "N/A",
+								tax_data["account_head"],
+								today(),
+							),
+							title=_("Cuota IEPS No Encontrada"),
+						)
+
+					# Obtener UOM base desde tabla IEPS Cuota SAT (dinámico: LTR, H87, etc.)
+					uom_base = self._get_uom_base_from_tabla_sat(item_doc, tax_data["account_head"])
+					if not uom_base:
+						frappe.throw(
+							_(
+								"No se encontró UOM base en tabla IEPS Cuota SAT para item {0}.\n\n"
+								"Verifique que exista un registro vigente en 'IEPS Cuota SAT' para:\n"
+								"- Clave SAT: {1}\n"
+								"- Cuenta IEPS: {2}\n"
+								"- Fecha: {3}"
+							).format(
+								item_doc.item_code,
+								item_doc.get("fm_producto_servicio_sat") or "N/A",
+								tax_data["account_head"],
+								today(),
+							),
+							title=_("UOM Base No Encontrada"),
+						)
+
+					# Calcular factor conversión: item.uom → uom_base
+					# Ejemplo: Combustible LTR→LTR factor=1.0, Refresco 600ml→LTR factor=0.6, Tabaco H87→H87 factor=1.0
+					factor_conversion = self._get_uom_conversion_factor(item_doc, item.uom, uom_base)
+
+					tax_item["rate"] = flt(
+						cuota_por_uom_base, 6
+					)  # TasaOCuota (cuota/unidad base desde tabla SAT)
+					tax_item["base"] = flt(
+						factor_conversion, 6
+					)  # Factor conversión (FacturAPI x qty = unidades base)
+
+				taxes_payload.append(tax_item)
+
+			# E4.6: Validación estricta ObjetoImp vs taxes (CAMBIO 2)
+			self._validate_objeto_imp_consistency(objeto_imp, taxes_payload, item)
+
+			# Construir concepto
+			item_payload = {
+				"quantity": item.qty,
+				"product": {
+					"description": item.description or item.item_name,
+					"product_key": item_doc.fm_producto_servicio_sat or "01010101",
+					"price": flt(item.rate),
+					"tax_included": False,
+					"unit_key": _extract_sat_code_from_uom(item.uom),
+					"unit_name": item.uom or "Pieza",
+					"taxability": objeto_imp,  # E4.3: ObjetoImp desde catálogo SAT
+				},
+			}
+
+			# E4-RO: Solo agregar taxes[] si hay impuestos
+			if taxes_payload:
+				item_payload["product"]["taxes"] = taxes_payload
+
+			items.append(item_payload)
 
 		# Obtener forma de pago desde Factura Fiscal Mexico
 		payment_form = self._get_payment_form_for_invoice(sales_invoice)
@@ -568,12 +716,17 @@ class TimbradoAPI:
 				}
 			)
 
-		# Sprint 6 Phase 2: Agregar datos específicos de sucursal
-		if branch_data.get("lugar_expedicion"):
-			invoice_data["place_of_issue"] = branch_data["lugar_expedicion"]
+		# Sprint 6 Phase 2: Datos específicos de sucursal
+		# NOTA: place_of_issue y branch_office removidos
+		# RAZÓN: Deben coincidir exactamente con CSD registrado en PAC
+		# FacturAPI auto-calcula estos campos desde configuración del emisor en PAC
+		# Incluirlos manualmente puede causar rechazo por inconsistencia con CSD
 
-		if branch_data.get("branch_name"):
-			invoice_data["branch_office"] = branch_data["branch_name"]
+		# E4.7: Validación moneda (CAMBIO 3 APROBADO)
+		self._validate_currency_consistency(invoice_data, sales_invoice)
+
+		# E4.8: Validación completitud payload
+		self._validate_payload_completeness_ro(invoice_data, sales_invoice)
 
 		return invoice_data
 
@@ -1197,6 +1350,22 @@ class TimbradoAPI:
 			Esta función interpreta errores técnicos y los convierte
 			en mensajes comprensibles para usuarios no técnicos.
 		"""
+		import json
+
+		# PRIORIDAD: Intentar extraer mensaje directo del JSON del PAC
+		if hasattr(error, "response"):
+			try:
+				pac_json = error.response.json()
+				if isinstance(pac_json, dict) and "message" in pac_json:
+					# Retornar mensaje directo del PAC
+					return {
+						"user_message": f"ERROR PAC: {pac_json['message']}",
+						"corrective_action": pac_json.get("path", "Revisar datos de la factura"),
+						"status_code": str(getattr(error.response, "status_code", 400)),
+					}
+			except Exception:
+				pass  # Si falla parsing, continuar con lógica legacy
+
 		error_str = str(error).lower()
 
 		# Intentar extraer status code de diferentes tipos de errores
@@ -1394,11 +1563,11 @@ class TimbradoAPI:
 
 			# CORRECCIÓN: Detectar None (null) y repoblar automáticamente ANTES de validaciones
 			if raw_value is None:
-				# Intentar repoblar desde customer.tax_category
+				# Intentar repoblar desde customer.fm_tax_regime
 				customer = frappe.get_doc("Customer", factura_fiscal.customer)
-				if customer and customer.tax_category:
-					# Extraer código del tax_category (formato: "601 - Descripción" -> "601")
-					tax_code = customer.tax_category.split(" - ")[0].strip()
+				if customer and customer.fm_tax_regime:
+					# Extraer código del fm_tax_regime (formato: "601 - Descripción" -> "601")
+					tax_code = customer.fm_tax_regime.split(" - ")[0].strip()
 
 					# Actualizar el campo en la Factura Fiscal
 					factura_fiscal.fm_tax_system = tax_code
@@ -1453,6 +1622,716 @@ class TimbradoAPI:
 		except (ValueError, TypeError):
 			# No es número válido
 			return False
+
+	# ========================================================================
+	# E4-RO: FUNCIONES PUENTE SALES INVOICE → PAYLOAD PAC (READ-ONLY)
+	# ========================================================================
+
+	def _read_taxes_from_sales_invoice_item(self, item, sales_invoice):
+		"""
+		E4.1: Leer impuestos de un item desde Sales Invoice.
+
+		E4-RO: Solo lectura, sin cálculos.
+
+		FUENTES (prioridad):
+		1. item.item_tax_rate (cuando ITT explícito)
+		2. FALLBACK: sales_invoice.taxes con item_wise_tax_detail (template global)
+
+		Precisiones read-only:
+		- P1: Si item_wise_tax_detail trae amount pero rate=0, usar tax.rate de la fila SI
+		- P2: Duplicados por account_head se serializan ambos (sin consolidar)
+
+		Args:
+			item: Row de Sales Invoice.items
+			sales_invoice: Documento Sales Invoice completo
+
+		Returns:
+			List[dict]: [
+				{
+					"account_head": str,
+					"rate": float,
+					"amount": float
+				}
+			]
+		"""
+		import json
+
+		# E4-RO: Leer TODOS los taxes directamente desde sales_invoice.taxes
+		# NO usar item.item_tax_rate como filtro - solo leer lo que SI ya calculó
+		taxes_dict = {}  # Usar dict para deduplicar por account_head
+
+		for tax in sales_invoice.taxes:
+			if not tax.item_wise_tax_detail:
+				# Fallback para On Net Total sin item_wise_tax_detail (p.ej. SI creada via API
+				# o cuando ERPNext v16 no persistió el desglose por item).
+				# Solo aplica a tasas sobre base neta: amount = net_amount × rate / 100.
+				if getattr(tax, "charge_type", None) == "On Net Total" and flt(tax.rate):
+					amount = flt(item.net_amount) * flt(tax.rate) / 100
+					if amount and tax.account_head not in taxes_dict:
+						taxes_dict[tax.account_head] = {
+							"account_head": tax.account_head,
+							"rate": flt(tax.rate),
+							"amount": amount,
+						}
+						frappe.logger().info(
+							f"E4-RO - Item {item.item_code}: Tax {tax.account_head} "
+							f"calculado por fallback On Net Total (rate={tax.rate}, amount={amount})"
+						)
+				continue
+
+			# Parse item_wise_tax_detail
+			try:
+				item_wise = json.loads(tax.item_wise_tax_detail)
+			except (json.JSONDecodeError, TypeError):
+				continue
+
+			# Buscar este item con fallback de llaves:
+			# ERPNext v16 usa item.name (row UUID); versiones anteriores usan item.item_code.
+			rate_from_json = 0.0
+			amount = 0.0
+			key_used = None
+
+			for key in [item.name, item.item_code, item.item_name]:
+				if key in item_wise:
+					rate_from_json = float(item_wise[key][0])  # Position 0 = rate
+					amount = float(item_wise[key][1])  # Position 1 = amount
+					key_used = key
+					break
+
+			# Solo agregar si hay rate o amount != 0
+			if rate_from_json != 0 or amount != 0:
+				# E4-RO: Usar rate exacto de item_wise_tax_detail (NO fallback a tax.rate)
+				# Para IEPS Cuota, hook guardó [0, amount], así que rate=0.0
+				final_rate = rate_from_json
+
+				# DEDUPLICAR: Solo guardar si NO existe ya esta cuenta
+				if tax.account_head not in taxes_dict:
+					taxes_dict[tax.account_head] = {
+						"account_head": tax.account_head,
+						"rate": final_rate,
+						"amount": amount,
+					}
+
+					frappe.logger().info(
+						f"E4-RO - Item {item.item_code}: Tax {tax.account_head} "
+						f"leído desde SI item_wise_tax_detail (llave={key_used}, rate={final_rate}, amount={amount})"
+					)
+
+		# Convertir dict a list
+		taxes_data = list(taxes_dict.values())
+
+		if taxes_data:
+			frappe.logger().info(
+				f"E4-RO - Item {item.item_code}: {len(taxes_data)} impuestos leídos (READ-ONLY desde SI)"
+			)
+
+		return taxes_data
+
+	def _get_tax_amount_for_item_robust(self, sales_invoice, account_head, item_code, item_name, row_name):
+		"""
+		E4.2: Extraer amount con fallback de llaves.
+
+		CAMBIO 3 APROBADO: Lectura robusta según versión ERPNext.
+
+		Prioridad llaves en item_wise_tax_detail:
+		1. row.name (row interno SI)
+		2. item_code
+		3. item_name
+
+		Args:
+			sales_invoice: Documento SI
+			account_head: Cuenta impuesto
+			item_code: Código item
+			item_name: Nombre item
+			row_name: row.name interno
+
+		Returns:
+			float: Tax amount para el item
+		"""
+		import json
+
+		# Buscar tax row en SI
+		tax_row = None
+		for tax in sales_invoice.taxes:
+			if tax.account_head == account_head:
+				tax_row = tax
+				break
+
+		if not tax_row or not tax_row.item_wise_tax_detail:
+			return 0.0
+
+		# Parse JSON
+		item_wise = json.loads(tax_row.item_wise_tax_detail)
+
+		# CAMBIO 3: Fallback de llaves (row.name → item_code → item_name)
+		for key in [row_name, item_code, item_name]:
+			if key in item_wise:
+				# item_wise[key] = [rate, amount]
+				return float(item_wise[key][1])  # Posición 1 = amount
+
+		# No encontrado
+		frappe.logger().warning(f"Tax amount no encontrado para item {item_code} en {account_head}")
+		return 0.0
+
+	def _resolve_objeto_impuesto(self, item_doc):
+		"""
+		E4.3: Resolver ObjetoImp desde catálogo SAT Producto Servicio.
+
+		E4-RO: Solo lookup, sin inferencias.
+
+		Pipeline:
+		1. Leer Item.fm_producto_servicio_sat
+		2. Lookup SAT Producto Servicio.incluye_objeto_impuesto
+		3. Retornar "01", "02", "03", o "04"
+
+		Returns:
+			str: ObjetoImp
+		"""
+		clave_prod_serv = item_doc.get("fm_producto_servicio_sat")
+
+		if not clave_prod_serv:
+			frappe.throw(
+				f"Item {item_doc.name} no tiene ClaveProdServ (fm_producto_servicio_sat) configurada.\n"
+				f"Configure el campo SAT en Item.",
+				title="ClaveProdServ Faltante",
+			)
+
+		# Lookup en catálogo interno
+		sat_producto = frappe.db.get_value(
+			"SAT Producto Servicio", clave_prod_serv, "incluye_objeto_impuesto"
+		)
+
+		if not sat_producto:
+			frappe.throw(
+				f"ClaveProdServ '{clave_prod_serv}' no encontrada en catálogo SAT.\n"
+				f"Verifique que existe en DocType 'SAT Producto Servicio'.",
+				title="ClaveProdServ No Encontrada",
+			)
+
+		return sat_producto
+
+	def _map_tax_account_to_sat(self, account_head):
+		"""
+		E4.4: Mapear cuenta ERPNext → metadata SAT.
+
+		CAMBIO 4 APROBADO: Usar campo es_retencion del mapeo.
+
+		Fuente: Configuración Fiscal México → mapeos (child table)
+
+		Args:
+			account_head: Nombre cuenta (ej: "123456 - iva 16% - _TC")
+
+		Returns:
+			{
+				"impuesto_sat": str,      # "002"
+				"tipo_factor": str,       # "Tasa"
+				"nombre_sat": str,        # "IVA"
+				"es_retencion": bool      # True/False
+			}
+
+		Raises:
+			frappe.ValidationError: Si cuenta no mapeada
+		"""
+		# Obtener company desde settings (asumiendo que está configurado)
+		settings = frappe.get_single("Facturacion Mexico Settings")
+		company = (
+			settings.company
+			if hasattr(settings, "company")
+			else frappe.defaults.get_global_default("company")
+		)
+
+		if not company:
+			frappe.throw(
+				"<div style='font-family: -apple-system, BlinkMacSystemFont, sans-serif;'>"
+				"<p style='margin: 0 0 15px 0;'>No se pudo determinar la empresa para buscar configuración fiscal.</p>"
+				"<p style='margin: 15px 0 8px 0; font-weight: 600;'>Solución:</p>"
+				"<ol style='margin: 0; padding-left: 20px;'>"
+				"<li>Configurar empresa en <strong>Facturacion Mexico Settings</strong></li>"
+				"</ol>"
+				"</div>",
+				title="Empresa No Configurada",
+			)
+
+		# Buscar en configuración fiscal por company
+		config_name = frappe.db.get_value("Configuracion Fiscal Mexico", {"company": company}, "name")
+
+		if not config_name:
+			frappe.throw(
+				f"<div style='font-family: -apple-system, BlinkMacSystemFont, sans-serif;'>"
+				f"<p style='margin: 0 0 15px 0;'>No existe configuración fiscal para la empresa <strong>{company}</strong>.</p>"
+				f"<div style='background: #f8d7da; border-left: 4px solid #dc3545; padding: 12px; margin: 15px 0;'>"
+				f"<p style='margin: 5px 0; font-size: 13px;'><strong>Cuenta a mapear:</strong> <code>{account_head}</code></p>"
+				f"</div>"
+				f"<p style='margin: 15px 0 8px 0; font-weight: 600;'>Solución:</p>"
+				f"<ol style='margin: 0; padding-left: 20px;'>"
+				f"<li>Crear documento: <strong>Configuración Fiscal México</strong></li>"
+				f"<li>Seleccionar empresa: <strong>{company}</strong></li>"
+				f"<li>Usar el wizard para generar mapeos automáticamente</li>"
+				f"</ol>"
+				f"</div>",
+				title="Configuración Fiscal No Existe",
+			)
+
+		config = frappe.get_doc("Configuracion Fiscal Mexico", config_name)
+
+		# Buscar en child table mapeo_cuentas (no "mapeos")
+		if hasattr(config, "mapeo_cuentas") and config.mapeo_cuentas:
+			for mapeo in config.mapeo_cuentas:
+				if mapeo.cuenta_impuesto == account_head:
+					# Determinar metadata SAT desde rol_fiscal
+					# IMPORTANTE: Convertir explícitamente a bool (Frappe Check fields son 0/1)
+					es_retencion = bool(mapeo.get("es_retencion", 0))
+					integra_base_iva = bool(mapeo.get("integra_base_iva", 1))  # Default True
+					return self._extract_sat_metadata_from_rol(
+						mapeo.rol_fiscal, es_retencion, integra_base_iva
+					)
+
+		# Cuenta no mapeada = error (datos incompletos)
+		frappe.throw(
+			f"<div style='font-family: -apple-system, BlinkMacSystemFont, sans-serif;'>"
+			f"<p style='margin: 0 0 15px 0;'>Cuenta de impuesto sin mapeo SAT.</p>"
+			f"<div style='background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; margin: 15px 0;'>"
+			f"<p style='margin: 5px 0; font-size: 13px;'><strong>Cuenta:</strong> <code>{account_head}</code></p>"
+			f"<p style='margin: 5px 0; font-size: 13px;'><strong>Empresa:</strong> {company}</p>"
+			f"</div>"
+			f"<p style='margin: 15px 0 8px 0; font-weight: 600;'>Solución:</p>"
+			f"<ol style='margin: 0; padding-left: 20px;'>"
+			f"<li>Ir a: <strong>Configuración Fiscal México</strong> (empresa {company})</li>"
+			f"<li>Sección: <strong>Mapeos</strong></li>"
+			f"<li>Usar el wizard para generar mapeos automáticamente</li>"
+			f"<li>O agregar mapeo manual para esta cuenta</li>"
+			f"</ol>"
+			f"</div>",
+			title="Mapeo SAT Faltante",
+		)
+
+	def _get_uom_base_from_tabla_sat(self, item_doc, account_head):
+		"""
+		Obtener UOM base desde tabla IEPS Cuota SAT.
+
+		Args:
+			item_doc: Item doc
+			account_head: Cuenta IEPS
+
+		Returns:
+			str: UOM base (ej: "LTR", "H87") o None si no encuentra
+
+		Ejemplo:
+			>>> uom_base = self._get_uom_base_from_tabla_sat(item_doc, "2117002 - IEPS Azucar Bebidas")
+			>>> # Retorna "LTR" para bebidas azucaradas
+		"""
+		clave_sat = item_doc.get("fm_producto_servicio_sat")
+		if not clave_sat:
+			return None
+
+		# Buscar en tabla IEPS Cuota SAT
+		result = frappe.db.sql(
+			"""
+			SELECT uom
+			FROM `tabIEPS Cuota SAT`
+			WHERE clave_prod_serv = %(clave_sat)s
+			  AND cuenta_ieps = %(cuenta_ieps)s
+			  AND vigencia_desde <= %(fecha)s
+			  AND IFNULL(vigencia_hasta, '2099-12-31') >= %(fecha)s
+			  AND docstatus < 2
+			LIMIT 1
+			""",
+			{
+				"clave_sat": clave_sat,
+				"cuenta_ieps": account_head,
+				"fecha": today(),
+			},
+			as_dict=True,
+		)
+
+		if result and len(result) > 0:
+			return result[0].get("uom")
+
+		return None
+
+	def _get_cuota_from_tabla_sat(self, item_doc, account_head):
+		"""
+		Obtener cuota IEPS por UOM base desde tabla IEPS Cuota SAT.
+
+		Args:
+			item_doc: Item doc
+			account_head: Cuenta IEPS
+
+		Returns:
+			float: Cuota por UOM base (ej: $1.27/litro, $5.49/litro) o None si no encuentra
+
+		Ejemplo:
+			>>> cuota = self._get_cuota_from_tabla_sat(item_doc, "2117002 - IEPS Azucar Bebidas")
+			>>> # Retorna 1.27 para bebidas azucaradas ($1.27/litro)
+		"""
+		clave_sat = item_doc.get("fm_producto_servicio_sat")
+		if not clave_sat:
+			return None
+
+		# Buscar en tabla IEPS Cuota SAT
+		result = frappe.db.sql(
+			"""
+			SELECT cuota
+			FROM `tabIEPS Cuota SAT`
+			WHERE clave_prod_serv = %(clave_sat)s
+			  AND cuenta_ieps = %(cuenta_ieps)s
+			  AND vigencia_desde <= %(fecha)s
+			  AND IFNULL(vigencia_hasta, '2099-12-31') >= %(fecha)s
+			  AND docstatus < 2
+			LIMIT 1
+			""",
+			{
+				"clave_sat": clave_sat,
+				"cuenta_ieps": account_head,
+				"fecha": today(),
+			},
+			as_dict=True,
+		)
+
+		if result and len(result) > 0:
+			return flt(result[0].get("cuota"))
+
+		return None
+
+	def _get_uom_conversion_factor(self, item_doc, item_uom, target_uom):
+		"""
+		Obtener factor conversión entre UOMs para IEPS Cuota.
+
+		FIX E4.1: FacturAPI multiplica 'base' por cantidad, entonces necesitamos
+		enviar factor conversión unitario (unidades_base por unidad_venta).
+
+		Args:
+			item_doc: Item doc
+			item_uom: UOM del item en la factura (ej: "H87 - Pieza", "Nos")
+			target_uom: UOM base desde tabla SAT (ej: "LTR", "H87")
+
+		Returns:
+			float: Factor conversión (ejemplo: 0.6 para botella 600ml, 1.0 si mismo UOM)
+
+		Raises:
+			ValidationError: Si UOM no tiene conversión configurada
+
+		Ejemplo:
+			>>> factor = self._get_uom_conversion_factor(item_doc, "Nos", "LTR")
+			>>> # Retorna 0.6 si item tiene configurado 600ml por unidad
+		"""
+		# Si ya está en UOM base, factor = 1.0
+		if item_uom == target_uom:
+			return 1.0
+
+		# Intentar obtener conversión desde ERPNext
+		if get_conversion_factor:
+			try:
+				conversion_data = get_conversion_factor(item_doc.name, target_uom)
+				factor = flt(conversion_data.get("conversion_factor", 0))
+
+				if factor > 0:
+					return factor
+			except Exception:
+				pass
+
+		# Si no hay conversión configurada, ERROR
+		frappe.throw(
+			_(
+				"No se puede calcular IEPS Cuota: falta configurar conversión de UOM '{item_uom}' a '{target_uom}' para el item '{item}'.\n\n"
+				"Soluciones:\n"
+				"1. Configurar 'UOM Conversion Factor' en el Item para convertir {item_uom} → {target_uom}\n"
+				"2. O cambiar el UOM del item en la factura a '{target_uom}' directamente"
+			).format(item_uom=item_uom, target_uom=target_uom, item=item_doc.item_name or item_doc.name),
+			title=_("Factor Conversión UOM Requerido"),
+		)
+
+	def _extract_sat_metadata_from_rol(self, rol_fiscal, es_retencion, integra_base_iva=True):
+		"""
+		Helper: Extraer metadata SAT desde rol_fiscal usando catálogo oficial.
+
+		Args:
+			rol_fiscal: str (ej: "IVA por Pagar (16%)")
+			es_retencion: bool
+			integra_base_iva: bool - Si este impuesto integra la base del IVA (default True)
+
+		Returns:
+			dict con impuesto_sat, tipo_factor, nombre_sat, es_retencion, integra_base_iva
+		"""
+		# Obtener metadata desde catálogo oficial (single source of truth)
+		try:
+			config = SATTipoFactor.get_metadata_completa(rol_fiscal)
+			return {
+				"impuesto_sat": config["impuesto_sat"],
+				"tipo_factor": config["tipo_factor"],  # "Tasa" o "Cuota" desde catálogo
+				"nombre_sat": config["nombre_sat"],
+				"es_retencion": es_retencion,
+				"integra_base_iva": integra_base_iva,  # IEPS Combustibles = False, resto = True
+			}
+		except ValueError as e:
+			frappe.throw(str(e), title="Rol Fiscal No Configurado")
+
+	def _validate_objeto_imp_consistency(self, objeto_imp, taxes_payload, item):
+		"""
+		E4.6: Validar coherencia ObjetoImp vs presencia de impuestos.
+
+		CAMBIO 2 APROBADO: Validación estricta sin arreglos automáticos.
+
+		Reglas (según catálogo SAT c_ObjetoImp):
+		- ObjetoImp que NO permiten desglose → NO debe tener taxes
+		- ObjetoImp que REQUIEREN desglose (02) → DEBE tener taxes
+
+		Args:
+			objeto_imp: str - Código ObjetoImp ("01"-"08")
+			taxes_payload: list de impuestos
+			item: Row de Sales Invoice.items
+
+		Raises:
+			frappe.ValidationError: Si inconsistencia detectada
+		"""
+		# Si ObjetoImp prohíbe desglose pero SI tiene taxes
+		if SATObjetoImpuesto.forbids_tax_breakdown(objeto_imp) and taxes_payload:
+			frappe.throw(
+				f"<div style='font-family: -apple-system, BlinkMacSystemFont, sans-serif;'>"
+				f"<p style='margin: 0 0 15px 0; font-size: 14px;'><strong>Item:</strong> <code>{item.item_code}</code> - {item.item_name or item.description}</p>"
+				f"<div style='background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; margin: 15px 0;'>"
+				f"<p style='margin: 5px 0; font-size: 13px;'><strong>ObjetoImp (Catálogo SAT):</strong> <code>{objeto_imp}</code> - No objeto de impuesto</p>"
+				f"<p style='margin: 5px 0; font-size: 13px;'><strong>Sales Invoice:</strong> {len(taxes_payload)} impuesto(s) configurado(s)</p>"
+				f"</div>"
+				f"<p style='margin: 15px 0 8px 0; font-weight: 600;'>Soluciones:</p>"
+				f"<ol style='margin: 0; padding-left: 20px;'>"
+				f"<li style='margin-bottom: 8px;'><strong>Si el item SÍ causa impuestos:</strong> Actualizar catálogo SAT a ObjetoImp <code>02</code></li>"
+				f"<li style='margin-bottom: 8px;'><strong>Si el item NO causa impuestos:</strong> Quitar Item Tax Template</li>"
+				f"</ol>"
+				f"<p style='margin: 15px 0 0 0; color: #6c757d; font-size: 12px;'>📘 CFDI 4.0 c_ObjetoImp - SAT Anexo 20</p>"
+				f"</div>",
+				title="Validación Fiscal CFDI 4.0",
+			)
+
+		# Si ObjetoImp requiere desglose pero NO tiene taxes
+		if SATObjetoImpuesto.requires_tax_breakdown(objeto_imp) and not taxes_payload:
+			frappe.throw(
+				f"<div style='font-family: -apple-system, BlinkMacSystemFont, sans-serif;'>"
+				f"<p style='margin: 0 0 15px 0; font-size: 14px;'><strong>Item:</strong> <code>{item.item_code}</code> - {item.item_name or item.description}</p>"
+				f"<div style='background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; margin: 15px 0;'>"
+				f"<p style='margin: 5px 0; font-size: 13px;'><strong>ObjetoImp (Catálogo SAT):</strong> <code>02</code> - Sí objeto de impuesto</p>"
+				f"<p style='margin: 5px 0; font-size: 13px;'><strong>Sales Invoice:</strong> Sin impuestos configurados</p>"
+				f"</div>"
+				f"<p style='margin: 15px 0 8px 0; font-weight: 600;'>Soluciones:</p>"
+				f"<ol style='margin: 0; padding-left: 20px;'>"
+				f"<li style='margin-bottom: 8px;'><strong>Si el item causa impuestos:</strong> Configurar Item Tax Template o verificar template por defecto del branch</li>"
+				f"<li style='margin-bottom: 8px;'><strong>Si el item NO causa impuestos:</strong> Actualizar catálogo SAT a ObjetoImp <code>01</code></li>"
+				f"</ol>"
+				f"<p style='margin: 15px 0 0 0; color: #6c757d; font-size: 12px;'>📘 CFDI 4.0 c_ObjetoImp - SAT Anexo 20</p>"
+				f"</div>",
+				title="Validación Fiscal CFDI 4.0",
+			)
+
+	def _validate_currency_consistency(self, invoice_data, sales_invoice):
+		"""
+		E4.7: Validar consistencia moneda payload vs SI.
+
+		CAMBIO 3 APROBADO: Validación simplificada sin conversiones.
+
+		Args:
+			invoice_data: Payload FacturAPI
+			sales_invoice: Documento Sales Invoice
+
+		Raises:
+			frappe.ValidationError: Si moneda inconsistente
+		"""
+		payload_currency = invoice_data.get("currency", "MXN")
+		si_currency = sales_invoice.currency
+
+		if payload_currency != si_currency:
+			frappe.throw(
+				f"Moneda inconsistente:\n\n"
+				f"• Payload: {payload_currency}\n"
+				f"• Sales Invoice: {si_currency}\n\n"
+				f"El payload debe usar la misma moneda que Sales Invoice.",
+				title="Moneda Inconsistente",
+			)
+
+		# Log informativo si hay tipo de cambio
+		if sales_invoice.conversion_rate and sales_invoice.conversion_rate != 1.0:
+			frappe.logger().info(
+				f"SI {sales_invoice.name} con tipo cambio {sales_invoice.conversion_rate}. "
+				f"Amounts ya están convertidos a {si_currency}."
+			)
+
+	def _validate_payload_completeness_ro(self, invoice_data, sales_invoice):
+		"""
+		E4.8: Validar completitud payload E4-RO antes de envío al PAC.
+
+		CONTEXTO:
+		Esta función implementa la validación crítica de completitud del payload
+		generado por las funciones E4.1-E4.7. No realiza cálculos, solo verifica
+		que todos los campos requeridos por FacturAPI estén presentes.
+
+		VALIDACIONES:
+		1. Datos del cliente (customer): legal_name, tax_id, tax_system
+		2. Datos de la factura: payment_form, use (Uso CFDI)
+		3. Estructura items[]: presencia de conceptos
+		4. Por cada item: product_key, unit_key, description, tax_object
+		5. Por cada tax del item: type, factor, rate, withholding
+
+		Args:
+			invoice_data: Payload completo generado para FacturAPI
+			sales_invoice: Documento Sales Invoice (referencia para logs)
+
+		Raises:
+			frappe.ValidationError: Si encuentra campos faltantes
+
+		Returns:
+			bool: True si validación exitosa
+
+		Ejemplo de error:
+			Payload incompleto (3 errores):
+			❌ customer.tax_system faltante
+			❌ payment_form faltante
+			❌ Item 1: product.tax_object faltante
+		"""
+		errors = []
+
+		# Mapeo de campos técnicos a nombres amigables para el usuario
+		field_labels = {
+			"legal_name": "Razón Social del Cliente",
+			"tax_id": "RFC del Cliente",
+			"tax_system": "Régimen Fiscal del Cliente",
+			"payment_form": "Forma de Pago",
+			"use": "Uso CFDI",
+			"product_key": "Clave Producto/Servicio SAT",
+			"unit_key": "Clave Unidad SAT",
+			"description": "Descripción del Producto",
+			"taxability": "Objeto de Impuesto (ObjetoImp)",
+		}
+
+		# === DATOS CLIENTE ===
+		customer_data = invoice_data.get("customer", {})
+		required_customer_fields = ["legal_name", "tax_id", "tax_system"]
+
+		for field in required_customer_fields:
+			if not customer_data.get(field):
+				label = field_labels.get(field, field)
+				errors.append(f"❌ {label} faltante en el Cliente")
+
+		# === DATOS FACTURA ===
+		if not invoice_data.get("payment_form"):
+			errors.append(f"❌ {field_labels['payment_form']} faltante en la Factura")
+
+		if not invoice_data.get("use"):
+			errors.append(f"❌ {field_labels['use']} faltante en el Cliente")
+
+		# === ITEMS Y CONCEPTOS ===
+		items = invoice_data.get("items", [])
+
+		if not items:
+			errors.append("❌ La factura no tiene productos/conceptos para timbrar")
+
+		for idx, item_payload in enumerate(items, 1):
+			product = item_payload.get("product", {})
+
+			# Campos requeridos del producto
+			required_product_fields = ["product_key", "unit_key", "description", "taxability"]
+			for field in required_product_fields:
+				if not product.get(field):
+					label = field_labels.get(field, field)
+					# Obtener nombre del item si está disponible
+					item_name = product.get("description", f"Item {idx}")
+					errors.append(f"❌ {label} faltante en '{item_name}'")
+
+			# Validar taxes si existen
+			taxes_payload = product.get("taxes", [])
+			for tax_idx, tax in enumerate(taxes_payload, 1):
+				if not tax.get("type"):
+					errors.append(f"❌ Item {idx}, Tax {tax_idx}: type faltante")
+				if not tax.get("factor"):
+					errors.append(f"❌ Item {idx}, Tax {tax_idx}: factor faltante")
+
+				# Validar rate según tipo de factor
+				factor = tax.get("factor")
+				rate = tax.get("rate")
+
+				if factor == "Tasa":
+					# Para Tasa, rate es obligatorio
+					if rate is None:
+						errors.append(f"❌ Item {idx}, Tax {tax_idx}: rate faltante (requerido para Tasa)")
+					elif not FacturAPITaxRates.validar_rate_por_tipo(
+						tax.get("type", ""),
+						rate,
+						tax.get("withholding", False),
+					):
+						# Rate no está en lista permitida FacturAPI
+						rates_permitidas = FacturAPITaxRates.get_rates_permitidas(
+							tax.get("type", ""), tax.get("withholding", False)
+						)
+						rates_str = ", ".join([f"{r*100:.2f}%" for r in rates_permitidas[:5]])
+						if len(rates_permitidas) > 5:
+							rates_str += "..."
+						errors.append(
+							f"❌ Item {idx}, Tax {tax_idx}: rate {rate*100:.2f}% no permitido por FacturAPI "
+							f"(permitidos: {rates_str})"
+						)
+				elif factor == "Cuota":
+					# Para Cuota, FacturAPI requiere rate=cuota/unidad y base=cantidad física
+					if rate is None:
+						errors.append(
+							f"❌ Item {idx}, Tax {tax_idx}: rate faltante (debe ser cuota por unidad)"
+						)
+					elif rate < 0:
+						errors.append(
+							f"❌ Item {idx}, Tax {tax_idx}: Cuota debe tener rate > 0 (cuota/unidad), encontrado {rate}"
+						)
+					# Validar que base existe para Cuota
+					if "base" not in tax:
+						errors.append(
+							f"❌ Item {idx}, Tax {tax_idx}: base faltante (cantidad física requerida para Cuota)"
+						)
+					elif flt(tax.get("base", 0)) <= 0:
+						errors.append(
+							f"❌ Item {idx}, Tax {tax_idx}: base debe ser > 0 para Cuota, encontrado {tax.get('base')}"
+						)
+
+				if "withholding" not in tax:  # withholding puede ser False, validar presencia
+					errors.append(f"❌ Item {idx}, Tax {tax_idx}: withholding faltante")
+
+		# === RESULTADO ===
+		if errors:
+			# Construir lista de errores en HTML (máximo 10)
+			error_items = ""
+			for error in errors[:10]:
+				error_items += f"<li style='margin-bottom: 8px; font-size: 13px;'>{error}</li>"
+
+			if len(errors) > 10:
+				error_items += f"<li style='margin-bottom: 8px; font-size: 13px; color: #6c757d;'>... y {len(errors) - 10} errores más</li>"
+
+			# Mensaje de ayuda según tipo de error
+			help_items = ""
+			if any("Cliente" in e for e in errors):
+				help_items += "<li style='margin-bottom: 8px;'>Revise los datos fiscales del Cliente (RFC, Régimen Fiscal, Uso CFDI)</li>"
+			if any("Forma de Pago" in e for e in errors):
+				help_items += (
+					"<li style='margin-bottom: 8px;'>Configure la Forma de Pago en la Factura Fiscal</li>"
+				)
+			if any("Clave Producto" in e or "ObjetoImp" in e for e in errors):
+				help_items += "<li style='margin-bottom: 8px;'>Revise que todos los productos tengan configurada la Clave Producto/Servicio SAT</li>"
+			if any("Cuota" in e for e in errors):
+				help_items += "<li style='margin-bottom: 8px;'>IEPS Cuota: Verificar que hook calcule correctamente el monto (cuota/unidad x cantidad)</li>"
+
+			frappe.throw(
+				f"<div style='font-family: -apple-system, BlinkMacSystemFont, sans-serif;'>"
+				f"<p style='margin: 0 0 15px 0;'>No se puede timbrar <strong>{sales_invoice.name}</strong> porque faltan datos requeridos:</p>"
+				f"<div style='background: #f8d7da; border-left: 4px solid #dc3545; padding: 12px; margin: 15px 0;'>"
+				f"<ul style='margin: 0; padding-left: 20px;'>{error_items}</ul>"
+				f"</div>"
+				f"<p style='margin: 15px 0 8px 0; font-weight: 600;'>💡 Para corregir estos errores:</p>"
+				f"<ol style='margin: 0; padding-left: 20px;'>{help_items}</ol>"
+				f"</div>",
+				title="Datos Incompletos para Timbrado CFDI",
+			)
+
+		# Log éxito validación
+		frappe.logger().info(
+			f"E4.8: Payload validado OK para {sales_invoice.name} "
+			f"({len(items)} items, cliente: {customer_data.get('legal_name', 'N/A')})"
+		)
+
+		return True
 
 
 def _build_cancellation_reason_for_select(motive_code: str) -> str:

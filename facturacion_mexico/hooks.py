@@ -113,6 +113,7 @@ doctype_list_js = {
 after_install = "facturacion_mexico.install.after_install"
 after_migrate = [
 	"facturacion_mexico.setup.customize_sales_invoice.apply_customization",
+	"facturacion_mexico.setup.item_groups.assign_itt_to_groups",
 ]
 
 # Custom Fields & SAT Catalogs Fixtures
@@ -141,7 +142,6 @@ fixtures = [
 					"Branch-fm_serie_pattern",
 					"Branch-fm_share_certificates",
 					"Branch-fm_test_field_unique_2025",
-					# Customer custom fields (11 campos - movidos a Tax tab)
 					"Customer-fm_addenda_info_section",
 					"Customer-fm_column_break_fiscal_customer",
 					"Customer-fm_column_break_validacion",
@@ -155,7 +155,6 @@ fixtures = [
 					"Customer-fm_uso_cfdi_default",
 					"Customer-fm_validacion_sat_section",
 					"Customer-fm_envio_email_cliente",
-					# Item custom fields (2 existentes + 2 faltantes = 4 total)
 					"Item-fm_clasificacion_sat_section",
 					"Item-fm_producto_servicio_sat",
 					"Item-fm_column_break_item_sat",
@@ -337,6 +336,25 @@ doc_events = {
 		"after_insert": "facturacion_mexico.validaciones.hooks_handlers.customer_validate.schedule_rfc_validation",
 	},
 	# =============================================================================
+	# AUTOMATED TAX SYSTEM - SALES INVOICE AUTOMATION
+	# =============================================================================
+	# Sales Invoice Automated Tax - Sistema automatizado impuestos
+	"Sales Invoice": {
+		"before_validate": "facturacion_mexico.hooks_handlers.sales_invoice_automated_tax.before_validate",
+		"validate": "facturacion_mexico.hooks_handlers.sales_invoice_automated_tax.validate",
+		# E4: TODOS los hooks manipulación impuestos COMENTADOS
+		# Objetivo: ERPNext debe calcular impuestos 100% nativo
+		# STCT con charge_type="On Item Quantity" + cuotas en ITT = cálculo nativo
+		"before_save": [
+			# E4 DISABLED: Hook calculaba IEPS Cuota manualmente
+			# "facturacion_mexico.hooks_handlers.sales_invoice_ieps.calcular_ieps_cuota",
+			# E4 DISABLED: Hook ajustaba base IVA combustibles (IEPS no integra base)
+			# "facturacion_mexico.hooks_handlers.sales_invoice_ieps.ajustar_base_iva_combustibles",
+			# E4 DISABLED: Hook corregía redistribución ERPNext post-submit
+			# "facturacion_mexico.hooks_handlers.sales_invoice_ieps.corregir_ieps_cuota_final",
+		],
+	},
+	# =============================================================================
 	# MULTI-SUCURSAL - CONFIGURACIÓN FISCAL
 	# =============================================================================
 	# Branch Fiscal Configuration - Configuración multi-sucursal
@@ -369,7 +387,6 @@ doc_events = {
 		"before_save": "facturacion_mexico.ereceipts.hooks_handlers.ereceipt_validate.calculate_expiry_date",
 		"after_insert": "facturacion_mexico.ereceipts.hooks_handlers.ereceipt_insert.generate_facturapi_ereceipt",
 	},
-	# P6.1.4d: Sales Invoice hooks eliminados - incompatibles con arquitectura resiliente
 	# P6.1.4d: Factura Fiscal Mexico hooks eliminados - solo logging legacy sin FiscalEventMX
 }
 

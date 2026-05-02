@@ -244,3 +244,326 @@ function redirect_to_fiscal_document(frm) {
 		},
 	});
 }
+
+// =============================
+// AUTOMATED TAX SYSTEM - Sales Invoice - PASO 2 + PASO 3 COMPLETO
+// Sistema Automatizado de Impuestos
+// =============================
+
+frappe.ui.form.on("Sales Invoice", {
+	refresh(frm) {
+		// Visibilidad: que el usuario vea que es obligatorio desde el form
+		frm.set_df_property("cost_center", "reqd", 1);
+
+		// FIX #2: Filtrar Cost Centers por Company actual
+		frm.set_query("cost_center", function () {
+			return {
+				filters: {
+					company: frm.doc.company,
+					disabled: 0,
+				},
+			};
+		});
+	},
+
+	// AJUSTES UX - Propuesta ChatGPT: avisos 6-7s, mensajes negocio, condicionalidad correcta
+	async customer(frm) {
+		if (!frm.doc.customer) return;
+
+		try {
+			// Obtener configuración del Customer
+			const customer_data = await frappe.db.get_value("Customer", frm.doc.customer, [
+				"fm_customer_default_cost_center",
+				"default_price_list",
+			]);
+
+			if (customer_data && customer_data.message) {
+				const { fm_customer_default_cost_center } = customer_data.message;
+
+				// Condicionalidad correcta según configuración Customer
+				if (fm_customer_default_cost_center) {
+					await frm.set_value("cost_center", fm_customer_default_cost_center);
+					// Mensaje negocio sin referencias técnicas, 6-7 segundos
+					frappe.show_alert(
+						{
+							message: __("Centro de Costos asignado automáticamente."),
+							indicator: "green",
+						},
+						6
+					);
+
+					// Disparar evento cost_center para que recalcule Branch/Price List
+					// (El handler cost_center() ya existe y maneja esto)
+				} else {
+					// Solo avisar cuando NO hay CC por defecto, 6-7 segundos
+					frappe.show_alert(
+						{
+							message: __(
+								"Este cliente no tiene Centro de Costos configurado. Selecciónalo para continuar."
+							),
+							indicator: "orange",
+						},
+						6
+					);
+				}
+			}
+		} catch (e) {
+			console.error("Error al cargar configuración del cliente:", e);
+			frappe.show_alert(
+				{
+					message: __(
+						"Error al cargar configuración del cliente. Configura manualmente."
+					),
+					indicator: "red",
+				},
+				6
+			);
+		}
+	},
+
+	// Si el usuario cambia el cost_center manualmente, refrescar Branch/Price List en UI
+	cost_center: async function (frm) {
+		const cc = frm.doc.cost_center;
+		if (!cc) return;
+
+		// 1) Branch desde CC
+		let derived_branch = null;
+		try {
+			const branch = await frappe.db.get_value("Cost Center", cc, "fm_mapped_branch");
+			if (branch && branch.message && branch.message.fm_mapped_branch) {
+				derived_branch = branch.message.fm_mapped_branch;
+				if (frm.fields_dict.fm_branch) {
+					frm.set_value("fm_branch", derived_branch);
+				}
+			}
+		} catch (e) {
+			// silencio: el server-side hará la asignación de todos modos
+		}
+
+		// 2) Price List por prioridad (Customer → CC → Company)
+		try {
+			// Customer.default_price_list
+			let picked = null;
+			let source = null;
+
+			if (frm.doc.customer) {
+				const cust = await frappe.db.get_value(
+					"Customer",
+					frm.doc.customer,
+					"default_price_list"
+				);
+				if (cust && cust.message && cust.message.default_price_list) {
+					picked = cust.message.default_price_list;
+					source = "Customer.default_price_list";
+				}
+			}
+
+			// CC.fm_default_selling_price_list
+			if (!picked) {
+				const ccpl = await frappe.db.get_value(
+					"Cost Center",
+					cc,
+					"fm_default_selling_price_list"
+				);
+				if (ccpl && ccpl.message && ccpl.message.fm_default_selling_price_list) {
+					picked = ccpl.message.fm_default_selling_price_list;
+					source = "Cost Center.fm_default_selling_price_list";
+				}
+			}
+
+			// Selling Settings.selling_price_list
+			if (!picked) {
+				const ss = await frappe.db.get_single_value(
+					"Selling Settings",
+					"selling_price_list"
+				);
+				if (ss) {
+					picked = ss;
+					source = "Selling Settings.selling_price_list";
+				}
+			}
+
+			if (picked && frm.doc.selling_price_list !== picked) {
+				await frm.set_value("selling_price_list", picked);
+				// Mensaje negocio sin referencias técnicas, 6-7 segundos
+				frappe.show_alert(
+					{
+						message: __("Lista de precios asignada automáticamente."),
+						indicator: "green",
+					},
+					6
+				);
+			}
+		} catch (e) {
+			// silencio
+		}
+
+		// PASO 3: STCT autoselección ahora manejada 100% por Python hook
+		// Ver: facturacion_mexico/hooks_handlers/sales_invoice_automated_tax.py
+		// El hook Python muestra mensaje correcto después de clasificar items
+	},
+
+	// Bloqueos UI (refuerzo — el bloqueo real también está en validate server-side)
+	validate(frm) {
+		if (!frm.doc.cost_center) {
+			frappe.msgprint(__("No se puede guardar: <b>Centro de Costos</b> es obligatorio."));
+			frappe.validated = false;
+			return;
+		}
+
+		// Validación SAT: verificar items tienen fm_producto_servicio_sat en Item
+		const items = frm.doc.items || [];
+		for (let i = 0; i < items.length; i++) {
+			const row = items[i];
+			if (!row.item_code) {
+				frappe.msgprint(__(`Línea ${i + 1} sin <b>Item Code</b>. No se puede guardar.`));
+				frappe.validated = false;
+				return;
+			}
+			// Nota: Validación completa de SAT se hace en server-side via Item.fm_producto_servicio_sat
+		}
+	},
+
+	// FIX #2: Al cambiar Company, limpiar Cost Center si no pertenece a la nueva Company
+	async company(frm) {
+		if (!frm.doc.company || !frm.doc.cost_center) return;
+
+		// Verificar si el Cost Center actual pertenece a la nueva Company
+		try {
+			const cc_company = await frappe.db.get_value(
+				"Cost Center",
+				frm.doc.cost_center,
+				"company"
+			);
+			if (
+				cc_company &&
+				cc_company.message &&
+				cc_company.message.company !== frm.doc.company
+			) {
+				// Cost Center no pertenece a la nueva Company, limpiarlo
+				frm.set_value("cost_center", "");
+				frappe.show_alert(
+					{
+						message: __(
+							"Centro de Costos limpiado: no pertenece a la nueva Company seleccionada."
+						),
+						indicator: "orange",
+					},
+					6
+				);
+			}
+		} catch (e) {
+			// silencio: en caso de error, dejamos que el usuario maneje manualmente
+		}
+	},
+});
+
+// =============================
+// AUTOMATED TAX SYSTEM - Sales Invoice (UI helpers)
+// =============================
+
+frappe.ui.form.on("Sales Invoice", {
+	refresh(frm) {
+		// Requerido en UI; server valida también
+		frm.set_df_property("cost_center", "reqd", 1);
+	},
+
+	customer: async function (frm) {
+		if (!frm.doc.customer) return;
+
+		// 1) Cargar CC por defecto del cliente
+		try {
+			const { message } = await frappe.db.get_value("Customer", frm.doc.customer, [
+				"fm_customer_default_cost_center",
+				"default_price_list",
+			]);
+			const cc = message ? message.fm_customer_default_cost_center : null;
+			const pl = message ? message.default_price_list : null;
+
+			if (cc) {
+				await frm.set_value("cost_center", cc);
+				frappe.show_alert(
+					{ message: "Centro de Costos asignado automáticamente.", indicator: "green" },
+					6
+				);
+			} else {
+				frappe.show_alert(
+					{
+						message: "El cliente no tiene Centro de Costos por defecto.",
+						indicator: "orange",
+					},
+					6
+				);
+			}
+
+			// 2) Price List por prioridad (si no está ya)
+			if (!frm.doc.selling_price_list) {
+				if (pl) {
+					await frm.set_value("selling_price_list", pl);
+				} else {
+					// si no hay en Customer, cuando setee cost_center se recalculará abajo
+				}
+			}
+
+			// 3) Resolver STCT por sucursal emisora, si taxes_and_charges está vacío
+			await _fm_apply_branch_tax_template(frm);
+		} catch (e) {
+			console.log("customer handler error", e);
+		}
+	},
+
+	cost_center: async function (frm) {
+		if (!frm.doc.cost_center) return;
+
+		// 1) Resolver Branch y STCT por sucursal (si no hay STCT ya)
+		await _fm_apply_branch_tax_template(frm);
+
+		// 2) Price List por prioridad si sigue vacío
+		if (!frm.doc.selling_price_list) {
+			try {
+				const { message: ccRow } = await frappe.db.get_value(
+					"Cost Center",
+					frm.doc.cost_center,
+					["fm_default_selling_price_list"]
+				);
+				if (ccRow && ccRow.fm_default_selling_price_list) {
+					await frm.set_value("selling_price_list", ccRow.fm_default_selling_price_list);
+				} else {
+					const companyPL = await frappe.db.get_single_value(
+						"Selling Settings",
+						"selling_price_list"
+					);
+					if (companyPL) await frm.set_value("selling_price_list", companyPL);
+				}
+			} catch (e) {
+				console.log("cost_center handler price list error", e);
+			}
+		}
+	},
+
+	before_save(frm) {
+		if (!frm.doc.cost_center) {
+			frappe.msgprint("No se puede guardar sin <b>Cost Center</b> en el encabezado.");
+			frappe.validated = false;
+		}
+	},
+});
+
+// DEPRECADO: Autoselección STCT ahora manejada por Python hook before_validate()
+// Ver: facturacion_mexico/hooks_handlers/sales_invoice_automated_tax.py
+async function _fm_apply_branch_tax_template(frm) {
+	// Función vacía - lógica migrada a Python hook
+	// Python hook maneja:
+	// 1. Cost Center → Branch derivación
+	// 2. Clasificación items (IEPS, Retenciones)
+	// 3. Autoselección 8 STCT específicos (Nacional/Frontera × 4 variantes)
+	return;
+}
+
+function cint(v) {
+	try {
+		return parseInt(v, 10) || 0;
+	} catch (e) {
+		return 0;
+	}
+}

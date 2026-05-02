@@ -38,7 +38,7 @@
       "fieldname": "incluye_objeto_impuesto",
       "fieldtype": "Select",
       "label": "Incluye Objeto Impuesto",
-      "options": "01\n02\n03",
+      "options": "01\n02\n03\n04\n05\n06\n07\n08",
       "default": "02"
     },
     {

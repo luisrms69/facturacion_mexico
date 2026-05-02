@@ -1,0 +1,139 @@
+{
+  "actions": [],
+  "autoname": "naming_series:",
+  "creation": "2025-10-17 12:00:00.000000",
+  "doctype": "DocType",
+  "engine": "InnoDB",
+  "field_order": [
+    "naming_series",
+    "company",
+    "clave_prod_serv",
+    "descripcion",
+    "column_break_5",
+    "uom",
+    "cuota",
+    "cuenta_ieps",
+    "section_break_vigencia",
+    "vigencia_desde",
+    "column_break_vigencia",
+    "vigencia_hasta"
+  ],
+  "fields": [
+    {
+      "fieldname": "naming_series",
+      "fieldtype": "Select",
+      "label": "Serie",
+      "options": "IEPS-CUOTA-.YYYY.-",
+      "reqd": 1
+    },
+    {
+      "fieldname": "company",
+      "fieldtype": "Link",
+      "label": "Empresa",
+      "options": "Company",
+      "reqd": 1
+    },
+    {
+      "fieldname": "clave_prod_serv",
+      "fieldtype": "Link",
+      "label": "Clave Producto/Servicio SAT",
+      "options": "SAT Producto Servicio",
+      "reqd": 1,
+      "description": "Clave del catálogo SAT c_ClaveProdServ"
+    },
+    {
+      "fieldname": "descripcion",
+      "fieldtype": "Data",
+      "label": "Descripción",
+      "length": 200,
+      "description": "Descripción del producto sujeto a IEPS"
+    },
+    {
+      "fieldname": "column_break_5",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "uom",
+      "fieldtype": "Link",
+      "label": "Unidad de Medida",
+      "options": "UOM",
+      "reqd": 1,
+      "description": "Unidad de medida base para esta cuota (LTR para combustibles/bebidas, H87 para tabaco, etc.)"
+    },
+    {
+      "fieldname": "cuota",
+      "fieldtype": "Currency",
+      "label": "Cuota por Unidad",
+      "precision": 6,
+      "reqd": 1,
+      "description": "Cuota IEPS en pesos por UOM base (ej: $6.4555/litro gasolina, $1.6451/litro bebidas, $X.XX/pieza tabaco)"
+    },
+    {
+      "fieldname": "cuenta_ieps",
+      "fieldtype": "Link",
+      "label": "Cuenta IEPS",
+      "options": "Account",
+      "description": "Cuenta de impuesto IEPS que usa esta cuota (para evitar mezclar combustibles/bebidas)"
+    },
+    {
+      "fieldname": "section_break_vigencia",
+      "fieldtype": "Section Break",
+      "label": "Vigencia"
+    },
+    {
+      "fieldname": "vigencia_desde",
+      "fieldtype": "Date",
+      "label": "Vigente Desde",
+      "reqd": 1,
+      "description": "Fecha inicio de vigencia de esta cuota"
+    },
+    {
+      "fieldname": "column_break_vigencia",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "vigencia_hasta",
+      "fieldtype": "Date",
+      "label": "Vigente Hasta",
+      "description": "Fecha fin de vigencia (dejar vacío si está vigente indefinidamente)"
+    }
+  ],
+  "index_web_pages_for_search": 1,
+  "links": [],
+  "modified": "2025-10-17 12:00:00.000000",
+  "modified_by": "Administrator",
+  "module": "Facturacion Fiscal",
+  "name": "IEPS Cuota SAT",
+  "naming_rule": "By \"Naming Series\" field",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "System Manager",
+      "share": 1,
+      "write": 1
+    },
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "Accounts Manager",
+      "share": 1,
+      "write": 1
+    }
+  ],
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "states": [],
+  "track_changes": 1
+}

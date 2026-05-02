@@ -1,0 +1,90 @@
+{
+  "doctype": "DocType",
+  "name": "Mapeo Cuenta Fiscal Mexico",
+  "module": "Facturacion Fiscal",
+  "custom": 0,
+  "istable": 1,
+  "editable_grid": 1,
+  "engine": "InnoDB",
+  "track_changes": 1,
+  "fields": [
+    {
+      "fieldname": "rol_fiscal",
+      "label": "Tipo de Impuesto",
+      "fieldtype": "Select",
+      "in_list_view": 1,
+      "reqd": 1,
+      "read_only": 1,
+      "options": "IVA por Pagar (Nacional)\nIVA por Pagar (Frontera)\nIVA por Pagar (0% exportación)\nIVA Exento\nIEPS por Pagar (Alcohol)\nIEPS por Pagar (Azúcar/Bebidas)\nIEPS por Pagar (Combustibles)\nIEPS por Pagar (Tabaco)\nIEPS por Pagar (Tabaco Cuota)\nIVA Retenido (Honorarios)\nIVA Retenido (Arrendamiento)\nIVA Retenido (Autotransporte)\nIVA Retenido (RESICO)\nISR Retenido (Honorarios)\nISR Retenido (Arrendamiento)\nISR Retenido (RESICO)\nISR Retenido (Autotransporte)",
+      "description": "⚠️ SINCRONIZACIÓN REQUERIDA: Estas opciones deben coincidir con TABLA_MAESTRA_ROLES_FISCALES en facturacion_mexico/utils/roles_fiscales.py. Al modificar roles: (1) actualizar Python, (2) actualizar este JSON, (3) migrate, (4) migrar datos. Test test_sync_roles_fiscales_json_python.py valida sincronización."
+    },
+    {
+      "fieldname": "cuenta_impuesto",
+      "label": "Cuenta de Impuesto",
+      "fieldtype": "Link",
+      "options": "Account",
+      "in_list_view": 1,
+      "reqd": 1
+    },
+    {
+      "fieldname": "sugerido_automaticamente",
+      "label": "Sugerido Automáticamente",
+      "fieldtype": "Check",
+      "read_only": 1,
+      "default": "0"
+    },
+    {
+      "fieldname": "justificacion_sugerencia",
+      "label": "Justificación",
+      "fieldtype": "Small Text",
+      "read_only": 1
+    },
+    {
+      "fieldname": "estado_validacion",
+      "label": "Estado",
+      "fieldtype": "Select",
+      "options": "Válido\nAdvertencia\nError",
+      "read_only": 1,
+      "default": "Error"
+    },
+    {
+      "fieldname": "es_retencion",
+      "label": "Es Retención",
+      "fieldtype": "Check",
+      "description": "Marcar si es impuesto retenido (withholding=True en CFDI)",
+      "default": "0"
+    },
+    {
+      "fieldname": "tipo_factor",
+      "label": "Tipo de Factor SAT",
+      "fieldtype": "Select",
+      "options": "Tasa\nCuota",
+      "description": "Tipo de factor según catálogo SAT",
+      "read_only": 0,
+      "default": "Tasa"
+    },
+    {
+      "fieldname": "integra_base_iva",
+      "label": "Integra Base IVA",
+      "fieldtype": "Check",
+      "default": "1",
+      "description": "Marcar si este impuesto integra la base del IVA. Desmarcar SOLO para cuotas IEPS combustibles no objeto de IVA según LIEPS Art. 2-A."
+    }
+  ],
+  "permissions": [
+    {
+      "role": "System Manager",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 1
+    },
+    {
+      "role": "Accounts Manager",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 1
+    }
+  ]
+}
