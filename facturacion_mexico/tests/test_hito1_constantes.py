@@ -58,14 +58,14 @@ class TestHito1Constantes(FrappeTestCase):
         self.assertTrue(ieps_alcohol["iva_aplicable"])
         self.assertEqual(ieps_alcohol["add_deduct_tax"], "Add")
 
-        # IEPS Azúcar 1.0 peso/litro
+        # IEPS Azúcar tasa=0.0 (cuota variable por litro, calculada desde tabla IEPS Cuota SAT)
         ieps_azucar = obtener_tasa("ieps", "azucar")
-        self.assertEqual(ieps_azucar["tasa"], 1.0)
+        self.assertEqual(ieps_azucar["tasa"], 0.0)
         self.assertTrue(ieps_azucar["iva_aplicable"])
 
         # IEPS Combustibles 4.58 peso/litro
         ieps_combustibles = obtener_tasa("ieps", "combustibles")
-        self.assertEqual(ieps_combustibles["tasa"], 4.58)
+        self.assertEqual(ieps_combustibles["tasa"], 0.0)  # cuota variable, calculada desde tabla IEPS Cuota SAT
         self.assertTrue(ieps_combustibles["iva_aplicable"])
 
         # IEPS Tabaco 160%

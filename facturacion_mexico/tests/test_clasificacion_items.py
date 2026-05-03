@@ -65,7 +65,7 @@ class TestClasificacionItems(FrappeTestCase):
 				"item_code": item_code,
 				"item_name": "Test Item Resto",
 				"item_group": "All Item Groups",  # Grupo genérico
-				"stock_uom": "Nos",
+				"stock_uom": "H87 - Pieza",
 			}
 		)
 		item.insert(ignore_permissions=True)
@@ -111,7 +111,7 @@ class TestClasificacionItems(FrappeTestCase):
 				"item_code": item_code,
 				"item_name": "Test Cerveza",
 				"item_group": grupo_alcohol,
-				"stock_uom": "Nos",
+				"stock_uom": "H87 - Pieza",
 			}
 		)
 		item.insert(ignore_permissions=True)
@@ -157,7 +157,7 @@ class TestClasificacionItems(FrappeTestCase):
 				"item_code": item_code,
 				"item_name": "Test Servicio Profesional",
 				"item_group": grupo_honorarios,
-				"stock_uom": "Nos",
+				"stock_uom": "H87 - Pieza",
 			}
 		)
 		item.insert(ignore_permissions=True)
@@ -203,7 +203,7 @@ class TestClasificacionItems(FrappeTestCase):
 				"item_code": item_ieps,
 				"item_name": "Test Refresco",
 				"item_group": grupo_azucar,
-				"stock_uom": "Nos",
+				"stock_uom": "H87 - Pieza",
 			}
 		).insert(ignore_permissions=True)
 
@@ -216,7 +216,7 @@ class TestClasificacionItems(FrappeTestCase):
 				"item_code": item_ret,
 				"item_name": "Test Consultoría",
 				"item_group": grupo_honorarios,
-				"stock_uom": "Nos",
+				"stock_uom": "H87 - Pieza",
 			}
 		).insert(ignore_permissions=True)
 
