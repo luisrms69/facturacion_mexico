@@ -27,6 +27,16 @@ frappe.ui.form.on("Sales Invoice", {
 			.catch(() => {
 				// ante error, mejor no ocultar para no bloquear indebidamente; el server-hook sigue protegiendo
 			});
+
+		// Suscribir una sola vez por instancia de formulario al evento de cancelación PAC
+		if (!frm._fm_cancel_realtime_bound) {
+			frm._fm_cancel_realtime_bound = true;
+			frappe.realtime.on("fiscal_status_changed", function (data) {
+				if (frm.doc && data.sales_invoice === frm.doc.name) {
+					frm.reload_doc();
+				}
+			});
+		}
 	},
 });
 

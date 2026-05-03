@@ -416,6 +416,7 @@
 						frm.perm ||= [];
 						frm.perm[0] ||= {};
 						frm.perm[0].cancel = 0;
+						frm.perm[0].amend = 0;
 						frm.toolbar && frm.toolbar.refresh && frm.toolbar.refresh();
 
 						// Cinturón y tirantes
@@ -425,13 +426,21 @@
 						frm.page.remove_menu_item && frm.page.remove_menu_item("Cancel");
 						frm.page.remove_menu_item && frm.page.remove_menu_item(__("Cancel"));
 						frm.page.remove_menu_item && frm.page.remove_menu_item("Cancelar");
+						// - item de menú "Amend" y variantes
+						frm.page.remove_menu_item && frm.page.remove_menu_item("Amend");
+						frm.page.remove_menu_item && frm.page.remove_menu_item(__("Amend"));
+						frm.page.remove_menu_item && frm.page.remove_menu_item(__("Corregir"));
+						frm.page.remove_menu_item && frm.page.remove_menu_item(__("Enmendar"));
+						frm.page.remove_menu_item && frm.page.remove_menu_item(__("Amendment"));
 
 						// - limpiar si algún app lo reinyecta en el menú
 						const $menu = frm.page.menu || frm.page.actions_menu;
 						if ($menu && $menu.length) {
 							$menu.find("a, .dropdown-item, .menu-item").each(function () {
 								const t = (this.innerText || "").trim().toUpperCase();
-								if (t === "CANCEL" || t === "CANCELAR") this.remove();
+								if (t === "CANCEL" || t === "CANCELAR"
+									|| t === "AMEND" || t === "CORREGIR"
+									|| t === "ENMENDAR" || t === "AMENDMENT") this.remove();
 							});
 						}
 					} catch (e) {
@@ -480,16 +489,6 @@
 			// PROTECCIÓN: Bloquear campos fiscales post-submit
 			freeze_fiscal_fields_after_submit(frm);
 			freeze_payment_fields_after_submit(frm);
-
-			// BLOQUEO DEFINITIVO: Quitar "Amend" del menú de acciones
-			setTimeout(() => {
-				if (frm.page && frm.page.remove_menu_item) {
-					frm.page.remove_menu_item(__("Amend")); // idioma base
-					frm.page.remove_menu_item(__("Corregir")); // español México
-					frm.page.remove_menu_item(__("Enmendar")); // otra traducción
-					frm.page.remove_menu_item(__("Amendment")); // variante inglés
-				}
-			}, 100);
 
 			// Aplicar nueva lógica de botones con estados centralizados
 			applyFFMUi(frm);
