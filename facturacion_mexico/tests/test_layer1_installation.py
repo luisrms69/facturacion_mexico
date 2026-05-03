@@ -116,6 +116,7 @@ class TestLayer1Installation(unittest.TestCase):
         self.assertGreater(uso_cfdi_count, 0, "Debe haber registros en Uso CFDI SAT")
         self.assertGreater(regimen_count, 0, "Debe haber registros en Regimen Fiscal SAT")
 
+    @unittest.skip("Legacy: Warehouse Types son creados por ERPNext Setup Wizard, no por facturacion_mexico")
     def test_warehouse_types_created(self):
         """Test: Warehouse Types básicos fueron creados"""
         basic_types = ["Stores", "Work In Progress", "Finished Goods", "Transit"]
@@ -125,12 +126,12 @@ class TestLayer1Installation(unittest.TestCase):
             self.assertTrue(exists, f"Warehouse Type {wh_type} debe existir")
 
     def test_basic_uoms_created(self):
-        """Test: UOMs básicos fueron creados"""
-        basic_uoms = ["Nos", "Unit", "Piece"]
+        """Test: UOMs SAT fueron creados vía fixtures de facturacion_mexico"""
+        basic_uoms = ["H87 - Pieza", "LTR - Litro", "KGM - Kilogramo"]
 
         for uom in basic_uoms:
             exists = frappe.db.exists("UOM", uom)
-            self.assertTrue(exists, f"UOM {uom} debe existir")
+            self.assertTrue(exists, f"UOM SAT {uom} debe existir")
 
     def test_frappe_core_intact(self):
         """Test: Core de Frappe sigue funcionando después de instalación"""

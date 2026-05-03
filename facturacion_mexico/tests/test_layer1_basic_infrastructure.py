@@ -82,6 +82,7 @@ class TestLayer1BasicInfrastructure(unittest.TestCase):
             self.assertIsNotNone(company.name)
             self.assertTrue(len(company.name) > 0)
 
+    @unittest.skip("Legacy: Warehouse Types son creados por ERPNext Setup Wizard, no por facturacion_mexico")
     def test_warehouse_types_exist(self):
         """Test: Verificar que tipos de warehouse básicos existen"""
         basic_warehouse_types = ["Stores", "Work In Progress", "Finished Goods", "Transit"]
@@ -91,12 +92,12 @@ class TestLayer1BasicInfrastructure(unittest.TestCase):
             self.assertTrue(exists, f"Warehouse Type {wh_type} debe existir")
 
     def test_basic_uoms_exist(self):
-        """Test: Verificar que UOMs básicos existen"""
-        basic_uoms = ["Nos", "Unit", "Piece"]
+        """Test: Verificar que UOMs SAT básicos existen (cargados vía fixtures)"""
+        basic_uoms = ["H87 - Pieza", "LTR - Litro", "KGM - Kilogramo"]
 
         for uom in basic_uoms:
             exists = frappe.db.exists("UOM", uom)
-            self.assertTrue(exists, f"UOM {uom} debe existir")
+            self.assertTrue(exists, f"UOM SAT {uom} debe existir")
 
     def test_database_connection_works(self):
         """Test: Verificar que conexión a base de datos funciona"""

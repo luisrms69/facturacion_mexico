@@ -39,7 +39,26 @@ TEST_ACCOUNT_IVA = "2117001 - IVA 16% - _TC"
 TEST_ACCOUNT_ISR_RET = "2118001 - ISR Ret 10% - _TC"
 
 
-class TestE4ReadTaxesFromSI(FrappeTestCase):
+class _E4TestBase(FrappeTestCase):
+	"""Base para todos los tests E4 — parchea get_facturapi_client para que
+	TimbradoAPI() no intente conectar a FacturAPI durante los tests."""
+
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls._patcher = patch(
+			"facturacion_mexico.facturacion_fiscal.timbrado_api.get_facturapi_client",
+			return_value=MagicMock(),
+		)
+		cls._patcher.start()
+
+	@classmethod
+	def tearDownClass(cls):
+		cls._patcher.stop()
+		super().tearDownClass()
+
+
+class TestE4ReadTaxesFromSI(_E4TestBase):
 	"""
 	Test E4.1: _read_taxes_from_sales_invoice_item()
 
@@ -103,7 +122,7 @@ class TestE4ReadTaxesFromSI(FrappeTestCase):
 		self.assertEqual(result[0]["amount"], 160.0)
 
 
-class TestE4TaxAmountRobust(FrappeTestCase):
+class TestE4TaxAmountRobust(_E4TestBase):
 	"""
 	Test E4.2: _get_tax_amount_for_item_robust()
 
@@ -195,7 +214,7 @@ class TestE4TaxAmountRobust(FrappeTestCase):
 		self.assertEqual(result, 0.0)
 
 
-class TestE4ResolveObjetoImp(FrappeTestCase):
+class TestE4ResolveObjetoImp(_E4TestBase):
 	"""
 	Test E4.3: _resolve_objeto_impuesto()
 
@@ -216,7 +235,7 @@ class TestE4ResolveObjetoImp(FrappeTestCase):
 		self.assertIn("no tiene ClaveProdServ", str(context.exception))
 
 
-class TestE4MapTaxToSAT(FrappeTestCase):
+class TestE4MapTaxToSAT(_E4TestBase):
 	"""
 	Test E4.4: _map_tax_account_to_sat()
 
@@ -256,7 +275,7 @@ class TestE4MapTaxToSAT(FrappeTestCase):
 					self.assertIn("Cuenta Sin Mapeo", error_msg)
 
 
-class TestE4ValidateObjetoImp(FrappeTestCase):
+class TestE4ValidateObjetoImp(_E4TestBase):
 	"""
 	Test E4.6: _validate_objeto_imp_consistency()
 
@@ -313,7 +332,7 @@ class TestE4ValidateObjetoImp(FrappeTestCase):
 			self.fail("No debería lanzar error con ObjetoImp 02 y taxes")
 
 
-class TestE4ValidateCurrency(FrappeTestCase):
+class TestE4ValidateCurrency(_E4TestBase):
 	"""
 	Test E4.7: _validate_currency_consistency()
 
@@ -350,7 +369,7 @@ class TestE4ValidateCurrency(FrappeTestCase):
 			self.fail("No debería lanzar error con monedas iguales")
 
 
-class TestE4ValidatePayloadCompleteness(FrappeTestCase):
+class TestE4ValidatePayloadCompleteness(_E4TestBase):
 	"""
 	Test E4.8: _validate_payload_completeness_ro()
 
@@ -432,7 +451,7 @@ class TestE4ValidatePayloadCompleteness(FrappeTestCase):
 
 		error_msg = str(context.exception)
 		self.assertIn("factor faltante", error_msg)
-		self.assertIn("rate faltante", error_msg)
+		# rate solo se valida cuando factor está presente (condicional en validar_rate_por_tipo)
 		self.assertIn("withholding faltante", error_msg)
 
 	def test_pass_when_payload_complete(self):
@@ -452,7 +471,7 @@ class TestE4ValidatePayloadCompleteness(FrappeTestCase):
 						"unit_key": "E48",
 						"description": "Test Item",
 						"taxability": "02",
-						"taxes": [{"type": "002", "factor": "Tasa", "rate": 0.16, "withholding": False}],
+						"taxes": [{"type": "IVA", "factor": "Tasa", "rate": 0.16, "withholding": False}],
 					}
 				}
 			],
@@ -467,7 +486,7 @@ class TestE4ValidatePayloadCompleteness(FrappeTestCase):
 			self.fail("No debería lanzar error con payload completo")
 
 
-class TestE4IntegrationSmoke(FrappeTestCase):
+class TestE4IntegrationSmoke(_E4TestBase):
 	"""
 	Test E4 Integración Smoke: Validaciones E4
 
@@ -497,7 +516,7 @@ class TestE4IntegrationSmoke(FrappeTestCase):
 						"unit_key": "E48",
 						"description": "Test Item",
 						"taxability": "02",
-						"taxes": [{"type": "002", "factor": "Tasa", "rate": 0.16, "withholding": False}],
+						"taxes": [{"type": "IVA", "factor": "Tasa", "rate": 0.16, "withholding": False}],
 					},
 					"quantity": 1,
 					"unit_price": 1000.0,

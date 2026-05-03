@@ -16,36 +16,56 @@ from facturacion_mexico.tests.legacy_allowlist import LEGACY_CF_ALLOWLIST
 class TestLayer2CrossModuleValidation(unittest.TestCase):
     """Tests de validación Cross-Module - Layer 2"""
 
-    @classmethod
-    def setUpClass(cls):
-        """Setup inicial para todos los tests"""
+    def setUp(self):
+        """Crea prerequisitos por test — autocontenido, sin depender del estado del site."""
         frappe.clear_cache()
-        cls._ensure_test_data_exists()
 
-    @classmethod
-    def _ensure_test_data_exists(cls):
-        """Asegurar que Customer y Item de test existen para evitar payment_terms error"""
-        # Crear Customer test si no existe
+        # Grupos raíz de ERPNext — no existen en site de tests limpio (Setup Wizard no corrió)
+        if not frappe.db.exists("Customer Group", "All Customer Groups"):
+            frappe.get_doc({
+                "doctype": "Customer Group",
+                "customer_group_name": "All Customer Groups",
+                "parent_customer_group": "",
+                "is_group": 1,
+            }).insert(ignore_permissions=True)
+
+        # ERPNext no permite usar grupos raíz (is_group=1) como customer_group — necesita un hijo
+        if not frappe.db.exists("Customer Group", "_Test Customer Group"):
+            frappe.get_doc({
+                "doctype": "Customer Group",
+                "customer_group_name": "_Test Customer Group",
+                "parent_customer_group": "All Customer Groups",
+                "is_group": 0,
+            }).insert(ignore_permissions=True)
+
+        if not frappe.db.exists("Territory", "All Territories"):
+            frappe.get_doc({
+                "doctype": "Territory",
+                "territory_name": "All Territories",
+                "parent_territory": "",
+                "is_group": 1,
+            }).insert(ignore_permissions=True)
+
+        # Customer y Item de test
         if not frappe.db.exists("Customer", "_Test Customer"):
-            customer = frappe.get_doc({
+            frappe.get_doc({
                 "doctype": "Customer",
                 "customer_name": "_Test Customer",
                 "customer_type": "Individual",
                 "territory": "All Territories",
-                "customer_group": "All Customer Groups"
-            })
-            customer.insert(ignore_permissions=True)
+                "customer_group": "_Test Customer Group",
+                "tax_id": "LOMS800101AB1",  # RFC ficticio con formato válido (13 chars, no genérico)
+            }).insert(ignore_permissions=True)
 
-        # Crear Item test si no existe
         if not frappe.db.exists("Item", "_Test Item"):
-            item = frappe.get_doc({
+            frappe.get_doc({
                 "doctype": "Item",
                 "item_code": "_Test Item",
                 "item_name": "_Test Item",
                 "item_group": "All Item Groups",
-                "is_stock_item": 0
-            })
-            item.insert(ignore_permissions=True)
+                "is_stock_item": 0,
+                "stock_uom": "H87 - Pieza",
+            }).insert(ignore_permissions=True)
 
     def test_custom_fields_naming_consistency(self):
         """Test: Consistencia en nomenclatura de custom fields entre módulos"""
