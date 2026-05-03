@@ -167,14 +167,92 @@ function redirect_to_fiscal_document(frm) {
 		return;
 	}
 
-	// No existe, crear uno nuevo
-	// Calcular IVA y otros impuestos desde la tabla taxes
+	// SI devolución → resolver UUID antes de crear FFM tipo E
+	if (frm.doc.is_return) {
+		_resolve_uuid_for_return(frm, function (uuid) {
+			if (uuid) {
+				_do_create_ffm(frm, {
+					fm_uuid_relacionado: uuid,
+					fm_tipo_relacion_sat: "01 - Nota de crédito de los documentos relacionados",
+				});
+			}
+		});
+		return;
+	}
+
+	_do_create_ffm(frm, {});
+}
+
+function _resolve_uuid_for_return(frm, callback) {
+	if (!frm.doc.return_against) {
+		_show_uuid_dialog(frm, callback);
+		return;
+	}
+
+	frappe.db.get_value(
+		"Sales Invoice",
+		frm.doc.return_against,
+		"fm_factura_fiscal_mx",
+		function (si_data) {
+			const ffm_name = si_data && si_data.fm_factura_fiscal_mx;
+			if (!ffm_name) {
+				_show_uuid_dialog(frm, callback);
+				return;
+			}
+
+			frappe.db.get_value(
+				"Factura Fiscal Mexico",
+				ffm_name,
+				"fm_uuid",
+				function (ffm_data) {
+					const uuid = ffm_data && ffm_data.fm_uuid;
+					if (uuid) {
+						callback(uuid);
+					} else {
+						_show_uuid_dialog(frm, callback);
+					}
+				}
+			);
+		}
+	);
+}
+
+function _show_uuid_dialog(frm, callback) {
+	frappe.prompt(
+		{
+			label: __("UUID del CFDI original"),
+			fieldname: "uuid",
+			fieldtype: "Data",
+			reqd: 1,
+			description: __(
+				"UUID del CFDI que esta nota de crédito cancela o modifica (36 caracteres)"
+			),
+		},
+		function (values) {
+			const uuid = (values.uuid || "").trim();
+			if (uuid.length !== 36) {
+				frappe.msgprint({
+					title: __("UUID inválido"),
+					message: __(
+						"El UUID debe tener 36 caracteres (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)"
+					),
+					indicator: "red",
+				});
+				return;
+			}
+			callback(uuid);
+		},
+		__("UUID relacionado requerido"),
+		__("Continuar")
+	);
+}
+
+function _do_create_ffm(frm, extra_fields) {
 	let iva_total = 0;
 	let otros_impuestos = 0;
 
 	if (frm.doc.taxes && frm.doc.taxes.length > 0) {
 		frm.doc.taxes.forEach(function (tax) {
-			// Identificar IVA por el account_head
 			if (tax.account_head && tax.account_head.toUpperCase().includes("IVA")) {
 				iva_total += tax.tax_amount || 0;
 			} else {
@@ -183,26 +261,26 @@ function redirect_to_fiscal_document(frm) {
 		});
 	}
 
+	const doc = Object.assign(
+		{
+			doctype: "Factura Fiscal Mexico",
+			sales_invoice: frm.doc.name,
+			company: frm.doc.company,
+			customer: frm.doc.customer,
+			fm_fiscal_status: FISCAL_STATES ? FISCAL_STATES.states.BORRADOR : "BORRADOR",
+			si_total_antes_iva: frm.doc.net_total || 0,
+			si_total_neto: frm.doc.grand_total || 0,
+			si_iva: iva_total,
+			si_otros_impuestos: otros_impuestos,
+		},
+		extra_fields
+	);
+
 	frappe.call({
 		method: "frappe.client.insert",
-		args: {
-			doc: {
-				doctype: "Factura Fiscal Mexico",
-				sales_invoice: frm.doc.name,
-				company: frm.doc.company,
-				customer: frm.doc.customer, // AÑADIR: Customer requerido
-				fm_fiscal_status: FISCAL_STATES ? FISCAL_STATES.states.BORRADOR : "BORRADOR", // Estado desde configuración
-				// fm_payment_method_sat será asignado por validate_payment_method() usando settings
-				// Agregar montos del Sales Invoice para validación posterior
-				si_total_antes_iva: frm.doc.net_total || 0,
-				si_total_neto: frm.doc.grand_total || 0,
-				si_iva: iva_total,
-				si_otros_impuestos: otros_impuestos,
-			},
-		},
+		args: { doc: doc },
 		callback: function (r) {
 			if (r.message) {
-				// Actualizar referencia en Sales Invoice
 				frappe.call({
 					method: "frappe.client.set_value",
 					args: {
@@ -212,7 +290,6 @@ function redirect_to_fiscal_document(frm) {
 						value: r.message.name,
 					},
 					callback: function () {
-						// Mostrar mensaje de éxito
 						frappe.show_alert(
 							{
 								message: __("Documento fiscal creado exitosamente"),
@@ -221,7 +298,6 @@ function redirect_to_fiscal_document(frm) {
 							3
 						);
 
-						// Forzar navegación completa con reload para corregir título
 						setTimeout(() => {
 							window.location.href = `/app/factura-fiscal-mexico/${r.message.name}`;
 						}, 1000);
