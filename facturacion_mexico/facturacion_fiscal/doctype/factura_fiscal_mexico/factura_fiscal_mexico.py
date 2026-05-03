@@ -278,6 +278,7 @@ class FacturaFiscalMexico(Document):
 			# autollenar relación
 			self.fm_tipo_relacion_sat = self.fm_tipo_relacion_sat or "01 - " + TIPO_RELACION["01"]
 			self.fm_uuid_relacionado = self.fm_uuid_relacionado or self._find_uuid_cfdi_origen()
+			self.fm_payment_method_sat = "PUE"  # SAT no permite PPD en notas de crédito
 		else:
 			self.fm_tipo_comprobante = "I - Ingreso"
 			self.fm_tipo_relacion_sat = None

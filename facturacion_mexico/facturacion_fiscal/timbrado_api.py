@@ -620,7 +620,7 @@ class TimbradoAPI:
 
 			# Construir concepto
 			item_payload = {
-				"quantity": item.qty,
+				"quantity": abs(item.qty),  # SIs de devolución tienen qty negativa por diseño ERPNext
 				"product": {
 					"description": item.description or item.item_name,
 					"product_key": item_doc.fm_producto_servicio_sat or "01010101",

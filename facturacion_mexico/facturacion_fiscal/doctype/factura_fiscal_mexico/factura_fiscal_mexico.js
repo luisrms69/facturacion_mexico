@@ -474,16 +474,13 @@
 				}
 			})();
 
-			// Espejo de reglas: SI retorno => E (solo lectura), si no => I (solo lectura)
-			const is_return = frm.doc.sales_invoice_is_return || frm.doc.is_return;
-			if (is_return) {
-				frm.set_value("fm_tipo_comprobante", "E - Egreso");
-				frm.set_df_property("fm_tipo_comprobante", "read_only", 1);
+			// fm_tipo_comprobante ya fue establecido por Python (_set_tipo_from_context)
+			// Solo aplicar read_only — no sobreescribir el valor del servidor
+			frm.set_df_property("fm_tipo_comprobante", "read_only", 1);
+			const is_egreso = (frm.doc.fm_tipo_comprobante || "").startsWith("E");
+			if (is_egreso) {
 				frm.set_df_property("fm_tipo_relacion_sat", "read_only", 1);
 				frm.set_df_property("fm_uuid_relacionado", "read_only", 1);
-			} else {
-				frm.set_value("fm_tipo_comprobante", "I - Ingreso");
-				frm.set_df_property("fm_tipo_comprobante", "read_only", 1);
 			}
 
 			// PROTECCIÓN: Bloquear campos fiscales post-submit
