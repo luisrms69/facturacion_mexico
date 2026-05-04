@@ -183,6 +183,12 @@
 			// PRIMERO: Evaluar visibilidad botón Cancel nativo según estado fiscal
 			hide_native_cancel_conditionally(frm);
 
+			// Bloquear Amend en SI canceladas con historial fiscal (evita manipulación post-CFDI)
+			if (frm.doc.docstatus === 2 && frm.doc.fm_fiscal_status === "CANCELADO") {
+				if (frm.perm[0]) frm.perm[0].amend = 0;
+				frm.page.clear_primary_action();
+			}
+
 			// DESPUÉS: Lógica existente de botones contextuales
 			if (frm.doc.docstatus === 1) {
 				add_post_fiscal_actions(frm);

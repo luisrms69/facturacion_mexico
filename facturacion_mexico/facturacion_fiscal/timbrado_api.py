@@ -2818,6 +2818,13 @@ def _cascade_cancel_previous_after_substitute(new_ffm_name: str):
 			except Exception as e:
 				frappe.logger().error(f"Error cancelando SI original: {e}")
 
+			# Restaurar link sales_invoice en FFM original (limpiado por hardening preventivo)
+			try:
+				orig_ffm.db_set("sales_invoice", orig_si_name)
+				frappe.logger().info(f"Link sales_invoice restaurado en FFM {orig_ffm_name} → {orig_si_name}")
+			except Exception as e:
+				frappe.logger().warning(f"No se pudo restaurar link sales_invoice en FFM: {e}")
+
 			# 4) REORDER: Cancelar FFM original DESPUÉS (con reload)
 			try:
 				orig_ffm.reload()  # CONCURRENCY FIX: reload antes de cancelar
