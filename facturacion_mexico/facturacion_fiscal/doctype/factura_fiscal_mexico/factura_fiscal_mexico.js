@@ -313,6 +313,31 @@
 				);
 			}
 
+			// --- BOTÓN REVISAR ESTATUS (solo cuando PENDIENTE_CANCELACION) ---
+			if (frm.doc.docstatus === 1 && status === states.states.PENDIENTE_CANCELACION) {
+				frm.add_custom_button(__("Revisar Estatus Cancelación"), async () => {
+					frappe.show_alert({
+						message: __("Consultando estado en FacturAPI..."),
+						indicator: "blue",
+					});
+					const r = await frappe.call({
+						method: "facturacion_mexico.facturacion_fiscal.timbrado_api.revisar_estatus_cancelacion",
+						args: { ffm_name: frm.doc.name },
+						freeze: true,
+						freeze_message: __("Consultando PAC..."),
+					});
+					const res = r && r.message;
+					if (res) {
+						frappe.msgprint({
+							title: __("Resultado"),
+							message: __(res.message),
+							indicator: res.indicator,
+						});
+						frm.reload_doc();
+					}
+				}).addClass("btn-primary");
+			}
+
 			// Reponer botón de navegación SIEMPRE que exista Sales Invoice
 			if (frm.doc.sales_invoice) {
 				frm.add_custom_button(__("Ver Sales Invoice"), function () {

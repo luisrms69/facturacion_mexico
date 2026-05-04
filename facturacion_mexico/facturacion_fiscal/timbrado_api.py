@@ -2818,6 +2818,13 @@ def _cascade_cancel_previous_after_substitute(new_ffm_name: str):
 			except Exception as e:
 				frappe.logger().error(f"Error cancelando SI original: {e}")
 
+			# Restaurar link sales_invoice en FFM original (limpiado por hardening preventivo)
+			try:
+				orig_ffm.db_set("sales_invoice", orig_si_name)
+				frappe.logger().info(f"Link sales_invoice restaurado en FFM {orig_ffm_name} → {orig_si_name}")
+			except Exception as e:
+				frappe.logger().warning(f"No se pudo restaurar link sales_invoice en FFM: {e}")
+
 			# 4) REORDER: Cancelar FFM original DESPUÉS (con reload)
 			try:
 				orig_ffm.reload()  # CONCURRENCY FIX: reload antes de cancelar
@@ -3008,6 +3015,76 @@ def get_sat_cancellation_motives():
 	from facturacion_mexico.config.sat_cancellation_motives import SAT_MOTIVES
 
 	return SAT_MOTIVES.get_config()
+
+
+@frappe.whitelist()
+def revisar_estatus_cancelacion(ffm_name: str) -> dict:
+	"""Consulta FacturAPI para resolver estado PENDIENTE_CANCELACION."""
+	ffm = frappe.get_doc("Factura Fiscal Mexico", ffm_name)
+
+	if ffm.fm_fiscal_status != FiscalStates.PENDIENTE_CANCELACION:
+		frappe.throw(_("El documento no está en estado PENDIENTE_CANCELACION"))
+
+	from facturacion_mexico.facturacion_fiscal.api_client import query_pac_status
+
+	result = query_pac_status(ffm_name)
+
+	if not result.get("success"):
+		frappe.throw(_("Error al consultar PAC: {0}").format(result.get("error")))
+
+	data = result.get("data", {})
+	pac_status = data.get("status", "")
+	cancel_status = data.get("cancellation_status", "")
+
+	if pac_status == "canceled" or cancel_status == "accepted":
+		nuevo_estado = FiscalStates.CANCELADO
+		update_data = {"fm_fiscal_status": nuevo_estado, "cancellation_date": now_datetime()}
+		msg = _("Cancelación confirmada por el receptor. CFDI cancelado.")
+		indicator = "green"
+	elif cancel_status == "rejected":
+		nuevo_estado = FiscalStates.TIMBRADO
+		update_data = {"fm_fiscal_status": nuevo_estado, "fm_motivo_cancelacion": None}
+		msg = _("El receptor rechazó la cancelación. CFDI sigue vigente.")
+		indicator = "orange"
+	else:
+		nuevo_estado = FiscalStates.PENDIENTE_CANCELACION
+		update_data = {"fm_fiscal_status": nuevo_estado}
+		msg = _("Cancelación aún pendiente de aceptación por el receptor.")
+		indicator = "blue"
+
+	frappe.db.set_value("Factura Fiscal Mexico", ffm_name, update_data)
+	if ffm.sales_invoice:
+		frappe.db.set_value("Sales Invoice", ffm.sales_invoice, {"fm_fiscal_status": nuevo_estado})
+
+	# Registrar consulta en FacturAPI Response Log para trazabilidad
+	try:
+		write_pac_response(
+			sales_invoice_name=ffm.sales_invoice or "",
+			request_data=json.dumps(
+				{"action": "consulta_estatus", "ffm": ffm_name, "facturapi_id": ffm.facturapi_id}
+			),
+			response_data=json.dumps(
+				{
+					"success": True,
+					"status_code": 200,
+					"raw_response": data,
+					"resultado_transicion": nuevo_estado,
+				},
+				default=str,
+			),
+			operation_type="consulta",
+		)
+	except Exception as log_err:
+		frappe.logger().warning(f"No se pudo registrar log de consulta estatus {ffm_name}: {log_err}")
+
+	frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to persist status transition immediately after PAC response
+
+	return {
+		"status": nuevo_estado,
+		"message": msg,
+		"indicator": indicator,
+		"cancellation_status": cancel_status,
+	}
 
 
 @frappe.whitelist()
