@@ -114,7 +114,7 @@ jobs:
             --mariadb-root-password root \
             --admin-password admin
           bench --site test_facturacion install-app erpnext
-          bench --site test_facturacion rebuild-tree --doctype "Item Group"
+          bench --site test_facturacion execute frappe.utils.nestedset.rebuild_tree --args "['Item Group', 'parent_item_group']"
           bench --site test_facturacion install-app payments
           bench --site test_facturacion install-app facturacion_mexico
           bench --site test_facturacion set-config allow_tests true
