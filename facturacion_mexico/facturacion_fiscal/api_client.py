@@ -429,31 +429,32 @@ def query_pac_status(factura_fiscal_name: str) -> dict[str, Any]:
 			}
 
 		# Consultar factura en FacturAPI
-		response = client.get_invoice(facturapi_id)
+		# _make_request devuelve {"success": True, "status_code": 200, "raw_response": {...}}
+		wrapper = client.get_invoice(facturapi_id)
 
-		# Procesar respuesta
-		if response:
-			return {
-				"success": True,
-				"data": {
-					"status": response.get("status"),
-					"uuid": response.get("uuid"),
-					"cancellation_status": response.get("cancellation_status"),
-					"cancellation_date": response.get("canceled_at"),
-					"verification_url": response.get("verification_url"),
-					"sat_signature": response.get("sat_signature"),
-					"cfdi_version": response.get("cfdi_version"),
-					"created_at": response.get("created_at"),
-					"certified_at": response.get("certified_at"),
-					"pac_certificate": response.get("pac_certificate_number"),
-					"error_message": response.get("error", {}).get("message")
-					if response.get("error")
-					else None,
-				},
-				"raw_response": response,
-			}
-		else:
-			return {"success": False, "error": "No se recibió respuesta del PAC"}
+		if not wrapper or not wrapper.get("success"):
+			return {"success": False, "error": wrapper.get("error", "No se recibió respuesta del PAC")}
+
+		# Los datos reales de la factura están en raw_response
+		invoice = wrapper.get("raw_response") or {}
+
+		return {
+			"success": True,
+			"data": {
+				"status": invoice.get("status"),
+				"uuid": invoice.get("uuid"),
+				"cancellation_status": invoice.get("cancellation_status"),
+				"cancellation_date": invoice.get("canceled_at"),
+				"verification_url": invoice.get("verification_url"),
+				"sat_signature": invoice.get("sat_signature"),
+				"cfdi_version": invoice.get("cfdi_version"),
+				"created_at": invoice.get("created_at"),
+				"certified_at": invoice.get("certified_at"),
+				"pac_certificate": invoice.get("pac_certificate_number"),
+				"error_message": invoice.get("error", {}).get("message") if invoice.get("error") else None,
+			},
+			"raw_response": invoice,
+		}
 
 	except frappe.DoesNotExistError:
 		return {"success": False, "error": f"Factura Fiscal {factura_fiscal_name} no encontrada"}

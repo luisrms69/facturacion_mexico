@@ -336,15 +336,6 @@ def _attempt_timeout_recovery(task: dict[str, Any]) -> dict[str, Any]:
 			from facturacion_mexico.facturacion_fiscal.api_client import query_pac_status
 
 			pac_result = query_pac_status(response_log.factura_fiscal_mexico)
-		except ImportError:
-			# Si la función no existe aún, marcar como pendiente para implementación
-			frappe.logger().warning(
-				f"query_pac_status no implementado aún. Recovery task {task.name} se reprogramará."
-			)
-			return {
-				"success": False,
-				"error": "query_pac_status no está implementado. Pendiente de desarrollo.",
-			}
 		except Exception as e:
 			# Cualquier otro error al consultar PAC
 			frappe.logger().error(f"Error consultando PAC para recovery: {e!s}")
