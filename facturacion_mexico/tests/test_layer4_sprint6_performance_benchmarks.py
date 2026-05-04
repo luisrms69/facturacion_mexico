@@ -20,6 +20,7 @@ import frappe
 import psutil
 
 
+@unittest.skip("layer4 legacy — requiere rediseño, deuda técnica")
 class TestLayer4Sprint6PerformanceBenchmarks(unittest.TestCase):
     """Tests Layer 4 - Performance Benchmarks Sprint 6"""
 

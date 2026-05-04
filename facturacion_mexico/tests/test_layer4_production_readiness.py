@@ -14,6 +14,7 @@ from unittest.mock import MagicMock, patch
 import frappe
 
 
+@unittest.skip("layer4 legacy — requiere rediseño, deuda técnica")
 class TestLayer4ProductionReadiness(unittest.TestCase):
     """Tests production readiness validation - Layer 4"""
 

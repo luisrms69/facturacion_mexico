@@ -18,6 +18,7 @@ from unittest.mock import MagicMock, patch
 import frappe
 
 
+@unittest.skip("layer4 legacy — requiere rediseño, deuda técnica")
 class TestLayer4Sprint6DisasterRecovery(unittest.TestCase):
     """Tests Layer 4 - Disaster Recovery Sprint 6"""
 

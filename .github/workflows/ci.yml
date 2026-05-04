@@ -120,6 +120,8 @@ jobs:
 
       - name: Run Tests
         working-directory: /home/runner/frappe-bench
-        run: bench --site test_facturacion run-tests --app facturacion_mexico --lightmode
+        run: |
+          bench --site test_facturacion execute facturacion_mexico.tests.ci_pre_tests.run
+          bench --site test_facturacion run-tests --app facturacion_mexico --lightmode
         env:
           TYPE: server

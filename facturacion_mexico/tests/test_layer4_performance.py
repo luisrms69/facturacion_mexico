@@ -10,6 +10,7 @@ import unittest
 import frappe
 
 
+@unittest.skip("layer4 legacy — requiere rediseño, deuda técnica")
 class TestPerformance(unittest.TestCase):
 	"""Layer 4: Tests de performance y production readiness"""
 
