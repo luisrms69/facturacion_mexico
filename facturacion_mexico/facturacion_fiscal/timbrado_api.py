@@ -3077,7 +3077,7 @@ def revisar_estatus_cancelacion(ffm_name: str) -> dict:
 	except Exception as log_err:
 		frappe.logger().warning(f"No se pudo registrar log de consulta estatus {ffm_name}: {log_err}")
 
-	frappe.db.commit()
+	frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to persist status transition immediately after PAC response
 
 	return {
 		"status": nuevo_estado,
