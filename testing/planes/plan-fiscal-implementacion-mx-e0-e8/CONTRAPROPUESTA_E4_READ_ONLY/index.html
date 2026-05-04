@@ -1,0 +1,1831 @@
+
+<!doctype html>
+<html lang="es" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentación completa del sistema de facturación electrónica para México">
+      
+      
+        <meta name="author" content="Equipo Desarrollo Facturación México">
+      
+      
+      
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.3">
+    
+    
+      
+        <title>Contrapropuesta E4-RO (Read-Only) - Puente Sales Invoice → PAC - Facturación México - Documentación Técnica</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.50c56a3b.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/advanced.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function n(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],n("js",new Date),n("config","G-XXXXXXXXXX"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){this.value&&n("event","search",{search_term:this.value})}),document$.subscribe(function(){var a=document.forms.feedback;if(void 0!==a)for(var e of a.querySelectorAll("[type=submit]"))e.addEventListener("click",function(e){e.preventDefault();var t=document.location.pathname,e=this.getAttribute("data-md-value");n("event","feedback",{page:t,data:e}),a.firstElementChild.disabled=!0;e=a.querySelector(".md-feedback__note [data-md-value='"+e+"']");e&&(e.hidden=!1)}),a.hidden=!1}),location$.subscribe(function(e){n("config","G-XXXXXXXXXX",{page_path:e.pathname})})});var e=document.createElement("script");e.async=!0,e.src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX",document.getElementById("__analytics").insertAdjacentElement("afterEnd",e)}</script>
+  
+    <script>var consent;"undefined"==typeof __md_analytics||(consent=__md_get("__consent"))&&consent.analytics&&__md_analytics()</script>
+  
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#contrapropuesta-e4-ro-read-only-puente-sales-invoice-pac" class="md-skip">
+          Saltar a contenido
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabecera">
+    <a href="../../../.." title="Facturación México - Documentación Técnica" class="md-header__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Facturación México - Documentación Técnica
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Contrapropuesta E4-RO (Read-Only) - Puente Sales Invoice → PAC
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo oscuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo oscuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Búsqueda" placeholder="Búsqueda" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Buscar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpiar" aria-label="Limpiar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando búsqueda
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Pestañas" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+    
+  
+  Inicio
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../user-guide/" class="md-tabs__link">
+          
+  
+  Guía de Usuario
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/" class="md-tabs__link">
+          
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../development/" class="md-tabs__link">
+          
+  
+  Desarrollo
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navegación" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Facturación México - Documentación Técnica" class="md-nav__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Facturación México - Documentación Técnica
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Inicio
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Guía de Usuario
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Guía de Usuario
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../user-guide/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Usuario - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../user-guide/getting-started/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Primeros Pasos
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../user-guide/multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../user-guide/addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../user-guide/draft-invoices/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Facturas en Borrador
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../user-guide/troubleshooting/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    API Reference
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    API Reference - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/cfdi/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CFDI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/draft-management/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Draft Management
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/catalogos/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Catalogos SAT
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/hooks/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Hooks
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Desarrollo
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Desarrollo
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../development/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Desarrollo - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../development/setup/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Setup Desarrollo
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../development/draft-workflow/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Draft Workflow
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#comparacion-propuestas" class="md-nav__link">
+    <span class="md-ellipsis">
+      📊 Comparación Propuestas
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#problemas-propuesta-claude-original" class="md-nav__link">
+    <span class="md-ellipsis">
+      ❌ Problemas Propuesta Claude Original
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ventajas-propuesta-chatgpt-e4-ro" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Ventajas Propuesta ChatGPT (E4-RO)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#evidencia-sales-invoice-ya-tiene-todo" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔍 Evidencia: Sales Invoice YA tiene todo
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔍 Evidencia: Sales Invoice YA tiene todo">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#estructura-real-sales-invoice-facturaciondev" class="md-nav__link">
+    <span class="md-ellipsis">
+      Estructura Real Sales Invoice (facturacion.dev)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contrapropuesta-e4-ro-read-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      🎯 Contrapropuesta E4-RO (Read-Only)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🎯 Contrapropuesta E4-RO (Read-Only)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arquitectura-simple-3-pasos" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arquitectura Simple: 3 Pasos
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementacion-e4-ro" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔧 Implementación E4-RO
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔧 Implementación E4-RO">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#e4-ro1-leer-impuestos-desde-sales-invoice" class="md-nav__link">
+    <span class="md-ellipsis">
+      E4-RO.1 - Leer Impuestos desde Sales Invoice
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#e4-ro2-mapear-tax-account-sat" class="md-nav__link">
+    <span class="md-ellipsis">
+      E4-RO.2 - Mapear Tax Account → SAT
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#e4-ro3-construir-payload-pac-passthrough" class="md-nav__link">
+    <span class="md-ellipsis">
+      E4-RO.3 - Construir Payload PAC (Passthrough)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#e4-ro4-validacion-completitud-sin-aritmetica" class="md-nav__link">
+    <span class="md-ellipsis">
+      E4-RO.4 - Validación Completitud (Sin Aritmética)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cambios-en-camposnombres" class="md-nav__link">
+    <span class="md-ellipsis">
+      📋 Cambios en Campos/Nombres
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📋 Cambios en Campos/Nombres">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#campo-nuevo-requerido" class="md-nav__link">
+    <span class="md-ellipsis">
+      Campo Nuevo Requerido
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#campos-mapeo-sat" class="md-nav__link">
+    <span class="md-ellipsis">
+      Campos Mapeo SAT
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ventajas-contrapropuesta-e4-ro" class="md-nav__link">
+    <span class="md-ellipsis">
+      🎯 Ventajas Contrapropuesta E4-RO
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#plan-implementacion-e4-ro" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔧 Plan Implementación E4-RO
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔧 Plan Implementación E4-RO">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tareas" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tareas
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comparacion-final" class="md-nav__link">
+    <span class="md-ellipsis">
+      📊 Comparación Final
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#recomendacion-final" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Recomendación Final
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="contrapropuesta-e4-ro-read-only-puente-sales-invoice-pac">Contrapropuesta E4-RO (Read-Only) - Puente Sales Invoice → PAC<a class="headerlink" href="#contrapropuesta-e4-ro-read-only-puente-sales-invoice-pac" title="Permanent link">&para;</a></h1>
+<p><strong>Fecha:</strong> 2025-10-08
+<strong>Autor:</strong> Claude Code
+<strong>Contexto:</strong> Comparación propuesta Claude vs ChatGPT</p>
+<hr />
+<h2 id="comparacion-propuestas">📊 Comparación Propuestas<a class="headerlink" href="#comparacion-propuestas" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Aspecto</th>
+<th>Propuesta Claude Original</th>
+<th>Propuesta ChatGPT (E4-RO)</th>
+<th>Ganador</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Filosofía</strong></td>
+<td>Extraer ITT → calcular taxes</td>
+<td><strong>Solo leer y pasar</strong> desde SI</td>
+<td>✅ ChatGPT</td>
+</tr>
+<tr>
+<td><strong>Cálculos</strong></td>
+<td>Calcular base/importes</td>
+<td><strong>Zero cálculos</strong></td>
+<td>✅ ChatGPT</td>
+</tr>
+<tr>
+<td><strong>Fuente verdad</strong></td>
+<td>Item Tax Template</td>
+<td><strong>Sales Invoice</strong></td>
+<td>✅ ChatGPT</td>
+</tr>
+<tr>
+<td><strong>Complejidad</strong></td>
+<td>Alta (parsear, calcular, mapear)</td>
+<td><strong>Baja (copiar, validar)</strong></td>
+<td>✅ ChatGPT</td>
+</tr>
+<tr>
+<td><strong>Riesgo</strong></td>
+<td>Desincronía SI vs payload</td>
+<td><strong>Sincronía garantizada</strong></td>
+<td>✅ ChatGPT</td>
+</tr>
+<tr>
+<td><strong>Validación payload</strong></td>
+<td>Estructura correcta</td>
+<td><strong>Completitud + Consistencia</strong></td>
+<td>✅ ChatGPT</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="problemas-propuesta-claude-original">❌ Problemas Propuesta Claude Original<a class="headerlink" href="#problemas-propuesta-claude-original" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Recalcular impuestos</strong> → Riesgo desincronía con SI (SI ya los calculó)</li>
+<li><strong>Parsear ITT</strong> → Complejidad innecesaria (SI ya tiene <code>item_tax_rate</code> por item)</li>
+<li><strong>Mapear account → SAT</strong> → Ya existe en configuración, no reinventar</li>
+<li><strong>Calcular bases IEPS</strong> → SI ya lo hizo, NO duplicar lógica</li>
+</ol>
+<p><strong>Conclusión:</strong> Propuesta Claude <strong>sobrediseñada</strong> para un problema de <strong>serialización</strong>.</p>
+<hr />
+<h2 id="ventajas-propuesta-chatgpt-e4-ro">✅ Ventajas Propuesta ChatGPT (E4-RO)<a class="headerlink" href="#ventajas-propuesta-chatgpt-e4-ro" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Fuente única:</strong> Sales Invoice (SI) ya tiene TODOS los datos calculados</li>
+<li><strong>Zero cálculos:</strong> Solo copiar valores existentes</li>
+<li><strong>Sincronía garantizada:</strong> Payload = SI exactamente</li>
+<li><strong>Simple:</strong> Adapter passthrough sin lógica de negocio</li>
+<li><strong>Validación robusta:</strong> Completitud + Consistencia sin aritmética nueva</li>
+</ol>
+<hr />
+<h2 id="evidencia-sales-invoice-ya-tiene-todo">🔍 Evidencia: Sales Invoice YA tiene todo<a class="headerlink" href="#evidencia-sales-invoice-ya-tiene-todo" title="Permanent link">&para;</a></h2>
+<h3 id="estructura-real-sales-invoice-facturaciondev">Estructura Real Sales Invoice (facturacion.dev)<a class="headerlink" href="#estructura-real-sales-invoice-facturaciondev" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;items&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;item_code&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;TEST-RET-AUTOTRANSPORTE-001&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;qty&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;rate&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1000.0</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;amount&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1000.0</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;item_tax_template&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ITT ISR + IVA Ret Autotransporte - _TC&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;item_tax_rate&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{\&quot;2118002 - ISR Ret Autotransporte - _TC\&quot;: -4.0, \&quot;2119002 - IVA Ret Autotransporte - _TC\&quot;: -66.67}&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;taxes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;charge_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;On Net Total&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;account_head&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;123456 - iva 16% - _TC&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;IVA 16%&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;rate&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">16.0</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;tax_amount&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;item_wise_tax_detail&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{\&quot;TEST-RET-AUTOTRANSPORTE-001\&quot;:[16.0,0.0],...}&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><strong>Key findings:</strong></p>
+<ol>
+<li>
+<p>✅ <strong><code>item.item_tax_rate</code></strong> contiene JSON con taxes aplicados al item:
+   <div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;2118002 - ISR Ret Autotransporte - _TC&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-4.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;2119002 - IVA Ret Autotransporte - _TC&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-66.67</span>
+<span class="p">}</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>✅ <strong><code>tax.item_wise_tax_detail</code></strong> contiene rate y amount POR ITEM:
+   <div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;TEST-RET-AUTOTRANSPORTE-001&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">16.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">],</span><span class="w">  </span><span class="c1">// [rate, amount]</span>
+<span class="w">  </span><span class="err">...</span>
+<span class="p">}</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>✅ <strong>Sales Invoice YA calculó todo</strong> (E1 automated tax funcionando)</p>
+</li>
+</ol>
+<hr />
+<h2 id="contrapropuesta-e4-ro-read-only">🎯 Contrapropuesta E4-RO (Read-Only)<a class="headerlink" href="#contrapropuesta-e4-ro-read-only" title="Permanent link">&para;</a></h2>
+<h3 id="arquitectura-simple-3-pasos">Arquitectura Simple: 3 Pasos<a class="headerlink" href="#arquitectura-simple-3-pasos" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>┌─────────────────┐
+│ Sales Invoice   │ ← Fuente única verdad (E1 ya calculó)
+│ (SI)            │
+└────────┬────────┘
+         │ LEER
+         ▼
+┌─────────────────┐
+│ Adapter E4-RO   │ ← Solo serializar, NO calcular
+│ (Passthrough)   │
+└────────┬────────┘
+         │ SERIALIZAR
+         ▼
+┌─────────────────┐
+│ Payload PAC     │ ← Estructura FacturAPI
+│ (FacturAPI)     │
+└─────────────────┘
+</code></pre></div>
+<hr />
+<h2 id="implementacion-e4-ro">🔧 Implementación E4-RO<a class="headerlink" href="#implementacion-e4-ro" title="Permanent link">&para;</a></h2>
+<h3 id="e4-ro1-leer-impuestos-desde-sales-invoice">E4-RO.1 - Leer Impuestos desde Sales Invoice<a class="headerlink" href="#e4-ro1-leer-impuestos-desde-sales-invoice" title="Permanent link">&para;</a></h3>
+<p><strong>Función:</strong> <code>_read_taxes_from_sales_invoice_item(item, sales_invoice)</code></p>
+<p><strong>NO hace:</strong>
+- ❌ Parsear Item Tax Template
+- ❌ Calcular bases/importes
+- ❌ Inferir tipos impuesto</p>
+<p><strong>SÍ hace:</strong>
+- ✅ Leer <code>item.item_tax_rate</code> (JSON con taxes del item)
+- ✅ Buscar cada tax en <code>sales_invoice.taxes</code> para obtener metadata
+- ✅ Copiar rate/amount tal cual está</p>
+<p><strong>Código:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_read_taxes_from_sales_invoice_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="n">sales_invoice</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Leer impuestos aplicados a un item desde Sales Invoice.</span>
+
+<span class="sd">    E4-RO: Solo lectura, sin cálculos.</span>
+
+<span class="sd">    Fuentes:</span>
+<span class="sd">    - item.item_tax_rate (JSON): {&quot;account_head&quot;: rate, ...}</span>
+<span class="sd">    - sales_invoice.taxes[].item_wise_tax_detail (JSON): {item_code: [rate, amount]}</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List[dict]: Impuestos para payload PAC</span>
+<span class="sd">        [</span>
+<span class="sd">            {</span>
+<span class="sd">                &quot;account_head&quot;: str,  # Ej: &quot;123456 - iva 16% - _TC&quot;</span>
+<span class="sd">                &quot;rate&quot;: float,        # Ej: 16.0</span>
+<span class="sd">                &quot;amount&quot;: float,      # Ej: 160.0</span>
+<span class="sd">                &quot;withholding&quot;: bool   # True si rate negativo</span>
+<span class="sd">            }</span>
+<span class="sd">        ]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+
+    <span class="c1"># Leer taxes desde item.item_tax_rate</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">item</span><span class="o">.</span><span class="n">item_tax_rate</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>  <span class="c1"># Sin ITT = sin impuestos</span>
+
+    <span class="n">item_tax_rate</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">item_tax_rate</span><span class="p">)</span>
+    <span class="c1"># Format: {&quot;account_head&quot;: rate, ...}</span>
+    <span class="c1"># Ej: {&quot;2118002 - ISR Ret Autotransporte - _TC&quot;: -4.0}</span>
+
+    <span class="n">taxes_data</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">account_head</span><span class="p">,</span> <span class="n">rate</span> <span class="ow">in</span> <span class="n">item_tax_rate</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="c1"># Buscar tax en sales_invoice.taxes para obtener amount</span>
+        <span class="n">tax_row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_tax_row_in_si</span><span class="p">(</span><span class="n">sales_invoice</span><span class="p">,</span> <span class="n">account_head</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">tax_row</span><span class="p">:</span>
+            <span class="n">frappe</span><span class="o">.</span><span class="n">logger</span><span class="p">()</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Tax account &#39;</span><span class="si">{</span><span class="n">account_head</span><span class="si">}</span><span class="s2">&#39; en item </span><span class="si">{</span><span class="n">item</span><span class="o">.</span><span class="n">item_code</span><span class="si">}</span><span class="s2"> &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;no encontrado en SI.taxes&quot;</span>
+            <span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># Extraer amount desde item_wise_tax_detail</span>
+        <span class="n">amount</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_tax_amount_for_item</span><span class="p">(</span><span class="n">tax_row</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">item_code</span><span class="p">)</span>
+
+        <span class="n">taxes_data</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s2">&quot;account_head&quot;</span><span class="p">:</span> <span class="n">account_head</span><span class="p">,</span>
+            <span class="s2">&quot;rate&quot;</span><span class="p">:</span> <span class="n">rate</span><span class="p">,</span>
+            <span class="s2">&quot;amount&quot;</span><span class="p">:</span> <span class="n">amount</span><span class="p">,</span>
+            <span class="s2">&quot;withholding&quot;</span><span class="p">:</span> <span class="n">rate</span> <span class="o">&lt;</span> <span class="mi">0</span>  <span class="c1"># Rate negativo = retención</span>
+        <span class="p">})</span>
+
+    <span class="k">return</span> <span class="n">taxes_data</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_find_tax_row_in_si</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sales_invoice</span><span class="p">,</span> <span class="n">account_head</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Buscar tax row en SI.taxes por account_head.&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">tax</span> <span class="ow">in</span> <span class="n">sales_invoice</span><span class="o">.</span><span class="n">taxes</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">tax</span><span class="o">.</span><span class="n">account_head</span> <span class="o">==</span> <span class="n">account_head</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">tax</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_tax_amount_for_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tax_row</span><span class="p">,</span> <span class="n">item_code</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extraer tax amount para item específico desde item_wise_tax_detail.</span>
+
+<span class="sd">    Format item_wise_tax_detail:</span>
+<span class="sd">    {</span>
+<span class="sd">        &quot;item_code_1&quot;: [rate, amount],</span>
+<span class="sd">        &quot;item_code_2&quot;: [rate, amount]</span>
+<span class="sd">    }</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">tax_row</span><span class="o">.</span><span class="n">item_wise_tax_detail</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.0</span>
+
+    <span class="n">item_wise</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">tax_row</span><span class="o">.</span><span class="n">item_wise_tax_detail</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">item_code</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">item_wise</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.0</span>
+
+    <span class="c1"># item_wise[item_code] = [rate, amount]</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">item_wise</span><span class="p">[</span><span class="n">item_code</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>  <span class="c1"># Posición 1 = amount</span>
+</code></pre></div>
+<hr />
+<h3 id="e4-ro2-mapear-tax-account-sat">E4-RO.2 - Mapear Tax Account → SAT<a class="headerlink" href="#e4-ro2-mapear-tax-account-sat" title="Permanent link">&para;</a></h3>
+<p><strong>Función:</strong> <code>_map_tax_account_to_sat(account_head)</code></p>
+<p><strong>NO hace:</strong>
+- ❌ Parsear nombres con regex
+- ❌ Inferir tipos SAT</p>
+<p><strong>SÍ hace:</strong>
+- ✅ Usar mapeo existente (Configuración Fiscal México → Mapeo Cuenta Fiscal)
+- ✅ Error si cuenta no mapeada</p>
+<p><strong>Código:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_map_tax_account_to_sat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">account_head</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Mapear tax account ERPNext → metadata SAT.</span>
+
+<span class="sd">    E4-RO: Usa mapeo existente, sin inferencias.</span>
+
+<span class="sd">    Fuente: Configuración Fiscal México → Mapeo Cuenta Fiscal</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        {</span>
+<span class="sd">            &quot;impuesto_sat&quot;: str,     # &quot;001&quot; (ISR), &quot;002&quot; (IVA), &quot;003&quot; (IEPS)</span>
+<span class="sd">            &quot;tipo_factor&quot;: str,      # &quot;Tasa&quot;, &quot;Cuota&quot;, &quot;Exento&quot;</span>
+<span class="sd">            &quot;nombre_sat&quot;: str        # Ej: &quot;IVA&quot;, &quot;ISR&quot;, &quot;IEPS&quot;</span>
+<span class="sd">        }</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        frappe.ValidationError: Si cuenta no mapeada</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Buscar en mapeo existente</span>
+    <span class="n">mapeo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_mapeo_cuenta_fiscal</span><span class="p">(</span><span class="n">account_head</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">mapeo</span><span class="p">:</span>
+        <span class="n">frappe</span><span class="o">.</span><span class="n">throw</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Cuenta de impuesto &#39;</span><span class="si">{</span><span class="n">account_head</span><span class="si">}</span><span class="s2">&#39; no tiene mapeo SAT configurado.</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Configure el mapeo en: Configuración Fiscal México → Mapeo Cuenta Fiscal&quot;</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Mapeo SAT Faltante&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;impuesto_sat&quot;</span><span class="p">:</span> <span class="n">mapeo</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;impuesto_sat&quot;</span><span class="p">),</span>      <span class="c1"># &quot;002&quot;</span>
+        <span class="s2">&quot;tipo_factor&quot;</span><span class="p">:</span> <span class="n">mapeo</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tipo_factor&quot;</span><span class="p">,</span> <span class="s2">&quot;Tasa&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;nombre_sat&quot;</span><span class="p">:</span> <span class="n">mapeo</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;nombre_impuesto_sat&quot;</span><span class="p">)</span>  <span class="c1"># &quot;IVA&quot;</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_mapeo_cuenta_fiscal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">account_head</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Obtener mapeo desde Configuración Fiscal México.</span>
+
+<span class="sd">    Busca en tabla child &#39;mapeos_cuentas_fiscales&#39;:</span>
+<span class="sd">    - cuenta_impuesto: account_head</span>
+<span class="sd">    - impuesto_sat: código SAT (&quot;001&quot;, &quot;002&quot;, &quot;003&quot;)</span>
+<span class="sd">    - tipo_factor: &quot;Tasa&quot;, &quot;Cuota&quot;, &quot;Exento&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_single</span><span class="p">(</span><span class="s2">&quot;Configuracion Fiscal Mexico&quot;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">mapeo_row</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">mapeos_cuentas_fiscales</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">mapeo_row</span><span class="o">.</span><span class="n">cuenta_impuesto</span> <span class="o">==</span> <span class="n">account_head</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;impuesto_sat&quot;</span><span class="p">:</span> <span class="n">mapeo_row</span><span class="o">.</span><span class="n">impuesto_sat</span><span class="p">,</span>
+                <span class="s2">&quot;tipo_factor&quot;</span><span class="p">:</span> <span class="n">mapeo_row</span><span class="o">.</span><span class="n">tipo_factor</span><span class="p">,</span>
+                <span class="s2">&quot;nombre_impuesto_sat&quot;</span><span class="p">:</span> <span class="n">mapeo_row</span><span class="o">.</span><span class="n">nombre_impuesto_sat</span>
+            <span class="p">}</span>
+
+    <span class="k">return</span> <span class="kc">None</span>
+</code></pre></div>
+<hr />
+<h3 id="e4-ro3-construir-payload-pac-passthrough">E4-RO.3 - Construir Payload PAC (Passthrough)<a class="headerlink" href="#e4-ro3-construir-payload-pac-passthrough" title="Permanent link">&para;</a></h3>
+<p><strong>Modificar:</strong> <code>timbrado_api.py:_prepare_facturapi_data()</code> líneas 475-491</p>
+<p><strong>Código actual:</strong>
+<div class="highlight"><pre><span></span><code><span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+    <span class="s2">&quot;quantity&quot;</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">qty</span><span class="p">,</span>
+    <span class="s2">&quot;product&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">description</span> <span class="ow">or</span> <span class="n">item</span><span class="o">.</span><span class="n">item_name</span><span class="p">,</span>
+        <span class="s2">&quot;product_key&quot;</span><span class="p">:</span> <span class="n">item_doc</span><span class="o">.</span><span class="n">fm_producto_servicio_sat</span> <span class="ow">or</span> <span class="s2">&quot;01010101&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;price&quot;</span><span class="p">:</span> <span class="n">flt</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">rate</span><span class="p">),</span>
+        <span class="s2">&quot;tax_included&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;unit_key&quot;</span><span class="p">:</span> <span class="n">_extract_sat_code_from_uom</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">uom</span><span class="p">),</span>
+        <span class="s2">&quot;unit_name&quot;</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">uom</span> <span class="ow">or</span> <span class="s2">&quot;Pieza&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">})</span>
+</code></pre></div></p>
+<p><strong>Código E4-RO:</strong>
+<div class="highlight"><pre><span></span><code><span class="c1"># Items de la factura</span>
+<span class="n">items</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">sales_invoice</span><span class="o">.</span><span class="n">items</span><span class="p">:</span>
+    <span class="n">item_doc</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_doc</span><span class="p">(</span><span class="s2">&quot;Item&quot;</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">item_code</span><span class="p">)</span>
+
+    <span class="c1"># E4-RO: Leer impuestos desde SI (NO calcular)</span>
+    <span class="n">item_taxes_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_taxes_from_sales_invoice_item</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">sales_invoice</span><span class="p">)</span>
+
+    <span class="c1"># E4-RO: Mapear taxes a estructura FacturAPI</span>
+    <span class="n">taxes_payload</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">tax_data</span> <span class="ow">in</span> <span class="n">item_taxes_data</span><span class="p">:</span>
+        <span class="c1"># Mapear account → SAT usando configuración existente</span>
+        <span class="n">sat_mapping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_map_tax_account_to_sat</span><span class="p">(</span><span class="n">tax_data</span><span class="p">[</span><span class="s2">&quot;account_head&quot;</span><span class="p">])</span>
+
+        <span class="n">taxes_payload</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">sat_mapping</span><span class="p">[</span><span class="s2">&quot;nombre_sat&quot;</span><span class="p">],</span>        <span class="c1"># &quot;IVA&quot;, &quot;ISR&quot;, &quot;IEPS&quot;</span>
+            <span class="s2">&quot;factor&quot;</span><span class="p">:</span> <span class="n">sat_mapping</span><span class="p">[</span><span class="s2">&quot;tipo_factor&quot;</span><span class="p">],</span>     <span class="c1"># &quot;Tasa&quot;</span>
+            <span class="s2">&quot;rate&quot;</span><span class="p">:</span> <span class="nb">abs</span><span class="p">(</span><span class="n">tax_data</span><span class="p">[</span><span class="s2">&quot;rate&quot;</span><span class="p">])</span> <span class="o">/</span> <span class="mi">100</span><span class="p">,</span>      <span class="c1"># 16.0 → 0.16 (formato FacturAPI)</span>
+            <span class="s2">&quot;withholding&quot;</span><span class="p">:</span> <span class="n">tax_data</span><span class="p">[</span><span class="s2">&quot;withholding&quot;</span><span class="p">]</span>    <span class="c1"># True si rate negativo</span>
+        <span class="p">})</span>
+
+    <span class="c1"># E4-RO: Determinar ObjetoImp</span>
+    <span class="c1"># FUENTE: item.fm_objeto_impuesto (campo E0) si existe</span>
+    <span class="c1"># FALLBACK: &quot;02&quot; si tiene taxes, &quot;01&quot; si no tiene</span>
+    <span class="n">objeto_imp</span> <span class="o">=</span> <span class="n">item_doc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fm_objeto_impuesto&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="s2">&quot;02&quot;</span> <span class="k">if</span> <span class="n">taxes_payload</span> <span class="k">else</span> <span class="s2">&quot;01&quot;</span><span class="p">)</span>
+
+    <span class="n">item_payload</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;quantity&quot;</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">qty</span><span class="p">,</span>
+        <span class="s2">&quot;product&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">description</span> <span class="ow">or</span> <span class="n">item</span><span class="o">.</span><span class="n">item_name</span><span class="p">,</span>
+            <span class="s2">&quot;product_key&quot;</span><span class="p">:</span> <span class="n">item_doc</span><span class="o">.</span><span class="n">fm_producto_servicio_sat</span> <span class="ow">or</span> <span class="s2">&quot;01010101&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;price&quot;</span><span class="p">:</span> <span class="n">flt</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">rate</span><span class="p">),</span>
+            <span class="s2">&quot;tax_included&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s2">&quot;unit_key&quot;</span><span class="p">:</span> <span class="n">_extract_sat_code_from_uom</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">uom</span><span class="p">),</span>
+            <span class="s2">&quot;unit_name&quot;</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">uom</span> <span class="ow">or</span> <span class="s2">&quot;Pieza&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tax_object&quot;</span><span class="p">:</span> <span class="n">objeto_imp</span><span class="p">,</span>  <span class="c1"># E4-RO: ObjetoImp</span>
+        <span class="p">},</span>
+    <span class="p">}</span>
+
+    <span class="c1"># E4-RO: Solo agregar &quot;taxes&quot; si ObjetoImp = &quot;02&quot;</span>
+    <span class="k">if</span> <span class="n">objeto_imp</span> <span class="o">==</span> <span class="s2">&quot;02&quot;</span> <span class="ow">and</span> <span class="n">taxes_payload</span><span class="p">:</span>
+        <span class="n">item_payload</span><span class="p">[</span><span class="s2">&quot;product&quot;</span><span class="p">][</span><span class="s2">&quot;taxes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">taxes_payload</span>
+
+    <span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item_payload</span><span class="p">)</span>
+</code></pre></div></p>
+<hr />
+<h3 id="e4-ro4-validacion-completitud-sin-aritmetica">E4-RO.4 - Validación Completitud (Sin Aritmética)<a class="headerlink" href="#e4-ro4-validacion-completitud-sin-aritmetica" title="Permanent link">&para;</a></h3>
+<p><strong>Función:</strong> <code>_validate_payload_completeness_ro(invoice_data, sales_invoice)</code></p>
+<p><strong>Validaciones:</strong></p>
+<ol>
+<li><strong>Completitud campos obligatorios</strong></li>
+<li>Customer: legal_name, tax_id, tax_system, address</li>
+<li>Factura: payment_form, use, type</li>
+<li>
+<p>Items: product_key, unit_key, quantity, price, tax_object</p>
+</li>
+<li>
+<p><strong>Consistencia ObjetoImp vs taxes</strong></p>
+</li>
+<li>ObjetoImp "01" → NO debe tener taxes[]</li>
+<li>
+<p>ObjetoImp "02" → DEBE tener taxes[]</p>
+</li>
+<li>
+<p><strong>Mapeo SAT completo</strong></p>
+</li>
+<li>Todos los taxes tienen mapeo configurado</li>
+<li>
+<p>Sin cuentas huérfanas</p>
+</li>
+<li>
+<p><strong>Conteo impuestos</strong></p>
+</li>
+<li>Cantidad de taxes en payload = cantidad en SI por item</li>
+<li>Tipos coinciden (IVA, ISR, IEPS)</li>
+<li>Rates coinciden (± 0.01 tolerancia formato)</li>
+</ol>
+<p><strong>NO valida:</strong>
+- ❌ Cálculo bases/importes (SI ya lo hizo)
+- ❌ Fórmulas cascada IEPS (SI ya lo calculó)
+- ❌ Retenciones precisión (E3 ya lo validó)</p>
+<p><strong>Código:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_validate_payload_completeness_ro</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">invoice_data</span><span class="p">,</span> <span class="n">sales_invoice</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Validar completitud payload E4-RO.</span>
+
+<span class="sd">    Solo cotejo, sin aritmética nueva.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">errors</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># === SECCIÓN 1: DATOS CLIENTE ===</span>
+    <span class="n">customer_data</span> <span class="o">=</span> <span class="n">invoice_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;customer&quot;</span><span class="p">,</span> <span class="p">{})</span>
+
+    <span class="n">required_customer</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;legal_name&quot;</span><span class="p">,</span> <span class="s2">&quot;tax_id&quot;</span><span class="p">,</span> <span class="s2">&quot;tax_system&quot;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">required_customer</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">customer_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field</span><span class="p">):</span>
+            <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ customer.</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2"> faltante&quot;</span><span class="p">)</span>
+
+    <span class="c1"># === SECCIÓN 2: ITEMS Y CONCEPTOS ===</span>
+    <span class="n">items</span> <span class="o">=</span> <span class="n">invoice_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;items&quot;</span><span class="p">,</span> <span class="p">[])</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">items</span><span class="p">:</span>
+        <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;❌ items[] vacío&quot;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">item_payload</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">product</span> <span class="o">=</span> <span class="n">item_payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;product&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">si_item</span> <span class="o">=</span> <span class="n">sales_invoice</span><span class="o">.</span><span class="n">items</span><span class="p">[</span><span class="n">idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>  <span class="c1"># Item correspondiente en SI</span>
+
+        <span class="c1"># Validar campos obligatorios</span>
+        <span class="n">required_product</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;product_key&quot;</span><span class="p">,</span> <span class="s2">&quot;unit_key&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">,</span> <span class="s2">&quot;tax_object&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">required_product</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">product</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field</span><span class="p">):</span>
+                <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ Item </span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">: product.</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2"> faltante&quot;</span><span class="p">)</span>
+
+        <span class="c1"># E4-RO: Validar coherencia ObjetoImp vs taxes</span>
+        <span class="n">objeto_imp</span> <span class="o">=</span> <span class="n">product</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tax_object&quot;</span><span class="p">)</span>
+        <span class="n">taxes_payload</span> <span class="o">=</span> <span class="n">product</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;taxes&quot;</span><span class="p">,</span> <span class="p">[])</span>
+
+        <span class="k">if</span> <span class="n">objeto_imp</span> <span class="o">==</span> <span class="s2">&quot;01&quot;</span> <span class="ow">and</span> <span class="n">taxes_payload</span><span class="p">:</span>
+            <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;⚠️ Item </span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">si_item</span><span class="o">.</span><span class="n">item_code</span><span class="si">}</span><span class="s2">): &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;ObjetoImp &#39;01&#39; (sin impuestos) pero tiene </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">taxes_payload</span><span class="p">)</span><span class="si">}</span><span class="s2"> taxes&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">objeto_imp</span> <span class="o">==</span> <span class="s2">&quot;02&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">taxes_payload</span><span class="p">:</span>
+            <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;❌ Item </span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">si_item</span><span class="o">.</span><span class="n">item_code</span><span class="si">}</span><span class="s2">): &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;ObjetoImp &#39;02&#39; (con impuestos) pero taxes[] vacío&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># E4-RO: Validar conteo impuestos (SI vs Payload)</span>
+        <span class="n">si_taxes_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_read_taxes_from_sales_invoice_item</span><span class="p">(</span><span class="n">si_item</span><span class="p">,</span> <span class="n">sales_invoice</span><span class="p">))</span>
+        <span class="n">payload_taxes_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">taxes_payload</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">objeto_imp</span> <span class="o">==</span> <span class="s2">&quot;02&quot;</span> <span class="ow">and</span> <span class="n">si_taxes_count</span> <span class="o">!=</span> <span class="n">payload_taxes_count</span><span class="p">:</span>
+            <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;⚠️ Item </span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">si_item</span><span class="o">.</span><span class="n">item_code</span><span class="si">}</span><span class="s2">): &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;SI tiene </span><span class="si">{</span><span class="n">si_taxes_count</span><span class="si">}</span><span class="s2"> taxes, payload tiene </span><span class="si">{</span><span class="n">payload_taxes_count</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+    <span class="c1"># === RESULTADO ===</span>
+    <span class="k">if</span> <span class="n">errors</span><span class="p">:</span>
+        <span class="n">error_summary</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">errors</span><span class="p">[:</span><span class="mi">10</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="p">:</span>
+            <span class="n">error_summary</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">... y </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">10</span><span class="si">}</span><span class="s2"> errores más&quot;</span>
+
+        <span class="n">frappe</span><span class="o">.</span><span class="n">throw</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Payload incompleto (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span><span class="si">}</span><span class="s2"> errores):</span><span class="se">\n\n</span><span class="si">{</span><span class="n">error_summary</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Validación E4-RO Falló&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="kc">True</span>  <span class="c1"># ✅ Payload completo</span>
+</code></pre></div>
+<hr />
+<h2 id="cambios-en-camposnombres">📋 Cambios en Campos/Nombres<a class="headerlink" href="#cambios-en-camposnombres" title="Permanent link">&para;</a></h2>
+<h3 id="campo-nuevo-requerido">Campo Nuevo Requerido<a class="headerlink" href="#campo-nuevo-requerido" title="Permanent link">&para;</a></h3>
+<p><strong>Agregar a Item (E0 extended):</strong></p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;fieldname&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fm_objeto_impuesto&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;fieldtype&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Select&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Objeto Impuesto SAT&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;options&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;01 - No objeto de impuesto\n02 - Sí objeto de impuesto\n03 - Sí objeto del impuesto y no obligado al desglose\n04 - Sí objeto del impuesto y no causa impuesto&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Indica si el concepto es objeto de impuesto (ObjetoImp CFDI 4.0)&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><strong>Justificación:</strong>
+- Necesario para E4-RO determinar ObjetoImp sin lógica inferencia
+- CFDI 4.0 requiere ObjetoImp por concepto
+- Evita asumir "02" siempre</p>
+<h3 id="campos-mapeo-sat">Campos Mapeo SAT<a class="headerlink" href="#campos-mapeo-sat" title="Permanent link">&para;</a></h3>
+<p><strong>Tabla Child: Configuración Fiscal México → Mapeos Cuentas Fiscales</strong></p>
+<p>Campos requeridos:
+- <code>cuenta_impuesto</code> (Link: Account) - Cuenta ERPNext
+- <code>impuesto_sat</code> (Select) - Código SAT ("001" ISR, "002" IVA, "003" IEPS)
+- <code>tipo_factor</code> (Select) - "Tasa", "Cuota", "Exento"
+- <code>nombre_impuesto_sat</code> (Data) - Nombre para payload ("IVA", "ISR", "IEPS")</p>
+<hr />
+<h2 id="ventajas-contrapropuesta-e4-ro">🎯 Ventajas Contrapropuesta E4-RO<a class="headerlink" href="#ventajas-contrapropuesta-e4-ro" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Ventaja</th>
+<th>Impacto</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Zero cálculos</strong></td>
+<td>Sin riesgo desincronía SI vs Payload</td>
+</tr>
+<tr>
+<td><strong>Fuente única</strong></td>
+<td>SI = source of truth garantizada</td>
+</tr>
+<tr>
+<td><strong>Simple</strong></td>
+<td>3 funciones vs 6+ propuesta original</td>
+</tr>
+<tr>
+<td><strong>Validación robusta</strong></td>
+<td>Completitud sin aritmética compleja</td>
+</tr>
+<tr>
+<td><strong>Mantenible</strong></td>
+<td>Sin lógica negocio en adapter</td>
+</tr>
+<tr>
+<td><strong>Extensible</strong></td>
+<td>Agregar campos solo modifica serialización</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="plan-implementacion-e4-ro">🔧 Plan Implementación E4-RO<a class="headerlink" href="#plan-implementacion-e4-ro" title="Permanent link">&para;</a></h2>
+<h3 id="tareas">Tareas<a class="headerlink" href="#tareas" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] <strong>E4-RO.0</strong> - Agregar campo <code>fm_objeto_impuesto</code> a Item (fixture)</li>
+<li>[ ] <strong>E4-RO.1</strong> - Implementar <code>_read_taxes_from_sales_invoice_item()</code></li>
+<li>[ ] <strong>E4-RO.2</strong> - Implementar <code>_map_tax_account_to_sat()</code></li>
+<li>[ ] <strong>E4-RO.3</strong> - Actualizar payload items con taxes (passthrough)</li>
+<li>[ ] <strong>E4-RO.4</strong> - Implementar <code>_validate_payload_completeness_ro()</code></li>
+<li>[ ] <strong>E4-RO.5</strong> - Tests unitarios (lectura SI, mapeo SAT, validación)</li>
+<li>[ ] <strong>E4-RO.6</strong> - [TS] Testing sandbox con factura real mixta</li>
+<li>[ ] <strong>E4-RO.7</strong> - Documentar mapeo cuentas SAT requerido</li>
+</ul>
+<hr />
+<h2 id="comparacion-final">📊 Comparación Final<a class="headerlink" href="#comparacion-final" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Métrica</th>
+<th>Propuesta Claude</th>
+<th>E4-RO ChatGPT</th>
+<th>Reducción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Funciones</td>
+<td>6</td>
+<td>3</td>
+<td><strong>-50%</strong></td>
+</tr>
+<tr>
+<td>LOC</td>
+<td>~300</td>
+<td>~150</td>
+<td><strong>-50%</strong></td>
+</tr>
+<tr>
+<td>Cálculos</td>
+<td>5+</td>
+<td>0</td>
+<td><strong>-100%</strong></td>
+</tr>
+<tr>
+<td>Riesgo desincronía</td>
+<td>Alto</td>
+<td>Nulo</td>
+<td><strong>-100%</strong></td>
+</tr>
+<tr>
+<td>Complejidad</td>
+<td>Alta</td>
+<td>Baja</td>
+<td><strong>-60%</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="recomendacion-final">✅ Recomendación Final<a class="headerlink" href="#recomendacion-final" title="Permanent link">&para;</a></h2>
+<p><strong>Implementar E4-RO (propuesta ChatGPT)</strong> por:</p>
+<ol>
+<li>✅ <strong>Correctitud:</strong> SI es fuente verdad, no duplicar cálculos</li>
+<li>✅ <strong>Simplicidad:</strong> Adapter passthrough vs lógica compleja</li>
+<li>✅ <strong>Mantenibilidad:</strong> Sin lógica negocio en serialización</li>
+<li>✅ <strong>Riesgo bajo:</strong> Sin aritmética nueva = sin bugs nuevos</li>
+</ol>
+<p><strong>Cambios mínimos requeridos:</strong>
+- Campo <code>fm_objeto_impuesto</code> en Item (E0 extended)
+- Tabla mapeo SAT en Configuración Fiscal México (ya existe, completar)</p>
+<hr />
+<p><strong>🔐 CONFIRMACIÓN REQUERIDA:</strong> ¿Aprobar E4-RO y descartar propuesta Claude original? (si/no)</p>
+<hr />
+<p><strong>Generado:</strong> 2025-10-08
+<strong>Versión:</strong> 2.0 (Read-Only)
+<strong>Estado:</strong> ⏳ Pendiente aprobación</p>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Volver al principio
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 Facturación México - Documentación Técnica
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/tu-org/facturacion_mexico" target="_blank" rel="noopener" title="GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+      <div class="md-consent" data-md-component="consent" id="__consent" hidden>
+        <div class="md-consent__overlay"></div>
+        <aside class="md-consent__inner">
+          <form class="md-consent__form md-grid md-typeset" name="consent">
+            
+
+  
+    
+  
+
+
+
+
+
+<h4>Consentimiento de cookies</h4>
+<p>Utilizamos cookies para reconocer tus visitas repetidas y preferencias, así como para medir la efectividad de nuestra documentación y si los usuarios encuentran lo que están buscando. Con tu consentimiento, nos ayudas a mejorar nuestra documentación.
+</p>
+<input class="md-toggle" type="checkbox" id="__settings" >
+<div class="md-consent__settings">
+  <ul class="task-list">
+    
+      
+      
+        
+        
+      
+      <li class="task-list-item">
+        <label class="task-list-control">
+          <input type="checkbox" name="analytics" checked>
+          <span class="task-list-indicator"></span>
+          Google Analytics
+        </label>
+      </li>
+    
+  </ul>
+</div>
+<div class="md-consent__controls">
+  
+    
+      <button class="md-button md-button--primary">Aceptar</button>
+    
+    
+    
+  
+    
+    
+      <button type="reset" class="md-button md-button--primary">Rechazar</button>
+    
+    
+  
+    
+    
+    
+      <label class="md-button" for="__settings">Gestionar cookies</label>
+    
+  
+</div>
+          </form>
+        </aside>
+      </div>
+      <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout(function(){document.querySelector("[data-md-component=consent]").hidden=!1},250);var action,form=document.forms.consent;for(action of["submit","reset"])form.addEventListener(action,function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map(function(e){return[e,!0]}))),location.hash="",location.reload()})</script>
+    
+    <script id="__config" type="application/json">{"base": "../../../..", "features": ["content.code.copy", "navigation.expand", "navigation.instant", "navigation.sections", "navigation.tabs", "navigation.top", "search.highlight", "search.suggest"], "search": "../../../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copiado al portapapeles", "clipboard.copy": "Copiar al portapapeles", "search.result.more.one": "1 m\u00e1s en esta p\u00e1gina", "search.result.more.other": "# m\u00e1s en esta p\u00e1gina", "search.result.none": "No se encontraron documentos", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Teclee para comenzar b\u00fasqueda", "search.result.term.missing": "Falta", "select.version": "Seleccionar versi\u00f3n"}, "version": {"default": "latest", "provider": "mike"}}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.d7c377c4.min.js"></script>
+      
+        <script src="../../../../assets/javascripts/extra.js"></script>
+      
+        <script src="../../../../assets/javascripts/advanced.js"></script>
+      
+    
+  </body>
+</html>

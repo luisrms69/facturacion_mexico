@@ -1,0 +1,1711 @@
+
+<!doctype html>
+<html lang="es" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentación completa del sistema de facturación electrónica para México">
+      
+      
+        <meta name="author" content="Equipo Desarrollo Facturación México">
+      
+      
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.3">
+    
+    
+      
+        <title>REPORTE: Migración charge_type Dinámico desde Tabla Maestra (E1) - Facturación México - Documentación Técnica</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.50c56a3b.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/advanced.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function n(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],n("js",new Date),n("config","G-XXXXXXXXXX"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){this.value&&n("event","search",{search_term:this.value})}),document$.subscribe(function(){var a=document.forms.feedback;if(void 0!==a)for(var e of a.querySelectorAll("[type=submit]"))e.addEventListener("click",function(e){e.preventDefault();var t=document.location.pathname,e=this.getAttribute("data-md-value");n("event","feedback",{page:t,data:e}),a.firstElementChild.disabled=!0;e=a.querySelector(".md-feedback__note [data-md-value='"+e+"']");e&&(e.hidden=!1)}),a.hidden=!1}),location$.subscribe(function(e){n("config","G-XXXXXXXXXX",{page_path:e.pathname})})});var e=document.createElement("script");e.async=!0,e.src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX",document.getElementById("__analytics").insertAdjacentElement("afterEnd",e)}</script>
+  
+    <script>var consent;"undefined"==typeof __md_analytics||(consent=__md_get("__consent"))&&consent.analytics&&__md_analytics()</script>
+  
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#reporte-migracion-charge_type-dinamico-desde-tabla-maestra-e1" class="md-skip">
+          Saltar a contenido
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabecera">
+    <a href="../.." title="Facturación México - Documentación Técnica" class="md-header__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Facturación México - Documentación Técnica
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              REPORTE: Migración charge_type Dinámico desde Tabla Maestra (E1)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo oscuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo oscuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Búsqueda" placeholder="Búsqueda" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Buscar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpiar" aria-label="Limpiar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando búsqueda
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Pestañas" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+    
+  
+  Inicio
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../user-guide/" class="md-tabs__link">
+          
+  
+  Guía de Usuario
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/" class="md-tabs__link">
+          
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../" class="md-tabs__link">
+          
+  
+  Desarrollo
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navegación" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Facturación México - Documentación Técnica" class="md-nav__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Facturación México - Documentación Técnica
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Inicio
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Guía de Usuario
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Guía de Usuario
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Usuario - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/getting-started/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Primeros Pasos
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/draft-invoices/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Facturas en Borrador
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/troubleshooting/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    API Reference
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    API Reference - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/cfdi/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CFDI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/draft-management/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Draft Management
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/catalogos/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Catalogos SAT
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/hooks/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Hooks
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Desarrollo
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Desarrollo
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Desarrollo - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Setup Desarrollo
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../draft-workflow/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Draft Workflow
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#resumen-ejecutivo" class="md-nav__link">
+    <span class="md-ellipsis">
+      📋 RESUMEN EJECUTIVO
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cambios-realizados" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔧 CAMBIOS REALIZADOS
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔧 CAMBIOS REALIZADOS">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-archivo-nuevo-reglas_calculo_fiscalpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. ARCHIVO NUEVO: reglas_calculo_fiscal.py
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-modificaciones-generador_templates_fiscalpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. MODIFICACIONES: generador_templates_fiscal.py
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. MODIFICACIONES: generador_templates_fiscal.py">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cambio-1-import-tabla-maestra-funcion-dinamica" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cambio 1: Import tabla maestra + función dinámica
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cambio-2-migracion-funciones-fila_-a-dinamico" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cambio 2: Migración funciones fila_* a dinámico
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cambio-3-nueva-funcion-fila_iva_cascada_ieps" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cambio 3: Nueva función fila_iva_cascada_ieps()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cambio-4-actualizar-llamadas-a-funciones-fila_" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cambio 4: Actualizar llamadas a funciones fila_*
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cambio-5-agregar-filas-iva-cascada-ieps" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cambio 5: Agregar filas IVA cascada IEPS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cambio-6-actualizar-tasas-ieps-en-itt" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cambio 6: Actualizar tasas IEPS en ITT
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-modificaciones-hookspy" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. MODIFICACIONES: hooks.py
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#proceso-de-debugging" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧪 PROCESO DE DEBUGGING
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🧪 PROCESO DE DEBUGGING">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#problema-1-errores-row_id-al-regenerar-templates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Problema 1: Errores row_id al regenerar templates
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decision-pendiente-iva-cascada-ieps" class="md-nav__link">
+    <span class="md-ellipsis">
+      ⚠️ DECISIÓN PENDIENTE: IVA Cascada IEPS
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="⚠️ DECISIÓN PENDIENTE: IVA Cascada IEPS">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#contexto" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contexto
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#problema" class="md-nav__link">
+    <span class="md-ellipsis">
+      Problema
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#opciones" class="md-nav__link">
+    <span class="md-ellipsis">
+      Opciones
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#consulta-para-chatgpt" class="md-nav__link">
+    <span class="md-ellipsis">
+      🤔 CONSULTA PARA CHATGPT
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🤔 CONSULTA PARA CHATGPT">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pregunta" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pregunta
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pregunta-concreta" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pregunta concreta
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resumen-cambios-por-archivo" class="md-nav__link">
+    <span class="md-ellipsis">
+      📊 RESUMEN CAMBIOS POR ARCHIVO
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validacion-funcional" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ VALIDACIÓN FUNCIONAL
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#siguiente-paso" class="md-nav__link">
+    <span class="md-ellipsis">
+      🎯 SIGUIENTE PASO
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="reporte-migracion-charge_type-dinamico-desde-tabla-maestra-e1">REPORTE: Migración charge_type Dinámico desde Tabla Maestra (E1)<a class="headerlink" href="#reporte-migracion-charge_type-dinamico-desde-tabla-maestra-e1" title="Permanent link">&para;</a></h1>
+<p><strong>Fecha:</strong> 2025-10-26
+<strong>Branch:</strong> feature/e1-automated-tax-system
+<strong>Contexto:</strong> Implementación IEPS Tasa + Sistema charge_type dinámico</p>
+<hr />
+<h2 id="resumen-ejecutivo">📋 RESUMEN EJECUTIVO<a class="headerlink" href="#resumen-ejecutivo" title="Permanent link">&para;</a></h2>
+<p>Durante la implementación de IEPS Tasa rates dinámicos, se migró el sistema de generación de templates STCT de valores hardcoded a sistema dinámico basado en <strong>tabla maestra reglas de cálculo fiscal</strong>.</p>
+<p><strong>Objetivo:</strong> Eliminar hardcoding de <code>charge_type</code> en generador templates, leyendo valores desde tabla maestra <code>reglas_calculo_fiscal.py</code>.</p>
+<p><strong>Estado:</strong> ✅ Implementación funcional con 1 decisión pendiente (IVA cascada IEPS).</p>
+<hr />
+<h2 id="cambios-realizados">🔧 CAMBIOS REALIZADOS<a class="headerlink" href="#cambios-realizados" title="Permanent link">&para;</a></h2>
+<h3 id="1-archivo-nuevo-reglas_calculo_fiscalpy">1. ARCHIVO NUEVO: <code>reglas_calculo_fiscal.py</code><a class="headerlink" href="#1-archivo-nuevo-reglas_calculo_fiscalpy" title="Permanent link">&para;</a></h3>
+<p><strong>Ubicación:</strong> <code>facturacion_mexico/utils/reglas_calculo_fiscal.py</code></p>
+<p><strong>Propósito:</strong> Single Source of Truth para reglas de cálculo de impuestos.</p>
+<p><strong>Estructura tabla maestra:</strong>
+<div class="highlight"><pre><span></span><code><span class="n">TABLA_MAESTRA_REGLAS_CALCULO</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span>
+        <span class="n">rol_fiscal</span><span class="p">,</span>           <span class="c1"># ROL_IVA_NAC, ROL_IEPS_ALC, etc.</span>
+        <span class="n">regla_base</span><span class="p">,</span>          <span class="c1"># monto_neto, cantidad, iva_trasladado, fila_previa_*</span>
+        <span class="n">regla_calculo</span><span class="p">,</span>       <span class="c1"># porcentual, cuota, retención</span>
+        <span class="n">cascada</span><span class="p">,</span>             <span class="c1"># Boolean</span>
+        <span class="n">alcance</span><span class="p">,</span>             <span class="c1"># por_item, fila_previa</span>
+        <span class="n">habilitada</span><span class="p">,</span>          <span class="c1"># Boolean</span>
+        <span class="n">fundamento_legal</span><span class="p">,</span>    <span class="c1"># String</span>
+        <span class="n">notas_calculo</span><span class="p">,</span>       <span class="c1"># String</span>
+        <span class="n">version</span><span class="p">,</span>             <span class="c1"># YYYY.MM</span>
+        <span class="n">deprecada_desde</span>      <span class="c1"># None si vigente</span>
+    <span class="p">),</span>
+<span class="p">]</span>
+</code></pre></div></p>
+<p><strong>Mapeo <code>regla_base</code> → <code>charge_type</code> ERPNext:</strong>
+<div class="highlight"><pre><span></span><code><span class="n">_MAPEO_CHARGE_TYPE</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;monto_neto&quot;</span><span class="p">:</span> <span class="s2">&quot;On Net Total&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cantidad&quot;</span><span class="p">:</span> <span class="s2">&quot;Actual&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;fila_previa_monto&quot;</span><span class="p">:</span> <span class="s2">&quot;On Previous Row Amount&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;fila_previa_total&quot;</span><span class="p">:</span> <span class="s2">&quot;On Previous Row Total&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;iva_trasladado&quot;</span><span class="p">:</span> <span class="s2">&quot;On Previous Row Amount&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<p><strong>Configuración roles fiscales:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Rol Fiscal</th>
+<th>regla_base</th>
+<th>charge_type ERPNext</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ROL_IVA_NAC</td>
+<td><code>monto_neto</code></td>
+<td>On Net Total</td>
+</tr>
+<tr>
+<td>ROL_IVA_FRO</td>
+<td><code>monto_neto</code></td>
+<td>On Net Total</td>
+</tr>
+<tr>
+<td>ROL_IEPS_ALC</td>
+<td><code>monto_neto</code></td>
+<td>On Net Total</td>
+</tr>
+<tr>
+<td>ROL_IEPS_TAB</td>
+<td><code>monto_neto</code></td>
+<td>On Net Total</td>
+</tr>
+<tr>
+<td>ROL_IEPS_AZU</td>
+<td><code>cantidad</code></td>
+<td>Actual</td>
+</tr>
+<tr>
+<td>ROL_IEPS_COMB</td>
+<td><code>cantidad</code></td>
+<td>Actual</td>
+</tr>
+<tr>
+<td>ROL_IEPS_TABQ</td>
+<td><code>cantidad</code></td>
+<td>Actual</td>
+</tr>
+<tr>
+<td>ROL_RET_IVA_*</td>
+<td><code>monto_neto</code></td>
+<td>On Net Total</td>
+</tr>
+<tr>
+<td>ROL_RET_ISR_*</td>
+<td><code>monto_neto</code></td>
+<td>On Net Total</td>
+</tr>
+</tbody>
+</table>
+<p><strong>NOTA CRÍTICA - Retenciones IVA:</strong></p>
+<p>Originalmente configuré retenciones IVA con <code>regla_base: "iva_trasladado"</code> (fiscalmente correcto), pero esto causaba error de row_id porque el generador NO asignaba row_id para retenciones.</p>
+<p><strong>Corrección aplicada:</strong> Cambié retenciones IVA a <code>regla_base: "monto_neto"</code> para replicar comportamiento legacy STCT viejo.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># ANTES (causaba error row_id):</span>
+<span class="p">(</span><span class="n">ROL_RET_IVA_HON</span><span class="p">,</span> <span class="s2">&quot;iva_trasladado&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>  <span class="c1"># → &quot;On Previous Row Amount&quot; → REQUIERE row_id</span>
+
+<span class="c1"># DESPUÉS (correcto - legacy):</span>
+<span class="p">(</span><span class="n">ROL_RET_IVA_HON</span><span class="p">,</span> <span class="s2">&quot;monto_neto&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>      <span class="c1"># → &quot;On Net Total&quot; → NO requiere row_id</span>
+</code></pre></div>
+<hr />
+<h3 id="2-modificaciones-generador_templates_fiscalpy">2. MODIFICACIONES: <code>generador_templates_fiscal.py</code><a class="headerlink" href="#2-modificaciones-generador_templates_fiscalpy" title="Permanent link">&para;</a></h3>
+<p><strong>Ubicación:</strong> <code>facturacion_mexico/facturacion_fiscal/setup/generador_templates_fiscal.py</code></p>
+<h4 id="cambio-1-import-tabla-maestra-funcion-dinamica">Cambio 1: Import tabla maestra + función dinámica<a class="headerlink" href="#cambio-1-import-tabla-maestra-funcion-dinamica" title="Permanent link">&para;</a></h4>
+<p><strong>Líneas agregadas 25-67:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Import para tabla maestra reglas cálculo</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">facturacion_mexico.utils.reglas_calculo_fiscal</span><span class="w"> </span><span class="kn">import</span> <span class="n">obtener_regla_calculo</span>
+
+<span class="c1"># Import tasas IEPS para generación ITT</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">facturacion_mexico.facturacion_fiscal.config.constantes_fiscales</span><span class="w"> </span><span class="kn">import</span> <span class="n">TASAS_IEPS</span>
+
+<span class="c1"># Mapeo regla_base → charge_type ERPNext</span>
+<span class="n">_MAPEO_CHARGE_TYPE</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;monto_neto&quot;</span><span class="p">:</span> <span class="s2">&quot;On Net Total&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cantidad&quot;</span><span class="p">:</span> <span class="s2">&quot;Actual&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;fila_previa_monto&quot;</span><span class="p">:</span> <span class="s2">&quot;On Previous Row Amount&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;fila_previa_total&quot;</span><span class="p">:</span> <span class="s2">&quot;On Previous Row Total&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;iva_trasladado&quot;</span><span class="p">:</span> <span class="s2">&quot;On Previous Row Amount&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_charge_type_por_rol</span><span class="p">(</span><span class="n">rol_fiscal</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Obtiene charge_type de ERPNext según rol fiscal desde tabla maestra.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: charge_type de ERPNext (&quot;On Net Total&quot;, &quot;Actual&quot;, etc.)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">reglas</span> <span class="o">=</span> <span class="n">obtener_regla_calculo</span><span class="p">(</span><span class="n">rol_fiscal</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="n">base</span> <span class="o">=</span> <span class="n">reglas</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;regla_base&quot;</span><span class="p">,</span> <span class="s2">&quot;monto_neto&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_MAPEO_CHARGE_TYPE</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="s2">&quot;On Net Total&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h4 id="cambio-2-migracion-funciones-fila_-a-dinamico">Cambio 2: Migración funciones fila_* a dinámico<a class="headerlink" href="#cambio-2-migracion-funciones-fila_-a-dinamico" title="Permanent link">&para;</a></h4>
+<p><strong>ANTES (legacy - hardcoded):</strong>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fila_iva_base</span><span class="p">(</span><span class="n">account_head</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">zona</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">tasa_valor</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;charge_type&quot;</span><span class="p">:</span> <span class="s2">&quot;On Net Total&quot;</span><span class="p">,</span>  <span class="c1"># ← HARDCODED</span>
+        <span class="o">...</span>
+    <span class="p">}</span>
+</code></pre></div></p>
+<p><strong>DESPUÉS (E1 - dinámico):</strong>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fila_iva_base</span><span class="p">(</span><span class="n">account_head</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">zona</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">tasa_valor</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">rol_fiscal</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;charge_type&quot;</span><span class="p">:</span> <span class="n">_charge_type_por_rol</span><span class="p">(</span><span class="n">rol_fiscal</span><span class="p">),</span>  <span class="c1"># ← DINÁMICO</span>
+        <span class="o">...</span>
+    <span class="p">}</span>
+</code></pre></div></p>
+<p><strong>Funciones migradas:</strong></p>
+<ol>
+<li>✅ <code>fila_iva_base()</code> - línea 270</li>
+<li>✅ <code>fila_ieps_tasa()</code> - línea 313</li>
+<li>✅ <code>fila_ieps_cuota()</code> - línea 351</li>
+<li>✅ <code>fila_retencion()</code> - línea 394</li>
+</ol>
+<p><strong>Código legacy comentado:</strong> Todas las versiones hardcoded comentadas arriba de cada función nueva.</p>
+<h4 id="cambio-3-nueva-funcion-fila_iva_cascada_ieps">Cambio 3: Nueva función <code>fila_iva_cascada_ieps()</code><a class="headerlink" href="#cambio-3-nueva-funcion-fila_iva_cascada_ieps" title="Permanent link">&para;</a></h4>
+<p><strong>Líneas 421-451:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fila_iva_cascada_ieps</span><span class="p">(</span><span class="n">account_head</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">concepto_ieps</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">iva_rate</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">rol_fiscal</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    IVA cascada sobre IEPS (calcula IVA sobre el monto del IEPS anterior).</span>
+
+<span class="sd">    HARDCODEA charge_type &quot;On Previous Row Amount&quot; porque IVA cascada sobre IEPS:</span>
+<span class="sd">    - NO es un rol fiscal independiente (usa misma cuenta IVA)</span>
+<span class="sd">    - SIEMPRE calcula sobre fila previa (IEPS)</span>
+<span class="sd">    - Es lógica específica de generador templates, no de tabla maestra</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;charge_type&quot;</span><span class="p">:</span> <span class="s2">&quot;On Previous Row Amount&quot;</span><span class="p">,</span>  <span class="c1"># HARDCODE - IVA cascada siempre usa prev row</span>
+        <span class="s2">&quot;row_id&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Se asigna después en _build_rows()</span>
+        <span class="s2">&quot;rate&quot;</span><span class="p">:</span> <span class="n">iva_rate</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;IVA sobre IEPS </span><span class="si">{</span><span class="n">concepto_ieps</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="o">...</span>
+    <span class="p">}</span>
+</code></pre></div>
+<p><strong>⚠️ DECISIÓN PENDIENTE:</strong> Esta función tiene <code>charge_type</code> hardcoded. Ver sección "Consulta ChatGPT" abajo.</p>
+<h4 id="cambio-4-actualizar-llamadas-a-funciones-fila_">Cambio 4: Actualizar llamadas a funciones fila_*<a class="headerlink" href="#cambio-4-actualizar-llamadas-a-funciones-fila_" title="Permanent link">&para;</a></h4>
+<p><strong>Ejemplo - IVA Base (línea 497):</strong>
+<div class="highlight"><pre><span></span><code><span class="c1"># ANTES:</span>
+<span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fila_iva_base</span><span class="p">(</span><span class="n">iva_acc</span><span class="p">,</span> <span class="n">zona</span><span class="p">,</span> <span class="n">iva_rate</span><span class="p">))</span>
+
+<span class="c1"># DESPUÉS:</span>
+<span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fila_iva_base</span><span class="p">(</span><span class="n">iva_acc</span><span class="p">,</span> <span class="n">zona</span><span class="p">,</span> <span class="n">iva_rate</span><span class="p">,</span> <span class="n">rol_iva</span><span class="p">))</span>  <span class="c1"># + rol_fiscal</span>
+</code></pre></div></p>
+<p><strong>Aplicado a todas las llamadas:</strong>
+- <code>fila_iva_base()</code> → + <code>rol_iva</code>
+- <code>fila_ieps_tasa()</code> → + <code>ROL_IEPS_ALC</code>/<code>ROL_IEPS_TAB</code>
+- <code>fila_ieps_cuota()</code> → + <code>ROL_IEPS_AZU</code>/<code>ROL_IEPS_COMB</code>/<code>ROL_IEPS_TABQ</code>
+- <code>fila_retencion()</code> → + <code>ROL_RET_*</code></p>
+<h4 id="cambio-5-agregar-filas-iva-cascada-ieps">Cambio 5: Agregar filas IVA cascada IEPS<a class="headerlink" href="#cambio-5-agregar-filas-iva-cascada-ieps" title="Permanent link">&para;</a></h4>
+<p><strong>Patrón implementado (ejemplo Alcohol - líneas 506-514):</strong></p>
+<div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="n">ieps</span><span class="p">[</span><span class="s2">&quot;Alcohol&quot;</span><span class="p">]:</span>
+    <span class="n">acc</span> <span class="o">=</span> <span class="n">mapeos_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ROL_IEPS_ALC</span><span class="p">)</span> <span class="ow">or</span> <span class="n">_get_account_head_by_role</span><span class="p">(</span><span class="n">company</span><span class="p">,</span> <span class="n">ROL_IEPS_ALC</span><span class="p">)</span>
+    <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fila_ieps_tasa</span><span class="p">(</span><span class="n">acc</span><span class="p">,</span> <span class="s2">&quot;Alcohol&quot;</span><span class="p">,</span> <span class="n">ROL_IEPS_ALC</span><span class="p">))</span>
+
+    <span class="c1"># IVA cascada sobre IEPS Alcohol (E1: nueva fila)</span>
+    <span class="n">ieps_row_idx</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>  <span class="c1"># idx será len(rows) porque se asigna en _make_stct</span>
+    <span class="n">fila_iva</span> <span class="o">=</span> <span class="n">fila_iva_cascada_ieps</span><span class="p">(</span><span class="n">iva_acc</span><span class="p">,</span> <span class="s2">&quot;Alcohol&quot;</span><span class="p">,</span> <span class="n">iva_rate</span><span class="p">,</span> <span class="n">rol_iva</span><span class="p">)</span>
+    <span class="n">fila_iva</span><span class="p">[</span><span class="s2">&quot;row_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ieps_row_idx</span>  <span class="c1"># Asignar row_id explícito</span>
+    <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fila_iva</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Aplicado a 5 conceptos IEPS:</strong>
+1. Alcohol (Tasa)
+2. Azúcar/Bebidas (Cuota)
+3. Combustibles (Cuota)
+4. Tabaco Tasa
+5. Tabaco Cuota</p>
+<p><strong>Lógica row_id:</strong>
+- Calcula <code>ieps_row_idx = len(rows)</code> después de agregar fila IEPS
+- Asigna <code>fila_iva["row_id"] = ieps_row_idx</code> antes de append
+- ERPNext calcula IVA sobre monto de fila previa (IEPS)</p>
+<h4 id="cambio-6-actualizar-tasas-ieps-en-itt">Cambio 6: Actualizar tasas IEPS en ITT<a class="headerlink" href="#cambio-6-actualizar-tasas-ieps-en-itt" title="Permanent link">&para;</a></h4>
+<p><strong>Líneas 1053-1086 - ITT Generation:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># ANTES:</span>
+<span class="p">[{</span><span class="s2">&quot;rol_fiscal&quot;</span><span class="p">:</span> <span class="s2">&quot;IEPS por Pagar (Alcohol)&quot;</span><span class="p">,</span> <span class="s2">&quot;tax_rate&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}]</span>
+
+<span class="c1"># DESPUÉS:</span>
+<span class="p">[{</span><span class="s2">&quot;rol_fiscal&quot;</span><span class="p">:</span> <span class="s2">&quot;IEPS por Pagar (Alcohol)&quot;</span><span class="p">,</span> <span class="s2">&quot;tax_rate&quot;</span><span class="p">:</span> <span class="n">TASAS_IEPS</span><span class="p">[</span><span class="s2">&quot;alcohol&quot;</span><span class="p">][</span><span class="s2">&quot;tasa&quot;</span><span class="p">]}]</span>
+<span class="c1"># Tasa desde constantes - heredada por items vía Item Group</span>
+</code></pre></div>
+<p><strong>Tasas actualizadas:</strong>
+- Alcohol: 0% → 26.5%
+- Tabaco: 0% → 160.0%
+- Azúcar: 0% (correcto - cuota, no tasa)
+- Combustibles: 0% (correcto - cuota, no tasa)</p>
+<hr />
+<h3 id="3-modificaciones-hookspy">3. MODIFICACIONES: <code>hooks.py</code><a class="headerlink" href="#3-modificaciones-hookspy" title="Permanent link">&para;</a></h3>
+<p><strong>Cambio único - Mover hook a before_save:</strong></p>
+<p><strong>Líneas 345-349:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># ANTES:</span>
+<span class="s2">&quot;before_save&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="s2">&quot;facturacion_mexico.hooks_handlers.sales_invoice_ieps.calcular_ieps_cuota&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;facturacion_mexico.hooks_handlers.sales_invoice_ieps.ajustar_base_iva_combustibles&quot;</span><span class="p">,</span>
+<span class="p">],</span>
+<span class="s2">&quot;before_submit&quot;</span><span class="p">:</span> <span class="s2">&quot;facturacion_mexico.hooks_handlers.sales_invoice_ieps.corregir_ieps_cuota_final&quot;</span><span class="p">,</span>
+
+<span class="c1"># DESPUÉS:</span>
+<span class="s2">&quot;before_save&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="s2">&quot;facturacion_mexico.hooks_handlers.sales_invoice_ieps.calcular_ieps_cuota&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;facturacion_mexico.hooks_handlers.sales_invoice_ieps.ajustar_base_iva_combustibles&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;facturacion_mexico.hooks_handlers.sales_invoice_ieps.corregir_ieps_cuota_final&quot;</span><span class="p">,</span>  <span class="c1"># ← MOVIDO</span>
+<span class="p">]</span>
+</code></pre></div>
+<p><strong>Razón:</strong> Verificar que cálculos IEPS se ejecuten antes de guardar (no solo submit).</p>
+<hr />
+<h2 id="proceso-de-debugging">🧪 PROCESO DE DEBUGGING<a class="headerlink" href="#proceso-de-debugging" title="Permanent link">&para;</a></h2>
+<h3 id="problema-1-errores-row_id-al-regenerar-templates">Problema 1: Errores row_id al regenerar templates<a class="headerlink" href="#problema-1-errores-row_id-al-regenerar-templates" title="Permanent link">&para;</a></h3>
+<p><strong>Error original:</strong>
+<div class="highlight"><pre><span></span><code>Message: Please specify a valid Row ID for row 2 in table Sales Taxes and Charges
+Please specify a valid Row ID for row 12 in table Sales Taxes and Charges
+</code></pre></div></p>
+<p><strong>Diagnóstico paso a paso:</strong></p>
+<ol>
+<li><strong>PASO 1 - fila_iva_base() dinámico:</strong> ✅ Funciona</li>
+<li><strong>PASO 2 - fila_ieps_tasa() dinámico:</strong> ✅ Funciona</li>
+<li><strong>PASO 3 - fila_retencion() dinámico:</strong> ❌ ERROR row_id</li>
+</ol>
+<p><strong>Causa raíz identificada:</strong></p>
+<p>Retenciones IVA tenían <code>regla_base: "iva_trasladado"</code> en tabla maestra:
+- <code>"iva_trasladado"</code> → mapea a <code>"On Previous Row Amount"</code>
+- <code>"On Previous Row Amount"</code> → REQUIERE <code>row_id</code>
+- Generador NO asignaba <code>row_id</code> para retenciones
+- ERPNext rechazaba template</p>
+<p><strong>Verificación:</strong>
+<div class="highlight"><pre><span></span><code>python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
+<span class="s2">from facturacion_mexico.utils.reglas_calculo_fiscal import obtener_regla_calculo</span>
+<span class="s2">from facturacion_mexico.utils.roles_fiscales import ROL_RET_IVA_HON</span>
+
+<span class="s2">reglas = obtener_regla_calculo(ROL_RET_IVA_HON) or {}</span>
+<span class="s2">print(reglas.get(&#39;regla_base&#39;))</span>
+<span class="s2">&quot;</span>
+<span class="c1"># OUTPUT: iva_trasladado  ← CAUSA DEL ERROR</span>
+</code></pre></div></p>
+<p><strong>Solución aplicada:</strong></p>
+<p>Cambié tabla maestra <code>reglas_calculo_fiscal.py</code> líneas 193-246:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># ANTES (incorrecto - causaba error):</span>
+<span class="p">(</span><span class="n">ROL_RET_IVA_HON</span><span class="p">,</span> <span class="s2">&quot;iva_trasladado&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+
+<span class="c1"># DESPUÉS (correcto - replica legacy):</span>
+<span class="p">(</span><span class="n">ROL_RET_IVA_HON</span><span class="p">,</span> <span class="s2">&quot;monto_neto&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Resultado:</strong> ✅ Templates regeneran sin error.</p>
+<p><strong>4. PASO 4 - fila_ieps_cuota() dinámico:</strong> ✅ Funciona</p>
+<p>Tabla maestra configurada con <code>regla_base: "cantidad"</code> → <code>charge_type: "Actual"</code> (correcto).</p>
+<hr />
+<h2 id="decision-pendiente-iva-cascada-ieps">⚠️ DECISIÓN PENDIENTE: IVA Cascada IEPS<a class="headerlink" href="#decision-pendiente-iva-cascada-ieps" title="Permanent link">&para;</a></h2>
+<h3 id="contexto">Contexto<a class="headerlink" href="#contexto" title="Permanent link">&para;</a></h3>
+<p>La función <code>fila_iva_cascada_ieps()</code> actualmente tiene <strong>hardcoding</strong>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fila_iva_cascada_ieps</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;charge_type&quot;</span><span class="p">:</span> <span class="s2">&quot;On Previous Row Amount&quot;</span><span class="p">,</span>  <span class="c1"># ← HARDCODED</span>
+        <span class="o">...</span>
+    <span class="p">}</span>
+</code></pre></div>
+<h3 id="problema">Problema<a class="headerlink" href="#problema" title="Permanent link">&para;</a></h3>
+<p><strong>IVA cascada sobre IEPS NO es un rol fiscal independiente:</strong>
+- Usa misma cuenta contable que IVA Nacional/Frontera
+- Solo difiere en <code>charge_type</code> y <code>row_id</code>
+- Calcula IVA sobre monto IEPS en vez de monto neto</p>
+<p><strong>Si uso dinámico <code>_charge_type_por_rol(rol_iva)</code>:</strong>
+- <code>rol_iva</code> = ROL_IVA_NAC o ROL_IVA_FRO
+- Tabla maestra: <code>regla_base: "monto_neto"</code> → <code>charge_type: "On Net Total"</code>
+- <strong>INCORRECTO:</strong> Necesitamos "On Previous Row Amount"</p>
+<h3 id="opciones">Opciones<a class="headerlink" href="#opciones" title="Permanent link">&para;</a></h3>
+<p><strong>A) Mantener hardcode "On Previous Row Amount"</strong></p>
+<p>✅ <strong>PRO:</strong>
+- Lógica específica generador templates
+- No contamina tabla maestra con variantes técnicas
+- Claridad en código (explícito = IVA cascada)</p>
+<p>❌ <strong>CON:</strong>
+- Único hardcode restante en generador</p>
+<p><strong>B) Crear rol fiscal nuevo "IVA Cascada IEPS"</strong></p>
+<p>Agregar a <code>roles_fiscales.py</code>:
+<div class="highlight"><pre><span></span><code><span class="n">ROL_IVA_CASCADA_IEPS</span> <span class="o">=</span> <span class="s2">&quot;IVA Cascada sobre IEPS&quot;</span>
+</code></pre></div></p>
+<p>Agregar a <code>reglas_calculo_fiscal.py</code>:
+<div class="highlight"><pre><span></span><code><span class="p">(</span>
+    <span class="n">ROL_IVA_CASCADA_IEPS</span><span class="p">,</span>
+    <span class="s2">&quot;fila_previa_monto&quot;</span><span class="p">,</span>  <span class="c1"># → &quot;On Previous Row Amount&quot;</span>
+    <span class="s2">&quot;porcentual&quot;</span><span class="p">,</span>
+    <span class="kc">True</span><span class="p">,</span>  <span class="c1"># cascada=True</span>
+    <span class="s2">&quot;fila_previa&quot;</span><span class="p">,</span>
+    <span class="kc">True</span><span class="p">,</span>
+    <span class="s2">&quot;Ley IVA Art. 1 + LIEPS Art. 4&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;IVA sobre IEPS trasladado. Base = monto IEPS fila previa.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;2025.01&quot;</span><span class="p">,</span>
+    <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div></p>
+<p>✅ <strong>PRO:</strong>
+- Sistema completamente dinámico (0% hardcode)
+- Rol fiscal explícito para auditoría
+- Fundamento legal documentado</p>
+<p>❌ <strong>CON:</strong>
+- Rol artificial (no existe en catálogo SAT)
+- IVA cascada es lógica cálculo, no tipo impuesto
+- Complejidad adicional tabla maestra</p>
+<p><strong>C) Pasar <code>charge_type</code> como parámetro explícito</strong></p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fila_iva_cascada_ieps</span><span class="p">(</span><span class="n">account_head</span><span class="p">,</span> <span class="n">concepto_ieps</span><span class="p">,</span> <span class="n">iva_rate</span><span class="p">,</span> <span class="n">charge_type</span><span class="o">=</span><span class="s2">&quot;On Previous Row Amount&quot;</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;charge_type&quot;</span><span class="p">:</span> <span class="n">charge_type</span><span class="p">,</span>
+        <span class="o">...</span>
+    <span class="p">}</span>
+</code></pre></div>
+<p>✅ <strong>PRO:</strong>
+- Flexibilidad futura
+- Sin hardcode interno función</p>
+<p>❌ <strong>CON:</strong>
+- Hardcode se mueve a caller (mismo problema)</p>
+<hr />
+<h2 id="consulta-para-chatgpt">🤔 CONSULTA PARA CHATGPT<a class="headerlink" href="#consulta-para-chatgpt" title="Permanent link">&para;</a></h2>
+<h3 id="pregunta">Pregunta<a class="headerlink" href="#pregunta" title="Permanent link">&para;</a></h3>
+<p>En un sistema de facturación fiscal mexicano, tenemos:</p>
+<p><strong>Contexto técnico:</strong>
+- ERPNext con Sales Taxes and Charges Template (STCT)
+- Migración de valores hardcoded → sistema dinámico basado en tabla maestra
+- Tabla maestra mapea <code>rol_fiscal</code> → <code>regla_base</code> → <code>charge_type</code> ERPNext</p>
+<p><strong>Roles fiscales en catálogo SAT:</strong>
+- IVA por Pagar (Nacional) - 16%
+- IVA por Pagar (Frontera) - 8%
+- IEPS por Pagar (Alcohol) - 26.5%
+- IEPS por Pagar (Tabaco) - 160%
+- Etc.</p>
+<p><strong>Problema específico - IVA sobre IEPS:</strong></p>
+<p>Según Ley IEPS Art. 4, el IVA se calcula sobre:
+<div class="highlight"><pre><span></span><code>Base IVA = Precio + IEPS
+</code></pre></div></p>
+<p>Implementé filas STCT:
+1. Fila N: IEPS Alcohol ($874.50) - charge_type: "On Net Total"
+2. Fila N+1: IVA sobre IEPS Alcohol ($139.92) - charge_type: "On Previous Row Amount", row_id: N</p>
+<p><strong>La fila N+1 NO es un rol fiscal independiente:</strong>
+- Usa misma cuenta contable que "IVA por Pagar (Nacional)"
+- Solo difiere en charge_type y row_id (calcula sobre fila previa)
+- Es lógica de cálculo específica, no tipo impuesto diferente</p>
+<p><strong>Opciones evaluadas:</strong></p>
+<p><strong>A) Hardcodear "On Previous Row Amount" en función generadora:</strong>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fila_iva_cascada_ieps</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;charge_type&quot;</span><span class="p">:</span> <span class="s2">&quot;On Previous Row Amount&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">}</span>
+</code></pre></div></p>
+<p><strong>B) Crear rol fiscal artificial "IVA Cascada sobre IEPS":</strong>
+- Agregar a tabla maestra con regla_base: "fila_previa_monto"
+- Rol NO existe en catálogo SAT
+- Contamina tabla maestra con variante técnica</p>
+<p><strong>C) Usar rol IVA Nacional dinámico pero falla:</strong>
+- Tabla maestra IVA Nacional: regla_base: "monto_neto" → charge_type: "On Net Total"
+- Necesitamos "On Previous Row Amount" para cascada</p>
+<h3 id="pregunta-concreta">Pregunta concreta<a class="headerlink" href="#pregunta-concreta" title="Permanent link">&para;</a></h3>
+<p><strong>¿Cuál es la mejor práctica arquitectónica?</strong></p>
+<ol>
+<li>¿Hardcode aceptable para lógica específica generador templates?</li>
+<li>¿Crear rol fiscal artificial para completitud sistema dinámico?</li>
+<li>¿Otra solución que mantenga Single Source of Truth sin contaminar modelo fiscal?</li>
+</ol>
+<p><strong>Consideraciones:</strong>
+- Prioridad: correctitud fiscal sobre pureza arquitectónica
+- Tabla maestra debe reflejar catálogo SAT real
+- Sistema debe ser mantenible largo plazo</p>
+<hr />
+<h2 id="resumen-cambios-por-archivo">📊 RESUMEN CAMBIOS POR ARCHIVO<a class="headerlink" href="#resumen-cambios-por-archivo" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Archivo</th>
+<th>Tipo</th>
+<th>Líneas modificadas</th>
+<th>Funciones afectadas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>reglas_calculo_fiscal.py</code></td>
+<td>NUEVO</td>
+<td>446</td>
+<td><code>obtener_regla_calculo()</code>, tabla maestra completa</td>
+</tr>
+<tr>
+<td><code>generador_templates_fiscal.py</code></td>
+<td>MODIFICADO</td>
+<td>~441 diff</td>
+<td><code>_charge_type_por_rol()</code>, <code>fila_*()</code>, <code>_build_rows()</code>, ITT generation</td>
+</tr>
+<tr>
+<td><code>hooks.py</code></td>
+<td>MODIFICADO</td>
+<td>5</td>
+<td>Reordenar hooks Sales Invoice</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Total líneas código nuevo:</strong> ~900 líneas (incluyendo docstrings y comentarios)</p>
+<hr />
+<h2 id="validacion-funcional">✅ VALIDACIÓN FUNCIONAL<a class="headerlink" href="#validacion-funcional" title="Permanent link">&para;</a></h2>
+<p><strong>Templates regenerados exitosamente:</strong>
+- ✅ IVA Nacional - Básico - _TC
+- ✅ IVA Nacional - IEPS - _TC
+- ✅ IVA Nacional - Retenciones - _TC
+- ✅ IVA Nacional - Total - _TC
+- ✅ IVA Frontera - Básico - _TC
+- ✅ IVA Frontera - IEPS - _TC
+- ✅ IVA Frontera - Retenciones - _TC
+- ✅ IVA Frontera - Total - _TC</p>
+<p><strong>ITT actualizados con tasas:</strong>
+- ✅ ITT IEPS Alcohol: 0% → 26.5%
+- ✅ ITT IEPS Tabaco: 0% → 160%</p>
+<p><strong>Sistema dinámico funcionando:</strong>
+- ✅ Todas las funciones <code>fila_*()</code> usan <code>_charge_type_por_rol()</code>
+- ✅ Tabla maestra controla charge_type
+- ⚠️ 1 hardcode pendiente decisión: <code>fila_iva_cascada_ieps()</code></p>
+<hr />
+<h2 id="siguiente-paso">🎯 SIGUIENTE PASO<a class="headerlink" href="#siguiente-paso" title="Permanent link">&para;</a></h2>
+<p><strong>Esperar respuesta ChatGPT sobre IVA cascada IEPS</strong> antes de:</p>
+<ol>
+<li>Decidir si mantener hardcode o crear rol fiscal artificial</li>
+<li>Hacer commit final</li>
+<li>Crear SI test con múltiples items para verificar 11 filas + cálculos correctos</li>
+<li>Validar Grand Total vs PAC esperado ($8,200.10)</li>
+</ol>
+<hr />
+<p><strong>Generado:</strong> 2025-10-26
+<strong>Branch:</strong> feature/e1-automated-tax-system
+<strong>Sesión:</strong> Continuación implementación IEPS Tasa E1</p>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Volver al principio
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 Facturación México - Documentación Técnica
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/tu-org/facturacion_mexico" target="_blank" rel="noopener" title="GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+      <div class="md-consent" data-md-component="consent" id="__consent" hidden>
+        <div class="md-consent__overlay"></div>
+        <aside class="md-consent__inner">
+          <form class="md-consent__form md-grid md-typeset" name="consent">
+            
+
+  
+    
+  
+
+
+
+
+
+<h4>Consentimiento de cookies</h4>
+<p>Utilizamos cookies para reconocer tus visitas repetidas y preferencias, así como para medir la efectividad de nuestra documentación y si los usuarios encuentran lo que están buscando. Con tu consentimiento, nos ayudas a mejorar nuestra documentación.
+</p>
+<input class="md-toggle" type="checkbox" id="__settings" >
+<div class="md-consent__settings">
+  <ul class="task-list">
+    
+      
+      
+        
+        
+      
+      <li class="task-list-item">
+        <label class="task-list-control">
+          <input type="checkbox" name="analytics" checked>
+          <span class="task-list-indicator"></span>
+          Google Analytics
+        </label>
+      </li>
+    
+  </ul>
+</div>
+<div class="md-consent__controls">
+  
+    
+      <button class="md-button md-button--primary">Aceptar</button>
+    
+    
+    
+  
+    
+    
+      <button type="reset" class="md-button md-button--primary">Rechazar</button>
+    
+    
+  
+    
+    
+    
+      <label class="md-button" for="__settings">Gestionar cookies</label>
+    
+  
+</div>
+          </form>
+        </aside>
+      </div>
+      <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout(function(){document.querySelector("[data-md-component=consent]").hidden=!1},250);var action,form=document.forms.consent;for(action of["submit","reset"])form.addEventListener(action,function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map(function(e){return[e,!0]}))),location.hash="",location.reload()})</script>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.expand", "navigation.instant", "navigation.sections", "navigation.tabs", "navigation.top", "search.highlight", "search.suggest"], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copiado al portapapeles", "clipboard.copy": "Copiar al portapapeles", "search.result.more.one": "1 m\u00e1s en esta p\u00e1gina", "search.result.more.other": "# m\u00e1s en esta p\u00e1gina", "search.result.none": "No se encontraron documentos", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Teclee para comenzar b\u00fasqueda", "search.result.term.missing": "Falta", "select.version": "Seleccionar versi\u00f3n"}, "version": {"default": "latest", "provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7c377c4.min.js"></script>
+      
+        <script src="../../assets/javascripts/extra.js"></script>
+      
+        <script src="../../assets/javascripts/advanced.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,3289 @@
+
+<!doctype html>
+<html lang="es" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentación completa del sistema de facturación electrónica para México">
+      
+      
+        <meta name="author" content="Equipo Desarrollo Facturación México">
+      
+      
+      
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.3">
+    
+    
+      
+        <title>PLAN FISCAL IMPLEMENTACIÓN MX (E0-E8) - Issues #65 y #66 - Facturación México - Documentación Técnica</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.50c56a3b.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/advanced.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function n(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],n("js",new Date),n("config","G-XXXXXXXXXX"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){this.value&&n("event","search",{search_term:this.value})}),document$.subscribe(function(){var a=document.forms.feedback;if(void 0!==a)for(var e of a.querySelectorAll("[type=submit]"))e.addEventListener("click",function(e){e.preventDefault();var t=document.location.pathname,e=this.getAttribute("data-md-value");n("event","feedback",{page:t,data:e}),a.firstElementChild.disabled=!0;e=a.querySelector(".md-feedback__note [data-md-value='"+e+"']");e&&(e.hidden=!1)}),a.hidden=!1}),location$.subscribe(function(e){n("config","G-XXXXXXXXXX",{page_path:e.pathname})})});var e=document.createElement("script");e.async=!0,e.src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX",document.getElementById("__analytics").insertAdjacentElement("afterEnd",e)}</script>
+  
+    <script>var consent;"undefined"==typeof __md_analytics||(consent=__md_get("__consent"))&&consent.analytics&&__md_analytics()</script>
+  
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#plan-fiscal-implementacion-mx-e0-e8-issues-65-y-66" class="md-skip">
+          Saltar a contenido
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabecera">
+    <a href="../../../.." title="Facturación México - Documentación Técnica" class="md-header__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Facturación México - Documentación Técnica
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              PLAN FISCAL IMPLEMENTACIÓN MX (E0-E8) - Issues #65 y #66
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo oscuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo oscuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Búsqueda" placeholder="Búsqueda" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Buscar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpiar" aria-label="Limpiar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando búsqueda
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Pestañas" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+    
+  
+  Inicio
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../user-guide/" class="md-tabs__link">
+          
+  
+  Guía de Usuario
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/" class="md-tabs__link">
+          
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../development/" class="md-tabs__link">
+          
+  
+  Desarrollo
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navegación" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Facturación México - Documentación Técnica" class="md-nav__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Facturación México - Documentación Técnica
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Inicio
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Guía de Usuario
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Guía de Usuario
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../user-guide/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Usuario - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../user-guide/getting-started/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Primeros Pasos
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../user-guide/multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../user-guide/addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../user-guide/draft-invoices/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Facturas en Borrador
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../user-guide/troubleshooting/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    API Reference
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    API Reference - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/cfdi/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CFDI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/draft-management/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Draft Management
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/catalogos/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Catalogos SAT
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/hooks/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Hooks
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Desarrollo
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Desarrollo
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../development/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Desarrollo - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../development/setup/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Setup Desarrollo
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../development/draft-workflow/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Draft Workflow
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#resumen-ejecutivo" class="md-nav__link">
+    <span class="md-ellipsis">
+      Resumen Ejecutivo
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#convenciones-del-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      Convenciones del Plan
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Convenciones del Plan">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#control-de-versiones" class="md-nav__link">
+    <span class="md-ellipsis">
+      Control de Versiones
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aislamiento-operacional" class="md-nav__link">
+    <span class="md-ellipsis">
+      Aislamiento Operacional
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#e0-preparacion-y-datos-sat-en-items" class="md-nav__link">
+    <span class="md-ellipsis">
+      E0) PREPARACIÓN Y DATOS SAT EN ITEMS
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="E0) PREPARACIÓN Y DATOS SAT EN ITEMS">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#criterios-objetivos-e0-segun-instructtxt" class="md-nav__link">
+    <span class="md-ellipsis">
+      Criterios Objetivos E0 (según instruct.txt)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Criterios Objetivos E0 (según instruct.txt)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-cobertura-campos-sat-en-items" class="md-nav__link">
+    <span class="md-ellipsis">
+      1) Cobertura Campos SAT en Items
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-catalogos-sat-selectivos-estrategia-ajustada" class="md-nav__link">
+    <span class="md-ellipsis">
+      2) Catálogos SAT Selectivos (ESTRATEGIA AJUSTADA)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-calidad-datos-integridad-y-vigencia" class="md-nav__link">
+    <span class="md-ellipsis">
+      3) Calidad Datos (Integridad y Vigencia)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-preparacion-cascada-sin-activar-calculo" class="md-nav__link">
+    <span class="md-ellipsis">
+      4) Preparación Cascada (Sin Activar Cálculo)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-evidencia-y-senal-salida" class="md-nav__link">
+    <span class="md-ellipsis">
+      5) Evidencia y Señal Salida
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#criterios-dod-e0-refinados" class="md-nav__link">
+    <span class="md-ellipsis">
+      Criterios DoD E0 (REFINADOS)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#estado-actual-e0-2025-09-22-completado" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Estado Actual E0 (2025-09-22) - COMPLETADO
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#e05-configuracion-cuentas-contables-y-templates-impuestos" class="md-nav__link">
+    <span class="md-ellipsis">
+      E0.5) CONFIGURACIÓN CUENTAS CONTABLES Y TEMPLATES IMPUESTOS
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="E0.5) CONFIGURACIÓN CUENTAS CONTABLES Y TEMPLATES IMPUESTOS">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#limpieza-e1-h-completada-2025-09-29" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ LIMPIEZA E1-H COMPLETADA (2025-09-29)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#estado-actual-identificado" class="md-nav__link">
+    <span class="md-ellipsis">
+      Estado Actual Identificado
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tareas-e05-completadas-2025-10-01" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Tareas E0.5 COMPLETADAS (2025-10-01)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#templates-identificados-segun-installpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Templates Identificados (según install.py)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#criterios-dod-e05-cumplidos-2025-10-01" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Criterios DoD E0.5 CUMPLIDOS (2025-10-01)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#e1-asignacion-automatica-iva-con-cascada-nativa" class="md-nav__link">
+    <span class="md-ellipsis">
+      E1) ASIGNACIÓN AUTOMÁTICA IVA CON CASCADA NATIVA
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="E1) ASIGNACIÓN AUTOMÁTICA IVA CON CASCADA NATIVA">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#estado-actual-e1-2025-10-01-completado" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Estado Actual E1 (2025-10-01) - COMPLETADO
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#checklist-operativo-e1-basado-en-decision-e0" class="md-nav__link">
+    <span class="md-ellipsis">
+      Checklist Operativo E1 (basado en decisión E0)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Checklist Operativo E1 (basado en decisión E0)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-stct-base-por-compania" class="md-nav__link">
+    <span class="md-ellipsis">
+      1) STCT Base por Compañía
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-tax-rules-inteligentes" class="md-nav__link">
+    <span class="md-ellipsis">
+      2) Tax Rules Inteligentes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-itt-coherente-con-stct" class="md-nav__link">
+    <span class="md-ellipsis">
+      3) ITT Coherente con STCT
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-respeto-objetoimp-desde-claveprodserv" class="md-nav__link">
+    <span class="md-ellipsis">
+      4) Respeto ObjetoImp (desde ClaveProdServ)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-testing-evidencia" class="md-nav__link">
+    <span class="md-ellipsis">
+      5) Testing &amp; Evidencia
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#criterios-dod-e1-cumplidos-2025-10-01" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Criterios DoD E1 CUMPLIDOS (2025-10-01)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#documentacion-e1-generada" class="md-nav__link">
+    <span class="md-ellipsis">
+      Documentación E1 Generada
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#e2-ieps-iva-tax-on-tax" class="md-nav__link">
+    <span class="md-ellipsis">
+      E2) IEPS + IVA (TAX-ON-TAX)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="E2) IEPS + IVA (TAX-ON-TAX)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#estado-actual-e2-2025-10-08-implementado" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Estado Actual E2 (2025-10-08) - IMPLEMENTADO
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tareas-e2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tareas E2
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#criterios-dod-e2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Criterios DoD E2
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#e3-retenciones-isriva-escenarios-tipicos" class="md-nav__link">
+    <span class="md-ellipsis">
+      E3) RETENCIONES (ISR/IVA) ESCENARIOS TÍPICOS
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="E3) RETENCIONES (ISR/IVA) ESCENARIOS TÍPICOS">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#estado-actual-e3-2025-10-08-completado" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Estado Actual E3 (2025-10-08) - COMPLETADO
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tareas-e3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tareas E3
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#criterios-dod-e3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Criterios DoD E3
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testing-e3-ejecutado" class="md-nav__link">
+    <span class="md-ellipsis">
+      Testing E3 Ejecutado
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#documentacion-e3-generada" class="md-nav__link">
+    <span class="md-ellipsis">
+      Documentación E3 Generada
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#e4-cfdi-40-mapeo-conceptos-e-impuestos" class="md-nav__link">
+    <span class="md-ellipsis">
+      E4) CFDI 4.0 - MAPEO CONCEPTOS E IMPUESTOS
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="E4) CFDI 4.0 - MAPEO CONCEPTOS E IMPUESTOS">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#estado-actual-e4-2025-10-16-en-progreso-paso-0-2-completados" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Estado Actual E4 (2025-10-16) - EN PROGRESO (Paso 0-2 COMPLETADOS)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tareas-e4" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tareas E4
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#criterios-dod-e4" class="md-nav__link">
+    <span class="md-ellipsis">
+      Criterios DoD E4
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testing-e4-completado-paso-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Testing E4 Completado (Paso 2)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#documentacion-e4-generada-paso-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Documentación E4 Generada (Paso 1)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#proximos-pasos-e4" class="md-nav__link">
+    <span class="md-ellipsis">
+      Próximos Pasos E4
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#e5-descuentos-linea-y-global" class="md-nav__link">
+    <span class="md-ellipsis">
+      E5) DESCUENTOS (LÍNEA Y GLOBAL)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="E5) DESCUENTOS (LÍNEA Y GLOBAL)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tareas-e5" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tareas E5
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#criterios-dod-e5" class="md-nav__link">
+    <span class="md-ellipsis">
+      Criterios DoD E5
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#e6-anticipos-pagos-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      E6) ANTICIPOS + PAGOS 2.0
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="E6) ANTICIPOS + PAGOS 2.0">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tareas-e6" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tareas E6
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#criterios-dod-e6" class="md-nav__link">
+    <span class="md-ellipsis">
+      Criterios DoD E6
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#e7-normalizacion-catalogos-sat" class="md-nav__link">
+    <span class="md-ellipsis">
+      E7) NORMALIZACIÓN CATÁLOGOS SAT
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="E7) NORMALIZACIÓN CATÁLOGOS SAT">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tareas-e7" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tareas E7
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#criterios-dod-e7" class="md-nav__link">
+    <span class="md-ellipsis">
+      Criterios DoD E7
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#e8-qa-integral-y-cierre" class="md-nav__link">
+    <span class="md-ellipsis">
+      E8) QA INTEGRAL Y CIERRE
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="E8) QA INTEGRAL Y CIERRE">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tareas-e8" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tareas E8
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#criterios-dod-e8" class="md-nav__link">
+    <span class="md-ellipsis">
+      Criterios DoD E8
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#documentos-rectores-post-implementacion" class="md-nav__link">
+    <span class="md-ellipsis">
+      DOCUMENTOS RECTORES (Post-Implementación)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="DOCUMENTOS RECTORES (Post-Implementación)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#documentos-pendientes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Documentos Pendientes
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#plan-de-tests-ts" class="md-nav__link">
+    <span class="md-ellipsis">
+      PLAN DE TESTS (TS)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PLAN DE TESTS (TS)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#niveles-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Niveles Testing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#datos-prueba" class="md-nav__link">
+    <span class="md-ellipsis">
+      Datos Prueba
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#criterios-aceptacion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Criterios Aceptación
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#checkpoints-y-entregables" class="md-nav__link">
+    <span class="md-ellipsis">
+      CHECKPOINTS Y ENTREGABLES
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#riesgos-y-mitigaciones" class="md-nav__link">
+    <span class="md-ellipsis">
+      RIESGOS Y MITIGACIONES
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="RIESGOS Y MITIGACIONES">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#riesgos-tecnicos" class="md-nav__link">
+    <span class="md-ellipsis">
+      Riesgos Técnicos
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#riesgos-operacionales" class="md-nav__link">
+    <span class="md-ellipsis">
+      Riesgos Operacionales
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#proximos-pasos" class="md-nav__link">
+    <span class="md-ellipsis">
+      PRÓXIMOS PASOS
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PRÓXIMOS PASOS">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#checkpoint-e0-inmediato" class="md-nav__link">
+    <span class="md-ellipsis">
+      Checkpoint E0 Inmediato
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mini-checklist-operativo-e0-10-15-min-cu" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mini Checklist Operativo E0 (10-15 min c/u)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#historial-de-limpieza-y-optimizaciones" class="md-nav__link">
+    <span class="md-ellipsis">
+      HISTORIAL DE LIMPIEZA Y OPTIMIZACIONES
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="HISTORIAL DE LIMPIEZA Y OPTIMIZACIONES">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#limpieza-e1-h-2025-09-29-completado" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Limpieza E1-H (2025-09-29) - COMPLETADO
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="✅ Limpieza E1-H (2025-09-29) - COMPLETADO">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#objetivo-logrado" class="md-nav__link">
+    <span class="md-ellipsis">
+      Objetivo Logrado
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resultados-obtenidos" class="md-nav__link">
+    <span class="md-ellipsis">
+      Resultados Obtenidos
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#documentacion-generada" class="md-nav__link">
+    <span class="md-ellipsis">
+      Documentación Generada
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#impacto-en-plan-e0-e8" class="md-nav__link">
+    <span class="md-ellipsis">
+      Impacto en Plan E0-E8
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verificacion-sistema-actual-paso-1-e1-h" class="md-nav__link">
+    <span class="md-ellipsis">
+      VERIFICACIÓN SISTEMA ACTUAL - PASO 1 E1-H
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="VERIFICACIÓN SISTEMA ACTUAL - PASO 1 E1-H">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#verificacion-completa-sistema-2025-09-29-completado" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Verificación Completa Sistema (2025-09-29) - COMPLETADO
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="✅ Verificación Completa Sistema (2025-09-29) - COMPLETADO">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#objetivo-logrado_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Objetivo Logrado
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resultados-obtenidos-8-componentes-verificados" class="md-nav__link">
+    <span class="md-ellipsis">
+      Resultados Obtenidos - 8 Componentes Verificados
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#infraestructura-fiscal-identificada" class="md-nav__link">
+    <span class="md-ellipsis">
+      Infraestructura Fiscal Identificada
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#documentacion-generada_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Documentación Generada
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#impacto-en-plan-e0-e8_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Impacto en Plan E0-E8
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementacion-automated-tax-system-paso-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      IMPLEMENTACIÓN AUTOMATED TAX SYSTEM - PASO 1
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="IMPLEMENTACIÓN AUTOMATED TAX SYSTEM - PASO 1">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#paso-1-estructura-base-completado-2025-09-29" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Paso 1: Estructura Base Completado (2025-09-29)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="✅ Paso 1: Estructura Base Completado (2025-09-29)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#objetivo-logrado_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Objetivo Logrado
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resultados-obtenidos_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Resultados Obtenidos
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#implementacion-tecnica" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementación Técnica
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verificaciones-exitosas" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verificaciones Exitosas
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#documentacion-generada_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Documentación Generada
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#proximo-milestone" class="md-nav__link">
+    <span class="md-ellipsis">
+      Próximo Milestone
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#arquitectura-critica-doctype-regimen-fiscal-sat" class="md-nav__link">
+    <span class="md-ellipsis">
+      🚨 ARQUITECTURA CRÍTICA: DocType Régimen Fiscal SAT
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🚨 ARQUITECTURA CRÍTICA: DocType Régimen Fiscal SAT">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#problema-resuelto-eliminacion-tax-categories-sat-2025-10-01" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ PROBLEMA RESUELTO: Eliminación Tax Categories SAT (2025-10-01)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="✅ PROBLEMA RESUELTO: Eliminación Tax Categories SAT (2025-10-01)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#contexto-del-problema-resuelto" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contexto del Problema RESUELTO
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#estado-actual-migracion-2025-10-01" class="md-nav__link">
+    <span class="md-ellipsis">
+      Estado Actual Migración (2025-10-01)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mejora-futura-doctype-regimen-fiscal-sat-especifico" class="md-nav__link">
+    <span class="md-ellipsis">
+      🎯 MEJORA FUTURA: DocType Regimen Fiscal SAT Específico
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🎯 MEJORA FUTURA: DocType Regimen Fiscal SAT Específico">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#estado-actual-funcional-no-bloquea-e1-e2" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Estado Actual Funcional - No Bloquea E1-E2
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#oportunidad-mejora-e3-prioridad-media" class="md-nav__link">
+    <span class="md-ellipsis">
+      💡 Oportunidad Mejora E3 (Prioridad MEDIA)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#plan-mejora-opcional-e3" class="md-nav__link">
+    <span class="md-ellipsis">
+      📋 Plan Mejora OPCIONAL E3
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enfoque-actual-proceder-e1" class="md-nav__link">
+    <span class="md-ellipsis">
+      🎯 Enfoque Actual: Proceder E1
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#impacto-en-cronograma-e0-e8" class="md-nav__link">
+    <span class="md-ellipsis">
+      🚀 Impacto en Cronograma E0-E8
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#limpieza-tax-categories-sat-completada-2025-10-01" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧹 LIMPIEZA TAX CATEGORIES SAT - COMPLETADA (2025-10-01)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🧹 LIMPIEZA TAX CATEGORIES SAT - COMPLETADA (2025-10-01)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#eliminacion-definitiva-tax-categories-sat" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ ELIMINACIÓN DEFINITIVA TAX CATEGORIES SAT
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="✅ ELIMINACIÓN DEFINITIVA TAX CATEGORIES SAT">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#contexto-implementacion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contexto Implementación
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#acciones-ejecutadas" class="md-nav__link">
+    <span class="md-ellipsis">
+      Acciones Ejecutadas
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resultado-arquitectonico" class="md-nav__link">
+    <span class="md-ellipsis">
+      Resultado Arquitectónico
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verificaciones-post-limpieza" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verificaciones Post-Limpieza
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#documentacion-generada_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Documentación Generada
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#impacto-en-plan-e0-e8_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      🎯 IMPACTO EN PLAN E0-E8
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🎯 IMPACTO EN PLAN E0-E8">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#e1-iva-automatico-desbloqueado" class="md-nav__link">
+    <span class="md-ellipsis">
+      E1 - IVA AUTOMÁTICO (DESBLOQUEADO)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#e2-e8-preparado" class="md-nav__link">
+    <span class="md-ellipsis">
+      E2-E8 (PREPARADO)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nueva-linea-base-e1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Nueva Línea Base E1
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#commits-relacionados" class="md-nav__link">
+    <span class="md-ellipsis">
+      📋 COMMITS RELACIONADOS
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mejoras-post-e1-2025-10-02-completado" class="md-nav__link">
+    <span class="md-ellipsis">
+      🏗️ MEJORAS POST-E1 (2025-10-02) - COMPLETADO
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🏗️ MEJORAS POST-E1 (2025-10-02) - COMPLETADO">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sistema-automatizado-item-groups-con-itt-assignment" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Sistema Automatizado Item Groups con ITT Assignment
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="✅ Sistema Automatizado Item Groups con ITT Assignment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#objetivo-logrado_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Objetivo Logrado
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#implementacion-tecnica_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementación Técnica
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#criterios-dod-cumplidos" class="md-nav__link">
+    <span class="md-ellipsis">
+      Criterios DoD Cumplidos
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#solucion-problema-doble-sufijo-templates-fiscales" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Solución Problema Doble Sufijo Templates Fiscales
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="✅ Solución Problema Doble Sufijo Templates Fiscales">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#contexto-del-problema-resuelto_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contexto del Problema RESUELTO
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#solucion-implementada-propuesta-chatgpt-3-fases" class="md-nav__link">
+    <span class="md-ellipsis">
+      Solución Implementada - Propuesta ChatGPT 3 Fases
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verificacion-solucion-completa" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verificación Solución Completa
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#documentacion-generada_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      Documentación Generada
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#impacto-en-plan-e0-e8_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Impacto en Plan E0-E8
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#criterios-dod-cumplidos_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Criterios DoD Cumplidos
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="plan-fiscal-implementacion-mx-e0-e8-issues-65-y-66">PLAN FISCAL IMPLEMENTACIÓN MX (E0-E8) - Issues #65 y #66<a class="headerlink" href="#plan-fiscal-implementacion-mx-e0-e8-issues-65-y-66" title="Permanent link">&para;</a></h1>
+<p><strong>Estado:</strong> 🔄 En ejecución
+<strong>Fecha creación:</strong> 2025-09-22
+<strong>Categoría:</strong> integracion
+<strong>Issues relacionados:</strong> #65, #66
+<strong>Rama de trabajo:</strong> <code>feat/mx-fiscal-E0-E3-issues-65-66</code></p>
+<h2 id="resumen-ejecutivo">Resumen Ejecutivo<a class="headerlink" href="#resumen-ejecutivo" title="Permanent link">&para;</a></h2>
+<p>Plan de implementación completa del sistema fiscal mexicano en 8 etapas (E0-E8), incluyendo:
+- Normalización Items con catálogos SAT
+- Configuración automática IVA (16/8/0/Exento)
+- Soporte IEPS + Retenciones
+- Emisión CFDI 4.0 completa
+- Flujo anticipos + Pagos 2.0</p>
+<h2 id="convenciones-del-plan">Convenciones del Plan<a class="headerlink" href="#convenciones-del-plan" title="Permanent link">&para;</a></h2>
+<h3 id="control-de-versiones">Control de Versiones<a class="headerlink" href="#control-de-versiones" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Branch base:</strong> <code>feat/mx-fiscal-E0-E3-issues-65-66</code></li>
+<li><strong>Prefijo commits:</strong> <code>[E0]</code>, <code>[E1]</code>, <code>[E2]</code>, ..., <code>[E8]</code>, <code>[TS]</code> (tests), <code>[DOC]</code> (docs)</li>
+<li><strong>Tags checkpoint:</strong> <code>mx-fiscal-E1-ready</code>, <code>mx-fiscal-E3-ready</code>, etc.</li>
+<li><strong>PRs vinculados:</strong> Issues #65 y #66</li>
+</ul>
+<h3 id="aislamiento-operacional">Aislamiento Operacional<a class="headerlink" href="#aislamiento-operacional" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Feature flags para no impactar producción hasta E3</li>
+<li>Validaciones progresivas por etapa</li>
+<li>Rollback points en cada checkpoint</li>
+</ul>
+<hr />
+<h2 id="e0-preparacion-y-datos-sat-en-items">E0) PREPARACIÓN Y DATOS SAT EN ITEMS<a class="headerlink" href="#e0-preparacion-y-datos-sat-en-items" title="Permanent link">&para;</a></h2>
+<p><strong>Objetivo:</strong> Normalizar productos con campos SAT para enganche al flujo nativo</p>
+<h3 id="criterios-objetivos-e0-segun-instructtxt">Criterios Objetivos E0 (según instruct.txt)<a class="headerlink" href="#criterios-objetivos-e0-segun-instructtxt" title="Permanent link">&para;</a></h3>
+<h4 id="1-cobertura-campos-sat-en-items">1) Cobertura Campos SAT en Items<a class="headerlink" href="#1-cobertura-campos-sat-en-items" title="Permanent link">&para;</a></h4>
+<ul>
+<li>[ ] <strong>E0.1</strong> - 100% Items activos vendibles con <strong>ClaveProdServ</strong> válida (catálogo c_ClaveProdServ)</li>
+<li>[ ] <strong>E0.2</strong> - 100% Items activos vendibles con <strong>ClaveUnidad</strong> válida (catálogo c_ClaveUnidad)</li>
+<li>[ ] <strong>E0.3</strong> - 100% Items activos vendibles con <strong>ObjetoImp</strong> válido (catálogo c_ObjetoImp vigente)</li>
+<li>[ ] <strong>E0.4</strong> - Item Group hereda campos por defecto sin sobre-escrituras obligatorias</li>
+</ul>
+<h4 id="2-catalogos-sat-selectivos-estrategia-ajustada">2) Catálogos SAT Selectivos (ESTRATEGIA AJUSTADA)<a class="headerlink" href="#2-catalogos-sat-selectivos-estrategia-ajustada" title="Permanent link">&para;</a></h4>
+<ul>
+<li>[ ] <strong>E0.5</strong> - Fuente única catálogos con versión/vigencia visible: c_ClaveProdServ, c_ClaveUnidad, c_ObjetoImp</li>
+<li>[ ] <strong>E0.6</strong> - <strong>SOLO catálogos necesarios por empresa</strong> (no completos - per instruct.txt)</li>
+<li>[ ] <strong>E0.7</strong> - Selección valores desde catálogos controlados (no texto libre)</li>
+<li>[ ] <strong>E0.8</strong> - c_ObjetoImp refleja último corte SAT o documenta versión/fecha</li>
+</ul>
+<h4 id="3-calidad-datos-integridad-y-vigencia">3) Calidad Datos (Integridad y Vigencia)<a class="headerlink" href="#3-calidad-datos-integridad-y-vigencia" title="Permanent link">&para;</a></h4>
+<ul>
+<li>[ ] <strong>E0.9</strong> - 0 Items con claves inexistentes/expiradas según vigencias SAT</li>
+<li>[ ] <strong>E0.10</strong> - 0 Items con ObjetoImp vacío</li>
+<li>[ ] <strong>E0.11</strong> - Lista excepciones aprobada (Items servicio interno no facturables)</li>
+</ul>
+<h4 id="4-preparacion-cascada-sin-activar-calculo">4) Preparación Cascada (Sin Activar Cálculo)<a class="headerlink" href="#4-preparacion-cascada-sin-activar-calculo" title="Permanent link">&para;</a></h4>
+<ul>
+<li>[ ] <strong>E0.12</strong> - ITT por defecto definido como referencia (no cuadrar con STCT aún)</li>
+<li>[ ] <strong>E0.13</strong> - NO modificar STCT/Tax Rules (E0 no cambia cálculo impuestos actual)</li>
+</ul>
+<h4 id="5-evidencia-y-senal-salida">5) Evidencia y Señal Salida<a class="headerlink" href="#5-evidencia-y-senal-salida" title="Permanent link">&para;</a></h4>
+<ul>
+<li>[ ] <strong>E0.14</strong> - Reporte cobertura: Total Items vendibles, % cobertura 100%, 0 inválidos</li>
+<li>[ ] <strong>E0.15</strong> - Pantallazo/Reporte versión/fecha catálogos (especialmente c_ObjetoImp)</li>
+<li>[ ] <strong>E0.16</strong> - Factura prueba "en seco" 3 renglones (gravado/0%/exento) - ObjetoImp baja al concepto</li>
+</ul>
+<h3 id="criterios-dod-e0-refinados">Criterios DoD E0 (REFINADOS)<a class="headerlink" href="#criterios-dod-e0-refinados" title="Permanent link">&para;</a></h3>
+<p>✅ <strong>Arquitectura definida</strong> - Decisión ObjetoImp por ClaveProdServ vs Item (ver evidencias/REPORTE-ARQUITECTURA-E0-FINAL.md)
+✅ <strong>100% cobertura</strong> Items vendibles con campos SAT válidos/vigentes
+✅ <strong>0 inválidos</strong> - claves existentes en catálogos SAT selectivos
+✅ <strong>Evidencias</strong> - Reporte cobertura + versión catálogos + factura prueba
+✅ <strong>Sin scope creep</strong> - NO crear STCT/Tax Rules, NO validar cálculo impuestos</p>
+<h3 id="estado-actual-e0-2025-09-22-completado">✅ <strong>Estado Actual E0 (2025-09-22) - COMPLETADO</strong><a class="headerlink" href="#estado-actual-e0-2025-09-22-completado" title="Permanent link">&para;</a></h3>
+<p>🎯 <strong>DECISIÓN ARQUITECTÓNICA TOMADA:</strong> <strong>OPCIÓN A - ObjetoImp por ClaveProdServ</strong></p>
+<p><strong>Justificación SAT:</strong>
+- ✅ No hay casos sólidos donde se requiera ObjetoImp por Item individual
+- ✅ Diferencias aparentes son: contexto transaccional (Tax Rules) o clasificación incorrecta
+- ✅ Ejemplos SAT confirmados: exportaciones, región fronteriza, restaurantes → Tax Rules, no Item override</p>
+<p><strong>Arquitectura final E0:</strong>
+- ✅ <strong>ClaveProdServ:</strong> <code>fm_producto_servicio_sat</code> → SAT Producto Servicio
+- ✅ <strong>ClaveUnidad:</strong> <code>stock_uom</code> → UOM nativo ERPNext
+- ✅ <strong>ObjetoImp:</strong> <code>incluye_objeto_impuesto</code> en SAT Producto Servicio (por ClaveProdServ)</p>
+<p><strong>E0 COMPLETADO - Arquitectura actual es suficiente y correcta según normativa SAT</strong></p>
+<hr />
+<h2 id="e05-configuracion-cuentas-contables-y-templates-impuestos">E0.5) CONFIGURACIÓN CUENTAS CONTABLES Y TEMPLATES IMPUESTOS<a class="headerlink" href="#e05-configuracion-cuentas-contables-y-templates-impuestos" title="Permanent link">&para;</a></h2>
+<p><strong>Objetivo:</strong> Implementar setup wizard fiscal completo con cuentas contables y templates STCT/ITT</p>
+<h3 id="limpieza-e1-h-completada-2025-09-29">✅ <strong>LIMPIEZA E1-H COMPLETADA (2025-09-29)</strong><a class="headerlink" href="#limpieza-e1-h-completada-2025-09-29" title="Permanent link">&para;</a></h3>
+<p>🎯 <strong>PREREQUISITO E1 CUMPLIDO:</strong> Sistema limpio y optimizado</p>
+<p><strong>Acciones realizadas:</strong>
+- ✅ <strong>Custom fields duplicados eliminados</strong> - 4 campos problemáticos removidos (Customer/Branch)
+- ✅ <strong>Campo Cost Center optimizado</strong> - <code>fm_mapped_branch</code> con filtros inteligentes por company
+- ✅ <strong>Backup completo creado</strong> - <code>PRE_E1_CLEANUP_COMPLETE</code> estado seguro para rollback
+- ✅ <strong>Naming convention unificado</strong> - Todo custom field usa prefijo <code>fm_</code>
+- ✅ <strong>Database limpia</strong> - Sin duplicaciones ni conflictos E1-H</p>
+<p><strong>Documentación:</strong> <code>REPORTE-LIMPIEZA-E1H-2025-09-29.md</code></p>
+<h3 id="estado-actual-identificado">Estado Actual Identificado<a class="headerlink" href="#estado-actual-identificado" title="Permanent link">&para;</a></h3>
+<p>⚠️ <strong>GAP CRÍTICO:</strong> Análisis revela configuración fiscal INSUFICIENTE
+- ❌ <strong>0 templates mexicanos</strong> configurados en company principal
+- ❌ <strong>0 cuentas impuestos mexicanas</strong> (IVA, ISR, IEPS)
+- ✅ <strong>Setup wizard fiscal</strong> identificado en install.py (16+ templates preparados)
+- ⚠️ <strong>Requiere ejecución</strong> setup fiscal antes de E1
+- ✅ <strong>Sistema limpio</strong> post-cleanup E1-H, listo para implementación correcta</p>
+<h3 id="tareas-e05-completadas-2025-10-01">✅ <strong>Tareas E0.5 COMPLETADAS (2025-10-01)</strong><a class="headerlink" href="#tareas-e05-completadas-2025-10-01" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[x] <strong>E0.5.1</strong> - ✅ Setup wizard fiscal ejecutado en _Test Company</li>
+<li>[x] <strong>E0.5.2</strong> - ✅ Cuentas contables impuestos mexicanos creadas</li>
+<li>[x] <strong>E0.5.3</strong> - ✅ 9 templates fiscales generados exitosamente</li>
+<li>[x] <strong>E0.5.4</strong> - ✅ ITT creados con matching tax_type ↔ account_head</li>
+<li>[x] <strong>E0.5.5</strong> - ✅ Templates configurados por company</li>
+<li>[x] <strong>E0.5.6</strong> - ✅ Templates IEPS complejos (tax-on-tax) funcionando</li>
+<li>[x] <strong>E0.5.7</strong> - ✅ Sistema templates verificado sin Tax Rules (corrección ChatGPT aplicada)</li>
+</ul>
+<h3 id="templates-identificados-segun-installpy">Templates Identificados (según install.py)<a class="headerlink" href="#templates-identificados-segun-installpy" title="Permanent link">&para;</a></h3>
+<p><strong>🟢 VENTAS (8 templates):</strong>
+- IVA 16% - México
+- IVA 8% - Zona Fronteriza
+- IVA 0% - Exportación
+- Sin Impuestos - Exento
+- IEPS + IVA 16% - Bebidas Alcohólicas (53%)
+- IEPS + IVA 16% - Tabaco (160%)
+- IEPS + IVA 16% - Combustibles
+- IEPS + IVA 16% - Bebidas Azucaradas (8%)</p>
+<p><strong>🟡 RETENCIONES (8+ templates):</strong>
+- Honorarios - ISR 10% + IVA Ret 2/3
+- Honorarios RESICO - ISR 1.25% + IVA Ret 2/3
+- Arrendamientos - ISR 10% + IVA Ret 2/3
+- Autotransporte - ISR 4% + IVA Ret 4%
+- Autotransporte RESICO - ISR 1.25% + IVA Ret 4%
+- Dividendos - ISR 10%
+- Intereses - ISR 10%
+- Regalías - ISR 10%</p>
+<h3 id="criterios-dod-e05-cumplidos-2025-10-01">✅ <strong>Criterios DoD E0.5 CUMPLIDOS (2025-10-01)</strong><a class="headerlink" href="#criterios-dod-e05-cumplidos-2025-10-01" title="Permanent link">&para;</a></h3>
+<p>✅ <strong>Setup wizard ejecutado</strong> - 9 templates fiscales creados para _Test Company
+✅ <strong>Cuentas contables</strong> - Cuentas impuestos mexicanos configuradas
+✅ <strong>ITT configurados</strong> - tax_type matching con STCT accounts funcionando
+✅ <strong>Templates funcionales</strong> - Sistema templates operativo sin Tax Rules
+✅ <strong>Base E1 preparada</strong> - STCT listos para Tax Rules automáticas (E1 desbloqueado)
+✅ <strong>Corrección ChatGPT aplicada</strong> - E0.5 cumple alcance original del plan (solo STCT+ITT, sin Tax Rules)</p>
+<hr />
+<h2 id="e1-asignacion-automatica-iva-con-cascada-nativa">E1) ASIGNACIÓN AUTOMÁTICA IVA CON CASCADA NATIVA<a class="headerlink" href="#e1-asignacion-automatica-iva-con-cascada-nativa" title="Permanent link">&para;</a></h2>
+<p><strong>Objetivo:</strong> ERPNext selecciona STCT correcto y aplica ITT coherente</p>
+<h3 id="estado-actual-e1-2025-10-01-completado">✅ <strong>Estado Actual E1 (2025-10-01) - COMPLETADO</strong><a class="headerlink" href="#estado-actual-e1-2025-10-01-completado" title="Permanent link">&para;</a></h3>
+<p>🎯 <strong>SISTEMA MIXTO IMPLEMENTADO:</strong> <strong>Líneas con diferentes ITT calculan correctamente</strong></p>
+<p><strong>Problema Resuelto:</strong>
+- ✅ <strong>ITT 0% respetado</strong> en líneas individuales con productos mixtos
+- ✅ <strong>Propuesta ChatGPT implementada</strong> - STCT con 3 filas + ITT con 3 entradas
+- ✅ <strong>Item-wise Tax Detail</strong> funcionando automáticamente
+- ✅ <strong>Validación ACC-SINV-2025-01572</strong> - capacitación 0% + material oficina 8% ✅</p>
+<p><strong>Implementación técnica:</strong>
+- ✅ <strong>E0.5 modificado</strong> - Generador templates con 3 filas STCT fijas
+- ✅ <strong>ITT override</strong> - 3 entradas todas tax_rate=0 para anular y dirigir
+- ✅ <strong>JavaScript corregido</strong> - Eliminado filtro for_selling problemático
+- ✅ <strong>Hooks mejorados</strong> - Integración get_item_tax_template nativo ERPNext</p>
+<h3 id="checklist-operativo-e1-basado-en-decision-e0">Checklist Operativo E1 (basado en decisión E0)<a class="headerlink" href="#checklist-operativo-e1-basado-en-decision-e0" title="Permanent link">&para;</a></h3>
+<h4 id="1-stct-base-por-compania">1) STCT Base por Compañía<a class="headerlink" href="#1-stct-base-por-compania" title="Permanent link">&para;</a></h4>
+<ul>
+<li>[x] <strong>E1.1</strong> - ✅ STCT General 16% IVA con 3 filas (16%, 0%, exento)</li>
+<li>[x] <strong>E1.2</strong> - ✅ STCT Frontera 8% IVA con 3 filas (8%, 0%, exento)</li>
+<li>[x] <strong>E1.3</strong> - ✅ STCT Cero 0% IVA (productos básicos/exportación)</li>
+<li>[x] <strong>E1.4</strong> - ✅ STCT Exento (sin IVA, no objeto impuesto)</li>
+</ul>
+<h4 id="2-tax-rules-inteligentes">2) Tax Rules Inteligentes<a class="headerlink" href="#2-tax-rules-inteligentes" title="Permanent link">&para;</a></h4>
+<ul>
+<li>[x] <strong>E1.5</strong> - ✅ Tax Rule por territorio (sistema E1 automático funcionando)</li>
+<li>[x] <strong>E1.6</strong> - ✅ Tax Rule por tipo cliente (Customer → Cost Center → Branch → STCT)</li>
+<li>[x] <strong>E1.7</strong> - ✅ Tax Rule por categoría producto (ITT override por Item Group)</li>
+<li>[x] <strong>E1.8</strong> - ✅ Validar autoselección STCT según contexto transaccional</li>
+</ul>
+<h4 id="3-itt-coherente-con-stct">3) ITT Coherente con STCT<a class="headerlink" href="#3-itt-coherente-con-stct" title="Permanent link">&para;</a></h4>
+<ul>
+<li>[x] <strong>E1.9</strong> - ✅ ITT IVA 16% con <code>tax_type</code> matching <code>account_head</code> STCT 16%</li>
+<li>[x] <strong>E1.10</strong> - ✅ ITT IVA 8% con <code>tax_type</code> matching <code>account_head</code> STCT 8%</li>
+<li>[x] <strong>E1.11</strong> - ✅ ITT IVA 0% con <code>tax_type</code> matching <code>account_head</code> STCT 0%</li>
+<li>[x] <strong>E1.12</strong> - ✅ ITT configurado por Item Group (herencia automática)</li>
+</ul>
+<h4 id="4-respeto-objetoimp-desde-claveprodserv">4) Respeto ObjetoImp (desde ClaveProdServ)<a class="headerlink" href="#4-respeto-objetoimp-desde-claveprodserv" title="Permanent link">&para;</a></h4>
+<ul>
+<li>[x] <strong>E1.13</strong> - ✅ ObjetoImp 01/03: NO genera nodo impuestos en concepto CFDI</li>
+<li>[x] <strong>E1.14</strong> - ✅ ObjetoImp 02: SÍ genera nodo impuestos con desglose correcto</li>
+<li>[x] <strong>E1.15</strong> - ✅ Validación ObjetoImp vs STCT seleccionado (coherencia fiscal)</li>
+</ul>
+<h4 id="5-testing-evidencia">5) Testing &amp; Evidencia<a class="headerlink" href="#5-testing-evidencia" title="Permanent link">&para;</a></h4>
+<ul>
+<li>[x] <strong>E1.16</strong> - ✅ Factura 16% IVA nacional → verificar STCT + ITT + CFDI</li>
+<li>[x] <strong>E1.17</strong> - ✅ Factura 8% frontera → verificar Tax Rules + STCT + CFDI</li>
+<li>[x] <strong>E1.18</strong> - ✅ Factura 0% exportación → verificar Tax Rules + ObjetoImp 02 + tasa 0</li>
+<li>[x] <strong>E1.19</strong> - ✅ Factura exenta → verificar ObjetoImp 01/03 + sin nodo impuestos</li>
+<li>[x] <strong>E1.20</strong> - ✅ Factura mixta (múltiples tasas) → verificar desglose por concepto <strong>CASOS REALES VALIDADOS</strong></li>
+</ul>
+<h3 id="criterios-dod-e1-cumplidos-2025-10-01">✅ <strong>Criterios DoD E1 CUMPLIDOS (2025-10-01)</strong><a class="headerlink" href="#criterios-dod-e1-cumplidos-2025-10-01" title="Permanent link">&para;</a></h3>
+<p>✅ <strong>4 escenarios fiscales</strong> operando correctamente (16%, 8%, 0%, exento)
+✅ <strong>Sistema mixto funcional</strong> - ITT 0% + tasas normales en misma factura
+✅ <strong>ITT override automático</strong> - 3 entradas tax_rate=0 anulan y dirigen correctamente
+✅ <strong>Item-wise Tax Detail</strong> - ERPNext nativo calcula distribución automática
+✅ <strong>CFDI válido</strong> con desglose correcto por concepto
+✅ <strong>Tests exitosos</strong> - Validación real ACC-SINV-2025-01572 completada</p>
+<h3 id="documentacion-e1-generada"><strong>Documentación E1 Generada</strong><a class="headerlink" href="#documentacion-e1-generada" title="Permanent link">&para;</a></h3>
+<ul>
+<li>📄 <strong>REPORTE_ITT_0_STCT_MIXTO.md</strong> - Análisis problema original</li>
+<li>📄 <strong>Script validación</strong> - validar_sistema_mixto_acc_sinv_01572.py</li>
+<li>📄 <strong>Propuesta ChatGPT</strong> - Implementación exacta aplicada</li>
+<li>🧪 <strong>Casos prueba</strong> - ACC-SINV-2025-01572 (capacitación 0% + material 8%)</li>
+</ul>
+<hr />
+<h2 id="e2-ieps-iva-tax-on-tax">E2) IEPS + IVA (TAX-ON-TAX)<a class="headerlink" href="#e2-ieps-iva-tax-on-tax" title="Permanent link">&para;</a></h2>
+<p><strong>Objetivo:</strong> IVA calculado sobre Neto + IEPS</p>
+<h3 id="estado-actual-e2-2025-10-08-implementado">✅ <strong>Estado Actual E2 (2025-10-08) - IMPLEMENTADO</strong><a class="headerlink" href="#estado-actual-e2-2025-10-08-implementado" title="Permanent link">&para;</a></h3>
+<p>🎯 <strong>ARQUITECTURA OPCIÓN B COMPLETADA:</strong> <strong>STCT consolidados con estructura 13 filas</strong></p>
+<p><strong>Implementación técnica completada:</strong>
+- ✅ <strong>Función <code>_obtener_stct_opcion_b()</code></strong> genera STCT consolidados IVA 16% y 8% frontera
+- ✅ <strong>Estructura 13 filas por STCT:</strong> 4 tipos IEPS (Alcohol, Azúcar, Combustibles, Tabaco) + IVA cascada + retenciones + mixto E1
+- ✅ <strong>Cascada fiscal explícita:</strong> IVA "On Previous Row Amount" con <code>row_id</code> automático sobre cada IEPS
+- ✅ <strong>Fix row_id implementado:</strong> ValidationError resuelto para cascadas tax-on-tax
+- ✅ <strong>Extracción dinámica IEPS:</strong> 4 tipos desde MAPEO_ROLES_CONFIGURACION
+- ✅ <strong>Compatible mixto E1:</strong> Filas IVA 0% y Exento neutralizan por ítem vía ITT</p>
+<p><strong>Fixes críticos aplicados:</strong>
+- ✅ <strong>DoesNotExistError resuelto:</strong> <code>insert()</code> vs <code>save()</code> implementado correctamente
+- ✅ <strong>row_id automático:</strong> Campo agregado cuando <code>charge_type</code> requiere referencia anterior
+- ✅ <strong>is_default corregido:</strong> Templates no marcan como default (usa Tax Rules)</p>
+<h3 id="tareas-e2">Tareas E2<a class="headerlink" href="#tareas-e2" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[x] <strong>E2.1</strong> - ✅ STCT con filas encadenadas (IEPS primero, IVA sobre fila previa) - COMPLETADO</li>
+<li>[x] <strong>E2.2</strong> - ✅ ITT correspondientes alineados al <code>account_head</code> - COMPLETADO</li>
+<li>[x] <strong>E2.3</strong> - ✅ 4 facturas con IEPS (4 tipos) + cuadre IVA sobre Neto+IEPS - COMPLETADO</li>
+</ul>
+<h3 id="criterios-dod-e2">Criterios DoD E2<a class="headerlink" href="#criterios-dod-e2" title="Permanent link">&para;</a></h3>
+<p>✅ <strong>Arquitectura Opción B:</strong> STCT consolidados sin tax_category generados
+✅ <strong>Cascada fiscal:</strong> row_id automático funcionando correctamente
+✅ <strong>Fix generación:</strong> insert vs save implementado para templates nuevos
+✅ <strong>Tests completados:</strong> Verificación totales en cadena de impuestos (4 tipos IEPS)</p>
+<hr />
+<h2 id="e3-retenciones-isriva-escenarios-tipicos">E3) RETENCIONES (ISR/IVA) ESCENARIOS TÍPICOS<a class="headerlink" href="#e3-retenciones-isriva-escenarios-tipicos" title="Permanent link">&para;</a></h2>
+<p><strong>Objetivo:</strong> Honorarios, arrendamiento, autotransporte, RESICO</p>
+<h3 id="estado-actual-e3-2025-10-08-completado">✅ <strong>Estado Actual E3 (2025-10-08) - COMPLETADO</strong><a class="headerlink" href="#estado-actual-e3-2025-10-08-completado" title="Permanent link">&para;</a></h3>
+<p>🎯 <strong>SISTEMA MULTI-TIPO CON PRECISIÓN MEJORADA:</strong> <strong>4 tipos retenciones operativos con 66.6667% IVA</strong></p>
+<p><strong>Implementación técnica completada:</strong>
+- ✅ <strong>Sistema RESICO completo:</strong> Checkbox <code>enable_ret_resico</code> en Configuracion Fiscal Mexico
+- ✅ <strong>Generación automática 2 roles:</strong> "ISR Retenido (RESICO)" + "IVA Retenido (RESICO)"
+- ✅ <strong>Trigger JavaScript:</strong> Sincronización automática tabla mapeo cuentas
+- ✅ <strong>Validación mejorada:</strong> Substring match detecta variaciones roles (Arrendamiento, Autotransporte, RESICO)
+- ✅ <strong>Integración STCT Opción B:</strong> Retenciones en estructura 13 filas con rate 0 (tasa vía ITT por ítem)
+- ✅ <strong>Retenciones preexistentes:</strong> Honorarios, Arrendamiento, Autotransporte ya implementadas
+- ✅ <strong>Precisión IVA mejorada:</strong> Constante <code>PROPORCION_IVA_RETENIDO_SAT = 66.6667</code> (4 decimales)
+- ✅ <strong>Sistema legacy deprecated:</strong> TASAS_RETENCIONES marcado deprecated, usar RETENCIONES_CONFIG
+- ✅ <strong>STCT multi-tipo:</strong> IVA 16% y 8% con 8 filas retenciones (4 tipos × 2 impuestos)
+- ✅ <strong>ITT con signos negativos:</strong> -10.0 ISR, -66.6667 IVA para deducción correcta</p>
+<h3 id="tareas-e3">Tareas E3<a class="headerlink" href="#tareas-e3" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[x] <strong>E3.1</strong> - ✅ STCT retenciones (filas <code>Deduct</code>) - COMPLETADO (integradas Opción B)</li>
+<li>[x] <strong>E3.2</strong> - ✅ ITT para ítems/grupos con retención - COMPLETADO</li>
+<li>[x] <strong>E3.3</strong> - ✅ Validación roles mejorada por alcance - COMPLETADO</li>
+<li>[x] <strong>E3.4</strong> - ✅ Testing 4 tipos retenciones (8 escenarios: 4 tipos × 2 zonas) - COMPLETADO</li>
+<li>[x] <strong>E3.5</strong> - ✅ Precisión IVA retenido mejorada 66.67 → 66.6667 - COMPLETADO</li>
+<li>[x] <strong>E3.6</strong> - ✅ Sistema legacy TASAS_RETENCIONES deprecated - COMPLETADO</li>
+</ul>
+<h3 id="criterios-dod-e3">Criterios DoD E3<a class="headerlink" href="#criterios-dod-e3" title="Permanent link">&para;</a></h3>
+<p>✅ <strong>Sistema RESICO:</strong> Implementación completa retenciones duales
+✅ <strong>Validación roles:</strong> Substring match funcional para variaciones
+✅ <strong>Integración Opción B:</strong> Retenciones en STCT consolidados
+✅ <strong>Tests completados:</strong> 8 escenarios verificados (4 tipos × 2 zonas IVA)
+✅ <strong>Precisión mejorada:</strong> 66.6667% reduce error redondeo 10x vs 66.67%
+✅ <strong>Arquitectura DRY:</strong> Constante global PROPORCION_IVA_RETENIDO_SAT única
+✅ <strong>Normativa SAT:</strong> 2/3 IVA trasladado documentado y aplicado correctamente</p>
+<h3 id="testing-e3-ejecutado">Testing E3 Ejecutado<a class="headerlink" href="#testing-e3-ejecutado" title="Permanent link">&para;</a></h3>
+<p><strong>IVA 8% Frontera - 4 escenarios validados:</strong>
+| Tipo | Factura | ISR | IVA Ret (2/3 del IVA) | Grand Total | Status |
+|------|---------|-----|----------------------|-------------|--------|
+| Honorarios | ACC-SINV-2025-01585 | -100.00 | -53.34 | 926.66 | ✅ |
+| Arrendamiento | ACC-SINV-2025-01589 | -100.00 | -53.34 | 926.66 | ✅ |
+| Autotransporte | ACC-SINV-2025-01590 | -40.00 | -53.34 | 986.66 | ✅ |
+| RESICO | ACC-SINV-2025-01592 | -12.50 | -53.34 | 1,014.16 | ✅ |</p>
+<p><strong>IVA 16% General - 4 tipos mixtos:</strong>
+| Factura | Descripción | Items | Status |
+|---------|-------------|-------|--------|
+| ACC-SINV-2025-01595 | 4 tipos retenciones mixtos | 4 ítems ($1,000 c/u) | ✅ |</p>
+<p><strong>Validación Normativa SAT:</strong>
+- ✅ <strong>Proporción 2/3 IVA:</strong> Verificada en todos los casos (ej. 80.00 IVA × 66.6667% = 53.34)
+- ✅ <strong>ISR variable por tipo:</strong> Honorarios/Arrendamiento 10%, Autotransporte 4%, RESICO 1.25%
+- ✅ <strong>Signos ITT negativos:</strong> Retenciones deducen correctamente del total
+- ✅ <strong>Multi-zona funcional:</strong> IVA 16% y 8% frontera operativos</p>
+<h3 id="documentacion-e3-generada">Documentación E3 Generada<a class="headerlink" href="#documentacion-e3-generada" title="Permanent link">&para;</a></h3>
+<ul>
+<li>📄 <strong>reporte-problema-critico-e3-stct-hardcode-cuentas.md</strong> - Root cause análisis STCT hardcode</li>
+<li>📄 <strong>reporte-verificacion-pre-regeneracion-e3.md</strong> - Pre-fix verification signos</li>
+<li>📄 <strong>analisis-retenciones-iva-dos-tercios.md</strong> - SAT normative 2/3 IVA analysis</li>
+<li>📄 <strong>reporte-error-retenciones-frontera-e3.md</strong> - Initial E3 testing errors</li>
+<li>📄 <strong>reporte-problema-asignacion-itt-item-groups.md</strong> - ITT assignment fix</li>
+</ul>
+<hr />
+<h2 id="e4-cfdi-40-mapeo-conceptos-e-impuestos">E4) CFDI 4.0 - MAPEO CONCEPTOS E IMPUESTOS<a class="headerlink" href="#e4-cfdi-40-mapeo-conceptos-e-impuestos" title="Permanent link">&para;</a></h2>
+<p><strong>Objetivo:</strong> Cálculos reflejados exactamente en CFDI</p>
+<h3 id="estado-actual-e4-2025-10-16-en-progreso-paso-0-2-completados">✅ <strong>Estado Actual E4 (2025-10-16) - EN PROGRESO (Paso 0-2 COMPLETADOS)</strong><a class="headerlink" href="#estado-actual-e4-2025-10-16-en-progreso-paso-0-2-completados" title="Permanent link">&para;</a></h3>
+<p>🎯 <strong>ARQUITECTURA E4-RO IMPLEMENTADA:</strong> <strong>Puente read-only Sales Invoice → PAC con validaciones</strong></p>
+<p><strong>Implementación técnica completada:</strong>
+- ✅ <strong>E4.8 Validación completitud payload</strong> - Sistema bloqueante antes envío PAC
+- ✅ <strong>Script verificación mapeos SAT</strong> - Diagnóstico cuentas sin mapeo
+- ✅ <strong>Documentación setup mapeos</strong> - Guía completa sitios nuevos
+- ✅ <strong>Suite tests E4.1-E4.8</strong> - 17 tests unitarios passing (0.058s)</p>
+<p><strong>Componentes implementados:</strong>
+- ✅ <strong>Función <code>_validate_payload_completeness_ro()</code></strong> - E4.8 validación estructural
+- ✅ <strong>Script <code>verificar_mapeos_sat.py</code></strong> - Identificación gaps configuración
+- ✅ <strong>Guía <code>setup-mapeos-sat.md</code></strong> - 5 ejemplos + troubleshooting
+- ✅ <strong>Tests <code>test_e4_puente_si_pac.py</code></strong> - 510 líneas, 17 tests RG-003 compliant</p>
+<p><strong>Fixes críticos aplicados:</strong>
+- ✅ <strong>Validación customer data</strong> - legal_name, tax_id, tax_system obligatorios
+- ✅ <strong>Validación invoice data</strong> - payment_form, use (Uso CFDI) obligatorios
+- ✅ <strong>Validación items structure</strong> - product_key, unit_key, description, tax_object
+- ✅ <strong>Validación taxes completeness</strong> - type, factor, rate, withholding por ítem</p>
+<h3 id="tareas-e4">Tareas E4<a class="headerlink" href="#tareas-e4" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[x] <strong>E4.0</strong> - ✅ <strong>PASO 0:</strong> Validación completitud payload E4.8 (commit cd18930)</li>
+<li>[x] <strong>E4.1-A</strong> - ✅ <strong>PASO 1:</strong> Checklist mapeos SAT - Script verificación + Documentación</li>
+<li>[x] <strong>E4.1-B</strong> - ✅ <strong>PASO 2:</strong> Suite tests E4.1-E4.8 (17 tests passing)</li>
+<li>[ ] <strong>E4.2</strong> - <strong>PASO 3:</strong> PAC Sandbox - timbrar 4 facturas prueba - <strong>PENDIENTE</strong></li>
+<li>[ ] <strong>E4.3</strong> - <strong>PASO 4:</strong> Runbook + Tag mx-fiscal-E4-ready - <strong>PENDIENTE</strong></li>
+</ul>
+<h3 id="criterios-dod-e4">Criterios DoD E4<a class="headerlink" href="#criterios-dod-e4" title="Permanent link">&para;</a></h3>
+<p>✅ <strong>Arquitectura E4-RO:</strong> Puente read-only SI → PAC implementado
+✅ <strong>Validación E4.8:</strong> Sistema bloqueante payload incompleto
+✅ <strong>Tests unitarios:</strong> 17/17 passing (E4.1-E4.8) en 0.058s
+✅ <strong>Documentación mapeos:</strong> Guía completa + 5 ejemplos comunes
+⏳ <strong>Tests PAC sandbox:</strong> 4 escenarios canónicos - PENDIENTE
+⏳ <strong>Tag checkpoint:</strong> mx-fiscal-E4-ready - PENDIENTE</p>
+<h3 id="testing-e4-completado-paso-2">Testing E4 Completado (Paso 2)<a class="headerlink" href="#testing-e4-completado-paso-2" title="Permanent link">&para;</a></h3>
+<p><strong>Suite tests E4.1-E4.8 (17 tests, 510 líneas):</strong>
+| Función | Tests | Casos |
+|---------|-------|-------|
+| E4.1: _read_taxes_from_sales_invoice_item() | 2 | Lectura taxes SI estándar + fallback vacío |
+| E4.2: _get_tax_amount_for_item_robust() | 3 | Fallback row.name → item_code → item_name |
+| E4.3: _resolve_objeto_impuesto() | 1 | Resolución ObjetoImp desde catálogo |
+| E4.4: _map_tax_account_to_sat() | 1 | Mapeo cuenta → SAT metadata |
+| E4.6: _validate_objeto_imp_consistency() | 3 | Validación ObjetoImp 01/02/03 vs taxes |
+| E4.7: _validate_currency_consistency() | 2 | Validación moneda SI = payload |
+| E4.8: _validate_payload_completeness_ro() | 4 | Validación estructural completa |
+| Integración smoke | 1 | Validaciones E4.7 + E4.8 payload completo |</p>
+<p><strong>Tiempo ejecución:</strong> 0.058s (cumple RG-003: ≤ 5 min)</p>
+<p><strong>Características testing:</strong>
+- ✅ <strong>Determinista:</strong> Sin red, sin reloj real, mock solo FacturAPI
+- ✅ <strong>Aislamiento:</strong> Cada test crea datos únicos con setUp()
+- ✅ <strong>Simplicidad:</strong> Prueba reglas negocio, no UI
+- ✅ <strong>Pirámide:</strong> Unit (prioridad) + 1 smoke integración</p>
+<h3 id="documentacion-e4-generada-paso-1">Documentación E4 Generada (Paso 1)<a class="headerlink" href="#documentacion-e4-generada-paso-1" title="Permanent link">&para;</a></h3>
+<p><strong>Guía setup mapeos SAT (~600 líneas):</strong>
+- 📄 <strong>¿Qué son los Mapeos SAT?</strong> - Explicación conexión ERPNext → CFDI
+- 📄 <strong>¿Por qué obligatorios?</strong> - Normativa SAT + Arquitectura E4-RO
+- 📄 <strong>Campos requeridos</strong> - Tabla completa con tipos y ejemplos
+- 📄 <strong>Paso a paso</strong> - 8 pasos configuración sitios nuevos
+- 📄 <strong>5 ejemplos comunes con XML:</strong>
+  - IVA Trasladado 16%
+  - ISR Retenido 10% (Honorarios)
+  - IVA Retenido 10.66% (Arrendamiento)
+  - IEPS Cuota Fija (Combustibles)
+  - IVA Exento 0%
+- 📄 <strong>Troubleshooting</strong> - 3 casos frecuentes + soluciones
+- 📄 <strong>Script verificación</strong> - Uso <code>verificar_mapeos_sat.py</code> documentado
+- 📄 <strong>Checklist sitio nuevo</strong> - 8 pasos verificación</p>
+<p><strong>Script verificación mapeos:</strong>
+- 🧪 <strong>Propósito:</strong> Identificar cuentas fiscales sin mapeo SAT (solo diagnóstico)
+- 🧪 <strong>Ejecución:</strong> <code>bench --site [sitio] execute "facturacion_mexico.one_offs.verificar_mapeos_sat.run"</code>
+- 🧪 <strong>Output:</strong> Reporte completo/incompleto/faltante con campos específicos
+- 🧪 <strong>Safe:</strong> Solo lectura, no modifica BD</p>
+<h3 id="proximos-pasos-e4">Próximos Pasos E4<a class="headerlink" href="#proximos-pasos-e4" title="Permanent link">&para;</a></h3>
+<p><strong>PASO 3: PAC Sandbox (4 facturas canónicas)</strong>
+1. Timbrar IVA 16% estándar
+2. Timbrar IEPS + IVA cascada
+3. Timbrar Retenciones ISR + IVA (2/3)
+4. Timbrar Mixto (exento + gravado)
+5. Guardar evidencias XML + acuses</p>
+<p><strong>PASO 4: Runbook + Tag</strong>
+1. Documentar reglas validación E4-RO
+2. Actualizar CHANGELOG.md
+3. Crear tag <code>mx-fiscal-E4-ready</code>
+4. Merge PR a main</p>
+<hr />
+<h2 id="e5-descuentos-linea-y-global">E5) DESCUENTOS (LÍNEA Y GLOBAL)<a class="headerlink" href="#e5-descuentos-linea-y-global" title="Permanent link">&para;</a></h2>
+<p><strong>Objetivo:</strong> Base impuestos respeta descuentos línea y globales</p>
+<h3 id="tareas-e5">Tareas E5<a class="headerlink" href="#tareas-e5" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] <strong>E5.1</strong> - Descuento por renglón → reduce base del concepto</li>
+<li>[ ] <strong>E5.2</strong> - Descuento global (Additional Discount) → proporción consistente</li>
+<li>[ ] <strong>E5.3</strong> - [TS] 3 combinaciones (línea, global, mixto) + tolerancia ≤ $0.01 MXN</li>
+</ul>
+<h3 id="criterios-dod-e5">Criterios DoD E5<a class="headerlink" href="#criterios-dod-e5" title="Permanent link">&para;</a></h3>
+<p>✅ Cuadre exacto breakdown por renglón y totales
+✅ Tests: tolerancia redondeo verificada</p>
+<hr />
+<h2 id="e6-anticipos-pagos-20">E6) ANTICIPOS + PAGOS 2.0<a class="headerlink" href="#e6-anticipos-pagos-20" title="Permanent link">&para;</a></h2>
+<p><strong>Objetivo:</strong> Flujo fiscal completo anticipos + Complemento Recepción Pagos 2.0</p>
+<h3 id="tareas-e6">Tareas E6<a class="headerlink" href="#tareas-e6" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] <strong>E6.1</strong> - Modelado anticipo como operación separada + relación factura final</li>
+<li>[ ] <strong>E6.2</strong> - Emisión Complemento Recepción Pagos 2.0 (PPD)</li>
+<li>[ ] <strong>E6.3</strong> - [TS] 2 flujos completos (anticipo parcial/total) + relaciones válidas</li>
+</ul>
+<h3 id="criterios-dod-e6">Criterios DoD E6<a class="headerlink" href="#criterios-dod-e6" title="Permanent link">&para;</a></h3>
+<p>✅ Flujo anticipo conforme guía SAT/Pagos 2.0
+✅ Tests: complementos válidos</p>
+<hr />
+<h2 id="e7-normalizacion-catalogos-sat">E7) NORMALIZACIÓN CATÁLOGOS SAT<a class="headerlink" href="#e7-normalizacion-catalogos-sat" title="Permanent link">&para;</a></h2>
+<p><strong>Objetivo:</strong> Catálogos vigentes y trazables</p>
+<h3 id="tareas-e7">Tareas E7<a class="headerlink" href="#tareas-e7" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] <strong>E7.1</strong> - Cargar catálogos: ClaveProdServ, ClaveUnidad, ObjetoImp, Impuesto, TipoFactor, TasaOCuota</li>
+<li>[ ] <strong>E7.2</strong> - Detectar cambios y marcar obsoletos sin romper históricos</li>
+<li>[ ] <strong>E7.3</strong> - [TS] Actualización simulada + reporte diferencias</li>
+</ul>
+<h3 id="criterios-dod-e7">Criterios DoD E7<a class="headerlink" href="#criterios-dod-e7" title="Permanent link">&para;</a></h3>
+<p>✅ Catálogos vigentes, sin ítems con claves expiradas
+✅ Tests: gestión cambios catálogos</p>
+<hr />
+<h2 id="e8-qa-integral-y-cierre">E8) QA INTEGRAL Y CIERRE<a class="headerlink" href="#e8-qa-integral-y-cierre" title="Permanent link">&para;</a></h2>
+<p><strong>Objetivo:</strong> Verificación end-to-end e idempotencia</p>
+<h3 id="tareas-e8">Tareas E8<a class="headerlink" href="#tareas-e8" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] <strong>E8.1</strong> - Readiness fiscal por compañía (STCT/Tax Rules/ITT/cuentas)</li>
+<li>[ ] <strong>E8.2</strong> - Integridad ítems con catálogos vigentes</li>
+<li>[ ] <strong>E8.3</strong> - Idempotencia: re-ejecución sin duplicados ni drift</li>
+<li>[ ] <strong>E8.4</strong> - UAT con casos reales + criterio aceptación firmado</li>
+<li>[ ] <strong>E8.5</strong> - [TS] Suite completa E1-E7 en sitio limpio + re-ejecución</li>
+</ul>
+<h3 id="criterios-dod-e8">Criterios DoD E8<a class="headerlink" href="#criterios-dod-e8" title="Permanent link">&para;</a></h3>
+<p>✅ UAT aprobado
+✅ Issues #65/#66 cerrados
+✅ Tests: suite completa verificada</p>
+<hr />
+<h2 id="documentos-rectores-post-implementacion">DOCUMENTOS RECTORES (Post-Implementación)<a class="headerlink" href="#documentos-rectores-post-implementacion" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p><strong>Nota:</strong> Se generan DESPUÉS de código/metodología definidos para evitar retrabajos</p>
+</blockquote>
+<h3 id="documentos-pendientes">Documentos Pendientes<a class="headerlink" href="#documentos-pendientes" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] <strong>DR-01</strong> - Documento Rector (mapeo Role→Account, versiones, políticas)</li>
+<li>[ ] <strong>MV-01</strong> - Matriz Verificación (checklist campos SAT, casos cálculo)</li>
+<li>[ ] <strong>DOC-01</strong> - Guía instalación/operación (fixtures/patches, troubleshooting)</li>
+</ul>
+<hr />
+<h2 id="plan-de-tests-ts">PLAN DE TESTS (TS)<a class="headerlink" href="#plan-de-tests-ts" title="Permanent link">&para;</a></h2>
+<h3 id="niveles-testing">Niveles Testing<a class="headerlink" href="#niveles-testing" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Unitarios:</strong> Validaciones datos SAT, consistencia ITT↔STCT</li>
+<li><strong>Integración:</strong> Cálculo impuestos por escenario (IVA/IEPS/Retenciones/Descuentos)</li>
+<li><strong>End-to-End:</strong> Emisión/cancelación facturas, anticipo→factura→pagos 2.0</li>
+</ul>
+<h3 id="datos-prueba">Datos Prueba<a class="headerlink" href="#datos-prueba" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Items representativos por tasa, exento, IEPS, retenciones, descuentos, anticipo</li>
+</ul>
+<h3 id="criterios-aceptacion">Criterios Aceptación<a class="headerlink" href="#criterios-aceptacion" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Tolerancia redondeo ≤ $0.01 MXN</li>
+<li>Sin diferencias breakdown vs totales</li>
+<li>Validación CFDI/PAC exitosa E4-E6</li>
+</ul>
+<hr />
+<h2 id="checkpoints-y-entregables">CHECKPOINTS Y ENTREGABLES<a class="headerlink" href="#checkpoints-y-entregables" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Etapa</th>
+<th>Entregable Principal</th>
+<th>Tag Git</th>
+<th>PR Target</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>E0</td>
+<td>Items con campos SAT</td>
+<td><code>mx-fiscal-E0-ready</code></td>
+<td>#65</td>
+</tr>
+<tr>
+<td>E1</td>
+<td>IVA automático funcionando</td>
+<td><code>mx-fiscal-E1-ready</code></td>
+<td>#65</td>
+</tr>
+<tr>
+<td>E2</td>
+<td>IEPS + IVA operativo</td>
+<td><code>mx-fiscal-E2-ready</code></td>
+<td>#65</td>
+</tr>
+<tr>
+<td>E3</td>
+<td>Retenciones completas</td>
+<td><code>mx-fiscal-E3-ready</code></td>
+<td>#65</td>
+</tr>
+<tr>
+<td>E4</td>
+<td>CFDI 4.0 válidos</td>
+<td><code>mx-fiscal-E4-ready</code></td>
+<td>#66</td>
+</tr>
+<tr>
+<td>E5</td>
+<td>Descuentos integrados</td>
+<td><code>mx-fiscal-E5-ready</code></td>
+<td>#66</td>
+</tr>
+<tr>
+<td>E6</td>
+<td>Anticipos + Pagos 2.0</td>
+<td><code>mx-fiscal-E6-ready</code></td>
+<td>#66</td>
+</tr>
+<tr>
+<td>E7</td>
+<td>Catálogos SAT actualizables</td>
+<td><code>mx-fiscal-E7-ready</code></td>
+<td>#66</td>
+</tr>
+<tr>
+<td>E8</td>
+<td>Sistema completo + UAT</td>
+<td><code>mx-fiscal-E8-ready</code></td>
+<td>Cierre #65/#66</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="riesgos-y-mitigaciones">RIESGOS Y MITIGACIONES<a class="headerlink" href="#riesgos-y-mitigaciones" title="Permanent link">&para;</a></h2>
+<h3 id="riesgos-tecnicos">Riesgos Técnicos<a class="headerlink" href="#riesgos-tecnicos" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>R1:</strong> Complejidad tax-on-tax ERPNext → Mitigación: PoC E2 temprano</li>
+<li><strong>R2:</strong> Validaciones CFDI PAC → Mitigación: Ambiente sandbox E4</li>
+<li><strong>R3:</strong> Performance catálogos SAT → Mitigación: Índices + caching E7</li>
+</ul>
+<h3 id="riesgos-operacionales">Riesgos Operacionales<a class="headerlink" href="#riesgos-operacionales" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>R4:</strong> Cambios catálogos SAT durante desarrollo → Mitigación: Versionado E7</li>
+<li><strong>R5:</strong> Casos edge no contemplados → Mitigación: UAT extensivo E8</li>
+</ul>
+<hr />
+<h2 id="proximos-pasos">PRÓXIMOS PASOS<a class="headerlink" href="#proximos-pasos" title="Permanent link">&para;</a></h2>
+<h3 id="checkpoint-e0-inmediato">Checkpoint E0 Inmediato<a class="headerlink" href="#checkpoint-e0-inmediato" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Ejecutar creación rama: <code>git checkout -b feat/mx-fiscal-E0-E3-issues-65-66</code></li>
+<li>Integrar andamiaje DocTypes Setup ya preparado</li>
+<li>Cargar catálogos SAT mínimos</li>
+<li>Completar dataset piloto ítems/grupos</li>
+<li><strong>PR objetivo:</strong> <code>[E0] Campos SAT en Items/Groups</code></li>
+</ol>
+<h3 id="mini-checklist-operativo-e0-10-15-min-cu">Mini Checklist Operativo E0 (10-15 min c/u)<a class="headerlink" href="#mini-checklist-operativo-e0-10-15-min-cu" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Git branch creation + first commit</li>
+<li>[ ] Load minimal SAT catalogs fixture</li>
+<li>[ ] Add SAT fields to Item DocType</li>
+<li>[ ] Create pilot dataset (10 items)</li>
+<li>[ ] Validation report warnings</li>
+<li>[ ] Basic tests for SAT field inheritance</li>
+</ul>
+<p><strong>Meta E0:</strong> Checklist íntegramente "Hecho", rama con commits <code>[E0]</code>, PR abierto enlazando #65 y #66.</p>
+<hr />
+<h2 id="historial-de-limpieza-y-optimizaciones">HISTORIAL DE LIMPIEZA Y OPTIMIZACIONES<a class="headerlink" href="#historial-de-limpieza-y-optimizaciones" title="Permanent link">&para;</a></h2>
+<h3 id="limpieza-e1-h-2025-09-29-completado">✅ <strong>Limpieza E1-H (2025-09-29) - COMPLETADO</strong><a class="headerlink" href="#limpieza-e1-h-2025-09-29-completado" title="Permanent link">&para;</a></h3>
+<h4 id="objetivo-logrado">Objetivo Logrado<a class="headerlink" href="#objetivo-logrado" title="Permanent link">&para;</a></h4>
+<p>Eliminar completamente implementación fallida E1-H y optimizar campos existentes para preparar E1 formal.</p>
+<h4 id="resultados-obtenidos">Resultados Obtenidos<a class="headerlink" href="#resultados-obtenidos" title="Permanent link">&para;</a></h4>
+<ul>
+<li>✅ <strong>4 custom fields eliminados</strong> - Duplicados problemáticos en Customer/Branch</li>
+<li>✅ <strong>1 campo optimizado</strong> - Cost Center <code>fm_mapped_branch</code> con filtros inteligentes</li>
+<li>✅ <strong>Sistema respaldado</strong> - Backup <code>PRE_E1_CLEANUP_COMPLETE</code> creado</li>
+<li>✅ <strong>Naming unified</strong> - Todo custom field usa prefijo <code>fm_</code></li>
+<li>✅ <strong>Zero blocking issues</strong> - Listo para implementación E1 formal</li>
+</ul>
+<h4 id="documentacion-generada">Documentación Generada<a class="headerlink" href="#documentacion-generada" title="Permanent link">&para;</a></h4>
+<ul>
+<li>📄 <strong><code>REPORTE-LIMPIEZA-E1H-2025-09-29.md</code></strong> - Reporte completo de limpieza</li>
+<li>🧪 <strong>Scripts diagnóstico</strong> - 4 scripts reutilizables para validaciones</li>
+<li>💾 <strong>Backups completos</strong> - Estado seguro para rollback</li>
+</ul>
+<h4 id="impacto-en-plan-e0-e8">Impacto en Plan E0-E8<a class="headerlink" href="#impacto-en-plan-e0-e8" title="Permanent link">&para;</a></h4>
+<ul>
+<li>🎯 <strong>E0.5 desbloqueado</strong> - Sin conflictos custom fields para setup wizard</li>
+<li>🎯 <strong>E1 preparado</strong> - Base limpia para Tax Rules/STCT implementation</li>
+<li>🎯 <strong>E2-E8 facilitado</strong> - Arquitectura consistente establecida</li>
+</ul>
+<p><strong>Status:</strong> ✅ <strong>LISTO PARA E1</strong> - Prerequisitos técnicos cumplidos</p>
+<hr />
+<h2 id="verificacion-sistema-actual-paso-1-e1-h">VERIFICACIÓN SISTEMA ACTUAL - PASO 1 E1-H<a class="headerlink" href="#verificacion-sistema-actual-paso-1-e1-h" title="Permanent link">&para;</a></h2>
+<h3 id="verificacion-completa-sistema-2025-09-29-completado">✅ <strong>Verificación Completa Sistema (2025-09-29) - COMPLETADO</strong><a class="headerlink" href="#verificacion-completa-sistema-2025-09-29-completado" title="Permanent link">&para;</a></h3>
+<h4 id="objetivo-logrado_1">Objetivo Logrado<a class="headerlink" href="#objetivo-logrado_1" title="Permanent link">&para;</a></h4>
+<p>Ejecutar verificación sistemática completa del estado actual del sistema ERPNext según propuesta ChatGPT para preparación E1-H.</p>
+<h4 id="resultados-obtenidos-8-componentes-verificados">Resultados Obtenidos - 8 Componentes Verificados<a class="headerlink" href="#resultados-obtenidos-8-componentes-verificados" title="Permanent link">&para;</a></h4>
+<ul>
+<li>✅ <strong>1.1 Empresa piloto</strong> - <code>_Test Company</code> configurada (Mexico, MXN)</li>
+<li>✅ <strong>1.2 Customer Cost Center</strong> - Campo <code>fm_customer_default_cost_center</code> único identificado</li>
+<li>✅ <strong>1.3 Cost Center → Branch</strong> - Relación 1:1 perfecta con <code>fm_mapped_branch</code></li>
+<li>✅ <strong>1.4 Branch frontera</strong> - Campo <code>fm_is_border_zone</code> configurado</li>
+<li>✅ <strong>1.5 Tax Categories</strong> - 26 categorías SAT mapeadas, 3 críticas operativas</li>
+<li>✅ <strong>1.6 Items SAT</strong> - Campo <code>fm_producto_servicio_sat</code> con datos (60% muestra)</li>
+<li>✅ <strong>1.7 Price Lists</strong> - 4 price lists MXN habilitadas para venta</li>
+<li>✅ <strong>1.8 Sales Invoice</strong> - 46 campos fiscales <code>fm_*</code> + campos clave E1-H disponibles</li>
+</ul>
+<h4 id="infraestructura-fiscal-identificada">Infraestructura Fiscal Identificada<a class="headerlink" href="#infraestructura-fiscal-identificada" title="Permanent link">&para;</a></h4>
+<p><strong>🟢 SISTEMA TÉCNICAMENTE PREPARADO PARA E1-H</strong></p>
+<ul>
+<li>✅ <strong>Flujo completo disponible:</strong> <code>Customer → Cost Center → Branch → Tax Category → STCT → Sales Invoice</code></li>
+<li>✅ <strong>46 campos fiscales</strong> configurados con prefijo <code>fm_</code></li>
+<li>✅ <strong>Tax system robusto</strong> con 26 categorías SAT (601-626)</li>
+<li>✅ <strong>Multi-sucursal</strong> soportado con campos frontera IVA 8%/16%</li>
+<li>✅ <strong>Sales Invoice Items</strong> con Cost Center nivel línea</li>
+</ul>
+<h4 id="documentacion-generada_1">Documentación Generada<a class="headerlink" href="#documentacion-generada_1" title="Permanent link">&para;</a></h4>
+<ul>
+<li>📄 <strong><code>EVIDENCIAS-PASO-1-VERIFICACION-SISTEMA.md</code></strong> - Reporte completo verificación</li>
+<li>🧪 <strong>9 scripts verificación</strong> - Ejecutados exitosamente, reutilizables</li>
+<li>📊 <strong>Métricas detalladas</strong> - Estado actual documentado por componente</li>
+</ul>
+<h4 id="impacto-en-plan-e0-e8_1">Impacto en Plan E0-E8<a class="headerlink" href="#impacto-en-plan-e0-e8_1" title="Permanent link">&para;</a></h4>
+<ul>
+<li>🎯 <strong>E1 desbloqueado</strong> - Infraestructura completa para automatización confirmada</li>
+<li>🎯 <strong>E1-H implementable</strong> - Flujo Customer→Cost Center→Branch→Tax verificado</li>
+<li>🎯 <strong>Oportunidades identificadas</strong> - Datos vacíos para automatización documentados</li>
+</ul>
+<p><strong>Status:</strong> ✅ <strong>LISTO PARA E1-H PASO 2</strong> - Sistema preparado para automatización</p>
+<hr />
+<h2 id="implementacion-automated-tax-system-paso-1">IMPLEMENTACIÓN AUTOMATED TAX SYSTEM - PASO 1<a class="headerlink" href="#implementacion-automated-tax-system-paso-1" title="Permanent link">&para;</a></h2>
+<h3 id="paso-1-estructura-base-completado-2025-09-29">✅ <strong>Paso 1: Estructura Base Completado (2025-09-29)</strong><a class="headerlink" href="#paso-1-estructura-base-completado-2025-09-29" title="Permanent link">&para;</a></h3>
+<h4 id="objetivo-logrado_2">Objetivo Logrado<a class="headerlink" href="#objetivo-logrado_2" title="Permanent link">&para;</a></h4>
+<p>Implementar estructura base del sistema automatizado de impuestos (Automated Tax System) siguiendo convenciones Frappe estándar.</p>
+<h4 id="resultados-obtenidos_1">Resultados Obtenidos<a class="headerlink" href="#resultados-obtenidos_1" title="Permanent link">&para;</a></h4>
+<ul>
+<li>✅ <strong>Estructura Frappe compliant</strong> - hooks_handlers/, JS consolidado, nomenclatura descriptiva</li>
+<li>✅ <strong>doc_events registrados</strong> - before_validate/validate para Sales Invoice</li>
+<li>✅ <strong>JavaScript integrado</strong> - Validaciones UI en sales_invoice.js existente</li>
+<li>✅ <strong>Refactorización completa</strong> - Eliminación E1-H críptico, convenciones correctas</li>
+</ul>
+<h4 id="implementacion-tecnica">Implementación Técnica<a class="headerlink" href="#implementacion-tecnica" title="Permanent link">&para;</a></h4>
+<p><strong>Archivos Creados/Modificados:</strong>
+- 📄 <strong><code>hooks_handlers/sales_invoice_automated_tax.py</code></strong> - Python handlers (esqueleto)
+- 📄 <strong><code>public/js/sales_invoice.js</code></strong> - Sección automated tax integrada
+- 📄 <strong><code>hooks.py</code></strong> - doc_events Sales Invoice registrados</p>
+<p><strong>Funcionalidades Base:</strong>
+- ✅ <strong>Cost center obligatorio</strong> - UI requirement enforced
+- ✅ <strong>Customer alerts</strong> - Notificación automatización al seleccionar customer
+- ✅ <strong>Items validation</strong> - Verificación items seleccionados
+- ✅ <strong>Server hooks</strong> - Placeholder before_validate/validate preparados</p>
+<h4 id="verificaciones-exitosas">Verificaciones Exitosas<a class="headerlink" href="#verificaciones-exitosas" title="Permanent link">&para;</a></h4>
+<ul>
+<li>✅ <strong>Build frontend:</strong> 178ms sin errores</li>
+<li>✅ <strong>Python import:</strong> Handlers cargan correctamente</li>
+<li>✅ <strong>Frappe compliance:</strong> Estructura según convenciones estándar</li>
+<li>✅ <strong>No conflictos:</strong> JS consolidado sin duplicaciones</li>
+</ul>
+<h4 id="documentacion-generada_2">Documentación Generada<a class="headerlink" href="#documentacion-generada_2" title="Permanent link">&para;</a></h4>
+<ul>
+<li>📄 <strong>Reporte implementación Paso 1</strong> - Proceso completo documentado</li>
+<li>🔧 <strong>Estructura refactorizada</strong> - Convenciones Frappe aplicadas</li>
+<li>📊 <strong>76 líneas código base</strong> - Foundation para automatización</li>
+</ul>
+<h4 id="proximo-milestone">Próximo Milestone<a class="headerlink" href="#proximo-milestone" title="Permanent link">&para;</a></h4>
+<ul>
+<li>🎯 <strong>Paso 2:</strong> Implementar lógica server-side (Customer→Cost Center→Branch→Tax automation)</li>
+<li>🎯 <strong>Testing:</strong> Verificar flujo completo con datos reales _Test Company</li>
+</ul>
+<p><strong>Status:</strong> ✅ <strong>BASE AUTOMATED TAX SYSTEM LISTA</strong> - Estructura preparada para lógica</p>
+<hr />
+<h2 id="arquitectura-critica-doctype-regimen-fiscal-sat">🚨 ARQUITECTURA CRÍTICA: DocType Régimen Fiscal SAT<a class="headerlink" href="#arquitectura-critica-doctype-regimen-fiscal-sat" title="Permanent link">&para;</a></h2>
+<h3 id="problema-resuelto-eliminacion-tax-categories-sat-2025-10-01">✅ <strong>PROBLEMA RESUELTO: Eliminación Tax Categories SAT (2025-10-01)</strong><a class="headerlink" href="#problema-resuelto-eliminacion-tax-categories-sat-2025-10-01" title="Permanent link">&para;</a></h3>
+<h4 id="contexto-del-problema-resuelto">Contexto del Problema RESUELTO<a class="headerlink" href="#contexto-del-problema-resuelto" title="Permanent link">&para;</a></h4>
+<p>Durante la implementación de la migración Customer.tax_category → Customer.fm_tax_regime (parte del plan fiscal E0-E8), se identificó y <strong>RESOLVIÓ COMPLETAMENTE</strong> el problema arquitectural crítico:</p>
+<p><strong>SITUACIÓN ANTERIOR PROBLEMÁTICA (RESUELTA):</strong>
+- ❌ Script <code>populate_tax_category_sat.py</code> había creado <strong>20 Tax Categories</strong> con formato "601 - General de Ley Personas Morales"
+- ❌ Tax Category DocType (ERPNext core) contenía <strong>mezcla incorrecta</strong> datos contables + fiscales</p>
+<p><strong>✅ SOLUCIÓN IMPLEMENTADA (2025-10-01):</strong>
+- ✅ <strong>20 Tax Categories SAT eliminadas definitivamente</strong> con force=1
+- ✅ <strong>131 referencias históricas</strong> Sales Invoice.tax_category limpiadas antes eliminación
+- ✅ <strong>Customer.fm_tax_regime establecido</strong> como fuente canónica única
+- ✅ <strong>Arquitectura optimizada:</strong> Customer.fm_tax_regime → FFM.fm_tax_system → CFDI/PAC
+- ✅ <strong>Separación total:</strong> Contabilidad vs Fiscal sin solapamiento</p>
+<p><strong>BENEFICIOS OBTENIDOS:</strong>
+- ✅ <strong>Arquitectural:</strong> Separación concerns completamente restaurada
+- ✅ <strong>UI/UX:</strong> Tax Category selectores limpios sin confusión
+- ✅ <strong>Mantenibilidad:</strong> Zero dependencias DocType core ERPNext para datos SAT
+- ✅ <strong>Funcional:</strong> Sistema más robusto y predecible</p>
+<h4 id="estado-actual-migracion-2025-10-01">Estado Actual Migración (2025-10-01)<a class="headerlink" href="#estado-actual-migracion-2025-10-01" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># ESTADO POST-LIMPIEZA: Customer.fm_tax_regime funcionando sin Tax Categories SAT</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_extract_tax_system_from_customer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">customer_doc</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">customer_doc</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">customer_doc</span><span class="p">,</span> <span class="s2">&quot;fm_tax_regime&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">fm_tax_regime</span> <span class="o">=</span> <span class="n">customer_doc</span><span class="o">.</span><span class="n">fm_tax_regime</span>  <span class="c1"># ← CORREGIDO: usa fm_tax_regime</span>
+    <span class="c1"># fm_tax_regime tiene formato &quot;601 - General de Ley Personas Morales&quot;</span>
+    <span class="k">if</span> <span class="s2">&quot; - &quot;</span> <span class="ow">in</span> <span class="n">fm_tax_regime</span><span class="p">:</span>
+        <span class="n">code</span> <span class="o">=</span> <span class="n">fm_tax_regime</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; - &quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">code</span>  <span class="c1"># Retorna &quot;601&quot;</span>
+</code></pre></div>
+<p><strong>Estado actual verificado:</strong>
+- ✅ <strong>0 Tax Categories SAT</strong> (eliminadas definitivamente)
+- ✅ <strong>6 Tax Categories normales</strong> conservadas (propósito contable)
+- ✅ Campo <code>fm_tax_regime</code> funcionando con DocType Regimen Fiscal SAT
+- ✅ Función <code>_extract_tax_system_from_customer()</code> corregida para fm_tax_regime
+- ✅ Tests migración 6/6 pasando incluido test función específica</p>
+<h3 id="mejora-futura-doctype-regimen-fiscal-sat-especifico">🎯 <strong>MEJORA FUTURA: DocType Regimen Fiscal SAT Específico</strong><a class="headerlink" href="#mejora-futura-doctype-regimen-fiscal-sat-especifico" title="Permanent link">&para;</a></h3>
+<h4 id="estado-actual-funcional-no-bloquea-e1-e2">✅ <strong>Estado Actual Funcional - No Bloquea E1-E2</strong><a class="headerlink" href="#estado-actual-funcional-no-bloquea-e1-e2" title="Permanent link">&para;</a></h4>
+<p><strong>Customer.fm_tax_regime</strong> actual funciona correctamente:
+- ✅ <strong>Fuente:</strong> DocType "Regimen Fiscal SAT" (20 registros disponibles)
+- ✅ <strong>Link field:</strong> Customer.fm_tax_regime → Regimen Fiscal SAT
+- ✅ <strong>Extracción SAT:</strong> Función corregida extrae código "601" correctamente
+- ✅ <strong>CFDI timbrado:</strong> FFM.fm_tax_system auto-población funcionando</p>
+<h4 id="oportunidad-mejora-e3-prioridad-media">💡 <strong>Oportunidad Mejora E3 (Prioridad MEDIA)</strong><a class="headerlink" href="#oportunidad-mejora-e3-prioridad-media" title="Permanent link">&para;</a></h4>
+<p><strong>Justificación Mejora:</strong>
+Aunque el sistema actual funciona, el DocType Regimen Fiscal SAT actual podría <strong>optimizarse</strong> con campos adicionales específicos SAT:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;fields_adicionales_propuestos&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span><span class="nt">&quot;fieldname&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;vigente&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;fieldtype&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Check&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Vigente&quot;</span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span><span class="nt">&quot;fieldname&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fecha_inicio&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;fieldtype&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Date&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Fecha Inicio Vigencia&quot;</span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span><span class="nt">&quot;fieldname&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fecha_fin&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;fieldtype&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Date&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Fecha Fin Vigencia&quot;</span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span><span class="nt">&quot;fieldname&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;persona_fisica&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;fieldtype&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Check&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Aplica Persona Física&quot;</span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span><span class="nt">&quot;fieldname&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;persona_moral&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;fieldtype&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Check&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Aplica Persona Moral&quot;</span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<h4 id="plan-mejora-opcional-e3">📋 <strong>Plan Mejora OPCIONAL E3</strong><a class="headerlink" href="#plan-mejora-opcional-e3" title="Permanent link">&para;</a></h4>
+<p><strong>Solo si hay tiempo disponible E3:</strong>
+- [ ] <strong>Evaluar</strong> si campos adicionales aportan valor real
+- [ ] <strong>Extender</strong> DocType Regimen Fiscal SAT con campos vigencia/tipo persona
+- [ ] <strong>Actualizar</strong> fixtures con información completa catálogo SAT</p>
+<p><strong>PRIORIDAD:</strong> ⭐ <strong>BAJA</strong> - Sistema actual totalmente funcional</p>
+<h4 id="enfoque-actual-proceder-e1">🎯 <strong>Enfoque Actual: Proceder E1</strong><a class="headerlink" href="#enfoque-actual-proceder-e1" title="Permanent link">&para;</a></h4>
+<p><strong>Arquitectura actual es SUFICIENTE para E1-E8:</strong>
+- ✅ Customer.fm_tax_regime → FFM.fm_tax_system → CFDI/PAC
+- ✅ Separación limpia contabilidad vs fiscal
+- ✅ Zero dependencias Tax Categories problemáticas
+- ✅ Sistema robusto y verificado con tests</p>
+<h3 id="impacto-en-cronograma-e0-e8">🚀 <strong>Impacto en Cronograma E0-E8</strong><a class="headerlink" href="#impacto-en-cronograma-e0-e8" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>E1-E2:</strong> ✅ <strong>DESBLOQUEADO</strong> - Arquitectura limpia lista</li>
+<li><strong>E3:</strong> 📝 <strong>Opcional</strong> - Mejoras DocType si tiempo disponible</li>
+<li><strong>E4+:</strong> ✅ <strong>Sin impacto</strong> - Sistema actual soporta CFDI mapping</li>
+</ul>
+<p><strong>Status:</strong> ✅ <strong>ARQUITECTURA LISTA PARA E1</strong> - Problema crítico resuelto</p>
+<hr />
+<h2 id="limpieza-tax-categories-sat-completada-2025-10-01">🧹 <strong>LIMPIEZA TAX CATEGORIES SAT - COMPLETADA (2025-10-01)</strong><a class="headerlink" href="#limpieza-tax-categories-sat-completada-2025-10-01" title="Permanent link">&para;</a></h2>
+<h3 id="eliminacion-definitiva-tax-categories-sat">✅ <strong>ELIMINACIÓN DEFINITIVA TAX CATEGORIES SAT</strong><a class="headerlink" href="#eliminacion-definitiva-tax-categories-sat" title="Permanent link">&para;</a></h3>
+<h4 id="contexto-implementacion"><strong>Contexto Implementación</strong><a class="headerlink" href="#contexto-implementacion" title="Permanent link">&para;</a></h4>
+<p>Como parte de la optimización arquitectónica del plan fiscal E0-E8, se ejecutó exitosamente la <strong>eliminación definitiva</strong> de Tax Categories SAT problemáticas que contaminaban el DocType Tax Category con datos fiscales.</p>
+<h4 id="acciones-ejecutadas"><strong>Acciones Ejecutadas</strong><a class="headerlink" href="#acciones-ejecutadas" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code>🎯 Limpieza Tax Categories SAT - ChatGPT propuesta implementada:
+├── ✅ 20 Tax Categories SAT eliminadas (patrón ^\d{3}\s-\s)
+├── ✅ 131 Sales Invoice referencias históricas limpiadas
+├── ✅ Custom field Sales Invoice.fm_tax_regime eliminado (redundante)
+├── ✅ 6 Tax Categories normales conservadas (Retenciones, Exempt, Zero 0, General 16)
+├── ✅ Customer.fm_tax_regime establecido fuente canónica única
+└── ✅ Arquitectura optimizada: Customer → FFM → CFDI/PAC
+</code></pre></div>
+<h4 id="resultado-arquitectonico"><strong>Resultado Arquitectónico</strong><a class="headerlink" href="#resultado-arquitectonico" title="Permanent link">&para;</a></h4>
+<p><strong>ANTES (Problemático):</strong>
+<div class="highlight"><pre><span></span><code>Tax Category DocType contiene:
+├── ❌ 6 Tax Categories normales (propósito contable ERPNext)
+├── ❌ 20 Tax Categories SAT (datos fiscales México)
+└── ❌ Confusión: contabilidad + fiscal mezclados
+</code></pre></div></p>
+<p><strong>DESPUÉS (Optimizado):</strong>
+<div class="highlight"><pre><span></span><code>Tax Category DocType limpio:
+├── ✅ 6 Tax Categories normales (solo propósito contable)
+└── ✅ Zero Tax Categories SAT (separación total)
+
+Customer.fm_tax_regime → Regimen Fiscal SAT DocType:
+├── ✅ 20 regímenes fiscales SAT (solo propósito fiscal)
+└── ✅ Separación clara contabilidad vs fiscal
+</code></pre></div></p>
+<h4 id="verificaciones-post-limpieza"><strong>Verificaciones Post-Limpieza</strong><a class="headerlink" href="#verificaciones-post-limpieza" title="Permanent link">&para;</a></h4>
+<ul>
+<li>✅ <strong>CFDI timbrado funcional</strong> - Verificado smoke test exitoso</li>
+<li>✅ <strong>Customer.fm_tax_regime operativo</strong> - 3 customers migrados funcionando</li>
+<li>✅ <strong>FFM.fm_tax_system auto-población</strong> - Función extracción SAT corregida</li>
+<li>✅ <strong>Tests 6/6 pasando</strong> - Suite migración completamente validada</li>
+<li>✅ <strong>Tax Categories limpias</strong> - Solo 6 normales, 0 SAT residuales</li>
+</ul>
+<h4 id="documentacion-generada_3"><strong>Documentación Generada</strong><a class="headerlink" href="#documentacion-generada_3" title="Permanent link">&para;</a></h4>
+<ul>
+<li>📄 <strong>Inventario pre-limpieza</strong> - Estado inicial documentado</li>
+<li>📄 <strong>Reporte análisis técnico</strong> - Decisiones arquitectónicas</li>
+<li>📄 <strong>Evidencias post-limpieza</strong> - Verificación funcionalidad</li>
+<li>📄 <strong>CHANGELOG.md actualizado</strong> - Cambios documentados</li>
+</ul>
+<h3 id="impacto-en-plan-e0-e8_2">🎯 <strong>IMPACTO EN PLAN E0-E8</strong><a class="headerlink" href="#impacto-en-plan-e0-e8_2" title="Permanent link">&para;</a></h3>
+<h4 id="e1-iva-automatico-desbloqueado"><strong>E1 - IVA AUTOMÁTICO (DESBLOQUEADO)</strong><a class="headerlink" href="#e1-iva-automatico-desbloqueado" title="Permanent link">&para;</a></h4>
+<p>✅ <strong>Base arquitectónica limpia para Tax Rules:</strong>
+- Customer.fm_tax_regime como fuente canónica (no tax_category)
+- Tax Category DocType disponible solo para propósito contable
+- Zero conflictos entre datos fiscales y contables</p>
+<h4 id="e2-e8-preparado"><strong>E2-E8 (PREPARADO)</strong><a class="headerlink" href="#e2-e8-preparado" title="Permanent link">&para;</a></h4>
+<p>✅ <strong>Arquitectura robusta para etapas avanzadas:</strong>
+- Separación total contabilidad vs fiscal establecida
+- Customer → FFM flujo optimizado y verificado
+- DocType Regimen Fiscal SAT disponible para expansión</p>
+<h4 id="nueva-linea-base-e1"><strong>Nueva Línea Base E1</strong><a class="headerlink" href="#nueva-linea-base-e1" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code>ARQUITECTURA POST-LIMPIEZA E1:
+Customer.fm_tax_regime → Tax Rules → STCT → Sales Invoice
+        ↑                    ↑
+(régimen fiscal SAT)  (contexto transaccional)
+</code></pre></div>
+<p><strong>vs ARQUITECTURA ANTERIOR (problemática):</strong>
+<div class="highlight"><pre><span></span><code>Customer.tax_category → Tax Rules → STCT → Sales Invoice
+        ↑
+(datos mezclados contables+fiscales)
+</code></pre></div></p>
+<h3 id="commits-relacionados">📋 <strong>COMMITS RELACIONADOS</strong><a class="headerlink" href="#commits-relacionados" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>9b4bb2e:</strong> feat(limpieza): eliminación definitiva Tax Categories SAT</li>
+<li><strong>28de2d3:</strong> docs(audit): documentación completa proceso limpieza</li>
+<li><strong>7866ccc:</strong> fix(fiscal): corrección función extracción SAT</li>
+</ul>
+<p><strong>Status:</strong> ✅ <strong>LIMPIEZA COMPLETADA</strong> - Arquitectura optimizada para E1-E8</p>
+<hr />
+<h2 id="mejoras-post-e1-2025-10-02-completado">🏗️ <strong>MEJORAS POST-E1 (2025-10-02) - COMPLETADO</strong><a class="headerlink" href="#mejoras-post-e1-2025-10-02-completado" title="Permanent link">&para;</a></h2>
+<h3 id="sistema-automatizado-item-groups-con-itt-assignment">✅ <strong>Sistema Automatizado Item Groups con ITT Assignment</strong><a class="headerlink" href="#sistema-automatizado-item-groups-con-itt-assignment" title="Permanent link">&para;</a></h3>
+<h4 id="objetivo-logrado_3"><strong>Objetivo Logrado</strong><a class="headerlink" href="#objetivo-logrado_3" title="Permanent link">&para;</a></h4>
+<p>Implementar sistema automatizado que garantiza la creación de estructura Item Groups fiscal en todos los sites con asignación automática de ITT (Item Tax Templates) correspondientes.</p>
+<h4 id="implementacion-tecnica_1"><strong>Implementación Técnica</strong><a class="headerlink" href="#implementacion-tecnica_1" title="Permanent link">&para;</a></h4>
+<p><strong>Módulo creado:</strong> <code>facturacion_mexico/setup/item_groups.py</code></p>
+<p><strong>Estructura Item Groups implementada:</strong>
+<div class="highlight"><pre><span></span><code>All Item Groups (raíz)
+├── Artículos con IVA al 0%    ← IG_ZERO
+│   └── ITT: &quot;ITT IVA 0% - {company_abbr}&quot;
+└── Artículos Exentos          ← IG_EXENTO
+    └── ITT: &quot;ITT Exento - {company_abbr}&quot;
+</code></pre></div></p>
+<p><strong>Funcionalidades clave:</strong>
+- ✅ <strong>Hook after_install:</strong> Creación automática grupos raíz en instalación nueva
+- ✅ <strong>Hook after_migrate:</strong> Asignación idempotente ITT post-migración
+- ✅ <strong>Búsqueda inteligente:</strong> Resolución ITT por company suffix con fallback múltiple
+- ✅ <strong>Fixture estructura:</strong> <code>item_group_fiscal_structure.json</code> para deployment</p>
+<p><strong>Componentes técnicos:</strong>
+<div class="highlight"><pre><span></span><code><span class="c1"># Funciones principales implementadas</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">ensure_groups_after_install</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Garantiza existencia grupos raíz (after_install)&quot;&quot;&quot;</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">assign_itt_to_groups</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Asigna ITT a grupos por compañía (after_migrate + wizard E0.5)&quot;&quot;&quot;</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_itt_name</span><span class="p">(</span><span class="n">base_pattern</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">company_doc</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resuelve nombre ITT exacto por compañía con fallback&quot;&quot;&quot;</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_assign_group_itt</span><span class="p">(</span><span class="n">group_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">itt_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Asigna ITT a tabla taxes del Item Group (idempotente)&quot;&quot;&quot;</span>
+</code></pre></div></p>
+<p><strong>Integración sistema:</strong>
+- ✅ <code>hooks.py</code>: after_migrate → assign_itt_to_groups()
+- ✅ <code>install.py</code>: after_install() → ensure_groups_after_install()
+- ✅ <code>configuracion_fiscal_mexico.py</code>: Wizard E0.5 → assign_itt_to_groups()</p>
+<h4 id="criterios-dod-cumplidos"><strong>Criterios DoD Cumplidos</strong><a class="headerlink" href="#criterios-dod-cumplidos" title="Permanent link">&para;</a></h4>
+<ul>
+<li>✅ <strong>Creación automática:</strong> Grupos raíz existen en todos los sites post-install</li>
+<li>✅ <strong>Asignación ITT:</strong> Templates asignados automáticamente a grupos correspondientes</li>
+<li>✅ <strong>Idempotencia:</strong> Re-ejecución no duplica assignments ni genera errores</li>
+<li>✅ <strong>Zero-config:</strong> Nuevas instalaciones funcionan sin configuración manual</li>
+<li>✅ <strong>Multi-company:</strong> Soporta múltiples compañías con ITT por company suffix</li>
+</ul>
+<hr />
+<h3 id="solucion-problema-doble-sufijo-templates-fiscales">✅ <strong>Solución Problema Doble Sufijo Templates Fiscales</strong><a class="headerlink" href="#solucion-problema-doble-sufijo-templates-fiscales" title="Permanent link">&para;</a></h3>
+<h4 id="contexto-del-problema-resuelto_1"><strong>Contexto del Problema RESUELTO</strong><a class="headerlink" href="#contexto-del-problema-resuelto_1" title="Permanent link">&para;</a></h4>
+<p><strong>Problema original identificado:</strong>
+- ❌ <strong>Templates con doble sufijo:</strong> name = "ITT IVA 0% - _TC - _TC" (incorrecto)
+- ✅ <strong>Title correcto:</strong> title = "ITT IVA 0% - _TC"
+- 🔍 <strong>Root cause:</strong> ERPNext autoname() concatenaba company_abbr automático al title que YA incluía sufijo</p>
+<p><strong>Impacto crítico:</strong>
+- ❌ Item Groups no encontraban ITT (búsqueda por title fallaba)
+- ❌ Inconsistencia name vs title en 23 templates (15 ITT + 8 STCT)
+- ❌ Sistema Item Groups no operativo por mismatch nombres</p>
+<h4 id="solucion-implementada-propuesta-chatgpt-3-fases"><strong>Solución Implementada - Propuesta ChatGPT 3 Fases</strong><a class="headerlink" href="#solucion-implementada-propuesta-chatgpt-3-fases" title="Permanent link">&para;</a></h4>
+<p><strong>FASE 1: Prevenir doble sufijo en nuevos templates</strong>
+- ✅ Modificado generador <code>generador_templates_fiscal.py</code>
+- ✅ Cambio técnico: <code>frappe.new_doc()</code> → <code>frappe.get_doc(dict)</code> con name pre-establecido
+- ✅ Fix aplicado a ambos: <code>_crear_o_actualizar_stct()</code> y <code>_crear_o_actualizar_itt()</code>
+- ✅ Resultado: Nuevos templates generados tienen name == title (sin duplicación)</p>
+<p><strong>Código clave implementado:</strong>
+<div class="highlight"><pre><span></span><code><span class="c1"># ANTES (causaba doble sufijo):</span>
+<span class="n">doc</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">new_doc</span><span class="p">(</span><span class="s2">&quot;Item Tax Template&quot;</span><span class="p">)</span>  <span class="c1"># ← autoname() agrega sufijo extra</span>
+<span class="n">doc</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="n">title</span><span class="p">,</span> <span class="s2">&quot;company&quot;</span><span class="p">:</span> <span class="n">company</span><span class="p">,</span> <span class="o">...</span><span class="p">})</span>
+
+<span class="c1"># DESPUÉS (previene doble sufijo):</span>
+<span class="n">doc</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_doc</span><span class="p">({</span>
+    <span class="s2">&quot;doctype&quot;</span><span class="p">:</span> <span class="s2">&quot;Item Tax Template&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">title</span><span class="p">,</span>      <span class="c1"># ← name fijo = title (evita autoname)</span>
+    <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="n">title</span><span class="p">,</span>
+    <span class="s2">&quot;company&quot;</span><span class="p">:</span> <span class="n">company</span><span class="p">,</span>
+    <span class="o">...</span>
+<span class="p">})</span>
+</code></pre></div></p>
+<p><strong>FASE 2: Normalizar templates existentes con doble sufijo</strong>
+- ✅ Script creado: <code>one_offs/normalize_template_names.py</code>
+- ✅ Funcionalidad: Detecta doble sufijo con regex, renombra usando frappe.rename_doc()
+- ✅ Ejecución: <code>bench execute facturacion_mexico.one_offs.normalize_template_names.run --kwargs "{'dry_run': 0}"</code>
+- ✅ Resultado: 23 templates normalizados exitosamente (15 ITT + 8 STCT)</p>
+<p><strong>Detección regex implementada:</strong>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_ends_with_double_suffix</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">abbr</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Detecta templates con doble sufijo al final&quot;&quot;&quot;</span>
+    <span class="n">pattern</span> <span class="o">=</span> <span class="sa">rf</span><span class="s2">&quot;\s-\s</span><span class="si">{</span><span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">abbr</span><span class="p">)</span><span class="si">}</span><span class="s2">\s-\s</span><span class="si">{</span><span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">abbr</span><span class="p">)</span><span class="si">}</span><span class="s2">$&quot;</span>
+    <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+</code></pre></div></p>
+<p><strong>FASE 3: Optimizar búsqueda Item Groups</strong>
+- ✅ Modificado <code>item_groups.py</code> función <code>_resolve_itt_name()</code>
+- ✅ Estrategia: Buscar primero por name exacto (post-normalización), fallback por title
+- ✅ Resultado: Item Groups encuentran ITT correctamente con templates normalizados</p>
+<p><strong>Búsqueda optimizada:</strong>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_resolve_itt_name</span><span class="p">(</span><span class="n">base_pattern</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">company_doc</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Busca ITT por name exacto primero, fallback title&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">suf</span> <span class="ow">in</span> <span class="n">_find_company_suffixes</span><span class="p">(</span><span class="n">company_doc</span><span class="p">):</span>
+        <span class="n">candidate</span> <span class="o">=</span> <span class="n">base_pattern</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">suffix</span><span class="o">=</span><span class="n">suf</span><span class="p">)</span>
+        <span class="c1"># POST-NORMALIZACIÓN: Preferir name exacto</span>
+        <span class="n">by_name</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s2">&quot;Item Tax Template&quot;</span><span class="p">,</span> <span class="n">candidate</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">by_name</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">by_name</span>
+        <span class="c1"># FALLBACK: Por title (compatibilidad)</span>
+        <span class="n">by_title</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">&quot;Item Tax Template&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="n">candidate</span><span class="p">},</span> <span class="s2">&quot;name&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">by_title</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">by_title</span>
+    <span class="k">return</span> <span class="kc">None</span>
+</code></pre></div></p>
+<h4 id="verificacion-solucion-completa"><strong>Verificación Solución Completa</strong><a class="headerlink" href="#verificacion-solucion-completa" title="Permanent link">&para;</a></h4>
+<p><strong>Script verificación:</strong> <code>one_offs/verificar_solucion_completa.py</code></p>
+<p><strong>Validaciones ejecutadas:</strong>
+- ✅ <strong>Templates normalizados:</strong> 100% templates tienen name == title
+- ✅ <strong>Búsqueda funcional:</strong> Item Groups encuentra ITT correctamente
+- ✅ <strong>ITT asignados:</strong> Grupos tienen ITT en tabla taxes con valid_from = 2025-10-01
+- ✅ <strong>Sistema operativo:</strong> Listo para uso en UI sin errores</p>
+<p><strong>Resultado verificación:</strong>
+<div class="highlight"><pre><span></span><code>✅ ✅ ✅ SOLUCIÓN FUNCIONANDO CORRECTAMENTE ✅ ✅ ✅
+
+1. Templates normalizados: name == title
+2. Búsqueda item_groups funciona
+3. Item Groups tienen ITT asignados
+
+¡Listo para usar en UI!
+</code></pre></div></p>
+<h4 id="documentacion-generada_4"><strong>Documentación Generada</strong><a class="headerlink" href="#documentacion-generada_4" title="Permanent link">&para;</a></h4>
+<ul>
+<li>📄 <strong>Reporte técnico completo:</strong> <code>docs/audit/reporte-problema-doble-sufijo-templates-2025-10-02.md</code></li>
+<li>📄 <strong>Análisis root cause:</strong> ERPNext autoname() behavior documentado</li>
+<li>📄 <strong>Scripts diagnóstico:</strong> 6 scripts verificación reutilizables</li>
+<li>🧪 <strong>Script normalización:</strong> normalize_template_names.py (one-off ejecutado)</li>
+<li>🧪 <strong>Script verificación:</strong> verificar_solucion_completa.py (validación final)</li>
+</ul>
+<h4 id="impacto-en-plan-e0-e8_3"><strong>Impacto en Plan E0-E8</strong><a class="headerlink" href="#impacto-en-plan-e0-e8_3" title="Permanent link">&para;</a></h4>
+<p><strong>E1 - IVA AUTOMÁTICO (COMPLETADO):</strong>
+- ✅ <strong>Sistema Item Groups operativo</strong> con ITT asignados correctamente
+- ✅ <strong>Templates normalizados</strong> sin doble sufijo problemático
+- ✅ <strong>Herencia ITT funcional</strong> desde Item Groups a Items</p>
+<p><strong>E2-E8 (PREPARADO):</strong>
+- ✅ <strong>Base templates sólida</strong> sin inconsistencias nombre/title
+- ✅ <strong>Sistema extensible</strong> para nuevos templates (prevención doble sufijo)
+- ✅ <strong>Búsqueda optimizada</strong> lista para escalar múltiples compañías</p>
+<h4 id="criterios-dod-cumplidos_1"><strong>Criterios DoD Cumplidos</strong><a class="headerlink" href="#criterios-dod-cumplidos_1" title="Permanent link">&para;</a></h4>
+<ul>
+<li>✅ <strong>Problema identificado:</strong> Root cause ERPNext autoname() documentado</li>
+<li>✅ <strong>Solución 3 fases:</strong> Prevención + Normalización + Optimización</li>
+<li>✅ <strong>23 templates corregidos:</strong> 15 ITT + 8 STCT normalizados</li>
+<li>✅ <strong>Item Groups funcional:</strong> ITT assignment operativo 100%</li>
+<li>✅ <strong>Zero errores:</strong> Verificación completa exitosa</li>
+<li>✅ <strong>Documentación completa:</strong> Reporte técnico + scripts + evidencias</li>
+</ul>
+<p><strong>Status:</strong> ✅ <strong>MEJORAS POST-E1 COMPLETADAS</strong> - Sistema Item Groups + Templates optimizados</p>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Volver al principio
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 Facturación México - Documentación Técnica
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/tu-org/facturacion_mexico" target="_blank" rel="noopener" title="GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+      <div class="md-consent" data-md-component="consent" id="__consent" hidden>
+        <div class="md-consent__overlay"></div>
+        <aside class="md-consent__inner">
+          <form class="md-consent__form md-grid md-typeset" name="consent">
+            
+
+  
+    
+  
+
+
+
+
+
+<h4>Consentimiento de cookies</h4>
+<p>Utilizamos cookies para reconocer tus visitas repetidas y preferencias, así como para medir la efectividad de nuestra documentación y si los usuarios encuentran lo que están buscando. Con tu consentimiento, nos ayudas a mejorar nuestra documentación.
+</p>
+<input class="md-toggle" type="checkbox" id="__settings" >
+<div class="md-consent__settings">
+  <ul class="task-list">
+    
+      
+      
+        
+        
+      
+      <li class="task-list-item">
+        <label class="task-list-control">
+          <input type="checkbox" name="analytics" checked>
+          <span class="task-list-indicator"></span>
+          Google Analytics
+        </label>
+      </li>
+    
+  </ul>
+</div>
+<div class="md-consent__controls">
+  
+    
+      <button class="md-button md-button--primary">Aceptar</button>
+    
+    
+    
+  
+    
+    
+      <button type="reset" class="md-button md-button--primary">Rechazar</button>
+    
+    
+  
+    
+    
+    
+      <label class="md-button" for="__settings">Gestionar cookies</label>
+    
+  
+</div>
+          </form>
+        </aside>
+      </div>
+      <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout(function(){document.querySelector("[data-md-component=consent]").hidden=!1},250);var action,form=document.forms.consent;for(action of["submit","reset"])form.addEventListener(action,function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map(function(e){return[e,!0]}))),location.hash="",location.reload()})</script>
+    
+    <script id="__config" type="application/json">{"base": "../../../..", "features": ["content.code.copy", "navigation.expand", "navigation.instant", "navigation.sections", "navigation.tabs", "navigation.top", "search.highlight", "search.suggest"], "search": "../../../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copiado al portapapeles", "clipboard.copy": "Copiar al portapapeles", "search.result.more.one": "1 m\u00e1s en esta p\u00e1gina", "search.result.more.other": "# m\u00e1s en esta p\u00e1gina", "search.result.none": "No se encontraron documentos", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Teclee para comenzar b\u00fasqueda", "search.result.term.missing": "Falta", "select.version": "Seleccionar versi\u00f3n"}, "version": {"default": "latest", "provider": "mike"}}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.d7c377c4.min.js"></script>
+      
+        <script src="../../../../assets/javascripts/extra.js"></script>
+      
+        <script src="../../../../assets/javascripts/advanced.js"></script>
+      
+    
+  </body>
+</html>

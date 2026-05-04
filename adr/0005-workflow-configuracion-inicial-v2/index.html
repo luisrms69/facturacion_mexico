@@ -1,0 +1,2185 @@
+
+<!doctype html>
+<html lang="es" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentación completa del sistema de facturación electrónica para México">
+      
+      
+        <meta name="author" content="Equipo Desarrollo Facturación México">
+      
+      
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.3">
+    
+    
+      
+        <title>WORKFLOW DE CONFIGURACIÓN INICIAL — v2 - Facturación México - Documentación Técnica</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.50c56a3b.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/advanced.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function n(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],n("js",new Date),n("config","G-XXXXXXXXXX"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){this.value&&n("event","search",{search_term:this.value})}),document$.subscribe(function(){var a=document.forms.feedback;if(void 0!==a)for(var e of a.querySelectorAll("[type=submit]"))e.addEventListener("click",function(e){e.preventDefault();var t=document.location.pathname,e=this.getAttribute("data-md-value");n("event","feedback",{page:t,data:e}),a.firstElementChild.disabled=!0;e=a.querySelector(".md-feedback__note [data-md-value='"+e+"']");e&&(e.hidden=!1)}),a.hidden=!1}),location$.subscribe(function(e){n("config","G-XXXXXXXXXX",{page_path:e.pathname})})});var e=document.createElement("script");e.async=!0,e.src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX",document.getElementById("__analytics").insertAdjacentElement("afterEnd",e)}</script>
+  
+    <script>var consent;"undefined"==typeof __md_analytics||(consent=__md_get("__consent"))&&consent.analytics&&__md_analytics()</script>
+  
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#workflow-de-configuracion-inicial-v2" class="md-skip">
+          Saltar a contenido
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabecera">
+    <a href="../.." title="Facturación México - Documentación Técnica" class="md-header__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Facturación México - Documentación Técnica
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              WORKFLOW DE CONFIGURACIÓN INICIAL — v2
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo oscuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo oscuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Búsqueda" placeholder="Búsqueda" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Buscar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpiar" aria-label="Limpiar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando búsqueda
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Pestañas" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+    
+  
+  Inicio
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../user-guide/" class="md-tabs__link">
+          
+  
+  Guía de Usuario
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/" class="md-tabs__link">
+          
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/" class="md-tabs__link">
+          
+  
+  Desarrollo
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navegación" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Facturación México - Documentación Técnica" class="md-nav__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Facturación México - Documentación Técnica
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Inicio
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Guía de Usuario
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Guía de Usuario
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Usuario - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/getting-started/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Primeros Pasos
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/draft-invoices/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Facturas en Borrador
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/troubleshooting/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    API Reference
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    API Reference - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/cfdi/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CFDI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/draft-management/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Draft Management
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/catalogos/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Catalogos SAT
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/hooks/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Hooks
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Desarrollo
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Desarrollo
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Desarrollo - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Setup Desarrollo
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/draft-workflow/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Draft Workflow
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#orden-estricto-de-dependencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      Orden estricto de dependencias
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#paso-1-company" class="md-nav__link">
+    <span class="md-ellipsis">
+      PASO 1 — Company
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#paso-2-chart-of-accounts-cuentas-tax" class="md-nav__link">
+    <span class="md-ellipsis">
+      PASO 2 — Chart of Accounts (cuentas Tax)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#paso-3-facturacion-mexico-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      PASO 3 — Facturacion Mexico Settings
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#paso-4-configuracion-fiscal-mexico" class="md-nav__link">
+    <span class="md-ellipsis">
+      PASO 4 — Configuracion Fiscal Mexico
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PASO 4 — Configuracion Fiscal Mexico">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#4a-crear-el-documento" class="md-nav__link">
+    <span class="md-ellipsis">
+      4a — Crear el documento
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4b-completar-el-mapeo-de-cuentas" class="md-nav__link">
+    <span class="md-ellipsis">
+      4b — Completar el mapeo de cuentas
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4c-generar-templates-boton-ui" class="md-nav__link">
+    <span class="md-ellipsis">
+      4c — Generar templates (botón UI)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#paso-5-branch-opcional-recomendado-para-multi-sucursal" class="md-nav__link">
+    <span class="md-ellipsis">
+      PASO 5 — Branch (opcional, recomendado para multi-sucursal)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#paso-6-customer" class="md-nav__link">
+    <span class="md-ellipsis">
+      PASO 6 — Customer
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#paso-7-items" class="md-nav__link">
+    <span class="md-ellipsis">
+      PASO 7 — Items
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#paso-8-sales-invoice-submit" class="md-nav__link">
+    <span class="md-ellipsis">
+      PASO 8 — Sales Invoice → SUBMIT
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#paso-9-factura-fiscal-mexico-submit" class="md-nav__link">
+    <span class="md-ellipsis">
+      PASO 9 — Factura Fiscal Mexico → SUBMIT
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#paso-10-timbrar" class="md-nav__link">
+    <span class="md-ellipsis">
+      PASO 10 — Timbrar
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tabla-de-errores-por-paso-omitido" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tabla de errores por paso omitido
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mvp-minimo-para-primer-timbrado" class="md-nav__link">
+    <span class="md-ellipsis">
+      MVP mínimo para primer timbrado
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="workflow-de-configuracion-inicial-v2">WORKFLOW DE CONFIGURACIÓN INICIAL — v2<a class="headerlink" href="#workflow-de-configuracion-inicial-v2" title="Permanent link">&para;</a></h1>
+<p>========================================
+Fecha: 2026-05-01
+Branch: feature/e4-ieps-on-item-quantity
+Supersede: docs/adr/0005-workflow-configuracion-inicial.md</p>
+<p>Diferencia respecto a v1: incluye el sistema de Configuracion Fiscal Mexico,
+generación de 8 STCT específicos, ITTs automáticos y mapeo de cuentas contables.</p>
+<hr />
+<h2 id="orden-estricto-de-dependencias">Orden estricto de dependencias<a class="headerlink" href="#orden-estricto-de-dependencias" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>Company + Chart of Accounts
+        │
+        ▼
+Facturacion Mexico Settings  ←── API Key + RFC + CP
+        │
+        ▼
+Configuracion Fiscal Mexico  ←── checkboxes alcance fiscal
+        │
+        ▼
+Mapeo Cuenta Fiscal Mexico   ←── cuentas Tax por rol (usuario)
+        │
+        ▼
+Generate Templates           ←── 8 STCT + ITTs (botón UI)
+        │
+        ├──▶ Sales Taxes and Charges Templates (8)
+        └──▶ Item Tax Templates (3–18)
+                │
+                ▼
+         Customer + Address + fm_regimen_fiscal
+                │
+                ▼
+          Item + UOM SAT + fm_producto_servicio_sat
+                │
+                ▼
+           Sales Invoice → SUBMIT
+                │
+                ▼
+       Factura Fiscal Mexico → SUBMIT
+                │
+                ▼
+           timbrar_factura()
+</code></pre></div>
+<hr />
+<h2 id="paso-1-company">PASO 1 — Company<a class="headerlink" href="#paso-1-company" title="Permanent link">&para;</a></h2>
+<p><strong>Dónde:</strong> Setup → Company</p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Obligatorio</th>
+<th>Notas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>company_name</code></td>
+<td>✅</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>tax_id</code></td>
+<td>✅</td>
+<td>RFC de la empresa emisora</td>
+</tr>
+<tr>
+<td><code>default_currency</code></td>
+<td>✅</td>
+<td><code>MXN</code></td>
+</tr>
+<tr>
+<td><code>country</code></td>
+<td>✅</td>
+<td><code>México</code></td>
+</tr>
+<tr>
+<td><code>abbr</code></td>
+<td>✅</td>
+<td>Se usa como sufijo en nombres de templates: <code>"IVA Nacional - Básico - {abbr}"</code></td>
+</tr>
+</tbody>
+</table>
+<p>El <code>abbr</code> es crítico: todos los STCT e ITT llevan el sufijo de la empresa.
+Si se cambia después de generar los templates, los templates existentes quedan
+huérfanos y hay que regenerarlos.</p>
+<p><strong>Qué rompe si falta:</strong> <code>generate_8_stct_for_company()</code> falla al intentar
+leer <code>Company.abbr</code> — no puede construir nombres de templates.</p>
+<hr />
+<h2 id="paso-2-chart-of-accounts-cuentas-tax">PASO 2 — Chart of Accounts (cuentas Tax)<a class="headerlink" href="#paso-2-chart-of-accounts-cuentas-tax" title="Permanent link">&para;</a></h2>
+<p><strong>Dónde:</strong> Accounting → Chart of Accounts</p>
+<p>Antes de crear <code>Configuracion Fiscal Mexico</code>, deben existir cuentas contables
+de tipo <strong>Tax</strong> para cada rol fiscal que se vaya a usar. El sistema no las crea —
+son parte del plan de cuentas de la empresa.</p>
+<p><strong>Cuentas mínimas para MVP (IVA básico):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Rol fiscal</th>
+<th>Nombre sugerido</th>
+<th>Tipo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>IVA por Pagar (Nacional)</code></td>
+<td>IVA por Pagar (16%)</td>
+<td>Tax</td>
+</tr>
+<tr>
+<td><code>IVA Exento</code></td>
+<td>IVA Exento</td>
+<td>Tax</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Cuentas adicionales según alcance:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Checkbox</th>
+<th>Roles requeridos</th>
+<th>Cuentas necesarias</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>enable_frontera</code></td>
+<td><code>IVA por Pagar (Frontera)</code></td>
+<td>1 cuenta Tax</td>
+</tr>
+<tr>
+<td><code>enable_exportacion</code></td>
+<td><code>IVA por Pagar (0% exportación)</code></td>
+<td>1 cuenta Tax</td>
+</tr>
+<tr>
+<td><code>enable_ieps_alcohol</code></td>
+<td><code>IEPS por Pagar (Alcohol)</code></td>
+<td>1 cuenta Tax</td>
+</tr>
+<tr>
+<td><code>enable_ieps_azucar</code></td>
+<td><code>IEPS por Pagar (Azúcar/Bebidas)</code></td>
+<td>1 cuenta Tax</td>
+</tr>
+<tr>
+<td><code>enable_ieps_combustibles</code></td>
+<td><code>IEPS por Pagar (Combustibles)</code></td>
+<td>1 cuenta Tax</td>
+</tr>
+<tr>
+<td><code>enable_ieps_tabaco</code></td>
+<td><code>IEPS por Pagar (Tabaco)</code> + <code>IEPS por Pagar (Tabaco Cuota)</code></td>
+<td>2 cuentas Tax</td>
+</tr>
+<tr>
+<td><code>enable_ret_honorarios</code></td>
+<td><code>IVA Retenido (Honorarios)</code> + <code>ISR Retenido (Honorarios)</code></td>
+<td>2 cuentas Tax</td>
+</tr>
+<tr>
+<td><code>enable_ret_arrendamiento</code></td>
+<td><code>IVA Retenido (Arrendamiento)</code> + <code>ISR Retenido (Arrendamiento)</code></td>
+<td>2 cuentas Tax</td>
+</tr>
+<tr>
+<td><code>enable_ret_autotransporte</code></td>
+<td><code>IVA Retenido (Autotransporte)</code> + <code>ISR Retenido (Autotransporte)</code></td>
+<td>2 cuentas Tax</td>
+</tr>
+<tr>
+<td><code>enable_ret_resico</code></td>
+<td><code>IVA Retenido (RESICO)</code> + <code>ISR Retenido (RESICO)</code></td>
+<td>2 cuentas Tax</td>
+</tr>
+</tbody>
+</table>
+<p><strong>MVP mínimo:</strong> 2 cuentas Tax (IVA Nacional + IVA Exento).</p>
+<p><strong>Qué rompe si falta:</strong> <code>Mapeo Cuenta Fiscal Mexico</code> valida que cada cuenta
+sea tipo Tax, pertenezca a la empresa y no esté deshabilitada. Sin cuentas
+válidas, <code>configuracion_completa</code> nunca se marca como <code>True</code> y no se pueden
+generar los templates.</p>
+<hr />
+<h2 id="paso-3-facturacion-mexico-settings">PASO 3 — Facturacion Mexico Settings<a class="headerlink" href="#paso-3-facturacion-mexico-settings" title="Permanent link">&para;</a></h2>
+<p><strong>Dónde:</strong> Facturacion Mexico → Facturacion Mexico Settings (Single)</p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Obligatorio</th>
+<th>Default</th>
+<th>Notas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sandbox_mode</code></td>
+<td>✅</td>
+<td><code>1</code></td>
+<td>Usar <code>test_api_key</code> en lugar de <code>api_key</code></td>
+</tr>
+<tr>
+<td><code>test_api_key</code></td>
+<td>✅ si sandbox</td>
+<td>—</td>
+<td>API Key FacturAPI sandbox</td>
+</tr>
+<tr>
+<td><code>api_key</code></td>
+<td>✅ si producción</td>
+<td><code>NULL</code></td>
+<td>API Key FacturAPI producción</td>
+</tr>
+<tr>
+<td><code>rfc_emisor</code></td>
+<td>✅</td>
+<td><code>NULL</code></td>
+<td>RFC empresa — campo obligatorio del CFDI</td>
+</tr>
+<tr>
+<td><code>lugar_expedicion</code></td>
+<td>✅</td>
+<td><code>NULL</code></td>
+<td>Código postal domicilio fiscal</td>
+</tr>
+<tr>
+<td><code>metodo_pago_default</code></td>
+<td>✅</td>
+<td><code>PUE</code></td>
+<td><code>PUE</code> o <code>PPD</code></td>
+</tr>
+<tr>
+<td><code>customer_email_fallback</code></td>
+<td>✅</td>
+<td>valor demo</td>
+<td>Email cuando cliente no tiene</td>
+</tr>
+<tr>
+<td><code>timeout</code></td>
+<td>✅</td>
+<td><code>30</code></td>
+<td>Segundos antes de timeout al PAC</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Relación con Configuracion Fiscal Mexico:</strong> independiente. Los Settings
+son credenciales del PAC; la CFM es la configuración fiscal contable.
+Ambos son necesarios para timbrar, pero en diferente momento del flujo.</p>
+<hr />
+<h2 id="paso-4-configuracion-fiscal-mexico">PASO 4 — Configuracion Fiscal Mexico<a class="headerlink" href="#paso-4-configuracion-fiscal-mexico" title="Permanent link">&para;</a></h2>
+<p><strong>Dónde:</strong> Facturacion Mexico → Configuracion Fiscal Mexico → Nuevo
+<strong>Autoname:</strong> <code>CFM-{company}</code> (uno por empresa)</p>
+<p>Este DocType es el <strong>wizard central</strong> de la configuración fiscal. Orquesta
+la creación de todos los templates de impuestos.</p>
+<h3 id="4a-crear-el-documento">4a — Crear el documento<a class="headerlink" href="#4a-crear-el-documento" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Obligatorio</th>
+<th>Default</th>
+<th>Notas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>company</code></td>
+<td>✅</td>
+<td>—</td>
+<td>Link único por empresa</td>
+</tr>
+<tr>
+<td><code>enable_exportacion</code></td>
+<td>—</td>
+<td><code>1</code></td>
+<td>IVA 0% exportación — activo por defecto</td>
+</tr>
+<tr>
+<td><code>enable_frontera</code></td>
+<td>—</td>
+<td><code>0</code></td>
+<td>Solo si empresa opera en zona fronteriza</td>
+</tr>
+<tr>
+<td><code>enable_ieps_alcohol</code></td>
+<td>—</td>
+<td><code>0</code></td>
+<td>Solo si vende alcohol</td>
+</tr>
+<tr>
+<td><code>enable_ieps_azucar</code></td>
+<td>—</td>
+<td><code>0</code></td>
+<td>Solo si vende bebidas azucaradas</td>
+</tr>
+<tr>
+<td><code>enable_ieps_combustibles</code></td>
+<td>—</td>
+<td><code>0</code></td>
+<td>Solo si vende combustibles</td>
+</tr>
+<tr>
+<td><code>enable_ieps_tabaco</code></td>
+<td>—</td>
+<td><code>0</code></td>
+<td>Solo si vende tabaco</td>
+</tr>
+<tr>
+<td><code>enable_ret_honorarios</code></td>
+<td>—</td>
+<td><code>0</code></td>
+<td>Solo si paga honorarios</td>
+</tr>
+<tr>
+<td><code>enable_ret_arrendamiento</code></td>
+<td>—</td>
+<td><code>0</code></td>
+<td>Solo si paga arrendamiento</td>
+</tr>
+<tr>
+<td><code>enable_ret_autotransporte</code></td>
+<td>—</td>
+<td><code>0</code></td>
+<td>Solo si usa autotransporte</td>
+</tr>
+<tr>
+<td><code>enable_ret_resico</code></td>
+<td>—</td>
+<td><code>0</code></td>
+<td>Solo si opera con RESICO</td>
+</tr>
+<tr>
+<td><code>tasa_isr_resico</code></td>
+<td>—</td>
+<td><code>1.25</code></td>
+<td>Solo si <code>enable_ret_resico = 1</code></td>
+</tr>
+</tbody>
+</table>
+<p>Al guardar, el sistema sincroniza automáticamente <code>mapeo_cuentas</code> con las
+filas de roles fiscales requeridos según los checkboxes.</p>
+<p><strong>Roles siempre requeridos</strong> (independiente de checkboxes):
+- <code>IVA por Pagar (Nacional)</code>
+- <code>IVA Exento</code></p>
+<h3 id="4b-completar-el-mapeo-de-cuentas">4b — Completar el mapeo de cuentas<a class="headerlink" href="#4b-completar-el-mapeo-de-cuentas" title="Permanent link">&para;</a></h3>
+<p>La tabla <code>mapeo_cuentas</code> se llena automáticamente con las filas de roles
+requeridos. El usuario debe asignar la cuenta contable correspondiente a
+cada fila:</p>
+<table>
+<thead>
+<tr>
+<th>Columna</th>
+<th>Qué hacer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>rol_fiscal</code></td>
+<td>Solo lectura — asignado por el sistema</td>
+</tr>
+<tr>
+<td><code>cuenta_impuesto</code></td>
+<td><strong>Usuario selecciona</strong> la cuenta Tax de su CoA</td>
+</tr>
+<tr>
+<td><code>estado_validacion</code></td>
+<td>Solo lectura — <code>Válido</code> / <code>Advertencia</code> / <code>Error</code></td>
+</tr>
+<tr>
+<td><code>integra_base_iva</code></td>
+<td>Marcar si este IEPS integra la base del IVA (cascada)</td>
+</tr>
+</tbody>
+</table>
+<p>El campo <code>configuracion_completa</code> se marca automáticamente como <code>True</code>
+cuando todos los roles requeridos tienen <code>estado_validacion = "Válido"</code>.</p>
+<p><strong>Validaciones automáticas por cuenta:</strong>
+- La cuenta debe ser de tipo <code>Tax</code>
+- La cuenta debe pertenecer a la empresa
+- La cuenta no debe estar deshabilitada
+- La cuenta debe estar en el Chart of Accounts de la empresa</p>
+<h3 id="4c-generar-templates-boton-ui">4c — Generar templates (botón UI)<a class="headerlink" href="#4c-generar-templates-boton-ui" title="Permanent link">&para;</a></h3>
+<p>Con <code>configuracion_completa = True</code>, el botón <strong>"Generate Templates"</strong> llama
+a <code>aplicar_mapeo_y_generar_templates()</code> que ejecuta en secuencia:</p>
+<div class="highlight"><pre><span></span><code>1. generate_8_stct_for_company(company)
+   → Crea/actualiza los 8 Sales Taxes and Charges Templates
+   → Deshabilita templates consolidados viejos (con porcentajes en nombre)
+
+2. generate_itt_for_company(company)
+   → Crea/actualiza los Item Tax Templates según alcance habilitado
+
+3. assign_itt_to_groups(company)
+   → Asigna cada ITT al Item Group correspondiente
+</code></pre></div>
+<p><strong>Templates STCT generados (mínimo 4, máximo 8):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Template</th>
+<th>Cuándo se crea</th>
+<th>Filas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>IVA Nacional - Básico - {abbr}</code></td>
+<td>Siempre</td>
+<td>1 (IVA)</td>
+</tr>
+<tr>
+<td><code>IVA Nacional - IEPS - {abbr}</code></td>
+<td>Si algún IEPS habilitado</td>
+<td>6 (IVA + IEPS + cascada)</td>
+</tr>
+<tr>
+<td><code>IVA Nacional - Retenciones - {abbr}</code></td>
+<td>Si alguna retención habilitada</td>
+<td>3 (IVA + ISR Ret + IVA Ret)</td>
+</tr>
+<tr>
+<td><code>IVA Nacional - Total - {abbr}</code></td>
+<td>Si IEPS + retenciones</td>
+<td>8 (todo)</td>
+</tr>
+<tr>
+<td><code>IVA Frontera - Básico - {abbr}</code></td>
+<td>Si <code>enable_frontera</code></td>
+<td>1</td>
+</tr>
+<tr>
+<td><code>IVA Frontera - IEPS - {abbr}</code></td>
+<td>Si frontera + IEPS</td>
+<td>6</td>
+</tr>
+<tr>
+<td><code>IVA Frontera - Retenciones - {abbr}</code></td>
+<td>Si frontera + retenciones</td>
+<td>3</td>
+</tr>
+<tr>
+<td><code>IVA Frontera - Total - {abbr}</code></td>
+<td>Si frontera + IEPS + retenciones</td>
+<td>8</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Item Tax Templates generados (3 base, hasta 18 con todos los alcances):</strong></p>
+<table>
+<thead>
+<tr>
+<th>ITT</th>
+<th style="text-align: center;">Siempre</th>
+<th style="text-align: center;">Condicional</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ITT IVA Nacional (16%) - {abbr}</code></td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">—</td>
+</tr>
+<tr>
+<td><code>ITT IVA 0% - {abbr}</code></td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">—</td>
+</tr>
+<tr>
+<td><code>ITT Exento - {abbr}</code></td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">—</td>
+</tr>
+<tr>
+<td><code>ITT IVA Frontera (8%) - {abbr}</code></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;"><code>enable_frontera</code></td>
+</tr>
+<tr>
+<td><code>ITT IEPS Alcohol - {abbr}</code></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;"><code>enable_ieps_alcohol</code></td>
+</tr>
+<tr>
+<td><code>ITT IEPS Azúcar - {abbr}</code></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;"><code>enable_ieps_azucar</code></td>
+</tr>
+<tr>
+<td><code>ITT IEPS Combustibles - {abbr}</code></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;"><code>enable_ieps_combustibles</code></td>
+</tr>
+<tr>
+<td><code>ITT IEPS Tabaco - {abbr}</code></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;"><code>enable_ieps_tabaco</code></td>
+</tr>
+<tr>
+<td><code>ITT ISR Honorarios - {abbr}</code></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;"><code>enable_ret_honorarios</code></td>
+</tr>
+<tr>
+<td><code>ITT IVA Retenido Honorarios - {abbr}</code></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;"><code>enable_ret_honorarios</code></td>
+</tr>
+<tr>
+<td><code>ITT ISR + IVA Ret Honorarios - {abbr}</code></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;"><code>enable_ret_honorarios</code></td>
+</tr>
+<tr>
+<td><code>ITT ISR Arrendamiento - {abbr}</code> + 2 más</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;"><code>enable_ret_arrendamiento</code></td>
+</tr>
+<tr>
+<td><code>ITT ISR Autotransporte - {abbr}</code> + 2 más</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;"><code>enable_ret_autotransporte</code></td>
+</tr>
+<tr>
+<td><code>ITT ISR + IVA Ret RESICO - {abbr}</code></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;"><code>enable_ret_resico</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Item Groups y asignación automática de ITTs:</strong></p>
+<p>La función <code>assign_itt_to_groups()</code> asigna cada ITT al Item Group correspondiente.
+Los Item Groups se crean automáticamente si no existen:</p>
+<table>
+<thead>
+<tr>
+<th>Item Group</th>
+<th>ITT asignado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Artículos con IVA al 0%</code></td>
+<td><code>ITT IVA 0% - {abbr}</code></td>
+</tr>
+<tr>
+<td><code>Artículos Exentos</code></td>
+<td><code>ITT Exento - {abbr}</code></td>
+</tr>
+<tr>
+<td><code>Artículos IEPS Alcohol</code></td>
+<td><code>ITT IEPS Alcohol - {abbr}</code></td>
+</tr>
+<tr>
+<td><code>Artículos IEPS Azúcar</code></td>
+<td><code>ITT IEPS Azúcar - {abbr}</code></td>
+</tr>
+<tr>
+<td><code>Artículos IEPS Combustibles</code></td>
+<td><code>ITT IEPS Combustibles - {abbr}</code></td>
+</tr>
+<tr>
+<td><code>Artículos IEPS Tabaco</code></td>
+<td><code>ITT IEPS Tabaco - {abbr}</code></td>
+</tr>
+<tr>
+<td><code>Servicios Profesionales (Honorarios)</code></td>
+<td><code>ITT ISR + IVA Ret Honorarios - {abbr}</code></td>
+</tr>
+<tr>
+<td><code>Arrendamiento</code></td>
+<td><code>ITT ISR + IVA Ret Arrendamiento - {abbr}</code></td>
+</tr>
+<tr>
+<td><code>Autotransporte</code></td>
+<td><code>ITT ISR + IVA Ret Autotransporte - {abbr}</code></td>
+</tr>
+<tr>
+<td><code>RESICO</code></td>
+<td><code>ITT ISR + IVA Ret RESICO - {abbr}</code></td>
+</tr>
+</tbody>
+</table>
+<p>Los Items que pertenecen a uno de estos grupos heredan automáticamente
+el ITT correcto en la Sales Invoice, sin configuración adicional.</p>
+<hr />
+<h2 id="paso-5-branch-opcional-recomendado-para-multi-sucursal">PASO 5 — Branch (opcional, recomendado para multi-sucursal)<a class="headerlink" href="#paso-5-branch-opcional-recomendado-para-multi-sucursal" title="Permanent link">&para;</a></h2>
+<p><strong>Dónde:</strong> Setup → Branch</p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Obligatorio</th>
+<th>Notas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>branch</code></td>
+<td>✅</td>
+<td>Nombre sucursal</td>
+</tr>
+<tr>
+<td><code>company</code></td>
+<td>✅</td>
+<td>Link a Company</td>
+</tr>
+<tr>
+<td><code>fm_enable_fiscal</code></td>
+<td>✅ para folios</td>
+<td>Activa control multi-sucursal</td>
+</tr>
+<tr>
+<td><code>fm_serie_pattern</code></td>
+<td>✅ si fiscal</td>
+<td>Ej: <code>"A{####}"</code> → serie <code>"A"</code></td>
+</tr>
+<tr>
+<td><code>fm_folio_start/current/end</code></td>
+<td>✅ si fiscal</td>
+<td>Rango de folios</td>
+</tr>
+<tr>
+<td><code>fm_lugar_expedicion</code></td>
+<td>—</td>
+<td>Override del CP global de Settings</td>
+</tr>
+<tr>
+<td><code>fm_is_border_zone</code></td>
+<td>—</td>
+<td>Si <code>True</code> → autoselección usa STCT "Frontera"</td>
+</tr>
+</tbody>
+</table>
+<p>El hook <code>before_validate</code> de Sales Invoice lee <code>Branch.fm_is_border_zone</code>
+para determinar qué STCT asignar automáticamente (Nacional vs Frontera).</p>
+<hr />
+<h2 id="paso-6-customer">PASO 6 — Customer<a class="headerlink" href="#paso-6-customer" title="Permanent link">&para;</a></h2>
+<p><strong>Dónde:</strong> CRM → Customer</p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Obligatorio</th>
+<th>Notas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>customer_name</code></td>
+<td>✅</td>
+<td>Nombre legal para el CFDI</td>
+</tr>
+<tr>
+<td><code>tax_id</code></td>
+<td>✅</td>
+<td>RFC receptor. Sin esto: <code>throw("El cliente debe tener RFC")</code></td>
+</tr>
+<tr>
+<td><code>email_id</code></td>
+<td>—</td>
+<td>Fallback: <code>Settings.customer_email_fallback</code></td>
+</tr>
+<tr>
+<td><code>fm_regimen_fiscal</code></td>
+<td>✅</td>
+<td>Link a Regimen Fiscal SAT. Sin esto: <code>throw("customer.tax_system_required")</code></td>
+</tr>
+<tr>
+<td><code>fm_uso_cfdi_default</code></td>
+<td>—</td>
+<td>Se hereda a Factura Fiscal Mexico</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Address PRIMARY obligatoria:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Obligatorio</th>
+<th>Notas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>address_line1</code></td>
+<td>✅</td>
+<td>Calle y número</td>
+</tr>
+<tr>
+<td><code>city</code></td>
+<td>✅</td>
+<td>Ciudad</td>
+</tr>
+<tr>
+<td><code>state</code></td>
+<td>✅</td>
+<td>Estado</td>
+</tr>
+<tr>
+<td><code>country</code></td>
+<td>✅</td>
+<td><code>"México"</code> (con acento). Acepta: <code>MEX</code>, <code>MX</code>, <code>Mexico</code></td>
+</tr>
+<tr>
+<td><code>pincode</code></td>
+<td>✅</td>
+<td>Código postal 5 dígitos</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="paso-7-items">PASO 7 — Items<a class="headerlink" href="#paso-7-items" title="Permanent link">&para;</a></h2>
+<p><strong>Dónde:</strong> Inventory → Item</p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Obligatorio</th>
+<th>Notas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>item_code</code></td>
+<td>✅</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>item_name</code></td>
+<td>✅</td>
+<td>Descripción en CFDI si <code>description</code> vacío</td>
+</tr>
+<tr>
+<td><code>stock_uom</code></td>
+<td>✅</td>
+<td>Formato SAT: <code>"H87 - Pieza"</code>. El sistema extrae <code>"H87"</code></td>
+</tr>
+<tr>
+<td><code>item_group</code></td>
+<td>—</td>
+<td>Si pertenece a grupo fiscal (IEPS, Retenciones), hereda ITT automáticamente</td>
+</tr>
+<tr>
+<td><code>fm_producto_servicio_sat</code></td>
+<td>✅ efectivo</td>
+<td>Sin esto el hook <code>validate</code> lanza <code>frappe.throw()</code> al guardar cualquier SI. Default <code>"01010101"</code> ya no es fallback silencioso — es error activo</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Cambio respecto a v1:</strong> En <code>feature/e4-ieps-on-item-quantity</code> el campo
+<code>fm_producto_servicio_sat</code> es <strong>obligatorio efectivo</strong>. El hook <code>validate</code>
+de Sales Invoice lanza <code>frappe.throw()</code> en cada línea sin código SAT.
+No hay fallback silencioso.</p>
+<hr />
+<h2 id="paso-8-sales-invoice-submit">PASO 8 — Sales Invoice → SUBMIT<a class="headerlink" href="#paso-8-sales-invoice-submit" title="Permanent link">&para;</a></h2>
+<p><strong>Dónde:</strong> Accounting → Sales Invoice</p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Obligatorio</th>
+<th>Notas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>company</code></td>
+<td>✅</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>customer</code></td>
+<td>✅</td>
+<td>Debe cumplir Paso 6</td>
+</tr>
+<tr>
+<td><code>cost_center</code></td>
+<td>✅</td>
+<td>El hook <code>validate</code> lanza <code>throw</code> si está vacío</td>
+</tr>
+<tr>
+<td><code>posting_date</code></td>
+<td>✅</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>items</code></td>
+<td>✅ ≥1</td>
+<td>Cada ítem debe cumplir Paso 7</td>
+</tr>
+<tr>
+<td><code>fm_branch</code></td>
+<td>—</td>
+<td>Si se usa multi-sucursal → autoselección STCT</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Hooks activos en esta branch (en orden de ejecución):</strong></p>
+<div class="highlight"><pre><span></span><code>before_validate:
+  sales_invoice_automated_tax.before_validate()
+    1. Si no hay cost_center → copia Customer.fm_customer_default_cost_center
+    2. Con cost_center → deriva Branch (fm_mapped_branch)
+    3. Con Branch → _set_stct_by_branch():
+         a. Lee Branch.fm_is_border_zone → zona (Nacional/Frontera)
+         b. Clasifica items → variante (Básico/IEPS/Retenciones/Total)
+         c. Busca STCT: &quot;IVA {zona} - {variante} - {abbr}&quot;
+         d. Fallback: &quot;IVA {zona} - Básico - {abbr}&quot;
+         e. Si no encuentra ninguno → frappe.throw() ← BLOQUEANTE
+         f. Carga tax rows completas desde STCT
+    4. Para cada línea sin ITT → intenta asignar desde Item master
+
+validate:
+  sales_invoice_automated_tax.validate()
+    1. cost_center obligatorio → throw si vacío
+    2. Cada línea → Item.fm_producto_servicio_sat obligatorio → throw si vacío
+</code></pre></div>
+<p><strong>Consecuencia:</strong> Si los STCT no existen para la empresa (no se completó
+el Paso 4), el <code>before_validate</code> bloqueará el guardado de cualquier SI
+que tenga un Branch con <code>fm_is_border_zone</code> definido.</p>
+<hr />
+<h2 id="paso-9-factura-fiscal-mexico-submit">PASO 9 — Factura Fiscal Mexico → SUBMIT<a class="headerlink" href="#paso-9-factura-fiscal-mexico-submit" title="Permanent link">&para;</a></h2>
+<p><strong>Dónde:</strong> Facturacion Mexico → Factura Fiscal Mexico</p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Obligatorio</th>
+<th>Default</th>
+<th>Notas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sales_invoice</code></td>
+<td>✅</td>
+<td>—</td>
+<td>SI submitted, sin otra FFM activa</td>
+</tr>
+<tr>
+<td><code>fm_tipo_comprobante</code></td>
+<td>✅</td>
+<td><code>I - Ingreso</code></td>
+<td>Auto-asignado según SI</td>
+</tr>
+<tr>
+<td><code>fm_payment_method_sat</code></td>
+<td>✅</td>
+<td><code>PUE</code></td>
+<td><code>PUE</code> o <code>PPD</code></td>
+</tr>
+<tr>
+<td><code>fm_forma_pago_timbrado</code></td>
+<td>✅</td>
+<td>—</td>
+<td>Link a Mode of Payment SAT</td>
+</tr>
+<tr>
+<td><code>fm_cfdi_use</code></td>
+<td>✅</td>
+<td>—</td>
+<td>Link a Uso CFDI SAT (G01, S01, etc.)</td>
+</tr>
+<tr>
+<td><code>fm_tipo_relacion_sat</code></td>
+<td>✅ si Egreso</td>
+<td>—</td>
+<td>Solo cuando <code>tipo = E</code></td>
+</tr>
+<tr>
+<td><code>fm_uuid_relacionado</code></td>
+<td>✅ si Egreso</td>
+<td>—</td>
+<td>UUID del CFDI original</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="paso-10-timbrar">PASO 10 — Timbrar<a class="headerlink" href="#paso-10-timbrar" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="n">timbrado_api</span><span class="o">.</span><span class="n">timbrar_factura</span><span class="p">(</span><span class="s2">&quot;&lt;nombre_sales_invoice&gt;&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>O desde el botón "Generar CFDI" en la Sales Invoice.</p>
+<hr />
+<h2 id="tabla-de-errores-por-paso-omitido">Tabla de errores por paso omitido<a class="headerlink" href="#tabla-de-errores-por-paso-omitido" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Paso omitido</th>
+<th>Error en</th>
+<th>Mensaje</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Company sin <code>abbr</code></td>
+<td>Generar templates</td>
+<td>Templates no pueden nombrarse</td>
+</tr>
+<tr>
+<td>Sin cuentas Tax</td>
+<td>Mapeo CFM</td>
+<td><code>estado_validacion = "Error"</code>, <code>configuracion_completa = False</code></td>
+</tr>
+<tr>
+<td>Sin CFM</td>
+<td>before_validate SI</td>
+<td><code>frappe.throw("No se encontró STCT… Generate Templates")</code></td>
+</tr>
+<tr>
+<td>Sin STCT generados</td>
+<td>before_validate SI</td>
+<td><code>frappe.throw("No se encontró STCT mínimo requerido")</code></td>
+</tr>
+<tr>
+<td><code>cost_center</code> vacío en SI</td>
+<td>validate SI</td>
+<td><code>frappe.throw("Centro de Costos es obligatorio")</code></td>
+</tr>
+<tr>
+<td>Item sin <code>fm_producto_servicio_sat</code></td>
+<td>validate SI</td>
+<td><code>frappe.throw("Línea N sin ClaveProdServ SAT")</code></td>
+</tr>
+<tr>
+<td>Customer sin <code>tax_id</code></td>
+<td>timbrar_factura</td>
+<td><code>frappe.throw("El cliente debe tener RFC")</code></td>
+</tr>
+<tr>
+<td>Customer sin Address PRIMARY</td>
+<td>timbrar_factura</td>
+<td><code>Exception: dirección primaria requerida</code></td>
+</tr>
+<tr>
+<td>Customer sin <code>fm_regimen_fiscal</code></td>
+<td>timbrar_factura</td>
+<td><code>Exception: customer.tax_system_required</code></td>
+</tr>
+<tr>
+<td>FFM sin <code>fm_cfdi_use</code></td>
+<td>timbrar_factura</td>
+<td><code>frappe.throw("Uso CFDI requerido")</code></td>
+</tr>
+<tr>
+<td>Settings sin <code>rfc_emisor</code></td>
+<td>timbrar_factura</td>
+<td><code>frappe.throw("Field required")</code></td>
+</tr>
+<tr>
+<td>Settings sin API Key</td>
+<td>FacturAPI</td>
+<td><code>HTTP 401 Unauthorized</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="mvp-minimo-para-primer-timbrado">MVP mínimo para primer timbrado<a class="headerlink" href="#mvp-minimo-para-primer-timbrado" title="Permanent link">&para;</a></h2>
+<p>Lo que se puede omitir para llegar al primer timbrado lo antes posible:</p>
+<table>
+<thead>
+<tr>
+<th>Paso</th>
+<th style="text-align: center;">MVP</th>
+<th style="text-align: center;">Completo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Company con abbr y RFC</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td>2 cuentas Tax (IVA Nac + Exento)</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td>FM Settings (sandbox + test_api_key + rfc_emisor + lugar_expedicion)</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td>CFM solo con IVA básico (sin IEPS, sin retenciones)</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td>Generar 4 STCT + 3 ITT mínimos</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td>Branch con fm_is_border_zone definido</td>
+<td style="text-align: center;">✅ requerido si hay Branch</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td>Customer RFC + Address + fm_regimen_fiscal</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td>Todos los Items con fm_producto_servicio_sat</td>
+<td style="text-align: center;">✅ obligatorio</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td>IEPS / Retenciones / Frontera en CFM</td>
+<td style="text-align: center;">omitir</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td>Branch con folios/series</td>
+<td style="text-align: center;">omitir</td>
+<td style="text-align: center;">✅</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Secuencia MVP en 7 pasos:</strong>
+<div class="highlight"><pre><span></span><code>1. Company (tax_id + abbr + MXN)
+2. 2 cuentas Tax en CoA
+3. FM Settings (test_api_key + rfc_emisor + lugar_expedicion)
+4. CFM: company + mapear IVA Nacional → cuenta + IVA Exento → cuenta + Generate
+5. Customer (RFC + Address + fm_regimen_fiscal)
+6. Items (fm_producto_servicio_sat en TODOS)
+7. SI → submit → FFM → submit → timbrar
+</code></pre></div></p>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Volver al principio
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 Facturación México - Documentación Técnica
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/tu-org/facturacion_mexico" target="_blank" rel="noopener" title="GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+      <div class="md-consent" data-md-component="consent" id="__consent" hidden>
+        <div class="md-consent__overlay"></div>
+        <aside class="md-consent__inner">
+          <form class="md-consent__form md-grid md-typeset" name="consent">
+            
+
+  
+    
+  
+
+
+
+
+
+<h4>Consentimiento de cookies</h4>
+<p>Utilizamos cookies para reconocer tus visitas repetidas y preferencias, así como para medir la efectividad de nuestra documentación y si los usuarios encuentran lo que están buscando. Con tu consentimiento, nos ayudas a mejorar nuestra documentación.
+</p>
+<input class="md-toggle" type="checkbox" id="__settings" >
+<div class="md-consent__settings">
+  <ul class="task-list">
+    
+      
+      
+        
+        
+      
+      <li class="task-list-item">
+        <label class="task-list-control">
+          <input type="checkbox" name="analytics" checked>
+          <span class="task-list-indicator"></span>
+          Google Analytics
+        </label>
+      </li>
+    
+  </ul>
+</div>
+<div class="md-consent__controls">
+  
+    
+      <button class="md-button md-button--primary">Aceptar</button>
+    
+    
+    
+  
+    
+    
+      <button type="reset" class="md-button md-button--primary">Rechazar</button>
+    
+    
+  
+    
+    
+    
+      <label class="md-button" for="__settings">Gestionar cookies</label>
+    
+  
+</div>
+          </form>
+        </aside>
+      </div>
+      <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout(function(){document.querySelector("[data-md-component=consent]").hidden=!1},250);var action,form=document.forms.consent;for(action of["submit","reset"])form.addEventListener(action,function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map(function(e){return[e,!0]}))),location.hash="",location.reload()})</script>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.expand", "navigation.instant", "navigation.sections", "navigation.tabs", "navigation.top", "search.highlight", "search.suggest"], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copiado al portapapeles", "clipboard.copy": "Copiar al portapapeles", "search.result.more.one": "1 m\u00e1s en esta p\u00e1gina", "search.result.more.other": "# m\u00e1s en esta p\u00e1gina", "search.result.none": "No se encontraron documentos", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Teclee para comenzar b\u00fasqueda", "search.result.term.missing": "Falta", "select.version": "Seleccionar versi\u00f3n"}, "version": {"default": "latest", "provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7c377c4.min.js"></script>
+      
+        <script src="../../assets/javascripts/extra.js"></script>
+      
+        <script src="../../assets/javascripts/advanced.js"></script>
+      
+    
+  </body>
+</html>

@@ -20,7 +20,7 @@
     
     
       
-        <title>📋 Índice de Planes de Implementación - Facturación México - Documentación Técnica</title>
+        <title>ADR 0010 — VERIFICACIÓN ESTADO POST-CANCELACIÓN - Facturación México - Documentación Técnica</title>
       
     
     
@@ -86,7 +86,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#indice-de-planes-de-implementacion" class="md-skip">
+        <a href="#adr-0010-verificacion-estado-post-cancelacion" class="md-skip">
           Saltar a contenido
         </a>
       
@@ -124,7 +124,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              📋 Índice de Planes de Implementación
+              ADR 0010 — VERIFICACIÓN ESTADO POST-CANCELACIÓN
             
           </span>
         </div>
@@ -850,28 +850,37 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#planes-activos" class="md-nav__link">
+  <a href="#estado-en-db-post-cancelacion-pac" class="md-nav__link">
     <span class="md-ellipsis">
-      🟢 Planes Activos
+      Estado en DB post-cancelación PAC
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="🟢 Planes Activos">
+    <nav class="md-nav" aria-label="Estado en DB post-cancelación PAC">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#testing-y-validacion" class="md-nav__link">
+  <a href="#factura-fiscal-mexico-ffmx-2026-00002" class="md-nav__link">
     <span class="md-ellipsis">
-      Testing y Validación
+      Factura Fiscal Mexico — FFMX-2026-00002
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#arquitectura-y-framework" class="md-nav__link">
+  <a href="#sales-invoice-acc-sinv-2026-00001" class="md-nav__link">
     <span class="md-ellipsis">
-      Arquitectura y Framework
+      Sales Invoice — ACC-SINV-2026-00001
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#facturapi-response-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      FacturAPI Response Log
     </span>
   </a>
   
@@ -883,19 +892,19 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#planes-programados" class="md-nav__link">
+  <a href="#interpretacion-del-estado" class="md-nav__link">
     <span class="md-ellipsis">
-      🟡 Planes Programados
+      Interpretación del estado
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="🟡 Planes Programados">
+    <nav class="md-nav" aria-label="Interpretación del estado">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#integracion-y-compliance" class="md-nav__link">
+  <a href="#puede-cancelarse-la-si-ahora" class="md-nav__link">
     <span class="md-ellipsis">
-      Integración y Compliance
+      ¿Puede cancelarse la SI ahora?
     </span>
   </a>
   
@@ -907,46 +916,19 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#planes-completados" class="md-nav__link">
+  <a href="#contrastacion-con-checklist-adr-0009" class="md-nav__link">
     <span class="md-ellipsis">
-      🟢 Planes Completados
+      Contrastación con checklist ADR 0009
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#convenciones" class="md-nav__link">
-    <span class="md-ellipsis">
-      📋 Convenciones
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="📋 Convenciones">
+    <nav class="md-nav" aria-label="Contrastación con checklist ADR 0009">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#estructura-estandar-plan" class="md-nav__link">
+  <a href="#checklist-post-cancelacion-adr-0009" class="md-nav__link">
     <span class="md-ellipsis">
-      Estructura Estándar Plan:
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#categorias-disponibles" class="md-nav__link">
-    <span class="md-ellipsis">
-      Categorías Disponibles:
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#estados-plan" class="md-nav__link">
-    <span class="md-ellipsis">
-      Estados Plan:
+      Checklist post-cancelación (ADR 0009)
     </span>
   </a>
   
@@ -958,9 +940,60 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#agregar-nuevo-plan" class="md-nav__link">
+  <a href="#analisis-del-mecanismo-de-refreshrealtime" class="md-nav__link">
     <span class="md-ellipsis">
-      🎯 Agregar Nuevo Plan
+      Análisis del mecanismo de refresh/realtime
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Análisis del mecanismo de refresh/realtime">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#que-si-existe" class="md-nav__link">
+    <span class="md-ellipsis">
+      Qué sí existe
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#que-no-existe-gap-identificado" class="md-nav__link">
+    <span class="md-ellipsis">
+      Qué NO existe — gap identificado
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#consecuencia-practica" class="md-nav__link">
+    <span class="md-ellipsis">
+      Consecuencia práctica
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recomendacion-para-implementar-en-el-futuro" class="md-nav__link">
+    <span class="md-ellipsis">
+      Recomendación (para implementar en el futuro)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#siguiente-accion-manual-requerida" class="md-nav__link">
+    <span class="md-ellipsis">
+      Siguiente acción manual requerida
     </span>
   </a>
   
@@ -981,83 +1014,276 @@
                   
 
 
-<h1 id="indice-de-planes-de-implementacion">📋 Índice de Planes de Implementación<a class="headerlink" href="#indice-de-planes-de-implementacion" title="Permanent link">&para;</a></h1>
-<p><strong>Proyecto:</strong> Facturación México
-<strong>Propósito:</strong> Registro central de todos los planes ejecutables del proyecto</p>
+<h1 id="adr-0010-verificacion-estado-post-cancelacion">ADR 0010 — VERIFICACIÓN ESTADO POST-CANCELACIÓN<a class="headerlink" href="#adr-0010-verificacion-estado-post-cancelacion" title="Permanent link">&para;</a></h1>
+<p>===================================================
+Fecha: 2026-05-02
+Site: facturacion-v16.dev
+Documentos verificados: FFMX-2026-00002 / ACC-SINV-2026-00001</p>
 <hr />
-<h2 id="planes-activos">🟢 <strong>Planes Activos</strong><a class="headerlink" href="#planes-activos" title="Permanent link">&para;</a></h2>
-<h3 id="testing-y-validacion"><strong>Testing y Validación</strong><a class="headerlink" href="#testing-y-validacion" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong><a href="../planes/plan-testing-sistema-facturacion/testing-ui-ux-sistema-facturacion/">testing-ui-ux-sistema-facturacion.md</a></strong></li>
-<li><strong>Estado:</strong> ⏳ Pendiente ejecución</li>
-<li><strong>Objetivo:</strong> Validación completa UI/UX y lógica de negocio</li>
-<li><strong>Cobertura:</strong> 62 casos (básicos → intermedios → avanzados)</li>
-<li><strong>Tiempo estimado:</strong> 6 horas</li>
-<li><strong>Última actualización:</strong> 2025-09-17</li>
-</ul>
-<h3 id="arquitectura-y-framework"><strong>Arquitectura y Framework</strong><a class="headerlink" href="#arquitectura-y-framework" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong><a href="../arquitectura-testing/">arquitectura-testing.md</a></strong></li>
-<li><strong>Estado:</strong> ✅ Documentado</li>
-<li><strong>Objetivo:</strong> Framework 4-layer testing comprehensivo</li>
-<li><strong>Metodología:</strong> REGLA #33 (progresivo) + REGLA #34 (strengthening)</li>
-<li><strong>Cobertura:</strong> 49 archivos, 105+ tests, 4700+ líneas código</li>
-<li><strong>Última actualización:</strong> 2025-09-22</li>
-</ul>
+<h2 id="estado-en-db-post-cancelacion-pac">Estado en DB post-cancelación PAC<a class="headerlink" href="#estado-en-db-post-cancelacion-pac" title="Permanent link">&para;</a></h2>
+<h3 id="factura-fiscal-mexico-ffmx-2026-00002">Factura Fiscal Mexico — FFMX-2026-00002<a class="headerlink" href="#factura-fiscal-mexico-ffmx-2026-00002" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Valor</th>
+<th>Esperado (ADR 0009)</th>
+<th>Estado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fm_fiscal_status</code></td>
+<td><code>CANCELADO</code></td>
+<td><code>CANCELADO</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>docstatus</code></td>
+<td><code>1</code> (submitted)</td>
+<td><code>2</code> (cancelado Frappe)</td>
+<td>⚠️ Paso pendiente</td>
+</tr>
+<tr>
+<td><code>cancellation_reason</code></td>
+<td><code>02 - Comprobantes emitidos con errores sin relación</code></td>
+<td>poblado</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>cancellation_date</code></td>
+<td><code>2026-05-02 14:00:02</code></td>
+<td>poblado</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sales-invoice-acc-sinv-2026-00001">Sales Invoice — ACC-SINV-2026-00001<a class="headerlink" href="#sales-invoice-acc-sinv-2026-00001" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Valor</th>
+<th>Esperado (ADR 0009)</th>
+<th>Estado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fm_fiscal_status</code></td>
+<td><code>CANCELADO</code></td>
+<td><code>CANCELADO</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>docstatus</code></td>
+<td><code>1</code> (submitted)</td>
+<td><code>2</code> si se completó</td>
+<td>⚠️ Paso pendiente</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td><code>Unpaid</code></td>
+<td>—</td>
+<td>Correcto (aún submitted)</td>
+</tr>
+<tr>
+<td><code>fm_factura_fiscal_mx</code></td>
+<td><code>FFMX-2026-00002</code></td>
+<td>—</td>
+<td>✅ Vínculo intacto</td>
+</tr>
+</tbody>
+</table>
+<h3 id="facturapi-response-log">FacturAPI Response Log<a class="headerlink" href="#facturapi-response-log" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Log</th>
+<th>operation_type</th>
+<th>success</th>
+<th>status_code</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FAPI-LOG-2026-00003</td>
+<td>Solicitud Cancelación</td>
+<td>✅ 1</td>
+<td>200</td>
+</tr>
+<tr>
+<td>FAPI-LOG-2026-00002</td>
+<td>Timbrado</td>
+<td>✅ 1</td>
+<td>200</td>
+</tr>
+</tbody>
+</table>
 <hr />
-<h2 id="planes-programados">🟡 <strong>Planes Programados</strong><a class="headerlink" href="#planes-programados" title="Permanent link">&para;</a></h2>
-<h3 id="integracion-y-compliance"><strong>Integración y Compliance</strong><a class="headerlink" href="#integracion-y-compliance" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong><a href="../planes/plan-fiscal-implementacion-mx-e0-e8/PLAN-FISCAL-IMPLEMENTACION-MX-E0-E8/">PLAN-FISCAL-IMPLEMENTACION-MX-E0-E8.md</a></strong></li>
-<li><strong>Estado:</strong> 🔄 En ejecución</li>
-<li><strong>Objetivo:</strong> Implementación completa sistema fiscal mexicano (E0-E8)</li>
-<li><strong>Issues:</strong> #65, #66</li>
-<li><strong>Rama:</strong> <code>feat/mx-fiscal-E0-E3-issues-65-66</code></li>
-<li><strong>Cobertura:</strong> Items SAT, IVA automático, IEPS, Retenciones, CFDI 4.0, Anticipos/Pagos 2.0</li>
-<li><strong>Tiempo estimado:</strong> 8 etapas progresivas</li>
-<li><strong>Última actualización:</strong> 2025-09-22</li>
-</ul>
-<hr />
-<h2 id="planes-completados">🟢 <strong>Planes Completados</strong><a class="headerlink" href="#planes-completados" title="Permanent link">&para;</a></h2>
-<p><em>[Historial de planes ejecutados exitosamente]</em></p>
-<hr />
-<h2 id="convenciones">📋 <strong>Convenciones</strong><a class="headerlink" href="#convenciones" title="Permanent link">&para;</a></h2>
-<h3 id="estructura-estandar-plan"><strong>Estructura Estándar Plan:</strong><a class="headerlink" href="#estructura-estandar-plan" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>planes/plan-[categoria]-[objetivo]/
-├── [nombre-descriptivo-plan].md     # Plan principal ejecutable
-├── evidencias/                      # Screenshots y capturas
-├── resultados/                      # Reportes de ejecución
-└── config/                          # Configuración plan-específica
+<h2 id="interpretacion-del-estado">Interpretación del estado<a class="headerlink" href="#interpretacion-del-estado" title="Permanent link">&para;</a></h2>
+<p>El sistema está en el <strong>estado intermedio correcto</strong> del flujo de cancelación de 3 pasos:</p>
+<div class="highlight"><pre><span></span><code>Paso 1 ✅  Cancelar en PAC     → FFM.fm_fiscal_status = CANCELADO
+                                  Response Log HTTP 200 success=1
+
+Paso 2 ⏳  Cancelar FFM Frappe → FFM.docstatus = 2   ← PENDIENTE
+Paso 3 ⏳  Cancelar SI         → SI.docstatus = 2    ← PENDIENTE
 </code></pre></div>
-<h3 id="categorias-disponibles"><strong>Categorías Disponibles:</strong><a class="headerlink" href="#categorias-disponibles" title="Permanent link">&para;</a></h3>
-<ul>
-<li><code>testing</code> - Planes de testing y validación</li>
-<li><code>performance</code> - Planes de carga y rendimiento</li>
-<li><code>migracion</code> - Planes de migración de datos</li>
-<li><code>integracion</code> - Planes de integración con terceros</li>
-<li><code>security</code> - Planes de auditoría de seguridad</li>
-<li><code>compliance</code> - Planes de cumplimiento normativo</li>
-</ul>
-<h3 id="estados-plan"><strong>Estados Plan:</strong><a class="headerlink" href="#estados-plan" title="Permanent link">&para;</a></h3>
-<ul>
-<li>⏳ <strong>Pendiente</strong> - Plan creado, no ejecutado</li>
-<li>🔄 <strong>En ejecución</strong> - Plan actualmente ejecutándose</li>
-<li>✅ <strong>Completado</strong> - Plan ejecutado exitosamente</li>
-<li>❌ <strong>Fallido</strong> - Plan ejecutado con errores críticos</li>
-<li>🕐 <strong>Programado</strong> - Plan agendado para fecha futura</li>
-<li>🚫 <strong>Cancelado</strong> - Plan cancelado/obsoleto</li>
-</ul>
+<p>El CFDI está cancelado ante el SAT. Los DocTypes de Frappe aún están en <code>docstatus=1</code>
+(submitted) — esto es correcto: el sistema no cancela automáticamente los documentos
+Frappe tras la cancelación PAC. El usuario debe ejecutar los pasos 2 y 3 manualmente.</p>
+<h3 id="puede-cancelarse-la-si-ahora">¿Puede cancelarse la SI ahora?<a class="headerlink" href="#puede-cancelarse-la-si-ahora" title="Permanent link">&para;</a></h3>
+<p>Sí — según <code>sales_invoice_cancel_guard.py</code>:
+- La FFM vinculada tiene <code>fm_fiscal_status = CANCELADO</code>
+- Este estado está en <code>ALLOWED_FFM_CANCELLED_STATES</code>
+- → <code>allowed = True</code></p>
+<p>El botón Cancel en SI debería estar visible. Si el usuario abre la SI ahora,
+<code>refresh</code> disparará <code>can_cancel_sales_invoice()</code> que retornará <code>allowed: true</code>.</p>
 <hr />
-<h2 id="agregar-nuevo-plan">🎯 <strong>Agregar Nuevo Plan</strong><a class="headerlink" href="#agregar-nuevo-plan" title="Permanent link">&para;</a></h2>
-<ol>
-<li>Crear directorio: <code>planes/plan-[categoria]-[objetivo]/</code></li>
-<li>Copiar template desde <code>templates/</code></li>
-<li>Nombrar archivo descriptivo (no genérico)</li>
-<li>Actualizar este PLAN-INDEX.md</li>
-<li>Seguir estructura estándar subdirectorios</li>
-</ol>
+<h2 id="contrastacion-con-checklist-adr-0009">Contrastación con checklist ADR 0009<a class="headerlink" href="#contrastacion-con-checklist-adr-0009" title="Permanent link">&para;</a></h2>
+<h3 id="checklist-post-cancelacion-adr-0009">Checklist post-cancelación (ADR 0009)<a class="headerlink" href="#checklist-post-cancelacion-adr-0009" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Estado actual</th>
+<th>Resultado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>FFM.fm_fiscal_status = CANCELADO</code></td>
+<td>✅ CANCELADO</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>FFM.docstatus = 2</code></td>
+<td>❌ docstatus=1</td>
+<td>⚠️ Pasos 2-3 pendientes</td>
+</tr>
+<tr>
+<td><code>FFM.cancellation_reason</code> poblado</td>
+<td>✅ "02 - Comprobantes…"</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Response Log Cancelación success=1</td>
+<td>✅ FAPI-LOG-2026-00003</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>SI.fm_fiscal_status = CANCELADO</code></td>
+<td>✅ CANCELADO</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Botón Cancel en SI: visible</td>
+<td>✅ (guard retorna allowed=true)</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>SI.docstatus = 2</code></td>
+<td>❌ docstatus=1</td>
+<td>⚠️ Paso 3 pendiente</td>
+</tr>
+</tbody>
+</table>
+<p><strong>5 de 7 ítems correctos.</strong> Los 2 restantes son los pasos de cancelación de DocTypes
+Frappe que el usuario debe ejecutar manualmente — no son errores del sistema.</p>
 <hr />
-<p><em>Para detalles técnicos de cada plan, consultar archivo específico en su directorio correspondiente.</em></p>
+<h2 id="analisis-del-mecanismo-de-refreshrealtime">Análisis del mecanismo de refresh/realtime<a class="headerlink" href="#analisis-del-mecanismo-de-refreshrealtime" title="Permanent link">&para;</a></h2>
+<h3 id="que-si-existe">Qué sí existe<a class="headerlink" href="#que-si-existe" title="Permanent link">&para;</a></h3>
+<p><strong>FFM form → <code>handle_cancel_success()</code> → <code>frm.reload_doc()</code></strong></p>
+<p>Después de una cancelación PAC exitosa desde el formulario FFM:
+<div class="highlight"><pre><span></span><code><span class="c1">// factura_fiscal_mexico.js:1050</span>
+<span class="kd">function</span><span class="w"> </span><span class="nx">handle_cancel_success</span><span class="p">(</span><span class="nx">frm</span><span class="p">,</span><span class="w"> </span><span class="nx">msg</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">msg</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="nx">msg</span><span class="p">.</span><span class="nx">ok</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nx">msg</span><span class="p">.</span><span class="nx">success</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">frappe</span><span class="p">.</span><span class="nx">show_alert</span><span class="p">({</span><span class="w"> </span><span class="nx">message</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;✅ Factura cancelada exitosamente&quot;</span><span class="w"> </span><span class="p">});</span>
+<span class="w">        </span><span class="nx">frappe</span><span class="p">.</span><span class="nx">msgprint</span><span class="p">({</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="nx">detalle</span><span class="w"> </span><span class="nx">de</span><span class="w"> </span><span class="nx">estado</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">});</span>
+<span class="w">        </span><span class="nx">frm</span><span class="p">.</span><span class="nx">reload_doc</span><span class="p">();</span><span class="w">   </span><span class="c1">// ← recarga SOLO el formulario FFM</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<p><strong>SI form → <code>fm_fiscal_status</code> field handler → re-evalúa botones</strong></p>
+<p>Si el formulario de SI está abierto y el campo <code>fm_fiscal_status</code> cambia en memoria:
+<div class="highlight"><pre><span></span><code><span class="c1">// si_post_fiscal_actions.js:199</span>
+<span class="nx">fm_fiscal_status</span><span class="o">:</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="p">(</span><span class="nx">frm</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">add_post_fiscal_actions</span><span class="p">(</span><span class="nx">frm</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">add_fiscal_status_indicator</span><span class="p">(</span><span class="nx">frm</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">hide_native_cancel_conditionally</span><span class="p">(</span><span class="nx">frm</span><span class="p">);</span><span class="w">  </span><span class="c1">// re-evalúa botón Cancel</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<p><strong>SI form → <code>refresh</code> → <code>can_cancel_sales_invoice()</code></strong></p>
+<p>Cada vez que se recarga el formulario SI, <code>sales_invoice_block_cancel.js</code>
+llama al endpoint y decide si mostrar/ocultar el botón Cancel.</p>
+<h3 id="que-no-existe-gap-identificado">Qué NO existe — gap identificado<a class="headerlink" href="#que-no-existe-gap-identificado" title="Permanent link">&para;</a></h3>
+<p><strong>No hay <code>frappe.publish_realtime()</code> en <code>cancelar_factura()</code>.</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># timbrado_api.py — cancelar_factura() FASE 3 (líneas ~1183-1260)</span>
+<span class="n">frappe</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="s2">&quot;Factura Fiscal Mexico&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+<span class="n">frappe</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="s2">&quot;Sales Invoice&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+<span class="n">frappe</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+<span class="c1"># FIN — sin publish_realtime</span>
+<span class="k">return</span> <span class="p">{</span> <span class="s2">&quot;ok&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;status_ffm&quot;</span><span class="p">:</span> <span class="n">fiscal_status</span><span class="p">,</span> <span class="o">...</span> <span class="p">}</span>
+</code></pre></div>
+<p>El backend actualiza <code>fm_fiscal_status</code> en la SI via <code>frappe.set_value()</code>, pero
+<strong>no emite ningún evento Frappe realtime</strong> (<code>frappe.publish_realtime()</code>, <code>frappe.publish_doc()</code>)
+que notifique al formulario SI si está abierto en otro tab.</p>
+<h3 id="consecuencia-practica">Consecuencia práctica<a class="headerlink" href="#consecuencia-practica" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Escenario</th>
+<th>¿El botón Cancel aparece?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Usuario inicia cancelación desde FFM y navega manualmente a SI</td>
+<td>✅ Sí — el <code>refresh</code> del form lo detecta</td>
+</tr>
+<tr>
+<td>Usuario tenía SI abierta en otro tab cuando se canceló desde FFM</td>
+<td>❌ No automáticamente — necesita recargar la página</td>
+</tr>
+<tr>
+<td>Usuario recarga SI manualmente (F5 o navegar)</td>
+<td>✅ Sí — <code>refresh</code> dispara <code>can_cancel_sales_invoice()</code></td>
+</tr>
+<tr>
+<td>FFM form completa cancelación → muestra detalle → <code>frm.reload_doc()</code></td>
+<td>✅ FFM se actualiza; SI no</td>
+</tr>
+</tbody>
+</table>
+<h3 id="recomendacion-para-implementar-en-el-futuro">Recomendación (para implementar en el futuro)<a class="headerlink" href="#recomendacion-para-implementar-en-el-futuro" title="Permanent link">&para;</a></h3>
+<p>Agregar <code>frappe.publish_realtime()</code> al final de <code>cancelar_factura()</code> éxitosa:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># En timbrado_api.py, después del frappe.db.commit():</span>
+<span class="n">frappe</span><span class="o">.</span><span class="n">publish_realtime</span><span class="p">(</span>
+    <span class="n">event</span><span class="o">=</span><span class="s2">&quot;fiscal_status_changed&quot;</span><span class="p">,</span>
+    <span class="n">message</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;sales_invoice&quot;</span><span class="p">:</span> <span class="n">sales_invoice_name</span><span class="p">,</span>
+        <span class="s2">&quot;fm_fiscal_status&quot;</span><span class="p">:</span> <span class="n">fiscal_status</span><span class="p">,</span>
+        <span class="s2">&quot;ffm&quot;</span><span class="p">:</span> <span class="n">factura_fiscal</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="n">doctype</span><span class="o">=</span><span class="s2">&quot;Sales Invoice&quot;</span><span class="p">,</span>
+    <span class="n">docname</span><span class="o">=</span><span class="n">sales_invoice_name</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>Y en <code>si_post_fiscal_actions.js</code> suscribirse a ese evento para refrescar
+el formulario SI automáticamente cuando esté abierto.</p>
+<p>Esto es una mejora de UX, no un bug bloqueante — la protección del servidor
+funciona correctamente independientemente del estado del botón en UI.</p>
+<hr />
+<h2 id="siguiente-accion-manual-requerida">Siguiente acción manual requerida<a class="headerlink" href="#siguiente-accion-manual-requerida" title="Permanent link">&para;</a></h2>
+<p>Para completar el flujo de cancelación en Frappe:</p>
+<div class="highlight"><pre><span></span><code>1. Abrir FFMX-2026-00002 → botón &quot;Cancel&quot; → confirmar
+   → FFM.docstatus = 2
+
+2. Abrir ACC-SINV-2026-00001 → botón &quot;Cancel&quot; → confirmar
+   → SI.docstatus = 2
+
+Estado final esperado: ambos documentos con docstatus=2, fm_fiscal_status=CANCELADO
+</code></pre></div>
 
 
 

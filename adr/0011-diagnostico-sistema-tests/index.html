@@ -20,7 +20,7 @@
     
     
       
-        <title>📋 Índice de Planes de Implementación - Facturación México - Documentación Técnica</title>
+        <title>ADR 0011 — DIAGNÓSTICO SISTEMA DE TESTS - Facturación México - Documentación Técnica</title>
       
     
     
@@ -86,7 +86,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#indice-de-planes-de-implementacion" class="md-skip">
+        <a href="#adr-0011-diagnostico-sistema-de-tests" class="md-skip">
           Saltar a contenido
         </a>
       
@@ -124,7 +124,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              📋 Índice de Planes de Implementación
+              ADR 0011 — DIAGNÓSTICO SISTEMA DE TESTS
             
           </span>
         </div>
@@ -850,28 +850,82 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#planes-activos" class="md-nav__link">
+  <a href="#estado-actual" class="md-nav__link">
     <span class="md-ellipsis">
-      🟢 Planes Activos
+      Estado actual
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="🟢 Planes Activos">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#causa-raiz-del-crash" class="md-nav__link">
+    <span class="md-ellipsis">
+      Causa raíz del crash
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#problema-de-los-38-archivos-legacy-test_layerpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Problema de los 38 archivos legacy test_layer*.py
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#los-6-tests-recientes-que-si-son-rescatables" class="md-nav__link">
+    <span class="md-ellipsis">
+      Los 6 tests recientes que SÍ son rescatables
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#propuesta-de-rediseno" class="md-nav__link">
+    <span class="md-ellipsis">
+      Propuesta de rediseño
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Propuesta de rediseño">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#testing-y-validacion" class="md-nav__link">
+  <a href="#principios" class="md-nav__link">
     <span class="md-ellipsis">
-      Testing y Validación
+      Principios
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#arquitectura-y-framework" class="md-nav__link">
+  <a href="#que-conservar" class="md-nav__link">
     <span class="md-ellipsis">
-      Arquitectura y Framework
+      Qué conservar
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#que-descartar" class="md-nav__link">
+    <span class="md-ellipsis">
+      Qué descartar
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#que-construir-nuevo" class="md-nav__link">
+    <span class="md-ellipsis">
+      Qué construir nuevo
     </span>
   </a>
   
@@ -883,19 +937,37 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#planes-programados" class="md-nav__link">
+  <a href="#decision-pendiente-site-dedicado-de-tests-vs-mock-de-datos" class="md-nav__link">
     <span class="md-ellipsis">
-      🟡 Planes Programados
+      Decisión pendiente: site dedicado de tests vs mock de datos
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="🟡 Planes Programados">
+    <nav class="md-nav" aria-label="Decisión pendiente: site dedicado de tests vs mock de datos">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#integracion-y-compliance" class="md-nav__link">
+  <a href="#opcion-a-site-dedicado-de-tests-test-facturacionlocalhost" class="md-nav__link">
     <span class="md-ellipsis">
-      Integración y Compliance
+      Opción A — Site dedicado de tests (test-facturacion.localhost)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#opcion-b-mock-de-datos-en-todos-los-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Opción B — Mock de datos en todos los tests
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#opcion-c-mixta-recomendada" class="md-nav__link">
+    <span class="md-ellipsis">
+      Opción C — Mixta (recomendada)
     </span>
   </a>
   
@@ -907,60 +979,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#planes-completados" class="md-nav__link">
+  <a href="#siguiente-paso" class="md-nav__link">
     <span class="md-ellipsis">
-      🟢 Planes Completados
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#convenciones" class="md-nav__link">
-    <span class="md-ellipsis">
-      📋 Convenciones
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="📋 Convenciones">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#estructura-estandar-plan" class="md-nav__link">
-    <span class="md-ellipsis">
-      Estructura Estándar Plan:
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#categorias-disponibles" class="md-nav__link">
-    <span class="md-ellipsis">
-      Categorías Disponibles:
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#estados-plan" class="md-nav__link">
-    <span class="md-ellipsis">
-      Estados Plan:
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#agregar-nuevo-plan" class="md-nav__link">
-    <span class="md-ellipsis">
-      🎯 Agregar Nuevo Plan
+      Siguiente paso
     </span>
   </a>
   
@@ -981,83 +1002,279 @@
                   
 
 
-<h1 id="indice-de-planes-de-implementacion">📋 Índice de Planes de Implementación<a class="headerlink" href="#indice-de-planes-de-implementacion" title="Permanent link">&para;</a></h1>
-<p><strong>Proyecto:</strong> Facturación México
-<strong>Propósito:</strong> Registro central de todos los planes ejecutables del proyecto</p>
+<h1 id="adr-0011-diagnostico-sistema-de-tests">ADR 0011 — DIAGNÓSTICO SISTEMA DE TESTS<a class="headerlink" href="#adr-0011-diagnostico-sistema-de-tests" title="Permanent link">&para;</a></h1>
+<p>======================================
+Fecha: 2026-05-03
+Site: facturacion-v16.dev
+Bench: /home/erpnext/frappe-bench-v16</p>
 <hr />
-<h2 id="planes-activos">🟢 <strong>Planes Activos</strong><a class="headerlink" href="#planes-activos" title="Permanent link">&para;</a></h2>
-<h3 id="testing-y-validacion"><strong>Testing y Validación</strong><a class="headerlink" href="#testing-y-validacion" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong><a href="../planes/plan-testing-sistema-facturacion/testing-ui-ux-sistema-facturacion/">testing-ui-ux-sistema-facturacion.md</a></strong></li>
-<li><strong>Estado:</strong> ⏳ Pendiente ejecución</li>
-<li><strong>Objetivo:</strong> Validación completa UI/UX y lógica de negocio</li>
-<li><strong>Cobertura:</strong> 62 casos (básicos → intermedios → avanzados)</li>
-<li><strong>Tiempo estimado:</strong> 6 horas</li>
-<li><strong>Última actualización:</strong> 2025-09-17</li>
-</ul>
-<h3 id="arquitectura-y-framework"><strong>Arquitectura y Framework</strong><a class="headerlink" href="#arquitectura-y-framework" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong><a href="../arquitectura-testing/">arquitectura-testing.md</a></strong></li>
-<li><strong>Estado:</strong> ✅ Documentado</li>
-<li><strong>Objetivo:</strong> Framework 4-layer testing comprehensivo</li>
-<li><strong>Metodología:</strong> REGLA #33 (progresivo) + REGLA #34 (strengthening)</li>
-<li><strong>Cobertura:</strong> 49 archivos, 105+ tests, 4700+ líneas código</li>
-<li><strong>Última actualización:</strong> 2025-09-22</li>
-</ul>
+<h2 id="estado-actual">Estado actual<a class="headerlink" href="#estado-actual" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Métrica</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Archivos de test</td>
+<td>49</td>
+</tr>
+<tr>
+<td>Total <code>def test_</code></td>
+<td>482</td>
+</tr>
+<tr>
+<td>Líneas de código de tests</td>
+<td>~24,000</td>
+</tr>
+<tr>
+<td>Tests que pasan</td>
+<td><strong>0</strong></td>
+</tr>
+<tr>
+<td>Porcentaje éxito</td>
+<td><strong>0%</strong></td>
+</tr>
+</tbody>
+</table>
 <hr />
-<h2 id="planes-programados">🟡 <strong>Planes Programados</strong><a class="headerlink" href="#planes-programados" title="Permanent link">&para;</a></h2>
-<h3 id="integracion-y-compliance"><strong>Integración y Compliance</strong><a class="headerlink" href="#integracion-y-compliance" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong><a href="../planes/plan-fiscal-implementacion-mx-e0-e8/PLAN-FISCAL-IMPLEMENTACION-MX-E0-E8/">PLAN-FISCAL-IMPLEMENTACION-MX-E0-E8.md</a></strong></li>
-<li><strong>Estado:</strong> 🔄 En ejecución</li>
-<li><strong>Objetivo:</strong> Implementación completa sistema fiscal mexicano (E0-E8)</li>
-<li><strong>Issues:</strong> #65, #66</li>
-<li><strong>Rama:</strong> <code>feat/mx-fiscal-E0-E3-issues-65-66</code></li>
-<li><strong>Cobertura:</strong> Items SAT, IVA automático, IEPS, Retenciones, CFDI 4.0, Anticipos/Pagos 2.0</li>
-<li><strong>Tiempo estimado:</strong> 8 etapas progresivas</li>
-<li><strong>Última actualización:</strong> 2025-09-22</li>
-</ul>
-<hr />
-<h2 id="planes-completados">🟢 <strong>Planes Completados</strong><a class="headerlink" href="#planes-completados" title="Permanent link">&para;</a></h2>
-<p><em>[Historial de planes ejecutados exitosamente]</em></p>
-<hr />
-<h2 id="convenciones">📋 <strong>Convenciones</strong><a class="headerlink" href="#convenciones" title="Permanent link">&para;</a></h2>
-<h3 id="estructura-estandar-plan"><strong>Estructura Estándar Plan:</strong><a class="headerlink" href="#estructura-estandar-plan" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>planes/plan-[categoria]-[objetivo]/
-├── [nombre-descriptivo-plan].md     # Plan principal ejecutable
-├── evidencias/                      # Screenshots y capturas
-├── resultados/                      # Reportes de ejecución
-└── config/                          # Configuración plan-específica
+<h2 id="causa-raiz-del-crash">Causa raíz del crash<a class="headerlink" href="#causa-raiz-del-crash" title="Permanent link">&para;</a></h2>
+<p>El runner falla en la <strong>inicialización de ERPNext</strong> antes de ejecutar
+un solo test de <code>facturacion_mexico</code>:</p>
+<div class="highlight"><pre><span></span><code>frappe.exceptions.DuplicateEntryError:
+(&#39;Item Tax Template&#39;, &#39;_Test Item Tax Template 1 - _TC&#39;,
+ IntegrityError(1062, &quot;Duplicate entry ... for key &#39;PRIMARY&#39;&quot;))
 </code></pre></div>
-<h3 id="categorias-disponibles"><strong>Categorías Disponibles:</strong><a class="headerlink" href="#categorias-disponibles" title="Permanent link">&para;</a></h3>
+<p><strong>Cadena de fallo:</strong></p>
+<div class="highlight"><pre><span></span><code>bench run-tests --app facturacion_mexico
+  → Frappe test runner carga dependencias de doctypes
+  → Importa test_sales_invoice.py de ERPNext
+  → ERPNextTestSuite.BootStrapTestData().__init__()
+  → make_master_data() → make_item_tax_template()
+  → frappe.get_doc(record).insert()
+  → DuplicateEntryError ← CRASH
+</code></pre></div>
+<p><code>facturacion-v16.dev</code> tiene datos reales de desarrollo (Item Tax Templates,
+STCTs, Items, etc. creados manualmente). El bootstrap de ERPNext asume una
+DB de test limpia. El conflicto es estructural — no un bug de código.</p>
+<hr />
+<h2 id="problema-de-los-38-archivos-legacy-test_layerpy">Problema de los 38 archivos legacy <code>test_layer*.py</code><a class="headerlink" href="#problema-de-los-38-archivos-legacy-test_layerpy" title="Permanent link">&para;</a></h2>
+<p>Escritos durante el desarrollo en bench v15 para el site <code>facturacion.dev</code>.</p>
+<p><strong>Supuestos que ya no son válidos en v16:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Supuesto legacy</th>
+<th>Realidad en facturacion-v16.dev</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DB limpia sin datos</td>
+<td>DB con datos de desarrollo activo</td>
+</tr>
+<tr>
+<td><code>_Test Company</code> con <code>INR</code> como currency</td>
+<td>Company con <code>MXN</code></td>
+</tr>
+<tr>
+<td>No hay STCTs previos</td>
+<td>STCTs creados manualmente para pruebas</td>
+</tr>
+<tr>
+<td>Frappe v15 test runner</td>
+<td>Frappe v16 con API diferente</td>
+</tr>
+<tr>
+<td><code>make_test_records</code> disponible</td>
+<td>Comportamiento diferente en v16</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Señales adicionales de deuda:</strong></p>
 <ul>
-<li><code>testing</code> - Planes de testing y validación</li>
-<li><code>performance</code> - Planes de carga y rendimiento</li>
-<li><code>migracion</code> - Planes de migración de datos</li>
-<li><code>integracion</code> - Planes de integración con terceros</li>
-<li><code>security</code> - Planes de auditoría de seguridad</li>
-<li><code>compliance</code> - Planes de cumplimiento normativo</li>
-</ul>
-<h3 id="estados-plan"><strong>Estados Plan:</strong><a class="headerlink" href="#estados-plan" title="Permanent link">&para;</a></h3>
-<ul>
-<li>⏳ <strong>Pendiente</strong> - Plan creado, no ejecutado</li>
-<li>🔄 <strong>En ejecución</strong> - Plan actualmente ejecutándose</li>
-<li>✅ <strong>Completado</strong> - Plan ejecutado exitosamente</li>
-<li>❌ <strong>Fallido</strong> - Plan ejecutado con errores críticos</li>
-<li>🕐 <strong>Programado</strong> - Plan agendado para fecha futura</li>
-<li>🚫 <strong>Cancelado</strong> - Plan cancelado/obsoleto</li>
+<li><code>bootstrap.py</code> intenta normalizar <code>_Test Company.default_currency</code> a <code>INR</code>
+  (la currency de test de ERPNext) — contradicción directa con el sistema fiscal MX
+  que requiere <code>MXN</code></li>
+<li>Tests de Layer 3-4 crean documentos completos (Branch, Company, Customer, SI)
+  que colisionan con datos existentes</li>
+<li>Tests de Layer 4 incluyen "stress testing" y "disaster recovery" —
+  categorías inapropiadas para un CI de app Frappe</li>
 </ul>
 <hr />
-<h2 id="agregar-nuevo-plan">🎯 <strong>Agregar Nuevo Plan</strong><a class="headerlink" href="#agregar-nuevo-plan" title="Permanent link">&para;</a></h2>
+<h2 id="los-6-tests-recientes-que-si-son-rescatables">Los 6 tests recientes que SÍ son rescatables<a class="headerlink" href="#los-6-tests-recientes-que-si-son-rescatables" title="Permanent link">&para;</a></h2>
+<p>Escritos durante el desarrollo E0-E4 (rama <code>feature/e4-ieps-on-item-quantity</code>).
+Son determinísticos, no dependen de DB:</p>
+<table>
+<thead>
+<tr>
+<th>Archivo</th>
+<th>Tests</th>
+<th>Naturaleza</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>test_autoseleccion_stct.py</code></td>
+<td>7</td>
+<td>Lógica pura: <code>_determinar_variante_stct()</code></td>
+</tr>
+<tr>
+<td><code>test_clasificacion_items.py</code></td>
+<td>7</td>
+<td>Lógica pura: <code>clasificar_items_documento()</code></td>
+</tr>
+<tr>
+<td><code>test_hito1_constantes.py</code></td>
+<td>8</td>
+<td>Constantes fiscales SAT — sin DB</td>
+</tr>
+<tr>
+<td><code>test_sync_roles_fiscales_json_python.py</code></td>
+<td>3</td>
+<td>Sincronización JSON↔Python</td>
+</tr>
+<tr>
+<td><code>test_migration_compatibility.py</code></td>
+<td>6</td>
+<td>Compatibilidad patches — minimal DB</td>
+</tr>
+<tr>
+<td><code>test_wizard_mapeo_fiscal.py</code></td>
+<td>14</td>
+<td>Wizard fiscal — necesita revisión</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Total rescatable: ~45 tests</strong> (estimado, pendiente verificar <code>test_wizard_mapeo_fiscal</code>)</p>
+<hr />
+<h2 id="propuesta-de-rediseno">Propuesta de rediseño<a class="headerlink" href="#propuesta-de-rediseno" title="Permanent link">&para;</a></h2>
+<h3 id="principios">Principios<a class="headerlink" href="#principios" title="Permanent link">&para;</a></h3>
 <ol>
-<li>Crear directorio: <code>planes/plan-[categoria]-[objetivo]/</code></li>
-<li>Copiar template desde <code>templates/</code></li>
-<li>Nombrar archivo descriptivo (no genérico)</li>
-<li>Actualizar este PLAN-INDEX.md</li>
-<li>Seguir estructura estándar subdirectorios</li>
+<li>
+<p><strong>Sin dependencias de datos existentes.</strong> Cada test crea y destruye sus propios
+   datos. Nunca asume que un registro específico existe en la DB.</p>
+</li>
+<li>
+<p><strong>Mock solo en boundary externo.</strong> FacturAPI, SAT, servicios HTTP → mock.
+   Nunca mockear <code>frappe.get_doc</code>, <code>frappe.db.get_value</code> ni lógica interna.</p>
+</li>
+<li>
+<p><strong>Determinismo absoluto.</strong> IDs únicos vía <code>frappe.generate_hash()[:6]</code>.
+   Un test no puede depender del orden de ejecución de otro.</p>
+</li>
+<li>
+<p><strong>Suite ≤ 5 minutos.</strong> Si tarda más, algo está mal en el diseño.</p>
+</li>
+<li>
+<p><strong>Cobertura funcional, no volumétrica.</strong> 50 tests que prueban flujos reales
+   valen más que 482 tests que prueban stubs.</p>
+</li>
 </ol>
+<h3 id="que-conservar">Qué conservar<a class="headerlink" href="#que-conservar" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Los 6 archivos de tests E0-E4 (lógica pura, sin DB o mínima DB)</li>
+<li>El patrón <code>FrappeTestCase</code> + <code>frappe.generate_hash()</code> establecido en CLAUDE.md</li>
+<li><code>test_sync_roles_fiscales_json_python.py</code> — documenta invariante crítico del sistema</li>
+</ul>
+<h3 id="que-descartar">Qué descartar<a class="headerlink" href="#que-descartar" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Los 38 archivos <code>test_layer*.py</code> — escritos para un entorno que ya no existe</li>
+<li><code>bootstrap.py</code> — su lógica de normalización a <code>INR</code> es incompatible con MXN</li>
+<li><code>ci_pre_tests.py</code>, <code>ci_seed.py</code> — infraestructura de seed que causa el crash</li>
+<li><code>legacy_allowlist.py</code> — artefacto de migración ya no relevante</li>
+<li>Tests de "stress", "disaster recovery", "performance benchmarks" (Layer 4)
+  — no pertenecen al CI de una app de negocio</li>
+</ul>
+<h3 id="que-construir-nuevo">Qué construir nuevo<a class="headerlink" href="#que-construir-nuevo" title="Permanent link">&para;</a></h3>
+<p>Tres categorías de tests en el rediseño:</p>
+<p><strong>Categoría A — Lógica pura (sin DB, instantáneos):</strong>
+- Constantes SAT, clasificación de items, cálculo de impuestos, reglas fiscales
+- Tiempo estimado: &lt; 1 segundo por suite</p>
+<p><strong>Categoría B — Validaciones de DocType (DB, aislados):</strong>
+- Cada test crea sus propios datos con <code>generate_hash()</code> y hace <code>tearDown()</code>
+- Cubre: validaciones de FFM, hooks de SI, guards de cancelación
+- Tiempo estimado: &lt; 30 segundos por suite</p>
+<p><strong>Categoría C — Flujos de timbrado (DB + mock PAC):</strong>
+- Mock de <code>timbrado_api.TimbradoAPI._call_facturapi()</code> para no tocar red
+- Cubre: construcción de payload, manejo de errores PAC, estados FFM
+- Tiempo estimado: &lt; 2 minutos por suite</p>
 <hr />
-<p><em>Para detalles técnicos de cada plan, consultar archivo específico en su directorio correspondiente.</em></p>
+<h2 id="decision-pendiente-site-dedicado-de-tests-vs-mock-de-datos">Decisión pendiente: site dedicado de tests vs mock de datos<a class="headerlink" href="#decision-pendiente-site-dedicado-de-tests-vs-mock-de-datos" title="Permanent link">&para;</a></h2>
+<h3 id="opcion-a-site-dedicado-de-tests-test-facturacionlocalhost">Opción A — Site dedicado de tests (<code>test-facturacion.localhost</code>)<a class="headerlink" href="#opcion-a-site-dedicado-de-tests-test-facturacionlocalhost" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Ventaja</strong></td>
+<td>DB limpia, bootstrap ERPNext funciona, tests de integración reales</td>
+</tr>
+<tr>
+<td><strong>Ventaja</strong></td>
+<td>Se puede resetear entre runs con <code>frappe.db.rollback()</code></td>
+</tr>
+<tr>
+<td><strong>Desventaja</strong></td>
+<td>Requiere crear y mantener un site adicional</td>
+</tr>
+<tr>
+<td><strong>Desventaja</strong></td>
+<td>Setup más complejo en CI</td>
+</tr>
+</tbody>
+</table>
+<h3 id="opcion-b-mock-de-datos-en-todos-los-tests">Opción B — Mock de datos en todos los tests<a class="headerlink" href="#opcion-b-mock-de-datos-en-todos-los-tests" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Ventaja</strong></td>
+<td>Funciona en el site actual sin cambiar infraestructura</td>
+</tr>
+<tr>
+<td><strong>Ventaja</strong></td>
+<td>Tests más rápidos</td>
+</tr>
+<tr>
+<td><strong>Desventaja</strong></td>
+<td>No prueba integración real con ERPNext</td>
+</tr>
+<tr>
+<td><strong>Desventaja</strong></td>
+<td>Más código de setup en cada test</td>
+</tr>
+</tbody>
+</table>
+<h3 id="opcion-c-mixta-recomendada">Opción C — Mixta (recomendada)<a class="headerlink" href="#opcion-c-mixta-recomendada" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Tests A y B (lógica + validaciones) → corren en site actual con datos aislados</li>
+<li>Tests C (flujos completos) → site dedicado <code>test-facturacion.localhost</code> o sandbox</li>
+<li>La mayoría del CI corre en segundos; el subset de integración corre en PR reviews</li>
+</ul>
+<p><strong>Decisión no tomada todavía.</strong> Requiere alineación con el usuario antes de implementar.</p>
+<hr />
+<h2 id="siguiente-paso">Siguiente paso<a class="headerlink" href="#siguiente-paso" title="Permanent link">&para;</a></h2>
+<p>Antes de implementar rediseño, definir:</p>
+<ol>
+<li>¿Crear <code>test-facturacion.localhost</code> en bench v16 o usar <code>facturacion-v16.dev</code>
+   con <code>frappe.db.rollback()</code> en cada test?</li>
+<li>¿Qué porcentaje de los 38 archivos legacy tienen valor real vs son ruido?
+   (revisar manualmente los más relevantes)</li>
+<li>¿Cuáles son los flujos críticos que DEBEN tener cobertura de test?
+   (timbrado básico, cancelación, tipo E son candidatos obvios)</li>
+</ol>
 
 
 

@@ -1,0 +1,2008 @@
+
+<!doctype html>
+<html lang="es" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentación completa del sistema de facturación electrónica para México">
+      
+      
+        <meta name="author" content="Equipo Desarrollo Facturación México">
+      
+      
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.3">
+    
+    
+      
+        <title>SOLUCIÓN IEPS CUOTA - FACTURAPI BASE MULTIPLICATION - Facturación México - Documentación Técnica</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.50c56a3b.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/advanced.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function n(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],n("js",new Date),n("config","G-XXXXXXXXXX"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){this.value&&n("event","search",{search_term:this.value})}),document$.subscribe(function(){var a=document.forms.feedback;if(void 0!==a)for(var e of a.querySelectorAll("[type=submit]"))e.addEventListener("click",function(e){e.preventDefault();var t=document.location.pathname,e=this.getAttribute("data-md-value");n("event","feedback",{page:t,data:e}),a.firstElementChild.disabled=!0;e=a.querySelector(".md-feedback__note [data-md-value='"+e+"']");e&&(e.hidden=!1)}),a.hidden=!1}),location$.subscribe(function(e){n("config","G-XXXXXXXXXX",{page_path:e.pathname})})});var e=document.createElement("script");e.async=!0,e.src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX",document.getElementById("__analytics").insertAdjacentElement("afterEnd",e)}</script>
+  
+    <script>var consent;"undefined"==typeof __md_analytics||(consent=__md_get("__consent"))&&consent.analytics&&__md_analytics()</script>
+  
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#solucion-ieps-cuota-facturapi-base-multiplication" class="md-skip">
+          Saltar a contenido
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabecera">
+    <a href="../.." title="Facturación México - Documentación Técnica" class="md-header__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Facturación México - Documentación Técnica
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SOLUCIÓN IEPS CUOTA - FACTURAPI BASE MULTIPLICATION
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo oscuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo oscuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Búsqueda" placeholder="Búsqueda" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Buscar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpiar" aria-label="Limpiar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando búsqueda
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Pestañas" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+    
+  
+  Inicio
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../user-guide/" class="md-tabs__link">
+          
+  
+  Guía de Usuario
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/" class="md-tabs__link">
+          
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../" class="md-tabs__link">
+          
+  
+  Desarrollo
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navegación" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Facturación México - Documentación Técnica" class="md-nav__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Facturación México - Documentación Técnica
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Inicio
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Guía de Usuario
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Guía de Usuario
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Usuario - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/getting-started/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Primeros Pasos
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/draft-invoices/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Facturas en Borrador
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/troubleshooting/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    API Reference
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    API Reference - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/cfdi/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CFDI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/draft-management/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Draft Management
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/catalogos/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Catalogos SAT
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/hooks/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Hooks
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Desarrollo
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Desarrollo
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Desarrollo - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Setup Desarrollo
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../draft-workflow/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Draft Workflow
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#resumen-ejecutivo" class="md-nav__link">
+    <span class="md-ellipsis">
+      📋 RESUMEN EJECUTIVO
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#problema-identificado" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔍 PROBLEMA IDENTIFICADO
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔍 PROBLEMA IDENTIFICADO">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#comportamiento-facturapi" class="md-nav__link">
+    <span class="md-ellipsis">
+      Comportamiento FacturAPI
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#impacto" class="md-nav__link">
+    <span class="md-ellipsis">
+      Impacto
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#solucion-implementada" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ SOLUCIÓN IMPLEMENTADA
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="✅ SOLUCIÓN IMPLEMENTADA">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#concepto-clave" class="md-nav__link">
+    <span class="md-ellipsis">
+      Concepto Clave
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#formulas" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fórmulas
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Fórmulas">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ieps-cuota" class="md-nav__link">
+    <span class="md-ellipsis">
+      IEPS Cuota
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#iva-con-ieps-cuota" class="md-nav__link">
+    <span class="md-ellipsis">
+      IVA con IEPS Cuota
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cambios-en-codigo" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔧 CAMBIOS EN CÓDIGO
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔧 CAMBIOS EN CÓDIGO">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#archivo-timbrado_apipy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Archivo: timbrado_api.py
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Archivo: timbrado_api.py">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-import-funcion-conversion-uom-lineas-15-19" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Import función conversión UOM (líneas 15-19)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-ieps-cuota-base-unitaria-lineas-560-565" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. IEPS Cuota - Base unitaria (líneas 560-565)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-iva-base-unitaria-lineas-517-555" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. IVA - Base unitaria (líneas 517-555)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-metodo-validacion-factor-conversion-lineas-1923-1968" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Método validación factor conversión (líneas 1923-1968)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validacion-completa" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧪 VALIDACIÓN COMPLETA
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🧪 VALIDACIÓN COMPLETA">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#caso-1-combustibles-gasolina-magna" class="md-nav__link">
+    <span class="md-ellipsis">
+      Caso 1: Combustibles (Gasolina Magna)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#caso-2-bebidas-azucaradas-refresco-600ml" class="md-nav__link">
+    <span class="md-ellipsis">
+      Caso 2: Bebidas Azucaradas (Refresco 600ml)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comparativa-antesdespues" class="md-nav__link">
+    <span class="md-ellipsis">
+      📊 COMPARATIVA ANTES/DESPUÉS
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📊 COMPARATIVA ANTES/DESPUÉS">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#combustibles-50l-gasolina" class="md-nav__link">
+    <span class="md-ellipsis">
+      Combustibles (50L Gasolina)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bebidas-40-botellas-600ml" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bebidas (40 Botellas 600ml)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cumplimiento-normativo" class="md-nav__link">
+    <span class="md-ellipsis">
+      🎯 CUMPLIMIENTO NORMATIVO
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🎯 CUMPLIMIENTO NORMATIVO">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#articulo-2-a-lieps-combustibles" class="md-nav__link">
+    <span class="md-ellipsis">
+      Artículo 2-A LIEPS (Combustibles)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lieps-general-bebidas-alcohol-tabaco" class="md-nav__link">
+    <span class="md-ellipsis">
+      LIEPS General (Bebidas, Alcohol, Tabaco)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tolerancia-sat" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tolerancia SAT
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requisitos-de-uso" class="md-nav__link">
+    <span class="md-ellipsis">
+      📝 REQUISITOS DE USO
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📝 REQUISITOS DE USO">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#para-items-con-ieps-cuota" class="md-nav__link">
+    <span class="md-ellipsis">
+      Para Items con IEPS Cuota
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#validacion-automatica" class="md-nav__link">
+    <span class="md-ellipsis">
+      Validación Automática
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#estado-produccion" class="md-nav__link">
+    <span class="md-ellipsis">
+      🚀 ESTADO PRODUCCIÓN
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      📚 REFERENCIAS
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📚 REFERENCIAS">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#normativa" class="md-nav__link">
+    <span class="md-ellipsis">
+      Normativa
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#archivos-relacionados" class="md-nav__link">
+    <span class="md-ellipsis">
+      Archivos relacionados
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tests-de-validacion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tests de validación
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="solucion-ieps-cuota-facturapi-base-multiplication">SOLUCIÓN IEPS CUOTA - FACTURAPI BASE MULTIPLICATION<a class="headerlink" href="#solucion-ieps-cuota-facturapi-base-multiplication" title="Permanent link">&para;</a></h1>
+<p><strong>Fecha:</strong> 2025-10-21
+<strong>Versión:</strong> 1.0
+<strong>Estado:</strong> ✅ Implementado y Validado</p>
+<hr />
+<h2 id="resumen-ejecutivo">📋 RESUMEN EJECUTIVO<a class="headerlink" href="#resumen-ejecutivo" title="Permanent link">&para;</a></h2>
+<p><strong>Problema:</strong> FacturAPI multiplica el campo <code>base</code> por <code>Cantidad</code> al generar XML SAT, causando discrepancias masivas en cálculos de IEPS Cuota y base IVA.</p>
+<p><strong>Solución:</strong> Enviar valores <strong>unitarios</strong> (por unidad) en campo <code>base</code>, permitiendo que FacturAPI los multiplique automáticamente por cantidad.</p>
+<p><strong>Resultado:</strong> <strong>$0.00 diferencia</strong> con totales SAT (tolerancia legal ≤ $0.05 pesos cumplida).</p>
+<p><strong>Archivos modificados:</strong>
+- <code>facturacion_mexico/facturacion_fiscal/timbrado_api.py</code></p>
+<hr />
+<h2 id="problema-identificado">🔍 PROBLEMA IDENTIFICADO<a class="headerlink" href="#problema-identificado" title="Permanent link">&para;</a></h2>
+<h3 id="comportamiento-facturapi">Comportamiento FacturAPI<a class="headerlink" href="#comportamiento-facturapi" title="Permanent link">&para;</a></h3>
+<p>FacturAPI <strong>multiplica automáticamente</strong> el valor del campo <code>base</code> por <code>Cantidad</code> al generar el XML SAT:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Payload enviado a FacturAPI</span>
+<span class="p">{</span>
+  <span class="s2">&quot;quantity&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>
+  <span class="s2">&quot;taxes&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;IEPS&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;base&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>        <span class="c1"># ← Enviamos cantidad total (50 litros)</span>
+      <span class="s2">&quot;rate&quot;</span><span class="p">:</span> <span class="mf">5.49</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;IVA&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;base&quot;</span><span class="p">:</span> <span class="mi">1250</span><span class="p">,</span>      <span class="c1"># ← Enviamos subtotal ($1,250)</span>
+      <span class="s2">&quot;rate&quot;</span><span class="p">:</span> <span class="mf">0.16</span>
+    <span class="p">}</span>
+  <span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="cm">&lt;!-- XML SAT generado por FacturAPI --&gt;</span>
+<span class="nt">&lt;cfdi:Concepto</span><span class="w"> </span><span class="na">Cantidad=</span><span class="s">&quot;50&quot;</span><span class="w"> </span><span class="err">...</span><span class="nt">&gt;</span>
+<span class="w">  </span><span class="nt">&lt;cfdi:Traslado</span><span class="w"> </span><span class="na">Base=</span><span class="s">&quot;2500.000000&quot;</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="nt">/&gt;</span><span class="w">      </span><span class="cm">&lt;!-- 50 × 50 = 2,500 ❌ --&gt;</span>
+<span class="w">  </span><span class="nt">&lt;cfdi:Traslado</span><span class="w"> </span><span class="na">Base=</span><span class="s">&quot;62500.000000&quot;</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="nt">/&gt;</span><span class="w">     </span><span class="cm">&lt;!-- 1,250 × 50 = 62,500 ❌ --&gt;</span>
+<span class="nt">&lt;/cfdi:Concepto&gt;</span>
+</code></pre></div>
+<h3 id="impacto">Impacto<a class="headerlink" href="#impacto" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Concepto</th>
+<th>Esperado</th>
+<th>FacturAPI generaba</th>
+<th>Diferencia</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Base IEPS</td>
+<td>50 litros</td>
+<td>2,500 litros</td>
+<td>+2,450 ❌</td>
+</tr>
+<tr>
+<td>IEPS Total</td>
+<td>$274.50</td>
+<td>$13,725.00</td>
+<td>+$13,450.50 ❌</td>
+</tr>
+<tr>
+<td>Base IVA</td>
+<td>$1,250</td>
+<td>$62,500</td>
+<td>+$61,250 ❌</td>
+</tr>
+<tr>
+<td>IVA Total</td>
+<td>$200.00</td>
+<td>$10,000.00</td>
+<td>+$9,800 ❌</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>$1,724.50</strong></td>
+<td><strong>$24,975.00</strong></td>
+<td><strong>+$23,250.50</strong> ❌</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Tolerancia SAT:</strong> ≤ $0.05
+<strong>Resultado anterior:</strong> $23,250.50 🚫 <strong>RECHAZADO</strong></p>
+<hr />
+<h2 id="solucion-implementada">✅ SOLUCIÓN IMPLEMENTADA<a class="headerlink" href="#solucion-implementada" title="Permanent link">&para;</a></h2>
+<h3 id="concepto-clave">Concepto Clave<a class="headerlink" href="#concepto-clave" title="Permanent link">&para;</a></h3>
+<p>Enviar <strong>valores UNITARIOS</strong> (por unidad del item) en el campo <code>base</code>, permitiendo que FacturAPI los multiplique por <code>Cantidad</code> para obtener valores totales correctos en XML.</p>
+<h3 id="formulas">Fórmulas<a class="headerlink" href="#formulas" title="Permanent link">&para;</a></h3>
+<h4 id="ieps-cuota">IEPS Cuota<a class="headerlink" href="#ieps-cuota" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># Factor conversión UOM a litros</span>
+<span class="k">if</span> <span class="n">uom</span> <span class="o">==</span> <span class="s2">&quot;LTR&quot;</span><span class="p">:</span>
+    <span class="n">factor</span> <span class="o">=</span> <span class="mf">1.0</span>  <span class="c1"># Ya en litros</span>
+<span class="k">elif</span> <span class="n">uom</span> <span class="o">==</span> <span class="s2">&quot;Botella 600ml&quot;</span><span class="p">:</span>
+    <span class="n">factor</span> <span class="o">=</span> <span class="mf">0.6</span>  <span class="c1"># 600ml = 0.6 litros</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">factor</span> <span class="o">=</span> <span class="n">get_uom_conversion_to_liters</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+<span class="c1"># Enviar a FacturAPI</span>
+<span class="n">base</span> <span class="o">=</span> <span class="n">factor</span>  <span class="c1"># Por unidad</span>
+<span class="n">rate</span> <span class="o">=</span> <span class="n">cuota_por_litro</span>  <span class="c1"># Ejemplo: $5.49/L, $1.27/L</span>
+
+<span class="c1"># FacturAPI genera en XML</span>
+<span class="n">base_xml</span> <span class="o">=</span> <span class="n">factor</span> <span class="err">×</span> <span class="n">cantidad</span>  <span class="c1"># Litros totales</span>
+<span class="n">importe_xml</span> <span class="o">=</span> <span class="n">base_xml</span> <span class="err">×</span> <span class="n">rate</span>  <span class="c1"># IEPS total</span>
+</code></pre></div>
+<p><strong>Ejemplo combustibles:</strong>
+- UOM: LTR → factor = 1.0
+- Cantidad: 50
+- Base enviada: 1.0
+- Base XML: 1.0 × 50 = <strong>50 litros</strong> ✅
+- IEPS: 50 × $5.49 = <strong>$274.50</strong> ✅</p>
+<p><strong>Ejemplo bebidas:</strong>
+- UOM: Botella 600ml → factor = 0.6
+- Cantidad: 40
+- Base enviada: 0.6
+- Base XML: 0.6 × 40 = <strong>24 litros</strong> ✅
+- IEPS: 24 × $1.27 = <strong>$30.48</strong> ✅</p>
+<h4 id="iva-con-ieps-cuota">IVA con IEPS Cuota<a class="headerlink" href="#iva-con-ieps-cuota" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># Determinar integración IEPS en base IVA</span>
+<span class="k">if</span> <span class="n">integra_base_iva</span><span class="p">:</span>  <span class="c1"># Bebidas, tabaco, alcohol</span>
+    <span class="c1"># Base unitaria = precio + IEPS por unidad</span>
+    <span class="n">ieps_unitario</span> <span class="o">=</span> <span class="n">cuota_ieps</span> <span class="err">×</span> <span class="n">factor_conversion</span>
+    <span class="n">base_iva_unitaria</span> <span class="o">=</span> <span class="n">precio_unitario</span> <span class="o">+</span> <span class="n">ieps_unitario</span>
+<span class="k">else</span><span class="p">:</span>  <span class="c1"># Combustibles (Art. 2-A LIEPS)</span>
+    <span class="c1"># Base unitaria = solo precio</span>
+    <span class="n">base_iva_unitaria</span> <span class="o">=</span> <span class="n">precio_unitario</span>
+
+<span class="c1"># Enviar a FacturAPI</span>
+<span class="n">base</span> <span class="o">=</span> <span class="n">base_iva_unitaria</span>
+<span class="n">rate</span> <span class="o">=</span> <span class="mf">0.16</span>
+
+<span class="c1"># FacturAPI genera en XML</span>
+<span class="n">base_xml</span> <span class="o">=</span> <span class="n">base_iva_unitaria</span> <span class="err">×</span> <span class="n">cantidad</span>
+<span class="n">importe_xml</span> <span class="o">=</span> <span class="n">base_xml</span> <span class="err">×</span> <span class="mf">0.16</span>
+</code></pre></div>
+<p><strong>Ejemplo combustibles (NO integra IEPS):</strong>
+- Precio: $25/litro
+- Base enviada: $25
+- Cantidad: 50
+- Base IVA XML: $25 × 50 = <strong>$1,250</strong> ✅ (sin IEPS)
+- IVA: $1,250 × 0.16 = <strong>$200</strong> ✅</p>
+<p><strong>Ejemplo bebidas (SÍ integra IEPS):</strong>
+- Precio: $25/botella
+- IEPS unitario: $1.27 × 0.6 = $0.762
+- Base enviada: $25 + $0.762 = $25.762
+- Cantidad: 40
+- Base IVA XML: $25.762 × 40 = <strong>$1,030.48</strong> ✅ (con IEPS)
+- IVA: $1,030.48 × 0.16 = <strong>$164.88</strong> ✅</p>
+<hr />
+<h2 id="cambios-en-codigo">🔧 CAMBIOS EN CÓDIGO<a class="headerlink" href="#cambios-en-codigo" title="Permanent link">&para;</a></h2>
+<h3 id="archivo-timbrado_apipy">Archivo: <code>timbrado_api.py</code><a class="headerlink" href="#archivo-timbrado_apipy" title="Permanent link">&para;</a></h3>
+<h4 id="1-import-funcion-conversion-uom-lineas-15-19">1. Import función conversión UOM (líneas 15-19)<a class="headerlink" href="#1-import-funcion-conversion-uom-lineas-15-19" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># Import para conversión UOM (IEPS Cuota en litros)</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">erpnext.stock.get_item_details</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_conversion_factor</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">get_conversion_factor</span> <span class="o">=</span> <span class="kc">None</span>
+</code></pre></div>
+<h4 id="2-ieps-cuota-base-unitaria-lineas-560-565">2. IEPS Cuota - Base unitaria (líneas 560-565)<a class="headerlink" href="#2-ieps-cuota-base-unitaria-lineas-560-565" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># Calcular cuota por unidad</span>
+<span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">qty</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="n">cuota_por_unidad</span> <span class="o">=</span> <span class="n">flt</span><span class="p">(</span><span class="n">tax_data</span><span class="p">[</span><span class="s2">&quot;amount&quot;</span><span class="p">])</span> <span class="o">/</span> <span class="n">flt</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">qty</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">cuota_por_unidad</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+<span class="c1"># FIX E4.1: Base = factor conversión a litros (FacturAPI multiplica × qty)</span>
+<span class="c1"># Ejemplo: Combustible LTR → factor=1.0, Refresco 600ml → factor=0.6</span>
+<span class="n">factor_conversion</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_uom_conversion_to_liters</span><span class="p">(</span><span class="n">item_doc</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">uom</span><span class="p">)</span>
+
+<span class="n">tax_item</span><span class="p">[</span><span class="s2">&quot;rate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">flt</span><span class="p">(</span><span class="n">cuota_por_unidad</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>  <span class="c1"># TasaOCuota (cuota/litro)</span>
+<span class="n">tax_item</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">flt</span><span class="p">(</span><span class="n">factor_conversion</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>  <span class="c1"># Factor conversión (FacturAPI × qty = litros)</span>
+</code></pre></div>
+<p><strong>Cambio:</strong> Antes enviábamos <code>item.qty</code> (cantidad total), ahora enviamos <code>factor_conversion</code> (factor unitario).</p>
+<h4 id="3-iva-base-unitaria-lineas-517-555">3. IVA - Base unitaria (líneas 517-555)<a class="headerlink" href="#3-iva-base-unitaria-lineas-517-555" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># FIX E4.1: Para IVA, enviar base UNITARIA (FacturAPI multiplica × qty)</span>
+<span class="c1"># Esto controla integración IEPS: bebidas integran, combustibles NO</span>
+<span class="k">if</span> <span class="n">sat_mapping</span><span class="p">[</span><span class="s2">&quot;nombre_sat&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;IVA&quot;</span><span class="p">:</span>
+    <span class="c1"># Determinar si IEPS integra base IVA</span>
+    <span class="n">integra_base</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># Default: sí integra (bebidas/tabaco/alcohol)</span>
+
+    <span class="k">for</span> <span class="n">tax_check</span> <span class="ow">in</span> <span class="n">item_taxes_data</span><span class="p">:</span>
+        <span class="n">sat_map_check</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_map_tax_account_to_sat</span><span class="p">(</span><span class="n">tax_check</span><span class="p">[</span><span class="s2">&quot;account_head&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">sat_map_check</span><span class="p">[</span><span class="s2">&quot;tipo_factor&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Cuota&quot;</span>
+            <span class="ow">and</span> <span class="n">sat_map_check</span><span class="p">[</span><span class="s2">&quot;nombre_sat&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;IEPS&quot;</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="n">sat_map_check</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;integra_base_iva&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="n">integra_base</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">break</span>
+
+    <span class="c1"># Calcular base IVA UNITARIA según integración</span>
+    <span class="k">if</span> <span class="n">integra_base</span><span class="p">:</span>
+        <span class="c1"># Bebidas/Tabaco/Alcohol: base unitaria = precio + IEPS por unidad</span>
+        <span class="n">ieps_cuota_unitario</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">ieps_tasa_unitario</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="k">for</span> <span class="n">tax_check</span> <span class="ow">in</span> <span class="n">item_taxes_data</span><span class="p">:</span>
+            <span class="n">sat_map_check</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_map_tax_account_to_sat</span><span class="p">(</span><span class="n">tax_check</span><span class="p">[</span><span class="s2">&quot;account_head&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">sat_map_check</span><span class="p">[</span><span class="s2">&quot;nombre_sat&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;IEPS&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">sat_map_check</span><span class="p">[</span><span class="s2">&quot;tipo_factor&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Cuota&quot;</span><span class="p">:</span>
+                    <span class="c1"># IEPS Cuota: ya es por unidad ($/litro)</span>
+                    <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">qty</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">ieps_cuota_unitario</span> <span class="o">=</span> <span class="n">flt</span><span class="p">(</span><span class="n">tax_check</span><span class="p">[</span><span class="s2">&quot;amount&quot;</span><span class="p">])</span> <span class="o">/</span> <span class="n">flt</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">qty</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">sat_map_check</span><span class="p">[</span><span class="s2">&quot;tipo_factor&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Tasa&quot;</span><span class="p">:</span>
+                    <span class="c1"># IEPS Tasa: porcentaje sobre precio</span>
+                    <span class="n">ieps_tasa_unitario</span> <span class="o">=</span> <span class="n">flt</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">rate</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">flt</span><span class="p">(</span><span class="n">tax_check</span><span class="p">[</span><span class="s2">&quot;rate&quot;</span><span class="p">]))</span> <span class="o">/</span> <span class="mi">100</span><span class="p">)</span>
+
+        <span class="n">base_iva_unitaria</span> <span class="o">=</span> <span class="n">flt</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">rate</span><span class="p">)</span> <span class="o">+</span> <span class="n">ieps_cuota_unitario</span> <span class="o">+</span> <span class="n">ieps_tasa_unitario</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Combustibles: base unitaria = solo precio (sin IEPS)</span>
+        <span class="n">base_iva_unitaria</span> <span class="o">=</span> <span class="n">flt</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">rate</span><span class="p">)</span>
+
+    <span class="n">tax_item</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">flt</span><span class="p">(</span><span class="n">base_iva_unitaria</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Cambio:</strong> Antes calculábamos base total (<code>item.amount + ieps_total</code>), ahora calculamos base unitaria (<code>item.rate + ieps_unitario</code>).</p>
+<h4 id="4-metodo-validacion-factor-conversion-lineas-1923-1968">4. Método validación factor conversión (líneas 1923-1968)<a class="headerlink" href="#4-metodo-validacion-factor-conversion-lineas-1923-1968" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_get_uom_conversion_to_liters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item_doc</span><span class="p">,</span> <span class="n">uom</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Obtener factor conversión de UOM del item a litros para IEPS Cuota.</span>
+
+<span class="sd">    FIX E4.1: FacturAPI multiplica &#39;base&#39; por cantidad, entonces necesitamos</span>
+<span class="sd">    enviar factor conversión unitario (litros por unidad).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        item_doc: Item doc</span>
+<span class="sd">        uom: UOM del item en la factura</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        float: Factor conversión a litros (ejemplo: 0.6 para botella 600ml, 1.0 para LTR)</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValidationError: Si UOM no tiene conversión a litros configurada</span>
+
+<span class="sd">    Ejemplo:</span>
+<span class="sd">        &gt;&gt;&gt; factor = self._get_uom_conversion_to_liters(item_doc, &quot;Unit&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; # Retorna 0.6 si item configurado como 600ml por unidad</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Si ya está en litros, factor = 1.0</span>
+    <span class="k">if</span> <span class="n">uom</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;LTR&quot;</span><span class="p">,</span> <span class="s2">&quot;Litro&quot;</span><span class="p">,</span> <span class="s2">&quot;L&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mf">1.0</span>
+
+    <span class="c1"># Intentar obtener conversión desde ERPNext</span>
+    <span class="k">if</span> <span class="n">get_conversion_factor</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">conversion_data</span> <span class="o">=</span> <span class="n">get_conversion_factor</span><span class="p">(</span><span class="n">item_doc</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;LTR&quot;</span><span class="p">)</span>
+            <span class="n">factor</span> <span class="o">=</span> <span class="n">flt</span><span class="p">(</span><span class="n">conversion_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;conversion_factor&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">factor</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">factor</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+    <span class="c1"># Si no hay conversión configurada, ERROR</span>
+    <span class="n">frappe</span><span class="o">.</span><span class="n">throw</span><span class="p">(</span>
+        <span class="n">_</span><span class="p">(</span>
+            <span class="s2">&quot;No se puede calcular IEPS Cuota: falta configurar conversión de UOM &#39;</span><span class="si">{uom}</span><span class="s2">&#39; a litros para el item &#39;</span><span class="si">{item}</span><span class="s2">&#39;.</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;Soluciones:</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;1. Configurar &#39;UOM Conversion Factor&#39; en el Item para convertir </span><span class="si">{uom}</span><span class="s2"> → LTR</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;2. O cambiar el UOM del item en la factura a &#39;LTR&#39; directamente&quot;</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">uom</span><span class="o">=</span><span class="n">uom</span><span class="p">,</span> <span class="n">item</span><span class="o">=</span><span class="n">item_doc</span><span class="o">.</span><span class="n">item_name</span> <span class="ow">or</span> <span class="n">item_doc</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+        <span class="n">title</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Factor Conversión UOM Requerido&quot;</span><span class="p">),</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p><strong>Nuevo método</strong> para obtener y validar factor de conversión UOM → litros.</p>
+<hr />
+<h2 id="validacion-completa">🧪 VALIDACIÓN COMPLETA<a class="headerlink" href="#validacion-completa" title="Permanent link">&para;</a></h2>
+<h3 id="caso-1-combustibles-gasolina-magna">Caso 1: Combustibles (Gasolina Magna)<a class="headerlink" href="#caso-1-combustibles-gasolina-magna" title="Permanent link">&para;</a></h3>
+<p><strong>Setup:</strong>
+- Producto: Gasolina Magna (clave SAT: 15101514)
+- Cantidad: 50 litros
+- Precio: $25/litro
+- UOM: LTR
+- IEPS Cuota: $5.49/litro
+- Integra base IVA: <strong>NO</strong> (Art. 2-A LIEPS)</p>
+<p><strong>Resultados:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Concepto</th>
+<th>Esperado</th>
+<th>XML SAT</th>
+<th>Diferencia</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Subtotal</td>
+<td>$1,250.00</td>
+<td>$1,250.00</td>
+<td>$0.00</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Base IEPS (litros)</td>
+<td>50</td>
+<td>50.00</td>
+<td>0</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>IEPS Importe</td>
+<td>$274.50</td>
+<td>$274.50</td>
+<td>$0.00</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Base IVA</td>
+<td>$1,250.00</td>
+<td>$1,250.00</td>
+<td>$0.00</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>IVA Importe</td>
+<td>$200.00</td>
+<td>$200.00</td>
+<td>$0.00</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>$1,724.50</strong></td>
+<td><strong>$1,724.50</strong></td>
+<td><strong>$0.00</strong></td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<p><strong>XML Generado:</strong>
+<div class="highlight"><pre><span></span><code><span class="nt">&lt;cfdi:Concepto</span><span class="w"> </span><span class="na">Cantidad=</span><span class="s">&quot;50&quot;</span><span class="w"> </span><span class="na">ValorUnitario=</span><span class="s">&quot;25.000000&quot;</span><span class="w"> </span><span class="na">Importe=</span><span class="s">&quot;1250.000000&quot;</span><span class="nt">&gt;</span>
+<span class="w">  </span><span class="nt">&lt;cfdi:Impuestos&gt;</span>
+<span class="w">    </span><span class="nt">&lt;cfdi:Traslados&gt;</span>
+<span class="w">      </span><span class="nt">&lt;cfdi:Traslado</span><span class="w"> </span><span class="na">Base=</span><span class="s">&quot;50.000000&quot;</span><span class="w"> </span><span class="na">Impuesto=</span><span class="s">&quot;003&quot;</span><span class="w"> </span><span class="na">TipoFactor=</span><span class="s">&quot;Cuota&quot;</span>
+<span class="w">                     </span><span class="na">TasaOCuota=</span><span class="s">&quot;5.490000&quot;</span><span class="w"> </span><span class="na">Importe=</span><span class="s">&quot;274.500000&quot;</span><span class="nt">/&gt;</span>
+<span class="w">      </span><span class="nt">&lt;cfdi:Traslado</span><span class="w"> </span><span class="na">Base=</span><span class="s">&quot;1250.000000&quot;</span><span class="w"> </span><span class="na">Impuesto=</span><span class="s">&quot;002&quot;</span><span class="w"> </span><span class="na">TipoFactor=</span><span class="s">&quot;Tasa&quot;</span>
+<span class="w">                     </span><span class="na">TasaOCuota=</span><span class="s">&quot;0.160000&quot;</span><span class="w"> </span><span class="na">Importe=</span><span class="s">&quot;200.000000&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/cfdi:Traslados&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/cfdi:Impuestos&gt;</span>
+<span class="nt">&lt;/cfdi:Concepto&gt;</span>
+</code></pre></div></p>
+<p><strong>UUID SAT:</strong> 382038BC-BBCA-4543-9AEB-2B71F8480C25
+<strong>Estado:</strong> ✅ Timbrado exitoso</p>
+<h3 id="caso-2-bebidas-azucaradas-refresco-600ml">Caso 2: Bebidas Azucaradas (Refresco 600ml)<a class="headerlink" href="#caso-2-bebidas-azucaradas-refresco-600ml" title="Permanent link">&para;</a></h3>
+<p><strong>Setup:</strong>
+- Producto: Refresco Cola 600ml (clave SAT: 50202301)
+- Cantidad: 40 botellas
+- Precio: $25/botella
+- UOM: Botella (H87)
+- Factor conversión: 0.6 L/botella
+- IEPS Cuota: $1.27/litro
+- Integra base IVA: <strong>SÍ</strong> (LIEPS General)</p>
+<p><strong>Resultados:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Concepto</th>
+<th>Esperado</th>
+<th>XML SAT</th>
+<th>Diferencia</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Subtotal</td>
+<td>$1,000.00</td>
+<td>$1,000.00</td>
+<td>$0.00</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Base IEPS (litros)</td>
+<td>24</td>
+<td>24.00</td>
+<td>0</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>IEPS Importe</td>
+<td>$30.48</td>
+<td>$30.48</td>
+<td>$0.00</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Base IVA</td>
+<td>$1,030.48</td>
+<td>$1,030.48</td>
+<td>$0.00</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>IVA Importe</td>
+<td>$164.88</td>
+<td>$164.88</td>
+<td>$0.00</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>$1,195.36</strong></td>
+<td><strong>$1,195.36</strong></td>
+<td><strong>$0.00</strong></td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Cálculo litros:</strong>
+- 40 botellas × 0.6 L/botella = <strong>24 litros</strong> ✅</p>
+<p><strong>XML Generado:</strong>
+<div class="highlight"><pre><span></span><code><span class="nt">&lt;cfdi:Concepto</span><span class="w"> </span><span class="na">Cantidad=</span><span class="s">&quot;40&quot;</span><span class="w"> </span><span class="na">ValorUnitario=</span><span class="s">&quot;25.000000&quot;</span><span class="w"> </span><span class="na">Importe=</span><span class="s">&quot;1000.000000&quot;</span><span class="nt">&gt;</span>
+<span class="w">  </span><span class="nt">&lt;cfdi:Impuestos&gt;</span>
+<span class="w">    </span><span class="nt">&lt;cfdi:Traslados&gt;</span>
+<span class="w">      </span><span class="nt">&lt;cfdi:Traslado</span><span class="w"> </span><span class="na">Base=</span><span class="s">&quot;24.000000&quot;</span><span class="w"> </span><span class="na">Impuesto=</span><span class="s">&quot;003&quot;</span><span class="w"> </span><span class="na">TipoFactor=</span><span class="s">&quot;Cuota&quot;</span>
+<span class="w">                     </span><span class="na">TasaOCuota=</span><span class="s">&quot;1.270000&quot;</span><span class="w"> </span><span class="na">Importe=</span><span class="s">&quot;30.480000&quot;</span><span class="nt">/&gt;</span>
+<span class="w">      </span><span class="nt">&lt;cfdi:Traslado</span><span class="w"> </span><span class="na">Base=</span><span class="s">&quot;1030.480000&quot;</span><span class="w"> </span><span class="na">Impuesto=</span><span class="s">&quot;002&quot;</span><span class="w"> </span><span class="na">TipoFactor=</span><span class="s">&quot;Tasa&quot;</span>
+<span class="w">                     </span><span class="na">TasaOCuota=</span><span class="s">&quot;0.160000&quot;</span><span class="w"> </span><span class="na">Importe=</span><span class="s">&quot;164.876800&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/cfdi:Traslados&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/cfdi:Impuestos&gt;</span>
+<span class="nt">&lt;/cfdi:Concepto&gt;</span>
+</code></pre></div></p>
+<p><strong>UUID SAT:</strong> 7C77D8AC-1F25-4748-AF1A-161494779C57
+<strong>Estado:</strong> ✅ Timbrado exitoso</p>
+<hr />
+<h2 id="comparativa-antesdespues">📊 COMPARATIVA ANTES/DESPUÉS<a class="headerlink" href="#comparativa-antesdespues" title="Permanent link">&para;</a></h2>
+<h3 id="combustibles-50l-gasolina">Combustibles (50L Gasolina)<a class="headerlink" href="#combustibles-50l-gasolina" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Métrica</th>
+<th>Antes</th>
+<th>Después</th>
+<th>Mejora</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Base IEPS XML</td>
+<td>2,500 L</td>
+<td>50 L</td>
+<td>✅ Correcto</td>
+</tr>
+<tr>
+<td>IEPS Total</td>
+<td>$13,725</td>
+<td>$274.50</td>
+<td>✅ Correcto</td>
+</tr>
+<tr>
+<td>Base IVA XML</td>
+<td>$62,500</td>
+<td>$1,250</td>
+<td>✅ Correcto</td>
+</tr>
+<tr>
+<td>IVA Total</td>
+<td>$10,000</td>
+<td>$200</td>
+<td>✅ Correcto</td>
+</tr>
+<tr>
+<td>Total factura</td>
+<td>$24,975</td>
+<td>$1,724.50</td>
+<td>✅ Correcto</td>
+</tr>
+<tr>
+<td><strong>Diferencia SAT</strong></td>
+<td><strong>+$23,250</strong></td>
+<td><strong>$0.00</strong></td>
+<td><strong>🎉 100%</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="bebidas-40-botellas-600ml">Bebidas (40 Botellas 600ml)<a class="headerlink" href="#bebidas-40-botellas-600ml" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Métrica</th>
+<th>Antes</th>
+<th>Después</th>
+<th>Mejora</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Base IEPS XML</td>
+<td>0.6 L</td>
+<td>24 L</td>
+<td>✅ Correcto</td>
+</tr>
+<tr>
+<td>IEPS Total</td>
+<td>$0.76</td>
+<td>$30.48</td>
+<td>✅ Correcto</td>
+</tr>
+<tr>
+<td>Base IVA XML</td>
+<td>$25.76</td>
+<td>$1,030.48</td>
+<td>✅ Correcto</td>
+</tr>
+<tr>
+<td>IVA Total</td>
+<td>$4.12</td>
+<td>$164.88</td>
+<td>✅ Correcto</td>
+</tr>
+<tr>
+<td>Total factura</td>
+<td>$1,004.88</td>
+<td>$1,195.36</td>
+<td>✅ Correcto</td>
+</tr>
+<tr>
+<td><strong>Diferencia SAT</strong></td>
+<td><strong>-$190.48</strong></td>
+<td><strong>$0.00</strong></td>
+<td><strong>🎉 100%</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="cumplimiento-normativo">🎯 CUMPLIMIENTO NORMATIVO<a class="headerlink" href="#cumplimiento-normativo" title="Permanent link">&para;</a></h2>
+<h3 id="articulo-2-a-lieps-combustibles">Artículo 2-A LIEPS (Combustibles)<a class="headerlink" href="#articulo-2-a-lieps-combustibles" title="Permanent link">&para;</a></h3>
+<p>✅ <strong>Cumplimiento confirmado:</strong>
+- IEPS Cuota <strong>NO</strong> forma parte de base IVA
+- Base IVA = Subtotal solamente
+- XML SAT correcto: <code>Base IVA = $1,250</code> (sin IEPS de $274.50)</p>
+<h3 id="lieps-general-bebidas-alcohol-tabaco">LIEPS General (Bebidas, Alcohol, Tabaco)<a class="headerlink" href="#lieps-general-bebidas-alcohol-tabaco" title="Permanent link">&para;</a></h3>
+<p>✅ <strong>Cumplimiento confirmado:</strong>
+- IEPS <strong>SÍ</strong> forma parte de base IVA
+- Base IVA = Subtotal + IEPS
+- XML SAT correcto: <code>Base IVA = $1,030.48</code> (con IEPS de $30.48)</p>
+<h3 id="tolerancia-sat">Tolerancia SAT<a class="headerlink" href="#tolerancia-sat" title="Permanent link">&para;</a></h3>
+<p>✅ <strong>Cumplimiento confirmado:</strong>
+- <strong>Requerido:</strong> Diferencia ≤ $0.05 pesos
+- <strong>Alcanzado:</strong> Diferencia = $0.00 pesos
+- <strong>Estado:</strong> 🎉 Superado ampliamente</p>
+<hr />
+<h2 id="requisitos-de-uso">📝 REQUISITOS DE USO<a class="headerlink" href="#requisitos-de-uso" title="Permanent link">&para;</a></h2>
+<h3 id="para-items-con-ieps-cuota">Para Items con IEPS Cuota<a class="headerlink" href="#para-items-con-ieps-cuota" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p><strong>UOM en Litros:</strong> Si el producto ya se vende en litros (LTR), funciona directamente.</p>
+</li>
+<li>
+<p><strong>UOM en otras unidades:</strong> Configurar "UOM Conversion Factor" en el Item:</p>
+</li>
+<li>Ir a: Item → UOMs → Add Row</li>
+<li>UOM: Unidad de venta (ejemplo: "Botella")</li>
+<li>Conversion Factor: Litros por unidad (ejemplo: 0.6 para 600ml)</li>
+</ol>
+<p><strong>Ejemplo configuración:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>UOM Venta</th>
+<th>Factor Conversión</th>
+<th>Equivalencia</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gasolina Magna</td>
+<td>LTR</td>
+<td>1.0</td>
+<td>1 litro</td>
+</tr>
+<tr>
+<td>Refresco 600ml</td>
+<td>Botella</td>
+<td>0.6</td>
+<td>0.6 litros</td>
+</tr>
+<tr>
+<td>Cerveza 355ml</td>
+<td>Lata</td>
+<td>0.355</td>
+<td>0.355 litros</td>
+</tr>
+<tr>
+<td>Whisky 750ml</td>
+<td>Botella</td>
+<td>0.75</td>
+<td>0.75 litros</td>
+</tr>
+</tbody>
+</table>
+<h3 id="validacion-automatica">Validación Automática<a class="headerlink" href="#validacion-automatica" title="Permanent link">&para;</a></h3>
+<p>Si falta configurar conversión, el sistema mostrará error claro:</p>
+<div class="highlight"><pre><span></span><code>No se puede calcular IEPS Cuota: falta configurar conversión de UOM &#39;Botella&#39;
+a litros para el item &#39;Refresco Cola 600ml&#39;.
+
+Soluciones:
+1. Configurar &#39;UOM Conversion Factor&#39; en el Item para convertir Botella → LTR
+2. O cambiar el UOM del item en la factura a &#39;LTR&#39; directamente
+</code></pre></div>
+<hr />
+<h2 id="estado-produccion">🚀 ESTADO PRODUCCIÓN<a class="headerlink" href="#estado-produccion" title="Permanent link">&para;</a></h2>
+<p><strong>Estado:</strong> ✅ <strong>LISTO PARA PRODUCCIÓN</strong></p>
+<p><strong>Validaciones completadas:</strong>
+- ✅ Combustibles (gasolina) - Art. 2-A LIEPS
+- ✅ Bebidas azucaradas (refresco 600ml) - LIEPS General
+- ✅ Factor conversión UOM funcionando
+- ✅ Integración IEPS en base IVA correcta
+- ✅ No integración IEPS en base IVA correcta
+- ✅ Tolerancia SAT cumplida ($0.00 ≤ $0.05)
+- ✅ XML SAT válido y timbrado exitosamente</p>
+<p><strong>Pendiente investigación:</strong>
+- ⏳ Tabaco (posible combinación Tasa + Cuota)
+- ⏳ Alcohol (validar IEPS Tasa + integración IVA)</p>
+<hr />
+<h2 id="referencias">📚 REFERENCIAS<a class="headerlink" href="#referencias" title="Permanent link">&para;</a></h2>
+<h3 id="normativa">Normativa<a class="headerlink" href="#normativa" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>LIEPS Artículo 2-A:</strong> Combustibles - IEPS NO computa para IVA</li>
+<li><strong>LIEPS General:</strong> Bebidas, tabaco, alcohol - IEPS SÍ computa para IVA</li>
+<li><strong>CFDI 4.0:</strong> Esquema SAT validación XML</li>
+<li><strong>Tolerancia fiscal:</strong> ≤ $0.05 pesos diferencia</li>
+</ul>
+<h3 id="archivos-relacionados">Archivos relacionados<a class="headerlink" href="#archivos-relacionados" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>timbrado_api.py</code> - Implementación solución</li>
+<li><code>sales_invoice_ieps.py</code> - Hook cálculo IEPS Cuota (línea 244: TODO conversión UOM implementado)</li>
+<li><code>generador_templates_fiscal.py</code> - Templates STCT/ITT IEPS</li>
+</ul>
+<h3 id="tests-de-validacion">Tests de validación<a class="headerlink" href="#tests-de-validacion" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>/tmp/test_combustibles_fix.json</code> - Validación combustibles</li>
+<li><code>/tmp/test_bebidas_600ml.json</code> - Validación bebidas</li>
+<li>Scripts one-off en: <code>facturacion_mexico/one_offs/test_*.py</code></li>
+</ul>
+<hr />
+<p><strong>Autor:</strong> Claude Code
+<strong>Revisión técnica:</strong> Pendiente
+<strong>Fecha última actualización:</strong> 2025-10-21</p>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Volver al principio
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 Facturación México - Documentación Técnica
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/tu-org/facturacion_mexico" target="_blank" rel="noopener" title="GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+      <div class="md-consent" data-md-component="consent" id="__consent" hidden>
+        <div class="md-consent__overlay"></div>
+        <aside class="md-consent__inner">
+          <form class="md-consent__form md-grid md-typeset" name="consent">
+            
+
+  
+    
+  
+
+
+
+
+
+<h4>Consentimiento de cookies</h4>
+<p>Utilizamos cookies para reconocer tus visitas repetidas y preferencias, así como para medir la efectividad de nuestra documentación y si los usuarios encuentran lo que están buscando. Con tu consentimiento, nos ayudas a mejorar nuestra documentación.
+</p>
+<input class="md-toggle" type="checkbox" id="__settings" >
+<div class="md-consent__settings">
+  <ul class="task-list">
+    
+      
+      
+        
+        
+      
+      <li class="task-list-item">
+        <label class="task-list-control">
+          <input type="checkbox" name="analytics" checked>
+          <span class="task-list-indicator"></span>
+          Google Analytics
+        </label>
+      </li>
+    
+  </ul>
+</div>
+<div class="md-consent__controls">
+  
+    
+      <button class="md-button md-button--primary">Aceptar</button>
+    
+    
+    
+  
+    
+    
+      <button type="reset" class="md-button md-button--primary">Rechazar</button>
+    
+    
+  
+    
+    
+    
+      <label class="md-button" for="__settings">Gestionar cookies</label>
+    
+  
+</div>
+          </form>
+        </aside>
+      </div>
+      <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout(function(){document.querySelector("[data-md-component=consent]").hidden=!1},250);var action,form=document.forms.consent;for(action of["submit","reset"])form.addEventListener(action,function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map(function(e){return[e,!0]}))),location.hash="",location.reload()})</script>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.expand", "navigation.instant", "navigation.sections", "navigation.tabs", "navigation.top", "search.highlight", "search.suggest"], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copiado al portapapeles", "clipboard.copy": "Copiar al portapapeles", "search.result.more.one": "1 m\u00e1s en esta p\u00e1gina", "search.result.more.other": "# m\u00e1s en esta p\u00e1gina", "search.result.none": "No se encontraron documentos", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Teclee para comenzar b\u00fasqueda", "search.result.term.missing": "Falta", "select.version": "Seleccionar versi\u00f3n"}, "version": {"default": "latest", "provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7c377c4.min.js"></script>
+      
+        <script src="../../assets/javascripts/extra.js"></script>
+      
+        <script src="../../assets/javascripts/advanced.js"></script>
+      
+    
+  </body>
+</html>

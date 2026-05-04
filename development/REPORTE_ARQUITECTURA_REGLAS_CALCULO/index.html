@@ -1,0 +1,1678 @@
+
+<!doctype html>
+<html lang="es" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentación completa del sistema de facturación electrónica para México">
+      
+      
+        <meta name="author" content="Equipo Desarrollo Facturación México">
+      
+      
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.3">
+    
+    
+      
+        <title>REPORTE: Arquitectura para Reglas de Cálculo Fiscal - Facturación México - Documentación Técnica</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.50c56a3b.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/advanced.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function n(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],n("js",new Date),n("config","G-XXXXXXXXXX"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){this.value&&n("event","search",{search_term:this.value})}),document$.subscribe(function(){var a=document.forms.feedback;if(void 0!==a)for(var e of a.querySelectorAll("[type=submit]"))e.addEventListener("click",function(e){e.preventDefault();var t=document.location.pathname,e=this.getAttribute("data-md-value");n("event","feedback",{page:t,data:e}),a.firstElementChild.disabled=!0;e=a.querySelector(".md-feedback__note [data-md-value='"+e+"']");e&&(e.hidden=!1)}),a.hidden=!1}),location$.subscribe(function(e){n("config","G-XXXXXXXXXX",{page_path:e.pathname})})});var e=document.createElement("script");e.async=!0,e.src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX",document.getElementById("__analytics").insertAdjacentElement("afterEnd",e)}</script>
+  
+    <script>var consent;"undefined"==typeof __md_analytics||(consent=__md_get("__consent"))&&consent.analytics&&__md_analytics()</script>
+  
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#reporte-arquitectura-para-reglas-de-calculo-fiscal" class="md-skip">
+          Saltar a contenido
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabecera">
+    <a href="../.." title="Facturación México - Documentación Técnica" class="md-header__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Facturación México - Documentación Técnica
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              REPORTE: Arquitectura para Reglas de Cálculo Fiscal
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo oscuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo oscuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Búsqueda" placeholder="Búsqueda" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Buscar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpiar" aria-label="Limpiar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando búsqueda
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Pestañas" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+    
+  
+  Inicio
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../user-guide/" class="md-tabs__link">
+          
+  
+  Guía de Usuario
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/" class="md-tabs__link">
+          
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../" class="md-tabs__link">
+          
+  
+  Desarrollo
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navegación" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Facturación México - Documentación Técnica" class="md-nav__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Facturación México - Documentación Técnica
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Inicio
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Guía de Usuario
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Guía de Usuario
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Usuario - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/getting-started/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Primeros Pasos
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/draft-invoices/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Facturas en Borrador
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/troubleshooting/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    API Reference
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    API Reference - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/cfdi/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CFDI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/draft-management/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Draft Management
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/catalogos/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Catalogos SAT
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/hooks/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Hooks
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Desarrollo
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Desarrollo
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Desarrollo - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Setup Desarrollo
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../draft-workflow/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Draft Workflow
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#contexto-del-problema" class="md-nav__link">
+    <span class="md-ellipsis">
+      📋 CONTEXTO DEL PROBLEMA
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📋 CONTEXTO DEL PROBLEMA">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#situacion-actual" class="md-nav__link">
+    <span class="md-ellipsis">
+      Situación Actual
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#requisitos-del-usuario" class="md-nav__link">
+    <span class="md-ellipsis">
+      Requisitos del Usuario
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#patrones-arquitectonicos-existentes" class="md-nav__link">
+    <span class="md-ellipsis">
+      🏗️ PATRONES ARQUITECTÓNICOS EXISTENTES
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🏗️ PATRONES ARQUITECTÓNICOS EXISTENTES">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#patron-a-tablas-maestras-python-setup-o-utils" class="md-nav__link">
+    <span class="md-ellipsis">
+      Patrón A: Tablas Maestras Python (setup/ o utils/)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#patron-b-fixtures-json-fixtures" class="md-nav__link">
+    <span class="md-ellipsis">
+      Patrón B: Fixtures JSON (fixtures/)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#opciones-arquitectonicas-propuestas" class="md-nav__link">
+    <span class="md-ellipsis">
+      🎯 OPCIONES ARQUITECTÓNICAS PROPUESTAS
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🎯 OPCIONES ARQUITECTÓNICAS PROPUESTAS">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#opcion-1-tabla-maestra-python-en-utilsreglas_calculo_fiscalpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      OPCIÓN 1: Tabla Maestra Python en utils/reglas_calculo_fiscal.py
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#opcion-2-doctype-independiente-regla-calculo-fiscal-fixtures" class="md-nav__link">
+    <span class="md-ellipsis">
+      OPCIÓN 2: DocType independiente "Regla Calculo Fiscal" + Fixtures
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#opcion-3-mantener-en-child-table-con-logica-auto-poblamiento" class="md-nav__link">
+    <span class="md-ellipsis">
+      OPCIÓN 3: Mantener en Child Table con Lógica Auto-Poblamiento
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comparativa-opciones" class="md-nav__link">
+    <span class="md-ellipsis">
+      📊 COMPARATIVA OPCIONES
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#recomendacion-tecnica" class="md-nav__link">
+    <span class="md-ellipsis">
+      🎯 RECOMENDACIÓN TÉCNICA
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🎯 RECOMENDACIÓN TÉCNICA">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#opcion-1-tabla-maestra-python-utilsreglas_calculo_fiscalpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      OPCIÓN 1: Tabla Maestra Python (utils/reglas_calculo_fiscal.py)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#implementacion-propuesta" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementación Propuesta
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decision-requerida" class="md-nav__link">
+    <span class="md-ellipsis">
+      🚨 DECISIÓN REQUERIDA
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🚨 DECISIÓN REQUERIDA">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#preguntas-al-usuario" class="md-nav__link">
+    <span class="md-ellipsis">
+      Preguntas al Usuario:
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#proximos-pasos-si-aprobado" class="md-nav__link">
+    <span class="md-ellipsis">
+      📝 PRÓXIMOS PASOS (si aprobado)
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="reporte-arquitectura-para-reglas-de-calculo-fiscal">REPORTE: Arquitectura para Reglas de Cálculo Fiscal<a class="headerlink" href="#reporte-arquitectura-para-reglas-de-calculo-fiscal" title="Permanent link">&para;</a></h1>
+<p><strong>Fecha:</strong> 2025-10-25
+<strong>Contexto:</strong> FASE 3 - Función Rectora Reglas Fiscales
+<strong>Problema:</strong> Determinar dónde almacenar reglas de cálculo (regla_base, regla_calculo, cascada, etc.)</p>
+<hr />
+<h2 id="contexto-del-problema">📋 CONTEXTO DEL PROBLEMA<a class="headerlink" href="#contexto-del-problema" title="Permanent link">&para;</a></h2>
+<h3 id="situacion-actual">Situación Actual<a class="headerlink" href="#situacion-actual" title="Permanent link">&para;</a></h3>
+<p><strong>Cambios unstaged:</strong>
+- Se agregaron 7 campos nuevos a <code>Mapeo Cuenta Fiscal Mexico</code> (child table)
+- Campos: regla_base, regla_calculo, cascada, alcance, habilitada, fundamento_legal, notas_calculo</p>
+<p><strong>Problema arquitectónico identificado:</strong></p>
+<p><code>Mapeo Cuenta Fiscal Mexico</code> es una <strong>child table</strong> de <code>Configuracion Fiscal Mexico</code>:</p>
+<div class="highlight"><pre><span></span><code>Configuracion Fiscal Mexico (1 doc por Company)
+└── mapeo_cuentas (Table field)
+    └── Mapeo Cuenta Fiscal Mexico (child table, istable: 1)
+        └── Cada fila: rol_fiscal → cuenta_impuesto
+</code></pre></div>
+<p><strong>Problema de duplicación:</strong>
+- Las reglas de cálculo son <strong>por rol_fiscal</strong> (IVA Nacional, IEPS Tabaco, etc.)
+- Las cuentas contables son solo el <strong>destino contable</strong> (no afectan cálculo)
+- Si usuario tiene 3 cuentas IVA Nacional → configuraría la misma regla 3 veces
+- Violación DRY (Don't Repeat Yourself)</p>
+<h3 id="requisitos-del-usuario">Requisitos del Usuario<a class="headerlink" href="#requisitos-del-usuario" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Usuario NO configura</strong> - Desarrolladores configuramos en el app</li>
+<li><strong>No repetición</strong> - Cada regla una sola vez (18 roles fiscales = 18 reglas)</li>
+<li><strong>Deployment automático</strong> - Fixtures/constantes que migran a producción</li>
+<li><strong>Zero-config</strong> - Nueva instalación funciona sin configuración manual (RG-009)</li>
+</ol>
+<hr />
+<h2 id="patrones-arquitectonicos-existentes">🏗️ PATRONES ARQUITECTÓNICOS EXISTENTES<a class="headerlink" href="#patrones-arquitectonicos-existentes" title="Permanent link">&para;</a></h2>
+<h3 id="patron-a-tablas-maestras-python-setup-o-utils">Patrón A: Tablas Maestras Python (setup/ o utils/)<a class="headerlink" href="#patron-a-tablas-maestras-python-setup-o-utils" title="Permanent link">&para;</a></h3>
+<p><strong>Ejemplo existente:</strong> <code>facturacion_mexico/setup/item_groups.py</code></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># TABLA MAESTRA ÚNICA - FUENTE DE VERDAD</span>
+<span class="n">TABLA_MAESTRA_GRUPOS_FISCALES</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="s2">&quot;Item Group Name&quot;</span><span class="p">,</span> <span class="s2">&quot;ITT Pattern&quot;</span><span class="p">,</span> <span class="s2">&quot;Categoría Fiscal&quot;</span><span class="p">,</span> <span class="s2">&quot;Tipo&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;Artículos IEPS Alcohol&quot;</span><span class="p">,</span> <span class="s2">&quot;ITT IEPS Alcohol - </span><span class="si">{suffix}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;Alcohol&quot;</span><span class="p">,</span> <span class="s2">&quot;IEPS&quot;</span><span class="p">),</span>
+    <span class="c1"># ... más filas</span>
+<span class="p">]</span>
+
+<span class="c1"># Constantes derivadas (auto-generadas)</span>
+<span class="n">ITEM_GROUP_ITT_MAP</span> <span class="o">=</span> <span class="p">{</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">TABLA_MAESTRA_GRUPOS_FISCALES</span><span class="p">}</span>
+<span class="n">ITEM_GROUP_CATEGORIA</span> <span class="o">=</span> <span class="p">{</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">row</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">TABLA_MAESTRA_GRUPOS_FISCALES</span><span class="p">}</span>
+<span class="n">CATEGORIAS_IEPS</span> <span class="o">=</span> <span class="p">{</span><span class="n">row</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">TABLA_MAESTRA_GRUPOS_FISCALES</span> <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;IEPS&quot;</span><span class="p">}</span>
+</code></pre></div>
+<p><strong>Ejemplo existente:</strong> <code>facturacion_mexico/utils/roles_fiscales.py</code></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Tabla maestra: (constante, rol_fiscal_exacto, categoria, descripcion)</span>
+<span class="n">TABLA_MAESTRA_ROLES_FISCALES</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="s2">&quot;IVA_NAC&quot;</span><span class="p">,</span> <span class="s2">&quot;IVA por Pagar (Nacional)&quot;</span><span class="p">,</span> <span class="s2">&quot;IVA&quot;</span><span class="p">,</span> <span class="s2">&quot;IVA Nacional&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;IVA_FRO&quot;</span><span class="p">,</span> <span class="s2">&quot;IVA por Pagar (Frontera)&quot;</span><span class="p">,</span> <span class="s2">&quot;IVA&quot;</span><span class="p">,</span> <span class="s2">&quot;IVA Frontera&quot;</span><span class="p">),</span>
+    <span class="c1"># ... 18 roles total</span>
+<span class="p">]</span>
+
+<span class="c1"># Auto-generar constantes ROL_* desde tabla maestra</span>
+<span class="k">for</span> <span class="n">const_name</span><span class="p">,</span> <span class="n">rol_exacto</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">TABLA_MAESTRA_ROLES_FISCALES</span><span class="p">:</span>
+    <span class="nb">globals</span><span class="p">()[</span><span class="sa">f</span><span class="s2">&quot;ROL_</span><span class="si">{</span><span class="n">const_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rol_exacto</span>
+</code></pre></div>
+<p><strong>Características:</strong>
+- ✅ Single source of truth
+- ✅ Versionado en git
+- ✅ Performance (no queries DB en runtime)
+- ✅ Inmutable (no modificable por usuario - es LO QUE QUEREMOS)
+- ✅ Zero-config deployment (código se despliega automáticamente)
+- ❌ Cambios requieren actualización app + migrate</p>
+<h3 id="patron-b-fixtures-json-fixtures">Patrón B: Fixtures JSON (fixtures/)<a class="headerlink" href="#patron-b-fixtures-json-fixtures" title="Permanent link">&para;</a></h3>
+<p><strong>Ejemplo existente:</strong> <code>facturacion_mexico/fixtures/item_group_fiscal_structure.json</code></p>
+<div class="highlight"><pre><span></span><code><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;doctype&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Item Group&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;item_group_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Artículos IEPS Alcohol&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;parent_item_group&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;All Item Groups&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">]</span>
+</code></pre></div>
+<p><strong>Características:</strong>
+- ✅ Zero-config deployment (RG-009)
+- ✅ Versionado en git
+- ✅ Modificable desde UI si necesario (raro)
+- ❌ Queries a DB en runtime (overhead performance)
+- ❌ Requiere DocType adicional</p>
+<hr />
+<h2 id="opciones-arquitectonicas-propuestas">🎯 OPCIONES ARQUITECTÓNICAS PROPUESTAS<a class="headerlink" href="#opciones-arquitectonicas-propuestas" title="Permanent link">&para;</a></h2>
+<h3 id="opcion-1-tabla-maestra-python-en-utilsreglas_calculo_fiscalpy">OPCIÓN 1: Tabla Maestra Python en utils/reglas_calculo_fiscal.py<a class="headerlink" href="#opcion-1-tabla-maestra-python-en-utilsreglas_calculo_fiscalpy" title="Permanent link">&para;</a></h3>
+<p><strong>Estructura propuesta:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">SINGLE SOURCE OF TRUTH - Reglas Cálculo Fiscal</span>
+<span class="sd">===============================================</span>
+<span class="sd">Define CÓMO se calculan los impuestos por cada rol_fiscal.</span>
+
+<span class="sd">Fuente canónica: TABLA_MAESTRA_REGLAS_CALCULO</span>
+<span class="sd">No modificar en otro archivo.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">facturacion_mexico.utils.roles_fiscales</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ROL_IVA_NAC</span><span class="p">,</span> <span class="n">ROL_IVA_FRO</span><span class="p">,</span> <span class="n">ROL_IVA_CERO</span><span class="p">,</span> <span class="n">ROL_IVA_EXENTO</span><span class="p">,</span>
+    <span class="n">ROL_IEPS_ALC</span><span class="p">,</span> <span class="n">ROL_IEPS_AZU</span><span class="p">,</span> <span class="n">ROL_IEPS_COMB</span><span class="p">,</span> <span class="n">ROL_IEPS_TAB</span><span class="p">,</span> <span class="n">ROL_IEPS_TABQ</span><span class="p">,</span>
+    <span class="n">ROL_RET_IVA_HON</span><span class="p">,</span> <span class="n">ROL_RET_IVA_ARR</span><span class="p">,</span> <span class="n">ROL_RET_IVA_AUTO</span><span class="p">,</span> <span class="n">ROL_RET_IVA_RESICO</span><span class="p">,</span>
+    <span class="n">ROL_RET_ISR_HON</span><span class="p">,</span> <span class="n">ROL_RET_ISR_ARR</span><span class="p">,</span> <span class="n">ROL_RET_ISR_AUTO</span><span class="p">,</span> <span class="n">ROL_RET_ISR_RESICO</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Tabla maestra: (rol_fiscal, regla_base, regla_calculo, cascada, alcance, habilitada, fundamento_legal, notas)</span>
+<span class="n">TABLA_MAESTRA_REGLAS_CALCULO</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c1"># IVA - Traslado porcentual sobre monto neto</span>
+    <span class="p">(</span><span class="n">ROL_IVA_NAC</span><span class="p">,</span> <span class="s2">&quot;monto_neto&quot;</span><span class="p">,</span> <span class="s2">&quot;porcentual&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;por_item&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;Ley IVA Art. 1&quot;</span><span class="p">,</span> <span class="s2">&quot;16</span><span class="si">% s</span><span class="s2">obre monto neto&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">ROL_IVA_FRO</span><span class="p">,</span> <span class="s2">&quot;monto_neto&quot;</span><span class="p">,</span> <span class="s2">&quot;porcentual&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;por_item&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;Ley IVA Art. 1&quot;</span><span class="p">,</span> <span class="s2">&quot;8% zona frontera&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">ROL_IVA_CERO</span><span class="p">,</span> <span class="s2">&quot;monto_neto&quot;</span><span class="p">,</span> <span class="s2">&quot;porcentual&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;por_item&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;Ley IVA Art. 2-A&quot;</span><span class="p">,</span> <span class="s2">&quot;0</span><span class="si">% e</span><span class="s2">xportación&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">ROL_IVA_EXENTO</span><span class="p">,</span> <span class="s2">&quot;monto_neto&quot;</span><span class="p">,</span> <span class="s2">&quot;porcentual&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;por_item&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;Ley IVA Art. 9&quot;</span><span class="p">,</span> <span class="s2">&quot;Exento de IVA&quot;</span><span class="p">),</span>
+
+    <span class="c1"># IEPS Tasa - Porcentual sobre monto neto</span>
+    <span class="p">(</span><span class="n">ROL_IEPS_ALC</span><span class="p">,</span> <span class="s2">&quot;monto_neto&quot;</span><span class="p">,</span> <span class="s2">&quot;porcentual&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;por_item&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;LIEPS Art. 2&quot;</span><span class="p">,</span> <span class="s2">&quot;IEPS Alcohol tasa&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">ROL_IEPS_AZU</span><span class="p">,</span> <span class="s2">&quot;monto_neto&quot;</span><span class="p">,</span> <span class="s2">&quot;porcentual&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;por_item&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;LIEPS Art. 2&quot;</span><span class="p">,</span> <span class="s2">&quot;IEPS Azúcar/Bebidas&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">ROL_IEPS_COMB</span><span class="p">,</span> <span class="s2">&quot;monto_neto&quot;</span><span class="p">,</span> <span class="s2">&quot;porcentual&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;por_item&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;LIEPS Art. 2&quot;</span><span class="p">,</span> <span class="s2">&quot;IEPS Combustibles&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">ROL_IEPS_TAB</span><span class="p">,</span> <span class="s2">&quot;monto_neto&quot;</span><span class="p">,</span> <span class="s2">&quot;porcentual&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;por_item&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;LIEPS Art. 2&quot;</span><span class="p">,</span> <span class="s2">&quot;IEPS Tabaco tasa&quot;</span><span class="p">),</span>
+
+    <span class="c1"># IEPS Cuota - Cuota unitaria por cantidad</span>
+    <span class="p">(</span><span class="n">ROL_IEPS_TABQ</span><span class="p">,</span> <span class="s2">&quot;cantidad&quot;</span><span class="p">,</span> <span class="s2">&quot;cuota&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;por_item&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;LIEPS Art. 2-A&quot;</span><span class="p">,</span> <span class="s2">&quot;Cuota × cantidad&quot;</span><span class="p">),</span>
+
+    <span class="c1"># Retenciones IVA - Retención sobre IVA trasladado</span>
+    <span class="p">(</span><span class="n">ROL_RET_IVA_HON</span><span class="p">,</span> <span class="s2">&quot;iva_trasladado&quot;</span><span class="p">,</span> <span class="s2">&quot;retención&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;por_item&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;Ley IVA Art. 1-A III&quot;</span><span class="p">,</span> <span class="s2">&quot;2/3 IVA&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">ROL_RET_IVA_ARR</span><span class="p">,</span> <span class="s2">&quot;iva_trasladado&quot;</span><span class="p">,</span> <span class="s2">&quot;retención&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;por_item&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;Ley IVA Art. 1-A II&quot;</span><span class="p">,</span> <span class="s2">&quot;10% IVA&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">ROL_RET_IVA_AUTO</span><span class="p">,</span> <span class="s2">&quot;iva_trasladado&quot;</span><span class="p">,</span> <span class="s2">&quot;retención&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;por_item&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;Ley IVA Art. 1-A IV&quot;</span><span class="p">,</span> <span class="s2">&quot;4% IVA&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">ROL_RET_IVA_RESICO</span><span class="p">,</span> <span class="s2">&quot;iva_trasladado&quot;</span><span class="p">,</span> <span class="s2">&quot;retención&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;por_item&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;Ley IVA Art. 1-A&quot;</span><span class="p">,</span> <span class="s2">&quot;Ret RESICO&quot;</span><span class="p">),</span>
+
+    <span class="c1"># Retenciones ISR - Retención sobre monto neto</span>
+    <span class="p">(</span><span class="n">ROL_RET_ISR_HON</span><span class="p">,</span> <span class="s2">&quot;monto_neto&quot;</span><span class="p">,</span> <span class="s2">&quot;retención&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;por_item&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;LISR Art. 106&quot;</span><span class="p">,</span> <span class="s2">&quot;10</span><span class="si">% ho</span><span class="s2">norarios&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">ROL_RET_ISR_ARR</span><span class="p">,</span> <span class="s2">&quot;monto_neto&quot;</span><span class="p">,</span> <span class="s2">&quot;retención&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;por_item&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;LISR Art. 116&quot;</span><span class="p">,</span> <span class="s2">&quot;10</span><span class="si">% a</span><span class="s2">rrendamiento&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">ROL_RET_ISR_AUTO</span><span class="p">,</span> <span class="s2">&quot;monto_neto&quot;</span><span class="p">,</span> <span class="s2">&quot;retención&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;por_item&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;LISR Art. 154&quot;</span><span class="p">,</span> <span class="s2">&quot;Autotransporte&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">ROL_RET_ISR_RESICO</span><span class="p">,</span> <span class="s2">&quot;monto_neto&quot;</span><span class="p">,</span> <span class="s2">&quot;retención&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;por_item&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;LISR Art. 113-E&quot;</span><span class="p">,</span> <span class="s2">&quot;1.25% RESICO&quot;</span><span class="p">),</span>
+<span class="p">]</span>
+
+<span class="c1"># Diccionarios derivados auto-generados</span>
+<span class="n">REGLAS_POR_ROL</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="p">{</span>
+        <span class="s2">&quot;regla_base&quot;</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+        <span class="s2">&quot;regla_calculo&quot;</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+        <span class="s2">&quot;cascada&quot;</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span>
+        <span class="s2">&quot;alcance&quot;</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span>
+        <span class="s2">&quot;habilitada&quot;</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span>
+        <span class="s2">&quot;fundamento_legal&quot;</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="mi">6</span><span class="p">],</span>
+        <span class="s2">&quot;notas_calculo&quot;</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="mi">7</span><span class="p">],</span>
+    <span class="p">}</span>
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">TABLA_MAESTRA_REGLAS_CALCULO</span>
+<span class="p">}</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">obtener_regla_calculo</span><span class="p">(</span><span class="n">rol_fiscal</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Obtiene reglas de cálculo para un rol fiscal.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        rol_fiscal: Nombre exacto del rol (ej: &quot;IVA por Pagar (Nacional)&quot;)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict con reglas o None si no existe</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; regla = obtener_regla_calculo(ROL_IVA_NAC)</span>
+<span class="sd">        &gt;&gt;&gt; print(regla[&quot;regla_base&quot;])</span>
+<span class="sd">        &quot;monto_neto&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">REGLAS_POR_ROL</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">rol_fiscal</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Uso en función rectora:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">facturacion_mexico.utils.reglas_calculo_fiscal</span><span class="w"> </span><span class="kn">import</span> <span class="n">obtener_regla_calculo</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">aplicar_reglas_calculo_impuestos</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">tax_row</span><span class="p">,</span> <span class="n">metadata</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Función rectora única para cálculos fiscales.&quot;&quot;&quot;</span>
+    <span class="n">rol_fiscal</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;rol_fiscal&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Obtener reglas desde tabla maestra</span>
+    <span class="n">reglas</span> <span class="o">=</span> <span class="n">obtener_regla_calculo</span><span class="p">(</span><span class="n">rol_fiscal</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">reglas</span><span class="p">:</span>
+        <span class="n">frappe</span><span class="o">.</span><span class="n">logger</span><span class="p">()</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No hay reglas definidas para </span><span class="si">{</span><span class="n">rol_fiscal</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span>  <span class="c1"># Bypass sin error</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">reglas</span><span class="p">[</span><span class="s2">&quot;habilitada&quot;</span><span class="p">]:</span>
+        <span class="n">frappe</span><span class="o">.</span><span class="n">logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Regla </span><span class="si">{</span><span class="n">rol_fiscal</span><span class="si">}</span><span class="s2"> deshabilitada, skipping&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="c1"># Aplicar lógica según reglas</span>
+    <span class="n">base</span> <span class="o">=</span> <span class="n">_obtener_base</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">tax_row</span><span class="p">,</span> <span class="n">reglas</span><span class="p">[</span><span class="s2">&quot;regla_base&quot;</span><span class="p">],</span> <span class="n">reglas</span><span class="p">[</span><span class="s2">&quot;alcance&quot;</span><span class="p">])</span>
+    <span class="n">monto</span> <span class="o">=</span> <span class="n">_calcular_monto</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">tax_row</span><span class="p">,</span> <span class="n">reglas</span><span class="p">[</span><span class="s2">&quot;regla_calculo&quot;</span><span class="p">])</span>
+    <span class="c1"># ...</span>
+</code></pre></div>
+<p><strong>Ventajas:</strong>
+- ✅ <strong>Zero duplicación</strong>: 18 roles = 18 reglas (una vez)
+- ✅ <strong>Performance</strong>: Sin queries DB en runtime
+- ✅ <strong>Inmutable</strong>: Usuario NO puede modificar (es LO QUE QUEREMOS)
+- ✅ <strong>Patrón establecido</strong>: Coherente con roles_fiscales.py e item_groups.py
+- ✅ <strong>Versionado</strong>: Git tracking completo
+- ✅ <strong>Zero-config</strong>: Se despliega con el código automáticamente
+- ✅ <strong>Reutilizable</strong>: Función rectora + generador templates usan misma tabla</p>
+<p><strong>Desventajas:</strong>
+- ❌ Cambios requieren actualización app (pero eso es aceptable - son reglas fiscales SAT)
+- ❌ No modificable desde UI (pero es LO QUE QUEREMOS - reglas fiscales no deben cambiar por usuario)</p>
+<hr />
+<h3 id="opcion-2-doctype-independiente-regla-calculo-fiscal-fixtures">OPCIÓN 2: DocType independiente "Regla Calculo Fiscal" + Fixtures<a class="headerlink" href="#opcion-2-doctype-independiente-regla-calculo-fiscal-fixtures" title="Permanent link">&para;</a></h3>
+<p><strong>Estructura propuesta:</strong></p>
+<p>Crear DocType <code>Regla Calculo Fiscal</code> (normal, NO child table):</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;doctype&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DocType&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Regla Calculo Fiscal&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;module&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Facturacion Fiscal&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;istable&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;fields&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;fieldname&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;rol_fiscal&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Rol Fiscal&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;fieldtype&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Link&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;options&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Rol Fiscal&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;reqd&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;unique&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;fieldname&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;regla_base&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Base de Cálculo&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;fieldtype&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Select&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;options&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;monto_neto\ncantidad\nfila_previa_monto\nfila_previa_total\niva_trasladado&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;monto_neto&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="c1">// ... resto campos</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Fixture <code>facturacion_mexico/fixtures/regla_calculo_fiscal.json</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;doctype&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Regla Calculo Fiscal&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;rol_fiscal&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;IVA por Pagar (Nacional)&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;regla_base&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;monto_neto&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;regla_calculo&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;porcentual&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;cascada&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;alcance&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;por_item&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;habilitada&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;fundamento_legal&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Ley IVA Art. 1&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;notas_calculo&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;16% sobre monto neto&quot;</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="c1">// ... 17 más</span>
+<span class="p">]</span>
+</code></pre></div>
+<p>Modificar <code>Mapeo Cuenta Fiscal Mexico</code>:
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;fieldname&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;regla_calculo_fiscal&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Regla de Cálculo&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;fieldtype&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Link&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;options&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Regla Calculo Fiscal&quot;</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<p><strong>Ventajas:</strong>
+- ✅ <strong>Zero duplicación</strong>: Link a regla única
+- ✅ <strong>Fixtures</strong>: RG-009 compliance (zero-config)
+- ✅ <strong>UI modificable</strong>: Si en futuro se necesita (raro)
+- ✅ <strong>Separación concerns</strong>: Reglas fiscales separadas de mapeo contable</p>
+<p><strong>Desventajas:</strong>
+- ❌ <strong>Queries DB</strong>: Overhead en runtime
+- ❌ <strong>DocType adicional</strong>: Complejidad arquitectónica
+- ❌ <strong>Modificable por usuario</strong>: Puede romper reglas fiscales (NO QUEREMOS)
+- ❌ <strong>Fixture sync</strong>: Debe mantenerse sincronizado con código</p>
+<hr />
+<h3 id="opcion-3-mantener-en-child-table-con-logica-auto-poblamiento">OPCIÓN 3: Mantener en Child Table con Lógica Auto-Poblamiento<a class="headerlink" href="#opcion-3-mantener-en-child-table-con-logica-auto-poblamiento" title="Permanent link">&para;</a></h3>
+<p><strong>Estructura:</strong></p>
+<p>Mantener los 7 campos agregados en <code>Mapeo Cuenta Fiscal Mexico</code> pero:
+- Auto-poblar reglas desde tabla maestra Python
+- Hook <code>before_save</code> en <code>Configuracion Fiscal Mexico</code> para sincronizar</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># En configuracion_fiscal_mexico.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">facturacion_mexico.utils.reglas_calculo_fiscal</span><span class="w"> </span><span class="kn">import</span> <span class="n">REGLAS_POR_ROL</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Auto-poblar reglas de cálculo desde tabla maestra.&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">mapeo</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapeo_cuentas</span><span class="p">:</span>
+        <span class="n">rol_fiscal</span> <span class="o">=</span> <span class="n">mapeo</span><span class="o">.</span><span class="n">rol_fiscal</span>
+
+        <span class="c1"># Obtener reglas desde tabla maestra</span>
+        <span class="n">reglas</span> <span class="o">=</span> <span class="n">REGLAS_POR_ROL</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">rol_fiscal</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">reglas</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># Auto-poblar si no hay configuración manual</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">mapeo</span><span class="o">.</span><span class="n">regla_base</span><span class="p">:</span>
+            <span class="n">mapeo</span><span class="o">.</span><span class="n">regla_base</span> <span class="o">=</span> <span class="n">reglas</span><span class="p">[</span><span class="s2">&quot;regla_base&quot;</span><span class="p">]</span>
+            <span class="n">mapeo</span><span class="o">.</span><span class="n">regla_calculo</span> <span class="o">=</span> <span class="n">reglas</span><span class="p">[</span><span class="s2">&quot;regla_calculo&quot;</span><span class="p">]</span>
+            <span class="n">mapeo</span><span class="o">.</span><span class="n">cascada</span> <span class="o">=</span> <span class="n">reglas</span><span class="p">[</span><span class="s2">&quot;cascada&quot;</span><span class="p">]</span>
+            <span class="n">mapeo</span><span class="o">.</span><span class="n">alcance</span> <span class="o">=</span> <span class="n">reglas</span><span class="p">[</span><span class="s2">&quot;alcance&quot;</span><span class="p">]</span>
+            <span class="n">mapeo</span><span class="o">.</span><span class="n">habilitada</span> <span class="o">=</span> <span class="n">reglas</span><span class="p">[</span><span class="s2">&quot;habilitada&quot;</span><span class="p">]</span>
+            <span class="n">mapeo</span><span class="o">.</span><span class="n">fundamento_legal</span> <span class="o">=</span> <span class="n">reglas</span><span class="p">[</span><span class="s2">&quot;fundamento_legal&quot;</span><span class="p">]</span>
+            <span class="n">mapeo</span><span class="o">.</span><span class="n">notas_calculo</span> <span class="o">=</span> <span class="n">reglas</span><span class="p">[</span><span class="s2">&quot;notas_calculo&quot;</span><span class="p">]</span>
+</code></pre></div>
+<p><strong>Ventajas:</strong>
+- ✅ <strong>Auto-poblamiento</strong>: Usuario no configura
+- ✅ <strong>Visible en UI</strong>: Usuario puede ver reglas aplicadas
+- ✅ <strong>Flexible</strong>: Permite override manual si necesario</p>
+<p><strong>Desventajas:</strong>
+- ❌ <strong>Duplicación en BD</strong>: Reglas repetidas en cada mapeo (si múltiples cuentas mismo rol)
+- ❌ <strong>Sincronización compleja</strong>: Hook debe mantener coherencia
+- ❌ <strong>Override peligroso</strong>: Usuario podría modificar y romper reglas fiscales
+- ❌ <strong>NO cumple requisito</strong>: Usuario NO debe configurar (aquí podría modificar)</p>
+<hr />
+<h2 id="comparativa-opciones">📊 COMPARATIVA OPCIONES<a class="headerlink" href="#comparativa-opciones" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Criterio</th>
+<th>OPCIÓN 1 (Tabla Maestra)</th>
+<th>OPCIÓN 2 (DocType+Fixture)</th>
+<th>OPCIÓN 3 (Child+Auto)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Zero duplicación</strong></td>
+<td>✅ Absoluto (18 reglas)</td>
+<td>✅ Link único</td>
+<td>❌ Repetido por cuenta</td>
+</tr>
+<tr>
+<td><strong>Performance</strong></td>
+<td>✅ Sin queries</td>
+<td>❌ Query DB</td>
+<td>⚠️ Queries + hook</td>
+</tr>
+<tr>
+<td><strong>Inmutabilidad</strong></td>
+<td>✅ Usuario NO modifica</td>
+<td>❌ Modificable UI</td>
+<td>❌ Override manual</td>
+</tr>
+<tr>
+<td><strong>Zero-config (RG-009)</strong></td>
+<td>✅ Código auto-deploy</td>
+<td>✅ Fixtures migrate</td>
+<td>⚠️ Hook auto-pobla</td>
+</tr>
+<tr>
+<td><strong>Patrón establecido</strong></td>
+<td>✅ item_groups.py, roles_fiscales.py</td>
+<td>⚠️ Nuevo patrón</td>
+<td>❌ Híbrido complejo</td>
+</tr>
+<tr>
+<td><strong>Versionado git</strong></td>
+<td>✅ Directo</td>
+<td>✅ Fixtures</td>
+<td>⚠️ Código + datos</td>
+</tr>
+<tr>
+<td><strong>Complejidad</strong></td>
+<td>✅ Simple (1 archivo)</td>
+<td>⚠️ DocType + fixture</td>
+<td>❌ Hook + sync logic</td>
+</tr>
+<tr>
+<td><strong>Reutilización</strong></td>
+<td>✅ Import directo</td>
+<td>⚠️ frappe.get_doc()</td>
+<td>❌ Solo vía mapeo</td>
+</tr>
+<tr>
+<td><strong>Requisito usuario NO configura</strong></td>
+<td>✅ Imposible modificar</td>
+<td>❌ Puede modificar UI</td>
+<td>❌ Puede override</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="recomendacion-tecnica">🎯 RECOMENDACIÓN TÉCNICA<a class="headerlink" href="#recomendacion-tecnica" title="Permanent link">&para;</a></h2>
+<h3 id="opcion-1-tabla-maestra-python-utilsreglas_calculo_fiscalpy">OPCIÓN 1: Tabla Maestra Python (utils/reglas_calculo_fiscal.py)<a class="headerlink" href="#opcion-1-tabla-maestra-python-utilsreglas_calculo_fiscalpy" title="Permanent link">&para;</a></h3>
+<p><strong>Justificación:</strong></p>
+<ol>
+<li><strong>Cumple TODOS los requisitos:</strong></li>
+<li>✅ Usuario NO configura (inmutable)</li>
+<li>✅ Zero duplicación (18 roles = 18 reglas)</li>
+<li>✅ Zero-config deployment (código se despliega)</li>
+<li>
+<p>✅ RG-009 compliance</p>
+</li>
+<li>
+<p><strong>Patrón establecido:</strong></p>
+</li>
+<li>Coherente con <code>roles_fiscales.py</code> (mismo propósito: definir reglas fiscales)</li>
+<li>Coherente con <code>item_groups.py</code> (tabla maestra + constantes derivadas)</li>
+<li>
+<p>Mantiene consistencia arquitectónica</p>
+</li>
+<li>
+<p><strong>Performance óptimo:</strong></p>
+</li>
+<li>Sin queries DB en runtime</li>
+<li>Cache en memoria (diccionarios Python)</li>
+<li>
+<p>Función rectora ejecuta miles de veces (cada item, cada tax row)</p>
+</li>
+<li>
+<p><strong>Mantenibilidad:</strong></p>
+</li>
+<li>Single source of truth absoluto</li>
+<li>Cambios fiscales SAT → actualizar tabla maestra → migrate</li>
+<li>
+<p>Git tracking completo de cambios regulatorios</p>
+</li>
+<li>
+<p><strong>Reutilización:</strong></p>
+</li>
+<li>Función rectora: <code>from utils.reglas_calculo_fiscal import obtener_regla_calculo</code></li>
+<li>Generador templates: mismo import</li>
+<li>Tests unitarios: mismo import</li>
+<li>Zero dependencies circulares</li>
+</ol>
+<h3 id="implementacion-propuesta">Implementación Propuesta<a class="headerlink" href="#implementacion-propuesta" title="Permanent link">&para;</a></h3>
+<p><strong>Paso 1:</strong> Descartar cambios unstaged en child table
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>restore<span class="w"> </span>facturacion_mexico/facturacion_fiscal/doctype/mapeo_cuenta_fiscal_mexico/mapeo_cuenta_fiscal_mexico.json
+</code></pre></div></p>
+<p><strong>Paso 2:</strong> Crear tabla maestra
+<div class="highlight"><pre><span></span><code><span class="c1"># Crear archivo nuevo</span>
+facturacion_mexico/utils/reglas_calculo_fiscal.py
+</code></pre></div></p>
+<p><strong>Paso 3:</strong> Modificar <code>Mapeo Cuenta Fiscal Mexico</code> (solo si necesario UI)
+- Agregar campos <strong>read_only</strong> para mostrar reglas aplicadas
+- Poblar desde Python en <code>configuracion_fiscal_mexico.py</code>
+- Solo display, NO editable</p>
+<p><strong>Paso 4:</strong> Implementar función rectora
+<div class="highlight"><pre><span></span><code><span class="c1"># facturacion_mexico/utils/calculo_impuestos.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">facturacion_mexico.utils.reglas_calculo_fiscal</span><span class="w"> </span><span class="kn">import</span> <span class="n">obtener_regla_calculo</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">aplicar_reglas_calculo_impuestos</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">tax_row</span><span class="p">,</span> <span class="n">metadata</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Función rectora única.&quot;&quot;&quot;</span>
+    <span class="n">reglas</span> <span class="o">=</span> <span class="n">obtener_regla_calculo</span><span class="p">(</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;rol_fiscal&quot;</span><span class="p">])</span>
+    <span class="c1"># ... lógica cálculo</span>
+</code></pre></div></p>
+<p><strong>Paso 5:</strong> Tests
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/test_reglas_calculo_fiscal.py</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_todas_las_reglas_definidas</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Verificar que los 18 roles tienen regla.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">facturacion_mexico.utils.roles_fiscales</span><span class="w"> </span><span class="kn">import</span> <span class="n">TODOS_LOS_ROLES</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">facturacion_mexico.utils.reglas_calculo_fiscal</span><span class="w"> </span><span class="kn">import</span> <span class="n">REGLAS_POR_ROL</span>
+
+    <span class="k">for</span> <span class="n">rol</span> <span class="ow">in</span> <span class="n">TODOS_LOS_ROLES</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">rol</span> <span class="ow">in</span> <span class="n">REGLAS_POR_ROL</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Falta regla para </span><span class="si">{</span><span class="n">rol</span><span class="si">}</span><span class="s2">&quot;</span>
+</code></pre></div></p>
+<hr />
+<h2 id="decision-requerida">🚨 DECISIÓN REQUERIDA<a class="headerlink" href="#decision-requerida" title="Permanent link">&para;</a></h2>
+<h3 id="preguntas-al-usuario">Preguntas al Usuario:<a class="headerlink" href="#preguntas-al-usuario" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p><strong>¿Aprobar OPCIÓN 1</strong> (Tabla Maestra Python en utils/reglas_calculo_fiscal.py)?</p>
+</li>
+<li>
+<p><strong>¿Descartar cambios unstaged</strong> en <code>mapeo_cuenta_fiscal_mexico.json</code>?</p>
+</li>
+<li>
+<p><strong>¿Agregar campos read_only</strong> en child table para mostrar reglas (opcional)?</p>
+</li>
+<li>Ventaja: Usuario ve qué reglas se aplican</li>
+<li>Complejidad: Hook para poblar desde Python</li>
+<li>
+<p>Alternativa: No mostrar, solo usar en función rectora</p>
+</li>
+<li>
+<p><strong>¿Incluir validación sincronización</strong> en tests (similar a <code>test_sync_roles_fiscales_json_python.py</code>)?</p>
+</li>
+<li>Valida que TODOS los roles tienen regla definida</li>
+<li>Previene agregar rol_fiscal sin regla de cálculo</li>
+</ol>
+<hr />
+<h2 id="proximos-pasos-si-aprobado">📝 PRÓXIMOS PASOS (si aprobado)<a class="headerlink" href="#proximos-pasos-si-aprobado" title="Permanent link">&para;</a></h2>
+<p><strong>PASO 1 CORREGIDO:</strong> Descartar cambios child table + Crear tabla maestra (1.5h)
+1. <code>git restore mapeo_cuenta_fiscal_mexico.json</code>
+2. Crear <code>facturacion_mexico/utils/reglas_calculo_fiscal.py</code>
+3. Definir TABLA_MAESTRA_REGLAS_CALCULO (18 filas)
+4. Generar diccionarios derivados
+5. Crear función <code>obtener_regla_calculo()</code></p>
+<p><strong>PASO 2:</strong> Implementar función rectora (2h)
+- Crear <code>facturacion_mexico/utils/calculo_impuestos.py</code>
+- Función <code>aplicar_reglas_calculo_impuestos()</code>
+- Helpers: <code>_calcular_porcentual()</code>, <code>_calcular_cuota()</code>, <code>_calcular_retencion()</code></p>
+<p><strong>PASO 3:</strong> Tests sincronización (1h)
+- <code>test_todas_las_reglas_definidas()</code>
+- <code>test_reglas_coherentes()</code>
+- <code>test_obtener_regla_calculo()</code></p>
+<p><strong>PASO 4:</strong> Refactorizar hooks (1h)
+- Modificar <code>sales_invoice_ieps.py</code>
+- Usar función rectora en lugar de lógica hardcoded</p>
+<p><strong>PASO 5:</strong> Tests E2E (2h)
+- Verificar cálculos con reglas desde tabla maestra</p>
+<hr />
+<p><strong>Total estimado:</strong> 7.5h (vs 8h original, pero arquitectura correcta)</p>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Volver al principio
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 Facturación México - Documentación Técnica
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/tu-org/facturacion_mexico" target="_blank" rel="noopener" title="GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+      <div class="md-consent" data-md-component="consent" id="__consent" hidden>
+        <div class="md-consent__overlay"></div>
+        <aside class="md-consent__inner">
+          <form class="md-consent__form md-grid md-typeset" name="consent">
+            
+
+  
+    
+  
+
+
+
+
+
+<h4>Consentimiento de cookies</h4>
+<p>Utilizamos cookies para reconocer tus visitas repetidas y preferencias, así como para medir la efectividad de nuestra documentación y si los usuarios encuentran lo que están buscando. Con tu consentimiento, nos ayudas a mejorar nuestra documentación.
+</p>
+<input class="md-toggle" type="checkbox" id="__settings" >
+<div class="md-consent__settings">
+  <ul class="task-list">
+    
+      
+      
+        
+        
+      
+      <li class="task-list-item">
+        <label class="task-list-control">
+          <input type="checkbox" name="analytics" checked>
+          <span class="task-list-indicator"></span>
+          Google Analytics
+        </label>
+      </li>
+    
+  </ul>
+</div>
+<div class="md-consent__controls">
+  
+    
+      <button class="md-button md-button--primary">Aceptar</button>
+    
+    
+    
+  
+    
+    
+      <button type="reset" class="md-button md-button--primary">Rechazar</button>
+    
+    
+  
+    
+    
+    
+      <label class="md-button" for="__settings">Gestionar cookies</label>
+    
+  
+</div>
+          </form>
+        </aside>
+      </div>
+      <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout(function(){document.querySelector("[data-md-component=consent]").hidden=!1},250);var action,form=document.forms.consent;for(action of["submit","reset"])form.addEventListener(action,function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map(function(e){return[e,!0]}))),location.hash="",location.reload()})</script>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.expand", "navigation.instant", "navigation.sections", "navigation.tabs", "navigation.top", "search.highlight", "search.suggest"], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copiado al portapapeles", "clipboard.copy": "Copiar al portapapeles", "search.result.more.one": "1 m\u00e1s en esta p\u00e1gina", "search.result.more.other": "# m\u00e1s en esta p\u00e1gina", "search.result.none": "No se encontraron documentos", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Teclee para comenzar b\u00fasqueda", "search.result.term.missing": "Falta", "select.version": "Seleccionar versi\u00f3n"}, "version": {"default": "latest", "provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7c377c4.min.js"></script>
+      
+        <script src="../../assets/javascripts/extra.js"></script>
+      
+        <script src="../../assets/javascripts/advanced.js"></script>
+      
+    
+  </body>
+</html>

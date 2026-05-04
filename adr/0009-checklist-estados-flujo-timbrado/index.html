@@ -20,7 +20,7 @@
     
     
       
-        <title>📋 Índice de Planes de Implementación - Facturación México - Documentación Técnica</title>
+        <title>ADR 0009 — CHECKLIST ESTADOS Y FLUJO DE TIMBRADO - Facturación México - Documentación Técnica</title>
       
     
     
@@ -86,7 +86,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#indice-de-planes-de-implementacion" class="md-skip">
+        <a href="#adr-0009-checklist-estados-y-flujo-de-timbrado" class="md-skip">
           Saltar a contenido
         </a>
       
@@ -124,7 +124,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              📋 Índice de Planes de Implementación
+              ADR 0009 — CHECKLIST ESTADOS Y FLUJO DE TIMBRADO
             
           </span>
         </div>
@@ -850,28 +850,64 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#planes-activos" class="md-nav__link">
+  <a href="#estado-del-ultimo-timbrado-verificado" class="md-nav__link">
     <span class="md-ellipsis">
-      🟢 Planes Activos
+      Estado del último timbrado verificado
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="🟢 Planes Activos">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-estados" class="md-nav__link">
+    <span class="md-ellipsis">
+      Diagrama de estados
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#transiciones-de-estado-ffm" class="md-nav__link">
+    <span class="md-ellipsis">
+      Transiciones de estado FFM
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Transiciones de estado FFM">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#testing-y-validacion" class="md-nav__link">
+  <a href="#borrador-procesando-timbrado-flujo-normal" class="md-nav__link">
     <span class="md-ellipsis">
-      Testing y Validación
+      BORRADOR → PROCESANDO → TIMBRADO (flujo normal)
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#arquitectura-y-framework" class="md-nav__link">
+  <a href="#timbrado-cancelado-pendiente_cancelacion" class="md-nav__link">
     <span class="md-ellipsis">
-      Arquitectura y Framework
+      TIMBRADO → CANCELADO / PENDIENTE_CANCELACION
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pendiente_cancelacion-cancelado-o-timbrado-resolucion-sat" class="md-nav__link">
+    <span class="md-ellipsis">
+      PENDIENTE_CANCELACION → CANCELADO o → TIMBRADO (resolución SAT)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#timbrado-error-error-borrador-reintento" class="md-nav__link">
+    <span class="md-ellipsis">
+      TIMBRADO / ERROR → ERROR → BORRADOR (reintento)
     </span>
   </a>
   
@@ -883,19 +919,37 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#planes-programados" class="md-nav__link">
+  <a href="#proteccion-contra-cancelacion-de-sales-invoice" class="md-nav__link">
     <span class="md-ellipsis">
-      🟡 Planes Programados
+      Protección contra cancelación de Sales Invoice
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="🟡 Planes Programados">
+    <nav class="md-nav" aria-label="Protección contra cancelación de Sales Invoice">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#integracion-y-compliance" class="md-nav__link">
+  <a href="#capa-1-frontend-js" class="md-nav__link">
     <span class="md-ellipsis">
-      Integración y Compliance
+      Capa 1 — Frontend (JS)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#capa-2-server-hook-before_cancel-de-si" class="md-nav__link">
+    <span class="md-ellipsis">
+      Capa 2 — Server hook (before_cancel de SI)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#capa-3-override-class-ffm-before_cancel-de-ffm" class="md-nav__link">
+    <span class="md-ellipsis">
+      Capa 3 — Override class FFM (before_cancel de FFM)
     </span>
   </a>
   
@@ -907,60 +961,36 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#planes-completados" class="md-nav__link">
+  <a href="#secuencia-de-cancelacion-correcta" class="md-nav__link">
     <span class="md-ellipsis">
-      🟢 Planes Completados
+      Secuencia de cancelación correcta
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#convenciones" class="md-nav__link">
+  <a href="#checklist-verificacion-post-timbrado" class="md-nav__link">
     <span class="md-ellipsis">
-      📋 Convenciones
+      Checklist verificación post-timbrado
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="📋 Convenciones">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#estructura-estandar-plan" class="md-nav__link">
-    <span class="md-ellipsis">
-      Estructura Estándar Plan:
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#categorias-disponibles" class="md-nav__link">
-    <span class="md-ellipsis">
-      Categorías Disponibles:
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#estados-plan" class="md-nav__link">
-    <span class="md-ellipsis">
-      Estados Plan:
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#agregar-nuevo-plan" class="md-nav__link">
+  <a href="#checklist-verificacion-post-cancelacion" class="md-nav__link">
     <span class="md-ellipsis">
-      🎯 Agregar Nuevo Plan
+      Checklist verificación post-cancelación
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#errores-criticos-y-como-identificarlos" class="md-nav__link">
+    <span class="md-ellipsis">
+      Errores críticos y cómo identificarlos
     </span>
   </a>
   
@@ -981,83 +1011,392 @@
                   
 
 
-<h1 id="indice-de-planes-de-implementacion">📋 Índice de Planes de Implementación<a class="headerlink" href="#indice-de-planes-de-implementacion" title="Permanent link">&para;</a></h1>
-<p><strong>Proyecto:</strong> Facturación México
-<strong>Propósito:</strong> Registro central de todos los planes ejecutables del proyecto</p>
+<h1 id="adr-0009-checklist-estados-y-flujo-de-timbrado">ADR 0009 — CHECKLIST ESTADOS Y FLUJO DE TIMBRADO<a class="headerlink" href="#adr-0009-checklist-estados-y-flujo-de-timbrado" title="Permanent link">&para;</a></h1>
+<p>====================================================
+Fecha: 2026-05-02
+Site: facturacion-v16.dev
+Fuente: Análisis de timbrado_api.py, factura_fiscal_mexico.py, overrides.py,
+        sales_invoice_cancel_guard.py, sales_invoice_block_cancel.js</p>
 <hr />
-<h2 id="planes-activos">🟢 <strong>Planes Activos</strong><a class="headerlink" href="#planes-activos" title="Permanent link">&para;</a></h2>
-<h3 id="testing-y-validacion"><strong>Testing y Validación</strong><a class="headerlink" href="#testing-y-validacion" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong><a href="../planes/plan-testing-sistema-facturacion/testing-ui-ux-sistema-facturacion/">testing-ui-ux-sistema-facturacion.md</a></strong></li>
-<li><strong>Estado:</strong> ⏳ Pendiente ejecución</li>
-<li><strong>Objetivo:</strong> Validación completa UI/UX y lógica de negocio</li>
-<li><strong>Cobertura:</strong> 62 casos (básicos → intermedios → avanzados)</li>
-<li><strong>Tiempo estimado:</strong> 6 horas</li>
-<li><strong>Última actualización:</strong> 2025-09-17</li>
-</ul>
-<h3 id="arquitectura-y-framework"><strong>Arquitectura y Framework</strong><a class="headerlink" href="#arquitectura-y-framework" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong><a href="../arquitectura-testing/">arquitectura-testing.md</a></strong></li>
-<li><strong>Estado:</strong> ✅ Documentado</li>
-<li><strong>Objetivo:</strong> Framework 4-layer testing comprehensivo</li>
-<li><strong>Metodología:</strong> REGLA #33 (progresivo) + REGLA #34 (strengthening)</li>
-<li><strong>Cobertura:</strong> 49 archivos, 105+ tests, 4700+ líneas código</li>
-<li><strong>Última actualización:</strong> 2025-09-22</li>
-</ul>
+<h2 id="estado-del-ultimo-timbrado-verificado">Estado del último timbrado verificado<a class="headerlink" href="#estado-del-ultimo-timbrado-verificado" title="Permanent link">&para;</a></h2>
+<p><strong>FFM:</strong> <code>FFMX-2026-00002</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sales_invoice</code></td>
+<td>ACC-SINV-2026-00001</td>
+</tr>
+<tr>
+<td><code>fm_uuid</code></td>
+<td>AC82DF3E-89FE-4F14-9AFB-D9D417C62964</td>
+</tr>
+<tr>
+<td><code>fm_fiscal_status</code></td>
+<td>TIMBRADO</td>
+</tr>
+<tr>
+<td><code>serie</code></td>
+<td>F</td>
+</tr>
+<tr>
+<td><code>folio</code></td>
+<td>270</td>
+</tr>
+<tr>
+<td><code>total_fiscal</code></td>
+<td>$498.80</td>
+</tr>
+<tr>
+<td><code>fecha_timbrado</code></td>
+<td>2026-05-02 12:03:21</td>
+</tr>
+<tr>
+<td><code>facturapi_id</code></td>
+<td>69f63c6914917afe07e4bdb3</td>
+</tr>
+</tbody>
+</table>
+<p><strong>SI vinculada:</strong> <code>ACC-SINV-2026-00001</code>
+- <code>status</code>: Unpaid | <code>docstatus</code>: 1 | <code>fm_fiscal_status</code>: TIMBRADO
+- <code>fm_factura_fiscal_mx</code>: FFMX-2026-00002</p>
+<p><strong>Response Log:</strong> <code>FAPI-LOG-2026-00002</code>
+- <code>operation_type</code>: Timbrado | <code>success</code>: 1 | <code>status_code</code>: 200</p>
+<p><strong>Archivos adjuntos:</strong>
+- PDF: <code>FFMX-2026-000024ecfaf.pdf</code> (155,572 bytes)
+- XML: <code>FFMX-2026-000029c848e.xml</code> (5,093 bytes)</p>
 <hr />
-<h2 id="planes-programados">🟡 <strong>Planes Programados</strong><a class="headerlink" href="#planes-programados" title="Permanent link">&para;</a></h2>
-<h3 id="integracion-y-compliance"><strong>Integración y Compliance</strong><a class="headerlink" href="#integracion-y-compliance" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong><a href="../planes/plan-fiscal-implementacion-mx-e0-e8/PLAN-FISCAL-IMPLEMENTACION-MX-E0-E8/">PLAN-FISCAL-IMPLEMENTACION-MX-E0-E8.md</a></strong></li>
-<li><strong>Estado:</strong> 🔄 En ejecución</li>
-<li><strong>Objetivo:</strong> Implementación completa sistema fiscal mexicano (E0-E8)</li>
-<li><strong>Issues:</strong> #65, #66</li>
-<li><strong>Rama:</strong> <code>feat/mx-fiscal-E0-E3-issues-65-66</code></li>
-<li><strong>Cobertura:</strong> Items SAT, IVA automático, IEPS, Retenciones, CFDI 4.0, Anticipos/Pagos 2.0</li>
-<li><strong>Tiempo estimado:</strong> 8 etapas progresivas</li>
-<li><strong>Última actualización:</strong> 2025-09-22</li>
-</ul>
-<hr />
-<h2 id="planes-completados">🟢 <strong>Planes Completados</strong><a class="headerlink" href="#planes-completados" title="Permanent link">&para;</a></h2>
-<p><em>[Historial de planes ejecutados exitosamente]</em></p>
-<hr />
-<h2 id="convenciones">📋 <strong>Convenciones</strong><a class="headerlink" href="#convenciones" title="Permanent link">&para;</a></h2>
-<h3 id="estructura-estandar-plan"><strong>Estructura Estándar Plan:</strong><a class="headerlink" href="#estructura-estandar-plan" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>planes/plan-[categoria]-[objetivo]/
-├── [nombre-descriptivo-plan].md     # Plan principal ejecutable
-├── evidencias/                      # Screenshots y capturas
-├── resultados/                      # Reportes de ejecución
-└── config/                          # Configuración plan-específica
+<h2 id="diagrama-de-estados">Diagrama de estados<a class="headerlink" href="#diagrama-de-estados" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>                    ┌─────────────────────────────────────────────┐
+                    │         FACTURA FISCAL MEXICO                │
+                    └─────────────────────────────────────────────┘
+
+  [nuevo]──submit──▶ BORRADOR ──timbrar_factura()──▶ PROCESANDO
+                        ▲                                │
+                        │                       ┌───────┴───────┐
+                        │                    éxito PAC       error PAC
+                        │                       │               │
+                  reintento                      ▼               ▼
+                        │                    TIMBRADO ◀────── ERROR
+                        └────────────────────────┤
+                                                 │ cancelar_factura()
+                                        ┌────────┴────────┐
+                                   PAC acepta       PAC pendiente
+                                        │               │
+                                        ▼               ▼
+                                    CANCELADO   PENDIENTE_CANCELACION
+                                   [FINAL]          │
+                                                     │ SAT confirma / rechaza
+                                            ┌────────┴────────┐
+                                       confirma           rechaza
+                                            │               │
+                                            ▼               ▼
+                                        CANCELADO       TIMBRADO
 </code></pre></div>
-<h3 id="categorias-disponibles"><strong>Categorías Disponibles:</strong><a class="headerlink" href="#categorias-disponibles" title="Permanent link">&para;</a></h3>
-<ul>
-<li><code>testing</code> - Planes de testing y validación</li>
-<li><code>performance</code> - Planes de carga y rendimiento</li>
-<li><code>migracion</code> - Planes de migración de datos</li>
-<li><code>integracion</code> - Planes de integración con terceros</li>
-<li><code>security</code> - Planes de auditoría de seguridad</li>
-<li><code>compliance</code> - Planes de cumplimiento normativo</li>
-</ul>
-<h3 id="estados-plan"><strong>Estados Plan:</strong><a class="headerlink" href="#estados-plan" title="Permanent link">&para;</a></h3>
-<ul>
-<li>⏳ <strong>Pendiente</strong> - Plan creado, no ejecutado</li>
-<li>🔄 <strong>En ejecución</strong> - Plan actualmente ejecutándose</li>
-<li>✅ <strong>Completado</strong> - Plan ejecutado exitosamente</li>
-<li>❌ <strong>Fallido</strong> - Plan ejecutado con errores críticos</li>
-<li>🕐 <strong>Programado</strong> - Plan agendado para fecha futura</li>
-<li>🚫 <strong>Cancelado</strong> - Plan cancelado/obsoleto</li>
-</ul>
+<div class="highlight"><pre><span></span><code>                    ┌─────────────────────────────────────────────┐
+                    │            SALES INVOICE                     │
+                    └─────────────────────────────────────────────┘
+
+  Draft ──submit──▶ Submitted (fm_fiscal_status vacío)
+                         │
+                    timbrar_factura()
+                         │
+                    fm_fiscal_status = TIMBRADO
+                         │
+                    [BLOQUEADA para cancelar hasta que FFM = CANCELADO]
+                         │
+                    FFM cancelada en PAC + Frappe
+                         │
+                    SI puede cancelarse ──▶ Cancelled
+</code></pre></div>
 <hr />
-<h2 id="agregar-nuevo-plan">🎯 <strong>Agregar Nuevo Plan</strong><a class="headerlink" href="#agregar-nuevo-plan" title="Permanent link">&para;</a></h2>
-<ol>
-<li>Crear directorio: <code>planes/plan-[categoria]-[objetivo]/</code></li>
-<li>Copiar template desde <code>templates/</code></li>
-<li>Nombrar archivo descriptivo (no genérico)</li>
-<li>Actualizar este PLAN-INDEX.md</li>
-<li>Seguir estructura estándar subdirectorios</li>
-</ol>
+<h2 id="transiciones-de-estado-ffm">Transiciones de estado FFM<a class="headerlink" href="#transiciones-de-estado-ffm" title="Permanent link">&para;</a></h2>
+<h3 id="borrador-procesando-timbrado-flujo-normal">BORRADOR → PROCESANDO → TIMBRADO (flujo normal)<a class="headerlink" href="#borrador-procesando-timbrado-flujo-normal" title="Permanent link">&para;</a></h3>
+<p><strong>Cuándo:</strong> llamada a <code>timbrar_factura(sales_invoice_name)</code></p>
+<p><strong>Validaciones previas (FASE 1):</strong>
+- <code>SI.docstatus == 1</code> (submitted) — si no: throw
+- <code>SI.fm_fiscal_status != TIMBRADO</code> — si ya timbrado: throw
+- <code>SI.customer</code> existe
+- <code>Customer.tax_id</code> (RFC) no vacío — si no: throw
+- Address primaria existe — si no: throw
+- <code>Address.country</code> válido (México/MEX/MX) — si no: throw
+- <code>Factura Fiscal Mexico</code> existe y está submitted — si no: throw
+- <code>FFM.fm_cfdi_use</code> no vacío — si no: throw
+- <code>SI.items</code> no vacío — si no: throw</p>
+<p><strong>Transición:</strong>
+<div class="highlight"><pre><span></span><code>BORRADOR → PROCESANDO  (set_value al iniciar llamada PAC)
+         → TIMBRADO    (set_value en _process_timbrado_success)
+         → ERROR       (set_value si falla PAC o Frappe post-PAC)
+</code></pre></div></p>
+<p><strong>Campos actualizados al TIMBRADO:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Campo FFM</th>
+<th>Fuente</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fm_fiscal_status</code></td>
+<td><code>"TIMBRADO"</code></td>
+</tr>
+<tr>
+<td><code>fm_uuid</code></td>
+<td><code>response["uuid"]</code></td>
+</tr>
+<tr>
+<td><code>facturapi_id</code></td>
+<td><code>response["id"]</code></td>
+</tr>
+<tr>
+<td><code>fecha_timbrado</code></td>
+<td><code>response["stamp"]["date"]</code> o <code>now_datetime()</code></td>
+</tr>
+<tr>
+<td><code>serie</code></td>
+<td><code>response["series"]</code> (si viene)</td>
+</tr>
+<tr>
+<td><code>folio</code></td>
+<td><code>response["folio_number"]</code> (solo número, sin prefijo)</td>
+</tr>
+<tr>
+<td><code>total_fiscal</code></td>
+<td><code>response["total"]</code></td>
+</tr>
+<tr>
+<td><code>fm_xml_url</code></td>
+<td><code>response["xml_url"]</code> (si viene)</td>
+</tr>
+<tr>
+<td><code>fm_pdf_url</code></td>
+<td><code>response["pdf_url"]</code> (si viene)</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Campo SI</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fm_fiscal_status</code></td>
+<td><code>"TIMBRADO"</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Qué debe verse en UI:</strong>
+- FFM: estado <code>TIMBRADO</code> en badge
+- FFM: UUID visible, folio y serie asignados
+- FFM: PDF y XML adjuntos (si <code>download_files_default = 1</code>)
+- SI: badge fiscal <code>TIMBRADO</code>, campo <code>fm_factura_fiscal_mx</code> con link a FFM</p>
+<p><strong>Errores posibles:</strong>
+- <code>PROCESANDO</code> quedó sin resolver (timeout / Frappe caído post-PAC) → usar recovery worker
+- <code>ERROR</code> con mensaje: ver <code>user_message</code> en respuesta y en FacturAPI Response Log</p>
 <hr />
-<p><em>Para detalles técnicos de cada plan, consultar archivo específico en su directorio correspondiente.</em></p>
+<h3 id="timbrado-cancelado-pendiente_cancelacion">TIMBRADO → CANCELADO / PENDIENTE_CANCELACION<a class="headerlink" href="#timbrado-cancelado-pendiente_cancelacion" title="Permanent link">&para;</a></h3>
+<p><strong>Cuándo:</strong> llamada a <code>cancelar_factura(sales_invoice, motivo, [substitution_uuid])</code></p>
+<p><strong>Validaciones previas:</strong>
+- <code>SI.fm_fiscal_status == TIMBRADO</code> — si no: throw
+- <code>FFM.fm_uuid</code> existe (hubo timbrado real) — si no: throw
+- Motivo válido (01–04 SAT)
+- Motivo 01 solo desde flujo de sustitución (requiere <code>substitution_uuid</code>)</p>
+<p><strong>Transición según respuesta PAC:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Estado PAC devuelto</th>
+<th>Estado FFM resultante</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>"valid"</code> / <code>"canceled"</code></td>
+<td><code>CANCELADO</code></td>
+</tr>
+<tr>
+<td><code>"pending"</code> / <code>"in_process"</code></td>
+<td><code>PENDIENTE_CANCELACION</code></td>
+</tr>
+<tr>
+<td>Respuesta inesperada</td>
+<td><code>PENDIENTE_CANCELACION</code> (fallback)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Campos actualizados:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Campo FFM</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fm_fiscal_status</code></td>
+<td><code>CANCELADO</code> o <code>PENDIENTE_CANCELACION</code></td>
+</tr>
+<tr>
+<td><code>cancellation_reason</code></td>
+<td>motivo SAT</td>
+</tr>
+<tr>
+<td><code>cancellation_date</code></td>
+<td>fecha cancelación</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Campo SI</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fm_fiscal_status</code></td>
+<td>mismo estado que FFM</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Qué debe verse en UI:</strong>
+- FFM: badge <code>CANCELADO</code> o <code>PENDIENTE_CANCELACION</code>
+- SI: botón Cancel visible (si FFM = CANCELADO) o bloqueado (si PENDIENTE)</p>
+<hr />
+<h3 id="pendiente_cancelacion-cancelado-o-timbrado-resolucion-sat">PENDIENTE_CANCELACION → CANCELADO o → TIMBRADO (resolución SAT)<a class="headerlink" href="#pendiente_cancelacion-cancelado-o-timbrado-resolucion-sat" title="Permanent link">&para;</a></h3>
+<p><strong>Cuándo:</strong> SAT confirma o rechaza la cancelación (job <code>process_pending_complements</code> o acción manual)</p>
+<p><strong>Sin validaciones activas</strong> — el estado se actualiza cuando el PAC reporta resolución.</p>
+<hr />
+<h3 id="timbrado-error-error-borrador-reintento">TIMBRADO / ERROR → ERROR → BORRADOR (reintento)<a class="headerlink" href="#timbrado-error-error-borrador-reintento" title="Permanent link">&para;</a></h3>
+<p><strong>Cuándo:</strong> el usuario corrige datos y reintenta timbrar después de un error.</p>
+<p><strong>Matriz de transiciones permitidas</strong> (validada en <code>validate_status_transitions</code>):</p>
+<div class="highlight"><pre><span></span><code><span class="kc">None</span>      <span class="err">→</span> <span class="p">[</span><span class="s2">&quot;BORRADOR&quot;</span><span class="p">]</span>
+<span class="s2">&quot;&quot;</span>        <span class="err">→</span> <span class="p">[</span><span class="s2">&quot;BORRADOR&quot;</span><span class="p">]</span>
+<span class="n">BORRADOR</span>  <span class="err">→</span> <span class="p">[</span><span class="s2">&quot;PROCESANDO&quot;</span><span class="p">,</span> <span class="s2">&quot;TIMBRADO&quot;</span><span class="p">,</span> <span class="s2">&quot;CANCELADO&quot;</span><span class="p">,</span> <span class="s2">&quot;ERROR&quot;</span><span class="p">]</span>
+<span class="n">PROCESANDO</span><span class="err">→</span> <span class="p">[</span><span class="s2">&quot;TIMBRADO&quot;</span><span class="p">,</span> <span class="s2">&quot;ERROR&quot;</span><span class="p">,</span> <span class="s2">&quot;CANCELADO&quot;</span><span class="p">]</span>
+<span class="n">TIMBRADO</span>  <span class="err">→</span> <span class="p">[</span><span class="s2">&quot;CANCELADO&quot;</span><span class="p">,</span> <span class="s2">&quot;PENDIENTE_CANCELACION&quot;</span><span class="p">]</span>
+<span class="n">ERROR</span>     <span class="err">→</span> <span class="p">[</span><span class="s2">&quot;BORRADOR&quot;</span><span class="p">,</span> <span class="s2">&quot;PROCESANDO&quot;</span><span class="p">,</span> <span class="s2">&quot;TIMBRADO&quot;</span><span class="p">]</span>   <span class="c1"># puede reintentarse</span>
+<span class="n">CANCELADO</span> <span class="err">→</span> <span class="p">[]</span>                                        <span class="c1"># FINAL — sin transición</span>
+<span class="n">PENDIENTE_CANCELACION</span> <span class="err">→</span> <span class="p">[</span><span class="s2">&quot;CANCELADO&quot;</span><span class="p">,</span> <span class="s2">&quot;TIMBRADO&quot;</span><span class="p">]</span>
+</code></pre></div>
+<p>Cualquier transición fuera de esta matriz lanza <code>ValidationError</code>.</p>
+<hr />
+<h2 id="proteccion-contra-cancelacion-de-sales-invoice">Protección contra cancelación de Sales Invoice<a class="headerlink" href="#proteccion-contra-cancelacion-de-sales-invoice" title="Permanent link">&para;</a></h2>
+<p>Tres capas independientes — cualquiera puede bloquear:</p>
+<h3 id="capa-1-frontend-js">Capa 1 — Frontend (JS)<a class="headerlink" href="#capa-1-frontend-js" title="Permanent link">&para;</a></h3>
+<p><code>public/js/sales_invoice_block_cancel.js</code> — se ejecuta en cada <code>refresh</code> de SI submitted:
+1. Llama a <code>can_cancel_sales_invoice(si_name)</code> (endpoint whitelisted)
+2. Si <code>allowed = False</code>: oculta botón Cancel + muestra headline naranja con razón
+3. Si hay error de red: NO oculta (evita bloquear por error de red — el server-hook sigue protegiendo)</p>
+<h3 id="capa-2-server-hook-before_cancel-de-si">Capa 2 — Server hook (before_cancel de SI)<a class="headerlink" href="#capa-2-server-hook-before_cancel-de-si" title="Permanent link">&para;</a></h3>
+<p><code>validaciones/sales_invoice_cancel_guard.py</code> → hook <code>before_cancel</code> en Sales Invoice:
+1. Busca FFM vinculada (por <code>sales_invoice</code> en FFM o por <code>fm_factura_fiscal_mx</code> en SI)
+2. Si FFM existe con <code>docstatus=1</code> y <code>fm_fiscal_status</code> ∉ <code>{CANCELADO, CANCELADA, CANCELLED, CANCELLED_OK, CANCELED}</code> → <code>raise ValidationError</code>
+3. Si no hay FFM vinculada → permite cancelar</p>
+<h3 id="capa-3-override-class-ffm-before_cancel-de-ffm">Capa 3 — Override class FFM (before_cancel de FFM)<a class="headerlink" href="#capa-3-override-class-ffm-before_cancel-de-ffm" title="Permanent link">&para;</a></h3>
+<p><code>factura_fiscal_mexico.py → before_cancel()</code>:
+- Si <code>fm_uuid</code> existe y <code>fm_fiscal_status != "CANCELADO"</code> → throw con instrucciones de secuencia correcta
+- Solo bypass si <code>fm_uuid</code> es None y <code>flags.allow_local_cancel = True</code> (para FFMs sin timbrado)</p>
+<p><code>overrides.py → cancel()</code>:
+- Verifica que <code>fm_fiscal_status</code> esté en <code>CANCELADO_FISCAL</code> antes de proceder
+- Si no → throw "Primero cancela en el PAC"
+- Si sí → <code>flags.ignore_links = True</code> para evitar <code>LinkExistsError</code> al cancelar con SI vinculada</p>
+<hr />
+<h2 id="secuencia-de-cancelacion-correcta">Secuencia de cancelación correcta<a class="headerlink" href="#secuencia-de-cancelacion-correcta" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>1. Botón &quot;Cancelar en FacturAPI&quot; en FFM
+   → cancelar_factura() → PAC procesa → FFM.fm_fiscal_status = CANCELADO
+
+2. Botón &quot;Cancel&quot; en FFM (Frappe)
+   → before_cancel: verifica fm_fiscal_status = CANCELADO ✓
+   → overrides.cancel: flags.ignore_links = True
+   → FFM.docstatus = 2
+
+3. Botón &quot;Cancel&quot; en Sales Invoice
+   → before_cancel guard: FFM docstatus=2 → permite ✓
+   → SI.docstatus = 2
+</code></pre></div>
+<p><strong>Si el PAC responde PENDIENTE_CANCELACION:</strong>
+- FFM queda en <code>PENDIENTE_CANCELACION</code>
+- SI sigue bloqueada para cancelar
+- Esperar que el SAT procese (job nocturno o acción manual)
+- Cuando PAC confirme → FFM → <code>CANCELADO</code> → continúa secuencia</p>
+<hr />
+<h2 id="checklist-verificacion-post-timbrado">Checklist verificación post-timbrado<a class="headerlink" href="#checklist-verificacion-post-timbrado" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>☐ FFM.fm_fiscal_status = TIMBRADO
+☐ FFM.fm_uuid poblado (36 chars UUID)
+☐ FFM.facturapi_id poblado
+☐ FFM.fecha_timbrado poblado
+☐ FFM.total_fiscal = SI.grand_total (validar discrepancia)
+☐ FFM tiene PDF adjunto (si download_files_default = 1)
+☐ FFM tiene XML adjunto (si download_files_default = 1)
+☐ FacturAPI Response Log: operation_type=Timbrado, success=1, status_code=200
+☐ SI.fm_fiscal_status = TIMBRADO
+☐ SI.fm_factura_fiscal_mx = FFM.name
+☐ Botón Cancel en SI: oculto / headline &quot;Cancelación bloqueada&quot;
+</code></pre></div>
+<h2 id="checklist-verificacion-post-cancelacion">Checklist verificación post-cancelación<a class="headerlink" href="#checklist-verificacion-post-cancelacion" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>☐ FFM.fm_fiscal_status = CANCELADO
+☐ FFM.docstatus = 2 (cancelado en Frappe)
+☐ FFM.cancellation_reason poblado
+☐ FacturAPI Response Log: operation_type=Cancelación, success=1
+☐ SI.fm_fiscal_status = CANCELADO
+☐ Botón Cancel en SI: visible
+☐ SI.docstatus = 2 (si se completó cancelación en Frappe)
+</code></pre></div>
+<hr />
+<h2 id="errores-criticos-y-como-identificarlos">Errores críticos y cómo identificarlos<a class="headerlink" href="#errores-criticos-y-como-identificarlos" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Error</th>
+<th>Causa</th>
+<th>Dónde buscar</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FFM queda en PROCESANDO</td>
+<td>Timeout o Frappe caído post-PAC</td>
+<td>FacturAPI Response Log + recovery worker</td>
+</tr>
+<tr>
+<td>FFM en ERROR con UUID</td>
+<td>PAC timbró pero Frappe falló al guardar</td>
+<td>Response Log tiene UUID — recuperar con <code>process_sync_errors</code></td>
+</tr>
+<tr>
+<td>FFM en PENDIENTE_CANCELACION mucho tiempo</td>
+<td>SAT no procesa</td>
+<td>Verificar en portal SAT con UUID</td>
+</tr>
+<tr>
+<td>SI bloqueada para cancelar sin FFM visible</td>
+<td>FFM existe en docstatus=1 pero no en UI</td>
+<td>Buscar FFM directamente por sales_invoice</td>
+</tr>
+<tr>
+<td>LinkExistsError al cancelar FFM</td>
+<td>Bug pre-override</td>
+<td>Ya corregido en overrides.py via <code>flags.ignore_links</code></td>
+</tr>
+<tr>
+<td>Amend de FFM bloqueado</td>
+<td>Correcto por diseño</td>
+<td>Crear nueva FFM en lugar de corregir</td>
+</tr>
+</tbody>
+</table>
 
 
 

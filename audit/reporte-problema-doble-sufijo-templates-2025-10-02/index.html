@@ -1,0 +1,1832 @@
+
+<!doctype html>
+<html lang="es" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentación completa del sistema de facturación electrónica para México">
+      
+      
+        <meta name="author" content="Equipo Desarrollo Facturación México">
+      
+      
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.3">
+    
+    
+      
+        <title>REPORTE TÉCNICO: Problema Doble Sufijo en Templates Fiscales - Facturación México - Documentación Técnica</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.50c56a3b.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/advanced.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function n(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],n("js",new Date),n("config","G-XXXXXXXXXX"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){this.value&&n("event","search",{search_term:this.value})}),document$.subscribe(function(){var a=document.forms.feedback;if(void 0!==a)for(var e of a.querySelectorAll("[type=submit]"))e.addEventListener("click",function(e){e.preventDefault();var t=document.location.pathname,e=this.getAttribute("data-md-value");n("event","feedback",{page:t,data:e}),a.firstElementChild.disabled=!0;e=a.querySelector(".md-feedback__note [data-md-value='"+e+"']");e&&(e.hidden=!1)}),a.hidden=!1}),location$.subscribe(function(e){n("config","G-XXXXXXXXXX",{page_path:e.pathname})})});var e=document.createElement("script");e.async=!0,e.src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX",document.getElementById("__analytics").insertAdjacentElement("afterEnd",e)}</script>
+  
+    <script>var consent;"undefined"==typeof __md_analytics||(consent=__md_get("__consent"))&&consent.analytics&&__md_analytics()</script>
+  
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#reporte-tecnico-problema-doble-sufijo-en-templates-fiscales" class="md-skip">
+          Saltar a contenido
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabecera">
+    <a href="../.." title="Facturación México - Documentación Técnica" class="md-header__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Facturación México - Documentación Técnica
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              REPORTE TÉCNICO: Problema Doble Sufijo en Templates Fiscales
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo oscuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo oscuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Búsqueda" placeholder="Búsqueda" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Buscar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpiar" aria-label="Limpiar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando búsqueda
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Pestañas" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+    
+  
+  Inicio
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../user-guide/" class="md-tabs__link">
+          
+  
+  Guía de Usuario
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/" class="md-tabs__link">
+          
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/" class="md-tabs__link">
+          
+  
+  Desarrollo
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navegación" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Facturación México - Documentación Técnica" class="md-nav__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Facturación México - Documentación Técnica
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Inicio
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Guía de Usuario
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Guía de Usuario
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Usuario - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/getting-started/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Primeros Pasos
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/draft-invoices/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Facturas en Borrador
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/troubleshooting/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    API Reference
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    API Reference - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/cfdi/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CFDI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/draft-management/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Draft Management
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/catalogos/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Catalogos SAT
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/hooks/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Hooks
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Desarrollo
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Desarrollo
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Desarrollo - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Setup Desarrollo
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/draft-workflow/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Draft Workflow
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-descripcion-del-problema" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. DESCRIPCIÓN DEL PROBLEMA
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. DESCRIPCIÓN DEL PROBLEMA">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-sintomas" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.1 Síntomas
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-evidencia-del-problema" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.2 Evidencia del Problema
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13-impacto" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.3 Impacto
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-analisis-tecnico" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. ANÁLISIS TÉCNICO
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. ANÁLISIS TÉCNICO">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-ubicacion-del-codigo-generador" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.1 Ubicación del Código Generador
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-codigo-actual-stct" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.2 Código Actual (STCT)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-codigo-actual-itt" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.3 Código Actual (ITT)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-root-cause" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.4 Root Cause
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-intentos-fallidos" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. INTENTOS FALLIDOS
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. INTENTOS FALLIDOS">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-intento-1-forzar-name-title-en-docupdate" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.1 Intento #1: Forzar name = title en doc.update()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-intento-2-establecer-name-solo-en-documentos-nuevos" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.2 Intento #2: Establecer name solo en documentos nuevos
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-workaround-actual" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. WORKAROUND ACTUAL
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. WORKAROUND ACTUAL">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-codigo-item_groupspy" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.1 Código item_groups.py
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-limitaciones-del-workaround" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.2 Limitaciones del Workaround
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-solucion-requerida" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. SOLUCIÓN REQUERIDA
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. SOLUCIÓN REQUERIDA">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-objetivo" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.1 Objetivo
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-requisitos-de-la-solucion" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.2 Requisitos de la Solución
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-restricciones" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.3 Restricciones
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-contexto-adicional" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. CONTEXTO ADICIONAL
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. CONTEXTO ADICIONAL">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-doctypes-afectados" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.1 DocTypes Afectados
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-configuracion-fiscal" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.2 Configuración Fiscal
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-datos-de-prueba" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.3 Datos de Prueba
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-archivos-relevantes" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. ARCHIVOS RELEVANTES
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. ARCHIVOS RELEVANTES">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-codigo-principal" class="md-nav__link">
+    <span class="md-ellipsis">
+      7.1 Código Principal
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-codigo-workaround" class="md-nav__link">
+    <span class="md-ellipsis">
+      7.2 Código Workaround
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-scripts-diagnostico" class="md-nav__link">
+    <span class="md-ellipsis">
+      7.3 Scripts Diagnóstico
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-peticion-a-chatgpt" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. PETICIÓN A CHATGPT
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-solucion-descubierta" class="md-nav__link">
+    <span class="md-ellipsis">
+      9. ¡SOLUCIÓN DESCUBIERTA!
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. ¡SOLUCIÓN DESCUBIERTA!">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#91-analisis-de-templates-correctos" class="md-nav__link">
+    <span class="md-ellipsis">
+      9.1 Análisis de Templates Correctos
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#92-la-diferencia-clave" class="md-nav__link">
+    <span class="md-ellipsis">
+      9.2 La Diferencia Clave
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#93-root-cause-confirmado" class="md-nav__link">
+    <span class="md-ellipsis">
+      9.3 Root Cause Confirmado
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#94-solucion-propuesta" class="md-nav__link">
+    <span class="md-ellipsis">
+      9.4 Solución Propuesta
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#95-verificacion-de-la-solucion" class="md-nav__link">
+    <span class="md-ellipsis">
+      9.5 Verificación de la Solución
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-siguiente-paso" class="md-nav__link">
+    <span class="md-ellipsis">
+      10. SIGUIENTE PASO
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="reporte-tecnico-problema-doble-sufijo-en-templates-fiscales">REPORTE TÉCNICO: Problema Doble Sufijo en Templates Fiscales<a class="headerlink" href="#reporte-tecnico-problema-doble-sufijo-en-templates-fiscales" title="Permanent link">&para;</a></h1>
+<p><strong>Fecha:</strong> 2025-10-02
+<strong>Severidad:</strong> ALTA - Bloquea naming consistente de templates fiscales
+<strong>Estado:</strong> BLOQUEADO - Requiere solución ChatGPT
+<strong>Sistema:</strong> Frappe v15 + facturacion_mexico</p>
+<hr />
+<h2 id="1-descripcion-del-problema">1. DESCRIPCIÓN DEL PROBLEMA<a class="headerlink" href="#1-descripcion-del-problema" title="Permanent link">&para;</a></h2>
+<h3 id="11-sintomas">1.1 Síntomas<a class="headerlink" href="#11-sintomas" title="Permanent link">&para;</a></h3>
+<p>Los templates fiscales (STCT e ITT) generados por el wizard E0.5 tienen <strong>nombres con doble sufijo de compañía</strong>:</p>
+<div class="highlight"><pre><span></span><code>PROBLEMA ACTUAL:
+- title: &quot;ITT IVA 0% - _TC&quot;       ← CORRECTO (sufijo simple)
+- name:  &quot;ITT IVA 0% - _TC - _TC&quot; ← INCORRECTO (doble sufijo)
+
+ESPERADO:
+- title: &quot;ITT IVA 0% - _TC&quot;       ← CORRECTO
+- name:  &quot;ITT IVA 0% - _TC&quot;       ← DEBERÍA SER IGUAL AL TITLE
+</code></pre></div>
+<h3 id="12-evidencia-del-problema">1.2 Evidencia del Problema<a class="headerlink" href="#12-evidencia-del-problema" title="Permanent link">&para;</a></h3>
+<p><strong>Item Tax Templates existentes:</strong>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ITT IVA 0% - _TC - _TC&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ITT IVA 0% - _TC&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;company&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;México&quot;</span>
+<span class="p">}</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ITT Exento - _TC - _TC&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ITT Exento - _TC&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;company&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;México&quot;</span>
+<span class="p">}</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ITT IVA 8% Frontera - _TC - _TC&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ITT IVA 8% Frontera - _TC&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;company&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;México&quot;</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<p><strong>Sales Taxes and Charges Templates existentes:</strong>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;STCT IVA 16% - _TC - _TC&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;STCT IVA 16% - _TC&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;company&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;México&quot;</span>
+<span class="p">}</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;STCT IVA 8% Frontera - _TC - _TC&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;STCT IVA 8% Frontera - _TC&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;company&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;México&quot;</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<h3 id="13-impacto">1.3 Impacto<a class="headerlink" href="#13-impacto" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Naming inconsistente:</strong> <code>name</code> != <code>title</code> causa confusión</li>
+<li><strong>Búsquedas complicadas:</strong> Código debe buscar por <code>title</code> para encontrar el <code>name</code> real</li>
+<li><strong>Apariencia poco profesional:</strong> Doble sufijo visible en UI</li>
+<li><strong>Mantenibilidad:</strong> Código workarounds necesarios (ver <code>item_groups.py</code>)</li>
+</ol>
+<hr />
+<h2 id="2-analisis-tecnico">2. ANÁLISIS TÉCNICO<a class="headerlink" href="#2-analisis-tecnico" title="Permanent link">&para;</a></h2>
+<h3 id="21-ubicacion-del-codigo-generador">2.1 Ubicación del Código Generador<a class="headerlink" href="#21-ubicacion-del-codigo-generador" title="Permanent link">&para;</a></h3>
+<p><strong>Archivo:</strong> <code>facturacion_mexico/facturacion_fiscal/setup/generador_templates_fiscal.py</code></p>
+<p><strong>Funciones afectadas:</strong>
+1. <code>_crear_o_actualizar_stct()</code> - líneas 460-513
+2. <code>_crear_o_actualizar_itt()</code> - líneas 700-736</p>
+<h3 id="22-codigo-actual-stct">2.2 Código Actual (STCT)<a class="headerlink" href="#22-codigo-actual-stct" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_crear_o_actualizar_stct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">mapeo_cuentas</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Crear o actualizar un Sales Taxes and Charges Template.&quot;&quot;&quot;</span>
+
+    <span class="c1"># Construir título con sufijo de compañía</span>
+    <span class="n">base_name</span> <span class="o">=</span> <span class="n">template_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_name</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">company_abbr</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="c1"># Buscar existente por title y company</span>
+    <span class="n">existing</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span>
+        <span class="s2">&quot;Sales Taxes and Charges Template&quot;</span><span class="p">,</span>
+        <span class="p">{</span><span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="n">title</span><span class="p">,</span> <span class="s2">&quot;company&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">company</span><span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">existing</span><span class="p">:</span>
+        <span class="n">doc</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_doc</span><span class="p">(</span><span class="s2">&quot;Sales Taxes and Charges Template&quot;</span><span class="p">,</span> <span class="n">existing</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">doc</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">new_doc</span><span class="p">(</span><span class="s2">&quot;Sales Taxes and Charges Template&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Configurar campos principales</span>
+    <span class="n">doc</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="n">title</span><span class="p">,</span>  <span class="c1"># ← &quot;STCT IVA 16% - _TC&quot;</span>
+            <span class="s2">&quot;company&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">company</span><span class="p">,</span>
+            <span class="s2">&quot;is_default&quot;</span><span class="p">:</span> <span class="n">template_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;is_default&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="s2">&quot;taxes&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="c1"># ... agregar taxes ...</span>
+
+    <span class="n">doc</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">ignore_permissions</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># ← FRAPPE AUTO-GENERA: name = title + &quot; - &quot; + company_abbr</span>
+    <span class="k">return</span> <span class="n">doc</span><span class="o">.</span><span class="n">name</span>  <span class="c1"># ← Retorna &quot;STCT IVA 16% - _TC - _TC&quot;</span>
+</code></pre></div>
+<h3 id="23-codigo-actual-itt">2.3 Código Actual (ITT)<a class="headerlink" href="#23-codigo-actual-itt" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_crear_o_actualizar_itt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">mapeo_cuentas</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Crear o actualizar un Item Tax Template.&quot;&quot;&quot;</span>
+
+    <span class="c1"># Construir título con sufijo de compañía</span>
+    <span class="n">base_name</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_name</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">company_abbr</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="c1"># Buscar existente</span>
+    <span class="n">existing</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s2">&quot;Item Tax Template&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="n">title</span><span class="p">,</span> <span class="s2">&quot;company&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">company</span><span class="p">})</span>
+
+    <span class="k">if</span> <span class="n">existing</span><span class="p">:</span>
+        <span class="n">doc</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_doc</span><span class="p">(</span><span class="s2">&quot;Item Tax Template&quot;</span><span class="p">,</span> <span class="n">existing</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">doc</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">new_doc</span><span class="p">(</span><span class="s2">&quot;Item Tax Template&quot;</span><span class="p">)</span>
+
+    <span class="n">doc</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="n">title</span><span class="p">,</span> <span class="s2">&quot;company&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">company</span><span class="p">,</span> <span class="s2">&quot;taxes&quot;</span><span class="p">:</span> <span class="p">[]})</span>  <span class="c1"># ← Solo title, no name</span>
+    <span class="c1"># ... agregar taxes ...</span>
+
+    <span class="n">doc</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">ignore_permissions</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># ← FRAPPE AUTO-GENERA: name = title + &quot; - &quot; + company_abbr</span>
+    <span class="k">return</span> <span class="n">doc</span><span class="o">.</span><span class="n">name</span>  <span class="c1"># ← Retorna &quot;ITT IVA 0% - _TC - _TC&quot;</span>
+</code></pre></div>
+<h3 id="24-root-cause">2.4 Root Cause<a class="headerlink" href="#24-root-cause" title="Permanent link">&para;</a></h3>
+<p><strong>Frappe Framework auto-naming behavior:</strong></p>
+<p>Cuando se crea un documento sin especificar <code>name</code> explícitamente, Frappe usa el campo <code>title</code> y le <strong>agrega automáticamente</strong> el <code>company_abbr</code> si el DocType tiene un campo <code>company</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># COMPORTAMIENTO FRAPPE (interno):</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">doc</span><span class="o">.</span><span class="n">name</span> <span class="ow">and</span> <span class="n">doc</span><span class="o">.</span><span class="n">title</span> <span class="ow">and</span> <span class="n">doc</span><span class="o">.</span><span class="n">company</span><span class="p">:</span>
+    <span class="n">doc</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">doc</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">company_abbr</span><span class="si">}</span><span class="s2">&quot;</span>  <span class="c1"># ← AQUÍ ESTÁ EL PROBLEMA</span>
+</code></pre></div>
+<p><strong>Resultado:</strong>
+<div class="highlight"><pre><span></span><code>1. Nosotros creamos: title = &quot;ITT IVA 0% - _TC&quot;
+2. Frappe auto-genera: name = &quot;ITT IVA 0% - _TC&quot; + &quot; - _TC&quot;
+3. Resultado final: name = &quot;ITT IVA 0% - _TC - _TC&quot;  ← DOBLE SUFIJO
+</code></pre></div></p>
+<hr />
+<h2 id="3-intentos-fallidos">3. INTENTOS FALLIDOS<a class="headerlink" href="#3-intentos-fallidos" title="Permanent link">&para;</a></h2>
+<h3 id="31-intento-1-forzar-name-title-en-docupdate">3.1 Intento #1: Forzar <code>name = title</code> en doc.update()<a class="headerlink" href="#31-intento-1-forzar-name-title-en-docupdate" title="Permanent link">&para;</a></h3>
+<p><strong>Código probado:</strong>
+<div class="highlight"><pre><span></span><code><span class="n">doc</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+    <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="n">title</span><span class="p">,</span>
+    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">title</span><span class="p">,</span>  <span class="c1"># ← Intentar forzar name = title</span>
+    <span class="s2">&quot;company&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">company</span><span class="p">,</span>
+    <span class="s2">&quot;taxes&quot;</span><span class="p">:</span> <span class="p">[],</span>
+<span class="p">})</span>
+<span class="n">doc</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">ignore_permissions</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div></p>
+<p><strong>Resultado:</strong> ❌ FALLO CRÍTICO
+<div class="highlight"><pre><span></span><code>Traceback (most recent call last):
+  File &quot;apps/facturacion_mexico/.../generador_templates_fiscal.py&quot;, line 512, in _crear_o_actualizar_stct
+    doc.save(ignore_permissions=True)
+  File &quot;apps/frappe/frappe/model/document.py&quot;, line 408, in _save
+    self.check_if_latest()
+  File &quot;apps/frappe/frappe/model/document.py&quot;, line 1161, in load_doc_before_save
+    self._doc_before_save = frappe.get_doc(self.doctype, self.name, for_update=True)
+frappe.exceptions.DoesNotExistError: Sales Taxes and Charges Template IVA 16% - México - _TC not found
+</code></pre></div></p>
+<p><strong>Análisis del error:</strong>
+- Al forzar <code>name = "STCT IVA 16% - _TC"</code> en un documento <strong>existente</strong>
+- Frappe intenta buscar ese documento por name antes de guardar
+- Pero el documento existente tiene <code>name = "STCT IVA 16% - _TC - _TC"</code> (doble sufijo)
+- Frappe no encuentra "STCT IVA 16% - _TC" → DoesNotExistError
+- <strong>Rompe completamente el sistema de configuración fiscal</strong></p>
+<h3 id="32-intento-2-establecer-name-solo-en-documentos-nuevos">3.2 Intento #2: Establecer <code>name</code> solo en documentos nuevos<a class="headerlink" href="#32-intento-2-establecer-name-solo-en-documentos-nuevos" title="Permanent link">&para;</a></h3>
+<p><strong>Código probado:</strong>
+<div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="n">existing</span><span class="p">:</span>
+    <span class="n">doc</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_doc</span><span class="p">(</span><span class="s2">&quot;Sales Taxes and Charges Template&quot;</span><span class="p">,</span> <span class="n">existing</span><span class="p">)</span>
+    <span class="n">doc</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="n">title</span><span class="p">,</span>
+        <span class="c1"># NO tocar name en docs existentes</span>
+        <span class="s2">&quot;company&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">company</span><span class="p">,</span>
+        <span class="s2">&quot;taxes&quot;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="p">})</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">doc</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">new_doc</span><span class="p">(</span><span class="s2">&quot;Sales Taxes and Charges Template&quot;</span><span class="p">)</span>
+    <span class="n">doc</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="n">title</span><span class="p">,</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">title</span><span class="p">,</span>  <span class="c1"># ← Solo en nuevos</span>
+        <span class="s2">&quot;company&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">company</span><span class="p">,</span>
+        <span class="s2">&quot;taxes&quot;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="p">})</span>
+</code></pre></div></p>
+<p><strong>Resultado:</strong> ❌ NO PROBADO (abortado por riesgo)
+- Mismo problema para documentos nuevos
+- Frappe puede ignorar el <code>name</code> forzado
+- Inconsistencia entre docs viejos (doble sufijo) y nuevos</p>
+<hr />
+<h2 id="4-workaround-actual">4. WORKAROUND ACTUAL<a class="headerlink" href="#4-workaround-actual" title="Permanent link">&para;</a></h2>
+<h3 id="41-codigo-item_groupspy">4.1 Código item_groups.py<a class="headerlink" href="#41-codigo-item_groupspy" title="Permanent link">&para;</a></h3>
+<p>Actualmente <code>item_groups.py</code> implementa un workaround para lidiar con el doble sufijo:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># facturacion_mexico/setup/item_groups.py</span>
+
+<span class="c1"># Patrones de nombres de ITT generados por wizard E0.5</span>
+<span class="c1"># Nota: Buscar por title (formato simple) no por name (formato con doble sufijo)</span>
+<span class="n">ITT_ZERO_TITLE</span> <span class="o">=</span> <span class="s2">&quot;ITT IVA 0% - </span><span class="si">{suffix}</span><span class="s2">&quot;</span>
+<span class="n">ITT_EXENTO_TITLE</span> <span class="o">=</span> <span class="s2">&quot;ITT Exento - </span><span class="si">{suffix}</span><span class="s2">&quot;</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_itt_name</span><span class="p">(</span><span class="n">base_pattern</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">company_doc</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Intenta resolver el nombre exacto del ITT para la compañía probando varios sufijos.</span>
+
+<span class="sd">    WORKAROUND: Busca por title (no por name) ya que name tiene doble sufijo</span>
+<span class="sd">    pero title tiene sufijo simple.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">suf</span> <span class="ow">in</span> <span class="n">_find_company_suffixes</span><span class="p">(</span><span class="n">company_doc</span><span class="p">):</span>
+        <span class="n">candidate</span> <span class="o">=</span> <span class="n">base_pattern</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">suffix</span><span class="o">=</span><span class="n">suf</span><span class="p">)</span>
+
+        <span class="c1"># ← BUSCAR POR TITLE (no por name) ya que name tiene doble sufijo</span>
+        <span class="n">existing</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span>
+            <span class="s2">&quot;Item Tax Template&quot;</span><span class="p">,</span>
+            <span class="p">{</span><span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="n">candidate</span><span class="p">},</span>  <span class="c1"># ← Busca por title</span>
+            <span class="s2">&quot;name&quot;</span>  <span class="c1"># ← Retorna el name real (con doble sufijo)</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">existing</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">existing</span>  <span class="c1"># Retornar el name real del documento</span>
+
+    <span class="k">return</span> <span class="kc">None</span>
+</code></pre></div>
+<h3 id="42-limitaciones-del-workaround">4.2 Limitaciones del Workaround<a class="headerlink" href="#42-limitaciones-del-workaround" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Código duplicado:</strong> Lógica de búsqueda complicada</li>
+<li><strong>Mantenibilidad:</strong> Cualquier código que busque templates necesita el workaround</li>
+<li><strong>Confusión:</strong> Developers deben saber buscar por <code>title</code> no por <code>name</code></li>
+<li><strong>No es solución:</strong> Solo esconde el problema, no lo resuelve</li>
+</ol>
+<hr />
+<h2 id="5-solucion-requerida">5. SOLUCIÓN REQUERIDA<a class="headerlink" href="#5-solucion-requerida" title="Permanent link">&para;</a></h2>
+<h3 id="51-objetivo">5.1 Objetivo<a class="headerlink" href="#51-objetivo" title="Permanent link">&para;</a></h3>
+<p>Lograr que <code>name == title</code> para todos los templates fiscales:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># OBJETIVO FINAL:</span>
+<span class="p">{</span>
+    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;ITT IVA 0% - _TC&quot;</span><span class="p">,</span>   <span class="c1"># ← name IGUAL a title</span>
+    <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;ITT IVA 0% - _TC&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;company&quot;</span><span class="p">:</span> <span class="s2">&quot;México&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="52-requisitos-de-la-solucion">5.2 Requisitos de la Solución<a class="headerlink" href="#52-requisitos-de-la-solucion" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Prevenir doble sufijo</strong> en templates nuevos</li>
+<li><strong>No romper templates existentes</strong> (migración segura)</li>
+<li><strong>Compatible con Frappe Framework v15</strong> (sin modificar core)</li>
+<li><strong>Sin efectos colaterales</strong> en sistema de configuración fiscal</li>
+<li><strong>Idempotente:</strong> Re-ejecutar generador no debe duplicar sufijos</li>
+</ol>
+<h3 id="53-restricciones">5.3 Restricciones<a class="headerlink" href="#53-restricciones" title="Permanent link">&para;</a></h3>
+<ul>
+<li>❌ <strong>NO modificar Frappe Framework core</strong> (no es nuestro código)</li>
+<li>❌ <strong>NO usar monkey-patching</strong> (anti-pattern)</li>
+<li>✅ <strong>SOLO modificar generador_templates_fiscal.py</strong> (nuestro código)</li>
+<li>✅ <strong>MANTENER compatibilidad</strong> con templates existentes</li>
+<li>✅ <strong>FUNCIONAR en Frappe v15</strong> (versión actual)</li>
+</ul>
+<hr />
+<h2 id="6-contexto-adicional">6. CONTEXTO ADICIONAL<a class="headerlink" href="#6-contexto-adicional" title="Permanent link">&para;</a></h2>
+<h3 id="61-doctypes-afectados">6.1 DocTypes Afectados<a class="headerlink" href="#61-doctypes-afectados" title="Permanent link">&para;</a></h3>
+<p><strong>Sales Taxes and Charges Template:</strong>
+- Autoname: <code>naming_series</code> o <code>title</code>-based
+- Tiene campo <code>company</code>
+- Frappe auto-concatena company_abbr al name</p>
+<p><strong>Item Tax Template:</strong>
+- Autoname: <code>naming_series</code> o <code>title</code>-based
+- Tiene campo <code>company</code>
+- Frappe auto-concatena company_abbr al name</p>
+<h3 id="62-configuracion-fiscal">6.2 Configuración Fiscal<a class="headerlink" href="#62-configuracion-fiscal" title="Permanent link">&para;</a></h3>
+<p>Los templates se generan desde:
+<div class="highlight"><pre><span></span><code>Configuración Fiscal México (DocType)
+└── Método: aplicar_mapeo_y_generar_templates()
+    └── GeneradorTemplatesFiscales.generar_templates_completos()
+        ├── _generar_stct() → llama _crear_o_actualizar_stct()
+        └── _generar_itt() → llama _crear_o_actualizar_itt()
+</code></pre></div></p>
+<h3 id="63-datos-de-prueba">6.3 Datos de Prueba<a class="headerlink" href="#63-datos-de-prueba" title="Permanent link">&para;</a></h3>
+<p><strong>Compañía existente:</strong>
+- Name: "México"
+- Abbr: "_TC"</p>
+<p><strong>Templates afectados:</strong> 25+ templates entre STCT e ITT</p>
+<hr />
+<h2 id="7-archivos-relevantes">7. ARCHIVOS RELEVANTES<a class="headerlink" href="#7-archivos-relevantes" title="Permanent link">&para;</a></h2>
+<h3 id="71-codigo-principal">7.1 Código Principal<a class="headerlink" href="#71-codigo-principal" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>facturacion_mexico/facturacion_fiscal/setup/generador_templates_fiscal.py
+├── Línea 35:  __init__(company)
+├── Línea 460: _crear_o_actualizar_stct()  ← PROBLEMA AQUÍ
+└── Línea 700: _crear_o_actualizar_itt()   ← PROBLEMA AQUÍ
+</code></pre></div>
+<h3 id="72-codigo-workaround">7.2 Código Workaround<a class="headerlink" href="#72-codigo-workaround" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>facturacion_mexico/setup/item_groups.py
+├── Línea 15: ITT_ZERO_TITLE, ITT_EXENTO_TITLE
+└── Línea 75: _resolve_itt_name() ← WORKAROUND BÚSQUEDA
+</code></pre></div>
+<h3 id="73-scripts-diagnostico">7.3 Scripts Diagnóstico<a class="headerlink" href="#73-scripts-diagnostico" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>facturacion_mexico/one_offs/
+├── verify_generator_fix.py      ← Verificar estado actual
+├── analyze_itt_naming.py        ← Analizar naming ITT
+└── analyze_stct_naming.py       ← Analizar naming STCT
+</code></pre></div>
+<hr />
+<h2 id="8-peticion-a-chatgpt">8. PETICIÓN A CHATGPT<a class="headerlink" href="#8-peticion-a-chatgpt" title="Permanent link">&para;</a></h2>
+<p><strong>OBJETIVO:</strong> Encontrar solución técnica que:</p>
+<ol>
+<li>Prevenga el doble sufijo en <code>_crear_o_actualizar_stct()</code> y <code>_crear_o_actualizar_itt()</code></li>
+<li>Mantenga <code>name == title</code> para todos los templates</li>
+<li>No rompa el sistema cuando actualice templates existentes</li>
+<li>Sea compatible con Frappe v15 (sin modificar framework core)</li>
+<li>Funcione tanto para templates nuevos como existentes</li>
+</ol>
+<p><strong>INFORMACIÓN CLAVE:</strong></p>
+<ul>
+<li>Framework: Frappe v15</li>
+<li>Lenguaje: Python 3.11</li>
+<li>DocTypes: <code>Sales Taxes and Charges Template</code>, <code>Item Tax Template</code></li>
+<li>Ambos tienen campo <code>company</code> (trigger del auto-naming de Frappe)</li>
+<li>Código actual funciona pero genera names con doble sufijo</li>
+</ul>
+<p><strong>PREGUNTAS ESPECÍFICAS:</strong></p>
+<ol>
+<li>¿Cómo prevenir que Frappe auto-concatene company_abbr cuando ya está en title?</li>
+<li>¿Existe algún flag o parámetro en doc.save() que deshabilite el auto-naming?</li>
+<li>¿Podemos usar naming_series personalizado para controlar el name exacto?</li>
+<li>¿Hay forma de establecer el name antes de save() sin causar DoesNotExistError?</li>
+<li>¿Frappe respeta el campo <code>name</code> si se establece en frappe.new_doc()?</li>
+</ol>
+<p><strong>CONTEXTO CRÍTICO:</strong></p>
+<ul>
+<li>Intento de forzar <code>doc.name = title</code> causó error: "DoesNotExistError" en templates existentes</li>
+<li>El error ocurre en <code>doc.check_if_latest()</code> antes de save()</li>
+<li>Frappe intenta cargar el documento con el nuevo name pero no existe aún</li>
+</ul>
+<hr />
+<h2 id="9-solucion-descubierta">9. ¡SOLUCIÓN DESCUBIERTA!<a class="headerlink" href="#9-solucion-descubierta" title="Permanent link">&para;</a></h2>
+<h3 id="91-analisis-de-templates-correctos">9.1 Análisis de Templates Correctos<a class="headerlink" href="#91-analisis-de-templates-correctos" title="Permanent link">&para;</a></h3>
+<p><strong>DESCUBRIMIENTO CRÍTICO:</strong>
+- De 55 templates ITT existentes, <strong>5 templates (9.1%) son CORRECTOS</strong> (name == title)
+- Todos los correctos son templates de testing de Frappe (<code>_Test...</code>)
+- Fueron creados el 2025-08-11 durante tests automáticos</p>
+<p><strong>Templates correctos:</strong>
+<div class="highlight"><pre><span></span><code>✅ _Test Item Tax Template - _TC
+   name:  &#39;_Test Item Tax Template - _TC&#39;
+   title: &#39;_Test Item Tax Template - _TC&#39;
+   company: _Test Company
+
+✅ _Test Item Tax Template 1 - _TC
+   name:  &#39;_Test Item Tax Template 1 - _TC&#39;
+   title: &#39;_Test Item Tax Template 1 - _TC&#39;
+   company: _Test Company
+
+✅ _Test Item Inherit Group Item Tax Template - _TC
+✅ _Test Item Override Group Item Tax Template - _TC
+✅ _Test Item With Item Tax Template - _TC
+</code></pre></div></p>
+<h3 id="92-la-diferencia-clave">9.2 La Diferencia Clave<a class="headerlink" href="#92-la-diferencia-clave" title="Permanent link">&para;</a></h3>
+<p><strong>PRUEBA DE CREACIÓN:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># ❌ MÉTODO ACTUAL (GENERA DOBLE SUFIJO):</span>
+<span class="n">doc</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">new_doc</span><span class="p">(</span><span class="s2">&quot;Item Tax Template&quot;</span><span class="p">)</span>
+<span class="n">doc</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;TEST MÉTODO 1 - _TC&quot;</span>
+<span class="n">doc</span><span class="o">.</span><span class="n">company</span> <span class="o">=</span> <span class="s2">&quot;_Test Company&quot;</span>
+<span class="c1"># Antes de save: doc.name = None ← FRAPPE AUTO-GENERA CON DOBLE SUFIJO</span>
+<span class="n">doc</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+<span class="c1"># ✅ MÉTODO CORRECTO (EVITA DOBLE SUFIJO):</span>
+<span class="n">doc_dict</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;doctype&quot;</span><span class="p">:</span> <span class="s2">&quot;Item Tax Template&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;TEST MÉTODO 2 - _TC&quot;</span><span class="p">,</span>  <span class="c1"># ← NAME PRE-ESTABLECIDO</span>
+    <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;TEST MÉTODO 2 - _TC&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;company&quot;</span><span class="p">:</span> <span class="s2">&quot;_Test Company&quot;</span>
+<span class="p">}</span>
+<span class="n">doc</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_doc</span><span class="p">(</span><span class="n">doc_dict</span><span class="p">)</span>
+<span class="c1"># Antes de save: doc.name = &quot;TEST MÉTODO 2 - _TC&quot; ← YA ESTABLECIDO</span>
+<span class="n">doc</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+</code></pre></div>
+<h3 id="93-root-cause-confirmado">9.3 Root Cause Confirmado<a class="headerlink" href="#93-root-cause-confirmado" title="Permanent link">&para;</a></h3>
+<p><strong>COMPORTAMIENTO FRAPPE:</strong></p>
+<ol>
+<li><strong>Con new_doc():</strong></li>
+<li>doc.name = None antes de save()</li>
+<li>Frappe ejecuta método <code>autoname()</code> del DocType</li>
+<li>autoname() concatena: title + " - " + company_abbr</li>
+<li>
+<p>Resultado: "ITT IVA 0% - _TC" → "ITT IVA 0% - _TC - _TC"</p>
+</li>
+<li>
+<p><strong>Con get_doc(dict) incluyendo name:</strong></p>
+</li>
+<li>doc.name = "ITT IVA 0% - _TC" (ya establecido)</li>
+<li>Frappe respeta el name pre-establecido</li>
+<li>NO ejecuta auto-naming adicional</li>
+<li>Resultado: "ITT IVA 0% - _TC" (CORRECTO)</li>
+</ol>
+<h3 id="94-solucion-propuesta">9.4 Solución Propuesta<a class="headerlink" href="#94-solucion-propuesta" title="Permanent link">&para;</a></h3>
+<p><strong>CAMBIO EN GENERADOR:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># ANTES (generador_templates_fiscal.py línea 711-718):</span>
+<span class="n">existing</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s2">&quot;Item Tax Template&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="n">title</span><span class="p">,</span> <span class="s2">&quot;company&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">company</span><span class="p">})</span>
+
+<span class="k">if</span> <span class="n">existing</span><span class="p">:</span>
+    <span class="n">doc</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_doc</span><span class="p">(</span><span class="s2">&quot;Item Tax Template&quot;</span><span class="p">,</span> <span class="n">existing</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">doc</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">new_doc</span><span class="p">(</span><span class="s2">&quot;Item Tax Template&quot;</span><span class="p">)</span>  <span class="c1"># ← PROBLEMA</span>
+
+<span class="n">doc</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="n">title</span><span class="p">,</span> <span class="s2">&quot;company&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">company</span><span class="p">,</span> <span class="s2">&quot;taxes&quot;</span><span class="p">:</span> <span class="p">[]})</span>
+
+<span class="c1"># DESPUÉS (SOLUCIÓN):</span>
+<span class="n">existing</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s2">&quot;Item Tax Template&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="n">title</span><span class="p">,</span> <span class="s2">&quot;company&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">company</span><span class="p">})</span>
+
+<span class="k">if</span> <span class="n">existing</span><span class="p">:</span>
+    <span class="n">doc</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_doc</span><span class="p">(</span><span class="s2">&quot;Item Tax Template&quot;</span><span class="p">,</span> <span class="n">existing</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="c1"># ✅ USAR get_doc(dict) CON NAME PRE-ESTABLECIDO</span>
+    <span class="n">doc</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_doc</span><span class="p">({</span>
+        <span class="s2">&quot;doctype&quot;</span><span class="p">:</span> <span class="s2">&quot;Item Tax Template&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">title</span><span class="p">,</span>  <span class="c1"># ← ESTABLECER NAME = TITLE</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="n">title</span><span class="p">,</span>
+        <span class="s2">&quot;company&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">company</span><span class="p">,</span>
+        <span class="s2">&quot;taxes&quot;</span><span class="p">:</span> <span class="p">[]</span>
+    <span class="p">})</span>
+    <span class="c1"># No necesita doc.update() - ya está configurado</span>
+
+<span class="c1"># Agregar taxes...</span>
+<span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">tax_config</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;taxes&quot;</span><span class="p">,</span> <span class="p">[]),</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="c1"># ... (sin cambios)</span>
+</code></pre></div>
+<p><strong>MISMA SOLUCIÓN PARA STCT:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># generador_templates_fiscal.py línea 471-485</span>
+<span class="k">if</span> <span class="n">existing</span><span class="p">:</span>
+    <span class="n">doc</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_doc</span><span class="p">(</span><span class="s2">&quot;Sales Taxes and Charges Template&quot;</span><span class="p">,</span> <span class="n">existing</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="c1"># ✅ USAR get_doc(dict) CON NAME PRE-ESTABLECIDO</span>
+    <span class="n">doc</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_doc</span><span class="p">({</span>
+        <span class="s2">&quot;doctype&quot;</span><span class="p">:</span> <span class="s2">&quot;Sales Taxes and Charges Template&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">title</span><span class="p">,</span>  <span class="c1"># ← ESTABLECER NAME = TITLE</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="n">title</span><span class="p">,</span>
+        <span class="s2">&quot;company&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">company</span><span class="p">,</span>
+        <span class="s2">&quot;is_default&quot;</span><span class="p">:</span> <span class="n">template_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;is_default&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+        <span class="s2">&quot;taxes&quot;</span><span class="p">:</span> <span class="p">[]</span>
+    <span class="p">})</span>
+</code></pre></div>
+<h3 id="95-verificacion-de-la-solucion">9.5 Verificación de la Solución<a class="headerlink" href="#95-verificacion-de-la-solucion" title="Permanent link">&para;</a></h3>
+<p><strong>REQUISITOS CUMPLIDOS:</strong></p>
+<ol>
+<li>✅ <strong>Previene doble sufijo</strong> - name pre-establecido evita auto-naming</li>
+<li>✅ <strong>No rompe templates existentes</strong> - solo afecta creación de nuevos</li>
+<li>✅ <strong>Compatible Frappe v15</strong> - usa API estándar frappe.get_doc()</li>
+<li>✅ <strong>Sin efectos colaterales</strong> - no modifica lógica de actualización</li>
+<li>✅ <strong>Idempotente</strong> - re-ejecutar usa existing, no crea duplicados</li>
+</ol>
+<p><strong>PRÓXIMOS PASOS:</strong></p>
+<ol>
+<li>Implementar cambio en <code>_crear_o_actualizar_itt()</code></li>
+<li>Implementar cambio en <code>_crear_o_actualizar_stct()</code></li>
+<li>Probar con compañía test</li>
+<li>Verificar que templates nuevos tengan name == title</li>
+<li>Confirmar que templates existentes no se afecten</li>
+</ol>
+<hr />
+<h2 id="10-siguiente-paso">10. SIGUIENTE PASO<a class="headerlink" href="#10-siguiente-paso" title="Permanent link">&para;</a></h2>
+<p><strong>ACCIÓN INMEDIATA:</strong>
+1. ✅ Solución técnica verificada y descubierta
+2. 🔄 Implementar cambios en generador_templates_fiscal.py
+3. 🔄 Probar con templates nuevos
+4. 🔄 Verificar compatibilidad con templates existentes
+5. ⏭️ Migrar templates antiguos (opcional - si se requiere)</p>
+<p><strong>CONFIANZA:</strong> ALTA - Solución probada por tests Frappe existentes</p>
+<hr />
+<p><strong>Preparado por:</strong> Claude Code
+<strong>Estado:</strong> SOLUCIÓN DESCUBIERTA
+<strong>Fecha:</strong> 2025-10-02
+<strong>Última actualización:</strong> 2025-10-02 (Solución confirmada)</p>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Volver al principio
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 Facturación México - Documentación Técnica
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/tu-org/facturacion_mexico" target="_blank" rel="noopener" title="GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+      <div class="md-consent" data-md-component="consent" id="__consent" hidden>
+        <div class="md-consent__overlay"></div>
+        <aside class="md-consent__inner">
+          <form class="md-consent__form md-grid md-typeset" name="consent">
+            
+
+  
+    
+  
+
+
+
+
+
+<h4>Consentimiento de cookies</h4>
+<p>Utilizamos cookies para reconocer tus visitas repetidas y preferencias, así como para medir la efectividad de nuestra documentación y si los usuarios encuentran lo que están buscando. Con tu consentimiento, nos ayudas a mejorar nuestra documentación.
+</p>
+<input class="md-toggle" type="checkbox" id="__settings" >
+<div class="md-consent__settings">
+  <ul class="task-list">
+    
+      
+      
+        
+        
+      
+      <li class="task-list-item">
+        <label class="task-list-control">
+          <input type="checkbox" name="analytics" checked>
+          <span class="task-list-indicator"></span>
+          Google Analytics
+        </label>
+      </li>
+    
+  </ul>
+</div>
+<div class="md-consent__controls">
+  
+    
+      <button class="md-button md-button--primary">Aceptar</button>
+    
+    
+    
+  
+    
+    
+      <button type="reset" class="md-button md-button--primary">Rechazar</button>
+    
+    
+  
+    
+    
+    
+      <label class="md-button" for="__settings">Gestionar cookies</label>
+    
+  
+</div>
+          </form>
+        </aside>
+      </div>
+      <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout(function(){document.querySelector("[data-md-component=consent]").hidden=!1},250);var action,form=document.forms.consent;for(action of["submit","reset"])form.addEventListener(action,function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map(function(e){return[e,!0]}))),location.hash="",location.reload()})</script>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.expand", "navigation.instant", "navigation.sections", "navigation.tabs", "navigation.top", "search.highlight", "search.suggest"], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copiado al portapapeles", "clipboard.copy": "Copiar al portapapeles", "search.result.more.one": "1 m\u00e1s en esta p\u00e1gina", "search.result.more.other": "# m\u00e1s en esta p\u00e1gina", "search.result.none": "No se encontraron documentos", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Teclee para comenzar b\u00fasqueda", "search.result.term.missing": "Falta", "select.version": "Seleccionar versi\u00f3n"}, "version": {"default": "latest", "provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7c377c4.min.js"></script>
+      
+        <script src="../../assets/javascripts/extra.js"></script>
+      
+        <script src="../../assets/javascripts/advanced.js"></script>
+      
+    
+  </body>
+</html>

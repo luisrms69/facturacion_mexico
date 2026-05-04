@@ -1,0 +1,1566 @@
+
+<!doctype html>
+<html lang="es" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentación completa del sistema de facturación electrónica para México">
+      
+      
+        <meta name="author" content="Equipo Desarrollo Facturación México">
+      
+      
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.3">
+    
+    
+      
+        <title>ADR 0008 — ANÁLISIS DETALLADO: 9 COMMITS WIP - Facturación México - Documentación Técnica</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.50c56a3b.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/advanced.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function n(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],n("js",new Date),n("config","G-XXXXXXXXXX"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){this.value&&n("event","search",{search_term:this.value})}),document$.subscribe(function(){var a=document.forms.feedback;if(void 0!==a)for(var e of a.querySelectorAll("[type=submit]"))e.addEventListener("click",function(e){e.preventDefault();var t=document.location.pathname,e=this.getAttribute("data-md-value");n("event","feedback",{page:t,data:e}),a.firstElementChild.disabled=!0;e=a.querySelector(".md-feedback__note [data-md-value='"+e+"']");e&&(e.hidden=!1)}),a.hidden=!1}),location$.subscribe(function(e){n("config","G-XXXXXXXXXX",{page_path:e.pathname})})});var e=document.createElement("script");e.async=!0,e.src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX",document.getElementById("__analytics").insertAdjacentElement("afterEnd",e)}</script>
+  
+    <script>var consent;"undefined"==typeof __md_analytics||(consent=__md_get("__consent"))&&consent.analytics&&__md_analytics()</script>
+  
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#adr-0008-analisis-detallado-9-commits-wip" class="md-skip">
+          Saltar a contenido
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabecera">
+    <a href="../.." title="Facturación México - Documentación Técnica" class="md-header__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Facturación México - Documentación Técnica
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              ADR 0008 — ANÁLISIS DETALLADO: 9 COMMITS WIP
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo oscuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo oscuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Búsqueda" placeholder="Búsqueda" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Buscar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpiar" aria-label="Limpiar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando búsqueda
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Pestañas" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+    
+  
+  Inicio
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../user-guide/" class="md-tabs__link">
+          
+  
+  Guía de Usuario
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/" class="md-tabs__link">
+          
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/" class="md-tabs__link">
+          
+  
+  Desarrollo
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navegación" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Facturación México - Documentación Técnica" class="md-nav__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Facturación México - Documentación Técnica
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Inicio
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Guía de Usuario
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Guía de Usuario
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Usuario - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/getting-started/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Primeros Pasos
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/draft-invoices/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Facturas en Borrador
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/troubleshooting/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    API Reference
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    API Reference - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/cfdi/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CFDI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/draft-management/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Draft Management
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/catalogos/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Catalogos SAT
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/hooks/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Hooks
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Desarrollo
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Desarrollo
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Desarrollo - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Setup Desarrollo
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/draft-workflow/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Draft Workflow
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#resumen-ejecutivo" class="md-nav__link">
+    <span class="md-ellipsis">
+      Resumen ejecutivo
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#commit-1-3fdb47ba" class="md-nav__link">
+    <span class="md-ellipsis">
+      COMMIT 1 — 3fdb47ba
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="COMMIT 1 — 3fdb47ba">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#feate1-implementar-sistema-8-stct-especificos-generacion-automatica-itt" class="md-nav__link">
+    <span class="md-ellipsis">
+      feat(e1): implementar sistema 8 STCT específicos + generación automática ITT
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#commit-2-26e8bc50" class="md-nav__link">
+    <span class="md-ellipsis">
+      COMMIT 2 — 26e8bc50
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="COMMIT 2 — 26e8bc50">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#refactore1-consolidar-fuente-de-verdad-unica-item-groups-preparar-clasificacion-automatica" class="md-nav__link">
+    <span class="md-ellipsis">
+      refactor(e1): consolidar fuente de verdad única Item Groups + preparar clasificación automática
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#commit-3-3eae7c96" class="md-nav__link">
+    <span class="md-ellipsis">
+      COMMIT 3 — 3eae7c96
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="COMMIT 3 — 3eae7c96">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fixe1-corregir-generacion-templates-carga-tax-rows-eliminar-codigo-js-legacy" class="md-nav__link">
+    <span class="md-ellipsis">
+      fix(e1): corregir generación templates + carga tax rows + eliminar código JS legacy
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#commit-4-1201bb48" class="md-nav__link">
+    <span class="md-ellipsis">
+      COMMIT 4 — 1201bb48
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="COMMIT 4 — 1201bb48">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#refactorfiscal-consolidar-single-source-of-truth-roles-fiscales-completar-constantes-18-roles" class="md-nav__link">
+    <span class="md-ellipsis">
+      refactor(fiscal): consolidar single source of truth roles fiscales + completar constantes 18 roles
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#commit-5-54b6e512" class="md-nav__link">
+    <span class="md-ellipsis">
+      COMMIT 5 — 54b6e512
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="COMMIT 5 — 54b6e512">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fixgenerador-corregir-lectura-checkboxes-en-generacion-parcial-templates-stct" class="md-nav__link">
+    <span class="md-ellipsis">
+      fix(generador): corregir lectura checkboxes en generación parcial templates STCT
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#commit-6-f15e46f9" class="md-nav__link">
+    <span class="md-ellipsis">
+      COMMIT 6 — f15e46f9
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="COMMIT 6 — f15e46f9">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#docse1-documentar-sincronizacion-json-python-roles-fiscales-tests-autoseleccion-stct" class="md-nav__link">
+    <span class="md-ellipsis">
+      docs(e1): documentar sincronización JSON-Python roles fiscales + tests autoselección STCT
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#commit-7-dded56d2" class="md-nav__link">
+    <span class="md-ellipsis">
+      COMMIT 7 — dded56d2
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="COMMIT 7 — dded56d2">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fixe1-forzar-carga-stct-taxes-siempre-detectar-bugs-erpnext-cuotastotals" class="md-nav__link">
+    <span class="md-ellipsis">
+      fix(e1): forzar carga STCT taxes siempre + detectar bugs ERPNext cuotas/totals
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#commit-8-a125521c" class="md-nav__link">
+    <span class="md-ellipsis">
+      COMMIT 8 — a125521c
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="COMMIT 8 — a125521c">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fixe1-implementar-fix-v1-para-preservar-cuotas-ieps-en-draft-documentar-incidente-git-checkout" class="md-nav__link">
+    <span class="md-ellipsis">
+      fix(e1): implementar FIX-V1 para preservar cuotas IEPS en draft + documentar incidente git checkout
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#commit-9-d933c851" class="md-nav__link">
+    <span class="md-ellipsis">
+      COMMIT 9 — d933c851
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="COMMIT 9 — d933c851">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#choree4-checkpoint-de-seguridad-preservar-estado-trabajo-en-progreso-itt-especifico-por-item" class="md-nav__link">
+    <span class="md-ellipsis">
+      chore(e4): checkpoint de seguridad - preservar estado trabajo en progreso ITT específico por item
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#analisis-transversal" class="md-nav__link">
+    <span class="md-ellipsis">
+      ANÁLISIS TRANSVERSAL
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ANÁLISIS TRANSVERSAL">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#que-problematica-resuelven-los-9-commits-en-conjunto" class="md-nav__link">
+    <span class="md-ellipsis">
+      ¿Qué problemática resuelven los 9 commits en conjunto?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#impacto-real-en-el-site-actual-facturacion-v16dev" class="md-nav__link">
+    <span class="md-ellipsis">
+      Impacto real en el site actual (facturacion-v16.dev)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hay-algun-commit-de-los-9-que-sea-peligroso-incluir" class="md-nav__link">
+    <span class="md-ellipsis">
+      ¿Hay algún commit de los 9 que sea peligroso incluir?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recomendacion-final-sobre-los-9-commits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Recomendación final sobre los 9 commits
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="adr-0008-analisis-detallado-9-commits-wip">ADR 0008 — ANÁLISIS DETALLADO: 9 COMMITS WIP<a class="headerlink" href="#adr-0008-analisis-detallado-9-commits-wip" title="Permanent link">&para;</a></h1>
+<p>===============================================
+Fecha: 2026-05-01
+Rango: fix/ieps-tabaco-dual-campos-tax-breakup → feature/e4-ieps-on-item-quantity
+Propósito: Decidir si incluir estos commits antes del primer timbrado en producción</p>
+<hr />
+<h2 id="resumen-ejecutivo">Resumen ejecutivo<a class="headerlink" href="#resumen-ejecutivo" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Hash</th>
+<th>Título</th>
+<th>Estado</th>
+<th style="text-align: center;">¿Bloquea timbrado?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>3fdb47ba</td>
+<td>feat: 8 STCT específicos + ITT automático</td>
+<td>Completo (Fase 1/4)</td>
+<td style="text-align: center;">No</td>
+</tr>
+<tr>
+<td>2</td>
+<td>26e8bc50</td>
+<td>refactor: fuente de verdad única Item Groups</td>
+<td>Completo</td>
+<td style="text-align: center;">No</td>
+</tr>
+<tr>
+<td>3</td>
+<td>3eae7c96</td>
+<td>fix: carga tax rows + eliminar JS legacy</td>
+<td>Completo</td>
+<td style="text-align: center;">No</td>
+</tr>
+<tr>
+<td>4</td>
+<td>1201bb48</td>
+<td>refactor: single source of truth roles fiscales</td>
+<td><strong>BREAKING CHANGE</strong> + datos pendientes</td>
+<td style="text-align: center;">No</td>
+</tr>
+<tr>
+<td>5</td>
+<td>54b6e512</td>
+<td>fix: lectura checkboxes generación STCT parcial</td>
+<td>Completo</td>
+<td style="text-align: center;">No</td>
+</tr>
+<tr>
+<td>6</td>
+<td>f15e46f9</td>
+<td>docs: sincronización JSON↔Python + tests</td>
+<td>Solo docs/tests</td>
+<td style="text-align: center;">No</td>
+</tr>
+<tr>
+<td>7</td>
+<td>dded56d2</td>
+<td>fix: forzar carga STCT + detectar bugs ERPNext</td>
+<td>Parcial — 2 bugs detectados sin resolver</td>
+<td style="text-align: center;">No</td>
+</tr>
+<tr>
+<td>8</td>
+<td>a125521c</td>
+<td>fix: FIX-V1 cuotas IEPS en draft</td>
+<td>Parcial — solo draft, submit falla</td>
+<td style="text-align: center;">No</td>
+</tr>
+<tr>
+<td>9</td>
+<td>d933c851</td>
+<td>chore: checkpoint seguridad WIP ITT por item</td>
+<td><strong>WIP EXPLÍCITO</strong></td>
+<td style="text-align: center;">No</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Conclusión anticipada:</strong> Ninguno de los 9 commits toca <code>timbrado_api.py</code>. El flujo de timbrado es idéntico al de <code>fix/ieps-tabaco</code>. Los 9 commits resuelven (parcialmente) el problema de cuotas IEPS en Sales Invoice, que es independiente del timbrado.</p>
+<hr />
+<h2 id="commit-1-3fdb47ba">COMMIT 1 — <code>3fdb47ba</code><a class="headerlink" href="#commit-1-3fdb47ba" title="Permanent link">&para;</a></h2>
+<h3 id="feate1-implementar-sistema-8-stct-especificos-generacion-automatica-itt"><code>feat(e1): implementar sistema 8 STCT específicos + generación automática ITT</code><a class="headerlink" href="#feate1-implementar-sistema-8-stct-especificos-generacion-automatica-itt" title="Permanent link">&para;</a></h3>
+<p><strong>Problema que resuelve:</strong>
+Los templates STCT consolidados generaban hasta 19 filas en cada Sales Invoice, la mayoría en $0. Un cliente sin IEPS veía 5 filas de IEPS en cero, más 6 de retenciones en cero. Visualmente confuso y reportes "cluttered".</p>
+<p><strong>Solución:</strong>
+Reemplaza los 2 templates consolidados ("IVA 16% - México", "IVA 8% Frontera") por 8 templates específicos:
+- <code>IVA Nacional - Básico</code> (1 fila: solo IVA)
+- <code>IVA Nacional - IEPS</code> (6 filas: IEPS + IVA)
+- <code>IVA Nacional - Retenciones</code> (3 filas: IVA + ISR + IVA Ret)
+- <code>IVA Nacional - Total</code> (8 filas: todo)
+- Los 4 equivalentes para Frontera</p>
+<p><strong>Archivos modificados:</strong>
+- <code>generador_templates_fiscal.py</code>: reescritura completa -546 líneas → nuevo sistema <code>generate_8_stct_for_company()</code>
+- <code>configuracion_fiscal_mexico.py/.js</code>: botón "Generate Templates" simplificado, eliminado "Preview"
+- <code>mapeo_cuenta_fiscal_mexico.json</code>: soporte fuzzy matching nombres de cuentas
+- <code>sales_invoice_ieps.py</code>: ajuste imports (sin cambios funcionales)</p>
+<p><strong>¿Está completo?</strong> Fase 1/4 completada según el plan. Fases 2-4 (autoselección inteligente + función rectora + tests E2E) quedan pendientes.</p>
+<p><strong>¿Su ausencia rompe algo?</strong> No. En <code>fix/ieps-tabaco</code> el generador sigue funcionando con la arquitectura anterior (templates consolidados). Los templates existentes siguen siendo válidos.</p>
+<hr />
+<h2 id="commit-2-26e8bc50">COMMIT 2 — <code>26e8bc50</code><a class="headerlink" href="#commit-2-26e8bc50" title="Permanent link">&para;</a></h2>
+<h3 id="refactore1-consolidar-fuente-de-verdad-unica-item-groups-preparar-clasificacion-automatica"><code>refactor(e1): consolidar fuente de verdad única Item Groups + preparar clasificación automática</code><a class="headerlink" href="#refactore1-consolidar-fuente-de-verdad-unica-item-groups-preparar-clasificacion-automatica" title="Permanent link">&para;</a></h3>
+<p><strong>Problema que resuelve:</strong>
+Las constantes de Item Groups estaban dispersas en 4+ lugares: 10 constantes <code>IG_*</code>, 10 constantes <code>ITT_*_TITLE</code>, <code>ITEM_GROUP_ITT_MAP</code> manual, sin diccionario Item Group → Categoría fiscal. Cualquier cambio requería editar múltiples archivos y había riesgo de inconsistencia.</p>
+<p><strong>Solución:</strong>
+Crea <code>TABLA_MAESTRA_GRUPOS_FISCALES</code> con 10 filas que auto-genera 5 constantes derivadas vía comprehensions. Elimina código fallback legacy que buscaba ITT por <code>title</code> (ahora solo busca por <code>name</code>).</p>
+<p><strong>Archivos modificados:</strong>
+- <code>setup/item_groups.py</code>: consolidación constantes (+46 / -42 líneas netas)
+- <code>utils/clasificacion_items.py</code>: archivo nuevo, función <code>clasificar_items_documento()</code>
+- <code>tests/test_clasificacion_items.py</code>: archivo nuevo, 7 tests (0.455s, deterministas)</p>
+<p><strong>¿Está completo?</strong> Sí. Los 7 tests pasan. Es prerequisito arquitectónico para la autoselección STCT.</p>
+<p><strong>¿Su ausencia rompe algo?</strong> No en <code>fix/ieps-tabaco</code>. Pero es necesario si se usa el <code>before_validate</code> hook de <code>sales_invoice_automated_tax.py</code> que llama <code>clasificar_items_documento()</code>.</p>
+<hr />
+<h2 id="commit-3-3eae7c96">COMMIT 3 — <code>3eae7c96</code><a class="headerlink" href="#commit-3-3eae7c96" title="Permanent link">&para;</a></h2>
+<h3 id="fixe1-corregir-generacion-templates-carga-tax-rows-eliminar-codigo-js-legacy"><code>fix(e1): corregir generación templates + carga tax rows + eliminar código JS legacy</code><a class="headerlink" href="#fixe1-corregir-generacion-templates-carga-tax-rows-eliminar-codigo-js-legacy" title="Permanent link">&para;</a></h3>
+<p><strong>Problema que resuelve:</strong>
+Los 8 templates STCT del commit 1 aparecían en el selector de Sales Invoice pero la tabla <code>taxes</code> quedaba vacía. Root cause: el generador pre-establecía el campo <code>name</code> en los child records, impidiendo la inicialización normal de Frappe. Además, el hook Python solo asignaba <code>taxes_and_charges</code> pero no cargaba las filas.</p>
+<p><strong>Tres sub-fixes:</strong>
+1. <strong>Generador:</strong> eliminar <code>"name": title</code> al crear templates → Frappe gestiona el autonaming
+2. <strong>Hook Python</strong> (<code>sales_invoice_automated_tax.py</code>): agrega carga de tax rows via <code>get_taxes_and_charges()</code> nativo de ERPNext, limpia tabla taxes y la repuebla
+3. <strong>JS legacy</strong> (<code>sales_invoice.js</code>): elimina función <code>_fm_apply_branch_tax_template()</code> (68 líneas) que buscaba templates viejos <code>like '%IVA 16%'</code> — reemplazada por stub vacío</p>
+<p><strong>¿Está completo?</strong> Sí. Fix verificado en UI, workflow final documentado en el commit.</p>
+<p><strong>¿Su ausencia rompe algo?</strong> Si se usa el commit 1 sin este fix, los STCT aparecen en el selector pero la tabla de impuestos queda vacía. El hook del commit 3 es el que realmente hace funcionar la autoselección.</p>
+<hr />
+<h2 id="commit-4-1201bb48">COMMIT 4 — <code>1201bb48</code><a class="headerlink" href="#commit-4-1201bb48" title="Permanent link">&para;</a></h2>
+<h3 id="refactorfiscal-consolidar-single-source-of-truth-roles-fiscales-completar-constantes-18-roles"><code>refactor(fiscal): consolidar single source of truth roles fiscales + completar constantes 18 roles</code><a class="headerlink" href="#refactorfiscal-consolidar-single-source-of-truth-roles-fiscales-completar-constantes-18-roles" title="Permanent link">&para;</a></h3>
+<p><strong>Problema que resuelve:</strong>
+Los nombres de roles fiscales estaban hardcodeados con porcentajes ("IVA por Pagar (16%)", "IVA por Pagar (8%)") en 134+ lugares del código. Esto viola el principio de que las tasas pueden cambiar por normativa/región.</p>
+<p><strong>Solución:</strong>
+Crea <code>utils/roles_fiscales.py</code> con <code>TABLA_MAESTRA_ROLES_FISCALES</code> (18 roles). Los nombres cambian a semánticos sin porcentajes:
+- <code>"IVA por Pagar (16%)"</code> → <code>"IVA por Pagar (Nacional)"</code>
+- <code>"IVA por Pagar (8%)"</code> → <code>"IVA por Pagar (Frontera)"</code></p>
+<p>Migra 134+ referencias en <code>constantes_fiscales.py</code>, <code>sat_tipo_factor.py</code>, <code>configuracion_fiscal_mexico.py</code> y 3 archivos de tests.</p>
+<p><strong>⚠️ BREAKING CHANGE explícito en el commit:</strong></p>
+<blockquote>
+<p>"Bases de datos existentes requieren migración de datos: Campo <code>rol_fiscal</code> en tabla <code>Mapeo Cuenta Fiscal Mexico</code>. Valores actuales: 'IVA por Pagar (16%)' → Valores nuevos: 'IVA por Pagar (Nacional)'. <strong>Migración datos será commit separado (NO incluido en este refactor código).</strong>"</p>
+</blockquote>
+<p><strong>¿Afecta al site actual?</strong> <strong>NO</strong> — <code>tabMapeo Cuenta Fiscal Mexico</code> no existe en el site actual (está en una rama que aún no se ha mergeado a main). La tabla se crea vacía en el migrate. No hay datos que migrar.</p>
+<p><strong>¿Está completo?</strong> Para código: sí. La migración de datos está documentada como pendiente pero no es necesaria en un site limpio.</p>
+<p><strong>¿Su ausencia rompe algo?</strong> No directamente. Pero el commit 5 usa las nuevas constantes del <code>rol_fiscal</code>.</p>
+<hr />
+<h2 id="commit-5-54b6e512">COMMIT 5 — <code>54b6e512</code><a class="headerlink" href="#commit-5-54b6e512" title="Permanent link">&para;</a></h2>
+<h3 id="fixgenerador-corregir-lectura-checkboxes-en-generacion-parcial-templates-stct"><code>fix(generador): corregir lectura checkboxes en generación parcial templates STCT</code><a class="headerlink" href="#fixgenerador-corregir-lectura-checkboxes-en-generacion-parcial-templates-stct" title="Permanent link">&para;</a></h3>
+<p><strong>Problema que resuelve:</strong>
+El generador de templates ignoraba completamente los checkboxes <code>enable_ieps_*</code> de <code>Configuracion Fiscal Mexico</code>. Aunque el usuario desmarcara "Habilitar IEPS Azúcar", el template STCT seguía incluyendo esa fila.</p>
+<p><strong>Solución:</strong>
+Agrega helper <code>_disponible(checkbox_enabled, rol)</code> que retorna <code>True</code> solo si el checkbox está activado <strong>y</strong> el mapeo de cuenta existe. Aplicado a IEPS y Retenciones.</p>
+<p><strong>Archivos modificados:</strong>
+- <code>generador_templates_fiscal.py</code>: lógica checkboxes (+476 / -86 líneas)
+- <code>sales_invoice_automated_tax.py</code>: mejora mensaje fallback cuando no encuentra STCT específico
+- <code>tests/test_sync_roles_fiscales_json_python.py</code>: archivo nuevo, valida sincronización JSON↔Python</p>
+<p><strong>¿Está completo?</strong> Sí. Verificado con 3 escenarios (IEPS parcial, sin IEPS/Retenciones, con ITT en uso).</p>
+<p><strong>¿Su ausencia rompe algo?</strong> No. En <code>fix/ieps-tabaco</code> no hay <code>Configuracion Fiscal Mexico</code> y el generador viejo no conoce checkboxes. Impacto solo visible cuando se usa la UI de configuración.</p>
+<hr />
+<h2 id="commit-6-f15e46f9">COMMIT 6 — <code>f15e46f9</code><a class="headerlink" href="#commit-6-f15e46f9" title="Permanent link">&para;</a></h2>
+<h3 id="docse1-documentar-sincronizacion-json-python-roles-fiscales-tests-autoseleccion-stct"><code>docs(e1): documentar sincronización JSON-Python roles fiscales + tests autoselección STCT</code><a class="headerlink" href="#docse1-documentar-sincronizacion-json-python-roles-fiscales-tests-autoseleccion-stct" title="Permanent link">&para;</a></h3>
+<p><strong>Qué contiene:</strong>
+Puramente documentación y tests. Ningún cambio funcional.</p>
+<ul>
+<li><code>utils/roles_fiscales.py</code>: +20 líneas de comentarios explicando la limitación de Frappe (Select fields en JSON no puede importar constantes Python → requiere sincronización manual)</li>
+<li><code>tests/test_autoseleccion_stct.py</code>: archivo nuevo, 7 tests para <code>_determinar_variante_stct()</code> y <code>_find_stct_by_variant()</code></li>
+<li><code>CLAUDE.md</code>: regla sobre <code>docs/instructions/</code></li>
+</ul>
+<p><strong>¿Está completo?</strong> Sí (solo docs/tests).</p>
+<p><strong>¿Su ausencia rompe algo?</strong> No.</p>
+<hr />
+<h2 id="commit-7-dded56d2">COMMIT 7 — <code>dded56d2</code><a class="headerlink" href="#commit-7-dded56d2" title="Permanent link">&para;</a></h2>
+<h3 id="fixe1-forzar-carga-stct-taxes-siempre-detectar-bugs-erpnext-cuotastotals"><code>fix(e1): forzar carga STCT taxes siempre + detectar bugs ERPNext cuotas/totals</code><a class="headerlink" href="#fixe1-forzar-carga-stct-taxes-siempre-detectar-bugs-erpnext-cuotastotals" title="Permanent link">&para;</a></h3>
+<p><strong>Problema que resuelve:</strong>
+Hook <code>_set_stct_by_branch()</code> solo cargaba tax rows si el campo <code>taxes_and_charges</code> <strong>cambiaba</strong>. Al recargar una SI que ya tenía el STCT asignado, el hook no recargaba las filas y ERPNext priorizaba el ITT del item, perdiendo las filas IVA. Resultado: Grand Total incorrecto ($6,078 en lugar de $8,020).</p>
+<p><strong>Solución:</strong>
+Mueve la carga de <code>taxes</code> fuera del condicional. Agrega flag <code>doc.flags.__stct_applied</code> para evitar duplicados en el mismo request. Siempre ejecuta <code>doc.set("taxes", []) + doc.extend("taxes", tax_rows)</code>.</p>
+<p><strong>También agrega:</strong>
+- <code>utils/calculo_impuestos.py</code>: función rectora <code>aplicar_reglas_calculo_impuestos()</code> (392 líneas)
+- <code>utils/reglas_calculo_fiscal.py</code>: tabla maestra reglas cálculo 17 roles (453 líneas)
+- <code>hooks.py</code>: mueve <code>corregir_ieps_cuota_final</code> de <code>before_submit</code> → <code>before_save</code></p>
+<p><strong>⚠️ Documenta 2 bugs de ERPNext sin resolver:</strong>
+1. <code>charge_type="Actual"</code> (cuotas IEPS fijas) excluido de <code>total_taxes_and_charges</code> → Grand Total incompleto
+2. <strong>Cuotas IEPS se vuelven $0 al hacer submit</strong> (CRÍTICO) — los hooks de ERPNext recalculan y el ITT sobrescribe las cuotas con $0</p>
+<p><strong>¿Está completo?</strong> Parcial. El fix del hook está completo. Los 2 bugs ERPNext son conocidos y pendientes de resolver.</p>
+<p><strong>¿Su ausencia rompe algo?</strong> No en timbrado. Pero sin este fix, las SIs con STCT ya asignado no recargaban correctamente las filas de impuestos al re-abrir.</p>
+<hr />
+<h2 id="commit-8-a125521c">COMMIT 8 — <code>a125521c</code><a class="headerlink" href="#commit-8-a125521c" title="Permanent link">&para;</a></h2>
+<h3 id="fixe1-implementar-fix-v1-para-preservar-cuotas-ieps-en-draft-documentar-incidente-git-checkout"><code>fix(e1): implementar FIX-V1 para preservar cuotas IEPS en draft + documentar incidente git checkout</code><a class="headerlink" href="#fixe1-implementar-fix-v1-para-preservar-cuotas-ieps-en-draft-documentar-incidente-git-checkout" title="Permanent link">&para;</a></h3>
+<p><strong>Problema que resuelve:</strong>
+El Bug #1 del commit 7: <code>charge_type="Actual"</code> (cuotas IEPS) excluido de <code>grand_total</code> en draft. Grand Total mostraba $8,020.82 cuando el correcto era $8,374.44 (diferencia de $353.62 de cuotas IEPS).</p>
+<p><strong>Solución FIX-V1:</strong>
+Agrega <code>doc.calculate_taxes_and_totals()</code> al final de <code>calcular_ieps_cuota()</code> en <code>sales_invoice_ieps.py</code> (4 líneas). Fuerza a ERPNext a sumar las cuotas <code>Actual</code> al grand total.</p>
+<p><strong>Estado post-FIX-V1 documentado:</strong>
+<div class="highlight"><pre><span></span><code>✅ Draft correcto:   $8,374.44
+❌ Submit aún falla: cuotas se vuelven $0 al hacer submit (Bug #2 sin resolver)
+</code></pre></div></p>
+<p><strong>Tabla historial de pruebas (del commit):</strong>
+| SI | Estado | Grand Total | Resultado |
+|----|--------|-------------|-----------|
+| ACC-SINV-01668 | POST-FIX Draft | $8,020.82 | ❌ Bug ERPNext |
+| ACC-SINV-01674 | FIX-V1 Draft | $8,374.44 | ✅ Correcto |
+| ACC-SINV-01674 | FIX-V1 Submit | $8,020.82 | ❌ Before_submit no funcionó |
+| ACC-SINV-01675 | FIX-V2 Draft | $8,374.44 | ✅ |
+| ACC-SINV-01675 | FIX-V2 Submit | $8,020.82 | ❌ FRACASO + STCT desapareció |</p>
+<p><strong>Importante:</strong> <code>sales_invoice_ieps.py</code> está <strong>COMENTADO</strong> en <code>hooks.py</code> de e4 (<code># E4 DISABLED</code>). El FIX-V1 existe en el archivo pero no se ejecuta porque el hook no está activo.</p>
+<p><strong>¿Está completo?</strong> Parcial. Draft resuelto. Submit sigue fallando. El autor docuemnta explícitamente el Bug #2 como bloqueante pendiente.</p>
+<p><strong>¿Su ausencia rompe algo?</strong> No directamente — el hook que contiene el FIX-V1 está comentado en e4.</p>
+<hr />
+<h2 id="commit-9-d933c851">COMMIT 9 — <code>d933c851</code><a class="headerlink" href="#commit-9-d933c851" title="Permanent link">&para;</a></h2>
+<h3 id="choree4-checkpoint-de-seguridad-preservar-estado-trabajo-en-progreso-itt-especifico-por-item"><code>chore(e4): checkpoint de seguridad - preservar estado trabajo en progreso ITT específico por item</code><a class="headerlink" href="#choree4-checkpoint-de-seguridad-preservar-estado-trabajo-en-progreso-itt-especifico-por-item" title="Permanent link">&para;</a></h3>
+<p><strong>Qué contiene:</strong>
+Explícitamente declarado como checkpoint de seguridad sin implementación funcional completa.</p>
+<p><strong>Archivos de código modificados:</strong>
+- <code>hooks.py</code>: reorganización de hooks IEPS comentados (+9/-3) — todos los hooks IEPS siguen comentados
+- <code>sales_invoice_automated_tax.py</code>: +93 líneas (estado de investigación para ITT por item)
+- <code>hooks_handlers/sales_invoice_ieps.py</code>: +37/-63 (refactoring parcial)
+- <code>utils/mapeo_charge_type.py</code>: archivo nuevo, <strong>"no probado aún"</strong> según el commit
+- <code>utils/reglas_calculo_fiscal.py</code>: +12/-10 (ajustes menores)
+- <code>generador_templates_fiscal.py</code>: +9/-3</p>
+<p><strong>Trabajo pendiente explícito (del commit body):</strong>
+1. Implementar <code>utils/itt_management.py</code> → <strong>NO EXISTE</strong>
+2. Implementar <code>hooks_handlers/ieps_cuota_sat.py</code> after_save → <strong>NO EXISTE</strong>
+3. Testing completo 3 items
+4. Validar productos TASA + CUOTA (tabaco)</p>
+<p><strong>Estado al momento del checkpoint:</strong>
+- La solución de ITT específico por item está investigada (5 alternativas evaluadas, 4 descartadas)
+- La alternativa elegida está validada empíricamente en ACC-SINV-2025-01685
+- La implementación está pendiente</p>
+<p><strong>¿Su ausencia rompe algo?</strong> No. Todos los hooks IEPS siguen comentados. El único riesgo es <code>mapeo_charge_type.py</code> (nuevo, no probado) siendo importado desde algún lugar.</p>
+<hr />
+<h2 id="analisis-transversal">ANÁLISIS TRANSVERSAL<a class="headerlink" href="#analisis-transversal" title="Permanent link">&para;</a></h2>
+<h3 id="que-problematica-resuelven-los-9-commits-en-conjunto">¿Qué problemática resuelven los 9 commits en conjunto?<a class="headerlink" href="#que-problematica-resuelven-los-9-commits-en-conjunto" title="Permanent link">&para;</a></h3>
+<p>El sistema de IEPS Cuota (impuesto fijo por cantidad — tabaco, alcohol, combustibles) en ERPNext tiene dos bugs:
+1. En <strong>Draft</strong>: <code>charge_type="Actual"</code> excluido de totales → resuelto parcialmente con FIX-V1 (commit 8)
+2. En <strong>Submit</strong>: las cuotas se vuelven $0 → <strong>sin resolver</strong> en el último commit</p>
+<p>Los 9 commits son el intento de resolver esto sin hackear ERPNext core, construyendo un sistema de 8 STCT específicos y ITT por item. El trabajo está al 60% — la generación de templates funciona, la autoselección funciona para casos básicos, pero las cuotas al submit siguen fallando.</p>
+<h3 id="impacto-real-en-el-site-actual-facturacion-v16dev">Impacto real en el site actual (facturacion-v16.dev)<a class="headerlink" href="#impacto-real-en-el-site-actual-facturacion-v16dev" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Aspecto</th>
+<th>Impacto</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Timbrado</td>
+<td><strong>NINGUNO</strong> — <code>timbrado_api.py</code> no se modifica</td>
+</tr>
+<tr>
+<td>SIs ya submitted/cancelled</td>
+<td><strong>NINGUNO</strong> — validate hook no se dispara sobre docs submitted</td>
+</tr>
+<tr>
+<td>Edición de SIs en Draft</td>
+<td><strong>POTENCIAL</strong> — validate busca STCT por variante y puede fallar si no los encuentra</td>
+</tr>
+<tr>
+<td>Items sin SAT code</td>
+<td>El validate hook (activo desde e1, commit 33) sigue lanzando <code>throw</code></td>
+</tr>
+<tr>
+<td>IEPS Cuota en Submit</td>
+<td><strong>SIGUE FALLANDO</strong> — Bug #2 sin resolver en commit 9</td>
+</tr>
+</tbody>
+</table>
+<h3 id="hay-algun-commit-de-los-9-que-sea-peligroso-incluir">¿Hay algún commit de los 9 que sea peligroso incluir?<a class="headerlink" href="#hay-algun-commit-de-los-9-que-sea-peligroso-incluir" title="Permanent link">&para;</a></h3>
+<p><strong>Commit 9 (d933c851) es el único con riesgo real:</strong>
+- <code>sales_invoice_automated_tax.py</code> tiene +93 líneas no documentadas en detalle (estado de investigación)
+- <code>mapeo_charge_type.py</code> existe pero "no probado aún"
+- El sistema ITT por item está incompleto: <code>itt_management.py</code> no existe, el hook <code>after_save</code> de IEPS Cuota SAT no existe</p>
+<p>Si alguna de esas 93 líneas en <code>sales_invoice_automated_tax.py</code> tiene un <code>frappe.throw()</code> en condición alcanzable, puede bloquear la edición de SIs sin warning previo.</p>
+<h3 id="recomendacion-final-sobre-los-9-commits">Recomendación final sobre los 9 commits<a class="headerlink" href="#recomendacion-final-sobre-los-9-commits" title="Permanent link">&para;</a></h3>
+<p><strong>Opción A — Incluir commits 1-8, excluir el 9:</strong>
+Los commits 1-8 son un conjunto coherente y mayormente completo. El generador de 8 STCT funciona, la autoselección funciona, el validate hook funciona. El único problema conocido es Bug #2 (cuotas IEPS en submit) que está documentado pero no resuelto — y los hooks IEPS están comentados de todos modos.</p>
+<p>Para hacer esto: hay que crear una rama desde el commit <code>a125521c</code> (commit 8).</p>
+<p><strong>Opción B — Usar solo <code>fix/ieps-tabaco</code> (commit 33):</strong>
+La opción más conservadora. Evita completamente el sistema de 8 STCT y la autoselección. Los templates consolidados siguen funcionando. Las cuotas IEPS en draft y submit tienen sus bugs conocidos del commit 33.</p>
+<p><strong>Para el objetivo inmediato (primer timbrado):</strong> La Opción B es suficiente. El timbrado no depende de ninguno de estos 9 commits. Se puede mergear e4 completo (o hasta el commit 8) cuando el sistema de IEPS Cuota en submit esté resuelto.</p>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Volver al principio
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 Facturación México - Documentación Técnica
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/tu-org/facturacion_mexico" target="_blank" rel="noopener" title="GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+      <div class="md-consent" data-md-component="consent" id="__consent" hidden>
+        <div class="md-consent__overlay"></div>
+        <aside class="md-consent__inner">
+          <form class="md-consent__form md-grid md-typeset" name="consent">
+            
+
+  
+    
+  
+
+
+
+
+
+<h4>Consentimiento de cookies</h4>
+<p>Utilizamos cookies para reconocer tus visitas repetidas y preferencias, así como para medir la efectividad de nuestra documentación y si los usuarios encuentran lo que están buscando. Con tu consentimiento, nos ayudas a mejorar nuestra documentación.
+</p>
+<input class="md-toggle" type="checkbox" id="__settings" >
+<div class="md-consent__settings">
+  <ul class="task-list">
+    
+      
+      
+        
+        
+      
+      <li class="task-list-item">
+        <label class="task-list-control">
+          <input type="checkbox" name="analytics" checked>
+          <span class="task-list-indicator"></span>
+          Google Analytics
+        </label>
+      </li>
+    
+  </ul>
+</div>
+<div class="md-consent__controls">
+  
+    
+      <button class="md-button md-button--primary">Aceptar</button>
+    
+    
+    
+  
+    
+    
+      <button type="reset" class="md-button md-button--primary">Rechazar</button>
+    
+    
+  
+    
+    
+    
+      <label class="md-button" for="__settings">Gestionar cookies</label>
+    
+  
+</div>
+          </form>
+        </aside>
+      </div>
+      <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout(function(){document.querySelector("[data-md-component=consent]").hidden=!1},250);var action,form=document.forms.consent;for(action of["submit","reset"])form.addEventListener(action,function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map(function(e){return[e,!0]}))),location.hash="",location.reload()})</script>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.expand", "navigation.instant", "navigation.sections", "navigation.tabs", "navigation.top", "search.highlight", "search.suggest"], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copiado al portapapeles", "clipboard.copy": "Copiar al portapapeles", "search.result.more.one": "1 m\u00e1s en esta p\u00e1gina", "search.result.more.other": "# m\u00e1s en esta p\u00e1gina", "search.result.none": "No se encontraron documentos", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Teclee para comenzar b\u00fasqueda", "search.result.term.missing": "Falta", "select.version": "Seleccionar versi\u00f3n"}, "version": {"default": "latest", "provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7c377c4.min.js"></script>
+      
+        <script src="../../assets/javascripts/extra.js"></script>
+      
+        <script src="../../assets/javascripts/advanced.js"></script>
+      
+    
+  </body>
+</html>

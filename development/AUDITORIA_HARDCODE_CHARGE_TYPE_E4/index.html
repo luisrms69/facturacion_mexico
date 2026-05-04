@@ -1,0 +1,1598 @@
+
+<!doctype html>
+<html lang="es" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentación completa del sistema de facturación electrónica para México">
+      
+      
+        <meta name="author" content="Equipo Desarrollo Facturación México">
+      
+      
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.3">
+    
+    
+      
+        <title>Auditoría Hardcode charge_type para E4 - Facturación México - Documentación Técnica</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.50c56a3b.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/advanced.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function n(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],n("js",new Date),n("config","G-XXXXXXXXXX"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){this.value&&n("event","search",{search_term:this.value})}),document$.subscribe(function(){var a=document.forms.feedback;if(void 0!==a)for(var e of a.querySelectorAll("[type=submit]"))e.addEventListener("click",function(e){e.preventDefault();var t=document.location.pathname,e=this.getAttribute("data-md-value");n("event","feedback",{page:t,data:e}),a.firstElementChild.disabled=!0;e=a.querySelector(".md-feedback__note [data-md-value='"+e+"']");e&&(e.hidden=!1)}),a.hidden=!1}),location$.subscribe(function(e){n("config","G-XXXXXXXXXX",{page_path:e.pathname})})});var e=document.createElement("script");e.async=!0,e.src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX",document.getElementById("__analytics").insertAdjacentElement("afterEnd",e)}</script>
+  
+    <script>var consent;"undefined"==typeof __md_analytics||(consent=__md_get("__consent"))&&consent.analytics&&__md_analytics()</script>
+  
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#auditoria-hardcode-charge_type-para-e4" class="md-skip">
+          Saltar a contenido
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabecera">
+    <a href="../.." title="Facturación México - Documentación Técnica" class="md-header__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Facturación México - Documentación Técnica
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Auditoría Hardcode charge_type para E4
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo oscuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo oscuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Búsqueda" placeholder="Búsqueda" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Buscar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpiar" aria-label="Limpiar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando búsqueda
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Pestañas" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+    
+  
+  Inicio
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../user-guide/" class="md-tabs__link">
+          
+  
+  Guía de Usuario
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/" class="md-tabs__link">
+          
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../" class="md-tabs__link">
+          
+  
+  Desarrollo
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navegación" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Facturación México - Documentación Técnica" class="md-nav__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Facturación México - Documentación Técnica
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Inicio
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Guía de Usuario
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Guía de Usuario
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Usuario - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/getting-started/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Primeros Pasos
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/draft-invoices/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Facturas en Borrador
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/troubleshooting/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    API Reference
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    API Reference - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/cfdi/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CFDI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/draft-management/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Draft Management
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/catalogos/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Catalogos SAT
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/hooks/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Hooks
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Desarrollo
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Desarrollo
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Desarrollo - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Setup Desarrollo
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../draft-workflow/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Draft Workflow
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#resumen-ejecutivo" class="md-nav__link">
+    <span class="md-ellipsis">
+      📊 RESUMEN EJECUTIVO
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📊 RESUMEN EJECUTIVO">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#clasificacion-por-prioridad" class="md-nav__link">
+    <span class="md-ellipsis">
+      Clasificación por prioridad:
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#hardcode-critico-bloquea-e4" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔴 HARDCODE CRÍTICO (BLOQUEA E4)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔴 HARDCODE CRÍTICO (BLOQUEA E4)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-mapeo-charge_type-hardcodeado" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Mapeo charge_type hardcodeado
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-hook-hardcode-charge_typeactual-iva-cascada" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Hook hardcode charge_type="Actual" (IVA cascada)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-hook-hardcode-charge_typeactual-ieps-cuota" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Hook hardcode charge_type="Actual" (IEPS cuota)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comentarios-deprecados" class="md-nav__link">
+    <span class="md-ellipsis">
+      🟡 COMENTARIOS DEPRECADOS
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🟡 COMENTARIOS DEPRECADOS">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#4-comentario-regla_basemonto_neto-deprecado" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Comentario regla_base="monto_neto" (deprecado)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-comentario-charge_typeactual-erpnext-redistribuye" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Comentario charge_type="Actual" (ERPNext redistribuye)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tabla-maestra-reglas-cambios-e4" class="md-nav__link">
+    <span class="md-ellipsis">
+      📋 TABLA MAESTRA REGLAS - CAMBIOS E4
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📋 TABLA MAESTRA REGLAS - CAMBIOS E4">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#roles-ieps-cuota-3-roles" class="md-nav__link">
+    <span class="md-ellipsis">
+      Roles IEPS Cuota (3 roles)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#plan-de-accion-e4" class="md-nav__link">
+    <span class="md-ellipsis">
+      🎯 PLAN DE ACCIÓN E4
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🎯 PLAN DE ACCIÓN E4">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fase-1-cambios-criticos-obligatorios" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fase 1: Cambios Críticos (OBLIGATORIOS)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Fase 1: Cambios Críticos (OBLIGATORIOS)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-actualizar-mapeo-charge_type" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.1 Actualizar mapeo charge_type
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-actualizar-tabla-maestra-3-roles-cuota" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.2 Actualizar tabla maestra (3 roles cuota)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13-deprecar-hooks-que-mutan-charge_type" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.3 Deprecar hooks que mutan charge_type
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fase-2-mejoras-arquitectonicas-recomendadas" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fase 2: Mejoras Arquitectónicas (RECOMENDADAS)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Fase 2: Mejoras Arquitectónicas (RECOMENDADAS)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-migrar-mapeo-a-bd-extensibilidad" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.1 Migrar mapeo a BD (extensibilidad)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-centralizar-logica-charge_type" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.2 Centralizar lógica charge_type
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#checklist-implementacion-e4" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ CHECKLIST IMPLEMENTACIÓN E4
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="✅ CHECKLIST IMPLEMENTACIÓN E4">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pre-implementacion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pre-implementación
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cambios-codigo" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cambios código
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Testing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#documentacion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Documentación
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#riesgos-identificados" class="md-nav__link">
+    <span class="md-ellipsis">
+      🚨 RIESGOS IDENTIFICADOS
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🚨 RIESGOS IDENTIFICADOS">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#riesgo-1-incompatibilidad-con-stct-legacy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Riesgo 1: Incompatibilidad con STCT legacy
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#riesgo-2-hooks-deprecados-causan-conflictos" class="md-nav__link">
+    <span class="md-ellipsis">
+      Riesgo 2: Hooks deprecados causan conflictos
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#riesgo-3-itt-con-cuotas-no-bloqueadas" class="md-nav__link">
+    <span class="md-ellipsis">
+      Riesgo 3: ITT con cuotas no bloqueadas
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="auditoria-hardcode-charge_type-para-e4">Auditoría Hardcode charge_type para E4<a class="headerlink" href="#auditoria-hardcode-charge_type-para-e4" title="Permanent link">&para;</a></h1>
+<p><strong>Proyecto:</strong> Facturación México
+<strong>Fecha:</strong> 2025-10-27
+<strong>Objetivo:</strong> Identificar todo hardcode de charge_type en el app para migración E4</p>
+<hr />
+<h2 id="resumen-ejecutivo">📊 RESUMEN EJECUTIVO<a class="headerlink" href="#resumen-ejecutivo" title="Permanent link">&para;</a></h2>
+<p><strong>Total archivos con hardcode:</strong> 3
+<strong>Total ocurrencias críticas:</strong> 5</p>
+<h3 id="clasificacion-por-prioridad">Clasificación por prioridad:<a class="headerlink" href="#clasificacion-por-prioridad" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>🔴 CRÍTICO</strong> - Bloquea E4: 3 ocurrencias</li>
+<li><strong>🟡 ADVERTENCIA</strong> - Comentarios deprecados: 2 ocurrencias</li>
+</ol>
+<hr />
+<h2 id="hardcode-critico-bloquea-e4">🔴 HARDCODE CRÍTICO (BLOQUEA E4)<a class="headerlink" href="#hardcode-critico-bloquea-e4" title="Permanent link">&para;</a></h2>
+<h3 id="1-mapeo-charge_type-hardcodeado">1. Mapeo charge_type hardcodeado<a class="headerlink" href="#1-mapeo-charge_type-hardcodeado" title="Permanent link">&para;</a></h3>
+<p><strong>Archivo:</strong> <code>facturacion_mexico/facturacion_fiscal/setup/generador_templates_fiscal.py</code>
+<strong>Líneas:</strong> 36-42</p>
+<div class="highlight"><pre><span></span><code><span class="n">_MAPEO_CHARGE_TYPE</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;monto_neto&quot;</span><span class="p">:</span> <span class="s2">&quot;On Net Total&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cantidad&quot;</span><span class="p">:</span> <span class="s2">&quot;Actual&quot;</span><span class="p">,</span>  <span class="c1"># ← PROBLEMA: Debe ser &quot;On Item Quantity&quot; en E4</span>
+    <span class="s2">&quot;fila_previa_monto&quot;</span><span class="p">:</span> <span class="s2">&quot;On Previous Row Amount&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;fila_previa_total&quot;</span><span class="p">:</span> <span class="s2">&quot;On Previous Row Total&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><strong>Impacto:</strong>
+- ✅ Funciona: Lee de tabla maestra <code>reglas_calculo_fiscal.py</code>
+- ❌ Problema: Mapeo hardcodeado en diccionario Python
+- ❌ No extensible: Agregar nuevos charge_types requiere cambio código</p>
+<p><strong>Solución E4:</strong>
+1. <strong>Corto plazo:</strong> Cambiar <code>"cantidad": "Actual"</code> → <code>"cantidad": "On Item Quantity"</code>
+2. <strong>Largo plazo:</strong> Migrar a tabla BD configurable (DocType "Mapeo Charge Type")</p>
+<p><strong>Código corregido E4:</strong>
+<div class="highlight"><pre><span></span><code><span class="n">_MAPEO_CHARGE_TYPE</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;monto_neto&quot;</span><span class="p">:</span> <span class="s2">&quot;On Net Total&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cantidad&quot;</span><span class="p">:</span> <span class="s2">&quot;On Item Quantity&quot;</span><span class="p">,</span>  <span class="c1"># ← E4: Cambio para IEPS cuotas</span>
+    <span class="s2">&quot;fila_previa_monto&quot;</span><span class="p">:</span> <span class="s2">&quot;On Previous Row Amount&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;fila_previa_total&quot;</span><span class="p">:</span> <span class="s2">&quot;On Previous Row Total&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<hr />
+<h3 id="2-hook-hardcode-charge_typeactual-iva-cascada">2. Hook hardcode charge_type="Actual" (IVA cascada)<a class="headerlink" href="#2-hook-hardcode-charge_typeactual-iva-cascada" title="Permanent link">&para;</a></h3>
+<p><strong>Archivo:</strong> <code>facturacion_mexico/hooks_handlers/sales_invoice_ieps.py</code>
+<strong>Línea:</strong> 249</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Cambiar a Actual y sincronizar tax_amount (fix discrepancia PAC)</span>
+<span class="n">iva_tax</span><span class="o">.</span><span class="n">charge_type</span> <span class="o">=</span> <span class="s2">&quot;Actual&quot;</span>
+<span class="n">iva_tax</span><span class="o">.</span><span class="n">row_id</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Actual no puede tener row_id</span>
+<span class="n">iva_tax</span><span class="o">.</span><span class="n">rate</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># Actual no usa tasa porcentual</span>
+</code></pre></div>
+<p><strong>Contexto:</strong> Función <code>_calcular_y_distribuir_iva_sobre_ieps_cuota()</code></p>
+<p><strong>Impacto:</strong>
+- ⚠️ Hook muta charge_type de IVA cascada a "Actual"
+- ❌ En E4: IVA cascada debe permanecer "On Previous Row Amount"
+- ❌ Este código ROMPE arquitectura E4</p>
+<p><strong>Solución E4:</strong>
+- <strong>ELIMINAR</strong> esta línea completamente
+- IVA cascada debe conservar "On Previous Row Amount" del STCT
+- ERPNext calcula correctamente con charge_type nativo</p>
+<p><strong>Acción:</strong> DEPRECAR función completa - No necesaria en E4</p>
+<hr />
+<h3 id="3-hook-hardcode-charge_typeactual-ieps-cuota">3. Hook hardcode charge_type="Actual" (IEPS cuota)<a class="headerlink" href="#3-hook-hardcode-charge_typeactual-ieps-cuota" title="Permanent link">&para;</a></h3>
+<p><strong>Archivo:</strong> <code>facturacion_mexico/hooks_handlers/sales_invoice_ieps.py</code>
+<strong>Línea:</strong> 346</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Actualizar tax row</span>
+<span class="n">tax_row</span><span class="o">.</span><span class="n">charge_type</span> <span class="o">=</span> <span class="s2">&quot;Actual&quot;</span>
+<span class="n">tax_row</span><span class="o">.</span><span class="n">rate</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># No aplica para Actual</span>
+<span class="n">tax_row</span><span class="o">.</span><span class="n">tax_amount</span> <span class="o">=</span> <span class="n">flt</span><span class="p">(</span><span class="n">total_ieps</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Contexto:</strong> Función <code>calcular_ieps_cuota()</code></p>
+<p><strong>Impacto:</strong>
+- ⚠️ Hook muta charge_type de cuota IEPS a "Actual"
+- ❌ En E4: Cuotas deben permanecer "On Item Quantity"
+- ❌ Este código ROMPE arquitectura E4</p>
+<p><strong>Solución E4:</strong>
+- <strong>ELIMINAR</strong> asignación de charge_type
+- STCT ya genera con "On Item Quantity" (desde tabla maestra)
+- Hook solo debe calcular <code>tax_amount</code> si necesario</p>
+<p><strong>Código corregido E4:</strong>
+<div class="highlight"><pre><span></span><code><span class="c1"># NO mutar charge_type - ya viene correcto de STCT</span>
+<span class="c1"># tax_row.charge_type = &quot;On Item Quantity&quot;  # ← ELIMINADO</span>
+<span class="n">tax_row</span><span class="o">.</span><span class="n">rate</span> <span class="o">=</span> <span class="n">cuota_unitaria</span>  <span class="c1"># Cuota por unidad canónica</span>
+<span class="n">tax_row</span><span class="o">.</span><span class="n">tax_amount</span> <span class="o">=</span> <span class="n">flt</span><span class="p">(</span><span class="n">total_ieps</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>  <span class="c1"># ERPNext calcula automático</span>
+</code></pre></div></p>
+<hr />
+<h2 id="comentarios-deprecados">🟡 COMENTARIOS DEPRECADOS<a class="headerlink" href="#comentarios-deprecados" title="Permanent link">&para;</a></h2>
+<h3 id="4-comentario-regla_basemonto_neto-deprecado">4. Comentario regla_base="monto_neto" (deprecado)<a class="headerlink" href="#4-comentario-regla_basemonto_neto-deprecado" title="Permanent link">&para;</a></h3>
+<p><strong>Archivo:</strong> <code>facturacion_mexico/utils/reglas_calculo_fiscal.py</code>
+<strong>Líneas:</strong> 158-161</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># NOTA E1: Aunque fiscalmente IEPS Cuota se calcula por cantidad, usamos &quot;monto_neto&quot;</span>
+<span class="c1"># como regla_base para generar charge_type=&quot;On Net Total&quot; en STCT. Esto evita que</span>
+<span class="c1"># ERPNext reemplace filas STCT cuando items tienen ITT (add_taxes_from_item_tax_template=1).</span>
+<span class="c1"># El hook calcular_ieps_cuota() setea charge_type=&quot;Actual&quot; + tax_amount dinámicamente.</span>
+</code></pre></div>
+<p><strong>Impacto:</strong>
+- ⚠️ Comentario describe arquitectura PRE-E4
+- ❌ Confuso para mantenimiento futuro
+- ⚠️ Indica regla_base incorrecta en tabla maestra</p>
+<p><strong>Solución E4:</strong>
+- <strong>ACTUALIZAR</strong> comentario explicando nueva arquitectura
+- <strong>CAMBIAR</strong> regla_base de cuotas IEPS: <code>"monto_neto"</code> → <code>"cantidad"</code></p>
+<p><strong>Comentario actualizado E4:</strong>
+<div class="highlight"><pre><span></span><code><span class="c1"># NOTA E4: IEPS Cuota se calcula por cantidad (cuota unitaria × UOM canónica).</span>
+<span class="c1"># regla_base=&quot;cantidad&quot; mapea a charge_type=&quot;On Item Quantity&quot; en STCT.</span>
+<span class="c1"># ERPNext calcula automáticamente: rate × qty (sin hooks).</span>
+</code></pre></div></p>
+<hr />
+<h3 id="5-comentario-charge_typeactual-erpnext-redistribuye">5. Comentario charge_type="Actual" (ERPNext redistribuye)<a class="headerlink" href="#5-comentario-charge_typeactual-erpnext-redistribuye" title="Permanent link">&para;</a></h3>
+<p><strong>Archivo:</strong> <code>facturacion_mexico/hooks_handlers/sales_invoice_ieps.py</code>
+<strong>Líneas:</strong> 448-450</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># ERPNext redistribuye automáticamente los impuestos con charge_type=&quot;Actual&quot;</span>
+<span class="c1"># de forma proporcional entre todos los items. Este hook corrige ese</span>
+<span class="c1"># comportamiento para IEPS Cuota, restaurando la asignación correcta por item.</span>
+</code></pre></div>
+<p><strong>Contexto:</strong> Función <code>corregir_distribucion_ieps_cuota_post_submit()</code></p>
+<p><strong>Impacto:</strong>
+- ⚠️ Comentario describe workaround para "Actual"
+- ✅ Con "On Item Quantity" este hook NO es necesario
+- ❌ Función completa debe DEPRECARSE en E4</p>
+<p><strong>Solución E4:</strong>
+- <strong>DEPRECAR</strong> función <code>corregir_distribucion_ieps_cuota_post_submit()</code>
+- <strong>ELIMINAR</strong> hook <code>on_submit</code> que llama esta función
+- ERPNext maneja <code>item_wise_tax_detail</code> correctamente con "On Item Quantity"</p>
+<hr />
+<h2 id="tabla-maestra-reglas-cambios-e4">📋 TABLA MAESTRA REGLAS - CAMBIOS E4<a class="headerlink" href="#tabla-maestra-reglas-cambios-e4" title="Permanent link">&para;</a></h2>
+<h3 id="roles-ieps-cuota-3-roles">Roles IEPS Cuota (3 roles)<a class="headerlink" href="#roles-ieps-cuota-3-roles" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Rol Fiscal</th>
+<th>regla_base ACTUAL</th>
+<th>regla_base E4</th>
+<th>Línea</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ROL_IEPS_AZU</code> (Azúcar/Bebidas)</td>
+<td><code>"monto_neto"</code> ❌</td>
+<td><code>"cantidad"</code> ✅</td>
+<td>164</td>
+</tr>
+<tr>
+<td><code>ROL_IEPS_COMB</code> (Combustibles)</td>
+<td><code>"monto_neto"</code> ❌</td>
+<td><code>"cantidad"</code> ✅</td>
+<td>177</td>
+</tr>
+<tr>
+<td><code>ROL_IEPS_TABQ</code> (Tabaco Cuota)</td>
+<td><code>"monto_neto"</code> ❌</td>
+<td><code>"cantidad"</code> ✅</td>
+<td>189</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Cambios necesarios:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># ANTES (Pre-E4)</span>
+<span class="p">(</span>
+    <span class="n">ROL_IEPS_AZU</span><span class="p">,</span>
+    <span class="s2">&quot;monto_neto&quot;</span><span class="p">,</span>  <span class="c1"># ← INCORRECTO</span>
+    <span class="s2">&quot;cuota&quot;</span><span class="p">,</span>
+    <span class="o">...</span>
+<span class="p">)</span>
+
+<span class="c1"># DESPUÉS (E4)</span>
+<span class="p">(</span>
+    <span class="n">ROL_IEPS_AZU</span><span class="p">,</span>
+    <span class="s2">&quot;cantidad&quot;</span><span class="p">,</span>  <span class="c1"># ← CORRECTO</span>
+    <span class="s2">&quot;cuota&quot;</span><span class="p">,</span>
+    <span class="o">...</span>
+<span class="p">)</span>
+</code></pre></div>
+<hr />
+<h2 id="plan-de-accion-e4">🎯 PLAN DE ACCIÓN E4<a class="headerlink" href="#plan-de-accion-e4" title="Permanent link">&para;</a></h2>
+<h3 id="fase-1-cambios-criticos-obligatorios">Fase 1: Cambios Críticos (OBLIGATORIOS)<a class="headerlink" href="#fase-1-cambios-criticos-obligatorios" title="Permanent link">&para;</a></h3>
+<h4 id="11-actualizar-mapeo-charge_type">1.1 Actualizar mapeo charge_type<a class="headerlink" href="#11-actualizar-mapeo-charge_type" title="Permanent link">&para;</a></h4>
+<p><strong>Archivo:</strong> <code>generador_templates_fiscal.py:38</code>
+<div class="highlight"><pre><span></span><code><span class="s2">&quot;cantidad&quot;</span><span class="p">:</span> <span class="s2">&quot;On Item Quantity&quot;</span><span class="p">,</span>  <span class="c1"># Cambio E4</span>
+</code></pre></div></p>
+<h4 id="12-actualizar-tabla-maestra-3-roles-cuota">1.2 Actualizar tabla maestra (3 roles cuota)<a class="headerlink" href="#12-actualizar-tabla-maestra-3-roles-cuota" title="Permanent link">&para;</a></h4>
+<p><strong>Archivo:</strong> <code>reglas_calculo_fiscal.py:164,177,189</code>
+<div class="highlight"><pre><span></span><code><span class="c1"># Cambiar regla_base de &quot;monto_neto&quot; → &quot;cantidad&quot;</span>
+<span class="p">(</span><span class="n">ROL_IEPS_AZU</span><span class="p">,</span> <span class="s2">&quot;cantidad&quot;</span><span class="p">,</span> <span class="s2">&quot;cuota&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+<span class="p">(</span><span class="n">ROL_IEPS_COMB</span><span class="p">,</span> <span class="s2">&quot;cantidad&quot;</span><span class="p">,</span> <span class="s2">&quot;cuota&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+<span class="p">(</span><span class="n">ROL_IEPS_TABQ</span><span class="p">,</span> <span class="s2">&quot;cantidad&quot;</span><span class="p">,</span> <span class="s2">&quot;cuota&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+</code></pre></div></p>
+<h4 id="13-deprecar-hooks-que-mutan-charge_type">1.3 Deprecar hooks que mutan charge_type<a class="headerlink" href="#13-deprecar-hooks-que-mutan-charge_type" title="Permanent link">&para;</a></h4>
+<p><strong>Archivo:</strong> <code>sales_invoice_ieps.py</code></p>
+<p><strong>Funciones a deprecar:</strong>
+- <code>_calcular_y_distribuir_iva_sobre_ieps_cuota()</code> (líneas ~200-280)
+- <code>corregir_distribucion_ieps_cuota_post_submit()</code> (líneas ~430-580)</p>
+<p><strong>Hooks a eliminar:</strong>
+- <code>on_save</code> hook para calcular_ieps_cuota() (parcial - solo charge_type)
+- <code>on_submit</code> hook para corregir distribución</p>
+<hr />
+<h3 id="fase-2-mejoras-arquitectonicas-recomendadas">Fase 2: Mejoras Arquitectónicas (RECOMENDADAS)<a class="headerlink" href="#fase-2-mejoras-arquitectonicas-recomendadas" title="Permanent link">&para;</a></h3>
+<h4 id="21-migrar-mapeo-a-bd-extensibilidad">2.1 Migrar mapeo a BD (extensibilidad)<a class="headerlink" href="#21-migrar-mapeo-a-bd-extensibilidad" title="Permanent link">&para;</a></h4>
+<p><strong>Crear DocType:</strong> "Mapeo Charge Type Fiscal"</p>
+<p><strong>Campos:</strong>
+- <code>regla_base</code> (Select): monto_neto, cantidad, fila_previa_monto, etc.
+- <code>charge_type_erpnext</code> (Select): On Net Total, On Item Quantity, etc.
+- <code>habilitado</code> (Check): Para deprecar sin borrar
+- <code>version</code> (Data): Control versión SAT
+- <code>notas</code> (Text): Documentación</p>
+<p><strong>Ventajas:</strong>
+- ✅ Configurable vía UI (sin cambios código)
+- ✅ Extensible para nuevos charge_types
+- ✅ Auditable (track_changes=1)
+- ✅ Versionable (rollback configuraciones)</p>
+<h4 id="22-centralizar-logica-charge_type">2.2 Centralizar lógica charge_type<a class="headerlink" href="#22-centralizar-logica-charge_type" title="Permanent link">&para;</a></h4>
+<p><strong>Crear módulo:</strong> <code>facturacion_mexico/utils/mapeo_charge_type.py</code></p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">obtener_charge_type</span><span class="p">(</span><span class="n">regla_base</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Obtiene charge_type ERPNext desde regla_base.</span>
+
+<span class="sd">    Prioridad:</span>
+<span class="sd">    1. Mapeo en BD (DocType &quot;Mapeo Charge Type Fiscal&quot;)</span>
+<span class="sd">    2. Fallback a diccionario por defecto</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        regla_base: Regla base desde tabla maestra</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: charge_type ERPNext</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Intentar BD primero</span>
+    <span class="n">mapeo</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span>
+        <span class="s2">&quot;Mapeo Charge Type Fiscal&quot;</span><span class="p">,</span>
+        <span class="p">{</span><span class="s2">&quot;regla_base&quot;</span><span class="p">:</span> <span class="n">regla_base</span><span class="p">,</span> <span class="s2">&quot;habilitado&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+        <span class="s2">&quot;charge_type_erpnext&quot;</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">mapeo</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">mapeo</span>
+
+    <span class="c1"># Fallback a diccionario</span>
+    <span class="k">return</span> <span class="n">_MAPEO_CHARGE_TYPE_DEFAULT</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">regla_base</span><span class="p">,</span> <span class="s2">&quot;On Net Total&quot;</span><span class="p">)</span>
+</code></pre></div>
+<hr />
+<h2 id="checklist-implementacion-e4">✅ CHECKLIST IMPLEMENTACIÓN E4<a class="headerlink" href="#checklist-implementacion-e4" title="Permanent link">&para;</a></h2>
+<h3 id="pre-implementacion">Pre-implementación<a class="headerlink" href="#pre-implementacion" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[x] Auditoría hardcode completada</li>
+<li>[ ] Backup BD creado</li>
+<li>[ ] Feature branch creado</li>
+</ul>
+<h3 id="cambios-codigo">Cambios código<a class="headerlink" href="#cambios-codigo" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Actualizar mapeo: "cantidad" → "On Item Quantity"</li>
+<li>[ ] Actualizar tabla maestra: 3 roles cuota</li>
+<li>[ ] Deprecar hooks que mutan charge_type</li>
+<li>[ ] Actualizar comentarios deprecados</li>
+<li>[ ] Regenerar 7 STCT con nueva configuración</li>
+</ul>
+<h3 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Test unitario: mapeo charge_type correcto</li>
+<li>[ ] Test integración: STCT genera "On Item Quantity"</li>
+<li>[ ] Test funcional: SI con cuotas IEPS (Draft = Submit)</li>
+<li>[ ] Test regresión: IVA cascada permanece "On Previous Row Amount"</li>
+</ul>
+<h3 id="documentacion">Documentación<a class="headerlink" href="#documentacion" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Actualizar ARQUITECTURA_E4_ON_ITEM_QUANTITY.md</li>
+<li>[ ] Actualizar CHANGELOG.md</li>
+<li>[ ] Crear migration notes (BREAKING CHANGE)</li>
+</ul>
+<hr />
+<h2 id="riesgos-identificados">🚨 RIESGOS IDENTIFICADOS<a class="headerlink" href="#riesgos-identificados" title="Permanent link">&para;</a></h2>
+<h3 id="riesgo-1-incompatibilidad-con-stct-legacy">Riesgo 1: Incompatibilidad con STCT legacy<a class="headerlink" href="#riesgo-1-incompatibilidad-con-stct-legacy" title="Permanent link">&para;</a></h3>
+<p><strong>Impacto:</strong> STCT viejos con "On Net Total" no funcionarán
+<strong>Mitigación:</strong> Regeneración obligatoria de STCT (7 templates)</p>
+<h3 id="riesgo-2-hooks-deprecados-causan-conflictos">Riesgo 2: Hooks deprecados causan conflictos<a class="headerlink" href="#riesgo-2-hooks-deprecados-causan-conflictos" title="Permanent link">&para;</a></h3>
+<p><strong>Impacto:</strong> Hooks activos mutan charge_type a "Actual"
+<strong>Mitigación:</strong> Deprecar hooks ANTES de regenerar STCT</p>
+<h3 id="riesgo-3-itt-con-cuotas-no-bloqueadas">Riesgo 3: ITT con cuotas no bloqueadas<a class="headerlink" href="#riesgo-3-itt-con-cuotas-no-bloqueadas" title="Permanent link">&para;</a></h3>
+<p><strong>Impacto:</strong> ITT pueden seguir teniendo cuotas IEPS
+<strong>Mitigación:</strong> Implementar validador duro (Paso siguiente)</p>
+<hr />
+<p><strong>Fecha auditoría:</strong> 2025-10-27
+<strong>Estado:</strong> ✅ COMPLETADA
+<strong>Siguiente paso:</strong> Implementar cambios Fase 1</p>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Volver al principio
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 Facturación México - Documentación Técnica
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/tu-org/facturacion_mexico" target="_blank" rel="noopener" title="GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+      <div class="md-consent" data-md-component="consent" id="__consent" hidden>
+        <div class="md-consent__overlay"></div>
+        <aside class="md-consent__inner">
+          <form class="md-consent__form md-grid md-typeset" name="consent">
+            
+
+  
+    
+  
+
+
+
+
+
+<h4>Consentimiento de cookies</h4>
+<p>Utilizamos cookies para reconocer tus visitas repetidas y preferencias, así como para medir la efectividad de nuestra documentación y si los usuarios encuentran lo que están buscando. Con tu consentimiento, nos ayudas a mejorar nuestra documentación.
+</p>
+<input class="md-toggle" type="checkbox" id="__settings" >
+<div class="md-consent__settings">
+  <ul class="task-list">
+    
+      
+      
+        
+        
+      
+      <li class="task-list-item">
+        <label class="task-list-control">
+          <input type="checkbox" name="analytics" checked>
+          <span class="task-list-indicator"></span>
+          Google Analytics
+        </label>
+      </li>
+    
+  </ul>
+</div>
+<div class="md-consent__controls">
+  
+    
+      <button class="md-button md-button--primary">Aceptar</button>
+    
+    
+    
+  
+    
+    
+      <button type="reset" class="md-button md-button--primary">Rechazar</button>
+    
+    
+  
+    
+    
+    
+      <label class="md-button" for="__settings">Gestionar cookies</label>
+    
+  
+</div>
+          </form>
+        </aside>
+      </div>
+      <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout(function(){document.querySelector("[data-md-component=consent]").hidden=!1},250);var action,form=document.forms.consent;for(action of["submit","reset"])form.addEventListener(action,function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map(function(e){return[e,!0]}))),location.hash="",location.reload()})</script>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.expand", "navigation.instant", "navigation.sections", "navigation.tabs", "navigation.top", "search.highlight", "search.suggest"], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copiado al portapapeles", "clipboard.copy": "Copiar al portapapeles", "search.result.more.one": "1 m\u00e1s en esta p\u00e1gina", "search.result.more.other": "# m\u00e1s en esta p\u00e1gina", "search.result.none": "No se encontraron documentos", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Teclee para comenzar b\u00fasqueda", "search.result.term.missing": "Falta", "select.version": "Seleccionar versi\u00f3n"}, "version": {"default": "latest", "provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7c377c4.min.js"></script>
+      
+        <script src="../../assets/javascripts/extra.js"></script>
+      
+        <script src="../../assets/javascripts/advanced.js"></script>
+      
+    
+  </body>
+</html>

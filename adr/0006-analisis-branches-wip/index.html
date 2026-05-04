@@ -20,7 +20,7 @@
     
     
       
-        <title>📋 Índice de Planes de Implementación - Facturación México - Documentación Técnica</title>
+        <title>ADR 0006 — ANÁLISIS DE BRANCHES WIP - Facturación México - Documentación Técnica</title>
       
     
     
@@ -86,7 +86,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#indice-de-planes-de-implementacion" class="md-skip">
+        <a href="#adr-0006-analisis-de-branches-wip" class="md-skip">
           Saltar a contenido
         </a>
       
@@ -124,7 +124,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              📋 Índice de Planes de Implementación
+              ADR 0006 — ANÁLISIS DE BRANCHES WIP
             
           </span>
         </div>
@@ -850,28 +850,100 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#planes-activos" class="md-nav__link">
+  <a href="#tabla-resumen" class="md-nav__link">
     <span class="md-ellipsis">
-      🟢 Planes Activos
+      Tabla resumen
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="🟢 Planes Activos">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#analisis-por-branch" class="md-nav__link">
+    <span class="md-ellipsis">
+      Análisis por branch
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Análisis por branch">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#testing-y-validacion" class="md-nav__link">
+  <a href="#fixremove-zombie-patch-create-custom-fields-1-commit-urgente" class="md-nav__link">
     <span class="md-ellipsis">
-      Testing y Validación
+      fix/remove-zombie-patch-create-custom-fields — 1 commit ⚡ URGENTE
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#arquitectura-y-framework" class="md-nav__link">
+  <a href="#featureinfra-setup-4-commits" class="md-nav__link">
     <span class="md-ellipsis">
-      Arquitectura y Framework
+      feature/infra-setup — 4 commits
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#featuremigracion-tax-category-to-custom-field-1-commit" class="md-nav__link">
+    <span class="md-ellipsis">
+      feature/migracion-tax-category-to-custom-field — 1 commit
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#featmx-fiscal-e0-e3-issues-65-66-10-commits" class="md-nav__link">
+    <span class="md-ellipsis">
+      feat/mx-fiscal-E0-E3-issues-65-66 — 10 commits
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#featuremigracion-tax-category-correct-base-16-commits" class="md-nav__link">
+    <span class="md-ellipsis">
+      feature/migracion-tax-category-correct-base — 16 commits
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#featuree1-automated-tax-system-30-commits" class="md-nav__link">
+    <span class="md-ellipsis">
+      feature/e1-automated-tax-system — 30 commits ⭐
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixieps-tabaco-dual-campos-tax-breakup-33-commits" class="md-nav__link">
+    <span class="md-ellipsis">
+      fix/ieps-tabaco-dual-campos-tax-breakup — 33 commits ⭐
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#featuree4-ieps-on-item-quantity-42-commits-candidata-principal" class="md-nav__link">
+    <span class="md-ellipsis">
+      feature/e4-ieps-on-item-quantity — 42 commits 🏆 CANDIDATA PRINCIPAL
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#featurecleanup-documentacion-one-offs-1-commit" class="md-nav__link">
+    <span class="md-ellipsis">
+      feature/cleanup-documentacion-one-offs — 1 commit
     </span>
   </a>
   
@@ -883,19 +955,28 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#planes-programados" class="md-nav__link">
+  <a href="#arbol-de-linaje-entre-branches" class="md-nav__link">
     <span class="md-ellipsis">
-      🟡 Planes Programados
+      Árbol de linaje entre branches
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="🟡 Planes Programados">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#recomendacion-de-merge" class="md-nav__link">
+    <span class="md-ellipsis">
+      Recomendación de merge
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Recomendación de merge">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#integracion-y-compliance" class="md-nav__link">
+  <a href="#orden-sugerido" class="md-nav__link">
     <span class="md-ellipsis">
-      Integración y Compliance
+      Orden sugerido:
     </span>
   </a>
   
@@ -907,60 +988,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#planes-completados" class="md-nav__link">
+  <a href="#impacto-en-el-sistema-actual-main" class="md-nav__link">
     <span class="md-ellipsis">
-      🟢 Planes Completados
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#convenciones" class="md-nav__link">
-    <span class="md-ellipsis">
-      📋 Convenciones
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="📋 Convenciones">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#estructura-estandar-plan" class="md-nav__link">
-    <span class="md-ellipsis">
-      Estructura Estándar Plan:
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#categorias-disponibles" class="md-nav__link">
-    <span class="md-ellipsis">
-      Categorías Disponibles:
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#estados-plan" class="md-nav__link">
-    <span class="md-ellipsis">
-      Estados Plan:
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#agregar-nuevo-plan" class="md-nav__link">
-    <span class="md-ellipsis">
-      🎯 Agregar Nuevo Plan
+      Impacto en el sistema actual (main)
     </span>
   </a>
   
@@ -981,83 +1011,292 @@
                   
 
 
-<h1 id="indice-de-planes-de-implementacion">📋 Índice de Planes de Implementación<a class="headerlink" href="#indice-de-planes-de-implementacion" title="Permanent link">&para;</a></h1>
-<p><strong>Proyecto:</strong> Facturación México
-<strong>Propósito:</strong> Registro central de todos los planes ejecutables del proyecto</p>
+<h1 id="adr-0006-analisis-de-branches-wip">ADR 0006 — ANÁLISIS DE BRANCHES WIP<a class="headerlink" href="#adr-0006-analisis-de-branches-wip" title="Permanent link">&para;</a></h1>
+<p>======================================
+Fecha: 2026-05-01
+Método: <code>gh api repos/luisrms69/facturacion_mexico/compare/main...&lt;branch&gt;</code></p>
 <hr />
-<h2 id="planes-activos">🟢 <strong>Planes Activos</strong><a class="headerlink" href="#planes-activos" title="Permanent link">&para;</a></h2>
-<h3 id="testing-y-validacion"><strong>Testing y Validación</strong><a class="headerlink" href="#testing-y-validacion" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong><a href="../planes/plan-testing-sistema-facturacion/testing-ui-ux-sistema-facturacion/">testing-ui-ux-sistema-facturacion.md</a></strong></li>
-<li><strong>Estado:</strong> ⏳ Pendiente ejecución</li>
-<li><strong>Objetivo:</strong> Validación completa UI/UX y lógica de negocio</li>
-<li><strong>Cobertura:</strong> 62 casos (básicos → intermedios → avanzados)</li>
-<li><strong>Tiempo estimado:</strong> 6 horas</li>
-<li><strong>Última actualización:</strong> 2025-09-17</li>
-</ul>
-<h3 id="arquitectura-y-framework"><strong>Arquitectura y Framework</strong><a class="headerlink" href="#arquitectura-y-framework" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong><a href="../arquitectura-testing/">arquitectura-testing.md</a></strong></li>
-<li><strong>Estado:</strong> ✅ Documentado</li>
-<li><strong>Objetivo:</strong> Framework 4-layer testing comprehensivo</li>
-<li><strong>Metodología:</strong> REGLA #33 (progresivo) + REGLA #34 (strengthening)</li>
-<li><strong>Cobertura:</strong> 49 archivos, 105+ tests, 4700+ líneas código</li>
-<li><strong>Última actualización:</strong> 2025-09-22</li>
-</ul>
+<h2 id="tabla-resumen">Tabla resumen<a class="headerlink" href="#tabla-resumen" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Branch</th>
+<th style="text-align: center;">Commits sobre main</th>
+<th>Archivos código tocados</th>
+<th>Funcionalidad</th>
+<th style="text-align: center;">IEPS</th>
+<th style="text-align: center;">Tax Category</th>
+<th style="text-align: center;">Prioridad merge</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fix/remove-zombie-patch-create-custom-fields</code></td>
+<td style="text-align: center;">1</td>
+<td><code>patches.txt</code></td>
+<td>Elimina patch zombie que rompe install v16</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;"><strong>URGENTE</strong></td>
+</tr>
+<tr>
+<td><code>feature/infra-setup</code></td>
+<td style="text-align: center;">4</td>
+<td><code>CLAUDE.md</code>, <code>.github/</code></td>
+<td>CI, PR template, ADR Fase 0</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">Alta</td>
+</tr>
+<tr>
+<td><code>feature/migracion-tax-category-to-custom-field</code></td>
+<td style="text-align: center;">1</td>
+<td><code>patches.txt</code>, <code>custom_field.json</code>, <code>patches/v1_0/migrate_customer_tax_category_to_fm_tax_regime.py</code></td>
+<td>Solo el patch de migración tax_category→fm_tax_regime</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">✓✓✓</td>
+<td style="text-align: center;">Media (superado por e1)</td>
+</tr>
+<tr>
+<td><code>feat/mx-fiscal-E0-E3-issues-65-66</code></td>
+<td style="text-align: center;">10</td>
+<td><code>configuracion_fiscal_mexico</code>, <code>mapeo_cuenta_fiscal_mexico</code>, <code>constantes_fiscales.py</code>, <code>generador_templates_fiscal.py</code>, <code>hooks_handlers/sales_invoice_automated_tax.py</code></td>
+<td>Wizard mapeo fiscal E0.5 + DocTypes base + sistema automatizado impuestos (estructura)</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">Media (superado por e1)</td>
+</tr>
+<tr>
+<td><code>feature/migracion-tax-category-correct-base</code></td>
+<td style="text-align: center;">16</td>
+<td>ídem E0-E3 + <code>timbrado_api.py</code>, <code>factura_fiscal_mexico.py</code></td>
+<td>E0.5 + migración tax_category completa + limpieza Tax Categories SAT</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✓✓✓</td>
+<td style="text-align: center;">Media (superado por e1)</td>
+</tr>
+<tr>
+<td><code>feature/e1-automated-tax-system</code></td>
+<td style="text-align: center;">30</td>
+<td>+<code>ieps_cuota_sat</code>, <code>utils/calculo_impuestos.py</code>, <code>utils/reglas_calculo_fiscal.py</code>, <code>utils/roles_fiscales.py</code>, <code>setup/item_groups.py</code></td>
+<td>Sistema completo E0→E4: wizard + migración + IEPS granular + retenciones + puente SI→PAC</td>
+<td style="text-align: center;">✓✓✓</td>
+<td style="text-align: center;">✓✓✓</td>
+<td style="text-align: center;">Alta (base sólida)</td>
+</tr>
+<tr>
+<td><code>fix/ieps-tabaco-dual-campos-tax-breakup</code></td>
+<td style="text-align: center;">33</td>
+<td>ídem e1 + <code>utils/clasificacion_items.py</code></td>
+<td>Superset de e1 + fix IEPS Cuota congelado + corrección keys item_wise_tax_detail</td>
+<td style="text-align: center;">✓✓✓✓</td>
+<td style="text-align: center;">✓✓✓</td>
+<td style="text-align: center;">Alta (más avanzado que e1)</td>
+</tr>
+<tr>
+<td><code>feature/e4-ieps-on-item-quantity</code></td>
+<td style="text-align: center;">42</td>
+<td>ídem fix/ieps + <code>utils/mapeo_charge_type.py</code>, tests adicionales</td>
+<td>La más completa: todo lo anterior + STCT 8 específicos + clasificación items + FIX-V1 cuotas</td>
+<td style="text-align: center;">✓✓✓✓</td>
+<td style="text-align: center;">✓✓✓</td>
+<td style="text-align: center;"><strong>Candidata principal</strong> (WIP en últimos commits)</td>
+</tr>
+<tr>
+<td><code>feature/cleanup-documentacion-one-offs</code></td>
+<td style="text-align: center;">1</td>
+<td>solo <code>docs/</code></td>
+<td>Mueve archivos Sprint6 a docs/, limpia one-offs</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">Baja (solo docs)</td>
+</tr>
+<tr>
+<td><code>develop</code></td>
+<td style="text-align: center;">0</td>
+<td>—</td>
+<td>Vacía, idéntica a main</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">Ignorar</td>
+</tr>
+</tbody>
+</table>
 <hr />
-<h2 id="planes-programados">🟡 <strong>Planes Programados</strong><a class="headerlink" href="#planes-programados" title="Permanent link">&para;</a></h2>
-<h3 id="integracion-y-compliance"><strong>Integración y Compliance</strong><a class="headerlink" href="#integracion-y-compliance" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong><a href="../planes/plan-fiscal-implementacion-mx-e0-e8/PLAN-FISCAL-IMPLEMENTACION-MX-E0-E8/">PLAN-FISCAL-IMPLEMENTACION-MX-E0-E8.md</a></strong></li>
-<li><strong>Estado:</strong> 🔄 En ejecución</li>
-<li><strong>Objetivo:</strong> Implementación completa sistema fiscal mexicano (E0-E8)</li>
-<li><strong>Issues:</strong> #65, #66</li>
-<li><strong>Rama:</strong> <code>feat/mx-fiscal-E0-E3-issues-65-66</code></li>
-<li><strong>Cobertura:</strong> Items SAT, IVA automático, IEPS, Retenciones, CFDI 4.0, Anticipos/Pagos 2.0</li>
-<li><strong>Tiempo estimado:</strong> 8 etapas progresivas</li>
-<li><strong>Última actualización:</strong> 2025-09-22</li>
-</ul>
+<h2 id="analisis-por-branch">Análisis por branch<a class="headerlink" href="#analisis-por-branch" title="Permanent link">&para;</a></h2>
+<h3 id="fixremove-zombie-patch-create-custom-fields-1-commit-urgente"><code>fix/remove-zombie-patch-create-custom-fields</code> — 1 commit ⚡ URGENTE<a class="headerlink" href="#fixremove-zombie-patch-create-custom-fields-1-commit-urgente" title="Permanent link">&para;</a></h3>
+<p><strong>Qué hace:</strong> Elimina de <code>patches.txt</code> un patch llamado <code>create_custom_fields</code> que viola
+REGLA#4 del proyecto y rompe instalaciones limpias en v16.</p>
+<p><strong>Por qué es urgente:</strong> Cada vez que se hace <code>bench migrate</code> en una instalación nueva de v16,
+ese patch zombie se ejecuta y falla. Debe mergearse antes que cualquier otra rama para
+que el baseline esté limpio.</p>
+<p><strong>Riesgo:</strong> Mínimo. Un solo archivo, una sola línea eliminada.</p>
 <hr />
-<h2 id="planes-completados">🟢 <strong>Planes Completados</strong><a class="headerlink" href="#planes-completados" title="Permanent link">&para;</a></h2>
-<p><em>[Historial de planes ejecutados exitosamente]</em></p>
+<h3 id="featureinfra-setup-4-commits"><code>feature/infra-setup</code> — 4 commits<a class="headerlink" href="#featureinfra-setup-4-commits" title="Permanent link">&para;</a></h3>
+<p><strong>Qué hace:</strong>
+- ADR Fase 0: estado real pre-migración
+- CLAUDE.md reescrito con nuevo formato
+- PR template agregado a <code>.github/</code>
+- CI deshabilitado temporalmente (pendiente actualización para v16)</p>
+<p><strong>Relación con fiscal:</strong> Ninguna. Solo infraestructura y documentación de proceso.</p>
+<p><strong>Riesgo:</strong> Mínimo. Sin cambios en lógica de negocio.</p>
 <hr />
-<h2 id="convenciones">📋 <strong>Convenciones</strong><a class="headerlink" href="#convenciones" title="Permanent link">&para;</a></h2>
-<h3 id="estructura-estandar-plan"><strong>Estructura Estándar Plan:</strong><a class="headerlink" href="#estructura-estandar-plan" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>planes/plan-[categoria]-[objetivo]/
-├── [nombre-descriptivo-plan].md     # Plan principal ejecutable
-├── evidencias/                      # Screenshots y capturas
-├── resultados/                      # Reportes de ejecución
-└── config/                          # Configuración plan-específica
+<h3 id="featuremigracion-tax-category-to-custom-field-1-commit"><code>feature/migracion-tax-category-to-custom-field</code> — 1 commit<a class="headerlink" href="#featuremigracion-tax-category-to-custom-field-1-commit" title="Permanent link">&para;</a></h3>
+<p><strong>Qué hace:</strong> El patch <code>patches/v1_0/migrate_customer_tax_category_to_fm_tax_regime.py</code>
+que migra el campo <code>tax_category</code> del doctype Customer al custom field <code>fm_tax_regime</code>.</p>
+<p><strong>Superado por:</strong> <code>feature/e1-automated-tax-system</code> contiene este mismo commit más 29 adicionales.
+Mergearlo solo no tiene sentido sin el resto de e1.</p>
+<hr />
+<h3 id="featmx-fiscal-e0-e3-issues-65-66-10-commits"><code>feat/mx-fiscal-E0-E3-issues-65-66</code> — 10 commits<a class="headerlink" href="#featmx-fiscal-e0-e3-issues-65-66-10-commits" title="Permanent link">&para;</a></h3>
+<p><strong>Qué hace (E0.5):</strong>
+- Nuevos DocTypes: <code>Configuracion Fiscal Mexico</code>, <code>Mapeo Cuenta Fiscal Mexico</code>
+- Constantes fiscales centralizadas (<code>constantes_fiscales.py</code>)
+- Generador de templates de impuestos (<code>generador_templates_fiscal.py</code>)
+- Hook <code>sales_invoice_automated_tax.py</code> — estructura base del sistema automatizado
+- UI JS en Sales Invoice (botón preview templates)</p>
+<p><strong>Superado por:</strong> <code>feature/e1-automated-tax-system</code> (los primeros 10 commits son idénticos).</p>
+<hr />
+<h3 id="featuremigracion-tax-category-correct-base-16-commits"><code>feature/migracion-tax-category-correct-base</code> — 16 commits<a class="headerlink" href="#featuremigracion-tax-category-correct-base-16-commits" title="Permanent link">&para;</a></h3>
+<p><strong>Qué hace (E0.5 + migración):</strong>
+Todo lo de <code>feat/mx-fiscal-E0-E3-issues-65-66</code> más:
+- Migración <code>Customer.tax_category → fm_tax_regime</code> con patch idempotente (3 fases)
+- Eliminación definitiva de Tax Categories SAT del sistema
+- Corrección referencias en <code>timbrado_api.py</code> y <code>factura_fiscal_mexico.py</code>
+- Fix alcance E0.5: elimina creación Tax Rules</p>
+<p><strong>Superado por:</strong> <code>feature/e1-automated-tax-system</code> (primeros 16 commits son idénticos).</p>
+<hr />
+<h3 id="featuree1-automated-tax-system-30-commits"><code>feature/e1-automated-tax-system</code> — 30 commits ⭐<a class="headerlink" href="#featuree1-automated-tax-system-30-commits" title="Permanent link">&para;</a></h3>
+<p><strong>Qué hace (E0 → E4 parcial):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Hito</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>E0.5</td>
+<td>Wizard mapeo fiscal + DocTypes base</td>
+</tr>
+<tr>
+<td>Migración</td>
+<td><code>Customer.tax_category → fm_tax_regime</code></td>
+</tr>
+<tr>
+<td>E1</td>
+<td>Sistema mixto ITT 0% + IVA normal en misma factura</td>
+</tr>
+<tr>
+<td>Item Groups</td>
+<td>Sistema automático con asignación ITT por grupo</td>
+</tr>
+<tr>
+<td>E2-E3</td>
+<td>IEPS granular + retenciones multi-tipo (precisión mejorada) + RESICO</td>
+</tr>
+<tr>
+<td>E4</td>
+<td>Puente SI→PAC read-only con impuestos por concepto + validación payload</td>
+</tr>
+<tr>
+<td>WIP</td>
+<td>IEPS Cuota parcial (último commit marcado como <code>wip</code>)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Archivos de código nuevos respecto a main:</strong>
+- <code>config/sat_objeto_impuesto.py</code>, <code>sat_tax_rates.py</code>, <code>sat_tipo_factor.py</code>
+- <code>facturacion_fiscal/config/constantes_fiscales.py</code>
+- <code>facturacion_fiscal/doctype/configuracion_fiscal_mexico/</code> (DocType completo)
+- <code>facturacion_fiscal/doctype/ieps_cuota_sat/</code> (DocType)
+- <code>facturacion_fiscal/doctype/mapeo_cuenta_fiscal_mexico/</code> (DocType)
+- <code>facturacion_fiscal/setup/generador_templates_fiscal.py</code>
+- <code>hooks_handlers/sales_invoice_automated_tax.py</code>
+- <code>hooks_handlers/sales_invoice_ieps.py</code>
+- <code>patches/v1_0/migrate_customer_tax_category_to_fm_tax_regime.py</code>
+- <code>setup/item_groups.py</code>
+- <code>utils/calculo_impuestos.py</code>, <code>clasificacion_items.py</code>, <code>reglas_calculo_fiscal.py</code>, <code>roles_fiscales.py</code></p>
+<p><strong>Relación con fiscal/IEPS/tax:</strong> Muy alta. Es el sistema completo de cálculo automático
+de impuestos para CFDI mexicano.</p>
+<hr />
+<h3 id="fixieps-tabaco-dual-campos-tax-breakup-33-commits"><code>fix/ieps-tabaco-dual-campos-tax-breakup</code> — 33 commits ⭐<a class="headerlink" href="#fixieps-tabaco-dual-campos-tax-breakup-33-commits" title="Permanent link">&para;</a></h3>
+<p><strong>Qué hace:</strong> Superset de <code>feature/e1-automated-tax-system</code> (primeros 30 commits idénticos) más:
+- Congelación IEPS Cuota y IVA cascada (checkpoint funcional)
+- Fix crítico: corrección de keys en <code>item_wise_tax_detail</code> para IEPS Cuota
+  (usaba <code>item.name</code> en lugar de <code>item.item_code</code> → bug en tax breakup)</p>
+<p><strong>Diferencia respecto a e1:</strong> 3 commits adicionales que resuelven el bug de doble campo
+en impuestos de tabaco/IEPS cuota fija. Esta es la corrección que faltaba en e1.</p>
+<p><strong>Archivos adicionales:</strong> <code>utils/clasificacion_items.py</code></p>
+<hr />
+<h3 id="featuree4-ieps-on-item-quantity-42-commits-candidata-principal"><code>feature/e4-ieps-on-item-quantity</code> — 42 commits 🏆 CANDIDATA PRINCIPAL<a class="headerlink" href="#featuree4-ieps-on-item-quantity-42-commits-candidata-principal" title="Permanent link">&para;</a></h3>
+<p><strong>Qué hace:</strong> La rama más completa. Superset de <code>fix/ieps-tabaco</code> (33 commits) más:
+- Sistema 8 STCT específicos + generación automática ITT
+- Consolidación single source of truth para roles fiscales (JSON ↔ Python sincronizados)
+- Fix generación templates + carga tax rows + eliminación código JS legacy
+- FIX-V1: preservar cuotas IEPS en estado draft (bug ERPNext)
+- Tests: <code>test_autoseleccion_stct.py</code>, <code>test_clasificacion_items.py</code>, <code>test_sync_roles_fiscales_json_python.py</code>
+- Checkpoint seguridad: ITT específico por item (WIP)</p>
+<p><strong>Archivos adicionales sobre fix/ieps-tabaco:</strong>
+- <code>utils/mapeo_charge_type.py</code>
+- <code>tests/test_autoseleccion_stct.py</code>
+- <code>tests/test_clasificacion_items.py</code>
+- <code>tests/test_sync_roles_fiscales_json_python.py</code></p>
+<p><strong>Estado:</strong> Los últimos 2 commits son <code>chore(e4): checkpoint de seguridad</code> y
+<code>fix(e1): implementar FIX-V1 para preservar cuotas IEPS en draft</code>. El sistema de
+IEPS Cuota está funcional pero el ITT específico por item está en progreso.</p>
+<hr />
+<h3 id="featurecleanup-documentacion-one-offs-1-commit"><code>feature/cleanup-documentacion-one-offs</code> — 1 commit<a class="headerlink" href="#featurecleanup-documentacion-one-offs-1-commit" title="Permanent link">&para;</a></h3>
+<p><strong>Qué hace:</strong> Mueve archivos temporales del Sprint6 a <code>docs/</code> y elimina one-offs obsoletos.
+Sin cambios en código Python ni JS.</p>
+<hr />
+<h2 id="arbol-de-linaje-entre-branches">Árbol de linaje entre branches<a class="headerlink" href="#arbol-de-linaje-entre-branches" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>main
+├── fix/remove-zombie-patch-create-custom-fields  (1)  ← merge urgente
+├── feature/infra-setup  (4)                           ← merge pronto
+├── feature/cleanup-documentacion-one-offs  (1)        ← merge cuando convenga
+│
+└── feature/migracion-tax-category-to-custom-field  (1)
+      └── feat/mx-fiscal-E0-E3-issues-65-66  (10)
+            └── feature/migracion-tax-category-correct-base  (16)
+                  └── feature/e1-automated-tax-system  (30)
+                        └── fix/ieps-tabaco-dual-campos-tax-breakup  (33)
+                              └── feature/e4-ieps-on-item-quantity  (42)  ← MÁS AVANZADA
 </code></pre></div>
-<h3 id="categorias-disponibles"><strong>Categorías Disponibles:</strong><a class="headerlink" href="#categorias-disponibles" title="Permanent link">&para;</a></h3>
-<ul>
-<li><code>testing</code> - Planes de testing y validación</li>
-<li><code>performance</code> - Planes de carga y rendimiento</li>
-<li><code>migracion</code> - Planes de migración de datos</li>
-<li><code>integracion</code> - Planes de integración con terceros</li>
-<li><code>security</code> - Planes de auditoría de seguridad</li>
-<li><code>compliance</code> - Planes de cumplimiento normativo</li>
-</ul>
-<h3 id="estados-plan"><strong>Estados Plan:</strong><a class="headerlink" href="#estados-plan" title="Permanent link">&para;</a></h3>
-<ul>
-<li>⏳ <strong>Pendiente</strong> - Plan creado, no ejecutado</li>
-<li>🔄 <strong>En ejecución</strong> - Plan actualmente ejecutándose</li>
-<li>✅ <strong>Completado</strong> - Plan ejecutado exitosamente</li>
-<li>❌ <strong>Fallido</strong> - Plan ejecutado con errores críticos</li>
-<li>🕐 <strong>Programado</strong> - Plan agendado para fecha futura</li>
-<li>🚫 <strong>Cancelado</strong> - Plan cancelado/obsoleto</li>
-</ul>
+<p>Las ramas intermedias están todas contenidas en <code>feature/e4-ieps-on-item-quantity</code>.
+Mergear cualquiera de ellas individualmente no aporta nada si la meta final es
+mergear e4.</p>
 <hr />
-<h2 id="agregar-nuevo-plan">🎯 <strong>Agregar Nuevo Plan</strong><a class="headerlink" href="#agregar-nuevo-plan" title="Permanent link">&para;</a></h2>
+<h2 id="recomendacion-de-merge">Recomendación de merge<a class="headerlink" href="#recomendacion-de-merge" title="Permanent link">&para;</a></h2>
+<h3 id="orden-sugerido">Orden sugerido:<a class="headerlink" href="#orden-sugerido" title="Permanent link">&para;</a></h3>
+<p><strong>1. Inmediato</strong> — <code>fix/remove-zombie-patch-create-custom-fields</code>
+- 1 archivo, 1 línea. Sin riesgo. Desbloquea installs limpias v16.</p>
+<p><strong>2. Corto plazo</strong> — <code>feature/infra-setup</code>
+- CI, PR template, CLAUDE.md. Sin riesgo funcional.</p>
+<p><strong>3. Evaluación</strong> — <code>feature/e4-ieps-on-item-quantity</code>
+- Necesita revisión de los últimos 9 commits (estado WIP).
+- Los primeros 33 commits son estables (los fix/ieps-tabaco los tiene).
+- Decidir si mergear hasta el commit 33 (fix/ieps-tabaco) y dejar los 9 WIP en rama separada.</p>
+<p><strong>4. Descartar</strong> — <code>develop</code>, ramas intermedias superadas
+- <code>develop</code> — vacía
+- <code>feature/migracion-tax-category-to-custom-field</code> — contenida en e4
+- <code>feat/mx-fiscal-E0-E3-issues-65-66</code> — contenida en e4
+- <code>feature/migracion-tax-category-correct-base</code> — contenida en e4</p>
+<p><strong>5. Docs</strong> — <code>feature/cleanup-documentacion-one-offs</code>
+- Merge cuando se haga limpieza general de docs.</p>
+<hr />
+<h2 id="impacto-en-el-sistema-actual-main">Impacto en el sistema actual (main)<a class="headerlink" href="#impacto-en-el-sistema-actual-main" title="Permanent link">&para;</a></h2>
+<p>Los cambios de <code>feature/e4-ieps-on-item-quantity</code> respecto a <code>main</code> introducen:</p>
 <ol>
-<li>Crear directorio: <code>planes/plan-[categoria]-[objetivo]/</code></li>
-<li>Copiar template desde <code>templates/</code></li>
-<li>Nombrar archivo descriptivo (no genérico)</li>
-<li>Actualizar este PLAN-INDEX.md</li>
-<li>Seguir estructura estándar subdirectorios</li>
+<li><strong>2 nuevos DocTypes</strong>: <code>Configuracion Fiscal Mexico</code>, <code>Ieps Cuota SAT</code> → requieren <code>bench migrate</code></li>
+<li><strong>1 nuevo DocType</strong>: <code>Mapeo Cuenta Fiscal Mexico</code> → requiere <code>bench migrate</code></li>
+<li><strong>1 patch de datos</strong>: <code>migrate_customer_tax_category_to_fm_tax_regime</code> → migra campo en Customer</li>
+<li><strong>Hooks nuevos en Sales Invoice</strong>: <code>sales_invoice_automated_tax.py</code>, <code>sales_invoice_ieps.py</code></li>
+<li><strong><code>timbrado_api.py</code> modificado</strong>: cambios en cómo construye el payload de impuestos para FacturAPI</li>
+<li><strong><code>hooks.py</code> modificado</strong>: nuevos <code>doc_events</code> registrados</li>
 </ol>
-<hr />
-<p><em>Para detalles técnicos de cada plan, consultar archivo específico en su directorio correspondiente.</em></p>
+<p>Antes de mergear e4 a main en producción → verificar compatibilidad con v16 de los
+nuevos hooks y el sistema de Item Groups automático.</p>
 
 
 
