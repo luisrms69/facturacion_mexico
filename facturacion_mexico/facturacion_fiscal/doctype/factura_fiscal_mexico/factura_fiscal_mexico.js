@@ -77,7 +77,7 @@
 			frappe.msgprint({
 				title: __("Sustitución CFDI (01)"),
 				message: __(
-					'Para sustitución, use el botón <b>"Sustituir CFDI (01)"</b> en el Sales Invoice.'
+					'Para sustitución, use el botón <b>"Sustituir CFDI (01)"</b> en el Sales Invoice.',
 				),
 				indicator: "orange",
 				primary_action: {
@@ -106,12 +106,12 @@
 								`2️⃣ Use el botón "🔄 Sustituir CFDI (01)"<br>` +
 								`3️⃣ Se creará un SI de reemplazo para correcciones<br>` +
 								`4️⃣ El sistema manejará la relación TipoRelación 04 automáticamente<br><br>` +
-								`<em>La cancelación desde aquí es solo para motivos 02/03/04.</em>`
+								`<em>La cancelación desde aquí es solo para motivos 02/03/04.</em>`,
 						),
 						indicator: "blue",
 					});
 				},
-				__("Ayuda")
+				__("Ayuda"),
 			);
 		}
 	}
@@ -249,7 +249,7 @@
 							});
 						}
 					},
-					__("Comprobantes")
+					__("Comprobantes"),
 				);
 
 				// 2) Enviar CFDI por email - Agrupado en "Comprobantes"
@@ -270,7 +270,7 @@
 							} else if (res && res.reason === "no-recipient") {
 								frappe.msgprint({
 									message: __(
-										"No se envió: no hay destinatario (FFM ni Settings)."
+										"No se envió: no hay destinatario (FFM ni Settings).",
 									),
 									indicator: "orange",
 								});
@@ -286,7 +286,7 @@
 							frappe.msgprint({ message: __(String(e)), indicator: "red" });
 						}
 					},
-					__("Comprobantes")
+					__("Comprobantes"),
 				);
 			}
 
@@ -304,12 +304,12 @@
 									`2️⃣ Use el botón "🔄 Sustituir CFDI (01)"<br>` +
 									`3️⃣ Se creará un SI de reemplazo para correcciones<br>` +
 									`4️⃣ El sistema manejará la relación TipoRelación 04 automáticamente<br><br>` +
-									`<em>La cancelación desde aquí es solo para motivos 02/03/04.</em>`
+									`<em>La cancelación desde aquí es solo para motivos 02/03/04.</em>`,
 							),
 							indicator: "blue",
 						});
 					},
-					__("Ayuda")
+					__("Ayuda"),
 				);
 			}
 
@@ -392,14 +392,14 @@
 								frm.set_df_property(
 									"fm_tipo_comprobante",
 									"options",
-									tipo_comprobante_options.join("\n")
+									tipo_comprobante_options.join("\n"),
 								);
 							}
 							if (tipo_relacion_options && tipo_relacion_options.length) {
 								frm.set_df_property(
 									"fm_tipo_relacion_sat",
 									"options",
-									tipo_relacion_options.join("\n")
+									tipo_relacion_options.join("\n"),
 								);
 							}
 						}
@@ -438,9 +438,15 @@
 						if ($menu && $menu.length) {
 							$menu.find("a, .dropdown-item, .menu-item").each(function () {
 								const t = (this.innerText || "").trim().toUpperCase();
-								if (t === "CANCEL" || t === "CANCELAR"
-									|| t === "AMEND" || t === "CORREGIR"
-									|| t === "ENMENDAR" || t === "AMENDMENT") this.remove();
+								if (
+									t === "CANCEL" ||
+									t === "CANCELAR" ||
+									t === "AMEND" ||
+									t === "CORREGIR" ||
+									t === "ENMENDAR" ||
+									t === "AMENDMENT"
+								)
+									this.remove();
 							});
 						}
 					} catch (e) {
@@ -637,7 +643,7 @@
 		}
 
 		console.log(
-			`🔍 auto_assign_cfdi_from_customer: Cargando Use CFDI para customer: ${customer}`
+			`🔍 auto_assign_cfdi_from_customer: Cargando Use CFDI para customer: ${customer}`,
 		);
 
 		frappe.db
@@ -656,12 +662,12 @@
 							indicator: "green",
 						},
 						7,
-						ALERT_DURATION_DEFAULT
+						ALERT_DURATION_DEFAULT,
 					);
 				} else {
 					// Customer no tiene uso CFDI configurado - dejar vacío
 					console.log(
-						"⚠️ Customer no tiene fm_uso_cfdi_default configurado - campo vacío"
+						"⚠️ Customer no tiene fm_uso_cfdi_default configurado - campo vacío",
 					);
 					frm.set_value("fm_cfdi_use", "");
 				}
@@ -686,7 +692,7 @@
 				message: __("Actualizando datos fiscales del cliente..."),
 				indicator: "blue",
 			},
-			ALERT_DURATION_DEFAULT
+			ALERT_DURATION_DEFAULT,
 		);
 
 		// PASO 1: Obtener datos básicos del customer para uso CFDI y campos fiscales legacy
@@ -733,7 +739,7 @@
 							message: __("Datos fiscales y de facturación actualizados"),
 							indicator: "green",
 						},
-						ALERT_DURATION_DEFAULT
+						ALERT_DURATION_DEFAULT,
 					);
 				}
 			},
@@ -743,7 +749,7 @@
 						message: __("Error al cargar datos fiscales del Cliente"),
 						indicator: "red",
 					},
-					ALERT_DURATION_DEFAULT
+					ALERT_DURATION_DEFAULT,
 				);
 			},
 		});
@@ -863,7 +869,7 @@
 								message: __("Factura timbrada exitosamente"),
 								indicator: "green",
 							},
-							ALERT_DURATION_DEFAULT
+							ALERT_DURATION_DEFAULT,
 						);
 						frm.reload_doc();
 					} else if (r.message && r.message.user_error) {
@@ -924,7 +930,7 @@
 				if (hasLinkedSI && status === "TIMBRADO") {
 					// Filtrar opciones que empiecen con "01\t"
 					filtered_options = motives_config.select_options.filter(
-						(option) => !option.startsWith(SUB_01 + "\t")
+						(option) => !option.startsWith(SUB_01 + "\t"),
 					);
 				}
 
@@ -937,7 +943,7 @@
 							reqd: 1,
 							options: filtered_options,
 							description: __(
-								"Seleccione el motivo de cancelación según catálogo SAT"
+								"Seleccione el motivo de cancelación según catálogo SAT",
 							),
 						},
 						{
@@ -947,7 +953,7 @@
 							depends_on: "eval:doc.motive=='01'",
 							mandatory_depends_on: "eval:doc.motive=='01'",
 							description: __(
-								"Requerido solo para motivo 01 - Comprobantes con errores con relación"
+								"Requerido solo para motivo 01 - Comprobantes con errores con relación",
 							),
 						},
 					],
@@ -962,7 +968,7 @@
 						await cancelar_cfdi(frm, values);
 					},
 					__("Cancelación Fiscal SAT"),
-					__("Enviar")
+					__("Enviar"),
 				);
 			},
 		});
@@ -1009,19 +1015,19 @@
 					message: __("✅ Factura cancelada exitosamente"),
 					indicator: "green",
 				},
-				ALERT_DURATION_DEFAULT
+				ALERT_DURATION_DEFAULT,
 			);
 
 			const lines = [
 				`<b>FFM:</b> ${frappe.utils.escape_html(msg.ffm || frm.doc.name)}`,
 				`<b>Sales Invoice:</b> ${frappe.utils.escape_html(
-					msg.sales_invoice || frm.doc.sales_invoice
+					msg.sales_invoice || frm.doc.sales_invoice,
 				)}`,
 				`<b>Estado FFM:</b> ${frappe.utils.escape_html(msg.status_ffm || "")}`,
 				`<b>Estado SI:</b> ${frappe.utils.escape_html(msg.status_si || "")}`,
 				`<b>UUID:</b> ${frappe.utils.escape_html(msg.uuid || "")}`,
 				`<b>Fecha cancelación:</b> ${frappe.utils.escape_html(
-					msg.cancellation_date || ""
+					msg.cancellation_date || "",
 				)}`,
 			]
 				.filter(Boolean)
@@ -1047,7 +1053,7 @@
 					const d3 = frappe.msgprint({
 						title: __("Conexión Exitosa"),
 						message: __(
-							"La conexión con FacturAPI se estableció correctamente. El sistema está listo para timbrar facturas."
+							"La conexión con FacturAPI se estableció correctamente. El sistema está listo para timbrar facturas.",
 						),
 						indicator: "green",
 						primary_action: {
@@ -1089,7 +1095,7 @@
 		});
 
 		console.log(
-			"✅ Filtros Sales Invoice configurados - Solo facturas disponibles para timbrado"
+			"✅ Filtros Sales Invoice configurados - Solo facturas disponibles para timbrado",
 		);
 
 		// Respaldo: validar RFC si usuario trae SI por link directo
@@ -1107,8 +1113,8 @@
 							if (!r.message || !r.message.ok) {
 								frappe.msgprint(
 									__(
-										"El RFC del cliente de la Sales Invoice seleccionada NO está validado con SAT. No puedes continuar."
-									)
+										"El RFC del cliente de la Sales Invoice seleccionada NO está validado con SAT. No puedes continuar.",
+									),
 								);
 								frm.set_value("sales_invoice", null);
 							}
@@ -1158,16 +1164,16 @@
 										fiscal_r.message &&
 										states &&
 										states.cancelable_states.includes(
-											fiscal_r.message.fm_fiscal_status
+											fiscal_r.message.fm_fiscal_status,
 										)
 									) {
 										frappe.msgprint({
 											title: __("Sales Invoice No Disponible"),
 											message: __(
-												"La Sales Invoice {0} ya ha sido timbrada en el documento {1}. Por favor seleccione otra factura."
+												"La Sales Invoice {0} ya ha sido timbrada en el documento {1}. Por favor seleccione otra factura.",
 											).format(
 												frm.doc.sales_invoice,
-												sales_invoice_data.fm_factura_fiscal_mx
+												sales_invoice_data.fm_factura_fiscal_mx,
 											),
 											indicator: "red",
 										});
@@ -1185,7 +1191,7 @@
 						frappe.msgprint({
 							title: __("Sales Invoice No Válida"),
 							message: __(
-								"La Sales Invoice debe estar enviada (submitted) para crear factura fiscal."
+								"La Sales Invoice debe estar enviada (submitted) para crear factura fiscal.",
 							),
 							indicator: "orange",
 						});
@@ -1196,7 +1202,7 @@
 						frappe.msgprint({
 							title: __("RFC Faltante"),
 							message: __(
-								"La Sales Invoice debe tener RFC del cliente para facturación fiscal."
+								"La Sales Invoice debe tener RFC del cliente para facturación fiscal.",
 							),
 							indicator: "orange",
 						});
@@ -1333,7 +1339,7 @@
 				if (!$(this).find("input").is(":checked")) {
 					$(this).css("background-color", "transparent");
 				}
-			}
+			},
 		);
 
 		// Aplicar resaltado inicial
@@ -1406,7 +1412,7 @@
 					message: `<strong>${__(title)}</strong><br>${__(message)}`,
 					indicator: indicator,
 				},
-				ALERT_DURATION_DEFAULT
+				ALERT_DURATION_DEFAULT,
 			); // Duración extendida para mensaje crítico PPD/PUE
 		}
 	}
@@ -1434,7 +1440,7 @@
 					message: __("Forma de pago asignada automáticamente: 99 - Por definir"),
 					indicator: "orange",
 				},
-				ALERT_DURATION_DEFAULT
+				ALERT_DURATION_DEFAULT,
 			);
 		} else if (payment_method === "PUE") {
 			// Para PUE: Mostrar campo y filtrar opciones (sin "99 - Por definir")
@@ -1456,7 +1462,7 @@
 						message: __("Debe seleccionar una forma de pago específica para PUE"),
 						indicator: "yellow",
 					},
-					ALERT_DURATION_DEFAULT
+					ALERT_DURATION_DEFAULT,
 				);
 			}
 		}
@@ -1481,7 +1487,7 @@
 					message: __(message),
 					indicator: color,
 				},
-				ALERT_DURATION_DEFAULT
+				ALERT_DURATION_DEFAULT,
 			);
 		}
 	}
@@ -1700,7 +1706,7 @@
 					indicator: "blue",
 				},
 				3,
-				ALERT_DURATION_DEFAULT
+				ALERT_DURATION_DEFAULT,
 			);
 			frm.doc.__multisucursal_indicator_shown = true;
 		}
@@ -1773,7 +1779,7 @@
 				(f) =>
 					!frm.doc[f.field] ||
 					frm.doc[f.field].includes("⚠️ FALTA") ||
-					frm.doc[f.field].includes("❌ ERROR")
+					frm.doc[f.field].includes("❌ ERROR"),
 			);
 
 			// Determinar color y mensaje según validación SAT (RFC validado tiene prioridad)
@@ -1940,7 +1946,7 @@ function validate_billing_data_visual(frm) {
 
 		if (field_config.required && !field_config.check_value) {
 			console.log(
-				`🔴 [DEBUG] Campo ${field_config.fieldname} FALTANTE - aplicando estilo rojo`
+				`🔴 [DEBUG] Campo ${field_config.fieldname} FALTANTE - aplicando estilo rojo`,
 			);
 			// Campo faltante - resaltar en rojo
 			const control_input = field_wrapper.$wrapper.find(".control-input");
@@ -1993,7 +1999,7 @@ function validate_billing_data_visual(frm) {
 				message: `⚠️ Datos de facturación incompletos: ${missing_list}. Configure estos datos en el Cliente.`,
 				indicator: "orange",
 			},
-			ALERT_DURATION_DEFAULT
+			ALERT_DURATION_DEFAULT,
 		);
 	}
 
@@ -2124,7 +2130,7 @@ function validate_billing_data_visual(frm) {
 
 		// Remover clases de color previas
 		target_element.removeClass(
-			"billing-section-red billing-section-yellow billing-section-green"
+			"billing-section-red billing-section-yellow billing-section-green",
 		);
 
 		// Definir colores según estado
@@ -2267,7 +2273,7 @@ function validate_billing_data_visual(frm) {
 						show_customer_fiscal_warning(
 							frm,
 							sales_invoice_customer,
-							sales_invoice_customer_name
+							sales_invoice_customer_name,
 						);
 					} else {
 						// Mismo cliente - ocultar aviso
@@ -2361,7 +2367,7 @@ function validate_billing_data_visual(frm) {
 		}
 
 		console.log(
-			`🔍 FASE 4: Verificando consistencia Payment Entry para documento existente ${frm.doc.name}`
+			`🔍 FASE 4: Verificando consistencia Payment Entry para documento existente ${frm.doc.name}`,
 		);
 
 		// Solo verificar para PUE (PPD siempre usa "99 - Por definir")
@@ -2388,7 +2394,7 @@ function validate_billing_data_visual(frm) {
 							const payment_method = payment_entry.mode_of_payment;
 
 							console.log(
-								`🔍 FASE 4: Payment Entry encontrado - ${payment_entry.name}, Método: ${payment_method}`
+								`🔍 FASE 4: Payment Entry encontrado - ${payment_entry.name}, Método: ${payment_method}`,
 							);
 
 							if (current_forma_pago) {
@@ -2396,12 +2402,12 @@ function validate_billing_data_visual(frm) {
 								if (current_forma_pago === payment_method) {
 									// ✅ Consistente - no mostrar aviso
 									console.log(
-										`✅ FASE 4: Forma de pago consistente: ${current_forma_pago}`
+										`✅ FASE 4: Forma de pago consistente: ${current_forma_pago}`,
 									);
 								} else {
 									// ⚠️ Inconsistente - mostrar mensaje persistente
 									console.log(
-										`⚠️ FASE 4: Inconsistencia detectada - Factura: ${current_forma_pago}, Payment: ${payment_method}`
+										`⚠️ FASE 4: Inconsistencia detectada - Factura: ${current_forma_pago}, Payment: ${payment_method}`,
 									);
 
 									const d4 = frappe.msgprint({
@@ -2415,7 +2421,7 @@ function validate_billing_data_visual(frm) {
 												"<span style='color: #0066cc;'>" +
 													payment_method +
 													"</span>",
-											]
+											],
 										),
 										indicator: "orange",
 										primary_action: {
@@ -2427,7 +2433,7 @@ function validate_billing_data_visual(frm) {
 							} else {
 								// Sin forma de pago pero hay Payment Entry - auto-cargar
 								console.log(
-									`✅ FASE 4: Auto-cargando ${payment_method} desde ${payment_entry.name}`
+									`✅ FASE 4: Auto-cargando ${payment_method} desde ${payment_entry.name}`,
 								);
 
 								frm.set_value("fm_forma_pago_timbrado", payment_method);
@@ -2439,7 +2445,7 @@ function validate_billing_data_visual(frm) {
 										indicator: "green",
 									},
 									5,
-									ALERT_DURATION_DEFAULT
+									ALERT_DURATION_DEFAULT,
 								);
 							}
 						} else {
@@ -2456,7 +2462,7 @@ function validate_billing_data_visual(frm) {
 											"<span style='color: #0066cc;'>" +
 												current_forma_pago +
 												"</span>",
-										]
+										],
 									),
 									indicator: "blue",
 									primary_action: {
@@ -2469,7 +2475,7 @@ function validate_billing_data_visual(frm) {
 								const d6 = frappe.msgprint({
 									title: __("ℹ️ Sin Pago Registrado"),
 									message: __(
-										"No hay Payment Entry registrado para esta factura.<br><br>Seleccione la forma de pago manualmente antes de timbrar."
+										"No hay Payment Entry registrado para esta factura.<br><br>Seleccione la forma de pago manualmente antes de timbrar.",
 									),
 									indicator: "blue",
 									primary_action: {
@@ -2487,7 +2493,7 @@ function validate_billing_data_visual(frm) {
 								indicator: "red",
 							},
 							3,
-							ALERT_DURATION_DEFAULT
+							ALERT_DURATION_DEFAULT,
 						);
 					}
 				},
@@ -2533,7 +2539,7 @@ function validate_billing_data_visual(frm) {
 			}
 
 			console.log(
-				`🔍 FASE 4: Buscando Payment Entry para Sales Invoice ${frm.doc.sales_invoice}`
+				`🔍 FASE 4: Buscando Payment Entry para Sales Invoice ${frm.doc.sales_invoice}`,
 			);
 
 			// Usar método Python con SQL correcto (no sintaxis child table problemática)
@@ -2552,33 +2558,33 @@ function validate_billing_data_visual(frm) {
 							frappe.show_alert(
 								{
 									message: __(
-										"Forma de pago cargada automáticamente desde Payment Entry {0}"
+										"Forma de pago cargada automáticamente desde Payment Entry {0}",
 									).format(payment_entry.name),
 									indicator: "green",
 								},
 								4,
-								ALERT_DURATION_DEFAULT
+								ALERT_DURATION_DEFAULT,
 							);
 
 							console.log(
-								`✅ FASE 4: Auto-cargado PUE - ${payment_entry.mode_of_payment} desde ${payment_entry.name}`
+								`✅ FASE 4: Auto-cargado PUE - ${payment_entry.mode_of_payment} desde ${payment_entry.name}`,
 							);
 						}
 					} else {
 						// PUE sin Payment Entry - dejar vacío para selección manual
 						console.log(
-							"ℹ️ FASE 4: PUE sin Payment Entry - usuario debe seleccionar manualmente"
+							"ℹ️ FASE 4: PUE sin Payment Entry - usuario debe seleccionar manualmente",
 						);
 
 						frappe.show_alert(
 							{
 								message: __(
-									"No se encontró Payment Entry. Seleccione forma de pago manualmente."
+									"No se encontró Payment Entry. Seleccione forma de pago manualmente.",
 								),
 								indicator: "yellow",
 							},
 							3,
-							ALERT_DURATION_DEFAULT
+							ALERT_DURATION_DEFAULT,
 						);
 					}
 				},
@@ -2635,11 +2641,11 @@ function validate_billing_data_visual(frm) {
 								message: __("FFM cancelada y SI liberada."),
 								indicator: "green",
 							},
-							ALERT_DURATION_DEFAULT
+							ALERT_DURATION_DEFAULT,
 						);
 						frm.reload_doc();
 					},
-					__("Acciones")
+					__("Acciones"),
 				);
 			}
 		},

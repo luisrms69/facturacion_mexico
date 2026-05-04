@@ -1676,7 +1676,7 @@ class TimbradoAPI:
 			if not tax.item_wise_tax_detail:
 				# Fallback para On Net Total sin item_wise_tax_detail (p.ej. SI creada via API
 				# o cuando ERPNext v16 no persistió el desglose por item).
-				# Solo aplica a tasas sobre base neta: amount = net_amount × rate / 100.
+				# Solo aplica a tasas sobre base neta: amount = net_amount x rate / 100.
 				if getattr(tax, "charge_type", None) == "On Net Total" and flt(tax.rate):
 					amount = flt(item.net_amount) * flt(tax.rate) / 100
 					if amount and tax.account_head not in taxes_dict:
