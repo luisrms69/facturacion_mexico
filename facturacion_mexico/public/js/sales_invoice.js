@@ -200,19 +200,14 @@ function _resolve_uuid_for_return(frm, callback) {
 				return;
 			}
 
-			frappe.db.get_value(
-				"Factura Fiscal Mexico",
-				ffm_name,
-				"fm_uuid",
-				function (ffm_data) {
-					const uuid = ffm_data && ffm_data.fm_uuid;
-					if (uuid) {
-						callback(uuid);
-					} else {
-						_show_uuid_dialog(frm, callback);
-					}
+			frappe.db.get_value("Factura Fiscal Mexico", ffm_name, "fm_uuid", function (ffm_data) {
+				const uuid = ffm_data && ffm_data.fm_uuid;
+				if (uuid) {
+					callback(uuid);
+				} else {
+					_show_uuid_dialog(frm, callback);
 				}
-			);
+			});
 		}
 	);
 }

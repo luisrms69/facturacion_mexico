@@ -438,9 +438,15 @@
 						if ($menu && $menu.length) {
 							$menu.find("a, .dropdown-item, .menu-item").each(function () {
 								const t = (this.innerText || "").trim().toUpperCase();
-								if (t === "CANCEL" || t === "CANCELAR"
-									|| t === "AMEND" || t === "CORREGIR"
-									|| t === "ENMENDAR" || t === "AMENDMENT") this.remove();
+								if (
+									t === "CANCEL" ||
+									t === "CANCELAR" ||
+									t === "AMEND" ||
+									t === "CORREGIR" ||
+									t === "ENMENDAR" ||
+									t === "AMENDMENT"
+								)
+									this.remove();
 							});
 						}
 					} catch (e) {
