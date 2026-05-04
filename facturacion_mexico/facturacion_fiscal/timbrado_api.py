@@ -3060,8 +3060,18 @@ def revisar_estatus_cancelacion(ffm_name: str) -> dict:
 	try:
 		write_pac_response(
 			sales_invoice_name=ffm.sales_invoice or "",
-			request_data=json.dumps({"action": "consulta_estatus", "ffm": ffm_name, "facturapi_id": ffm.facturapi_id}),
-			response_data=json.dumps({"success": True, "status_code": 200, "raw_response": data, "resultado_transicion": nuevo_estado}, default=str),
+			request_data=json.dumps(
+				{"action": "consulta_estatus", "ffm": ffm_name, "facturapi_id": ffm.facturapi_id}
+			),
+			response_data=json.dumps(
+				{
+					"success": True,
+					"status_code": 200,
+					"raw_response": data,
+					"resultado_transicion": nuevo_estado,
+				},
+				default=str,
+			),
 			operation_type="consulta",
 		)
 	except Exception as log_err:
@@ -3069,8 +3079,12 @@ def revisar_estatus_cancelacion(ffm_name: str) -> dict:
 
 	frappe.db.commit()
 
-	return {"status": nuevo_estado, "message": msg, "indicator": indicator,
-		"cancellation_status": cancel_status}
+	return {
+		"status": nuevo_estado,
+		"message": msg,
+		"indicator": indicator,
+		"cancellation_status": cancel_status,
+	}
 
 
 @frappe.whitelist()
