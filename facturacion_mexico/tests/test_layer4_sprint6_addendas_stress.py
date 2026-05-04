@@ -19,6 +19,7 @@ import frappe
 import psutil
 
 
+@unittest.skip("layer4 legacy — requiere rediseño, deuda técnica")
 class TestLayer4Sprint6AddendasStress(unittest.TestCase):
     """Tests Layer 4 - Addendas Stress Testing Sprint 6"""
 

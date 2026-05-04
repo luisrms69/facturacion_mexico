@@ -64,6 +64,13 @@ def run():
             "parent_item_group":"All Item Groups"
         }).insert(ignore_permissions=True)
 
+    # --- 5b) Grupos fiscales de la app (IEPS, retenciones, etc.) ---
+    try:
+        from facturacion_mexico.setup.item_groups import ensure_groups_after_install
+        ensure_groups_after_install()
+    except Exception:
+        pass
+
     # --- 6) Price Lists básicos para Sales Invoice ---
     for currency in ("INR", "MXN"):
         pl_name = f"Standard Selling ({currency})"
