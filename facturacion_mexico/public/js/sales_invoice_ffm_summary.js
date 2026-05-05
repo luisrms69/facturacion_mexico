@@ -1,14 +1,6 @@
 frappe.ui.form.on("Sales Invoice", {
 	refresh(frm) {
 		inject_ffm_summary(frm);
-		// Configurar botón una sola vez
-		if (frm.fields_dict.fm_ffm_open_btn && frm.fields_dict.fm_ffm_open_btn.$input) {
-			frm.fields_dict.fm_ffm_open_btn.$input.off("click").on("click", () => {
-				const ffm = frm.doc.fm_factura_fiscal_mx;
-				if (ffm) frappe.set_route("Form", "Factura Fiscal Mexico", ffm);
-				else frappe.msgprint(__("No hay Factura Fiscal MX vinculada."));
-			});
-		}
 	},
 	fm_factura_fiscal_mx(frm) {
 		inject_ffm_summary(frm);
@@ -19,21 +11,7 @@ function inject_ffm_summary(frm) {
 	const ffm = frm.doc.fm_factura_fiscal_mx;
 	const wrapper = frm.fields_dict.fm_ffm_summary_html?.$wrapper;
 
-	if (!wrapper) {
-		// Fallback: si no existe el campo HTML, usar el botón como antes
-		if (frm.fields_dict.fm_ffm_open_btn) {
-			frm.fields_dict.fm_ffm_open_btn.$input.off("click").on("click", () => {
-				const target = frm.doc.fm_factura_fiscal_mx;
-				if (target) frappe.set_route("Form", "Factura Fiscal Mexico", target);
-				else
-					frappe.show_alert({
-						message: __("No hay documento fiscal vinculado."),
-						indicator: "orange",
-					});
-			});
-		}
-		return;
-	}
+	if (!wrapper) return;
 
 	if (!ffm) {
 		wrapper.html(

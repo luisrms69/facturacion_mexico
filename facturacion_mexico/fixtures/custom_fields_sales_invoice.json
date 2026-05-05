@@ -70,40 +70,4 @@
   "no_copy": 1,
   "description": "División de columnas para sección fiscal"
  },
- {
-  "doctype": "Custom Field",
-  "name": "Sales Invoice-fm_last_status_update",
-  "dt": "Sales Invoice",
-  "fieldname": "fm_last_status_update",
-  "fieldtype": "Datetime",
-  "label": "Última Actualización Fiscal",
-  "insert_after": "fm_column_break_fiscal",
-  "read_only": 1,
-  "allow_on_submit": 1,
-  "no_copy": 1,
-  "module": "Facturacion Mexico",
-  "print_hide": 0,
-  "hidden": 0,
-  "reqd": 0,
-  "description": "Timestamp de la última sincronización fiscal - Automático",
-  "default": ""
- },
- {
-  "doctype": "Custom Field",
-  "name": "Sales Invoice-fm_quick_status",
-  "dt": "Sales Invoice",
-  "fieldname": "fm_quick_status",
-  "fieldtype": "HTML",
-  "label": "Estado Visual",
-  "insert_after": "fm_last_status_update",
-  "read_only": 1,
-  "allow_on_submit": 1,
-  "no_copy": 1,
-  "module": "Facturacion Mexico",
-  "print_hide": 1,
-  "hidden": 0,
-  "reqd": 0,
-  "description": "Indicador visual del estado fiscal con colores",
-  "default": "<div class=\"badge badge-secondary\">Sin Estado Fiscal</div>"
- }
 ]

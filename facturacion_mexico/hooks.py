@@ -196,8 +196,6 @@ fixtures = [
 					"Sales Invoice-fm_factura_fiscal_mx",
 					"Sales Invoice-fm_fiscal_section",
 					"Sales Invoice-fm_fiscal_status",
-					"Sales Invoice-fm_last_status_update",
-					"Sales Invoice-fm_quick_status",
 					"Sales Invoice-fm_folio_reserved",
 					# "Sales Invoice-fm_informacion_fiscal_section", # ELIMINADO - Sección vacía migrada a Factura Fiscal Mexico
 					# "Sales Invoice-fm_lugar_expedicion", # MIGRADO A Factura Fiscal Mexico
@@ -206,7 +204,7 @@ fixtures = [
 					# "Sales Invoice-fm_payment_method_sat", # MIGRADO A Factura Fiscal Mexico
 					"Sales Invoice-fm_pending_amount",
 					# "Sales Invoice-fm_serie_folio", # MIGRADO A Factura Fiscal Mexico
-					"Sales Invoice-fm_timbrado_section",
+	
 					"Sales Invoice-ffm_substitution_source_uuid",
 					# "Sales Invoice-fm_uuid_fiscal", # ELIMINADO: Usar función puente get_invoice_uuid() - NO duplicar UUID
 					# Factura Fiscal Mexico custom fields - ELIMINADOS (migrados a JSON nativo del DocType)

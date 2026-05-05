@@ -45,58 +45,6 @@ def apply_customization():
 				"label": "Resumen CFDI",
 				"insert_after": "fm_ffm_section",
 			},
-			# Campos persistentes (con allow_on_submit=1 para evitar errores after submit)
-			{
-				"fieldname": "fm_ffm_estado",
-				"fieldtype": "Data",
-				"label": "Estado CFDI",
-				"read_only": 1,
-				"allow_on_submit": 1,
-				"insert_after": "fm_ffm_summary_html",
-			},
-			{
-				"fieldname": "fm_ffm_numero",
-				"fieldtype": "Data",
-				"label": "Serie y Folio",
-				"read_only": 1,
-				"allow_on_submit": 1,
-				"insert_after": "fm_ffm_estado",
-			},
-			{
-				"fieldname": "fm_ffm_uuid",
-				"fieldtype": "Data",
-				"label": "UUID Fiscal",
-				"read_only": 1,
-				"allow_on_submit": 1,
-				"insert_after": "fm_ffm_numero",
-			},
-			{
-				"fieldname": "fm_ffm_fecha",
-				"fieldtype": "Datetime",
-				"label": "Fecha de Timbrado",
-				"read_only": 1,
-				"allow_on_submit": 1,
-				"insert_after": "fm_ffm_uuid",
-			},
-			{
-				"fieldname": "fm_ffm_pac_msg",
-				"fieldtype": "Small Text",
-				"label": "Último mensaje PAC",
-				"read_only": 1,
-				"allow_on_submit": 1,
-				"insert_after": "fm_ffm_fecha",
-			},
-			{
-				"fieldname": "fm_ffm_col_break",
-				"fieldtype": "Column Break",
-				"insert_after": "fm_ffm_pac_msg",
-			},
-			{
-				"fieldname": "fm_ffm_open_btn",
-				"fieldtype": "Button",
-				"label": "Abrir Factura Fiscal MX",
-				"insert_after": "fm_ffm_col_break",
-			},
 		]
 	}
 	create_custom_fields(fields, update=True)

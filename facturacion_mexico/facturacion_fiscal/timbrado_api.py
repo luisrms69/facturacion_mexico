@@ -2707,7 +2707,6 @@ def create_substitution_si(si_name: str):
 	# Limpiar campos fiscales del SI nuevo
 	new_si.fm_factura_fiscal_mx = None
 	new_si.fm_fiscal_status = None
-	new_si.fm_last_status_update = None
 
 	# 3) Guardar el UUID a sustituir (campo custom ffm_substitution_source_uuid)
 	new_si.set("ffm_substitution_source_uuid", ffm["fm_uuid"])
