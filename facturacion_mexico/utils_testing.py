@@ -37,7 +37,6 @@ def verify_cancellation_preconditions():
 	all_uuids = [
 		getattr(si, "uuid_fiscal", None),
 		getattr(si, "fm_uuid_fiscal", None),
-
 		getattr(ffm, "uuid", None),
 		getattr(ffm, "fm_uuid_fiscal", None),
 		getattr(ffm, "fm_uuid", None),

@@ -25,9 +25,7 @@ def _pick_anchor_for_ffm_section() -> str:
 
 
 def apply_customization():
-	"""Crea/actualiza la sección 'Factura Fiscal México' en Sales Invoice."""
-	anchor = _pick_anchor_for_ffm_section()
-
+	"""Crea/actualiza el widget de resumen CFDI en Sales Invoice."""
 	fields = {
 		"Sales Invoice": [
 			# HTML de solo display (no ensucia el doc)

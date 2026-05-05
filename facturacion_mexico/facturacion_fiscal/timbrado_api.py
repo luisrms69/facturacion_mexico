@@ -907,10 +907,14 @@ class TimbradoAPI:
 
 			# Actualizar Sales Invoice
 			es_ppd = 1 if (factura_fiscal.get("fm_payment_method_sat") or "").upper() == "PPD" else 0
-			frappe.set_value("Sales Invoice", sales_invoice.name, {
-				"fm_fiscal_status": FiscalStates.TIMBRADO,
-				"fm_es_ppd": es_ppd,
-			})
+			frappe.set_value(
+				"Sales Invoice",
+				sales_invoice.name,
+				{
+					"fm_fiscal_status": FiscalStates.TIMBRADO,
+					"fm_es_ppd": es_ppd,
+				},
+			)
 
 			# Descargar archivos si está configurado
 			if self.settings.download_files_default:
