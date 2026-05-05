@@ -54,20 +54,5 @@
   "reqd": 0,
   "description": "Referencia al documento fiscal CFDI - Solo lectura",
   "default": ""
- },
- {
-  "doctype": "Custom Field",
-  "name": "Sales Invoice-fm_column_break_fiscal",
-  "dt": "Sales Invoice",
-  "fieldname": "fm_column_break_fiscal",
-  "fieldtype": "Column Break",
-  "insert_after": "fm_factura_fiscal_mx",
-  "module": "Facturacion Mexico",
-  "print_hide": 0,
-  "read_only": 0,
-  "hidden": 0,
-  "allow_on_submit": 1,
-  "no_copy": 1,
-  "description": "División de columnas para sección fiscal"
- },
+ }
 ]

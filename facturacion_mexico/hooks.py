@@ -178,7 +178,7 @@ fixtures = [
 					"Sales Invoice-fm_branch_health_status",
 					"Sales Invoice-fm_certificate_info",
 					# "Sales Invoice-fm_cfdi_use", # MIGRADO A Factura Fiscal Mexico
-					"Sales Invoice-fm_column_break_fiscal",
+	
 					"Sales Invoice-fm_complementos_count",
 					"Sales Invoice-fm_create_as_draft",
 					"Sales Invoice-fm_draft_approved_by",
@@ -193,6 +193,7 @@ fixtures = [
 					"Sales Invoice-fm_ereceipt_mode",
 					"Sales Invoice-fm_ereceipt_section",
 					"Sales Invoice-fm_factorapi_draft_id",
+					"Sales Invoice-fm_es_ppd",
 					"Sales Invoice-fm_factura_fiscal_mx",
 					"Sales Invoice-fm_fiscal_section",
 					"Sales Invoice-fm_fiscal_status",

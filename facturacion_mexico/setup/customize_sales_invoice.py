@@ -30,20 +30,12 @@ def apply_customization():
 
 	fields = {
 		"Sales Invoice": [
-			{
-				"fieldname": "fm_ffm_section",
-				"fieldtype": "Section Break",
-				"label": "Factura Fiscal México",
-				"insert_after": anchor,  # <— usamos el ancla calculada
-				"collapsible": 1,
-				"depends_on": f"eval:doc.{FFM_LINK_FIELD}",
-			},
 			# HTML de solo display (no ensucia el doc)
 			{
 				"fieldname": "fm_ffm_summary_html",
 				"fieldtype": "HTML",
 				"label": "Resumen CFDI",
-				"insert_after": "fm_ffm_section",
+				"insert_after": "fm_es_ppd",
 			},
 		]
 	}
