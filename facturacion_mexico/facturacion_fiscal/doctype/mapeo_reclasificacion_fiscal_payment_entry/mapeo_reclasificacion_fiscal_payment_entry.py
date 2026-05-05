@@ -88,25 +88,6 @@ class MapeoReclasificacionFiscalPaymentEntry(Document):
 			)
 
 
-@frappe.whitelist()
-def get_tax_accounts_query(doctype, txt, searchfield, start, page_len, filters):
-	"""Filtrar cuentas por empresa del documento padre (llamado desde get_query)."""
-	company = filters.get("company") if filters else None
-	conditions = "AND ac.disabled = 0 AND ac.is_group = 0"
-	if company:
-		conditions += f" AND ac.company = {frappe.db.escape(company)}"
-	return frappe.db.sql(
-		f"""
-		SELECT ac.name, ac.account_type, ac.company
-		FROM `tabAccount` ac
-		WHERE (ac.name LIKE %(txt)s OR ac.account_name LIKE %(txt)s)
-		{conditions}
-		LIMIT %(start)s, %(page_len)s
-		""",
-		{"txt": f"%{txt}%", "start": start, "page_len": page_len},
-	)
-
-
 def get_mapeo_reclasificacion(company: str, tipo_operacion: str, cuenta_origen: str) -> str | None:
 	"""
 	Obtener cuenta destino para reclasificación de impuesto.
