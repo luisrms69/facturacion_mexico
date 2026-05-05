@@ -87,7 +87,7 @@
    "fieldname": "complement_status",
    "fieldtype": "Select",
    "label": "Estado",
-   "options": "\nPendiente\nTimbrado\nCancelado\nError",
+   "options": "\nPendiente\nTimbrado\nCancelado\nError\nPendiente Cancelación",
    "default": "Pendiente",
    "insert_after": "customer",
    "in_list_view": 1,
@@ -263,6 +263,14 @@
    "fieldname": "uuid_sat",
    "fieldtype": "Data",
    "label": "UUID SAT"
+  },
+  {
+   "fieldname": "facturapi_id",
+   "fieldtype": "Data",
+   "label": "FacturAPI ID",
+   "reqd": 0,
+   "read_only": 1,
+   "description": "ID interno de FacturAPI para cancelación"
   },
   {
    "fieldname": "no_certificado_sat",

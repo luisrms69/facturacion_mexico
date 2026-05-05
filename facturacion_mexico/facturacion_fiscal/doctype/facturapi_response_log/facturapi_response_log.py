@@ -35,11 +35,16 @@ class FacturAPIResponseLog(Document):
 		"""Validaciones del documento con auto-reparación."""
 		import json
 
-		# Validar que factura_fiscal_mexico existe
+		# Validar que al menos uno de los vínculos existe (FFM o Complemento)
 		if self.factura_fiscal_mexico and not frappe.db.exists(
 			"Factura Fiscal Mexico", self.factura_fiscal_mexico
 		):
 			frappe.throw(_("La Factura Fiscal Mexico {0} no existe").format(self.factura_fiscal_mexico))
+
+		if self.complemento_pago_mx and not frappe.db.exists(
+			"Complemento Pago MX", self.complemento_pago_mx
+		):
+			frappe.throw(_("El Complemento Pago MX {0} no existe").format(self.complemento_pago_mx))
 
 		# Si es exitoso, validar que tenga respuesta
 		if self.success and not self.facturapi_response:

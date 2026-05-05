@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import date, datetime
 
 import frappe
 from frappe import _
@@ -18,8 +18,10 @@ class ComplementoPagoMX(Document):
 		self.validate_documentos_relacionados()
 
 	def validate_fecha_pago(self):
-		if self.fecha_pago and self.fecha_pago > datetime.now():
-			frappe.throw(_("La fecha de pago no puede ser mayor a la fecha actual"))
+		if self.fecha_pago:
+			fecha = self.fecha_pago if isinstance(self.fecha_pago, date) else self.fecha_pago.date()
+			if fecha > date.today():
+				frappe.throw(_("La fecha de pago no puede ser mayor a la fecha actual"))
 
 	def validate_monto_positivo(self):
 		if self.monto_p and self.monto_p <= 0:
@@ -33,8 +35,9 @@ class ComplementoPagoMX(Document):
 			frappe.throw(_("El tipo de cambio para pesos mexicanos debe ser 1"))
 
 	def validate_documentos_relacionados(self):
+		# Validaciones solo aplican cuando hay documentos cargados (Bloque 3C los llena)
 		if not self.documentos_relacionados:
-			frappe.throw(_("Debe especificar al menos un documento relacionado al pago"))
+			return
 
 		total_documentos = sum([doc.imp_pagado for doc in self.documentos_relacionados])
 		if abs(total_documentos - self.monto_p) > 0.01:
