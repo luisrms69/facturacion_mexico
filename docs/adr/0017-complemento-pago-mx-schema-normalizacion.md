@@ -1,122 +1,117 @@
-# ADR 0017 — Normalización Schema Complemento Pago MX (Bloque 3A)
+# ADR 0017 — Complemento Pago MX MVP
 
-**Fecha:** 2026-05-05
-**Estado:** APROBADO — schema implementado, Bloque 3B pendiente
-**Autor:** Luis Montanaro Sánchez
+**Fecha:** 2026-05-05 | **Última revisión:** 2026-05-06 | **Estado:** APROBADO — MVP funcional en sandbox
 
 ---
 
-## Contexto
-
-El DocType `Complemento Pago MX` existía con estructura orientada al CFDI fiscal
-(datos de timbrado, documentos relacionados, impuestos trasladados) pero sin los
-campos operativos necesarios para vincular el complemento a su Payment Entry.
-
-El código existente en `payment_entry_submit.py` era inoperable:
-- Usaba `related_invoices` (child table inexistente — el DocType tiene `documentos_relacionados`)
-- Escribía campos `payment_entry`, `company`, `customer`, `complement_status` que no existían
-- La detección PPD revisaba `fm_forma_pago` y `fm_uso_cfdi` en SI — campos que no existen
-- La función nunca ejecutaba porque todas las condiciones fallaban silenciosamente
-
----
-
-## Decisión
-
-**Bloque 3A: normalización mínima de schema.**
-Solo agregar los campos de vínculo operativo. No crear el flujo de generación todavía.
-
-Objetivo: dejar el DocType en estado donde el código de Bloque 3B pueda funcionar correctamente.
-
----
-
-## Campos agregados a Complemento Pago MX
-
-| Campo | Tipo | Descripción |
-|---|---|---|
-| `payment_entry` | Link → Payment Entry | Vínculo principal con el pago |
-| `company` | Link → Company | Empresa — requerida para GL y multi-empresa |
-| `customer` | Link → Customer | Parte fiscal del complemento |
-| `complement_status` | Select | Estado del flujo PPD: Pendiente/Timbrado/Cancelado/Error |
-
-`complement_status` tiene `default = "Pendiente"`.
-
----
-
-## Relación arquitectónica (espejo SI↔FFM)
+## Arquitectura
 
 ```
-Payment Entry                     Complemento Pago MX
-─────────────────────────        ──────────────────────────
-fm_complemento_pago  ──────────→ name
-fm_require_complement (flag)     payment_entry (link) ←────
-fm_complement_generated (flag)   complement_status
-fm_forma_pago_sat                documentos_relacionados (child)
+Payment Entry (operativo)          Complemento Pago MX (fiscal)
+─────────────────────────         ─────────────────────────────
+fm_complemento_pago  ────────────→ name
+fm_require_complement (flag)       payment_entry ←────────────
+fm_complement_generated (flag)     complement_status
+mode_of_payment                    forma_pago_p ([:2] del mode_of_payment)
+                                   documentos_relacionados (child)
+                                   detalles_impuestos (child)
 ```
 
-El patrón replica la arquitectura SI↔FFM:
-- PE mantiene estado mínimo + link al complemento
-- Complemento Pago MX es la fuente fiscal completa
+---
+
+## Decisiones clave
+
+1. **Creación manual** desde botón en PE — no automática al submit
+2. **PE no puede cancelarse** si complemento no está Cancelado (`before_cancel` hook)
+3. **Vínculo PE↔Complemento se conserva** post-cancelación (trazabilidad)
+4. **`mode_of_payment`** de ERPNext es la fuente de la forma de pago SAT (no campo custom)
+5. **`fm_tax_regime`** del Customer es la fuente del régimen fiscal SAT (no `tax_category` de ERPNext)
 
 ---
 
-## Hooks neutralizados hasta Bloque 3B
+## Campos en Complemento Pago MX
 
-`payment_entry_submit.py` y `payment_entry_validate.py` convertidos a no-op.
-La creación del complemento será **manual** mediante botón en el Bloque 3B.
-
-Razón: el código anterior era inoperable (referenciaba campos y child tables inexistentes).
-Mejor reescribir desde cero en Bloque 3B usando el schema correcto que ahora existe.
-
----
-
-## Child tables existentes (sin cambio)
-
-| Child DocType | Propósito | Campos clave |
-|---|---|---|
-| `Documento Relacionado Pago MX` | Facturas cubiertas por este complemento | `id_documento`, `num_parcialidad`, `imp_saldo_ant`, `imp_pagado`, `imp_saldo_insoluto` |
-| `Detalle Complemento Pago MX` | Impuestos trasladados y retenidos | `tipo_impuesto`, `tasa_cuota`, `base_dr`, `importe_dr` |
-
-Se usa `documentos_relacionados`, NO `related_invoices` (campo que no existe y causaba crash en el código anterior).
+Campos agregados (2026-05-05):
+- `payment_entry` — Link → Payment Entry
+- `company` — Link → Company
+- `customer` — Link → Customer
+- `complement_status` — Select: Pendiente / Timbrado / Pendiente Cancelación / Cancelado / Error
+- `facturapi_id` — ID interno FacturAPI (para cancelación)
 
 ---
 
-## Campos Payment Entry — sin cambio
+## Flujo completo
 
-Los custom fields de PE ya existían y son suficientes para Bloque 3B:
-
-| Campo | Tipo | Para qué |
-|---|---|---|
-| `fm_complemento_pago` | Link → Complemento Pago MX | Referencia al complemento generado |
-| `fm_require_complement` | Check | Flag: ¿este PE requiere complemento? |
-| `fm_complement_generated` | Check | Flag: ¿ya se generó? |
-| `fm_forma_pago_sat` | Link → Forma Pago SAT | Forma de pago para el XML |
-
----
-
-## Bloque 3B — pendiente
-
-Implementar la creación del Complemento Pago MX:
-- Botón en PE o en Complemento Pago MX
-- Llenado de `documentos_relacionados` con datos reales de las SIs referenciadas
-- Uso de `fm_es_ppd` para detectar SIs PPD (campo creado en Bloque 2)
-- Cálculo de `num_parcialidad`, `imp_saldo_ant`, `imp_saldo_insoluto`
-- Timbrado vía FacturAPI (Bloque 3C)
+```
+1. Submit PE con SI PPD → botón "Crear Complemento de Pago" aparece
+2. Click → crear_complemento_pago_desde_pe() → Complemento Pendiente
+3. Complemento llena: cabecera + documentos_relacionados + detalles_impuestos
+4. Click "Timbrar" → timbrar_complemento_pago() → llama FacturAPI
+5. FacturAPI responde → UUID guardado → complement_status = Timbrado
+6. PE.fm_complemento_pago queda ligado
+7. Cancelación: cancelar_complemento_pago() → PAC → Cancelado/Pendiente Cancelación
+8. Si Cancelado → PE puede cancelarse
+```
 
 ---
 
-## Archivos modificados
+## Payload FacturAPI (confirmado vs legacy facturacion_mx)
 
-| Archivo | Cambio |
-|---|---|
-| `complementos_pago/doctype/complemento_pago_mx/complemento_pago_mx.json` | Agregar 4 campos nuevos |
-| `complementos_pago/hooks_handlers/payment_entry_submit.py` | No-op hasta Bloque 3B |
-| `complementos_pago/hooks_handlers/payment_entry_validate.py` | No-op hasta Bloque 3B |
+```python
+{
+  "type": "P",
+  "customer": { legal_name, tax_id, tax_system, email, address.zip },
+  "complements": [{
+    "type": "pago",
+    "data": [{
+      "payment_form": mode_of_payment[:2],   # "03" etc.
+      "currency": "MXN",
+      "exchange": 1,
+      "date": posting_date,
+      "related_documents": [{
+        "uuid": FFM.fm_uuid,
+        "folio_number": FFM.folio,
+        "amount": imp_pagado,
+        "last_balance": imp_saldo_ant,        # allocated + outstanding
+        "installment": num_parcialidad,
+        "taxability": objeto_imp_dr,
+        "taxes": [{ base, type, rate, factor, withholding }]
+      }]
+    }]
+  }]
+}
+```
 
 ---
 
-## Referencias
+## Response Log
 
-- ADR 0016 — Reclasificación fiscal en Payment Entry (arquitectura PE)
-- ADR 0014 — Diagnóstico SI↔FFM (patrón de referencia para la relación PE↔Complemento)
-- `complementos_pago/doctype/complemento_pago_mx/complemento_pago_mx.json`
-- `complementos_pago/doctype/documento_relacionado_pago_mx/documento_relacionado_pago_mx.json`
+`FacturAPI Response Log` actualizado:
+- Campo `complemento_pago_mx` — Link → Complemento Pago MX
+- `operation_type` opciones: `Timbrado Complemento Pago`, `Cancelación Complemento Pago`
+
+---
+
+## Prueba sandbox (2026-05-05/06)
+
+- Complemento creado, timbrado y cancelado contra FacturAPI sandbox ✅
+- UUID guardado en `uuid_sat` y `folio_fiscal` ✅
+- PE bloqueado mientras complemento activo ✅
+- PE desbloqueado al cancelar complemento ✅
+
+---
+
+## Gaps pendientes (Bloque 3D+)
+
+- `documentos_relacionados` y `detalles_impuestos` usan esquema legacy — pendiente alinear con esquema actual
+- Campos custom `fm_forma_pago_sat` en PE — innecesarios, pendiente eliminar del fixture
+- Download PDF/XML post-timbrado — no implementado
+- Cancelación con motivo 01 (sustitución) — no implementado
+
+---
+
+## Nota incidente (2026-05-06)
+
+Recuperación exitosa del flujo SI→FFM→Complemento→Timbrado tras incidente de bisect manual.
+Timezone del site corregido (Asia/Kolkata → America/Mexico_City) para resolver errores de fechas.
+Branch `_Test Branch` creado en `_Test Company` y mapeado a `Main - _TC` para activar automated_tax.
