@@ -1,0 +1,76 @@
+{
+  "doctype": "DocType",
+  "name": "Mapeo Reclasificacion Fiscal Payment Entry",
+  "module": "Facturacion Fiscal",
+  "custom": 0,
+  "is_submittable": 0,
+  "editable_grid": 1,
+  "track_changes": 1,
+  "engine": "InnoDB",
+  "naming_rule": "Autoincrement",
+  "autoname": "MRFPE-.####",
+  "title_field": "cuenta_origen",
+  "permissions": [
+    {"role": "System Manager", "read": 1, "write": 1, "create": 1, "delete": 1},
+    {"role": "Accounts Manager", "read": 1, "write": 1, "create": 1, "delete": 1}
+  ],
+  "fields": [
+    {
+      "fieldname": "company",
+      "fieldtype": "Link",
+      "label": "Empresa",
+      "options": "Company",
+      "reqd": 1,
+      "in_list_view": 1,
+      "in_standard_filter": 1
+    },
+    {
+      "fieldname": "tipo_operacion",
+      "fieldtype": "Select",
+      "label": "Tipo de Operación",
+      "options": "\nCobro\nPago",
+      "reqd": 1,
+      "in_list_view": 1,
+      "in_standard_filter": 1,
+      "description": "Cobro = Sales / Pago = Purchase"
+    },
+    {
+      "fieldname": "col_break_cuentas",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "activo",
+      "fieldtype": "Check",
+      "label": "Activo",
+      "default": "1",
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "section_cuentas",
+      "fieldtype": "Section Break",
+      "label": "Cuentas"
+    },
+    {
+      "fieldname": "cuenta_origen",
+      "fieldtype": "Link",
+      "label": "Cuenta Origen (al timbrar)",
+      "options": "Account",
+      "reqd": 1,
+      "in_list_view": 1,
+      "description": "Cobro: IVA pendiente por cobrar. Pago: IVA pendiente por acreditar."
+    },
+    {
+      "fieldname": "col_break_cuentas2",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "cuenta_destino",
+      "fieldtype": "Link",
+      "label": "Cuenta Destino (al cobrar/pagar)",
+      "options": "Account",
+      "reqd": 1,
+      "in_list_view": 1,
+      "description": "Cobro: IVA cobrado. Pago: IVA acreditable pagado."
+    }
+  ]
+}

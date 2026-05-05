@@ -363,9 +363,12 @@ doc_events = {
 	# =============================================================================
 	# COMPLEMENTOS DE PAGO - AUTOMATIZACIÓN SAT
 	# =============================================================================
-	# Payment Entry PPD - Complementos automáticos
+	# Payment Entry PPD - Complementos automáticos + Reclasificación fiscal
 	"Payment Entry": {
-		"validate": "facturacion_mexico.complementos_pago.hooks_handlers.payment_entry_validate.check_ppd_requirement",
+		"validate": [
+			"facturacion_mexico.complementos_pago.hooks_handlers.payment_entry_validate.check_ppd_requirement",
+			"facturacion_mexico.facturacion_fiscal.services.payment_entry_reclasificacion.cargar_impuestos_en_payment_entry",
+		],
 		"on_submit": "facturacion_mexico.complementos_pago.hooks_handlers.payment_entry_submit.create_complement_if_required",
 		"on_cancel": "facturacion_mexico.complementos_pago.hooks_handlers.payment_entry_cancel.cancel_related_complement",
 	},
