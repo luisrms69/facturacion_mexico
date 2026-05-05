@@ -79,9 +79,7 @@ class MapeoReclasificacionFiscalPaymentEntry(Document):
 		existente = frappe.db.get_value("Mapeo Reclasificacion Fiscal Payment Entry", filtros, "name")
 		if existente:
 			frappe.throw(
-				_(
-					"Ya existe un mapeo activo para {0} / {1} / {2}: {3}"
-				).format(
+				_("Ya existe un mapeo activo para {0} / {1} / {2}: {3}").format(
 					self.company,
 					self.tipo_operacion,
 					self.cuenta_origen,
