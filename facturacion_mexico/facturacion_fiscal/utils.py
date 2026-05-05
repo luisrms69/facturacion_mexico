@@ -449,7 +449,6 @@ def sync_status_to_sales_invoice(factura_fiscal_name: str) -> dict[str, Any]:
 		# Preparar datos para sincronización
 		sync_data = {
 			"fm_fiscal_status": fiscal_data.get("fm_fiscal_status", "Borrador"),
-			"fm_last_status_update": now(),
 		}
 
 		# Solo actualizar si hay cambio real

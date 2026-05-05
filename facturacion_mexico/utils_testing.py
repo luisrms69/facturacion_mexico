@@ -21,7 +21,6 @@ def verify_cancellation_preconditions():
 	print("  UUID Fields:")
 	print(f'    - uuid_fiscal: {getattr(si, "uuid_fiscal", "N/A")}')
 	print(f'    - fm_uuid_fiscal: {getattr(si, "fm_uuid_fiscal", "N/A")}')
-	print(f'    - fm_ffm_uuid: {getattr(si, "fm_ffm_uuid", "N/A")}')
 	print(f"  FFM Link: {si.fm_factura_fiscal_mx}")
 	print(f"  Total: {si.grand_total}")
 
@@ -38,7 +37,6 @@ def verify_cancellation_preconditions():
 	all_uuids = [
 		getattr(si, "uuid_fiscal", None),
 		getattr(si, "fm_uuid_fiscal", None),
-		getattr(si, "fm_ffm_uuid", None),
 		getattr(ffm, "uuid", None),
 		getattr(ffm, "fm_uuid_fiscal", None),
 		getattr(ffm, "fm_uuid", None),

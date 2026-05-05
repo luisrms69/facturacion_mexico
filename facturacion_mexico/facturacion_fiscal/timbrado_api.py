@@ -906,7 +906,15 @@ class TimbradoAPI:
 			self._validate_amount_discrepancies(factura_fiscal, response)
 
 			# Actualizar Sales Invoice
-			frappe.set_value("Sales Invoice", sales_invoice.name, {"fm_fiscal_status": FiscalStates.TIMBRADO})
+			es_ppd = 1 if (factura_fiscal.get("fm_payment_method_sat") or "").upper() == "PPD" else 0
+			frappe.set_value(
+				"Sales Invoice",
+				sales_invoice.name,
+				{
+					"fm_fiscal_status": FiscalStates.TIMBRADO,
+					"fm_es_ppd": es_ppd,
+				},
+			)
 
 			# Descargar archivos si está configurado
 			if self.settings.download_files_default:
@@ -2707,7 +2715,6 @@ def create_substitution_si(si_name: str):
 	# Limpiar campos fiscales del SI nuevo
 	new_si.fm_factura_fiscal_mx = None
 	new_si.fm_fiscal_status = None
-	new_si.fm_last_status_update = None
 
 	# 3) Guardar el UUID a sustituir (campo custom ffm_substitution_source_uuid)
 	new_si.set("ffm_substitution_source_uuid", ffm["fm_uuid"])

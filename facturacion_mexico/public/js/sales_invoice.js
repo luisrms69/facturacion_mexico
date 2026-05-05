@@ -126,13 +126,9 @@ function add_timbrar_button(frm) {
 }
 
 function add_view_fiscal_button(frm) {
-	// Botón para ver documento fiscal ya timbrado
 	frm.add_custom_button(__("Ver Factura Fiscal"), function () {
 		frappe.set_route("Form", "Factura Fiscal Mexico", frm.doc.fm_factura_fiscal_mx);
 	}).addClass("btn-info");
-
-	// Agregar indicador visual de que ya está timbrada
-	frm.dashboard.add_indicator(__("Ya Timbrada"), "green");
 }
 
 function redirect_to_fiscal_document(frm) {
