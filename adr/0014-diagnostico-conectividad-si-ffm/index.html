@@ -1,0 +1,1536 @@
+
+<!doctype html>
+<html lang="es" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentación completa del sistema de facturación electrónica para México">
+      
+      
+        <meta name="author" content="Equipo Desarrollo Facturación México">
+      
+      
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.3">
+    
+    
+      
+        <title>ADR 0014 — Diagnóstico Conectividad Sales Invoice ↔ Factura Fiscal Mexico - Facturación México - Documentación Técnica</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.50c56a3b.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/advanced.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function n(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],n("js",new Date),n("config","G-XXXXXXXXXX"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){this.value&&n("event","search",{search_term:this.value})}),document$.subscribe(function(){var a=document.forms.feedback;if(void 0!==a)for(var e of a.querySelectorAll("[type=submit]"))e.addEventListener("click",function(e){e.preventDefault();var t=document.location.pathname,e=this.getAttribute("data-md-value");n("event","feedback",{page:t,data:e}),a.firstElementChild.disabled=!0;e=a.querySelector(".md-feedback__note [data-md-value='"+e+"']");e&&(e.hidden=!1)}),a.hidden=!1}),location$.subscribe(function(e){n("config","G-XXXXXXXXXX",{page_path:e.pathname})})});var e=document.createElement("script");e.async=!0,e.src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX",document.getElementById("__analytics").insertAdjacentElement("afterEnd",e)}</script>
+  
+    <script>var consent;"undefined"==typeof __md_analytics||(consent=__md_get("__consent"))&&consent.analytics&&__md_analytics()</script>
+  
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#adr-0014-diagnostico-conectividad-sales-invoice-factura-fiscal-mexico" class="md-skip">
+          Saltar a contenido
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabecera">
+    <a href="../.." title="Facturación México - Documentación Técnica" class="md-header__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Facturación México - Documentación Técnica
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              ADR 0014 — Diagnóstico Conectividad Sales Invoice ↔ Factura Fiscal Mexico
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo oscuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo oscuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Búsqueda" placeholder="Búsqueda" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Buscar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpiar" aria-label="Limpiar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando búsqueda
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Pestañas" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+    
+  
+  Inicio
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../user-guide/" class="md-tabs__link">
+          
+  
+  Guía de Usuario
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/" class="md-tabs__link">
+          
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/" class="md-tabs__link">
+          
+  
+  Desarrollo
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navegación" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Facturación México - Documentación Técnica" class="md-nav__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Facturación México - Documentación Técnica
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Inicio
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Guía de Usuario
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Guía de Usuario
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Usuario - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/getting-started/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Primeros Pasos
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/draft-invoices/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Facturas en Borrador
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/troubleshooting/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    API Reference
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    API Reference - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/cfdi/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CFDI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/draft-management/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Draft Management
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/catalogos/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Catalogos SAT
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/hooks/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Hooks
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Desarrollo
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Desarrollo
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Desarrollo - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Setup Desarrollo
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/draft-workflow/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Draft Workflow
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#contexto-historico" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contexto histórico
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#arquitectura-actual-link-bidireccional" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arquitectura actual — link bidireccional
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#campos-custom-fm_-en-sales-invoice-clasificacion-completa" class="md-nav__link">
+    <span class="md-ellipsis">
+      Campos custom fm_* en Sales Invoice — clasificación completa
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Campos custom fm_* en Sales Invoice — clasificación completa">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#grupo-1-esenciales-unicos-con-datos-reales-en-bd" class="md-nav__link">
+    <span class="md-ellipsis">
+      Grupo 1 — Esenciales (únicos con datos reales en BD)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#grupo-2-campos-de-display-muertos-null-en-783783-sis-eliminados-2026-05-04" class="md-nav__link">
+    <span class="md-ellipsis">
+      Grupo 2 — Campos de display MUERTOS (NULL en 783/783 SIs) — ELIMINADOS 2026-05-04
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#grupo-3-modulos-activos-con-campos-propios-en-si" class="md-nav__link">
+    <span class="md-ellipsis">
+      Grupo 3 — Módulos activos con campos propios en SI
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#grupo-4-campos-legacy-sin-uso-activo-confirmado" class="md-nav__link">
+    <span class="md-ellipsis">
+      Grupo 4 — Campos legacy sin uso activo confirmado
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#grupo-5-campos-migrados-a-ffm-eliminados-de-si" class="md-nav__link">
+    <span class="md-ellipsis">
+      Grupo 5 — Campos migrados a FFM (eliminados de SI)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ciclo-de-vida-real-de-los-campos-en-si-verificado-en-bd" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ciclo de vida real de los campos en SI (verificado en BD)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Ciclo de vida real de los campos en SI (verificado en BD)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#al-crearsubmit-sales-invoice" class="md-nav__link">
+    <span class="md-ellipsis">
+      Al crear/submit Sales Invoice
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#al-timbrar" class="md-nav__link">
+    <span class="md-ellipsis">
+      Al timbrar
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#al-cancelar" class="md-nav__link">
+    <span class="md-ellipsis">
+      Al cancelar
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#en-cascade-de-sustitucion-motivo-01" class="md-nav__link">
+    <span class="md-ellipsis">
+      En cascade de sustitución (motivo 01)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verificacion-de-integridad-bd-2026-05-04" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verificación de integridad BD (2026-05-04)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bugs-identificados" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bugs identificados
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bugs identificados">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-1-indicador-ya-timbrada-duplicado-en-stats-corregido-2026-05-04" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bug 1 — Indicador "Ya Timbrada" duplicado en Stats — CORREGIDO 2026-05-04
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bug-2-sync_ffm_summary-nunca-registrada-resuelto-2026-05-04" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bug 2 — sync_ffm_summary nunca registrada — RESUELTO 2026-05-04
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#acciones-ejecutadas-2026-05-04" class="md-nav__link">
+    <span class="md-ellipsis">
+      Acciones ejecutadas (2026-05-04)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Acciones ejecutadas (2026-05-04)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#campos-eliminados-de-bd-fixtures-y-codigo" class="md-nav__link">
+    <span class="md-ellipsis">
+      Campos eliminados de BD, fixtures y código
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#widget-como-sustituto-de-denormalizacion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Widget como sustituto de denormalización
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dead-code-pendiente" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dead code pendiente
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      Referencias
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="adr-0014-diagnostico-conectividad-sales-invoice-factura-fiscal-mexico">ADR 0014 — Diagnóstico Conectividad Sales Invoice ↔ Factura Fiscal Mexico<a class="headerlink" href="#adr-0014-diagnostico-conectividad-sales-invoice-factura-fiscal-mexico" title="Permanent link">&para;</a></h1>
+<p><strong>Fecha:</strong> 2026-05-04
+<strong>Estado:</strong> Cerrado — diagnóstico completo. Ver sección "Acciones ejecutadas" al final.
+<strong>Autor:</strong> Luis Montanaro Sánchez</p>
+<hr />
+<blockquote>
+<p>⚠️ <strong>Nota:</strong> Este ADR documenta el estado observado al 2026-05-04. Muchos campos son legacy de una primera implementación donde SI y FFM eran concebidos como el mismo documento o convivían más estrechamente.</p>
+</blockquote>
+<hr />
+<h2 id="contexto-historico">Contexto histórico<a class="headerlink" href="#contexto-historico" title="Permanent link">&para;</a></h2>
+<p>En la implementación original de <code>facturacion_mexico</code>, varios campos fiscales vivían
+directamente en el Sales Invoice: <code>fm_payment_method_sat</code>, <code>fm_lugar_expedicion</code>,
+<code>fm_serie_folio</code>, <code>fm_cfdi_use</code>, <code>fm_uuid_fiscal</code>. En una migración posterior se
+decidió mover esos campos al DocType <code>Factura Fiscal Mexico</code> (FFM) como fuente de
+verdad fiscal, dejando en SI solo un link de referencia.</p>
+<p>La migración se hizo campo por campo — los custom fields se comentaron en <code>hooks.py</code>
+(evidencia: líneas con comentarios <code># MIGRADO A Factura Fiscal Mexico</code>) pero
+las secciones que los contenían no siempre se eliminaron, y se agregaron nuevos campos
+de display (<code>fm_ffm_*</code>) como denormalización para evitar joins en la UI.</p>
+<hr />
+<h2 id="arquitectura-actual-link-bidireccional">Arquitectura actual — link bidireccional<a class="headerlink" href="#arquitectura-actual-link-bidireccional" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>Sales Invoice                    Factura Fiscal Mexico
+─────────────────               ──────────────────────────
+fm_factura_fiscal_mx ──────────→ name
+fm_fiscal_status     (activo)   fm_fiscal_status (fuente)
+fm_ffm_uuid          (MUERTO)   fm_uuid
+fm_ffm_numero        (MUERTO)   fm_serie_folio
+fm_ffm_fecha         (MUERTO)   fecha_timbrado
+fm_ffm_estado        (MUERTO)   fm_fiscal_status
+                    ←────────── sales_invoice
+</code></pre></div>
+<p>Ambos documentos se referencian mutuamente. Los links activos son:
+- SI → FFM: <code>si.fm_factura_fiscal_mx</code>
+- FFM → SI: <code>ffm.sales_invoice</code></p>
+<hr />
+<h2 id="campos-custom-fm_-en-sales-invoice-clasificacion-completa">Campos custom <code>fm_*</code> en Sales Invoice — clasificación completa<a class="headerlink" href="#campos-custom-fm_-en-sales-invoice-clasificacion-completa" title="Permanent link">&para;</a></h2>
+<h3 id="grupo-1-esenciales-unicos-con-datos-reales-en-bd">Grupo 1 — Esenciales (únicos con datos reales en BD)<a class="headerlink" href="#grupo-1-esenciales-unicos-con-datos-reales-en-bd" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Tipo</th>
+<th>Qué hace</th>
+<th>Quién escribe</th>
+<th>Quién lee</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fm_fiscal_status</code></td>
+<td>Select</td>
+<td>Estado fiscal: BORRADOR/TIMBRADO/CANCELADO/PENDIENTE_CANCELACION/ERROR</td>
+<td><code>timbrado_api.py</code>, <code>sales_invoice_submit.py</code>, <code>sales_invoice_cancel.py</code>, <code>revisar_estatus_cancelacion()</code></td>
+<td>Toda la lógica de cancelación, timbrado, validaciones, UI</td>
+</tr>
+<tr>
+<td><code>fm_factura_fiscal_mx</code></td>
+<td>Link→FFM</td>
+<td>Referencia al documento fiscal</td>
+<td><code>sales_invoice_submit.py</code> al crear FFM; se limpia en cascade de sustitución</td>
+<td>Toda la lógica fiscal, ereceipts, cancelaciones</td>
+</tr>
+</tbody>
+</table>
+<h3 id="grupo-2-campos-de-display-muertos-null-en-783783-sis-eliminados-2026-05-04">Grupo 2 — Campos de display MUERTOS (NULL en 783/783 SIs) — ELIMINADOS 2026-05-04<a class="headerlink" href="#grupo-2-campos-de-display-muertos-null-en-783783-sis-eliminados-2026-05-04" title="Permanent link">&para;</a></h3>
+<p>Diseñados para ser sincronizados por <code>ffm_hooks.py::sync_ffm_summary_to_sales_invoice()</code>,
+pero <strong>esa función nunca se llamó</strong> — <code>Factura Fiscal Mexico</code> no tiene hook <code>on_update</code>
+registrado en <code>hooks.py</code>. Verificado: 0 registros con valor en toda la BD.</p>
+<p><code>sales_invoice_ffm_summary.js</code> tampoco los usaba — hacía <code>frappe.call({method: "get_ffm_summary"})</code>
+que consultaba la FFM directamente al renderizar.</p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Valor en toda la BD</th>
+<th>Estado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fm_ffm_estado</code></td>
+<td><strong>NULL en 783/783</strong></td>
+<td>✅ Eliminado 2026-05-04</td>
+</tr>
+<tr>
+<td><code>fm_ffm_uuid</code></td>
+<td><strong>NULL en 783/783</strong></td>
+<td>✅ Eliminado 2026-05-04</td>
+</tr>
+<tr>
+<td><code>fm_ffm_numero</code></td>
+<td><strong>NULL en 783/783</strong></td>
+<td>✅ Eliminado 2026-05-04</td>
+</tr>
+<tr>
+<td><code>fm_ffm_fecha</code></td>
+<td><strong>NULL en 783/783</strong></td>
+<td>✅ Eliminado 2026-05-04</td>
+</tr>
+<tr>
+<td><code>fm_ffm_pac_msg</code></td>
+<td><strong>NULL en 783/783</strong></td>
+<td>✅ Eliminado 2026-05-04</td>
+</tr>
+<tr>
+<td><code>fm_ffm_col_break</code></td>
+<td>Column Break layout</td>
+<td>✅ Eliminado 2026-05-04</td>
+</tr>
+<tr>
+<td><code>fm_ffm_open_btn</code></td>
+<td>Botón duplicado (ya existe en toolbar)</td>
+<td>✅ Eliminado 2026-05-04</td>
+</tr>
+</tbody>
+</table>
+<h3 id="grupo-3-modulos-activos-con-campos-propios-en-si">Grupo 3 — Módulos activos con campos propios en SI<a class="headerlink" href="#grupo-3-modulos-activos-con-campos-propios-en-si" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Módulo</th>
+<th>Campos</th>
+<th>Estado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Multi-sucursal</td>
+<td><code>fm_branch</code>, <code>fm_branch_health_status</code>, <code>fm_certificate_info</code>, <code>fm_auto_selected_branch</code>, <code>fm_original_stct_template</code></td>
+<td>✅ Activos</td>
+</tr>
+<tr>
+<td>Addendas</td>
+<td><code>fm_addenda_type</code>, <code>fm_addenda_required</code>, <code>fm_addenda_status</code>, <code>fm_addenda_xml</code>, <code>fm_addenda_errors</code>, <code>fm_addenda_generated_date</code></td>
+<td>✅ Activos</td>
+</tr>
+<tr>
+<td>E-Receipts</td>
+<td><code>fm_ereceipt_mode</code>, <code>fm_ereceipt_expiry_type/days/date</code></td>
+<td>✅ Activos</td>
+</tr>
+</tbody>
+</table>
+<h3 id="grupo-4-campos-legacy-sin-uso-activo-confirmado">Grupo 4 — Campos legacy sin uso activo confirmado<a class="headerlink" href="#grupo-4-campos-legacy-sin-uso-activo-confirmado" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Campo(s)</th>
+<th>Origen</th>
+<th>Estado real en BD</th>
+<th>Decisión</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fm_draft_status</code>, <code>fm_draft_created_date</code>, <code>fm_draft_approved_by</code>, <code>fm_factorapi_draft_id</code>, <code>fm_create_as_draft</code></td>
+<td>Draft Management — TODO MOCK</td>
+<td><code>""</code>, <code>NULL</code>, <code>0</code> en toda la BD</td>
+<td>Diferido — eliminar cuando se decida el futuro del módulo draft</td>
+</tr>
+<tr>
+<td><code>fm_pending_amount</code>, <code>fm_complementos_count</code></td>
+<td>PPD/Complementos — hook roto</td>
+<td><code>0.0</code>, <code>0</code> en toda la BD</td>
+<td>Diferido — los necesitará el módulo PPD</td>
+</tr>
+<tr>
+<td><code>fm_folio_reserved</code></td>
+<td>Multi-sucursal</td>
+<td><code>0</code> en toda la BD</td>
+<td>Conservar — activo en <code>multi_sucursal/sales_invoice_fields.py</code></td>
+</tr>
+<tr>
+<td><code>fm_last_status_update</code></td>
+<td>Auditoría timestamp</td>
+<td><code>NULL</code> en toda la BD</td>
+<td>✅ Eliminado 2026-05-04</td>
+</tr>
+<tr>
+<td><code>fm_timbrado_section</code></td>
+<td>Sección "Historial de Timbrado" vacía</td>
+<td>Solo layout</td>
+<td>✅ Eliminado 2026-05-04</td>
+</tr>
+<tr>
+<td><code>fm_quick_status</code></td>
+<td>HTML display badge</td>
+<td>Sin uso real — widget lo reemplaza</td>
+<td>Pendiente eliminar</td>
+</tr>
+</tbody>
+</table>
+<h3 id="grupo-5-campos-migrados-a-ffm-eliminados-de-si">Grupo 5 — Campos migrados a FFM (eliminados de SI)<a class="headerlink" href="#grupo-5-campos-migrados-a-ffm-eliminados-de-si" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># hooks.py:</span>
+<span class="c1"># &quot;Sales Invoice-fm_payment_method_sat&quot;         # MIGRADO A Factura Fiscal Mexico</span>
+<span class="c1"># &quot;Sales Invoice-fm_lugar_expedicion&quot;            # MIGRADO A Factura Fiscal Mexico</span>
+<span class="c1"># &quot;Sales Invoice-fm_serie_folio&quot;                 # MIGRADO A Factura Fiscal Mexico</span>
+<span class="c1"># &quot;Sales Invoice-fm_cfdi_use&quot;                    # MIGRADO A Factura Fiscal Mexico</span>
+<span class="c1"># &quot;Sales Invoice-fm_uuid_fiscal&quot;                 # ELIMINADO — usar get_invoice_uuid()</span>
+<span class="c1"># &quot;Sales Invoice-fm_informacion_fiscal_section&quot;  # ELIMINADO — sección vacía</span>
+</code></pre></div>
+<hr />
+<h2 id="ciclo-de-vida-real-de-los-campos-en-si-verificado-en-bd">Ciclo de vida real de los campos en SI (verificado en BD)<a class="headerlink" href="#ciclo-de-vida-real-de-los-campos-en-si-verificado-en-bd" title="Permanent link">&para;</a></h2>
+<h3 id="al-crearsubmit-sales-invoice">Al crear/submit Sales Invoice<a class="headerlink" href="#al-crearsubmit-sales-invoice" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>SI.on_submit hook
+  → crear FFM en estado BORRADOR
+  → frappe.db.set_value(SI, &quot;fm_fiscal_status&quot;, &quot;BORRADOR&quot;)
+  → frappe.db.set_value(SI, &quot;fm_factura_fiscal_mx&quot;, ffm.name)
+</code></pre></div>
+<h3 id="al-timbrar">Al timbrar<a class="headerlink" href="#al-timbrar" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>TimbradoAPI.timbrar()
+  → PAC responde OK
+  → frappe.set_value(SI, {&quot;fm_fiscal_status&quot;: &quot;TIMBRADO&quot;})
+  ← SOLO ESO. Los fm_ffm_* nunca se escribieron (confirmado BD).
+</code></pre></div>
+<h3 id="al-cancelar">Al cancelar<a class="headerlink" href="#al-cancelar" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>cancelar_factura() / revisar_estatus_cancelacion()
+  → frappe.set_value(SI, {&quot;fm_fiscal_status&quot;: &quot;CANCELADO&quot;})
+</code></pre></div>
+<h3 id="en-cascade-de-sustitucion-motivo-01">En cascade de sustitución (motivo 01)<a class="headerlink" href="#en-cascade-de-sustitucion-motivo-01" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>_cascade_cancel_previous_after_substitute()
+  → orig_si.db_set(&quot;fm_factura_fiscal_mx&quot;, &quot;&quot;)    ← limpiado
+  → orig_ffm.db_set(&quot;sales_invoice&quot;, &quot;&quot;)           ← limpiado
+  → orig_ffm.db_set(&quot;sales_invoice&quot;, orig_si_name) ← restaurado post-cancel
+</code></pre></div>
+<hr />
+<h2 id="verificacion-de-integridad-bd-2026-05-04">Verificación de integridad BD (2026-05-04)<a class="headerlink" href="#verificacion-de-integridad-bd-2026-05-04" title="Permanent link">&para;</a></h2>
+<p>Consultas directas sobre <code>facturacion-v16.dev</code> — 783 SIs, 170+ FFMs.</p>
+<table>
+<thead>
+<tr>
+<th>Verificación</th>
+<th>Resultado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Campos <code>fm_ffm_*</code> poblados en alguna SI</td>
+<td><strong>0/783</strong> — muertos confirmados</td>
+</tr>
+<tr>
+<td>SIs TIMBRADO sin FFM</td>
+<td><strong>0</strong> — integridad OK</td>
+</tr>
+<tr>
+<td>FFMs TIMBRADO sin SI válida</td>
+<td><strong>0</strong> — integridad OK</td>
+</tr>
+<tr>
+<td>Links rotos SI → FFM</td>
+<td><strong>0</strong> — integridad OK</td>
+</tr>
+<tr>
+<td>Múltiples FFM TIMBRADO por misma SI</td>
+<td><strong>0</strong> — integridad OK</td>
+</tr>
+<tr>
+<td>Múltiples FFM cualquier estado por misma SI</td>
+<td><strong>9 casos</strong> — todos CANCELADO o BORRADOR</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="bugs-identificados">Bugs identificados<a class="headerlink" href="#bugs-identificados" title="Permanent link">&para;</a></h2>
+<h3 id="bug-1-indicador-ya-timbrada-duplicado-en-stats-corregido-2026-05-04">Bug 1 — Indicador "Ya Timbrada" duplicado en Stats — CORREGIDO 2026-05-04<a class="headerlink" href="#bug-1-indicador-ya-timbrada-duplicado-en-stats-corregido-2026-05-04" title="Permanent link">&para;</a></h3>
+<p><code>sales_invoice.js</code> llamaba <code>add_view_fiscal_button(frm)</code> desde dos paths del refresh.
+Cada llamada agregaba <code>frm.dashboard.add_indicator("Ya Timbrada", "green")</code>.
+<strong>Corrección:</strong> eliminado el indicador completamente — el widget HTML ya muestra el estado.</p>
+<h3 id="bug-2-sync_ffm_summary-nunca-registrada-resuelto-2026-05-04">Bug 2 — sync_ffm_summary nunca registrada — RESUELTO 2026-05-04<a class="headerlink" href="#bug-2-sync_ffm_summary-nunca-registrada-resuelto-2026-05-04" title="Permanent link">&para;</a></h3>
+<p><code>ffm_hooks.py</code> definía <code>sync_ffm_summary_to_sales_invoice()</code> pero no estaba en <code>hooks.py</code>.
+Los campos <code>fm_ffm_*</code> en SI nunca se poblaron.
+<strong>Resolución:</strong> función neutralizada (stub), campos <code>fm_ffm_*</code> eliminados de BD y fixtures.</p>
+<hr />
+<h2 id="acciones-ejecutadas-2026-05-04">Acciones ejecutadas (2026-05-04)<a class="headerlink" href="#acciones-ejecutadas-2026-05-04" title="Permanent link">&para;</a></h2>
+<h3 id="campos-eliminados-de-bd-fixtures-y-codigo">Campos eliminados de BD, fixtures y código<a class="headerlink" href="#campos-eliminados-de-bd-fixtures-y-codigo" title="Permanent link">&para;</a></h3>
+<p><strong>Grupo 2 completo:</strong>
+- <code>fm_ffm_estado</code>, <code>fm_ffm_uuid</code>, <code>fm_ffm_numero</code>, <code>fm_ffm_fecha</code>, <code>fm_ffm_pac_msg</code>
+- <code>fm_ffm_col_break</code>, <code>fm_ffm_open_btn</code>
+- Removidos de: <code>setup/customize_sales_invoice.py</code> (que corre en <code>after_migrate</code>)</p>
+<p><strong>Grupo 4 parcial:</strong>
+- <code>fm_last_status_update</code> — removido de fixtures, <code>utils.py</code>, <code>timbrado_api.py</code>
+- <code>fm_timbrado_section</code> — sección "Historial de Timbrado" eliminada</p>
+<p><strong>Código limpiado:</strong>
+- <code>ffm_hooks.py</code> → función neutralizada con <code>pass</code>
+- <code>utils_testing.py</code> → referencias a <code>fm_ffm_uuid</code> eliminadas
+- <code>sales_invoice.js</code> → indicador "Ya Timbrada" eliminado de <code>add_view_fiscal_button</code></p>
+<h3 id="widget-como-sustituto-de-denormalizacion">Widget como sustituto de denormalización<a class="headerlink" href="#widget-como-sustituto-de-denormalizacion" title="Permanent link">&para;</a></h3>
+<p><code>sales_invoice_ffm_summary.js</code> + <code>fm_ffm_summary_html</code> es el patrón correcto:
+lee FFM en tiempo real vía <code>get_ffm_summary</code> API, sin persistir datos en SI.
+Muestra: Estado CFDI, Serie y Folio, UUID, Fecha Timbrado, Estado PAC.</p>
+<h3 id="dead-code-pendiente">Dead code pendiente<a class="headerlink" href="#dead-code-pendiente" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>sales_invoice_ffm_summary.js</code> aún referencia <code>fm_ffm_open_btn</code> (ya eliminado) — limpiar</li>
+</ul>
+<hr />
+<h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>facturacion_mexico/facturacion_fiscal/api/ffm_hooks.py</code> — función neutralizada</li>
+<li><code>facturacion_mexico/facturacion_fiscal/hooks_handlers/sales_invoice_submit.py</code></li>
+<li><code>facturacion_mexico/facturacion_fiscal/timbrado_api.py</code></li>
+<li><code>facturacion_mexico/public/js/sales_invoice.js</code></li>
+<li><code>facturacion_mexico/public/js/sales_invoice_ffm_summary.js</code></li>
+<li><code>facturacion_mexico/hooks.py</code> líneas 168-215</li>
+</ul>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Volver al principio
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 Facturación México - Documentación Técnica
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/tu-org/facturacion_mexico" target="_blank" rel="noopener" title="GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+      <div class="md-consent" data-md-component="consent" id="__consent" hidden>
+        <div class="md-consent__overlay"></div>
+        <aside class="md-consent__inner">
+          <form class="md-consent__form md-grid md-typeset" name="consent">
+            
+
+  
+    
+  
+
+
+
+
+
+<h4>Consentimiento de cookies</h4>
+<p>Utilizamos cookies para reconocer tus visitas repetidas y preferencias, así como para medir la efectividad de nuestra documentación y si los usuarios encuentran lo que están buscando. Con tu consentimiento, nos ayudas a mejorar nuestra documentación.
+</p>
+<input class="md-toggle" type="checkbox" id="__settings" >
+<div class="md-consent__settings">
+  <ul class="task-list">
+    
+      
+      
+        
+        
+      
+      <li class="task-list-item">
+        <label class="task-list-control">
+          <input type="checkbox" name="analytics" checked>
+          <span class="task-list-indicator"></span>
+          Google Analytics
+        </label>
+      </li>
+    
+  </ul>
+</div>
+<div class="md-consent__controls">
+  
+    
+      <button class="md-button md-button--primary">Aceptar</button>
+    
+    
+    
+  
+    
+    
+      <button type="reset" class="md-button md-button--primary">Rechazar</button>
+    
+    
+  
+    
+    
+    
+      <label class="md-button" for="__settings">Gestionar cookies</label>
+    
+  
+</div>
+          </form>
+        </aside>
+      </div>
+      <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout(function(){document.querySelector("[data-md-component=consent]").hidden=!1},250);var action,form=document.forms.consent;for(action of["submit","reset"])form.addEventListener(action,function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map(function(e){return[e,!0]}))),location.hash="",location.reload()})</script>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.expand", "navigation.instant", "navigation.sections", "navigation.tabs", "navigation.top", "search.highlight", "search.suggest"], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copiado al portapapeles", "clipboard.copy": "Copiar al portapapeles", "search.result.more.one": "1 m\u00e1s en esta p\u00e1gina", "search.result.more.other": "# m\u00e1s en esta p\u00e1gina", "search.result.none": "No se encontraron documentos", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Teclee para comenzar b\u00fasqueda", "search.result.term.missing": "Falta", "select.version": "Seleccionar versi\u00f3n"}, "version": {"default": "latest", "provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7c377c4.min.js"></script>
+      
+        <script src="../../assets/javascripts/extra.js"></script>
+      
+        <script src="../../assets/javascripts/advanced.js"></script>
+      
+    
+  </body>
+</html>
