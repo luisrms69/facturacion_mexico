@@ -232,13 +232,30 @@ bench --site facturacion-v16.dev execute "facturacion_mexico.one_offs.script_nam
 
 ---
 
-## Antes de cada PR
+## REGLAS GIT — FACTURACION MEXICO
 
-- [ ] Tests pasan: `bench --site facturacion-v16.dev run-tests --app facturacion_mexico`
+### Antes de cada commit
+
+- Correr linters en archivos modificados:
+  ```bash
+  ruff format <archivos .py modificados>
+  npx prettier --write <archivos .js modificados>
+  ```
+
+### Antes de cada PR
+
+- [ ] Linters pasados (ver arriba)
+- [ ] Tests pasan — usar `/test-guard` con site `test-facturacion.localhost`
 - [ ] Fixtures exportados si hubo cambios de Custom Fields, Workflows o Roles
-- [ ] Patch creado si hay cambios de esquema con datos existentes
+- [ ] Patch creado si hay cambios de esquema — **requiere autorización explícita del usuario**
 - [ ] Sin secretos (credenciales FacturAPI nunca en código)
 - [ ] `bench --site facturacion-v16.dev migrate` limpio
+
+### Reglas específicas del proyecto
+
+- PRs siempre a `main` — nunca a `develop`
+- Site de desarrollo: `facturacion-v16.dev`
+- Site de tests: `test-facturacion.localhost`
 
 ---
 
