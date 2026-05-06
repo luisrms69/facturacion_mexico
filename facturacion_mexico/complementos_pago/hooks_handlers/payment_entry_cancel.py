@@ -15,7 +15,7 @@ def block_cancel_if_complemento_activo(doc, method=None):
 	if not comp_name:
 		return
 
-	status = frappe.db.get_value("Complemento Pago MX", comp_name, "complement_status")
+	status = frappe.db.get_value("Complemento Pago MX", comp_name, "status")
 	if not status:
 		return
 

@@ -64,7 +64,7 @@ def crear_complemento_pago_desde_pe(payment_entry_name: str) -> dict:
 	complemento.payment_entry = pe.name
 	complemento.company = pe.company
 	complemento.customer = pe.party if pe.party_type == "Customer" else None
-	complemento.complement_status = "Pendiente"
+	complemento.status = "Pendiente"
 
 	complemento.fecha_pago = pe.posting_date
 	complemento.forma_pago_p = forma_pago_sat
@@ -149,9 +149,9 @@ def timbrar_complemento_pago(complemento_name: str) -> dict:
 	comp = frappe.get_doc("Complemento Pago MX", complemento_name)
 
 	# --- Validaciones previas ---
-	if comp.complement_status not in ("Pendiente", "Error"):
+	if comp.status not in ("Pendiente", "Error"):
 		frappe.throw(
-			_("El complemento ya fue timbrado o cancelado. Estado: {0}").format(comp.complement_status)
+			_("El complemento ya fue timbrado o cancelado. Estado: {0}").format(comp.status)
 		)
 	if comp.uuid_sat or comp.folio_fiscal:
 		frappe.throw(_("El complemento ya tiene UUID/folio fiscal. No se puede timbrar de nuevo."))
@@ -260,7 +260,7 @@ def timbrar_complemento_pago(complemento_name: str) -> dict:
 	)
 
 	if not success:
-		frappe.db.set_value("Complemento Pago MX", complemento_name, "complement_status", "Error")
+		frappe.db.set_value("Complemento Pago MX", complemento_name, "status", "Error")
 		frappe.throw(_("Error al timbrar: {0}").format(error_msg))
 
 	# --- Guardar resultado ---
@@ -285,7 +285,7 @@ def timbrar_complemento_pago(complemento_name: str) -> dict:
 			"fecha_certificacion_sat": stamp.get("date") or now_datetime(),
 			"fecha_timbrado": now_datetime(),
 			"estatus_sat": "Vigente",
-			"complement_status": "Timbrado",
+			"status": "Timbrado",
 			**({"tipo_cambio_p": 1.0} if comp.moneda_p == "MXN" else {}),
 		},
 	)
@@ -306,16 +306,16 @@ def cancelar_complemento_pago(complemento_name: str, motivo: str = "02") -> dict
 		motivo: Código motivo SAT ("02" por default)
 
 	Returns:
-		dict con nuevo complement_status y mensaje
+		dict con nuevo status y mensaje
 	"""
 	from facturacion_mexico.facturacion_fiscal.api_client import get_facturapi_client
 
 	comp = frappe.get_doc("Complemento Pago MX", complemento_name)
 
-	if comp.complement_status != "Timbrado":
+	if comp.status != "Timbrado":
 		frappe.throw(
 			_("Solo se pueden cancelar complementos en estado Timbrado. Estado actual: {0}").format(
-				comp.complement_status
+				comp.status
 			)
 		)
 	if not comp.uuid_sat:
@@ -364,7 +364,7 @@ def cancelar_complemento_pago(complemento_name: str, motivo: str = "02") -> dict
 		)
 
 	if not success:
-		frappe.db.set_value("Complemento Pago MX", complemento_name, "complement_status", "Error")
+		frappe.db.set_value("Complemento Pago MX", complemento_name, "status", "Error")
 		frappe.throw(_("Error al cancelar: {0}").format(error_msg))
 
 	# --- Interpretar respuesta PAC ---
@@ -388,13 +388,13 @@ def cancelar_complemento_pago(complemento_name: str, motivo: str = "02") -> dict
 		"Complemento Pago MX",
 		complemento_name,
 		{
-			"complement_status": nuevo_status,
+			"status": nuevo_status,
 			"estatus_sat": nuevo_estatus_sat,
 		},
 	)
 
 	frappe.logger().info(f"Complemento {complemento_name} cancelado. Status: {nuevo_status}")
-	return {"complement_status": nuevo_status, "cancellation_status": cancellation_status}
+	return {"status": nuevo_status, "cancellation_status": cancellation_status}
 
 
 def _build_customer_data(customer_name: str, company: str) -> dict:

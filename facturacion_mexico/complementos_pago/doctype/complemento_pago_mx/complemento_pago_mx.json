@@ -11,7 +11,7 @@
   "payment_entry",
   "company",
   "customer",
-  "complement_status",
+  "status",
   "column_break_cabecera",
   "fecha_pago",
   "forma_pago_p",
@@ -83,12 +83,13 @@
    "in_list_view": 1
   },
   {
-   "fieldname": "complement_status",
+   "fieldname": "status",
    "fieldtype": "Select",
    "label": "Estado",
-   "options": "\nPendiente\nTimbrado\nCancelado\nError\nPendiente Cancelación",
+   "options": "\nPendiente\nTimbrado\nPendiente Cancelación\nCancelado\nError",
    "default": "Pendiente",
    "read_only": 1,
+   "allow_on_submit": 1,
    "in_list_view": 1,
    "in_standard_filter": 1
   },
@@ -380,7 +381,14 @@
  ],
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": [],
+ "states": [
+  {"color": "Gray",   "title": "Pendiente"},
+  {"color": "Green",  "title": "Timbrado"},
+  {"color": "Orange", "title": "Pendiente Cancelación"},
+  {"color": "Red",    "title": "Cancelado"},
+  {"color": "Red",    "title": "Error"}
+ ],
+ "status_field": "status",
  "title_field": "folio_fiscal",
  "track_changes": 1
 }

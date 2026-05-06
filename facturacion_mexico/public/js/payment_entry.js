@@ -22,9 +22,9 @@ function _setup_complemento_cancel_warning(frm) {
 	if (!frm.doc.fm_complemento_pago) return;
 
 	frappe.db
-		.get_value("Complemento Pago MX", frm.doc.fm_complemento_pago, "complement_status")
+		.get_value("Complemento Pago MX", frm.doc.fm_complemento_pago, "status")
 		.then((r) => {
-			const st = r.message && r.message.complement_status;
+			const st = r.message && r.message.status;
 			if (st && st !== "Cancelado") {
 				_hide_cancel_button(frm);
 				frm.dashboard.set_headline_alert(
@@ -62,17 +62,17 @@ function _inject_complemento_summary(frm) {
 		})
 		.then((r) => {
 			const d = r.message || {};
-			const color = _complemento_status_color(d.complement_status);
+			const color = _complemento_status_color(d.status);
 			const uuid = d.uuid_sat || "-";
 			const fecha = d.fecha_timbrado ? frappe.datetime.str_to_user(d.fecha_timbrado) : "-";
 			const serie = d.serie || "-";
 			const folio = d.folio || "-";
-			const badge = _complemento_status_badge(d.complement_status);
+			const badge = _complemento_status_badge(d.status);
 
 			wrapper.html(`
 				<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 8px; background: #f8f9fa; border-radius: 4px; font-size: 13px;">
 					<div><strong>Estado SAT:</strong>
-						<span class="indicator ${color}" style="margin-left: 4px;">${frappe.utils.escape_html(d.complement_status || "-")}</span>
+						<span class="indicator ${color}" style="margin-left: 4px;">${frappe.utils.escape_html(d.status || "-")}</span>
 						${badge}
 					</div>
 					<div><strong>Fecha Timbrado:</strong> ${fecha}</div>

@@ -11,7 +11,7 @@ def get_complemento_summary(complemento_name: str) -> dict:
 		doc = frappe.db.get_value(
 			"Complemento Pago MX",
 			complemento_name,
-			["complement_status", "uuid_sat", "fecha_timbrado", "serie_folio", "folio_fiscal"],
+			["status", "uuid_sat", "fecha_timbrado", "serie_folio", "folio_fiscal"],
 			as_dict=True,
 		)
 		if not doc:
@@ -27,7 +27,7 @@ def get_complemento_summary(complemento_name: str) -> dict:
 			folio = doc.serie_folio
 
 		return {
-			"complement_status": doc.complement_status,
+			"status": doc.status,
 			"uuid_sat": doc.uuid_sat,
 			"fecha_timbrado": doc.fecha_timbrado,
 			"serie": serie,

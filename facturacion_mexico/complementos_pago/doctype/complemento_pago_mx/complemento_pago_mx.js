@@ -25,15 +25,13 @@ function _status_color(status) {
 }
 
 function _setup_status_indicators(frm) {
-	const status = frm.doc.complement_status;
+	const status = frm.doc.status;
 	if (!status) return;
 	const color = _status_color(status);
 
-	// Encabezado: reemplaza "Submitted" con estado SAT
-	frm.page.set_indicator(__(status), color);
-
 	// Cuerpo: inyecta dot de color junto al valor del campo Estado
-	const $val = frm.fields_dict.complement_status?.$wrapper?.find(".control-value");
+	// El encabezado lo maneja Frappe nativamente via states + status_field
+	const $val = frm.fields_dict.status?.$wrapper?.find(".control-value");
 	if ($val && $val.length) {
 		$val.html(
 			`<span class="indicator ${color}" style="margin-right:4px; vertical-align:middle;"></span>` +
@@ -52,7 +50,7 @@ function _setup_pe_link(frm) {
 
 function _setup_timbrar_btn(frm) {
 	if (frm.doc.docstatus !== 0) return;
-	if (!["Pendiente", "Error"].includes(frm.doc.complement_status)) return;
+	if (!["Pendiente", "Error"].includes(frm.doc.status)) return;
 	if (frm.doc.uuid_sat) return;
 
 	frm.add_custom_button(__("Timbrar Complemento de Pago"), function () {
@@ -91,7 +89,7 @@ function _hide_standard_actions(frm) {
 
 function _setup_cancelar_btn(frm) {
 	if (frm.doc.docstatus !== 1) return;
-	if (frm.doc.complement_status !== "Timbrado") return;
+	if (frm.doc.status !== "Timbrado") return;
 
 	frm.add_custom_button(__("Cancelar Complemento"), function () {
 		frappe.prompt(
@@ -117,7 +115,7 @@ function _setup_cancelar_btn(frm) {
 							args: { complemento_name: frm.doc.name, motivo: motivo },
 							callback: function (r) {
 								if (r.message) {
-									const st = r.message.complement_status;
+									const st = r.message.status;
 									const color = st === "Cancelado" ? "green" : "orange";
 									frappe.show_alert({ message: __("Estado: {0}", [st]), indicator: color }, 6);
 									frm.reload_doc();
