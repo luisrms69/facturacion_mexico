@@ -5,6 +5,7 @@
 
 frappe.ui.form.on("Complemento Pago MX", {
 	refresh(frm) {
+		_hide_standard_actions(frm);
 		_setup_timbrar_btn(frm);
 		_setup_cancelar_btn(frm);
 		_setup_pe_link(frm);
@@ -49,8 +50,17 @@ function _setup_timbrar_btn(frm) {
 	}).addClass("btn-primary");
 }
 
+function _hide_standard_actions(frm) {
+	// Submit estándar — el timbrado llama submit() internamente
+	if (frm.page && frm.page.btn_primary) frm.page.btn_primary.addClass("hidden");
+	frm.page.wrapper.find('.btn[data-label="Submit"]').addClass("hidden");
+	// Cancel estándar de Frappe — la cancelación va por API cancelar_complemento_pago
+	if (frm.page && frm.page.btn_cancel) frm.page.btn_cancel.addClass("hidden");
+	frm.page.wrapper.find('.btn[data-label="Cancel"]').addClass("hidden");
+}
+
 function _setup_cancelar_btn(frm) {
-	if (frm.doc.docstatus !== 0) return;
+	if (frm.doc.docstatus !== 1) return;
 	if (frm.doc.complement_status !== "Timbrado") return;
 
 	frm.add_custom_button(__("Cancelar Complemento"), function () {

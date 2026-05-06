@@ -163,7 +163,7 @@ fixtures = [
 					# Payment Entry custom fields (5 campos)
 					"Payment Entry-fm_complement_generated",
 					"Payment Entry-fm_complemento_pago",
-					"Payment Entry-fm_forma_pago_sat",
+					"Payment Entry-fm_comp_summary_html",
 					"Payment Entry-fm_informacion_fiscal_section",
 					"Payment Entry-fm_require_complement",
 					# Sales Invoice custom fields (33 campos activos + 7 migrados)

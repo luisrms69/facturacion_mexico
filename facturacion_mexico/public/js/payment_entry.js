@@ -10,6 +10,10 @@ frappe.ui.form.on("Payment Entry", {
 	refresh(frm) {
 		_setup_complemento_btn(frm);
 		_setup_complemento_cancel_warning(frm);
+		_inject_complemento_summary(frm);
+	},
+	fm_complemento_pago(frm) {
+		_inject_complemento_summary(frm);
 	},
 });
 
@@ -17,12 +21,12 @@ function _setup_complemento_cancel_warning(frm) {
 	if (frm.doc.docstatus !== 1) return;
 	if (!frm.doc.fm_complemento_pago) return;
 
-	// Mostrar advertencia visual si el complemento no está cancelado
 	frappe.db
 		.get_value("Complemento Pago MX", frm.doc.fm_complemento_pago, "complement_status")
 		.then((r) => {
 			const st = r.message && r.message.complement_status;
 			if (st && st !== "Cancelado") {
+				_hide_cancel_button(frm);
 				frm.dashboard.set_headline_alert(
 					__(
 						"Este Payment Entry tiene un Complemento de Pago fiscal activo ({0}) en estado '{1}'. " +
@@ -33,6 +37,76 @@ function _setup_complemento_cancel_warning(frm) {
 				);
 			}
 		});
+}
+
+function _inject_complemento_summary(frm) {
+	const comp = frm.doc.fm_complemento_pago;
+	const wrapper = frm.fields_dict.fm_comp_summary_html?.$wrapper;
+	if (!wrapper) return;
+
+	if (!comp) {
+		wrapper.html(
+			`<div class="text-muted" style="padding: 8px; font-style: italic;">Sin Complemento de Pago vinculado.</div>`
+		);
+		return;
+	}
+
+	wrapper.html(
+		`<div class="text-muted" style="padding: 8px;"><i class="fa fa-spinner fa-spin"></i> Cargando...</div>`
+	);
+
+	frappe
+		.call({
+			method: "facturacion_mexico.api.complemento_summary.get_complemento_summary",
+			args: { complemento_name: comp },
+		})
+		.then((r) => {
+			const d = r.message || {};
+			const color = _complemento_status_color(d.complement_status);
+			const uuid = d.uuid_sat || "-";
+			const fecha = d.fecha_timbrado ? frappe.datetime.str_to_user(d.fecha_timbrado) : "-";
+			const serie = d.serie || "-";
+			const folio = d.folio || "-";
+			const timbrado = d.complement_status === "Timbrado" || d.complement_status === "Cancelado";
+
+			wrapper.html(`
+				<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 8px; background: #f8f9fa; border-radius: 4px; font-size: 13px;">
+					<div><strong>Estado:</strong>
+						<span class="indicator ${color}" style="margin-left: 4px;">${frappe.utils.escape_html(d.complement_status || "-")}</span>
+						${timbrado ? '<span style="margin-left:6px; color:#28a745;">&#10003; Timbrado</span>' : ""}
+					</div>
+					<div><strong>Fecha Timbrado:</strong> ${fecha}</div>
+					<div><strong>Serie:</strong> <span style="font-family: monospace;">${frappe.utils.escape_html(serie)}</span></div>
+					<div><strong>Folio:</strong> <span style="font-family: monospace;">${frappe.utils.escape_html(folio)}</span></div>
+					<div style="grid-column: span 2;"><strong>Folio Fiscal (UUID):</strong>
+						<span style="font-family: monospace; font-size: 11px; word-break: break-all;">${frappe.utils.escape_html(uuid)}</span>
+					</div>
+				</div>
+			`);
+		})
+		.catch(() => {
+			wrapper.html(
+				`<div class="text-danger" style="padding: 8px;"><i class="fa fa-exclamation-triangle"></i> No fue posible cargar el resumen del complemento.</div>`
+			);
+		});
+}
+
+function _complemento_status_color(status) {
+	switch (status) {
+		case "Timbrado": return "green";
+		case "Cancelado": return "red";
+		case "Pendiente Cancelación": return "orange";
+		case "Error": return "red";
+		case "Pendiente": return "grey";
+		default: return "grey";
+	}
+}
+
+function _hide_cancel_button(frm) {
+	if (frm.page && frm.page.btn_cancel) frm.page.btn_cancel.addClass("hidden");
+	frm.page.wrapper
+		.find('button.btn-danger, .btn[data-label="Cancel"], button:contains("Cancel")')
+		.addClass("hidden");
 }
 
 function _setup_complemento_btn(frm) {

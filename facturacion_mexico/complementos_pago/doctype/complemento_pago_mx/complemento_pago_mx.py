@@ -19,7 +19,7 @@ class ComplementoPagoMX(Document):
 
 	def validate_fecha_pago(self):
 		if self.fecha_pago:
-			fecha = self.fecha_pago if isinstance(self.fecha_pago, date) else self.fecha_pago.date()
+			fecha = self.fecha_pago.date() if isinstance(self.fecha_pago, datetime) else self.fecha_pago
 			if fecha > date.today():
 				frappe.throw(_("La fecha de pago no puede ser mayor a la fecha actual"))
 
@@ -46,6 +46,15 @@ class ComplementoPagoMX(Document):
 					f"La suma de documentos relacionados ({total_documentos}) no coincide con el monto del pago ({self.monto_p})"
 				)
 			)
+
+	def before_cancel(self):
+		frappe.throw(
+			_(
+				"No cancele el Complemento de Pago directamente. "
+				"Use el botón 'Cancelar Complemento' para cancelar ante el SAT."
+			),
+			title=_("Cancelación no permitida"),
+		)
 
 	def before_submit(self):
 		self.validate_folio_fiscal_unico()

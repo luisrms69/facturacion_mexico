@@ -283,6 +283,8 @@ def timbrar_complemento_pago(complemento_name: str) -> dict:
 		},
 	)
 
+	frappe.get_doc("Complemento Pago MX", complemento_name).submit()
+
 	frappe.logger().info(f"Complemento {complemento_name} timbrado. UUID: {uuid}")
 	return {"uuid": uuid, "folio_fiscal": uuid, "serie_folio": f"{serie}-{folio}"}
 
