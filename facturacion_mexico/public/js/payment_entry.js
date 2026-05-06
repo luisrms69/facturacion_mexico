@@ -27,9 +27,9 @@ function _setup_complemento_cancel_warning(frm) {
 					__(
 						"Este Payment Entry tiene un Complemento de Pago fiscal activo ({0}) en estado '{1}'. " +
 							"Cancele primero el complemento antes de cancelar el pago.",
-						[frm.doc.fm_complemento_pago, st],
+						[frm.doc.fm_complemento_pago, st]
 					),
-					"orange",
+					"orange"
 				);
 			}
 		});
@@ -52,7 +52,7 @@ function _setup_complemento_btn(frm) {
 
 	// Verificar si hay al menos una SI PPD timbrada referenciada
 	const tiene_ppd = (frm.doc.references || []).some(
-		(ref) => ref.reference_doctype === "Sales Invoice" && flt(ref.allocated_amount) > 0,
+		(ref) => ref.reference_doctype === "Sales Invoice" && flt(ref.allocated_amount) > 0
 	);
 
 	if (!tiene_ppd) return;
@@ -72,7 +72,7 @@ function _setup_complemento_btn(frm) {
 								]),
 								indicator: "green",
 							},
-							5,
+							5
 						);
 						frm.reload_doc();
 					}
