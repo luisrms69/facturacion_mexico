@@ -375,13 +375,6 @@ doc_events = {
 		"before_cancel": "facturacion_mexico.complementos_pago.hooks_handlers.payment_entry_cancel.block_cancel_if_complemento_activo",
 		"on_cancel": "facturacion_mexico.complementos_pago.hooks_handlers.payment_entry_cancel.cancel_related_complement",
 	},
-	# Complemento Pago Tracking - Seguimiento pagos
-	"Complemento Pago MX": {
-		"validate": "facturacion_mexico.complementos_pago.hooks_handlers.complemento_pago_validate.validate_payment_amounts",
-		"before_save": "facturacion_mexico.complementos_pago.hooks_handlers.complemento_pago_validate.calculate_payment_balances",
-		"after_insert": "facturacion_mexico.complementos_pago.hooks_handlers.complemento_pago_insert.create_fiscal_event",
-		"on_submit": "facturacion_mexico.complementos_pago.hooks_handlers.complemento_pago_submit.update_payment_tracking",
-	},
 	# =============================================================================
 	# ERECEIPTS - FACTURAPI INTEGRATION
 	# =============================================================================
@@ -426,7 +419,6 @@ scheduler_events = {
 		"facturacion_mexico.ereceipts.doctype.ereceipt_mx.ereceipt_mx.bulk_expire_ereceipts",
 	],
 	"weekly": [
-		"facturacion_mexico.complementos_pago.api.reconcile_payment_tracking",
 		# P6.1.4d: cleanup_old_fiscal_events eliminado - FiscalEventMX no existe
 	],
 }

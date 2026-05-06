@@ -264,7 +264,8 @@ def timbrar_complemento_pago(complemento_name: str) -> dict:
 		frappe.throw(_("Error al timbrar: {0}").format(error_msg))
 
 	# --- Guardar resultado ---
-	uuid = response_data.get("uuid") or (response_data.get("stamp") or {}).get("uuid", "")
+	stamp = response_data.get("stamp") or {}
+	uuid = response_data.get("uuid") or stamp.get("uuid", "")
 	folio = str(response_data.get("folio_number", ""))
 	serie = response_data.get("series", "")
 	facturapi_id = response_data.get("id", "")
@@ -274,12 +275,18 @@ def timbrar_complemento_pago(complemento_name: str) -> dict:
 		complemento_name,
 		{
 			"uuid_sat": uuid,
-			"folio_fiscal": uuid,  # folio_fiscal = UUID por convención del DocType
+			"folio_fiscal": uuid,
+			"id_documento": uuid,
 			"serie_folio": f"{serie}-{folio}" if serie and folio else folio,
+			"fecha_folio_fiscal": (stamp.get("date") or now_datetime()),
 			"facturapi_id": facturapi_id,
+			"no_certificado_sat": stamp.get("sat_cert_number", ""),
+			"pac_cert_sat": stamp.get("rfc_provider_cert_number", ""),
+			"fecha_certificacion_sat": stamp.get("date") or now_datetime(),
 			"fecha_timbrado": now_datetime(),
 			"estatus_sat": "Vigente",
 			"complement_status": "Timbrado",
+			**({"tipo_cambio_p": 1.0} if comp.moneda_p == "MXN" else {}),
 		},
 	)
 
@@ -548,7 +555,7 @@ def _llenar_documentos_relacionados(complemento, pe):
 			WHERE per.reference_name = %s
 			  AND per.reference_doctype = 'Sales Invoice'
 			  AND pe.docstatus = 1
-			ORDER BY pe.posting_date ASC, pe.name ASC
+			ORDER BY pe.posting_date ASC, pe.creation ASC
 			""",
 			(ref.reference_name,),
 			pluck="parent",
