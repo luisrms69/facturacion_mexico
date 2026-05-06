@@ -33,6 +33,7 @@
   "version",
   "version_cfdi",
   "facturapi_id",
+  "fm_ultimo_response_log",
   "section_bancario",
   "num_operacion",
   "rfc_emisor_cta_ord",
@@ -227,6 +228,15 @@
    "description": "ID interno de FacturAPI para cancelación"
   },
   {
+   "fieldname": "fm_ultimo_response_log",
+   "fieldtype": "Link",
+   "label": "Último Log de Respuesta",
+   "options": "FacturAPI Response Log",
+   "description": "Último registro de operación con FacturAPI/SAT",
+   "read_only": 1,
+   "allow_on_submit": 1
+  },
+  {
    "fieldname": "section_bancario",
    "fieldtype": "Section Break",
    "label": "Datos Bancarios Opcionales",
@@ -341,6 +351,7 @@
  "owner": "Administrator",
  "permissions": [
   {
+   "cancel": 1,
    "create": 1,
    "delete": 1,
    "email": 1,
@@ -354,6 +365,7 @@
    "write": 1
   },
   {
+   "cancel": 1,
    "create": 1,
    "delete": 1,
    "email": 1,
@@ -374,6 +386,46 @@
    "read": 1,
    "report": 1,
    "role": "Accounts User",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Facturacion Mexico Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Facturacion Mexico System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Facturacion Mexico User",
    "share": 1,
    "submit": 1,
    "write": 1

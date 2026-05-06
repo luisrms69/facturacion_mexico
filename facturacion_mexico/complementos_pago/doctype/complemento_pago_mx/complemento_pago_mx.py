@@ -48,6 +48,8 @@ class ComplementoPagoMX(Document):
 			)
 
 	def before_cancel(self):
+		if getattr(self.flags, "allow_fiscal_cancel", False):
+			return
 		frappe.throw(
 			_(
 				"No cancele el Complemento de Pago directamente. "

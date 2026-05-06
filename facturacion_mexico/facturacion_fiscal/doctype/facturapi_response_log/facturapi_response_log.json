@@ -99,7 +99,7 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Tipo de Operación",
-   "options": "Timbrado\nSolicitud Cancelación\nConfirmación Cancelación\nConsulta Estado\nTest Conexión\nTimbrado Complemento Pago\nCancelación Complemento Pago",
+   "options": "Timbrado\nSolicitud Cancelación\nConfirmación Cancelación\nConsulta Estado\nTest Conexión\nTimbrado Complemento Pago\nCancelación Complemento Pago\nConsulta Estado Complemento Pago",
    "read_only": 1,
    "reqd": 1
   },

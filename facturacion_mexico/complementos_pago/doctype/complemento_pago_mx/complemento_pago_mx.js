@@ -9,6 +9,7 @@ frappe.ui.form.on("Complemento Pago MX", {
 		_setup_status_indicators(frm);
 		_setup_timbrar_btn(frm);
 		_setup_cancelar_btn(frm);
+		_setup_revisar_estatus_btn(frm);
 		_setup_pe_link(frm);
 	},
 });
@@ -85,11 +86,37 @@ function _hide_standard_actions(frm) {
 	// Cancel estándar de Frappe — la cancelación va por API cancelar_complemento_pago
 	if (frm.page && frm.page.btn_cancel) frm.page.btn_cancel.addClass("hidden");
 	frm.page.wrapper.find('.btn[data-label="Cancel"]').addClass("hidden");
+	// Amend — no permitir enmiendas en complementos cancelados
+	frm.page.wrapper.find('.btn[data-label="Amend"], .btn[data-label="Corregir"]').addClass("hidden");
+	frm.page.wrapper
+		.find('.menu-items .dropdown-item:contains("Amend"), .menu-items .dropdown-item:contains("Corregir")')
+		.addClass("disabled").css("pointer-events", "none");
+}
+
+function _setup_revisar_estatus_btn(frm) {
+	if (frm.doc.docstatus !== 1) return;
+	if (frm.doc.status !== "Pendiente Cancelación") return;
+
+	frm.add_custom_button(__("Revisar Estatus Cancelación"), function () {
+		frappe.call({
+			method: "facturacion_mexico.complementos_pago.api.revisar_estatus_cancelacion_complemento",
+			args: { complemento_name: frm.doc.name },
+			callback: function (r) {
+				if (r.message) {
+					const st = r.message.status;
+					const color = st === "Cancelado" ? "red" : st === "Timbrado" ? "green" : "orange";
+					frappe.show_alert({ message: __("Estado actualizado: {0}", [st]), indicator: color }, 6);
+					frm.reload_doc();
+				}
+			},
+		});
+	}).addClass("btn-warning");
 }
 
 function _setup_cancelar_btn(frm) {
 	if (frm.doc.docstatus !== 1) return;
 	if (frm.doc.status !== "Timbrado") return;
+	if (!frappe.user.has_role(["Facturacion Mexico Manager", "Facturacion Mexico System Manager", "Accounts Manager", "System Manager"])) return;
 
 	frm.add_custom_button(__("Cancelar Complemento"), function () {
 		frappe.prompt(
