@@ -6,7 +6,6 @@ from frappe import _
 from frappe.utils import flt, now_datetime
 from frappe.utils.file_manager import save_file
 
-
 # ---------------------------------------------------------------------------
 # Bloque 3B — Creación manual de Complemento Pago MX desde Payment Entry
 # ---------------------------------------------------------------------------
@@ -125,11 +124,7 @@ def _obtener_si_ppd_validas(pe) -> list:
 
 def _get_currency(pe) -> str:
 	"""Obtener moneda del pago."""
-	return (
-		pe.get("paid_to_account_currency")
-		or pe.get("paid_from_account_currency")
-		or "MXN"
-	)
+	return pe.get("paid_to_account_currency") or pe.get("paid_from_account_currency") or "MXN"
 
 
 @frappe.whitelist()
@@ -173,7 +168,9 @@ def timbrar_complemento_pago(complemento_name: str) -> dict:
 	for dr in comp.documentos_relacionados:
 		if dr.objeto_imp_dr == "02" and not comp.detalles_impuestos:
 			frappe.throw(
-				_("Faltan detalles de impuestos para documento {0} con objeto_imp_dr=02.").format(dr.id_documento)
+				_("Faltan detalles de impuestos para documento {0} con objeto_imp_dr=02.").format(
+					dr.id_documento
+				)
 			)
 
 	# --- Datos del cliente ---
@@ -186,13 +183,15 @@ def timbrar_complemento_pago(complemento_name: str) -> dict:
 		for det in comp.detalles_impuestos:
 			if det.documento_relacionado != dr.id_documento:
 				continue
-			taxes_payload.append({
-				"base": round(flt(det.base_dr), 6),
-				"type": _impuesto_sat_to_facturapi(det.impuesto),
-				"rate": round(flt(det.tasa_cuota), 6),
-				"factor": det.tipo_factor,
-				"withholding": det.tipo_impuesto == "Retencion",
-			})
+			taxes_payload.append(
+				{
+					"base": round(flt(det.base_dr), 6),
+					"type": _impuesto_sat_to_facturapi(det.impuesto),
+					"rate": round(flt(det.tasa_cuota), 6),
+					"factor": det.tipo_factor,
+					"withholding": det.tipo_impuesto == "Retencion",
+				}
+			)
 
 		related_doc = {
 			"uuid": dr.id_documento,
@@ -210,16 +209,20 @@ def timbrar_complemento_pago(complemento_name: str) -> dict:
 	payload = {
 		"type": "P",
 		"customer": customer_data,
-		"complements": [{
-			"type": "pago",
-			"data": [{
-				"payment_form": str(comp.forma_pago_p),
-				"currency": str(comp.moneda_p),
-				"exchange": round(flt(comp.tipo_cambio_p or 1), 6),
-				"date": str(comp.fecha_pago),
-				"related_documents": related_docs,
-			}],
-		}],
+		"complements": [
+			{
+				"type": "pago",
+				"data": [
+					{
+						"payment_form": str(comp.forma_pago_p),
+						"currency": str(comp.moneda_p),
+						"exchange": round(flt(comp.tipo_cambio_p or 1), 6),
+						"date": str(comp.fecha_pago),
+						"related_documents": related_docs,
+					}
+				],
+			}
+		],
 	}
 
 	frappe.logger().info(f"Complemento {complemento_name} — payload: {json.dumps(payload, default=str)}")
@@ -240,7 +243,9 @@ def timbrar_complemento_pago(complemento_name: str) -> dict:
 		success = True
 	except Exception as e:
 		error_msg = str(e)
-		frappe.log_error(f"Error timbrado complemento {complemento_name}: {error_msg}", "Timbrado Complemento")
+		frappe.log_error(
+			f"Error timbrado complemento {complemento_name}: {error_msg}", "Timbrado Complemento"
+		)
 
 	# --- Crear Response Log ---
 	_crear_response_log_complemento(
@@ -262,15 +267,19 @@ def timbrar_complemento_pago(complemento_name: str) -> dict:
 	serie = response_data.get("series", "")
 	facturapi_id = response_data.get("id", "")
 
-	frappe.db.set_value("Complemento Pago MX", complemento_name, {
-		"uuid_sat": uuid,
-		"folio_fiscal": uuid,          # folio_fiscal = UUID por convención del DocType
-		"serie_folio": f"{serie}-{folio}" if serie and folio else folio,
-		"facturapi_id": facturapi_id,
-		"fecha_timbrado": now_datetime(),
-		"estatus_sat": "Vigente",
-		"complement_status": "Timbrado",
-	})
+	frappe.db.set_value(
+		"Complemento Pago MX",
+		complemento_name,
+		{
+			"uuid_sat": uuid,
+			"folio_fiscal": uuid,  # folio_fiscal = UUID por convención del DocType
+			"serie_folio": f"{serie}-{folio}" if serie and folio else folio,
+			"facturapi_id": facturapi_id,
+			"fecha_timbrado": now_datetime(),
+			"estatus_sat": "Vigente",
+			"complement_status": "Timbrado",
+		},
+	)
 
 	frappe.logger().info(f"Complemento {complemento_name} timbrado. UUID: {uuid}")
 	return {"uuid": uuid, "folio_fiscal": uuid, "serie_folio": f"{serie}-{folio}"}
@@ -293,7 +302,11 @@ def cancelar_complemento_pago(complemento_name: str, motivo: str = "02") -> dict
 	comp = frappe.get_doc("Complemento Pago MX", complemento_name)
 
 	if comp.complement_status != "Timbrado":
-		frappe.throw(_("Solo se pueden cancelar complementos en estado Timbrado. Estado actual: {0}").format(comp.complement_status))
+		frappe.throw(
+			_("Solo se pueden cancelar complementos en estado Timbrado. Estado actual: {0}").format(
+				comp.complement_status
+			)
+		)
 	if not comp.uuid_sat:
 		frappe.throw(_("El complemento no tiene UUID SAT. No se puede cancelar."))
 	if not comp.facturapi_id:
@@ -313,7 +326,9 @@ def cancelar_complemento_pago(complemento_name: str, motivo: str = "02") -> dict
 		success = True
 	except Exception as e:
 		error_msg = str(e)
-		frappe.log_error(f"Error cancelación complemento {complemento_name}: {error_msg}", "Cancelación Complemento")
+		frappe.log_error(
+			f"Error cancelación complemento {complemento_name}: {error_msg}", "Cancelación Complemento"
+		)
 
 	# --- Crear Response Log ---
 	try:
@@ -322,14 +337,20 @@ def cancelar_complemento_pago(complemento_name: str, motivo: str = "02") -> dict
 		log.complemento_pago_mx = complemento_name
 		log.request_id = f"CANCEL-{complemento_name}"
 		log.request_timestamp = request_ts
-		log.request_payload = json.dumps({"invoice_id": comp.facturapi_id, "motive": motivo}, ensure_ascii=False)
+		log.request_payload = json.dumps(
+			{"invoice_id": comp.facturapi_id, "motive": motivo}, ensure_ascii=False
+		)
 		log.success = 1 if success else 0
-		log.facturapi_response = json.dumps(response_data, default=str, ensure_ascii=False) if response_data else ""
+		log.facturapi_response = (
+			json.dumps(response_data, default=str, ensure_ascii=False) if response_data else ""
+		)
 		if not success:
 			log.error_message = error_msg
 		log.insert(ignore_permissions=True)
 	except Exception as le:
-		frappe.log_error(f"Error creando response log cancelación: {le}", "Response Log Cancelación Complemento")
+		frappe.log_error(
+			f"Error creando response log cancelación: {le}", "Response Log Cancelación Complemento"
+		)
 
 	if not success:
 		frappe.db.set_value("Complemento Pago MX", complemento_name, "complement_status", "Error")
@@ -346,16 +367,20 @@ def cancelar_complemento_pago(complemento_name: str, motivo: str = "02") -> dict
 		nuevo_status = "Pendiente Cancelación"
 		nuevo_estatus_sat = "Pendiente Cancelación"
 	elif cancellation_status == "rejected":
-		nuevo_status = "Timbrado"   # PAC rechazó — mantener timbrado
+		nuevo_status = "Timbrado"  # PAC rechazó — mantener timbrado
 		nuevo_estatus_sat = "Vigente"
 	else:
-		nuevo_status = "Pendiente Cancelación"   # fallback conservador
+		nuevo_status = "Pendiente Cancelación"  # fallback conservador
 		nuevo_estatus_sat = "Pendiente Cancelación"
 
-	frappe.db.set_value("Complemento Pago MX", complemento_name, {
-		"complement_status": nuevo_status,
-		"estatus_sat": nuevo_estatus_sat,
-	})
+	frappe.db.set_value(
+		"Complemento Pago MX",
+		complemento_name,
+		{
+			"complement_status": nuevo_status,
+			"estatus_sat": nuevo_estatus_sat,
+		},
+	)
 
 	frappe.logger().info(f"Complemento {complemento_name} cancelado. Status: {nuevo_status}")
 	return {"complement_status": nuevo_status, "cancellation_status": cancellation_status}
@@ -377,13 +402,19 @@ def _build_customer_data(customer_name: str, company: str) -> dict:
 		# Tax Category name es el código de régimen, ej. "601"
 		tax_system = str(customer.tax_category)
 	if not tax_system:
-		frappe.throw(_("El cliente {0} no tiene régimen fiscal configurado (Tax Category).").format(customer_name))
+		frappe.throw(
+			_("El cliente {0} no tiene régimen fiscal configurado (Tax Category).").format(customer_name)
+		)
 
 	# Email
 	email = customer.email_id or ""
 	if not email:
-		contacts = frappe.get_all("Contact", filters={"link_doctype": "Customer", "link_name": customer_name},
-		                          fields=["email_id"], limit=1)
+		contacts = frappe.get_all(
+			"Contact",
+			filters={"link_doctype": "Customer", "link_name": customer_name},
+			fields=["email_id"],
+			limit=1,
+		)
 		email = contacts[0].email_id if contacts else ""
 
 	# Dirección principal — código postal obligatorio
@@ -394,7 +425,9 @@ def _build_customer_data(customer_name: str, company: str) -> dict:
 		limit=1,
 	)
 	if not addresses or not addresses[0].pincode:
-		frappe.throw(_("El cliente {0} no tiene dirección principal con código postal.").format(customer_name))
+		frappe.throw(
+			_("El cliente {0} no tiene dirección principal con código postal.").format(customer_name)
+		)
 
 	addr = addresses[0]
 	return {
@@ -457,8 +490,15 @@ def _llenar_documentos_relacionados(complemento, pe):
 		si = frappe.db.get_value(
 			"Sales Invoice",
 			ref.reference_name,
-			["fm_es_ppd", "fm_fiscal_status", "fm_factura_fiscal_mx", "currency",
-			 "conversion_rate", "grand_total", "outstanding_amount"],
+			[
+				"fm_es_ppd",
+				"fm_fiscal_status",
+				"fm_factura_fiscal_mx",
+				"currency",
+				"conversion_rate",
+				"grand_total",
+				"outstanding_amount",
+			],
 			as_dict=True,
 		)
 		if not si:
@@ -519,8 +559,16 @@ def _llenar_documentos_relacionados(complemento, pe):
 		objeto_imp = "02" if tiene_taxes else "01"
 
 		# Serie y folio por separado si están disponibles
-		serie = ffm.serie or (ffm.fm_serie_folio.split("-")[0] if ffm.fm_serie_folio and "-" in ffm.fm_serie_folio else "")
-		folio = str(ffm.folio) if ffm.folio else (ffm.fm_serie_folio.split("-")[-1] if ffm.fm_serie_folio and "-" in ffm.fm_serie_folio else "")
+		serie = ffm.serie or (
+			ffm.fm_serie_folio.split("-")[0] if ffm.fm_serie_folio and "-" in ffm.fm_serie_folio else ""
+		)
+		folio = (
+			str(ffm.folio)
+			if ffm.folio
+			else (
+				ffm.fm_serie_folio.split("-")[-1] if ffm.fm_serie_folio and "-" in ffm.fm_serie_folio else ""
+			)
+		)
 
 		complemento.append(
 			"documentos_relacionados",

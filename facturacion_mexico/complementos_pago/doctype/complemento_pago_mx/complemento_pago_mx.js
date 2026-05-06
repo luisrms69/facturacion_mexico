@@ -26,7 +26,9 @@ function _setup_timbrar_btn(frm) {
 
 	frm.add_custom_button(__("Timbrar Complemento de Pago"), function () {
 		frappe.confirm(
-			__("¿Timbrar este Complemento de Pago con FacturAPI? Esta operación enviará el CFDI al SAT."),
+			__(
+				"¿Timbrar este Complemento de Pago con FacturAPI? Esta operación enviará el CFDI al SAT.",
+			),
 			function () {
 				frappe.call({
 					method: "facturacion_mexico.complementos_pago.api.timbrar_complemento_pago",
@@ -35,16 +37,18 @@ function _setup_timbrar_btn(frm) {
 						if (r.message && r.message.uuid) {
 							frappe.show_alert(
 								{
-									message: __("Complemento timbrado. UUID: {0}", [r.message.uuid]),
+									message: __("Complemento timbrado. UUID: {0}", [
+										r.message.uuid,
+									]),
 									indicator: "green",
 								},
-								8
+								8,
 							);
 							frm.reload_doc();
 						}
 					},
 				});
-			}
+			},
 		);
 	}).addClass("btn-primary");
 }
@@ -55,18 +59,22 @@ function _setup_cancelar_btn(frm) {
 
 	frm.add_custom_button(__("Cancelar Complemento"), function () {
 		frappe.prompt(
-			[{
-				label: __("Motivo de Cancelación SAT"),
-				fieldname: "motivo",
-				fieldtype: "Select",
-				options: ["02 - Comprobante emitido con errores sin relación"],
-				default: "02 - Comprobante emitido con errores sin relación",
-				reqd: 1,
-			}],
+			[
+				{
+					label: __("Motivo de Cancelación SAT"),
+					fieldname: "motivo",
+					fieldtype: "Select",
+					options: ["02 - Comprobante emitido con errores sin relación"],
+					default: "02 - Comprobante emitido con errores sin relación",
+					reqd: 1,
+				},
+			],
 			function (values) {
 				const motivo = values.motivo.split(" - ")[0];
 				frappe.confirm(
-					__("¿Solicitar cancelación del Complemento de Pago ante el SAT? Motivo: {0}", [motivo]),
+					__("¿Solicitar cancelación del Complemento de Pago ante el SAT? Motivo: {0}", [
+						motivo,
+					]),
 					function () {
 						frappe.call({
 							method: "facturacion_mexico.complementos_pago.api.cancelar_complemento_pago",
@@ -75,17 +83,19 @@ function _setup_cancelar_btn(frm) {
 								if (r.message) {
 									const st = r.message.complement_status;
 									const color = st === "Cancelado" ? "green" : "orange";
-									frappe.show_alert({ message: __("Estado: {0}", [st]), indicator: color }, 6);
+									frappe.show_alert(
+										{ message: __("Estado: {0}", [st]), indicator: color },
+										6,
+									);
 									frm.reload_doc();
 								}
 							},
 						});
-					}
+					},
 				);
 			},
 			__("Cancelar Complemento de Pago"),
-			__("Solicitar")
+			__("Solicitar"),
 		);
 	}).addClass("btn-danger");
-
 }
