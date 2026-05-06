@@ -16,12 +16,18 @@ frappe.ui.form.on("Complemento Pago MX", {
 
 function _status_color(status) {
 	switch (status) {
-		case "Timbrado":            return "green";
-		case "Pendiente Cancelación": return "orange";
-		case "Cancelado":           return "red";
-		case "Error":               return "red";
-		case "Pendiente":           return "grey";
-		default:                    return "grey";
+		case "Timbrado":
+			return "green";
+		case "Pendiente Cancelación":
+			return "orange";
+		case "Cancelado":
+			return "red";
+		case "Error":
+			return "red";
+		case "Pendiente":
+			return "grey";
+		default:
+			return "grey";
 	}
 }
 
@@ -36,7 +42,7 @@ function _setup_status_indicators(frm) {
 	if ($val && $val.length) {
 		$val.html(
 			`<span class="indicator ${color}" style="margin-right:4px; vertical-align:middle;"></span>` +
-			`<strong>${frappe.utils.escape_html(status)}</strong>`
+				`<strong>${frappe.utils.escape_html(status)}</strong>`,
 		);
 	}
 }
@@ -56,7 +62,9 @@ function _setup_timbrar_btn(frm) {
 
 	frm.add_custom_button(__("Timbrar Complemento de Pago"), function () {
 		frappe.confirm(
-			__("¿Timbrar este Complemento de Pago con FacturAPI? Esta operación enviará el CFDI al SAT."),
+			__(
+				"¿Timbrar este Complemento de Pago con FacturAPI? Esta operación enviará el CFDI al SAT.",
+			),
 			function () {
 				frappe.call({
 					method: "facturacion_mexico.complementos_pago.api.timbrar_complemento_pago",
@@ -65,16 +73,18 @@ function _setup_timbrar_btn(frm) {
 						if (r.message && r.message.uuid) {
 							frappe.show_alert(
 								{
-									message: __("Complemento timbrado. UUID: {0}", [r.message.uuid]),
+									message: __("Complemento timbrado. UUID: {0}", [
+										r.message.uuid,
+									]),
 									indicator: "green",
 								},
-								8
+								8,
 							);
 							frm.reload_doc();
 						}
 					},
 				});
-			}
+			},
 		);
 	}).addClass("btn-primary");
 }
@@ -87,10 +97,15 @@ function _hide_standard_actions(frm) {
 	if (frm.page && frm.page.btn_cancel) frm.page.btn_cancel.addClass("hidden");
 	frm.page.wrapper.find('.btn[data-label="Cancel"]').addClass("hidden");
 	// Amend — no permitir enmiendas en complementos cancelados
-	frm.page.wrapper.find('.btn[data-label="Amend"], .btn[data-label="Corregir"]').addClass("hidden");
 	frm.page.wrapper
-		.find('.menu-items .dropdown-item:contains("Amend"), .menu-items .dropdown-item:contains("Corregir")')
-		.addClass("disabled").css("pointer-events", "none");
+		.find('.btn[data-label="Amend"], .btn[data-label="Corregir"]')
+		.addClass("hidden");
+	frm.page.wrapper
+		.find(
+			'.menu-items .dropdown-item:contains("Amend"), .menu-items .dropdown-item:contains("Corregir")',
+		)
+		.addClass("disabled")
+		.css("pointer-events", "none");
 }
 
 function _setup_revisar_estatus_btn(frm) {
@@ -104,8 +119,12 @@ function _setup_revisar_estatus_btn(frm) {
 			callback: function (r) {
 				if (r.message) {
 					const st = r.message.status;
-					const color = st === "Cancelado" ? "red" : st === "Timbrado" ? "green" : "orange";
-					frappe.show_alert({ message: __("Estado actualizado: {0}", [st]), indicator: color }, 6);
+					const color =
+						st === "Cancelado" ? "red" : st === "Timbrado" ? "green" : "orange";
+					frappe.show_alert(
+						{ message: __("Estado actualizado: {0}", [st]), indicator: color },
+						6,
+					);
 					frm.reload_doc();
 				}
 			},
@@ -116,26 +135,38 @@ function _setup_revisar_estatus_btn(frm) {
 function _setup_cancelar_btn(frm) {
 	if (frm.doc.docstatus !== 1) return;
 	if (frm.doc.status !== "Timbrado") return;
-	if (!frappe.user.has_role(["Facturacion Mexico Manager", "Facturacion Mexico System Manager", "Accounts Manager", "System Manager"])) return;
+	if (
+		!frappe.user.has_role([
+			"Facturacion Mexico Manager",
+			"Facturacion Mexico System Manager",
+			"Accounts Manager",
+			"System Manager",
+		])
+	)
+		return;
 
 	frm.add_custom_button(__("Cancelar Complemento"), function () {
 		frappe.prompt(
-			[{
-				label: __("Motivo de Cancelación SAT"),
-				fieldname: "motivo",
-				fieldtype: "Select",
-				options: [
-					"02 - Comprobante emitido con errores sin relación",
-					"03 - No se llevó a cabo la operación",
-					"04 - Operación nominativa relacionada en factura global",
-				],
-				default: "02 - Comprobante emitido con errores sin relación",
-				reqd: 1,
-			}],
+			[
+				{
+					label: __("Motivo de Cancelación SAT"),
+					fieldname: "motivo",
+					fieldtype: "Select",
+					options: [
+						"02 - Comprobante emitido con errores sin relación",
+						"03 - No se llevó a cabo la operación",
+						"04 - Operación nominativa relacionada en factura global",
+					],
+					default: "02 - Comprobante emitido con errores sin relación",
+					reqd: 1,
+				},
+			],
 			function (values) {
 				const motivo = values.motivo.split(" - ")[0];
 				frappe.confirm(
-					__("¿Solicitar cancelación del Complemento de Pago ante el SAT? Motivo: {0}", [motivo]),
+					__("¿Solicitar cancelación del Complemento de Pago ante el SAT? Motivo: {0}", [
+						motivo,
+					]),
 					function () {
 						frappe.call({
 							method: "facturacion_mexico.complementos_pago.api.cancelar_complemento_pago",
@@ -144,17 +175,19 @@ function _setup_cancelar_btn(frm) {
 								if (r.message) {
 									const st = r.message.status;
 									const color = st === "Cancelado" ? "green" : "orange";
-									frappe.show_alert({ message: __("Estado: {0}", [st]), indicator: color }, 6);
+									frappe.show_alert(
+										{ message: __("Estado: {0}", [st]), indicator: color },
+										6,
+									);
 									frm.reload_doc();
 								}
 							},
 						});
-					}
+					},
 				);
 			},
 			__("Cancelar Complemento de Pago"),
-			__("Solicitar")
+			__("Solicitar"),
 		);
 	}).addClass("btn-danger");
-
 }

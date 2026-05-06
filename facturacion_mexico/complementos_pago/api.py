@@ -150,9 +150,7 @@ def timbrar_complemento_pago(complemento_name: str) -> dict:
 
 	# --- Validaciones previas ---
 	if comp.status not in ("Pendiente", "Error"):
-		frappe.throw(
-			_("El complemento ya fue timbrado o cancelado. Estado: {0}").format(comp.status)
-		)
+		frappe.throw(_("El complemento ya fue timbrado o cancelado. Estado: {0}").format(comp.status))
 	if comp.uuid_sat or comp.folio_fiscal:
 		frappe.throw(_("El complemento ya tiene UUID/folio fiscal. No se puede timbrar de nuevo."))
 	if not comp.payment_entry:
@@ -406,7 +404,9 @@ def revisar_estatus_cancelacion_complemento(complemento_name: str) -> dict:
 		success = True
 	except Exception as e:
 		error_msg = str(e)
-		frappe.log_error(f"Error consulta estatus {complemento_name}: {error_msg}", "Consulta Estatus Complemento")
+		frappe.log_error(
+			f"Error consulta estatus {complemento_name}: {error_msg}", "Consulta Estatus Complemento"
+		)
 
 	# --- Response Log ---
 	log_name = None
@@ -418,7 +418,9 @@ def revisar_estatus_cancelacion_complemento(complemento_name: str) -> dict:
 		log.request_timestamp = request_ts
 		log.request_payload = json.dumps({"invoice_id": comp.facturapi_id}, ensure_ascii=False)
 		log.success = 1 if success else 0
-		log.facturapi_response = json.dumps(response_data, default=str, ensure_ascii=False) if response_data else ""
+		log.facturapi_response = (
+			json.dumps(response_data, default=str, ensure_ascii=False) if response_data else ""
+		)
 		if not success:
 			log.error_message = error_msg
 		log.insert(ignore_permissions=True)

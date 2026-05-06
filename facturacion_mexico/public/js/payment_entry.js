@@ -21,22 +21,20 @@ function _setup_complemento_cancel_warning(frm) {
 	if (frm.doc.docstatus !== 1) return;
 	if (!frm.doc.fm_complemento_pago) return;
 
-	frappe.db
-		.get_value("Complemento Pago MX", frm.doc.fm_complemento_pago, "status")
-		.then((r) => {
-			const st = r.message && r.message.status;
-			if (st && st !== "Cancelado") {
-				_hide_cancel_button(frm);
-				frm.dashboard.set_headline_alert(
-					__(
-						"Este Payment Entry tiene un Complemento de Pago fiscal activo ({0}) en estado '{1}'. " +
+	frappe.db.get_value("Complemento Pago MX", frm.doc.fm_complemento_pago, "status").then((r) => {
+		const st = r.message && r.message.status;
+		if (st && st !== "Cancelado") {
+			_hide_cancel_button(frm);
+			frm.dashboard.set_headline_alert(
+				__(
+					"Este Payment Entry tiene un Complemento de Pago fiscal activo ({0}) en estado '{1}'. " +
 						"Cancele primero el complemento antes de cancelar el pago.",
-						[frm.doc.fm_complemento_pago, st]
-					),
-					"orange"
-				);
-			}
-		});
+					[frm.doc.fm_complemento_pago, st],
+				),
+				"orange",
+			);
+		}
+	});
 }
 
 function _inject_complemento_summary(frm) {
@@ -46,13 +44,13 @@ function _inject_complemento_summary(frm) {
 
 	if (!comp) {
 		wrapper.html(
-			`<div class="text-muted" style="padding: 8px; font-style: italic;">Sin Complemento de Pago vinculado.</div>`
+			`<div class="text-muted" style="padding: 8px; font-style: italic;">Sin Complemento de Pago vinculado.</div>`,
 		);
 		return;
 	}
 
 	wrapper.html(
-		`<div class="text-muted" style="padding: 8px;"><i class="fa fa-spinner fa-spin"></i> Cargando...</div>`
+		`<div class="text-muted" style="padding: 8px;"><i class="fa fa-spinner fa-spin"></i> Cargando...</div>`,
 	);
 
 	frappe
@@ -86,7 +84,7 @@ function _inject_complemento_summary(frm) {
 		})
 		.catch(() => {
 			wrapper.html(
-				`<div class="text-danger" style="padding: 8px;"><i class="fa fa-exclamation-triangle"></i> No fue posible cargar el resumen del complemento.</div>`
+				`<div class="text-danger" style="padding: 8px;"><i class="fa fa-exclamation-triangle"></i> No fue posible cargar el resumen del complemento.</div>`,
 			);
 		});
 }
@@ -106,12 +104,18 @@ function _complemento_status_badge(status) {
 
 function _complemento_status_color(status) {
 	switch (status) {
-		case "Timbrado": return "green";
-		case "Cancelado": return "red";
-		case "Pendiente Cancelación": return "orange";
-		case "Error": return "red";
-		case "Pendiente": return "grey";
-		default: return "grey";
+		case "Timbrado":
+			return "green";
+		case "Cancelado":
+			return "red";
+		case "Pendiente Cancelación":
+			return "orange";
+		case "Error":
+			return "red";
+		case "Pendiente":
+			return "grey";
+		default:
+			return "grey";
 	}
 }
 
@@ -139,39 +143,32 @@ function _setup_complemento_btn(frm) {
 
 	// Verificar si hay al menos una SI PPD timbrada referenciada
 	const tiene_ppd = (frm.doc.references || []).some(
-		(ref) =>
-			ref.reference_doctype === "Sales Invoice" &&
-			flt(ref.allocated_amount) > 0
+		(ref) => ref.reference_doctype === "Sales Invoice" && flt(ref.allocated_amount) > 0,
 	);
 
 	if (!tiene_ppd) return;
 
 	// Mostrar botón
 	frm.add_custom_button(__("Crear Complemento de Pago"), function () {
-		frappe.confirm(
-			__("¿Crear Complemento de Pago para este Payment Entry?"),
-			function () {
-				frappe.call({
-					method:
-						"facturacion_mexico.complementos_pago.api.crear_complemento_pago_desde_pe",
-					args: { payment_entry_name: frm.doc.name },
-					callback: function (r) {
-						if (r.message && r.message.complemento_name) {
-							frappe.show_alert(
-								{
-									message: __(
-										"Complemento {0} creado correctamente.",
-										[r.message.complemento_name]
-									),
-									indicator: "green",
-								},
-								5
-							);
-							frm.reload_doc();
-						}
-					},
-				});
-			}
-		);
+		frappe.confirm(__("¿Crear Complemento de Pago para este Payment Entry?"), function () {
+			frappe.call({
+				method: "facturacion_mexico.complementos_pago.api.crear_complemento_pago_desde_pe",
+				args: { payment_entry_name: frm.doc.name },
+				callback: function (r) {
+					if (r.message && r.message.complemento_name) {
+						frappe.show_alert(
+							{
+								message: __("Complemento {0} creado correctamente.", [
+									r.message.complemento_name,
+								]),
+								indicator: "green",
+							},
+							5,
+						);
+						frm.reload_doc();
+					}
+				},
+			});
+		});
 	}).addClass("btn-primary");
 }

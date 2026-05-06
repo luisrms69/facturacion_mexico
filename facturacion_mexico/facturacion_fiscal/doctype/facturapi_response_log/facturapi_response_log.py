@@ -41,9 +41,7 @@ class FacturAPIResponseLog(Document):
 		):
 			frappe.throw(_("La Factura Fiscal Mexico {0} no existe").format(self.factura_fiscal_mexico))
 
-		if self.complemento_pago_mx and not frappe.db.exists(
-			"Complemento Pago MX", self.complemento_pago_mx
-		):
+		if self.complemento_pago_mx and not frappe.db.exists("Complemento Pago MX", self.complemento_pago_mx):
 			frappe.throw(_("El Complemento Pago MX {0} no existe").format(self.complemento_pago_mx))
 
 		# Si es exitoso, validar que tenga respuesta
