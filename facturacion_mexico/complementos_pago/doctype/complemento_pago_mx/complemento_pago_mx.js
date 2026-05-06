@@ -6,11 +6,41 @@
 frappe.ui.form.on("Complemento Pago MX", {
 	refresh(frm) {
 		_hide_standard_actions(frm);
+		_setup_status_indicators(frm);
 		_setup_timbrar_btn(frm);
 		_setup_cancelar_btn(frm);
 		_setup_pe_link(frm);
 	},
 });
+
+function _status_color(status) {
+	switch (status) {
+		case "Timbrado":            return "green";
+		case "Pendiente Cancelación": return "orange";
+		case "Cancelado":           return "red";
+		case "Error":               return "red";
+		case "Pendiente":           return "grey";
+		default:                    return "grey";
+	}
+}
+
+function _setup_status_indicators(frm) {
+	const status = frm.doc.complement_status;
+	if (!status) return;
+	const color = _status_color(status);
+
+	// Encabezado: reemplaza "Submitted" con estado SAT
+	frm.page.set_indicator(__(status), color);
+
+	// Cuerpo: inyecta dot de color junto al valor del campo Estado
+	const $val = frm.fields_dict.complement_status?.$wrapper?.find(".control-value");
+	if ($val && $val.length) {
+		$val.html(
+			`<span class="indicator ${color}" style="margin-right:4px; vertical-align:middle;"></span>` +
+			`<strong>${frappe.utils.escape_html(status)}</strong>`
+		);
+	}
+}
 
 function _setup_pe_link(frm) {
 	if (frm.doc.payment_entry) {
@@ -69,7 +99,11 @@ function _setup_cancelar_btn(frm) {
 				label: __("Motivo de Cancelación SAT"),
 				fieldname: "motivo",
 				fieldtype: "Select",
-				options: ["02 - Comprobante emitido con errores sin relación"],
+				options: [
+					"02 - Comprobante emitido con errores sin relación",
+					"03 - No se llevó a cabo la operación",
+					"04 - Operación nominativa relacionada en factura global",
+				],
 				default: "02 - Comprobante emitido con errores sin relación",
 				reqd: 1,
 			}],

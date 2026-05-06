@@ -67,13 +67,13 @@ function _inject_complemento_summary(frm) {
 			const fecha = d.fecha_timbrado ? frappe.datetime.str_to_user(d.fecha_timbrado) : "-";
 			const serie = d.serie || "-";
 			const folio = d.folio || "-";
-			const timbrado = d.complement_status === "Timbrado" || d.complement_status === "Cancelado";
+			const badge = _complemento_status_badge(d.complement_status);
 
 			wrapper.html(`
 				<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 8px; background: #f8f9fa; border-radius: 4px; font-size: 13px;">
-					<div><strong>Estado:</strong>
+					<div><strong>Estado SAT:</strong>
 						<span class="indicator ${color}" style="margin-left: 4px;">${frappe.utils.escape_html(d.complement_status || "-")}</span>
-						${timbrado ? '<span style="margin-left:6px; color:#28a745;">&#10003; Timbrado</span>' : ""}
+						${badge}
 					</div>
 					<div><strong>Fecha Timbrado:</strong> ${fecha}</div>
 					<div><strong>Serie:</strong> <span style="font-family: monospace;">${frappe.utils.escape_html(serie)}</span></div>
@@ -89,6 +89,19 @@ function _inject_complemento_summary(frm) {
 				`<div class="text-danger" style="padding: 8px;"><i class="fa fa-exclamation-triangle"></i> No fue posible cargar el resumen del complemento.</div>`
 			);
 		});
+}
+
+function _complemento_status_badge(status) {
+	switch (status) {
+		case "Timbrado":
+			return '<span style="margin-left:6px; color:#28a745;">&#10003; Timbrado</span>';
+		case "Pendiente Cancelación":
+			return '<span style="margin-left:6px; color:#e67e22;">&#9650; Cancelación pendiente</span>';
+		case "Cancelado":
+			return '<span style="margin-left:6px; color:#c0392b;">&#10007; Cancelado ante SAT</span>';
+		default:
+			return "";
+	}
 }
 
 function _complemento_status_color(status) {
