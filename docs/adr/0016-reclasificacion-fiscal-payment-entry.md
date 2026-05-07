@@ -1,7 +1,7 @@
 # ADR 0016 — Reclasificación Fiscal de Impuestos en Payment Entry
 
 **Fecha:** 2026-05-05
-**Estado:** APROBADO — implementado y probado en GUI
+**Estado:** APROBADO — implementado, probado en GUI y con tests automatizados
 **Autor:** Luis Montanaro Sánchez
 
 ---
@@ -118,6 +118,49 @@ Stub creado — el módulo existía referenciado en hooks.py pero faltaba el arc
 | ACC-PAY-2026-00017 (cancel) | — | Cancel | — | **revertido** | ✅ |
 
 Taxes visibles desde Save (antes de Submit). GL generado por ERPNext al Submit.
+
+---
+
+## Tests automatizados (2026-05-05)
+
+### `test_mapeo_reclasificacion_fiscal_payment_entry.py` — 7 tests
+
+Validan el DocType `Mapeo Reclasificacion Fiscal Payment Entry`:
+
+| Test | Qué verifica |
+|---|---|
+| `test_cuentas_distintas` | `cuenta_origen == cuenta_destino` lanza `ValidationError` |
+| `test_cuenta_debe_ser_tax` | `account_type != Tax` en origen lanza error |
+| `test_cuenta_destino_debe_ser_tax` | `account_type != Tax` en destino lanza error |
+| `test_cuenta_no_grupo` | cuenta grupo lanza error |
+| `test_sin_duplicado_activo` | segundo mapeo activo con misma combinación lanza error |
+| `test_duplicado_inactivo_permitido` | mapeo inactivo duplicado se permite |
+| `test_insert_valido` | mapeo correcto se inserta sin error |
+
+### `test_payment_entry_reclasificacion.py` — 13 tests
+
+Tests de `_calcular_grupos_desde_doc` (mockean `frappe.get_doc` en el módulo):
+
+| Test | Qué verifica |
+|---|---|
+| `test_calcular_grupos_retorna_monto_correcto` | monto = `tax_amount * (allocated / grand_total)` |
+| `test_calcular_grupos_proporcion_parcial` | monto proporcional para pago parcial |
+| `test_calcular_grupos_sin_mapeo_retorna_vacio` | sin mapeo activo → grupos vacíos |
+| `test_calcular_grupos_impuesto_cero_ignorado` | `tax_amount=0` no genera grupo |
+
+Tests de `cargar_impuestos_en_payment_entry` (mockean `_calcular_grupos_desde_doc`):
+
+| Test | Qué verifica |
+|---|---|
+| `test_carga_filas_en_validate` | agrega exactamente 2 filas |
+| `test_rate_pago_total` | `rate = tax / grand_total * 100` |
+| `test_rate_pago_parcial` | fórmula exacta: `monto = tax*(alloc/gt)`, `rate = monto/paid*100` |
+| `test_filas_limpian_en_re_validate` | re-validate no duplica filas |
+| `test_sin_mapeo_no_carga_filas` | grupos vacíos → PE sin filas |
+| `test_included_in_paid_amount_1` | todas las filas tienen `included_in_paid_amount=1` |
+| `test_destino_rate_positivo_origen_negativo` | destino: +rate, origen: -rate, misma magnitud |
+| `test_rates_se_anulan` | suma de rates = 0 (paid_amount intacto) |
+| `test_impuesto_cero_ignorado` | grupos vacíos → sin filas |
 
 ---
 

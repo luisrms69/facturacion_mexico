@@ -52,6 +52,8 @@ doctype_js = {
 		"public/js/si_post_fiscal_actions.js",
 	],
 	"Customer": ["public/js/customer.js"],
+	"Payment Entry": ["public/js/payment_entry.js"],
+	"Complemento Pago MX": ["complementos_pago/doctype/complemento_pago_mx/complemento_pago_mx.js"],
 	"Factura Fiscal Mexico": [
 		"public/js/fm_enums.js",
 		"public/js/fm_policy.js",
@@ -194,6 +196,7 @@ fixtures = [
 					"Sales Invoice-fm_factorapi_draft_id",
 					"Sales Invoice-fm_es_ppd",
 					"Sales Invoice-fm_factura_fiscal_mx",
+					"Sales Invoice-fm_ffm_summary_html",
 					"Sales Invoice-fm_fiscal_section",
 					"Sales Invoice-fm_fiscal_status",
 					"Sales Invoice-fm_folio_reserved",
@@ -370,6 +373,7 @@ doc_events = {
 			"facturacion_mexico.facturacion_fiscal.services.payment_entry_reclasificacion.cargar_impuestos_en_payment_entry",
 		],
 		"on_submit": "facturacion_mexico.complementos_pago.hooks_handlers.payment_entry_submit.create_complement_if_required",
+		"before_cancel": "facturacion_mexico.complementos_pago.hooks_handlers.payment_entry_cancel.block_cancel_if_complemento_activo",
 		"on_cancel": "facturacion_mexico.complementos_pago.hooks_handlers.payment_entry_cancel.cancel_related_complement",
 	},
 	# Complemento Pago Tracking - Seguimiento pagos

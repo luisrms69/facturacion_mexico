@@ -1,7 +1,7 @@
 # ADR 0015 — Arquitectura Relación Sales Invoice ↔ Factura Fiscal Mexico
 
 **Fecha:** 2026-05-04
-**Estado:** REVISADO 2026-05-04 — alcance reducido, widget cubre display
+**Estado:** REVISADO 2026-05-05 — tests automatizados agregados
 **Autor:** Luis Montanaro Sánchez
 
 ---
@@ -53,11 +53,11 @@ El widget `fm_ffm_summary_html` muestra en tiempo real desde FFM:
 | Fecha Timbrado | `ffm.fecha_timbrado` | ~~`fm_fecha_timbrado` propuesto~~ — no necesario |
 | Estado PAC | `ffm.fm_sync_error` | — |
 
-### Pendiente — solo cuando módulo PPD esté activo
+### Campo `fm_es_ppd` — implementado (2026-05-05)
 
-| Campo | Tipo | Para qué | Cuándo crear |
-|---|---|---|---|
-| `fm_es_ppd` | Check | Detectar SI PPD sin join PE→SI→FFM | Al implementar módulo PPD |
+`fm_es_ppd` (Check, `read_only`, `allow_on_submit=1`, `default=0`) fue creado en SI.
+Se escribe al timbrar en `timbrado_api.py`: `1` si `FFM.fm_payment_method_sat == PPD`, `0` si PUE.
+Ubicación visual: después de `fm_factura_fiscal_mx`, antes del widget.
 
 ### Eliminados — muertos confirmados en BD
 
@@ -78,12 +78,30 @@ Todos eliminados el 2026-05-04:
 
 ---
 
+## Tests automatizados (2026-05-05)
+
+`facturacion_fiscal/tests/test_si_ffm_cleanup.py` — 11 tests:
+
+| Test | Qué verifica |
+|---|---|
+| `test_fm_ffm_*_eliminado` (×5) | Campos `fm_ffm_uuid`, `fm_ffm_numero`, `fm_ffm_fecha`, `fm_ffm_estado`, `fm_ffm_pac_msg` no existen en SI |
+| `test_fm_ffm_section_eliminada` | Sección `fm_ffm_section` no existe |
+| `test_fm_column_break_fiscal_eliminado` | `fm_column_break_fiscal` no existe |
+| `test_fm_es_ppd_existe` | Custom Field presente |
+| `test_fm_es_ppd_es_check` | `fieldtype = Check` |
+| `test_fm_es_ppd_default_cero` | `default = 0` |
+| `test_fm_es_ppd_allow_on_submit` | `allow_on_submit = 1` |
+| `test_fm_es_ppd_insert_after_fm_factura_fiscal_mx` | Posición visual correcta |
+| `test_fm_fiscal_status_existe` | Campo esencial sigue presente |
+| `test_fm_factura_fiscal_mx_existe` | Campo esencial sigue presente |
+| `test_fm_ffm_summary_html_existe` | Widget presente |
+
+---
+
 ## Pendiente de limpieza
 
 | Item | Archivo | Acción |
 |---|---|---|
-| Dead code `fm_ffm_open_btn` | `sales_invoice_ffm_summary.js` | Eliminar referencia al botón eliminado |
-| `fm_quick_status` | `custom_fields_sales_invoice.json`, `hooks.py`, DB | Evaluar eliminar — widget lo reemplaza |
 | Draft fields (`fm_draft_*`) | `hooks.py`, `custom_field.json`, `sales_invoice_addenda_fields.py` | Diferido — decidir futuro del módulo draft |
 | `fm_pending_amount`, `fm_complementos_count` | Fixtures, código | Diferido — módulo PPD |
 

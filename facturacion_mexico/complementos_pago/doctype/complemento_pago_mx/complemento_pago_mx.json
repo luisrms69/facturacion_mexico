@@ -59,6 +59,41 @@
    "reqd": 1
   },
   {
+   "fieldname": "payment_entry",
+   "fieldtype": "Link",
+   "label": "Payment Entry",
+   "options": "Payment Entry",
+   "insert_after": "naming_series",
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Empresa",
+   "options": "Company",
+   "insert_after": "payment_entry",
+   "reqd": 0
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Cliente",
+   "options": "Customer",
+   "insert_after": "company",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "complement_status",
+   "fieldtype": "Select",
+   "label": "Estado",
+   "options": "\nPendiente\nTimbrado\nCancelado\nError\nPendiente Cancelación",
+   "default": "Pendiente",
+   "insert_after": "customer",
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
    "fieldname": "folio_fiscal",
    "fieldtype": "Data",
    "label": "Folio Fiscal",
@@ -228,6 +263,14 @@
    "fieldname": "uuid_sat",
    "fieldtype": "Data",
    "label": "UUID SAT"
+  },
+  {
+   "fieldname": "facturapi_id",
+   "fieldtype": "Data",
+   "label": "FacturAPI ID",
+   "reqd": 0,
+   "read_only": 1,
+   "description": "ID interno de FacturAPI para cancelación"
   },
   {
    "fieldname": "no_certificado_sat",
