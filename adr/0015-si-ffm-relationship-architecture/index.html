@@ -850,15 +850,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#contexto" class="md-nav__link">
-    <span class="md-ellipsis">
-      Contexto
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#decision" class="md-nav__link">
     <span class="md-ellipsis">
       Decisión
@@ -868,46 +859,28 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#campos-en-sales-invoice-estado-final" class="md-nav__link">
+  <a href="#campos-en-sales-invoice" class="md-nav__link">
     <span class="md-ellipsis">
-      Campos en Sales Invoice — estado final
+      Campos en Sales Invoice
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Campos en Sales Invoice — estado final">
+    <nav class="md-nav" aria-label="Campos en Sales Invoice">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#activos-ya-existen-sin-cambio" class="md-nav__link">
+  <a href="#fm_es_ppd-logica" class="md-nav__link">
     <span class="md-ellipsis">
-      Activos (ya existen, sin cambio)
+      fm_es_ppd — lógica
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#display-cubierto-por-widget-sin-campos-persistentes-en-si" class="md-nav__link">
+  <a href="#seccion-fiscal-consolidada" class="md-nav__link">
     <span class="md-ellipsis">
-      Display — cubierto por widget (sin campos persistentes en SI)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#campo-fm_es_ppd-implementado-2026-05-05" class="md-nav__link">
-    <span class="md-ellipsis">
-      Campo fm_es_ppd — implementado (2026-05-05)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#eliminados-muertos-confirmados-en-bd" class="md-nav__link">
-    <span class="md-ellipsis">
-      Eliminados — muertos confirmados en BD
+      Sección fiscal consolidada
     </span>
   </a>
   
@@ -919,87 +892,36 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#reglas-arquitectonicas" class="md-nav__link">
+  <a href="#campos-eliminados-2026-05-04" class="md-nav__link">
     <span class="md-ellipsis">
-      Reglas arquitectónicas
+      Campos eliminados (2026-05-04)
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#tests-automatizados-2026-05-05" class="md-nav__link">
+  <a href="#tests" class="md-nav__link">
     <span class="md-ellipsis">
-      Tests automatizados (2026-05-05)
+      Tests
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#pendiente-de-limpieza" class="md-nav__link">
+  <a href="#incidente-recuperacion-2026-05-06" class="md-nav__link">
     <span class="md-ellipsis">
-      Pendiente de limpieza
+      Incidente recuperación (2026-05-06)
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#alternativas-descartadas" class="md-nav__link">
+  <a href="#gaps-pendientes" class="md-nav__link">
     <span class="md-ellipsis">
-      Alternativas descartadas
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Alternativas descartadas">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#opcion-a-link-puro" class="md-nav__link">
-    <span class="md-ellipsis">
-      Opción A — Link puro
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#opcion-b-snapshot-inmutable-con-campos-nuevos-en-si" class="md-nav__link">
-    <span class="md-ellipsis">
-      Opción B — Snapshot inmutable con campos nuevos en SI
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#opcion-c-denormalizacion-con-sync-permanente" class="md-nav__link">
-    <span class="md-ellipsis">
-      Opción C — Denormalización con sync permanente
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#modulo-ppd-impacto-futuro" class="md-nav__link">
-    <span class="md-ellipsis">
-      Módulo PPD — impacto futuro
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#referencias" class="md-nav__link">
-    <span class="md-ellipsis">
-      Referencias
+      Gaps pendientes
     </span>
   </a>
   
@@ -1021,216 +943,66 @@
 
 
 <h1 id="adr-0015-arquitectura-relacion-sales-invoice-factura-fiscal-mexico">ADR 0015 — Arquitectura Relación Sales Invoice ↔ Factura Fiscal Mexico<a class="headerlink" href="#adr-0015-arquitectura-relacion-sales-invoice-factura-fiscal-mexico" title="Permanent link">&para;</a></h1>
-<p><strong>Fecha:</strong> 2026-05-04
-<strong>Estado:</strong> REVISADO 2026-05-05 — tests automatizados agregados
-<strong>Autor:</strong> Luis Montanaro Sánchez</p>
-<hr />
-<h2 id="contexto">Contexto<a class="headerlink" href="#contexto" title="Permanent link">&para;</a></h2>
-<p>Sales Invoice (SI) es el documento operativo nativo de ERPNext.
-Factura Fiscal Mexico (FFM) es el documento fiscal propio, fuente de
-verdad para todo lo relacionado con el CFDI.</p>
-<p>En la implementación original se intentó denormalizar datos de FFM hacia SI
-mediante campos <code>fm_ffm_*</code>. Esa sincronización nunca se implementó.
-Verificado en BD: 783 SIs, 100% de campos <code>fm_ffm_*</code> con valor NULL.
-<strong>Los campos <code>fm_ffm_*</code> fueron eliminados el 2026-05-04.</strong></p>
+<p><strong>Fecha:</strong> 2026-05-04 | <strong>Última revisión:</strong> 2026-05-06 | <strong>Estado:</strong> VIGENTE</p>
 <hr />
 <h2 id="decision">Decisión<a class="headerlink" href="#decision" title="Permanent link">&para;</a></h2>
-<p><strong>Modelo híbrido: FFM como fuente fiscal + widget en SI para display + flag operativo para PPD.</strong></p>
-<p>El widget <code>fm_ffm_summary_html</code> + <code>sales_invoice_ffm_summary.js</code> cubre la necesidad
-de display en tiempo real sin persistir datos en SI. Lee FFM via <code>get_ffm_summary</code> API
-y muestra: Estado CFDI, Serie y Folio, UUID, Fecha Timbrado, Estado PAC.</p>
-<p>Para el módulo PPD se necesitará un campo flag en SI para detección sin joins.
-Ese campo se crea cuando el módulo PPD se implemente — no antes.</p>
+<p>FFM es fuente de verdad fiscal. SI conserva solo campos operativos mínimos.
+Widget <code>fm_ffm_summary_html</code> lee FFM en tiempo real — sin denormalización.</p>
 <hr />
-<h2 id="campos-en-sales-invoice-estado-final">Campos en Sales Invoice — estado final<a class="headerlink" href="#campos-en-sales-invoice-estado-final" title="Permanent link">&para;</a></h2>
-<h3 id="activos-ya-existen-sin-cambio">Activos (ya existen, sin cambio)<a class="headerlink" href="#activos-ya-existen-sin-cambio" title="Permanent link">&para;</a></h3>
+<h2 id="campos-en-sales-invoice">Campos en Sales Invoice<a class="headerlink" href="#campos-en-sales-invoice" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
 <th>Campo</th>
-<th>Comportamiento</th>
+<th>Tipo</th>
+<th>Cuándo se escribe</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>fm_fiscal_status</code></td>
-<td>Estado fiscal — se actualiza en cada transición</td>
+<td>Select</td>
+<td>Cada transición (BORRADOR→TIMBRADO→CANCELADO)</td>
 </tr>
 <tr>
 <td><code>fm_factura_fiscal_mx</code></td>
-<td>Link a FFM — se escribe al crear FFM en submit</td>
+<td>Link → FFM</td>
+<td>Al crear FFM en submit de SI</td>
+</tr>
+<tr>
+<td><code>fm_es_ppd</code></td>
+<td>Check</td>
+<td>Al timbrar: 1 si PPD, 0 si PUE</td>
 </tr>
 </tbody>
 </table>
-<h3 id="display-cubierto-por-widget-sin-campos-persistentes-en-si">Display — cubierto por widget (sin campos persistentes en SI)<a class="headerlink" href="#display-cubierto-por-widget-sin-campos-persistentes-en-si" title="Permanent link">&para;</a></h3>
-<p>El widget <code>fm_ffm_summary_html</code> muestra en tiempo real desde FFM:</p>
-<table>
-<thead>
-<tr>
-<th>Dato mostrado</th>
-<th>Origen en FFM</th>
-<th>Campo SI descartado</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Estado CFDI</td>
-<td><code>ffm.fm_fiscal_status</code></td>
-<td>~~<code>fm_uuid</code> propuesto~~ — no necesario</td>
-</tr>
-<tr>
-<td>Serie y Folio</td>
-<td><code>ffm.fm_serie_folio</code></td>
-<td>~~<code>fm_folio_fiscal</code> propuesto~~ — no necesario</td>
-</tr>
-<tr>
-<td>UUID</td>
-<td><code>ffm.fm_uuid</code></td>
-<td>~~<code>fm_uuid</code> propuesto~~ — no necesario</td>
-</tr>
-<tr>
-<td>Fecha Timbrado</td>
-<td><code>ffm.fecha_timbrado</code></td>
-<td>~~<code>fm_fecha_timbrado</code> propuesto~~ — no necesario</td>
-</tr>
-<tr>
-<td>Estado PAC</td>
-<td><code>ffm.fm_sync_error</code></td>
-<td>—</td>
-</tr>
-</tbody>
-</table>
-<h3 id="campo-fm_es_ppd-implementado-2026-05-05">Campo <code>fm_es_ppd</code> — implementado (2026-05-05)<a class="headerlink" href="#campo-fm_es_ppd-implementado-2026-05-05" title="Permanent link">&para;</a></h3>
-<p><code>fm_es_ppd</code> (Check, <code>read_only</code>, <code>allow_on_submit=1</code>, <code>default=0</code>) fue creado en SI.
-Se escribe al timbrar en <code>timbrado_api.py</code>: <code>1</code> si <code>FFM.fm_payment_method_sat == PPD</code>, <code>0</code> si PUE.
-Ubicación visual: después de <code>fm_factura_fiscal_mx</code>, antes del widget.</p>
-<h3 id="eliminados-muertos-confirmados-en-bd">Eliminados — muertos confirmados en BD<a class="headerlink" href="#eliminados-muertos-confirmados-en-bd" title="Permanent link">&para;</a></h3>
-<p>Todos eliminados el 2026-05-04:
-- <code>fm_ffm_estado</code>, <code>fm_ffm_uuid</code>, <code>fm_ffm_numero</code>, <code>fm_ffm_fecha</code>, <code>fm_ffm_pac_msg</code>
-- <code>fm_ffm_col_break</code>, <code>fm_ffm_open_btn</code>
-- <code>fm_last_status_update</code>, <code>fm_timbrado_section</code></p>
-<hr />
-<h2 id="reglas-arquitectonicas">Reglas arquitectónicas<a class="headerlink" href="#reglas-arquitectonicas" title="Permanent link">&para;</a></h2>
-<ol>
-<li><strong>FFM es la referencia para operaciones fiscales</strong> — XML, UUID, datos SAT, motivo cancelación</li>
-<li><strong>SI es el índice para operación diaria</strong> — <code>fm_fiscal_status</code> para estados, <code>fm_factura_fiscal_mx</code> para link</li>
-<li><strong>El widget no persiste datos en SI</strong> — lee FFM en tiempo real, no contamina el doc</li>
-<li><strong>No sync genérico automático</strong> <code>on_update FFM → SI</code> — el hook <code>sync_ffm_summary</code> fue eliminado</li>
-<li><strong>Nuevos campos snapshot en SI solo si hay necesidad operativa real</strong> — no anticipar</li>
-</ol>
-<hr />
-<h2 id="tests-automatizados-2026-05-05">Tests automatizados (2026-05-05)<a class="headerlink" href="#tests-automatizados-2026-05-05" title="Permanent link">&para;</a></h2>
-<p><code>facturacion_fiscal/tests/test_si_ffm_cleanup.py</code> — 11 tests:</p>
-<table>
-<thead>
-<tr>
-<th>Test</th>
-<th>Qué verifica</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>test_fm_ffm_*_eliminado</code> (×5)</td>
-<td>Campos <code>fm_ffm_uuid</code>, <code>fm_ffm_numero</code>, <code>fm_ffm_fecha</code>, <code>fm_ffm_estado</code>, <code>fm_ffm_pac_msg</code> no existen en SI</td>
-</tr>
-<tr>
-<td><code>test_fm_ffm_section_eliminada</code></td>
-<td>Sección <code>fm_ffm_section</code> no existe</td>
-</tr>
-<tr>
-<td><code>test_fm_column_break_fiscal_eliminado</code></td>
-<td><code>fm_column_break_fiscal</code> no existe</td>
-</tr>
-<tr>
-<td><code>test_fm_es_ppd_existe</code></td>
-<td>Custom Field presente</td>
-</tr>
-<tr>
-<td><code>test_fm_es_ppd_es_check</code></td>
-<td><code>fieldtype = Check</code></td>
-</tr>
-<tr>
-<td><code>test_fm_es_ppd_default_cero</code></td>
-<td><code>default = 0</code></td>
-</tr>
-<tr>
-<td><code>test_fm_es_ppd_allow_on_submit</code></td>
-<td><code>allow_on_submit = 1</code></td>
-</tr>
-<tr>
-<td><code>test_fm_es_ppd_insert_after_fm_factura_fiscal_mx</code></td>
-<td>Posición visual correcta</td>
-</tr>
-<tr>
-<td><code>test_fm_fiscal_status_existe</code></td>
-<td>Campo esencial sigue presente</td>
-</tr>
-<tr>
-<td><code>test_fm_factura_fiscal_mx_existe</code></td>
-<td>Campo esencial sigue presente</td>
-</tr>
-<tr>
-<td><code>test_fm_ffm_summary_html_existe</code></td>
-<td>Widget presente</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2 id="pendiente-de-limpieza">Pendiente de limpieza<a class="headerlink" href="#pendiente-de-limpieza" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Item</th>
-<th>Archivo</th>
-<th>Acción</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Draft fields (<code>fm_draft_*</code>)</td>
-<td><code>hooks.py</code>, <code>custom_field.json</code>, <code>sales_invoice_addenda_fields.py</code></td>
-<td>Diferido — decidir futuro del módulo draft</td>
-</tr>
-<tr>
-<td><code>fm_pending_amount</code>, <code>fm_complementos_count</code></td>
-<td>Fixtures, código</td>
-<td>Diferido — módulo PPD</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2 id="alternativas-descartadas">Alternativas descartadas<a class="headerlink" href="#alternativas-descartadas" title="Permanent link">&para;</a></h2>
-<h3 id="opcion-a-link-puro">Opción A — Link puro<a class="headerlink" href="#opcion-a-link-puro" title="Permanent link">&para;</a></h3>
-<p>Solo <code>fm_fiscal_status</code> + <code>fm_factura_fiscal_mx</code>. Todo lo demás via join a FFM.
-<strong>Estado:</strong> Parcialmente adoptada — el widget implementa esto para display.</p>
-<h3 id="opcion-b-snapshot-inmutable-con-campos-nuevos-en-si">Opción B — Snapshot inmutable con campos nuevos en SI<a class="headerlink" href="#opcion-b-snapshot-inmutable-con-campos-nuevos-en-si" title="Permanent link">&para;</a></h3>
-<p>Crear <code>fm_uuid</code>, <code>fm_folio_fiscal</code>, <code>fm_fecha_timbrado</code>, <code>fm_es_ppd</code> en SI.
-<strong>Descartada para display</strong> — el widget ya cubre uuid/folio/fecha sin duplicar datos.
-<strong><code>fm_es_ppd</code> diferido</strong> — se creará solo cuando el módulo PPD lo necesite.</p>
-<h3 id="opcion-c-denormalizacion-con-sync-permanente">Opción C — Denormalización con sync permanente<a class="headerlink" href="#opcion-c-denormalizacion-con-sync-permanente" title="Permanent link">&para;</a></h3>
-<p>Mantener <code>fm_ffm_*</code> y activar <code>sync_ffm_summary_to_sales_invoice()</code> en <code>on_update</code> FFM.
-<strong>Descartada</strong> — generaba doble fuente de verdad con sync que históricamente produjo bugs
-silenciosos. Los campos nunca tuvieron datos en BD (783/783 NULL).</p>
-<hr />
-<h2 id="modulo-ppd-impacto-futuro">Módulo PPD — impacto futuro<a class="headerlink" href="#modulo-ppd-impacto-futuro" title="Permanent link">&para;</a></h2>
-<p>Cuando se implemente el módulo PPD, el campo <code>fm_es_ppd</code> permitirá:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># payment_entry_submit.py</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">_requires_ppd_complement</span><span class="p">(</span><span class="n">si</span><span class="p">):</span>
-    <span class="k">return</span> <span class="p">(</span>
-        <span class="n">si</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fm_es_ppd&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span>
-        <span class="n">si</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fm_fiscal_status&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;TIMBRADO&quot;</span>
-    <span class="p">)</span>
+<h3 id="fm_es_ppd-logica">fm_es_ppd — lógica<a class="headerlink" href="#fm_es_ppd-logica" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="n">es_ppd</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">FFM</span><span class="o">.</span><span class="n">fm_payment_method_sat</span> <span class="o">==</span> <span class="s2">&quot;PPD&quot;</span> <span class="k">else</span> <span class="mi">0</span>
+<span class="c1"># escrito en timbrado_api.py junto con fm_fiscal_status = TIMBRADO</span>
 </code></pre></div>
-<p>Punto de escritura cuando se cree: <code>timbrado_api.py</code> — en el mismo <code>db_set</code>
-que escribe <code>fm_fiscal_status = TIMBRADO</code>.</p>
+<h3 id="seccion-fiscal-consolidada">Sección fiscal consolidada<a class="headerlink" href="#seccion-fiscal-consolidada" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>fm_fiscal_section → fm_fiscal_status → fm_factura_fiscal_mx → fm_es_ppd → fm_ffm_summary_html
+</code></pre></div>
 <hr />
-<h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">&para;</a></h2>
+<h2 id="campos-eliminados-2026-05-04">Campos eliminados (2026-05-04)<a class="headerlink" href="#campos-eliminados-2026-05-04" title="Permanent link">&para;</a></h2>
+<p><code>fm_ffm_estado</code>, <code>fm_ffm_uuid</code>, <code>fm_ffm_numero</code>, <code>fm_ffm_fecha</code>, <code>fm_ffm_pac_msg</code>,
+<code>fm_ffm_col_break</code>, <code>fm_ffm_open_btn</code>, <code>fm_ffm_section</code>,
+<code>fm_last_status_update</code>, <code>fm_timbrado_section</code>, <code>fm_quick_status</code>, <code>fm_column_break_fiscal</code></p>
+<hr />
+<h2 id="tests">Tests<a class="headerlink" href="#tests" title="Permanent link">&para;</a></h2>
+<p><code>facturacion_fiscal/tests/test_si_ffm_cleanup.py</code> — 11 tests verifican
+campos eliminados, <code>fm_es_ppd</code> configurado, campos esenciales presentes.</p>
+<hr />
+<h2 id="incidente-recuperacion-2026-05-06">Incidente recuperación (2026-05-06)<a class="headerlink" href="#incidente-recuperacion-2026-05-06" title="Permanent link">&para;</a></h2>
+<p>Bisect manual recreó campos <code>fm_ffm_*</code> en BD via bench migrate en commits antiguos.
+Restaurado desde backup. Hook <code>on_submit</code> SI ausente desde PR #80 — diagnosticado,
+fix pendiente como tarea separada.</p>
+<hr />
+<h2 id="gaps-pendientes">Gaps pendientes<a class="headerlink" href="#gaps-pendientes" title="Permanent link">&para;</a></h2>
 <ul>
-<li>ADR 0014 — Diagnóstico conectividad SI ↔ FFM</li>
-<li><code>facturacion_mexico/public/js/sales_invoice_ffm_summary.js</code> — widget activo</li>
-<li><code>facturacion_mexico/api/ffm_summary.py</code> — API que alimenta el widget</li>
-<li><code>facturacion_mexico/facturacion_fiscal/timbrado_api.py</code> — punto de escritura fiscal</li>
-<li><code>facturacion_mexico/facturacion_fiscal/api/ffm_hooks.py</code> — función neutralizada</li>
+<li><code>Sales Invoice.on_submit</code> hook ausente — fix pendiente</li>
+<li>Draft fields (<code>fm_draft_*</code>) — diferido</li>
+<li><code>fm_pending_amount</code>, <code>fm_complementos_count</code> — diferido (módulo PPD)</li>
 </ul>
 
 

@@ -850,15 +850,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#contexto" class="md-nav__link">
-    <span class="md-ellipsis">
-      Contexto
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#decision" class="md-nav__link">
     <span class="md-ellipsis">
       Decisión
@@ -868,18 +859,18 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#patron-implementado-comprobado-en-produccion-llantascsdev" class="md-nav__link">
+  <a href="#patron-de-filas" class="md-nav__link">
     <span class="md-ellipsis">
-      Patrón implementado (comprobado en producción llantascs.dev)
+      Patrón de filas
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#formula-de-calculo" class="md-nav__link">
+  <a href="#formula" class="md-nav__link">
     <span class="md-ellipsis">
-      Fórmula de cálculo
+      Fórmula
     </span>
   </a>
   
@@ -901,114 +892,21 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Componentes implementados">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#doctype-mapeo-reclasificacion-fiscal-payment-entry" class="md-nav__link">
-    <span class="md-ellipsis">
-      DocType: Mapeo Reclasificacion Fiscal Payment Entry
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#archivo-payment_entry_reclasificacionpy" class="md-nav__link">
-    <span class="md-ellipsis">
-      Archivo: payment_entry_reclasificacion.py
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#archivo-payment_entry_cancelpy" class="md-nav__link">
-    <span class="md-ellipsis">
-      Archivo: payment_entry_cancel.py
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
-  <a href="#pruebas-gui-aprobadas-2026-05-05" class="md-nav__link">
+  <a href="#pruebas-gui-2026-05-05" class="md-nav__link">
     <span class="md-ellipsis">
-      Pruebas GUI aprobadas (2026-05-05)
+      Pruebas GUI (2026-05-05)
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#tests-automatizados-2026-05-05" class="md-nav__link">
+  <a href="#gaps" class="md-nav__link">
     <span class="md-ellipsis">
-      Tests automatizados (2026-05-05)
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Tests automatizados (2026-05-05)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#test_mapeo_reclasificacion_fiscal_payment_entrypy-7-tests" class="md-nav__link">
-    <span class="md-ellipsis">
-      test_mapeo_reclasificacion_fiscal_payment_entry.py — 7 tests
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#test_payment_entry_reclasificacionpy-13-tests" class="md-nav__link">
-    <span class="md-ellipsis">
-      test_payment_entry_reclasificacion.py — 13 tests
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#alternativas-descartadas" class="md-nav__link">
-    <span class="md-ellipsis">
-      Alternativas descartadas
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#fuera-de-alcance-para-implementacion-futura" class="md-nav__link">
-    <span class="md-ellipsis">
-      Fuera de alcance (para implementación futura)
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#hooks-registrados" class="md-nav__link">
-    <span class="md-ellipsis">
-      Hooks registrados
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#referencias" class="md-nav__link">
-    <span class="md-ellipsis">
-      Referencias
+      Gaps
     </span>
   </a>
   
@@ -1030,368 +928,51 @@
 
 
 <h1 id="adr-0016-reclasificacion-fiscal-de-impuestos-en-payment-entry">ADR 0016 — Reclasificación Fiscal de Impuestos en Payment Entry<a class="headerlink" href="#adr-0016-reclasificacion-fiscal-de-impuestos-en-payment-entry" title="Permanent link">&para;</a></h1>
-<p><strong>Fecha:</strong> 2026-05-05
-<strong>Estado:</strong> APROBADO — implementado, probado en GUI y con tests automatizados
-<strong>Autor:</strong> Luis Montanaro Sánchez</p>
-<hr />
-<h2 id="contexto">Contexto<a class="headerlink" href="#contexto" title="Permanent link">&para;</a></h2>
-<p>En México, el IVA se registra en dos momentos:</p>
-<ol>
-<li><strong>Al timbrar la factura</strong> — el impuesto queda en una cuenta de "IVA pendiente por cobrar". Contablemente es devengado.</li>
-<li><strong>Al cobrar/pagar</strong> — el impuesto se vuelve efectivo. Contablemente debe moverse a "IVA cobrado/pagado".</li>
-</ol>
-<p>ERPNext no genera este movimiento automáticamente al registrar un Payment Entry. Sin esta reclasificación, el IVA permanece en la cuenta "pendiente" aunque la factura esté completamente cobrada.</p>
-<p>El patrón fue identificado en <code>facturacion_mx</code> (bench v15, llantascs.dev), donde se usaba manualmente el template <strong>"002 IVA Cobranza - LLCS"</strong>. Este PR automatiza ese flujo existente.</p>
+<p><strong>Fecha:</strong> 2026-05-05 | <strong>Última revisión:</strong> 2026-05-06 | <strong>Estado:</strong> APROBADO — implementado y probado</p>
 <hr />
 <h2 id="decision">Decisión<a class="headerlink" href="#decision" title="Permanent link">&para;</a></h2>
-<p><strong>Usar el mecanismo nativo de <code>Payment Entry.taxes</code> (AdvanceTaxesandCharges) de ERPNext.</strong></p>
-<p>Se cargan dos filas en <code>PE.taxes</code> en el evento <code>validate</code>, visibles desde Save. Al submit, ERPNext genera el GL nativo. Al cancel, ERPNext revierte todo automáticamente.</p>
+<p>Usar <code>Payment Entry.taxes</code> nativo de ERPNext. No GL directo, no Journal Entry.</p>
+<p>Patrón comprobado en producción (<code>facturacion_mx</code>, template "002 IVA Cobranza - LLCS").</p>
 <hr />
-<h2 id="patron-implementado-comprobado-en-produccion-llantascsdev">Patrón implementado (comprobado en producción llantascs.dev)<a class="headerlink" href="#patron-implementado-comprobado-en-produccion-llantascsdev" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code>charge_type          = On Paid Amount
-included_in_paid_amount = 1
-add_deduct_tax       = Add   (para ambas filas)
+<h2 id="patron-de-filas">Patrón de filas<a class="headerlink" href="#patron-de-filas" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>charge_type             = On Paid Amount
+included_in_paid_amount = 1    → sin Cash/Bank counterpart
+add_deduct_tax          = Add  → ambas filas
 
-Fila destino (IVA cobrado):
-  account_head = cuenta_destino
-  rate         = +rate_efectiva   → GL: Cr cuenta_destino
-
-Fila origen (IVA pendiente):
-  account_head = cuenta_origen
-  rate         = -rate_efectiva   → GL: Dr cuenta_origen (negativo = reverso)
+Fila destino: rate = +rate_efectiva  → Cr cuenta_destino (IVA cobrado)
+Fila origen:  rate = -rate_efectiva  → Dr cuenta_origen  (IVA pendiente)
 </code></pre></div>
-<p><strong>Por qué <code>included_in_paid_amount = 1</code>:</strong>
-Con <code>included_in_paid_amount = 0</code>, ERPNext genera una contraparte contra <code>paid_to</code> (banco/caja). Con <code>included_in_paid_amount = 1</code>, solo genera la entrada del tax account — sin tocar banco. La combinación <code>Actual + included=1</code> está bloqueada por <code>validate_inclusive_tax</code>, pero <code>On Paid Amount + included=1</code> es válida.</p>
-<hr />
-<h2 id="formula-de-calculo">Fórmula de cálculo<a class="headerlink" href="#formula-de-calculo" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code>monto_reclasificar = tax_amount_factura * (allocated_amount / grand_total)
-rate_efectiva      = monto_reclasificar / pe.paid_amount * 100
+<h2 id="formula">Fórmula<a class="headerlink" href="#formula" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>monto_reclasificar = tax_amount × (allocated_amount / grand_total)
+rate               = monto_reclasificar / paid_amount × 100
 </code></pre></div>
-<p><strong>Ejemplos:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Caso</th>
-<th>IVA factura</th>
-<th>paid_amount</th>
-<th>rate</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>IVA 16% puro ($1,740 total)</td>
-<td>$240</td>
-<td>$1,740</td>
-<td>13.793%</td>
-</tr>
-<tr>
-<td>IVA 16% parcial (54% pagado)</td>
-<td>$384 × 0.538 = $207</td>
-<td>$1,500</td>
-<td>13.793%</td>
-</tr>
-<tr>
-<td>Mezcla 16%+0%</td>
-<td>calculado de tax_amount real</td>
-<td>variable</td>
-<td>variable</td>
-</tr>
-</tbody>
-</table>
-<p>La rate se calcula siempre de los datos reales de la factura. No hay tasas hardcodeadas. Funciona con cualquier combinación de IVA, incluyendo facturas con ítems al 0%.</p>
-<hr />
 <h2 id="gl-resultante">GL resultante<a class="headerlink" href="#gl-resultante" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code>Dr  Banco/Caja         paid_amount   ← pago normal (siempre presente)
-Cr  Clientes           paid_amount   ← pago normal
-
-Dr  IVA pendiente      monto_reclasificar   ← reclasificación
-Cr  IVA cobrado        monto_reclasificar   ← reclasificación
+<div class="highlight"><pre><span></span><code>Dr Banco        paid_amount    ← pago normal
+Cr Cliente      paid_amount    ← pago normal
+Dr IVA pendiente  monto        ← reclasificación
+Cr IVA cobrado    monto        ← reclasificación
 </code></pre></div>
-<p>El Cash/Banco aparece UNA vez (el pago normal). Las filas de taxes no generan entradas adicionales de banco porque <code>included_in_paid_amount = 1</code>.</p>
+<p>Cash aparece solo por el pago normal. Las filas de taxes no generan Cash extra.</p>
 <hr />
 <h2 id="componentes-implementados">Componentes implementados<a class="headerlink" href="#componentes-implementados" title="Permanent link">&para;</a></h2>
-<h3 id="doctype-mapeo-reclasificacion-fiscal-payment-entry">DocType: Mapeo Reclasificacion Fiscal Payment Entry<a class="headerlink" href="#doctype-mapeo-reclasificacion-fiscal-payment-entry" title="Permanent link">&para;</a></h3>
-<p>Configura la relación <code>cuenta_origen → cuenta_destino</code> por empresa y tipo de operación.</p>
-<table>
-<thead>
-<tr>
-<th>Campo</th>
-<th>Descripción</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>company</code></td>
-<td>Empresa</td>
-</tr>
-<tr>
-<td><code>tipo_operacion</code></td>
-<td>Cobro (ventas) / Pago (compras)</td>
-</tr>
-<tr>
-<td><code>cuenta_origen</code></td>
-<td>Cuenta de impuesto al timbrar (IVA pendiente)</td>
-</tr>
-<tr>
-<td><code>cuenta_destino</code></td>
-<td>Cuenta de impuesto al cobrar/pagar (IVA efectivo)</td>
-</tr>
-<tr>
-<td><code>activo</code></td>
-<td>Activar/desactivar sin eliminar</td>
-</tr>
-</tbody>
-</table>
-<p>Validaciones: <code>account_type = Tax</code>, misma empresa, no grupo, no deshabilitada,
-sin duplicado activo por <code>company + tipo_operacion + cuenta_origen</code>.</p>
-<h3 id="archivo-payment_entry_reclasificacionpy">Archivo: <code>payment_entry_reclasificacion.py</code><a class="headerlink" href="#archivo-payment_entry_reclasificacionpy" title="Permanent link">&para;</a></h3>
 <ul>
-<li><code>cargar_impuestos_en_payment_entry(doc)</code> — hook <code>validate</code>. Lee referencias, calcula montos proporcionales, carga filas en <code>PE.taxes</code>. Llama <code>doc.apply_taxes()</code> al final para forzar recálculo (el hook corre después del PE.validate de ERPNext).</li>
-<li><code>generar_reclasificacion_payment_entry</code> / <code>cancelar_reclasificacion_payment_entry</code> — no-ops. ERPNext maneja GL y reversión nativamente.</li>
+<li><strong><code>Mapeo Reclasificacion Fiscal Payment Entry</code></strong> — DocType: company + tipo_operacion + cuenta_origen → cuenta_destino</li>
+<li><strong><code>cargar_impuestos_en_payment_entry</code></strong> — hook <code>validate</code>, carga filas visibles desde Save</li>
+<li><strong>Tests</strong> — 7 tests DocType + 13 tests lógica de cálculo</li>
 </ul>
-<h3 id="archivo-payment_entry_cancelpy">Archivo: <code>payment_entry_cancel.py</code><a class="headerlink" href="#archivo-payment_entry_cancelpy" title="Permanent link">&para;</a></h3>
-<p>Stub creado — el módulo existía referenciado en hooks.py pero faltaba el archivo. Cancela el Complemento Pago MX vinculado si existe.</p>
 <hr />
-<h2 id="pruebas-gui-aprobadas-2026-05-05">Pruebas GUI aprobadas (2026-05-05)<a class="headerlink" href="#pruebas-gui-aprobadas-2026-05-05" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>SI</th>
-<th>PE</th>
-<th>Tipo</th>
-<th>Pago</th>
-<th>IVA reclasificado</th>
-<th>GL</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>ACC-SINV-2026-00024</td>
-<td>ACC-PAY-2026-00017</td>
-<td>Total</td>
-<td>$1,740</td>
-<td><strong>$240</strong></td>
-<td>✅ limpio</td>
-</tr>
-<tr>
-<td>ACC-SINV-2026-00025</td>
-<td>ACC-PAY-2026-00018</td>
-<td>Parcial (54%)</td>
-<td>$1,500 de $2,784</td>
-<td><strong>$206.90</strong></td>
-<td>✅ limpio</td>
-</tr>
-<tr>
-<td>ACC-PAY-2026-00017 (cancel)</td>
-<td>—</td>
-<td>Cancel</td>
-<td>—</td>
-<td><strong>revertido</strong></td>
-<td>✅</td>
-</tr>
-</tbody>
-</table>
-<p>Taxes visibles desde Save (antes de Submit). GL generado por ERPNext al Submit.</p>
-<hr />
-<h2 id="tests-automatizados-2026-05-05">Tests automatizados (2026-05-05)<a class="headerlink" href="#tests-automatizados-2026-05-05" title="Permanent link">&para;</a></h2>
-<h3 id="test_mapeo_reclasificacion_fiscal_payment_entrypy-7-tests"><code>test_mapeo_reclasificacion_fiscal_payment_entry.py</code> — 7 tests<a class="headerlink" href="#test_mapeo_reclasificacion_fiscal_payment_entrypy-7-tests" title="Permanent link">&para;</a></h3>
-<p>Validan el DocType <code>Mapeo Reclasificacion Fiscal Payment Entry</code>:</p>
-<table>
-<thead>
-<tr>
-<th>Test</th>
-<th>Qué verifica</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>test_cuentas_distintas</code></td>
-<td><code>cuenta_origen == cuenta_destino</code> lanza <code>ValidationError</code></td>
-</tr>
-<tr>
-<td><code>test_cuenta_debe_ser_tax</code></td>
-<td><code>account_type != Tax</code> en origen lanza error</td>
-</tr>
-<tr>
-<td><code>test_cuenta_destino_debe_ser_tax</code></td>
-<td><code>account_type != Tax</code> en destino lanza error</td>
-</tr>
-<tr>
-<td><code>test_cuenta_no_grupo</code></td>
-<td>cuenta grupo lanza error</td>
-</tr>
-<tr>
-<td><code>test_sin_duplicado_activo</code></td>
-<td>segundo mapeo activo con misma combinación lanza error</td>
-</tr>
-<tr>
-<td><code>test_duplicado_inactivo_permitido</code></td>
-<td>mapeo inactivo duplicado se permite</td>
-</tr>
-<tr>
-<td><code>test_insert_valido</code></td>
-<td>mapeo correcto se inserta sin error</td>
-</tr>
-</tbody>
-</table>
-<h3 id="test_payment_entry_reclasificacionpy-13-tests"><code>test_payment_entry_reclasificacion.py</code> — 13 tests<a class="headerlink" href="#test_payment_entry_reclasificacionpy-13-tests" title="Permanent link">&para;</a></h3>
-<p>Tests de <code>_calcular_grupos_desde_doc</code> (mockean <code>frappe.get_doc</code> en el módulo):</p>
-<table>
-<thead>
-<tr>
-<th>Test</th>
-<th>Qué verifica</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>test_calcular_grupos_retorna_monto_correcto</code></td>
-<td>monto = <code>tax_amount * (allocated / grand_total)</code></td>
-</tr>
-<tr>
-<td><code>test_calcular_grupos_proporcion_parcial</code></td>
-<td>monto proporcional para pago parcial</td>
-</tr>
-<tr>
-<td><code>test_calcular_grupos_sin_mapeo_retorna_vacio</code></td>
-<td>sin mapeo activo → grupos vacíos</td>
-</tr>
-<tr>
-<td><code>test_calcular_grupos_impuesto_cero_ignorado</code></td>
-<td><code>tax_amount=0</code> no genera grupo</td>
-</tr>
-</tbody>
-</table>
-<p>Tests de <code>cargar_impuestos_en_payment_entry</code> (mockean <code>_calcular_grupos_desde_doc</code>):</p>
-<table>
-<thead>
-<tr>
-<th>Test</th>
-<th>Qué verifica</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>test_carga_filas_en_validate</code></td>
-<td>agrega exactamente 2 filas</td>
-</tr>
-<tr>
-<td><code>test_rate_pago_total</code></td>
-<td><code>rate = tax / grand_total * 100</code></td>
-</tr>
-<tr>
-<td><code>test_rate_pago_parcial</code></td>
-<td>fórmula exacta: <code>monto = tax*(alloc/gt)</code>, <code>rate = monto/paid*100</code></td>
-</tr>
-<tr>
-<td><code>test_filas_limpian_en_re_validate</code></td>
-<td>re-validate no duplica filas</td>
-</tr>
-<tr>
-<td><code>test_sin_mapeo_no_carga_filas</code></td>
-<td>grupos vacíos → PE sin filas</td>
-</tr>
-<tr>
-<td><code>test_included_in_paid_amount_1</code></td>
-<td>todas las filas tienen <code>included_in_paid_amount=1</code></td>
-</tr>
-<tr>
-<td><code>test_destino_rate_positivo_origen_negativo</code></td>
-<td>destino: +rate, origen: -rate, misma magnitud</td>
-</tr>
-<tr>
-<td><code>test_rates_se_anulan</code></td>
-<td>suma de rates = 0 (paid_amount intacto)</td>
-</tr>
-<tr>
-<td><code>test_impuesto_cero_ignorado</code></td>
-<td>grupos vacíos → sin filas</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2 id="alternativas-descartadas">Alternativas descartadas<a class="headerlink" href="#alternativas-descartadas" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Opción</th>
-<th>Razón de descarte</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>GL Entry directo (<code>make_gl_entries</code> en on_submit)</td>
-<td>No visible en taxes del PE; usuario no puede verificar antes del submit</td>
-</tr>
-<tr>
-<td><code>Actual + included=1</code></td>
-<td>Bloqueado por <code>validate_inclusive_tax</code> en ERPNext</td>
-</tr>
-<tr>
-<td><code>Actual + included=0</code></td>
-<td>Genera entradas extras de banco/caja que se cancelan entre sí — "Cash extra" visible en GL</td>
-</tr>
-<tr>
-<td>Journal Entry</td>
-<td>Pierde trazabilidad directa contra el PE</td>
-</tr>
-<tr>
-<td>Payment Entry Deduction</td>
-<td>Diseñado para diferencias de tipo de cambio/descuentos, no reclasificación de IVA</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2 id="fuera-de-alcance-para-implementacion-futura">Fuera de alcance (para implementación futura)<a class="headerlink" href="#fuera-de-alcance-para-implementacion-futura" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Item</th>
-<th>Estado</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>IVA frontera 8%</td>
-<td>No probado — no hay SIs de frontera en site dev</td>
-</tr>
-<tr>
-<td>Múltiples referencias con tasas distintas</td>
-<td>No probado — requiere datos de prueba</td>
-</tr>
-<tr>
-<td>Purchase Invoice (Pago)</td>
-<td>Implementado en código, no probado end-to-end</td>
-</tr>
-<tr>
-<td>Backfill de PEs históricos</td>
-<td>No incluido — one-off bajo demanda</td>
-</tr>
-<tr>
-<td>Complemento Pago MX</td>
-<td>Siguiente bloque</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2 id="hooks-registrados">Hooks registrados<a class="headerlink" href="#hooks-registrados" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><span class="s2">&quot;Payment Entry&quot;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="s2">&quot;validate&quot;</span><span class="p">:</span> <span class="p">[</span>
-        <span class="s2">&quot;...payment_entry_validate.check_ppd_requirement&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;...payment_entry_reclasificacion.cargar_impuestos_en_payment_entry&quot;</span><span class="p">,</span>
-    <span class="p">],</span>
-    <span class="s2">&quot;on_submit&quot;</span><span class="p">:</span> <span class="s2">&quot;...payment_entry_submit.create_complement_if_required&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;on_cancel&quot;</span><span class="p">:</span> <span class="s2">&quot;...payment_entry_cancel.cancel_related_complement&quot;</span><span class="p">,</span>
-<span class="p">}</span>
-</code></pre></div>
-<hr />
-<h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">&para;</a></h2>
+<h2 id="pruebas-gui-2026-05-05">Pruebas GUI (2026-05-05)<a class="headerlink" href="#pruebas-gui-2026-05-05" title="Permanent link">&para;</a></h2>
 <ul>
-<li><code>facturacion_fiscal/services/payment_entry_reclasificacion.py</code></li>
-<li><code>facturacion_fiscal/doctype/mapeo_reclasificacion_fiscal_payment_entry/</code></li>
-<li><code>complementos_pago/hooks_handlers/payment_entry_cancel.py</code></li>
-<li>Template "002 IVA Cobranza - LLCS" en llantascs.dev (patrón de referencia)</li>
-<li>ERPNext <code>payment_entry.py:add_tax_gl_entries</code> — mecanismo nativo</li>
+<li>ACC-PAY-2026-00017: pago total $1,740 → IVA $240 ✅</li>
+<li>ACC-PAY-2026-00018: pago parcial $1,500/$2,784 → IVA $206.90 ✅</li>
+<li>Cancelación: reversión automática ✅</li>
+</ul>
+<hr />
+<h2 id="gaps">Gaps<a class="headerlink" href="#gaps" title="Permanent link">&para;</a></h2>
+<ul>
+<li>IVA frontera 8% — no probado en site dev</li>
+<li>Purchase Invoice — implementado, no probado end-to-end</li>
+<li>Backfill PEs históricos — one-off bajo demanda</li>
 </ul>
 
 

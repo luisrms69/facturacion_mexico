@@ -20,7 +20,7 @@
     
     
       
-        <title>ADR 0017 — Normalización Schema Complemento Pago MX (Bloque 3A) - Facturación México - Documentación Técnica</title>
+        <title>ADR 0017 — Complemento Pago MX MVP - Facturación México - Documentación Técnica</title>
       
     
     
@@ -86,7 +86,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#adr-0017-normalizacion-schema-complemento-pago-mx-bloque-3a" class="md-skip">
+        <a href="#adr-0017-complemento-pago-mx-mvp" class="md-skip">
           Saltar a contenido
         </a>
       
@@ -124,7 +124,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              ADR 0017 — Normalización Schema Complemento Pago MX (Bloque 3A)
+              ADR 0017 — Complemento Pago MX MVP
             
           </span>
         </div>
@@ -850,90 +850,90 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#contexto" class="md-nav__link">
+  <a href="#arquitectura" class="md-nav__link">
     <span class="md-ellipsis">
-      Contexto
+      Arquitectura
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#decision" class="md-nav__link">
+  <a href="#decisiones-clave" class="md-nav__link">
     <span class="md-ellipsis">
-      Decisión
+      Decisiones clave
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#campos-agregados-a-complemento-pago-mx" class="md-nav__link">
+  <a href="#campo-status-y-relacion-con-docstatus" class="md-nav__link">
     <span class="md-ellipsis">
-      Campos agregados a Complemento Pago MX
+      Campo status y relación con docstatus
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#relacion-arquitectonica-espejo-siffm" class="md-nav__link">
+  <a href="#flujo-completo" class="md-nav__link">
     <span class="md-ellipsis">
-      Relación arquitectónica (espejo SI↔FFM)
+      Flujo completo
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#hooks-neutralizados-hasta-bloque-3b" class="md-nav__link">
+  <a href="#payload-facturapi-confirmado-vs-legacy-facturacion_mx" class="md-nav__link">
     <span class="md-ellipsis">
-      Hooks neutralizados hasta Bloque 3B
+      Payload FacturAPI (confirmado vs legacy facturacion_mx)
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#child-tables-existentes-sin-cambio" class="md-nav__link">
+  <a href="#response-log" class="md-nav__link">
     <span class="md-ellipsis">
-      Child tables existentes (sin cambio)
+      Response Log
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#campos-payment-entry-sin-cambio" class="md-nav__link">
+  <a href="#doctype-complemento-pago-mx-estado-final" class="md-nav__link">
     <span class="md-ellipsis">
-      Campos Payment Entry — sin cambio
+      DocType Complemento Pago MX — estado final
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#bloque-3b-pendiente" class="md-nav__link">
+  <a href="#limpieza-realizada" class="md-nav__link">
     <span class="md-ellipsis">
-      Bloque 3B — pendiente
+      Limpieza realizada
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#archivos-modificados" class="md-nav__link">
+  <a href="#validacion-sandbox-2026-05-06" class="md-nav__link">
     <span class="md-ellipsis">
-      Archivos modificados
+      Validación sandbox (2026-05-06)
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#referencias" class="md-nav__link">
+  <a href="#gaps-pendientes" class="md-nav__link">
     <span class="md-ellipsis">
-      Referencias
+      Gaps pendientes
     </span>
   </a>
   
@@ -954,175 +954,211 @@
                   
 
 
-<h1 id="adr-0017-normalizacion-schema-complemento-pago-mx-bloque-3a">ADR 0017 — Normalización Schema Complemento Pago MX (Bloque 3A)<a class="headerlink" href="#adr-0017-normalizacion-schema-complemento-pago-mx-bloque-3a" title="Permanent link">&para;</a></h1>
-<p><strong>Fecha:</strong> 2026-05-05
-<strong>Estado:</strong> APROBADO — schema implementado, Bloque 3B pendiente
-<strong>Autor:</strong> Luis Montanaro Sánchez</p>
+<h1 id="adr-0017-complemento-pago-mx-mvp">ADR 0017 — Complemento Pago MX MVP<a class="headerlink" href="#adr-0017-complemento-pago-mx-mvp" title="Permanent link">&para;</a></h1>
+<p><strong>Fecha:</strong> 2026-05-05 | <strong>Última revisión:</strong> 2026-05-06 | <strong>Estado:</strong> APROBADO — MVP validado en sandbox (PR #94)</p>
 <hr />
-<h2 id="contexto">Contexto<a class="headerlink" href="#contexto" title="Permanent link">&para;</a></h2>
-<p>El DocType <code>Complemento Pago MX</code> existía con estructura orientada al CFDI fiscal
-(datos de timbrado, documentos relacionados, impuestos trasladados) pero sin los
-campos operativos necesarios para vincular el complemento a su Payment Entry.</p>
-<p>El código existente en <code>payment_entry_submit.py</code> era inoperable:
-- Usaba <code>related_invoices</code> (child table inexistente — el DocType tiene <code>documentos_relacionados</code>)
-- Escribía campos <code>payment_entry</code>, <code>company</code>, <code>customer</code>, <code>complement_status</code> que no existían
-- La detección PPD revisaba <code>fm_forma_pago</code> y <code>fm_uso_cfdi</code> en SI — campos que no existen
-- La función nunca ejecutaba porque todas las condiciones fallaban silenciosamente</p>
-<hr />
-<h2 id="decision">Decisión<a class="headerlink" href="#decision" title="Permanent link">&para;</a></h2>
-<p><strong>Bloque 3A: normalización mínima de schema.</strong>
-Solo agregar los campos de vínculo operativo. No crear el flujo de generación todavía.</p>
-<p>Objetivo: dejar el DocType en estado donde el código de Bloque 3B pueda funcionar correctamente.</p>
-<hr />
-<h2 id="campos-agregados-a-complemento-pago-mx">Campos agregados a Complemento Pago MX<a class="headerlink" href="#campos-agregados-a-complemento-pago-mx" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Campo</th>
-<th>Tipo</th>
-<th>Descripción</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>payment_entry</code></td>
-<td>Link → Payment Entry</td>
-<td>Vínculo principal con el pago</td>
-</tr>
-<tr>
-<td><code>company</code></td>
-<td>Link → Company</td>
-<td>Empresa — requerida para GL y multi-empresa</td>
-</tr>
-<tr>
-<td><code>customer</code></td>
-<td>Link → Customer</td>
-<td>Parte fiscal del complemento</td>
-</tr>
-<tr>
-<td><code>complement_status</code></td>
-<td>Select</td>
-<td>Estado del flujo PPD: Pendiente/Timbrado/Cancelado/Error</td>
-</tr>
-</tbody>
-</table>
-<p><code>complement_status</code> tiene <code>default = "Pendiente"</code>.</p>
-<hr />
-<h2 id="relacion-arquitectonica-espejo-siffm">Relación arquitectónica (espejo SI↔FFM)<a class="headerlink" href="#relacion-arquitectonica-espejo-siffm" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code>Payment Entry                     Complemento Pago MX
-─────────────────────────        ──────────────────────────
-fm_complemento_pago  ──────────→ name
-fm_require_complement (flag)     payment_entry (link) ←────
-fm_complement_generated (flag)   complement_status
-fm_forma_pago_sat                documentos_relacionados (child)
+<h2 id="arquitectura">Arquitectura<a class="headerlink" href="#arquitectura" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>Payment Entry (operativo)              Complemento Pago MX (fiscal CFDI tipo P)
+─────────────────────────             ─────────────────────────────────────────
+fm_complemento_pago  ──────────────→  name
+fm_require_complement (flag)          payment_entry ←──────────────────────────
+fm_complement_generated (flag)        status (Pendiente/Timbrado/Cancelado/...)
+mode_of_payment                       forma_pago_p (mode_of_payment[:2])
+                                      documentos_relacionados (child)
+                                      detalles_impuestos (child)
+                                      fm_ultimo_response_log → FacturAPI Response Log
 </code></pre></div>
-<p>El patrón replica la arquitectura SI↔FFM:
-- PE mantiene estado mínimo + link al complemento
-- Complemento Pago MX es la fuente fiscal completa</p>
 <hr />
-<h2 id="hooks-neutralizados-hasta-bloque-3b">Hooks neutralizados hasta Bloque 3B<a class="headerlink" href="#hooks-neutralizados-hasta-bloque-3b" title="Permanent link">&para;</a></h2>
-<p><code>payment_entry_submit.py</code> y <code>payment_entry_validate.py</code> convertidos a no-op.
-La creación del complemento será <strong>manual</strong> mediante botón en el Bloque 3B.</p>
-<p>Razón: el código anterior era inoperable (referenciaba campos y child tables inexistentes).
-Mejor reescribir desde cero en Bloque 3B usando el schema correcto que ahora existe.</p>
+<h2 id="decisiones-clave">Decisiones clave<a class="headerlink" href="#decisiones-clave" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Creación manual</strong> desde botón en PE — no automática al submit</li>
+<li><strong>PE no puede cancelarse</strong> si <code>complemento.status != "Cancelado"</code> (<code>before_cancel</code> hook)</li>
+<li><strong>PE se libera</strong> (<code>fm_complemento_pago=""</code>) cuando cancelación SAT es <code>accepted</code></li>
+<li><strong><code>mode_of_payment</code></strong> de ERPNext es la fuente de la forma de pago SAT (no campo custom)</li>
+<li><strong><code>fm_tax_regime</code></strong> del Customer es la fuente del régimen fiscal SAT (no <code>tax_category</code>)</li>
+<li><strong><code>status</code></strong> (no <code>complement_status</code>) — alineado con convención nativa Frappe (<code>status_field</code>)</li>
+</ol>
 <hr />
-<h2 id="child-tables-existentes-sin-cambio">Child tables existentes (sin cambio)<a class="headerlink" href="#child-tables-existentes-sin-cambio" title="Permanent link">&para;</a></h2>
+<h2 id="campo-status-y-relacion-con-docstatus">Campo <code>status</code> y relación con <code>docstatus</code><a class="headerlink" href="#campo-status-y-relacion-con-docstatus" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th>Child DocType</th>
-<th>Propósito</th>
-<th>Campos clave</th>
+<th>docstatus</th>
+<th>status</th>
+<th>Significado</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>Documento Relacionado Pago MX</code></td>
-<td>Facturas cubiertas por este complemento</td>
-<td><code>id_documento</code>, <code>num_parcialidad</code>, <code>imp_saldo_ant</code>, <code>imp_pagado</code>, <code>imp_saldo_insoluto</code></td>
+<td>0</td>
+<td>Pendiente</td>
+<td>Complemento creado, aún no timbrado</td>
 </tr>
 <tr>
-<td><code>Detalle Complemento Pago MX</code></td>
-<td>Impuestos trasladados y retenidos</td>
-<td><code>tipo_impuesto</code>, <code>tasa_cuota</code>, <code>base_dr</code>, <code>importe_dr</code></td>
+<td>1</td>
+<td>Timbrado</td>
+<td>CFDI de pago timbrado y vigente ante SAT</td>
+</tr>
+<tr>
+<td>1</td>
+<td>Pendiente Cancelación</td>
+<td>Cancelación solicitada, PAC no ha confirmado</td>
+</tr>
+<tr>
+<td>1</td>
+<td>Error</td>
+<td>Error en operación PAC</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Cancelado</td>
+<td>CFDI cancelado fiscalmente — cancelación SAT <code>accepted</code></td>
 </tr>
 </tbody>
 </table>
-<p>Se usa <code>documentos_relacionados</code>, NO <code>related_invoices</code> (campo que no existe y causaba crash en el código anterior).</p>
+<p><code>docstatus=2</code> solo ocurre cuando la cancelación SAT es <code>accepted</code>. No se usa <code>docstatus=2</code> para otros estados.</p>
 <hr />
-<h2 id="campos-payment-entry-sin-cambio">Campos Payment Entry — sin cambio<a class="headerlink" href="#campos-payment-entry-sin-cambio" title="Permanent link">&para;</a></h2>
-<p>Los custom fields de PE ya existían y son suficientes para Bloque 3B:</p>
-<table>
-<thead>
-<tr>
-<th>Campo</th>
-<th>Tipo</th>
-<th>Para qué</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>fm_complemento_pago</code></td>
-<td>Link → Complemento Pago MX</td>
-<td>Referencia al complemento generado</td>
-</tr>
-<tr>
-<td><code>fm_require_complement</code></td>
-<td>Check</td>
-<td>Flag: ¿este PE requiere complemento?</td>
-</tr>
-<tr>
-<td><code>fm_complement_generated</code></td>
-<td>Check</td>
-<td>Flag: ¿ya se generó?</td>
-</tr>
-<tr>
-<td><code>fm_forma_pago_sat</code></td>
-<td>Link → Forma Pago SAT</td>
-<td>Forma de pago para el XML</td>
-</tr>
-</tbody>
-</table>
+<h2 id="flujo-completo">Flujo completo<a class="headerlink" href="#flujo-completo" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>1. Submit PE con SI PPD timbrada
+   → botón &quot;Crear Complemento de Pago&quot; aparece en PE
+
+2. Click → crear_complemento_pago_desde_pe()
+   → Complemento creado (docstatus=0, status=Pendiente)
+   → documentos_relacionados y detalles_impuestos llenados
+   → PE.fm_complemento_pago vinculado
+
+3. Click &quot;Timbrar Complemento de Pago&quot; (docstatus=0, status=Pendiente/Error)
+   → timbrar_complemento_pago()
+   → llama FacturAPI con payload tipo P
+   → guarda campos stamp (uuid_sat, folio_fiscal, no_certificado_sat, ...)
+   → doc.submit() → docstatus=1
+   → status=Timbrado
+   → Response Log: Timbrado Complemento Pago
+
+4. PE bloqueado (before_cancel lanza error si status != Cancelado)
+   → botón Cancel del PE oculto en JS
+   → advertencia visible en dashboard del PE
+
+5. Click &quot;Cancelar Complemento&quot; (solo Manager/System Manager)
+   → cancelar_complemento_pago(motivo)
+   → llama FacturAPI
+
+   Respuesta accepted:
+     → status=Cancelado, estatus_sat=Cancelado
+     → PE liberado (fm_complemento_pago=&quot;&quot;, fm_complement_generated=0)
+     → doc.cancel() → docstatus=2
+     → Response Log: Cancelación Complemento Pago
+
+   Respuesta pending:
+     → status=Pendiente Cancelación
+     → docstatus=1 (sin cambio)
+     → PE sigue bloqueado
+     → Response Log: Cancelación Complemento Pago
+     → botón &quot;Revisar Estatus Cancelación&quot; aparece
+
+   Respuesta rejected:
+     → status=Timbrado (vuelve a estado previo)
+     → docstatus=1
+     → Response Log: Cancelación Complemento Pago
+
+6. Click &quot;Revisar Estatus Cancelación&quot; (status=Pendiente Cancelación)
+   → revisar_estatus_cancelacion_complemento()
+   → consulta FacturAPI con facturapi_id
+   → aplica mismas transiciones (accepted/pending/rejected)
+   → Response Log: Consulta Estado Complemento Pago
+</code></pre></div>
 <hr />
-<h2 id="bloque-3b-pendiente">Bloque 3B — pendiente<a class="headerlink" href="#bloque-3b-pendiente" title="Permanent link">&para;</a></h2>
-<p>Implementar la creación del Complemento Pago MX:
-- Botón en PE o en Complemento Pago MX
-- Llenado de <code>documentos_relacionados</code> con datos reales de las SIs referenciadas
-- Uso de <code>fm_es_ppd</code> para detectar SIs PPD (campo creado en Bloque 2)
-- Cálculo de <code>num_parcialidad</code>, <code>imp_saldo_ant</code>, <code>imp_saldo_insoluto</code>
-- Timbrado vía FacturAPI (Bloque 3C)</p>
+<h2 id="payload-facturapi-confirmado-vs-legacy-facturacion_mx">Payload FacturAPI (confirmado vs legacy facturacion_mx)<a class="headerlink" href="#payload-facturapi-confirmado-vs-legacy-facturacion_mx" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+  <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;P&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;customer&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="s2">&quot;legal_name&quot;</span><span class="p">,</span> <span class="s2">&quot;tax_id&quot;</span><span class="p">,</span> <span class="s2">&quot;tax_system&quot;</span><span class="p">,</span> <span class="s2">&quot;email&quot;</span><span class="p">,</span> <span class="s2">&quot;address&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;zip&quot;</span><span class="p">}</span> <span class="p">},</span>
+  <span class="s2">&quot;complements&quot;</span><span class="p">:</span> <span class="p">[{</span>
+    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;pago&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">[{</span>
+      <span class="s2">&quot;payment_form&quot;</span><span class="p">:</span> <span class="n">mode_of_payment</span><span class="p">[:</span><span class="mi">2</span><span class="p">],</span>
+      <span class="s2">&quot;currency&quot;</span><span class="p">:</span> <span class="s2">&quot;MXN&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;exchange&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+      <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">posting_date</span><span class="p">,</span>
+      <span class="s2">&quot;related_documents&quot;</span><span class="p">:</span> <span class="p">[{</span>
+        <span class="s2">&quot;uuid&quot;</span><span class="p">:</span> <span class="n">FFM</span><span class="o">.</span><span class="n">fm_uuid</span><span class="p">,</span>
+        <span class="s2">&quot;folio_number&quot;</span><span class="p">:</span> <span class="n">FFM</span><span class="o">.</span><span class="n">folio</span><span class="p">,</span>
+        <span class="s2">&quot;amount&quot;</span><span class="p">:</span> <span class="n">imp_pagado</span><span class="p">,</span>
+        <span class="s2">&quot;last_balance&quot;</span><span class="p">:</span> <span class="n">imp_saldo_ant</span><span class="p">,</span>       <span class="c1"># allocated + outstanding</span>
+        <span class="s2">&quot;installment&quot;</span><span class="p">:</span> <span class="n">num_parcialidad</span><span class="p">,</span>       <span class="c1"># por pe.creation ASC (no pe.name)</span>
+        <span class="s2">&quot;taxability&quot;</span><span class="p">:</span> <span class="n">objeto_imp_dr</span><span class="p">,</span>
+        <span class="s2">&quot;taxes&quot;</span><span class="p">:</span> <span class="p">[{</span> <span class="s2">&quot;base&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">,</span> <span class="s2">&quot;rate&quot;</span><span class="p">,</span> <span class="s2">&quot;factor&quot;</span><span class="p">,</span> <span class="s2">&quot;withholding&quot;</span> <span class="p">}]</span>
+      <span class="p">}]</span>
+    <span class="p">}]</span>
+  <span class="p">}]</span>
+<span class="p">}</span>
+</code></pre></div>
 <hr />
-<h2 id="archivos-modificados">Archivos modificados<a class="headerlink" href="#archivos-modificados" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Archivo</th>
-<th>Cambio</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>complementos_pago/doctype/complemento_pago_mx/complemento_pago_mx.json</code></td>
-<td>Agregar 4 campos nuevos</td>
-</tr>
-<tr>
-<td><code>complementos_pago/hooks_handlers/payment_entry_submit.py</code></td>
-<td>No-op hasta Bloque 3B</td>
-</tr>
-<tr>
-<td><code>complementos_pago/hooks_handlers/payment_entry_validate.py</code></td>
-<td>No-op hasta Bloque 3B</td>
-</tr>
-</tbody>
-</table>
+<h2 id="response-log">Response Log<a class="headerlink" href="#response-log" title="Permanent link">&para;</a></h2>
+<p><code>FacturAPI Response Log</code> — DocType compartido con FFM:
+- Campo <code>complemento_pago_mx</code> — Link → Complemento Pago MX
+- <code>operation_type</code>:
+  - <code>Timbrado Complemento Pago</code>
+  - <code>Cancelación Complemento Pago</code>
+  - <code>Consulta Estado Complemento Pago</code>
+- <code>request_id</code> con hash aleatorio (unique constraint)
+- <code>fm_ultimo_response_log</code> en el Complemento — Link al último log</p>
 <hr />
-<h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">&para;</a></h2>
+<h2 id="doctype-complemento-pago-mx-estado-final">DocType Complemento Pago MX — estado final<a class="headerlink" href="#doctype-complemento-pago-mx-estado-final" title="Permanent link">&para;</a></h2>
 <ul>
-<li>ADR 0016 — Reclasificación fiscal en Payment Entry (arquitectura PE)</li>
-<li>ADR 0014 — Diagnóstico SI↔FFM (patrón de referencia para la relación PE↔Complemento)</li>
-<li><code>complementos_pago/doctype/complemento_pago_mx/complemento_pago_mx.json</code></li>
-<li><code>complementos_pago/doctype/documento_relacionado_pago_mx/documento_relacionado_pago_mx.json</code></li>
+<li><code>status_field: "status"</code> — Frappe colorea encabezado con <code>states[]</code> automáticamente</li>
+<li><code>states[]</code>: Pendiente→Gray, Timbrado→Green, Pendiente Cancelación→Orange, Cancelado→Red, Error→Red</li>
+<li>Botones Submit/Cancel/Amend de Frappe ocultos en JS</li>
+<li>Botón "Cancelar Complemento" restringido a Manager/System Manager por <code>frappe.user.has_role()</code></li>
+<li>Secciones: Cabecera Operativa / Datos SAT / Bancarios (colapsable) / Documentos / Impuestos</li>
+<li><code>before_cancel</code> permite cancel programático con <code>flags.allow_fiscal_cancel = True</code></li>
 </ul>
+<hr />
+<h2 id="limpieza-realizada">Limpieza realizada<a class="headerlink" href="#limpieza-realizada" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>Payment Tracking MX</code> eliminado — 0 registros, cubierto nativamente por ERPNext</li>
+<li><code>fm_forma_pago_sat</code> eliminado de Payment Entry — sin uso en código</li>
+<li><code>complement_status</code> renombrado a <code>status</code> — convención nativa Frappe</li>
+<li><code>num_parcialidad</code>: desempate por <code>pe.creation</code> (no <code>pe.name</code>) para mismo día</li>
+</ul>
+<hr />
+<h2 id="validacion-sandbox-2026-05-06">Validación sandbox (2026-05-06)<a class="headerlink" href="#validacion-sandbox-2026-05-06" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Workflow completo: SI PPD → FFM → PE → Complemento timbrado → cancelado ✅</li>
+<li>accepted: docstatus=2, PE liberado, Response Log ✅</li>
+<li>pending → Revisar Estatus → aceptado: transición correcta, Response Log ✅</li>
+</ul>
+<hr />
+<h2 id="gaps-pendientes">Gaps pendientes<a class="headerlink" href="#gaps-pendientes" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Gap</th>
+<th>Prioridad</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Encabezado muestra "Cancelled" (inglés) cuando docstatus=2 — Frappe ignora <code>states</code> para docstatus=2</td>
+<td>Media</td>
+</tr>
+<tr>
+<td>Motivo 01/sustitución no implementado</td>
+<td>Baja</td>
+</tr>
+<tr>
+<td>PDF/XML download post-timbrado no implementado</td>
+<td>Media</td>
+</tr>
+<tr>
+<td>FFM no migrada a <code>status</code> — evaluará en branch separado</td>
+<td>Baja</td>
+</tr>
+<tr>
+<td>Revisión de patches antes de release</td>
+<td>Alta</td>
+</tr>
+</tbody>
+</table>
 
 
 
