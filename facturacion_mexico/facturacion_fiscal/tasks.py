@@ -383,9 +383,7 @@ def _attempt_sync_recovery(task: dict[str, Any]) -> dict[str, Any]:
 
 		if calculated.get("status") != "Error":
 			# Estado calculado exitosamente
-			current_status = frappe.db.get_value(
-				"Factura Fiscal Mexico", factura_fiscal_name, "fm_fiscal_status"
-			)
+			current_status = frappe.db.get_value("Factura Fiscal Mexico", factura_fiscal_name, "status")
 
 			if should_override_status(current_status, calculated["status"], factura_fiscal_name):
 				# Actualizar estado
@@ -393,7 +391,7 @@ def _attempt_sync_recovery(task: dict[str, Any]) -> dict[str, Any]:
 					"Factura Fiscal Mexico",
 					factura_fiscal_name,
 					{
-						"fm_fiscal_status": calculated["status"],
+						"status": calculated["status"],
 						"fm_sub_status": calculated.get("sub_status"),
 						"fm_last_pac_sync": now(),
 						"fm_sync_status": "synced",

@@ -72,7 +72,6 @@ def _get_or_create_factura_fiscal(doc):
 	factura_fiscal.customer = doc.customer
 	factura_fiscal.total_amount = doc.grand_total
 	factura_fiscal.currency = doc.currency
-	factura_fiscal.fm_fiscal_status = FiscalStates.BORRADOR
 	factura_fiscal.status = FiscalStates.BORRADOR
 
 	# Agregar montos del Sales Invoice para validación posterior

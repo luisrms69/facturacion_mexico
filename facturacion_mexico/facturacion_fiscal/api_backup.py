@@ -243,7 +243,7 @@ class PACResponseWriter:
 
 			# Solo actualizar estado si hay cambio
 			if new_status:
-				update_fields["fm_fiscal_status"] = new_status
+				update_fields["status"] = new_status
 
 			# Actualizar URLs si están en respuesta
 			if "download" in response_data:

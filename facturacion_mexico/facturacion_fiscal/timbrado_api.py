@@ -864,7 +864,6 @@ class TimbradoAPI:
 			fields_to_update = {
 				"fm_uuid": response.get("uuid"),
 				"facturapi_id": response.get("id"),
-				"fm_fiscal_status": FiscalStates.TIMBRADO,
 				"status": FiscalStates.TIMBRADO,
 				"fecha_timbrado": response.get("stamp", {}).get("date") or now_datetime(),
 			}
@@ -1225,7 +1224,6 @@ class TimbradoAPI:
 
 				# Actualizar FFM con estado correcto
 				update_data = {
-					"fm_fiscal_status": fiscal_status,
 					"status": fiscal_status,
 					"cancellation_reason": motivo_completo,
 				}
@@ -2490,13 +2488,13 @@ def _get_last_cancelled_ffm_for_si(si_name: str):
 	ffm_list = frappe.get_all(
 		"Factura Fiscal Mexico",
 		filters={"sales_invoice": si_name, "docstatus": ["in", [1, 2]]},
-		fields=["name", "cancellation_date", "fm_fiscal_status", "cancellation_reason"],
+		fields=["name", "cancellation_date", "status", "cancellation_reason"],
 		order_by="COALESCE(cancellation_date, modified) desc",
 		limit_page_length=5,
 	)
 	# Devuelve la primera que realmente esté CANCELADA fiscalmente
 	for r in ffm_list:
-		if (r.fm_fiscal_status or "").upper() == "CANCELADO":
+		if (r.status or "").upper() == "CANCELADO":
 			return frappe.get_doc("Factura Fiscal Mexico", r.name)
 	return None
 
@@ -2683,7 +2681,7 @@ def create_substitution_si(si_name: str):
 	# 1) Verificar que exista FFM vigente ligada (timbrada)
 	ffm = frappe.db.get_value(
 		"Factura Fiscal Mexico",
-		{"sales_invoice": si.name, "fm_fiscal_status": "TIMBRADO"},
+		{"sales_invoice": si.name, "status": "TIMBRADO"},
 		["name", "fm_uuid"],
 		as_dict=True,
 	)
@@ -2761,7 +2759,7 @@ def _cascade_cancel_previous_after_substitute(new_ffm_name: str):
 		if orig_si.docstatus == 2 and orig_ffm.docstatus == 2:
 			return {"skipped": "already_cancelled"}
 
-		orig_status = frappe.db.get_value("Factura Fiscal Mexico", orig_ffm_name, "fm_fiscal_status")
+		orig_status = frappe.db.get_value("Factura Fiscal Mexico", orig_ffm_name, "status")
 		if (orig_status or "").upper() in {"CANCELADO", "CANCELADA"}:
 			return {"skipped": "already_cancelled"}
 
@@ -2788,7 +2786,7 @@ def _cascade_cancel_previous_after_substitute(new_ffm_name: str):
 			# 2) REORDER: Marcar FFM original con estado fiscal CANCELADO (sin cancelar DocType aún)
 			try:
 				orig_ffm.reload()
-				orig_ffm.set("fm_fiscal_status", "CANCELADO")
+				orig_ffm.set("status", "CANCELADO")
 				orig_ffm.save()
 				frappe.logger().info(f"FFM {orig_ffm_name} marcada como CANCELADO fiscalmente")
 			except Exception as e:
@@ -3004,7 +3002,7 @@ def _guard_motive_01_only_from_substitution(ffm_doc, motive: str, substitution_u
 		return
 
 	has_linked_si = bool(getattr(ffm_doc, "sales_invoice", None))
-	status = (getattr(ffm_doc, "fm_fiscal_status", "") or "").upper()
+	status = (getattr(ffm_doc, "status", "") or "").upper()
 
 	# Regla: si FFM pertenece a un SI y está TIMBRADO, 01 solo desde flujo de sustitución (debe traer substitution_uuid)
 	if has_linked_si and status == "TIMBRADO" and not (substitution_uuid or "").strip():
@@ -3031,7 +3029,7 @@ def revisar_estatus_cancelacion(ffm_name: str) -> dict:
 	"""Consulta FacturAPI para resolver estado PENDIENTE_CANCELACION."""
 	ffm = frappe.get_doc("Factura Fiscal Mexico", ffm_name)
 
-	if ffm.fm_fiscal_status != FiscalStates.PENDIENTE_CANCELACION:
+	if ffm.status != FiscalStates.PENDIENTE_CANCELACION:
 		frappe.throw(_("El documento no está en estado PENDIENTE_CANCELACION"))
 
 	from facturacion_mexico.facturacion_fiscal.api_client import query_pac_status
@@ -3048,7 +3046,6 @@ def revisar_estatus_cancelacion(ffm_name: str) -> dict:
 	if pac_status == "canceled" or cancel_status == "accepted":
 		nuevo_estado = FiscalStates.CANCELADO
 		update_data = {
-			"fm_fiscal_status": nuevo_estado,
 			"status": nuevo_estado,
 			"cancellation_date": now_datetime(),
 		}
@@ -3057,7 +3054,6 @@ def revisar_estatus_cancelacion(ffm_name: str) -> dict:
 	elif cancel_status == "rejected":
 		nuevo_estado = FiscalStates.TIMBRADO
 		update_data = {
-			"fm_fiscal_status": nuevo_estado,
 			"status": nuevo_estado,
 			"fm_motivo_cancelacion": None,
 		}
@@ -3065,7 +3061,7 @@ def revisar_estatus_cancelacion(ffm_name: str) -> dict:
 		indicator = "orange"
 	else:
 		nuevo_estado = FiscalStates.PENDIENTE_CANCELACION
-		update_data = {"fm_fiscal_status": nuevo_estado, "status": nuevo_estado}
+		update_data = {"status": nuevo_estado}
 		msg = _("Cancelación aún pendiente de aceptación por el receptor.")
 		indicator = "blue"
 

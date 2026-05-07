@@ -51,7 +51,7 @@ _SAT_UPDATABLE_FIELDS = [
 	"fm_pdf_url",  # URL PDF si PAC lo provee
 	"fm_xml_url",  # URL XML si PAC lo provee
 	# Estado y sincronización que el backend controla
-	"fm_fiscal_status",  # Estado fiscal (BORRADOR, ERROR, TIMBRADO, CANCELADO, …)
+	"status",  # Estado fiscal SAT (BORRADOR, ERROR, TIMBRADO, CANCELADO, …)
 	"fm_sync_status",  # synced/pending/error (normalizado a minúsculas en before_validate)
 	"fm_sync_error",  # último error textual de sincronización
 ]
@@ -321,7 +321,7 @@ class FacturaFiscalMexico(Document):
 				"sales_invoice": self.sales_invoice,
 				"name": ("!=", self.name),
 				"docstatus": 1,  # Solo enviadas
-				"fm_fiscal_status": ("in", ["TIMBRADO", "PENDIENTE_CANCELACION", "PROCESANDO"]),
+				"status": ("in", ["TIMBRADO", "PENDIENTE_CANCELACION", "PROCESANDO"]),
 			},
 		)
 
@@ -378,8 +378,8 @@ class FacturaFiscalMexico(Document):
 		if not old_doc:
 			return
 
-		old_status = old_doc.fm_fiscal_status if hasattr(old_doc, "fm_fiscal_status") else None
-		new_status = self.fm_fiscal_status
+		old_status = old_doc.status if hasattr(old_doc, "status") else None
+		new_status = self.status
 
 		# Si no hay cambio de estado, no validar
 		if old_status == new_status:
@@ -413,9 +413,7 @@ class FacturaFiscalMexico(Document):
 
 		if existing_fiscal_doc and existing_fiscal_doc != self.name:
 			# Verificar si el documento existente está timbrado
-			existing_status = frappe.db.get_value(
-				"Factura Fiscal Mexico", existing_fiscal_doc, "fm_fiscal_status"
-			)
+			existing_status = frappe.db.get_value("Factura Fiscal Mexico", existing_fiscal_doc, "status")
 
 			if existing_status == "TIMBRADO":
 				frappe.throw(
@@ -429,7 +427,7 @@ class FacturaFiscalMexico(Document):
 			"Factura Fiscal Mexico",
 			filters={
 				"sales_invoice": self.sales_invoice,
-				"fm_fiscal_status": "TIMBRADO",
+				"status": "TIMBRADO",
 				"name": ["!=", self.name or "new-doc"],
 			},
 		)
@@ -470,20 +468,20 @@ class FacturaFiscalMexico(Document):
 		# Crear evento fiscal
 		self.create_fiscal_event(
 			"create",
-			{"sales_invoice": self.sales_invoice, "company": self.company, "status": self.fm_fiscal_status},
+			{"sales_invoice": self.sales_invoice, "company": self.company, "status": self.status},
 		)
 
 	def on_update(self):
 		"""Ejecutar después de actualizar."""
 		# Si el estado cambió, crear evento fiscal
-		if self.has_value_changed("fm_fiscal_status"):
+		if self.has_value_changed("status"):
 			self.create_fiscal_event(
 				"status_change",
 				{
-					"old_status": self.get_doc_before_save().fm_fiscal_status
+					"old_status": self.get_doc_before_save().status
 					if self.get_doc_before_save()
 					else "BORRADOR",
-					"new_status": self.fm_fiscal_status,
+					"new_status": self.status,
 					"uuid": self.fm_uuid,
 					"facturapi_id": getattr(self, "facturapi_id", None),
 				},
@@ -572,7 +570,7 @@ class FacturaFiscalMexico(Document):
 				"Sales Invoice",
 				self.sales_invoice,
 				{
-					"fm_fiscal_status": status_map.get(self.fm_fiscal_status, "BORRADOR"),
+					"fm_fiscal_status": status_map.get(self.status, "BORRADOR"),  # SI snapshot
 					"fm_factura_fiscal_mx": self.name,
 				},
 			)
@@ -582,7 +580,6 @@ class FacturaFiscalMexico(Document):
 
 	def mark_as_stamped(self, facturapi_data):
 		"""Marcar como timbrada con datos de FacturAPI."""
-		self.fm_fiscal_status = "TIMBRADO"
 		self.status = "TIMBRADO"
 		self.facturapi_id = facturapi_data.get("id")
 		self.fm_uuid = facturapi_data.get("uuid")
@@ -602,7 +599,6 @@ class FacturaFiscalMexico(Document):
 
 	def mark_as_cancelled(self, cancellation_reason=None):
 		"""Marcar como cancelada."""
-		self.fm_fiscal_status = "CANCELADO"
 		self.status = "CANCELADO"
 		if cancellation_reason:
 			self.cancellation_reason = cancellation_reason
@@ -633,7 +629,7 @@ class FacturaFiscalMexico(Document):
 	@frappe.whitelist()
 	def request_stamping(self):
 		"""Solicitar timbrado fiscal."""
-		if self.fm_fiscal_status != "BORRADOR":
+		if self.status != "BORRADOR":
 			frappe.throw(_("Solo se pueden timbrar facturas en estado BORRADOR"))
 
 		# Aquí se integraría con FacturAPI.io
@@ -644,10 +640,9 @@ class FacturaFiscalMexico(Document):
 	@frappe.whitelist()
 	def request_cancellation(self):
 		"""Solicitar cancelación fiscal."""
-		if self.fm_fiscal_status != "TIMBRADO":
+		if self.status != "TIMBRADO":
 			frappe.throw(_("Solo se pueden cancelar facturas timbradas"))
 
-		self.fm_fiscal_status = "CANCELADO"
 		self.status = "CANCELADO"
 		self.save()
 		frappe.msgprint(_("Solicitud de cancelación enviada"))
@@ -704,7 +699,7 @@ class FacturaFiscalMexico(Document):
 	def validate_cfdi_use(self):
 		"""Validar uso de CFDI - MIGRADO desde Sales Invoice."""
 		# Solo validar si no es un documento nuevo en estado pendiente
-		if self.fm_fiscal_status == "BORRADOR" and self.is_new():
+		if self.status == "BORRADOR" and self.is_new():
 			# Permitir guardar documentos nuevos sin CFDI para configuración posterior
 			return
 
@@ -951,9 +946,9 @@ class FacturaFiscalMexico(Document):
 				new_status = "ERROR"
 
 			# Actualizar estado solo si cambió usando db_set (reconocido por semgrep)
-			if self.fm_fiscal_status != new_status:
-				old_status = self.fm_fiscal_status
-				self.db_set("fm_fiscal_status", new_status)
+			if self.status != new_status:
+				old_status = self.status
+				self.db_set("status", new_status)
 
 				frappe.logger().info(
 					f"Estado fiscal auto-calculado: {self.name} {old_status} → {new_status} "
@@ -1170,7 +1165,7 @@ class FacturaFiscalMexico(Document):
 			# No aplicar validaciones PAC; cancelación local permitida
 			return
 
-		if self.sales_invoice and self.fm_fiscal_status != "CANCELADO":
+		if self.sales_invoice and self.status != "CANCELADO":
 			frappe.throw(
 				_(
 					"No puede cancelarse la FFM: primero cancela fiscalmente en el PAC.<br><br>"
