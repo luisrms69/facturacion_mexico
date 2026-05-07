@@ -399,6 +399,7 @@ class PACResponseWriter:
 			if new_status is not None:
 				normalized_status = _norm_status(new_status)
 				update_fields["fm_fiscal_status"] = normalized_status
+				update_fields["status"] = normalized_status
 
 			# Actualizar UUID solo si es exitoso
 			if uuid:

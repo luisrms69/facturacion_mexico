@@ -684,6 +684,7 @@ def sync_single_invoice_status(sales_invoice_name: str, recalculate: bool = True
 					factura_fiscal_name,
 					{
 						"fm_fiscal_status": calculated_status.get("status"),
+						"status": calculated_status.get("status"),
 						"fm_sub_status": calculated_status.get("sub_status"),
 						"fm_sync_status": "pending",  # Marcar para sincronizar
 					},
