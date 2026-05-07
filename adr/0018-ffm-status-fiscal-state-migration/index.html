@@ -877,9 +877,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#etapa-2-pr-siguiente" class="md-nav__link">
+  <a href="#etapa-2-completada" class="md-nav__link">
     <span class="md-ellipsis">
-      Etapa 2 — PR siguiente
+      Etapa 2 — COMPLETADA
     </span>
   </a>
   
@@ -919,7 +919,7 @@
 
 
 <h1 id="adr-0018-migracion-de-estado-fiscal-ffm-a-status">ADR 0018 — Migración de estado fiscal FFM a status<a class="headerlink" href="#adr-0018-migracion-de-estado-fiscal-ffm-a-status" title="Permanent link">&para;</a></h1>
-<p><strong>Fecha:</strong> 2026-05-07 | <strong>Estado:</strong> APROBADO — Etapa 1 implementada</p>
+<p><strong>Fecha:</strong> 2026-05-07 | <strong>Última revisión:</strong> 2026-05-07 | <strong>Estado:</strong> APROBADO — Etapas 1 y 2 completadas</p>
 <hr />
 <h2 id="contexto">Contexto<a class="headerlink" href="#contexto" title="Permanent link">&para;</a></h2>
 <p>Factura Fiscal Mexico tenía dos campos relacionados con estado:</p>
@@ -966,14 +966,16 @@ No se toca <code>status</code>/<code>docstatus</code> nativo de Sales Invoice.</
 <li>Método muerto <code>calculate_status_from_fiscal_status()</code> eliminado</li>
 </ul>
 <hr />
-<h2 id="etapa-2-pr-siguiente">Etapa 2 — PR siguiente<a class="headerlink" href="#etapa-2-pr-siguiente" title="Permanent link">&para;</a></h2>
-<p>Eliminar modo dual:</p>
+<h2 id="etapa-2-completada">Etapa 2 — COMPLETADA<a class="headerlink" href="#etapa-2-completada" title="Permanent link">&para;</a></h2>
 <ul>
-<li>FFM usa solo <code>status</code> como fuente interna de estado fiscal</li>
-<li>Eliminar <code>FFM.fm_fiscal_status</code> del DocType y del código</li>
-<li>Mantener <code>SI.fm_fiscal_status</code> si sigue siendo necesario como snapshot operativo</li>
-<li>Cambiar lecturas/escrituras internas de FFM a <code>status</code></li>
-<li>Validar timbrado, cancelación, widget SI, bloqueo SI y PPD</li>
+<li><code>FFM.fm_fiscal_status</code> eliminado del DocType JSON</li>
+<li>Todas las lecturas/escrituras internas de FFM migradas a <code>status</code></li>
+<li><code>SI.fm_fiscal_status</code> conservado como snapshot operativo — sin cambios</li>
+<li><code>sales_invoice_cancel_guard.py</code> actualizado: lee <code>status</code> en lugar de <code>fm_fiscal_status</code></li>
+<li>Columna física <code>fm_fiscal_status</code> sigue en BD — limpieza futura pendiente</li>
+<li>Código muerto (<code>diagnose_migration.py</code>, <code>migrate_single_record.py</code>) — limpieza futura pendiente</li>
+<li>Tests y GUI validados: BORRADOR → TIMBRADO → CANCELADO correcto</li>
+<li>0 divergencias <code>FFM.status != SI.fm_fiscal_status</code></li>
 </ul>
 <hr />
 <h2 id="consecuencias">Consecuencias<a class="headerlink" href="#consecuencias" title="Permanent link">&para;</a></h2>
