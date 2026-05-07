@@ -25,8 +25,7 @@ function _setup_complemento_cancel_warning(frm) {
 			if (st && st !== "Cancelado") {
 				frm.dashboard.set_headline_alert(
 					__(
-						"Este Payment Entry tiene un Complemento de Pago fiscal activo ({0}) en estado '{1}'. " +
-							"Cancele primero el complemento antes de cancelar el pago.",
+						"Este Payment Entry tiene un Complemento de Pago fiscal activo ({0}) en estado '{1}'. Cancele primero el complemento antes de cancelar el pago.",
 						[frm.doc.fm_complemento_pago, st]
 					),
 					"orange"
