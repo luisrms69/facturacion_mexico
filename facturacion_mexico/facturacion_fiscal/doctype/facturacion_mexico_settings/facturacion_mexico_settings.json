@@ -1,381 +1,414 @@
 {
-  "actions": [],
-  "allow_rename": 1,
-  "autoname": "field:name",
-  "creation": "2025-07-17 19:40:00.000000",
-  "doctype": "DocType",
-  "editable_grid": 1,
-  "engine": "InnoDB",
-  "field_order": [
-    "name",
-    "configuracion_api_section",
-    "api_key",
-    "test_api_key",
-    "sandbox_mode",
-    "timeout",
-    "column_break_api",
-    "rfc_emisor",
-    "lugar_expedicion",
-    "regimen_fiscal_default",
-    "configuracion_automatica_section",
-    "ereceipt_mode_default",
-    "ereceipt_expiry_type_default",
-    "ereceipt_expiry_days_default",
-    "column_break_ereceipt",
-    "ereceipt_notification_email",
-    "ereceipt_self_invoice_message",
-    "send_email_default",
-    "download_files_default",
-    "facturas_globales_section",
-    "enable_global_invoices",
-    "global_invoice_serie",
-    "global_invoice_periodicidad",
-    "column_break_global",
-    "auto_generate_global",
-    "global_generation_day",
-    "global_generation_time",
-    "include_zero_receipts",
-    "notify_global_generation",
-    "global_notification_emails",
-    "dashboard_fiscal_section",
-    "enable_fiscal_dashboard",
-    "dashboard_default_company",
-    "dashboard_data_retention_days",
-    "column_break_dashboard",
-    "enable_dashboard_notifications",
-    "dashboard_admin_roles",
-    "ereceipt_monthly_limit",
-    "global_invoice_monthly_limit",
-    "customer_email_fallback",
-    "section_break_tipo_comprobante",
-    "metodo_pago_default",
-    "habilitar_traslado",
-    "permitir_editar_relacion_en_egreso"
-  ],
-  "fields": [
-    {
-      "default": "Facturacion Mexico Settings",
-      "fieldname": "name",
-      "fieldtype": "Data",
-      "hidden": 1,
-      "label": "Nombre",
-      "reqd": 1
-    },
-    {
-      "fieldname": "configuracion_api_section",
-      "fieldtype": "Section Break",
-      "label": "Configuración API"
-    },
-    {
-      "description": "API Key para ambiente de producción",
-      "fieldname": "api_key",
-      "fieldtype": "Password",
-      "label": "API Key Producción"
-    },
-    {
-      "description": "API Key para ambiente de pruebas",
-      "fieldname": "test_api_key",
-      "fieldtype": "Password",
-      "label": "API Key Pruebas"
-    },
-    {
-      "default": 1,
-      "description": "Activar modo sandbox para pruebas",
-      "fieldname": "sandbox_mode",
-      "fieldtype": "Check",
-      "label": "Modo Sandbox"
-    },
-    {
-      "default": 30,
-      "description": "Timeout en segundos para llamadas a la API",
-      "fieldname": "timeout",
-      "fieldtype": "Int",
-      "label": "Timeout (segundos)"
-    },
-    {
-      "fieldname": "column_break_api",
-      "fieldtype": "Column Break"
-    },
-    {
-      "description": "RFC del emisor (su empresa)",
-      "fieldname": "rfc_emisor",
-      "fieldtype": "Data",
-      "in_list_view": 1,
-      "label": "RFC Emisor",
-      "reqd": 1
-    },
-    {
-      "description": "Código postal donde se expiden las facturas",
-      "fieldname": "lugar_expedicion",
-      "fieldtype": "Data",
-      "in_list_view": 1,
-      "label": "Lugar de Expedición",
-      "reqd": 1
-    },
-    {
-      "fieldname": "regimen_fiscal_default",
-      "fieldtype": "Link",
-      "label": "Régimen Fiscal por Defecto",
-      "options": "Regimen Fiscal SAT"
-    },
-    {
-      "fieldname": "configuracion_automatica_section",
-      "fieldtype": "Section Break",
-      "label": "Configuración Automática"
-    },
-    {
-      "default": "Normal",
-      "description": "Modo de facturación por defecto para nuevas Sales Invoices (Normal = timbrado directo, E-Receipt = recibo para autofacturación)",
-      "fieldname": "ereceipt_mode_default",
-      "fieldtype": "Select",
-      "label": "Modo Facturación por Defecto",
-      "options": "Normal\nE-Receipt"
-    },
-    {
-      "default": "End of Month",
-      "description": "Tipo de vencimiento por defecto para E-Receipts",
-      "fieldname": "ereceipt_expiry_type_default",
-      "fieldtype": "Select",
-      "label": "Tipo Vencimiento por Defecto",
-      "options": "Fixed Days\nEnd of Month\nCustom Date"
-    },
-    {
-      "default": 3,
-      "description": "Días de vencimiento por defecto para E-Receipts",
-      "fieldname": "ereceipt_expiry_days_default",
-      "fieldtype": "Int",
-      "label": "Días Vencimiento por Defecto"
-    },
-    {
-      "fieldname": "column_break_ereceipt",
-      "fieldtype": "Column Break"
-    },
-    {
-      "description": "Email para notificaciones de E-Receipts no facturados",
-      "fieldname": "ereceipt_notification_email",
-      "fieldtype": "Data",
-      "label": "Email Notificaciones E-Receipt"
-    },
-    {
-      "default": "Su compra está pendiente de facturación. Use el enlace para generar su factura fiscal.",
-      "description": "Mensaje para clientes en E-Receipts",
-      "fieldname": "ereceipt_self_invoice_message",
-      "fieldtype": "Text",
-      "label": "Mensaje E-Receipt"
-    },
-    {
-      "default": 0,
-      "description": "Enviar email por defecto al timbrar",
-      "fieldname": "send_email_default",
-      "fieldtype": "Check",
-      "label": "Enviar Email por Defecto"
-    },
-    {
-      "default": 1,
-      "description": "Descargar archivos PDF/XML automáticamente",
-      "fieldname": "download_files_default",
-      "fieldtype": "Check",
-      "label": "Descargar Archivos por Defecto"
-    },
-    {
-      "fieldname": "facturas_globales_section",
-      "fieldtype": "Section Break",
-      "label": "Configuración Facturas Globales"
-    },
-    {
-      "default": 0,
-      "description": "Habilitar funcionamiento de facturas globales",
-      "fieldname": "enable_global_invoices",
-      "fieldtype": "Check",
-      "label": "Habilitar Facturas Globales"
-    },
-    {
-      "description": "Serie fiscal para facturas globales (ej: FG)",
-      "fieldname": "global_invoice_serie",
-      "fieldtype": "Data",
-      "label": "Serie Facturas Globales",
-      "depends_on": "enable_global_invoices"
-    },
-    {
-      "description": "Periodicidad por defecto para facturas globales",
-      "fieldname": "global_invoice_periodicidad",
-      "fieldtype": "Select",
-      "label": "Periodicidad por Defecto",
-      "options": "Diaria\nSemanal\nQuincenal\nMensual",
-      "default": "Semanal",
-      "depends_on": "enable_global_invoices"
-    },
-    {
-      "fieldname": "column_break_global",
-      "fieldtype": "Column Break"
-    },
-    {
-      "default": 0,
-      "description": "Generar facturas globales automáticamente según configuración",
-      "fieldname": "auto_generate_global",
-      "fieldtype": "Check",
-      "label": "Generación Automática",
-      "depends_on": "enable_global_invoices"
-    },
-    {
-      "description": "Día del mes para generación automática (1-28)",
-      "fieldname": "global_generation_day",
-      "fieldtype": "Int",
-      "label": "Día de Generación",
-      "depends_on": "auto_generate_global"
-    },
-    {
-      "description": "Hora del día para generación automática",
-      "fieldname": "global_generation_time",
-      "fieldtype": "Time",
-      "label": "Hora de Generación",
-      "default": "01:00:00",
-      "depends_on": "auto_generate_global"
-    },
-    {
-      "default": 0,
-      "description": "Incluir períodos sin E-Receipts en facturas globales",
-      "fieldname": "include_zero_receipts",
-      "fieldtype": "Check",
-      "label": "Incluir Períodos Vacíos",
-      "depends_on": "enable_global_invoices"
-    },
-    {
-      "default": 0,
-      "description": "Enviar notificación por email al generar facturas globales",
-      "fieldname": "notify_global_generation",
-      "fieldtype": "Check",
-      "label": "Notificar por Email",
-      "depends_on": "enable_global_invoices"
-    },
-    {
-      "description": "Emails para notificación de facturas globales (separados por comas)",
-      "fieldname": "global_notification_emails",
-      "fieldtype": "Small Text",
-      "label": "Emails de Notificación",
-      "depends_on": "notify_global_generation"
-    },
-    {
-      "fieldname": "dashboard_fiscal_section",
-      "fieldtype": "Section Break",
-      "label": "Configuración Dashboard Fiscal"
-    },
-    {
-      "default": 1,
-      "description": "Habilitar el dashboard fiscal del sistema",
-      "fieldname": "enable_fiscal_dashboard",
-      "fieldtype": "Check",
-      "label": "Habilitar Dashboard Fiscal"
-    },
-    {
-      "description": "Company por defecto para el dashboard",
-      "fieldname": "dashboard_default_company",
-      "fieldtype": "Link",
-      "label": "Company por Defecto",
-      "options": "Company",
-      "depends_on": "enable_fiscal_dashboard"
-    },
-    {
-      "default": 365,
-      "description": "Días de retención de datos del dashboard",
-      "fieldname": "dashboard_data_retention_days",
-      "fieldtype": "Int",
-      "label": "Días Retención Datos",
-      "depends_on": "enable_fiscal_dashboard"
-    },
-    {
-      "fieldname": "column_break_dashboard",
-      "fieldtype": "Column Break"
-    },
-    {
-      "default": 1,
-      "description": "Habilitar notificaciones del dashboard",
-      "fieldname": "enable_dashboard_notifications",
-      "fieldtype": "Check",
-      "label": "Notificaciones Activas",
-      "depends_on": "enable_fiscal_dashboard"
-    },
-    {
-      "description": "Roles con acceso administrativo al dashboard (separados por comas)",
-      "fieldname": "dashboard_admin_roles",
-      "fieldtype": "Small Text",
-      "label": "Roles Administrativos",
-      "default": "System Manager,Accounts Manager",
-      "depends_on": "enable_fiscal_dashboard"
-    },
-    {
-      "default": 1000,
-      "description": "Límite mensual de e-receipts para alertas",
-      "fieldname": "ereceipt_monthly_limit",
-      "fieldtype": "Int",
-      "label": "Límite Mensual E-Receipts"
-    },
-    {
-      "default": 500,
-      "description": "Límite mensual de facturas globales para alertas",
-      "fieldname": "global_invoice_monthly_limit",
-      "fieldtype": "Int", 
-      "label": "Límite Mensual Facturas Globales"
-    },
-    {
-      "default": "cliente@miempresa.com",
-      "description": "Email por defecto cuando el cliente no tiene email configurado en timbrado CFDI",
-      "fieldname": "customer_email_fallback",
-      "fieldtype": "Data",
-      "label": "Email Fallback Cliente"
-    },
-    {
-      "fieldname": "section_break_tipo_comprobante",
-      "fieldtype": "Section Break",
-      "label": "Configuración Tipo de Comprobante"
-    },
-    {
-      "fieldname": "metodo_pago_default",
-      "fieldtype": "Select",
-      "label": "Método de Pago por Defecto",
-      "options": "PUE\nPPD",
-      "description": "Método de pago SAT que se asignará automáticamente a nuevas FFM cuando no esté especificado"
-    },
-    {
-      "fieldname": "habilitar_traslado",
-      "label": "Habilitar Traslado (T)",
-      "fieldtype": "Check",
-      "default": 0,
-      "description": "No implementado: debe permanecer desactivado."
-    },
-    {
-      "fieldname": "permitir_editar_relacion_en_egreso",
-      "label": "Permitir editar relación en Egreso (avanzado)",
-      "fieldtype": "Check",
-      "default": 0
-    }
-  ],
-  "issingle": 1,
-  "links": [],
-  "modified": "2025-07-21 02:30:00.000000",
-  "modified_by": "Administrator",
-  "module": "Facturacion Fiscal",
-  "name": "Facturacion Mexico Settings",
-  "owner": "Administrator",
-  "permissions": [
-    {
-      "create": 1,
-      "delete": 1,
-      "email": 1,
-      "print": 1,
-      "read": 1,
-      "role": "System Manager",
-      "share": 1,
-      "write": 1
-    },
-    {
-      "read": 1,
-      "role": "Accounts Manager",
-      "write": 1
-    }
-  ],
-  "sort_field": "modified",
-  "sort_order": "DESC",
-  "states": [],
-  "track_changes": 1
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:name",
+ "creation": "2025-07-17 19:40:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "name",
+  "configuracion_api_section",
+  "api_key",
+  "test_api_key",
+  "sandbox_mode",
+  "timeout",
+  "column_break_api",
+  "rfc_emisor",
+  "lugar_expedicion",
+  "regimen_fiscal_default",
+  "configuracion_automatica_section",
+  "ereceipt_mode_default",
+  "ereceipt_expiry_type_default",
+  "ereceipt_expiry_days_default",
+  "column_break_ereceipt",
+  "ereceipt_notification_email",
+  "ereceipt_self_invoice_message",
+  "send_email_default",
+  "download_files_default",
+  "enable_ereceipts",
+  "log_retention_days",
+  "facturas_globales_section",
+  "enable_global_invoices",
+  "global_invoice_serie",
+  "global_invoice_periodicidad",
+  "column_break_global",
+  "auto_generate_global",
+  "global_generation_day",
+  "global_generation_time",
+  "include_zero_receipts",
+  "notify_global_generation",
+  "global_notification_emails",
+  "dashboard_fiscal_section",
+  "enable_fiscal_dashboard",
+  "dashboard_default_company",
+  "dashboard_data_retention_days",
+  "column_break_dashboard",
+  "enable_dashboard_notifications",
+  "dashboard_admin_roles",
+  "ereceipt_monthly_limit",
+  "global_invoice_monthly_limit",
+  "customer_email_fallback",
+  "section_break_tipo_comprobante",
+  "metodo_pago_default",
+  "habilitar_traslado",
+  "permitir_editar_relacion_en_egreso"
+ ],
+ "fields": [
+  {
+   "default": "Facturacion Mexico Settings",
+   "fieldname": "name",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Nombre",
+   "reqd": 1
+  },
+  {
+   "fieldname": "configuracion_api_section",
+   "fieldtype": "Section Break",
+   "label": "Configuración API"
+  },
+  {
+   "description": "API Key para ambiente de producción",
+   "fieldname": "api_key",
+   "fieldtype": "Password",
+   "label": "API Key Producción"
+  },
+  {
+   "description": "API Key para ambiente de pruebas",
+   "fieldname": "test_api_key",
+   "fieldtype": "Password",
+   "label": "API Key Pruebas"
+  },
+  {
+   "default": 1,
+   "description": "Activar modo sandbox para pruebas",
+   "fieldname": "sandbox_mode",
+   "fieldtype": "Check",
+   "label": "Modo Sandbox"
+  },
+  {
+   "default": 30,
+   "description": "Timeout en segundos para llamadas a la API",
+   "fieldname": "timeout",
+   "fieldtype": "Int",
+   "label": "Timeout (segundos)"
+  },
+  {
+   "fieldname": "column_break_api",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "RFC del emisor (su empresa)",
+   "fieldname": "rfc_emisor",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "RFC Emisor",
+   "reqd": 1
+  },
+  {
+   "description": "Código postal donde se expiden las facturas",
+   "fieldname": "lugar_expedicion",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Lugar de Expedición",
+   "reqd": 1
+  },
+  {
+   "fieldname": "regimen_fiscal_default",
+   "fieldtype": "Link",
+   "label": "Régimen Fiscal por Defecto",
+   "options": "Regimen Fiscal SAT"
+  },
+  {
+   "fieldname": "configuracion_automatica_section",
+   "fieldtype": "Section Break",
+   "label": "Configuración Automática"
+  },
+  {
+   "default": "Normal",
+   "description": "Modo de facturación por defecto para nuevas Sales Invoices (Normal = timbrado directo, E-Receipt = recibo para autofacturación)",
+   "fieldname": "ereceipt_mode_default",
+   "fieldtype": "Select",
+   "label": "Modo Facturación por Defecto",
+   "options": "Normal\nE-Receipt"
+  },
+  {
+   "default": "End of Month",
+   "description": "Tipo de vencimiento por defecto para E-Receipts",
+   "fieldname": "ereceipt_expiry_type_default",
+   "fieldtype": "Select",
+   "label": "Tipo Vencimiento por Defecto",
+   "options": "Fixed Days\nEnd of Month\nCustom Date"
+  },
+  {
+   "default": 3,
+   "description": "Días de vencimiento por defecto para E-Receipts",
+   "fieldname": "ereceipt_expiry_days_default",
+   "fieldtype": "Int",
+   "label": "Días Vencimiento por Defecto"
+  },
+  {
+   "fieldname": "column_break_ereceipt",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Email para notificaciones de E-Receipts no facturados",
+   "fieldname": "ereceipt_notification_email",
+   "fieldtype": "Data",
+   "label": "Email Notificaciones E-Receipt"
+  },
+  {
+   "default": "Su compra está pendiente de facturación. Use el enlace para generar su factura fiscal.",
+   "description": "Mensaje para clientes en E-Receipts",
+   "fieldname": "ereceipt_self_invoice_message",
+   "fieldtype": "Text",
+   "label": "Mensaje E-Receipt"
+  },
+  {
+   "default": 0,
+   "description": "Enviar email por defecto al timbrar",
+   "fieldname": "send_email_default",
+   "fieldtype": "Check",
+   "label": "Enviar Email por Defecto"
+  },
+  {
+   "default": 1,
+   "description": "Descargar y adjuntar PDF/XML al timbrar Factura Fiscal Mexico y Complemento Pago MX",
+   "fieldname": "download_files_default",
+   "fieldtype": "Check",
+   "label": "Descargar PDF/XML automáticamente"
+  },
+  {
+   "fieldname": "facturas_globales_section",
+   "fieldtype": "Section Break",
+   "label": "Configuración Facturas Globales"
+  },
+  {
+   "default": 0,
+   "description": "Habilitar funcionamiento de facturas globales",
+   "fieldname": "enable_global_invoices",
+   "fieldtype": "Check",
+   "label": "Habilitar Facturas Globales"
+  },
+  {
+   "description": "Serie fiscal para facturas globales (ej: FG)",
+   "fieldname": "global_invoice_serie",
+   "fieldtype": "Data",
+   "label": "Serie Facturas Globales",
+   "depends_on": "enable_global_invoices"
+  },
+  {
+   "description": "Periodicidad por defecto para facturas globales",
+   "fieldname": "global_invoice_periodicidad",
+   "fieldtype": "Select",
+   "label": "Periodicidad por Defecto",
+   "options": "Diaria\nSemanal\nQuincenal\nMensual",
+   "default": "Semanal",
+   "depends_on": "enable_global_invoices"
+  },
+  {
+   "fieldname": "column_break_global",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": 0,
+   "description": "Generar facturas globales automáticamente según configuración",
+   "fieldname": "auto_generate_global",
+   "fieldtype": "Check",
+   "label": "Generación Automática",
+   "depends_on": "enable_global_invoices"
+  },
+  {
+   "description": "Día del mes para generación automática (1-28)",
+   "fieldname": "global_generation_day",
+   "fieldtype": "Int",
+   "label": "Día de Generación",
+   "depends_on": "auto_generate_global"
+  },
+  {
+   "description": "Hora del día para generación automática",
+   "fieldname": "global_generation_time",
+   "fieldtype": "Time",
+   "label": "Hora de Generación",
+   "default": "01:00:00",
+   "depends_on": "auto_generate_global"
+  },
+  {
+   "default": 0,
+   "description": "Incluir períodos sin E-Receipts en facturas globales",
+   "fieldname": "include_zero_receipts",
+   "fieldtype": "Check",
+   "label": "Incluir Períodos Vacíos",
+   "depends_on": "enable_global_invoices"
+  },
+  {
+   "default": 0,
+   "description": "Enviar notificación por email al generar facturas globales",
+   "fieldname": "notify_global_generation",
+   "fieldtype": "Check",
+   "label": "Notificar por Email",
+   "depends_on": "enable_global_invoices"
+  },
+  {
+   "description": "Emails para notificación de facturas globales (separados por comas)",
+   "fieldname": "global_notification_emails",
+   "fieldtype": "Small Text",
+   "label": "Emails de Notificación",
+   "depends_on": "notify_global_generation"
+  },
+  {
+   "fieldname": "dashboard_fiscal_section",
+   "fieldtype": "Section Break",
+   "label": "Configuración Dashboard Fiscal"
+  },
+  {
+   "default": 1,
+   "description": "Habilitar el dashboard fiscal del sistema",
+   "fieldname": "enable_fiscal_dashboard",
+   "fieldtype": "Check",
+   "label": "Habilitar Dashboard Fiscal"
+  },
+  {
+   "description": "Company por defecto para el dashboard",
+   "fieldname": "dashboard_default_company",
+   "fieldtype": "Link",
+   "label": "Company por Defecto",
+   "options": "Company",
+   "depends_on": "enable_fiscal_dashboard"
+  },
+  {
+   "default": 365,
+   "description": "Días de retención de datos del dashboard",
+   "fieldname": "dashboard_data_retention_days",
+   "fieldtype": "Int",
+   "label": "Días Retención Datos",
+   "depends_on": "enable_fiscal_dashboard"
+  },
+  {
+   "fieldname": "column_break_dashboard",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": 1,
+   "description": "Habilitar notificaciones del dashboard",
+   "fieldname": "enable_dashboard_notifications",
+   "fieldtype": "Check",
+   "label": "Notificaciones Activas",
+   "depends_on": "enable_fiscal_dashboard"
+  },
+  {
+   "description": "Roles con acceso administrativo al dashboard (separados por comas)",
+   "fieldname": "dashboard_admin_roles",
+   "fieldtype": "Small Text",
+   "label": "Roles Administrativos",
+   "default": "System Manager,Accounts Manager",
+   "depends_on": "enable_fiscal_dashboard"
+  },
+  {
+   "default": 1000,
+   "description": "Límite mensual de e-receipts para alertas",
+   "fieldname": "ereceipt_monthly_limit",
+   "fieldtype": "Int",
+   "label": "Límite Mensual E-Receipts"
+  },
+  {
+   "default": 500,
+   "description": "Límite mensual de facturas globales para alertas",
+   "fieldname": "global_invoice_monthly_limit",
+   "fieldtype": "Int",
+   "label": "Límite Mensual Facturas Globales"
+  },
+  {
+   "default": "cliente@miempresa.com",
+   "description": "Email por defecto cuando el cliente no tiene email configurado en timbrado CFDI",
+   "fieldname": "customer_email_fallback",
+   "fieldtype": "Data",
+   "label": "Email Fallback Cliente"
+  },
+  {
+   "fieldname": "section_break_tipo_comprobante",
+   "fieldtype": "Section Break",
+   "label": "Configuración Tipo de Comprobante"
+  },
+  {
+   "fieldname": "metodo_pago_default",
+   "fieldtype": "Select",
+   "label": "Método de Pago por Defecto",
+   "options": "PUE\nPPD",
+   "description": "Método de pago SAT que se asignará automáticamente a nuevas FFM cuando no esté especificado"
+  },
+  {
+   "fieldname": "habilitar_traslado",
+   "label": "Habilitar Traslado (T)",
+   "fieldtype": "Check",
+   "default": 0,
+   "description": "No implementado: debe permanecer desactivado."
+  },
+  {
+   "fieldname": "permitir_editar_relacion_en_egreso",
+   "label": "Permitir editar relación en Egreso (avanzado)",
+   "fieldtype": "Check",
+   "default": 0
+  },
+  {
+   "default": 0,
+   "description": "Habilita generación e integración de E-Receipts si el módulo está configurado",
+   "fieldname": "enable_ereceipts",
+   "fieldtype": "Check",
+   "label": "Habilitar E-Receipts"
+  },
+  {
+   "default": 90,
+   "description": "Días de retención para limpieza de logs FacturAPI y tareas programadas",
+   "fieldname": "log_retention_days",
+   "fieldtype": "Int",
+   "label": "Días de retención de logs"
+  }
+ ],
+ "issingle": 1,
+ "links": [],
+ "modified": "2025-07-21 02:30:00.000000",
+ "modified_by": "Administrator",
+ "module": "Facturacion Fiscal",
+ "name": "Facturacion Mexico Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "Facturacion Mexico System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Accounts Manager"
+  },
+  {
+   "read": 1,
+   "role": "Facturacion Mexico Manager"
+  },
+  {
+   "read": 1,
+   "role": "Facturacion Mexico User"
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
 }
