@@ -8,6 +8,7 @@
 
 frappe.ui.form.on("Payment Entry", {
 	refresh(frm) {
+		_hide_technical_checkboxes(frm);
 		_setup_complemento_btn(frm);
 		_setup_complemento_cancel_warning(frm);
 		_inject_complemento_summary(frm);
@@ -16,6 +17,11 @@ frappe.ui.form.on("Payment Entry", {
 		_inject_complemento_summary(frm);
 	},
 });
+
+function _hide_technical_checkboxes(frm) {
+	frm.set_df_property("fm_require_complement", "hidden", 1);
+	frm.set_df_property("fm_complement_generated", "hidden", 1);
+}
 
 function _setup_complemento_cancel_warning(frm) {
 	if (frm.doc.docstatus !== 1) return;
@@ -37,9 +43,44 @@ function _inject_complemento_summary(frm) {
 	if (!wrapper) return;
 
 	if (!comp) {
-		wrapper.html(
-			`<div class="text-muted" style="padding: 8px; font-style: italic;">Sin Complemento de Pago vinculado.</div>`
-		);
+		if (frm.doc.docstatus !== 1) return;
+		const si_names = (frm.doc.references || [])
+			.filter(
+				(ref) => ref.reference_doctype === "Sales Invoice" && flt(ref.allocated_amount) > 0
+			)
+			.map((ref) => ref.reference_name);
+
+		if (!si_names.length) {
+			wrapper.html(
+				`<div class="text-muted" style="padding:8px; font-style:italic;">Sin facturas vinculadas.</div>`
+			);
+			return;
+		}
+
+		frappe.db
+			.get_list("Sales Invoice", {
+				filters: [
+					["name", "in", si_names],
+					["fm_es_ppd", "=", 1],
+				],
+				fields: ["name"],
+				limit: 1,
+			})
+			.then((rows) => {
+				if (!rows.length) {
+					wrapper.html(
+						`<div style="padding:8px; color:#6c757d;">` +
+							`<span class="indicator grey" style="margin-right:6px;"></span>` +
+							`<strong>Pago PUE</strong> — No requiere Complemento de Pago.</div>`
+					);
+				} else {
+					wrapper.html(
+						`<div style="padding:8px; color:#e67e22;">` +
+							`<span class="indicator orange" style="margin-right:6px;"></span>` +
+							`<strong>Complemento de Pago pendiente</strong> — Use el botón "Crear Complemento de Pago".</div>`
+					);
+				}
+			});
 		return;
 	}
 
@@ -143,34 +184,50 @@ function _setup_complemento_btn(frm) {
 		return;
 	}
 
-	// Verificar si hay al menos una SI PPD timbrada referenciada
-	const tiene_ppd = (frm.doc.references || []).some(
-		(ref) => ref.reference_doctype === "Sales Invoice" && flt(ref.allocated_amount) > 0
-	);
+	// Verificar si hay al menos una SI con fm_es_ppd=1 referenciada
+	const si_names = (frm.doc.references || [])
+		.filter(
+			(ref) => ref.reference_doctype === "Sales Invoice" && flt(ref.allocated_amount) > 0
+		)
+		.map((ref) => ref.reference_name);
 
-	if (!tiene_ppd) return;
+	if (!si_names.length) return;
 
-	// Mostrar botón
-	frm.add_custom_button(__("Crear Complemento de Pago"), function () {
-		frappe.confirm(__("¿Crear Complemento de Pago para este Payment Entry?"), function () {
-			frappe.call({
-				method: "facturacion_mexico.complementos_pago.api.crear_complemento_pago_desde_pe",
-				args: { payment_entry_name: frm.doc.name },
-				callback: function (r) {
-					if (r.message && r.message.complemento_name) {
-						frappe.show_alert(
-							{
-								message: __("Complemento {0} creado correctamente.", [
-									r.message.complemento_name,
-								]),
-								indicator: "green",
+	frappe.db
+		.get_list("Sales Invoice", {
+			filters: [
+				["name", "in", si_names],
+				["fm_es_ppd", "=", 1],
+			],
+			fields: ["name"],
+			limit: 1,
+		})
+		.then((rows) => {
+			if (!rows.length) return;
+			frm.add_custom_button(__("Crear Complemento de Pago"), function () {
+				frappe.confirm(
+					__("¿Crear Complemento de Pago para este Payment Entry?"),
+					function () {
+						frappe.call({
+							method: "facturacion_mexico.complementos_pago.api.crear_complemento_pago_desde_pe",
+							args: { payment_entry_name: frm.doc.name },
+							callback: function (r) {
+								if (r.message && r.message.complemento_name) {
+									frappe.show_alert(
+										{
+											message: __("Complemento {0} creado correctamente.", [
+												r.message.complemento_name,
+											]),
+											indicator: "green",
+										},
+										5
+									);
+									frm.reload_doc();
+								}
 							},
-							5
-						);
-						frm.reload_doc();
+						});
 					}
-				},
-			});
+				);
+			}).addClass("btn-primary");
 		});
-	}).addClass("btn-primary");
 }
