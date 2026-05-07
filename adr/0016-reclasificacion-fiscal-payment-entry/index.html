@@ -946,6 +946,39 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#tests-automatizados-2026-05-05" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tests automatizados (2026-05-05)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tests automatizados (2026-05-05)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#test_mapeo_reclasificacion_fiscal_payment_entrypy-7-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      test_mapeo_reclasificacion_fiscal_payment_entry.py — 7 tests
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#test_payment_entry_reclasificacionpy-13-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      test_payment_entry_reclasificacion.py — 13 tests
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#alternativas-descartadas" class="md-nav__link">
     <span class="md-ellipsis">
       Alternativas descartadas
@@ -998,7 +1031,7 @@
 
 <h1 id="adr-0016-reclasificacion-fiscal-de-impuestos-en-payment-entry">ADR 0016 — Reclasificación Fiscal de Impuestos en Payment Entry<a class="headerlink" href="#adr-0016-reclasificacion-fiscal-de-impuestos-en-payment-entry" title="Permanent link">&para;</a></h1>
 <p><strong>Fecha:</strong> 2026-05-05
-<strong>Estado:</strong> APROBADO — implementado y probado en GUI
+<strong>Estado:</strong> APROBADO — implementado, probado en GUI y con tests automatizados
 <strong>Autor:</strong> Luis Montanaro Sánchez</p>
 <hr />
 <h2 id="contexto">Contexto<a class="headerlink" href="#contexto" title="Permanent link">&para;</a></h2>
@@ -1159,6 +1192,123 @@ sin duplicado activo por <code>company + tipo_operacion + cuenta_origen</code>.<
 </tbody>
 </table>
 <p>Taxes visibles desde Save (antes de Submit). GL generado por ERPNext al Submit.</p>
+<hr />
+<h2 id="tests-automatizados-2026-05-05">Tests automatizados (2026-05-05)<a class="headerlink" href="#tests-automatizados-2026-05-05" title="Permanent link">&para;</a></h2>
+<h3 id="test_mapeo_reclasificacion_fiscal_payment_entrypy-7-tests"><code>test_mapeo_reclasificacion_fiscal_payment_entry.py</code> — 7 tests<a class="headerlink" href="#test_mapeo_reclasificacion_fiscal_payment_entrypy-7-tests" title="Permanent link">&para;</a></h3>
+<p>Validan el DocType <code>Mapeo Reclasificacion Fiscal Payment Entry</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Qué verifica</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>test_cuentas_distintas</code></td>
+<td><code>cuenta_origen == cuenta_destino</code> lanza <code>ValidationError</code></td>
+</tr>
+<tr>
+<td><code>test_cuenta_debe_ser_tax</code></td>
+<td><code>account_type != Tax</code> en origen lanza error</td>
+</tr>
+<tr>
+<td><code>test_cuenta_destino_debe_ser_tax</code></td>
+<td><code>account_type != Tax</code> en destino lanza error</td>
+</tr>
+<tr>
+<td><code>test_cuenta_no_grupo</code></td>
+<td>cuenta grupo lanza error</td>
+</tr>
+<tr>
+<td><code>test_sin_duplicado_activo</code></td>
+<td>segundo mapeo activo con misma combinación lanza error</td>
+</tr>
+<tr>
+<td><code>test_duplicado_inactivo_permitido</code></td>
+<td>mapeo inactivo duplicado se permite</td>
+</tr>
+<tr>
+<td><code>test_insert_valido</code></td>
+<td>mapeo correcto se inserta sin error</td>
+</tr>
+</tbody>
+</table>
+<h3 id="test_payment_entry_reclasificacionpy-13-tests"><code>test_payment_entry_reclasificacion.py</code> — 13 tests<a class="headerlink" href="#test_payment_entry_reclasificacionpy-13-tests" title="Permanent link">&para;</a></h3>
+<p>Tests de <code>_calcular_grupos_desde_doc</code> (mockean <code>frappe.get_doc</code> en el módulo):</p>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Qué verifica</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>test_calcular_grupos_retorna_monto_correcto</code></td>
+<td>monto = <code>tax_amount * (allocated / grand_total)</code></td>
+</tr>
+<tr>
+<td><code>test_calcular_grupos_proporcion_parcial</code></td>
+<td>monto proporcional para pago parcial</td>
+</tr>
+<tr>
+<td><code>test_calcular_grupos_sin_mapeo_retorna_vacio</code></td>
+<td>sin mapeo activo → grupos vacíos</td>
+</tr>
+<tr>
+<td><code>test_calcular_grupos_impuesto_cero_ignorado</code></td>
+<td><code>tax_amount=0</code> no genera grupo</td>
+</tr>
+</tbody>
+</table>
+<p>Tests de <code>cargar_impuestos_en_payment_entry</code> (mockean <code>_calcular_grupos_desde_doc</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Qué verifica</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>test_carga_filas_en_validate</code></td>
+<td>agrega exactamente 2 filas</td>
+</tr>
+<tr>
+<td><code>test_rate_pago_total</code></td>
+<td><code>rate = tax / grand_total * 100</code></td>
+</tr>
+<tr>
+<td><code>test_rate_pago_parcial</code></td>
+<td>fórmula exacta: <code>monto = tax*(alloc/gt)</code>, <code>rate = monto/paid*100</code></td>
+</tr>
+<tr>
+<td><code>test_filas_limpian_en_re_validate</code></td>
+<td>re-validate no duplica filas</td>
+</tr>
+<tr>
+<td><code>test_sin_mapeo_no_carga_filas</code></td>
+<td>grupos vacíos → PE sin filas</td>
+</tr>
+<tr>
+<td><code>test_included_in_paid_amount_1</code></td>
+<td>todas las filas tienen <code>included_in_paid_amount=1</code></td>
+</tr>
+<tr>
+<td><code>test_destino_rate_positivo_origen_negativo</code></td>
+<td>destino: +rate, origen: -rate, misma magnitud</td>
+</tr>
+<tr>
+<td><code>test_rates_se_anulan</code></td>
+<td>suma de rates = 0 (paid_amount intacto)</td>
+</tr>
+<tr>
+<td><code>test_impuesto_cero_ignorado</code></td>
+<td>grupos vacíos → sin filas</td>
+</tr>
+</tbody>
+</table>
 <hr />
 <h2 id="alternativas-descartadas">Alternativas descartadas<a class="headerlink" href="#alternativas-descartadas" title="Permanent link">&para;</a></h2>
 <table>
