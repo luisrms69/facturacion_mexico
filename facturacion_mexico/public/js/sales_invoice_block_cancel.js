@@ -70,11 +70,8 @@ function _block_si_if_ffm_cancelada(frm) {
 		// Sobreescribir headline con mensaje rojo (último en ejecutar)
 		frm.dashboard &&
 			frm.dashboard.set_headline_alert(
-				__(
-					"Factura cancelada ante el SAT ({0}). No se pueden registrar pagos. " +
-						"Nota de Crédito disponible si aplica. Para re-facturar: cancela esta SI y crea una nueva.",
-					[frm.doc.fm_factura_fiscal_mx]
-				),
+				// prettier-ignore
+				__("Factura cancelada ante el SAT ({0}). No se pueden registrar pagos. Nota de Crédito disponible si aplica. Para re-facturar: cancela esta SI y crea una nueva.", [frm.doc.fm_factura_fiscal_mx]),
 				"red"
 			);
 	}, 300);
