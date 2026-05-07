@@ -8,62 +8,63 @@
  "engine": "InnoDB",
  "field_order": [
   "section_general",
-  "naming_series",
-  "folio_fiscal",
+  "payment_entry",
+  "company",
+  "customer",
+  "status",
+  "column_break_cabecera",
   "fecha_pago",
   "forma_pago_p",
   "moneda_p",
-  "tipo_cambio_p",
   "monto_p",
-  "column_break_2",
+  "tipo_cambio_p",
+  "section_timbrado",
+  "uuid_sat",
+  "serie_folio",
+  "folio_fiscal",
+  "estatus_sat",
+  "fecha_timbrado",
+  "column_break_timbrado",
+  "id_documento",
+  "fecha_folio_fiscal",
+  "no_certificado_sat",
+  "fecha_certificacion_sat",
+  "pac_cert_sat",
+  "version",
+  "version_cfdi",
+  "facturapi_id",
+  "fm_ultimo_response_log",
+  "section_bancario",
   "num_operacion",
   "rfc_emisor_cta_ord",
   "nom_banco_ord_ext",
   "cta_ordenante",
+  "column_break_bancario",
   "rfc_emisor_cta_ben",
   "cta_beneficiario",
   "tipo_cad_pago",
   "cert_pago",
   "cad_pago",
   "sello_pago",
-  "section_complemento",
-  "version",
-  "id_documento",
-  "serie_folio",
-  "fecha_folio_fiscal",
-  "pac_cert_sat",
   "section_documentos",
   "documentos_relacionados",
   "section_impuestos",
   "detalles_impuestos",
-  "section_timbrado",
-  "estatus_sat",
-  "fecha_timbrado",
-  "uuid_sat",
-  "no_certificado_sat",
-  "fecha_certificacion_sat",
-  "version_cfdi",
+  "naming_series",
   "amended_from"
  ],
  "fields": [
   {
    "fieldname": "section_general",
    "fieldtype": "Section Break",
-   "label": "Información General"
-  },
-  {
-   "fieldname": "naming_series",
-   "fieldtype": "Select",
-   "label": "Serie de Nomenclatura",
-   "options": "COMP-PAG-.YYYY.-",
-   "reqd": 1
+   "label": "Cabecera Operativa"
   },
   {
    "fieldname": "payment_entry",
    "fieldtype": "Link",
    "label": "Payment Entry",
    "options": "Payment Entry",
-   "insert_after": "naming_series",
+   "read_only": 1,
    "in_list_view": 1,
    "in_standard_filter": 1
   },
@@ -72,33 +73,30 @@
    "fieldtype": "Link",
    "label": "Empresa",
    "options": "Company",
-   "insert_after": "payment_entry",
-   "reqd": 0
+   "read_only": 1
   },
   {
    "fieldname": "customer",
    "fieldtype": "Link",
    "label": "Cliente",
    "options": "Customer",
-   "insert_after": "company",
+   "read_only": 1,
    "in_list_view": 1
   },
   {
-   "fieldname": "complement_status",
+   "fieldname": "status",
    "fieldtype": "Select",
    "label": "Estado",
-   "options": "\nPendiente\nTimbrado\nCancelado\nError\nPendiente Cancelación",
+   "options": "\nPendiente\nTimbrado\nPendiente Cancelación\nCancelado\nError",
    "default": "Pendiente",
-   "insert_after": "customer",
+   "read_only": 1,
+   "allow_on_submit": 1,
    "in_list_view": 1,
    "in_standard_filter": 1
   },
   {
-   "fieldname": "folio_fiscal",
-   "fieldtype": "Data",
-   "label": "Folio Fiscal",
-   "reqd": 1,
-   "unique": 1
+   "fieldname": "column_break_cabecera",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "fecha_pago",
@@ -123,20 +121,127 @@
    "reqd": 1
   },
   {
-   "fieldname": "tipo_cambio_p",
-   "fieldtype": "Currency",
-   "label": "Tipo de Cambio",
-   "precision": 6
-  },
-  {
    "fieldname": "monto_p",
    "fieldtype": "Currency",
    "label": "Monto",
    "reqd": 1
   },
   {
-   "fieldname": "column_break_2",
+   "fieldname": "tipo_cambio_p",
+   "fieldtype": "Currency",
+   "label": "Tipo de Cambio",
+   "precision": 6,
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_timbrado",
+   "fieldtype": "Section Break",
+   "label": "Datos SAT / Timbrado"
+  },
+  {
+   "fieldname": "uuid_sat",
+   "fieldtype": "Data",
+   "label": "UUID SAT",
+   "read_only": 1,
+   "in_list_view": 1,
+   "bold": 1
+  },
+  {
+   "fieldname": "serie_folio",
+   "fieldtype": "Data",
+   "label": "Serie y Folio",
+   "read_only": 1
+  },
+  {
+   "fieldname": "folio_fiscal",
+   "fieldtype": "Data",
+   "label": "Folio Fiscal",
+   "read_only": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "estatus_sat",
+   "fieldtype": "Select",
+   "label": "Estatus SAT",
+   "options": "\nVigente\nCancelado\nNo Encontrado\nPendiente Cancelación\nRechazado",
+   "read_only": 1
+  },
+  {
+   "fieldname": "fecha_timbrado",
+   "fieldtype": "Datetime",
+   "label": "Fecha de Timbrado",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_timbrado",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "id_documento",
+   "fieldtype": "Data",
+   "label": "ID Documento",
+   "read_only": 1
+  },
+  {
+   "fieldname": "fecha_folio_fiscal",
+   "fieldtype": "Date",
+   "label": "Fecha Folio Fiscal",
+   "read_only": 1
+  },
+  {
+   "fieldname": "no_certificado_sat",
+   "fieldtype": "Data",
+   "label": "No. Certificado SAT",
+   "read_only": 1
+  },
+  {
+   "fieldname": "fecha_certificacion_sat",
+   "fieldtype": "Datetime",
+   "label": "Fecha Certificación SAT",
+   "read_only": 1
+  },
+  {
+   "fieldname": "pac_cert_sat",
+   "fieldtype": "Data",
+   "label": "PAC Certificado SAT",
+   "read_only": 1
+  },
+  {
+   "default": "2.0",
+   "fieldname": "version",
+   "fieldtype": "Data",
+   "label": "Versión Complemento",
+   "read_only": 1
+  },
+  {
+   "default": "4.0",
+   "fieldname": "version_cfdi",
+   "fieldtype": "Data",
+   "label": "Versión CFDI",
+   "read_only": 1
+  },
+  {
+   "fieldname": "facturapi_id",
+   "fieldtype": "Data",
+   "label": "FacturAPI ID",
+   "read_only": 1,
+   "description": "ID interno de FacturAPI para cancelación"
+  },
+  {
+   "fieldname": "fm_ultimo_response_log",
+   "fieldtype": "Link",
+   "label": "Último Log de Respuesta",
+   "options": "FacturAPI Response Log",
+   "description": "Último registro de operación con FacturAPI/SAT",
+   "read_only": 1,
+   "allow_on_submit": 1
+  },
+  {
+   "fieldname": "section_bancario",
+   "fieldtype": "Section Break",
+   "label": "Datos Bancarios Opcionales",
+   "collapsible": 1,
+   "description": "Aplica solo cuando el pago tiene referencia bancaria (transferencia, cheque con número de operación). Vacío es correcto para efectivo y tarjeta."
   },
   {
    "fieldname": "num_operacion",
@@ -157,6 +262,10 @@
    "fieldname": "cta_ordenante",
    "fieldtype": "Data",
    "label": "Cuenta Ordenante"
+  },
+  {
+   "fieldname": "column_break_bancario",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "rfc_emisor_cta_ben",
@@ -190,38 +299,6 @@
    "label": "Sello Pago"
   },
   {
-   "fieldname": "section_complemento",
-   "fieldtype": "Section Break",
-   "label": "Información del Complemento"
-  },
-  {
-   "default": "2.0",
-   "fieldname": "version",
-   "fieldtype": "Data",
-   "label": "Versión",
-   "read_only": 1
-  },
-  {
-   "fieldname": "id_documento",
-   "fieldtype": "Data",
-   "label": "ID Documento"
-  },
-  {
-   "fieldname": "serie_folio",
-   "fieldtype": "Data",
-   "label": "Serie y Folio"
-  },
-  {
-   "fieldname": "fecha_folio_fiscal",
-   "fieldtype": "Date",
-   "label": "Fecha Folio Fiscal"
-  },
-  {
-   "fieldname": "pac_cert_sat",
-   "fieldtype": "Data",
-   "label": "PAC Certificado SAT"
-  },
-  {
    "fieldname": "section_documentos",
    "fieldtype": "Section Break",
    "label": "Documentos Relacionados"
@@ -230,7 +307,8 @@
    "fieldname": "documentos_relacionados",
    "fieldtype": "Table",
    "label": "Documentos Relacionados",
-   "options": "Documento Relacionado Pago MX"
+   "options": "Documento Relacionado Pago MX",
+   "read_only": 1
   },
   {
    "fieldname": "section_impuestos",
@@ -241,53 +319,16 @@
    "fieldname": "detalles_impuestos",
    "fieldtype": "Table",
    "label": "Impuestos Trasladados y Retenidos",
-   "options": "Detalle Complemento Pago MX"
-  },
-  {
-   "fieldname": "section_timbrado",
-   "fieldtype": "Section Break",
-   "label": "Información de Timbrado"
-  },
-  {
-   "fieldname": "estatus_sat",
-   "fieldtype": "Select",
-   "label": "Estatus SAT",
-   "options": "\nVigente\nCancelado\nNo Encontrado"
-  },
-  {
-   "fieldname": "fecha_timbrado",
-   "fieldtype": "Datetime",
-   "label": "Fecha de Timbrado"
-  },
-  {
-   "fieldname": "uuid_sat",
-   "fieldtype": "Data",
-   "label": "UUID SAT"
-  },
-  {
-   "fieldname": "facturapi_id",
-   "fieldtype": "Data",
-   "label": "FacturAPI ID",
-   "reqd": 0,
-   "read_only": 1,
-   "description": "ID interno de FacturAPI para cancelación"
-  },
-  {
-   "fieldname": "no_certificado_sat",
-   "fieldtype": "Data",
-   "label": "No. Certificado SAT"
-  },
-  {
-   "fieldname": "fecha_certificacion_sat",
-   "fieldtype": "Datetime",
-   "label": "Fecha Certificación SAT"
-  },
-  {
-   "default": "4.0",
-   "fieldname": "version_cfdi",
-   "fieldtype": "Data",
-   "label": "Versión CFDI",
+   "options": "Detalle Complemento Pago MX",
    "read_only": 1
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Serie de Nomenclatura",
+   "options": "COMP-PAG-.YYYY.-",
+   "reqd": 1,
+   "print_hide": 1
   },
   {
    "fieldname": "amended_from",
@@ -302,7 +343,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-07-20 00:00:00.000000",
+ "modified": "2026-05-06 00:00:00.000000",
  "modified_by": "Administrator",
  "module": "Complementos Pago",
  "name": "Complemento Pago MX",
@@ -310,6 +351,7 @@
  "owner": "Administrator",
  "permissions": [
   {
+   "cancel": 1,
    "create": 1,
    "delete": 1,
    "email": 1,
@@ -323,6 +365,7 @@
    "write": 1
   },
   {
+   "cancel": 1,
    "create": 1,
    "delete": 1,
    "email": 1,
@@ -346,11 +389,58 @@
    "share": 1,
    "submit": 1,
    "write": 1
+  },
+  {
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Facturacion Mexico Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Facturacion Mexico System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Facturacion Mexico User",
+   "share": 1,
+   "submit": 1,
+   "write": 1
   }
  ],
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": [],
+ "states": [
+  {"color": "Gray",   "title": "Pendiente"},
+  {"color": "Green",  "title": "Timbrado"},
+  {"color": "Orange", "title": "Pendiente Cancelación"},
+  {"color": "Red",    "title": "Cancelado"},
+  {"color": "Red",    "title": "Error"}
+ ],
+ "status_field": "status",
  "title_field": "folio_fiscal",
  "track_changes": 1
 }

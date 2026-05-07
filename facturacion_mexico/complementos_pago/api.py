@@ -48,24 +48,26 @@ def crear_complemento_pago_desde_pe(payment_entry_name: str) -> dict:
 			)
 		)
 
-	# --- Validar forma de pago SAT ---
-	if not pe.get("fm_forma_pago_sat"):
+	# --- Obtener forma de pago SAT desde mode_of_payment ---
+	# ERPNext ya tiene mode_of_payment — tomamos los primeros 2 caracteres como código SAT
+	if not pe.get("mode_of_payment"):
 		frappe.throw(
 			_(
-				"El Payment Entry no tiene Forma de Pago SAT configurada (fm_forma_pago_sat). "
-				"Configure la forma de pago antes de crear el complemento."
+				"El Payment Entry no tiene Forma de Pago configurada. "
+				"Configure Mode of Payment antes de crear el complemento."
 			)
 		)
+	forma_pago_sat = (pe.mode_of_payment or "")[:2].strip()
 
 	# --- Crear complemento ---
 	complemento = frappe.new_doc("Complemento Pago MX")
 	complemento.payment_entry = pe.name
 	complemento.company = pe.company
 	complemento.customer = pe.party if pe.party_type == "Customer" else None
-	complemento.complement_status = "Pendiente"
+	complemento.status = "Pendiente"
 
 	complemento.fecha_pago = pe.posting_date
-	complemento.forma_pago_p = pe.fm_forma_pago_sat
+	complemento.forma_pago_p = forma_pago_sat
 	complemento.monto_p = flt(pe.paid_amount)
 	complemento.moneda_p = _get_currency(pe)
 
@@ -147,10 +149,8 @@ def timbrar_complemento_pago(complemento_name: str) -> dict:
 	comp = frappe.get_doc("Complemento Pago MX", complemento_name)
 
 	# --- Validaciones previas ---
-	if comp.complement_status not in ("Pendiente", "Error"):
-		frappe.throw(
-			_("El complemento ya fue timbrado o cancelado. Estado: {0}").format(comp.complement_status)
-		)
+	if comp.status not in ("Pendiente", "Error"):
+		frappe.throw(_("El complemento ya fue timbrado o cancelado. Estado: {0}").format(comp.status))
 	if comp.uuid_sat or comp.folio_fiscal:
 		frappe.throw(_("El complemento ya tiene UUID/folio fiscal. No se puede timbrar de nuevo."))
 	if not comp.payment_entry:
@@ -248,7 +248,7 @@ def timbrar_complemento_pago(complemento_name: str) -> dict:
 		)
 
 	# --- Crear Response Log ---
-	_crear_response_log_complemento(
+	log_name = _crear_response_log_complemento(
 		complemento_name=complemento_name,
 		payload=payload,
 		response=response_data,
@@ -256,13 +256,16 @@ def timbrar_complemento_pago(complemento_name: str) -> dict:
 		error_msg=error_msg,
 		request_ts=request_ts,
 	)
+	if log_name:
+		frappe.db.set_value("Complemento Pago MX", complemento_name, "fm_ultimo_response_log", log_name)
 
 	if not success:
-		frappe.db.set_value("Complemento Pago MX", complemento_name, "complement_status", "Error")
+		frappe.db.set_value("Complemento Pago MX", complemento_name, "status", "Error")
 		frappe.throw(_("Error al timbrar: {0}").format(error_msg))
 
 	# --- Guardar resultado ---
-	uuid = response_data.get("uuid") or (response_data.get("stamp") or {}).get("uuid", "")
+	stamp = response_data.get("stamp") or {}
+	uuid = response_data.get("uuid") or stamp.get("uuid", "")
 	folio = str(response_data.get("folio_number", ""))
 	serie = response_data.get("series", "")
 	facturapi_id = response_data.get("id", "")
@@ -272,14 +275,22 @@ def timbrar_complemento_pago(complemento_name: str) -> dict:
 		complemento_name,
 		{
 			"uuid_sat": uuid,
-			"folio_fiscal": uuid,  # folio_fiscal = UUID por convención del DocType
+			"folio_fiscal": uuid,
+			"id_documento": uuid,
 			"serie_folio": f"{serie}-{folio}" if serie and folio else folio,
+			"fecha_folio_fiscal": (stamp.get("date") or now_datetime()),
 			"facturapi_id": facturapi_id,
+			"no_certificado_sat": stamp.get("sat_cert_number", ""),
+			"pac_cert_sat": stamp.get("rfc_provider_cert_number", ""),
+			"fecha_certificacion_sat": stamp.get("date") or now_datetime(),
 			"fecha_timbrado": now_datetime(),
 			"estatus_sat": "Vigente",
-			"complement_status": "Timbrado",
+			"status": "Timbrado",
+			**({"tipo_cambio_p": 1.0} if comp.moneda_p == "MXN" else {}),
 		},
 	)
+
+	frappe.get_doc("Complemento Pago MX", complemento_name).submit()
 
 	frappe.logger().info(f"Complemento {complemento_name} timbrado. UUID: {uuid}")
 	return {"uuid": uuid, "folio_fiscal": uuid, "serie_folio": f"{serie}-{folio}"}
@@ -295,16 +306,16 @@ def cancelar_complemento_pago(complemento_name: str, motivo: str = "02") -> dict
 		motivo: Código motivo SAT ("02" por default)
 
 	Returns:
-		dict con nuevo complement_status y mensaje
+		dict con nuevo status y mensaje
 	"""
 	from facturacion_mexico.facturacion_fiscal.api_client import get_facturapi_client
 
 	comp = frappe.get_doc("Complemento Pago MX", complemento_name)
 
-	if comp.complement_status != "Timbrado":
+	if comp.status != "Timbrado":
 		frappe.throw(
 			_("Solo se pueden cancelar complementos en estado Timbrado. Estado actual: {0}").format(
-				comp.complement_status
+				comp.status
 			)
 		)
 	if not comp.uuid_sat:
@@ -331,11 +342,12 @@ def cancelar_complemento_pago(complemento_name: str, motivo: str = "02") -> dict
 		)
 
 	# --- Crear Response Log ---
+	log_name = None
 	try:
 		log = frappe.new_doc("FacturAPI Response Log")
 		log.operation_type = "Cancelación Complemento Pago"
 		log.complemento_pago_mx = complemento_name
-		log.request_id = f"CANCEL-{complemento_name}"
+		log.request_id = f"CANCEL-{complemento_name}-{frappe.generate_hash(length=6)}"
 		log.request_timestamp = request_ts
 		log.request_payload = json.dumps(
 			{"invoice_id": comp.facturapi_id, "motive": motivo}, ensure_ascii=False
@@ -347,43 +359,128 @@ def cancelar_complemento_pago(complemento_name: str, motivo: str = "02") -> dict
 		if not success:
 			log.error_message = error_msg
 		log.insert(ignore_permissions=True)
+		log_name = log.name
 	except Exception as le:
 		frappe.log_error(
 			f"Error creando response log cancelación: {le}", "Response Log Cancelación Complemento"
 		)
 
 	if not success:
-		frappe.db.set_value("Complemento Pago MX", complemento_name, "complement_status", "Error")
+		frappe.db.set_value("Complemento Pago MX", complemento_name, "status", "Error")
 		frappe.throw(_("Error al cancelar: {0}").format(error_msg))
 
-	# --- Interpretar respuesta PAC ---
+	nuevo_status, nuevo_estatus_sat = _interpretar_respuesta_cancelacion(response_data)
+	_aplicar_cancelacion(complemento_name, comp.payment_entry, nuevo_status, nuevo_estatus_sat, log_name)
+
+	frappe.logger().info(f"Complemento {complemento_name} cancelado. Status: {nuevo_status}")
+	return {"status": nuevo_status, "cancellation_status": response_data.get("cancellation_status", "")}
+
+
+@frappe.whitelist()
+def revisar_estatus_cancelacion_complemento(complemento_name: str) -> dict:
+	"""Consulta FacturAPI para actualizar estado de cancelación pendiente."""
+	from facturacion_mexico.facturacion_fiscal.api_client import get_facturapi_client
+
+	comp = frappe.get_doc("Complemento Pago MX", complemento_name)
+
+	if comp.status != "Pendiente Cancelación":
+		frappe.throw(
+			_("Solo aplica para complementos en estado Pendiente Cancelación. Estado actual: {0}").format(
+				comp.status
+			)
+		)
+	if not comp.facturapi_id:
+		frappe.throw(_("El complemento no tiene ID de FacturAPI."))
+
+	client = get_facturapi_client()
+	request_ts = now_datetime()
+	success = False
+	response_data = {}
+	error_msg = ""
+
+	try:
+		raw = client.get_invoice(comp.facturapi_id)
+		response_data = raw.get("raw_response", raw) if isinstance(raw, dict) else raw
+		success = True
+	except Exception as e:
+		error_msg = str(e)
+		frappe.log_error(
+			f"Error consulta estatus {complemento_name}: {error_msg}", "Consulta Estatus Complemento"
+		)
+
+	# --- Response Log ---
+	log_name = None
+	try:
+		log = frappe.new_doc("FacturAPI Response Log")
+		log.operation_type = "Consulta Estado Complemento Pago"
+		log.complemento_pago_mx = complemento_name
+		log.request_id = f"STATUS-{complemento_name}-{frappe.generate_hash(length=6)}"
+		log.request_timestamp = request_ts
+		log.request_payload = json.dumps({"invoice_id": comp.facturapi_id}, ensure_ascii=False)
+		log.success = 1 if success else 0
+		log.facturapi_response = (
+			json.dumps(response_data, default=str, ensure_ascii=False) if response_data else ""
+		)
+		if not success:
+			log.error_message = error_msg
+		log.insert(ignore_permissions=True)
+		log_name = log.name
+	except Exception as le:
+		frappe.log_error(f"Error creando response log consulta: {le}", "Response Log Consulta Complemento")
+
+	if not success:
+		frappe.throw(_("Error al consultar estado: {0}").format(error_msg))
+
+	nuevo_status, nuevo_estatus_sat = _interpretar_respuesta_cancelacion(response_data)
+	_aplicar_cancelacion(complemento_name, comp.payment_entry, nuevo_status, nuevo_estatus_sat, log_name)
+
+	frappe.logger().info(f"Estatus {complemento_name} revisado. Status: {nuevo_status}")
+	return {"status": nuevo_status}
+
+
+def _interpretar_respuesta_cancelacion(response_data: dict) -> tuple:
+	"""Devuelve (nuevo_status, nuevo_estatus_sat) según respuesta FacturAPI."""
 	status_facturapi = response_data.get("status", "")
 	cancellation_status = response_data.get("cancellation_status", "")
 
 	if status_facturapi == "canceled" or cancellation_status == "accepted":
-		nuevo_status = "Cancelado"
-		nuevo_estatus_sat = "Cancelado"
+		return "Cancelado", "Cancelado"
 	elif cancellation_status == "pending":
-		nuevo_status = "Pendiente Cancelación"
-		nuevo_estatus_sat = "Pendiente Cancelación"
+		return "Pendiente Cancelación", "Pendiente Cancelación"
 	elif cancellation_status == "rejected":
-		nuevo_status = "Timbrado"  # PAC rechazó — mantener timbrado
-		nuevo_estatus_sat = "Vigente"
+		return "Timbrado", "Vigente"
 	else:
-		nuevo_status = "Pendiente Cancelación"  # fallback conservador
-		nuevo_estatus_sat = "Pendiente Cancelación"
+		return "Pendiente Cancelación", "Pendiente Cancelación"
 
-	frappe.db.set_value(
-		"Complemento Pago MX",
-		complemento_name,
-		{
-			"complement_status": nuevo_status,
-			"estatus_sat": nuevo_estatus_sat,
-		},
-	)
 
-	frappe.logger().info(f"Complemento {complemento_name} cancelado. Status: {nuevo_status}")
-	return {"complement_status": nuevo_status, "cancellation_status": cancellation_status}
+def _aplicar_cancelacion(
+	complemento_name: str,
+	payment_entry_name: str,
+	nuevo_status: str,
+	nuevo_estatus_sat: str,
+	log_name: str | None = None,
+):
+	"""Aplica transición de estado + cancela DocType + libera PE si accepted."""
+	update_fields = {"status": nuevo_status, "estatus_sat": nuevo_estatus_sat}
+	if log_name:
+		update_fields["fm_ultimo_response_log"] = log_name
+	frappe.db.set_value("Complemento Pago MX", complemento_name, update_fields)
+
+	if nuevo_status == "Cancelado":
+		# Liberar PE primero para que Frappe no bloquee el cancel por link activo
+		if payment_entry_name:
+			frappe.db.set_value(
+				"Payment Entry",
+				payment_entry_name,
+				{
+					"fm_complemento_pago": "",
+					"fm_complement_generated": 0,
+					"fm_require_complement": 1,
+				},
+			)
+		comp_doc = frappe.get_doc("Complemento Pago MX", complemento_name)
+		comp_doc.flags.allow_fiscal_cancel = True
+		comp_doc.cancel()
 
 
 def _build_customer_data(customer_name: str, company: str) -> dict:
@@ -396,14 +493,17 @@ def _build_customer_data(customer_name: str, company: str) -> dict:
 	if not customer.tax_id:
 		frappe.throw(_("El cliente {0} no tiene RFC configurado (tax_id).").format(customer_name))
 
-	# Tax system desde Tax Category del cliente
+	# Tax system desde fm_tax_regime (campo custom SAT) o tax_category como fallback
 	tax_system = None
-	if customer.tax_category:
-		# Tax Category name es el código de régimen, ej. "601"
+	fm_tax_regime = customer.get("fm_tax_regime") or ""
+	if fm_tax_regime:
+		# fm_tax_regime formato: "601 - General de Ley Personas Morales" → tomar código
+		tax_system = fm_tax_regime.split(" - ")[0].strip()
+	if not tax_system and customer.tax_category:
 		tax_system = str(customer.tax_category)
 	if not tax_system:
 		frappe.throw(
-			_("El cliente {0} no tiene régimen fiscal configurado (Tax Category).").format(customer_name)
+			_("El cliente {0} no tiene régimen fiscal SAT configurado (fm_tax_regime).").format(customer_name)
 		)
 
 	# Email
@@ -452,13 +552,13 @@ def _crear_response_log_complemento(
 	success: bool,
 	error_msg: str,
 	request_ts,
-):
-	"""Crea FacturAPI Response Log para operación de complemento."""
+) -> str | None:
+	"""Crea FacturAPI Response Log para operación de complemento. Retorna el nombre del log."""
 	try:
 		log = frappe.new_doc("FacturAPI Response Log")
 		log.operation_type = "Timbrado Complemento Pago"
 		log.complemento_pago_mx = complemento_name
-		log.request_id = f"COMP-{complemento_name}"
+		log.request_id = f"COMP-{complemento_name}-{frappe.generate_hash(length=6)}"
 		log.request_timestamp = request_ts
 		log.request_payload = json.dumps(payload, default=str, ensure_ascii=False)
 		log.success = 1 if success else 0
@@ -466,8 +566,10 @@ def _crear_response_log_complemento(
 		if not success:
 			log.error_message = error_msg
 		log.insert(ignore_permissions=True)
+		return log.name
 	except Exception as e:
 		frappe.log_error(f"Error creando response log de complemento: {e}", "Response Log Complemento")
+		return None
 
 
 def _llenar_documentos_relacionados(complemento, pe):
@@ -541,7 +643,7 @@ def _llenar_documentos_relacionados(complemento, pe):
 			WHERE per.reference_name = %s
 			  AND per.reference_doctype = 'Sales Invoice'
 			  AND pe.docstatus = 1
-			ORDER BY pe.posting_date ASC, pe.name ASC
+			ORDER BY pe.posting_date ASC, pe.creation ASC
 			""",
 			(ref.reference_name,),
 			pluck="parent",
