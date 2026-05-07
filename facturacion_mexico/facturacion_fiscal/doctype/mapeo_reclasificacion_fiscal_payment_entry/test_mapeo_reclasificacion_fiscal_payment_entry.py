@@ -21,6 +21,41 @@ _COMPANY = "_Test Company"
 _TAX_PARENT = "Source of Funds (Liabilities) - _TC"
 
 
+def _ensure_test_prerequisites():
+	"""Crea estructura mínima requerida para los tests: empresa y cuenta padre."""
+	if not frappe.db.exists("Company", _COMPANY):
+		frappe.get_doc(
+			{
+				"doctype": "Company",
+				"company_name": "_Test Company",
+				"abbr": "_TC",
+				"default_currency": "MXN",
+				"country": "Mexico",
+			}
+		).insert(ignore_permissions=True)
+		frappe.db.commit()  # nosemgrep: frappe-manual-commit
+
+	if not frappe.db.exists("Account", _TAX_PARENT):
+		parent = frappe.db.get_value(
+			"Account",
+			{"company": _COMPANY, "root_type": "Liability", "is_group": 1},
+			"name",
+			order_by="lft asc",
+		)
+		if parent:
+			frappe.get_doc(
+				{
+					"doctype": "Account",
+					"account_name": "Source of Funds (Liabilities)",
+					"is_group": 1,
+					"company": _COMPANY,
+					"parent_account": parent,
+					"root_type": "Liability",
+				}
+			).insert(ignore_permissions=True)
+			frappe.db.commit()  # nosemgrep: frappe-manual-commit
+
+
 def _ensure_account(name, account_name, account_type="Tax", is_group=0):
 	if not frappe.db.exists("Account", name):
 		frappe.get_doc(
@@ -51,6 +86,7 @@ class TestMapeoReclasificacionFiscalPaymentEntry(unittest.TestCase):
 	@classmethod
 	def setUpClass(cls):
 		frappe.clear_cache()
+		_ensure_test_prerequisites()
 		cls.origen = _ensure_account("Test IVA Pendiente - _TC", "Test IVA Pendiente")
 		cls.destino = _ensure_account("Test IVA Cobrado - _TC", "Test IVA Cobrado")
 		cls.non_tax = frappe.db.get_value(
