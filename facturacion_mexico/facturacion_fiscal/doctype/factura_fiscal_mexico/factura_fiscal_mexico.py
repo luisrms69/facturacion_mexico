@@ -583,6 +583,7 @@ class FacturaFiscalMexico(Document):
 	def mark_as_stamped(self, facturapi_data):
 		"""Marcar como timbrada con datos de FacturAPI."""
 		self.fm_fiscal_status = "TIMBRADO"
+		self.status = "TIMBRADO"
 		self.facturapi_id = facturapi_data.get("id")
 		self.fm_uuid = facturapi_data.get("uuid")
 		self.serie = facturapi_data.get("serie")
@@ -602,6 +603,7 @@ class FacturaFiscalMexico(Document):
 	def mark_as_cancelled(self, cancellation_reason=None):
 		"""Marcar como cancelada."""
 		self.fm_fiscal_status = "CANCELADO"
+		self.status = "CANCELADO"
 		if cancellation_reason:
 			self.cancellation_reason = cancellation_reason
 		self.cancellation_date = now_datetime()
@@ -646,6 +648,7 @@ class FacturaFiscalMexico(Document):
 			frappe.throw(_("Solo se pueden cancelar facturas timbradas"))
 
 		self.fm_fiscal_status = "CANCELADO"
+		self.status = "CANCELADO"
 		self.save()
 		frappe.msgprint(_("Solicitud de cancelación enviada"))
 		return {"message": "Cancellation requested"}
@@ -961,34 +964,6 @@ class FacturaFiscalMexico(Document):
 			frappe.log_error(
 				f"Error calculando estado fiscal para {self.name}: {e!s}",
 				"FacturAPI Status Calculation Error",
-			)
-
-	def calculate_status_from_fiscal_status(self):
-		"""Calcular status automáticamente basado en fm_fiscal_status."""
-		# Mapear estados fiscales a status interno
-		status_map = {
-			"BORRADOR": "draft",
-			"PROCESANDO": "processing",
-			"TIMBRADO": "stamped",
-			"ERROR": "error",
-			"CANCELADO": "cancelled",
-			"PENDIENTE_CANCELACION": "pending_cancellation",
-			"ARCHIVADO": "archived",
-			"Error": "draft",  # Error vuelve a draft para reintento
-			"Solicitud Cancelación": "cancel_requested",
-		}
-
-		new_status = status_map.get(self.fm_fiscal_status, "draft")
-
-		# Solo actualizar si cambió
-		if self.status != new_status:
-			old_status = self.status
-			self.status = new_status
-
-			# Log del cambio automático
-			frappe.logger().info(
-				f"Status auto-calculado: {self.name} {old_status} → {new_status} "
-				f"(basado en fm_fiscal_status: {self.fm_fiscal_status})"
 			)
 
 	def populate_billing_data(self):

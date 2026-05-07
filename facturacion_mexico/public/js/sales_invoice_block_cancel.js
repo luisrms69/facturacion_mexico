@@ -2,6 +2,10 @@ frappe.ui.form.on("Sales Invoice", {
 	refresh(frm) {
 		// Solo interesa cuando está submitida
 		if (frm.doc.docstatus !== 1) return;
+
+		// Bloquear Create y mostrar aviso si FFM está cancelada fiscalmente
+		_block_si_if_ffm_cancelada(frm);
+
 		// Consulta si se puede cancelar
 		frappe
 			.call({
@@ -39,6 +43,39 @@ frappe.ui.form.on("Sales Invoice", {
 		}
 	},
 });
+
+function _block_si_if_ffm_cancelada(frm) {
+	const fiscal_status = (frm.doc.fm_fiscal_status || "").toUpperCase();
+	if (fiscal_status !== "CANCELADO") return;
+	if (!frm.doc.fm_factura_fiscal_mx) return;
+
+	// setTimeout para correr después de que otros scripts (si_post_fiscal_actions)
+	// terminen de renderizar y sobrescriban el headline
+	setTimeout(() => {
+		// Remover solo "Payment" del grupo Create — ERPNext lo agrega con add_custom_button
+		frm.remove_custom_button && frm.remove_custom_button(__("Payment"), __("Create"));
+		// Fallback por si remove_custom_button no lo elimina completamente
+		frm.page.wrapper
+			.find(".inner-group-button .dropdown-item, .dropdown-menu .dropdown-item")
+			.filter((_, el) => $(el).text().trim() === __("Payment"))
+			.closest("li")
+			.hide();
+
+		// Restaurar botón Cancel — FFM cancelada = SI debe poder cancelarse
+		if (frm.page && frm.page.btn_cancel) frm.page.btn_cancel.removeClass("hidden");
+		frm.page.wrapper
+			.find('button.btn-danger, .btn[data-label="Cancel"], button:contains("Cancel")')
+			.removeClass("hidden");
+
+		// Sobreescribir headline con mensaje rojo (último en ejecutar)
+		frm.dashboard &&
+			frm.dashboard.set_headline_alert(
+				// prettier-ignore
+				__("Factura cancelada ante el SAT ({0}). No se pueden registrar pagos. Nota de Crédito disponible si aplica. Para re-facturar: cancela esta SI y crea una nueva.", [frm.doc.fm_factura_fiscal_mx]),
+				"red"
+			);
+	}, 300);
+}
 
 function hide_cancel_button(frm) {
 	// Frappe cambia selectores entre versiones; cubrimos varias variantes.

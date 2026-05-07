@@ -865,6 +865,7 @@ class TimbradoAPI:
 				"fm_uuid": response.get("uuid"),
 				"facturapi_id": response.get("id"),
 				"fm_fiscal_status": FiscalStates.TIMBRADO,
+				"status": FiscalStates.TIMBRADO,
 				"fecha_timbrado": response.get("stamp", {}).get("date") or now_datetime(),
 			}
 
@@ -1225,6 +1226,7 @@ class TimbradoAPI:
 				# Actualizar FFM con estado correcto
 				update_data = {
 					"fm_fiscal_status": fiscal_status,
+					"status": fiscal_status,
 					"cancellation_reason": motivo_completo,
 				}
 				if cancellation_date:
@@ -2280,11 +2282,11 @@ class TimbradoAPI:
 						rates_permitidas = FacturAPITaxRates.get_rates_permitidas(
 							tax.get("type", ""), tax.get("withholding", False)
 						)
-						rates_str = ", ".join([f"{r*100:.2f}%" for r in rates_permitidas[:5]])
+						rates_str = ", ".join([f"{r * 100:.2f}%" for r in rates_permitidas[:5]])
 						if len(rates_permitidas) > 5:
 							rates_str += "..."
 						errors.append(
-							f"❌ Item {idx}, Tax {tax_idx}: rate {rate*100:.2f}% no permitido por FacturAPI "
+							f"❌ Item {idx}, Tax {tax_idx}: rate {rate * 100:.2f}% no permitido por FacturAPI "
 							f"(permitidos: {rates_str})"
 						)
 				elif factor == "Cuota":
@@ -3045,17 +3047,25 @@ def revisar_estatus_cancelacion(ffm_name: str) -> dict:
 
 	if pac_status == "canceled" or cancel_status == "accepted":
 		nuevo_estado = FiscalStates.CANCELADO
-		update_data = {"fm_fiscal_status": nuevo_estado, "cancellation_date": now_datetime()}
+		update_data = {
+			"fm_fiscal_status": nuevo_estado,
+			"status": nuevo_estado,
+			"cancellation_date": now_datetime(),
+		}
 		msg = _("Cancelación confirmada por el receptor. CFDI cancelado.")
 		indicator = "green"
 	elif cancel_status == "rejected":
 		nuevo_estado = FiscalStates.TIMBRADO
-		update_data = {"fm_fiscal_status": nuevo_estado, "fm_motivo_cancelacion": None}
+		update_data = {
+			"fm_fiscal_status": nuevo_estado,
+			"status": nuevo_estado,
+			"fm_motivo_cancelacion": None,
+		}
 		msg = _("El receptor rechazó la cancelación. CFDI sigue vigente.")
 		indicator = "orange"
 	else:
 		nuevo_estado = FiscalStates.PENDIENTE_CANCELACION
-		update_data = {"fm_fiscal_status": nuevo_estado}
+		update_data = {"fm_fiscal_status": nuevo_estado, "status": nuevo_estado}
 		msg = _("Cancelación aún pendiente de aceptación por el receptor.")
 		indicator = "blue"
 
