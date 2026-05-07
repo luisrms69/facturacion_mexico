@@ -34,6 +34,8 @@
   "version_cfdi",
   "facturapi_id",
   "fm_ultimo_response_log",
+  "pdf_file",
+  "xml_file",
   "section_bancario",
   "num_operacion",
   "rfc_emisor_cta_ord",
@@ -226,6 +228,24 @@
    "label": "FacturAPI ID",
    "read_only": 1,
    "description": "ID interno de FacturAPI para cancelación"
+  },
+  {
+   "fieldname": "pdf_file",
+   "fieldtype": "Attach",
+   "label": "PDF",
+   "read_only": 1,
+   "allow_on_submit": 1,
+   "print_hide": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "xml_file",
+   "fieldtype": "Attach",
+   "label": "XML",
+   "read_only": 1,
+   "allow_on_submit": 1,
+   "print_hide": 1,
+   "no_copy": 1
   },
   {
    "fieldname": "fm_ultimo_response_log",

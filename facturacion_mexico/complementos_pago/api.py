@@ -290,7 +290,10 @@ def timbrar_complemento_pago(complemento_name: str) -> dict:
 		},
 	)
 
-	frappe.get_doc("Complemento Pago MX", complemento_name).submit()
+	comp_submitted = frappe.get_doc("Complemento Pago MX", complemento_name)
+	comp_submitted.submit()
+
+	_attach_files_complemento(comp_submitted, facturapi_id, uuid)
 
 	frappe.logger().info(f"Complemento {complemento_name} timbrado. UUID: {uuid}")
 	return {"uuid": uuid, "folio_fiscal": uuid, "serie_folio": f"{serie}-{folio}"}
@@ -436,6 +439,58 @@ def revisar_estatus_cancelacion_complemento(complemento_name: str) -> dict:
 
 	frappe.logger().info(f"Estatus {complemento_name} revisado. Status: {nuevo_status}")
 	return {"status": nuevo_status}
+
+
+@frappe.whitelist()
+def descargar_archivos_complemento(complemento_name: str) -> dict:
+	"""Descarga manual de PDF/XML — equivalente al botón en FFM."""
+	comp = frappe.get_doc("Complemento Pago MX", complemento_name)
+	if not comp.facturapi_id:
+		frappe.throw(_("El complemento no tiene ID de FacturAPI."))
+	_attach_files_complemento(comp, comp.facturapi_id, comp.uuid_sat or comp.name)
+	return {"success": True}
+
+
+def _attach_files_complemento(comp_doc, facturapi_id: str, uuid_sat: str):
+	"""Descarga y adjunta PDF y XML del Complemento desde FacturAPI. Igual que FFM.
+	Si falla la descarga no interrumpe el timbrado — solo registra el error."""
+	from frappe.utils.file_manager import save_file
+
+	from facturacion_mexico.facturacion_fiscal.api_client import get_facturapi_client
+
+	try:
+		client = get_facturapi_client()
+		update = {}
+
+		try:
+			pdf_content = client.download_pdf(facturapi_id)
+			filename_pdf = f"{comp_doc.name}_{uuid_sat}.pdf"
+			file_doc = save_file(filename_pdf, pdf_content, comp_doc.doctype, comp_doc.name, is_private=1)
+			update["pdf_file"] = file_doc.file_url
+		except Exception as e:
+			frappe.log_error(
+				f"Error descargando PDF complemento {comp_doc.name}: {e}", "File Attachment Error"
+			)
+
+		try:
+			xml_content = client.download_xml(facturapi_id)
+			filename_xml = f"{comp_doc.name}_{uuid_sat}.xml"
+			file_doc = save_file(
+				filename_xml, xml_content.encode("utf-8"), comp_doc.doctype, comp_doc.name, is_private=1
+			)
+			update["xml_file"] = file_doc.file_url
+		except Exception as e:
+			frappe.log_error(
+				f"Error descargando XML complemento {comp_doc.name}: {e}", "File Attachment Error"
+			)
+
+		if update:
+			frappe.db.set_value("Complemento Pago MX", comp_doc.name, update)
+
+	except Exception as e:
+		frappe.log_error(
+			f"Error adjuntando archivos complemento {comp_doc.name}: {e}", "File Attachment Error"
+		)
 
 
 def _interpretar_respuesta_cancelacion(response_data: dict) -> tuple:

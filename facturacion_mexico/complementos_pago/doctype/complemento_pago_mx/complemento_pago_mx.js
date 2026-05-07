@@ -10,6 +10,7 @@ frappe.ui.form.on("Complemento Pago MX", {
 		_setup_timbrar_btn(frm);
 		_setup_cancelar_btn(frm);
 		_setup_revisar_estatus_btn(frm);
+		_setup_descargar_btn(frm);
 		_setup_pe_link(frm);
 	},
 });
@@ -45,6 +46,36 @@ function _setup_status_indicators(frm) {
 				`<strong>${frappe.utils.escape_html(status)}</strong>`
 		);
 	}
+}
+
+function _setup_descargar_btn(frm) {
+	if (frm.doc.docstatus !== 1) return;
+	if (!["Timbrado", "Cancelado"].includes(frm.doc.status)) return;
+	if (!frm.doc.facturapi_id) return;
+
+	frm.add_custom_button(__("Descargar PDF+XML"), function () {
+		frappe.call({
+			method: "facturacion_mexico.complementos_pago.api.descargar_archivos_complemento",
+			args: { complemento_name: frm.doc.name },
+			callback: function (r) {
+				if (r.message && r.message.success) {
+					frappe.show_alert(
+						{ message: __("PDF y XML adjuntados correctamente."), indicator: "green" },
+						5
+					);
+					frm.reload_doc();
+				} else {
+					frappe.show_alert(
+						{
+							message: __("Error al descargar archivos. Revisar Error Log."),
+							indicator: "red",
+						},
+						6
+					);
+				}
+			},
+		});
+	});
 }
 
 function _setup_pe_link(frm) {
