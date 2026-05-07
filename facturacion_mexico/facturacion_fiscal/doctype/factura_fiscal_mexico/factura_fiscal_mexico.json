@@ -34,7 +34,6 @@
   "facturapi_id",
   "uuid",
   "fm_cfdi_use",
-  "fm_fiscal_status",
   "fm_motivo_cancelacion",
   "fm_serie_folio",
   "fm_lugar_expedicion",
@@ -208,25 +207,13 @@
    "options": "Uso CFDI SAT"
   },
   {
-   "default": "BORRADOR",
-   "description": "FUENTE DE VERDAD: facturacion_mexico/config/fiscal_states_config.py - NO modificar aquí sin actualizar archivo fuente",
-   "fieldname": "fm_fiscal_status",
-   "fieldtype": "Select",
-   "in_list_view": 1,
-   "label": "Estado Fiscal (legacy)",
-   "options": "BORRADOR\nPROCESANDO\nTIMBRADO\nERROR\nCANCELADO\nPENDIENTE_CANCELACION\nARCHIVADO",
-   "read_only": 1,
-   "allow_on_submit": 1,
-   "search_index": 1
-  },
-  {
    "fieldname": "fm_motivo_cancelacion",
    "fieldtype": "Select",
    "label": "Motivo Cancelación SAT",
    "options": "01\n02\n03\n04",
    "read_only": 1,
    "in_list_view": 0,
-   "depends_on": "eval:doc.fm_fiscal_status === 'CANCELADO'"
+   "depends_on": "eval:doc.status === 'CANCELADO'"
   },
   {
    "fieldname": "fm_serie_folio",

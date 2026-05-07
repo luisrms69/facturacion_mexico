@@ -58,7 +58,7 @@ def _request_fiscal_cancellation(doc):
 
 		# LEGACY: FiscalEventMX eliminado - solo actualizar estados
 		# Actualizar estado a PENDIENTE_CANCELACION
-		factura_fiscal.fm_fiscal_status = "PENDIENTE_CANCELACION"
+		factura_fiscal.status = "PENDIENTE_CANCELACION"
 		factura_fiscal.save()
 
 		# Actualizar Sales Invoice
@@ -83,7 +83,7 @@ def _mark_as_cancelled_without_stamping(doc):
 	# Crear evento de cancelación
 	if doc.fm_factura_fiscal_mx:
 		factura_fiscal = frappe.get_doc("Factura Fiscal Mexico", doc.fm_factura_fiscal_mx)
-		factura_fiscal.fm_fiscal_status = "CANCELADO"
+		factura_fiscal.status = "CANCELADO"
 		factura_fiscal.save()
 
 		# LEGACY: FiscalEventMX eliminado - solo logging

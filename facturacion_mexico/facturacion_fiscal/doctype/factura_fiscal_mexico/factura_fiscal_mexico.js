@@ -60,7 +60,7 @@
 	function getCancellationMotivesForFFM(frm) {
 		const motives = getCancellationMotivesFromEnums();
 		const SUB_01 = getSubstitutionCodeFromEnums();
-		const status = String(frm.doc.fm_fiscal_status || "").toUpperCase();
+		const status = String(frm.doc.status || "").toUpperCase();
 		const hasLinkedSI = !!frm.doc.sales_invoice;
 
 		if (hasLinkedSI && status === "TIMBRADO") {
@@ -72,7 +72,7 @@
 	// [M3-FFM] Interceptar elección 01 en FFM y redirigir a SI
 	function interceptMotive01InFFM(frm, selectedCode) {
 		const SUB_01 = getSubstitutionCodeFromEnums();
-		const status = String(frm.doc.fm_fiscal_status || "").toUpperCase();
+		const status = String(frm.doc.status || "").toUpperCase();
 		if (String(selectedCode) === SUB_01 && frm.doc.sales_invoice && status === "TIMBRADO") {
 			frappe.msgprint({
 				title: __("Sustitución CFDI (01)"),
@@ -177,7 +177,7 @@
 	}
 
 	function applyFFMUi(frm) {
-		const status = norm(frm.doc.fm_fiscal_status);
+		const status = norm(frm.doc.status);
 
 		load_fiscal_states(function (states) {
 			if (!states) {
@@ -488,7 +488,7 @@
 			// === 2) Mostrar ayuda SOLO si la FFM está TIMBRADA (opcional, deja tu handler actual) ===
 			(function toggleHelpOnlyWhenTimbrada() {
 				const HELP_LABEL = __("¿Cómo sustituir?"); // ajustado al texto real
-				const fiscal = String(frm.doc.fm_fiscal_status || "").toUpperCase();
+				const fiscal = String(frm.doc.status || "").toUpperCase();
 				const isTimbrada = !!frm.doc.fm_uuid && fiscal === "TIMBRADO";
 
 				try {
@@ -596,7 +596,7 @@
 			validate_fiscal_data(frm);
 		},
 
-		fm_fiscal_status: function (frm) {
+		status: function (frm) {
 			// PUNTOS 8-9: Actualizar visibilidad cuando cambia el estado fiscal
 			control_field_visibility_by_status(frm);
 		},
@@ -611,7 +611,7 @@
 
 	function setup_fiscal_interface(frm) {
 		// Configurar interfaz específica para datos fiscales
-		if (frm.doc.fm_fiscal_status === "Timbrado") {
+		if (frm.doc.status === "Timbrado") {
 			frm.set_df_property("uuid", "read_only", 1);
 			frm.set_df_property("fm_serie_folio", "read_only", 1);
 		}
@@ -620,7 +620,7 @@
 	function setup_default_values(frm) {
 		// Establecer valores por defecto para nuevos documentos
 		if (frm.is_new()) {
-			frm.set_value("fm_fiscal_status", "BORRADOR"); // Migrado arquitectura resiliente
+			frm.set_value("status", "BORRADOR"); // Migrado arquitectura resiliente
 
 			// REMOVIDO: Auto-asignación PUE centralizada en validate_payment_method() Python
 			// El método de pago se asigna automáticamente desde settings en server-side
@@ -948,7 +948,7 @@
 
 				// [M3-FFM] Filtrar opciones (quitar 01 si aplica) del formato original que ya funciona
 				const SUB_01 = getSubstitutionCodeFromEnums();
-				const status = String(frm.doc.fm_fiscal_status || "").toUpperCase();
+				const status = String(frm.doc.status || "").toUpperCase();
 				const hasLinkedSI = !!frm.doc.sales_invoice;
 
 				let filtered_options = motives_config.select_options;
@@ -1180,7 +1180,7 @@
 							args: {
 								doctype: "Factura Fiscal Mexico",
 								filters: { name: sales_invoice_data.fm_factura_fiscal_mx },
-								fieldname: "fm_fiscal_status",
+								fieldname: "status",
 							},
 							callback: function (fiscal_r) {
 								// Usar estados centralizados para verificar si está timbrada
@@ -1188,9 +1188,7 @@
 									if (
 										fiscal_r.message &&
 										states &&
-										states.cancelable_states.includes(
-											fiscal_r.message.fm_fiscal_status
-										)
+										states.cancelable_states.includes(fiscal_r.message.status)
 									) {
 										frappe.msgprint({
 											title: __("Sales Invoice No Disponible"),
@@ -1555,8 +1553,8 @@
 	// ========================================
 
 	function control_field_visibility_by_status(frm) {
-		// Control dinámico de visibilidad según fm_fiscal_status
-		const fiscal_status = frm.doc.fm_fiscal_status || "BORRADOR"; // Migrado arquitectura resiliente
+		// Control dinámico de visibilidad según status
+		const fiscal_status = frm.doc.status || "BORRADOR"; // Migrado arquitectura resiliente
 
 		// Campos que vienen de FacturAPI response (Punto 8)
 		const facturapi_response_fields = [

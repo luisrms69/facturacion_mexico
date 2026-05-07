@@ -21,11 +21,7 @@ class TestLayer1DoubleFacturationPrevention(unittest.TestCase):
 		frappe.clear_cache()
 
 		# Verificar que DocTypes críticos existen
-		cls.required_doctypes = [
-			"Sales Invoice",
-			"Factura Fiscal Mexico",
-			"Custom Field"
-		]
+		cls.required_doctypes = ["Sales Invoice", "Factura Fiscal Mexico", "Custom Field"]
 
 		for doctype in cls.required_doctypes:
 			if not frappe.db.exists("DocType", doctype):
@@ -45,24 +41,31 @@ class TestLayer1DoubleFacturationPrevention(unittest.TestCase):
 		meta = frappe.get_meta("Sales Invoice")
 
 		# Verificar que el campo existe (puede ser Custom Field en DB)
-		field_exists = (meta.has_field("fm_factura_fiscal_mx") or
-		               frappe.db.exists("Custom Field", "Sales Invoice-fm_factura_fiscal_mx"))
+		field_exists = meta.has_field("fm_factura_fiscal_mx") or frappe.db.exists(
+			"Custom Field", "Sales Invoice-fm_factura_fiscal_mx"
+		)
 
 		self.assertTrue(
 			field_exists,
-			"Campo fm_factura_fiscal_mx debe existir en Sales Invoice (como field o Custom Field)"
+			"Campo fm_factura_fiscal_mx debe existir en Sales Invoice (como field o Custom Field)",
 		)
 
 		# Obtener y validar configuración del campo (manejo flexible para field/Custom Field)
 		if meta.has_field("fm_factura_fiscal_mx"):
 			field = meta.get_field("fm_factura_fiscal_mx")
 			self.assertEqual(field.fieldtype, "Link", "Campo debe ser tipo Link")
-			self.assertEqual(field.options, "Factura Fiscal Mexico", "Campo debe apuntar a Factura Fiscal Mexico")
+			self.assertEqual(
+				field.options, "Factura Fiscal Mexico", "Campo debe apuntar a Factura Fiscal Mexico"
+			)
 			self.assertEqual(field.read_only, 1, "Campo debe ser read_only para prevenir edición manual")
 		elif frappe.db.exists("Custom Field", "Sales Invoice-fm_factura_fiscal_mx"):
 			custom_field = frappe.get_doc("Custom Field", "Sales Invoice-fm_factura_fiscal_mx")
 			self.assertEqual(custom_field.fieldtype, "Link", "Custom Field debe ser tipo Link")
-			self.assertEqual(custom_field.options, "Factura Fiscal Mexico", "Custom Field debe apuntar a Factura Fiscal Mexico")
+			self.assertEqual(
+				custom_field.options,
+				"Factura Fiscal Mexico",
+				"Custom Field debe apuntar a Factura Fiscal Mexico",
+			)
 			self.assertEqual(custom_field.read_only, 1, "Custom Field debe ser read_only")
 		else:
 			# Campo faltante - skip test pero avisar
@@ -83,26 +86,27 @@ class TestLayer1DoubleFacturationPrevention(unittest.TestCase):
 		- Recibe parámetros correctos
 		"""
 		# Verificar que el DocType tiene el método
-		from facturacion_mexico.facturacion_fiscal.doctype.factura_fiscal_mexico.factura_fiscal_mexico import FacturaFiscalMexico
+		from facturacion_mexico.facturacion_fiscal.doctype.factura_fiscal_mexico.factura_fiscal_mexico import (
+			FacturaFiscalMexico,
+		)
 
 		self.assertTrue(
 			hasattr(FacturaFiscalMexico, "validate_no_duplicate_timbrado"),
-			"Método validate_no_duplicate_timbrado debe existir en FacturaFiscalMexico"
+			"Método validate_no_duplicate_timbrado debe existir en FacturaFiscalMexico",
 		)
 
 		# Verificar que el método es callable
 		method = getattr(FacturaFiscalMexico, "validate_no_duplicate_timbrado")
-		self.assertTrue(
-			callable(method),
-			"validate_no_duplicate_timbrado debe ser método ejecutable"
-		)
+		self.assertTrue(callable(method), "validate_no_duplicate_timbrado debe ser método ejecutable")
 
 		# Mock test - Crear documento y verificar que validate invoca el método
-		doc = frappe.get_doc({
-			"doctype": "Factura Fiscal Mexico",
-			"sales_invoice": "TEST-VALIDATION-001",  # Sales Invoice mock
-			"fm_fiscal_status": FiscalStates.BORRADOR
-		})
+		doc = frappe.get_doc(
+			{
+				"doctype": "Factura Fiscal Mexico",
+				"sales_invoice": "TEST-VALIDATION-001",  # Sales Invoice mock
+				"fm_fiscal_status": FiscalStates.BORRADOR,
+			}
+		)
 
 		# Mock del método para verificar invocación (sin ejecutar validación real)
 		original_method = doc.validate_no_duplicate_timbrado
@@ -127,8 +131,9 @@ class TestLayer1DoubleFacturationPrevention(unittest.TestCase):
 		# The important part is that the method exists and is integrated in validate()
 		# For now, verify the method exists and is callable
 		self.assertTrue(
-			hasattr(doc, 'validate_no_duplicate_timbrado') and callable(getattr(doc, 'validate_no_duplicate_timbrado')),
-			"validate_no_duplicate_timbrado debe existir y ser callable"
+			hasattr(doc, "validate_no_duplicate_timbrado")
+			and callable(getattr(doc, "validate_no_duplicate_timbrado")),
+			"validate_no_duplicate_timbrado debe existir y ser callable",
 		)
 
 		print("✅ Método validate_no_duplicate_timbrado correctamente integrado")
@@ -148,7 +153,7 @@ class TestLayer1DoubleFacturationPrevention(unittest.TestCase):
 
 		js_content = ""
 		try:
-			with open(js_file_path, 'r', encoding='utf-8') as f:
+			with open(js_file_path, "r", encoding="utf-8") as f:
 				js_content = f.read()
 		except FileNotFoundError:
 			self.fail(f"Archivo JavaScript no encontrado: {js_file_path}")
@@ -157,28 +162,28 @@ class TestLayer1DoubleFacturationPrevention(unittest.TestCase):
 		self.assertIn(
 			"function is_already_timbrada",
 			js_content,
-			"Función is_already_timbrada debe existir en sales_invoice.js"
+			"Función is_already_timbrada debe existir en sales_invoice.js",
 		)
 
 		# Verificar que se usa fm_factura_fiscal_mx para validación
 		self.assertIn(
 			"fm_factura_fiscal_mx",
 			js_content,
-			"JavaScript debe usar campo fm_factura_fiscal_mx para verificar timbrado"
+			"JavaScript debe usar campo fm_factura_fiscal_mx para verificar timbrado",
 		)
 
 		# Verificar que se asocia a evento refresh
 		self.assertIn(
 			"refresh: function (frm)",
 			js_content,
-			"Debe haber función refresh para manejar eventos de formulario"
+			"Debe haber función refresh para manejar eventos de formulario",
 		)
 
 		# Verificar lógica de prevención en refresh
 		self.assertIn(
 			"is_already_timbrada",
 			js_content,
-			"Función refresh debe usar is_already_timbrada para control de botones"
+			"Función refresh debe usar is_already_timbrada para control de botones",
 		)
 
 		print("✅ Funciones JavaScript de prevención correctamente implementadas")
@@ -196,16 +201,13 @@ class TestLayer1DoubleFacturationPrevention(unittest.TestCase):
 		meta = frappe.get_meta("Factura Fiscal Mexico")
 
 		# Verificar que is_submittable está configurado
-		self.assertTrue(
-			meta.is_submittable,
-			"DocType Factura Fiscal Mexico debe tener is_submittable = 1"
-		)
+		self.assertTrue(meta.is_submittable, "DocType Factura Fiscal Mexico debe tener is_submittable = 1")
 
 		# Verificar que el DocType soporta estados estándar de Frappe
 		# NOTA: docstatus se agrega automáticamente por Frappe a nivel DB, no aparece en meta.fields
 		# Verificar que existe método get_doc para confirmar funcionalidad submittable
 		test_doc = frappe.new_doc("Factura Fiscal Mexico")
-		self.assertTrue(hasattr(test_doc, 'docstatus'), "DocType submittable debe tener atributo docstatus")
+		self.assertTrue(hasattr(test_doc, "docstatus"), "DocType submittable debe tener atributo docstatus")
 
 		print("✅ DocType correctamente configurado como submittable")
 
@@ -220,46 +222,45 @@ class TestLayer1DoubleFacturationPrevention(unittest.TestCase):
 		"""
 		# Leer archivo JavaScript de Factura Fiscal Mexico
 		# Usar path relativo desde frappe-bench para compatibilidad CI
-		js_file_path = frappe.get_app_path("facturacion_mexico", "facturacion_fiscal", "doctype", "factura_fiscal_mexico", "factura_fiscal_mexico.js")
+		js_file_path = frappe.get_app_path(
+			"facturacion_mexico",
+			"facturacion_fiscal",
+			"doctype",
+			"factura_fiscal_mexico",
+			"factura_fiscal_mexico.js",
+		)
 
 		js_content = ""
 		try:
-			with open(js_file_path, 'r', encoding='utf-8') as f:
+			with open(js_file_path, "r", encoding="utf-8") as f:
 				js_content = f.read()
 		except FileNotFoundError:
 			self.fail(f"Archivo JavaScript no encontrado: {js_file_path}")
 
 		# Verificar que NO interfiere con botones nativos
 		self.assertIn(
-			"Timbrar con FacturAPI",
-			js_content,
-			"Código debe implementar botones específicos de FacturAPI"
+			"Timbrar con FacturAPI", js_content, "Código debe implementar botones específicos de FacturAPI"
 		)
 
 		# Verificar botones FacturAPI específicos
 		self.assertIn(
-			"Timbrar con FacturAPI",
-			js_content,
-			"Debe existir botón específico para timbrado FacturAPI"
+			"Timbrar con FacturAPI", js_content, "Debe existir botón específico para timbrado FacturAPI"
 		)
 
 		self.assertIn(
-			"Cancelar en FacturAPI",
-			js_content,
-			"Debe existir botón específico para cancelación FacturAPI"
+			"Cancelar en FacturAPI", js_content, "Debe existir botón específico para cancelación FacturAPI"
 		)
 
 		# Verificar lógica condicional según estados
 		self.assertIn(
 			"frm.doc.docstatus === 1",
 			js_content,
-			"Botones FacturAPI deben aparecer solo cuando documento está submitted"
+			"Botones FacturAPI deben aparecer solo cuando documento está submitted",
 		)
 
-		self.assertIn(
-			"fm_fiscal_status",
-			js_content,
-			"Lógica de botones debe considerar estado fiscal"
+		self.assertTrue(
+			"fm_fiscal_status" in js_content or "frm.doc.status" in js_content,
+			"Lógica de botones debe considerar estado fiscal (fm_fiscal_status en SI o status en FFM)",
 		)
 
 		print("✅ Arquitectura mixta de botones correctamente implementada")

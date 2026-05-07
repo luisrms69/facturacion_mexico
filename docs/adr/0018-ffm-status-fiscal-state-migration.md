@@ -1,6 +1,6 @@
 # ADR 0018 — Migración de estado fiscal FFM a status
 
-**Fecha:** 2026-05-07 | **Estado:** APROBADO — Etapa 1 implementada
+**Fecha:** 2026-05-07 | **Última revisión:** 2026-05-07 | **Estado:** APROBADO — Etapas 1 y 2 completadas
 
 ---
 
@@ -60,15 +60,16 @@ No se toca `status`/`docstatus` nativo de Sales Invoice.
 
 ---
 
-## Etapa 2 — PR siguiente
+## Etapa 2 — COMPLETADA
 
-Eliminar modo dual:
-
-- FFM usa solo `status` como fuente interna de estado fiscal
-- Eliminar `FFM.fm_fiscal_status` del DocType y del código
-- Mantener `SI.fm_fiscal_status` si sigue siendo necesario como snapshot operativo
-- Cambiar lecturas/escrituras internas de FFM a `status`
-- Validar timbrado, cancelación, widget SI, bloqueo SI y PPD
+- `FFM.fm_fiscal_status` eliminado del DocType JSON
+- Todas las lecturas/escrituras internas de FFM migradas a `status`
+- `SI.fm_fiscal_status` conservado como snapshot operativo — sin cambios
+- `sales_invoice_cancel_guard.py` actualizado: lee `status` en lugar de `fm_fiscal_status`
+- Columna física `fm_fiscal_status` sigue en BD — limpieza futura pendiente
+- Código muerto (`diagnose_migration.py`, `migrate_single_record.py`) — limpieza futura pendiente
+- Tests y GUI validados: BORRADOR → TIMBRADO → CANCELADO correcto
+- 0 divergencias `FFM.status != SI.fm_fiscal_status`
 
 ---
 

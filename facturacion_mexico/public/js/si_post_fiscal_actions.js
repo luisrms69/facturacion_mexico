@@ -129,15 +129,18 @@
 	function add_fiscal_status_indicator(frm) {
 		const status = norm(frm.doc.fm_fiscal_status || "");
 
-		// Alert específico para estado post-cancelación fiscal
+		// Alert solo si NO hay FFM vinculada — si hay FFM, sales_invoice_block_cancel.js
+		// maneja el headline con mensaje más específico (no duplicar)
 		if (status === S.CANCELADO || status === "CANCELADO") {
-			frm.dashboard &&
-				frm.dashboard.set_headline_alert(
-					__(
-						"Fiscal Cancelado - Acciones Disponibles. La factura fiscal fue cancelada. Puede re-facturar o cancelar el Sales Invoice."
-					),
-					"orange"
-				);
+			if (!frm.doc.fm_factura_fiscal_mx) {
+				frm.dashboard &&
+					frm.dashboard.set_headline_alert(
+						__(
+							"Fiscal Cancelado - Acciones Disponibles. La factura fiscal fue cancelada. Puede re-facturar o cancelar el Sales Invoice."
+						),
+						"orange"
+					);
+			}
 		}
 	}
 

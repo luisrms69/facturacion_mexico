@@ -65,7 +65,7 @@ def get_invoice_fiscal_data(sales_invoice_name):
 		fiscal_data = frappe.db.get_value(
 			"Factura Fiscal Mexico",
 			fiscal_doc_name,
-			["uuid", "serie", "folio", "total_fiscal", "fm_fiscal_status", "facturapi_id", "fecha_timbrado"],
+			["uuid", "serie", "folio", "total_fiscal", "status", "facturapi_id", "fecha_timbrado"],
 			as_dict=True,
 		)
 
@@ -113,7 +113,7 @@ def is_invoice_stamped(sales_invoice_name):
 		fiscal_data = get_invoice_fiscal_data(sales_invoice_name)
 
 		# Verificar que tenga UUID y estado TIMBRADO
-		return fiscal_data.get("uuid") and fiscal_data.get("fm_fiscal_status") == FiscalStates.TIMBRADO
+		return fiscal_data.get("uuid") and fiscal_data.get("status") == FiscalStates.TIMBRADO
 
 	except Exception:
 		return False
@@ -416,7 +416,7 @@ def sync_status_to_sales_invoice(factura_fiscal_name: str) -> dict[str, Any]:
 			factura_fiscal_name,
 			[
 				"sales_invoice",
-				"fm_fiscal_status",
+				"status",
 				"fm_sub_status",
 				"fm_last_pac_sync",
 				"fm_sync_status",
@@ -448,7 +448,7 @@ def sync_status_to_sales_invoice(factura_fiscal_name: str) -> dict[str, Any]:
 
 		# Preparar datos para sincronización
 		sync_data = {
-			"fm_fiscal_status": fiscal_data.get("fm_fiscal_status", "Borrador"),
+			"fm_fiscal_status": fiscal_data.get("status", "Borrador"),  # SI snapshot
 		}
 
 		# Solo actualizar si hay cambio real
@@ -471,7 +471,7 @@ def sync_status_to_sales_invoice(factura_fiscal_name: str) -> dict[str, Any]:
 				"success": True,
 				"synced": True,
 				"previous_status": current_si_status,
-				"new_status": sync_data["fm_fiscal_status"],
+				"new_status": sync_data["fm_fiscal_status"],  # SI snapshot key
 				"sales_invoice": sales_invoice_name,
 				"factura_fiscal": factura_fiscal_name,
 				"timestamp": now(),
@@ -525,7 +525,7 @@ def bulk_sync_invoices(limit: int = 100, filters: dict[str, Any] | None = None) 
 		# Obtener documentos fiscales que necesitan sincronización
 		fiscal_docs = frappe.db.sql(
 			"""
-			SELECT name, sales_invoice, fm_fiscal_status, fm_last_pac_sync
+			SELECT name, sales_invoice, status, fm_last_pac_sync
 			FROM `tabFactura Fiscal Mexico`
 			WHERE fm_sync_status IN ('pending', 'error')
 			AND sales_invoice IS NOT NULL
@@ -673,9 +673,7 @@ def sync_single_invoice_status(sales_invoice_name: str, recalculate: bool = True
 		# Si se solicita recálculo, hacerlo antes de sincronizar
 		if recalculate:
 			calculated_status = calculate_current_status(factura_fiscal_name)
-			current_status = frappe.db.get_value(
-				"Factura Fiscal Mexico", factura_fiscal_name, "fm_fiscal_status"
-			)
+			current_status = frappe.db.get_value("Factura Fiscal Mexico", factura_fiscal_name, "status")
 
 			# Actualizar estado si debe overridearse
 			if should_override_status(current_status, calculated_status.get("status"), factura_fiscal_name):
@@ -683,7 +681,6 @@ def sync_single_invoice_status(sales_invoice_name: str, recalculate: bool = True
 					"Factura Fiscal Mexico",
 					factura_fiscal_name,
 					{
-						"fm_fiscal_status": calculated_status.get("status"),
 						"status": calculated_status.get("status"),
 						"fm_sub_status": calculated_status.get("sub_status"),
 						"fm_sync_status": "pending",  # Marcar para sincronizar

@@ -6,7 +6,7 @@ FFM_DOCTYPE = "Factura Fiscal Mexico"
 # Campo link en Sales Invoice:
 FFM_LINK_FIELD = "fm_factura_fiscal_mx"
 # Campo de estado fiscal en FFM (ajusta si tu campo se llama distinto)
-FFM_STATUS_FIELD = "fm_fiscal_status"
+FFM_STATUS_FIELD = "status"
 
 # Estados que PERMITEN cancelar la SI (cancela solo si FFM está totalmente cancelada)
 ALLOWED_FFM_CANCELLED_STATES = {"CANCELADO", "CANCELADA", "CANCELLED", "CANCELLED_OK", "CANCELED"}

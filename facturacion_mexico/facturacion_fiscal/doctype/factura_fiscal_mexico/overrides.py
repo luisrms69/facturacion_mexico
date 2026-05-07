@@ -18,10 +18,7 @@ class FacturaFiscalMexico(FFMBase):
 		# Bloquear "Amend" - si intentan crear documento con amended_from poblado
 		if self.get("amended_from"):
 			frappe.throw(
-				_(
-					"No se permite 'Corregir' en Factura Fiscal México. "
-					"Cree un nuevo documento en su lugar."
-				)
+				_("No se permite 'Corregir' en Factura Fiscal México. Cree un nuevo documento en su lugar.")
 			)
 
 	def cancel(self):
@@ -31,7 +28,7 @@ class FacturaFiscalMexico(FFMBase):
 			return super().cancel()
 
 		# Guard: Solo permitir cancelar en Frappe si el estado fiscal ya es "cancelado" (PAC)
-		status = (self.get("fm_fiscal_status") or "").strip().upper()
+		status = (self.get("status") or "").strip().upper()
 		if status not in CANCELADO_FISCAL:
 			frappe.throw(
 				_(
