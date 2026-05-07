@@ -29,9 +29,9 @@ function _setup_complemento_cancel_warning(frm) {
 				__(
 					"Este Payment Entry tiene un Complemento de Pago fiscal activo ({0}) en estado '{1}'. " +
 						"Cancele primero el complemento antes de cancelar el pago.",
-					[frm.doc.fm_complemento_pago, st],
+					[frm.doc.fm_complemento_pago, st]
 				),
-				"orange",
+				"orange"
 			);
 		}
 	});
@@ -44,13 +44,13 @@ function _inject_complemento_summary(frm) {
 
 	if (!comp) {
 		wrapper.html(
-			`<div class="text-muted" style="padding: 8px; font-style: italic;">Sin Complemento de Pago vinculado.</div>`,
+			`<div class="text-muted" style="padding: 8px; font-style: italic;">Sin Complemento de Pago vinculado.</div>`
 		);
 		return;
 	}
 
 	wrapper.html(
-		`<div class="text-muted" style="padding: 8px;"><i class="fa fa-spinner fa-spin"></i> Cargando...</div>`,
+		`<div class="text-muted" style="padding: 8px;"><i class="fa fa-spinner fa-spin"></i> Cargando...</div>`
 	);
 
 	frappe
@@ -70,21 +70,29 @@ function _inject_complemento_summary(frm) {
 			wrapper.html(`
 				<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 8px; background: #f8f9fa; border-radius: 4px; font-size: 13px;">
 					<div><strong>Estado SAT:</strong>
-						<span class="indicator ${color}" style="margin-left: 4px;">${frappe.utils.escape_html(d.status || "-")}</span>
+						<span class="indicator ${color}" style="margin-left: 4px;">${frappe.utils.escape_html(
+				d.status || "-"
+			)}</span>
 						${badge}
 					</div>
 					<div><strong>Fecha Timbrado:</strong> ${fecha}</div>
-					<div><strong>Serie:</strong> <span style="font-family: monospace;">${frappe.utils.escape_html(serie)}</span></div>
-					<div><strong>Folio:</strong> <span style="font-family: monospace;">${frappe.utils.escape_html(folio)}</span></div>
+					<div><strong>Serie:</strong> <span style="font-family: monospace;">${frappe.utils.escape_html(
+						serie
+					)}</span></div>
+					<div><strong>Folio:</strong> <span style="font-family: monospace;">${frappe.utils.escape_html(
+						folio
+					)}</span></div>
 					<div style="grid-column: span 2;"><strong>Folio Fiscal (UUID):</strong>
-						<span style="font-family: monospace; font-size: 11px; word-break: break-all;">${frappe.utils.escape_html(uuid)}</span>
+						<span style="font-family: monospace; font-size: 11px; word-break: break-all;">${frappe.utils.escape_html(
+							uuid
+						)}</span>
 					</div>
 				</div>
 			`);
 		})
 		.catch(() => {
 			wrapper.html(
-				`<div class="text-danger" style="padding: 8px;"><i class="fa fa-exclamation-triangle"></i> No fue posible cargar el resumen del complemento.</div>`,
+				`<div class="text-danger" style="padding: 8px;"><i class="fa fa-exclamation-triangle"></i> No fue posible cargar el resumen del complemento.</div>`
 			);
 		});
 }
@@ -143,7 +151,7 @@ function _setup_complemento_btn(frm) {
 
 	// Verificar si hay al menos una SI PPD timbrada referenciada
 	const tiene_ppd = (frm.doc.references || []).some(
-		(ref) => ref.reference_doctype === "Sales Invoice" && flt(ref.allocated_amount) > 0,
+		(ref) => ref.reference_doctype === "Sales Invoice" && flt(ref.allocated_amount) > 0
 	);
 
 	if (!tiene_ppd) return;
@@ -163,7 +171,7 @@ function _setup_complemento_btn(frm) {
 								]),
 								indicator: "green",
 							},
-							5,
+							5
 						);
 						frm.reload_doc();
 					}

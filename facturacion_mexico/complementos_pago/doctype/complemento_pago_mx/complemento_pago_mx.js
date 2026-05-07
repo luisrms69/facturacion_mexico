@@ -42,7 +42,7 @@ function _setup_status_indicators(frm) {
 	if ($val && $val.length) {
 		$val.html(
 			`<span class="indicator ${color}" style="margin-right:4px; vertical-align:middle;"></span>` +
-				`<strong>${frappe.utils.escape_html(status)}</strong>`,
+				`<strong>${frappe.utils.escape_html(status)}</strong>`
 		);
 	}
 }
@@ -63,7 +63,7 @@ function _setup_timbrar_btn(frm) {
 	frm.add_custom_button(__("Timbrar Complemento de Pago"), function () {
 		frappe.confirm(
 			__(
-				"¿Timbrar este Complemento de Pago con FacturAPI? Esta operación enviará el CFDI al SAT.",
+				"¿Timbrar este Complemento de Pago con FacturAPI? Esta operación enviará el CFDI al SAT."
 			),
 			function () {
 				frappe.call({
@@ -78,13 +78,13 @@ function _setup_timbrar_btn(frm) {
 									]),
 									indicator: "green",
 								},
-								8,
+								8
 							);
 							frm.reload_doc();
 						}
 					},
 				});
-			},
+			}
 		);
 	}).addClass("btn-primary");
 }
@@ -102,7 +102,7 @@ function _hide_standard_actions(frm) {
 		.addClass("hidden");
 	frm.page.wrapper
 		.find(
-			'.menu-items .dropdown-item:contains("Amend"), .menu-items .dropdown-item:contains("Corregir")',
+			'.menu-items .dropdown-item:contains("Amend"), .menu-items .dropdown-item:contains("Corregir")'
 		)
 		.addClass("disabled")
 		.css("pointer-events", "none");
@@ -123,7 +123,7 @@ function _setup_revisar_estatus_btn(frm) {
 						st === "Cancelado" ? "red" : st === "Timbrado" ? "green" : "orange";
 					frappe.show_alert(
 						{ message: __("Estado actualizado: {0}", [st]), indicator: color },
-						6,
+						6
 					);
 					frm.reload_doc();
 				}
@@ -177,17 +177,17 @@ function _setup_cancelar_btn(frm) {
 									const color = st === "Cancelado" ? "green" : "orange";
 									frappe.show_alert(
 										{ message: __("Estado: {0}", [st]), indicator: color },
-										6,
+										6
 									);
 									frm.reload_doc();
 								}
 							},
 						});
-					},
+					}
 				);
 			},
 			__("Cancelar Complemento de Pago"),
-			__("Solicitar"),
+			__("Solicitar")
 		);
 	}).addClass("btn-danger");
 }

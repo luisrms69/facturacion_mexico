@@ -192,7 +192,7 @@ class TestInterpretarRespuestaCancelacion(FrappeTestCase):
 		self.assertEqual(estatus_sat, "Vigente")
 
 	def test_desconocido_fallback_conservador(self):
-		status, estatus_sat = self.interpretar({})
+		status, _estatus_sat = self.interpretar({})
 		self.assertEqual(status, "Pendiente Cancelación")
 
 	def test_accepted_libera_pe(self):
@@ -214,7 +214,7 @@ class TestInterpretarRespuestaCancelacion(FrappeTestCase):
 		"""_aplicar_cancelacion NO limpia PE cuando status=Pendiente Cancelación."""
 		from facturacion_mexico.complementos_pago.api import _aplicar_cancelacion
 
-		with patch("frappe.db.set_value") as mock_set, patch("frappe.get_doc") as mock_get:
+		with patch("frappe.db.set_value"), patch("frappe.get_doc") as mock_get:
 			_aplicar_cancelacion(
 				"COMP-TEST", "ACC-PAY-TEST", "Pendiente Cancelación", "Pendiente Cancelación"
 			)
