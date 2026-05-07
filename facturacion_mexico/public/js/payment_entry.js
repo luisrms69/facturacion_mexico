@@ -25,14 +25,8 @@ function _setup_complemento_cancel_warning(frm) {
 		const st = r.message && r.message.status;
 		if (st && st !== "Cancelado") {
 			_hide_cancel_button(frm);
-			frm.dashboard.set_headline_alert(
-				__(
-					"Este Payment Entry tiene un Complemento de Pago fiscal activo ({0}) en estado '{1}'. " +
-						"Cancele primero el complemento antes de cancelar el pago.",
-					[frm.doc.fm_complemento_pago, st]
-				),
-				"orange"
-			);
+			// prettier-ignore
+			frm.dashboard.set_headline_alert(__("Este Payment Entry tiene un Complemento de Pago fiscal activo ({0}) en estado '{1}'. Cancele primero el complemento antes de cancelar el pago.", [frm.doc.fm_complemento_pago, st]), "orange");
 		}
 	});
 }
