@@ -129,7 +129,7 @@ fixtures = [
 				"name",
 				"in",
 				[
-					# Branch custom fields (14 campos)
+					# Branch custom fields (15 campos)
 					"Branch-fm_fiscal_configuration_section",
 					"Branch-fm_certificate_ids",
 					"Branch-fm_enable_fiscal",
@@ -138,6 +138,7 @@ fixtures = [
 					"Branch-fm_folio_end",
 					"Branch-fm_folio_start",
 					"Branch-fm_folio_warning_threshold",
+					"Branch-fm_is_border_zone",
 					"Branch-fm_last_invoice_date",
 					"Branch-fm_lugar_expedicion",
 					"Branch-fm_monthly_average",
@@ -145,18 +146,20 @@ fixtures = [
 					"Branch-fm_share_certificates",
 					"Branch-fm_test_field_unique_2025",
 					"Customer-fm_addenda_info_section",
-					"Customer-fm_column_break_fiscal_customer",
 					"Customer-fm_column_break_validacion",
+					"Customer-fm_customer_default_cost_center",
 					"Customer-fm_default_addenda_type",
-					"Customer-fm_informacion_fiscal_mx_section",
+					"Customer-fm_envio_email_cliente",
 					"Customer-fm_lista_69b_status",
-					"Customer-fm_regimen_fiscal",  # TODO: Remove after custom field elimination (next commit)
 					"Customer-fm_requires_addenda",
 					"Customer-fm_rfc_validated",
 					"Customer-fm_rfc_validation_date",
+					"Customer-fm_tax_regime",
 					"Customer-fm_uso_cfdi_default",
 					"Customer-fm_validacion_sat_section",
-					"Customer-fm_envio_email_cliente",
+					# Cost Center custom fields (2 campos)
+					"Cost Center-fm_default_selling_price_list",
+					"Cost Center-fm_mapped_branch",
 					"Item-fm_clasificacion_sat_section",
 					"Item-fm_producto_servicio_sat",
 					"Item-fm_column_break_item_sat",
@@ -200,6 +203,8 @@ fixtures = [
 					"Sales Invoice-fm_fiscal_section",
 					"Sales Invoice-fm_fiscal_status",
 					"Sales Invoice-fm_folio_reserved",
+					"Sales Invoice-fm_last_status_update",
+					"Sales Invoice-fm_quick_status",
 					# "Sales Invoice-fm_informacion_fiscal_section", # ELIMINADO - Sección vacía migrada a Factura Fiscal Mexico
 					# "Sales Invoice-fm_lugar_expedicion", # MIGRADO A Factura Fiscal Mexico
 					"Sales Invoice-fm_multi_sucursal_column",
