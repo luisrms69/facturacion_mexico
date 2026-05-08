@@ -251,6 +251,20 @@ bench --site facturacion-v16.dev execute "facturacion_mexico.one_offs.script_nam
 - [ ] Sin secretos (credenciales FacturAPI nunca en código)
 - [ ] `bench --site facturacion-v16.dev migrate` limpio
 
+### PROHIBICIÓN ABSOLUTA — NUNCA TRABAJAR EN MAIN
+
+**main no es rama de trabajo. Es solo punto de sincronización con upstream.**
+
+- **Nunca implementar cambios estando en `main`.**
+- **Nunca crear commits estando en `main`.**
+- **Nunca preparar commits estando en `main`.**
+- Todo cambio debe iniciar en una rama feature creada desde `main` limpio.
+- Antes de tocar cualquier archivo, confirmar rama: `git branch --show-current`
+- Si la rama es `main`, **detenerse inmediatamente** y crear rama feature.
+- Si ya hay cambios en `main`, **detenerse** y pedir autorización para rescatarlos a rama.
+- `/ship commit` y `/ship commit-push` deben rechazar si la rama es `main`.
+- `/ship pr` debe exigir rama distinta de `main`.
+
 ### Reglas específicas del proyecto
 
 - PRs siempre a `main` — nunca a `develop`
