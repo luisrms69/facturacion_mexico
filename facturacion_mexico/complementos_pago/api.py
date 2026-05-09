@@ -1234,3 +1234,23 @@ def reporte_complementos_periodo(fecha_inicio, fecha_fin):
 			"periodo": f"{fecha_inicio} - {fecha_fin}",
 		},
 	}
+
+
+@frappe.whitelist()
+def get_active_pe_for_si(si_name: str) -> str | None:
+	"""
+	Retorna el name del primer Payment Entry submitted ligado a la SI,
+	o None si no hay ninguno activo.
+	Usado por FFM para bloquear cancelación cuando hay pagos pendientes de cancelar.
+	"""
+	refs = frappe.get_all(
+		"Payment Entry Reference",
+		filters={"reference_doctype": "Sales Invoice", "reference_name": si_name},
+		fields=["parent"],
+		limit=10,
+	)
+	for ref in refs:
+		docstatus = frappe.db.get_value("Payment Entry", ref.parent, "docstatus")
+		if docstatus == 1:
+			return ref.parent
+	return None
