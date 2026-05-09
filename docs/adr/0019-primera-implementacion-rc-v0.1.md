@@ -1,7 +1,7 @@
 # ADR-0019: Primera implementación Release Candidates v0.1
 
 **Fecha:** 2026-05-08 / 2026-05-09  
-**Estado:** En progreso  
+**Estado:** ❌ RC NO VIABLE — Smoke test incompleto, flujos de cancelación no validados  
 **Contexto:** Cierre del MVP y validación de instalación limpia
 
 ---
@@ -177,13 +177,48 @@ Helper `_get_item_wise_tax_detail_for_tax_item(sales_invoice, tax, item)` en `ti
 - UPDATE lookup buscaba por `title` (con abbr) pero title se guardaba sin abbr
 - Corregido: UPDATE lookup usa `frappe.db.exists(template_name)` — busca por `name` directo
 
+### Resultado Smoke Test v0.1.0 — 2026-05-09 ❌ RC NO VIABLE
+
+**Completado:**
+- FASE 7A — SI PUE timbrado (`FFMX-2026-00002`, UUID confirmado) ✅
+- FASE 7B — SI PPD, Complemento Pago MX, timbrado, cancelación complemento ✅
+- Catálogos SAT (Moneda, Impuesto) cargados en fresh install ✅
+- Bloqueo de cancelación FFM cuando hay PE activo ✅
+
+**Incompleto / No viable:**
+- FASE 7F — Cancelación completa SI con FFM y PE: flujo inconsistente
+- FASE 8 — Resultado final: RC declarado NO VIABLE
+
+**Razón de no viabilidad:**
+El flujo de cancelación y re-facturación (`refacturar_misma_si`) no fue correctamente entendido ni validado durante el smoke test. Se detectaron bugs en el comportamiento del botón Amend y en el flujo de re-facturación, pero no se puede proponer un fix sin entender completamente:
+1. El propósito exacto de `refacturar_misma_si` y qué debe modificar/no modificar
+2. El flujo completo de cancelación para cada combinación (PUE/PPD, con/sin PE, con/sin Complemento, motivos 01/02/03/04)
+3. El comportamiento esperado del botón Amend post-cancelación
+
+**Prerrequisito para próxima validación:**
+Redactar instructivo completo de flujos fiscales antes de continuar pruebas:
+- Emisión PUE y PPD
+- Flujo de Complemento de Pago
+- Cancelación: todos los motivos (01/02/03/04)
+- Combinaciones: con PE / sin PE, con Complemento / sin Complemento
+- Re-facturación post-cancelación
+
 ### Pendiente de resolver antes de primera instalación productiva
-1. `fm_ereceipt_section` y `fm_addenda_section` — idx inconsistente en sitios existentes
-2. Validaciones pendientes del wizard Configuracion Fiscal Mexico (grupos de cuentas, forma de pago)
-3. Mapeo Reclasificacion Fiscal Payment Entry: mejorar UX y validación
-4. Flujo PPD completo en sitio nuevo (no probado)
+1. Flujos de cancelación y re-facturación — requieren instructivo y re-validación completa
+2. `fm_ereceipt_section` y `fm_addenda_section` — idx inconsistente en sitios existentes
+3. Validaciones pendientes del wizard Configuracion Fiscal Mexico (grupos de cuentas, forma de pago)
+4. Mapeo Reclasificacion Fiscal Payment Entry: mejorar UX y validación
 5. Issues abiertos: #108, #109, #110, #111, #112
 6. `title` field visible en SI (comportamiento ERPNext v16, sin solución aprobada aún)
+7. **`refacturar_misma_si` — requiere revisión de diseño:**
+   El comportamiento actual y el comportamiento esperado no fueron validados completamente.
+   Se requiere entender el flujo completo antes de proponer cualquier cambio:
+   - Qué hace exactamente la función en todos los casos
+   - Dónde más se usa en el sistema
+   - Cuál es el comportamiento esperado para motivos 02/03/04 vs 01
+   - Relación con el bloqueo de Amend y el flujo de cancelación
+   **No proponer cambios hasta tener el instructivo completo de flujos fiscales.**
+8. Bloqueo Amend — relación con `refacturar_misma_si` pendiente de entender
 
 ---
 
