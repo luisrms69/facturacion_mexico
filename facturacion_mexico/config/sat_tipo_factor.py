@@ -59,13 +59,13 @@ class SATTipoFactor:
 			"tipo_factor": TASA,
 			"impuesto_sat": "002",
 			"nombre_sat": "IVA",
-			"descripcion": "IVA Nacional 16%",
+			"descripcion": "IVA Nacional",
 		},
 		ROL_IVA_FRO: {
 			"tipo_factor": TASA,
 			"impuesto_sat": "002",
 			"nombre_sat": "IVA",
-			"descripcion": "IVA Frontera 8%",
+			"descripcion": "IVA Frontera",
 		},
 		ROL_IVA_CERO: {
 			"tipo_factor": TASA,

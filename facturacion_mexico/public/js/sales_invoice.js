@@ -42,35 +42,8 @@ frappe.ui.form.on("Sales Invoice", {
 			if (frm.doc.fm_factura_fiscal_mx) {
 				add_view_fiscal_button(frm);
 			}
-
-			has_customer_rfc(frm, function (has_rfc) {
-				if (has_rfc) {
-					// NUEVO: Verificar RFC validado
-					frappe.db
-						.get_value("Customer", frm.doc.customer, ["fm_rfc_validated"])
-						.then((r) => {
-							const is_validated = !!(
-								r.message &&
-								(r.message.fm_rfc_validated === 1 ||
-									r.message.fm_rfc_validated === "1")
-							);
-							if (is_validated) {
-								if (should_show_timbrar_button(frm)) {
-									add_timbrar_button(frm);
-								} else if (is_already_timbrada(frm)) {
-									add_view_fiscal_button(frm);
-								}
-							} else {
-								frm.dashboard.set_headline_alert(
-									__(
-										"No puedes timbrar: el RFC del cliente no está validado con SAT."
-									),
-									"orange"
-								);
-							}
-						});
-				}
-			});
+			// RFC check + timbrar button lo maneja _check_rfc_and_show_timbrar,
+			// llamado desde sales_invoice_block_cancel.js después de resolver el estado de cancelación
 		}
 	},
 });
@@ -149,7 +122,7 @@ function redirect_to_fiscal_document(frm) {
 						frappe.msgprint({
 							title: __("Ya Timbrada"),
 							message: __(
-								"Esta Sales Invoice ya está timbrada. No se puede volver a timbrar."
+								"Esta Sales Invoice ya está timbrada. No se puede volver a timbrar.",
 							),
 							indicator: "orange",
 						});
@@ -204,7 +177,7 @@ function _resolve_uuid_for_return(frm, callback) {
 					_show_uuid_dialog(frm, callback);
 				}
 			});
-		}
+		},
 	);
 }
 
@@ -216,7 +189,7 @@ function _show_uuid_dialog(frm, callback) {
 			fieldtype: "Data",
 			reqd: 1,
 			description: __(
-				"UUID del CFDI que esta nota de crédito cancela o modifica (36 caracteres)"
+				"UUID del CFDI que esta nota de crédito cancela o modifica (36 caracteres)",
 			),
 		},
 		function (values) {
@@ -225,7 +198,7 @@ function _show_uuid_dialog(frm, callback) {
 				frappe.msgprint({
 					title: __("UUID inválido"),
 					message: __(
-						"El UUID debe tener 36 caracteres (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)"
+						"El UUID debe tener 36 caracteres (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)",
 					),
 					indicator: "red",
 				});
@@ -234,7 +207,7 @@ function _show_uuid_dialog(frm, callback) {
 			callback(uuid);
 		},
 		__("UUID relacionado requerido"),
-		__("Continuar")
+		__("Continuar"),
 	);
 }
 
@@ -264,7 +237,7 @@ function _do_create_ffm(frm, extra_fields) {
 			si_iva: iva_total,
 			si_otros_impuestos: otros_impuestos,
 		},
-		extra_fields
+		extra_fields,
 	);
 
 	frappe.call({
@@ -286,7 +259,7 @@ function _do_create_ffm(frm, extra_fields) {
 								message: __("Documento fiscal creado exitosamente"),
 								indicator: "green",
 							},
-							3
+							3,
 						);
 
 						setTimeout(() => {
@@ -356,7 +329,7 @@ frappe.ui.form.on("Sales Invoice", {
 							message: __("Centro de Costos asignado automáticamente."),
 							indicator: "green",
 						},
-						6
+						6,
 					);
 
 					// Disparar evento cost_center para que recalcule Branch/Price List
@@ -366,11 +339,11 @@ frappe.ui.form.on("Sales Invoice", {
 					frappe.show_alert(
 						{
 							message: __(
-								"Este cliente no tiene Centro de Costos configurado. Selecciónalo para continuar."
+								"Este cliente no tiene Centro de Costos configurado. Selecciónalo para continuar.",
 							),
 							indicator: "orange",
 						},
-						6
+						6,
 					);
 				}
 			}
@@ -379,11 +352,11 @@ frappe.ui.form.on("Sales Invoice", {
 			frappe.show_alert(
 				{
 					message: __(
-						"Error al cargar configuración del cliente. Configura manualmente."
+						"Error al cargar configuración del cliente. Configura manualmente.",
 					),
 					indicator: "red",
 				},
-				6
+				6,
 			);
 		}
 	},
@@ -417,7 +390,7 @@ frappe.ui.form.on("Sales Invoice", {
 				const cust = await frappe.db.get_value(
 					"Customer",
 					frm.doc.customer,
-					"default_price_list"
+					"default_price_list",
 				);
 				if (cust && cust.message && cust.message.default_price_list) {
 					picked = cust.message.default_price_list;
@@ -430,7 +403,7 @@ frappe.ui.form.on("Sales Invoice", {
 				const ccpl = await frappe.db.get_value(
 					"Cost Center",
 					cc,
-					"fm_default_selling_price_list"
+					"fm_default_selling_price_list",
 				);
 				if (ccpl && ccpl.message && ccpl.message.fm_default_selling_price_list) {
 					picked = ccpl.message.fm_default_selling_price_list;
@@ -442,7 +415,7 @@ frappe.ui.form.on("Sales Invoice", {
 			if (!picked) {
 				const ss = await frappe.db.get_single_value(
 					"Selling Settings",
-					"selling_price_list"
+					"selling_price_list",
 				);
 				if (ss) {
 					picked = ss;
@@ -458,7 +431,7 @@ frappe.ui.form.on("Sales Invoice", {
 						message: __("Lista de precios asignada automáticamente."),
 						indicator: "green",
 					},
-					6
+					6,
 				);
 			}
 		} catch (e) {
@@ -500,7 +473,7 @@ frappe.ui.form.on("Sales Invoice", {
 			const cc_company = await frappe.db.get_value(
 				"Cost Center",
 				frm.doc.cost_center,
-				"company"
+				"company",
 			);
 			if (
 				cc_company &&
@@ -512,11 +485,11 @@ frappe.ui.form.on("Sales Invoice", {
 				frappe.show_alert(
 					{
 						message: __(
-							"Centro de Costos limpiado: no pertenece a la nueva Company seleccionada."
+							"Centro de Costos limpiado: no pertenece a la nueva Company seleccionada.",
 						),
 						indicator: "orange",
 					},
-					6
+					6,
 				);
 			}
 		} catch (e) {
@@ -551,7 +524,7 @@ frappe.ui.form.on("Sales Invoice", {
 				await frm.set_value("cost_center", cc);
 				frappe.show_alert(
 					{ message: "Centro de Costos asignado automáticamente.", indicator: "green" },
-					6
+					6,
 				);
 			} else {
 				frappe.show_alert(
@@ -559,7 +532,7 @@ frappe.ui.form.on("Sales Invoice", {
 						message: "El cliente no tiene Centro de Costos por defecto.",
 						indicator: "orange",
 					},
-					6
+					6,
 				);
 			}
 
@@ -591,14 +564,14 @@ frappe.ui.form.on("Sales Invoice", {
 				const { message: ccRow } = await frappe.db.get_value(
 					"Cost Center",
 					frm.doc.cost_center,
-					["fm_default_selling_price_list"]
+					["fm_default_selling_price_list"],
 				);
 				if (ccRow && ccRow.fm_default_selling_price_list) {
 					await frm.set_value("selling_price_list", ccRow.fm_default_selling_price_list);
 				} else {
 					const companyPL = await frappe.db.get_single_value(
 						"Selling Settings",
-						"selling_price_list"
+						"selling_price_list",
 					);
 					if (companyPL) await frm.set_value("selling_price_list", companyPL);
 				}
@@ -633,4 +606,33 @@ function cint(v) {
 	} catch (e) {
 		return 0;
 	}
+}
+
+// Verificar RFC validado y mostrar botón timbrar o mensaje de aviso.
+// Llamado desde sales_invoice_block_cancel.js después de resolver estado de cancelación.
+function _check_rfc_and_show_timbrar(frm) {
+	if (!frm.doc || frm.doc.docstatus !== 1) return;
+
+	has_customer_rfc(frm, function (has_rfc) {
+		if (!has_rfc) return;
+		frappe.db.get_value("Customer", frm.doc.customer, ["fm_rfc_validated"]).then((r) => {
+			const is_validated = !!(
+				r.message &&
+				(r.message.fm_rfc_validated === 1 || r.message.fm_rfc_validated === "1")
+			);
+			if (is_validated) {
+				if (should_show_timbrar_button(frm)) {
+					add_timbrar_button(frm);
+				} else if (is_already_timbrada(frm)) {
+					add_view_fiscal_button(frm);
+				}
+			} else {
+				frm.dashboard &&
+					frm.dashboard.set_headline_alert(
+						__("No puedes timbrar: el RFC del cliente no está validado con SAT."),
+						"orange",
+					);
+			}
+		});
+	});
 }

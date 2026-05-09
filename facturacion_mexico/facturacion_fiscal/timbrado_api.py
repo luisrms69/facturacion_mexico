@@ -1647,6 +1647,53 @@ class TimbradoAPI:
 	# E4-RO: FUNCIONES PUENTE SALES INVOICE → PAYLOAD PAC (READ-ONLY)
 	# ========================================================================
 
+	def _get_item_wise_tax_detail_for_tax_item(self, sales_invoice, tax, item):
+		"""
+		Helper de detección de schema para item_wise_tax_detail.
+
+		ERPNext v16.16 tiene dos schemas mutuamente excluyentes:
+		- Fresh v16: child table item_wise_tax_details (tabItem Wise Tax Detail)
+		- Legacy migrado v15→v16: JSON en columna tax.item_wise_tax_detail
+
+		Retorna dict con rate, amount, taxable_amount, source.
+		Retorna None si no hay datos en ningún schema.
+		"""
+		# Schema A: child table (fresh v16)
+		child_rows = sales_invoice.get("item_wise_tax_details") or []
+		if child_rows:
+			for row in child_rows:
+				tax_match = row.get("tax_row") == tax.name
+				item_match = row.get("item_row") in [item.name, item.item_code, item.item_name]
+				if tax_match and item_match:
+					return {
+						"rate": flt(row.get("rate", 0)),
+						"amount": flt(row.get("amount", 0)),
+						"taxable_amount": flt(row.get("taxable_amount", 0)),
+						"source": "item_wise_tax_details",
+					}
+			# child table existe pero no hay match para este tax/item
+			return None
+
+		# Schema B: legacy JSON en tax row (sites migrados v15→v16)
+		raw = getattr(tax, "item_wise_tax_detail", None)
+		if raw:
+			try:
+				item_wise = json.loads(raw)
+			except (json.JSONDecodeError, TypeError):
+				return None
+			for key in [item.name, item.item_code, item.item_name]:
+				if key in item_wise:
+					return {
+						"rate": float(item_wise[key][0]),
+						"amount": float(item_wise[key][1]),
+						"taxable_amount": None,
+						"source": "legacy_item_wise_tax_detail",
+					}
+			return None
+
+		# Ningún schema disponible
+		return None
+
 	def _read_taxes_from_sales_invoice_item(self, item, sales_invoice):
 		"""
 		E4.1: Leer impuestos de un item desde Sales Invoice.
@@ -1681,10 +1728,10 @@ class TimbradoAPI:
 		taxes_dict = {}  # Usar dict para deduplicar por account_head
 
 		for tax in sales_invoice.taxes:
-			if not tax.item_wise_tax_detail:
-				# Fallback para On Net Total sin item_wise_tax_detail (p.ej. SI creada via API
-				# o cuando ERPNext v16 no persistió el desglose por item).
-				# Solo aplica a tasas sobre base neta: amount = net_amount x rate / 100.
+			detail = self._get_item_wise_tax_detail_for_tax_item(sales_invoice, tax, item)
+
+			if detail is None:
+				# Sin datos item-wise: fallback On Net Total
 				if getattr(tax, "charge_type", None) == "On Net Total" and flt(tax.rate):
 					amount = flt(item.net_amount) * flt(tax.rate) / 100
 					if amount and tax.account_head not in taxes_dict:
@@ -1699,42 +1746,21 @@ class TimbradoAPI:
 						)
 				continue
 
-			# Parse item_wise_tax_detail
-			try:
-				item_wise = json.loads(tax.item_wise_tax_detail)
-			except (json.JSONDecodeError, TypeError):
-				continue
-
-			# Buscar este item con fallback de llaves:
-			# ERPNext v16 usa item.name (row UUID); versiones anteriores usan item.item_code.
-			rate_from_json = 0.0
-			amount = 0.0
-			key_used = None
-
-			for key in [item.name, item.item_code, item.item_name]:
-				if key in item_wise:
-					rate_from_json = float(item_wise[key][0])  # Position 0 = rate
-					amount = float(item_wise[key][1])  # Position 1 = amount
-					key_used = key
-					break
+			rate_from_detail = detail["rate"]
+			amount = detail["amount"]
+			source = detail["source"]
 
 			# Solo agregar si hay rate o amount != 0
-			if rate_from_json != 0 or amount != 0:
-				# E4-RO: Usar rate exacto de item_wise_tax_detail (NO fallback a tax.rate)
-				# Para IEPS Cuota, hook guardó [0, amount], así que rate=0.0
-				final_rate = rate_from_json
-
-				# DEDUPLICAR: Solo guardar si NO existe ya esta cuenta
+			if rate_from_detail != 0 or amount != 0:
 				if tax.account_head not in taxes_dict:
 					taxes_dict[tax.account_head] = {
 						"account_head": tax.account_head,
-						"rate": final_rate,
+						"rate": rate_from_detail,
 						"amount": amount,
 					}
-
 					frappe.logger().info(
 						f"E4-RO - Item {item.item_code}: Tax {tax.account_head} "
-						f"leído desde SI item_wise_tax_detail (llave={key_used}, rate={final_rate}, amount={amount})"
+						f"leído desde {source} (rate={rate_from_detail}, amount={amount})"
 					)
 
 		# Convertir dict a list
@@ -1777,17 +1803,15 @@ class TimbradoAPI:
 				tax_row = tax
 				break
 
-		if not tax_row or not tax_row.item_wise_tax_detail:
+		if not tax_row:
 			return 0.0
 
-		# Parse JSON
-		item_wise = json.loads(tax_row.item_wise_tax_detail)
+		# Crear item proxy para usar el helper
+		item_proxy = frappe._dict(name=row_name, item_code=item_code, item_name=item_name)
+		detail = self._get_item_wise_tax_detail_for_tax_item(sales_invoice, tax_row, item_proxy)
 
-		# CAMBIO 3: Fallback de llaves (row.name → item_code → item_name)
-		for key in [row_name, item_code, item_name]:
-			if key in item_wise:
-				# item_wise[key] = [rate, amount]
-				return float(item_wise[key][1])  # Posición 1 = amount
+		if detail and detail["amount"] != 0:
+			return detail["amount"]
 
 		# No encontrado
 		frappe.logger().warning(f"Tax amount no encontrado para item {item_code} en {account_head}")

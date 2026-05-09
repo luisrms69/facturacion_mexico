@@ -132,13 +132,58 @@ Los siguientes Custom Fields de Sales Invoice tienen `idx=0` porque su `insert_a
 - Configuracion Fiscal Mexico wizard: nombres de roles correctos, `enable_exportacion` default=0
 - Campos de prueba Branch eliminados
 
+### Resuelto en sesión 2026-05-09
+
+**P6 — SI custom fields con idx=0 (parcialmente resuelto)**
+- `fm_multi_sucursal_section`, `fm_folio_reserved`, `fm_ereceipt_section`, `fm_pending_amount`, `fm_addenda_section`: insert_after corregidos a campos existentes
+- `fm_last_status_update`: eliminado (sin código activo, sin dependientes)
+- `fm_quick_status`: insert_after corregido a `fm_fiscal_status`
+- **Pendiente:** `fm_ereceipt_section` y `fm_addenda_section` aún tienen idx inconsistente en sitios existentes (no bloquea fresh install)
+
+**P7 — Branch-company restaurado**
+- `Branch-company` (Link→Company, reqd=1) fue eliminado accidentalmente con DELETE masivo de custom fields. Restaurado al fixture. Causa: nuestra app crea y usa este campo (`branch_auto_selector.py`, `Cost Center-fm_mapped_branch` link_filters).
+
+**P8 — item_wise_tax_detail: incompatibilidad ERPNext v16 fresh vs legacy**
+
+**Diagnóstico:**
+ERPNext v16.16.0 tiene dos schemas mutuamente excluyentes para el desglose de impuestos por ítem:
+
+| Schema | Sites legacy (migrados v15→v16) | Fresh v16 |
+|---|---|---|
+| `tax.item_wise_tax_detail` (columna JSON en `Sales Taxes and Charges`) | ✅ Existe (columna preservada de v15) | ❌ No existe |
+| `tabItem Wise Tax Detail` (child table en Sales Invoice) | ❌ No existe | ✅ Existe |
+
+La columna legacy NO está en el DocType JSON de ERPNext v16 — por tanto no se crea en fresh installs. Sí está en el Python class como `DF.Code | None` (type hint únicamente, no genera schema). La columna persiste en sitios migrados porque Frappe nunca elimina columnas durante migrate.
+
+`get_itemised_tax(si)` de ERPNext falla en fresh v16 al cargar el documento desde BD porque `_item_wise_tax_details` (in-memory) está vacío.
+
+**Solución implementada:**
+Helper `_get_item_wise_tax_detail_for_tax_item(sales_invoice, tax, item)` en `timbrado_api.py`:
+- Detecta schema automáticamente
+- Schema A (fresh v16): lee `sales_invoice.get("item_wise_tax_details")` — child table persistida
+- Schema B (legacy): usa `getattr(tax, "item_wise_tax_detail", None)` — JSON seguro sin AttributeError
+- Si ninguno disponible: retorna None (fallback On Net Total en la función llamante)
+
+**Validado:** timbrado exitoso en sitio fresh v16 — `FFMX-2026-00001` timbrado con UUID `12D3F740-9445-46F1-B90B-6A91EA7188DA`.
+
+**P9 — Correcciones UX Customer/SI**
+- Botón "Validar RFC/CSF" ahora visible (no oculto en Acciones)
+- Mensaje de dirección fiscal faltante: claro y con instrucción
+- Solo requiere Código Postal como campo obligatorio para validar RFC
+- Mensaje "No puedes timbrar: RFC no validado" usa `frm.dashboard.set_headline_alert` coordinado con cancel guard
+- STCT lookup corregido: busca por `name` en lugar de `title` (bug ERPNext autoname)
+
+**P10 — Generador STCT: duplicate key en re-ejecución**
+- UPDATE lookup buscaba por `title` (con abbr) pero title se guardaba sin abbr
+- Corregido: UPDATE lookup usa `frappe.db.exists(template_name)` — busca por `name` directo
+
 ### Pendiente de resolver antes de primera instalación productiva
-1. SI custom fields con `idx=0` (6 campos con `insert_after` roto)
-2. Validaciones pendientes del wizard Configuracion Fiscal Mexico
-3. Flujo completo de Sales Invoice en sitio nuevo (STCT automático via Branch)
-4. Mapeo Reclasificacion Fiscal Payment Entry: mejorar UX y validación
-5. Pruebas de timbrado en sitio nuevo con credenciales sandbox
-6. Issues abiertos: #108, #109, #110, #111, #112
+1. `fm_ereceipt_section` y `fm_addenda_section` — idx inconsistente en sitios existentes
+2. Validaciones pendientes del wizard Configuracion Fiscal Mexico (grupos de cuentas, forma de pago)
+3. Mapeo Reclasificacion Fiscal Payment Entry: mejorar UX y validación
+4. Flujo PPD completo en sitio nuevo (no probado)
+5. Issues abiertos: #108, #109, #110, #111, #112
+6. `title` field visible en SI (comportamiento ERPNext v16, sin solución aprobada aún)
 
 ---
 
@@ -153,3 +198,9 @@ Los siguientes Custom Fields de Sales Invoice tienen `idx=0` porque su `insert_a
 4. **Diagnóstico primero, implementar con autorización** — El flujo obligatorio (diagnosticar → reportar → esperar autorización → implementar) debe respetarse siempre. Las correcciones sin autorización generan deuda técnica y pérdida de confianza.
 
 5. **Correcciones deben ser universales** — Todo fix debe funcionar en todos los sites del app, no solo en el site de prueba actual. Fixes de BD directos no son aceptables como solución final.
+
+6. **ERPNext v16 tiene dos schemas para item_wise_tax_detail** — Columna JSON legacy (`Sales Taxes and Charges`) preservada en sitios migrados, child table `tabItem Wise Tax Detail` en fresh v16. Son mutuamente excluyentes. El código debe detectar cuál usar vía presencia de datos en child table.
+
+7. **`git checkout` sin autorización es destructivo** — Usar `git checkout -- <file>` para recuperar archivos corruptos por un error de herramienta (ruff en JSON) causó pérdida de cambios en curso. Nunca hacer sin autorización explícita.
+
+8. **`DELETE FROM tabCustom Field WHERE dt=X`** — Elimina TODOS los custom fields del DocType incluyendo los de ERPNext/HRMS que no son del app. Siempre eliminar por nombre específico, nunca masivo por DocType.

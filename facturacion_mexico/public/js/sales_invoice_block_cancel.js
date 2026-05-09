@@ -22,10 +22,11 @@ frappe.ui.form.on("Sales Invoice", {
 							__("Cancelación bloqueada: {0}", [
 								res.reason || "Razón no especificada",
 							]),
-							"orange"
+							"orange",
 						);
 				} else {
-					frm.dashboard && frm.dashboard.clear_headline(); // ← limpia mensajes viejos
+					frm.dashboard && frm.dashboard.clear_headline(); // limpia "Cancelación bloqueada"
+					_check_rfc_and_show_timbrar(frm); // RFC check corre después del clear
 				}
 			})
 			.catch(() => {
@@ -72,7 +73,7 @@ function _block_si_if_ffm_cancelada(frm) {
 			frm.dashboard.set_headline_alert(
 				// prettier-ignore
 				__("Factura cancelada ante el SAT ({0}). No se pueden registrar pagos. Nota de Crédito disponible si aplica. Para re-facturar: cancela esta SI y crea una nueva.", [frm.doc.fm_factura_fiscal_mx]),
-				"red"
+				"red",
 			);
 	}, 300);
 }
