@@ -34,7 +34,7 @@
       "fieldname": "enable_exportacion",
       "label": "Exportación (IVA 0%)",
       "fieldtype": "Check",
-      "default": "1"
+      "default": "0"
     },
     {
       "fieldname": "column_break_1",
