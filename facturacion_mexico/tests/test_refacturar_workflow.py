@@ -16,7 +16,6 @@ from frappe.tests.utils import FrappeTestCase
 
 from facturacion_mexico.api.fiscal_operations import refacturar_misma_si
 
-
 TEST_SAT_CODE = "84111506"  # Servicios de consultoría — genérico para testing
 TEST_ITEM_CODE = "FM-TEST-REFACTURA-ITEM"
 
@@ -56,7 +55,7 @@ class TestRefacturarWorkflow(FrappeTestCase):
 			item = frappe.new_doc("Item")
 			item.item_code = TEST_ITEM_CODE
 			item.item_name = "Item de prueba re-facturación"
-			item.item_group = "Services"
+			item.item_group = "_Test Item Group"
 			item.stock_uom = "Nos"
 			item.is_stock_item = 0
 			item.fm_producto_servicio_sat = TEST_SAT_CODE

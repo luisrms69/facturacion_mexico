@@ -239,7 +239,7 @@ bench --site facturacion-v16.dev execute "facturacion_mexico.one_offs.script_nam
 - Correr linters en archivos modificados:
   ```bash
   ruff format <archivos .py modificados>
-  npx prettier --write <archivos .js modificados>
+  npx prettier@2.7.1 --write <archivos .js modificados>
   ```
 
 ### Antes de cada PR
