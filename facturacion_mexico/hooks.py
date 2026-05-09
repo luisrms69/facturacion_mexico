@@ -129,7 +129,8 @@ fixtures = [
 				"name",
 				"in",
 				[
-					# Branch custom fields (19 campos)
+					# Branch custom fields (20 campos)
+					"Branch-company",
 					"Branch-fm_fiscal_configuration_section",
 					"Branch-fm_certificate_ids",
 					"Branch-fm_enable_fiscal",
@@ -207,7 +208,6 @@ fixtures = [
 					"Sales Invoice-fm_fiscal_section",
 					"Sales Invoice-fm_fiscal_status",
 					"Sales Invoice-fm_folio_reserved",
-					"Sales Invoice-fm_last_status_update",
 					"Sales Invoice-fm_quick_status",
 					# "Sales Invoice-fm_informacion_fiscal_section", # ELIMINADO - Sección vacía migrada a Factura Fiscal Mexico
 					# "Sales Invoice-fm_lugar_expedicion", # MIGRADO A Factura Fiscal Mexico
