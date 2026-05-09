@@ -204,6 +204,7 @@ fixtures = [
 					"Sales Invoice-fm_factorapi_draft_id",
 					"Sales Invoice-fm_es_ppd",
 					"Sales Invoice-fm_factura_fiscal_mx",
+					"Sales Invoice-fm_fiscal_column_break",
 					"Sales Invoice-fm_ffm_summary_html",
 					"Sales Invoice-fm_fiscal_section",
 					"Sales Invoice-fm_fiscal_status",

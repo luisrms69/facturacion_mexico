@@ -1,0 +1,26 @@
+[
+  {
+    "doctype": "Impuesto SAT",
+    "name": "001",
+    "code": "001",
+    "description": "ISR",
+    "vigencia_desde": "2010-01-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Impuesto SAT",
+    "name": "002",
+    "code": "002",
+    "description": "IVA",
+    "vigencia_desde": "2010-01-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Impuesto SAT",
+    "name": "003",
+    "code": "003",
+    "description": "IEPS",
+    "vigencia_desde": "2010-01-01",
+    "vigencia_hasta": null
+  }
+]
