@@ -44,16 +44,9 @@ def setup_branch_custom_fields():
 
 
 def setup_sales_invoice_custom_fields():
-	"""Configurar custom fields para Sales Invoice multi-sucursal"""
-	try:
-		from .sales_invoice_fields import setup_sales_invoice_custom_fields as setup_si_fields
-
-		setup_si_fields()
-		print("✅ Custom fields para Sales Invoice multi-sucursal creados")
-
-	except Exception as e:
-		print(f"❌ Error configurando custom fields Sales Invoice: {e!s}")
-		frappe.log_error(f"Error setting up sales invoice custom fields: {e!s}", "Multi Sucursal Setup")
+	"""Sales Invoice custom fields managed via fixtures — no manual creation needed."""
+	print("✅ Sales Invoice custom fields managed via fixtures - no manual creation needed")
+	return True
 
 
 def setup_addenda_types():
