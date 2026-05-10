@@ -123,6 +123,25 @@ class TestRefacturarWorkflow(FrappeTestCase):
 				cc.insert(ignore_permissions=True)
 				cls.cost_center = cc.name
 
+		# --- Fiscal Year — requerido por ERPNext para GL entries en si.submit() ---
+		# bench new-site en CI no crea Fiscal Year automáticamente.
+		from frappe.utils import getdate
+
+		today = getdate()
+		fy_name = str(today.year)
+		if not frappe.db.exists("Fiscal Year", fy_name):
+			fy = frappe.new_doc("Fiscal Year")
+			fy.year = fy_name
+			fy.year_start_date = f"{today.year}-01-01"
+			fy.year_end_date = f"{today.year}-12-31"
+			fy.append("companies", {"company": cls.company})
+			fy.insert(ignore_permissions=True)
+		else:
+			fy = frappe.get_doc("Fiscal Year", fy_name)
+			if cls.company not in [c.company for c in fy.companies]:
+				fy.append("companies", {"company": cls.company})
+				fy.save(ignore_permissions=True)
+
 		frappe.db.commit()
 
 	def _make_si(self, docstatus=1):
