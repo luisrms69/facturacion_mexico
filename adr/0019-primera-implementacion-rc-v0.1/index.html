@@ -1,0 +1,1427 @@
+
+<!doctype html>
+<html lang="es" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentación completa del sistema de facturación electrónica para México">
+      
+      
+        <meta name="author" content="Equipo Desarrollo Facturación México">
+      
+      
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.3">
+    
+    
+      
+        <title>ADR-0019: Primera implementación Release Candidates v0.1 - Facturación México - Documentación Técnica</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.50c56a3b.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/advanced.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function n(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],n("js",new Date),n("config","G-XXXXXXXXXX"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){this.value&&n("event","search",{search_term:this.value})}),document$.subscribe(function(){var a=document.forms.feedback;if(void 0!==a)for(var e of a.querySelectorAll("[type=submit]"))e.addEventListener("click",function(e){e.preventDefault();var t=document.location.pathname,e=this.getAttribute("data-md-value");n("event","feedback",{page:t,data:e}),a.firstElementChild.disabled=!0;e=a.querySelector(".md-feedback__note [data-md-value='"+e+"']");e&&(e.hidden=!1)}),a.hidden=!1}),location$.subscribe(function(e){n("config","G-XXXXXXXXXX",{page_path:e.pathname})})});var e=document.createElement("script");e.async=!0,e.src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX",document.getElementById("__analytics").insertAdjacentElement("afterEnd",e)}</script>
+  
+    <script>var consent;"undefined"==typeof __md_analytics||(consent=__md_get("__consent"))&&consent.analytics&&__md_analytics()</script>
+  
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#adr-0019-primera-implementacion-release-candidates-v01" class="md-skip">
+          Saltar a contenido
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabecera">
+    <a href="../.." title="Facturación México - Documentación Técnica" class="md-header__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Facturación México - Documentación Técnica
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              ADR-0019: Primera implementación Release Candidates v0.1
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo oscuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo oscuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Búsqueda" placeholder="Búsqueda" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Buscar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpiar" aria-label="Limpiar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando búsqueda
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Pestañas" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+    
+  
+  Inicio
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../user-guide/" class="md-tabs__link">
+          
+  
+  Guía de Usuario
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/" class="md-tabs__link">
+          
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/" class="md-tabs__link">
+          
+  
+  Desarrollo
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navegación" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Facturación México - Documentación Técnica" class="md-nav__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Facturación México - Documentación Técnica
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Inicio
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Guía de Usuario
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Guía de Usuario
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Usuario - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/getting-started/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Primeros Pasos
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/draft-invoices/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Facturas en Borrador
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/troubleshooting/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    API Reference
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    API Reference - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/cfdi/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CFDI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/draft-management/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Draft Management
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/catalogos/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Catalogos SAT
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/hooks/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Hooks
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Desarrollo
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Desarrollo
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Desarrollo - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Setup Desarrollo
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/draft-workflow/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Draft Workflow
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#contexto" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contexto
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#proceso-seguido" class="md-nav__link">
+    <span class="md-ellipsis">
+      Proceso seguido
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Proceso seguido">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#auditorias-realizadas" class="md-nav__link">
+    <span class="md-ellipsis">
+      Auditorías realizadas
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#problemas-encontrados-y-resolucion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Problemas encontrados y resolución
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Problemas encontrados y resolución">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#p1-desincronia-hooks-filter-vs-custom_fieldjson" class="md-nav__link">
+    <span class="md-ellipsis">
+      P1 — Desincronía hooks filter vs custom_field.json
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p2-branch-fm_certificate_ids-no-existia-en-fixture" class="md-nav__link">
+    <span class="md-ellipsis">
+      P2 — Branch-fm_certificate_ids no existía en fixture
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p3-customer-fm_tax_regime-apuntaba-a-doctype-incorrecto" class="md-nav__link">
+    <span class="md-ellipsis">
+      P3 — Customer-fm_tax_regime apuntaba a DocType incorrecto
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p4-branch-layout-desordenado-por-idx0-en-custom-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      P4 — Branch: layout desordenado por idx=0 en custom fields
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p5-configuracion-fiscal-mexico-rol_fiscal-con-nombre-obsoleto" class="md-nav__link">
+    <span class="md-ellipsis">
+      P5 — Configuracion Fiscal Mexico: rol_fiscal con nombre obsoleto
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p6-campos-si-con-idx0-pendiente-de-resolver" class="md-nav__link">
+    <span class="md-ellipsis">
+      P6 — Campos SI con idx=0 (pendiente de resolver)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p7-problemas-conocidos-del-wizard-configuracion-fiscal-mexico-pendiente" class="md-nav__link">
+    <span class="md-ellipsis">
+      P7 — Problemas conocidos del wizard Configuracion Fiscal Mexico (pendiente)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#estado-al-momento-de-este-adr" class="md-nav__link">
+    <span class="md-ellipsis">
+      Estado al momento de este ADR
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Estado al momento de este ADR">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#resuelto-en-esta-sesion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Resuelto en esta sesión
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resuelto-en-sesion-2026-05-09" class="md-nav__link">
+    <span class="md-ellipsis">
+      Resuelto en sesión 2026-05-09
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resultado-smoke-test-v010-2026-05-09-rc-no-viable" class="md-nav__link">
+    <span class="md-ellipsis">
+      Resultado Smoke Test v0.1.0 — 2026-05-09 ❌ RC NO VIABLE
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pendiente-de-resolver-antes-de-primera-instalacion-productiva" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pendiente de resolver antes de primera instalación productiva
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lecciones-aprendidas" class="md-nav__link">
+    <span class="md-ellipsis">
+      Lecciones aprendidas
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="adr-0019-primera-implementacion-release-candidates-v01">ADR-0019: Primera implementación Release Candidates v0.1<a class="headerlink" href="#adr-0019-primera-implementacion-release-candidates-v01" title="Permanent link">&para;</a></h1>
+<p><strong>Fecha:</strong> 2026-05-08 / 2026-05-09<br />
+<strong>Estado:</strong> ❌ RC NO VIABLE — Smoke test incompleto, flujos de cancelación no validados<br />
+<strong>Contexto:</strong> Cierre del MVP y validación de instalación limpia</p>
+<hr />
+<h2 id="contexto">Contexto<a class="headerlink" href="#contexto" title="Permanent link">&para;</a></h2>
+<p>Después de completar el MVP funcional (PPD, Complemento Pago MX, FFM status, Settings mínimos), se inició el proceso de preparación para el primer release (v0.1.0) con tres etapas:</p>
+<ul>
+<li><strong>RC0</strong> — Baseline funcional antes de limpieza (tag <code>v0.1.0-rc0</code>)</li>
+<li><strong>RC1</strong> — Correcciones de fixtures/filter sin eliminar patches (tag <code>v0.1.0-rc1</code>)</li>
+<li><strong>RC2</strong> — Patches desactivados; instalación sin migraciones históricas (tag <code>v0.1.0-rc2</code>)</li>
+<li><strong>v0.1.0</strong> — Release final taggeado</li>
+</ul>
+<hr />
+<h2 id="proceso-seguido">Proceso seguido<a class="headerlink" href="#proceso-seguido" title="Permanent link">&para;</a></h2>
+<h3 id="auditorias-realizadas">Auditorías realizadas<a class="headerlink" href="#auditorias-realizadas" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p><strong>Auditoría de patches</strong> — Se clasificaron los 9 patches canónicos. Conclusión: todos son idempotentes en instalación limpia. Para RC2 se comentaron todos.</p>
+</li>
+<li>
+<p><strong>Auditoría DB vs schema/fixtures</strong> — Se comparó BD existente vs <code>custom_field.json</code> vs hooks filter. Se encontraron discrepancias importantes.</p>
+</li>
+<li>
+<p><strong>Validación instalación limpia</strong> — Se creó sitio <code>test-fm-v010.localhost</code> con ERPNext v16 limpio y se instaló <code>facturacion_mexico v0.1.0</code>.</p>
+</li>
+</ol>
+<hr />
+<h2 id="problemas-encontrados-y-resolucion">Problemas encontrados y resolución<a class="headerlink" href="#problemas-encontrados-y-resolucion" title="Permanent link">&para;</a></h2>
+<h3 id="p1-desincronia-hooks-filter-vs-custom_fieldjson">P1 — Desincronía hooks filter vs custom_field.json<a class="headerlink" href="#p1-desincronia-hooks-filter-vs-custom_fieldjson" title="Permanent link">&para;</a></h3>
+<p><strong>Problema:</strong> El filter de fixtures en <code>hooks.py</code> no coincidía con los campos en <code>custom_field.json</code>. Campos en JSON pero no en filter serían eliminados en próximo <code>bench export-fixtures</code>. Campos en filter pero no en JSON son referencias muertas.</p>
+<p><strong>Resolución (RC1):</strong> Se alinearon filter y JSON a 75 campos exactos. Se eliminaron 3 referencias muertas (<code>fm_regimen_fiscal</code>, <code>fm_column_break_fiscal_customer</code>, <code>fm_informacion_fiscal_mx_section</code>). Se agregaron campos faltantes al filter.</p>
+<p><strong>PR:</strong> #106</p>
+<hr />
+<h3 id="p2-branch-fm_certificate_ids-no-existia-en-fixture">P2 — Branch-fm_certificate_ids no existía en fixture<a class="headerlink" href="#p2-branch-fm_certificate_ids-no-existia-en-fixture" title="Permanent link">&para;</a></h3>
+<p><strong>Problema:</strong> El campo <code>Branch-fm_certificate_ids</code> estaba en el hooks filter y era referenciado en código (<code>multi_sucursal/utils.py</code>, <code>branch_fiscal_fields.py</code>) pero no tenía definición en <code>custom_field.json</code> ni existía en BD.</p>
+<p><strong>Resolución:</strong> Se agregó la definición completa al fixture JSON.</p>
+<hr />
+<h3 id="p3-customer-fm_tax_regime-apuntaba-a-doctype-incorrecto">P3 — Customer-fm_tax_regime apuntaba a DocType incorrecto<a class="headerlink" href="#p3-customer-fm_tax_regime-apuntaba-a-doctype-incorrecto" title="Permanent link">&para;</a></h3>
+<p><strong>Problema:</strong> El campo <code>Customer-fm_tax_regime</code> (Link field) tenía <code>options: "Tax Category"</code> en el fixture, apuntando al DocType nativo vacío de ERPNext en lugar de <code>Regimen Fiscal SAT</code> (el catálogo propio con 20 registros). El dropdown aparecía vacío.</p>
+<p><strong>Resolución:</strong> Se corrigió <code>options</code> en <code>custom_field.json</code> a <code>"Regimen Fiscal SAT"</code>.</p>
+<p><strong>Causa raíz:</strong> El campo fue creado como reemplazo de <code>tax_category</code> y heredó el mismo <code>options</code> sin actualizarlo.</p>
+<hr />
+<h3 id="p4-branch-layout-desordenado-por-idx0-en-custom-fields">P4 — Branch: layout desordenado por idx=0 en custom fields<a class="headerlink" href="#p4-branch-layout-desordenado-por-idx0-en-custom-fields" title="Permanent link">&para;</a></h3>
+<p><strong>Problema:</strong> Los Custom Fields de Branch aparecían en desorden en la UI del formulario. Las secciones (Gestión de Folios, Gestión de Certificados, Estadísticas) no existían en el fixture. Los campos que referenciaban esas secciones como <code>insert_after</code> obtenían <code>idx=0</code> porque el target no existía en BD al momento de la importación del fixture.</p>
+<p><strong>Causa técnica identificada:</strong>
+- <code>frappe.get_meta(dt, cached=False)</code> en <code>Custom Field.before_save()</code> usa la meta completa (nativos + custom) para calcular <code>idx</code>
+- <code>company</code> NO es campo nativo de Branch en v16 — es un Custom Field de ERPNext. En el site de prueba no existía como Custom Field antes de importar nuestros fixtures
+- Por tanto <code>insert_after: "company"</code> no encontraba el campo → <code>idx=0</code>
+- Frappe procesa el fixture JSON en orden, pero si el target del <code>insert_after</code> no existe aún en BD, el campo queda en <code>idx=0</code> y el orden visual se rompe</p>
+<p><strong>Resolución:</strong>
+1. Se agregaron los 6 campos estructurales faltantes al fixture: <code>folio_management_section</code>, <code>column_break_folios_1</code>, <code>column_break_folios_2</code>, <code>certificate_management_section</code>, <code>statistics_section</code>, <code>column_break_stats_1</code>
+2. Se cambió <code>fm_fiscal_configuration_section.insert_after</code> de <code>"company"</code> a <code>"branch"</code> — único campo nativo que SÍ existe en la meta de Branch
+3. Se reordenaron todos los campos Branch en el JSON siguiendo orden topológico para que cada <code>insert_after</code> sea procesado después de su target
+4. Se eliminaron 2 campos de prueba sin uso: <code>fm_enable_fiscal_test</code>, <code>fm_test_field_unique_2025</code></p>
+<p><strong>Regla aprendida:</strong> Para fixtures de Custom Fields en DocTypes nativos de ERPNext/Frappe:
+- Verificar que el campo referenciado en <code>insert_after</code> SÍ existe como campo nativo del DocType (en <code>tabDocField</code>, no solo en <code>tabCustom Field</code>)
+- Si <code>insert_after</code> apunta a un campo nativo que no existe → <code>idx=0</code> → layout roto
+- Solo un campo debe anclarse a campo nativo. Los demás deben encadenarse entre sí.</p>
+<hr />
+<h3 id="p5-configuracion-fiscal-mexico-rol_fiscal-con-nombre-obsoleto">P5 — Configuracion Fiscal Mexico: rol_fiscal con nombre obsoleto<a class="headerlink" href="#p5-configuracion-fiscal-mexico-rol_fiscal-con-nombre-obsoleto" title="Permanent link">&para;</a></h3>
+<p><strong>Problema:</strong> La función JS <code>add_base_roles()</code> en el wizard de Configuracion Fiscal Mexico inicializaba la tabla con <code>"IVA por Pagar (16%)"</code>, nombre que ya no coincide con las opciones del Select field (<code>"IVA por Pagar (Nacional)"</code>). El wizard fallaba al guardar.</p>
+<p><strong>Causa raíz:</strong> La función JS fue escrita con el nombre antiguo antes de la migración a nomenclatura semántica (sin porcentajes) y nunca se actualizó cuando se cambió el DocType JSON.</p>
+<p><strong>Resolución:</strong> Se eliminó la función <code>add_base_roles()</code> del JS. La inicialización ahora delega completamente al servidor vía <code>sincronizar_tabla_con_alcance()</code> que usa las constantes correctas de <code>roles_fiscales.py</code>.</p>
+<p><strong>Problema secundario detectado:</strong> <code>enable_exportacion</code> tenía <code>default: "1"</code>, haciendo que Exportación (IVA 0%) apareciera requerida por defecto en todos los negocios aunque no la necesiten. Se cambió a <code>default: "0"</code>.</p>
+<hr />
+<h3 id="p6-campos-si-con-idx0-pendiente-de-resolver">P6 — Campos SI con idx=0 (pendiente de resolver)<a class="headerlink" href="#p6-campos-si-con-idx0-pendiente-de-resolver" title="Permanent link">&para;</a></h3>
+<p><strong>Problema identificado, NO resuelto aún:</strong></p>
+<p>Los siguientes Custom Fields de Sales Invoice tienen <code>idx=0</code> porque su <code>insert_after</code> apunta a campos que fueron migrados a Factura Fiscal Mexico y ya no existen en SI:</p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>insert_after roto</th>
+<th>Causa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fm_multi_sucursal_section</code></td>
+<td><code>fm_requires_stamp</code></td>
+<td>Migrado a FFM</td>
+</tr>
+<tr>
+<td><code>fm_addenda_section</code></td>
+<td><code>fm_section_break_cfdi</code></td>
+<td>Migrado a FFM</td>
+</tr>
+<tr>
+<td><code>fm_ereceipt_section</code></td>
+<td><code>fm_payment_method_sat</code></td>
+<td>Migrado a FFM</td>
+</tr>
+<tr>
+<td><code>fm_folio_reserved</code></td>
+<td><code>fm_serie_folio</code></td>
+<td>Migrado a FFM</td>
+</tr>
+<tr>
+<td><code>fm_last_status_update</code></td>
+<td><code>fm_column_break_fiscal</code></td>
+<td>Desaparecido</td>
+</tr>
+<tr>
+<td><code>fm_pending_amount</code></td>
+<td><code>fm_payment_status</code></td>
+<td>Desaparecido</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Impacto:</strong> Los 3 Section Breaks con <code>idx=0</code> se renderizan al inicio del formulario SI, desplazando el layout nativo y causando que el campo nativo <code>title</code> quede visible. El campo <code>title</code> no tiene <code>hidden=1</code> en el DocType nativo de ERPNext.</p>
+<p><strong>Pendiente:</strong> Identificar anclas correctas en el SI actual y corregir <code>insert_after</code> en fixture.</p>
+<hr />
+<h3 id="p7-problemas-conocidos-del-wizard-configuracion-fiscal-mexico-pendiente">P7 — Problemas conocidos del wizard Configuracion Fiscal Mexico (pendiente)<a class="headerlink" href="#p7-problemas-conocidos-del-wizard-configuracion-fiscal-mexico-pendiente" title="Permanent link">&para;</a></h3>
+<ol>
+<li>La columna "Cuenta de Impuestos" lista grupos de cuentas además de cuentas hoja (falta filtro <code>is_group=0</code> en <code>set_query</code>)</li>
+<li>No valida consistencia entre forma de pago de la FFM y la del Complemento Pago MX</li>
+</ol>
+<hr />
+<h2 id="estado-al-momento-de-este-adr">Estado al momento de este ADR<a class="headerlink" href="#estado-al-momento-de-este-adr" title="Permanent link">&para;</a></h2>
+<h3 id="resuelto-en-esta-sesion">Resuelto en esta sesión<a class="headerlink" href="#resuelto-en-esta-sesion" title="Permanent link">&para;</a></h3>
+<ul>
+<li>RC0, RC1, RC2 taggeados (<code>v0.1.0-rc0</code>, <code>v0.1.0-rc1</code>, <code>v0.1.0-rc2</code>)</li>
+<li>Tag <code>v0.1.0</code> creado</li>
+<li>Fixture/filter de Branch corregido (layout funcional)</li>
+<li><code>Customer-fm_tax_regime</code> apunta a DocType correcto</li>
+<li>Configuracion Fiscal Mexico wizard: nombres de roles correctos, <code>enable_exportacion</code> default=0</li>
+<li>Campos de prueba Branch eliminados</li>
+</ul>
+<h3 id="resuelto-en-sesion-2026-05-09">Resuelto en sesión 2026-05-09<a class="headerlink" href="#resuelto-en-sesion-2026-05-09" title="Permanent link">&para;</a></h3>
+<p><strong>P6 — SI custom fields con idx=0 (parcialmente resuelto)</strong>
+- <code>fm_multi_sucursal_section</code>, <code>fm_folio_reserved</code>, <code>fm_ereceipt_section</code>, <code>fm_pending_amount</code>, <code>fm_addenda_section</code>: insert_after corregidos a campos existentes
+- <code>fm_last_status_update</code>: eliminado (sin código activo, sin dependientes)
+- <code>fm_quick_status</code>: insert_after corregido a <code>fm_fiscal_status</code>
+- <strong>Pendiente:</strong> <code>fm_ereceipt_section</code> y <code>fm_addenda_section</code> aún tienen idx inconsistente en sitios existentes (no bloquea fresh install)</p>
+<p><strong>P7 — Branch-company restaurado</strong>
+- <code>Branch-company</code> (Link→Company, reqd=1) fue eliminado accidentalmente con DELETE masivo de custom fields. Restaurado al fixture. Causa: nuestra app crea y usa este campo (<code>branch_auto_selector.py</code>, <code>Cost Center-fm_mapped_branch</code> link_filters).</p>
+<p><strong>P8 — item_wise_tax_detail: incompatibilidad ERPNext v16 fresh vs legacy</strong></p>
+<p><strong>Diagnóstico:</strong>
+ERPNext v16.16.0 tiene dos schemas mutuamente excluyentes para el desglose de impuestos por ítem:</p>
+<table>
+<thead>
+<tr>
+<th>Schema</th>
+<th>Sites legacy (migrados v15→v16)</th>
+<th>Fresh v16</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tax.item_wise_tax_detail</code> (columna JSON en <code>Sales Taxes and Charges</code>)</td>
+<td>✅ Existe (columna preservada de v15)</td>
+<td>❌ No existe</td>
+</tr>
+<tr>
+<td><code>tabItem Wise Tax Detail</code> (child table en Sales Invoice)</td>
+<td>❌ No existe</td>
+<td>✅ Existe</td>
+</tr>
+</tbody>
+</table>
+<p>La columna legacy NO está en el DocType JSON de ERPNext v16 — por tanto no se crea en fresh installs. Sí está en el Python class como <code>DF.Code | None</code> (type hint únicamente, no genera schema). La columna persiste en sitios migrados porque Frappe nunca elimina columnas durante migrate.</p>
+<p><code>get_itemised_tax(si)</code> de ERPNext falla en fresh v16 al cargar el documento desde BD porque <code>_item_wise_tax_details</code> (in-memory) está vacío.</p>
+<p><strong>Solución implementada:</strong>
+Helper <code>_get_item_wise_tax_detail_for_tax_item(sales_invoice, tax, item)</code> en <code>timbrado_api.py</code>:
+- Detecta schema automáticamente
+- Schema A (fresh v16): lee <code>sales_invoice.get("item_wise_tax_details")</code> — child table persistida
+- Schema B (legacy): usa <code>getattr(tax, "item_wise_tax_detail", None)</code> — JSON seguro sin AttributeError
+- Si ninguno disponible: retorna None (fallback On Net Total en la función llamante)</p>
+<p><strong>Validado:</strong> timbrado exitoso en sitio fresh v16 — <code>FFMX-2026-00001</code> timbrado con UUID <code>12D3F740-9445-46F1-B90B-6A91EA7188DA</code>.</p>
+<p><strong>P9 — Correcciones UX Customer/SI</strong>
+- Botón "Validar RFC/CSF" ahora visible (no oculto en Acciones)
+- Mensaje de dirección fiscal faltante: claro y con instrucción
+- Solo requiere Código Postal como campo obligatorio para validar RFC
+- Mensaje "No puedes timbrar: RFC no validado" usa <code>frm.dashboard.set_headline_alert</code> coordinado con cancel guard
+- STCT lookup corregido: busca por <code>name</code> en lugar de <code>title</code> (bug ERPNext autoname)</p>
+<p><strong>P10 — Generador STCT: duplicate key en re-ejecución</strong>
+- UPDATE lookup buscaba por <code>title</code> (con abbr) pero title se guardaba sin abbr
+- Corregido: UPDATE lookup usa <code>frappe.db.exists(template_name)</code> — busca por <code>name</code> directo</p>
+<h3 id="resultado-smoke-test-v010-2026-05-09-rc-no-viable">Resultado Smoke Test v0.1.0 — 2026-05-09 ❌ RC NO VIABLE<a class="headerlink" href="#resultado-smoke-test-v010-2026-05-09-rc-no-viable" title="Permanent link">&para;</a></h3>
+<p><strong>Completado:</strong>
+- FASE 7A — SI PUE timbrado (<code>FFMX-2026-00002</code>, UUID confirmado) ✅
+- FASE 7B — SI PPD, Complemento Pago MX, timbrado, cancelación complemento ✅
+- Catálogos SAT (Moneda, Impuesto) cargados en fresh install ✅
+- Bloqueo de cancelación FFM cuando hay PE activo ✅</p>
+<p><strong>Incompleto / No viable:</strong>
+- FASE 7F — Cancelación completa SI con FFM y PE: flujo inconsistente
+- FASE 8 — Resultado final: RC declarado NO VIABLE</p>
+<p><strong>Razón de no viabilidad:</strong>
+El flujo de cancelación y re-facturación (<code>refacturar_misma_si</code>) no fue correctamente entendido ni validado durante el smoke test. Se detectaron bugs en el comportamiento del botón Amend y en el flujo de re-facturación, pero no se puede proponer un fix sin entender completamente:
+1. El propósito exacto de <code>refacturar_misma_si</code> y qué debe modificar/no modificar
+2. El flujo completo de cancelación para cada combinación (PUE/PPD, con/sin PE, con/sin Complemento, motivos 01/02/03/04)
+3. El comportamiento esperado del botón Amend post-cancelación</p>
+<p><strong>Prerrequisito para próxima validación:</strong>
+Redactar instructivo completo de flujos fiscales antes de continuar pruebas:
+- Emisión PUE y PPD
+- Flujo de Complemento de Pago
+- Cancelación: todos los motivos (01/02/03/04)
+- Combinaciones: con PE / sin PE, con Complemento / sin Complemento
+- Re-facturación post-cancelación</p>
+<h3 id="pendiente-de-resolver-antes-de-primera-instalacion-productiva">Pendiente de resolver antes de primera instalación productiva<a class="headerlink" href="#pendiente-de-resolver-antes-de-primera-instalacion-productiva" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Flujos de cancelación y re-facturación — requieren instructivo y re-validación completa</li>
+<li><code>fm_ereceipt_section</code> y <code>fm_addenda_section</code> — idx inconsistente en sitios existentes</li>
+<li>Validaciones pendientes del wizard Configuracion Fiscal Mexico (grupos de cuentas, forma de pago)</li>
+<li>Mapeo Reclasificacion Fiscal Payment Entry: mejorar UX y validación</li>
+<li>Issues abiertos: #108, #109, #110, #111, #112</li>
+<li><code>title</code> field visible en SI (comportamiento ERPNext v16, sin solución aprobada aún)</li>
+<li><strong><code>refacturar_misma_si</code> — requiere revisión de diseño:</strong>
+   El comportamiento actual y el comportamiento esperado no fueron validados completamente.
+   Se requiere entender el flujo completo antes de proponer cualquier cambio:</li>
+<li>Qué hace exactamente la función en todos los casos</li>
+<li>Dónde más se usa en el sistema</li>
+<li>Cuál es el comportamiento esperado para motivos 02/03/04 vs 01</li>
+<li>Relación con el bloqueo de Amend y el flujo de cancelación
+   <strong>No proponer cambios hasta tener el instructivo completo de flujos fiscales.</strong></li>
+<li>Bloqueo Amend — relación con <code>refacturar_misma_si</code> pendiente de entender</li>
+</ol>
+<hr />
+<h2 id="lecciones-aprendidas">Lecciones aprendidas<a class="headerlink" href="#lecciones-aprendidas" title="Permanent link">&para;</a></h2>
+<ol>
+<li>
+<p><strong>Fixtures de Custom Fields requieren orden topológico estricto</strong> — El <code>insert_after</code> debe apuntar a un campo que ya exista en la meta del DocType al momento de importación. Si el target es un Custom Field de otro fixture o app, puede no existir aún.</p>
+</li>
+<li>
+<p><strong><code>company</code> en Branch no es campo nativo en ERPNext v16</strong> — En bench v16, <code>company</code> en Branch es un Custom Field de ERPNext, no nativo. Anclar a <code>"company"</code> falla en instalaciones limpias donde ese campo no existe antes de nuestros fixtures.</p>
+</li>
+<li>
+<p><strong>export-fixtures después de correcciones manuales</strong> — Cualquier corrección de <code>insert_after</code> en el JSON requiere verificación de que el orden topológico sea correcto. El orden en el JSON SÍ importa.</p>
+</li>
+<li>
+<p><strong>Diagnóstico primero, implementar con autorización</strong> — El flujo obligatorio (diagnosticar → reportar → esperar autorización → implementar) debe respetarse siempre. Las correcciones sin autorización generan deuda técnica y pérdida de confianza.</p>
+</li>
+<li>
+<p><strong>Correcciones deben ser universales</strong> — Todo fix debe funcionar en todos los sites del app, no solo en el site de prueba actual. Fixes de BD directos no son aceptables como solución final.</p>
+</li>
+<li>
+<p><strong>ERPNext v16 tiene dos schemas para item_wise_tax_detail</strong> — Columna JSON legacy (<code>Sales Taxes and Charges</code>) preservada en sitios migrados, child table <code>tabItem Wise Tax Detail</code> en fresh v16. Son mutuamente excluyentes. El código debe detectar cuál usar vía presencia de datos en child table.</p>
+</li>
+<li>
+<p><strong><code>git checkout</code> sin autorización es destructivo</strong> — Usar <code>git checkout -- &lt;file&gt;</code> para recuperar archivos corruptos por un error de herramienta (ruff en JSON) causó pérdida de cambios en curso. Nunca hacer sin autorización explícita.</p>
+</li>
+<li>
+<p><strong><code>DELETE FROM tabCustom Field WHERE dt=X</code></strong> — Elimina TODOS los custom fields del DocType incluyendo los de ERPNext/HRMS que no son del app. Siempre eliminar por nombre específico, nunca masivo por DocType.</p>
+</li>
+</ol>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Volver al principio
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 Facturación México - Documentación Técnica
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/tu-org/facturacion_mexico" target="_blank" rel="noopener" title="GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+      <div class="md-consent" data-md-component="consent" id="__consent" hidden>
+        <div class="md-consent__overlay"></div>
+        <aside class="md-consent__inner">
+          <form class="md-consent__form md-grid md-typeset" name="consent">
+            
+
+  
+    
+  
+
+
+
+
+
+<h4>Consentimiento de cookies</h4>
+<p>Utilizamos cookies para reconocer tus visitas repetidas y preferencias, así como para medir la efectividad de nuestra documentación y si los usuarios encuentran lo que están buscando. Con tu consentimiento, nos ayudas a mejorar nuestra documentación.
+</p>
+<input class="md-toggle" type="checkbox" id="__settings" >
+<div class="md-consent__settings">
+  <ul class="task-list">
+    
+      
+      
+        
+        
+      
+      <li class="task-list-item">
+        <label class="task-list-control">
+          <input type="checkbox" name="analytics" checked>
+          <span class="task-list-indicator"></span>
+          Google Analytics
+        </label>
+      </li>
+    
+  </ul>
+</div>
+<div class="md-consent__controls">
+  
+    
+      <button class="md-button md-button--primary">Aceptar</button>
+    
+    
+    
+  
+    
+    
+      <button type="reset" class="md-button md-button--primary">Rechazar</button>
+    
+    
+  
+    
+    
+    
+      <label class="md-button" for="__settings">Gestionar cookies</label>
+    
+  
+</div>
+          </form>
+        </aside>
+      </div>
+      <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout(function(){document.querySelector("[data-md-component=consent]").hidden=!1},250);var action,form=document.forms.consent;for(action of["submit","reset"])form.addEventListener(action,function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map(function(e){return[e,!0]}))),location.hash="",location.reload()})</script>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.expand", "navigation.instant", "navigation.sections", "navigation.tabs", "navigation.top", "search.highlight", "search.suggest"], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copiado al portapapeles", "clipboard.copy": "Copiar al portapapeles", "search.result.more.one": "1 m\u00e1s en esta p\u00e1gina", "search.result.more.other": "# m\u00e1s en esta p\u00e1gina", "search.result.none": "No se encontraron documentos", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Teclee para comenzar b\u00fasqueda", "search.result.term.missing": "Falta", "select.version": "Seleccionar versi\u00f3n"}, "version": {"default": "latest", "provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7c377c4.min.js"></script>
+      
+        <script src="../../assets/javascripts/extra.js"></script>
+      
+        <script src="../../assets/javascripts/advanced.js"></script>
+      
+    
+  </body>
+</html>
