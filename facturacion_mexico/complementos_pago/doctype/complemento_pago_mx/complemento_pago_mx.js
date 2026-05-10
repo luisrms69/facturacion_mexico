@@ -100,6 +100,8 @@ function _setup_timbrar_btn(frm) {
 				frappe.call({
 					method: "facturacion_mexico.complementos_pago.api.timbrar_complemento_pago",
 					args: { complemento_name: frm.doc.name },
+					freeze: true,
+					freeze_message: __("Enviando a FacturAPI..."),
 					callback: function (r) {
 						if (r.message && r.message.uuid) {
 							frappe.show_alert(
