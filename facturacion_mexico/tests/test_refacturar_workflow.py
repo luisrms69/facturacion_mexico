@@ -26,19 +26,40 @@ class TestRefacturarWorkflow(FrappeTestCase):
 	@classmethod
 	def setUpClass(cls):
 		super().setUpClass()
-		cls.company = frappe.defaults.get_global_default("company") or "_Test Company"
 
-		# SAT Producto Servicio
+		# --- Company ---
+		# Usar la existente si hay; si no, crear una mínima.
+		# bench new-site en CI no corre setup wizard → no hay company por defecto.
+		default_co = frappe.defaults.get_global_default("company")
+		if default_co and frappe.db.exists("Company", default_co):
+			cls.company = default_co
+		else:
+			cls.company = frappe.db.get_value("Company", {}, "name")
+			if not cls.company:
+				company = frappe.new_doc("Company")
+				company.company_name = "_Test Company"
+				company.abbr = "_TC"
+				company.default_currency = "MXN"
+				company.country = "Mexico"
+				company.insert(ignore_permissions=True)
+				cls.company = company.name
+				frappe.db.set_default("company", cls.company)
+
+		# --- UOM ---
+		if not frappe.db.exists("UOM", "Nos"):
+			frappe.get_doc({"doctype": "UOM", "uom_name": "Nos"}).insert(ignore_permissions=True)
+
+		# --- SAT Producto Servicio ---
 		if not frappe.db.exists("SAT Producto Servicio", TEST_SAT_CODE):
 			sat = frappe.new_doc("SAT Producto Servicio")
 			sat.codigo = TEST_SAT_CODE
 			sat.descripcion = "Servicios de consultoria - Test"
 			sat.insert(ignore_permissions=True)
 
-		# Item Group — cualquiera que exista en CI (fresh install puede no tener "Services")
+		# --- Item Group (cualquiera que exista) ---
 		item_group = frappe.db.get_value("Item Group", {"is_group": 0}, "name") or "All Item Groups"
 
-		# Item de prueba
+		# --- Item de prueba ---
 		if not frappe.db.exists("Item", TEST_ITEM_CODE):
 			item = frappe.new_doc("Item")
 			item.item_code = TEST_ITEM_CODE
@@ -51,8 +72,46 @@ class TestRefacturarWorkflow(FrappeTestCase):
 		else:
 			frappe.db.set_value("Item", TEST_ITEM_CODE, "fm_producto_servicio_sat", TEST_SAT_CODE)
 
-		# Cost Center — crear uno hoja si no existe ninguno para la company
-		# CI fresh install puede no tener cost centers hoja bajo _Test Company
+		# --- Customer Group + Territory (prerequisitos de Customer) ---
+		if not frappe.db.exists("Customer Group", "All Customer Groups"):
+			frappe.get_doc(
+				{"doctype": "Customer Group", "customer_group_name": "All Customer Groups", "is_group": 1}
+			).insert(ignore_permissions=True)
+		if not frappe.db.exists("Customer Group", "Individual"):
+			frappe.get_doc(
+				{
+					"doctype": "Customer Group",
+					"customer_group_name": "Individual",
+					"is_group": 0,
+					"parent_customer_group": "All Customer Groups",
+				}
+			).insert(ignore_permissions=True)
+
+		if not frappe.db.exists("Territory", "All Territories"):
+			frappe.get_doc(
+				{"doctype": "Territory", "territory_name": "All Territories", "is_group": 1}
+			).insert(ignore_permissions=True)
+		if not frappe.db.exists("Territory", "Rest Of The World"):
+			frappe.get_doc(
+				{
+					"doctype": "Territory",
+					"territory_name": "Rest Of The World",
+					"is_group": 0,
+					"parent_territory": "All Territories",
+				}
+			).insert(ignore_permissions=True)
+
+		# --- Customer ---
+		cls.customer = "_Test Customer"
+		if not frappe.db.exists("Customer", cls.customer):
+			customer = frappe.new_doc("Customer")
+			customer.customer_name = "_Test Customer"
+			customer.customer_type = "Individual"
+			customer.customer_group = "Individual"
+			customer.territory = "Rest Of The World"
+			customer.insert(ignore_permissions=True)
+
+		# --- Cost Center (hoja) para la company ---
 		cls.cost_center = frappe.db.get_value("Cost Center", {"is_group": 0, "company": cls.company}, "name")
 		if not cls.cost_center:
 			parent_cc = frappe.db.get_value("Cost Center", {"company": cls.company}, "name")
@@ -70,7 +129,7 @@ class TestRefacturarWorkflow(FrappeTestCase):
 		"""Crea una SI fiscalmente válida (cost_center + SAT code) para testing."""
 		si = frappe.new_doc("Sales Invoice")
 		si.company = self.company
-		si.customer = "_Test Customer"
+		si.customer = self.customer
 		si.cost_center = self.cost_center
 		si.append(
 			"items",
@@ -89,8 +148,8 @@ class TestRefacturarWorkflow(FrappeTestCase):
 		"""Crea una FFM mínima vinculada a la SI."""
 		ffm = frappe.new_doc("Factura Fiscal Mexico")
 		ffm.sales_invoice = si_name
-		ffm.company = frappe.defaults.get_global_default("company") or "_Test Company"
-		ffm.customer = "_Test Customer"
+		ffm.company = self.company
+		ffm.customer = self.customer
 		ffm.fm_cfdi_use = "G03"  # Gastos en general — disponible en fixtures SAT
 		ffm.insert(ignore_permissions=True)
 		ffm.submit()
@@ -102,7 +161,7 @@ class TestRefacturarWorkflow(FrappeTestCase):
 			"03": "03 - No se llevó a cabo la operación",
 			"04": "04 - Operación nominativa relacionada en la factura global",
 		}
-		update = {"status": status, "fm_sync_status": "idle"}  # idle — sin operación pendiente
+		update = {"status": status, "fm_sync_status": "idle"}
 		if motivo:
 			update["fm_motivo_cancelacion"] = motivo
 			update["cancellation_reason"] = _motivo_labels.get(motivo, motivo)
@@ -172,7 +231,6 @@ class TestRefacturarWorkflow(FrappeTestCase):
 	def test_sin_ffm_vinculada(self):
 		"""SI sin FFM → no falla, simplemente no hay nada que desvincular."""
 		si = self._make_si()
-		# No creamos FFM
 		try:
 			refacturar_misma_si(si.name)
 		except Exception as e:
@@ -184,7 +242,6 @@ class TestRefacturarWorkflow(FrappeTestCase):
 		si = self._make_si()
 		self._make_ffm(si.name, status="CANCELADO", motivo="02")
 		refacturar_misma_si(si.name)
-		# Segunda llamada — SI ya está desvinculada
 		try:
 			refacturar_misma_si(si.name)
 		except Exception as e:
