@@ -190,13 +190,22 @@ def cancelar_si_post_fiscal(si_name: str):
 	if not frappe.has_permission("Sales Invoice", "cancel", si):
 		frappe.throw(_("Sin permisos para cancelar Sales Invoice."))
 
-	# Desligar todas las FFMs que referencian esta SI para que ERPNext permita el cancel.
-	# No se cancela la FFM en ERPNext — solo se limpia el link, igual que refacturar_misma_si().
+	# Obtener todas las FFMs ligadas y validar que todas estén canceladas antes de desvincular
 	ffms = frappe.get_all(
 		"Factura Fiscal Mexico",
 		filters={"sales_invoice": si_name},
-		fields=["name"],
+		fields=["name", "status"],
 	)
+	for row in ffms:
+		if (row.get("status") or "").upper() != "CANCELADO":
+			frappe.throw(
+				_(
+					"No se puede cancelar: la Factura Fiscal {0} aún está activa (status: {1}). "
+					"Cancela primero todas las facturas fiscales asociadas."
+				).format(row.name, row.status)
+			)
+
+	# Todas canceladas — desvincular para que ERPNext permita el cancel de la SI
 	for row in ffms:
 		frappe.db.set_value("Factura Fiscal Mexico", row.name, "sales_invoice", "")
 
@@ -204,10 +213,9 @@ def cancelar_si_post_fiscal(si_name: str):
 	si.db_set("fm_factura_fiscal_mx", "")
 	si.db_set("fm_fiscal_status", "")
 
-	# Cancelar la SI
+	# Cancelar la SI — cancel() maneja su propia transacción
 	si_fresh = frappe.get_doc("Sales Invoice", si_name)
 	si_fresh.cancel()
-	frappe.db.commit()
 
 	return {"ok": True, "message": _("Sales Invoice cancelada.")}
 
