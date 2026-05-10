@@ -215,6 +215,13 @@ def _compute_actions(facts: dict) -> dict:
 		and not facts["has_active_complement"]
 	)
 
+	# Registrar pagos está permitido solo cuando no hay FFM cancelada ante el SAT.
+	# Equivale a la lógica de sales_invoice_block_cancel.js que oculta Create/Payment
+	# cuando la SI tiene FFM CANCELADO — gap crítico identificado en auditoría.
+	can_register_payment = (
+		is_submitted and not facts["is_cancelled"] and (not facts["has_ffm"] or facts["has_active_ffm"])
+	)
+
 	return {
 		"can_stamp": can_stamp,
 		"can_view_ffm": facts["has_ffm"],
@@ -224,6 +231,7 @@ def _compute_actions(facts: dict) -> dict:
 		"can_generate_payment_complement": can_generate_complement,
 		"can_refacturar": can_refacturar,
 		"can_substitute": can_substitute,
+		"can_register_payment": can_register_payment,
 	}
 
 

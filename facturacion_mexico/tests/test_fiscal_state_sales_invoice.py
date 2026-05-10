@@ -237,6 +237,47 @@ class TestFiscalStateSIActions(FrappeTestCase):
 		actions = _compute_actions(facts)
 		self.assertFalse(actions["can_cancel_cfdi"])
 
+	# ── can_register_payment ─────────────────────────────────────────────
+	def test_puede_registrar_pago_sin_ffm(self):
+		"""SI submitted sin FFM → can_register_payment = True."""
+		facts = self._base_facts(
+			has_ffm=False,
+			has_active_ffm=False,
+			has_stamped_ffm=False,
+			has_uuid=False,
+			has_xml=False,
+			has_pdf=False,
+			fiscal_status="BORRADOR",
+		)
+		actions = _compute_actions(facts)
+		self.assertTrue(actions["can_register_payment"])
+
+	def test_puede_registrar_pago_con_ffm_activa(self):
+		"""SI submitted con FFM activa (TIMBRADO) → can_register_payment = True."""
+		facts = self._base_facts(fiscal_status="TIMBRADO", has_active_ffm=True)
+		actions = _compute_actions(facts)
+		self.assertTrue(actions["can_register_payment"])
+
+	def test_no_puede_registrar_pago_con_ffm_cancelada(self):
+		"""SI submitted con FFM CANCELADA → can_register_payment = False."""
+		facts = self._base_facts(
+			fiscal_status="CANCELADO",
+			has_ffm=True,
+			has_active_ffm=False,
+			has_cancelled_ffm=True,
+		)
+		actions = _compute_actions(facts)
+		self.assertFalse(actions["can_register_payment"])
+
+	def test_no_puede_registrar_pago_si_cancelada(self):
+		"""SI cancelada (docstatus=2) → can_register_payment = False."""
+		facts = self._base_facts(
+			is_submitted=False,
+			is_cancelled=True,
+		)
+		actions = _compute_actions(facts)
+		self.assertFalse(actions["can_register_payment"])
+
 
 class TestFiscalStateSIMessages(FrappeTestCase):
 	def _base(self, **overrides):
