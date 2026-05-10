@@ -26,7 +26,7 @@
     },
     {
       "fieldname": "enable_frontera",
-      "label": "Zona Fronteriza (IVA 8%)",
+      "label": "Zona Fronteriza",
       "fieldtype": "Check",
       "default": "0"
     },
@@ -34,7 +34,7 @@
       "fieldname": "enable_exportacion",
       "label": "Exportación (IVA 0%)",
       "fieldtype": "Check",
-      "default": "1"
+      "default": "0"
     },
     {
       "fieldname": "column_break_1",

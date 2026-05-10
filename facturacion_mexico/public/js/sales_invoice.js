@@ -42,35 +42,8 @@ frappe.ui.form.on("Sales Invoice", {
 			if (frm.doc.fm_factura_fiscal_mx) {
 				add_view_fiscal_button(frm);
 			}
-
-			has_customer_rfc(frm, function (has_rfc) {
-				if (has_rfc) {
-					// NUEVO: Verificar RFC validado
-					frappe.db
-						.get_value("Customer", frm.doc.customer, ["fm_rfc_validated"])
-						.then((r) => {
-							const is_validated = !!(
-								r.message &&
-								(r.message.fm_rfc_validated === 1 ||
-									r.message.fm_rfc_validated === "1")
-							);
-							if (is_validated) {
-								if (should_show_timbrar_button(frm)) {
-									add_timbrar_button(frm);
-								} else if (is_already_timbrada(frm)) {
-									add_view_fiscal_button(frm);
-								}
-							} else {
-								frm.dashboard.set_headline_alert(
-									__(
-										"No puedes timbrar: el RFC del cliente no está validado con SAT."
-									),
-									"orange"
-								);
-							}
-						});
-				}
-			});
+			// RFC check + timbrar button lo maneja _check_rfc_and_show_timbrar,
+			// llamado desde sales_invoice_block_cancel.js después de resolver el estado de cancelación
 		}
 	},
 });
@@ -633,4 +606,33 @@ function cint(v) {
 	} catch (e) {
 		return 0;
 	}
+}
+
+// Verificar RFC validado y mostrar botón timbrar o mensaje de aviso.
+// Llamado desde sales_invoice_block_cancel.js después de resolver estado de cancelación.
+function _check_rfc_and_show_timbrar(frm) {
+	if (!frm.doc || frm.doc.docstatus !== 1) return;
+
+	has_customer_rfc(frm, function (has_rfc) {
+		if (!has_rfc) return;
+		frappe.db.get_value("Customer", frm.doc.customer, ["fm_rfc_validated"]).then((r) => {
+			const is_validated = !!(
+				r.message &&
+				(r.message.fm_rfc_validated === 1 || r.message.fm_rfc_validated === "1")
+			);
+			if (is_validated) {
+				if (should_show_timbrar_button(frm)) {
+					add_timbrar_button(frm);
+				} else if (is_already_timbrada(frm)) {
+					add_view_fiscal_button(frm);
+				}
+			} else {
+				frm.dashboard &&
+					frm.dashboard.set_headline_alert(
+						__("No puedes timbrar: el RFC del cliente no está validado con SAT."),
+						"orange"
+					);
+			}
+		});
+	});
 }

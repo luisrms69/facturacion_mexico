@@ -32,29 +32,26 @@ frappe.ui.form.on("Customer", {
 });
 
 function add_rfc_validation_button(frm) {
-	// Mostrar botón si hay RFC y dirección completa (independiente del estado de validación)
-	if (frm.doc.tax_id && !frm.is_new()) {
-		// Verificar que tiene dirección principal antes de mostrar botón
-		if (frm.doc.customer_primary_address) {
-			// Verificar completitud de dirección de forma asíncrona
-			check_address_completeness(frm, function (is_complete) {
-				if (is_complete) {
-					// Texto del botón según estado actual
-					const button_text = frm.doc.fm_rfc_validated
-						? __("Revalidar RFC/CSF")
-						: __("Validar RFC/CSF");
+	if (!frm.doc.tax_id || frm.is_new()) return;
 
-					frm.add_custom_button(
-						button_text,
-						function () {
-							validate_customer_rfc_with_facturapi(frm);
-						},
-						__("Acciones")
-					);
-				}
+	if (!frm.doc.customer_primary_address) {
+		// Sin dirección primaria: mostrar aviso prominente, no botón
+		return;
+	}
+
+	// Con dirección: verificar completitud y mostrar botón prominente
+	check_address_completeness(frm, function (is_complete) {
+		if (is_complete) {
+			const button_text = frm.doc.fm_rfc_validated
+				? __("Revalidar RFC/CSF")
+				: __("Validar RFC/CSF");
+
+			// Botón primario visible, no escondido en "Acciones"
+			frm.add_custom_button(button_text, function () {
+				validate_customer_rfc_with_facturapi(frm);
 			});
 		}
-	}
+	});
 }
 
 // --- Aviso único (Punto 1: RFC) ---
@@ -67,6 +64,8 @@ function render_sat_rfc_status(frm) {
 	const validated = !!frm.doc.fm_rfc_validated; // Check (1/0)
 	const validation_date = frm.doc.fm_rfc_validation_date; // Date (YYYY-MM-DD)
 
+	const has_address = !!(frm.doc.customer_primary_address || "").trim();
+
 	let bsColor, message;
 	if (!tax_id) {
 		bsColor = "danger";
@@ -77,9 +76,13 @@ function render_sat_rfc_status(frm) {
 			: frappe.datetime.str_to_user(frappe.datetime.get_today());
 		bsColor = "success";
 		message = `✅ RFC validado exitosamente el ${fecha}`;
+	} else if (!has_address) {
+		bsColor = "danger";
+		message =
+			"⚠️ Se requiere dirección fiscal primaria antes de poder validar el RFC con SAT.";
 	} else {
 		bsColor = "warning";
-		message = "📋 RFC listo para validar con SAT";
+		message = "📋 RFC listo para validar con SAT — usa el botón 'Validar RFC/CSF'";
 	}
 
 	const html = `
@@ -390,12 +393,8 @@ function check_address_completeness(frm, callback) {
 			const address = r.message;
 			const missing_fields = [];
 
-			// Verificar campos críticos para FacturAPI
-			if (!address.address_line1) missing_fields.push("Calle");
+			// Solo Código Postal es requerido por SAT (CFDI 4.0)
 			if (!address.pincode) missing_fields.push("Código Postal");
-			if (!address.city) missing_fields.push("Ciudad");
-			if (!address.state) missing_fields.push("Estado");
-			if (!address.country) missing_fields.push("País");
 
 			callback(missing_fields.length === 0, missing_fields);
 		},

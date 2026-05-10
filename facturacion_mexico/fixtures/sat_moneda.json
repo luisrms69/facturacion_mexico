@@ -1,0 +1,29 @@
+[
+  {
+    "doctype": "Moneda SAT",
+    "name": "MXN",
+    "code": "MXN",
+    "description": "Peso Mexicano",
+    "decimales": 2,
+    "vigencia_desde": "2010-01-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Moneda SAT",
+    "name": "USD",
+    "code": "USD",
+    "description": "Dólar de los Estados Unidos de América",
+    "decimales": 2,
+    "vigencia_desde": "2010-01-01",
+    "vigencia_hasta": null
+  },
+  {
+    "doctype": "Moneda SAT",
+    "name": "EUR",
+    "code": "EUR",
+    "description": "Euro",
+    "decimales": 2,
+    "vigencia_desde": "2010-01-01",
+    "vigencia_hasta": null
+  }
+]

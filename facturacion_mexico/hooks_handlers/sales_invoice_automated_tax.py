@@ -153,12 +153,13 @@ def _find_stct_by_variant(company: str, zona: str, variant: str) -> str | None:
 		return None
 
 	# Patrón exacto según convención E1
+	# name = title - abbr (garantizado por ERPNext autoname en STCT)
 	title_pattern = f"IVA {zona} - {variant} - {company_abbr}"
 
-	# Buscar por título exacto
+	# Buscar por name (siempre incluye abbr, independiente de cómo se guardó title)
 	stct = frappe.db.get_value(
 		"Sales Taxes and Charges Template",
-		{"title": title_pattern, "company": company, "disabled": 0},
+		{"name": title_pattern, "disabled": 0},
 		"name",
 	)
 
@@ -228,7 +229,7 @@ def _set_stct_by_branch(doc, branch: str | None):
 		doc.flags.__stct_applied = True
 
 		# Mensaje según si usó fallback o no
-		iva_label = "8%" if is_border else "16%"
+		iva_label = "Frontera" if is_border else "Nacional"
 		if used_fallback:
 			frappe.msgprint(
 				f"⚠️ Template <b>IVA {iva_label} - {variant}</b> no disponible.<br>"

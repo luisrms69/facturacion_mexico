@@ -1,3 +1,4 @@
+/* global _check_rfc_and_show_timbrar */
 frappe.ui.form.on("Sales Invoice", {
 	refresh(frm) {
 		// Solo interesa cuando está submitida
@@ -25,7 +26,8 @@ frappe.ui.form.on("Sales Invoice", {
 							"orange"
 						);
 				} else {
-					frm.dashboard && frm.dashboard.clear_headline(); // ← limpia mensajes viejos
+					frm.dashboard && frm.dashboard.clear_headline(); // limpia "Cancelación bloqueada"
+					_check_rfc_and_show_timbrar(frm); // RFC check corre después del clear
 				}
 			})
 			.catch(() => {
@@ -71,7 +73,7 @@ function _block_si_if_ffm_cancelada(frm) {
 		frm.dashboard &&
 			frm.dashboard.set_headline_alert(
 				// prettier-ignore
-				__("Factura cancelada ante el SAT ({0}). No se pueden registrar pagos. Nota de Crédito disponible si aplica. Para re-facturar: cancela esta SI y crea una nueva.", [frm.doc.fm_factura_fiscal_mx]),
+				__("Factura cancelada ante el SAT ({0}). No se pueden registrar pagos. Para re-facturar usa el botón '🔄 Nueva factura fiscal'. Nota de Crédito disponible si aplica.", [frm.doc.fm_factura_fiscal_mx]),
 				"red"
 			);
 	}, 300);

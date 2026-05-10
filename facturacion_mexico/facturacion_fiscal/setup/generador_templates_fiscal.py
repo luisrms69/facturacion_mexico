@@ -112,7 +112,7 @@ def _get_account_head_by_role(company: str, rol: str) -> str:
 
 	# Si no encuentra, error
 	available = ", ".join([m.rol_fiscal for m in mapeos])
-	frappe.throw(f"No se encontró mapeo para '{rol}' en '{company}'.\n" f"Roles disponibles: {available}")
+	frappe.throw(f"No se encontró mapeo para '{rol}' en '{company}'.\nRoles disponibles: {available}")
 
 	return ""  # Never reached
 
@@ -650,11 +650,9 @@ def _make_stct(company: str, title: str, rows: list[dict]) -> str:
 	if not company_abbr:
 		frappe.throw(f"No se encontró company abbr para {company}")
 
-	# Buscar template existente por title CON abbr (como Frappe lo guarda)
+	# Buscar template existente por name (name = title - abbr, garantizado por ERPNext autoname)
 	title_with_abbr = f"{title} - {company_abbr}"
-	existing_name = frappe.db.get_value(
-		"Sales Taxes and Charges Template", {"title": title_with_abbr, "company": company}, "name"
-	)
+	existing_name = frappe.db.exists("Sales Taxes and Charges Template", title_with_abbr)
 
 	if existing_name:
 		# ACTUALIZAR template existente (reutilizar)

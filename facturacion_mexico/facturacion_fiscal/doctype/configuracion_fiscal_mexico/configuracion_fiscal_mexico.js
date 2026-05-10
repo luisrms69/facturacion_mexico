@@ -114,14 +114,14 @@ frappe.ui.form.on("Configuracion Fiscal Mexico", {
 });
 
 function add_base_roles(frm) {
-	// Agregar roles base (IVA 16%, IVA Exento) inmediatamente
+	// Agregar roles base (IVA Nacional, IVA Exento) inmediatamente
 	if (!frm.doc.company) return;
 
 	// Agregar solo si la tabla está vacía
 	if (frm.doc.mapeo_cuentas && frm.doc.mapeo_cuentas.length > 0) return;
 
-	// Roles siempre requeridos
-	const base_roles = ["IVA por Pagar (16%)", "IVA Exento"];
+	// Roles siempre requeridos (sin porcentaje — SAT puede cambiar tasa en cualquier momento)
+	const base_roles = ["IVA por Pagar (Nacional)", "IVA Exento"];
 
 	base_roles.forEach(function (rol) {
 		let row = frm.add_child("mapeo_cuentas");

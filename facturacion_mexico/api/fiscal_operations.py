@@ -5,6 +5,8 @@ from frappe import _
 CANCELADO_FISCAL = {"CANCELADO", "CANCELADA", "CANCELED", "CANCELLED", "CANCELLED_OK"}
 
 
+# DEAD CODE: llamada por before_cancel_sales_invoice_orchestrator que está comentado en hooks.py
+# No se ejecuta en el flujo actual. Contiene referencias a fm_fiscal_status (campo de SI, no de FFM).
 def _cancel_all_linked_ffms_if_fiscally_canceled(si_name: str) -> dict:
 	"""Cancela TODAS las FFMs vinculadas si fiscalmente canceladas.
 	- NO desvincula campos (preserva auditoría)
@@ -107,7 +109,7 @@ def refacturar_misma_si(si_name: str):
 	ffm_name = si.get("fm_factura_fiscal_mx")
 	if ffm_name:
 		ffm = frappe.get_doc("Factura Fiscal Mexico", ffm_name)
-		if ffm.fm_fiscal_status != "CANCELADO":
+		if ffm.status != "CANCELADO":  # FFM usa "status", no "fm_fiscal_status" (ese es de Sales Invoice)
 			frappe.throw(
 				_(
 					"Este botón solo aplica cuando la última Factura Fiscal ligada está CANCELADA (motivo 02/03/04)."
@@ -319,6 +321,8 @@ def test_interceptor_backend():
 		return {"success": False, "error": f"{e!s}"}
 
 
+# DEAD CODE: función de prueba manual, no conectada a ningún hook ni test suite.
+# Contiene referencias a fm_fiscal_status (campo de SI, no de FFM).
 def test_idempotencia_cancel():
 	"""Testing idempotencia - múltiples clicks Cancel."""
 	import frappe

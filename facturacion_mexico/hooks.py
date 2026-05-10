@@ -129,11 +129,11 @@ fixtures = [
 				"name",
 				"in",
 				[
-					# Branch custom fields (15 campos)
+					# Branch custom fields (20 campos)
+					"Branch-company",
 					"Branch-fm_fiscal_configuration_section",
 					"Branch-fm_certificate_ids",
 					"Branch-fm_enable_fiscal",
-					"Branch-fm_enable_fiscal_test",
 					"Branch-fm_folio_current",
 					"Branch-fm_folio_end",
 					"Branch-fm_folio_start",
@@ -144,7 +144,12 @@ fixtures = [
 					"Branch-fm_monthly_average",
 					"Branch-fm_serie_pattern",
 					"Branch-fm_share_certificates",
-					"Branch-fm_test_field_unique_2025",
+					"Branch-folio_management_section",
+					"Branch-column_break_folios_1",
+					"Branch-column_break_folios_2",
+					"Branch-certificate_management_section",
+					"Branch-statistics_section",
+					"Branch-column_break_stats_1",
 					"Customer-fm_addenda_info_section",
 					"Customer-fm_column_break_validacion",
 					"Customer-fm_customer_default_cost_center",
@@ -199,11 +204,11 @@ fixtures = [
 					"Sales Invoice-fm_factorapi_draft_id",
 					"Sales Invoice-fm_es_ppd",
 					"Sales Invoice-fm_factura_fiscal_mx",
+					"Sales Invoice-fm_fiscal_column_break",
 					"Sales Invoice-fm_ffm_summary_html",
 					"Sales Invoice-fm_fiscal_section",
 					"Sales Invoice-fm_fiscal_status",
 					"Sales Invoice-fm_folio_reserved",
-					"Sales Invoice-fm_last_status_update",
 					"Sales Invoice-fm_quick_status",
 					# "Sales Invoice-fm_informacion_fiscal_section", # ELIMINADO - Sección vacía migrada a Factura Fiscal Mexico
 					# "Sales Invoice-fm_lugar_expedicion", # MIGRADO A Factura Fiscal Mexico

@@ -1,6 +1,10 @@
 import frappe
 from frappe import _
 
+# DEAD CODE: Este módulo no es importado por ningún otro archivo del app.
+# Contiene referencias a ffm.fm_fiscal_status que debería ser ffm.status.
+# No se ejecuta en el flujo actual de cancelación.
+
 
 @frappe.whitelist()
 def cancel_sales_invoice_after_ffm(si_name: str):
@@ -69,7 +73,7 @@ def cancel_sales_invoice_after_ffm(si_name: str):
 			except Exception as e:
 				frappe.throw(
 					_(
-						"Error cancelando FFM: {0}<br><br>" "Posible causa: FFM no está cancelada fiscalmente"
+						"Error cancelando FFM: {0}<br><br>Posible causa: FFM no está cancelada fiscalmente"
 					).format(str(e)),
 					title=_("Error en secuencia"),
 				)

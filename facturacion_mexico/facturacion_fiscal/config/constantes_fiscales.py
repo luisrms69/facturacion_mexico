@@ -42,13 +42,13 @@ PROPORCION_IVA_RETENIDO_SAT = 66.6667  # 2/3 = 0.666667 → 66.6667%
 TASAS_IVA = {
 	"general": {
 		"tasa": 16.0,
-		"descripcion": "Impuesto al Valor Agregado 16%",
+		"descripcion": "Impuesto al Valor Agregado (Nacional)",
 		"charge_type": "On Net Total",
 		"add_deduct_tax": "Add",
 	},
 	"frontera": {
 		"tasa": 8.0,
-		"descripcion": "Impuesto al Valor Agregado 8% Frontera",
+		"descripcion": "Impuesto al Valor Agregado (Frontera)",
 		"charge_type": "On Net Total",
 		"add_deduct_tax": "Add",
 	},
@@ -237,24 +237,24 @@ COMBINACIONES_ALCANCE = {
 # =============================================================================
 
 TAX_CATEGORIES = {
-	"General 16": {"title": "General 16", "descripcion": "IVA General 16%"},
+	"General 16": {"title": "General 16", "descripcion": "IVA General (Nacional)"},
 	"Zero 0": {"title": "Zero 0", "descripcion": "IVA 0% Exportación"},
 	"Exempt": {"title": "Exempt", "descripcion": "Exento de impuestos"},
-	"Border 8": {"title": "Border 8", "descripcion": "IVA Frontera 8%"},
+	"Border 8": {"title": "Border 8", "descripcion": "IVA Frontera"},
 }
 
 # Templates STCT base names
 STCT_TEMPLATES = {
-	"iva_general": "IVA 16% - México",
-	"iva_frontera": "IVA 8% Frontera - México",
+	"iva_general": "IVA Nacional - México",
+	"iva_frontera": "IVA Frontera - México",
 	"iva_exportacion": "IVA 0% - México",
 	"sin_impuestos": "Sin Impuestos - México",
 }
 
 # Templates ITT base names
 ITT_TEMPLATES = {
-	"iva_general": "ITT IVA 16%",
-	"iva_frontera": "ITT IVA 8% Frontera",
+	"iva_general": "ITT IVA Nacional",
+	"iva_frontera": "ITT IVA Frontera",
 	"iva_exportacion": "ITT IVA 0%",
 	"exento": "ITT Exento",
 }
