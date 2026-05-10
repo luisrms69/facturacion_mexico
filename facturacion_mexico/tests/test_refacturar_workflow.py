@@ -131,6 +131,9 @@ class TestRefacturarWorkflow(FrappeTestCase):
 		si.company = self.company
 		si.customer = self.customer
 		si.cost_center = self.cost_center
+		# Moneda explícita para que coincida con la cuenta Debtors de la company (MXN)
+		si.currency = frappe.db.get_value("Company", self.company, "default_currency") or "MXN"
+		si.conversion_rate = 1.0
 		si.append(
 			"items",
 			{
