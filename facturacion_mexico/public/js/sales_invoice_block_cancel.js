@@ -73,7 +73,7 @@ function _block_si_if_ffm_cancelada(frm) {
 		frm.dashboard &&
 			frm.dashboard.set_headline_alert(
 				// prettier-ignore
-				__("Factura cancelada ante el SAT ({0}). No se pueden registrar pagos. Para re-facturar usa el botón '🔄 Nueva factura fiscal'. Nota de Crédito disponible si aplica.", [frm.doc.fm_factura_fiscal_mx]),
+				__("Factura cancelada ante el SAT ({0}). No se pueden registrar pagos. Opciones: '🔄 Nueva factura fiscal' retimbra esta misma factura sin modificaciones. Para cambiar datos de la factura: cancela y crea una nueva. Nota de Crédito disponible si aplica.", [frm.doc.fm_factura_fiscal_mx]),
 				"red"
 			);
 	}, 300);

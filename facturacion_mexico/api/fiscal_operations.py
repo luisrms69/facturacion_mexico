@@ -173,6 +173,54 @@ def refacturar_misma_si(si_name: str):
 
 
 @frappe.whitelist()
+def cancelar_si_post_fiscal(si_name: str):
+	"""
+	Cancela una SI cuya FFM ya fue cancelada ante el SAT.
+	Limpia vínculos fiscales y cancela la SI en un solo paso.
+	El usuario solo ve "Cancelar documento" — los detalles son transparentes.
+	"""
+	si = frappe.get_doc("Sales Invoice", si_name)
+
+	if si.docstatus != 1:
+		frappe.throw(_("Solo se puede cancelar una Sales Invoice enviada."))
+
+	if (si.get("fm_fiscal_status") or "").upper() != "CANCELADO":
+		frappe.throw(_("Solo aplica cuando la Factura Fiscal está cancelada ante el SAT."))
+
+	if not frappe.has_permission("Sales Invoice", "cancel", si):
+		frappe.throw(_("Sin permisos para cancelar Sales Invoice."))
+
+	# Obtener todas las FFMs ligadas y validar que todas estén canceladas antes de desvincular
+	ffms = frappe.get_all(
+		"Factura Fiscal Mexico",
+		filters={"sales_invoice": si_name},
+		fields=["name", "status"],
+	)
+	for row in ffms:
+		if (row.get("status") or "").upper() != "CANCELADO":
+			frappe.throw(
+				_(
+					"No se puede cancelar: la Factura Fiscal {0} aún está activa (status: {1}). "
+					"Cancela primero todas las facturas fiscales asociadas."
+				).format(row.name, row.status)
+			)
+
+	# Todas canceladas — desvincular para que ERPNext permita el cancel de la SI
+	for row in ffms:
+		frappe.db.set_value("Factura Fiscal Mexico", row.name, "sales_invoice", "")
+
+	# Limpiar vínculos fiscales en la SI
+	si.db_set("fm_factura_fiscal_mx", "")
+	si.db_set("fm_fiscal_status", "")
+
+	# Cancelar la SI — cancel() maneja su propia transacción
+	si_fresh = frappe.get_doc("Sales Invoice", si_name)
+	si_fresh.cancel()
+
+	return {"ok": True, "message": _("Sales Invoice cancelada.")}
+
+
+@frappe.whitelist()
 def cancel_sales_invoice_after_ffm(si_name: str):
 	"""
 	DEPRECATED: Usar botón Cancel nativo.

@@ -980,7 +980,9 @@
 							fieldtype: "Select",
 							reqd: 1,
 							options: filtered_options,
-							default: "02",
+							default:
+								filtered_options.find((o) => o.startsWith("02")) ||
+								filtered_options[0],
 							description: __(
 								"Seleccione el motivo de cancelación según catálogo SAT"
 							),

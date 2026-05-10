@@ -15,15 +15,10 @@
 		// Si no hay FFM vinculada, permitir Cancel nativo siempre
 		if (!linked) return;
 
-		const fiscal_status = norm(frm.doc.fm_fiscal_status || "");
-
-		// NUEVO: Si FFM está CANCELADA fiscalmente, permitir Cancel nativo (workflow 02/03/04)
-		if (fiscal_status === "CANCELADO") {
-			// No ocultar botón - permitir cancelación nativa con interceptor
-			return;
-		}
-
-		// MANTENER: Ocultar Cancel nativo si FFM está activa (TIMBRADO/PENDIENTE)
+		// Con FFM vinculada (cualquier estado), ocultar Cancel nativo.
+		// El usuario debe usar los botones de Acciones Fiscales:
+		// - FFM TIMBRADO: cancelar primero en FacturAPI
+		// - FFM CANCELADO: usar "❌ Cancelar documento" (limpia vínculos fiscales)
 		const $w = $(frm.page.wrapper);
 
 		// Botón secundario "Cancel" (en la barra)
@@ -52,24 +47,35 @@
 		const st = norm(frm.doc.fm_fiscal_status || "");
 		if (st !== S.CANCELADO && st !== "CANCELADO") return;
 
-		// Limpiar botones existentes del grupo
-		frm.remove_custom_button(__("🔄 Nueva factura fiscal"), __("Acciones Post-Fiscal"));
-		frm.remove_custom_button(__("❌ Cancelar Sales Invoice"), __("Acciones Post-Fiscal"));
+		// Si hay PE activo, no mostrar acciones fiscales post-cancelación
+		frappe.call({
+			method: "facturacion_mexico.complementos_pago.api.get_active_pe_for_si",
+			args: { si_name: frm.doc.name },
+			callback: function (r) {
+				if (r.message) return; // hay PE activo — no mostrar botones
+				_add_post_fiscal_action_buttons(frm);
+			},
+		});
+	}
 
-		// --- Botón: Nueva factura fiscal (misma Sales Invoice) ---
+	function _add_post_fiscal_action_buttons(frm) {
+		const GROUP = __("Opciones Fiscales");
+		const can_cancel = frappe.model.can_cancel("Sales Invoice");
+
+		// --- Botón: Nueva factura fiscal (retimbra misma factura de venta sin cambios) ---
 		frm.add_custom_button(
 			__("🔄 Nueva factura fiscal"),
 			() => {
 				const ffm_prev = frm.doc.fm_factura_fiscal_mx || "N/A";
 				const msg = [
 					__(
-						"Se desvinculará este Sales Invoice de la FFM cancelada para que puedas volver a timbrar desde Factura Fiscal. ¿Continuar?"
+						"Se desvinculará esta factura de venta de la FFM cancelada para retimbrar. ¿Continuar?"
 					),
 					"<br><br>",
-					`• ${__("Sales Invoice")}: ${frappe.utils.escape_html(frm.doc.name)}<br>`,
+					`• ${__("Factura de venta")}: ${frappe.utils.escape_html(frm.doc.name)}<br>`,
 					`• ${__("FFM anterior")}: ${frappe.utils.escape_html(ffm_prev)}<br><br>`,
 					__(
-						"Después podrás modificar lo necesario y usar 'Generar Factura Fiscal' (flujo normal)."
+						"Nota: retimbra esta misma factura de venta sin modificaciones. Para cambiar datos, usa '❌ Cancelar documento' y crea una nueva."
 					),
 				].join("");
 
@@ -87,14 +93,14 @@
 									frappe.show_alert({
 										message: __(
 											out.message ||
-												"Sales Invoice ya está listo para re-facturar"
+												"Factura de venta ya está lista para re-facturar"
 										),
 										indicator: "blue",
 									});
 								} else {
 									frappe.show_alert({
 										message: __(
-											"Listo. Modifica lo necesario y usa 'Generar Factura Fiscal' (flujo normal)."
+											"Listo. Usa 'Generar Factura Fiscal' para retimbrar."
 										),
 										indicator: "green",
 									});
@@ -118,12 +124,36 @@
 						.always(() => frappe.dom.unfreeze());
 				});
 			},
-			__("Acciones Post-Fiscal")
+			GROUP
 		);
 
-		// ELIMINADO: Botón "❌ Cancelar Sales Invoice" custom deprecado
-		// El workflow 02/03/04 ahora usa cancelación nativa con interceptor backend.
-		// El interceptor hook before_cancel_sales_invoice_orchestrator() maneja la cancelación automáticamente.
+		// --- Botón: Cancelar documento (solo si tiene permiso) ---
+		if (can_cancel) {
+			frm.add_custom_button(
+				__("❌ Cancelar documento"),
+				function () {
+					frappe.confirm(
+						__(
+							"Se cancelará esta factura de venta. Esta acción no se puede deshacer. ¿Continuar?"
+						),
+						function () {
+							frappe.call({
+								method: "facturacion_mexico.api.fiscal_operations.cancelar_si_post_fiscal",
+								args: { si_name: frm.doc.name },
+								freeze: true,
+								freeze_message: __("Cancelando..."),
+								callback: function (r) {
+									if (r.message && r.message.ok) {
+										frm.reload_doc();
+									}
+								},
+							});
+						}
+					);
+				},
+				GROUP
+			);
+		}
 	}
 
 	function add_fiscal_status_indicator(frm) {
@@ -176,7 +206,7 @@
 						}
 					);
 				},
-				__("Acciones Fiscales")
+				__("Opciones Fiscales")
 			);
 		}
 	}
