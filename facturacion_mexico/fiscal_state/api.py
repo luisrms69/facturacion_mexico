@@ -36,6 +36,13 @@ def get_fiscal_ui_state(doctype: str, name: str) -> dict:
 
 		return get_payment_entry_fiscal_state(name)
 
+	if doctype == "Sales Invoice":
+		from facturacion_mexico.fiscal_state.sales_invoice_state import (
+			get_sales_invoice_fiscal_state,
+		)
+
+		return get_sales_invoice_fiscal_state(name)
+
 	frappe.throw(
 		_("fiscal_state: doctype '{0}' no está soportado aún.").format(doctype),
 		title=_("No implementado"),
