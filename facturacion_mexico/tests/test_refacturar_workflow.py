@@ -20,21 +20,6 @@ TEST_SAT_CODE = "84111506"  # Servicios de consultoría — genérico para testi
 TEST_ITEM_CODE = "FM-TEST-REFACTURA-ITEM"
 
 
-def _get_test_cost_center(company):
-	"""Retorna un Cost Center hoja válido para la company. Falla explícitamente si no existe."""
-	cost_center = frappe.db.get_value(
-		"Cost Center",
-		{"is_group": 0, "company": company},
-		"name",
-	)
-	if not cost_center:
-		frappe.throw(
-			f"No existe Cost Center válido para company '{company}'. "
-			"Ejecuta ci_pre_tests.run o crea los prerequisitos del test."
-		)
-	return cost_center
-
-
 class TestRefacturarWorkflow(FrappeTestCase):
 	"""Tests unitarios para refacturar_misma_si()."""
 
@@ -43,16 +28,18 @@ class TestRefacturarWorkflow(FrappeTestCase):
 		super().setUpClass()
 		cls.company = frappe.defaults.get_global_default("company") or "_Test Company"
 
-		# Crear registro SAT Producto Servicio si no existe
+		# SAT Producto Servicio
 		if not frappe.db.exists("SAT Producto Servicio", TEST_SAT_CODE):
 			sat = frappe.new_doc("SAT Producto Servicio")
 			sat.codigo = TEST_SAT_CODE
 			sat.descripcion = "Servicios de consultoria - Test"
 			sat.insert(ignore_permissions=True)
 
-		# Crear item de prueba específico si no existe
+		# Item Group — cualquiera que exista en CI (fresh install puede no tener "Services")
+		item_group = frappe.db.get_value("Item Group", {"is_group": 0}, "name") or "All Item Groups"
+
+		# Item de prueba
 		if not frappe.db.exists("Item", TEST_ITEM_CODE):
-			item_group = frappe.db.get_value("Item Group", {"is_group": 0}, "name") or "All Item Groups"
 			item = frappe.new_doc("Item")
 			item.item_code = TEST_ITEM_CODE
 			item.item_name = "Item de prueba re-facturación"
@@ -62,8 +49,20 @@ class TestRefacturarWorkflow(FrappeTestCase):
 			item.fm_producto_servicio_sat = TEST_SAT_CODE
 			item.insert(ignore_permissions=True)
 		else:
-			# Asegurar que el item existente tenga el SAT code
 			frappe.db.set_value("Item", TEST_ITEM_CODE, "fm_producto_servicio_sat", TEST_SAT_CODE)
+
+		# Cost Center — crear uno hoja si no existe ninguno para la company
+		# CI fresh install puede no tener cost centers hoja bajo _Test Company
+		cls.cost_center = frappe.db.get_value("Cost Center", {"is_group": 0, "company": cls.company}, "name")
+		if not cls.cost_center:
+			parent_cc = frappe.db.get_value("Cost Center", {"company": cls.company}, "name")
+			if parent_cc:
+				cc = frappe.new_doc("Cost Center")
+				cc.cost_center_name = "FM Test"
+				cc.company = cls.company
+				cc.parent_cost_center = parent_cc
+				cc.insert(ignore_permissions=True)
+				cls.cost_center = cc.name
 
 		frappe.db.commit()
 
@@ -72,7 +71,7 @@ class TestRefacturarWorkflow(FrappeTestCase):
 		si = frappe.new_doc("Sales Invoice")
 		si.company = self.company
 		si.customer = "_Test Customer"
-		si.cost_center = _get_test_cost_center(self.company)
+		si.cost_center = self.cost_center
 		si.append(
 			"items",
 			{
