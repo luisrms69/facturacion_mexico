@@ -43,6 +43,11 @@ def get_fiscal_ui_state(doctype: str, name: str) -> dict:
 
 		return get_sales_invoice_fiscal_state(name)
 
+	if doctype == "Factura Fiscal Mexico":
+		from facturacion_mexico.fiscal_state.ffm_state import get_ffm_fiscal_state
+
+		return get_ffm_fiscal_state(name)
+
 	frappe.throw(
 		_("fiscal_state: doctype '{0}' no está soportado aún.").format(doctype),
 		title=_("No implementado"),
