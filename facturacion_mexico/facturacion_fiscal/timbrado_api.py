@@ -1132,6 +1132,27 @@ class TimbradoAPI:
 
 			factura_fiscal = frappe.get_doc("Factura Fiscal Mexico", sales_invoice.fm_factura_fiscal_mx)
 
+			# Guard Python: bloquear cancelación si hay Complemento Pago MX activo
+			_pe_refs = frappe.get_all(
+				"Payment Entry Reference",
+				filters={"reference_doctype": "Sales Invoice", "reference_name": sales_invoice_name},
+				fields=["parent"],
+			)
+			for _ref in _pe_refs:
+				_complemento = frappe.db.get_value(
+					"Complemento Pago MX",
+					{"payment_entry": _ref.parent, "status": ["!=", "Cancelado"]},
+					"name",
+				)
+				if _complemento:
+					frappe.throw(
+						_(
+							"No se puede cancelar: existe un Complemento de Pago activo ({0}). "
+							"Cancela primero el complemento y luego regresa a cancelar la factura."
+						).format(_complemento),
+						title=_("Complemento activo"),
+					)
+
 			# FASE 2: COMUNICACIÓN CON PAC
 			# Preparar request para auditoría
 			pac_request = {

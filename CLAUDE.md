@@ -199,6 +199,15 @@ class TestReglaNegocio(FrappeTestCase):
 - Prohibido crear configuración solo local que no migre
 - Prohibido `frappe.db.sql("UPDATE...")` como atajo a fixture roto
 
+### RG-010b: Patches — PROHIBICIÓN ABSOLUTA
+
+- **`patches.txt` está vacío** — no hay patches activos en el app.
+- Los archivos `.py` de patches están en `patches/legacy/` solo como referencia histórica.
+- **PROHIBIDO ejecutar patches legacy** via `bench execute` como workaround.
+- **PROHIBIDO reactivar patches** comentados o moverlos de legacy/ sin PR aprobado.
+- Si `bench migrate` falla, se corrige la **causa actual** (código, fixtures, after_migrate).
+  Nunca se revive un patch viejo para tapar el error.
+
 ### RG-010: Scripts one-off
 
 - Ubicación: `facturacion_mexico/one_offs/`
