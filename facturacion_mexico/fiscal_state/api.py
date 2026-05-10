@@ -48,6 +48,11 @@ def get_fiscal_ui_state(doctype: str, name: str) -> dict:
 
 		return get_ffm_fiscal_state(name)
 
+	if doctype == "Complemento Pago MX":
+		from facturacion_mexico.fiscal_state.complemento_state import get_complemento_fiscal_state
+
+		return get_complemento_fiscal_state(name)
+
 	frappe.throw(
 		_("fiscal_state: doctype '{0}' no está soportado aún.").format(doctype),
 		title=_("No implementado"),
