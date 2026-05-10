@@ -218,10 +218,14 @@
 
 				_check_active_pe_blocking_cancel(frm, function (blocking_pe) {
 					if (blocking_pe) {
-						frm.dashboard && frm.dashboard.set_headline_alert(
-							__("No se puede cancelar: existe un Pago activo ({0}). Cancela primero el Pago y luego regresa a cancelar la factura.", [blocking_pe]),
-							"orange"
-						);
+						frm.dashboard &&
+							frm.dashboard.set_headline_alert(
+								__(
+									"No se puede cancelar: existe un Pago activo ({0}). Cancela primero el Pago y luego regresa a cancelar la factura.",
+									[blocking_pe]
+								),
+								"orange"
+							);
 					} else {
 						frm.add_custom_button(__("Cancelar en FacturAPI"), function () {
 							cancelar_timbrado(frm);
@@ -2686,11 +2690,18 @@ function validate_billing_data_visual(frm) {
 })(); // Cierre del IIFE
 
 function _check_active_pe_blocking_cancel(frm, callback) {
-	if (!frm.doc.sales_invoice) { callback(null); return; }
+	if (!frm.doc.sales_invoice) {
+		callback(null);
+		return;
+	}
 	frappe.call({
 		method: "facturacion_mexico.complementos_pago.api.get_active_pe_for_si",
 		args: { si_name: frm.doc.sales_invoice },
-		callback: function (r) { callback(r.message || null); },
-		error: function () { callback(null); },
+		callback: function (r) {
+			callback(r.message || null);
+		},
+		error: function () {
+			callback(null);
+		},
 	});
 }

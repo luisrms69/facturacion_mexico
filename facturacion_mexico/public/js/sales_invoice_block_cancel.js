@@ -1,3 +1,4 @@
+/* global _check_rfc_and_show_timbrar */
 frappe.ui.form.on("Sales Invoice", {
 	refresh(frm) {
 		// Solo interesa cuando está submitida

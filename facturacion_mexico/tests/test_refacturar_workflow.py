@@ -52,10 +52,11 @@ class TestRefacturarWorkflow(FrappeTestCase):
 
 		# Crear item de prueba específico si no existe
 		if not frappe.db.exists("Item", TEST_ITEM_CODE):
+			item_group = frappe.db.get_value("Item Group", {"is_group": 0}, "name") or "All Item Groups"
 			item = frappe.new_doc("Item")
 			item.item_code = TEST_ITEM_CODE
 			item.item_name = "Item de prueba re-facturación"
-			item.item_group = "_Test Item Group"
+			item.item_group = item_group
 			item.stock_uom = "Nos"
 			item.is_stock_item = 0
 			item.fm_producto_servicio_sat = TEST_SAT_CODE

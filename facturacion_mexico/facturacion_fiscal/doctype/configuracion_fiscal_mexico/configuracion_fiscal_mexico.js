@@ -213,7 +213,7 @@ frappe.ui.form.on("Mapeo Cuenta Fiscal Mexico", {
 								cdt,
 								cdn,
 								"justificacion_sugerencia",
-								"Cuenta válida seleccionada manualmente",
+								"Cuenta válida seleccionada manualmente"
 							);
 						}
 					}
