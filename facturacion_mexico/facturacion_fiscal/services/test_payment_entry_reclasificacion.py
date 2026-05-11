@@ -322,9 +322,11 @@ class TestPaymentEntryReclasificacion(unittest.TestCase):
 	def test_sin_mapeo_muestra_aviso_al_usuario(self):
 		"""Cuentas sin mapeo → msgprint naranja; PE se guarda sin bloquear."""
 		pe = _make_pe_mock(1160.0, grand_total=1160.0)
-		with mock.patch(f"{_MODULE}._calcular_grupos_desde_doc", return_value=({}, [self.otro])):
-			with mock.patch.object(payment_entry_reclasificacion.frappe, "msgprint") as mock_msg:
-				cargar_impuestos_en_payment_entry(pe)
+		with (
+			mock.patch(f"{_MODULE}._calcular_grupos_desde_doc", return_value=({}, [self.otro])),
+			mock.patch.object(payment_entry_reclasificacion.frappe, "msgprint") as mock_msg,
+		):
+			cargar_impuestos_en_payment_entry(pe)
 
 		mock_msg.assert_called_once()
 		call_kwargs = mock_msg.call_args[1]

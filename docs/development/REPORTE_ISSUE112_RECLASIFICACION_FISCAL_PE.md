@@ -53,12 +53,12 @@ CRFM [NUEVO] (rector: qué cuentas se reclasifican y a dónde)
   ↓ genera idempotente
 MRFPE (tabla operativa — sin cambios en schema Fase 1)
   ↓ consume (sin cambios)
-payment_entry_reclasificacion.py (solo se agrega log_error)
+payment_entry_reclasificacion.py (solo se agrega msgprint)
 ```
 
 ### Criterios de diseño aprobados
 
-1. No mover la lógica actual de Payment Entry — solo agregar `log_error`
+1. No mover la lógica actual de Payment Entry — solo agregar aviso al usuario
 2. No eliminar MRFPE — sigue siendo tabla operativa final
 3. No modificar CFM — solo lectura para detección
 4. CFM no absorbe egresos/pagos — no es fuente universal
@@ -241,29 +241,33 @@ frappe.msgprint(f"Creados: {len(creados)} | Ya existían: {len(ya_existian)} | P
 
 ---
 
-## Fase 0 — Fix inmediato (PR independiente)
+## Fase 0 — Fix inmediato (PR #126)
 
-Antes de implementar CRFM, este cambio elimina el silencio contable:
+Implementado. Elimina el silencio contable mostrando aviso visible al usuario:
 
 ```python
-# payment_entry_reclasificacion.py
+# payment_entry_reclasificacion.py — implementación real
 if not cuenta_destino:
-    frappe.log_error(
-        f"Sin mapeo de reclasificación: {company} / {tipo_operacion} / "
-        f"{tax.account_head} en PE {doc.name}. Impuesto no reclasificado.",
-        "Reclasificación Fiscal Incompleta"
+    frappe.msgprint(
+        f"⚠️ Las siguientes cuentas de impuesto no tienen mapeo de reclasificación "
+        f"y no serán reclasificadas en este cobro:<br><br><b>{cuentas}</b><br><br>"
+        f"Configure el mapeo en <b>Mapeo Reclasificacion Fiscal Payment Entry</b>.",
+        title="Reclasificación Fiscal Incompleta",
+        indicator="orange",
     )
     continue
 ```
 
+El aviso es naranja, no bloqueante — el PE se guarda correctamente.
+Sin `frappe.log_error` — el mensaje al usuario es suficiente.
 Riesgo: mínimo. No cambia comportamiento del GL.
 
 ---
 
 ## Alcance por fases
 
-### Fase 0 — log_error (PR pequeño, inmediato)
-- `payment_entry_reclasificacion.py`: `continue` → `log_error + continue`
+### Fase 0 — msgprint naranja (PR #126 — implementado)
+- `payment_entry_reclasificacion.py`: `continue` → `msgprint` naranja + `continue`
 
 ### Fase 1 — CRFM para Cobros
 - DocType `Configuracion Reclasificacion Fiscal Mexico` + child `Regla Reclasificacion Fiscal`
@@ -292,7 +296,7 @@ Riesgo: mínimo. No cambia comportamiento del GL.
 | Migración de datos | ✅ Ninguno | DocType nuevo — sin datos históricos |
 | MRFPE existente | ✅ Ninguno | No se toca. Instalaciones con MRFPE manual siguen funcionando |
 | CFM | ✅ Ninguno | Solo lectura |
-| payment_entry_reclasificacion.py | ✅ Mínimo | Solo agrega log_error |
+| payment_entry_reclasificacion.py | ✅ Mínimo | Solo agrega msgprint naranja |
 | Fixtures | ⚠️ Bajo | 2 DocTypes nuevos: JSON + hooks.py |
 | Permisos | ⚠️ Bajo | System Manager + Accounts Manager (igual que MRFPE) |
 | Idempotencia generación | ⚠️ Medio | `frappe.db.exists()` antes de `insert()` — cubierto en pseudocódigo |

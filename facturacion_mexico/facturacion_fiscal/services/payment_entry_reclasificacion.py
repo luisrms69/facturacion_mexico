@@ -134,7 +134,7 @@ def _calcular_grupos_desde_doc(doc) -> tuple[dict, list]:
 	con los montos proporcionales reales a reclasificar y las cuentas sin mapeo.
 	"""
 	grupos: dict = {}
-	sin_mapeo: list = []
+	sin_mapeo: set = set()
 	company = doc.company
 
 	for ref in doc.get("references", []):
@@ -172,15 +172,14 @@ def _calcular_grupos_desde_doc(doc) -> tuple[dict, list]:
 				"cuenta_destino",
 			)
 			if not cuenta_destino:
-				if tax.account_head not in sin_mapeo:
-					sin_mapeo.append(tax.account_head)
+				sin_mapeo.add(tax.account_head)
 				continue
 
 			key = (tax.account_head, cuenta_destino, tipo_operacion)
 			monto = round(tax_amount * proporcion, 6)
 			grupos[key] = grupos.get(key, 0.0) + monto
 
-	return grupos, sin_mapeo
+	return grupos, sorted(sin_mapeo)
 
 
 # ---------------------------------------------------------------------------
