@@ -1,0 +1,1363 @@
+
+<!doctype html>
+<html lang="es" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentación completa del sistema de facturación electrónica para México">
+      
+      
+        <meta name="author" content="Equipo Desarrollo Facturación México">
+      
+      
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.3">
+    
+    
+      
+        <title>Issue #112 — Reclasificación Fiscal en Payment Entry - Facturación México - Documentación Técnica</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.50c56a3b.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/advanced.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function n(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],n("js",new Date),n("config","G-XXXXXXXXXX"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){this.value&&n("event","search",{search_term:this.value})}),document$.subscribe(function(){var a=document.forms.feedback;if(void 0!==a)for(var e of a.querySelectorAll("[type=submit]"))e.addEventListener("click",function(e){e.preventDefault();var t=document.location.pathname,e=this.getAttribute("data-md-value");n("event","feedback",{page:t,data:e}),a.firstElementChild.disabled=!0;e=a.querySelector(".md-feedback__note [data-md-value='"+e+"']");e&&(e.hidden=!1)}),a.hidden=!1}),location$.subscribe(function(e){n("config","G-XXXXXXXXXX",{page_path:e.pathname})})});var e=document.createElement("script");e.async=!0,e.src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX",document.getElementById("__analytics").insertAdjacentElement("afterEnd",e)}</script>
+  
+    <script>var consent;"undefined"==typeof __md_analytics||(consent=__md_get("__consent"))&&consent.analytics&&__md_analytics()</script>
+  
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#issue-112-reclasificacion-fiscal-en-payment-entry" class="md-skip">
+          Saltar a contenido
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabecera">
+    <a href="../.." title="Facturación México - Documentación Técnica" class="md-header__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Facturación México - Documentación Técnica
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Issue #112 — Reclasificación Fiscal en Payment Entry
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo oscuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo oscuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Búsqueda" placeholder="Búsqueda" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Buscar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpiar" aria-label="Limpiar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando búsqueda
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Pestañas" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+    
+  
+  Inicio
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../user-guide/" class="md-tabs__link">
+          
+  
+  Guía de Usuario
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/" class="md-tabs__link">
+          
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../" class="md-tabs__link">
+          
+  
+  Desarrollo
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navegación" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Facturación México - Documentación Técnica" class="md-nav__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Facturación México - Documentación Técnica
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Inicio
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Guía de Usuario
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Guía de Usuario
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Usuario - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/getting-started/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Primeros Pasos
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/draft-invoices/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Facturas en Borrador
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/troubleshooting/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    API Reference
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    API Reference - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/cfdi/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CFDI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/draft-management/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Draft Management
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/catalogos/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Catalogos SAT
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/hooks/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Hooks
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Desarrollo
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Desarrollo
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Desarrollo - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Setup Desarrollo
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../draft-workflow/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Draft Workflow
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="issue-112-reclasificacion-fiscal-en-payment-entry">Issue #112 — Reclasificación Fiscal en Payment Entry<a class="headerlink" href="#issue-112-reclasificacion-fiscal-en-payment-entry" title="Permanent link">&para;</a></h1>
+<h1 id="analisis-de-arquitectura-y-diseno-para-resolucion">Análisis de Arquitectura y Diseño para Resolución<a class="headerlink" href="#analisis-de-arquitectura-y-diseno-para-resolucion" title="Permanent link">&para;</a></h1>
+<h1 id="fecha-2026-05-10">Fecha: 2026-05-10<a class="headerlink" href="#fecha-2026-05-10" title="Permanent link">&para;</a></h1>
+<h1 id="estado-diseno-aprobado-pendiente-implementacion">Estado: DISEÑO APROBADO — pendiente implementación<a class="headerlink" href="#estado-diseno-aprobado-pendiente-implementacion" title="Permanent link">&para;</a></h1>
+<hr />
+<h2 id="contexto-del-problema">Contexto del problema<a class="headerlink" href="#contexto-del-problema" title="Permanent link">&para;</a></h2>
+<p>Issue #112 es la <strong>prioridad 1 del cierre de roadmap</strong>. No es un bug menor —
+es una deficiencia arquitectónica en el flujo de reclasificación fiscal que ocurre
+cada vez que se registra un cobro PPD (y eventualmente pagos).</p>
+<p>El problema tiene dos niveles:
+1. <strong>Inmediato:</strong> el sistema falla silenciosamente cuando no hay mapeo — no avisa
+2. <strong>Arquitectónico:</strong> hay un diseño deficiente entre dos doctypes que deben trabajar
+   juntos pero están completamente desconectados</p>
+<hr />
+<h2 id="el-flujo-de-reclasificacion-fiscal-que-debe-pasar">El flujo de reclasificación fiscal — qué debe pasar<a class="headerlink" href="#el-flujo-de-reclasificacion-fiscal-que-debe-pasar" title="Permanent link">&para;</a></h2>
+<p>Cuando una empresa mexicana emite una factura PPD (pago en parcialidades o diferido):</p>
+<div class="highlight"><pre><span></span><code>MOMENTO 1 — Timbrado de la factura (Sales Invoice):
+  IVA 16% = $160 → queda en &quot;IVA por Cobrar&quot; (cuenta temporal/transitoria)
+  No se reconoce como ingreso fiscal todavía
+
+MOMENTO 2 — Registro del cobro (Payment Entry):
+  El IVA pendiente SE RECLASIFICA:
+  Dr  &quot;IVA por Cobrar&quot;  $160   ← cuenta_origen (transitoria)
+  Cr  &quot;IVA Cobrado&quot;     $160   ← cuenta_destino (definitiva)
+
+  Este GL extra es el que genera payment_entry_reclasificacion.py
+</code></pre></div>
+<p>⚠️ <strong>Nota sobre IVA 0% y Exento:</strong> Aunque estos impuestos no generan monto
+reclasificable en Payment Entry, pueden requerir visibilidad para reportes
+fiscales. Por tanto, <strong>ningún rol fiscal se excluye automáticamente</strong>
+— todos se muestran para revisión y el usuario decide si los configura
+o los marca como Omitido. No implica que todos requieran movimiento
+contable en el cobro.</p>
+<hr />
+<h2 id="arquitectura-aprobada">Arquitectura aprobada<a class="headerlink" href="#arquitectura-aprobada" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>CFM (declaración de alcance fiscal — ingresos)
+  ↓ lectura (solo detección, sin modificar)
+CRFM [NUEVO] (rector: qué cuentas se reclasifican y a dónde)
+  ↓ genera idempotente
+MRFPE (tabla operativa — sin cambios en schema Fase 1)
+  ↓ consume (sin cambios)
+payment_entry_reclasificacion.py (solo se agrega msgprint)
+</code></pre></div>
+<h3 id="criterios-de-diseno-aprobados">Criterios de diseño aprobados<a class="headerlink" href="#criterios-de-diseno-aprobados" title="Permanent link">&para;</a></h3>
+<ol>
+<li>No mover la lógica actual de Payment Entry — solo agregar aviso al usuario</li>
+<li>No eliminar MRFPE — sigue siendo tabla operativa final</li>
+<li>No modificar CFM — solo lectura para detección</li>
+<li>CFM no absorbe egresos/pagos — no es fuente universal</li>
+<li>CRFM es flexible para fuentes futuras (<code>source_type</code> por regla, no por header)</li>
+<li>Generación de MRFPE idempotente: no duplicar, no borrar registros manuales</li>
+<li>Permitir revisar faltantes antes de generar</li>
+<li>Retenciones: detectar pero no auto-generar en Fase 1</li>
+<li>MRFPE existentes: detectar como "Ya existe externo", no migrar</li>
+<li>Modo Manual funciona sin CFM</li>
+<li><strong>Sin exclusiones automáticas de roles</strong> — incluso IVA 0% y Exento se muestran para revisión fiscal/reportes; el usuario decide si se omiten</li>
+<li>Issue #112 se cierra con: Fase 0 + CRFM Cobros + detección/generación idempotente</li>
+</ol>
+<hr />
+<h2 id="diseno-final-del-nuevo-doctype-configuracion-reclasificacion-fiscal-mexico-crfm">Diseño final del nuevo DocType: Configuracion Reclasificacion Fiscal Mexico (CRFM)<a class="headerlink" href="#diseno-final-del-nuevo-doctype-configuracion-reclasificacion-fiscal-mexico-crfm" title="Permanent link">&para;</a></h2>
+<h3 id="header-uno-por-empresa-naming-crfm-company">Header (uno por empresa, naming <code>CRFM-{company}</code>)<a class="headerlink" href="#header-uno-por-empresa-naming-crfm-company" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>company           (Link → Company, reqd, unique)
+enabled           (Check, default 1)
+ultima_deteccion  (Datetime, read_only)
+ultima_generacion (Datetime, read_only)
+</code></pre></div>
+<p><strong>Nota:</strong> <code>source_type</code> NO va en el header — va en cada regla de la child table.
+Esto permite que el mismo CRFM maneje reglas de distintas fuentes en el futuro.</p>
+<h3 id="child-table-regla-reclasificacion-fiscal">Child table: Regla Reclasificacion Fiscal<a class="headerlink" href="#child-table-regla-reclasificacion-fiscal" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>source_type     (Select: &quot;Ingresos / CFM&quot; | &quot;Manual&quot;, reqd)
+tipo_operacion  (Select: Cobro | Pago, reqd)
+rol_fiscal      (Data, read_only — contexto semántico de CFM)
+cuenta_origen   (Link → Account, reqd, read_only si source_type = Ingresos/CFM)
+cuenta_destino  (Link → Account — el usuario confirma antes de generar)
+activo          (Check, default 1)
+estado_mrfpe    (Select: ver tabla de estados, read_only)
+mrfpe_ref       (Link → MRFPE, read_only — apunta al MRFPE relacionado, generado o externo)
+nota            (Small Text — mensaje contextual auto-llenado por el sistema o editable por usuario)
+</code></pre></div>
+<p><strong>Semántica de <code>mrfpe_ref</code>:</strong> apunta al MRFPE relacionado independientemente de su
+origen. <code>estado_mrfpe</code> es quien indica si fue generado por este CRFM ("Generado")
+o si existía previamente ("Ya existe externo"). No se usan dos campos separados
+en Fase 1 — <code>estado_mrfpe</code> da el contexto suficiente.</p>
+<p><strong>Uso del campo <code>nota</code>:</strong> el sistema lo auto-llena en la detección para guiar al
+usuario. Ejemplos:
+- Retención detectada — revisar mecánica contable antes de generar MRFPE.
+- IVA 0% / Exento — normalmente puede marcarse como Omitido si no hay cuenta destino.
+- MRFPE externo detectado — funciona correctamente sin intervención.</p>
+<h3 id="tabla-de-estados-de-estado_mrfpe">Tabla de estados de <code>estado_mrfpe</code><a class="headerlink" href="#tabla-de-estados-de-estado_mrfpe" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Estado</th>
+<th>Significado</th>
+<th>Acción del usuario</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Pendiente cuenta destino</code></td>
+<td>Detectado desde CFM, falta cuenta_destino</td>
+<td>Debe llenar cuenta_destino</td>
+</tr>
+<tr>
+<td><code>Listo para generar</code></td>
+<td>cuenta_destino definida, aún no se ha creado MRFPE — <strong>transición automática</strong></td>
+<td>Clic en "Generar MRFPE"</td>
+</tr>
+<tr>
+<td><code>Generado</code></td>
+<td>MRFPE creado por este CRFM; mrfpe_ref apunta al registro generado</td>
+<td>Ninguna</td>
+</tr>
+<tr>
+<td><code>Ya existe externo</code></td>
+<td>Ya hay MRFPE activo para esta cuenta_origen, no generado por CRFM; mrfpe_ref apunta a él</td>
+<td>Puede "adoptar" en Fase 2</td>
+</tr>
+<tr>
+<td><code>Omitido</code></td>
+<td>El usuario decidió no reclasificar este impuesto</td>
+<td>Ninguna</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Transición automática a "Listo para generar":</strong> cuando el usuario llena
+<code>cuenta_destino</code> en una regla con estado "Pendiente cuenta destino", el estado
+debe cambiar automáticamente. Se implementa en <code>validate()</code> del CRFM (Python)
+o como evento <code>cuenta_destino</code> en el JS del form. Se prefiere <code>validate()</code> para
+que funcione también en imports y bench execute.</p>
+<hr />
+<h2 id="flujo-de-uso-dos-botones-separados">Flujo de uso — dos botones separados<a class="headerlink" href="#flujo-de-uso-dos-botones-separados" title="Permanent link">&para;</a></h2>
+<h3 id="boton-1-detectar-faltantes-solo-source_type-ingresoscfm">Botón 1: "Detectar Faltantes" (solo source_type = Ingresos/CFM)<a class="headerlink" href="#boton-1-detectar-faltantes-solo-source_type-ingresoscfm" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="n">cfm</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_doc</span><span class="p">(</span><span class="s2">&quot;Configuracion Fiscal Mexico&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;CFM-</span><span class="si">{</span><span class="n">company</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">cfm</span><span class="o">.</span><span class="n">mapeo_cuentas</span><span class="p">:</span>
+    <span class="c1"># Solo filas con cuenta mapeada y validada</span>
+    <span class="k">if</span> <span class="n">row</span><span class="o">.</span><span class="n">estado_validacion</span> <span class="o">!=</span> <span class="s2">&quot;Válido&quot;</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">row</span><span class="o">.</span><span class="n">cuenta_impuesto</span><span class="p">:</span>
+        <span class="k">continue</span>
+
+    <span class="c1"># TODOS los roles — sin exclusiones automáticas; el usuario decide qué omitir</span>
+    <span class="c1"># El usuario decide qué reclasificar mediante cuenta_destino y estado</span>
+
+    <span class="c1"># ¿Ya existe en MRFPE externo?</span>
+    <span class="n">mrfpe_externo</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span>
+        <span class="s2">&quot;Mapeo Reclasificacion Fiscal Payment Entry&quot;</span><span class="p">,</span>
+        <span class="p">{</span><span class="s2">&quot;company&quot;</span><span class="p">:</span> <span class="n">company</span><span class="p">,</span> <span class="s2">&quot;tipo_operacion&quot;</span><span class="p">:</span> <span class="s2">&quot;Cobro&quot;</span><span class="p">,</span>
+         <span class="s2">&quot;cuenta_origen&quot;</span><span class="p">:</span> <span class="n">row</span><span class="o">.</span><span class="n">cuenta_impuesto</span><span class="p">,</span> <span class="s2">&quot;activo&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+        <span class="s2">&quot;name&quot;</span>
+    <span class="p">)</span>
+
+    <span class="c1"># ¿Ya existe regla en este CRFM?</span>
+    <span class="n">regla_existente</span> <span class="o">=</span> <span class="n">_buscar_regla_existente</span><span class="p">(</span><span class="n">crfm</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">cuenta_impuesto</span><span class="p">,</span> <span class="s2">&quot;Cobro&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">regla_existente</span><span class="p">:</span>
+        <span class="k">continue</span>  <span class="c1"># ya procesada</span>
+
+    <span class="n">estado</span> <span class="o">=</span> <span class="s2">&quot;Ya existe externo&quot;</span> <span class="k">if</span> <span class="n">mrfpe_externo</span> <span class="k">else</span> <span class="s2">&quot;Pendiente cuenta destino&quot;</span>
+    <span class="n">mrfpe_ref</span> <span class="o">=</span> <span class="n">mrfpe_externo</span> <span class="k">if</span> <span class="n">mrfpe_externo</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="c1"># Nota contextual automática</span>
+    <span class="n">nota</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">mrfpe_externo</span><span class="p">:</span>
+        <span class="n">nota</span> <span class="o">=</span> <span class="s2">&quot;MRFPE externo detectado — funciona correctamente sin intervención.&quot;</span>
+    <span class="k">elif</span> <span class="n">row</span><span class="o">.</span><span class="n">es_retencion</span><span class="p">:</span>
+        <span class="n">nota</span> <span class="o">=</span> <span class="s2">&quot;Retención detectada — revisar mecánica contable antes de generar MRFPE.&quot;</span>
+    <span class="k">elif</span> <span class="n">row</span><span class="o">.</span><span class="n">rol_fiscal</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;IVA Exento&quot;</span><span class="p">,</span> <span class="s2">&quot;IVA por Pagar (0</span><span class="si">% e</span><span class="s2">xportación)&quot;</span><span class="p">):</span>
+        <span class="n">nota</span> <span class="o">=</span> <span class="s2">&quot;IVA 0% / Exento — puede marcarse como Omitido si no hay cuenta destino.&quot;</span>
+
+    <span class="n">crfm</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;reglas&quot;</span><span class="p">,</span> <span class="p">{</span>
+        <span class="s2">&quot;source_type&quot;</span><span class="p">:</span> <span class="s2">&quot;Ingresos / CFM&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;tipo_operacion&quot;</span><span class="p">:</span> <span class="s2">&quot;Cobro&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;rol_fiscal&quot;</span><span class="p">:</span> <span class="n">row</span><span class="o">.</span><span class="n">rol_fiscal</span><span class="p">,</span>
+        <span class="s2">&quot;cuenta_origen&quot;</span><span class="p">:</span> <span class="n">row</span><span class="o">.</span><span class="n">cuenta_impuesto</span><span class="p">,</span>
+        <span class="s2">&quot;estado_mrfpe&quot;</span><span class="p">:</span> <span class="n">estado</span><span class="p">,</span>
+        <span class="s2">&quot;mrfpe_ref&quot;</span><span class="p">:</span> <span class="n">mrfpe_ref</span><span class="p">,</span>
+        <span class="s2">&quot;nota&quot;</span><span class="p">:</span> <span class="n">nota</span><span class="p">,</span>
+    <span class="p">})</span>
+</code></pre></div>
+<p><strong>Resultado visible para el usuario:</strong></p>
+<div class="highlight"><pre><span></span><code>| Rol Fiscal        | Cuenta Origen           | Cuenta Destino   | Estado                    |
+| IVA Nacional      | 2101-IVA Cobrable       | [editable]       | Pendiente cuenta destino  |
+| IVA Frontera      | 2102-IVA Cobr.Frontera  | [editable]       | Pendiente cuenta destino  |
+| IVA 0% Exportac.  | 2103-IVA Export         | [editable]       | Pendiente cuenta destino  |
+| IVA Exento        | 2104-IVA Exento         | [editable]       | Pendiente cuenta destino  |
+| Ret. IVA Honor.   | 2201-IVA Ret.Hon        | [editable]       | Pendiente cuenta destino  |
+| IVA Nacional      | 2101-IVA Cobrable       | 2105-IVA Cobrado | Ya existe externo         |
+</code></pre></div>
+<p>El usuario llena <code>cuenta_destino</code> en las filas que corresponde.
+Para retenciones, puede marcar <code>Omitido</code> si decide no reclasificar en Fase 1.</p>
+<h3 id="boton-2-generar-mrfpe">Botón 2: "Generar MRFPE"<a class="headerlink" href="#boton-2-generar-mrfpe" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="n">creados</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">ya_existian</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">pendientes</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">regla</span> <span class="ow">in</span> <span class="n">crfm</span><span class="o">.</span><span class="n">reglas</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">regla</span><span class="o">.</span><span class="n">estado_mrfpe</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;Ya existe externo&quot;</span><span class="p">,</span> <span class="s2">&quot;Generado&quot;</span><span class="p">,</span> <span class="s2">&quot;Omitido&quot;</span><span class="p">):</span>
+        <span class="k">continue</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">regla</span><span class="o">.</span><span class="n">cuenta_destino</span><span class="p">:</span>
+        <span class="n">pendientes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">regla</span><span class="o">.</span><span class="n">cuenta_origen</span><span class="p">)</span>
+        <span class="k">continue</span>
+
+    <span class="c1"># Idempotencia</span>
+    <span class="k">if</span> <span class="n">frappe</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s2">&quot;Mapeo Reclasificacion Fiscal Payment Entry&quot;</span><span class="p">,</span> <span class="p">{</span>
+        <span class="s2">&quot;company&quot;</span><span class="p">:</span> <span class="n">company</span><span class="p">,</span>
+        <span class="s2">&quot;tipo_operacion&quot;</span><span class="p">:</span> <span class="n">regla</span><span class="o">.</span><span class="n">tipo_operacion</span><span class="p">,</span>
+        <span class="s2">&quot;cuenta_origen&quot;</span><span class="p">:</span> <span class="n">regla</span><span class="o">.</span><span class="n">cuenta_origen</span><span class="p">,</span>
+        <span class="s2">&quot;activo&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="p">}):</span>
+        <span class="n">regla</span><span class="o">.</span><span class="n">estado_mrfpe</span> <span class="o">=</span> <span class="s2">&quot;Ya existe externo&quot;</span>
+        <span class="n">ya_existian</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">regla</span><span class="o">.</span><span class="n">cuenta_origen</span><span class="p">)</span>
+        <span class="k">continue</span>
+
+    <span class="n">mrfpe</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">new_doc</span><span class="p">(</span><span class="s2">&quot;Mapeo Reclasificacion Fiscal Payment Entry&quot;</span><span class="p">)</span>
+    <span class="n">mrfpe</span><span class="o">.</span><span class="n">company</span> <span class="o">=</span> <span class="n">company</span>
+    <span class="n">mrfpe</span><span class="o">.</span><span class="n">tipo_operacion</span> <span class="o">=</span> <span class="n">regla</span><span class="o">.</span><span class="n">tipo_operacion</span>
+    <span class="n">mrfpe</span><span class="o">.</span><span class="n">cuenta_origen</span> <span class="o">=</span> <span class="n">regla</span><span class="o">.</span><span class="n">cuenta_origen</span>
+    <span class="n">mrfpe</span><span class="o">.</span><span class="n">cuenta_destino</span> <span class="o">=</span> <span class="n">regla</span><span class="o">.</span><span class="n">cuenta_destino</span>
+    <span class="n">mrfpe</span><span class="o">.</span><span class="n">activo</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">mrfpe</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">ignore_permissions</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">regla</span><span class="o">.</span><span class="n">mrfpe_ref</span> <span class="o">=</span> <span class="n">mrfpe</span><span class="o">.</span><span class="n">name</span>
+    <span class="n">regla</span><span class="o">.</span><span class="n">estado_mrfpe</span> <span class="o">=</span> <span class="s2">&quot;Generado&quot;</span>
+    <span class="n">creados</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mrfpe</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+<span class="c1"># Reporte final al usuario</span>
+<span class="n">frappe</span><span class="o">.</span><span class="n">msgprint</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Creados: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">creados</span><span class="p">)</span><span class="si">}</span><span class="s2"> | Ya existían: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ya_existian</span><span class="p">)</span><span class="si">}</span><span class="s2"> | Pendientes: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">pendientes</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<hr />
+<h2 id="fase-0-fix-inmediato-pr-126">Fase 0 — Fix inmediato (PR #126)<a class="headerlink" href="#fase-0-fix-inmediato-pr-126" title="Permanent link">&para;</a></h2>
+<p>Implementado. Elimina el silencio contable mostrando aviso visible al usuario:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># payment_entry_reclasificacion.py — implementación real</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">cuenta_destino</span><span class="p">:</span>
+    <span class="n">frappe</span><span class="o">.</span><span class="n">msgprint</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;⚠️ Las siguientes cuentas de impuesto no tienen mapeo de reclasificación &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;y no serán reclasificadas en este cobro:&lt;br&gt;&lt;br&gt;&lt;b&gt;</span><span class="si">{</span><span class="n">cuentas</span><span class="si">}</span><span class="s2">&lt;/b&gt;&lt;br&gt;&lt;br&gt;&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;Configure el mapeo en &lt;b&gt;Mapeo Reclasificacion Fiscal Payment Entry&lt;/b&gt;.&quot;</span><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Reclasificación Fiscal Incompleta&quot;</span><span class="p">,</span>
+        <span class="n">indicator</span><span class="o">=</span><span class="s2">&quot;orange&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">continue</span>
+</code></pre></div>
+<p>El aviso es naranja, no bloqueante — el PE se guarda correctamente.
+Sin <code>frappe.log_error</code> — el mensaje al usuario es suficiente.
+Riesgo: mínimo. No cambia comportamiento del GL.</p>
+<hr />
+<h2 id="alcance-por-fases">Alcance por fases<a class="headerlink" href="#alcance-por-fases" title="Permanent link">&para;</a></h2>
+<h3 id="fase-0-msgprint-naranja-pr-126-implementado">Fase 0 — msgprint naranja (PR #126 — implementado)<a class="headerlink" href="#fase-0-msgprint-naranja-pr-126-implementado" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>payment_entry_reclasificacion.py</code>: <code>continue</code> → <code>msgprint</code> naranja + <code>continue</code></li>
+</ul>
+<h3 id="fase-1-crfm-para-cobros">Fase 1 — CRFM para Cobros<a class="headerlink" href="#fase-1-crfm-para-cobros" title="Permanent link">&para;</a></h3>
+<ul>
+<li>DocType <code>Configuracion Reclasificacion Fiscal Mexico</code> + child <code>Regla Reclasificacion Fiscal</code></li>
+<li>Botón "Detectar Faltantes" (solo Cobros, source_type = Ingresos/CFM)</li>
+<li>Botón "Generar MRFPE" (idempotente)</li>
+<li>Modo Manual (sin CFM) funcional</li>
+<li>Retenciones: detectadas, usuario decide (no auto-generación)</li>
+<li>MRFPE existentes: detectados como "Ya existe externo"</li>
+<li><strong>Cierra issue #112</strong></li>
+</ul>
+<h3 id="fase-2-adopcion-de-mrfpe-manuales-futuro">Fase 2 — Adopción de MRFPE manuales (futuro)<a class="headerlink" href="#fase-2-adopcion-de-mrfpe-manuales-futuro" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Botón "Adoptar MRFPE existente" — vincula registros externos a CRFM</li>
+<li>Referencia inversa en MRFPE (<code>crfm_ref</code>, <code>managed_by_crfm</code>) — toca schema MRFPE</li>
+</ul>
+<h3 id="fase-3-pagosegresos-futuro-issue-separado">Fase 3 — Pagos/Egresos (futuro, issue separado)<a class="headerlink" href="#fase-3-pagosegresos-futuro-issue-separado" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>source_type = "Egresos / futuro"</code> se activa</li>
+<li>Nueva fuente de detección para compras/pagos</li>
+<li>Abre issue separado: "Configuración fiscal de egresos/pagos"</li>
+</ul>
+<hr />
+<h2 id="analisis-de-riesgos">Análisis de riesgos<a class="headerlink" href="#analisis-de-riesgos" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Riesgo</th>
+<th>Nivel</th>
+<th>Detalle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Migración de datos</td>
+<td>✅ Ninguno</td>
+<td>DocType nuevo — sin datos históricos</td>
+</tr>
+<tr>
+<td>MRFPE existente</td>
+<td>✅ Ninguno</td>
+<td>No se toca. Instalaciones con MRFPE manual siguen funcionando</td>
+</tr>
+<tr>
+<td>CFM</td>
+<td>✅ Ninguno</td>
+<td>Solo lectura</td>
+</tr>
+<tr>
+<td>payment_entry_reclasificacion.py</td>
+<td>✅ Mínimo</td>
+<td>Solo agrega msgprint naranja</td>
+</tr>
+<tr>
+<td>Fixtures</td>
+<td>⚠️ Bajo</td>
+<td>2 DocTypes nuevos: JSON + hooks.py</td>
+</tr>
+<tr>
+<td>Permisos</td>
+<td>⚠️ Bajo</td>
+<td>System Manager + Accounts Manager (igual que MRFPE)</td>
+</tr>
+<tr>
+<td>Idempotencia generación</td>
+<td>⚠️ Medio</td>
+<td><code>frappe.db.exists()</code> antes de <code>insert()</code> — cubierto en pseudocódigo</td>
+</tr>
+<tr>
+<td>Exclusiones incorrectas de roles</td>
+<td>⚠️ Cubierto</td>
+<td>Sin exclusiones automáticas — todos los roles visibles para el usuario</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="archivos-a-crear-fase-0-fase-1">Archivos a crear (Fase 0 + Fase 1)<a class="headerlink" href="#archivos-a-crear-fase-0-fase-1" title="Permanent link">&para;</a></h2>
+<h3 id="fase-0-1-archivo-modificado">Fase 0 (1 archivo modificado)<a class="headerlink" href="#fase-0-1-archivo-modificado" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>facturacion_mexico/facturacion_fiscal/services/payment_entry_reclasificacion.py
+</code></pre></div>
+<h3 id="fase-1-nuevos">Fase 1 (nuevos)<a class="headerlink" href="#fase-1-nuevos" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>facturacion_mexico/facturacion_fiscal/doctype/
+  configuracion_reclasificacion_fiscal_mexico/
+    configuracion_reclasificacion_fiscal_mexico.json
+    configuracion_reclasificacion_fiscal_mexico.py
+    configuracion_reclasificacion_fiscal_mexico.js
+    test_configuracion_reclasificacion_fiscal_mexico.py
+
+  regla_reclasificacion_fiscal/
+    regla_reclasificacion_fiscal.json
+    regla_reclasificacion_fiscal.py
+</code></pre></div>
+<h3 id="fase-1-modificados">Fase 1 (modificados)<a class="headerlink" href="#fase-1-modificados" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>facturacion_mexico/hooks.py  — agregar fixtures para los 2 nuevos doctypes
+</code></pre></div>
+<h3 id="no-se-modifican">NO se modifican<a class="headerlink" href="#no-se-modifican" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>mapeo_reclasificacion_fiscal_payment_entry.py / .json / .js
+configuracion_fiscal_mexico.py / .json / .js
+mapeo_cuenta_fiscal_mexico.json
+payment_entry_reclasificacion.py (solo Fase 0)
+</code></pre></div>
+<hr />
+<h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Issue #112: https://github.com/luisrms69/facturacion_mexico/issues/112</li>
+<li><code>facturacion_mexico/facturacion_fiscal/services/payment_entry_reclasificacion.py</code></li>
+<li><code>facturacion_mexico/facturacion_fiscal/doctype/mapeo_reclasificacion_fiscal_payment_entry/</code></li>
+<li><code>facturacion_mexico/facturacion_fiscal/doctype/configuracion_fiscal_mexico/</code></li>
+<li><code>facturacion_mexico/utils/roles_fiscales.py</code></li>
+</ul>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Volver al principio
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 Facturación México - Documentación Técnica
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/tu-org/facturacion_mexico" target="_blank" rel="noopener" title="GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+      <div class="md-consent" data-md-component="consent" id="__consent" hidden>
+        <div class="md-consent__overlay"></div>
+        <aside class="md-consent__inner">
+          <form class="md-consent__form md-grid md-typeset" name="consent">
+            
+
+  
+    
+  
+
+
+
+
+
+<h4>Consentimiento de cookies</h4>
+<p>Utilizamos cookies para reconocer tus visitas repetidas y preferencias, así como para medir la efectividad de nuestra documentación y si los usuarios encuentran lo que están buscando. Con tu consentimiento, nos ayudas a mejorar nuestra documentación.
+</p>
+<input class="md-toggle" type="checkbox" id="__settings" >
+<div class="md-consent__settings">
+  <ul class="task-list">
+    
+      
+      
+        
+        
+      
+      <li class="task-list-item">
+        <label class="task-list-control">
+          <input type="checkbox" name="analytics" checked>
+          <span class="task-list-indicator"></span>
+          Google Analytics
+        </label>
+      </li>
+    
+  </ul>
+</div>
+<div class="md-consent__controls">
+  
+    
+      <button class="md-button md-button--primary">Aceptar</button>
+    
+    
+    
+  
+    
+    
+      <button type="reset" class="md-button md-button--primary">Rechazar</button>
+    
+    
+  
+    
+    
+    
+      <label class="md-button" for="__settings">Gestionar cookies</label>
+    
+  
+</div>
+          </form>
+        </aside>
+      </div>
+      <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout(function(){document.querySelector("[data-md-component=consent]").hidden=!1},250);var action,form=document.forms.consent;for(action of["submit","reset"])form.addEventListener(action,function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map(function(e){return[e,!0]}))),location.hash="",location.reload()})</script>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.expand", "navigation.instant", "navigation.sections", "navigation.tabs", "navigation.top", "search.highlight", "search.suggest"], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copiado al portapapeles", "clipboard.copy": "Copiar al portapapeles", "search.result.more.one": "1 m\u00e1s en esta p\u00e1gina", "search.result.more.other": "# m\u00e1s en esta p\u00e1gina", "search.result.none": "No se encontraron documentos", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Teclee para comenzar b\u00fasqueda", "search.result.term.missing": "Falta", "select.version": "Seleccionar versi\u00f3n"}, "version": {"default": "latest", "provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7c377c4.min.js"></script>
+      
+        <script src="../../assets/javascripts/extra.js"></script>
+      
+        <script src="../../assets/javascripts/advanced.js"></script>
+      
+    
+  </body>
+</html>
