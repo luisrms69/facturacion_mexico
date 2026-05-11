@@ -162,6 +162,11 @@ def _calcular_grupos_desde_doc(doc) -> dict:
 				"cuenta_destino",
 			)
 			if not cuenta_destino:
+				frappe.log_error(
+					f"Sin mapeo de reclasificación: {company} / {tipo_operacion} / "
+					f"{tax.account_head}. Impuesto no reclasificado en PE {doc.name}.",
+					"Reclasificación Fiscal Incompleta",
+				)
 				continue
 
 			key = (tax.account_head, cuenta_destino, tipo_operacion)
