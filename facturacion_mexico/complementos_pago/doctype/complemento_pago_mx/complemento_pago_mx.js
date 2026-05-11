@@ -156,15 +156,8 @@ function _setup_revisar_estatus_btn(frm) {
 }
 
 function _setup_cancelar_btn(frm) {
-	if (
-		!frappe.user.has_role([
-			"Facturacion Mexico Manager",
-			"Facturacion Mexico System Manager",
-			"Accounts Manager",
-			"System Manager",
-		])
-	)
-		return;
+	// Rol controlado por DocPerm de Frappe (configurable por cliente)
+	if (!frappe.model.can_cancel("Complemento Pago MX")) return;
 
 	frm.add_custom_button(__("Cancelar Complemento"), function () {
 		frappe.prompt(

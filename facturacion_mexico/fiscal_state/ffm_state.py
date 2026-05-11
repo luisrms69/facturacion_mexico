@@ -146,8 +146,10 @@ def _compute_actions(facts: dict) -> dict:
 		"can_stamp": can_stamp,
 		"can_cancel": can_cancel,
 		"can_retry_cancel": can_retry_cancel,
-		"can_download_xml": facts["has_uuid"] and facts["has_xml"],
-		"can_download_pdf": facts["has_uuid"] and facts["has_pdf"],
+		# Descargar requiere UUID + facturapi_id — el API obtiene el archivo de FacturAPI.
+		# Los archivos adjuntos (fm_xml_url/fm_pdf_url) son opcionales y pueden no estar seteados.
+		"can_download_xml": facts["has_uuid"] and facts["has_facturapi_id"],
+		"can_download_pdf": facts["has_uuid"] and facts["has_facturapi_id"],
 		"can_send_email": facts["has_uuid"] and facts["has_facturapi_id"],
 		"can_view_sales_invoice": facts["has_sales_invoice"],
 	}
