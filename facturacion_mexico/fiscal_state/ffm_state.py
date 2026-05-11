@@ -110,9 +110,7 @@ def _compute_facts(ffm) -> dict:
 
 	# ── Tax system (para validar si puede timbrar) ────────────────────────
 	tax_system = ffm.get("fm_tax_system") or ""
-	facts["tax_system_valid"] = bool(tax_system) and not (
-		tax_system.startswith("⚠️") or tax_system.startswith("❌")
-	)
+	facts["tax_system_valid"] = bool(tax_system) and not (tax_system.startswith(("⚠️", "❌")))
 
 	return facts
 

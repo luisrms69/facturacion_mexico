@@ -14,8 +14,7 @@ frappe.ui.form.on("Complemento Pago MX", {
 			method: "facturacion_mexico.fiscal_state.api.get_fiscal_ui_state",
 			args: { doctype: "Complemento Pago MX", name: frm.doc.name },
 			callback(r) {
-				if (!r.message) return;
-				const { actions, messages } = r.message;
+				const { actions = {}, messages = [] } = r.message || {};
 				_apply_buttons(frm, actions);
 				_apply_messages(frm, messages);
 			},

@@ -15,8 +15,7 @@ frappe.ui.form.on("Payment Entry", {
 			method: "facturacion_mexico.fiscal_state.api.get_fiscal_ui_state",
 			args: { doctype: "Payment Entry", name: frm.doc.name },
 			callback(r) {
-				if (!r.message) return;
-				const { actions, messages, facts } = r.message;
+				const { actions = {}, messages = [], facts = {} } = r.message || {};
 				_apply_buttons(frm, actions);
 				_apply_cancel_guard(frm, facts);
 				_apply_messages(frm, messages);

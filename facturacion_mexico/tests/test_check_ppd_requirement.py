@@ -115,6 +115,8 @@ class TestCheckPPDRequirementIntegracion(FrappeTestCase):
 		super().setUpClass()
 		from frappe.utils import getdate
 
+		cls._suffix = frappe.generate_hash(length=6)
+
 		# --- Company (patrón documentado en test-guard) ---
 		default_co = frappe.defaults.get_global_default("company")
 		if default_co and frappe.db.exists("Company", default_co):
@@ -185,7 +187,7 @@ class TestCheckPPDRequirementIntegracion(FrappeTestCase):
 
 		# --- Item ---
 		item_group = frappe.db.get_value("Item Group", {"is_group": 0}, "name") or "All Item Groups"
-		cls.item_code = "FM-TEST-PPD-ITEM"
+		cls.item_code = f"FM-TEST-PPD-{cls._suffix}"
 		if not frappe.db.exists("Item", cls.item_code):
 			item = frappe.new_doc("Item")
 			item.item_code = cls.item_code
@@ -204,7 +206,7 @@ class TestCheckPPDRequirementIntegracion(FrappeTestCase):
 			parent_cc = frappe.db.get_value("Cost Center", {"company": cls.company}, "name")
 			if parent_cc:
 				cc = frappe.new_doc("Cost Center")
-				cc.cost_center_name = "FM Test PPD"
+				cc.cost_center_name = f"FM Test PPD {cls._suffix}"
 				cc.company = cls.company
 				cc.parent_cost_center = parent_cc
 				cc.insert(ignore_permissions=True)
