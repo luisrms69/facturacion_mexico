@@ -26,11 +26,6 @@ def validate_rfc_format(doc, method):
 	if len(rfc) not in [12, 13]:
 		frappe.throw(_("RFC debe tener 12 o 13 caracteres"))
 
-	# Validar que no sea RFC genérico
-	generic_rfcs = ["XAXX010101000", "XEXX010101000"]
-	if rfc in generic_rfcs:
-		frappe.throw(_("No se puede usar RFC genérico"))
-
 	# Validar formato con regex básico
 	import re
 

@@ -23,6 +23,13 @@ def after_install():
 	# MANUAL FIRST: NO crear automáticamente setup fiscal, STCT, ITT, Tax Rules
 	# Estos se crean SOLO desde el Wizard de Configuración Fiscal México
 
+	# Crear customer template Público General
+	try:
+		_create_publico_general_customer()
+	except Exception as e:
+		frappe.log_error(frappe.get_traceback(), "[FMX][Install] Error creating Publico General customer")
+		frappe.logger().warning(f"⚠️ No se pudo crear customer Público General: {e}")
+
 	frappe.logger().info("Facturacion Mexico installation completed successfully.")
 	frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure installation process completes successfully
 
@@ -2087,3 +2094,44 @@ def add_rfc_validation_limit_field():
 	except Exception as e:
 		frappe.log_error(f"Error adding RFC validation limit field: {e!s}", "Settings Field Creation")
 		frappe.logger().warning(f"⚠️ No se pudo agregar campo RFC validation limit: {e!s}")
+
+
+def _create_publico_general_customer():
+	"""Crear customer template PUBLICO EN GENERAL si no existe. Idempotente."""
+	if frappe.db.exists("Customer", {"tax_id": "XAXX010101000", "fm_allow_generic_rfc": 1}):
+		frappe.logger().info("Customer PUBLICO EN GENERAL ya existe, omitiendo creación.")
+		return
+
+	customer = frappe.new_doc("Customer")
+	customer.customer_name = "PUBLICO EN GENERAL"
+	customer.customer_type = "Individual"
+	customer.tax_id = "XAXX010101000"
+	customer.fm_allow_generic_rfc = 1
+
+	# Régimen 616 (el name en el catálogo SAT es el código)
+	if frappe.db.exists("Regimen Fiscal SAT", "616"):
+		customer.fm_tax_regime = "616"
+
+	# Uso CFDI S01
+	if frappe.db.exists("Uso CFDI SAT", "S01"):
+		customer.fm_uso_cfdi_default = "S01"
+
+	# Sin customer_group ni territory — no aplica para Público General
+	customer.insert(ignore_permissions=True)
+	frappe.logger().info(f"✅ Customer PUBLICO EN GENERAL creado: {customer.name}")
+
+	# Dirección fiscal primaria — CP vacío, el administrador lo configura post-instalación
+	address = frappe.new_doc("Address")
+	address.address_title = "PUBLICO EN GENERAL"
+	address.address_type = "Billing"
+	address.address_line1 = "Por configurar"
+	address.city = "Mexico"
+	address.country = "Mexico"
+	address.pincode = ""
+	address.is_primary_address = 1
+	address.append("links", {"link_doctype": "Customer", "link_name": customer.name})
+	address.insert(ignore_permissions=True)
+
+	# Establecer como dirección fiscal primaria en el Customer
+	frappe.db.set_value("Customer", customer.name, "customer_primary_address", address.name)
+	frappe.logger().info(f"✅ Dirección fiscal primaria establecida: {address.name}")

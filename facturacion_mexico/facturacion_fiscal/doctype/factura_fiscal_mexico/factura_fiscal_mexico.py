@@ -976,9 +976,9 @@ class FacturaFiscalMexico(Document):
 			return
 
 		try:
-			# Obtener datos del customer
-			customer_doc = frappe.get_doc("Customer", self.customer)
-			# Customer encontrado, poblar datos
+			# Usar cliente fiscal si está definido, si no el cliente normal
+			billing_customer_name = self.fm_cliente_fiscal or self.customer
+			customer_doc = frappe.get_doc("Customer", billing_customer_name)
 
 			# RFC desde Tax ID
 			self.fm_rfc_cliente = customer_doc.tax_id or "⚠️ FALTA RFC EN CUSTOMER"

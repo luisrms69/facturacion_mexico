@@ -12,6 +12,7 @@
   "sales_invoice",
   "company",
   "customer",
+  "fm_cliente_fiscal",
   "fm_enviar_email_timbrado",
   "status",
   "column_break_payment_methods",
@@ -104,6 +105,14 @@
    "label": "Cliente",
    "options": "Customer",
    "reqd": 1
+  },
+  {
+   "fieldname": "fm_cliente_fiscal",
+   "fieldtype": "Link",
+   "label": "Cliente Fiscal (receptor CFDI)",
+   "options": "Customer",
+   "reqd": 0,
+   "description": "Receptor fiscal del CFDI. Seleccionar cuando se requiere facturar a Público General. Si se deja vacío, el CFDI se emite al cliente de la factura."
   },
   {
    "depends_on": "eval:doc.customer && doc.sales_invoice",
