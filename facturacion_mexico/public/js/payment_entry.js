@@ -1,40 +1,101 @@
 /**
  * Payment Entry — Complemento de Pago MX
- *
- * Muestra botón "Crear Complemento de Pago" cuando el PE cumple las condiciones
- * para generar un complemento PPD: submitido, tipo Receive, con SIs PPD timbradas
- * referenciadas y sin complemento previo.
+ * Botones y guards controlados por fiscal_state centralizado.
  */
 
 frappe.ui.form.on("Payment Entry", {
 	refresh(frm) {
 		_hide_technical_checkboxes(frm);
-		_setup_complemento_btn(frm);
-		_setup_complemento_cancel_warning(frm);
-		_inject_complemento_summary(frm);
+		_inject_complemento_summary(frm); // widget HTML — display rico, conservado
+
+		if (frm.doc.docstatus !== 1) return;
+
+		// Estado fiscal centralizado — una sola llamada controla botones y cancel guard
+		frappe.call({
+			method: "facturacion_mexico.fiscal_state.api.get_fiscal_ui_state",
+			args: { doctype: "Payment Entry", name: frm.doc.name },
+			callback(r) {
+				if (!r.message) return;
+				const { actions, messages, facts } = r.message;
+				_apply_buttons(frm, actions);
+				_apply_cancel_guard(frm, facts);
+				_apply_messages(frm, messages);
+			},
+		});
 	},
 	fm_complemento_pago(frm) {
 		_inject_complemento_summary(frm);
 	},
 });
 
+// ── Aplicar botones desde fiscal_state ─────────────────────────────────────
+
+function _apply_buttons(frm, actions) {
+	if (actions.can_view_complement) {
+		frm.add_custom_button(__("Ver Complemento de Pago"), function () {
+			frappe.set_route("Form", "Complemento Pago MX", frm.doc.fm_complemento_pago);
+		}).addClass("btn-info");
+	}
+
+	if (actions.can_create_complement) {
+		frm.add_custom_button(__("Crear Complemento de Pago"), function () {
+			frappe.confirm(__("¿Crear Complemento de Pago para este Payment Entry?"), function () {
+				frappe.call({
+					method: "facturacion_mexico.complementos_pago.api.crear_complemento_pago_desde_pe",
+					args: { payment_entry_name: frm.doc.name },
+					callback: function (r) {
+						if (r.message && r.message.complemento_name) {
+							frappe.show_alert(
+								{
+									message: __("Complemento {0} creado correctamente.", [
+										r.message.complemento_name,
+									]),
+									indicator: "green",
+								},
+								5
+							);
+							frm.reload_doc();
+						}
+					},
+				});
+			});
+		}).addClass("btn-primary");
+	}
+}
+
+// ── Guard de cancelación desde fiscal_state ────────────────────────────────
+
+function _apply_cancel_guard(frm, facts) {
+	if (!facts.has_active_complement) return;
+	_hide_cancel_button(frm);
+	// prettier-ignore
+	frm.dashboard.set_headline_alert(__("Este Payment Entry tiene un Complemento de Pago fiscal activo ({0}). Cancele primero el complemento antes de cancelar el pago.", [frm.doc.fm_complemento_pago]), "orange");
+}
+
+// ── Aplicar mensajes desde fiscal_state ────────────────────────────────────
+
+function _apply_messages(frm, messages) {
+	if (!messages || !messages.length) return;
+	// Solo mostrar si no hay ya un headline del cancel guard
+	if (frm.doc.fm_complemento_pago) return; // el widget ya muestra el estado
+	frm.dashboard.clear_headline();
+	const level_color = { success: "green", warning: "orange", error: "red", info: "blue" };
+	const primary = messages[0];
+	frm.dashboard.set_headline_alert(primary.text, level_color[primary.level] || "grey");
+}
+
+// ── Funciones sin cambio ───────────────────────────────────────────────────
+
 function _hide_technical_checkboxes(frm) {
 	frm.set_df_property("fm_require_complement", "hidden", 1);
 	frm.set_df_property("fm_complement_generated", "hidden", 1);
 }
 
-function _setup_complemento_cancel_warning(frm) {
-	if (frm.doc.docstatus !== 1) return;
-	if (!frm.doc.fm_complemento_pago) return;
-
-	frappe.db.get_value("Complemento Pago MX", frm.doc.fm_complemento_pago, "status").then((r) => {
-		const st = r.message && r.message.status;
-		if (st && st !== "Cancelado") {
-			_hide_cancel_button(frm);
-			// prettier-ignore
-			frm.dashboard.set_headline_alert(__("Este Payment Entry tiene un Complemento de Pago fiscal activo ({0}) en estado '{1}'. Cancele primero el complemento antes de cancelar el pago.", [frm.doc.fm_complemento_pago, st]), "orange");
-		}
-	});
+function _hide_cancel_button(frm) {
+	if (frm.page && frm.page.btn_cancel) frm.page.btn_cancel.addClass("hidden");
+	frm.page.wrapper
+		.find('button.btn-danger, .btn[data-label="Cancel"], button:contains("Cancel")')
+		.addClass("hidden");
 }
 
 function _inject_complemento_summary(frm) {
@@ -160,74 +221,4 @@ function _complemento_status_color(status) {
 		default:
 			return "grey";
 	}
-}
-
-function _hide_cancel_button(frm) {
-	if (frm.page && frm.page.btn_cancel) frm.page.btn_cancel.addClass("hidden");
-	frm.page.wrapper
-		.find('button.btn-danger, .btn[data-label="Cancel"], button:contains("Cancel")')
-		.addClass("hidden");
-}
-
-function _setup_complemento_btn(frm) {
-	// Solo PE submitido
-	if (frm.doc.docstatus !== 1) return;
-
-	// Solo cobros (Receive)
-	if (frm.doc.payment_type !== "Receive") return;
-
-	// Ya tiene complemento — mostrar enlace de navegación en lugar de botón
-	if (frm.doc.fm_complemento_pago) {
-		frm.add_custom_button(__("Ver Complemento de Pago"), function () {
-			frappe.set_route("Form", "Complemento Pago MX", frm.doc.fm_complemento_pago);
-		}).addClass("btn-info");
-		return;
-	}
-
-	// Verificar si hay al menos una SI con fm_es_ppd=1 referenciada
-	const si_names = (frm.doc.references || [])
-		.filter(
-			(ref) => ref.reference_doctype === "Sales Invoice" && flt(ref.allocated_amount) > 0
-		)
-		.map((ref) => ref.reference_name);
-
-	if (!si_names.length) return;
-
-	frappe.db
-		.get_list("Sales Invoice", {
-			filters: [
-				["name", "in", si_names],
-				["fm_es_ppd", "=", 1],
-			],
-			fields: ["name"],
-			limit: 1,
-		})
-		.then((rows) => {
-			if (!rows.length) return;
-			frm.add_custom_button(__("Crear Complemento de Pago"), function () {
-				frappe.confirm(
-					__("¿Crear Complemento de Pago para este Payment Entry?"),
-					function () {
-						frappe.call({
-							method: "facturacion_mexico.complementos_pago.api.crear_complemento_pago_desde_pe",
-							args: { payment_entry_name: frm.doc.name },
-							callback: function (r) {
-								if (r.message && r.message.complemento_name) {
-									frappe.show_alert(
-										{
-											message: __("Complemento {0} creado correctamente.", [
-												r.message.complemento_name,
-											]),
-											indicator: "green",
-										},
-										5
-									);
-									frm.reload_doc();
-								}
-							},
-						});
-					}
-				);
-			}).addClass("btn-primary");
-		});
 }
