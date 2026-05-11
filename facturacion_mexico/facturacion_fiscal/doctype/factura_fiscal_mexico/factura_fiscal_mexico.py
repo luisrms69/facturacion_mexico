@@ -976,8 +976,14 @@ class FacturaFiscalMexico(Document):
 			return
 
 		try:
-			# Usar cliente fiscal si está definido, si no el cliente normal
-			billing_customer_name = self.fm_cliente_fiscal or self.customer
+			# Si está marcado Público General, buscar el customer template XAXX
+			if getattr(self, "fm_facturar_publico_general", 0):
+				publico_general = frappe.db.get_value(
+					"Customer", {"tax_id": "XAXX010101000", "fm_allow_generic_rfc": 1}, "name"
+				)
+				billing_customer_name = publico_general or self.customer
+			else:
+				billing_customer_name = self.customer
 			customer_doc = frappe.get_doc("Customer", billing_customer_name)
 
 			# RFC desde Tax ID

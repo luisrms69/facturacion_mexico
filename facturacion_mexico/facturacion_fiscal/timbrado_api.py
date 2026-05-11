@@ -434,7 +434,13 @@ class TimbradoAPI:
 
 	def _prepare_facturapi_data(self, sales_invoice, factura_fiscal) -> dict[str, Any]:
 		"""Preparar datos para FacturAPI."""
-		customer_name = factura_fiscal.get("fm_cliente_fiscal") or sales_invoice.customer
+		if factura_fiscal.get("fm_facturar_publico_general"):
+			publico_general = frappe.db.get_value(
+				"Customer", {"tax_id": "XAXX010101000", "fm_allow_generic_rfc": 1}, "name"
+			)
+			customer_name = publico_general or sales_invoice.customer
+		else:
+			customer_name = sales_invoice.customer
 		customer = frappe.get_doc("Customer", customer_name)
 
 		# Sprint 6 Phase 2: Obtener datos de sucursal si está configurada

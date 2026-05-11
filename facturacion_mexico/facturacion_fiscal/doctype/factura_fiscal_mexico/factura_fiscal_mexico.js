@@ -2612,6 +2612,11 @@ function validate_billing_data_visual(frm) {
 
 	// Agregar el botón usando el patrón frappe.ui.form.on
 	frappe.ui.form.on("Factura Fiscal Mexico", {
+		fm_facturar_publico_general(frm) {
+			// Al activar/desactivar, repoblar datos fiscales del receptor
+			frm.save().then(() => frm.reload_doc());
+		},
+
 		onload(frm) {
 			if (!frm.is_new()) return;
 

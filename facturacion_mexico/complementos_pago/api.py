@@ -174,7 +174,34 @@ def timbrar_complemento_pago(complemento_name: str) -> dict:
 			)
 
 	# --- Datos del cliente ---
-	customer_data = _build_customer_data(comp.customer, comp.company)
+	# Si las FFMs fueron timbradas a Público General, usar ese receptor en el complemento.
+	# Todas las SIs del PE deben tener el mismo valor de fm_facturar_publico_general.
+	receptor_name = comp.customer
+	if comp.payment_entry:
+		pe = frappe.get_doc("Payment Entry", comp.payment_entry)
+		publico_general_flags = set()
+		for ref in pe.get("references", []):
+			if ref.reference_doctype != "Sales Invoice":
+				continue
+			ffm_name = frappe.db.get_value("Sales Invoice", ref.reference_name, "fm_factura_fiscal_mx")
+			if not ffm_name:
+				continue
+			flag = frappe.db.get_value("Factura Fiscal Mexico", ffm_name, "fm_facturar_publico_general") or 0
+			publico_general_flags.add(int(flag))
+
+		if len(publico_general_flags) > 1:
+			frappe.throw(
+				_(
+					"Las facturas de este pago tienen configuraciones de receptor distintas "
+					"(mezcla de Público General y cliente normal). Separe el pago."
+				)
+			)
+		if publico_general_flags == {1}:
+			publico_general = frappe.db.get_value(
+				"Customer", {"tax_id": "XAXX010101000", "fm_allow_generic_rfc": 1}, "name"
+			)
+			receptor_name = publico_general or comp.customer
+	customer_data = _build_customer_data(receptor_name, comp.company)
 
 	# --- Construir related_documents ---
 	related_docs = []
