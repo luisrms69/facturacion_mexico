@@ -33,18 +33,23 @@ load_fiscal_states();
 
 frappe.ui.form.on("Sales Invoice", {
 	refresh: function (frm) {
-		// Limpiar botones previos
 		frm.remove_custom_button(__("Timbrar Factura"));
-		frm.remove_custom_button(__("Ver Factura Fiscal")); // evitar duplicados
+		frm.remove_custom_button(__("Ver Factura Fiscal"));
 
-		if (frm.doc.docstatus === 1) {
-			// Mostrar botón de navegación si existe vínculo, independiente del estado
-			if (frm.doc.fm_factura_fiscal_mx) {
-				add_view_fiscal_button(frm);
-			}
-			// RFC check + timbrar button lo maneja _check_rfc_and_show_timbrar,
-			// llamado desde sales_invoice_block_cancel.js después de resolver el estado de cancelación
-		}
+		if (frm.doc.docstatus !== 1) return;
+
+		// Estado fiscal centralizado — decide Timbrar y Ver Factura Fiscal
+		frappe.call({
+			method: "facturacion_mexico.fiscal_state.api.get_fiscal_ui_state",
+			args: { doctype: "Sales Invoice", name: frm.doc.name },
+			callback(r) {
+				if (!r.message) return;
+				const { actions } = r.message;
+				if (actions.can_view_ffm) add_view_fiscal_button(frm);
+				// can_stamp: condiciones técnicas OK — RFC check decide si mostrar o avisar
+				if (actions.can_stamp) _check_rfc_and_show_timbrar(frm);
+			},
+		});
 	},
 });
 

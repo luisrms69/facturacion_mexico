@@ -44,16 +44,18 @@
 
 	function add_post_fiscal_actions(frm) {
 		if (frm.doc.docstatus !== 1) return;
-		const st = norm(frm.doc.fm_fiscal_status || "");
-		if (st !== S.CANCELADO && st !== "CANCELADO") return;
 
-		// Si hay PE activo, no mostrar acciones fiscales post-cancelación
+		// Estado fiscal centralizado — reemplaza chequeo de fm_fiscal_status + get_active_pe_for_si
 		frappe.call({
-			method: "facturacion_mexico.complementos_pago.api.get_active_pe_for_si",
-			args: { si_name: frm.doc.name },
+			method: "facturacion_mexico.fiscal_state.api.get_fiscal_ui_state",
+			args: { doctype: "Sales Invoice", name: frm.doc.name },
 			callback: function (r) {
-				if (r.message) return; // hay PE activo — no mostrar botones
-				_add_post_fiscal_action_buttons(frm);
+				if (!r.message) return;
+				const { actions, facts } = r.message;
+				// Opciones Fiscales solo cuando hay FFM cancelada y sin PE activo
+				if (facts.has_cancelled_ffm && !facts.has_submitted_payment_entries) {
+					_add_post_fiscal_action_buttons(frm);
+				}
 			},
 		});
 	}
@@ -175,40 +177,48 @@
 	}
 
 	function add_substitute_button_mx(frm) {
-		// [Milestone 3] Mostrar sólo si hay FFM timbrada vigente ligada al SI
-		const status = (frm.doc.fm_fiscal_status || "").toUpperCase();
-		if (frm.doc.docstatus === 1 && status === "TIMBRADO") {
-			frm.add_custom_button(
-				__("🔄 Sustituir CFDI (01)"),
-				() => {
-					frappe.confirm(
-						__(
-							"Se creará un Sales Invoice de reemplazo (borrador) para emitir el CFDI sustituto (TipoRelación 04). ¿Continuar?"
-						),
-						() => {
-							frappe
-								.call({
-									method: "facturacion_mexico.facturacion_fiscal.timbrado_api.create_substitution_si",
-									args: { si_name: frm.doc.name },
-									freeze: true,
-									freeze_message: __("Creando Sales Invoice de reemplazo..."),
-								})
-								.then((r) => {
-									const out = (r && r.message) || {};
-									if (!out || !out.new_si) return;
-									frappe.show_alert({
-										message: __("SI de reemplazo creado:") + " " + out.new_si,
-										indicator: "green",
+		if (frm.doc.docstatus !== 1) return;
+
+		// Estado fiscal centralizado — reemplaza chequeo local fm_fiscal_status=TIMBRADO
+		frappe.call({
+			method: "facturacion_mexico.fiscal_state.api.get_fiscal_ui_state",
+			args: { doctype: "Sales Invoice", name: frm.doc.name },
+			callback: function (r) {
+				if (!r.message || !r.message.actions.can_substitute) return;
+				frm.add_custom_button(
+					__("🔄 Sustituir CFDI (01)"),
+					() => {
+						frappe.confirm(
+							__(
+								"Se creará un Sales Invoice de reemplazo (borrador) para emitir el CFDI sustituto (TipoRelación 04). ¿Continuar?"
+							),
+							() => {
+								frappe
+									.call({
+										method: "facturacion_mexico.facturacion_fiscal.timbrado_api.create_substitution_si",
+										args: { si_name: frm.doc.name },
+										freeze: true,
+										freeze_message: __(
+											"Creando Sales Invoice de reemplazo..."
+										),
+									})
+									.then((r) => {
+										const out = (r && r.message) || {};
+										if (!out || !out.new_si) return;
+										frappe.show_alert({
+											message:
+												__("SI de reemplazo creado:") + " " + out.new_si,
+											indicator: "green",
+										});
+										frappe.set_route("Form", "Sales Invoice", out.new_si);
 									});
-									// Abrir el SI de reemplazo para que el usuario corrija datos antes de timbrar
-									frappe.set_route("Form", "Sales Invoice", out.new_si);
-								});
-						}
-					);
-				},
-				__("Opciones Fiscales")
-			);
-		}
+							}
+						);
+					},
+					__("Opciones Fiscales")
+				);
+			},
+		});
 	}
 
 	frappe.ui.form.on("Sales Invoice", {
