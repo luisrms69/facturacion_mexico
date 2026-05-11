@@ -1,7 +1,16 @@
 # Issue #112 — Reclasificación Fiscal en Payment Entry
 # Análisis de Arquitectura y Diseño para Resolución
 # Fecha: 2026-05-10
-# Estado: DISEÑO APROBADO — pendiente implementación
+# Estado: ⚠️ OBSOLETO — ver ADR-0022
+
+> **Este documento es el análisis de diseño previo a la implementación.**
+> El diseño final y la implementación real están documentados en:
+> `docs/adr/0022-solucion-issue-112-reclasificacion-fiscal-pe.md`
+>
+> El contenido de este archivo sirvió como base de discusión con ChatGPT
+> durante el diseño. La arquitectura implementada difiere en varios puntos
+> (estados simplificados, sin máquina de estados, sin "Omitido" en el flujo principal).
+> No usar como referencia técnica — usar el ADR.
 
 ---
 

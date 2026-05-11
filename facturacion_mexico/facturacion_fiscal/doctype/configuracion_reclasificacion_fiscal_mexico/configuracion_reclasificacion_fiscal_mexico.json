@@ -1,0 +1,80 @@
+{
+  "doctype": "DocType",
+  "name": "Configuracion Reclasificacion Fiscal Mexico",
+  "module": "Facturacion Fiscal",
+  "custom": 0,
+  "is_submittable": 0,
+  "editable_grid": 1,
+  "track_changes": 1,
+  "engine": "InnoDB",
+  "naming_rule": "Expression",
+  "autoname": "format:CRFM-{company}",
+  "title_field": "company",
+  "fields": [
+    {
+      "fieldname": "company",
+      "fieldtype": "Link",
+      "label": "Empresa",
+      "options": "Company",
+      "reqd": 1,
+      "unique": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "col_break_fechas",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "ultima_deteccion",
+      "fieldtype": "Datetime",
+      "label": "Última Carga",
+      "read_only": 1
+    },
+    {
+      "fieldname": "ultima_generacion",
+      "fieldtype": "Datetime",
+      "label": "Último Aplicar",
+      "read_only": 1
+    },
+    {
+      "fieldname": "section_reglas",
+      "fieldtype": "Section Break",
+      "label": "Reglas de Reclasificación"
+    },
+    {
+      "fieldname": "reglas",
+      "fieldtype": "Table",
+      "label": "Reglas",
+      "options": "Regla Reclasificacion Fiscal"
+    },
+    {
+      "fieldname": "section_instrucciones",
+      "fieldtype": "Section Break",
+      "label": "Instrucciones",
+      "collapsible": 1,
+      "collapsed": 1
+    },
+    {
+      "fieldname": "instrucciones_html",
+      "fieldtype": "HTML",
+      "label": "Instrucciones",
+      "options": "<div class='alert alert-info'><b>1. Cargar Reglas</b> — Lee las cuentas de impuesto de Configuración Fiscal México. Si ya existe un mapeo de reclasificación para una cuenta, carga la cuenta destino actual para que puedas revisarla o cambiarla. Si no existe, la deja vacía para que la llenes.<br><br><b>Cuenta Destino</b> — Selecciona la cuenta contable a la que se reclasifica el impuesto al momento del cobro (por ejemplo: IVA Cobrado, IVA Trasladado Cobrado). Solo se muestran cuentas de tipo Tax.<br><br><b>2. Generar Mapeos</b> — Crea o actualiza los registros operativos de reclasificación. Requiere que todas las filas tengan cuenta destino. Si alguna está vacía, el sistema indica cuáles faltan.<br><br><b>Mapeo Activo</b> — Referencia al registro de reclasificación vigente para esa cuenta. Si está vacío, aún no se ha generado el mapeo.</div>"
+    }
+  ],
+  "permissions": [
+    {
+      "role": "System Manager",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 1
+    },
+    {
+      "role": "Accounts Manager",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 1
+    }
+  ]
+}

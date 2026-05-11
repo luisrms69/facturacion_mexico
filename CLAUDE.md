@@ -9,27 +9,51 @@
 
 - **Migración:** v15 → v16 completada (2026-05-01)
 - **Bench:** `/home/erpnext/frappe-bench-v16`
-- **Site activo:** `facturacion-v16.dev`
-- **Branch activo:** `feature/e4-ieps-on-item-quantity`
+- **Branch activo:** `main`
 - **Versión:** 0.0.1 (desarrollo activo)
 - **En producción:** No
 
 ---
 
+## Sites de desarrollo y prueba
+
+| Site | Propósito | Notas |
+|---|---|---|
+| `facturacion-v16.dev` | Desarrollo activo | Site principal para implementación de features |
+| `test-facturacion.localhost` | Tests unitarios | Solo para `bench run-tests` — nunca modificar manualmente |
+| `test-fm-v010.localhost` | Prueba instalación limpia | Simula fresh install con empresa real y credenciales FacturAPI sandbox |
+
+**Reglas de uso:**
+- `bench migrate` → solo el site donde se está trabajando en ese momento. Nunca en ambos por default.
+- `bench run-tests` → siempre `test-facturacion.localhost`
+- `bench export-fixtures` → siempre `facturacion-v16.dev`
+- Smoke tests / validación visual → `test-fm-v010.localhost`
+
+**Site activo en este momento:** `test-fm-v010.localhost` (prueba fresh install en curso)
+
+---
+
 ## Comandos — bench v16 multi-site
 
-Este bench comparte sitios. **Siempre usar `--site facturacion-v16.dev`.**
+Este bench comparte sitios. **Siempre especificar `--site`.**
 
 ```bash
+# Desarrollo
 bench --site facturacion-v16.dev migrate
-bench --site facturacion-v16.dev run-tests --app facturacion_mexico
 bench --site facturacion-v16.dev export-fixtures --app facturacion_mexico
 bench --site facturacion-v16.dev console
 bench --site facturacion-v16.dev execute facturacion_mexico.one_offs.<script>.run
 bench build --app facturacion_mexico
+
+# Tests unitarios
+bench --site test-facturacion.localhost run-tests --app facturacion_mexico
+
+# Prueba fresh install
+bench --site test-fm-v010.localhost migrate
+bench --site test-fm-v010.localhost list-apps
 ```
 
-**NUNCA:** `bench migrate` sin `--site` — afecta otros sites del bench compartido.
+**NUNCA:** `bench migrate` sin `--site` — afecta todos los sites del bench compartido.
 
 ---
 
