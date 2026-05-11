@@ -184,7 +184,7 @@
 			method: "facturacion_mexico.fiscal_state.api.get_fiscal_ui_state",
 			args: { doctype: "Sales Invoice", name: frm.doc.name },
 			callback: function (r) {
-				if (!r.message || !r.message.actions.can_substitute) return;
+				if (!r.message?.actions?.can_substitute) return;
 				frm.add_custom_button(
 					__("🔄 Sustituir CFDI (01)"),
 					() => {

@@ -90,32 +90,6 @@
 		return true;
 	}
 
-	// [M3-FFM] Botón de ayuda contextual sobre sustitución
-	function addHelpButtonForSubstitution(frm) {
-		// Agregar botón de ayuda contextual sobre sustitución - SOLO si tiene cfdi_uuid
-		if (frm.doc.sales_invoice && frm.doc.docstatus === 1 && frm.doc.fm_uuid) {
-			frm.add_custom_button(
-				__("¿Cómo sustituir?"),
-				() => {
-					const siName = frm.doc.sales_invoice;
-					frappe.msgprint({
-						title: __("Ayuda: Sustitución CFDI"),
-						message: __(
-							`<strong>Para sustituir este CFDI (motivo 01):</strong><br><br>` +
-								`1️⃣ Vaya al Sales Invoice: <strong>${siName}</strong><br>` +
-								`2️⃣ Use el botón "🔄 Sustituir CFDI (01)"<br>` +
-								`3️⃣ Se creará un SI de reemplazo para correcciones<br>` +
-								`4️⃣ El sistema manejará la relación TipoRelación 04 automáticamente<br><br>` +
-								`<em>La cancelación desde aquí es solo para motivos 02/03/04.</em>`
-						),
-						indicator: "blue",
-					});
-				},
-				__("Ayuda")
-			);
-		}
-	}
-
 	function load_fiscal_states(cb) {
 		if (FISCAL_STATES) {
 			cb && cb(FISCAL_STATES);
@@ -188,7 +162,7 @@
 					handleButtonsWithFallback(frm, norm(frm.doc.status));
 					return;
 				}
-				const { actions, messages, facts } = r.message;
+				const { actions = {}, messages = [], facts = {} } = r.message || {};
 				if (frm.clear_custom_buttons) frm.clear_custom_buttons();
 				_apply_ffm_buttons(frm, actions, facts);
 				_apply_ffm_messages(frm, messages, facts);
@@ -211,14 +185,15 @@
 		}
 
 		// Cancelar — rol controlado por DocPerm de Frappe (configurable por cliente)
-		if (actions.can_cancel) {
-			if (facts.has_active_payment_entry) {
-				// El mensaje lo maneja _apply_ffm_messages
-			} else if (frappe.model.can_cancel("Factura Fiscal Mexico")) {
-				frm.add_custom_button(__("Cancelar en FacturAPI"), function () {
-					cancelar_timbrado(frm);
-				}).addClass("btn-danger");
-			}
+		// El mensaje de bloqueo por PE activo lo maneja _apply_ffm_messages
+		if (
+			actions.can_cancel &&
+			!facts.has_active_payment_entry &&
+			frappe.model.can_cancel("Factura Fiscal Mexico")
+		) {
+			frm.add_custom_button(__("Cancelar en FacturAPI"), function () {
+				cancelar_timbrado(frm);
+			}).addClass("btn-danger");
 		}
 
 		// Revisar estatus cancelación
@@ -2687,20 +2662,3 @@ function validate_billing_data_visual(frm) {
 		},
 	});
 })(); // Cierre del IIFE
-
-function _check_active_pe_blocking_cancel(frm, callback) {
-	if (!frm.doc.sales_invoice) {
-		callback(null);
-		return;
-	}
-	frappe.call({
-		method: "facturacion_mexico.complementos_pago.api.get_active_pe_for_si",
-		args: { si_name: frm.doc.sales_invoice },
-		callback: function (r) {
-			callback(r.message || null);
-		},
-		error: function () {
-			callback(null);
-		},
-	});
-}

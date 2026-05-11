@@ -115,8 +115,9 @@ def _compute_actions(facts: dict) -> dict:
 		"can_stamp": can_stamp,
 		"can_cancel": can_cancel,
 		"can_retry_cancel": can_retry_cancel,
-		"can_download_xml": facts["has_uuid"] and facts["has_xml"],
-		"can_download_pdf": facts["has_uuid"] and facts["has_pdf"],
+		# has_facturapi_id requerido: descargar_archivos_complemento lanza si falta
+		"can_download_xml": facts["has_uuid"] and facts["has_facturapi_id"],
+		"can_download_pdf": facts["has_uuid"] and facts["has_facturapi_id"],
 		"can_view_payment_entry": facts["has_payment_entry"],
 	}
 

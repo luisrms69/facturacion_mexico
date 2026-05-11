@@ -6,6 +6,7 @@ fm_require_complement como fuente única de verdad en BD.
 """
 
 import frappe
+from frappe.utils import flt
 
 
 def check_ppd_requirement(doc, method=None):
@@ -29,7 +30,7 @@ def check_ppd_requirement(doc, method=None):
 	si_names = [
 		ref.reference_name
 		for ref in doc.get("references", [])
-		if ref.reference_doctype == "Sales Invoice" and ref.allocated_amount > 0
+		if ref.reference_doctype == "Sales Invoice" and flt(ref.allocated_amount) > 0
 	]
 
 	if not si_names:
@@ -45,6 +46,7 @@ def check_ppd_requirement(doc, method=None):
 			"fm_fiscal_status": "TIMBRADO",
 		},
 		fields=["name"],
+		ignore_permissions=True,
 		limit=1,
 	)
 
