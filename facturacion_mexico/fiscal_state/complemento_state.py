@@ -107,9 +107,9 @@ def _compute_actions(facts: dict) -> dict:
 
 	can_stamp = facts["is_draft"] and facts["status"] in _TIMBRABLE_STATUSES
 
-	can_cancel = facts["is_draft"] and facts["is_timbrado"] and facts["has_uuid"]
+	can_cancel = facts["is_submitted"] and facts["is_timbrado"] and facts["has_uuid"]
 
-	can_retry_cancel = facts["is_draft"] and facts["is_pendiente_cancelacion"]
+	can_retry_cancel = facts["is_submitted"] and facts["is_pendiente_cancelacion"]
 
 	return {
 		"can_stamp": can_stamp,

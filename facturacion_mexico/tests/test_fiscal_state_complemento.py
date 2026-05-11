@@ -125,8 +125,8 @@ class TestFiscalStateComplementoFacts(FrappeTestCase):
 class TestFiscalStateComplementoActions(FrappeTestCase):
 	def _base(self, **overrides):
 		facts = {
-			"is_draft": True,
-			"is_submitted": False,
+			"is_draft": False,
+			"is_submitted": True,
 			"is_cancelled": False,
 			"status": "Timbrado",
 			"is_timbrado": True,
@@ -147,13 +147,29 @@ class TestFiscalStateComplementoActions(FrappeTestCase):
 		return facts
 
 	def test_puede_timbrar_pendiente(self):
-		facts = self._base(status="Pendiente", is_timbrado=False, is_pendiente=True, has_uuid=False)
+		"""Timbrar requiere docstatus=0 (draft) con status Pendiente."""
+		facts = self._base(
+			is_draft=True,
+			is_submitted=False,
+			status="Pendiente",
+			is_timbrado=False,
+			is_pendiente=True,
+			has_uuid=False,
+		)
 		actions = _compute_actions(facts)
 		self.assertTrue(actions["can_stamp"])
 		self.assertFalse(actions["can_cancel"])
 
 	def test_puede_timbrar_error(self):
-		facts = self._base(status="Error", is_timbrado=False, is_error=True, has_uuid=False)
+		"""Timbrar requiere docstatus=0 (draft) con status Error."""
+		facts = self._base(
+			is_draft=True,
+			is_submitted=False,
+			status="Error",
+			is_timbrado=False,
+			is_error=True,
+			has_uuid=False,
+		)
 		actions = _compute_actions(facts)
 		self.assertTrue(actions["can_stamp"])
 
