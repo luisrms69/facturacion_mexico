@@ -169,11 +169,12 @@ class TestPaymentEntryReclasificacion(unittest.TestCase):
 		pe = _make_pe_mock(allocated, grand_total=grand_total)
 
 		with mock.patch.object(payment_entry_reclasificacion.frappe, "get_doc", return_value=si_mock):
-			grupos = _calcular_grupos_desde_doc(pe)
+			grupos, sin_mapeo = _calcular_grupos_desde_doc(pe)
 
 		key = (self.origen, self.destino, "Cobro")
 		self.assertIn(key, grupos)
 		self.assertAlmostEqual(grupos[key], tax_amount, places=2)
+		self.assertEqual(sin_mapeo, [])
 
 	def test_calcular_grupos_proporcion_parcial(self):
 		"""_calcular_grupos_desde_doc calcula monto proporcional para pago parcial."""
@@ -182,38 +183,43 @@ class TestPaymentEntryReclasificacion(unittest.TestCase):
 		pe = _make_pe_mock(allocated, allocated=allocated, grand_total=grand_total)
 
 		with mock.patch.object(payment_entry_reclasificacion.frappe, "get_doc", return_value=si_mock):
-			grupos = _calcular_grupos_desde_doc(pe)
+			grupos, sin_mapeo = _calcular_grupos_desde_doc(pe)
 
 		key = (self.origen, self.destino, "Cobro")
 		expected = round(tax_amount * (allocated / grand_total), 6)
 		self.assertAlmostEqual(grupos[key], expected, places=4)
+		self.assertEqual(sin_mapeo, [])
 
 	def test_calcular_grupos_sin_mapeo_retorna_vacio(self):
-		"""SI con account_head sin mapeo activo retorna grupos vacíos."""
+		"""SI con account_head sin mapeo activo retorna grupos vacíos y cuenta en sin_mapeo."""
 		si_mock = _make_si_mock(1160.0, 160.0, origen=self.otro)
 		pe = _make_pe_mock(1160.0, grand_total=1160.0)
 
 		with mock.patch.object(payment_entry_reclasificacion.frappe, "get_doc", return_value=si_mock):
-			grupos = _calcular_grupos_desde_doc(pe)
+			grupos, sin_mapeo = _calcular_grupos_desde_doc(pe)
 
 		self.assertEqual(len(grupos), 0)
+		self.assertIn(self.otro, sin_mapeo)
 
 	def test_calcular_grupos_impuesto_cero_ignorado(self):
-		"""tax_amount=0 no genera grupo."""
+		"""tax_amount=0 no genera grupo ni sin_mapeo."""
 		si_mock = _make_si_mock(1000.0, 0.0, origen=self.origen)
 		pe = _make_pe_mock(1000.0, grand_total=1000.0)
 
 		with mock.patch.object(payment_entry_reclasificacion.frappe, "get_doc", return_value=si_mock):
-			grupos = _calcular_grupos_desde_doc(pe)
+			grupos, sin_mapeo = _calcular_grupos_desde_doc(pe)
 
 		self.assertEqual(len(grupos), 0)
+		self.assertEqual(sin_mapeo, [])
 
 	# -----------------------------------------------------------------------
 	# Tests de cargar_impuestos_en_payment_entry
 	# Mockean _calcular_grupos_desde_doc para aislar la lógica de filas
 	# -----------------------------------------------------------------------
 
-	def _run_cargar(self, grand_total=1160.0, tax_amount=160.0, allocated=None, grupos_override=None):
+	def _run_cargar(
+		self, grand_total=1160.0, tax_amount=160.0, allocated=None, grupos_override=None, sin_mapeo=None
+	):
 		"""Helper: corre cargar_impuestos con grupos mockeados."""
 		if allocated is None:
 			allocated = grand_total
@@ -222,7 +228,7 @@ class TestPaymentEntryReclasificacion(unittest.TestCase):
 		grupos = (
 			grupos_override if grupos_override is not None else {(self.origen, self.destino, "Cobro"): monto}
 		)
-		with mock.patch(f"{_MODULE}._calcular_grupos_desde_doc", return_value=grupos):
+		with mock.patch(f"{_MODULE}._calcular_grupos_desde_doc", return_value=(grupos, sin_mapeo or [])):
 			cargar_impuestos_en_payment_entry(pe)
 		return pe
 
@@ -271,7 +277,7 @@ class TestPaymentEntryReclasificacion(unittest.TestCase):
 
 		monto = 160.0
 		grupos = {(self.origen, self.destino, "Cobro"): monto}
-		with mock.patch(f"{_MODULE}._calcular_grupos_desde_doc", return_value=grupos):
+		with mock.patch(f"{_MODULE}._calcular_grupos_desde_doc", return_value=(grupos, [])):
 			cargar_impuestos_en_payment_entry(pe)
 
 		count_despues = len([t for t in pe["taxes"] if _RECLAS_MARKER in (t.get("description") or "")])
@@ -310,5 +316,22 @@ class TestPaymentEntryReclasificacion(unittest.TestCase):
 	def test_impuesto_cero_ignorado(self):
 		"""Grupos vacíos por tax_amount=0 → no hay filas."""
 		pe = self._run_cargar(tax_amount=0.0, grupos_override={})
+		reclas = [t for t in pe["taxes"] if _RECLAS_MARKER in (t.get("description") or "")]
+		self.assertEqual(len(reclas), 0)
+
+	def test_sin_mapeo_muestra_aviso_al_usuario(self):
+		"""Cuentas sin mapeo → msgprint naranja; PE se guarda sin bloquear."""
+		pe = _make_pe_mock(1160.0, grand_total=1160.0)
+		with (
+			mock.patch(f"{_MODULE}._calcular_grupos_desde_doc", return_value=({}, [self.otro])),
+			mock.patch.object(payment_entry_reclasificacion.frappe, "msgprint") as mock_msg,
+		):
+			cargar_impuestos_en_payment_entry(pe)
+
+		mock_msg.assert_called_once()
+		call_kwargs = mock_msg.call_args[1]
+		self.assertEqual(call_kwargs.get("indicator"), "orange")
+		self.assertIn(self.otro, mock_msg.call_args[0][0])
+		# PE no tiene filas de reclasificación — no bloqueó el guardado
 		reclas = [t for t in pe["taxes"] if _RECLAS_MARKER in (t.get("description") or "")]
 		self.assertEqual(len(reclas), 0)

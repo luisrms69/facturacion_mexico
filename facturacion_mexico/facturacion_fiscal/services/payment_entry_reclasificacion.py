@@ -51,7 +51,16 @@ def cargar_impuestos_en_payment_entry(doc, method=None):
 	if paid_amount <= 0:
 		return
 
-	grupos = _calcular_grupos_desde_doc(doc)
+	grupos, sin_mapeo = _calcular_grupos_desde_doc(doc)
+	if sin_mapeo:
+		cuentas = ", ".join(sin_mapeo)
+		frappe.msgprint(
+			f"⚠️ Las siguientes cuentas de impuesto no tienen mapeo de reclasificación "
+			f"y no serán reclasificadas en este cobro:<br><br><b>{cuentas}</b><br><br>"
+			f"Configure el mapeo en <b>Mapeo Reclasificacion Fiscal Payment Entry</b>.",
+			title="Reclasificación Fiscal Incompleta",
+			indicator="orange",
+		)
 	if not grupos:
 		return
 
@@ -119,12 +128,13 @@ def _limpiar_filas_reclas(doc):
 	doc.taxes = [t for t in doc.get("taxes", []) if _RECLAS_MARKER not in (t.description or "")]
 
 
-def _calcular_grupos_desde_doc(doc) -> dict:
+def _calcular_grupos_desde_doc(doc) -> tuple[dict, list]:
 	"""
-	Devuelve {(cuenta_origen, cuenta_destino, tipo_op): monto_total}
-	con los montos proporcionales reales a reclasificar.
+	Devuelve ({(cuenta_origen, cuenta_destino, tipo_op): monto_total}, [sin_mapeo])
+	con los montos proporcionales reales a reclasificar y las cuentas sin mapeo.
 	"""
 	grupos: dict = {}
+	sin_mapeo: set = set()
 	company = doc.company
 
 	for ref in doc.get("references", []):
@@ -162,13 +172,14 @@ def _calcular_grupos_desde_doc(doc) -> dict:
 				"cuenta_destino",
 			)
 			if not cuenta_destino:
+				sin_mapeo.add(tax.account_head)
 				continue
 
 			key = (tax.account_head, cuenta_destino, tipo_operacion)
 			monto = round(tax_amount * proporcion, 6)
 			grupos[key] = grupos.get(key, 0.0) + monto
 
-	return grupos
+	return grupos, sorted(sin_mapeo)
 
 
 # ---------------------------------------------------------------------------
@@ -181,11 +192,12 @@ def analizar_payment_entry_whitelisted(payment_entry_name: str) -> dict:
 	"""Diagnóstico desde bench console — no modifica nada."""
 	pe = frappe.get_doc("Payment Entry", payment_entry_name)
 	paid_amount = flt(pe.paid_amount)
-	grupos = _calcular_grupos_desde_doc(pe)
+	grupos, sin_mapeo = _calcular_grupos_desde_doc(pe)
 
 	resultado = {
 		"payment_entry": pe.name,
 		"paid_amount": paid_amount,
+		"sin_mapeo": sin_mapeo,
 		"grupos": [],
 	}
 	for (origen, destino, tipo), monto in grupos.items():
