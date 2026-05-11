@@ -177,187 +177,184 @@
 	}
 
 	function applyFFMUi(frm) {
-		const status = norm(frm.doc.status);
+		// Estado fiscal centralizado — una sola llamada reemplaza load_fiscal_states
+		// + _check_active_pe_blocking_cancel (antes eran 2 llamadas async anidadas)
+		frappe.call({
+			method: "facturacion_mexico.fiscal_state.api.get_fiscal_ui_state",
+			args: { doctype: "Factura Fiscal Mexico", name: frm.doc.name },
+			callback(r) {
+				if (!r.message) {
+					console.warn("[FFM] No fiscal state, usando fallback");
+					handleButtonsWithFallback(frm, norm(frm.doc.status));
+					return;
+				}
+				const { actions, messages, facts } = r.message;
+				if (frm.clear_custom_buttons) frm.clear_custom_buttons();
+				_apply_ffm_buttons(frm, actions, facts);
+				_apply_ffm_messages(frm, messages, facts);
+			},
+		});
+	}
 
-		load_fiscal_states(function (states) {
-			if (!states) {
-				console.warn("[FFM] No fiscal states config, usando fallback");
-				handleButtonsWithFallback(frm, status);
-				return;
+	function _apply_ffm_buttons(frm, actions, facts) {
+		// Sección cancelación: visible si puede cancelar o ya está en estado final/pendiente
+		const showCancelSection =
+			actions.can_cancel || facts.is_cancelado || facts.is_pendiente_cancelacion;
+		controlCancelSection(frm, showCancelSection);
+
+		// Timbrar / Reintentar
+		if (actions.can_stamp) {
+			const label = facts.is_error ? __("Reintentar Timbrado") : __("Timbrar con FacturAPI");
+			frm.add_custom_button(label, function () {
+				timbrar_factura(frm);
+			}).addClass("btn-primary");
+		}
+
+		// Cancelar — rol controlado por DocPerm de Frappe (configurable por cliente)
+		if (actions.can_cancel) {
+			if (facts.has_active_payment_entry) {
+				// El mensaje lo maneja _apply_ffm_messages
+			} else if (frappe.model.can_cancel("Factura Fiscal Mexico")) {
+				frm.add_custom_button(__("Cancelar en FacturAPI"), function () {
+					cancelar_timbrado(frm);
+				}).addClass("btn-danger");
 			}
+		}
 
-			// Usa fuente central: states.timbrable_states / cancelable_states / final_states
-			const canTimbrar =
-				frm.doc.docstatus === 1 &&
-				states.timbrable_states.includes(status) &&
-				isValidTaxSystem(frm.doc.fm_tax_system);
-
-			const showCancel =
-				states.cancelable_states.includes(status) || states.final_states.includes(status);
-
-			controlCancelSection(frm, showCancel);
-			if (frm.clear_custom_buttons) frm.clear_custom_buttons();
-			if (canTimbrar) addTimbrarButton(frm, status);
-
-			// --- BOTÓN DE CANCELACIÓN (repuesto) ---
-			const syncStatus = (frm.doc.fm_sync_status || "").trim().toLowerCase();
-
-			// Puede cancelar si:
-			// 1) el doc está enviado (docstatus=1)
-			// 2) el estado fiscal actual está en la lista de cancelables (desde API centralizada)
-			// 3) NO está en pendiente de cancelación (evita duplicar solicitudes)
-			const canCancelar =
-				frm.doc.docstatus === 1 &&
-				states.cancelable_states.includes(status) &&
-				syncStatus !== "pending";
-
-			// Muestra/oculta sección de cancelación y agrega botón
-			const cancelSection = frm.get_field("section_break_cancelacion");
-			if (canCancelar) {
-				if (cancelSection && cancelSection.$wrapper) cancelSection.$wrapper.show();
-
-				_check_active_pe_blocking_cancel(frm, function (blocking_pe) {
-					if (blocking_pe) {
-						frm.dashboard &&
-							frm.dashboard.set_headline_alert(
-								__(
-									"No se puede cancelar: existe un Pago activo ({0}). Cancela primero el Pago y luego regresa a cancelar la factura.",
-									[blocking_pe]
-								),
-								"orange"
-							);
-					} else {
-						frm.add_custom_button(__("Cancelar en FacturAPI"), function () {
-							cancelar_timbrado(frm);
-						}).addClass("btn-danger");
-					}
+		// Revisar estatus cancelación
+		if (actions.can_retry_cancel) {
+			frm.add_custom_button(__("Revisar Estatus Cancelación"), async () => {
+				frappe.show_alert({
+					message: __("Consultando estado en FacturAPI..."),
+					indicator: "blue",
 				});
-			} else {
-				if (cancelSection && cancelSection.$wrapper) cancelSection.$wrapper.hide();
-			}
+				const r = await frappe.call({
+					method: "facturacion_mexico.facturacion_fiscal.timbrado_api.revisar_estatus_cancelacion",
+					args: { ffm_name: frm.doc.name },
+					freeze: true,
+					freeze_message: __("Consultando PAC..."),
+				});
+				const res = r && r.message;
+				if (res) {
+					frappe.msgprint({
+						title: __("Resultado"),
+						message: __(res.message),
+						indicator: res.indicator,
+					});
+					frm.reload_doc();
+				}
+			}).addClass("btn-primary");
+		}
 
-			// --- BOTONES DESCARGA Y EMAIL (mismo patrón que Cancelar) ---
-			const is_submitted = frm.doc.docstatus === 1;
-			const is_stamped = !!frm.doc.fm_uuid;
+		// Descargar PDF+XML
+		if (actions.can_download_xml || actions.can_download_pdf) {
+			frm.add_custom_button(
+				__("Descargar PDF+XML"),
+				async () => {
+					try {
+						await frappe.call({
+							method: "facturacion_mexico.facturacion_fiscal.api_client.download_xml",
+							args: { ffm_name: frm.doc.name },
+						});
+						await frappe.call({
+							method: "facturacion_mexico.facturacion_fiscal.api_client.download_pdf",
+							args: { ffm_name: frm.doc.name },
+						});
+					} catch (e) {
+						frappe.msgprint({
+							title: __("Error de descarga"),
+							message: __(String(e)),
+							indicator: "red",
+						});
+					}
+				},
+				__("Comprobantes")
+			);
+		}
 
-			if (is_submitted && is_stamped) {
-				// 1) Descargar CFDI (PDF+XML) - Agrupado en "Comprobantes"
-				frm.add_custom_button(
-					__("Descargar PDF+XML"),
-					async () => {
-						try {
-							await frappe.call({
-								method: "facturacion_mexico.facturacion_fiscal.api_client.download_xml",
-								args: { ffm_name: frm.doc.name },
-							});
-							await frappe.call({
-								method: "facturacion_mexico.facturacion_fiscal.api_client.download_pdf",
-								args: { ffm_name: frm.doc.name },
-							});
-						} catch (e) {
+		// Enviar por email
+		if (actions.can_send_email) {
+			frm.add_custom_button(
+				__("Enviar por email"),
+				async () => {
+					try {
+						const r = await frappe.call({
+							method: "facturacion_mexico.facturacion_fiscal.doctype.factura_fiscal_mexico.factura_fiscal_mexico.action_send_cfdi_email",
+							args: { ffm_name: frm.doc.name, to: null },
+						});
+						const res = r && r.message;
+						if (res && res.sent) {
 							frappe.msgprint({
-								title: __("Error de descarga"),
-								message: __(String(e)),
+								message: __("CFDI enviado a: {0}", [res.to]),
+								indicator: "green",
+							});
+						} else if (res && res.reason === "no-recipient") {
+							frappe.msgprint({
+								message: __("No se envió: no hay destinatario (FFM ni Settings)."),
+								indicator: "orange",
+							});
+						} else {
+							frappe.msgprint({
+								message: __("No se pudo enviar: {0}", [(res && res.error) || ""]),
 								indicator: "red",
 							});
 						}
-					},
-					__("Comprobantes")
-				);
+					} catch (e) {
+						frappe.msgprint({ message: __(String(e)), indicator: "red" });
+					}
+				},
+				__("Comprobantes")
+			);
+		}
 
-				// 2) Enviar CFDI por email - Agrupado en "Comprobantes"
-				frm.add_custom_button(
-					__("Enviar por email"),
-					async () => {
-						try {
-							const r = await frappe.call({
-								method: "facturacion_mexico.facturacion_fiscal.doctype.factura_fiscal_mexico.factura_fiscal_mexico.action_send_cfdi_email",
-								args: { ffm_name: frm.doc.name, to: null },
-							});
-							const res = r && r.message;
-							if (res && res.sent) {
-								frappe.msgprint({
-									message: __("CFDI enviado a: {0}", [res.to]),
-									indicator: "green",
-								});
-							} else if (res && res.reason === "no-recipient") {
-								frappe.msgprint({
-									message: __(
-										"No se envió: no hay destinatario (FFM ni Settings)."
-									),
-									indicator: "orange",
-								});
-							} else {
-								frappe.msgprint({
-									message: __("No se pudo enviar: {0}", [
-										(res && res.error) || "",
-									]),
-									indicator: "red",
-								});
-							}
-						} catch (e) {
-							frappe.msgprint({ message: __(String(e)), indicator: "red" });
-						}
-					},
-					__("Comprobantes")
-				);
-			}
-
-			// --- BOTÓN AYUDA (mismo patrón que Cancelar/Descarga/Email) ---
-			if (frm.doc.sales_invoice && frm.doc.docstatus === 1 && frm.doc.fm_uuid) {
-				frm.add_custom_button(
-					__("¿Cómo sustituir?"),
-					() => {
-						const siName = frm.doc.sales_invoice;
-						frappe.msgprint({
-							title: __("Ayuda: Sustitución CFDI"),
-							message: __(
-								`<strong>Para sustituir este CFDI (motivo 01):</strong><br><br>` +
-									`1️⃣ Vaya al Sales Invoice: <strong>${siName}</strong><br>` +
-									`2️⃣ Use el botón "🔄 Sustituir CFDI (01)"<br>` +
-									`3️⃣ Se creará un SI de reemplazo para correcciones<br>` +
-									`4️⃣ El sistema manejará la relación TipoRelación 04 automáticamente<br><br>` +
-									`<em>La cancelación desde aquí es solo para motivos 02/03/04.</em>`
-							),
-							indicator: "blue",
-						});
-					},
-					__("Ayuda")
-				);
-			}
-
-			// --- BOTÓN REVISAR ESTATUS (solo cuando PENDIENTE_CANCELACION) ---
-			if (frm.doc.docstatus === 1 && status === states.states.PENDIENTE_CANCELACION) {
-				frm.add_custom_button(__("Revisar Estatus Cancelación"), async () => {
-					frappe.show_alert({
-						message: __("Consultando estado en FacturAPI..."),
+		// Ayuda sustitución (solo cuando timbrado con SI vinculada)
+		if (actions.can_view_sales_invoice && facts.has_uuid && facts.is_timbrado) {
+			const siName = frm.doc.sales_invoice;
+			frm.add_custom_button(
+				__("¿Cómo sustituir?"),
+				() => {
+					frappe.msgprint({
+						title: __("Ayuda: Sustitución CFDI"),
+						message: __(
+							`<strong>Para sustituir este CFDI (motivo 01):</strong><br><br>` +
+								`1️⃣ Vaya al Sales Invoice: <strong>${siName}</strong><br>` +
+								`2️⃣ Use el botón "🔄 Sustituir CFDI (01)"<br>` +
+								`3️⃣ Se creará un SI de reemplazo para correcciones<br>` +
+								`4️⃣ El sistema manejará la relación TipoRelación 04 automáticamente<br><br>` +
+								`<em>La cancelación desde aquí es solo para motivos 02/03/04.</em>`
+						),
 						indicator: "blue",
 					});
-					const r = await frappe.call({
-						method: "facturacion_mexico.facturacion_fiscal.timbrado_api.revisar_estatus_cancelacion",
-						args: { ffm_name: frm.doc.name },
-						freeze: true,
-						freeze_message: __("Consultando PAC..."),
-					});
-					const res = r && r.message;
-					if (res) {
-						frappe.msgprint({
-							title: __("Resultado"),
-							message: __(res.message),
-							indicator: res.indicator,
-						});
-						frm.reload_doc();
-					}
-				}).addClass("btn-primary");
-			}
+				},
+				__("Ayuda")
+			);
+		}
 
-			// Reponer botón de navegación SIEMPRE que exista Sales Invoice
-			if (frm.doc.sales_invoice) {
-				frm.add_custom_button(__("Ver Sales Invoice"), function () {
-					frappe.set_route("Form", "Sales Invoice", frm.doc.sales_invoice);
-				});
-			}
-		});
+		// Ver Sales Invoice (siempre si existe)
+		if (actions.can_view_sales_invoice) {
+			frm.add_custom_button(__("Ver Sales Invoice"), function () {
+				frappe.set_route("Form", "Sales Invoice", frm.doc.sales_invoice);
+			});
+		}
+	}
+
+	function _apply_ffm_messages(frm, messages, facts) {
+		frm.dashboard.clear_headline();
+		if (!messages || !messages.length) return;
+		const level_color = { success: "green", warning: "orange", error: "red", info: "blue" };
+
+		// PE bloqueante tiene prioridad sobre el mensaje principal
+		if (
+			facts.has_active_payment_entry &&
+			(facts.is_timbrado || facts.is_pendiente_cancelacion)
+		) {
+			// prettier-ignore
+			frm.dashboard.set_headline_alert(__("No se puede cancelar: existe un Pago activo. Cancela primero el Pago y luego regresa a cancelar la factura."), "orange");
+			return;
+		}
+
+		const primary = messages[0];
+		frm.dashboard.set_headline_alert(primary.text, level_color[primary.level] || "grey");
 	}
 
 	function freeze_fiscal_fields_after_submit(frm) {

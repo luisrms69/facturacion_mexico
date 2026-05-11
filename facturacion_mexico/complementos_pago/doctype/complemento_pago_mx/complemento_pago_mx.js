@@ -1,19 +1,48 @@
 /**
  * Complemento Pago MX — UI
- * Botón de timbrado manual (Bloque 3E).
+ * Botones y mensajes controlados por fiscal_state centralizado.
  */
 
 frappe.ui.form.on("Complemento Pago MX", {
 	refresh(frm) {
 		_hide_standard_actions(frm);
 		_setup_status_indicators(frm);
-		_setup_timbrar_btn(frm);
-		_setup_cancelar_btn(frm);
-		_setup_revisar_estatus_btn(frm);
-		_setup_descargar_btn(frm);
 		_setup_pe_link(frm);
+
+		// Estado fiscal centralizado — una sola llamada controla todos los botones y mensajes
+		frappe.call({
+			method: "facturacion_mexico.fiscal_state.api.get_fiscal_ui_state",
+			args: { doctype: "Complemento Pago MX", name: frm.doc.name },
+			callback(r) {
+				if (!r.message) return;
+				const { actions, messages } = r.message;
+				_apply_buttons(frm, actions);
+				_apply_messages(frm, messages);
+			},
+		});
 	},
 });
+
+// ── Aplicar botones desde fiscal_state ─────────────────────────────────────
+
+function _apply_buttons(frm, actions) {
+	if (actions.can_stamp) _setup_timbrar_btn(frm);
+	if (actions.can_retry_cancel) _setup_revisar_estatus_btn(frm);
+	if (actions.can_cancel) _setup_cancelar_btn(frm);
+	if (actions.can_download_xml || actions.can_download_pdf) _setup_descargar_btn(frm);
+}
+
+// ── Aplicar mensajes desde fiscal_state ────────────────────────────────────
+
+function _apply_messages(frm, messages) {
+	frm.dashboard.clear_headline();
+	if (!messages || !messages.length) return;
+	const level_color = { success: "green", warning: "orange", error: "red", info: "blue" };
+	const primary = messages[0];
+	frm.dashboard.set_headline_alert(primary.text, level_color[primary.level] || "grey");
+}
+
+// ── Indicador de color de estado (cosmético, sin lógica fiscal) ────────────
 
 function _status_color(status) {
 	switch (status) {
@@ -36,9 +65,6 @@ function _setup_status_indicators(frm) {
 	const status = frm.doc.status;
 	if (!status) return;
 	const color = _status_color(status);
-
-	// Cuerpo: inyecta dot de color junto al valor del campo Estado
-	// El encabezado lo maneja Frappe nativamente via states + status_field
 	const $val = frm.fields_dict.status?.$wrapper?.find(".control-value");
 	if ($val && $val.length) {
 		$val.html(
@@ -48,35 +74,25 @@ function _setup_status_indicators(frm) {
 	}
 }
 
-function _setup_descargar_btn(frm) {
-	if (frm.doc.docstatus !== 1) return;
-	if (!["Timbrado", "Cancelado"].includes(frm.doc.status)) return;
-	if (!frm.doc.facturapi_id) return;
+// ── Ocultar acciones estándar de Frappe (sin cambio) ───────────────────────
 
-	frm.add_custom_button(__("Descargar PDF+XML"), function () {
-		frappe.call({
-			method: "facturacion_mexico.complementos_pago.api.descargar_archivos_complemento",
-			args: { complemento_name: frm.doc.name },
-			callback: function (r) {
-				if (r.message && r.message.success) {
-					frappe.show_alert(
-						{ message: __("PDF y XML adjuntados correctamente."), indicator: "green" },
-						5
-					);
-					frm.reload_doc();
-				} else {
-					frappe.show_alert(
-						{
-							message: __("Error al descargar archivos. Revisar Error Log."),
-							indicator: "red",
-						},
-						6
-					);
-				}
-			},
-		});
-	});
+function _hide_standard_actions(frm) {
+	if (frm.page && frm.page.btn_primary) frm.page.btn_primary.addClass("hidden");
+	frm.page.wrapper.find('.btn[data-label="Submit"]').addClass("hidden");
+	if (frm.page && frm.page.btn_cancel) frm.page.btn_cancel.addClass("hidden");
+	frm.page.wrapper.find('.btn[data-label="Cancel"]').addClass("hidden");
+	frm.page.wrapper
+		.find('.btn[data-label="Amend"], .btn[data-label="Corregir"]')
+		.addClass("hidden");
+	frm.page.wrapper
+		.find(
+			'.menu-items .dropdown-item:contains("Amend"), .menu-items .dropdown-item:contains("Corregir")'
+		)
+		.addClass("disabled")
+		.css("pointer-events", "none");
 }
+
+// ── Botones — callbacks sin cambio ─────────────────────────────────────────
 
 function _setup_pe_link(frm) {
 	if (frm.doc.payment_entry) {
@@ -87,10 +103,6 @@ function _setup_pe_link(frm) {
 }
 
 function _setup_timbrar_btn(frm) {
-	if (frm.doc.docstatus !== 0) return;
-	if (!["Pendiente", "Error"].includes(frm.doc.status)) return;
-	if (frm.doc.uuid_sat) return;
-
 	frm.add_custom_button(__("Timbrar Complemento de Pago"), function () {
 		frappe.confirm(
 			__(
@@ -122,29 +134,7 @@ function _setup_timbrar_btn(frm) {
 	}).addClass("btn-primary");
 }
 
-function _hide_standard_actions(frm) {
-	// Submit estándar — el timbrado llama submit() internamente
-	if (frm.page && frm.page.btn_primary) frm.page.btn_primary.addClass("hidden");
-	frm.page.wrapper.find('.btn[data-label="Submit"]').addClass("hidden");
-	// Cancel estándar de Frappe — la cancelación va por API cancelar_complemento_pago
-	if (frm.page && frm.page.btn_cancel) frm.page.btn_cancel.addClass("hidden");
-	frm.page.wrapper.find('.btn[data-label="Cancel"]').addClass("hidden");
-	// Amend — no permitir enmiendas en complementos cancelados
-	frm.page.wrapper
-		.find('.btn[data-label="Amend"], .btn[data-label="Corregir"]')
-		.addClass("hidden");
-	frm.page.wrapper
-		.find(
-			'.menu-items .dropdown-item:contains("Amend"), .menu-items .dropdown-item:contains("Corregir")'
-		)
-		.addClass("disabled")
-		.css("pointer-events", "none");
-}
-
 function _setup_revisar_estatus_btn(frm) {
-	if (frm.doc.docstatus !== 1) return;
-	if (frm.doc.status !== "Pendiente Cancelación") return;
-
 	frm.add_custom_button(__("Revisar Estatus Cancelación"), function () {
 		frappe.call({
 			method: "facturacion_mexico.complementos_pago.api.revisar_estatus_cancelacion_complemento",
@@ -166,17 +156,8 @@ function _setup_revisar_estatus_btn(frm) {
 }
 
 function _setup_cancelar_btn(frm) {
-	if (frm.doc.docstatus !== 1) return;
-	if (frm.doc.status !== "Timbrado") return;
-	if (
-		!frappe.user.has_role([
-			"Facturacion Mexico Manager",
-			"Facturacion Mexico System Manager",
-			"Accounts Manager",
-			"System Manager",
-		])
-	)
-		return;
+	// Rol controlado por DocPerm de Frappe (configurable por cliente)
+	if (!frappe.model.can_cancel("Complemento Pago MX")) return;
 
 	frm.add_custom_button(__("Cancelar Complemento"), function () {
 		frappe.prompt(
@@ -223,4 +204,30 @@ function _setup_cancelar_btn(frm) {
 			__("Solicitar")
 		);
 	}).addClass("btn-danger");
+}
+
+function _setup_descargar_btn(frm) {
+	frm.add_custom_button(__("Descargar PDF+XML"), function () {
+		frappe.call({
+			method: "facturacion_mexico.complementos_pago.api.descargar_archivos_complemento",
+			args: { complemento_name: frm.doc.name },
+			callback: function (r) {
+				if (r.message && r.message.success) {
+					frappe.show_alert(
+						{ message: __("PDF y XML adjuntados correctamente."), indicator: "green" },
+						5
+					);
+					frm.reload_doc();
+				} else {
+					frappe.show_alert(
+						{
+							message: __("Error al descargar archivos. Revisar Error Log."),
+							indicator: "red",
+						},
+						6
+					);
+				}
+			},
+		});
+	});
 }
