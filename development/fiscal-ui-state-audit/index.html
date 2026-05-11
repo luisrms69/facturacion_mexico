@@ -1,0 +1,2650 @@
+
+<!doctype html>
+<html lang="es" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentación completa del sistema de facturación electrónica para México">
+      
+      
+        <meta name="author" content="Equipo Desarrollo Facturación México">
+      
+      
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.3">
+    
+    
+      
+        <title>Audit: Estado Fiscal UI — Inventario de botones, mensajes y banderas - Facturación México - Documentación Técnica</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.50c56a3b.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/advanced.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function n(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],n("js",new Date),n("config","G-XXXXXXXXXX"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){this.value&&n("event","search",{search_term:this.value})}),document$.subscribe(function(){var a=document.forms.feedback;if(void 0!==a)for(var e of a.querySelectorAll("[type=submit]"))e.addEventListener("click",function(e){e.preventDefault();var t=document.location.pathname,e=this.getAttribute("data-md-value");n("event","feedback",{page:t,data:e}),a.firstElementChild.disabled=!0;e=a.querySelector(".md-feedback__note [data-md-value='"+e+"']");e&&(e.hidden=!1)}),a.hidden=!1}),location$.subscribe(function(e){n("config","G-XXXXXXXXXX",{page_path:e.pathname})})});var e=document.createElement("script");e.async=!0,e.src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX",document.getElementById("__analytics").insertAdjacentElement("afterEnd",e)}</script>
+  
+    <script>var consent;"undefined"==typeof __md_analytics||(consent=__md_get("__consent"))&&consent.analytics&&__md_analytics()</script>
+  
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#audit-estado-fiscal-ui-inventario-de-botones-mensajes-y-banderas" class="md-skip">
+          Saltar a contenido
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabecera">
+    <a href="../.." title="Facturación México - Documentación Técnica" class="md-header__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Facturación México - Documentación Técnica
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Audit: Estado Fiscal UI — Inventario de botones, mensajes y banderas
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo oscuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo oscuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Búsqueda" placeholder="Búsqueda" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Buscar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpiar" aria-label="Limpiar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando búsqueda
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Pestañas" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+    
+  
+  Inicio
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../user-guide/" class="md-tabs__link">
+          
+  
+  Guía de Usuario
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/" class="md-tabs__link">
+          
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../" class="md-tabs__link">
+          
+  
+  Desarrollo
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navegación" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Facturación México - Documentación Técnica" class="md-nav__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Facturación México - Documentación Técnica
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Inicio
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Guía de Usuario
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Guía de Usuario
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Usuario - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/getting-started/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Primeros Pasos
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/draft-invoices/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Facturas en Borrador
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/troubleshooting/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    API Reference
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    API Reference - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/cfdi/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CFDI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/draft-management/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Draft Management
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/catalogos/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Catalogos SAT
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/hooks/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Hooks
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Desarrollo
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Desarrollo
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Desarrollo - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Setup Desarrollo
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../draft-workflow/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Draft Workflow
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#sales-invoice" class="md-nav__link">
+    <span class="md-ellipsis">
+      SALES INVOICE
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="SALES INVOICE">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#botones" class="md-nav__link">
+    <span class="md-ellipsis">
+      Botones
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mensajes-alerts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mensajes / Alerts
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#banderas-flags" class="md-nav__link">
+    <span class="md-ellipsis">
+      Banderas (flags)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#campos-ocultosmostrados-set_df_property" class="md-nav__link">
+    <span class="md-ellipsis">
+      Campos ocultos/mostrados (set_df_property)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#permisos-modificados-en-runtime" class="md-nav__link">
+    <span class="md-ellipsis">
+      Permisos modificados en runtime
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#realtime-events" class="md-nav__link">
+    <span class="md-ellipsis">
+      Realtime events
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settimeouts" class="md-nav__link">
+    <span class="md-ellipsis">
+      setTimeouts
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#factura-fiscal-mexico" class="md-nav__link">
+    <span class="md-ellipsis">
+      FACTURA FISCAL MEXICO
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="FACTURA FISCAL MEXICO">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#botones_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Botones
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mensajes-alerts_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mensajes / Alerts
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#banderas-flags_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Banderas (flags)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#campos-ocultosmostrados" class="md-nav__link">
+    <span class="md-ellipsis">
+      Campos ocultos/mostrados
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#permisos-modificados-en-runtime_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Permisos modificados en runtime
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settimeouts_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      setTimeouts
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llamadas-python-desde-js" class="md-nav__link">
+    <span class="md-ellipsis">
+      Llamadas Python desde JS
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#payment-entry" class="md-nav__link">
+    <span class="md-ellipsis">
+      PAYMENT ENTRY
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PAYMENT ENTRY">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#botones_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Botones
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mensajes-alerts_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mensajes / Alerts
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#banderas-flags_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Banderas (flags)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#campos-ocultos" class="md-nav__link">
+    <span class="md-ellipsis">
+      Campos ocultos
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#html-injection-de-estado" class="md-nav__link">
+    <span class="md-ellipsis">
+      HTML injection de estado
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llamadas-python-desde-js_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Llamadas Python desde JS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#python-hooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Python hooks
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#complemento-pago-mx" class="md-nav__link">
+    <span class="md-ellipsis">
+      COMPLEMENTO PAGO MX
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="COMPLEMENTO PAGO MX">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#botones_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Botones
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mensajes-alerts_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mensajes / Alerts
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#banderas-flags_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Banderas (flags)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llamadas-python-desde-js_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Llamadas Python desde JS
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resumen-variables-que-aparecen-en-multiples-doctypes" class="md-nav__link">
+    <span class="md-ellipsis">
+      RESUMEN: Variables que aparecen en múltiples doctypes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#problemas-estructurales-identificados" class="md-nav__link">
+    <span class="md-ellipsis">
+      Problemas estructurales identificados
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#set-minimo-de-variables-centrales-propuesto" class="md-nav__link">
+    <span class="md-ellipsis">
+      Set mínimo de variables centrales propuesto
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#plan-de-implementacion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Plan de implementación
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="audit-estado-fiscal-ui-inventario-de-botones-mensajes-y-banderas">Audit: Estado Fiscal UI — Inventario de botones, mensajes y banderas<a class="headerlink" href="#audit-estado-fiscal-ui-inventario-de-botones-mensajes-y-banderas" title="Permanent link">&para;</a></h1>
+<p><strong>Fecha:</strong> 2026-05-10<br />
+<strong>Alcance:</strong> SI, FFM, PE, Complemento Pago MX<br />
+<strong>Objetivo:</strong> Inventariar toda la lógica de mostrar/ocultar/habilitar para diseñar una fuente única de verdad (<code>get_fiscal_ui_state</code>)</p>
+<hr />
+<h2 id="sales-invoice">SALES INVOICE<a class="headerlink" href="#sales-invoice" title="Permanent link">&para;</a></h2>
+<h3 id="botones">Botones<a class="headerlink" href="#botones" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Botón</th>
+<th>Archivo:línea</th>
+<th>Condición de visibilidad</th>
+<th>Campos que lee</th>
+<th>Acción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Timbrar Factura</td>
+<td>sales_invoice.js:96</td>
+<td><code>docstatus===1</code> AND <code>fm_fiscal_status</code> ∈ {BORRADOR,ERROR,""} AND RFC validado</td>
+<td><code>docstatus</code>, <code>fm_fiscal_status</code>, <code>fm_factura_fiscal_mx</code>, <code>customer</code></td>
+<td>Crea FFM o redirige si existe</td>
+</tr>
+<tr>
+<td>Ver Factura Fiscal</td>
+<td>sales_invoice.js:102</td>
+<td><code>docstatus===1</code> AND <code>fm_factura_fiscal_mx</code> vinculada</td>
+<td><code>fm_factura_fiscal_mx</code></td>
+<td>Navega a FFM</td>
+</tr>
+<tr>
+<td>🔄 Nueva factura fiscal</td>
+<td>si_post_fiscal_actions.js:66</td>
+<td><code>docstatus===1</code> AND <code>fm_fiscal_status==="CANCELADO"</code> AND NO hay PE activo</td>
+<td><code>fm_fiscal_status</code>, <code>fm_factura_fiscal_mx</code></td>
+<td>Desvincula SI de FFM cancelada</td>
+</tr>
+<tr>
+<td>❌ Cancelar documento</td>
+<td>si_post_fiscal_actions.js:132</td>
+<td><code>docstatus===1</code> AND <code>fm_fiscal_status==="CANCELADO"</code> AND <code>can_cancel()</code></td>
+<td><code>fm_fiscal_status</code></td>
+<td>Cancela SI y limpia vínculos</td>
+</tr>
+<tr>
+<td>🔄 Sustituir CFDI (01)</td>
+<td>si_post_fiscal_actions.js:181</td>
+<td><code>docstatus===1</code> AND <code>fm_fiscal_status==="TIMBRADO"</code></td>
+<td><code>fm_fiscal_status</code></td>
+<td>Crea SI sustituto TipoRelación 04</td>
+</tr>
+</tbody>
+</table>
+<h3 id="mensajes-alerts">Mensajes / Alerts<a class="headerlink" href="#mensajes-alerts" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Mensaje</th>
+<th>Archivo:línea</th>
+<th>Condición</th>
+<th>Campos que lee</th>
+<th>Color</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"No puedes timbrar: RFC no validado"</td>
+<td>sales_invoice.js:631</td>
+<td>RFC no validado con SAT</td>
+<td><code>fm_rfc_validated</code> en Customer</td>
+<td>orange/headline</td>
+</tr>
+<tr>
+<td>"Ya Timbrada"</td>
+<td>sales_invoice.js:122</td>
+<td>Intento retimbrar FFM en TIMBRADO</td>
+<td><code>fm_fiscal_status</code> FFM</td>
+<td>orange/msgprint</td>
+</tr>
+<tr>
+<td>"Centro de Costos asignado"</td>
+<td>sales_invoice.js:327</td>
+<td>Customer tiene <code>fm_customer_default_cost_center</code></td>
+<td><code>fm_customer_default_cost_center</code></td>
+<td>green/alert 6s</td>
+</tr>
+<tr>
+<td>"Cliente sin Centro de Costos"</td>
+<td>sales_invoice.js:339</td>
+<td>Customer sin cost center</td>
+<td><code>fm_customer_default_cost_center</code></td>
+<td>orange/alert 6s</td>
+</tr>
+<tr>
+<td>"CC limpiado: no pertenece a Company"</td>
+<td>sales_invoice.js:485</td>
+<td>Company cambia y CC no pertenece</td>
+<td><code>company</code> en Cost Center</td>
+<td>orange/alert 6s</td>
+</tr>
+<tr>
+<td>"Lista de precios asignada"</td>
+<td>sales_invoice.js:429</td>
+<td>Autoasignación desde Customer o CC</td>
+<td><code>selling_price_list</code></td>
+<td>green/alert 6s</td>
+</tr>
+<tr>
+<td>"Centro de Costos obligatorio"</td>
+<td>sales_invoice.js:449</td>
+<td><code>validate()</code> sin <code>cost_center</code></td>
+<td><code>cost_center</code></td>
+<td>frappe.validated=false</td>
+</tr>
+<tr>
+<td>"Factura cancelada ante el SAT"</td>
+<td>sales_invoice_block_cancel.js:76</td>
+<td>FFM con <code>fm_fiscal_status==="CANCELADO"</code></td>
+<td><code>fm_factura_fiscal_mx</code>, <code>fm_fiscal_status</code></td>
+<td>red/headline</td>
+</tr>
+<tr>
+<td>"Cancelación bloqueada"</td>
+<td>sales_invoice_block_cancel.js:23</td>
+<td><code>can_cancel_sales_invoice()</code> → <code>allowed:false</code></td>
+<td>resultado API</td>
+<td>orange/headline</td>
+</tr>
+<tr>
+<td>"Documento fiscal creado exitosamente"</td>
+<td>sales_invoice.js:257</td>
+<td>FFM creada OK</td>
+<td>resultado insert</td>
+<td>green/alert 3s</td>
+</tr>
+</tbody>
+</table>
+<h3 id="banderas-flags">Banderas (flags)<a class="headerlink" href="#banderas-flags" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Bandera</th>
+<th>Archivo:línea</th>
+<th>Cómo se calcula</th>
+<th>Campos que lee</th>
+<th>Qué controla</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>is_already_timbrada()</code></td>
+<td>sales_invoice.js:76</td>
+<td><code>!!fm_factura_fiscal_mx</code> AND <code>fm_fiscal_status==="TIMBRADO"</code></td>
+<td><code>fm_factura_fiscal_mx</code>, <code>fm_fiscal_status</code></td>
+<td>"Ver" vs "Timbrar"</td>
+</tr>
+<tr>
+<td><code>should_show_timbrar_button()</code></td>
+<td>sales_invoice.js:86</td>
+<td BORRADOR_ERROR_="BORRADOR,ERROR,&quot;&quot;"><code>docstatus===1</code> AND estado ∈</td>
+<td><code>docstatus</code>, <code>fm_fiscal_status</code></td>
+<td>Mostrar "Timbrar Factura"</td>
+</tr>
+<tr>
+<td>RFC validado</td>
+<td>sales_invoice.js:619</td>
+<td><code>fm_rfc_validated===1</code> en Customer</td>
+<td><code>fm_rfc_validated</code></td>
+<td>Visibilidad botón timbrar</td>
+</tr>
+<tr>
+<td>FFM vinculada</td>
+<td>si_post_fiscal_actions.js:13</td>
+<td><code>!!fm_factura_fiscal_mx</code></td>
+<td><code>fm_factura_fiscal_mx</code></td>
+<td>Ocultar Cancel nativo</td>
+</tr>
+<tr>
+<td><code>fiscal_status===CANCELADO</code></td>
+<td>si_post_fiscal_actions.js:47</td>
+<td><code>norm(fm_fiscal_status)==="CANCELADO"</code></td>
+<td><code>fm_fiscal_status</code></td>
+<td>Mostrar acciones post-cancelación</td>
+</tr>
+</tbody>
+</table>
+<h3 id="campos-ocultosmostrados-set_df_property">Campos ocultos/mostrados (set_df_property)<a class="headerlink" href="#campos-ocultosmostrados-set_df_property" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Archivo:línea</th>
+<th>Condición</th>
+<th>Propiedad</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>cost_center</td>
+<td>sales_invoice.js:296</td>
+<td>refresh()</td>
+<td>reqd</td>
+<td>1</td>
+</tr>
+<tr>
+<td>cost_center</td>
+<td>sales_invoice.js:508</td>
+<td>refresh() (duplicado)</td>
+<td>reqd</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<h3 id="permisos-modificados-en-runtime">Permisos modificados en runtime<a class="headerlink" href="#permisos-modificados-en-runtime" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Permiso</th>
+<th>Archivo:línea</th>
+<th>Condición</th>
+<th>Valor</th>
+<th>Efecto</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>amend</td>
+<td>si_post_fiscal_actions.js:221</td>
+<td><code>docstatus===2</code> AND <code>fm_fiscal_status==="CANCELADO"</code></td>
+<td>0</td>
+<td>Bloquea enmiendas SI canceladas</td>
+</tr>
+</tbody>
+</table>
+<h3 id="realtime-events">Realtime events<a class="headerlink" href="#realtime-events" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Evento</th>
+<th>Archivo:línea</th>
+<th>Qué hace</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fiscal_status_changed</code></td>
+<td>sales_invoice_block_cancel.js:40</td>
+<td>Recarga SI si cambia estado fiscal de FFM vinculada</td>
+</tr>
+</tbody>
+</table>
+<h3 id="settimeouts">setTimeouts<a class="headerlink" href="#settimeouts" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Archivo:línea</th>
+<th>Delay</th>
+<th>Qué hace</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>sales_invoice.js:265</td>
+<td>1000ms</td>
+<td>Navega a FFM recién creada</td>
+</tr>
+<tr>
+<td>sales_invoice_block_cancel.js:56</td>
+<td>300ms</td>
+<td>Sobrescribe headline con mensaje rojo</td>
+</tr>
+<tr>
+<td>sales_invoice_block_cancel.js:29</td>
+<td>0ms</td>
+<td>Limpia headline si se permite cancelar</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="factura-fiscal-mexico">FACTURA FISCAL MEXICO<a class="headerlink" href="#factura-fiscal-mexico" title="Permanent link">&para;</a></h2>
+<h3 id="botones_1">Botones<a class="headerlink" href="#botones_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Botón</th>
+<th>Archivo:línea</th>
+<th>Condición de visibilidad</th>
+<th>Campos que lee</th>
+<th>Acción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Timbrar / Reintentar</td>
+<td>factura_fiscal_mexico.js:151</td>
+<td><code>docstatus===1</code> AND status ∈ <code>timbrable_states</code> AND <code>fm_tax_system</code> válido</td>
+<td><code>docstatus</code>, <code>status</code>, <code>fm_tax_system</code></td>
+<td>Llama <code>timbrar_factura(frm)</code></td>
+</tr>
+<tr>
+<td>Cancelar en FacturAPI</td>
+<td>factura_fiscal_mexico.js:229</td>
+<td><code>docstatus===1</code> AND status ∈ <code>cancelable_states</code> AND <code>fm_sync_status!=="pending"</code> AND NO PE bloqueante</td>
+<td><code>docstatus</code>, <code>status</code>, <code>fm_sync_status</code>, PE activo</td>
+<td>Abre diálogo motivos SAT</td>
+</tr>
+<tr>
+<td>Revisar Estatus Cancelación</td>
+<td>factura_fiscal_mexico.js:330</td>
+<td><code>docstatus===1</code> AND <code>status==="PENDIENTE_CANCELACION"</code></td>
+<td><code>docstatus</code>, <code>status</code></td>
+<td>Consulta estado en PAC</td>
+</tr>
+<tr>
+<td>Descargar PDF+XML</td>
+<td>factura_fiscal_mexico.js:244</td>
+<td><code>docstatus===1</code> AND <code>fm_uuid</code></td>
+<td><code>docstatus</code>, <code>fm_uuid</code></td>
+<td>Descarga archivos del SAT</td>
+</tr>
+<tr>
+<td>Enviar por email</td>
+<td>factura_fiscal_mexico.js:269</td>
+<td><code>docstatus===1</code> AND <code>fm_uuid</code></td>
+<td><code>docstatus</code>, <code>fm_uuid</code></td>
+<td>Envía CFDI por email</td>
+</tr>
+<tr>
+<td>¿Cómo sustituir?</td>
+<td>factura_fiscal_mexico.js:307</td>
+<td><code>sales_invoice</code> vinculada AND <code>docstatus===1</code> AND <code>fm_uuid</code></td>
+<td><code>sales_invoice</code>, <code>docstatus</code>, <code>fm_uuid</code></td>
+<td>Muestra ayuda sustitución</td>
+</tr>
+<tr>
+<td>Ver Sales Invoice</td>
+<td>factura_fiscal_mexico.js:355</td>
+<td><code>sales_invoice</code> vinculada</td>
+<td><code>sales_invoice</code></td>
+<td>Navega a SI</td>
+</tr>
+<tr>
+<td>Cancelar FFM (liberar SI)</td>
+<td>factura_fiscal_mexico.js:2671</td>
+<td><code>docstatus===1</code> AND sin <code>fm_uuid</code> (deadlock)</td>
+<td><code>docstatus</code>, <code>fm_uuid</code></td>
+<td>Cancela FFM liberando SI</td>
+</tr>
+</tbody>
+</table>
+<h3 id="mensajes-alerts_1">Mensajes / Alerts<a class="headerlink" href="#mensajes-alerts_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Mensaje</th>
+<th>Archivo:línea</th>
+<th>Condición</th>
+<th>Campos que lee</th>
+<th>Color</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"No se puede cancelar: Pago activo"</td>
+<td>factura_fiscal_mexico.js:222</td>
+<td>PE activo bloqueante</td>
+<td>PE activo</td>
+<td>orange/headline</td>
+</tr>
+<tr>
+<td>"Error cargando motivos SAT"</td>
+<td>factura_fiscal_mexico.js:956</td>
+<td><code>get_sat_cancellation_motives()</code> falla</td>
+<td>error</td>
+<td>red/msgprint</td>
+</tr>
+<tr>
+<td>"Factura timbrada exitosamente"</td>
+<td>factura_fiscal_mexico.js:905</td>
+<td>Timbrado OK</td>
+<td><code>success</code></td>
+<td>green/alert 6s</td>
+</tr>
+<tr>
+<td>"Error al Timbrar"</td>
+<td>factura_fiscal_mexico.js:914</td>
+<td>Fallo timbrado</td>
+<td><code>user_error</code> o <code>error</code></td>
+<td>red/msgprint</td>
+</tr>
+<tr>
+<td>"✅ Factura cancelada exitosamente"</td>
+<td>factura_fiscal_mexico.js:1054</td>
+<td>Cancelación OK</td>
+<td><code>ok</code></td>
+<td>green/alert 6s</td>
+</tr>
+<tr>
+<td>"Cancelación exitosa (detalles)"</td>
+<td>factura_fiscal_mexico.js:1077</td>
+<td>Cancelación completada</td>
+<td><code>ffm</code>, <code>status_ffm</code>, <code>uuid</code>, <code>cancellation_date</code></td>
+<td>green/msgprint</td>
+</tr>
+<tr>
+<td>"✅ DATOS FISCALES VALIDADOS"</td>
+<td>factura_fiscal_mexico.js:1829</td>
+<td>RFC validado en Customer</td>
+<td><code>fm_rfc_validated</code></td>
+<td>green</td>
+</tr>
+<tr>
+<td>"🔴 FALTA: [campos]"</td>
+<td>factura_fiscal_mexico.js:1839</td>
+<td>Campos obligatorios vacíos</td>
+<td><code>fm_cp_cliente</code>, <code>fm_rfc_cliente</code>, <code>fm_direccion_principal_display</code></td>
+<td>red</td>
+</tr>
+<tr>
+<td>"🟡 LISTO PARA VALIDAR RFC/CSF"</td>
+<td>factura_fiscal_mexico.js:1843</td>
+<td>Datos completos sin RFC validado</td>
+<td>campos rellenados</td>
+<td>yellow</td>
+</tr>
+<tr>
+<td>"🔴 SELECCIONA UN CLIENTE"</td>
+<td>factura_fiscal_mexico.js:1804</td>
+<td>Sin <code>customer</code></td>
+<td><code>customer</code></td>
+<td>red</td>
+</tr>
+<tr>
+<td>"⚠️ Cliente Fiscal Diferente"</td>
+<td>factura_fiscal_mexico.js:2331</td>
+<td><code>customer</code> != customer de SI</td>
+<td><code>customer</code>, <code>sales_invoice</code></td>
+<td>yellow/HTML</td>
+</tr>
+<tr>
+<td>"No puede cambiar PUE/PPD en enviados"</td>
+<td>factura_fiscal_mexico.js:1342</td>
+<td>Radio cambia con <code>docstatus===1</code></td>
+<td><code>docstatus</code></td>
+<td>alert/msgprint</td>
+</tr>
+<tr>
+<td>"✅ Método cambiado a PPD"</td>
+<td>factura_fiscal_mexico.js:1429</td>
+<td>Usuario selecciona PPD</td>
+<td>radio change</td>
+<td>orange/alert 6s</td>
+</tr>
+<tr>
+<td>"✅ Método cambiado a PUE"</td>
+<td>factura_fiscal_mexico.js:1438</td>
+<td>Usuario selecciona PUE</td>
+<td>radio change</td>
+<td>green/alert 6s</td>
+</tr>
+<tr>
+<td>"Forma de pago asignada: 99"</td>
+<td>factura_fiscal_mexico.js:1477</td>
+<td>Cambio a PPD</td>
+<td><code>fm_forma_pago_timbrado</code></td>
+<td>orange/alert 6s</td>
+</tr>
+</tbody>
+</table>
+<h3 id="banderas-flags_1">Banderas (flags)<a class="headerlink" href="#banderas-flags_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Bandera</th>
+<th>Archivo:línea</th>
+<th>Cómo se calcula</th>
+<th>Campos que lee</th>
+<th>Qué controla</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>isValidTaxSystem()</code></td>
+<td>factura_fiscal_mexico.js:135</td>
+<td>!startsWith("⚠️") AND !startsWith("❌")</td>
+<td><code>fm_tax_system</code></td>
+<td>Habilitar/deshabilitar timbrado</td>
+</tr>
+<tr>
+<td><code>canTimbrar</code></td>
+<td>factura_fiscal_mexico.js:189</td>
+<td><code>docstatus===1</code> AND status ∈ <code>timbrable_states</code> AND tax system válido</td>
+<td><code>docstatus</code>, <code>status</code>, <code>fm_tax_system</code></td>
+<td>Mostrar botón timbrar</td>
+</tr>
+<tr>
+<td><code>showCancel</code></td>
+<td>factura_fiscal_mexico.js:194</td>
+<td>status ∈ <code>cancelable_states</code> OR <code>final_states</code></td>
+<td><code>status</code></td>
+<td>Mostrar/ocultar sección cancelación</td>
+</tr>
+<tr>
+<td><code>canCancelar</code></td>
+<td>factura_fiscal_mexico.js:209</td>
+<td><code>docstatus===1</code> AND status ∈ <code>cancelable_states</code> AND <code>fm_sync_status!=="pending"</code></td>
+<td><code>docstatus</code>, <code>status</code>, <code>fm_sync_status</code></td>
+<td>Mostrar botón cancelar</td>
+</tr>
+<tr>
+<td><code>is_stamped</code></td>
+<td>factura_fiscal_mexico.js:240</td>
+<td><code>!!frm.doc.fm_uuid</code></td>
+<td><code>fm_uuid</code></td>
+<td>Mostrar botones descarga/email</td>
+</tr>
+<tr>
+<td><code>current_value==="PUE"</code></td>
+<td>factura_fiscal_mexico.js:1303</td>
+<td>Lectura directa</td>
+<td><code>fm_payment_method_sat</code></td>
+<td>Resaltado visual radio PUE (verde)</td>
+</tr>
+<tr>
+<td><code>current_value==="PPD"</code></td>
+<td>factura_fiscal_mexico.js:1303</td>
+<td>Lectura directa</td>
+<td><code>fm_payment_method_sat</code></td>
+<td>Resaltado visual radio PPD (naranja)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="campos-ocultosmostrados">Campos ocultos/mostrados<a class="headerlink" href="#campos-ocultosmostrados" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Archivo:línea</th>
+<th>Condición</th>
+<th>Propiedad</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>fm_tipo_comprobante</td>
+<td>factura_fiscal_mexico.js:523</td>
+<td>refresh()</td>
+<td>read_only</td>
+<td>1</td>
+</tr>
+<tr>
+<td>fm_forma_pago_timbrado</td>
+<td>factura_fiscal_mexico.js:1468</td>
+<td><code>payment_method==="PPD"</code></td>
+<td>hidden</td>
+<td>1</td>
+</tr>
+<tr>
+<td>fm_forma_pago_timbrado</td>
+<td>factura_fiscal_mexico.js:1486</td>
+<td><code>payment_method==="PUE"</code></td>
+<td>hidden</td>
+<td>0</td>
+</tr>
+<tr>
+<td>fiscal_fields (grupo)</td>
+<td>factura_fiscal_mexico.js:383</td>
+<td><code>docstatus===1</code></td>
+<td>read_only</td>
+<td>1</td>
+</tr>
+<tr>
+<td>uuid, serie, folio</td>
+<td>factura_fiscal_mexico.js:1624</td>
+<td>status ∈ <code>timbrable_states</code></td>
+<td>hidden</td>
+<td>1</td>
+</tr>
+<tr>
+<td>uuid, serie, folio</td>
+<td>factura_fiscal_mexico.js:1631</td>
+<td>status ∈ <code>cancelable_states</code></td>
+<td>hidden</td>
+<td>0</td>
+</tr>
+<tr>
+<td>cancellation_fields</td>
+<td>factura_fiscal_mexico.js:1633</td>
+<td>status ∈ <code>cancelable_states</code></td>
+<td>hidden</td>
+<td>1</td>
+</tr>
+<tr>
+<td>cancellation_fields</td>
+<td>factura_fiscal_mexico.js:1640</td>
+<td>status ∈ <code>final_states</code></td>
+<td>hidden</td>
+<td>0</td>
+</tr>
+<tr>
+<td>fm_lugar_expedicion, fm_branch</td>
+<td>factura_fiscal_mexico.js:1734</td>
+<td>multi-sucursal enabled</td>
+<td>hidden</td>
+<td>0</td>
+</tr>
+<tr>
+<td>fm_lugar_expedicion, fm_branch</td>
+<td>factura_fiscal_mexico.js:1762</td>
+<td>multi-sucursal disabled</td>
+<td>hidden</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<h3 id="permisos-modificados-en-runtime_1">Permisos modificados en runtime<a class="headerlink" href="#permisos-modificados-en-runtime_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Permiso</th>
+<th>Archivo:línea</th>
+<th>Condición</th>
+<th>Valor</th>
+<th>Efecto</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>cancel</td>
+<td>factura_fiscal_mexico.js:455</td>
+<td>refresh()</td>
+<td>0</td>
+<td>Bloquea cancelación nativa FFM</td>
+</tr>
+<tr>
+<td>amend</td>
+<td>factura_fiscal_mexico.js:456</td>
+<td>refresh()</td>
+<td>0</td>
+<td>Bloquea enmiendas FFM</td>
+</tr>
+</tbody>
+</table>
+<h3 id="settimeouts_1">setTimeouts<a class="headerlink" href="#settimeouts_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Archivo:línea</th>
+<th>Delay</th>
+<th>Qué hace</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>factura_fiscal_mexico.js:542</td>
+<td>1500ms</td>
+<td>Verifica y colorea sección datos</td>
+</tr>
+<tr>
+<td>factura_fiscal_mexico.js:544</td>
+<td>1500ms</td>
+<td>Verifica si cliente fiscal es diferente</td>
+</tr>
+<tr>
+<td>factura_fiscal_mexico.js:1266</td>
+<td>500ms</td>
+<td>Convierte Select a Radio en DOM</td>
+</tr>
+<tr>
+<td>factura_fiscal_mexico.js:568</td>
+<td>1000ms</td>
+<td>Verifica Payment Entry existente</td>
+</tr>
+<tr>
+<td>factura_fiscal_mexico.js:2254</td>
+<td>500ms</td>
+<td>Aplica colores a campos</td>
+</tr>
+<tr>
+<td>factura_fiscal_mexico.js:496</td>
+<td>0ms</td>
+<td>Remueve botón Cancel nativo</td>
+</tr>
+</tbody>
+</table>
+<h3 id="llamadas-python-desde-js">Llamadas Python desde JS<a class="headerlink" href="#llamadas-python-desde-js" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Archivo:línea</th>
+<th>Para qué</th>
+<th>Retorna</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>timbrado_api.get_sat_cancellation_motives</code></td>
+<td>factura_fiscal_mexico.js:952</td>
+<td>Motivos SAT</td>
+<td><code>{select_options:[]}</code></td>
+</tr>
+<tr>
+<td><code>facturacion_fiscal.api.get_fiscal_states</code></td>
+<td>factura_fiscal_mexico.js:123</td>
+<td>Config estados</td>
+<td>estados y transiciones</td>
+</tr>
+<tr>
+<td><code>timbrado_api.timbrar_factura</code></td>
+<td>factura_fiscal_mexico.js:898</td>
+<td>Timbrar</td>
+<td><code>{success, user_error, error}</code></td>
+</tr>
+<tr>
+<td><code>timbrado_api.cancelar_factura</code></td>
+<td>factura_fiscal_mexico.js:1027</td>
+<td>Cancelar CFDI</td>
+<td><code>{ok, ffm, status_ffm, uuid, cancellation_date}</code></td>
+</tr>
+<tr>
+<td><code>timbrado_api.revisar_estatus_cancelacion</code></td>
+<td>factura_fiscal_mexico.js:336</td>
+<td>Verificar cancelación</td>
+<td><code>{message, indicator}</code></td>
+</tr>
+<tr>
+<td><code>timbrado_api.create_substitution_si</code></td>
+<td>factura_fiscal_mexico.js:192</td>
+<td>Crear SI sustituto</td>
+<td><code>{new_si}</code></td>
+</tr>
+<tr>
+<td><code>doctype.factura_fiscal_mexico.check_si_customer_rfc_validated</code></td>
+<td>factura_fiscal_mexico.js:1150</td>
+<td>Validar RFC</td>
+<td><code>{ok}</code></td>
+</tr>
+<tr>
+<td><code>doctype.factura_fiscal_mexico.get_payment_entry_for_javascript</code></td>
+<td>factura_fiscal_mexico.js:2416</td>
+<td>PE para auto-cargar forma pago</td>
+<td><code>{success, data[]}</code></td>
+</tr>
+<tr>
+<td><code>doctype.factura_fiscal_mexico.cancel_ffm_keep_si</code></td>
+<td>factura_fiscal_mexico.js:2675</td>
+<td>Cancelar FFM (deadlock)</td>
+<td>success message</td>
+</tr>
+<tr>
+<td><code>complementos_pago.api.get_active_pe_for_si</code></td>
+<td>factura_fiscal_mexico.js (interno)</td>
+<td>PE bloqueante</td>
+<td>nombre PE o null</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="payment-entry">PAYMENT ENTRY<a class="headerlink" href="#payment-entry" title="Permanent link">&para;</a></h2>
+<h3 id="botones_2">Botones<a class="headerlink" href="#botones_2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Botón</th>
+<th>Archivo:línea</th>
+<th>Condición de visibilidad</th>
+<th>Campos que lee</th>
+<th>Acción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Crear Complemento de Pago</td>
+<td>payment_entry.js:207</td>
+<td><code>docstatus===1</code> AND <code>payment_type==="Receive"</code> AND SI PPD timbrada referenciada</td>
+<td><code>docstatus</code>, <code>payment_type</code>, <code>references</code>, <code>fm_es_ppd</code> (de SI)</td>
+<td>Crea Complemento Pago MX</td>
+</tr>
+<tr>
+<td>Ver Complemento de Pago</td>
+<td>payment_entry.js:181</td>
+<td><code>docstatus===1</code> AND <code>fm_complemento_pago</code> vinculado</td>
+<td><code>fm_complemento_pago</code></td>
+<td>Navega a Complemento</td>
+</tr>
+</tbody>
+</table>
+<h3 id="mensajes-alerts_2">Mensajes / Alerts<a class="headerlink" href="#mensajes-alerts_2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Mensaje</th>
+<th>Archivo:línea</th>
+<th>Condición</th>
+<th>Campos que lee</th>
+<th>Color</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"Sin facturas vinculadas"</td>
+<td>payment_entry.js:54</td>
+<td><code>docstatus===1</code> AND sin references con allocated &gt; 0</td>
+<td><code>references</code></td>
+<td>grey/info (injection)</td>
+</tr>
+<tr>
+<td>"Pago PUE — No requiere Complemento"</td>
+<td>payment_entry.js:72</td>
+<td>SIs sin <code>fm_es_ppd===1</code></td>
+<td><code>fm_es_ppd</code> en SI</td>
+<td>grey/info (injection)</td>
+</tr>
+<tr>
+<td>"Complemento de Pago pendiente"</td>
+<td>payment_entry.js:77</td>
+<td>SIs con <code>fm_es_ppd===1</code></td>
+<td><code>fm_es_ppd</code> en SI</td>
+<td>orange/info (injection)</td>
+</tr>
+<tr>
+<td>"Este PE tiene Complemento activo"</td>
+<td>payment_entry.js:35</td>
+<td><code>fm_complemento_pago</code> con status!=="Cancelado"</td>
+<td><code>fm_complemento_pago</code>, <code>status</code></td>
+<td>orange/headline</td>
+</tr>
+</tbody>
+</table>
+<h3 id="banderas-flags_2">Banderas (flags)<a class="headerlink" href="#banderas-flags_2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Bandera</th>
+<th>Archivo:línea</th>
+<th>Cómo se calcula</th>
+<th>Campos que lee</th>
+<th>Qué controla</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tiene SI PPD referenciada</td>
+<td>payment_entry.js:196</td>
+<td>Consulta SI con <code>fm_es_ppd===1</code> en <code>references</code></td>
+<td><code>references[].reference_name</code>, <code>fm_es_ppd</code></td>
+<td>"Crear" vs "Ver" Complemento</td>
+</tr>
+<tr>
+<td>Complemento activo</td>
+<td>payment_entry.js:28</td>
+<td><code>!!fm_complemento_pago</code> AND status!=="Cancelado"</td>
+<td><code>fm_complemento_pago</code>, <code>status</code></td>
+<td>Ocultar botón Cancel</td>
+</tr>
+</tbody>
+</table>
+<h3 id="campos-ocultos">Campos ocultos<a class="headerlink" href="#campos-ocultos" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Archivo:línea</th>
+<th>Condición</th>
+<th>Propiedad</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>fm_require_complement</td>
+<td>payment_entry.js:22</td>
+<td>refresh() — siempre</td>
+<td>hidden</td>
+<td>1 ⚠️ siempre oculto</td>
+</tr>
+<tr>
+<td>fm_complement_generated</td>
+<td>payment_entry.js:23</td>
+<td>refresh() — siempre</td>
+<td>hidden</td>
+<td>1 ⚠️ siempre oculto</td>
+</tr>
+</tbody>
+</table>
+<h3 id="html-injection-de-estado">HTML injection de estado<a class="headerlink" href="#html-injection-de-estado" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Ubicación</th>
+<th>Archivo:línea</th>
+<th>Contenido</th>
+<th>Condición</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fm_comp_summary_html</code></td>
+<td>payment_entry.js:54-83</td>
+<td>Resumen estado complemento con colores</td>
+<td><code>docstatus===1</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="llamadas-python-desde-js_1">Llamadas Python desde JS<a class="headerlink" href="#llamadas-python-desde-js_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Archivo:línea</th>
+<th>Para qué</th>
+<th>Retorna</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>complementos_pago.api.get_active_pe_for_si</code></td>
+<td>payment_entry.js:52</td>
+<td>Verificar PE activo para SI</td>
+<td>nombre PE o null</td>
+</tr>
+<tr>
+<td><code>api.complemento_summary.get_complemento_summary</code></td>
+<td>payment_entry.js:92</td>
+<td>Resumen del Complemento</td>
+<td><code>{status, uuid_sat, fecha_timbrado, serie, folio}</code></td>
+</tr>
+<tr>
+<td><code>complementos_pago.api.crear_complemento_pago_desde_pe</code></td>
+<td>payment_entry.js:211</td>
+<td>Crear Complemento</td>
+<td><code>{complemento_name}</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="python-hooks">Python hooks<a class="headerlink" href="#python-hooks" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Hook</th>
+<th>Archivo:línea</th>
+<th>Estado</th>
+<th>Qué hace</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>check_ppd_requirement()</code></td>
+<td>payment_entry_validate.py:12</td>
+<td>⚠️ NO-OP</td>
+<td>Nada — pendiente Bloque 3B</td>
+</tr>
+<tr>
+<td><code>create_complement_if_required()</code></td>
+<td>payment_entry_submit.py</td>
+<td>⚠️ NO-OP</td>
+<td>Nada — pendiente Bloque 3B</td>
+</tr>
+<tr>
+<td><code>block_cancel_if_complemento_activo()</code></td>
+<td>payment_entry_cancel.py:13</td>
+<td>✅ Activo</td>
+<td>Bloquea cancel si complemento activo</td>
+</tr>
+<tr>
+<td><code>cancel_related_complement()</code></td>
+<td>payment_entry_cancel.py:33</td>
+<td>⚠️ NO-OP</td>
+<td>Nada — pendiente implementación</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="complemento-pago-mx">COMPLEMENTO PAGO MX<a class="headerlink" href="#complemento-pago-mx" title="Permanent link">&para;</a></h2>
+<h3 id="botones_3">Botones<a class="headerlink" href="#botones_3" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Botón</th>
+<th>Archivo:línea</th>
+<th>Condición de visibilidad</th>
+<th>Campos que lee</th>
+<th>Acción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Timbrar Complemento</td>
+<td>complemento_pago_mx.js:94</td>
+<td><code>docstatus===0</code> AND status ∈ {Pendiente,Error} AND sin <code>uuid_sat</code></td>
+<td><code>docstatus</code>, <code>status</code>, <code>uuid_sat</code></td>
+<td>Llama <code>timbrar_complemento_pago()</code></td>
+</tr>
+<tr>
+<td>Revisar Estatus Cancelación</td>
+<td>complemento_pago_mx.js:148</td>
+<td><code>docstatus===1</code> AND <code>status==="Pendiente Cancelación"</code></td>
+<td><code>docstatus</code>, <code>status</code></td>
+<td>Consulta estado en PAC</td>
+</tr>
+<tr>
+<td>Cancelar Complemento</td>
+<td>complemento_pago_mx.js:181</td>
+<td><code>docstatus===1</code> AND <code>status==="Timbrado"</code> AND roles específicos</td>
+<td><code>docstatus</code>, <code>status</code>, user roles</td>
+<td>Diálogo motivo + cancela</td>
+</tr>
+<tr>
+<td>Descargar PDF+XML</td>
+<td>complemento_pago_mx.js:56</td>
+<td><code>docstatus===1</code> AND status ∈ {Timbrado,Cancelado} AND <code>facturapi_id</code></td>
+<td><code>docstatus</code>, <code>status</code>, <code>facturapi_id</code></td>
+<td>Descarga archivos fiscales</td>
+</tr>
+<tr>
+<td>Ver Payment Entry</td>
+<td>complemento_pago_mx.js:83</td>
+<td><code>payment_entry</code> vinculado</td>
+<td><code>payment_entry</code></td>
+<td>Navega a PE</td>
+</tr>
+</tbody>
+</table>
+<h3 id="mensajes-alerts_3">Mensajes / Alerts<a class="headerlink" href="#mensajes-alerts_3" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Mensaje</th>
+<th>Archivo:línea</th>
+<th>Condición</th>
+<th>Campos que lee</th>
+<th>Color</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"Estado: [status]"</td>
+<td>complemento_pago_mx.js:157</td>
+<td>Después de revisar estatus</td>
+<td><code>status</code> retornado</td>
+<td>verde/naranja/rojo</td>
+</tr>
+<tr>
+<td>"Complemento timbrado. UUID: [uuid]"</td>
+<td>complemento_pago_mx.js:109</td>
+<td>Timbrado exitoso</td>
+<td><code>uuid</code> retornado</td>
+<td>green/alert 8s</td>
+</tr>
+<tr>
+<td>"PDF y XML adjuntados correctamente"</td>
+<td>complemento_pago_mx.js:62</td>
+<td>Descarga exitosa</td>
+<td><code>success</code> retornado</td>
+<td>green/alert 5s</td>
+</tr>
+<tr>
+<td>"Error al descargar archivos"</td>
+<td>complemento_pago_mx.js:70</td>
+<td>Fallo en descarga</td>
+<td>error</td>
+<td>red/alert 6s</td>
+</tr>
+</tbody>
+</table>
+<h3 id="banderas-flags_3">Banderas (flags)<a class="headerlink" href="#banderas-flags_3" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Bandera</th>
+<th>Archivo:línea</th>
+<th>Cómo se calcula</th>
+<th>Campos que lee</th>
+<th>Qué controla</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Puede timbrar</td>
+<td>complemento_pago_mx.js:90</td>
+<td><code>docstatus===0</code> AND status ∈ {Pendiente,Error} AND sin UUID</td>
+<td><code>docstatus</code>, <code>status</code>, <code>uuid_sat</code></td>
+<td>Mostrar "Timbrar"</td>
+</tr>
+<tr>
+<td Timbrado_Cancelado="Timbrado,Cancelado">Status ∈</td>
+<td>complemento_pago_mx.js:53</td>
+<td>String matching</td>
+<td><code>status</code></td>
+<td>Mostrar "Descargar"</td>
+</tr>
+<tr>
+<td>En cancelación pendiente</td>
+<td>complemento_pago_mx.js:146</td>
+<td><code>status==="Pendiente Cancelación"</code></td>
+<td><code>status</code></td>
+<td>Mostrar "Revisar Estatus"</td>
+</tr>
+<tr>
+<td>Puede cancelar</td>
+<td>complemento_pago_mx.js:169</td>
+<td><code>docstatus===1</code> AND <code>status==="Timbrado"</code> AND roles</td>
+<td><code>docstatus</code>, <code>status</code>, user roles</td>
+<td>Mostrar "Cancelar"</td>
+</tr>
+</tbody>
+</table>
+<h3 id="llamadas-python-desde-js_2">Llamadas Python desde JS<a class="headerlink" href="#llamadas-python-desde-js_2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Archivo:línea</th>
+<th>Para qué</th>
+<th>Retorna</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>complementos_pago.api.timbrar_complemento_pago</code></td>
+<td>complemento_pago_mx.js:100</td>
+<td>Timbrar</td>
+<td><code>{uuid}</code></td>
+</tr>
+<tr>
+<td><code>complementos_pago.api.revisar_estatus_cancelacion_complemento</code></td>
+<td>complemento_pago_mx.js:150</td>
+<td>Verificar cancelación</td>
+<td><code>{status}</code></td>
+</tr>
+<tr>
+<td><code>complementos_pago.api.cancelar_complemento_pago</code></td>
+<td>complemento_pago_mx.js:205</td>
+<td>Cancelar</td>
+<td><code>{status}</code></td>
+</tr>
+<tr>
+<td><code>complementos_pago.api.descargar_archivos_complemento</code></td>
+<td>complemento_pago_mx.js:57</td>
+<td>Descargar PDF+XML</td>
+<td><code>{success}</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="resumen-variables-que-aparecen-en-multiples-doctypes">RESUMEN: Variables que aparecen en múltiples doctypes<a class="headerlink" href="#resumen-variables-que-aparecen-en-multiples-doctypes" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>SI</th>
+<th>FFM</th>
+<th>PE</th>
+<th>Complemento</th>
+<th>Problema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>docstatus</code></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>Consistente — nativo Frappe</td>
+</tr>
+<tr>
+<td>Estado fiscal</td>
+<td><code>fm_fiscal_status</code></td>
+<td><code>status</code></td>
+<td>—</td>
+<td><code>status</code></td>
+<td>⚠️ <strong>3 nombres para el mismo concepto</strong></td>
+</tr>
+<tr>
+<td>Tiene UUID</td>
+<td>via <code>fm_factura_fiscal_mx</code></td>
+<td><code>fm_uuid</code></td>
+<td>—</td>
+<td><code>uuid_sat</code></td>
+<td>⚠️ Fragmentado</td>
+</tr>
+<tr>
+<td>Es PPD/PUE</td>
+<td><code>fm_es_ppd</code></td>
+<td><code>fm_payment_method_sat</code></td>
+<td>(lee SI)</td>
+<td>—</td>
+<td>⚠️ PE recalcula desde SI</td>
+</tr>
+<tr>
+<td>Tiene PE activo</td>
+<td>(llama API)</td>
+<td>(llama API)</td>
+<td>—</td>
+<td>—</td>
+<td>⚠️ <strong>Ambos llaman misma API independientemente</strong></td>
+</tr>
+<tr>
+<td>Tiene complemento</td>
+<td>—</td>
+<td>—</td>
+<td><code>fm_complemento_pago</code></td>
+<td><code>payment_entry</code></td>
+<td>Inversos del mismo link</td>
+</tr>
+<tr>
+<td>Sync pendiente</td>
+<td>—</td>
+<td><code>fm_sync_status</code></td>
+<td>—</td>
+<td>—</td>
+<td>Solo en FFM</td>
+</tr>
+</tbody>
+</table>
+<h2 id="problemas-estructurales-identificados">Problemas estructurales identificados<a class="headerlink" href="#problemas-estructurales-identificados" title="Permanent link">&para;</a></h2>
+<ol>
+<li>
+<p><strong>Mismo dato computado en N lugares:</strong> <code>fm_es_ppd</code> lo calcula JS de PE consultando SI por API, JS de SI lo tiene directo, JS de FFM tiene <code>fm_payment_method_sat</code>.</p>
+</li>
+<li>
+<p><strong>8 setTimeouts como parche de sincronización:</strong> 0ms, 300ms, 500ms, 1000ms, 1500ms. Indica que la UI no tiene fuente ordenada de verdad.</p>
+</li>
+<li>
+<p><strong>Estado fiscal sin nombre canónico:</strong> <code>fm_fiscal_status</code> (SI) ≠ <code>status</code> (FFM) ≠ <code>status</code> (Complemento) aunque representan lo mismo. JS normaliza con <code>norm()</code>.</p>
+</li>
+<li>
+<p><strong><code>fm_require_complement</code> — campo fantasma:</strong> Existe en fixture y hooks filter, se escribe en 2 momentos (crear/cancelar complemento), nunca al crear PE. UI lo ignora completamente, siempre oculto.</p>
+</li>
+<li>
+<p><strong>HTML injection para mostrar estado:</strong> <code>_inject_complemento_summary()</code> inserta HTML directamente en el DOM en lugar de usar campos Frappe reales.</p>
+</li>
+<li>
+<p><strong>Llamada duplicada a <code>get_active_pe_for_si</code>:</strong> Tanto SI como FFM llaman este endpoint independientemente al hacer refresh.</p>
+</li>
+</ol>
+<hr />
+<h2 id="set-minimo-de-variables-centrales-propuesto">Set mínimo de variables centrales propuesto<a class="headerlink" href="#set-minimo-de-variables-centrales-propuesto" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>UNIVERSALES:
+├── is_submitted          ← docstatus == 1
+├── is_cancelled          ← docstatus == 2
+└── fiscal_status         ← BORRADOR/TIMBRADO/CANCELADO/ERROR/PENDIENTE_CANCELACION
+
+ESTADO FISCAL:
+├── has_uuid              ← fm_uuid o uuid_sat != null
+├── has_xml               ← archivo xml adjunto
+├── has_pdf               ← archivo pdf adjunto
+└── sync_pending          ← fm_sync_status == &quot;pending&quot;
+
+MÉTODO DE PAGO:
+├── is_ppd                ← metodo_pago == &quot;PPD&quot;
+└── is_pue                ← metodo_pago == &quot;PUE&quot;
+
+VÍNCULOS CROSS-DOCUMENT:
+├── has_ffm               ← fm_factura_fiscal_mx existe
+├── ffm_fiscal_status     ← status de la FFM vinculada
+├── has_active_pe         ← existe PE submitted vinculado a la SI
+├── has_complement        ← fm_complemento_pago existe
+└── complement_status     ← status del complemento vinculado
+
+ACCIONES DERIVADAS (calcula el servidor):
+├── can_stamp             ← is_submitted AND fiscal_status ∈ {BORRADOR,ERROR} AND NOT sync_pending
+├── can_cancel_fiscal     ← has_uuid AND fiscal_status==TIMBRADO AND NOT has_active_pe
+├── can_substitute        ← has_uuid AND fiscal_status==TIMBRADO (motivo 01)
+├── can_refacturar        ← fiscal_status==CANCELADO AND motivo ∈ {02,03,04}
+├── can_download          ← has_uuid AND (has_xml OR has_pdf)
+├── can_generate_complement ← is_submitted AND is_ppd AND has_ffm AND NOT has_complement
+└── can_cancel_complement ← has_complement AND complement_status==Timbrado
+</code></pre></div>
+<p><strong>Total: 17 variables.</strong> El JS actual calcula implícitamente ~40+ condiciones dispersas en 6 archivos.</p>
+<hr />
+<h2 id="plan-de-implementacion">Plan de implementación<a class="headerlink" href="#plan-de-implementacion" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Fase</th>
+<th>Alcance</th>
+<th>Estimado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Fase 0</strong></td>
+<td>Fix <code>check_ppd_requirement()</code> — campo <code>fm_require_complement</code> consistente</td>
+<td>1-2 días</td>
+</tr>
+<tr>
+<td><strong>Fase 1</strong></td>
+<td>Crear <code>fiscal_state/payment_entry_state.py</code> + endpoint <code>get_fiscal_ui_state</code> para PE</td>
+<td>1 semana</td>
+</tr>
+<tr>
+<td><strong>Fase 2</strong></td>
+<td>Migrar <code>fiscal_state/</code> para SI</td>
+<td>1 semana</td>
+</tr>
+<tr>
+<td><strong>Fase 3</strong></td>
+<td>Migrar <code>fiscal_state/</code> para FFM y Complemento</td>
+<td>1 semana</td>
+</tr>
+<tr>
+<td><strong>Fase 4</strong></td>
+<td>Tests por estado, no por botón</td>
+<td>3-4 días</td>
+</tr>
+<tr>
+<td><strong>Fase 5</strong></td>
+<td>Eliminar setTimeouts, HTML injection, lógica duplicada</td>
+<td>2-3 días</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Volver al principio
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 Facturación México - Documentación Técnica
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/tu-org/facturacion_mexico" target="_blank" rel="noopener" title="GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+      <div class="md-consent" data-md-component="consent" id="__consent" hidden>
+        <div class="md-consent__overlay"></div>
+        <aside class="md-consent__inner">
+          <form class="md-consent__form md-grid md-typeset" name="consent">
+            
+
+  
+    
+  
+
+
+
+
+
+<h4>Consentimiento de cookies</h4>
+<p>Utilizamos cookies para reconocer tus visitas repetidas y preferencias, así como para medir la efectividad de nuestra documentación y si los usuarios encuentran lo que están buscando. Con tu consentimiento, nos ayudas a mejorar nuestra documentación.
+</p>
+<input class="md-toggle" type="checkbox" id="__settings" >
+<div class="md-consent__settings">
+  <ul class="task-list">
+    
+      
+      
+        
+        
+      
+      <li class="task-list-item">
+        <label class="task-list-control">
+          <input type="checkbox" name="analytics" checked>
+          <span class="task-list-indicator"></span>
+          Google Analytics
+        </label>
+      </li>
+    
+  </ul>
+</div>
+<div class="md-consent__controls">
+  
+    
+      <button class="md-button md-button--primary">Aceptar</button>
+    
+    
+    
+  
+    
+    
+      <button type="reset" class="md-button md-button--primary">Rechazar</button>
+    
+    
+  
+    
+    
+    
+      <label class="md-button" for="__settings">Gestionar cookies</label>
+    
+  
+</div>
+          </form>
+        </aside>
+      </div>
+      <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout(function(){document.querySelector("[data-md-component=consent]").hidden=!1},250);var action,form=document.forms.consent;for(action of["submit","reset"])form.addEventListener(action,function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map(function(e){return[e,!0]}))),location.hash="",location.reload()})</script>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.expand", "navigation.instant", "navigation.sections", "navigation.tabs", "navigation.top", "search.highlight", "search.suggest"], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copiado al portapapeles", "clipboard.copy": "Copiar al portapapeles", "search.result.more.one": "1 m\u00e1s en esta p\u00e1gina", "search.result.more.other": "# m\u00e1s en esta p\u00e1gina", "search.result.none": "No se encontraron documentos", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Teclee para comenzar b\u00fasqueda", "search.result.term.missing": "Falta", "select.version": "Seleccionar versi\u00f3n"}, "version": {"default": "latest", "provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7c377c4.min.js"></script>
+      
+        <script src="../../assets/javascripts/extra.js"></script>
+      
+        <script src="../../assets/javascripts/advanced.js"></script>
+      
+    
+  </body>
+</html>
