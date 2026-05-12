@@ -12,7 +12,7 @@
   "sales_invoice",
   "company",
   "customer",
-  "fm_facturar_publico_general",
+  "fm_facturar_venta_mostrador",
   "fm_enviar_email_timbrado",
   "status",
   "column_break_payment_methods",
@@ -107,11 +107,11 @@
    "reqd": 1
   },
   {
-   "fieldname": "fm_facturar_publico_general",
+   "fieldname": "fm_facturar_venta_mostrador",
    "fieldtype": "Check",
-   "label": "¿Facturar a Público General?",
+   "label": "¿Facturar a Venta Mostrador?",
    "default": "0",
-   "description": "Al activar, el CFDI se emite a PUBLICO EN GENERAL (XAXX010101000) en lugar del cliente de la factura."
+   "description": "Para clientes sin RFC que requieren CFDI individual (no factura global). El CFDI se emite con RFC genérico XAXX010101000."
   },
   {
    "depends_on": "eval:doc.customer && doc.sales_invoice",

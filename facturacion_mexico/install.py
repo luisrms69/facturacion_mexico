@@ -2096,33 +2096,28 @@ def add_rfc_validation_limit_field():
 		frappe.logger().warning(f"⚠️ No se pudo agregar campo RFC validation limit: {e!s}")
 
 
-def _create_publico_general_customer():
-	"""Crear customer template PUBLICO EN GENERAL si no existe. Idempotente."""
-	if frappe.db.exists("Customer", {"tax_id": "XAXX010101000", "fm_allow_generic_rfc": 1}):
-		frappe.logger().info("Customer PUBLICO EN GENERAL ya existe, omitiendo creación.")
+def _create_customer_template(customer_name: str, address_title: str):
+	"""Helper: crear un customer template con RFC genérico si no existe."""
+	if frappe.db.exists("Customer", customer_name):
+		frappe.logger().info(f"Customer {customer_name} ya existe, omitiendo creación.")
 		return
 
 	customer = frappe.new_doc("Customer")
-	customer.customer_name = "PUBLICO EN GENERAL"
+	customer.customer_name = customer_name
 	customer.customer_type = "Individual"
 	customer.tax_id = "XAXX010101000"
 	customer.fm_allow_generic_rfc = 1
 
-	# Régimen 616 (el name en el catálogo SAT es el código)
 	if frappe.db.exists("Regimen Fiscal SAT", "616"):
 		customer.fm_tax_regime = "616"
-
-	# Uso CFDI S01
 	if frappe.db.exists("Uso CFDI SAT", "S01"):
 		customer.fm_uso_cfdi_default = "S01"
 
-	# Sin customer_group ni territory — no aplica para Público General
 	customer.insert(ignore_permissions=True)
-	frappe.logger().info(f"✅ Customer PUBLICO EN GENERAL creado: {customer.name}")
+	frappe.logger().info(f"✅ Customer {customer_name} creado: {customer.name}")
 
-	# Dirección fiscal primaria — CP vacío, el administrador lo configura post-instalación
 	address = frappe.new_doc("Address")
-	address.address_title = "PUBLICO EN GENERAL"
+	address.address_title = address_title
 	address.address_type = "Billing"
 	address.address_line1 = "Por configurar"
 	address.city = "Mexico"
@@ -2132,6 +2127,13 @@ def _create_publico_general_customer():
 	address.append("links", {"link_doctype": "Customer", "link_name": customer.name})
 	address.insert(ignore_permissions=True)
 
-	# Establecer como dirección fiscal primaria en el Customer
 	frappe.db.set_value("Customer", customer.name, "customer_primary_address", address.name)
 	frappe.logger().info(f"✅ Dirección fiscal primaria establecida: {address.name}")
+
+
+def _create_publico_general_customer():
+	"""Crear los dos customers template con RFC genérico. Idempotente."""
+	# VENTA MOSTRADOR — para CFDI individual sin RFC del cliente
+	_create_customer_template("VENTA MOSTRADOR", "VENTA MOSTRADOR")
+	# PUBLICO EN GENERAL — reservado para futura Factura Global
+	_create_customer_template("PUBLICO EN GENERAL", "PUBLICO EN GENERAL")

@@ -434,11 +434,16 @@ class TimbradoAPI:
 
 	def _prepare_facturapi_data(self, sales_invoice, factura_fiscal) -> dict[str, Any]:
 		"""Preparar datos para FacturAPI."""
-		if factura_fiscal.get("fm_facturar_publico_general"):
-			publico_general = frappe.db.get_value(
-				"Customer", {"tax_id": "XAXX010101000", "fm_allow_generic_rfc": 1}, "name"
-			)
-			customer_name = publico_general or sales_invoice.customer
+		if factura_fiscal.get("fm_facturar_venta_mostrador"):
+			# Usar customer template VENTA MOSTRADOR para el receptor fiscal del CFDI
+			if not frappe.db.exists("Customer", "VENTA MOSTRADOR"):
+				frappe.throw(
+					_(
+						"No existe el cliente template 'VENTA MOSTRADOR'. "
+						"Verifique la instalación del sistema."
+					)
+				)
+			customer_name = "VENTA MOSTRADOR"
 		else:
 			customer_name = sales_invoice.customer
 		customer = frappe.get_doc("Customer", customer_name)
