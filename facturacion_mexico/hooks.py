@@ -354,7 +354,11 @@ doc_events = {
 	# Sales Invoice Automated Tax - Sistema automatizado impuestos
 	"Sales Invoice": {
 		"before_validate": "facturacion_mexico.hooks_handlers.sales_invoice_automated_tax.before_validate",
-		"validate": "facturacion_mexico.hooks_handlers.sales_invoice_automated_tax.validate",
+		"validate": [
+			"facturacion_mexico.hooks_handlers.sales_invoice_automated_tax.validate",
+			# Fase 3 Issue #129: propaga fm_requires_addenda y fm_default_addenda_type del Customer
+			"facturacion_mexico.addendas.hooks_handlers.sales_invoice_addenda_propagate.propagate_addenda_from_customer",
+		],
 		# E4: TODOS los hooks manipulación impuestos COMENTADOS
 		# Objetivo: ERPNext debe calcular impuestos 100% nativo
 		# STCT con charge_type="On Item Quantity" + cuotas en ITT = cálculo nativo
