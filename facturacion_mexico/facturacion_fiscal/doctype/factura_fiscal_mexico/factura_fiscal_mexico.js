@@ -1450,15 +1450,18 @@
 				return {}; // Sin filtros
 			});
 
-			frm.set_value("fm_forma_pago_timbrado", "99 - Por definir");
-
-			frappe.show_alert(
-				{
-					message: __("Forma de pago asignada automáticamente: 99 - Por definir"),
-					indicator: "orange",
-				},
-				ALERT_DURATION_DEFAULT
-			);
+			// Solo asignar y alertar si el valor aún no está seteado.
+			// Evita el aviso repetido en cada refresh de un PPD ya timbrado.
+			if (frm.doc.fm_forma_pago_timbrado !== "99 - Por definir") {
+				frm.set_value("fm_forma_pago_timbrado", "99 - Por definir");
+				frappe.show_alert(
+					{
+						message: __("Forma de pago asignada automáticamente: 99 - Por definir"),
+						indicator: "orange",
+					},
+					ALERT_DURATION_DEFAULT
+				);
+			}
 		} else if (payment_method === "PUE") {
 			// Para PUE: Mostrar campo y filtrar opciones (sin "99 - Por definir")
 			frm.set_df_property("fm_forma_pago_timbrado", "hidden", 0);
@@ -2622,9 +2625,17 @@ function validate_billing_data_visual(frm) {
 			frm.set_df_property("fm_facturar_venta_mostrador", "hidden", 1);
 			return;
 		}
+		// Guard: evitar llamada AJAX redundante si ya se cargó para este customer.
+		// Reduce disparos de frappe.after_ajax → frm.toolbar.refresh() en cada refresh.
+		if (frm._vm_loaded_for === frm.doc.customer) return;
+		frm._vm_loaded_for = frm.doc.customer;
+
 		const currentCustomer = frm.doc.customer;
 		frappe.db.get_value("Customer", currentCustomer, "fm_allow_generic_rfc").then((r) => {
-			if (frm.doc.customer !== currentCustomer) return;
+			if (frm.doc.customer !== currentCustomer) {
+				frm._vm_loaded_for = null; // customer cambió durante la carga — resetear
+				return;
+			}
 			const allowed = cint(r && r.message && r.message.fm_allow_generic_rfc);
 			frm.set_df_property("fm_facturar_venta_mostrador", "hidden", allowed ? 0 : 1);
 			if (!allowed && cint(frm.doc.fm_facturar_venta_mostrador)) {

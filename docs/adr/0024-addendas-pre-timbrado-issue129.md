@@ -123,3 +123,33 @@ No avanzar a Fase 5 ni a producción sin resolver este bug.
 - Addendas pre-timbrado funcionan correctamente en condiciones normales
 - El bug de campos addenda (`allow_on_submit`) debe resolverse antes de despliegue
 - Issue #132 (campos legacy `fm_addenda_status/xml/errors/date`) sigue pendiente de análisis
+
+---
+
+## Nota adicional — 2026-05-12 (Issue #133)
+
+### Problema colateral descubierto: fm_sync_status bloqueaba el botón Timbrar
+
+Durante las pruebas de validación de esta rama (`feature/issue129-addendas`) se descubrió
+un bug en la capa `fiscal_state` (introducido en PR #122, ADR 0021) que impedía el flujo
+de timbrado de forma independiente al bug de addendas documentado arriba.
+
+**Síntoma:** Toda FFM recién creada mostraba "Operación en progreso" y el botón Timbrar
+no aparecía — incluso en FFMs sin ninguna operación PAC activa.
+
+**Causa:** `fm_sync_status = "pending"` es el valor default del campo en el DocType.
+`_compute_actions` bloqueaba `can_stamp` con `not facts["sync_pending"]`, lo que afectaba
+a toda FFM nueva hasta que el scheduler `bulk_sync_invoices` corría (hasta 5 minutos).
+
+**Corrección aplicada en esta rama:**
+- `can_stamp` ya no depende de `fm_sync_status`
+- El mensaje de "Operación en progreso" solo aparece cuando hay UUID/facturapi_id activo
+- El scheduler `bulk_sync_invoices` se conserva como red de seguridad
+
+**Validación final (2026-05-12):**
+- FFMX-2026-00022 (VENTA MOSTRADOR, sin addenda): XML limpio ✓
+- FFMX-2026-00023 (Ecoeficiencia, addenda Generic): XML con `<cfdi:Addenda>` ✓
+- Botón Timbrar aparece inmediatamente en FFMs nuevas ✓
+
+**Refactor completo pendiente:** Issue #133 — limpieza de `fm_sync_status`,
+`bulk_sync_invoices`, `try/except` silencioso en `update_sales_invoice_fiscal_info`.

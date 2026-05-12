@@ -137,3 +137,31 @@ CodeRabbit identificó 10 issues en PR #122, todos aplicados en `fix/coderabbit-
 - PR #123: fix(fiscal-state): hardening CodeRabbit PR #122 — 10 fixes
 - `docs/development/fiscal-ui-state-audit.md` — auditoría previa que originó esta decisión
 - `frappe-infrastructure/checkpoints/coderabbit-pr122-review.md` — análisis CodeRabbit
+
+---
+
+## Nota adicional — 2026-05-12 (Issue #133)
+
+### Problema detectado post-implementación: fm_sync_status bloqueaba botón Timbrar
+
+Durante pruebas de la rama `feature/issue129-addendas` se detectó que toda FFM nueva
+quedaba con el botón "Timbrar" bloqueado hasta que el scheduler corría (hasta 5 minutos).
+
+**Causa:** `fm_sync_status` tiene `default = "pending"` en el DocType. La lógica de
+`_compute_actions` bloqueaba `can_stamp` cuando `sync_pending = True`, lo que afectaba
+a **toda FFM recién creada** aunque nunca hubiera tenido una operación PAC activa.
+
+**Corrección aplicada:**
+- `can_stamp` ya no depende de `fm_sync_status` — solo depende del estado fiscal real
+- El mensaje "Operación en progreso" solo aparece cuando `sync_pending=True AND (has_uuid OR facturapi_id)`
+- El scheduler `bulk_sync_invoices` se mantiene activo únicamente como red de seguridad
+
+**Hallazgo:** `FFM.on_update → update_sales_invoice_fiscal_info()` ya sincroniza SI
+síncronamente. El scheduler era trabajo duplicado para el flujo normal.
+
+**Refactor pendiente:** Ver Issue #133 para limpieza completa de `fm_sync_status`,
+`bulk_sync_invoices` y el `try/except` silencioso en `update_sales_invoice_fiscal_info`.
+
+**Análisis detallado:**
+- `docs/development/REPORTE_BUG_FM_SYNC_STATUS_PENDING.md`
+- `docs/development/REPORTE_FM_SYNC_STATUS_IMPLICACIONES.md`

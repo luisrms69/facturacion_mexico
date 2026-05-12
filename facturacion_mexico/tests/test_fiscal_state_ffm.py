@@ -10,7 +10,7 @@ Casos cubiertos:
   6. FFM submitted CANCELADO → CFDI_CANCELLED, can_cancel=False
   7. FFM submitted PENDIENTE_CANCELACION → CANCELLATION_PENDING, can_retry_cancel=True
   8. FFM submitted ERROR → STAMP_ERROR
-  9. sync_pending bloquea acciones
+  9. sync_pending NO bloquea acciones (fm_sync_status es solo auditoría)
   10. Actions derivadas correctamente
 """
 
@@ -183,11 +183,25 @@ class TestFiscalStateFFMActions(FrappeTestCase):
 		actions = _compute_actions(facts)
 		self.assertFalse(actions["can_cancel"])
 
-	def test_no_puede_cancelar_con_sync_pending(self):
+	def test_sync_pending_no_bloquea_acciones(self):
+		# sync_pending ya no bloquea can_stamp ni can_cancel — solo es indicador de scheduler
 		facts = self._base(sync_pending=True)
 		actions = _compute_actions(facts)
-		self.assertFalse(actions["can_cancel"])
-		self.assertFalse(actions["can_stamp"])
+		self.assertTrue(actions["can_cancel"])  # TIMBRADO + uuid + sin PE → puede cancelar
+		self.assertFalse(actions["can_stamp"])  # TIMBRADO → no puede timbrar (ya timbrada)
+
+	def test_sync_pending_no_bloquea_can_stamp_en_borrador(self):
+		# FFM nueva (BORRADOR, sin UUID, sync_pending=True) → botón Timbrar debe aparecer
+		facts = self._base(
+			status="BORRADOR",
+			is_borrador=True,
+			is_timbrado=False,
+			has_uuid=False,
+			has_facturapi_id=False,
+			sync_pending=True,
+		)
+		actions = _compute_actions(facts)
+		self.assertTrue(actions["can_stamp"])
 
 	def test_puede_reintentar_cancelacion(self):
 		facts = self._base(status="PENDIENTE_CANCELACION", is_timbrado=False, is_pendiente_cancelacion=True)
@@ -234,9 +248,31 @@ class TestFiscalStateFFMMessages(FrappeTestCase):
 		msgs = _compute_messages(self._base(is_submitted=False))
 		self.assertEqual(msgs, [])
 
-	def test_sync_pending(self):
-		codes = [m["code"] for m in _compute_messages(self._base(sync_pending=True))]
+	def test_sync_pending_con_uuid_muestra_mensaje(self):
+		# sync_pending + UUID activo → mensaje de sincronización visible (operación PAC real)
+		codes = [
+			m["code"]
+			for m in _compute_messages(self._base(sync_pending=True, has_uuid=True, has_facturapi_id=True))
+		]
 		self.assertIn("SYNC_PENDING", codes)
+
+	def test_sync_pending_sin_uuid_no_muestra_mensaje(self):
+		# FFM nueva: sync_pending pero sin UUID → no mostrar "Operación en progreso" (falso positivo)
+		codes = [
+			m["code"]
+			for m in _compute_messages(
+				self._base(
+					sync_pending=True,
+					has_uuid=False,
+					has_facturapi_id=False,
+					status="BORRADOR",
+					is_timbrado=False,
+					is_borrador=True,
+				)
+			)
+		]
+		self.assertNotIn("SYNC_PENDING", codes)
+		self.assertIn("PENDING_STAMP", codes)
 
 	def test_pending_stamp(self):
 		codes = [
