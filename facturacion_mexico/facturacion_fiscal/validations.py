@@ -391,10 +391,22 @@ def _validate_with_facturapi(rfc: str, customer_name: str | None = None) -> dict
 				"zip": "12345",
 			}
 
+		# Obtener tax_system del customer — requerido, no hay default
+		fm_tax_regime = (
+			frappe.db.get_value("Customer", customer_name, "fm_tax_regime") if customer_name else None
+		)
+		if not fm_tax_regime:
+			return {
+				"success": False,
+				"error": "El cliente no tiene Régimen Fiscal SAT configurado (fm_tax_regime).",
+				"data": {},
+			}
+		tax_system = str(fm_tax_regime).split(" - ")[0].strip()
+
 		temp_customer_data = {
 			"legal_name": customer_name or "VALIDACION TEMPORAL",
 			"tax_id": rfc,
-			"tax_system": "601",  # General de Ley Personas Morales (default)
+			"tax_system": tax_system,
 			"email": "temp@validation.com",
 			"address": address_data,
 		}

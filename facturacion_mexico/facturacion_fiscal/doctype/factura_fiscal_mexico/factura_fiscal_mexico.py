@@ -976,9 +976,13 @@ class FacturaFiscalMexico(Document):
 			return
 
 		try:
-			# Obtener datos del customer
-			customer_doc = frappe.get_doc("Customer", self.customer)
-			# Customer encontrado, poblar datos
+			if getattr(self, "fm_facturar_venta_mostrador", 0):
+				if not frappe.db.exists("Customer", "VENTA MOSTRADOR"):
+					frappe.throw(_("Template Customer 'VENTA MOSTRADOR' not found."))
+				billing_customer_name = "VENTA MOSTRADOR"
+			else:
+				billing_customer_name = self.customer
+			customer_doc = frappe.get_doc("Customer", billing_customer_name)
 
 			# RFC desde Tax ID
 			self.fm_rfc_cliente = customer_doc.tax_id or "⚠️ FALTA RFC EN CUSTOMER"
@@ -991,8 +995,18 @@ class FacturaFiscalMexico(Document):
 			# Tax system code extraído desde customer.tax_category
 
 			# Buscar dirección principal
-			primary_address = self._get_primary_address()
-			# Obtener dirección principal del customer
+			# Para Público General usar la dirección del customer template, no del cliente real
+			if getattr(self, "fm_facturar_venta_mostrador", 0) and billing_customer_name != self.customer:
+				addr_name = frappe.db.get_value(
+					"Customer", billing_customer_name, "customer_primary_address"
+				) or frappe.db.get_value(
+					"Dynamic Link",
+					{"link_doctype": "Customer", "link_name": billing_customer_name, "parenttype": "Address"},
+					"parent",
+				)
+				primary_address = frappe.get_doc("Address", addr_name) if addr_name else None
+			else:
+				primary_address = self._get_primary_address()
 
 			if primary_address:
 				# Poblar datos desde dirección principal

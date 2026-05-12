@@ -156,6 +156,7 @@ fixtures = [
 					"Customer-fm_envio_email_cliente",
 					"Customer-fm_lista_69b_status",
 					"Customer-fm_requires_addenda",
+					"Customer-fm_allow_generic_rfc",
 					"Customer-fm_rfc_validated",
 					"Customer-fm_rfc_validation_date",
 					"Customer-fm_tax_regime",

@@ -66,7 +66,7 @@ def validate_rfc(rfc, use_cache=True):
 
 
 @frappe.whitelist()
-def validate_customer_rfc_with_facturapi(customer_name):
+def validate_customer_rfc_with_facturapi(customer_name: str):
 	"""
 	Validar RFC de Customer con FacturAPI incluyendo verificación de dirección.
 	Actualiza los campos fm_rfc_validated y fm_rfc_validation_date del Customer.
@@ -128,11 +128,8 @@ def validate_customer_rfc_with_facturapi(customer_name):
 		validation_result["address_configured"] = True
 
 		# Validar que la dirección tenga campos requeridos para FacturAPI
+		# Solo Código Postal es obligatorio por SAT (CFDI 4.0)
 		required_address_fields = {
-			"address_line1": "Dirección Línea 1",
-			"city": "Ciudad",
-			"state": "Estado",
-			"country": "País",
 			"pincode": "Código Postal",
 		}
 		missing_fields = []
@@ -848,12 +845,15 @@ def _validate_rfc_with_facturapi_full(rfc, customer_doc, primary_address):
 		# Obtener cliente FacturAPI
 		client = get_facturapi_client()
 
-		# Determinar tax_system según tipo de RFC
-		# RFC 13 caracteres = Persona Física, RFC 12 caracteres = Persona Moral
-		is_persona_fisica = len(rfc) == 13
-		tax_system = (
-			"605" if is_persona_fisica else "601"
-		)  # 605=Sueldos y Salarios, 601=General Ley Personas Morales
+		# Obtener tax_system del customer — requerido, no hay default
+		fm_tax_regime = customer_doc.get("fm_tax_regime") or ""
+		if not fm_tax_regime:
+			return {
+				"success": False,
+				"error": "El cliente no tiene Régimen Fiscal SAT configurado (fm_tax_regime).",
+				"data": {},
+			}
+		tax_system = str(fm_tax_regime).split(" - ")[0].strip()
 
 		# Normalizar nombre para FacturAPI usando NFC (preserva Ñ y comillas)
 		normalized_name = _nfc_upper_collapse(customer_doc.customer_name)

@@ -23,6 +23,13 @@ def after_install():
 	# MANUAL FIRST: NO crear automáticamente setup fiscal, STCT, ITT, Tax Rules
 	# Estos se crean SOLO desde el Wizard de Configuración Fiscal México
 
+	# Crear customer template Público General
+	try:
+		_create_publico_general_customer()
+	except Exception as e:
+		frappe.log_error(frappe.get_traceback(), "[FMX][Install] Error creating Publico General customer")
+		frappe.logger().warning(f"⚠️ No se pudo crear customer Público General: {e}")
+
 	frappe.logger().info("Facturacion Mexico installation completed successfully.")
 	frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure installation process completes successfully
 
@@ -2087,3 +2094,46 @@ def add_rfc_validation_limit_field():
 	except Exception as e:
 		frappe.log_error(f"Error adding RFC validation limit field: {e!s}", "Settings Field Creation")
 		frappe.logger().warning(f"⚠️ No se pudo agregar campo RFC validation limit: {e!s}")
+
+
+def _create_customer_template(customer_name: str, address_title: str):
+	"""Helper: crear un customer template con RFC genérico si no existe."""
+	if frappe.db.exists("Customer", customer_name):
+		frappe.logger().info(f"Customer {customer_name} ya existe, omitiendo creación.")
+		return
+
+	customer = frappe.new_doc("Customer")
+	customer.customer_name = customer_name
+	customer.customer_type = "Individual"
+	customer.tax_id = "XAXX010101000"
+	customer.fm_allow_generic_rfc = 1
+
+	if frappe.db.exists("Regimen Fiscal SAT", "616"):
+		customer.fm_tax_regime = "616"
+	if frappe.db.exists("Uso CFDI SAT", "S01"):
+		customer.fm_uso_cfdi_default = "S01"
+
+	customer.insert(ignore_permissions=True)
+	frappe.logger().info(f"✅ Customer {customer_name} creado: {customer.name}")
+
+	address = frappe.new_doc("Address")
+	address.address_title = address_title
+	address.address_type = "Billing"
+	address.address_line1 = "Por configurar"
+	address.city = "Mexico"
+	address.country = "Mexico"
+	address.pincode = ""
+	address.is_primary_address = 1
+	address.append("links", {"link_doctype": "Customer", "link_name": customer.name})
+	address.insert(ignore_permissions=True)
+
+	frappe.db.set_value("Customer", customer.name, "customer_primary_address", address.name)
+	frappe.logger().info(f"✅ Dirección fiscal primaria establecida: {address.name}")
+
+
+def _create_publico_general_customer():
+	"""Crear los dos customers template con RFC genérico. Idempotente."""
+	# VENTA MOSTRADOR — para CFDI individual sin RFC del cliente
+	_create_customer_template("VENTA MOSTRADOR", "VENTA MOSTRADOR")
+	# PUBLICO EN GENERAL — reservado para futura Factura Global
+	_create_customer_template("PUBLICO EN GENERAL", "PUBLICO EN GENERAL")

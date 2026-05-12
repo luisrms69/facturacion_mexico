@@ -391,6 +391,9 @@
 
 	frappe.ui.form.on("Factura Fiscal Mexico", {
 		refresh: function (frm) {
+			// Controlar visibilidad del checkbox Venta Mostrador según el customer
+			_update_venta_mostrador_visibility(frm);
+
 			// Poblar opciones SAT desde el servidor
 			if (!frm._sat_opts_loaded) {
 				frappe.call({
@@ -566,6 +569,9 @@
 			if (frm.doc.customer) {
 				update_fiscal_data_from_customer(frm);
 			}
+
+			// Controlar visibilidad del checkbox Venta Mostrador
+			_update_venta_mostrador_visibility(frm);
 
 			// Verificar si cliente fiscal es diferente al del Sales Invoice
 			check_customer_fiscal_warning(frm);
@@ -2611,7 +2617,30 @@ function validate_billing_data_visual(frm) {
 	// ========================================
 
 	// Agregar el botón usando el patrón frappe.ui.form.on
+	function _update_venta_mostrador_visibility(frm) {
+		if (!frm.doc.customer) {
+			frm.set_df_property("fm_facturar_venta_mostrador", "hidden", 1);
+			return;
+		}
+		const currentCustomer = frm.doc.customer;
+		frappe.db.get_value("Customer", currentCustomer, "fm_allow_generic_rfc").then((r) => {
+			if (frm.doc.customer !== currentCustomer) return;
+			const allowed = cint(r && r.message && r.message.fm_allow_generic_rfc);
+			frm.set_df_property("fm_facturar_venta_mostrador", "hidden", allowed ? 0 : 1);
+			if (!allowed && cint(frm.doc.fm_facturar_venta_mostrador)) {
+				frm.set_value("fm_facturar_venta_mostrador", 0);
+			}
+		});
+	}
+
 	frappe.ui.form.on("Factura Fiscal Mexico", {
+		fm_facturar_venta_mostrador(frm) {
+			// Guardar para que populate_billing_data refleje el cambio en servidor
+			if (frm.doc.docstatus === 0) {
+				frm.save();
+			}
+		},
+
 		onload(frm) {
 			if (!frm.is_new()) return;
 

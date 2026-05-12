@@ -434,7 +434,19 @@ class TimbradoAPI:
 
 	def _prepare_facturapi_data(self, sales_invoice, factura_fiscal) -> dict[str, Any]:
 		"""Preparar datos para FacturAPI."""
-		customer = frappe.get_doc("Customer", sales_invoice.customer)
+		if factura_fiscal.get("fm_facturar_venta_mostrador"):
+			# Usar customer template VENTA MOSTRADOR para el receptor fiscal del CFDI
+			if not frappe.db.exists("Customer", "VENTA MOSTRADOR"):
+				frappe.throw(
+					_(
+						"No existe el cliente template 'VENTA MOSTRADOR'. "
+						"Verifique la instalación del sistema."
+					)
+				)
+			customer_name = "VENTA MOSTRADOR"
+		else:
+			customer_name = sales_invoice.customer
+		customer = frappe.get_doc("Customer", customer_name)
 
 		# Sprint 6 Phase 2: Obtener datos de sucursal si está configurada
 		# TODO: Integrar branch_data cuando se implemente Sprint 6 Phase 2

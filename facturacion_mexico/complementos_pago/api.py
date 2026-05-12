@@ -174,7 +174,32 @@ def timbrar_complemento_pago(complemento_name: str) -> dict:
 			)
 
 	# --- Datos del cliente ---
-	customer_data = _build_customer_data(comp.customer, comp.company)
+	# Si las FFMs fueron timbradas como Venta Mostrador, usar ese receptor en el complemento.
+	# Todas las SIs del PE deben tener el mismo valor de fm_facturar_venta_mostrador.
+	receptor_name = comp.customer
+	if comp.payment_entry:
+		pe = frappe.get_doc("Payment Entry", comp.payment_entry)
+		venta_mostrador_flags = set()
+		for ref in pe.get("references", []):
+			if ref.reference_doctype != "Sales Invoice":
+				continue
+			ffm_name = frappe.db.get_value("Sales Invoice", ref.reference_name, "fm_factura_fiscal_mx")
+			if not ffm_name:
+				continue
+			flag = frappe.db.get_value("Factura Fiscal Mexico", ffm_name, "fm_facturar_venta_mostrador") or 0
+			venta_mostrador_flags.add(int(flag))
+
+		if len(venta_mostrador_flags) > 1:
+			frappe.throw(
+				_(
+					"Las facturas de este pago tienen configuraciones de receptor distintas "
+					"(mezcla de Venta Mostrador y cliente normal). Separe el pago."
+				)
+			)
+		if venta_mostrador_flags == {1}:
+			if frappe.db.exists("Customer", "VENTA MOSTRADOR"):
+				receptor_name = "VENTA MOSTRADOR"
+	customer_data = _build_customer_data(receptor_name, comp.company)
 
 	# --- Construir related_documents ---
 	related_docs = []
