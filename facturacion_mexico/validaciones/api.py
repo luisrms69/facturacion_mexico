@@ -66,7 +66,7 @@ def validate_rfc(rfc, use_cache=True):
 
 
 @frappe.whitelist()
-def validate_customer_rfc_with_facturapi(customer_name):
+def validate_customer_rfc_with_facturapi(customer_name: str):
 	"""
 	Validar RFC de Customer con FacturAPI incluyendo verificación de dirección.
 	Actualiza los campos fm_rfc_validated y fm_rfc_validation_date del Customer.
