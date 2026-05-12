@@ -2622,9 +2622,14 @@ function validate_billing_data_visual(frm) {
 			frm.set_df_property("fm_facturar_venta_mostrador", "hidden", 1);
 			return;
 		}
-		frappe.db.get_value("Customer", frm.doc.customer, "fm_allow_generic_rfc").then((r) => {
-			const allowed = r && r.message && r.message.fm_allow_generic_rfc;
+		const currentCustomer = frm.doc.customer;
+		frappe.db.get_value("Customer", currentCustomer, "fm_allow_generic_rfc").then((r) => {
+			if (frm.doc.customer !== currentCustomer) return;
+			const allowed = cint(r && r.message && r.message.fm_allow_generic_rfc);
 			frm.set_df_property("fm_facturar_venta_mostrador", "hidden", allowed ? 0 : 1);
+			if (!allowed && cint(frm.doc.fm_facturar_venta_mostrador)) {
+				frm.set_value("fm_facturar_venta_mostrador", 0);
+			}
 		});
 	}
 

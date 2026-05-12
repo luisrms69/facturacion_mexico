@@ -976,10 +976,10 @@ class FacturaFiscalMexico(Document):
 			return
 
 		try:
-			# Si está marcado Público General, buscar el customer template XAXX
 			if getattr(self, "fm_facturar_venta_mostrador", 0):
-				venta_mostrador = frappe.db.exists("Customer", "VENTA MOSTRADOR")
-				billing_customer_name = venta_mostrador or self.customer
+				if not frappe.db.exists("Customer", "VENTA MOSTRADOR"):
+					frappe.throw(_("Template Customer 'VENTA MOSTRADOR' not found."))
+				billing_customer_name = "VENTA MOSTRADOR"
 			else:
 				billing_customer_name = self.customer
 			customer_doc = frappe.get_doc("Customer", billing_customer_name)
