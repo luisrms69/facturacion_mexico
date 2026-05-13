@@ -20,7 +20,7 @@
     
     
       
-        <title>ADR-0021 — Capa fiscal_state: UI centralizada via endpoint Python - Facturación México - Documentación Técnica</title>
+        <title>Issue #129 — Verificar campos de activación en payload: addendas y complementos - Facturación México - Documentación Técnica</title>
       
     
     
@@ -86,7 +86,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#adr-0021-capa-fiscal_state-ui-centralizada-via-endpoint-python" class="md-skip">
+        <a href="#issue-129-verificar-campos-de-activacion-en-payload-addendas-y-complementos" class="md-skip">
           Saltar a contenido
         </a>
       
@@ -124,7 +124,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              ADR-0021 — Capa fiscal_state: UI centralizada via endpoint Python
+              Issue #129 — Verificar campos de activación en payload: addendas y complementos
             
           </span>
         </div>
@@ -276,7 +276,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../development/" class="md-tabs__link">
+        <a href="../" class="md-tabs__link">
           
   
   Desarrollo
@@ -760,7 +760,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/" class="md-nav__link">
+      <a href="../" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -781,7 +781,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/setup/" class="md-nav__link">
+      <a href="../setup/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -802,7 +802,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/draft-workflow/" class="md-nav__link">
+      <a href="../draft-workflow/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -843,185 +843,6 @@
     
   
   
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Tabla de contenidos
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#contexto" class="md-nav__link">
-    <span class="md-ellipsis">
-      Contexto
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#decision" class="md-nav__link">
-    <span class="md-ellipsis">
-      Decisión
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Decisión">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#principios" class="md-nav__link">
-    <span class="md-ellipsis">
-      Principios
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#estructura-implementada" class="md-nav__link">
-    <span class="md-ellipsis">
-      Estructura implementada
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#doctypes-migrados-a-fiscal_state" class="md-nav__link">
-    <span class="md-ellipsis">
-      DocTypes migrados a fiscal_state
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#check_ppd_requirement-implementacion-real" class="md-nav__link">
-    <span class="md-ellipsis">
-      check_ppd_requirement — implementación real
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#gap-identificado-can_register_payment" class="md-nav__link">
-    <span class="md-ellipsis">
-      Gap identificado — can_register_payment
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#alternativas-descartadas" class="md-nav__link">
-    <span class="md-ellipsis">
-      Alternativas descartadas
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Alternativas descartadas">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#a-mantener-logica-en-js-con-mas-llamadas-async" class="md-nav__link">
-    <span class="md-ellipsis">
-      A) Mantener lógica en JS con más llamadas async
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#b-calcular-todo-en-validate-y-guardar-en-campos" class="md-nav__link">
-    <span class="md-ellipsis">
-      B) Calcular todo en validate y guardar en campos
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#c-un-endpoint-por-doctype" class="md-nav__link">
-    <span class="md-ellipsis">
-      C) Un endpoint por DocType
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#consecuencias" class="md-nav__link">
-    <span class="md-ellipsis">
-      Consecuencias
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#hardening-post-merge-pr-123" class="md-nav__link">
-    <span class="md-ellipsis">
-      Hardening post-merge (PR #123)
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#tests" class="md-nav__link">
-    <span class="md-ellipsis">
-      Tests
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#referencias" class="md-nav__link">
-    <span class="md-ellipsis">
-      Referencias
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#nota-adicional-2026-05-12-issue-133" class="md-nav__link">
-    <span class="md-ellipsis">
-      Nota adicional — 2026-05-12 (Issue #133)
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Nota adicional — 2026-05-12 (Issue #133)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#problema-detectado-post-implementacion-fm_sync_status-bloqueaba-boton-timbrar" class="md-nav__link">
-    <span class="md-ellipsis">
-      Problema detectado post-implementación: fm_sync_status bloqueaba botón Timbrar
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
 </nav>
                   </div>
                 </div>
@@ -1035,195 +856,367 @@
                   
 
 
-<h1 id="adr-0021-capa-fiscal_state-ui-centralizada-via-endpoint-python">ADR-0021 — Capa fiscal_state: UI centralizada via endpoint Python<a class="headerlink" href="#adr-0021-capa-fiscal_state-ui-centralizada-via-endpoint-python" title="Permanent link">&para;</a></h1>
-<p><strong>Fecha:</strong> 2026-05-10
-<strong>Estado:</strong> Implementado (PR #122)
-<strong>Branch:</strong> feat/beta-release-fixes</p>
+<h1 id="issue-129-verificar-campos-de-activacion-en-payload-addendas-y-complementos">Issue #129 — Verificar campos de activación en payload: addendas y complementos<a class="headerlink" href="#issue-129-verificar-campos-de-activacion-en-payload-addendas-y-complementos" title="Permanent link">&para;</a></h1>
+<h1 id="reporte-de-entendimiento-y-propuesta-de-solucion">Reporte de entendimiento y propuesta de solución<a class="headerlink" href="#reporte-de-entendimiento-y-propuesta-de-solucion" title="Permanent link">&para;</a></h1>
+<h1 id="fecha-2026-05-12">Fecha: 2026-05-12<a class="headerlink" href="#fecha-2026-05-12" title="Permanent link">&para;</a></h1>
 <hr />
-<h2 id="contexto">Contexto<a class="headerlink" href="#contexto" title="Permanent link">&para;</a></h2>
-<p>Antes de este ADR, la lógica de decisión de UI (qué botones mostrar, qué mensajes emitir, qué acciones habilitar) estaba distribuida en tres capas sin coordinación:</p>
-<ol>
-<li><strong>JS directo</strong> — cada archivo <code>.js</code> consultaba campos individuales del documento y tomaba decisiones locales</li>
-<li><strong>Múltiples llamadas async</strong> — cada botón disparaba su propio <code>frappe.call</code> para verificar prerrequisitos</li>
-<li><strong><code>fm_require_complement</code></strong> — campo en Payment Entry calculado de forma inconsistente desde tres rutas distintas (PE creation, on_submit, en_validate)</li>
-</ol>
-<p>Esto generaba:
-- Inconsistencias entre lo que mostraba la UI y lo que permitía el backend
-- Decisiones de roles hardcodeadas en JS (listas de nombres de roles)
-- Múltiples puntos donde agregar lógica nueva requería tocar N archivos
-- El bug C1: <code>complemento_state.py</code> habilitaba el botón de descarga con <code>has_xml/has_pdf</code>, pero la API lanzaba error si faltaba <code>facturapi_id</code></p>
-<hr />
-<h2 id="decision">Decisión<a class="headerlink" href="#decision" title="Permanent link">&para;</a></h2>
-<p>Crear una capa <code>fiscal_state/</code> como <strong>fuente única de verdad</strong> para decisiones de UI fiscal.</p>
-<h3 id="principios">Principios<a class="headerlink" href="#principios" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>Read-only</strong> — los módulos de estado solo leen, nunca modifican documentos</li>
-<li><strong>Tres capas</strong> — <code>facts</code> (observaciones), <code>actions</code> (acciones posibles), <code>messages</code> (mensajes de UI)</li>
-<li><strong>Un solo endpoint whitelisted</strong> — <code>get_fiscal_ui_state(doctype, name)</code> enruta a los módulos específicos</li>
-<li><strong>Sin roles hardcodeados</strong> — permisos delegados a <code>frappe.model.can_cancel()</code> (DocPerm configurable por cliente)</li>
-<li><strong>Permission check en el gateway</strong> — <code>frappe.has_permission(doctype, "read", name)</code> antes de cualquier cómputo</li>
-</ul>
-<h3 id="estructura-implementada">Estructura implementada<a class="headerlink" href="#estructura-implementada" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>facturacion_mexico/fiscal_state/
-    __init__.py
-    api.py                      # endpoint whitelisted
-    payment_entry_state.py      # facts/actions/messages para Payment Entry
-    sales_invoice_state.py      # facts/actions/messages para Sales Invoice
-    ffm_state.py                # facts/actions/messages para Factura Fiscal Mexico
-    complemento_state.py        # facts/actions/messages para Complemento Pago MX
+<h2 id="entendimiento-del-problema">Entendimiento del problema<a class="headerlink" href="#entendimiento-del-problema" title="Permanent link">&para;</a></h2>
+<h3 id="contexto">Contexto<a class="headerlink" href="#contexto" title="Permanent link">&para;</a></h3>
+<p>El Customer tiene dos campos conceptuales relacionados con addendas:
+- <code>fm_requires_addenda</code> (Check) — indica si el cliente requiere addenda
+- <code>fm_default_addenda_type</code> (Link) — tipo de addenda por defecto</p>
+<p>El issue pregunta: ¿estos campos tienen efecto real en el CFDI, o son solo decorativos?</p>
+<h3 id="lo-que-encontre-en-el-codigo-analisis-exhaustivo">Lo que encontré en el código — análisis exhaustivo<a class="headerlink" href="#lo-que-encontre-en-el-codigo-analisis-exhaustivo" title="Permanent link">&para;</a></h3>
+<h4 id="origen-de-los-campos">Origen de los campos<a class="headerlink" href="#origen-de-los-campos" title="Permanent link">&para;</a></h4>
+<p><strong>Fixtures — CONFIRMADO:</strong> <code>Customer-fm_requires_addenda</code> y <code>Customer-fm_default_addenda_type</code> están declarados en <code>fixtures/custom_field.json</code> y en <code>hooks.py</code> en la lista de fixtures exportados. Los campos de <code>Sales Invoice-fm_addenda_*</code> (status, xml, errors, required, type, etc.) también están en fixtures.</p>
+<p>Esto significa que los campos <strong>existen en la BD de cualquier instalación</strong> — están correctamente versionados y se despliegan con <code>bench migrate</code>.</p>
+<p><strong>Hooks.py — doc_events:</strong> El <code>Customer</code> tiene registrado solo:
+<div class="highlight"><pre><span></span><code><span class="s2">&quot;Customer&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;validate&quot;</span><span class="p">:</span> <span class="s2">&quot;...customer_validate.validate_rfc_format&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;before_save&quot;</span><span class="p">:</span> <span class="s2">&quot;...customer_validate.validate_rfc_format&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;after_insert&quot;</span><span class="p">:</span> <span class="s2">&quot;...customer_validate.schedule_rfc_validation&quot;</span><span class="p">,</span>
+<span class="p">}</span>
 </code></pre></div>
-<h3 id="doctypes-migrados-a-fiscal_state">DocTypes migrados a fiscal_state<a class="headerlink" href="#doctypes-migrados-a-fiscal_state" title="Permanent link">&para;</a></h3>
+<strong>No hay ningún hook de addenda registrado para Customer.</strong></p>
+<h4 id="cadena-completa-del-flujo-de-addendas">Cadena completa del flujo de addendas<a class="headerlink" href="#cadena-completa-del-flujo-de-addendas" title="Permanent link">&para;</a></h4>
+<p>La investigación reveló que el sistema de addendas <strong>SÍ tiene un flujo completo</strong>, pero está desconectado de <code>hooks.py</code>:</p>
+<p><strong>1. Detección automática (<code>addenda_auto_detector.py</code>)</strong>
+- <code>customer_after_insert()</code> — función que SE AUTO-APLICA si detecta con &gt;80% de confianza
+- Lee <code>fm_requires_addenda</code> del Customer
+- Si detecta, setea <code>doc.fm_requires_addenda = 1</code> y <code>doc.fm_addenda_type</code>
+- <strong>PERO:</strong> esta función NO está registrada como hook en <code>hooks.py</code> → <strong>NUNCA SE EJECUTA</strong></p>
+<p><strong>2. Propagación a Sales Invoice (<code>hooks_handlers/sales_invoice_validate.py</code>)</strong>
+- Lee <code>customer.fm_requires_addenda</code> → si es 1, pone <code>fm_addenda_required=1</code> en la SI
+- Maneja estado <code>fm_addenda_status</code> (Pendiente, Generando, Completada, Error)
+- <strong>PERO:</strong> este handler tampoco aparece en <code>hooks.py</code> → <strong>NO ESTÁ CONECTADO</strong></p>
+<p><strong>3. Generación post-submit (<code>hooks_handlers/sales_invoice_submit.py</code>)</strong>
+- <code>sales_invoice_on_submit()</code> — genera addenda en background job después del submit
+- Si <code>fm_addenda_required=1</code> y <code>auto_apply=True</code>, encola la generación
+- <code>generate_addenda_background()</code> → <code>generate_addenda_xml()</code> → genera XML
+- <code>insert_addenda_in_cfdi()</code> → usa <code>CFDIParser</code> para insertar en el XML del CFDI
+- <strong>PERO:</strong> <code>sales_invoice_on_submit</code> NO está registrado en <code>hooks.py</code> → <strong>NUNCA SE EJECUTA</strong></p>
+<h4 id="resumen-que-esta-conectado-y-que-no">Resumen: ¿qué está conectado y qué no?<a class="headerlink" href="#resumen-que-esta-conectado-y-que-no" title="Permanent link">&para;</a></h4>
 <table>
 <thead>
 <tr>
-<th>DocType</th>
-<th>Archivo JS</th>
-<th>Qué se migró</th>
+<th>Componente</th>
+<th>¿En hooks.py?</th>
+<th>¿Funciona?</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Complemento Pago MX</td>
-<td><code>complemento_pago_mx.js</code></td>
-<td>Todos los botones y mensajes</td>
+<td><code>Customer.fm_requires_addenda</code> fixture</td>
+<td>✅ Sí</td>
+<td>Campo existe en BD</td>
 </tr>
 <tr>
-<td>Payment Entry</td>
-<td><code>payment_entry.js</code></td>
-<td>Botones, cancel guard, mensajes</td>
+<td><code>Customer.fm_default_addenda_type</code> fixture</td>
+<td>✅ Sí</td>
+<td>Campo existe en BD</td>
 </tr>
 <tr>
-<td>Factura Fiscal Mexico</td>
-<td><code>factura_fiscal_mexico.js</code></td>
-<td><code>applyFFMUi()</code> reemplazado por <code>_apply_ffm_buttons/messages()</code></td>
+<td><code>addenda_auto_detector.customer_after_insert</code></td>
+<td>❌ NO</td>
+<td>NUNCA se ejecuta</td>
 </tr>
 <tr>
-<td>Sales Invoice</td>
-<td><code>sales_invoice.js</code></td>
-<td>Botón Timbrar, Ver Factura Fiscal, guards</td>
+<td><code>sales_invoice_validate</code> (propagación)</td>
+<td>❌ NO</td>
+<td>NUNCA se ejecuta</td>
+</tr>
+<tr>
+<td><code>sales_invoice_on_submit</code> (generación post-timbrado)</td>
+<td>❌ NO</td>
+<td>NUNCA se ejecuta</td>
+</tr>
+<tr>
+<td>Módulo <code>addendas/</code> completo</td>
+<td>Código existe</td>
+<td>Funciones aisladas, invocables manualmente vía API</td>
 </tr>
 </tbody>
 </table>
-<h3 id="check_ppd_requirement-implementacion-real">check_ppd_requirement — implementación real<a class="headerlink" href="#check_ppd_requirement-implementacion-real" title="Permanent link">&para;</a></h3>
-<p><code>payment_entry_validate.check_ppd_requirement()</code> era un no-op. Se implementó para establecer <code>fm_require_complement</code> como fuente única de verdad en BD:</p>
-<ul>
-<li>Solo aplica a PE de tipo <code>Receive</code></li>
-<li>Busca SIs referenciadas con <code>fm_es_ppd=1</code> y <code>fm_fiscal_status=TIMBRADO</code></li>
-<li>Usa <code>ignore_permissions=True</code> para evitar falsos negativos por permisos restringidos</li>
-<li>Usa <code>flt(allocated_amount)</code> para robustez ante <code>None</code></li>
-</ul>
-<h3 id="gap-identificado-can_register_payment">Gap identificado — can_register_payment<a class="headerlink" href="#gap-identificado-can_register_payment" title="Permanent link">&para;</a></h3>
-<p>Se detectó durante la auditoría que Sales Invoice con FFM cancelada seguía mostrando el botón de registro de pago. Se agregó <code>can_register_payment</code> a <code>sales_invoice_state.py</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="n">can_register_payment</span> <span class="o">=</span> <span class="n">is_submitted</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_cancelled</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">has_ffm</span> <span class="ow">or</span> <span class="n">has_active_ffm</span><span class="p">)</span>
+<h4 id="conclusion-definitiva-sobre-addendas">Conclusión definitiva sobre addendas<a class="headerlink" href="#conclusion-definitiva-sobre-addendas" title="Permanent link">&para;</a></h4>
+<p>Los campos <code>fm_requires_addenda</code> y <code>fm_default_addenda_type</code> son <strong>decorativos en la práctica actual</strong>. El código de addendas (detección, propagación, generación post-timbrado) existe y está escrito, pero <strong>ningún hook está registrado en <code>hooks.py</code></strong>, por lo que el flujo completo nunca se activa automáticamente. La addenda <strong>no llega al CFDI final</strong> en ningún escenario normal de operación.</p>
+<h3 id="conclusion-sobre-complementosppd">Conclusión sobre complementos/PPD<a class="headerlink" href="#conclusion-sobre-complementosppd" title="Permanent link">&para;</a></h3>
+<p>No existe un campo <code>fm_usa_complemento</code> o similar en Customer. El flujo de complementos se determina en runtime:
+- <code>fm_require_complement</code> en Payment Entry — calculado por <code>check_ppd_requirement()</code> cuando la SI tiene <code>fm_es_ppd=1</code> y FFM timbrada
+- No hay propiedad declarativa a nivel de Customer que diga "este cliente opera PPD"</p>
+<hr />
+<h2 id="decision-de-arquitectura-definitiva-v3-revisada-con-chatgpt">Decisión de arquitectura — DEFINITIVA (v3, revisada con ChatGPT)<a class="headerlink" href="#decision-de-arquitectura-definitiva-v3-revisada-con-chatgpt" title="Permanent link">&para;</a></h2>
+<p><strong>Pre-timbrado como flujo principal. Post-timbrado como capacidad excepcional/manual. Motor común AddendaService neutral.</strong></p>
+<p>La addenda NO forma parte de la cadena original ni del sello fiscal SAT. Técnicamente puede agregarse antes o después, pero el flujo principal es antes — enviando <code>addenda</code> y <code>namespaces</code> en el payload de <code>create_invoice</code> de FacturAPI.</p>
+<hr />
+<h2 id="motor-comun-addendaservice">Motor común: AddendaService<a class="headerlink" href="#motor-comun-addendaservice" title="Permanent link">&para;</a></h2>
+<p>El componente central debe ser un servicio neutral, <strong>no acoplado a FacturAPI ni a post-proceso</strong>. Sus responsabilidades son:</p>
+<div class="highlight"><pre><span></span><code>AddendaService
+  resolve()              → determinar si la SI requiere addenda
+  validate_required_data() → validar datos obligatorios por tipo de addenda
+  render()               → construir y renderizar XML de addenda
+  → devolver: addenda_xml + namespaces + metadata + errores claros
 </code></pre></div>
+<p>El <code>AddendaGenerator</code> existente puede ser la base, pero debe revisarse antes de activar. <strong>No asumir que está listo.</strong></p>
 <hr />
-<h2 id="alternativas-descartadas">Alternativas descartadas<a class="headerlink" href="#alternativas-descartadas" title="Permanent link">&para;</a></h2>
-<h3 id="a-mantener-logica-en-js-con-mas-llamadas-async">A) Mantener lógica en JS con más llamadas async<a class="headerlink" href="#a-mantener-logica-en-js-con-mas-llamadas-async" title="Permanent link">&para;</a></h3>
-<p>Descartada: amplifica el problema de N fuentes de verdad. Cada caso nuevo requiere tocar múltiples archivos.</p>
-<h3 id="b-calcular-todo-en-validate-y-guardar-en-campos">B) Calcular todo en <code>validate</code> y guardar en campos<a class="headerlink" href="#b-calcular-todo-en-validate-y-guardar-en-campos" title="Permanent link">&para;</a></h3>
-<p>Descartada: genera escrituras innecesarias en BD en cada validación, complica el historial de cambios, y mezcla preocupaciones.</p>
-<h3 id="c-un-endpoint-por-doctype">C) Un endpoint por DocType<a class="headerlink" href="#c-un-endpoint-por-doctype" title="Permanent link">&para;</a></h3>
-<p>Descartada: el gateway único <code>get_fiscal_ui_state</code> con routing interno permite evolucionar la firma sin tocar JS.</p>
-<hr />
-<h2 id="consecuencias">Consecuencias<a class="headerlink" href="#consecuencias" title="Permanent link">&para;</a></h2>
-<p><strong>Positivas:</strong>
-- Lógica fiscal centralizada y auditable en Python
-- JS reducido a aplicar el estado recibido (sin decisiones)
-- Roles de cancelación configurables por cliente sin tocar código
-- Bug C1 corregido (can_download ahora depende de <code>has_facturapi_id</code>)
-- Base para futuras features: agregar un hecho o acción nueva no requiere cambios en JS</p>
-<p><strong>Negativas / Trade-offs:</strong>
-- Un <code>frappe.call</code> adicional en cada <code>refresh()</code> de los 4 doctypes
-- 3 llamadas separadas en Sales Invoice refresh (SI + Opciones Fiscales + Sustituir CFDI) — pendiente consolidar (H1 CodeRabbit)
-- <code>sales_invoice_block_cancel.js</code> no migrado (tiene eventos realtime — fuera de alcance)</p>
-<hr />
-<h2 id="hardening-post-merge-pr-123">Hardening post-merge (PR #123)<a class="headerlink" href="#hardening-post-merge-pr-123" title="Permanent link">&para;</a></h2>
-<p>CodeRabbit identificó 10 issues en PR #122, todos aplicados en <code>fix/coderabbit-hardening-pr122</code>:</p>
+<h2 id="fuente-de-verdad-sales-invoice-vs-ffm">Fuente de verdad: Sales Invoice vs FFM<a class="headerlink" href="#fuente-de-verdad-sales-invoice-vs-ffm" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th>Fix</th>
-<th>Descripción</th>
+<th>Donde</th>
+<th>Qué guarda</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>C1</td>
-<td><code>complemento_state</code> — <code>can_download</code> usa <code>has_facturapi_id</code></td>
+<td><strong>Sales Invoice</strong></td>
+<td>Configuración operativa: <code>fm_addenda_required</code>, <code>fm_addenda_type</code>, <code>fm_addenda_status</code>, <code>fm_addenda_error</code></td>
 </tr>
 <tr>
-<td>M1</td>
-<td><code>payment_entry_validate</code> — <code>ignore_permissions=True</code></td>
+<td><strong>FFM</strong></td>
+<td>Resultado fiscal/timbrado: <code>fm_addenda_applied_mode</code>, <code>fm_addenda_xml</code>, <code>fm_cfdi_xml</code></td>
+</tr>
+</tbody>
+</table>
+<p>AddendaService recibe SI y/o FFM, pero resuelve la configuración desde SI. No duplicar configuración sin regla clara.</p>
+<h3 id="regla-de-congelamiento">Regla de congelamiento<a class="headerlink" href="#regla-de-congelamiento" title="Permanent link">&para;</a></h3>
+<p>La propagación Customer → SI corre en <code>Sales Invoice.validate</code>. En Frappe, docs submitted son read-only y <code>validate</code> no corre sobre ellos — el congelamiento es parcialmente automático.</p>
+<p>El riesgo real: si el operador edita el draft varias veces y el hook siempre sobrescribe desde Customer, pierde un override manual que haya hecho.</p>
+<p><strong>Regla de propagación:</strong>
+- Propagar <code>fm_requires_addenda</code> y <code>fm_default_addenda_type</code> desde Customer → SI <strong>solo si el campo en SI está vacío</strong> (no sobrescribir override manual)
+- Después de submit/timbrado: configuración de addenda congelada — cambios en Customer no afectan SIs existentes
+- El override manual en SI draft es válido y debe respetarse</p>
+<hr />
+<h2 id="definicion-de-fm_cfdi_xml-regla-permanente">Definición de <code>fm_cfdi_xml</code> — regla permanente<a class="headerlink" href="#definicion-de-fm_cfdi_xml-regla-permanente" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>fm_cfdi_xml = XML oficial descargado desde FacturAPI después del timbrado.
+Puede contener &lt;Addenda&gt; si fue enviada pre-timbrado.
+Nunca se altera después de guardado.
+</code></pre></div>
+<p>En pre-timbrado: FacturAPI devuelve XML con addenda integrada → se guarda en <code>fm_cfdi_xml</code> tal cual.
+En post-timbrado manual: <code>fm_cfdi_xml</code> NO se modifica → se genera XML entregable separado.</p>
+<p>Para post-timbrado: el XML entregable con addenda se guarda en <code>fm_cfdi_xml_deliverable</code> (campo nuevo a definir en Fase 6) o como attachment específico con auditoría (usuario, fecha, hash).</p>
+<hr />
+<h2 id="politica-de-fallo-tabla">Política de fallo — tabla<a class="headerlink" href="#politica-de-fallo-tabla" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Caso</th>
+<th>Acción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fm_addenda_required = 1</code> y no hay tipo configurado</td>
+<td>Bloquear timbrado</td>
 </tr>
 <tr>
-<td>Q1</td>
-<td><code>complemento_pago_mx.js</code> — destructuring defensivo</td>
+<td>Tipo configurado pero faltan datos obligatorios</td>
+<td>Bloquear timbrado</td>
 </tr>
 <tr>
-<td>Q2</td>
-<td><code>payment_entry_validate</code> — <code>flt(allocated_amount)</code></td>
+<td>Tipo configurado pero template no existe</td>
+<td>Bloquear timbrado</td>
 </tr>
 <tr>
-<td>Q3</td>
-<td><code>factura_fiscal_mexico.js</code> — destructuring defensivo</td>
+<td>Addenda opcional y falla generación</td>
+<td>No bloquear, registrar advertencia</td>
 </tr>
 <tr>
-<td>Q4</td>
-<td><code>factura_fiscal_mexico.js</code> — eliminar bloque if vacío</td>
+<td>FacturAPI rechaza addenda</td>
+<td>Bloquear y guardar error en <code>fm_addenda_error</code></td>
 </tr>
 <tr>
-<td>Q5</td>
-<td><code>ffm_state</code> — <code>startswith</code> con tuple</td>
-</tr>
-<tr>
-<td>Q6</td>
-<td><code>payment_entry.js</code> — destructuring defensivo</td>
-</tr>
-<tr>
-<td>Q8</td>
-<td><code>si_post_fiscal_actions.js</code> — optional chaining</td>
-</tr>
-<tr>
-<td>O1</td>
-<td><code>factura_fiscal_mexico.js</code> — eliminar dead code (2 funciones sin callers)</td>
+<td>XML final timbrado no contiene <code>&lt;Addenda&gt;</code></td>
+<td>Marcar error crítico en <code>fm_addenda_status</code></td>
 </tr>
 </tbody>
 </table>
 <hr />
-<h2 id="tests">Tests<a class="headerlink" href="#tests" title="Permanent link">&para;</a></h2>
+<h2 id="flujo-a-pre-timbrado-principal">Flujo A — Pre-timbrado (principal)<a class="headerlink" href="#flujo-a-pre-timbrado-principal" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>Sales Invoice.validate  [solo propagación — nunca bloquea guardado]
+  → AddendaService.resolve()          [¿requiere addenda?]
+  → propagar flags a SI               [no generar XML, no validar datos]
+
+_prepare_facturapi_data()  [construye payload]
+  → AddendaService.validate_required_data()   [aquí sí bloquea]
+  → si falta dato → frappe.throw(&quot;Addenda requerida pero faltan: ...&quot;)
+  → AddendaService.render()
+  → payload[&quot;addenda&quot;] = addenda_xml
+  → payload[&quot;namespaces&quot;] = {...}
+
+FacturAPI create_invoice()
+  → si falla → guardar error, NO marcar applied_mode
+
+Post-timbrado exitoso  [en handler de respuesta]
+  → XML descargado
+  → verificar que contiene &lt;Addenda&gt;
+  → fm_cfdi_xml = XML oficial de FacturAPI (con Addenda integrada)
+  → fm_addenda_applied_mode = &quot;pre_stamp&quot;   [solo aquí, después de verificar]
+  → fm_addenda_status = &quot;Completada&quot;
+</code></pre></div>
+<p><strong>Regla crítica de implementación:</strong> <code>_prepare_facturapi_data()</code> solo construye payload. El estado <code>fm_addenda_applied_mode</code> se marca únicamente en el handler de respuesta exitosa, después de descargar y verificar el XML. Si FacturAPI falla, se guarda el error pero el estado no se actualiza.</p>
+<p>FacturAPI acepta <code>addenda: string&lt;xml&gt;</code> y <code>namespaces</code> en <code>create_invoice</code>. También soporta modo draft: <code>create draft → edit draft con addenda → stamp draft</code> — eso sigue siendo pre-timbrado, no post-timbrado.</p>
+<hr />
+<h2 id="flujo-b-post-timbrado-excepcionalmanual">Flujo B — Post-timbrado (excepcional/manual)<a class="headerlink" href="#flujo-b-post-timbrado-excepcionalmanual" title="Permanent link">&para;</a></h2>
+<p>Para casos donde el cliente pide addenda DESPUÉS de recibir la factura (orden de compra, folio de recepción, referencia que no existían al timbrar).</p>
+<div class="highlight"><pre><span></span><code>FFM/SI ya timbrada
+→ Botón explícito: &quot;Generar/Actualizar Addenda&quot;
+→ Verificar: ¿fm_cfdi_xml ya contiene &lt;Addenda&gt;?
+   → si sí → solicitar confirmación explícita de reemplazo
+→ AddendaService.validate_required_data()
+→ AddendaService.render()
+→ CfdiAddendaInjector.insert() sobre copia de fm_cfdi_xml
+→ XML entregable guardado (campo fm_cfdi_xml_deliverable o attachment — decisión Fase 6)
+→ Auditoría: usuario, fecha, modo, hash XML resultante
+→ fm_addenda_applied_mode = &quot;post_stamp&quot;
+</code></pre></div>
+<p><strong>Restricciones:</strong>
+- NO automático — siempre acción explícita del operador
+- NO modifica <code>fm_cfdi_xml</code> (fiscal original intocable)
+- NO retimbra ni cancela
+- NO aplica a Complementos de Pago (datos fiscales propios)
+- NO corre masivamente sin control
+- Si ya existe addenda pre-timbrada: no reemplazar sin confirmación explícita</p>
+<hr />
+<h2 id="compatibilidad-con-implementaciones-futuras">Compatibilidad con implementaciones futuras<a class="headerlink" href="#compatibilidad-con-implementaciones-futuras" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Funcionalidad futura</th>
+<th>Compatibilidad</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Complementos de Pago</td>
+<td>Ya implementados, flujo completamente separado</td>
+</tr>
+<tr>
+<td>Carta Porte</td>
+<td>Como complemento en payload, mismo patrón pre-timbrado</td>
+</tr>
+<tr>
+<td>CFDI Global</td>
+<td>Flujo propio, no se mezcla</td>
+</tr>
+<tr>
+<td>Draft → stamp mode</td>
+<td>Pre-timbrado, sin cambio de arquitectura</td>
+</tr>
+<tr>
+<td>Post-timbrado manual</td>
+<td>Flujo B contemplado</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Múltiples addendas — fuera de alcance v0.2.</strong> Implica combinar XML de varios proveedores, manejar namespaces duplicados, conflictos de schemas y orden de nodos. No prometer en esta versión.</p>
+<hr />
+<h2 id="plan-de-implementacion-por-fases-orden-corregido">Plan de implementación por fases — ORDEN CORREGIDO<a class="headerlink" href="#plan-de-implementacion-por-fases-orden-corregido" title="Permanent link">&para;</a></h2>
+<h3 id="fase-1-validar-facturapi-en-sandbox-1-sesion">Fase 1 — Validar FacturAPI en sandbox (1 sesión)<a class="headerlink" href="#fase-1-validar-facturapi-en-sandbox-1-sesion" title="Permanent link">&para;</a></h3>
+<p>Confirmar:
+- <code>create_invoice</code> acepta <code>addenda: string&lt;xml&gt;</code> y <code>namespaces</code>
+- Formato exacto de namespaces para addenda propia
+- XML descargado incluye <code>&lt;Addenda&gt;</code> correctamente
+- Comportamiento del PDF con addenda
+- Qué pasa si la addenda tiene namespace propio</p>
+<h3 id="fase-2-disenar-addendaservice-neutral-1-sesion">Fase 2 — Diseñar AddendaService neutral (1 sesión)<a class="headerlink" href="#fase-2-disenar-addendaservice-neutral-1-sesion" title="Permanent link">&para;</a></h3>
 <ul>
-<li><code>facturacion_mexico.tests.test_check_ppd_requirement</code> — 5/5 ✅</li>
-<li><code>facturacion_mexico.tests.test_fiscal_state_payment_entry</code> — suite completa ✅</li>
-<li><code>facturacion_mexico.tests.test_refacturar_workflow</code> — 8/8 ✅ (regresión)</li>
-<li>CI primera corrida: ✅ aprobado</li>
+<li>Revisar <code>AddendaGenerator</code> / <code>generic_addenda_generator.py</code> — puede servir como base</li>
+<li>Implementar interfaz: <code>resolve() → validate_required_data() → render()</code></li>
+<li>Revisar <code>fm_default_addenda_type</code> vs <code>fm_addenda_type</code> (probable inconsistencia)</li>
+<li>Revisar <code>CFDIParser</code>, manejo namespaces CFDI 4.0 para Flujo B futuro</li>
 </ul>
+<h3 id="fase-3-propagacion-customer-sales-invoice-antes-del-payload">Fase 3 — Propagación Customer → Sales Invoice (antes del payload)<a class="headerlink" href="#fase-3-propagacion-customer-sales-invoice-antes-del-payload" title="Permanent link">&para;</a></h3>
+<p>Registrar hook mínimo <code>Sales Invoice.validate</code>:
+- Leer <code>customer.fm_requires_addenda</code> → copiar a <code>fm_addenda_required</code> en SI <strong>solo si está vacío</strong>
+- Leer <code>customer.fm_default_addenda_type</code> → copiar a <code>fm_addenda_type</code> en SI <strong>solo si está vacío</strong>
+- Solo propagación de flags — no generar XML, no validar datos, <strong>no bloquear guardado de draft</strong>
+- No activar <code>sales_invoice_validate.py</code> legacy sin revisar; crear handler mínimo para evitar side effects viejos</p>
+<h3 id="fase-4-pre-timbrado-en-payload-1-2-sesiones">Fase 4 — Pre-timbrado en payload (1-2 sesiones)<a class="headerlink" href="#fase-4-pre-timbrado-en-payload-1-2-sesiones" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>_prepare_facturapi_data()</code>: si <code>fm_addenda_required = 1</code> → validate_required_data() → render → incluir en payload</li>
+<li>validate_required_data() aquí sí hace <code>frappe.throw()</code> — bloquea timbrado, no guardado de draft</li>
+<li>FacturAPI devuelve XML con addenda integrada</li>
+<li>En handler de respuesta exitosa: descargar XML → verificar <code>&lt;Addenda&gt;</code> presente → marcar <code>fm_addenda_applied_mode = "pre_stamp"</code> y <code>fm_addenda_status = "Completada"</code></li>
+<li>Si FacturAPI falla: guardar error, no marcar applied_mode</li>
+<li>Validar XML descargado, attachments y PDF</li>
+</ul>
+<h3 id="fase-5-persistencia-descarga-y-attachments">Fase 5 — Persistencia, descarga y attachments<a class="headerlink" href="#fase-5-persistencia-descarga-y-attachments" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Asegurar que <code>fm_cfdi_xml</code> guarda el XML oficial sin alterar</li>
+<li>Attachments de descarga sirven el XML correcto según modo (pre/post stamp)</li>
+<li>Tests de regresión: descarga, cancelación, sustitución siguen funcionando</li>
+</ul>
+<h3 id="fase-6-post-timbrado-manual-futuro">Fase 6 — Post-timbrado manual (futuro)<a class="headerlink" href="#fase-6-post-timbrado-manual-futuro" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Decidir entre campo <code>fm_cfdi_xml_deliverable</code> vs attachment específico con hash/auditoría</li>
+<li>Para v0.2 con solo pre-timbrado este campo NO es necesario — el XML de FacturAPI ya viene con addenda</li>
+<li>Botón explícito en FFM: "Generar Addenda Post-Timbrado"</li>
+<li>Solo para FFMs timbradas sin <code>fm_addenda_applied_mode</code></li>
+<li>Guardar en fm_cfdi_xml_deliverable o attachment — nunca sobrescribir <code>fm_cfdi_xml</code></li>
+<li>Auditoría obligatoria: usuario, fecha, hash del XML resultante</li>
+</ul>
+<h3 id="fuera-de-alcance">Fuera de alcance:<a class="headerlink" href="#fuera-de-alcance" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>Customer.after_insert</code> auto-detección — no activar</li>
+<li><code>Sales Invoice.on_submit</code> legacy — no activar</li>
+<li>Backfill retroactivo automático</li>
+<li>Múltiples addendas</li>
+<li>Complementos/PPD (flujo propio ya funcional)</li>
+</ul>
+<hr />
+<h2 id="estado-del-codigo-existente-evaluacion-revisada">Estado del código existente — evaluación revisada<a class="headerlink" href="#estado-del-codigo-existente-evaluacion-revisada" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Componente</th>
+<th>Evaluación</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AddendaGenerator</code> / <code>generic_addenda_generator.py</code></td>
+<td>Revisar antes de usar — puede tener lógica desactualizada</td>
+</tr>
+<tr>
+<td><code>CFDIParser</code> / <code>insert_addenda_in_cfdi()</code></td>
+<td>Útil para Flujo B post-timbrado — NO activar sin test</td>
+</tr>
+<tr>
+<td><code>hooks_handlers/sales_invoice_submit.py</code></td>
+<td>Código legacy post-timbrado — <strong>NO activar</strong>; revisar si alguna lógica reutilizable</td>
+</tr>
+<tr>
+<td><code>hooks_handlers/sales_invoice_validate.py</code></td>
+<td>Puede reutilizarse en Fase 3 solo si queda mínimo y sin side effects viejos</td>
+</tr>
+<tr>
+<td><code>addenda_auto_detector.py</code></td>
+<td>Dejar desconectado — no activar en v0.2</td>
+</tr>
+<tr>
+<td>Campos <code>fm_addenda_*</code> en fixtures</td>
+<td>Bien definidos — usar tal cual</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="clasificacion-final">Clasificación final<a class="headerlink" href="#clasificacion-final" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>Tipo:      Feature incompleto — integración pendiente con arquitectura base existente
+Prioridad: v0.2
+Riesgo:    Medio (pre-timbrado) / Medio-alto (post-timbrado manual)
+Estrategia: 6 fases; propagación antes que payload; fuente de verdad SI→FFM clara
+</code></pre></div>
+<p><strong>No es "solo conectar hooks". El código legacy puede tener estado/side effects viejos. Revisar antes de activar.</strong></p>
 <hr />
 <h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">&para;</a></h2>
 <ul>
-<li>PR #122: feat(fiscal-state): capa UI centralizada + migración de 4 doctypes a fiscal_state</li>
-<li>PR #123: fix(fiscal-state): hardening CodeRabbit PR #122 — 10 fixes</li>
-<li><code>docs/development/fiscal-ui-state-audit.md</code> — auditoría previa que originó esta decisión</li>
-<li><code>frappe-infrastructure/checkpoints/coderabbit-pr122-review.md</code> — análisis CodeRabbit</li>
+<li>Issue #129: https://github.com/luisrms69/facturacion_mexico/issues/129</li>
+<li><code>facturacion_mexico/addendas/</code> — módulo completo de addendas</li>
+<li><code>facturacion_mexico/facturacion_fiscal/timbrado_api.py</code> — <code>_prepare_facturapi_data()</code></li>
+<li><code>facturacion_mexico/addendas/addenda_auto_detector.py</code> — detección automática (desconectada)</li>
+<li><code>facturacion_mexico/addendas/api.py</code> — API de addendas</li>
+<li>PR #126: fix(reclasificacion) — complementos PPD ya validados</li>
 </ul>
-<hr />
-<h2 id="nota-adicional-2026-05-12-issue-133">Nota adicional — 2026-05-12 (Issue #133)<a class="headerlink" href="#nota-adicional-2026-05-12-issue-133" title="Permanent link">&para;</a></h2>
-<h3 id="problema-detectado-post-implementacion-fm_sync_status-bloqueaba-boton-timbrar">Problema detectado post-implementación: fm_sync_status bloqueaba botón Timbrar<a class="headerlink" href="#problema-detectado-post-implementacion-fm_sync_status-bloqueaba-boton-timbrar" title="Permanent link">&para;</a></h3>
-<p>Durante pruebas de la rama <code>feature/issue129-addendas</code> se detectó que toda FFM nueva
-quedaba con el botón "Timbrar" bloqueado hasta que el scheduler corría (hasta 5 minutos).</p>
-<p><strong>Causa:</strong> <code>fm_sync_status</code> tiene <code>default = "pending"</code> en el DocType. La lógica de
-<code>_compute_actions</code> bloqueaba <code>can_stamp</code> cuando <code>sync_pending = True</code>, lo que afectaba
-a <strong>toda FFM recién creada</strong> aunque nunca hubiera tenido una operación PAC activa.</p>
-<p><strong>Corrección aplicada:</strong>
-- <code>can_stamp</code> ya no depende de <code>fm_sync_status</code> — solo depende del estado fiscal real
-- El mensaje "Operación en progreso" solo aparece cuando <code>sync_pending=True AND (has_uuid OR facturapi_id)</code>
-- El scheduler <code>bulk_sync_invoices</code> se mantiene activo únicamente como red de seguridad</p>
-<p><strong>Hallazgo:</strong> <code>FFM.on_update → update_sales_invoice_fiscal_info()</code> ya sincroniza SI
-síncronamente. El scheduler era trabajo duplicado para el flujo normal.</p>
-<p><strong>Refactor pendiente:</strong> Ver Issue #133 para limpieza completa de <code>fm_sync_status</code>,
-<code>bulk_sync_invoices</code> y el <code>try/except</code> silencioso en <code>update_sales_invoice_fiscal_info</code>.</p>
-<p><strong>Análisis detallado:</strong>
-- <code>docs/development/REPORTE_BUG_FM_SYNC_STATUS_PENDING.md</code>
-- <code>docs/development/REPORTE_FM_SYNC_STATUS_IMPLICACIONES.md</code></p>
 
 
 

@@ -20,7 +20,7 @@
     
     
       
-        <title>ADR-0021 — Capa fiscal_state: UI centralizada via endpoint Python - Facturación México - Documentación Técnica</title>
+        <title>ADR 0024 — Addendas CFDI pre-timbrado (Issue #129) - Facturación México - Documentación Técnica</title>
       
     
     
@@ -86,7 +86,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#adr-0021-capa-fiscal_state-ui-centralizada-via-endpoint-python" class="md-skip">
+        <a href="#adr-0024-addendas-cfdi-pre-timbrado-issue-129" class="md-skip">
           Saltar a contenido
         </a>
       
@@ -124,7 +124,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              ADR-0021 — Capa fiscal_state: UI centralizada via endpoint Python
+              ADR 0024 — Addendas CFDI pre-timbrado (Issue #129)
             
           </span>
         </div>
@@ -869,45 +869,9 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#principios" class="md-nav__link">
+  <a href="#fases-implementadas" class="md-nav__link">
     <span class="md-ellipsis">
-      Principios
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#estructura-implementada" class="md-nav__link">
-    <span class="md-ellipsis">
-      Estructura implementada
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#doctypes-migrados-a-fiscal_state" class="md-nav__link">
-    <span class="md-ellipsis">
-      DocTypes migrados a fiscal_state
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#check_ppd_requirement-implementacion-real" class="md-nav__link">
-    <span class="md-ellipsis">
-      check_ppd_requirement — implementación real
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#gap-identificado-can_register_payment" class="md-nav__link">
-    <span class="md-ellipsis">
-      Gap identificado — can_register_payment
+      Fases implementadas
     </span>
   </a>
   
@@ -919,37 +883,64 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#alternativas-descartadas" class="md-nav__link">
+  <a href="#validacion-realizada" class="md-nav__link">
     <span class="md-ellipsis">
-      Alternativas descartadas
+      Validación realizada
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Alternativas descartadas">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bug-mayor-pendiente-de-diagnostico" class="md-nav__link">
+    <span class="md-ellipsis">
+      ⚠️ BUG MAYOR — Pendiente de diagnóstico
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="⚠️ BUG MAYOR — Pendiente de diagnóstico">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#a-mantener-logica-en-js-con-mas-llamadas-async" class="md-nav__link">
+  <a href="#descripcion" class="md-nav__link">
     <span class="md-ellipsis">
-      A) Mantener lógica en JS con más llamadas async
+      Descripción
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#b-calcular-todo-en-validate-y-guardar-en-campos" class="md-nav__link">
+  <a href="#origen-probable" class="md-nav__link">
     <span class="md-ellipsis">
-      B) Calcular todo en validate y guardar en campos
+      Origen probable
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#c-un-endpoint-por-doctype" class="md-nav__link">
+  <a href="#impacto" class="md-nav__link">
     <span class="md-ellipsis">
-      C) Un endpoint por DocType
+      Impacto
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#estado" class="md-nav__link">
+    <span class="md-ellipsis">
+      Estado
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hipotesis-a-investigar" class="md-nav__link">
+    <span class="md-ellipsis">
+      Hipótesis a investigar
     </span>
   </a>
   
@@ -970,33 +961,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#hardening-post-merge-pr-123" class="md-nav__link">
-    <span class="md-ellipsis">
-      Hardening post-merge (PR #123)
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#tests" class="md-nav__link">
-    <span class="md-ellipsis">
-      Tests
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#referencias" class="md-nav__link">
-    <span class="md-ellipsis">
-      Referencias
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#nota-adicional-2026-05-12-issue-133" class="md-nav__link">
     <span class="md-ellipsis">
       Nota adicional — 2026-05-12 (Issue #133)
@@ -1007,9 +971,9 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#problema-detectado-post-implementacion-fm_sync_status-bloqueaba-boton-timbrar" class="md-nav__link">
+  <a href="#problema-colateral-descubierto-fm_sync_status-bloqueaba-el-boton-timbrar" class="md-nav__link">
     <span class="md-ellipsis">
-      Problema detectado post-implementación: fm_sync_status bloqueaba botón Timbrar
+      Problema colateral descubierto: fm_sync_status bloqueaba el botón Timbrar
     </span>
   </a>
   
@@ -1035,195 +999,159 @@
                   
 
 
-<h1 id="adr-0021-capa-fiscal_state-ui-centralizada-via-endpoint-python">ADR-0021 — Capa fiscal_state: UI centralizada via endpoint Python<a class="headerlink" href="#adr-0021-capa-fiscal_state-ui-centralizada-via-endpoint-python" title="Permanent link">&para;</a></h1>
-<p><strong>Fecha:</strong> 2026-05-10
-<strong>Estado:</strong> Implementado (PR #122)
-<strong>Branch:</strong> feat/beta-release-fixes</p>
+<h1 id="adr-0024-addendas-cfdi-pre-timbrado-issue-129">ADR 0024 — Addendas CFDI pre-timbrado (Issue #129)<a class="headerlink" href="#adr-0024-addendas-cfdi-pre-timbrado-issue-129" title="Permanent link">&para;</a></h1>
+<p><strong>Fecha:</strong> 2026-05-12
+<strong>Estado:</strong> Implementado — BUG MAYOR PENDIENTE
+<strong>Autor:</strong> Luis Montanaro / Claude Sonnet 4.6</p>
 <hr />
 <h2 id="contexto">Contexto<a class="headerlink" href="#contexto" title="Permanent link">&para;</a></h2>
-<p>Antes de este ADR, la lógica de decisión de UI (qué botones mostrar, qué mensajes emitir, qué acciones habilitar) estaba distribuida en tres capas sin coordinación:</p>
-<ol>
-<li><strong>JS directo</strong> — cada archivo <code>.js</code> consultaba campos individuales del documento y tomaba decisiones locales</li>
-<li><strong>Múltiples llamadas async</strong> — cada botón disparaba su propio <code>frappe.call</code> para verificar prerrequisitos</li>
-<li><strong><code>fm_require_complement</code></strong> — campo en Payment Entry calculado de forma inconsistente desde tres rutas distintas (PE creation, on_submit, en_validate)</li>
-</ol>
-<p>Esto generaba:
-- Inconsistencias entre lo que mostraba la UI y lo que permitía el backend
-- Decisiones de roles hardcodeadas en JS (listas de nombres de roles)
-- Múltiples puntos donde agregar lógica nueva requería tocar N archivos
-- El bug C1: <code>complemento_state.py</code> habilitaba el botón de descarga con <code>has_xml/has_pdf</code>, pero la API lanzaba error si faltaba <code>facturapi_id</code></p>
+<p>Issue #129 requería activar el flujo de addendas CFDI en el sistema. Los campos
+<code>fm_requires_addenda</code> y <code>fm_default_addenda_type</code> en Customer, y sus contrapartes
+en Sales Invoice, existían en fixtures pero estaban completamente desconectados del
+flujo de timbrado.</p>
 <hr />
 <h2 id="decision">Decisión<a class="headerlink" href="#decision" title="Permanent link">&para;</a></h2>
-<p>Crear una capa <code>fiscal_state/</code> como <strong>fuente única de verdad</strong> para decisiones de UI fiscal.</p>
-<h3 id="principios">Principios<a class="headerlink" href="#principios" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>Read-only</strong> — los módulos de estado solo leen, nunca modifican documentos</li>
-<li><strong>Tres capas</strong> — <code>facts</code> (observaciones), <code>actions</code> (acciones posibles), <code>messages</code> (mensajes de UI)</li>
-<li><strong>Un solo endpoint whitelisted</strong> — <code>get_fiscal_ui_state(doctype, name)</code> enruta a los módulos específicos</li>
-<li><strong>Sin roles hardcodeados</strong> — permisos delegados a <code>frappe.model.can_cancel()</code> (DocPerm configurable por cliente)</li>
-<li><strong>Permission check en el gateway</strong> — <code>frappe.has_permission(doctype, "read", name)</code> antes de cualquier cómputo</li>
-</ul>
-<h3 id="estructura-implementada">Estructura implementada<a class="headerlink" href="#estructura-implementada" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>facturacion_mexico/fiscal_state/
-    __init__.py
-    api.py                      # endpoint whitelisted
-    payment_entry_state.py      # facts/actions/messages para Payment Entry
-    sales_invoice_state.py      # facts/actions/messages para Sales Invoice
-    ffm_state.py                # facts/actions/messages para Factura Fiscal Mexico
-    complemento_state.py        # facts/actions/messages para Complemento Pago MX
-</code></pre></div>
-<h3 id="doctypes-migrados-a-fiscal_state">DocTypes migrados a fiscal_state<a class="headerlink" href="#doctypes-migrados-a-fiscal_state" title="Permanent link">&para;</a></h3>
+<p>Implementar addendas en modo <strong>pre-timbrado</strong>: la addenda se envía en el payload de
+<code>create_invoice</code> de FacturAPI, antes de sellar el CFDI. El XML devuelto por FacturAPI
+ya incluye <code>&lt;cfdi:Addenda&gt;</code> integrada después de <code>&lt;cfdi:Complemento&gt;</code>.</p>
+<h3 id="fases-implementadas">Fases implementadas<a class="headerlink" href="#fases-implementadas" title="Permanent link">&para;</a></h3>
+<p><strong>Fase 1 — Validación FacturAPI (sandbox)</strong>
+- Confirmado: <code>create_invoice</code> acepta <code>addenda: string&lt;xml&gt;</code> y <code>namespaces: [{prefix, uri}]</code>
+- Formato exacto: array de objetos con <code>prefix</code> y <code>uri</code> — sin <code>name</code> ni <code>schemaLocation</code>
+- XML timbrado contiene <code>&lt;cfdi:Addenda&gt;</code> correctamente posicionada</p>
+<p><strong>Fase 2 — AddendaService neutral</strong>
+- <code>facturacion_mexico/addendas/addenda_service.py</code>
+- <code>render()</code> retorna <code>None</code> si no requiere addenda — payload no se modifica
+- <code>render()</code> lanza <code>frappe.throw</code> si requiere pero config incompleta — bloquea timbrado
+- 19 tests</p>
+<p><strong>Fase 3 — Propagación Customer → Sales Invoice</strong>
+- Hook <code>Sales Invoice.validate</code> propaga <code>fm_requires_addenda</code> y <code>fm_default_addenda_type</code>
+- Solo propaga si el campo en SI está vacío (respeta overrides manuales)
+- No bloquea guardado de draft
+- 10 tests</p>
+<p><strong>Fase 3 UI — Campos editables en draft</strong>
+- <code>fm_addenda_section</code>: visible cuando hay customer (no solo en submitted)
+- <code>fm_addenda_required</code> y <code>fm_addenda_type</code>: editables en draft, read-only en submit
+- Fixture: <code>read_only=0</code>, <code>allow_on_submit=0</code>, <code>read_only_depends_on=eval:doc.docstatus != 0</code></p>
+<p><strong>Fase 4 — Pre-timbrado en payload</strong>
+- <code>_prepare_facturapi_data()</code> en <code>timbrado_api.py</code>
+- Si <code>render()</code> retorna <code>None</code>: payload intacto, sin llaves <code>addenda</code> ni <code>namespaces</code>
+- Si <code>render()</code> retorna dict: agrega <code>addenda</code> y opcionalmente <code>namespaces</code>
+- 8 tests</p>
+<hr />
+<h2 id="validacion-realizada">Validación realizada<a class="headerlink" href="#validacion-realizada" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th>DocType</th>
-<th>Archivo JS</th>
-<th>Qué se migró</th>
+<th>Prueba</th>
+<th>Resultado</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Complemento Pago MX</td>
-<td><code>complemento_pago_mx.js</code></td>
-<td>Todos los botones y mensajes</td>
+<td>Customer con addenda → SI propaga flags</td>
+<td>PASS</td>
 </tr>
 <tr>
-<td>Payment Entry</td>
-<td><code>payment_entry.js</code></td>
-<td>Botones, cancel guard, mensajes</td>
+<td>Override manual en SI draft</td>
+<td>PASS</td>
 </tr>
 <tr>
-<td>Factura Fiscal Mexico</td>
-<td><code>factura_fiscal_mexico.js</code></td>
-<td><code>applyFFMUi()</code> reemplazado por <code>_apply_ffm_buttons/messages()</code></td>
+<td>Timbrado con addenda (Liverpool, Ecoeficiencia)</td>
+<td>PASS — <code>&lt;cfdi:Addenda&gt;</code> en XML</td>
 </tr>
 <tr>
-<td>Sales Invoice</td>
-<td><code>sales_invoice.js</code></td>
-<td>Botón Timbrar, Ver Factura Fiscal, guards</td>
+<td>Timbrado sin addenda (VENTA MOSTRADOR)</td>
+<td>PASS — XML limpio, sin <code>&lt;Addenda&gt;</code></td>
 </tr>
 </tbody>
 </table>
-<h3 id="check_ppd_requirement-implementacion-real">check_ppd_requirement — implementación real<a class="headerlink" href="#check_ppd_requirement-implementacion-real" title="Permanent link">&para;</a></h3>
-<p><code>payment_entry_validate.check_ppd_requirement()</code> era un no-op. Se implementó para establecer <code>fm_require_complement</code> como fuente única de verdad en BD:</p>
-<ul>
-<li>Solo aplica a PE de tipo <code>Receive</code></li>
-<li>Busca SIs referenciadas con <code>fm_es_ppd=1</code> y <code>fm_fiscal_status=TIMBRADO</code></li>
-<li>Usa <code>ignore_permissions=True</code> para evitar falsos negativos por permisos restringidos</li>
-<li>Usa <code>flt(allocated_amount)</code> para robustez ante <code>None</code></li>
-</ul>
-<h3 id="gap-identificado-can_register_payment">Gap identificado — can_register_payment<a class="headerlink" href="#gap-identificado-can_register_payment" title="Permanent link">&para;</a></h3>
-<p>Se detectó durante la auditoría que Sales Invoice con FFM cancelada seguía mostrando el botón de registro de pago. Se agregó <code>can_register_payment</code> a <code>sales_invoice_state.py</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="n">can_register_payment</span> <span class="o">=</span> <span class="n">is_submitted</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_cancelled</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">has_ffm</span> <span class="ow">or</span> <span class="n">has_active_ffm</span><span class="p">)</span>
-</code></pre></div>
 <hr />
-<h2 id="alternativas-descartadas">Alternativas descartadas<a class="headerlink" href="#alternativas-descartadas" title="Permanent link">&para;</a></h2>
-<h3 id="a-mantener-logica-en-js-con-mas-llamadas-async">A) Mantener lógica en JS con más llamadas async<a class="headerlink" href="#a-mantener-logica-en-js-con-mas-llamadas-async" title="Permanent link">&para;</a></h3>
-<p>Descartada: amplifica el problema de N fuentes de verdad. Cada caso nuevo requiere tocar múltiples archivos.</p>
-<h3 id="b-calcular-todo-en-validate-y-guardar-en-campos">B) Calcular todo en <code>validate</code> y guardar en campos<a class="headerlink" href="#b-calcular-todo-en-validate-y-guardar-en-campos" title="Permanent link">&para;</a></h3>
-<p>Descartada: genera escrituras innecesarias en BD en cada validación, complica el historial de cambios, y mezcla preocupaciones.</p>
-<h3 id="c-un-endpoint-por-doctype">C) Un endpoint por DocType<a class="headerlink" href="#c-un-endpoint-por-doctype" title="Permanent link">&para;</a></h3>
-<p>Descartada: el gateway único <code>get_fiscal_ui_state</code> con routing interno permite evolucionar la firma sin tocar JS.</p>
+<h2 id="bug-mayor-pendiente-de-diagnostico">⚠️ BUG MAYOR — Pendiente de diagnóstico<a class="headerlink" href="#bug-mayor-pendiente-de-diagnostico" title="Permanent link">&para;</a></h2>
+<h3 id="descripcion">Descripción<a class="headerlink" href="#descripcion" title="Permanent link">&para;</a></h3>
+<p>Durante las pruebas de validación GUI post-Fase 4, se detectó el siguiente
+comportamiento anómalo en el flujo principal de timbrado:</p>
+<ol>
+<li>
+<p><strong>Botón "Timbrar Factura" desaparece en FFM</strong> después de navegar desde SI.
+   Solo reaparece navegando varias veces entre SI y FFM. Comportamiento intermitente.</p>
+</li>
+<li>
+<p><strong>SI submitted aparece como editable</strong> después de un timbrado. El botón
+   "Timbrar Factura" reaparece en SI (no debería — ya está timbrada).</p>
+</li>
+<li>
+<p><strong>Error "Field not permitted in query: fm_fiscal_status"</strong> al intentar
+   timbrar de nuevo desde SI en ese estado.</p>
+</li>
+<li>
+<p><strong>FFM queda en "Operación en Progreso"</strong> — el timbrado inicia pero
+   <code>_process_timbrado_success</code> falla o no completa correctamente.</p>
+</li>
+</ol>
+<h3 id="origen-probable">Origen probable<a class="headerlink" href="#origen-probable" title="Permanent link">&para;</a></h3>
+<p>El bug se originó en <strong>Fase 3 UI o Fase 4</strong>, confirmado por el usuario.
+Candidatos probables:</p>
+<ul>
+<li>
+<p><code>fm_addenda_required</code> y <code>fm_addenda_type</code> con <code>read_only=0, allow_on_submit=0</code>
+  en SI submitted pueden causar que Frappe trate el documento como editable,
+  interfiriendo con la lógica del fiscal_state y el botón timbrar.</p>
+</li>
+<li>
+<p>La llamada a <code>AddendaService().render(sales_invoice)</code> en <code>_prepare_facturapi_data()</code>
+  podría tener un side effect no anticipado sobre el estado del documento.</p>
+</li>
+</ul>
+<h3 id="impacto">Impacto<a class="headerlink" href="#impacto" title="Permanent link">&para;</a></h3>
+<p><strong>CRÍTICO</strong> — Afecta el flujo principal de timbrado del sistema.
+FFM puede quedar en estado "Operación en Progreso" (bloqueada) sin completar.</p>
+<h3 id="estado">Estado<a class="headerlink" href="#estado" title="Permanent link">&para;</a></h3>
+<p><strong>Sin resolver.</strong> Se documenta aquí para trazabilidad.
+No avanzar a Fase 5 ni a producción sin resolver este bug.</p>
+<h3 id="hipotesis-a-investigar">Hipótesis a investigar<a class="headerlink" href="#hipotesis-a-investigar" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p><code>allow_on_submit=0</code> + <code>read_only=0</code> en campos addenda → Frappe trata SI como
+   editable después de submit → interfiere con <code>get_fiscal_ui_state()</code>.</p>
+</li>
+<li>
+<p>Error en <code>_process_timbrado_success</code> al actualizar SI con <code>frappe.set_value</code>
+   cuando la SI está en estado "pseudo-editable" por los campos addenda.</p>
+</li>
+<li>
+<p>Race condition en JS: <code>get_fiscal_ui_state</code> retorna estado incorrecto en primera
+   carga de FFM.</p>
+</li>
+</ol>
 <hr />
 <h2 id="consecuencias">Consecuencias<a class="headerlink" href="#consecuencias" title="Permanent link">&para;</a></h2>
-<p><strong>Positivas:</strong>
-- Lógica fiscal centralizada y auditable en Python
-- JS reducido a aplicar el estado recibido (sin decisiones)
-- Roles de cancelación configurables por cliente sin tocar código
-- Bug C1 corregido (can_download ahora depende de <code>has_facturapi_id</code>)
-- Base para futuras features: agregar un hecho o acción nueva no requiere cambios en JS</p>
-<p><strong>Negativas / Trade-offs:</strong>
-- Un <code>frappe.call</code> adicional en cada <code>refresh()</code> de los 4 doctypes
-- 3 llamadas separadas en Sales Invoice refresh (SI + Opciones Fiscales + Sustituir CFDI) — pendiente consolidar (H1 CodeRabbit)
-- <code>sales_invoice_block_cancel.js</code> no migrado (tiene eventos realtime — fuera de alcance)</p>
-<hr />
-<h2 id="hardening-post-merge-pr-123">Hardening post-merge (PR #123)<a class="headerlink" href="#hardening-post-merge-pr-123" title="Permanent link">&para;</a></h2>
-<p>CodeRabbit identificó 10 issues en PR #122, todos aplicados en <code>fix/coderabbit-hardening-pr122</code>:</p>
-<table>
-<thead>
-<tr>
-<th>Fix</th>
-<th>Descripción</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>C1</td>
-<td><code>complemento_state</code> — <code>can_download</code> usa <code>has_facturapi_id</code></td>
-</tr>
-<tr>
-<td>M1</td>
-<td><code>payment_entry_validate</code> — <code>ignore_permissions=True</code></td>
-</tr>
-<tr>
-<td>Q1</td>
-<td><code>complemento_pago_mx.js</code> — destructuring defensivo</td>
-</tr>
-<tr>
-<td>Q2</td>
-<td><code>payment_entry_validate</code> — <code>flt(allocated_amount)</code></td>
-</tr>
-<tr>
-<td>Q3</td>
-<td><code>factura_fiscal_mexico.js</code> — destructuring defensivo</td>
-</tr>
-<tr>
-<td>Q4</td>
-<td><code>factura_fiscal_mexico.js</code> — eliminar bloque if vacío</td>
-</tr>
-<tr>
-<td>Q5</td>
-<td><code>ffm_state</code> — <code>startswith</code> con tuple</td>
-</tr>
-<tr>
-<td>Q6</td>
-<td><code>payment_entry.js</code> — destructuring defensivo</td>
-</tr>
-<tr>
-<td>Q8</td>
-<td><code>si_post_fiscal_actions.js</code> — optional chaining</td>
-</tr>
-<tr>
-<td>O1</td>
-<td><code>factura_fiscal_mexico.js</code> — eliminar dead code (2 funciones sin callers)</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2 id="tests">Tests<a class="headerlink" href="#tests" title="Permanent link">&para;</a></h2>
 <ul>
-<li><code>facturacion_mexico.tests.test_check_ppd_requirement</code> — 5/5 ✅</li>
-<li><code>facturacion_mexico.tests.test_fiscal_state_payment_entry</code> — suite completa ✅</li>
-<li><code>facturacion_mexico.tests.test_refacturar_workflow</code> — 8/8 ✅ (regresión)</li>
-<li>CI primera corrida: ✅ aprobado</li>
-</ul>
-<hr />
-<h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">&para;</a></h2>
-<ul>
-<li>PR #122: feat(fiscal-state): capa UI centralizada + migración de 4 doctypes a fiscal_state</li>
-<li>PR #123: fix(fiscal-state): hardening CodeRabbit PR #122 — 10 fixes</li>
-<li><code>docs/development/fiscal-ui-state-audit.md</code> — auditoría previa que originó esta decisión</li>
-<li><code>frappe-infrastructure/checkpoints/coderabbit-pr122-review.md</code> — análisis CodeRabbit</li>
+<li>Addendas pre-timbrado funcionan correctamente en condiciones normales</li>
+<li>El bug de campos addenda (<code>allow_on_submit</code>) debe resolverse antes de despliegue</li>
+<li>Issue #132 (campos legacy <code>fm_addenda_status/xml/errors/date</code>) sigue pendiente de análisis</li>
 </ul>
 <hr />
 <h2 id="nota-adicional-2026-05-12-issue-133">Nota adicional — 2026-05-12 (Issue #133)<a class="headerlink" href="#nota-adicional-2026-05-12-issue-133" title="Permanent link">&para;</a></h2>
-<h3 id="problema-detectado-post-implementacion-fm_sync_status-bloqueaba-boton-timbrar">Problema detectado post-implementación: fm_sync_status bloqueaba botón Timbrar<a class="headerlink" href="#problema-detectado-post-implementacion-fm_sync_status-bloqueaba-boton-timbrar" title="Permanent link">&para;</a></h3>
-<p>Durante pruebas de la rama <code>feature/issue129-addendas</code> se detectó que toda FFM nueva
-quedaba con el botón "Timbrar" bloqueado hasta que el scheduler corría (hasta 5 minutos).</p>
-<p><strong>Causa:</strong> <code>fm_sync_status</code> tiene <code>default = "pending"</code> en el DocType. La lógica de
-<code>_compute_actions</code> bloqueaba <code>can_stamp</code> cuando <code>sync_pending = True</code>, lo que afectaba
-a <strong>toda FFM recién creada</strong> aunque nunca hubiera tenido una operación PAC activa.</p>
-<p><strong>Corrección aplicada:</strong>
-- <code>can_stamp</code> ya no depende de <code>fm_sync_status</code> — solo depende del estado fiscal real
-- El mensaje "Operación en progreso" solo aparece cuando <code>sync_pending=True AND (has_uuid OR facturapi_id)</code>
-- El scheduler <code>bulk_sync_invoices</code> se mantiene activo únicamente como red de seguridad</p>
-<p><strong>Hallazgo:</strong> <code>FFM.on_update → update_sales_invoice_fiscal_info()</code> ya sincroniza SI
-síncronamente. El scheduler era trabajo duplicado para el flujo normal.</p>
-<p><strong>Refactor pendiente:</strong> Ver Issue #133 para limpieza completa de <code>fm_sync_status</code>,
-<code>bulk_sync_invoices</code> y el <code>try/except</code> silencioso en <code>update_sales_invoice_fiscal_info</code>.</p>
-<p><strong>Análisis detallado:</strong>
-- <code>docs/development/REPORTE_BUG_FM_SYNC_STATUS_PENDING.md</code>
-- <code>docs/development/REPORTE_FM_SYNC_STATUS_IMPLICACIONES.md</code></p>
+<h3 id="problema-colateral-descubierto-fm_sync_status-bloqueaba-el-boton-timbrar">Problema colateral descubierto: fm_sync_status bloqueaba el botón Timbrar<a class="headerlink" href="#problema-colateral-descubierto-fm_sync_status-bloqueaba-el-boton-timbrar" title="Permanent link">&para;</a></h3>
+<p>Durante las pruebas de validación de esta rama (<code>feature/issue129-addendas</code>) se descubrió
+un bug en la capa <code>fiscal_state</code> (introducido en PR #122, ADR 0021) que impedía el flujo
+de timbrado de forma independiente al bug de addendas documentado arriba.</p>
+<p><strong>Síntoma:</strong> Toda FFM recién creada mostraba "Operación en progreso" y el botón Timbrar
+no aparecía — incluso en FFMs sin ninguna operación PAC activa.</p>
+<p><strong>Causa:</strong> <code>fm_sync_status = "pending"</code> es el valor default del campo en el DocType.
+<code>_compute_actions</code> bloqueaba <code>can_stamp</code> con <code>not facts["sync_pending"]</code>, lo que afectaba
+a toda FFM nueva hasta que el scheduler <code>bulk_sync_invoices</code> corría (hasta 5 minutos).</p>
+<p><strong>Corrección aplicada en esta rama:</strong>
+- <code>can_stamp</code> ya no depende de <code>fm_sync_status</code>
+- El mensaje de "Operación en progreso" solo aparece cuando hay UUID/facturapi_id activo
+- El scheduler <code>bulk_sync_invoices</code> se conserva como red de seguridad</p>
+<p><strong>Validación final (2026-05-12):</strong>
+- FFMX-2026-00022 (VENTA MOSTRADOR, sin addenda): XML limpio ✓
+- FFMX-2026-00023 (Ecoeficiencia, addenda Generic): XML con <code>&lt;cfdi:Addenda&gt;</code> ✓
+- Botón Timbrar aparece inmediatamente en FFMs nuevas ✓</p>
+<p><strong>Refactor completo pendiente:</strong> Issue #133 — limpieza de <code>fm_sync_status</code>,
+<code>bulk_sync_invoices</code>, <code>try/except</code> silencioso en <code>update_sales_invoice_fiscal_info</code>.</p>
 
 
 
