@@ -184,14 +184,14 @@ class TestFiscalStateFFMActions(FrappeTestCase):
 		self.assertFalse(actions["can_cancel"])
 
 	def test_sync_pending_no_bloquea_acciones(self):
-		# sync_pending ya no bloquea can_stamp ni can_cancel — solo es indicador de scheduler
+		# sync_pending no longer blocks can_stamp or can_cancel — scheduler indicator only
 		facts = self._base(sync_pending=True)
 		actions = _compute_actions(facts)
-		self.assertTrue(actions["can_cancel"])  # TIMBRADO + uuid + sin PE → puede cancelar
-		self.assertFalse(actions["can_stamp"])  # TIMBRADO → no puede timbrar (ya timbrada)
+		self.assertTrue(actions["can_cancel"])  # TIMBRADO + uuid + no PE → can cancel
+		self.assertFalse(actions["can_stamp"])  # TIMBRADO → cannot stamp (already stamped)
 
 	def test_sync_pending_no_bloquea_can_stamp_en_borrador(self):
-		# FFM nueva (BORRADOR, sin UUID, sync_pending=True) → botón Timbrar debe aparecer
+		# New FFM (BORRADOR, no UUID, sync_pending=True) → Timbrar button must appear
 		facts = self._base(
 			status="BORRADOR",
 			is_borrador=True,
@@ -249,7 +249,7 @@ class TestFiscalStateFFMMessages(FrappeTestCase):
 		self.assertEqual(msgs, [])
 
 	def test_sync_pending_con_uuid_muestra_mensaje(self):
-		# sync_pending + UUID activo → mensaje de sincronización visible (operación PAC real)
+		# sync_pending + active UUID → sync message shown (real PAC operation)
 		codes = [
 			m["code"]
 			for m in _compute_messages(self._base(sync_pending=True, has_uuid=True, has_facturapi_id=True))
@@ -257,7 +257,7 @@ class TestFiscalStateFFMMessages(FrappeTestCase):
 		self.assertIn("SYNC_PENDING", codes)
 
 	def test_sync_pending_sin_uuid_no_muestra_mensaje(self):
-		# FFM nueva: sync_pending pero sin UUID → no mostrar "Operación en progreso" (falso positivo)
+		# New FFM: sync_pending but no UUID → do not show "in progress" (false positive)
 		codes = [
 			m["code"]
 			for m in _compute_messages(

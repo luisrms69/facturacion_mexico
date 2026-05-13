@@ -123,9 +123,9 @@ def _compute_actions(facts: dict) -> dict:
 	status = facts["status"]
 	is_submitted = facts["is_submitted"]
 
-	# fm_sync_status="pending" solo indica que el scheduler no ha procesado aún esta FFM.
-	# on_update ya sincroniza SI síncronamente. sync_pending NO representa una operación
-	# PAC activa y no debe bloquear acciones fiscales.
+	# fm_sync_status="pending" only means the scheduler has not yet processed this FFM.
+	# on_update already syncs SI synchronously. sync_pending does NOT represent an active
+	# PAC operation and must not block fiscal actions.
 	can_stamp = is_submitted and status in _TIMBRABLE_STATUSES and facts["tax_system_valid"]
 
 	can_cancel = (
@@ -162,9 +162,9 @@ def _compute_messages(facts: dict) -> list:
 
 	status = facts["status"]
 
-	# sync_pending con UUID activo puede indicar operación PAC real en progreso
-	# (scheduler procesando un timbrado/cancelación reciente). Sin UUID es solo
-	# el estado inicial del campo — no mostrar mensaje engañoso.
+	# sync_pending with active UUID may indicate a real in-flight PAC operation
+	# (scheduler processing a recent stamp/cancellation). Without UUID it is only
+	# the field default — do not show a misleading "in progress" message.
 	if facts["sync_pending"] and (facts["has_uuid"] or facts["has_facturapi_id"]):
 		msgs.append(
 			{

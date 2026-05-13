@@ -75,7 +75,9 @@ class AddendaService:
 
 		missing = []
 		for fd in addenda_type_doc.field_definitions or []:
-			if fd.is_mandatory and not addenda_values.get(fd.field_name):
+			value = addenda_values.get(fd.field_name)
+			is_missing = value is None or (isinstance(value, str) and not value.strip())
+			if fd.is_mandatory and is_missing:
 				missing.append(fd.field_label or fd.field_name)
 
 		if missing:
@@ -116,17 +118,17 @@ class AddendaService:
 
 		addenda_type = self.get_addenda_type_name(sales_invoice_doc)
 
-		# Validar configuración completa
+		# Validate full configuration
 		self.validate_config(sales_invoice_doc)
 
-		# Resolver valores de addenda
+		# Resolve addenda values from defaults if not provided
 		if addenda_values is None:
 			addenda_values = self._get_default_values(sales_invoice_doc)
 
-		# Validar datos obligatorios
+		# Validate mandatory field values
 		self.validate_required_data(sales_invoice_doc, addenda_values)
 
-		# Generar XML usando AddendaGenerator existente
+		# Generate XML using existing AddendaGenerator
 		from facturacion_mexico.addendas.generic_addenda_generator import AddendaGenerator
 
 		generator = AddendaGenerator(addenda_type)
@@ -148,12 +150,12 @@ class AddendaService:
 
 		addenda_xml = result["xml_content"]
 
-		# Obtener namespace del DocType Addenda Type
+		# Fetch namespace from Addenda Type DocType
 		addenda_type_doc = frappe.get_cached_doc("Addenda Type", addenda_type)
 		namespace_uri = addenda_type_doc.namespace or ""
 		namespace_prefix = self._derive_prefix(addenda_type)
 
-		# Formato FacturAPI: array de {prefix, uri} — solo si hay namespace
+		# FacturAPI format: array of {prefix, uri} — only when namespace is defined
 		namespaces = []
 		if namespace_uri:
 			namespaces = [{"prefix": namespace_prefix, "uri": namespace_uri}]
@@ -190,4 +192,6 @@ class AddendaService:
 		El prefix se usa en payload["namespaces"][0]["prefix"].
 		"""
 		clean = re.sub(r"[^a-zA-Z0-9]", "", addenda_type.lower())
+		if clean and clean[0].isdigit():
+			clean = f"a{clean}"
 		return clean[:20] or "addenda"
