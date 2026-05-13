@@ -123,22 +123,19 @@ def _compute_actions(facts: dict) -> dict:
 	status = facts["status"]
 	is_submitted = facts["is_submitted"]
 
-	can_stamp = (
-		is_submitted
-		and status in _TIMBRABLE_STATUSES
-		and facts["tax_system_valid"]
-		and not facts["sync_pending"]
-	)
+	# fm_sync_status="pending" only means the scheduler has not yet processed this FFM.
+	# on_update already syncs SI synchronously. sync_pending does NOT represent an active
+	# PAC operation and must not block fiscal actions.
+	can_stamp = is_submitted and status in _TIMBRABLE_STATUSES and facts["tax_system_valid"]
 
 	can_cancel = (
 		is_submitted
 		and status in _CANCELABLE_STATUSES
 		and facts["has_uuid"]
 		and not facts["has_active_payment_entry"]
-		and not facts["sync_pending"]
 	)
 
-	can_retry_cancel = is_submitted and facts["is_pendiente_cancelacion"] and not facts["sync_pending"]
+	can_retry_cancel = is_submitted and facts["is_pendiente_cancelacion"]
 
 	return {
 		"can_stamp": can_stamp,
@@ -165,15 +162,17 @@ def _compute_messages(facts: dict) -> list:
 
 	status = facts["status"]
 
-	if facts["sync_pending"]:
+	# sync_pending with active UUID may indicate a real in-flight PAC operation
+	# (scheduler processing a recent stamp/cancellation). Without UUID it is only
+	# the field default — do not show a misleading "in progress" message.
+	if facts["sync_pending"] and (facts["has_uuid"] or facts["has_facturapi_id"]):
 		msgs.append(
 			{
 				"code": "SYNC_PENDING",
 				"level": "info",
-				"text": _("Operación en progreso — espera a que complete."),
+				"text": _("Sincronizando con PAC — espera un momento."),
 			}
 		)
-		return msgs
 
 	# ERROR tiene prioridad — muestra error de timbrado aunque sea "retriable"
 	if status == _ERROR:

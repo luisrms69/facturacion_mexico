@@ -1450,15 +1450,18 @@
 				return {}; // Sin filtros
 			});
 
-			frm.set_value("fm_forma_pago_timbrado", "99 - Por definir");
-
-			frappe.show_alert(
-				{
-					message: __("Forma de pago asignada automáticamente: 99 - Por definir"),
-					indicator: "orange",
-				},
-				ALERT_DURATION_DEFAULT
-			);
+			// Only assign and alert if the value is not yet set.
+			// Prevents repeated notice on each refresh of an already stamped PPD.
+			if (frm.doc.fm_forma_pago_timbrado !== "99 - Por definir") {
+				frm.set_value("fm_forma_pago_timbrado", "99 - Por definir");
+				frappe.show_alert(
+					{
+						message: __("Forma de pago asignada automáticamente: 99 - Por definir"),
+						indicator: "orange",
+					},
+					ALERT_DURATION_DEFAULT
+				);
+			}
 		} else if (payment_method === "PUE") {
 			// Para PUE: Mostrar campo y filtrar opciones (sin "99 - Por definir")
 			frm.set_df_property("fm_forma_pago_timbrado", "hidden", 0);
@@ -2622,15 +2625,28 @@ function validate_billing_data_visual(frm) {
 			frm.set_df_property("fm_facturar_venta_mostrador", "hidden", 1);
 			return;
 		}
+		// Guard: skip redundant AJAX if already loaded for this customer.
+		// Reduces frappe.after_ajax → frm.toolbar.refresh() on each refresh.
+		if (frm._vm_loaded_for === frm.doc.customer) return;
+		frm._vm_loaded_for = frm.doc.customer;
+
 		const currentCustomer = frm.doc.customer;
-		frappe.db.get_value("Customer", currentCustomer, "fm_allow_generic_rfc").then((r) => {
-			if (frm.doc.customer !== currentCustomer) return;
-			const allowed = cint(r && r.message && r.message.fm_allow_generic_rfc);
-			frm.set_df_property("fm_facturar_venta_mostrador", "hidden", allowed ? 0 : 1);
-			if (!allowed && cint(frm.doc.fm_facturar_venta_mostrador)) {
-				frm.set_value("fm_facturar_venta_mostrador", 0);
-			}
-		});
+		frappe.db
+			.get_value("Customer", currentCustomer, "fm_allow_generic_rfc")
+			.then((r) => {
+				if (frm.doc.customer !== currentCustomer) {
+					frm._vm_loaded_for = null; // customer changed during load — reset
+					return;
+				}
+				const allowed = cint(r && r.message && r.message.fm_allow_generic_rfc);
+				frm.set_df_property("fm_facturar_venta_mostrador", "hidden", allowed ? 0 : 1);
+				if (!allowed && cint(frm.doc.fm_facturar_venta_mostrador)) {
+					frm.set_value("fm_facturar_venta_mostrador", 0);
+				}
+			})
+			.catch(() => {
+				frm._vm_loaded_for = null; // reset on error so next refresh retries
+			});
 	}
 
 	frappe.ui.form.on("Factura Fiscal Mexico", {

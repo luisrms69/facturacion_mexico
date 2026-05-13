@@ -740,6 +740,23 @@ class TimbradoAPI:
 		# E4.8: Validación completitud payload
 		self._validate_payload_completeness_ro(invoice_data, sales_invoice)
 
+		# Fase 4 Issue #129: Addenda pre-timbrado
+		# render() returns None when SI does not require addenda — payload unchanged
+		# render() raises frappe.throw on config/data error — blocks timbrado
+		from facturacion_mexico.addendas.addenda_service import AddendaService
+
+		addenda_result = AddendaService().render(sales_invoice)
+		if addenda_result is not None:
+			addenda_xml = (addenda_result.get("addenda_xml") or "").strip()
+			if not addenda_xml:
+				frappe.throw(
+					_("La addenda requerida se generó vacía. Revise la configuración del tipo de addenda.")
+				)
+			invoice_data["addenda"] = addenda_xml
+			namespaces = addenda_result.get("namespaces") or []
+			if namespaces:
+				invoice_data["namespaces"] = namespaces
+
 		return invoice_data
 
 	def _get_payment_form_for_invoice(self, sales_invoice) -> str:
