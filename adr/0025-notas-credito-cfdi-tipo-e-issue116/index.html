@@ -20,7 +20,7 @@
     
     
       
-        <title>ADR 0024 — Addendas CFDI pre-timbrado (Issue #129) - Facturación México - Documentación Técnica</title>
+        <title>ADR 0025 — Notas de Crédito CFDI tipo E (Issue #116) - Facturación México - Documentación Técnica</title>
       
     
     
@@ -86,7 +86,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#adr-0024-addendas-cfdi-pre-timbrado-issue-129" class="md-skip">
+        <a href="#adr-0025-notas-de-credito-cfdi-tipo-e-issue-116" class="md-skip">
           Saltar a contenido
         </a>
       
@@ -124,7 +124,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              ADR 0024 — Addendas CFDI pre-timbrado (Issue #129)
+              ADR 0025 — Notas de Crédito CFDI tipo E (Issue #116)
             
           </span>
         </div>
@@ -865,13 +865,85 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Decisión">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cambios-implementados" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cambios implementados
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Cambios implementados">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#fases-implementadas" class="md-nav__link">
+  <a href="#1-uuid-relacionado-obligatorio" class="md-nav__link">
     <span class="md-ellipsis">
-      Fases implementadas
+      1. UUID relacionado obligatorio
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-resolucion-automatica-de-uuid-origen-_find_uuid_cfdi_origen" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Resolución automática de UUID origen — _find_uuid_cfdi_origen()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-tiporelacion-03-para-devoluciones-fisicas" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. TipoRelación 03 para devoluciones físicas
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-formapago-automatica-_auto_populate_forma_pago_tipo_e-provisional" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. FormaPago automática — _auto_populate_forma_pago_tipo_e() (provisional)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-herencia-de-campos-fiscales-desde-ffm-origen-_get_origin_ffm" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Herencia de campos fiscales desde FFM origen — _get_origin_ffm()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-campos-fiscales-read-only-en-tipo-e-_lock_egreso_fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Campos fiscales read-only en tipo E — _lock_egreso_fields()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-sin-addenda-en-tipo-e" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. Sin addenda en tipo E
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#8-montos-absolutos-en-validacion-de-discrepancias" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. Montos absolutos en validación de discrepancias
     </span>
   </a>
   
@@ -892,55 +964,28 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#bug-mayor-pendiente-de-diagnostico" class="md-nav__link">
+  <a href="#pendientes-normativos-no-declarar-el-flujo-como-cerrado" class="md-nav__link">
     <span class="md-ellipsis">
-      ⚠️ BUG MAYOR — Pendiente de diagnóstico
+      Pendientes normativos — NO declarar el flujo como cerrado
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="⚠️ BUG MAYOR — Pendiente de diagnóstico">
+    <nav class="md-nav" aria-label="Pendientes normativos — NO declarar el flujo como cerrado">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#descripcion" class="md-nav__link">
+  <a href="#issue-136-validacion-normativa-completa-tipo-e" class="md-nav__link">
     <span class="md-ellipsis">
-      Descripción
+      Issue #136 — Validación normativa completa tipo E
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#origen-probable" class="md-nav__link">
+  <a href="#issue-137-flujo-tiporelacion-01" class="md-nav__link">
     <span class="md-ellipsis">
-      Origen probable
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#impacto" class="md-nav__link">
-    <span class="md-ellipsis">
-      Impacto
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#estado" class="md-nav__link">
-    <span class="md-ellipsis">
-      Estado
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#hipotesis-a-investigar" class="md-nav__link">
-    <span class="md-ellipsis">
-      Hipótesis a investigar
+      Issue #137 — Flujo TipoRelación 01
     </span>
   </a>
   
@@ -948,6 +993,15 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deuda-tecnica" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deuda técnica
+    </span>
+  </a>
   
 </li>
       
@@ -961,77 +1015,11 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#nota-adicional-2026-05-12-issue-133" class="md-nav__link">
+  <a href="#referencias" class="md-nav__link">
     <span class="md-ellipsis">
-      Nota adicional — 2026-05-12 (Issue #133)
+      Referencias
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Nota adicional — 2026-05-12 (Issue #133)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#problema-colateral-descubierto-fm_sync_status-bloqueaba-el-boton-timbrar" class="md-nav__link">
-    <span class="md-ellipsis">
-      Problema colateral descubierto: fm_sync_status bloqueaba el botón Timbrar
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#nota-adicional-2026-05-1213-pr-134-hardening-coderabbit" class="md-nav__link">
-    <span class="md-ellipsis">
-      Nota adicional — 2026-05-12/13 (PR #134 — hardening CodeRabbit)
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Nota adicional — 2026-05-12/13 (PR #134 — hardening CodeRabbit)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#hardening-post-merge-aplicado" class="md-nav__link">
-    <span class="md-ellipsis">
-      Hardening post-merge aplicado
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#estado-del-bug-mayor-documentado-arriba" class="md-nav__link">
-    <span class="md-ellipsis">
-      Estado del "BUG MAYOR" documentado arriba
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#issue-135-refactor-completo-de-factura_fiscal_mexicojs" class="md-nav__link">
-    <span class="md-ellipsis">
-      Issue #135 — Refactor completo de factura_fiscal_mexico.js
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#estado-final-del-adr" class="md-nav__link">
-    <span class="md-ellipsis">
-      Estado final del ADR
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1050,234 +1038,147 @@
                   
 
 
-<h1 id="adr-0024-addendas-cfdi-pre-timbrado-issue-129">ADR 0024 — Addendas CFDI pre-timbrado (Issue #129)<a class="headerlink" href="#adr-0024-addendas-cfdi-pre-timbrado-issue-129" title="Permanent link">&para;</a></h1>
-<p><strong>Fecha:</strong> 2026-05-12
-<strong>Estado:</strong> Implementado — BUG MAYOR PENDIENTE
+<h1 id="adr-0025-notas-de-credito-cfdi-tipo-e-issue-116">ADR 0025 — Notas de Crédito CFDI tipo E (Issue #116)<a class="headerlink" href="#adr-0025-notas-de-credito-cfdi-tipo-e-issue-116" title="Permanent link">&para;</a></h1>
+<p><strong>Fecha:</strong> 2026-05-13
+<strong>Estado:</strong> Implementado — pendientes normativos documentados (#136, #137)
 <strong>Autor:</strong> Luis Montanaro / Claude Sonnet 4.6</p>
 <hr />
 <h2 id="contexto">Contexto<a class="headerlink" href="#contexto" title="Permanent link">&para;</a></h2>
-<p>Issue #129 requería activar el flujo de addendas CFDI en el sistema. Los campos
-<code>fm_requires_addenda</code> y <code>fm_default_addenda_type</code> en Customer, y sus contrapartes
-en Sales Invoice, existían en fixtures pero estaban completamente desconectados del
-flujo de timbrado.</p>
+<p>Issue #116 requería implementar el flujo completo de emisión de Notas de Crédito
+(CFDI tipo E — Egreso) desde ERPNext. El único camino actualmente soportado es desde
+una Sales Invoice de devolución (<code>is_return=True</code>), que representa devolución física
+de mercancía.</p>
 <hr />
 <h2 id="decision">Decisión<a class="headerlink" href="#decision" title="Permanent link">&para;</a></h2>
-<p>Implementar addendas en modo <strong>pre-timbrado</strong>: la addenda se envía en el payload de
-<code>create_invoice</code> de FacturAPI, antes de sellar el CFDI. El XML devuelto por FacturAPI
-ya incluye <code>&lt;cfdi:Addenda&gt;</code> integrada después de <code>&lt;cfdi:Complemento&gt;</code>.</p>
-<h3 id="fases-implementadas">Fases implementadas<a class="headerlink" href="#fases-implementadas" title="Permanent link">&para;</a></h3>
-<p><strong>Fase 1 — Validación FacturAPI (sandbox)</strong>
-- Confirmado: <code>create_invoice</code> acepta <code>addenda: string&lt;xml&gt;</code> y <code>namespaces: [{prefix, uri}]</code>
-- Formato exacto: array de objetos con <code>prefix</code> y <code>uri</code> — sin <code>name</code> ni <code>schemaLocation</code>
-- XML timbrado contiene <code>&lt;cfdi:Addenda&gt;</code> correctamente posicionada</p>
-<p><strong>Fase 2 — AddendaService neutral</strong>
-- <code>facturacion_mexico/addendas/addenda_service.py</code>
-- <code>render()</code> retorna <code>None</code> si no requiere addenda — payload no se modifica
-- <code>render()</code> lanza <code>frappe.throw</code> si requiere pero config incompleta — bloquea timbrado
-- 19 tests</p>
-<p><strong>Fase 3 — Propagación Customer → Sales Invoice</strong>
-- Hook <code>Sales Invoice.validate</code> propaga <code>fm_requires_addenda</code> y <code>fm_default_addenda_type</code>
-- Solo propaga si el campo en SI está vacío (respeta overrides manuales)
-- No bloquea guardado de draft
-- 10 tests</p>
-<p><strong>Fase 3 UI — Campos editables en draft</strong>
-- <code>fm_addenda_section</code>: visible cuando hay customer (no solo en submitted)
-- <code>fm_addenda_required</code> y <code>fm_addenda_type</code>: editables en draft, read-only en submit
-- Fixture: <code>read_only=0</code>, <code>allow_on_submit=0</code>, <code>read_only_depends_on=eval:doc.docstatus != 0</code></p>
-<p><strong>Fase 4 — Pre-timbrado en payload</strong>
-- <code>_prepare_facturapi_data()</code> en <code>timbrado_api.py</code>
-- Si <code>render()</code> retorna <code>None</code>: payload intacto, sin llaves <code>addenda</code> ni <code>namespaces</code>
-- Si <code>render()</code> retorna dict: agrega <code>addenda</code> y opcionalmente <code>namespaces</code>
-- 8 tests</p>
+<p>Implementar el flujo mínimo necesario para que las notas de crédito timbren
+correctamente como CFDI tipo E, partiendo de la infraestructura existente en
+<code>Factura Fiscal Mexico</code> (mismo DocType que tipo I).</p>
+<p><strong>Nota:</strong> El uso del mismo DocType introduce complejidad. Se ha documentado como
+deuda técnica (Issue #135 — refactor FFM JS) y la complejidad creció durante esta
+implementación. Se recomienda evaluar DocType separado para tipo E en versiones futuras.</p>
+<hr />
+<h2 id="cambios-implementados">Cambios implementados<a class="headerlink" href="#cambios-implementados" title="Permanent link">&para;</a></h2>
+<h3 id="1-uuid-relacionado-obligatorio">1. UUID relacionado obligatorio<a class="headerlink" href="#1-uuid-relacionado-obligatorio" title="Permanent link">&para;</a></h3>
+<p>Guard bloqueante en <code>_prepare_facturapi_data()</code> antes de enviar a FacturAPI:</p>
+<div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="n">invoice_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;E&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">uuid_relacionado</span><span class="p">:</span>
+    <span class="n">frappe</span><span class="o">.</span><span class="n">throw</span><span class="p">(</span><span class="s2">&quot;No se puede timbrar la Nota de Crédito: falta el UUID del CFDI origen relacionado.&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p><code>related_documents</code> se garantiza siempre — no se omite silenciosamente.</p>
+<h3 id="2-resolucion-automatica-de-uuid-origen-_find_uuid_cfdi_origen">2. Resolución automática de UUID origen — <code>_find_uuid_cfdi_origen()</code><a class="headerlink" href="#2-resolucion-automatica-de-uuid-origen-_find_uuid_cfdi_origen" title="Permanent link">&para;</a></h3>
+<p>Dos rutas:
+1. <code>Sales Invoice.fm_factura_fiscal_mx</code> → <code>Factura Fiscal Mexico.fm_uuid</code> (ruta rápida)
+2. Query directa en <code>Factura Fiscal Mexico</code> por <code>sales_invoice=return_against</code> y <code>status=TIMBRADO</code> (fallback)</p>
+<h3 id="3-tiporelacion-03-para-devoluciones-fisicas">3. TipoRelación 03 para devoluciones físicas<a class="headerlink" href="#3-tiporelacion-03-para-devoluciones-fisicas" title="Permanent link">&para;</a></h3>
+<p>Toda nota de crédito generada desde Sales Invoice <code>is_return=True</code> usa <code>TipoRelación = 03</code>
+(Devolución de mercancía sobre facturas o traslados previos).</p>
+<p>TipoRelación 01 (descuentos, bonificaciones) es un flujo distinto — Issue #137.</p>
+<h3 id="4-formapago-automatica-_auto_populate_forma_pago_tipo_e-provisional">4. FormaPago automática — <code>_auto_populate_forma_pago_tipo_e()</code> <em>(provisional)</em><a class="headerlink" href="#4-formapago-automatica-_auto_populate_forma_pago_tipo_e-provisional" title="Permanent link">&para;</a></h3>
+<p>Fuente única de verdad para FormaPago en tipo E, basada en <code>outstanding_amount</code> de la SI origen:</p>
+<div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="n">nota_total</span> <span class="o">&lt;=</span> <span class="n">outstanding_origen</span><span class="p">:</span>   <span class="c1"># factura no pagada</span>
+    <span class="n">forma_pago</span> <span class="o">=</span> <span class="s2">&quot;15 - Condonación&quot;</span>
+<span class="k">elif</span> <span class="n">outstanding_origen</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>          <span class="c1"># factura pagada</span>
+    <span class="n">forma_pago</span> <span class="o">=</span> <span class="n">hereda</span> <span class="n">de</span> <span class="n">FFM</span> <span class="n">origen</span>  <span class="c1"># proxy; pendiente Issue #136</span>
+<span class="k">else</span><span class="p">:</span>                                  <span class="c1"># caso mixto</span>
+    <span class="n">forma_pago</span> <span class="o">=</span> <span class="s2">&quot;15 - Condonación&quot;</span>   <span class="c1"># safe default</span>
+</code></pre></div>
+<p><strong>Provisional:</strong> el caso <code>outstanding=0</code> puede representar "saldo a favor" (sin reembolso real)
+o reembolso efectivo. La distinción requiere validación con despacho contable. Ver Issue #136.</p>
+<h3 id="5-herencia-de-campos-fiscales-desde-ffm-origen-_get_origin_ffm">5. Herencia de campos fiscales desde FFM origen — <code>_get_origin_ffm()</code><a class="headerlink" href="#5-herencia-de-campos-fiscales-desde-ffm-origen-_get_origin_ffm" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>fm_facturar_venta_mostrador</code> heredado del origen — sin override manual</li>
+<li><code>fm_payment_method_sat</code> del origen usado para determinar FormaPago</li>
+</ul>
+<h3 id="6-campos-fiscales-read-only-en-tipo-e-_lock_egreso_fields">6. Campos fiscales read-only en tipo E — <code>_lock_egreso_fields()</code><a class="headerlink" href="#6-campos-fiscales-read-only-en-tipo-e-_lock_egreso_fields" title="Permanent link">&para;</a></h3>
+<p>JS bloquea en cada refresh:
+<code>sales_invoice</code>, <code>company</code>, <code>fm_payment_method_sat</code>, <code>fm_forma_pago_timbrado</code>,
+<code>fm_facturar_venta_mostrador</code>, <code>fm_tipo_relacion_sat</code>, <code>fm_uuid_relacionado</code>.</p>
+<p>El operador no puede customizar datos fiscales en una nota de crédito.</p>
+<h3 id="7-sin-addenda-en-tipo-e">7. Sin addenda en tipo E<a class="headerlink" href="#7-sin-addenda-en-tipo-e" title="Permanent link">&para;</a></h3>
+<p><code>AddendaService.render()</code> se salta para CFDI tipo E. La propagación de addenda
+también se excluye para Sales Invoice <code>is_return=True</code>.</p>
+<h3 id="8-montos-absolutos-en-validacion-de-discrepancias">8. Montos absolutos en validación de discrepancias<a class="headerlink" href="#8-montos-absolutos-en-validacion-de-discrepancias" title="Permanent link">&para;</a></h3>
+<p><code>_validate_amount_discrepancies()</code> usa <code>abs()</code> en totales ERPNext para manejar
+las cantidades negativas propias de las SIs de devolución.</p>
 <hr />
 <h2 id="validacion-realizada">Validación realizada<a class="headerlink" href="#validacion-realizada" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th>Prueba</th>
-<th>Resultado</th>
+<th>Caso</th>
+<th>Origen</th>
+<th>outstanding</th>
+<th>FormaPago resultante</th>
+<th>TipoRelación</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Customer con addenda → SI propaga flags</td>
-<td>PASS</td>
+<td>FFMX-2026-00025</td>
+<td>PPD / no pagada</td>
+<td>&gt; 0</td>
+<td>15 - Condonación</td>
+<td>03</td>
 </tr>
 <tr>
-<td>Override manual en SI draft</td>
-<td>PASS</td>
+<td>FFMX-2026-00027</td>
+<td>PPD / no pagada</td>
+<td>&gt; 0</td>
+<td>15 - Condonación</td>
+<td>03</td>
 </tr>
 <tr>
-<td>Timbrado con addenda (Liverpool, Ecoeficiencia)</td>
-<td>PASS — <code>&lt;cfdi:Addenda&gt;</code> en XML</td>
-</tr>
-<tr>
-<td>Timbrado sin addenda (VENTA MOSTRADOR)</td>
-<td>PASS — XML limpio, sin <code>&lt;Addenda&gt;</code></td>
+<td>FFMX-2026-00028</td>
+<td>PPD / no pagada</td>
+<td>&gt; 0</td>
+<td>15 - Condonación</td>
+<td>03</td>
 </tr>
 </tbody>
 </table>
+<p>Todos timbrados exitosamente en sandbox FacturAPI.</p>
 <hr />
-<h2 id="bug-mayor-pendiente-de-diagnostico">⚠️ BUG MAYOR — Pendiente de diagnóstico<a class="headerlink" href="#bug-mayor-pendiente-de-diagnostico" title="Permanent link">&para;</a></h2>
-<h3 id="descripcion">Descripción<a class="headerlink" href="#descripcion" title="Permanent link">&para;</a></h3>
-<p>Durante las pruebas de validación GUI post-Fase 4, se detectó el siguiente
-comportamiento anómalo en el flujo principal de timbrado:</p>
-<ol>
-<li>
-<p><strong>Botón "Timbrar Factura" desaparece en FFM</strong> después de navegar desde SI.
-   Solo reaparece navegando varias veces entre SI y FFM. Comportamiento intermitente.</p>
-</li>
-<li>
-<p><strong>SI submitted aparece como editable</strong> después de un timbrado. El botón
-   "Timbrar Factura" reaparece en SI (no debería — ya está timbrada).</p>
-</li>
-<li>
-<p><strong>Error "Field not permitted in query: fm_fiscal_status"</strong> al intentar
-   timbrar de nuevo desde SI en ese estado.</p>
-</li>
-<li>
-<p><strong>FFM queda en "Operación en Progreso"</strong> — el timbrado inicia pero
-   <code>_process_timbrado_success</code> falla o no completa correctamente.</p>
-</li>
-</ol>
-<h3 id="origen-probable">Origen probable<a class="headerlink" href="#origen-probable" title="Permanent link">&para;</a></h3>
-<p>El bug se originó en <strong>Fase 3 UI o Fase 4</strong>, confirmado por el usuario.
-Candidatos probables:</p>
+<h2 id="pendientes-normativos-no-declarar-el-flujo-como-cerrado">Pendientes normativos — NO declarar el flujo como cerrado<a class="headerlink" href="#pendientes-normativos-no-declarar-el-flujo-como-cerrado" title="Permanent link">&para;</a></h2>
+<h3 id="issue-136-validacion-normativa-completa-tipo-e">Issue #136 — Validación normativa completa tipo E<a class="headerlink" href="#issue-136-validacion-normativa-completa-tipo-e" title="Permanent link">&para;</a></h3>
 <ul>
-<li>
-<p><code>fm_addenda_required</code> y <code>fm_addenda_type</code> con <code>read_only=0, allow_on_submit=0</code>
-  en SI submitted pueden causar que Frappe trate el documento como editable,
-  interfiriendo con la lógica del fiscal_state y el botón timbrar.</p>
-</li>
-<li>
-<p>La llamada a <code>AddendaService().render(sales_invoice)</code> en <code>_prepare_facturapi_data()</code>
-  podría tener un side effect no anticipado sobre el estado del documento.</p>
-</li>
+<li><strong>FormaPago cuando outstanding=0:</strong> ¿"saldo a favor" usa 15 o la forma real del reembolso?
+  Pendiente validación con despacho contable.</li>
+<li><strong>Pagos parciales mezclados:</strong> nota que excede outstanding parcialmente — requiere
+  política de negocio explícita.</li>
+<li><strong>Addenda en tipo E por cliente:</strong> actualmente excluida globalmente. ¿Algunos clientes
+  (Liverpool, Walmart) la requieren?</li>
 </ul>
-<h3 id="impacto">Impacto<a class="headerlink" href="#impacto" title="Permanent link">&para;</a></h3>
-<p><strong>CRÍTICO</strong> — Afecta el flujo principal de timbrado del sistema.
-FFM puede quedar en estado "Operación en Progreso" (bloqueada) sin completar.</p>
-<h3 id="estado">Estado<a class="headerlink" href="#estado" title="Permanent link">&para;</a></h3>
-<p><strong>Sin resolver.</strong> Se documenta aquí para trazabilidad.
-No avanzar a Fase 5 ni a producción sin resolver este bug.</p>
-<h3 id="hipotesis-a-investigar">Hipótesis a investigar<a class="headerlink" href="#hipotesis-a-investigar" title="Permanent link">&para;</a></h3>
-<ol>
-<li>
-<p><code>allow_on_submit=0</code> + <code>read_only=0</code> en campos addenda → Frappe trata SI como
-   editable después de submit → interfiere con <code>get_fiscal_ui_state()</code>.</p>
-</li>
-<li>
-<p>Error en <code>_process_timbrado_success</code> al actualizar SI con <code>frappe.set_value</code>
-   cuando la SI está en estado "pseudo-editable" por los campos addenda.</p>
-</li>
-<li>
-<p>Race condition en JS: <code>get_fiscal_ui_state</code> retorna estado incorrecto en primera
-   carga de FFM.</p>
-</li>
-</ol>
+<h3 id="issue-137-flujo-tiporelacion-01">Issue #137 — Flujo TipoRelación 01<a class="headerlink" href="#issue-137-flujo-tiporelacion-01" title="Permanent link">&para;</a></h3>
+<p>Descuentos, bonificaciones y ajustes comerciales sin devolución física → TipoRelación 01.
+No existe flujo en ERPNext para este caso actualmente.</p>
+<hr />
+<h2 id="deuda-tecnica">Deuda técnica<a class="headerlink" href="#deuda-tecnica" title="Permanent link">&para;</a></h2>
+<ul>
+<li>El FFM fue diseñado para tipo I. Tipo E se implementó como excepción en múltiples
+  puntos del código (guards dispersos en JS, Python y validaciones). Un DocType
+  separado para notas de crédito sería más limpio. Issue #135.</li>
+<li><code>_auto_populate_forma_pago_tipo_e()</code> es provisional hasta resolver Issue #136.</li>
+<li>Los guards JS en <code>_lock_egreso_fields()</code> son necesarios porque otras funciones
+  del refresh sobreescriben los <code>read_only</code>. Síntoma del diseño acumulativo del FFM.</li>
+</ul>
 <hr />
 <h2 id="consecuencias">Consecuencias<a class="headerlink" href="#consecuencias" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Addendas pre-timbrado funcionan correctamente en condiciones normales</li>
-<li>El bug de campos addenda (<code>allow_on_submit</code>) debe resolverse antes de despliegue</li>
-<li>Issue #132 (campos legacy <code>fm_addenda_status/xml/errors/date</code>) sigue pendiente de análisis</li>
+<li>Notas de crédito por devolución física timbran correctamente como CFDI tipo E</li>
+<li>UUID relacionado y <code>related_documents</code> garantizados normativamente</li>
+<li>FormaPago determinada automáticamente (regla provisional)</li>
+<li>Campos fiscales inmutables en tipo E desde UI</li>
+<li>Issue #116 cerrado funcionalmente — pendientes normativos en #136 y #137</li>
 </ul>
 <hr />
-<h2 id="nota-adicional-2026-05-12-issue-133">Nota adicional — 2026-05-12 (Issue #133)<a class="headerlink" href="#nota-adicional-2026-05-12-issue-133" title="Permanent link">&para;</a></h2>
-<h3 id="problema-colateral-descubierto-fm_sync_status-bloqueaba-el-boton-timbrar">Problema colateral descubierto: fm_sync_status bloqueaba el botón Timbrar<a class="headerlink" href="#problema-colateral-descubierto-fm_sync_status-bloqueaba-el-boton-timbrar" title="Permanent link">&para;</a></h3>
-<p>Durante las pruebas de validación de esta rama (<code>feature/issue129-addendas</code>) se descubrió
-un bug en la capa <code>fiscal_state</code> (introducido en PR #122, ADR 0021) que impedía el flujo
-de timbrado de forma independiente al bug de addendas documentado arriba.</p>
-<p><strong>Síntoma:</strong> Toda FFM recién creada mostraba "Operación en progreso" y el botón Timbrar
-no aparecía — incluso en FFMs sin ninguna operación PAC activa.</p>
-<p><strong>Causa:</strong> <code>fm_sync_status = "pending"</code> es el valor default del campo en el DocType.
-<code>_compute_actions</code> bloqueaba <code>can_stamp</code> con <code>not facts["sync_pending"]</code>, lo que afectaba
-a toda FFM nueva hasta que el scheduler <code>bulk_sync_invoices</code> corría (hasta 5 minutos).</p>
-<p><strong>Corrección aplicada en esta rama:</strong>
-- <code>can_stamp</code> ya no depende de <code>fm_sync_status</code>
-- El mensaje de "Operación en progreso" solo aparece cuando hay UUID/facturapi_id activo
-- El scheduler <code>bulk_sync_invoices</code> se conserva como red de seguridad</p>
-<p><strong>Validación final (2026-05-12):</strong>
-- FFMX-2026-00022 (VENTA MOSTRADOR, sin addenda): XML limpio ✓
-- FFMX-2026-00023 (Ecoeficiencia, addenda Generic): XML con <code>&lt;cfdi:Addenda&gt;</code> ✓
-- Botón Timbrar aparece inmediatamente en FFMs nuevas ✓</p>
-<p><strong>Refactor completo pendiente:</strong> Issue #133 — limpieza de <code>fm_sync_status</code>,
-<code>bulk_sync_invoices</code>, <code>try/except</code> silencioso en <code>update_sales_invoice_fiscal_info</code>.</p>
-<hr />
-<h2 id="nota-adicional-2026-05-1213-pr-134-hardening-coderabbit">Nota adicional — 2026-05-12/13 (PR #134 — hardening CodeRabbit)<a class="headerlink" href="#nota-adicional-2026-05-1213-pr-134-hardening-coderabbit" title="Permanent link">&para;</a></h2>
-<h3 id="hardening-post-merge-aplicado">Hardening post-merge aplicado<a class="headerlink" href="#hardening-post-merge-aplicado" title="Permanent link">&para;</a></h3>
-<p>Tras la revisión de CodeRabbit en PR #134, se aplicaron 7 fixes en commit <code>f529654</code>:</p>
-<table>
-<thead>
-<tr>
-<th>Fix</th>
-<th>Descripción</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>M1</td>
-<td><code>validate_required_data</code> — rechazaba <code>0</code>/<code>False</code> válidos como "faltante"</td>
-</tr>
-<tr>
-<td>M2</td>
-<td><code>_derive_prefix</code> — prefix XML puede empezar con dígito (inválido en XSD 1.0)</td>
-</tr>
-<tr>
-<td>N1</td>
-<td><code>timbrado_api</code> — <code>.get()</code> seguro + guard contra <code>addenda_xml</code> vacío</td>
-</tr>
-<tr>
-<td>O1</td>
-<td><code>_update_venta_mostrador_visibility</code> — no reseteaba cache en error de red</td>
-</tr>
-<tr>
-<td>N2-N5</td>
-<td>Comentarios técnicos traducidos a inglés en 4 archivos</td>
-</tr>
-</tbody>
-</table>
-<p>Diferidos: M3 (refactor test helper), T1 (nitpick MagicMock sin bug real), D1 (markdown lint en docs internos).</p>
-<h3 id="estado-del-bug-mayor-documentado-arriba">Estado del "BUG MAYOR" documentado arriba<a class="headerlink" href="#estado-del-bug-mayor-documentado-arriba" title="Permanent link">&para;</a></h3>
-<p>La sección "BUG MAYOR — Pendiente de diagnóstico" describía tres problemas. Estado actualizado:</p>
-<table>
-<thead>
-<tr>
-<th>Problema</th>
-<th>Estado</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Botón Timbrar bloqueado en FFMs nuevas (<code>fm_sync_status</code>)</td>
-<td>✅ Resuelto — Issue #133, PR #134</td>
-</tr>
-<tr>
-<td>Botón Timbrar desaparece intermitentemente en navegación SI↔FFM</td>
-<td>⏳ Pendiente — Issue #135 (refactor JS)</td>
-</tr>
-<tr>
-<td>Error "Field not permitted in query: fm_fiscal_status"</td>
-<td>⏳ Pendiente diagnóstico</td>
-</tr>
-<tr>
-<td>FFM queda en "Operación en Progreso"</td>
-<td>⏳ Relacionado con el bug JS — Issue #135</td>
-</tr>
-</tbody>
-</table>
-<h3 id="issue-135-refactor-completo-de-factura_fiscal_mexicojs">Issue #135 — Refactor completo de factura_fiscal_mexico.js<a class="headerlink" href="#issue-135-refactor-completo-de-factura_fiscal_mexicojs" title="Permanent link">&para;</a></h3>
-<p>El archivo <code>factura_fiscal_mexico.js</code> tiene 2709 líneas y múltiples problemas estructurales
-detectados durante esta implementación. Se creó Issue #135 para rastrear el rediseño completo.
-El bug del botón Timbrar que desaparece es consecuencia directa de la arquitectura actual del archivo.</p>
-<h3 id="estado-final-del-adr">Estado final del ADR<a class="headerlink" href="#estado-final-del-adr" title="Permanent link">&para;</a></h3>
-<p><strong>Estado:</strong> Implementado parcialmente — Fases 1-4 en PR #134.
-<strong>Pendientes de esta decisión:</strong>
-- Fase 5: smoke test de attachments/descarga con addenda (post-merge, sin código nuevo)
-- Fase 6: post-timbrado manual (Issue separado, futuro)
-- Issue #132: campos legacy <code>fm_addenda_status/xml/errors/date</code>
-- Issue #133: refactor <code>fm_sync_status</code>
-- Issue #135: rediseño <code>factura_fiscal_mexico.js</code></p>
+<h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Issue #116 — feat(tipo-e): Notas de crédito CFDI tipo E</li>
+<li>Issue #136 — validación normativa SAT pendiente para CFDI tipo E</li>
+<li>Issue #137 — flujo nota de crédito TipoRelación 01</li>
+<li>Issue #135 — refactor FFM JS</li>
+<li>ADR 0024 — addendas pre-timbrado (contexto del FFM)</li>
+<li><code>docs/development/REPORTE_NORMATIVA_NOTA_CREDITO_PENDIENTES.md</code></li>
+</ul>
 
 
 
