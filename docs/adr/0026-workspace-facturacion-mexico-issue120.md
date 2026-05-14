@@ -19,7 +19,7 @@ que difiere significativamente de Frappe v15.
 
 Un workspace en una app custom requiere tres archivos distintos:
 
-```
+```text
 <app>/<módulo>/workspace/<name>/<name>.json     ← Workspace principal
 <app>/desktop_icon/<scrubbed_name>.json         ← Icono en el Desktop
 <app>/workspace_sidebar/<scrubbed_name>.json    ← Sidebar de navegación
