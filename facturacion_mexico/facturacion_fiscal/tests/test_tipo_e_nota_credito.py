@@ -15,11 +15,10 @@ import frappe
 from frappe import _
 from frappe.tests.utils import FrappeTestCase
 
-
 # ── helpers ──────────────────────────────────────────────────────────────────
 
 
-def _mock_ffm(fm_tipo_comprobante="E - Egreso", fm_uuid_relacionado="", fm_tipo_relacion_sat="01"):
+def _mock_ffm(fm_tipo_comprobante="E - Egreso", fm_uuid_relacionado="", fm_tipo_relacion_sat="03"):
 	ffm = MagicMock()
 	_data = {
 		"fm_tipo_comprobante": fm_tipo_comprobante,
@@ -87,14 +86,14 @@ class TestTipoEGuard(FrappeTestCase):
 		self.assertIn("UUID", str(ctx.exception))
 
 	def test_tipo_e_con_uuid_incluye_related_documents(self):
-		"""CFDI tipo E con UUID válido → related_documents en payload con relación 01."""
+		"""CFDI tipo E con UUID válido → related_documents en payload con relación 03 (devolución física)."""
 		test_uuid = "550E8400-E29B-41D4-A716-446655440000"
 		result = self._run_tipo_e_block(uuid_relacionado=test_uuid)
 
 		self.assertIn("related_documents", result)
 		docs = result["related_documents"]
 		self.assertEqual(len(docs), 1)
-		self.assertEqual(docs[0]["relationship"], "01")
+		self.assertEqual(docs[0]["relationship"], "03")
 		self.assertIn(test_uuid, docs[0]["documents"])
 
 

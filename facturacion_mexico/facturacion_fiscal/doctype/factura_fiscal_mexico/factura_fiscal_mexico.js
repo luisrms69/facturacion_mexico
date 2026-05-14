@@ -794,8 +794,8 @@
 		// Validaciones específicas de datos fiscales
 
 		// Tipo E: payment form is inherited from origin — skip client validation
-		const is_egreso_save = (frm.doc.fm_tipo_comprobante || "").startsWith("E");
-		if (!is_egreso_save && frm.doc.fm_payment_method_sat === "PUE") {
+		const is_egreso = (frm.doc.fm_tipo_comprobante || "").startsWith("E");
+		if (!is_egreso && frm.doc.fm_payment_method_sat === "PUE") {
 			if (
 				!frm.doc.fm_forma_pago_timbrado ||
 				frm.doc.fm_forma_pago_timbrado.startsWith("99 -")
@@ -1249,7 +1249,9 @@
 		// For tipo E (credit notes), lock all fields that must not be customized.
 		// Called last in refresh + after async settlement to survive any override.
 		if (!(frm.doc.fm_tipo_comprobante || "").startsWith("E")) return;
-		const lock = (f) => frm.set_df_property(f, "read_only", 1);
+		const lock = (f) => {
+			if (frm.get_field(f)) frm.set_df_property(f, "read_only", 1);
+		};
 		lock("sales_invoice");
 		lock("company");
 		lock("fm_payment_method_sat");

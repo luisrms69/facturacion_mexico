@@ -294,7 +294,7 @@ class FacturaFiscalMexico(Document):
 			self.fm_uuid_relacionado = None
 
 	def _get_origin_ffm(self) -> dict | None:
-		"""Return key fields from the original FFM for this credit note."""
+		"""Devolver campos clave de la FFM original para esta nota de crédito."""
 		if not self.sales_invoice:
 			return None
 		return_against = frappe.db.get_value("Sales Invoice", self.sales_invoice, "return_against")
@@ -325,13 +325,13 @@ class FacturaFiscalMexico(Document):
 		}
 
 	def _auto_populate_forma_pago_tipo_e(self) -> None:
-		"""Determine FormaPago for CFDI tipo E based on origin SI outstanding_amount.
+		"""Determinar FormaPago para CFDI tipo E con base en el outstanding_amount de la SI origen.
 
-		Single source of truth — normative rule (Issue #116):
-		  nota_total <= outstanding_origen → 15 Condonación (reduces pending debt)
-		  outstanding_origen == 0          → inherit origin FFM payment form (paid invoice)
-		  mixed case                       → 15 Condonación as safe default pending
-		                                     clarification on saldo-a-favor vs real refund
+		Única fuente de verdad — regla normativa (Issue #116):
+		  nota_total <= outstanding_origen → 15 Condonación (reduce deuda pendiente)
+		  outstanding_origen == 0          → hereda forma de pago de la FFM origen (factura pagada)
+		  caso mixto                       → 15 Condonación como default seguro mientras se
+		                                     clarifica saldo-a-favor vs devolución real (Issue #136).
 		"""
 		if not self.sales_invoice:
 			return
@@ -351,24 +351,22 @@ class FacturaFiscalMexico(Document):
 		elif origin_outstanding == 0:
 			# Origin fully paid — inherit origin payment form as best available proxy.
 			# Pending ChatGPT clarification: saldo-a-favor vs real refund (Issue #136).
-			origin_ffm_name = frappe.db.get_value("Sales Invoice", return_against, "fm_factura_fiscal_mx")
-			if origin_ffm_name:
-				self.fm_forma_pago_timbrado = (
-					frappe.db.get_value("Factura Fiscal Mexico", origin_ffm_name, "fm_forma_pago_timbrado")
-					or ""
-				)
+			# Reuse _get_origin_ffm() for consistent two-step fallback lookup.
+			origin_ffm = self._get_origin_ffm()
+			if origin_ffm:
+				self.fm_forma_pago_timbrado = origin_ffm.get("fm_forma_pago_timbrado") or ""
 		else:
 			# Mixed case: nota exceeds pending debt partially.
 			# Use 15 as safe default pending business policy definition.
 			self.fm_forma_pago_timbrado = "15 - Condonación"
 
 	def _find_uuid_cfdi_origen(self) -> str | None:
-		"""Find UUID of the original CFDI for this credit note.
+		"""Buscar el UUID del CFDI original para esta nota de crédito.
 
-		Two-step lookup:
-		  1. Via Sales Invoice.fm_factura_fiscal_mx (fast, field-based)
-		  2. Fallback: query Factura Fiscal Mexico where sales_invoice = return_against
-		     and status is TIMBRADO (robust when the link field is not populated)
+		Búsqueda en dos pasos:
+		  1. Vía Sales Invoice.fm_factura_fiscal_mx (rápida, basada en campo)
+		  2. Fallback: consulta Factura Fiscal Mexico donde sales_invoice = return_against
+		     y status es TIMBRADO (robusto cuando el campo link no está poblado).
 		"""
 		if not self.sales_invoice:
 			return None

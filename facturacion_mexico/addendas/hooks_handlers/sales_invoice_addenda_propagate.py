@@ -18,8 +18,8 @@ from frappe.utils import cint
 def propagate_addenda_from_customer(doc, method=None):
 	"""Hook Sales Invoice.validate — propaga flags de addenda desde Customer.
 
-	Credit notes (is_return=1) are excluded: addenda on return invoices is not
-	standard practice and requires explicit configuration if needed.
+	Las notas de crédito (is_return=1) se excluyen: la addenda en facturas de
+	devolución no es práctica estándar y requiere configuración explícita.
 	"""
 	if not doc.customer:
 		return
