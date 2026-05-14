@@ -87,7 +87,8 @@
    "label": "Factura de Venta",
    "options": "Sales Invoice",
    "reqd": 1,
-   "search_index": 1
+   "search_index": 1,
+   "read_only": 1
   },
   {
    "fieldname": "company",

@@ -16,8 +16,16 @@ from frappe.utils import cint
 
 
 def propagate_addenda_from_customer(doc, method=None):
-	"""Hook Sales Invoice.validate — propaga flags de addenda desde Customer."""
+	"""Hook Sales Invoice.validate — propaga flags de addenda desde Customer.
+
+	Credit notes (is_return=1) are excluded: addenda on return invoices is not
+	standard practice and requires explicit configuration if needed.
+	"""
 	if not doc.customer:
+		return
+
+	# Return invoices (notas de crédito) do not inherit addenda from customer
+	if cint(doc.get("is_return")):
 		return
 
 	customer_requires = cint(frappe.db.get_value("Customer", doc.customer, "fm_requires_addenda") or 0)

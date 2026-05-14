@@ -2,7 +2,7 @@ import frappe
 from frappe import _
 from frappe.contacts.doctype.address.address import get_address_display
 from frappe.model.document import Document
-from frappe.utils import flt, now_datetime
+from frappe.utils import cint, flt, now_datetime
 
 from facturacion_mexico.sat.constants import TIPO_COMPROBANTE, TIPO_RELACION, parse_select_code
 
@@ -275,21 +275,123 @@ class FacturaFiscalMexico(Document):
 		"""Establecer tipo automáticamente según contexto."""
 		if self._is_sales_invoice_return():
 			self.fm_tipo_comprobante = "E - Egreso"
-			# autollenar relación
-			self.fm_tipo_relacion_sat = self.fm_tipo_relacion_sat or "01 - " + TIPO_RELACION["01"]
+			self.fm_payment_method_sat = "PUE"  # SAT: PPD not allowed on credit notes
 			self.fm_uuid_relacionado = self.fm_uuid_relacionado or self._find_uuid_cfdi_origen()
-			self.fm_payment_method_sat = "PUE"  # SAT no permite PPD en notas de crédito
+
+			# Physical merchandise return → TipoRelación 03 (normative, Issue #116).
+			# TipoRelación 01 (discounts/bonifications) is a separate flow — Issue #137.
+			self.fm_tipo_relacion_sat = self.fm_tipo_relacion_sat or "03 - " + TIPO_RELACION["03"]
+
+			# Inherit venta-mostrador flag from origin — no customization allowed.
+			# FormaPago for tipo E is determined in auto_load_payment_method_from_sales_invoice()
+			# based on outstanding_amount of origin SI (single source of truth).
+			origin_ffm = self._get_origin_ffm()
+			if origin_ffm:
+				self.fm_facturar_venta_mostrador = cint(origin_ffm.get("fm_facturar_venta_mostrador", 0))
 		else:
 			self.fm_tipo_comprobante = "I - Ingreso"
 			self.fm_tipo_relacion_sat = None
 			self.fm_uuid_relacionado = None
 
+	def _get_origin_ffm(self) -> dict | None:
+		"""Return key fields from the original FFM for this credit note."""
+		if not self.sales_invoice:
+			return None
+		return_against = frappe.db.get_value("Sales Invoice", self.sales_invoice, "return_against")
+		if not return_against:
+			return None
+		ffm_name = frappe.db.get_value("Sales Invoice", return_against, "fm_factura_fiscal_mx")
+		if not ffm_name:
+			ffm_name = frappe.db.get_value(
+				"Factura Fiscal Mexico",
+				{"sales_invoice": return_against, "status": "TIMBRADO"},
+				"name",
+				order_by="creation desc",
+			)
+		if not ffm_name:
+			return None
+		# Use separate calls to avoid potential as_dict+list-field issues in Frappe v16
+		forma_pago = frappe.db.get_value("Factura Fiscal Mexico", ffm_name, "fm_forma_pago_timbrado") or ""
+		venta_mostrador = cint(
+			frappe.db.get_value("Factura Fiscal Mexico", ffm_name, "fm_facturar_venta_mostrador") or 0
+		)
+		payment_method = (
+			frappe.db.get_value("Factura Fiscal Mexico", ffm_name, "fm_payment_method_sat") or "PUE"
+		)
+		return {
+			"fm_forma_pago_timbrado": forma_pago,
+			"fm_facturar_venta_mostrador": venta_mostrador,
+			"fm_payment_method_sat": payment_method,
+		}
+
+	def _auto_populate_forma_pago_tipo_e(self) -> None:
+		"""Determine FormaPago for CFDI tipo E based on origin SI outstanding_amount.
+
+		Single source of truth — normative rule (Issue #116):
+		  nota_total <= outstanding_origen → 15 Condonación (reduces pending debt)
+		  outstanding_origen == 0          → inherit origin FFM payment form (paid invoice)
+		  mixed case                       → 15 Condonación as safe default pending
+		                                     clarification on saldo-a-favor vs real refund
+		"""
+		if not self.sales_invoice:
+			return
+		si = frappe.get_doc("Sales Invoice", self.sales_invoice)
+		return_against = si.get("return_against")
+		if not return_against:
+			return
+
+		origin_si = frappe.get_doc("Sales Invoice", return_against)
+		origin_outstanding = flt(origin_si.outstanding_amount)
+		nota_total = abs(flt(si.grand_total))
+
+		if nota_total <= origin_outstanding:
+			# Credit fully absorbed by pending debt — no real refund
+			self.fm_forma_pago_timbrado = "15 - Condonación"
+
+		elif origin_outstanding == 0:
+			# Origin fully paid — inherit origin payment form as best available proxy.
+			# Pending ChatGPT clarification: saldo-a-favor vs real refund (Issue #136).
+			origin_ffm_name = frappe.db.get_value("Sales Invoice", return_against, "fm_factura_fiscal_mx")
+			if origin_ffm_name:
+				self.fm_forma_pago_timbrado = (
+					frappe.db.get_value("Factura Fiscal Mexico", origin_ffm_name, "fm_forma_pago_timbrado")
+					or ""
+				)
+		else:
+			# Mixed case: nota exceeds pending debt partially.
+			# Use 15 as safe default pending business policy definition.
+			self.fm_forma_pago_timbrado = "15 - Condonación"
+
 	def _find_uuid_cfdi_origen(self) -> str | None:
-		"""Buscar UUID del CFDI original."""
-		# TODO: Implementar lógica que busque el UUID del CFDI original
-		# 1) FFM relacionado a la SI origen, o
-		# 2) Campo en la Sales Invoice original.
-		return getattr(self, "uuid_origen", None)
+		"""Find UUID of the original CFDI for this credit note.
+
+		Two-step lookup:
+		  1. Via Sales Invoice.fm_factura_fiscal_mx (fast, field-based)
+		  2. Fallback: query Factura Fiscal Mexico where sales_invoice = return_against
+		     and status is TIMBRADO (robust when the link field is not populated)
+		"""
+		if not self.sales_invoice:
+			return None
+
+		return_against = frappe.db.get_value("Sales Invoice", self.sales_invoice, "return_against")
+		if not return_against:
+			return None
+
+		# Route 1: via fm_factura_fiscal_mx field on origin SI
+		ffm_name = frappe.db.get_value("Sales Invoice", return_against, "fm_factura_fiscal_mx")
+		if ffm_name:
+			uuid = frappe.db.get_value("Factura Fiscal Mexico", ffm_name, "fm_uuid")
+			if uuid:
+				return uuid
+
+		# Route 2: fallback — query FFM linked to origin SI with valid fiscal status
+		ffm_row = frappe.db.get_value(
+			"Factura Fiscal Mexico",
+			{"sales_invoice": return_against, "status": "TIMBRADO", "fm_uuid": ["!=", ""]},
+			"fm_uuid",
+			order_by="creation desc",
+		)
+		return ffm_row or None
 
 	def _validate_uuid_origen(self):
 		"""Validar UUID relacionado."""
@@ -661,6 +763,13 @@ class FacturaFiscalMexico(Document):
 		- Siempre asignar "99 - Por definir"
 		"""
 		if not self.sales_invoice or not self.fm_payment_method_sat:
+			return
+
+		# Tipo E: FormaPago based on outstanding_amount of origin SI.
+		# This is the single source of truth — Issue #116 normative rule.
+		if (self.fm_tipo_comprobante or "").startswith("E"):
+			if not self.fm_forma_pago_timbrado:
+				self._auto_populate_forma_pago_tipo_e()
 			return
 
 		# Para PPD: Siempre asignar "99 - Por definir"

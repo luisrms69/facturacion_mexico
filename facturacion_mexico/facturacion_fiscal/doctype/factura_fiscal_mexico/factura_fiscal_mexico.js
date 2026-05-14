@@ -500,6 +500,11 @@
 			if (is_egreso) {
 				frm.set_df_property("fm_tipo_relacion_sat", "read_only", 1);
 				frm.set_df_property("fm_uuid_relacionado", "read_only", 1);
+				// Credit notes: fiscal fields inherited from origin — no manual override
+				frm.set_df_property("fm_facturar_venta_mostrador", "read_only", 1);
+				frm.set_df_property("fm_forma_pago_timbrado", "read_only", 1);
+				// SAT mandates PUE for tipo E — payment method is not selectable
+				frm.set_df_property("fm_payment_method_sat", "read_only", 1);
 			}
 
 			// PROTECCIÓN: Bloquear campos fiscales post-submit
@@ -518,6 +523,11 @@
 				check_and_show_billing_data_status(frm);
 				check_customer_fiscal_warning(frm);
 			}, 1500);
+
+			// Lock tipo E fields LAST — overrides any function that may have reset them
+			_lock_egreso_fields(frm);
+			// Re-apply after async calls settle (applyFFMUi, setup_fiscal_interface)
+			setTimeout(() => _lock_egreso_fields(frm), 600);
 		},
 
 		// NUEVO: después de save/reload
@@ -783,8 +793,9 @@
 
 		// Validaciones específicas de datos fiscales
 
-		// Validar que PUE tenga forma de pago específica (solo si ya seleccionó PUE)
-		if (frm.doc.fm_payment_method_sat === "PUE") {
+		// Tipo E: payment form is inherited from origin — skip client validation
+		const is_egreso_save = (frm.doc.fm_tipo_comprobante || "").startsWith("E");
+		if (!is_egreso_save && frm.doc.fm_payment_method_sat === "PUE") {
 			if (
 				!frm.doc.fm_forma_pago_timbrado ||
 				frm.doc.fm_forma_pago_timbrado.startsWith("99 -")
@@ -1234,7 +1245,23 @@
 	// IMPLEMENTACIÓN RADIO BUTTONS - Punto 5
 	// ========================================
 
+	function _lock_egreso_fields(frm) {
+		// For tipo E (credit notes), lock all fields that must not be customized.
+		// Called last in refresh + after async settlement to survive any override.
+		if (!(frm.doc.fm_tipo_comprobante || "").startsWith("E")) return;
+		const lock = (f) => frm.set_df_property(f, "read_only", 1);
+		lock("sales_invoice");
+		lock("company");
+		lock("fm_payment_method_sat");
+		lock("fm_forma_pago_timbrado");
+		lock("fm_facturar_venta_mostrador");
+		lock("fm_tipo_relacion_sat");
+		lock("fm_uuid_relacionado");
+	}
+
 	function setup_payment_method_radio_buttons(frm) {
+		// Tipo E: SAT mandates PUE — radio buttons not rendered, field stays read_only
+		if ((frm.doc.fm_tipo_comprobante || "").startsWith("E")) return;
 		// Solo aplicar en formulario cargado y campo presente
 		if (!frm.doc || !frm.fields_dict.fm_payment_method_sat) {
 			return;
@@ -1439,6 +1466,14 @@
 
 		if (!frm.fields_dict.fm_forma_pago_timbrado) {
 			return; // Campo no existe
+		}
+
+		// Credit notes (tipo E) inherit payment form from origin — no manual edit allowed
+		const is_egreso = (frm.doc.fm_tipo_comprobante || "").startsWith("E");
+		if (is_egreso) {
+			frm.set_df_property("fm_forma_pago_timbrado", "hidden", 0);
+			frm.set_df_property("fm_forma_pago_timbrado", "read_only", 1);
+			return;
 		}
 
 		if (payment_method === "PPD") {
