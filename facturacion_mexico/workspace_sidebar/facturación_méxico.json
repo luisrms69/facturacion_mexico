@@ -1,0 +1,22 @@
+{
+ "app": "facturacion_mexico",
+ "doctype": "Workspace Sidebar",
+ "header_icon": "accounting",
+ "items": [
+  {
+   "child": 0,
+   "collapsible": 1,
+   "icon": "accounting",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Facturación México",
+   "link_to": "Facturación México",
+   "link_type": "Workspace",
+   "show_arrow": 0,
+   "type": "Link"
+  }
+ ],
+ "name": "Facturación México",
+ "standard": 1,
+ "title": "Facturación México"
+}

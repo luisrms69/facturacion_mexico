@@ -1,0 +1,17 @@
+{
+ "app": "facturacion_mexico",
+ "doctype": "Desktop Icon",
+ "hidden": 0,
+ "icon": "activity",
+ "icon_type": "Link",
+ "label": "Facturación México",
+ "link_to": "Facturación México",
+ "link_type": "Workspace Sidebar",
+ "name": "Facturación México",
+ "roles": [
+  {
+   "role": "System Manager"
+  }
+ ],
+ "standard": 1
+}
