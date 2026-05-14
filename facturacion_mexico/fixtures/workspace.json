@@ -1,0 +1,131 @@
+[
+ {
+  "charts": [],
+  "content": "[]",
+  "custom_blocks": [],
+  "docstatus": 0,
+  "doctype": "Workspace",
+  "for_user": null,
+  "hide_custom": 0,
+  "icon": "accounting",
+  "indicator_color": null,
+  "is_hidden": 0,
+  "label": "Facturación México",
+  "links": [],
+  "module": "Facturacion Fiscal",
+  "name": "Facturación México",
+  "number_cards": [],
+  "parent_page": null,
+  "public": 1,
+  "quick_lists": [],
+  "restrict_to_domain": null,
+  "roles": [],
+  "sequence_id": 1.0,
+  "shortcuts": [
+   {
+    "label": "Factura Fiscal Mexico",
+    "type": "DocType",
+    "link_type": "DocType",
+    "link_to": "Factura Fiscal Mexico",
+    "doc_view": "List",
+    "color": "Blue"
+   },
+   {
+    "label": "Complemento Pago MX",
+    "type": "DocType",
+    "link_type": "DocType",
+    "link_to": "Complemento Pago MX",
+    "doc_view": "List",
+    "color": "Green"
+   },
+   {
+    "label": "Sales Invoice",
+    "type": "DocType",
+    "link_type": "DocType",
+    "link_to": "Sales Invoice",
+    "doc_view": "List",
+    "color": "Grey"
+   },
+   {
+    "label": "Payment Entry",
+    "type": "DocType",
+    "link_type": "DocType",
+    "link_to": "Payment Entry",
+    "doc_view": "List",
+    "color": "Grey"
+   },
+   {
+    "label": "Configuracion Fiscal Mexico",
+    "type": "DocType",
+    "link_type": "DocType",
+    "link_to": "Configuracion Fiscal Mexico",
+    "doc_view": "List",
+    "color": "Orange"
+   },
+   {
+    "label": "Mapeo Cuenta Fiscal Mexico",
+    "type": "DocType",
+    "link_type": "DocType",
+    "link_to": "Mapeo Cuenta Fiscal Mexico",
+    "doc_view": "List",
+    "color": "Orange"
+   },
+   {
+    "label": "Configuracion Reclasificacion Fiscal Mexico",
+    "type": "DocType",
+    "link_type": "DocType",
+    "link_to": "Configuracion Reclasificacion Fiscal Mexico",
+    "doc_view": "List",
+    "color": "Orange"
+   },
+   {
+    "label": "Facturacion Mexico Settings",
+    "type": "DocType",
+    "link_type": "DocType",
+    "link_to": "Facturacion Mexico Settings",
+    "doc_view": "Form",
+    "color": "Purple"
+   },
+   {
+    "label": "Configuracion Fiscal Sucursal",
+    "type": "DocType",
+    "link_type": "DocType",
+    "link_to": "Configuracion Fiscal Sucursal",
+    "doc_view": "List",
+    "color": "Purple"
+   },
+   {
+    "label": "Mapeo Reclasificacion Fiscal Payment Entry",
+    "type": "DocType",
+    "link_type": "DocType",
+    "link_to": "Mapeo Reclasificacion Fiscal Payment Entry",
+    "doc_view": "List",
+    "color": "Orange"
+   },
+   {
+    "label": "Facturas Sin Timbrar",
+    "type": "Report",
+    "link_type": "Report",
+    "link_to": "Facturas Sin Timbrar",
+    "color": "Red"
+   },
+   {
+    "label": "Complementos Pendientes",
+    "type": "Report",
+    "link_type": "Report",
+    "link_to": "Complementos Pendientes",
+    "color": "Red"
+   },
+   {
+    "label": "FacturAPI Response Log",
+    "type": "DocType",
+    "link_type": "DocType",
+    "link_to": "FacturAPI Response Log",
+    "doc_view": "List",
+    "color": "Grey"
+   }
+  ],
+  "title": "Facturación México",
+  "type": "Custom"
+ }
+]
