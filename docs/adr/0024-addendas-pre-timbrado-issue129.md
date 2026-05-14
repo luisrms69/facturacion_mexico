@@ -153,3 +153,48 @@ a toda FFM nueva hasta que el scheduler `bulk_sync_invoices` corría (hasta 5 mi
 
 **Refactor completo pendiente:** Issue #133 — limpieza de `fm_sync_status`,
 `bulk_sync_invoices`, `try/except` silencioso en `update_sales_invoice_fiscal_info`.
+
+---
+
+## Nota adicional — 2026-05-12/13 (PR #134 — hardening CodeRabbit)
+
+### Hardening post-merge aplicado
+
+Tras la revisión de CodeRabbit en PR #134, se aplicaron 7 fixes en commit `f529654`:
+
+| Fix | Descripción |
+|---|---|
+| M1 | `validate_required_data` — rechazaba `0`/`False` válidos como "faltante" |
+| M2 | `_derive_prefix` — prefix XML puede empezar con dígito (inválido en XSD 1.0) |
+| N1 | `timbrado_api` — `.get()` seguro + guard contra `addenda_xml` vacío |
+| O1 | `_update_venta_mostrador_visibility` — no reseteaba cache en error de red |
+| N2-N5 | Comentarios técnicos traducidos a inglés en 4 archivos |
+
+Diferidos: M3 (refactor test helper), T1 (nitpick MagicMock sin bug real), D1 (markdown lint en docs internos).
+
+### Estado del "BUG MAYOR" documentado arriba
+
+La sección "BUG MAYOR — Pendiente de diagnóstico" describía tres problemas. Estado actualizado:
+
+| Problema | Estado |
+|---|---|
+| Botón Timbrar bloqueado en FFMs nuevas (`fm_sync_status`) | ✅ Resuelto — Issue #133, PR #134 |
+| Botón Timbrar desaparece intermitentemente en navegación SI↔FFM | ⏳ Pendiente — Issue #135 (refactor JS) |
+| Error "Field not permitted in query: fm_fiscal_status" | ⏳ Pendiente diagnóstico |
+| FFM queda en "Operación en Progreso" | ⏳ Relacionado con el bug JS — Issue #135 |
+
+### Issue #135 — Refactor completo de factura_fiscal_mexico.js
+
+El archivo `factura_fiscal_mexico.js` tiene 2709 líneas y múltiples problemas estructurales
+detectados durante esta implementación. Se creó Issue #135 para rastrear el rediseño completo.
+El bug del botón Timbrar que desaparece es consecuencia directa de la arquitectura actual del archivo.
+
+### Estado final del ADR
+
+**Estado:** Implementado parcialmente — Fases 1-4 en PR #134.
+**Pendientes de esta decisión:**
+- Fase 5: smoke test de attachments/descarga con addenda (post-merge, sin código nuevo)
+- Fase 6: post-timbrado manual (Issue separado, futuro)
+- Issue #132: campos legacy `fm_addenda_status/xml/errors/date`
+- Issue #133: refactor `fm_sync_status`
+- Issue #135: rediseño `factura_fiscal_mexico.js`

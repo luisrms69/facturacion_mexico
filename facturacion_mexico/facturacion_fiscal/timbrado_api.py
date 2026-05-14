@@ -700,18 +700,27 @@ class TimbradoAPI:
 			tipo_relacion = factura_fiscal.get("fm_tipo_relacion_sat", "").strip()
 			uuid_relacionado = factura_fiscal.get("fm_uuid_relacionado", "").strip()
 
-			if tipo_relacion and uuid_relacionado:
-				# Extraer código de relación (formato "01 - Descripción" -> "01")
-				relacion_code = (
-					tipo_relacion.split(" - ")[0].strip() if " - " in tipo_relacion else tipo_relacion
+			# REGLA FISCAL: CFDI tipo E sin UUID relacionado es inválido ante el SAT.
+			# related_documents es obligatorio — no se omite silenciosamente.
+			if not uuid_relacionado:
+				frappe.throw(
+					_(
+						"No se puede timbrar la Nota de Crédito: "
+						"falta el UUID del CFDI origen relacionado. "
+						"Verifique que la factura original esté timbrada."
+					),
+					title=_("UUID Relacionado Requerido"),
 				)
 
-				invoice_data["related_documents"] = [
-					{
-						"relationship": relacion_code,
-						"documents": [uuid_relacionado],
-					}
-				]
+			# Extraer código de relación (formato "01 - Descripción" -> "01")
+			relacion_code = tipo_relacion.split(" - ")[0].strip() if " - " in tipo_relacion else tipo_relacion
+
+			invoice_data["related_documents"] = [
+				{
+					"relationship": relacion_code,
+					"documents": [uuid_relacionado],
+				}
+			]
 
 		# [Milestone 3] Inyectar relación 04 si el SI trae 'ffm_substitution_source_uuid'
 		src_uuid = (sales_invoice.get("ffm_substitution_source_uuid") or "").strip()
@@ -741,11 +750,13 @@ class TimbradoAPI:
 		self._validate_payload_completeness_ro(invoice_data, sales_invoice)
 
 		# Fase 4 Issue #129: Addenda pre-timbrado
+		# Tipo E (credit notes) never include addenda — skip entirely.
 		# render() returns None when SI does not require addenda — payload unchanged
 		# render() raises frappe.throw on config/data error — blocks timbrado
 		from facturacion_mexico.addendas.addenda_service import AddendaService
 
-		addenda_result = AddendaService().render(sales_invoice)
+		tipo_code = (invoice_data.get("type") or "I").upper()
+		addenda_result = None if tipo_code == "E" else AddendaService().render(sales_invoice)
 		if addenda_result is not None:
 			addenda_xml = (addenda_result.get("addenda_xml") or "").strip()
 			if not addenda_xml:
@@ -987,9 +998,10 @@ class TimbradoAPI:
 		# Obtener total fiscal del PAC
 		total_pac = flt(response.get("total", 0))
 
-		# Obtener totales del Sales Invoice guardados en Factura Fiscal
-		si_total_sin_iva = flt(factura_fiscal.si_total_antes_iva)
-		si_total_con_iva = flt(factura_fiscal.si_total_neto)
+		# Obtener totales del Sales Invoice guardados en Factura Fiscal.
+		# abs() handles return SIs (negative amounts) — PAC always returns positive.
+		si_total_sin_iva = abs(flt(factura_fiscal.si_total_antes_iva))
+		si_total_con_iva = abs(flt(factura_fiscal.si_total_neto))
 
 		# Calcular diferencias
 		diff_sin_iva = abs(total_pac - si_total_sin_iva)

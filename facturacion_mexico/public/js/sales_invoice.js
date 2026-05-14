@@ -147,7 +147,10 @@ function redirect_to_fiscal_document(frm) {
 			if (uuid) {
 				_do_create_ffm(frm, {
 					fm_uuid_relacionado: uuid,
-					fm_tipo_relacion_sat: "01 - Nota de crédito de los documentos relacionados",
+					// Physical merchandise return → TipoRelación 03 (Issue #116)
+					// TipoRelación 01 (discounts/bonifications) handled in Issue #137
+					fm_tipo_relacion_sat:
+						"03 - Devolución de mercancía sobre facturas o traslados previos",
 				});
 			}
 		});
