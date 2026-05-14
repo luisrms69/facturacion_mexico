@@ -121,8 +121,6 @@ after_migrate = [
 # -------------
 # Fixtures for custom fields - ISSUE #31 CRITICAL MIGRATION + SAT Catalogs Migration
 fixtures = [
-	# Workspace: punto de entrada unificado para flujos fiscales
-	{"doctype": "Workspace", "filters": [["name", "=", "Facturación México"]]},
 	{
 		"dt": "Custom Field",
 		"filters": [
