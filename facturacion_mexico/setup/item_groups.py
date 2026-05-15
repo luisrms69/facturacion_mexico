@@ -144,13 +144,30 @@ def _find_company_suffixes(company_doc) -> list[str]:
 
 
 def _resolve_itt_name(base_pattern: str, company_doc) -> str | None:
-	"""Intenta resolver el nombre exacto del ITT para la compañía probando varios sufijos."""
+	"""
+	Resuelve el name del ITT cubriendo los 3 escenarios históricos de naming:
+	  A) name == title == "ITT IVA 0% - _TC"          (correcto — creado post-fix)
+	  B) name == "ITT IVA 0% - _TC - _TC",             (doble name, title simple — workaround viejo)
+	     title == "ITT IVA 0% - _TC"
+	  C) name == title == "ITT IVA 0% - _TC - _TC"    (ambos dobles — bug actual pre-fix)
+	"""
 	for suf in _find_company_suffixes(company_doc):
-		candidate = base_pattern.format(suffix=suf)
-		# Búsqueda por name exacto (único método válido)
-		by_name = frappe.db.exists("Item Tax Template", candidate)
-		if by_name:
-			return by_name
+		base_title = base_pattern.format(suffix=suf)
+		canonical = base_title
+		double = f"{base_title} - {suf}"
+
+		candidates = [
+			{"name": canonical},  # A: name correcto
+			{"title": canonical, "company": company_doc.name},  # B: title correcto, name doble
+			{"name": double},  # C: ambos dobles — busca por name
+			{"title": double, "company": company_doc.name},  # C: fallback por title doble
+		]
+
+		for filters in candidates:
+			result = frappe.db.get_value("Item Tax Template", filters, "name")
+			if result:
+				return result
+
 	return None
 
 
