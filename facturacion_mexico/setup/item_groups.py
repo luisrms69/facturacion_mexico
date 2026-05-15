@@ -32,7 +32,6 @@ TABLA_MAESTRA_GRUPOS_FISCALES = [
 # -----------------------------------------------------------
 # CONSTANTES DERIVADAS (generadas automáticamente)
 # -----------------------------------------------------------
-ROOT_IG = "All Item Groups"
 
 # Diccionario Item Group → ITT pattern (para asignación)
 ITEM_GROUP_ITT_MAP = {row[0]: row[1] for row in TABLA_MAESTRA_GRUPOS_FISCALES}
@@ -50,19 +49,40 @@ CATEGORIAS_RETENCION = {row[2] for row in TABLA_MAESTRA_GRUPOS_FISCALES if row[3
 ITEM_GROUPS_FISCALES = [row[0] for row in TABLA_MAESTRA_GRUPOS_FISCALES]
 
 
-def _ensure_item_group(name: str) -> str:
-	"""Crea (si no existe) un Item Group raíz con is_group=1. Devuelve el name."""
+def _get_root_item_group() -> str | None:
+	"""Detecta el grupo raíz de Item Group sin asumir idioma del site."""
+	root = frappe.db.get_value("Item Group", {"parent_item_group": ""}, "name")
+	if not root:
+		# ERPNext puede guardar NULL en lugar de string vacío
+		root = frappe.db.sql(
+			"SELECT name FROM `tabItem Group` WHERE (parent_item_group IS NULL OR parent_item_group = '') AND is_group = 1 LIMIT 1"
+		)
+		root = root[0][0] if root else None
+	if not root:
+		frappe.logger().warning(
+			"[FMX][ItemGroups] No se encontró grupo raíz de Item Group — reintento pendiente"
+		)
+	return root
+
+
+def _ensure_item_group(name: str) -> str | None:
+	"""Crea (si no existe) un Item Group fiscal con is_group=1. Devuelve el name o None si no hay raíz."""
 	existing = frappe.db.exists("Item Group", {"name": name})
 	if existing:
 		return existing
+
+	root = _get_root_item_group()
+	if not root:
+		frappe.logger().warning(f"[FMX][ItemGroups] No se puede crear '{name}': grupo raíz no encontrado")
+		return None
 
 	doc = frappe.get_doc(
 		{
 			"doctype": "Item Group",
 			"item_group_name": name,
-			"name": name,  # para forzar nombre exacto
+			"name": name,
 			"is_group": 1,
-			"parent_item_group": ROOT_IG,
+			"parent_item_group": root,
 		}
 	)
 	doc.insert(ignore_permissions=True)
@@ -70,19 +90,39 @@ def _ensure_item_group(name: str) -> str:
 	return doc.name
 
 
-def ensure_groups_after_install():
-	"""Hook after_install: garantizar que EXISTAN todos los grupos raíz (sin asignar ITT)."""
+def ensure_fiscal_item_groups():
+	"""
+	Garantiza que existan los 10 grupos fiscales de la app (sin asignar ITT).
+	Idempotente — seguro de llamar en after_install, after_migrate y antes del wizard.
+	Si no hay grupo raíz (ERPNext no configurado aún), loguea warning y sale sin error.
+	"""
 	try:
-		# Crear todos los grupos del mapa
+		creados = []
+		sin_raiz = False
 		for group_name in ITEM_GROUP_ITT_MAP.keys():
-			_ensure_item_group(group_name)
+			result = _ensure_item_group(group_name)
+			if result is None:
+				sin_raiz = True
+				break
+			if result == group_name:
+				creados.append(group_name)
 
-		frappe.logger().info(
-			f"[FMX][ItemGroups] {len(ITEM_GROUP_ITT_MAP)} grupos raíz creados/verificados (after_install)."
-		)
+		if sin_raiz:
+			frappe.logger().warning(
+				"[FMX][ItemGroups] Grupos fiscales no creados: grupo raíz de Item Group no encontrado. "
+				"Se reintentará al correr el wizard fiscal."
+			)
+		else:
+			frappe.logger().info(
+				f"[FMX][ItemGroups] {len(ITEM_GROUP_ITT_MAP)} grupos verificados, {len(creados)} creados."
+			)
 	except Exception:
-		frappe.log_error(frappe.get_traceback(), "[FMX][ItemGroups] Error ensure_groups_after_install")
+		frappe.log_error(frappe.get_traceback(), "[FMX][ItemGroups] Error ensure_fiscal_item_groups")
 		raise
+
+
+# Alias para compatibilidad con after_install existente
+ensure_groups_after_install = ensure_fiscal_item_groups
 
 
 def _find_company_suffixes(company_doc) -> list[str]:

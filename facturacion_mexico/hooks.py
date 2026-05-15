@@ -114,7 +114,7 @@ doctype_list_js = {
 # before_install = "facturacion_mexico.install.before_install"
 after_install = "facturacion_mexico.install.after_install"
 after_migrate = [
-	"facturacion_mexico.setup.item_groups.assign_itt_to_groups",
+	"facturacion_mexico.setup.item_groups.ensure_fiscal_item_groups",
 ]
 
 # Custom Fields & SAT Catalogs Fixtures

@@ -255,6 +255,14 @@ class ConfiguracionFiscalMexico(Document):
 		)
 
 		try:
+			# Paso 0: garantizar que existan los grupos fiscales (idempotente, multilenguaje)
+			from facturacion_mexico.setup.item_groups import (
+				assign_itt_to_groups,
+				ensure_fiscal_item_groups,
+			)
+
+			ensure_fiscal_item_groups()
+
 			# Generar 8 STCT específicos (Nacional/Frontera x Básico/IEPS/Retenciones/Total)
 			resultados_stct = generate_8_stct_for_company(company=self.company)
 
@@ -262,8 +270,6 @@ class ConfiguracionFiscalMexico(Document):
 			resultados_itt = generate_itt_for_company(company=self.company)
 
 			# Asignar ITT a Item Groups después de generar templates
-			from facturacion_mexico.setup.item_groups import assign_itt_to_groups
-
 			assign_itt_to_groups()
 
 			# Mostrar mensaje de éxito detallado
