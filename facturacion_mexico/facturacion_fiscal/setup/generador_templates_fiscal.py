@@ -906,6 +906,16 @@ def generate_8_stct_for_company(
 	# PASO 4: Deshabilitar templates viejos con porcentajes
 	_disable_old_percent_named_templates(company)
 
+	# PASO 4.5: Quitar is_default de todos los STCT de la empresa
+	# facturacion_mexico asigna el STCT correcto via before_validate — ninguno debe ser default
+	frappe.db.set_value(
+		"Sales Taxes and Charges Template",
+		{"company": company, "is_default": 1},
+		"is_default",
+		0,
+	)
+	frappe.db.commit()
+
 	# PASO 5: Preparar resultado detallado
 	result = {
 		"created": created,
