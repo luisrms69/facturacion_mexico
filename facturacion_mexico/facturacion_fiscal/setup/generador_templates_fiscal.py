@@ -906,15 +906,15 @@ def generate_8_stct_for_company(
 	# PASO 4: Deshabilitar templates viejos con porcentajes
 	_disable_old_percent_named_templates(company)
 
-	# PASO 4.5: Quitar is_default de todos los STCT de la empresa
-	# facturacion_mexico asigna el STCT correcto via before_validate — ninguno debe ser default
+	# Step 4.5: Clear is_default from all company STCTs
+	# facturacion_mexico assigns the correct STCT via before_validate — no template should be default
 	frappe.db.set_value(
 		"Sales Taxes and Charges Template",
 		{"company": company, "is_default": 1},
 		"is_default",
 		0,
 	)
-	frappe.db.commit()
+	frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure is_default cleanup is visible before STCT generation proceeds
 
 	# PASO 5: Preparar resultado detallado
 	result = {
@@ -939,11 +939,11 @@ def generate_8_stct_for_company(
 def _crear_o_actualizar_itt(
 	company: str, abbr: str, title: str, taxes_config: list[dict], mapeo_cuentas: dict
 ) -> str:
-	"""Crear o actualizar Item Tax Template.
+	"""Create or update an Item Tax Template.
 
-	ERPNext autoname() hace: name = f"{title} - {abbr}".
-	Por eso title debe ser el nombre base SIN abbr — el name completo lo construye ERPNext.
-	Ejemplo: title="ITT IVA 0%" → autoname → name="ITT IVA 0% - LLCS"
+	ERPNext autoname() produces: name = f"{title} - {abbr}".
+	Therefore title must be the base name WITHOUT abbr — ERPNext builds the full name.
+	Example: title="ITT IVA 0%" → autoname → name="ITT IVA 0% - LLCS"
 	"""
 	from facturacion_mexico.setup.item_groups import _resolve_itt_name
 
@@ -983,7 +983,7 @@ def _crear_o_actualizar_itt(
 	else:
 		doc.insert(ignore_permissions=True)
 
-	frappe.db.commit()
+	frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to persist ITT between successive wizard steps
 	_ = canonical  # referencia explícita para evitar warning de variable no usada
 	return doc.name
 

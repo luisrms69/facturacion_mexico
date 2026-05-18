@@ -50,10 +50,10 @@ ITEM_GROUPS_FISCALES = [row[0] for row in TABLA_MAESTRA_GRUPOS_FISCALES]
 
 
 def _get_root_item_group() -> str | None:
-	"""Detecta el grupo raíz de Item Group sin asumir idioma del site."""
+	"""Detect the root Item Group without assuming the site language."""
 	root = frappe.db.get_value("Item Group", {"parent_item_group": ""}, "name")
 	if not root:
-		# ERPNext puede guardar NULL en lugar de string vacío
+		# ERPNext may store NULL instead of empty string
 		root = frappe.db.sql(
 			"SELECT name FROM `tabItem Group` WHERE (parent_item_group IS NULL OR parent_item_group = '') AND is_group = 1 LIMIT 1"
 		)
@@ -66,7 +66,7 @@ def _get_root_item_group() -> str | None:
 
 
 def _ensure_item_group(name: str) -> str | None:
-	"""Crea (si no existe) un Item Group fiscal con is_group=1. Devuelve el name o None si no hay raíz."""
+	"""Create fiscal Item Group (is_group=1) if it does not exist. Returns name or None if root is missing."""
 	existing = frappe.db.exists("Item Group", {"name": name})
 	if existing:
 		return existing
@@ -92,9 +92,9 @@ def _ensure_item_group(name: str) -> str | None:
 
 def ensure_fiscal_item_groups():
 	"""
-	Garantiza que existan los 10 grupos fiscales de la app (sin asignar ITT).
-	Idempotente — seguro de llamar en after_install, after_migrate y antes del wizard.
-	Si no hay grupo raíz (ERPNext no configurado aún), loguea warning y sale sin error.
+	Ensure all 10 fiscal Item Groups exist (without assigning ITTs).
+	Idempotent — safe to call in after_install, after_migrate, and before the wizard.
+	If no root group exists (ERPNext not yet configured), logs a warning and exits without error.
 	"""
 	try:
 		creados = []
@@ -126,7 +126,7 @@ ensure_groups_after_install = ensure_fiscal_item_groups
 
 
 def _find_company_suffixes(company_doc) -> list[str]:
-	"""Posibles sufijos usados por el wizard para nombrar ITT por compañía."""
+	"""Return possible suffixes used by the wizard to name ITTs per company."""
 	suffixes = []
 	if getattr(company_doc, "abbr", None):
 		suffixes.append(company_doc.abbr.strip())
@@ -134,7 +134,7 @@ def _find_company_suffixes(company_doc) -> list[str]:
 		suffixes.append(company_doc.company_name.strip())
 	if getattr(company_doc, "name", None):
 		suffixes.append(company_doc.name.strip())
-	# quitar duplicados manteniendo orden
+	# deduplicate preserving order
 	seen, ordered = set(), []
 	for s in suffixes:
 		if s and s not in seen:
@@ -145,11 +145,11 @@ def _find_company_suffixes(company_doc) -> list[str]:
 
 def _resolve_itt_name(base_pattern: str, company_doc) -> str | None:
 	"""
-	Resuelve el name del ITT cubriendo los 3 escenarios históricos de naming:
-	  A) name == title == "ITT IVA 0% - _TC"          (correcto — creado post-fix)
-	  B) name == "ITT IVA 0% - _TC - _TC",             (doble name, title simple — workaround viejo)
+	Resolve the ITT name covering 3 historical naming scenarios:
+	  A) name == title == "ITT IVA 0% - _TC"          (correct — created post-fix)
+	  B) name == "ITT IVA 0% - _TC - _TC",             (double name, simple title — old workaround)
 	     title == "ITT IVA 0% - _TC"
-	  C) name == title == "ITT IVA 0% - _TC - _TC"    (ambos dobles — bug actual pre-fix)
+	  C) name == title == "ITT IVA 0% - _TC - _TC"    (both doubled — pre-fix bug)
 	"""
 	for suf in _find_company_suffixes(company_doc):
 		base_title = base_pattern.format(suffix=suf)

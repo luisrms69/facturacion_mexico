@@ -269,8 +269,8 @@ class ConfiguracionFiscalMexico(Document):
 			# Generar ITT basados en Configuracion Fiscal Mexico
 			resultados_itt = generate_itt_for_company(company=self.company)
 
-			# Asignar ITT a Item Groups después de generar templates
-			assign_itt_to_groups()
+			# Assign ITTs to Item Groups after generating templates
+			assign_itt_to_groups(company_name=self.company)
 
 			# Mostrar mensaje de éxito detallado
 			total_creados_stct = len(resultados_stct.get("created", []))
