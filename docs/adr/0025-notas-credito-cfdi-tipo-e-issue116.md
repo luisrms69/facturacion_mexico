@@ -96,13 +96,34 @@ las cantidades negativas propias de las SIs de devolución.
 
 ## Validación realizada
 
-| Caso | Origen | outstanding | FormaPago resultante | TipoRelación |
-|---|---|---|---|---|
-| FFMX-2026-00025 | PPD / no pagada | > 0 | 15 - Condonación | 03 |
-| FFMX-2026-00027 | PPD / no pagada | > 0 | 15 - Condonación | 03 |
-| FFMX-2026-00028 | PPD / no pagada | > 0 | 15 - Condonación | 03 |
+| Caso | Origen MetodoPago | outstanding origen | FormaPago resultante | TipoRelación | Timbrado |
+|---|---|---|---|---|---|
+| FFMX-2026-00025 | PPD / no pagada | > 0 | 15 - Condonación | 03 | ✅ sandbox |
+| FFMX-2026-00027 | PPD / no pagada | > 0 | 15 - Condonación | 03 | ✅ sandbox |
+| FFMX-2026-00028 | PPD / no pagada | > 0 | 15 - Condonación | 03 | ✅ sandbox |
+| FFMX-2026-00003 | PPD / pagada con complemento | 0 | **99 - Por definir** ⚠️ | 03 | ✅ sandbox |
 
-Todos timbrados exitosamente en sandbox FacturAPI.
+**Nota FFMX-2026-00003 (2026-05-17):** La factura origen (ACC-SINV-2026-02362) era PPD y fue
+liquidada con un complemento de pago. Al momento de crear la nota de crédito, `outstanding=0`.
+El sistema heredó `FormaPago=99` de la FFM origen (que era PPD → siempre "99"). FacturAPI
+timbró sin rechazo. La validez normativa de `MetodoPago=PUE + FormaPago=99` en tipo E está
+pendiente de confirmación contable — ver Issue #136.
+
+---
+
+## Matriz de escenarios FormaPago — todos los casos identificados
+
+| # | Origen MetodoPago | outstanding origen | nota_total vs outstanding | FormaPago actual | ¿Validado? | Pendiente |
+|---|---|---|---|---|---|---|
+| A | PUE | 0 (pagada) | cualquiera | Hereda forma origen (ej. "03") | ⚠️ No probado | Confirmar si herencia es correcta |
+| B | PPD | > 0 (no pagada) | nota ≤ outstanding | 15 - Condonación | ✅ Timbrado | Confirmar con contador |
+| C | PPD | > 0 (no pagada) | nota > outstanding (mixto) | 15 - Condonación (safe default) | ⚠️ No probado | Política de negocio |
+| D | PPD | 0 (pagada con complemento) | cualquiera | **99 - Por definir** (hereda FFM origen) | ✅ Timbró pero ⚠️ normativa | **Issue #136 — consulta contable urgente** |
+| E | Descuento / bonificación | N/A | N/A | Sin flujo implementado | ❌ No existe | Issue #137 — TipoRelación 01 |
+
+**Escenario D es el más crítico:** `MetodoPago=PUE + FormaPago=99` puede ser inválido ante el SAT
+según la guía de llenado CFDI 4.0 (FormaPago=99 solo permitido con PPD). FacturAPI no lo rechazó
+pero eso no garantiza validez ante SAT en auditoría.
 
 ---
 

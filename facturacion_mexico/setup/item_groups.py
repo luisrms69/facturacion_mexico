@@ -32,7 +32,6 @@ TABLA_MAESTRA_GRUPOS_FISCALES = [
 # -----------------------------------------------------------
 # CONSTANTES DERIVADAS (generadas automáticamente)
 # -----------------------------------------------------------
-ROOT_IG = "All Item Groups"
 
 # Diccionario Item Group → ITT pattern (para asignación)
 ITEM_GROUP_ITT_MAP = {row[0]: row[1] for row in TABLA_MAESTRA_GRUPOS_FISCALES}
@@ -50,19 +49,40 @@ CATEGORIAS_RETENCION = {row[2] for row in TABLA_MAESTRA_GRUPOS_FISCALES if row[3
 ITEM_GROUPS_FISCALES = [row[0] for row in TABLA_MAESTRA_GRUPOS_FISCALES]
 
 
-def _ensure_item_group(name: str) -> str:
-	"""Crea (si no existe) un Item Group raíz con is_group=1. Devuelve el name."""
+def _get_root_item_group() -> str | None:
+	"""Detect the root Item Group without assuming the site language."""
+	root = frappe.db.get_value("Item Group", {"parent_item_group": ""}, "name")
+	if not root:
+		# ERPNext may store NULL instead of empty string
+		root = frappe.db.sql(
+			"SELECT name FROM `tabItem Group` WHERE (parent_item_group IS NULL OR parent_item_group = '') AND is_group = 1 LIMIT 1"
+		)
+		root = root[0][0] if root else None
+	if not root:
+		frappe.logger().warning(
+			"[FMX][ItemGroups] No se encontró grupo raíz de Item Group — reintento pendiente"
+		)
+	return root
+
+
+def _ensure_item_group(name: str) -> str | None:
+	"""Create fiscal Item Group (is_group=1) if it does not exist. Returns name or None if root is missing."""
 	existing = frappe.db.exists("Item Group", {"name": name})
 	if existing:
 		return existing
+
+	root = _get_root_item_group()
+	if not root:
+		frappe.logger().warning(f"[FMX][ItemGroups] No se puede crear '{name}': grupo raíz no encontrado")
+		return None
 
 	doc = frappe.get_doc(
 		{
 			"doctype": "Item Group",
 			"item_group_name": name,
-			"name": name,  # para forzar nombre exacto
+			"name": name,
 			"is_group": 1,
-			"parent_item_group": ROOT_IG,
+			"parent_item_group": root,
 		}
 	)
 	doc.insert(ignore_permissions=True)
@@ -70,23 +90,43 @@ def _ensure_item_group(name: str) -> str:
 	return doc.name
 
 
-def ensure_groups_after_install():
-	"""Hook after_install: garantizar que EXISTAN todos los grupos raíz (sin asignar ITT)."""
+def ensure_fiscal_item_groups():
+	"""
+	Ensure all 10 fiscal Item Groups exist (without assigning ITTs).
+	Idempotent — safe to call in after_install, after_migrate, and before the wizard.
+	If no root group exists (ERPNext not yet configured), logs a warning and exits without error.
+	"""
 	try:
-		# Crear todos los grupos del mapa
+		creados = []
+		sin_raiz = False
 		for group_name in ITEM_GROUP_ITT_MAP.keys():
-			_ensure_item_group(group_name)
+			result = _ensure_item_group(group_name)
+			if result is None:
+				sin_raiz = True
+				break
+			if result == group_name:
+				creados.append(group_name)
 
-		frappe.logger().info(
-			f"[FMX][ItemGroups] {len(ITEM_GROUP_ITT_MAP)} grupos raíz creados/verificados (after_install)."
-		)
+		if sin_raiz:
+			frappe.logger().warning(
+				"[FMX][ItemGroups] Grupos fiscales no creados: grupo raíz de Item Group no encontrado. "
+				"Se reintentará al correr el wizard fiscal."
+			)
+		else:
+			frappe.logger().info(
+				f"[FMX][ItemGroups] {len(ITEM_GROUP_ITT_MAP)} grupos verificados, {len(creados)} creados."
+			)
 	except Exception:
-		frappe.log_error(frappe.get_traceback(), "[FMX][ItemGroups] Error ensure_groups_after_install")
+		frappe.log_error(frappe.get_traceback(), "[FMX][ItemGroups] Error ensure_fiscal_item_groups")
 		raise
 
 
+# Alias para compatibilidad con after_install existente
+ensure_groups_after_install = ensure_fiscal_item_groups
+
+
 def _find_company_suffixes(company_doc) -> list[str]:
-	"""Posibles sufijos usados por el wizard para nombrar ITT por compañía."""
+	"""Return possible suffixes used by the wizard to name ITTs per company."""
 	suffixes = []
 	if getattr(company_doc, "abbr", None):
 		suffixes.append(company_doc.abbr.strip())
@@ -94,7 +134,7 @@ def _find_company_suffixes(company_doc) -> list[str]:
 		suffixes.append(company_doc.company_name.strip())
 	if getattr(company_doc, "name", None):
 		suffixes.append(company_doc.name.strip())
-	# quitar duplicados manteniendo orden
+	# deduplicate preserving order
 	seen, ordered = set(), []
 	for s in suffixes:
 		if s and s not in seen:
@@ -104,13 +144,30 @@ def _find_company_suffixes(company_doc) -> list[str]:
 
 
 def _resolve_itt_name(base_pattern: str, company_doc) -> str | None:
-	"""Intenta resolver el nombre exacto del ITT para la compañía probando varios sufijos."""
+	"""
+	Resolve the ITT name covering 3 historical naming scenarios:
+	  A) name == title == "ITT IVA 0% - _TC"          (correct — created post-fix)
+	  B) name == "ITT IVA 0% - _TC - _TC",             (double name, simple title — old workaround)
+	     title == "ITT IVA 0% - _TC"
+	  C) name == title == "ITT IVA 0% - _TC - _TC"    (both doubled — pre-fix bug)
+	"""
 	for suf in _find_company_suffixes(company_doc):
-		candidate = base_pattern.format(suffix=suf)
-		# Búsqueda por name exacto (único método válido)
-		by_name = frappe.db.exists("Item Tax Template", candidate)
-		if by_name:
-			return by_name
+		base_title = base_pattern.format(suffix=suf)
+		canonical = base_title
+		double = f"{base_title} - {suf}"
+
+		candidates = [
+			{"name": canonical},  # A: name correcto
+			{"title": canonical, "company": company_doc.name},  # B: title correcto, name doble
+			{"name": double},  # C: ambos dobles — busca por name
+			{"title": double, "company": company_doc.name},  # C: fallback por title doble
+		]
+
+		for filters in candidates:
+			result = frappe.db.get_value("Item Tax Template", filters, "name")
+			if result:
+				return result
+
 	return None
 
 

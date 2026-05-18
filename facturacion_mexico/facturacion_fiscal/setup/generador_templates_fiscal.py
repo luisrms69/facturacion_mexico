@@ -906,6 +906,16 @@ def generate_8_stct_for_company(
 	# PASO 4: Deshabilitar templates viejos con porcentajes
 	_disable_old_percent_named_templates(company)
 
+	# Step 4.5: Clear is_default from all company STCTs
+	# facturacion_mexico assigns the correct STCT via before_validate — no template should be default
+	frappe.db.set_value(
+		"Sales Taxes and Charges Template",
+		{"company": company, "is_default": 1},
+		"is_default",
+		0,
+	)
+	frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure is_default cleanup is visible before STCT generation proceeds
+
 	# PASO 5: Preparar resultado detallado
 	result = {
 		"created": created,
@@ -929,18 +939,27 @@ def generate_8_stct_for_company(
 def _crear_o_actualizar_itt(
 	company: str, abbr: str, title: str, taxes_config: list[dict], mapeo_cuentas: dict
 ) -> str:
-	"""Crear o actualizar Item Tax Template."""
-	full_title = f"{title} - {abbr}"
+	"""Create or update an Item Tax Template.
 
-	# Buscar existente
-	existing = frappe.db.exists("Item Tax Template", {"title": full_title, "company": company})
+	ERPNext autoname() produces: name = f"{title} - {abbr}".
+	Therefore title must be the base name WITHOUT abbr — ERPNext builds the full name.
+	Example: title="ITT IVA 0%" → autoname → name="ITT IVA 0% - LLCS"
+	"""
+	from facturacion_mexico.setup.item_groups import _resolve_itt_name
 
-	if existing:
-		doc = frappe.get_doc("Item Tax Template", existing)
-		doc.taxes = []  # limpiar para rearmar
+	company_doc = frappe._dict({"name": company, "abbr": abbr, "company_name": company})
+	canonical = f"{title} - {abbr}"
+	itt_pattern = f"{title} - {{suffix}}"
+
+	# Buscar existente cubriendo los 3 escenarios históricos de naming (A, B, C)
+	existing_name = _resolve_itt_name(itt_pattern, company_doc)
+
+	if existing_name:
+		doc = frappe.get_doc("Item Tax Template", existing_name)
+		doc.taxes = []
 	else:
 		doc = frappe.new_doc("Item Tax Template")
-		doc.title = full_title
+		doc.title = title  # SIN abbr — ERPNext autoname agrega abbr al name
 		doc.company = company
 		doc.taxes = []
 
@@ -949,7 +968,7 @@ def _crear_o_actualizar_itt(
 		rol_fiscal = tax_config["rol_fiscal"]
 		cuenta_impuesto = mapeo_cuentas.get(rol_fiscal)
 		if not cuenta_impuesto:
-			continue  # Skip si no hay mapeo
+			continue
 		doc.append(
 			"taxes",
 			{
@@ -959,13 +978,13 @@ def _crear_o_actualizar_itt(
 			},
 		)
 
-	# Guardar
-	if existing:
+	if existing_name:
 		doc.save(ignore_permissions=True)
 	else:
 		doc.insert(ignore_permissions=True)
 
-	frappe.db.commit()
+	frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to persist ITT between successive wizard steps
+	_ = canonical  # referencia explícita para evitar warning de variable no usada
 	return doc.name
 
 
