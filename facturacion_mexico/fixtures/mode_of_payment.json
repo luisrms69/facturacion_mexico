@@ -24,16 +24,6 @@
   "docstatus": 0,
   "doctype": "Mode of Payment",
   "enabled": 1,
-  "mode_of_payment": "03 - Transferencia electrónica de fondos",
-  "modified": "2025-08-01 02:19:40.223135",
-  "name": "03 - Transferencia electrónica de fondos",
-  "type": "General"
- },
- {
-  "accounts": [],
-  "docstatus": 0,
-  "doctype": "Mode of Payment",
-  "enabled": 1,
   "mode_of_payment": "04 - Tarjeta de crédito",
   "modified": "2025-08-01 02:19:40.226123",
   "name": "04 - Tarjeta de crédito",
@@ -217,6 +207,16 @@
   "mode_of_payment": "99 - Por definir",
   "modified": "2025-08-01 02:19:40.291445",
   "name": "99 - Por definir",
+  "type": "General"
+ },
+ {
+  "accounts": [],
+  "docstatus": 0,
+  "doctype": "Mode of Payment",
+  "enabled": 1,
+  "mode_of_payment": "03 - Transferencia electrónica de fondos",
+  "modified": "2025-08-01 02:19:40.223135",
+  "name": "03 - Transferencia electrónica de fondos",
   "type": "General"
  }
 ]

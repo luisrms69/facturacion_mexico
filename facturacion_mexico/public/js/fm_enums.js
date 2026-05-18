@@ -13,8 +13,6 @@
 		CANCELACIÓN_PENDIENTE: "CANCELACIÓN_PENDIENTE",
 		RECHAZADO: "RECHAZADO",
 		ERROR: "ERROR",
-		PROCESANDO: "PROCESANDO",
-		ARCHIVADO: "ARCHIVADO",
 	};
 
 	const StatusColor = {
@@ -24,8 +22,6 @@
 		CANCELACIÓN_PENDIENTE: "orange",
 		RECHAZADO: "red",
 		ERROR: "red",
-		PROCESANDO: "blue",
-		ARCHIVADO: "purple",
 	};
 
 	const StatusLabel = {
@@ -35,8 +31,6 @@
 		CANCELACIÓN_PENDIENTE: "CANCELACIÓN PENDIENTE",
 		RECHAZADO: "RECHAZADO",
 		ERROR: "ERROR",
-		PROCESANDO: "PROCESANDO",
-		ARCHIVADO: "ARCHIVADO",
 	};
 
 	function indicatorFor(state) {

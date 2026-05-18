@@ -232,9 +232,6 @@ fixtures = [
 			]
 		],
 	},
-	# DocTypes nuevos: CRFM (rector reclasificación fiscal)
-	{"dt": "Configuracion Reclasificacion Fiscal Mexico"},
-	{"dt": "Regla Reclasificacion Fiscal"},
 	# SAT Catalogs Fixtures - Migration from install.py to fixtures (Temporarily disabled for fixtures export)
 	# "facturacion_mexico/fixtures/sat_uso_cfdi.json",
 	# "facturacion_mexico/fixtures/sat_regimen_fiscal.json",
@@ -413,21 +410,10 @@ scheduler_events = {
 		"facturacion_mexico.complementos_pago.api.process_pending_complements",
 		"facturacion_mexico.ereceipts.api.expire_ereceipts",
 	],
-	# OPTIMIZACIÓN P2.2.1: Cambiar recovery jobs de "all" a intervalos específicos
 	"cron": {
-		# Recovery Worker - Timeout recovery cada 5 minutos
-		"*/5 * * * *": [
-			"facturacion_mexico.facturacion_fiscal.tasks.process_timeout_recovery",
-			"facturacion_mexico.facturacion_fiscal.tasks.process_bulk_sync",
-		],
-		# Recovery Worker - Sync errors cada 10 minutos
-		"*/10 * * * *": [
-			"facturacion_mexico.facturacion_fiscal.tasks.process_sync_errors",
-		],
 		# Validación RFC automática nocturna a las 2:00 AM todos los días
 		"0 2 * * *": [
 			"facturacion_mexico.validaciones.api.run_nightly_rfc_validation",
-			# Recovery Worker - Limpieza logs diaria a las 2:00 AM
 			"facturacion_mexico.facturacion_fiscal.tasks.cleanup_old_logs",
 		],
 	},

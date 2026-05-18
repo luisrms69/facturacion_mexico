@@ -103,7 +103,6 @@ class ResilienceArchitectureValidator:
 				[
 					"fm_fiscal_status",
 					"fm_sync_status",
-					"fm_sub_status",
 					"fm_last_pac_sync",
 					"modified",
 					"creation",
@@ -116,15 +115,13 @@ class ResilienceArchitectureValidator:
 				validation["errors"].append(f"Factura Fiscal {factura_fiscal_name} no encontrada")
 				return validation
 
-			# VALIDACIÓN 1: fm_fiscal_status debe estar en valores válidos (ARQUITECTURA RESILIENTE)
+			# VALIDACIÓN 1: fm_fiscal_status debe estar en valores válidos
 			valid_statuses = [
 				"BORRADOR",
-				"PROCESANDO",
 				"TIMBRADO",
 				"ERROR",
 				"CANCELADO",
 				"PENDIENTE_CANCELACION",
-				"ARCHIVADO",
 			]
 			current_status = fiscal_data.get("fm_fiscal_status")
 
@@ -240,11 +237,11 @@ class ResilienceArchitectureValidator:
 						log_issues.append(f"response_time_ms inválido: {response_time}")
 
 					if log_issues:
-						validation["errors"].extend([f"Log {i+1}: {issue}" for issue in log_issues])
+						validation["errors"].extend([f"Log {i + 1}: {issue}" for issue in log_issues])
 						validation["passed"] = False
 					else:
 						validation["details"].append(
-							f"✅ Log {i+1}: Campos arquitectura resiliente correctos"
+							f"✅ Log {i + 1}: Campos arquitectura resiliente correctos"
 						)
 
 				# VALIDACIÓN 2: Orden cronológico
@@ -304,44 +301,7 @@ class ResilienceArchitectureValidator:
 		}
 
 		try:
-			# VALIDACIÓN 1: Probar Status Calculator (función stateless)
-			try:
-				from facturacion_mexico.facturacion_fiscal.utils import calculate_current_status
-
-				calculated_status = calculate_current_status(factura_fiscal_name)
-
-				if "status" in calculated_status and "source" in calculated_status:
-					validation["details"].append("✅ Status Calculator funcionando correctamente")
-					validation["details"].append(f"Estado calculado: {calculated_status.get('status')}")
-				else:
-					validation["errors"].append("Status Calculator retorna estructura inválida")
-					validation["passed"] = False
-
-			except Exception as calc_error:
-				validation["errors"].append(f"Status Calculator falló: {calc_error!s}")
-				validation["passed"] = False
-
-			# VALIDACIÓN 2: Probar Sync Service
-			try:
-				from facturacion_mexico.facturacion_fiscal.utils import sync_status_to_sales_invoice
-
-				# Probar sincronización (modo seguro - no modifica si no hay cambios)
-				sync_result = sync_status_to_sales_invoice(factura_fiscal_name)
-
-				if sync_result.get("success"):
-					validation["details"].append("✅ Sync Service funcionando correctamente")
-					if sync_result.get("synced"):
-						validation["details"].append("Sincronización ejecutada")
-					else:
-						validation["details"].append("Sin cambios requeridos - consistente")
-				else:
-					validation["warnings"].append(f"Sync Service reporta error: {sync_result.get('error')}")
-
-			except Exception as sync_error:
-				validation["errors"].append(f"Sync Service falló: {sync_error!s}")
-				validation["passed"] = False
-
-			# VALIDACIÓN 3: Verificar timestamps sincronización
+			# Validar que el documento tiene estado y PAC sync consistentes
 			fiscal_data = frappe.db.get_value(
 				"Factura Fiscal Mexico",
 				factura_fiscal_name,
@@ -350,8 +310,8 @@ class ResilienceArchitectureValidator:
 			)
 
 			if fiscal_data:
-				last_sync = fiscal_data.get("fm_last_pac_sync")
 				sync_status = fiscal_data.get("fm_sync_status")
+				last_sync = fiscal_data.get("fm_last_pac_sync")
 
 				if sync_status == "synced" and not last_sync:
 					validation["warnings"].append("fm_sync_status=synced pero fm_last_pac_sync vacío")
@@ -378,10 +338,8 @@ class ResilienceArchitectureValidator:
 		"""
 		Validar mecanismos de recovery de la arquitectura.
 
-		VALIDACIONES CRÍTICAS:
-		- Recovery Worker tareas disponibles
-		- Fallback filesystem (/tmp/facturacion_mexico_pac_fallback/)
-		- Fiscal Recovery Task DocType funcional
+		VALIDACIONES:
+		- cleanup_old_logs disponible
 		"""
 		validation = {
 			"test_name": "Recovery Mechanisms Validation",
@@ -408,50 +366,14 @@ class ResilienceArchitectureValidator:
 			else:
 				validation["warnings"].append("Directorio fallback no existe - se creará bajo demanda")
 
-			# VALIDACIÓN 2: Verificar Recovery Worker funciones disponibles
+			# Verificar que cleanup_old_logs esté disponible
 			try:
-				from facturacion_mexico.facturacion_fiscal.tasks import process_timeout_recovery
-
-				validation["details"].append("✅ Recovery Worker (process_timeout_recovery) disponible")
-
-				from facturacion_mexico.facturacion_fiscal.tasks import process_sync_errors
-
-				validation["details"].append("✅ Recovery Worker (process_sync_errors) disponible")
-
 				from facturacion_mexico.facturacion_fiscal.tasks import cleanup_old_logs
 
-				validation["details"].append("✅ Recovery Worker (cleanup_old_logs) disponible")
-
+				validation["details"].append("✅ cleanup_old_logs disponible")
 			except ImportError as import_error:
-				validation["errors"].append(f"Recovery Worker no disponible: {import_error!s}")
+				validation["errors"].append(f"cleanup_old_logs no disponible: {import_error!s}")
 				validation["passed"] = False
-
-			# VALIDACIÓN 3: Verificar Fiscal Recovery Task DocType
-			try:
-				if frappe.db.exists("DocType", "Fiscal Recovery Task"):
-					validation["details"].append("✅ Fiscal Recovery Task DocType existe")
-
-					# Verificar si hay tareas para esta factura
-					recovery_tasks = frappe.db.count(
-						"Fiscal Recovery Task", {"reference_doctype": "FacturAPI Response Log"}
-					)
-					validation["details"].append(f"📊 {recovery_tasks} recovery tasks en sistema")
-
-				else:
-					validation["warnings"].append("Fiscal Recovery Task DocType no encontrado")
-
-			except Exception as doctype_error:
-				validation["warnings"].append(f"Error verificando Fiscal Recovery Task: {doctype_error!s}")
-
-			# VALIDACIÓN 4: Probar PAC Response Writer resilience
-			try:
-				from facturacion_mexico.facturacion_fiscal.api import get_fallback_files
-
-				fallback_files = get_fallback_files()
-				validation["details"].append(f"📊 {len(fallback_files)} archivos fallback en sistema")
-
-			except Exception as fallback_error:
-				validation["warnings"].append(f"Error accediendo fallback files: {fallback_error!s}")
 
 			self.validation_results["summary"]["total_validations"] += 1
 			if validation["passed"]:
