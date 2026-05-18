@@ -385,7 +385,7 @@ class PACResponseWriter:
 				return
 
 			# Determinar nuevo estado con reglas estrictas según tipo de operación
-			new_status, status_code, uuid = self._derive_status_from_response(response_data, operation_type)
+			new_status, _status_code, uuid = self._derive_status_from_response(response_data, operation_type)
 
 			# Preparar campos a actualizar - NORMALIZACIÓN CRÍTICA A MAYÚSCULAS
 			success = bool(response_data.get("success"))
@@ -490,35 +490,8 @@ class PACResponseWriter:
 			return None, status_code or 500, ""
 
 	def _schedule_recovery_task(self, fallback_file: str):
-		"""Programar tarea de recovery para archivo fallback."""
-		try:
-			# Crear Fiscal Recovery Task para procesar archivo cuando BD vuelva
-			recovery_task = frappe.get_doc(
-				{
-					"doctype": "Fiscal Recovery Task",
-					"task_type": "filesystem_recovery",
-					"reference_doctype": "FacturAPI Response Log",
-					"reference_name": fallback_file,
-					"priority": "high",
-					"max_attempts": 5,
-					"scheduled_time": add_to_date(now_datetime(), minutes=2),
-					"created_by_system": 1,
-					"recovery_data": json.dumps(
-						{
-							"fallback_file": fallback_file,
-							"created_timestamp": now(),
-							"recovery_type": "pac_response_fallback",
-						}
-					),
-				}
-			)
-
-			recovery_task.insert()
-			frappe.db.commit()
-
-		except Exception:
-			# Si no podemos crear recovery task, al menos el archivo está guardado
-			pass
+		"""No-op: recovery tasks removed. Fallback file serves as the record."""
+		pass
 
 
 @frappe.whitelist()
@@ -586,22 +559,6 @@ def write_pac_timeout(
 		result = writer.write_pac_response(
 			sales_invoice_name, request_dict, timeout_response, "timeout_recovery"
 		)
-
-		# Crear recovery task específico para timeout
-		try:
-			from facturacion_mexico.facturacion_fiscal.doctype.fiscal_recovery_task.fiscal_recovery_task import (
-				FiscalRecoveryTask,
-			)
-
-			recovery_task = FiscalRecoveryTask.create_timeout_recovery_task(
-				response_log_name=result.get("response_log_name"),
-				original_request_id=request_dict.get("request_id"),
-			)
-
-			result["recovery_task"] = recovery_task.name
-
-		except Exception as recovery_error:
-			result["recovery_error"] = str(recovery_error)
 
 		return result
 

@@ -338,10 +338,8 @@ class ResilienceArchitectureValidator:
 		"""
 		Validar mecanismos de recovery de la arquitectura.
 
-		VALIDACIONES CRÍTICAS:
-		- Recovery Worker tareas disponibles
-		- Fallback filesystem (/tmp/facturacion_mexico_pac_fallback/)
-		- Fiscal Recovery Task DocType funcional
+		VALIDACIONES:
+		- cleanup_old_logs disponible
 		"""
 		validation = {
 			"test_name": "Recovery Mechanisms Validation",
