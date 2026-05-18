@@ -232,9 +232,6 @@ fixtures = [
 			]
 		],
 	},
-	# DocTypes nuevos: CRFM (rector reclasificación fiscal)
-	{"dt": "Configuracion Reclasificacion Fiscal Mexico"},
-	{"dt": "Regla Reclasificacion Fiscal"},
 	# SAT Catalogs Fixtures - Migration from install.py to fixtures (Temporarily disabled for fixtures export)
 	# "facturacion_mexico/fixtures/sat_uso_cfdi.json",
 	# "facturacion_mexico/fixtures/sat_regimen_fiscal.json",
