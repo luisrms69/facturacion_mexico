@@ -117,7 +117,10 @@ def refacturar_misma_si(si_name: str):
 			)
 
 		# M4-02/03/04: Guard contextual - verificar motivo cancelación 02/03/04
-		motivo_code = _extract_motive_code_from_reason(ffm.get("cancellation_reason") or "")
+		# fm_motivo_cancelacion es la fuente canónica; fallback a cancellation_reason para datos legacy
+		motivo_code = ffm.get("fm_motivo_cancelacion") or _extract_motive_code_from_reason(
+			ffm.get("cancellation_reason") or ""
+		)
 		if motivo_code not in ["02", "03", "04"]:
 			frappe.throw(
 				_(
