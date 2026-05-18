@@ -1292,9 +1292,11 @@ class TimbradoAPI:
 				if cancellation_date:
 					update_data["cancellation_date"] = cancellation_date
 
-				# Limpiar motivo de cancelación si PAC rechazó la solicitud
-				if fiscal_status != FiscalStates.CANCELADO:
-					update_data["fm_motivo_cancelacion"] = None
+				# fm_motivo_cancelacion es el campo canónico del código SAT
+				if fiscal_status == FiscalStates.CANCELADO:
+					update_data["fm_motivo_cancelacion"] = motivo  # código corto: "01", "02", etc.
+				else:
+					update_data["fm_motivo_cancelacion"] = None  # solicitud rechazada o pendiente
 
 				frappe.set_value("Factura Fiscal Mexico", factura_fiscal.name, update_data)
 
