@@ -590,10 +590,6 @@ class FacturaFiscalMexico(Document):
 		# Actualizar Sales Invoice con información fiscal
 		self.update_sales_invoice_fiscal_info()
 
-		# FASE 1.1: Deshabilitar sync_facturapi_history() - funcionalidad duplicada
-		# FacturAPI Response Log es la única fuente de verdad para historial
-		# self.sync_facturapi_history()
-
 		# Recalcular estado fiscal basado en logs
 		self.calculate_fiscal_status_from_logs()
 
@@ -914,78 +910,6 @@ class FacturaFiscalMexico(Document):
 		frappe.logger().info(
 			f"Validación PPD/PUE exitosa - Tipo: {'PPD' if is_ppd else 'PUE'}, Forma Pago: {forma_pago_sat}"
 		)
-
-	def sync_facturapi_history(self):
-		"""Sincronizar historial de respuestas FacturAPI con child table."""
-		try:
-			# Obtener logs de FacturAPI Response Log
-			logs = frappe.get_all(
-				"FacturAPI Response Log",
-				filters={"factura_fiscal_mexico": self.name},
-				fields=[
-					"timestamp",
-					"operation_type",
-					"success",
-					"status_code",
-					"error_message",
-					"facturapi_response",
-				],
-				order_by="timestamp desc",
-			)
-
-			# Limpiar tabla actual usando set() (reconocido por semgrep)
-			self.set("facturapi_response_history", [])
-
-			# Agregar cada log como fila en child table
-			for log in logs:
-				# Crear resumen de respuesta
-				response_summary = ""
-				if log.facturapi_response:
-					try:
-						import json
-
-						response_data = (
-							log.facturapi_response
-							if isinstance(log.facturapi_response, dict)
-							else json.loads(log.facturapi_response)
-						)
-
-						# Extraer información clave
-						key_info = []
-						if response_data.get("id"):
-							key_info.append(f"ID: {response_data['id']}")
-						if response_data.get("uuid"):
-							key_info.append(f"UUID: {response_data['uuid'][:8]}...")
-						if response_data.get("status"):
-							key_info.append(f"Status: {response_data['status']}")
-
-						response_summary = " | ".join(key_info) if key_info else "Respuesta procesada"
-					except Exception:
-						response_summary = "Respuesta disponible"
-
-				# Agregar fila a child table
-				self.append(
-					"facturapi_response_history",
-					{
-						"timestamp": log.timestamp,
-						"operation_type": log.operation_type,
-						"success": log.success,
-						"status_code": log.status_code,
-						"error_message": log.error_message[:100]
-						if log.error_message
-						else None,  # Truncar para UI
-						"response_summary": response_summary,
-					},
-				)
-
-			# Guardar cambios usando save() (reconocido por semgrep)
-			self.save(ignore_permissions=True)
-
-		except Exception as e:
-			frappe.log_error(
-				f"Error sincronizando historial FacturAPI para {self.name}: {e!s}",
-				"FacturAPI History Sync Error",
-			)
 
 	def calculate_fiscal_status_from_logs(self):
 		"""Calcular estado fiscal automáticamente basado en logs de FacturAPI."""
