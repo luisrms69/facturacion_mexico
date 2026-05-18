@@ -1042,22 +1042,29 @@ class TimbradoAPI:
 			)
 
 	def _download_fiscal_files(self, factura_fiscal, facturapi_id):
-		"""Descargar PDF y XML de la factura."""
+		"""Descargar PDF y XML de la factura y actualizar campos en FFM."""
 		try:
-			# Descargar PDF
+			updates = {}
+
 			pdf_content = self.client.download_pdf(facturapi_id)
-			self._save_file_attachment(
+			pdf_url = self._save_file_attachment(
 				factura_fiscal.name, f"{factura_fiscal.name}.pdf", pdf_content, "application/pdf"
 			)
+			if pdf_url:
+				updates["pdf_file"] = pdf_url
 
-			# Descargar XML
 			xml_content = self.client.download_xml(facturapi_id)
-			self._save_file_attachment(
+			xml_url = self._save_file_attachment(
 				factura_fiscal.name,
 				f"{factura_fiscal.name}.xml",
 				xml_content.encode("utf-8"),
 				"application/xml",
 			)
+			if xml_url:
+				updates["xml_file"] = xml_url
+
+			if updates:
+				frappe.db.set_value("Factura Fiscal Mexico", factura_fiscal.name, updates)
 
 		except Exception as e:
 			frappe.logger().error(f"Error descargando archivos: {e!s}")
@@ -1093,10 +1100,10 @@ class TimbradoAPI:
 			frappe.logger().error(f"[FFM email] Traceback: {traceback.format_exc()}")
 
 	def _save_file_attachment(self, docname, filename, content, content_type):
-		"""Guardar archivo como attachment."""
+		"""Guardar archivo como attachment. Returns file_url."""
 		from frappe.utils.file_manager import save_file
 
-		save_file(
+		file_doc = save_file(
 			fname=filename,
 			content=content,
 			dt="Factura Fiscal Mexico",
@@ -1104,6 +1111,7 @@ class TimbradoAPI:
 			decode=False,
 			is_private=1,
 		)
+		return file_doc.file_url if file_doc else None
 
 	def _download_cancellation_receipt_files(self, factura_fiscal, facturapi_id):
 		"""Descargar PDF y XML del acuse de cancelación."""
