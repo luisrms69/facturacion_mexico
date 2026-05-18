@@ -13,6 +13,7 @@
   "company",
   "customer",
   "fm_facturar_venta_mostrador",
+  "customer_fiscal_warning",
   "fm_enviar_email_timbrado",
   "status",
   "column_break_payment_methods",
@@ -33,8 +34,8 @@
   "fecha_timbrado",
   "section_break_facturapi",
   "facturapi_id",
-  "uuid",
   "fm_cfdi_use",
+  "fm_uuid",
   "fm_motivo_cancelacion",
   "fm_serie_folio",
   "fm_lugar_expedicion",
@@ -60,9 +61,7 @@
   "section_break_urls_archivos",
   "fm_xml_url",
   "fm_pdf_url",
-  "fm_last_response_log",
-  "section_break_historial_facturapi",
-  "facturapi_response_history"
+  "fm_last_response_log"
  ],
  "fields": [
   {
@@ -337,19 +336,6 @@
    "label": "Fecha de Cancelación",
    "read_only": 1,
    "allow_on_submit": 1
-  },
-  {
-   "fieldname": "section_break_historial_facturapi",
-   "fieldtype": "Section Break",
-   "label": "Historial FacturAPI"
-  },
-  {
-   "depends_on": "eval:false",
-   "fieldname": "facturapi_response_history",
-   "fieldtype": "Table",
-   "label": "Historial de Respuestas (DEPRECADO)",
-   "options": "FacturAPI Response Item",
-   "read_only": 1
   },
   {
    "fieldname": "section_break_datos_facturacion",
