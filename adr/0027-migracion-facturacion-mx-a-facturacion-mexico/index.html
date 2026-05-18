@@ -20,7 +20,7 @@
     
     
       
-        <title>ADR 0025 — Notas de Crédito CFDI tipo E (Issue #116) - Facturación México - Documentación Técnica</title>
+        <title>ADR 0027 — Migración facturacion_mx → facturacion_mexico - Facturación México - Documentación Técnica</title>
       
     
     
@@ -86,7 +86,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#adr-0025-notas-de-credito-cfdi-tipo-e-issue-116" class="md-skip">
+        <a href="#adr-0027-migracion-facturacion_mx-facturacion_mexico" class="md-skip">
           Saltar a contenido
         </a>
       
@@ -124,7 +124,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              ADR 0025 — Notas de Crédito CFDI tipo E (Issue #116)
+              ADR 0027 — Migración facturacion_mx → facturacion_mexico
             
           </span>
         </div>
@@ -859,91 +859,91 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#decision" class="md-nav__link">
+  <a href="#alcance" class="md-nav__link">
     <span class="md-ellipsis">
-      Decisión
+      Alcance
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#cambios-implementados" class="md-nav__link">
+  <a href="#fase-1-setup-del-nuevo-sistema-orden-obligatorio" class="md-nav__link">
     <span class="md-ellipsis">
-      Cambios implementados
+      Fase 1 — Setup del nuevo sistema (orden obligatorio)
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Cambios implementados">
+    <nav class="md-nav" aria-label="Fase 1 — Setup del nuevo sistema (orden obligatorio)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-uuid-relacionado-obligatorio" class="md-nav__link">
+  <a href="#paso-1-facturacion-mexico-settings" class="md-nav__link">
     <span class="md-ellipsis">
-      1. UUID relacionado obligatorio
+      Paso 1 — Facturacion Mexico Settings
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-resolucion-automatica-de-uuid-origen-_find_uuid_cfdi_origen" class="md-nav__link">
+  <a href="#paso-2-system-settings" class="md-nav__link">
     <span class="md-ellipsis">
-      2. Resolución automática de UUID origen — _find_uuid_cfdi_origen()
+      Paso 2 — System Settings
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-tiporelacion-03-para-devoluciones-fisicas" class="md-nav__link">
+  <a href="#paso-3-configuracion-fiscal-mexico" class="md-nav__link">
     <span class="md-ellipsis">
-      3. TipoRelación 03 para devoluciones físicas
+      Paso 3 — Configuracion Fiscal Mexico
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#4-formapago-automatica-_auto_populate_forma_pago_tipo_e-provisional" class="md-nav__link">
+  <a href="#paso-4-generar-templates-fiscales-stct-e-itt" class="md-nav__link">
     <span class="md-ellipsis">
-      4. FormaPago automática — _auto_populate_forma_pago_tipo_e() (provisional)
+      Paso 4 — Generar templates fiscales (STCT e ITT)
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#5-herencia-de-campos-fiscales-desde-ffm-origen-_get_origin_ffm" class="md-nav__link">
+  <a href="#paso-5-configurar-branches-fiscalmente" class="md-nav__link">
     <span class="md-ellipsis">
-      5. Herencia de campos fiscales desde FFM origen — _get_origin_ffm()
+      Paso 5 — Configurar Branches fiscalmente
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#6-campos-fiscales-read-only-en-tipo-e-_lock_egreso_fields" class="md-nav__link">
+  <a href="#paso-6-mapear-cost-centers-a-branches" class="md-nav__link">
     <span class="md-ellipsis">
-      6. Campos fiscales read-only en tipo E — _lock_egreso_fields()
+      Paso 6 — Mapear Cost Centers a Branches
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#7-sin-addenda-en-tipo-e" class="md-nav__link">
+  <a href="#paso-7-configuracion-reclasificacion-fiscal-mexico-mrfpe" class="md-nav__link">
     <span class="md-ellipsis">
-      7. Sin addenda en tipo E
+      Paso 7 — Configuracion Reclasificacion Fiscal Mexico (MRFPE)
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#8-montos-absolutos-en-validacion-de-discrepancias" class="md-nav__link">
+  <a href="#paso-8-validacion-de-rfc-en-customers" class="md-nav__link">
     <span class="md-ellipsis">
-      8. Montos absolutos en validación de discrepancias
+      Paso 8 — Validación de RFC en Customers
     </span>
   </a>
   
@@ -955,46 +955,55 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#validacion-realizada" class="md-nav__link">
+  <a href="#fase-2-migracion-de-datos-historicos" class="md-nav__link">
     <span class="md-ellipsis">
-      Validación realizada
+      Fase 2 — Migración de datos históricos
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#matriz-de-escenarios-formapago-todos-los-casos-identificados" class="md-nav__link">
-    <span class="md-ellipsis">
-      Matriz de escenarios FormaPago — todos los casos identificados
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#pendientes-normativos-no-declarar-el-flujo-como-cerrado" class="md-nav__link">
-    <span class="md-ellipsis">
-      Pendientes normativos — NO declarar el flujo como cerrado
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Pendientes normativos — NO declarar el flujo como cerrado">
+    <nav class="md-nav" aria-label="Fase 2 — Migración de datos históricos">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#issue-136-validacion-normativa-completa-tipo-e" class="md-nav__link">
+  <a href="#items-y-grupos-fiscales" class="md-nav__link">
     <span class="md-ellipsis">
-      Issue #136 — Validación normativa completa tipo E
+      Items y grupos fiscales
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#issue-137-flujo-tiporelacion-01" class="md-nav__link">
+  <a href="#campos-en-customer" class="md-nav__link">
     <span class="md-ellipsis">
-      Issue #137 — Flujo TipoRelación 01
+      Campos en Customer
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#facturas-historicas-tabfactura-factura-fiscal-mexico" class="md-nav__link">
+    <span class="md-ellipsis">
+      Facturas históricas — tabFactura → Factura Fiscal Mexico
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#complementos-de-pago-tabcomplemento-de-pago-ppd-complemento-pago-mx" class="md-nav__link">
+    <span class="md-ellipsis">
+      Complementos de Pago — tabComplemento de Pago PPD → Complemento Pago MX
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#templates-fiscales-legacy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Templates fiscales legacy
     </span>
   </a>
   
@@ -1006,18 +1015,42 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#deuda-tecnica" class="md-nav__link">
+  <a href="#caracteristicas-del-script-de-migracion-de-datos" class="md-nav__link">
     <span class="md-ellipsis">
-      Deuda técnica
+      Características del script de migración de datos
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Características del script de migración de datos">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#principios" class="md-nav__link">
+    <span class="md-ellipsis">
+      Principios
     </span>
   </a>
   
 </li>
+        
+          <li class="md-nav__item">
+  <a href="#estructura-propuesta" class="md-nav__link">
+    <span class="md-ellipsis">
+      Estructura propuesta
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
       
         <li class="md-nav__item">
-  <a href="#consecuencias" class="md-nav__link">
+  <a href="#pendientes-para-completar-el-adr" class="md-nav__link">
     <span class="md-ellipsis">
-      Consecuencias
+      Pendientes para completar el ADR
     </span>
   </a>
   
@@ -1047,227 +1080,280 @@
                   
 
 
-<h1 id="adr-0025-notas-de-credito-cfdi-tipo-e-issue-116">ADR 0025 — Notas de Crédito CFDI tipo E (Issue #116)<a class="headerlink" href="#adr-0025-notas-de-credito-cfdi-tipo-e-issue-116" title="Permanent link">&para;</a></h1>
-<p><strong>Fecha:</strong> 2026-05-13
-<strong>Estado:</strong> Implementado — pendientes normativos documentados (#136, #137)
+<h1 id="adr-0027-migracion-facturacion_mx-facturacion_mexico">ADR 0027 — Migración facturacion_mx → facturacion_mexico<a class="headerlink" href="#adr-0027-migracion-facturacion_mx-facturacion_mexico" title="Permanent link">&para;</a></h1>
+<p><strong>Fecha:</strong> 2026-05-16
+<strong>Estado:</strong> En definición — script de datos pendiente de implementación
 <strong>Autor:</strong> Luis Montanaro / Claude Sonnet 4.6</p>
 <hr />
 <h2 id="contexto">Contexto<a class="headerlink" href="#contexto" title="Permanent link">&para;</a></h2>
-<p>Issue #116 requería implementar el flujo completo de emisión de Notas de Crédito
-(CFDI tipo E — Egreso) desde ERPNext. El único camino actualmente soportado es desde
-una Sales Invoice de devolución (<code>is_return=True</code>), que representa devolución física
-de mercancía.</p>
+<p>Cualquier site que tenga instalada <code>facturacion_mx</code> (app legacy) y deba migrar a
+<code>facturacion_mexico</code> (app nueva) enfrenta una convivencia temporal de dos sistemas
+de facturación sobre los mismos DocTypes de ERPNext.</p>
+<p>La migración tiene dos fases distintas:
+1. <strong>Configuración del nuevo sistema</strong> — setup de <code>facturacion_mexico</code> desde cero
+2. <strong>Migración de datos históricos</strong> — trasladar documentos fiscales legacy al nuevo esquema</p>
+<p>Este ADR documenta ambas fases, el orden correcto de ejecución y las características
+del script de migración de datos.</p>
 <hr />
-<h2 id="decision">Decisión<a class="headerlink" href="#decision" title="Permanent link">&para;</a></h2>
-<p>Implementar el flujo mínimo necesario para que las notas de crédito timbren
-correctamente como CFDI tipo E, partiendo de la infraestructura existente en
-<code>Factura Fiscal Mexico</code> (mismo DocType que tipo I).</p>
-<p><strong>Nota:</strong> El uso del mismo DocType introduce complejidad. Se ha documentado como
-deuda técnica (Issue #135 — refactor FFM JS) y la complejidad creció durante esta
-implementación. Se recomienda evaluar DocType separado para tipo E en versiones futuras.</p>
-<hr />
-<h2 id="cambios-implementados">Cambios implementados<a class="headerlink" href="#cambios-implementados" title="Permanent link">&para;</a></h2>
-<h3 id="1-uuid-relacionado-obligatorio">1. UUID relacionado obligatorio<a class="headerlink" href="#1-uuid-relacionado-obligatorio" title="Permanent link">&para;</a></h3>
-<p>Guard bloqueante en <code>_prepare_facturapi_data()</code> antes de enviar a FacturAPI:</p>
-<div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="n">invoice_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;E&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">uuid_relacionado</span><span class="p">:</span>
-    <span class="n">frappe</span><span class="o">.</span><span class="n">throw</span><span class="p">(</span><span class="s2">&quot;No se puede timbrar la Nota de Crédito: falta el UUID del CFDI origen relacionado.&quot;</span><span class="p">)</span>
-</code></pre></div>
-<p><code>related_documents</code> se garantiza siempre — no se omite silenciosamente.</p>
-<h3 id="2-resolucion-automatica-de-uuid-origen-_find_uuid_cfdi_origen">2. Resolución automática de UUID origen — <code>_find_uuid_cfdi_origen()</code><a class="headerlink" href="#2-resolucion-automatica-de-uuid-origen-_find_uuid_cfdi_origen" title="Permanent link">&para;</a></h3>
-<p>Dos rutas:
-1. <code>Sales Invoice.fm_factura_fiscal_mx</code> → <code>Factura Fiscal Mexico.fm_uuid</code> (ruta rápida)
-2. Query directa en <code>Factura Fiscal Mexico</code> por <code>sales_invoice=return_against</code> y <code>status=TIMBRADO</code> (fallback)</p>
-<h3 id="3-tiporelacion-03-para-devoluciones-fisicas">3. TipoRelación 03 para devoluciones físicas<a class="headerlink" href="#3-tiporelacion-03-para-devoluciones-fisicas" title="Permanent link">&para;</a></h3>
-<p>Toda nota de crédito generada desde Sales Invoice <code>is_return=True</code> usa <code>TipoRelación = 03</code>
-(Devolución de mercancía sobre facturas o traslados previos).</p>
-<p>TipoRelación 01 (descuentos, bonificaciones) es un flujo distinto — Issue #137.</p>
-<h3 id="4-formapago-automatica-_auto_populate_forma_pago_tipo_e-provisional">4. FormaPago automática — <code>_auto_populate_forma_pago_tipo_e()</code> <em>(provisional)</em><a class="headerlink" href="#4-formapago-automatica-_auto_populate_forma_pago_tipo_e-provisional" title="Permanent link">&para;</a></h3>
-<p>Fuente única de verdad para FormaPago en tipo E, basada en <code>outstanding_amount</code> de la SI origen:</p>
-<div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="n">nota_total</span> <span class="o">&lt;=</span> <span class="n">outstanding_origen</span><span class="p">:</span>   <span class="c1"># factura no pagada</span>
-    <span class="n">forma_pago</span> <span class="o">=</span> <span class="s2">&quot;15 - Condonación&quot;</span>
-<span class="k">elif</span> <span class="n">outstanding_origen</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>          <span class="c1"># factura pagada</span>
-    <span class="n">forma_pago</span> <span class="o">=</span> <span class="n">hereda</span> <span class="n">de</span> <span class="n">FFM</span> <span class="n">origen</span>  <span class="c1"># proxy; pendiente Issue #136</span>
-<span class="k">else</span><span class="p">:</span>                                  <span class="c1"># caso mixto</span>
-    <span class="n">forma_pago</span> <span class="o">=</span> <span class="s2">&quot;15 - Condonación&quot;</span>   <span class="c1"># safe default</span>
-</code></pre></div>
-<p><strong>Provisional:</strong> el caso <code>outstanding=0</code> puede representar "saldo a favor" (sin reembolso real)
-o reembolso efectivo. La distinción requiere validación con despacho contable. Ver Issue #136.</p>
-<h3 id="5-herencia-de-campos-fiscales-desde-ffm-origen-_get_origin_ffm">5. Herencia de campos fiscales desde FFM origen — <code>_get_origin_ffm()</code><a class="headerlink" href="#5-herencia-de-campos-fiscales-desde-ffm-origen-_get_origin_ffm" title="Permanent link">&para;</a></h3>
+<h2 id="alcance">Alcance<a class="headerlink" href="#alcance" title="Permanent link">&para;</a></h2>
 <ul>
-<li><code>fm_facturar_venta_mostrador</code> heredado del origen — sin override manual</li>
-<li><code>fm_payment_method_sat</code> del origen usado para determinar FormaPago</li>
+<li><strong>Referencia:</strong> Site llantascs (dev → producción)</li>
+<li><strong>Empresa:</strong> Una empresa por site (puede adaptarse a multi-empresa)</li>
+<li><strong>Volumen de documentos:</strong> a determinar por site antes de ejecutar</li>
 </ul>
-<h3 id="6-campos-fiscales-read-only-en-tipo-e-_lock_egreso_fields">6. Campos fiscales read-only en tipo E — <code>_lock_egreso_fields()</code><a class="headerlink" href="#6-campos-fiscales-read-only-en-tipo-e-_lock_egreso_fields" title="Permanent link">&para;</a></h3>
-<p>JS bloquea en cada refresh:
-<code>sales_invoice</code>, <code>company</code>, <code>fm_payment_method_sat</code>, <code>fm_forma_pago_timbrado</code>,
-<code>fm_facturar_venta_mostrador</code>, <code>fm_tipo_relacion_sat</code>, <code>fm_uuid_relacionado</code>.</p>
-<p>El operador no puede customizar datos fiscales en una nota de crédito.</p>
-<h3 id="7-sin-addenda-en-tipo-e">7. Sin addenda en tipo E<a class="headerlink" href="#7-sin-addenda-en-tipo-e" title="Permanent link">&para;</a></h3>
-<p><code>AddendaService.render()</code> se salta para CFDI tipo E. La propagación de addenda
-también se excluye para Sales Invoice <code>is_return=True</code>.</p>
-<h3 id="8-montos-absolutos-en-validacion-de-discrepancias">8. Montos absolutos en validación de discrepancias<a class="headerlink" href="#8-montos-absolutos-en-validacion-de-discrepancias" title="Permanent link">&para;</a></h3>
-<p><code>_validate_amount_discrepancies()</code> usa <code>abs()</code> en totales ERPNext para manejar
-las cantidades negativas propias de las SIs de devolución.</p>
 <hr />
-<h2 id="validacion-realizada">Validación realizada<a class="headerlink" href="#validacion-realizada" title="Permanent link">&para;</a></h2>
+<h2 id="fase-1-setup-del-nuevo-sistema-orden-obligatorio">Fase 1 — Setup del nuevo sistema (orden obligatorio)<a class="headerlink" href="#fase-1-setup-del-nuevo-sistema-orden-obligatorio" title="Permanent link">&para;</a></h2>
+<p>Los pasos siguientes deben ejecutarse en este orden exacto. Cada paso tiene
+dependencias con el anterior.</p>
+<h3 id="paso-1-facturacion-mexico-settings">Paso 1 — Facturacion Mexico Settings<a class="headerlink" href="#paso-1-facturacion-mexico-settings" title="Permanent link">&para;</a></h3>
+<p>Configurar credenciales FacturAPI y modo de operación:</p>
 <table>
 <thead>
 <tr>
-<th>Caso</th>
-<th>Origen MetodoPago</th>
-<th>outstanding origen</th>
-<th>FormaPago resultante</th>
-<th>TipoRelación</th>
-<th>Timbrado</th>
+<th>Campo</th>
+<th>Descripción</th>
+<th>Requerido</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>FFMX-2026-00025</td>
-<td>PPD / no pagada</td>
-<td>&gt; 0</td>
-<td>15 - Condonación</td>
-<td>03</td>
-<td>✅ sandbox</td>
+<td>API Key FacturAPI</td>
+<td>Credencial sandbox o producción</td>
+<td>✅</td>
 </tr>
 <tr>
-<td>FFMX-2026-00027</td>
-<td>PPD / no pagada</td>
-<td>&gt; 0</td>
-<td>15 - Condonación</td>
-<td>03</td>
-<td>✅ sandbox</td>
+<td>Modo operación</td>
+<td>Sandbox (pruebas) / Producción</td>
+<td>✅</td>
 </tr>
 <tr>
-<td>FFMX-2026-00028</td>
-<td>PPD / no pagada</td>
-<td>&gt; 0</td>
-<td>15 - Condonación</td>
-<td>03</td>
-<td>✅ sandbox</td>
+<td>Certificado CSD</td>
+<td>Archivos .cer / .key / contraseña</td>
+<td>✅ producción</td>
 </tr>
 <tr>
-<td>FFMX-2026-00003</td>
-<td>PPD / pagada con complemento</td>
-<td>0</td>
-<td><strong>99 - Por definir</strong> ⚠️</td>
-<td>03</td>
-<td>✅ sandbox</td>
+<td>Organization ID</td>
+<td>ID organización en FacturAPI</td>
+<td>✅</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Nota FFMX-2026-00003 (2026-05-17):</strong> La factura origen (ACC-SINV-2026-02362) era PPD y fue
-liquidada con un complemento de pago. Al momento de crear la nota de crédito, <code>outstanding=0</code>.
-El sistema heredó <code>FormaPago=99</code> de la FFM origen (que era PPD → siempre "99"). FacturAPI
-timbró sin rechazo. La validez normativa de <code>MetodoPago=PUE + FormaPago=99</code> en tipo E está
-pendiente de confirmación contable — ver Issue #136.</p>
-<hr />
-<h2 id="matriz-de-escenarios-formapago-todos-los-casos-identificados">Matriz de escenarios FormaPago — todos los casos identificados<a class="headerlink" href="#matriz-de-escenarios-formapago-todos-los-casos-identificados" title="Permanent link">&para;</a></h2>
+<h3 id="paso-2-system-settings">Paso 2 — System Settings<a class="headerlink" href="#paso-2-system-settings" title="Permanent link">&para;</a></h3>
+<p>Agregar <code>json</code> a los tipos de archivo permitidos en:
+<code>System Settings → Tipos de archivo permitidos</code></p>
+<p><strong>Por qué:</strong> <code>facturacion_mexico</code> adjunta la respuesta JSON de FacturAPI al
+<code>FacturAPI Response Log</code>. Sin esto el timbrado ocurre pero el log queda incompleto.</p>
+<h3 id="paso-3-configuracion-fiscal-mexico">Paso 3 — Configuracion Fiscal Mexico<a class="headerlink" href="#paso-3-configuracion-fiscal-mexico" title="Permanent link">&para;</a></h3>
+<p>Ejecutar el wizard de configuración fiscal para la empresa:
+- Mapear cuentas contables por rol fiscal (IVA, IEPS, retenciones)
+- Roles mínimos: IVA Nacional, IVA Acreditable
+- Roles adicionales según régimen: IEPS, retenciones ISR/IVA, IVA Frontera</p>
+<p><strong>Este paso es prerequisito para generar templates.</strong></p>
+<h3 id="paso-4-generar-templates-fiscales-stct-e-itt">Paso 4 — Generar templates fiscales (STCT e ITT)<a class="headerlink" href="#paso-4-generar-templates-fiscales-stct-e-itt" title="Permanent link">&para;</a></h3>
+<p>Desde <code>Configuracion Fiscal Mexico</code> ejecutar "Generar Templates Fiscales":
+- Genera 8 STCT (Nacional/Frontera × Básico/IEPS/Retenciones/Total)
+- Genera ITT por categoría fiscal (IVA 0%, Exento, IEPS, Retenciones)
+- Elimina <code>is_default</code> de todos los STCT anteriores de la empresa
+- Asigna ITT a grupos fiscales correspondientes</p>
+<h3 id="paso-5-configurar-branches-fiscalmente">Paso 5 — Configurar Branches fiscalmente<a class="headerlink" href="#paso-5-configurar-branches-fiscalmente" title="Permanent link">&para;</a></h3>
+<p>Para cada Branch de la empresa, completar datos fiscales:</p>
 <table>
 <thead>
 <tr>
-<th>#</th>
-<th>Origen MetodoPago</th>
-<th>outstanding origen</th>
-<th>nota_total vs outstanding</th>
-<th>FormaPago actual</th>
-<th>¿Validado?</th>
-<th>Pendiente</th>
+<th>Campo</th>
+<th>Descripción</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>A</td>
-<td>PUE</td>
-<td>0 (pagada)</td>
-<td>cualquiera</td>
-<td>Hereda forma origen (ej. "03")</td>
-<td>⚠️ No probado</td>
-<td>Confirmar si herencia es correcta</td>
+<td><code>fm_enable_fiscal</code></td>
+<td>Activar branch para facturación fiscal</td>
 </tr>
 <tr>
-<td>B</td>
-<td>PPD</td>
-<td>&gt; 0 (no pagada)</td>
-<td>nota ≤ outstanding</td>
-<td>15 - Condonación</td>
-<td>✅ Timbrado</td>
-<td>Confirmar con contador</td>
+<td><code>fm_lugar_expedicion</code></td>
+<td>Código postal del lugar de expedición CFDI</td>
 </tr>
 <tr>
-<td>C</td>
-<td>PPD</td>
-<td>&gt; 0 (no pagada)</td>
-<td>nota &gt; outstanding (mixto)</td>
-<td>15 - Condonación (safe default)</td>
-<td>⚠️ No probado</td>
-<td>Política de negocio</td>
+<td><code>fm_is_border_zone</code></td>
+<td>¿Es zona fronteriza? (IVA 8%)</td>
 </tr>
 <tr>
-<td>D</td>
-<td>PPD</td>
-<td>0 (pagada con complemento)</td>
-<td>cualquiera</td>
-<td><strong>99 - Por definir</strong> (hereda FFM origen)</td>
-<td>✅ Timbró pero ⚠️ normativa</td>
-<td><strong>Issue #136 — consulta contable urgente</strong></td>
-</tr>
-<tr>
-<td>E</td>
-<td>Descuento / bonificación</td>
-<td>N/A</td>
-<td>N/A</td>
-<td>Sin flujo implementado</td>
-<td>❌ No existe</td>
-<td>Issue #137 — TipoRelación 01</td>
+<td>RFC, Régimen Fiscal</td>
+<td>Datos del emisor por sucursal si aplica</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Escenario D es el más crítico:</strong> <code>MetodoPago=PUE + FormaPago=99</code> puede ser inválido ante el SAT
-según la guía de llenado CFDI 4.0 (FormaPago=99 solo permitido con PPD). FacturAPI no lo rechazó
-pero eso no garantiza validez ante SAT en auditoría.</p>
+<h3 id="paso-6-mapear-cost-centers-a-branches">Paso 6 — Mapear Cost Centers a Branches<a class="headerlink" href="#paso-6-mapear-cost-centers-a-branches" title="Permanent link">&para;</a></h3>
+<p>Para cada Cost Center, asignar el Branch correspondiente:
+- Campo: <code>Cost Center.fm_mapped_branch</code>
+- <strong>Sin este mapeo, el STCT no se asigna automáticamente en facturas</strong></p>
+<h3 id="paso-7-configuracion-reclasificacion-fiscal-mexico-mrfpe">Paso 7 — Configuracion Reclasificacion Fiscal Mexico (MRFPE)<a class="headerlink" href="#paso-7-configuracion-reclasificacion-fiscal-mexico-mrfpe" title="Permanent link">&para;</a></h3>
+<p>Ejecutar el wizard <code>Configuracion Reclasificacion Fiscal Mexico</code> por empresa.
+Este wizard genera automáticamente los registros <code>Mapeo Reclasificacion Fiscal
+Payment Entry (MRFPE)</code> que definen el traspaso de IVA no cobrado → cobrado
+en cada Payment Entry PPD.</p>
+<p><strong>Sin este paso, los pagos PPD no generan el traspaso fiscal correcto.</strong></p>
+<h3 id="paso-8-validacion-de-rfc-en-customers">Paso 8 — Validación de RFC en Customers<a class="headerlink" href="#paso-8-validacion-de-rfc-en-customers" title="Permanent link">&para;</a></h3>
+<p><code>facturacion_mexico</code> requiere RFC validado ante SAT para timbrar.</p>
+<p>Opciones:
+- <strong>Individual:</strong> validar manualmente antes del primer timbrado de cada cliente
+- <strong>Masiva:</strong> usar <code>bulk_validate_customers</code> respetando los límites de rate de la API del PAC</p>
+<p><strong>Considerar límites del API del PAC antes de correr validación masiva.</strong></p>
 <hr />
-<h2 id="pendientes-normativos-no-declarar-el-flujo-como-cerrado">Pendientes normativos — NO declarar el flujo como cerrado<a class="headerlink" href="#pendientes-normativos-no-declarar-el-flujo-como-cerrado" title="Permanent link">&para;</a></h2>
-<h3 id="issue-136-validacion-normativa-completa-tipo-e">Issue #136 — Validación normativa completa tipo E<a class="headerlink" href="#issue-136-validacion-normativa-completa-tipo-e" title="Permanent link">&para;</a></h3>
+<h2 id="fase-2-migracion-de-datos-historicos">Fase 2 — Migración de datos históricos<a class="headerlink" href="#fase-2-migracion-de-datos-historicos" title="Permanent link">&para;</a></h2>
+<h3 id="items-y-grupos-fiscales">Items y grupos fiscales<a class="headerlink" href="#items-y-grupos-fiscales" title="Permanent link">&para;</a></h3>
+<p>Evaluar por cliente si los productos requieren clasificación fiscal especial:
+- IVA 16% estándar: <strong>no requiere migración</strong> — el STCT lo maneja
+- IVA 0%, Exento, IEPS, Retenciones: asignar items a los grupos fiscales correspondientes</p>
+<h3 id="campos-en-customer">Campos en Customer<a class="headerlink" href="#campos-en-customer" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Campo origen (<code>facturacion_mx</code>)</th>
+<th>Campo destino (<code>facturacion_mexico</code>)</th>
+<th>Transformación</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Customer.custom_uso_cfdi</code></td>
+<td><code>Customer.fm_uso_cfdi_default</code></td>
+<td><strong>Directo</strong> — mismo código SAT en ambos catálogos</td>
+</tr>
+<tr>
+<td><code>Customer.tax_category</code></td>
+<td><code>Customer.fm_tax_regime</code></td>
+<td><strong>Extracción</strong> — primeros 3 caracteres (<code>"601 General..."</code> → <code>"601"</code>)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Notas:</strong>
+- <code>custom_uso_cfdi</code> → DocType <code>Uso CFDI</code>; <code>fm_uso_cfdi_default</code> → DocType <code>Uso CFDI SAT</code>
+- Los <code>name</code> coinciden en ambos catálogos (G03, S01, etc.)
+- <code>tax_category</code> es texto libre; <code>fm_tax_regime</code> es Link a <code>Regimen Fiscal SAT</code></p>
+<h3 id="facturas-historicas-tabfactura-factura-fiscal-mexico">Facturas históricas — <code>tabFactura</code> → <code>Factura Fiscal Mexico</code><a class="headerlink" href="#facturas-historicas-tabfactura-factura-fiscal-mexico" title="Permanent link">&para;</a></h3>
+<p><strong>Volumen:</strong> a determinar por site</p>
+<table>
+<thead>
+<tr>
+<th>Campo origen</th>
+<th>Campo destino</th>
+<th>Transformación</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sales_invoice_id</code></td>
+<td><code>sales_invoice</code></td>
+<td>Directo</td>
+</tr>
+<tr>
+<td><code>uuid</code></td>
+<td><code>fm_uuid</code></td>
+<td>Directo</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td><code>fm_fiscal_status</code></td>
+<td><strong>Requiere tabla de equivalencias</strong></td>
+</tr>
+<tr>
+<td><code>tipo</code></td>
+<td><code>tipo_comprobante</code></td>
+<td>Mapeo I/E/N → códigos CFDI</td>
+</tr>
+<tr>
+<td><code>fecha_timbrado</code></td>
+<td><code>fm_fecha_timbrado</code></td>
+<td>Directo</td>
+</tr>
+<tr>
+<td><code>serie_de_la_factura</code></td>
+<td><code>serie</code></td>
+<td>Directo</td>
+</tr>
+<tr>
+<td><code>folio_de_factura</code></td>
+<td><code>folio</code></td>
+<td>Directo</td>
+</tr>
+<tr>
+<td><code>monto_total</code></td>
+<td><code>grand_total</code></td>
+<td>Directo</td>
+</tr>
+<tr>
+<td><code>id_pac</code></td>
+<td><code>fm_pac_response</code></td>
+<td>Revisar estructura</td>
+</tr>
+<tr>
+<td><code>usocfdi</code></td>
+<td><code>fm_uso_cfdi</code> (en SI)</td>
+<td>Revisar equivalencia</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Pendientes:</strong>
+- Tabla de equivalencias de <code>status</code> legacy → <code>fm_fiscal_status</code>
+- Tratamiento de facturas canceladas y sus relaciones
+- Manejo de <code>amended_from</code> para facturas sustituidas
+- Definir <code>docstatus</code> de documentos migrados</p>
+<h3 id="complementos-de-pago-tabcomplemento-de-pago-ppd-complemento-pago-mx">Complementos de Pago — <code>tabComplemento de Pago PPD</code> → <code>Complemento Pago MX</code><a class="headerlink" href="#complementos-de-pago-tabcomplemento-de-pago-ppd-complemento-pago-mx" title="Permanent link">&para;</a></h3>
+<p><strong>Volumen:</strong> a determinar por site</p>
+<p><strong>Pendiente:</strong> Mapeo detallado de campos (requiere análisis comparativo de schemas)</p>
+<h3 id="templates-fiscales-legacy">Templates fiscales legacy<a class="headerlink" href="#templates-fiscales-legacy" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>FormaPago cuando outstanding=0:</strong> ¿"saldo a favor" usa 15 o la forma real del reembolso?
-  Pendiente validación con despacho contable.</li>
-<li><strong>Pagos parciales mezclados:</strong> nota que excede outstanding parcialmente — requiere
-  política de negocio explícita.</li>
-<li><strong>Addenda en tipo E por cliente:</strong> actualmente excluida globalmente. ¿Algunos clientes
-  (Liverpool, Walmart) la requieren?</li>
+<li>Deshabilitar o eliminar templates <code>002 IVA...</code> una vez confirmado que no son referenciados
+  en documentos activos ni en configuración contable</li>
 </ul>
-<h3 id="issue-137-flujo-tiporelacion-01">Issue #137 — Flujo TipoRelación 01<a class="headerlink" href="#issue-137-flujo-tiporelacion-01" title="Permanent link">&para;</a></h3>
-<p>Descuentos, bonificaciones y ajustes comerciales sin devolución física → TipoRelación 01.
-No existe flujo en ERPNext para este caso actualmente.</p>
 <hr />
-<h2 id="deuda-tecnica">Deuda técnica<a class="headerlink" href="#deuda-tecnica" title="Permanent link">&para;</a></h2>
-<ul>
-<li>El FFM fue diseñado para tipo I. Tipo E se implementó como excepción en múltiples
-  puntos del código (guards dispersos en JS, Python y validaciones). Un DocType
-  separado para notas de crédito sería más limpio. Issue #135.</li>
-<li><code>_auto_populate_forma_pago_tipo_e()</code> es provisional hasta resolver Issue #136.</li>
-<li>Los guards JS en <code>_lock_egreso_fields()</code> son necesarios porque otras funciones
-  del refresh sobreescriben los <code>read_only</code>. Síntoma del diseño acumulativo del FFM.</li>
-</ul>
+<h2 id="caracteristicas-del-script-de-migracion-de-datos">Características del script de migración de datos<a class="headerlink" href="#caracteristicas-del-script-de-migracion-de-datos" title="Permanent link">&para;</a></h2>
+<h3 id="principios">Principios<a class="headerlink" href="#principios" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Idempotente</strong> — puede correrse múltiples veces sin duplicar datos</li>
+<li><strong>Dry-run obligatorio</strong> — <code>dry_run=True</code> por defecto</li>
+<li><strong>Por empresa</strong> — parámetro <code>company</code> para limitar alcance</li>
+<li><strong>Con reporte</strong> — log de éxitos, errores y omisiones por sección</li>
+<li><strong>Sin desinstalar</strong> — no elimina <code>facturacion_mx</code> hasta validación completa</li>
+<li><strong>Solo lectura en origen</strong> — nunca modifica tablas de <code>facturacion_mx</code></li>
+<li><strong>Backup previo obligatorio</strong> antes de correr con <code>dry_run=False</code></li>
+</ol>
+<h3 id="estructura-propuesta">Estructura propuesta<a class="headerlink" href="#estructura-propuesta" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="n">company</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dry_run</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sections</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    sections: None = todas | lista de secciones a correr</span>
+<span class="sd">    Secciones disponibles: customers | items | facturas | complementos</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">report</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">sections</span> <span class="ow">or</span> <span class="s2">&quot;customers&quot;</span> <span class="ow">in</span> <span class="n">sections</span><span class="p">:</span>
+        <span class="n">report</span><span class="p">[</span><span class="s2">&quot;customers&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">migrate_customers</span><span class="p">(</span><span class="n">company</span><span class="p">,</span> <span class="n">dry_run</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">sections</span> <span class="ow">or</span> <span class="s2">&quot;items&quot;</span> <span class="ow">in</span> <span class="n">sections</span><span class="p">:</span>
+        <span class="n">report</span><span class="p">[</span><span class="s2">&quot;items&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">migrate_items</span><span class="p">(</span><span class="n">company</span><span class="p">,</span> <span class="n">dry_run</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">sections</span> <span class="ow">or</span> <span class="s2">&quot;facturas&quot;</span> <span class="ow">in</span> <span class="n">sections</span><span class="p">:</span>
+        <span class="n">report</span><span class="p">[</span><span class="s2">&quot;facturas&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">migrate_facturas</span><span class="p">(</span><span class="n">company</span><span class="p">,</span> <span class="n">dry_run</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">sections</span> <span class="ow">or</span> <span class="s2">&quot;complementos&quot;</span> <span class="ow">in</span> <span class="n">sections</span><span class="p">:</span>
+        <span class="n">report</span><span class="p">[</span><span class="s2">&quot;complementos&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">migrate_complementos</span><span class="p">(</span><span class="n">company</span><span class="p">,</span> <span class="n">dry_run</span><span class="p">)</span>
+    <span class="n">print_report</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+</code></pre></div>
 <hr />
-<h2 id="consecuencias">Consecuencias<a class="headerlink" href="#consecuencias" title="Permanent link">&para;</a></h2>
+<h2 id="pendientes-para-completar-el-adr">Pendientes para completar el ADR<a class="headerlink" href="#pendientes-para-completar-el-adr" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Notas de crédito por devolución física timbran correctamente como CFDI tipo E</li>
-<li>UUID relacionado y <code>related_documents</code> garantizados normativamente</li>
-<li>FormaPago determinada automáticamente (regla provisional)</li>
-<li>Campos fiscales inmutables en tipo E desde UI</li>
-<li>Issue #116 cerrado funcionalmente — pendientes normativos en #136 y #137</li>
+<li>[ ] Tabla de equivalencias de <code>status</code> legacy → <code>fm_fiscal_status</code></li>
+<li>[ ] Mapeo detallado <code>tabComplemento de Pago PPD</code> → <code>Complemento Pago MX</code></li>
+<li>[ ] Definir <code>docstatus</code> de documentos migrados (submitted vs estado especial)</li>
+<li>[ ] Confirmar tratamiento de facturas canceladas y sustituidas</li>
+<li>[ ] Definir orden y criterios para desinstalación de <code>facturacion_mx</code></li>
 </ul>
 <hr />
 <h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Issue #116 — feat(tipo-e): Notas de crédito CFDI tipo E</li>
-<li>Issue #136 — validación normativa SAT pendiente para CFDI tipo E</li>
-<li>Issue #137 — flujo nota de crédito TipoRelación 01</li>
-<li>Issue #135 — refactor FFM JS</li>
-<li>ADR 0024 — addendas pre-timbrado (contexto del FFM)</li>
-<li><code>docs/development/REPORTE_NORMATIVA_NOTA_CREDITO_PENDIENTES.md</code></li>
+<li>Issue: pendiente de crear (#TODO)</li>
+<li>Branch activo: <code>feature/fiscal-item-groups-multilenguaje</code></li>
+<li>DocTypes destino: <code>Factura Fiscal Mexico</code>, <code>Complemento Pago MX</code></li>
+<li>DocTypes origen: <code>Factura</code>, <code>Complemento de Pago PPD</code></li>
+<li>ADR relacionado: <code>0019-primera-implementacion-rc-v0.1.md</code></li>
+<li>Issue relacionado: #112 (MRFPE — Reclasificación Fiscal Payment Entry)</li>
 </ul>
 
 
