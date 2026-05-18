@@ -384,8 +384,14 @@ class PACResponseWriter:
 			if not factura_fiscal_name:
 				return
 
-			# Determinar nuevo estado con reglas estrictas según tipo de operación
-			new_status, _status_code, uuid = self._derive_status_from_response(response_data, operation_type)
+			# Normalize operation_type to match _derive_status_from_response expectations
+			_normalized_op = {
+				"timbrado": "Timbrado",
+				"cancelacion": "Solicitud Cancelación",
+				"consulta": "Consulta Estado",
+				"timeout_recovery": "Consulta Estado",
+			}.get(operation_type, operation_type)
+			new_status, _status_code, uuid = self._derive_status_from_response(response_data, _normalized_op)
 
 			# Preparar campos a actualizar - NORMALIZACIÓN CRÍTICA A MAYÚSCULAS
 			success = bool(response_data.get("success"))

@@ -139,7 +139,7 @@ def get_os_health_metrics():
 
 
 @frappe.whitelist()
-def get_audit_trail(filters=None):
+def get_audit_trail(filters: dict | str | None = None):
 	"""
 	Obtener audit trail con filtros.
 

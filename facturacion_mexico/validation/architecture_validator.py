@@ -305,7 +305,7 @@ class ResilienceArchitectureValidator:
 			fiscal_data = frappe.db.get_value(
 				"Factura Fiscal Mexico",
 				factura_fiscal_name,
-				["fm_last_pac_sync", "fm_sync_status", "status"],
+				["fm_last_pac_sync", "fm_sync_status"],
 				as_dict=True,
 			)
 

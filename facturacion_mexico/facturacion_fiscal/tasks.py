@@ -82,7 +82,7 @@ def cleanup_old_logs():
 
 
 def _create_log_summaries(logs: list[dict[str, Any]]):
-	"""Create summaries of logs before archiving (optional)."""
+	"""Crear resúmenes de registros antes del archivado (opcional)."""
 	try:
 		summaries = {}
 
