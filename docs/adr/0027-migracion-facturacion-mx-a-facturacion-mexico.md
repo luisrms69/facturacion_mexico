@@ -47,8 +47,12 @@ Configurar credenciales FacturAPI y modo de operación:
 
 ### Paso 2 — System Settings
 
-Agregar `json` a los tipos de archivo permitidos en:
-`System Settings → Tipos de archivo permitidos`
+Agregar `json` a los tipos de archivo permitidos:
+
+1. Ir a **System Settings** (barra de búsqueda o menú Configuración)
+2. Buscar el campo **"Tipos de archivo permitidos"**
+3. Agregar `json` a la lista
+4. Guardar
 
 **Por qué:** `facturacion_mexico` adjunta la respuesta JSON de FacturAPI al
 `FacturAPI Response Log`. Sin esto el timbrado ocurre pero el log queda incompleto.

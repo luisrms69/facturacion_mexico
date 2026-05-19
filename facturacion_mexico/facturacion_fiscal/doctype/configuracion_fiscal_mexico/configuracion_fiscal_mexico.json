@@ -25,6 +25,13 @@
       "fieldtype": "Section Break"
     },
     {
+      "fieldname": "enable_exento",
+      "label": "IVA Exento",
+      "fieldtype": "Check",
+      "default": "0",
+      "description": "Activar si la empresa vende productos o servicios exentos de IVA"
+    },
+    {
       "fieldname": "enable_frontera",
       "label": "Zona Fronteriza",
       "fieldtype": "Check",

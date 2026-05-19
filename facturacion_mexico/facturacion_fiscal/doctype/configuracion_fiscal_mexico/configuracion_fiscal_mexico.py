@@ -69,8 +69,10 @@ class ConfiguracionFiscalMexico(Document):
 	def _rol_requerido_por_alcance(self, rol_fiscal: str) -> bool:
 		"""Determinar si un rol fiscal es requerido según alcance configurado."""
 		# Roles siempre requeridos - usar constantes
-		roles_base = [ROL_IVA_NAC, ROL_IVA_EXENTO]
+		roles_base = [ROL_IVA_NAC]
 		if rol_fiscal in roles_base:
+			return True
+		if rol_fiscal == ROL_IVA_EXENTO and self.enable_exento:
 			return True
 
 		# Roles condicionales por alcance - usar constantes
@@ -170,7 +172,9 @@ class ConfiguracionFiscalMexico(Document):
 		MATRIZ CANÓNICA según propuesta ChatGPT con nombres descriptivos en español.
 		"""
 		# SIEMPRE requeridos - usar constantes
-		roles_requeridos = {ROL_IVA_NAC, ROL_IVA_EXENTO}
+		roles_requeridos = {ROL_IVA_NAC}
+		if self.enable_exento:
+			roles_requeridos.add(ROL_IVA_EXENTO)
 
 		# CONDICIONALES según alcance
 		if self.enable_frontera:
@@ -370,7 +374,9 @@ class ConfiguracionFiscalMexico(Document):
 				nuevas_filas += 1
 
 		# ELIMINAR roles no requeridos (excepto roles base que siempre se mantienen)
-		roles_base = {ROL_IVA_NAC, ROL_IVA_EXENTO}
+		roles_base = {ROL_IVA_NAC}
+		if self.enable_exento:
+			roles_base.add(ROL_IVA_EXENTO)
 		filas_eliminadas = 0
 
 		# Iterar en reversa para evitar problemas de índices al eliminar
@@ -387,4 +393,5 @@ class ConfiguracionFiscalMexico(Document):
 			"filas_eliminadas": filas_eliminadas,
 			"total_roles": len(roles_requeridos),
 			"roles_actuales": list(roles_requeridos),
+			"mapeo_cuentas": [row.as_dict() for row in self.mapeo_cuentas],
 		}
