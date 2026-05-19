@@ -51,6 +51,10 @@ frappe.ui.form.on("Configuracion Fiscal Mexico", {
 	},
 
 	// Triggers para checkboxes de alcance - agregar filas inmediatamente
+	enable_exento: function (frm) {
+		update_roles_table(frm);
+	},
+
 	enable_frontera: function (frm) {
 		update_roles_table(frm);
 	},
@@ -120,8 +124,11 @@ function add_base_roles(frm) {
 	// Agregar solo si la tabla está vacía
 	if (frm.doc.mapeo_cuentas && frm.doc.mapeo_cuentas.length > 0) return;
 
-	// Roles siempre requeridos (sin porcentaje — SAT puede cambiar tasa en cualquier momento)
-	const base_roles = ["IVA por Pagar (Nacional)", "IVA Exento"];
+	// Roles siempre requeridos
+	const base_roles = ["IVA por Pagar (Nacional)"];
+	if (frm.doc.enable_exento) {
+		base_roles.push("IVA Exento");
+	}
 
 	base_roles.forEach(function (rol) {
 		let row = frm.add_child("mapeo_cuentas");
@@ -155,6 +162,10 @@ function update_roles_table(frm) {
 		doc: frm.doc,
 		callback: function (r) {
 			if (r.message) {
+				// Sync child table from server response to avoid ghost rows
+				if (r.message.mapeo_cuentas !== undefined) {
+					frm.doc.mapeo_cuentas = r.message.mapeo_cuentas;
+				}
 				frm.refresh_field("mapeo_cuentas");
 				let mensaje = "";
 				if (r.message.filas_agregadas > 0) {

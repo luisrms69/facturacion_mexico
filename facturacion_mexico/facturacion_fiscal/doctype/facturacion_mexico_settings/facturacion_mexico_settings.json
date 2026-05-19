@@ -16,7 +16,6 @@
   "column_break_api",
   "rfc_emisor",
   "lugar_expedicion",
-  "regimen_fiscal_default",
   "configuracion_automatica_section",
   "ereceipt_mode_default",
   "ereceipt_expiry_type_default",
@@ -113,12 +112,6 @@
    "in_list_view": 1,
    "label": "Lugar de Expedición",
    "reqd": 1
-  },
-  {
-   "fieldname": "regimen_fiscal_default",
-   "fieldtype": "Link",
-   "label": "Régimen Fiscal por Defecto",
-   "options": "Regimen Fiscal SAT"
   },
   {
    "fieldname": "configuracion_automatica_section",
