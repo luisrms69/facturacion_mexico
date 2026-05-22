@@ -72,7 +72,7 @@ class ConfiguracionFiscalMexico(Document):
 		roles_base = [ROL_IVA_NAC]
 		if rol_fiscal in roles_base:
 			return True
-		if rol_fiscal == ROL_IVA_EXENTO and self.enable_exento:
+		if rol_fiscal == ROL_IVA_EXENTO and getattr(self, "enable_exento", 0):
 			return True
 
 		# Roles condicionales por alcance - usar constantes
@@ -173,7 +173,7 @@ class ConfiguracionFiscalMexico(Document):
 		"""
 		# SIEMPRE requeridos - usar constantes
 		roles_requeridos = {ROL_IVA_NAC}
-		if self.enable_exento:
+		if getattr(self, "enable_exento", 0):
 			roles_requeridos.add(ROL_IVA_EXENTO)
 
 		# CONDICIONALES según alcance
@@ -375,7 +375,7 @@ class ConfiguracionFiscalMexico(Document):
 
 		# ELIMINAR roles no requeridos (excepto roles base que siempre se mantienen)
 		roles_base = {ROL_IVA_NAC}
-		if self.enable_exento:
+		if getattr(self, "enable_exento", 0):
 			roles_base.add(ROL_IVA_EXENTO)
 		filas_eliminadas = 0
 
