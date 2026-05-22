@@ -1,0 +1,18 @@
+[
+ {
+  "doctype": "Metodo Pago SAT",
+  "name": "PUE",
+  "code": "PUE",
+  "description": "Pago en una sola exhibición",
+  "vigencia_desde": "2017-07-01",
+  "vigencia_hasta": null
+ },
+ {
+  "doctype": "Metodo Pago SAT",
+  "name": "PPD",
+  "code": "PPD",
+  "description": "Pago en parcialidades o diferido",
+  "vigencia_desde": "2017-07-01",
+  "vigencia_hasta": null
+ }
+]
