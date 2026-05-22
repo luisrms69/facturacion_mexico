@@ -162,11 +162,9 @@ function update_roles_table(frm) {
 		doc: frm.doc,
 		callback: function (r) {
 			if (r.message) {
-				// Sync child table from server response to avoid ghost rows
-				if (r.message.mapeo_cuentas !== undefined) {
-					frm.doc.mapeo_cuentas = r.message.mapeo_cuentas;
-				}
-				frm.refresh_field("mapeo_cuentas");
+				// frappe.model.sync(r.docs) already updated frm.doc via run_doc_method
+				// Just force the grid to re-render from the already-synced doc
+				frm.fields_dict["mapeo_cuentas"].grid.refresh();
 				let mensaje = "";
 				if (r.message.filas_agregadas > 0) {
 					mensaje += `${r.message.filas_agregadas} roles agregados. `;
