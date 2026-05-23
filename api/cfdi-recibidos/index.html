@@ -13,6 +13,10 @@
       
       
       
+        <link rel="prev" href="../cfdi/">
+      
+      
+        <link rel="next" href="../multisucursal/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -20,7 +24,7 @@
     
     
       
-        <title>🏗️ Arquitectura Testing Framework - 4 Layers - Facturación México - Documentación Técnica</title>
+        <title>CFDI Recibidos - Facturación México - Documentación Técnica</title>
       
     
     
@@ -86,7 +90,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#arquitectura-testing-framework-4-layers" class="md-skip">
+        <a href="#cfdi-recibidos-api-reference" class="md-skip">
           Saltar a contenido
         </a>
       
@@ -124,7 +128,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              🏗️ Arquitectura Testing Framework - 4 Layers
+              CFDI Recibidos
             
           </span>
         </div>
@@ -254,11 +258,13 @@
         
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../api/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
           
   
   API Reference
@@ -540,8 +546,10 @@
       
   
   
+    
   
   
+  
     
     
     
@@ -550,14 +558,12 @@
       
       
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
           <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
@@ -571,7 +577,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             API Reference
@@ -585,7 +591,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/" class="md-nav__link">
+      <a href="../" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -606,7 +612,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/cfdi/" class="md-nav__link">
+      <a href="../cfdi/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -624,10 +630,30 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../api/cfdi-recibidos/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    CFDI Recibidos
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -636,6 +662,263 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#endpoints-disponibles" class="md-nav__link">
+    <span class="md-ellipsis">
+      Endpoints disponibles
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#upload_xml" class="md-nav__link">
+    <span class="md-ellipsis">
+      upload_xml
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="upload_xml">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parametros-form-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parámetros (form-data)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#respuesta" class="md-nav__link">
+    <span class="md-ellipsis">
+      Respuesta
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#comportamiento-por-estado" class="md-nav__link">
+    <span class="md-ellipsis">
+      Comportamiento por estado
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#validaciones-internas" class="md-nav__link">
+    <span class="md-ellipsis">
+      Validaciones internas
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resolve_supplier" class="md-nav__link">
+    <span class="md-ellipsis">
+      resolve_supplier
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="resolve_supplier">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parametros" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parámetros
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#respuesta_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Respuesta
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#modos-de-operacion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Modos de operación
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#efecto-en-el-estado-del-cfdi" class="md-nav__link">
+    <span class="md-ellipsis">
+      Efecto en el estado del CFDI
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#classify_concepts" class="md-nav__link">
+    <span class="md-ellipsis">
+      classify_concepts
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="classify_concepts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parametros_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parámetros
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#respuesta_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Respuesta
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#algoritmo-de-matching-3-niveles" class="md-nav__link">
+    <span class="md-ellipsis">
+      Algoritmo de matching (3 niveles)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#save_mapping_rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      save_mapping_rule
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="save_mapping_rule">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parametros_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parámetros
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#respuesta_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Respuesta
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ejemplos" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ejemplos
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#doctypes-relacionados" class="md-nav__link">
+    <span class="md-ellipsis">
+      DocTypes relacionados
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="DocTypes relacionados">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cfdi-recibido" class="md-nav__link">
+    <span class="md-ellipsis">
+      CFDI Recibido
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cfdi-recibido-concepto" class="md-nav__link">
+    <span class="md-ellipsis">
+      CFDI Recibido Concepto
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cfdi-concepto-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      CFDI Concepto Mapping
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -648,7 +931,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/multisucursal/" class="md-nav__link">
+      <a href="../multisucursal/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -669,7 +952,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/addendas/" class="md-nav__link">
+      <a href="../addendas/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -690,7 +973,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/draft-management/" class="md-nav__link">
+      <a href="../draft-management/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -711,7 +994,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/catalogos/" class="md-nav__link">
+      <a href="../catalogos/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -732,7 +1015,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/hooks/" class="md-nav__link">
+      <a href="../hooks/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -892,19 +1175,55 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#filosofia-del-framework" class="md-nav__link">
+  <a href="#endpoints-disponibles" class="md-nav__link">
     <span class="md-ellipsis">
-      🎯 Filosofía del Framework
+      Endpoints disponibles
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="🎯 Filosofía del Framework">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#upload_xml" class="md-nav__link">
+    <span class="md-ellipsis">
+      upload_xml
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="upload_xml">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#principios-fundamentales" class="md-nav__link">
+  <a href="#parametros-form-data" class="md-nav__link">
     <span class="md-ellipsis">
-      Principios Fundamentales:
+      Parámetros (form-data)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#respuesta" class="md-nav__link">
+    <span class="md-ellipsis">
+      Respuesta
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#comportamiento-por-estado" class="md-nav__link">
+    <span class="md-ellipsis">
+      Comportamiento por estado
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#validaciones-internas" class="md-nav__link">
+    <span class="md-ellipsis">
+      Validaciones internas
     </span>
   </a>
   
@@ -916,265 +1235,46 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#layer-1-unit-tests" class="md-nav__link">
+  <a href="#resolve_supplier" class="md-nav__link">
     <span class="md-ellipsis">
-      🔧 LAYER 1: UNIT TESTS
+      resolve_supplier
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="🔧 LAYER 1: UNIT TESTS">
+    <nav class="md-nav" aria-label="resolve_supplier">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#objetivo-validar-componentes-individuales-aislados" class="md-nav__link">
+  <a href="#parametros" class="md-nav__link">
     <span class="md-ellipsis">
-      Objetivo: Validar componentes individuales aislados
+      Parámetros
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#cobertura-doctypes-apis-core-components" class="md-nav__link">
+  <a href="#respuesta_1" class="md-nav__link">
     <span class="md-ellipsis">
-      Cobertura: DocTypes, APIs, Core Components
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Cobertura: DocTypes, APIs, Core Components">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#doctypes-tests" class="md-nav__link">
-    <span class="md-ellipsis">
-      DocTypes Tests:
+      Respuesta
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#apis-tests" class="md-nav__link">
+  <a href="#modos-de-operacion" class="md-nav__link">
     <span class="md-ellipsis">
-      APIs Tests:
+      Modos de operación
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#caracteristicas" class="md-nav__link">
+  <a href="#efecto-en-el-estado-del-cfdi" class="md-nav__link">
     <span class="md-ellipsis">
-      Características:
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#layer-2-integration-tests" class="md-nav__link">
-    <span class="md-ellipsis">
-      🔗 LAYER 2: INTEGRATION TESTS
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="🔗 LAYER 2: INTEGRATION TESTS">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#objetivo-validar-comunicacion-entre-modulos" class="md-nav__link">
-    <span class="md-ellipsis">
-      Objetivo: Validar comunicación entre módulos
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#cobertura-cross-module-communication-data-flow" class="md-nav__link">
-    <span class="md-ellipsis">
-      Cobertura: Cross-module communication, data flow
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Cobertura: Cross-module communication, data flow">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#integration-points" class="md-nav__link">
-    <span class="md-ellipsis">
-      Integration Points:
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#caracteristicas_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      Características:
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#layer-3-system-tests" class="md-nav__link">
-    <span class="md-ellipsis">
-      🎛️ LAYER 3: SYSTEM TESTS
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="🎛️ LAYER 3: SYSTEM TESTS">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#objetivo-validar-sistema-completo-end-to-end" class="md-nav__link">
-    <span class="md-ellipsis">
-      Objetivo: Validar sistema completo end-to-end
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#cobertura-business-workflows-real-scenarios" class="md-nav__link">
-    <span class="md-ellipsis">
-      Cobertura: Business workflows, real scenarios
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Cobertura: Business workflows, real scenarios">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#system-workflows" class="md-nav__link">
-    <span class="md-ellipsis">
-      System Workflows:
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#caracteristicas_2" class="md-nav__link">
-    <span class="md-ellipsis">
-      Características:
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#layer-4-acceptance-tests" class="md-nav__link">
-    <span class="md-ellipsis">
-      ✅ LAYER 4: ACCEPTANCE TESTS
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="✅ LAYER 4: ACCEPTANCE TESTS">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#objetivo-validar-requerimientos-de-negocio-cumplidos" class="md-nav__link">
-    <span class="md-ellipsis">
-      Objetivo: Validar requerimientos de negocio cumplidos
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#cobertura-uat-scenarios-business-validation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Cobertura: UAT scenarios, business validation
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Cobertura: UAT scenarios, business validation">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#business-scenarios" class="md-nav__link">
-    <span class="md-ellipsis">
-      Business Scenarios:
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#caracteristicas_3" class="md-nav__link">
-    <span class="md-ellipsis">
-      Características:
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#metricas-framework" class="md-nav__link">
-    <span class="md-ellipsis">
-      📊 Métricas Framework
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="📊 Métricas Framework">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#tests-execution-summary" class="md-nav__link">
-    <span class="md-ellipsis">
-      Tests Execution Summary:
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#quality-metrics" class="md-nav__link">
-    <span class="md-ellipsis">
-      Quality Metrics:
+      Efecto en el estado del CFDI
     </span>
   </a>
   
@@ -1186,37 +1286,37 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#innovaciones-implementadas" class="md-nav__link">
+  <a href="#classify_concepts" class="md-nav__link">
     <span class="md-ellipsis">
-      🔥 Innovaciones Implementadas
+      classify_concepts
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="🔥 Innovaciones Implementadas">
+    <nav class="md-nav" aria-label="classify_concepts">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-regla-34-applied" class="md-nav__link">
+  <a href="#parametros_1" class="md-nav__link">
     <span class="md-ellipsis">
-      1. REGLA #34 Applied
+      Parámetros
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-performance-benchmarks" class="md-nav__link">
+  <a href="#respuesta_2" class="md-nav__link">
     <span class="md-ellipsis">
-      2. Performance Benchmarks
+      Respuesta
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-progressive-quality" class="md-nav__link">
+  <a href="#algoritmo-de-matching-3-niveles" class="md-nav__link">
     <span class="md-ellipsis">
-      3. Progressive Quality
+      Algoritmo de matching (3 niveles)
     </span>
   </a>
   
@@ -1228,37 +1328,79 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#aplicacion-practica" class="md-nav__link">
+  <a href="#save_mapping_rule" class="md-nav__link">
     <span class="md-ellipsis">
-      🎯 Aplicación Práctica
+      save_mapping_rule
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="🎯 Aplicación Práctica">
+    <nav class="md-nav" aria-label="save_mapping_rule">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#desarrollo-nueva-funcionalidad" class="md-nav__link">
+  <a href="#parametros_2" class="md-nav__link">
     <span class="md-ellipsis">
-      Desarrollo Nueva Funcionalidad:
+      Parámetros
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#mantenimiento" class="md-nav__link">
+  <a href="#respuesta_3" class="md-nav__link">
     <span class="md-ellipsis">
-      Mantenimiento:
+      Respuesta
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#release-validation" class="md-nav__link">
+  <a href="#ejemplos" class="md-nav__link">
     <span class="md-ellipsis">
-      Release Validation:
+      Ejemplos
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#doctypes-relacionados" class="md-nav__link">
+    <span class="md-ellipsis">
+      DocTypes relacionados
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="DocTypes relacionados">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cfdi-recibido" class="md-nav__link">
+    <span class="md-ellipsis">
+      CFDI Recibido
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cfdi-recibido-concepto" class="md-nav__link">
+    <span class="md-ellipsis">
+      CFDI Recibido Concepto
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cfdi-concepto-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      CFDI Concepto Mapping
     </span>
   </a>
   
@@ -1284,150 +1426,493 @@
                   
 
 
-<h1 id="arquitectura-testing-framework-4-layers">🏗️ Arquitectura Testing Framework - 4 Layers<a class="headerlink" href="#arquitectura-testing-framework-4-layers" title="Permanent link">&para;</a></h1>
-<p><strong>Proyecto:</strong> Facturación México
-<strong>Metodología:</strong> 4-Layer Progressive Framework + REGLA #34
-<strong>Objetivo:</strong> Testing comprehensivo con calidad incremental garantizada</p>
+<h1 id="cfdi-recibidos-api-reference">CFDI Recibidos - API Reference<a class="headerlink" href="#cfdi-recibidos-api-reference" title="Permanent link">&para;</a></h1>
+<p>Documentación de los endpoints para ingesta y clasificación de CFDIs recibidos (XML de proveedores).</p>
 <hr />
-<h2 id="filosofia-del-framework">🎯 <strong>Filosofía del Framework</strong><a class="headerlink" href="#filosofia-del-framework" title="Permanent link">&para;</a></h2>
-<h3 id="principios-fundamentales"><strong>Principios Fundamentales:</strong><a class="headerlink" href="#principios-fundamentales" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>REGLA #33:</strong> Testing progresivo Layer 1 → 2 → 3 → 4 (cada layer valida el anterior)</li>
-<li><strong>REGLA #34:</strong> Tests fortalecen el código de producción, no revelan debilidades</li>
-<li><strong>Quality incremental:</strong> Cada layer construye confianza en la siguiente</li>
-<li><strong>Coverage comprehensivo:</strong> 100% componentes críticos cubiertos</li>
-</ul>
-<hr />
-<h2 id="layer-1-unit-tests">🔧 <strong>LAYER 1: UNIT TESTS</strong><a class="headerlink" href="#layer-1-unit-tests" title="Permanent link">&para;</a></h2>
-<h3 id="objetivo-validar-componentes-individuales-aislados"><strong>Objetivo:</strong> Validar componentes individuales aislados<a class="headerlink" href="#objetivo-validar-componentes-individuales-aislados" title="Permanent link">&para;</a></h3>
-<h3 id="cobertura-doctypes-apis-core-components"><strong>Cobertura:</strong> DocTypes, APIs, Core Components<a class="headerlink" href="#cobertura-doctypes-apis-core-components" title="Permanent link">&para;</a></h3>
-<h4 id="doctypes-tests"><strong>DocTypes Tests:</strong><a class="headerlink" href="#doctypes-tests" title="Permanent link">&para;</a></h4>
-<ul>
-<li><strong>ConfiguracionFiscalSucursal:</strong> Validación campos obligatorios, thresholds, constraints</li>
-<li><strong>AddendaGenerator:</strong> Template loading, generación XML, error handling, performance</li>
-<li><strong>UOMSATMapper:</strong> Mapeo exacto/fuzzy, bulk operations, sistema confianza</li>
-</ul>
-<h4 id="apis-tests"><strong>APIs Tests:</strong><a class="headerlink" href="#apis-tests" title="Permanent link">&para;</a></h4>
-<ul>
-<li><strong>Multi-sucursal APIs:</strong> Health summary, certificate optimization, security validation</li>
-<li><strong>Error handling:</strong> Response format, performance, concurrency</li>
-<li><strong>Input validation:</strong> Comprehensive security testing</li>
-</ul>
-<h4 id="caracteristicas"><strong>Características:</strong><a class="headerlink" href="#caracteristicas" title="Permanent link">&para;</a></h4>
-<ul>
-<li><strong>Performance:</strong> &lt;0.01s promedio por test</li>
-<li><strong>Mocks:</strong> Apropiados siguiendo REGLA #34</li>
-<li><strong>Coverage:</strong> 29 archivos implementados</li>
-</ul>
-<hr />
-<h2 id="layer-2-integration-tests">🔗 <strong>LAYER 2: INTEGRATION TESTS</strong><a class="headerlink" href="#layer-2-integration-tests" title="Permanent link">&para;</a></h2>
-<h3 id="objetivo-validar-comunicacion-entre-modulos"><strong>Objetivo:</strong> Validar comunicación entre módulos<a class="headerlink" href="#objetivo-validar-comunicacion-entre-modulos" title="Permanent link">&para;</a></h3>
-<h3 id="cobertura-cross-module-communication-data-flow"><strong>Cobertura:</strong> Cross-module communication, data flow<a class="headerlink" href="#cobertura-cross-module-communication-data-flow" title="Permanent link">&para;</a></h3>
-<h4 id="integration-points"><strong>Integration Points:</strong><a class="headerlink" href="#integration-points" title="Permanent link">&para;</a></h4>
-<ul>
-<li><strong>Branch ↔ Customer:</strong> Asignación automática, validación cruzada</li>
-<li><strong>Addenda ↔ Invoice:</strong> Generación dinámica, inheritance patterns</li>
-<li><strong>Certificate ↔ Branch:</strong> Sharing mechanisms, optimization</li>
-</ul>
-<h4 id="caracteristicas_1"><strong>Características:</strong><a class="headerlink" href="#caracteristicas_1" title="Permanent link">&para;</a></h4>
-<ul>
-<li><strong>Performance:</strong> &lt;0.1s promedio por suite</li>
-<li><strong>Focus:</strong> Data consistency, module boundaries</li>
-<li><strong>Coverage:</strong> 8 archivos implementados</li>
-</ul>
-<hr />
-<h2 id="layer-3-system-tests">🎛️ <strong>LAYER 3: SYSTEM TESTS</strong><a class="headerlink" href="#layer-3-system-tests" title="Permanent link">&para;</a></h2>
-<h3 id="objetivo-validar-sistema-completo-end-to-end"><strong>Objetivo:</strong> Validar sistema completo end-to-end<a class="headerlink" href="#objetivo-validar-sistema-completo-end-to-end" title="Permanent link">&para;</a></h3>
-<h3 id="cobertura-business-workflows-real-scenarios"><strong>Cobertura:</strong> Business workflows, real scenarios<a class="headerlink" href="#cobertura-business-workflows-real-scenarios" title="Permanent link">&para;</a></h3>
-<h4 id="system-workflows"><strong>System Workflows:</strong><a class="headerlink" href="#system-workflows" title="Permanent link">&para;</a></h4>
-<ul>
-<li><strong>Multi-sucursal deployment:</strong> Branch setup, certificate distribution</li>
-<li><strong>Addenda generation:</strong> Complete business process</li>
-<li><strong>Error recovery:</strong> System resilience testing</li>
-</ul>
-<h4 id="caracteristicas_2"><strong>Características:</strong><a class="headerlink" href="#caracteristicas_2" title="Permanent link">&para;</a></h4>
-<ul>
-<li><strong>Performance:</strong> &lt;5s para 50 branches</li>
-<li><strong>Scope:</strong> Complete business scenarios</li>
-<li><strong>Coverage:</strong> 6 archivos implementados</li>
-</ul>
-<hr />
-<h2 id="layer-4-acceptance-tests">✅ <strong>LAYER 4: ACCEPTANCE TESTS</strong><a class="headerlink" href="#layer-4-acceptance-tests" title="Permanent link">&para;</a></h2>
-<h3 id="objetivo-validar-requerimientos-de-negocio-cumplidos"><strong>Objetivo:</strong> Validar requerimientos de negocio cumplidos<a class="headerlink" href="#objetivo-validar-requerimientos-de-negocio-cumplidos" title="Permanent link">&para;</a></h3>
-<h3 id="cobertura-uat-scenarios-business-validation"><strong>Cobertura:</strong> UAT scenarios, business validation<a class="headerlink" href="#cobertura-uat-scenarios-business-validation" title="Permanent link">&para;</a></h3>
-<h4 id="business-scenarios"><strong>Business Scenarios:</strong><a class="headerlink" href="#business-scenarios" title="Permanent link">&para;</a></h4>
-<ul>
-<li><strong>Production readiness:</strong> Deployment validation</li>
-<li><strong>User workflows:</strong> Complete business processes</li>
-<li><strong>Edge cases:</strong> Error handling, recovery procedures</li>
-</ul>
-<h4 id="caracteristicas_3"><strong>Características:</strong><a class="headerlink" href="#caracteristicas_3" title="Permanent link">&para;</a></h4>
-<ul>
-<li><strong>Performance:</strong> &lt;3s para scenarios complejos</li>
-<li><strong>Focus:</strong> Business value validation</li>
-<li><strong>Coverage:</strong> 6 archivos implementados</li>
-</ul>
-<hr />
-<h2 id="metricas-framework">📊 <strong>Métricas Framework</strong><a class="headerlink" href="#metricas-framework" title="Permanent link">&para;</a></h2>
-<h3 id="tests-execution-summary"><strong>Tests Execution Summary:</strong><a class="headerlink" href="#tests-execution-summary" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>Layer 1 (Unit Tests):      29 archivos   - 50+ individual tests
-Layer 2 (Integration):      8 archivos   - 25+ integration tests
-Layer 3 (System):           6 archivos   - 15+ system tests
-Layer 4 (Acceptance):       6 archivos   - 15+ UAT scenarios
-─────────────────────────────────────────────────────────
-TOTAL IMPLEMENTADO:        49 archivos   - 105+ tests total
-ESTIMADO LÍNEAS CÓDIGO:  4,700+ líneas   - Testing framework
+<h2 id="endpoints-disponibles">Endpoints disponibles<a class="headerlink" href="#endpoints-disponibles" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Método</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>upload_xml</code></td>
+<td>POST (form-data)</td>
+<td>Ingesta uno o varios XMLs CFDI 4.0</td>
+</tr>
+<tr>
+<td><code>resolve_supplier</code></td>
+<td>POST</td>
+<td>Asigna proveedor por RFC o vinculación manual</td>
+</tr>
+<tr>
+<td><code>classify_concepts</code></td>
+<td>POST</td>
+<td>Aplica reglas de clasificación a los conceptos del CFDI</td>
+</tr>
+<tr>
+<td><code>save_mapping_rule</code></td>
+<td>POST</td>
+<td>Crea o actualiza una regla de CFDI Concepto Mapping</td>
+</tr>
+</tbody>
+</table>
+<p>Todos los endpoints están bajo:</p>
+<div class="highlight"><pre><span></span><code>/api/method/facturacion_mexico.cfdi_recibidos.api.&lt;endpoint&gt;
 </code></pre></div>
-<h3 id="quality-metrics"><strong>Quality Metrics:</strong><a class="headerlink" href="#quality-metrics" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>Error Detection:</strong> Tests identifican issues reales (REGLA #34 working)</li>
-<li><strong>False Positives:</strong> 0% (no tests que fallen por problemas de testing)</li>
-<li><strong>Coverage:</strong> 100% componentes críticos cubiertos</li>
-<li><strong>Maintainability:</strong> Mocks apropiados, REGLA #34 applied</li>
-</ul>
 <hr />
-<h2 id="innovaciones-implementadas">🔥 <strong>Innovaciones Implementadas</strong><a class="headerlink" href="#innovaciones-implementadas" title="Permanent link">&para;</a></h2>
-<h3 id="1-regla-34-applied"><strong>1. REGLA #34 Applied</strong><a class="headerlink" href="#1-regla-34-applied" title="Permanent link">&para;</a></h3>
-<p><strong>Strengthening Production Through Testing</strong>
-- Tests fortalecen código existente
-- Revelan fortaleza del sistema, no debilidades
-- Focus en production readiness</p>
-<h3 id="2-performance-benchmarks"><strong>2. Performance Benchmarks</strong><a class="headerlink" href="#2-performance-benchmarks" title="Permanent link">&para;</a></h3>
+<h2 id="upload_xml"><code>upload_xml</code><a class="headerlink" href="#upload_xml" title="Permanent link">&para;</a></h2>
+<p>Carga uno o varios archivos XML CFDI 4.0 y los persiste como documentos <strong>CFDI Recibido</strong>.</p>
+<h3 id="parametros-form-data">Parámetros (form-data)<a class="headerlink" href="#parametros-form-data" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>company</code></td>
+<td>string</td>
+<td>✅</td>
+<td>Nombre de la empresa en ERPNext</td>
+</tr>
+<tr>
+<td><code>files</code></td>
+<td>archivo(s)</td>
+<td>✅</td>
+<td>Uno o más archivos XML (campo <code>files</code> o <code>file</code>)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="respuesta">Respuesta<a class="headerlink" href="#respuesta" title="Permanent link">&para;</a></h3>
+<p>Lista de resultados por archivo:</p>
+<div class="highlight"><pre><span></span><code><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;file_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;factura_proveedor.xml&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ok&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;cfdi_recibido&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CFDI-REC-0001&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;uuid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;6128396f-c09b-4ec6-8699-43855fd7d7a2&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CFDI procesado correctamente&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Valores posibles</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>status</code></td>
+<td><code>ok</code> / <code>duplicado</code> / <code>error</code></td>
+<td>Resultado del procesamiento</td>
+</tr>
+<tr>
+<td><code>cfdi_recibido</code></td>
+<td>string / null</td>
+<td>Nombre del doc creado</td>
+</tr>
+<tr>
+<td><code>uuid</code></td>
+<td>string / null</td>
+<td>UUID extraído del XML</td>
+</tr>
+<tr>
+<td><code>message</code></td>
+<td>string</td>
+<td>Descripción del resultado</td>
+</tr>
+</tbody>
+</table>
+<h3 id="comportamiento-por-estado">Comportamiento por estado<a class="headerlink" href="#comportamiento-por-estado" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>Unit:</strong> Sub-milisegundo execution</li>
-<li><strong>Integration:</strong> Décima de segundo per suite</li>
-<li><strong>System:</strong> Menos de 5 segundos para casos complejos</li>
-<li><strong>Acceptance:</strong> Menos de 3 segundos end-to-end</li>
+<li><strong><code>ok</code></strong> — CFDI procesado y creado en estado <code>Parseado</code>. RFC del receptor coincide con <code>Company.tax_id</code>.</li>
+<li><strong><code>duplicado</code></strong> — Ya existe un CFDI Recibido con ese UUID. No se crea documento nuevo.</li>
+<li><strong><code>error</code></strong> — XML inválido, CFDI versión 3.3, o RFC receptor no corresponde a la empresa. El documento se crea en estado <code>Error</code> con <code>error_message</code>.</li>
 </ul>
-<h3 id="3-progressive-quality"><strong>3. Progressive Quality</strong><a class="headerlink" href="#3-progressive-quality" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Cada layer valida la calidad del anterior</li>
-<li>Confianza incremental en el sistema</li>
-<li>Quality gates entre layers</li>
-</ul>
-<hr />
-<h2 id="aplicacion-practica">🎯 <strong>Aplicación Práctica</strong><a class="headerlink" href="#aplicacion-practica" title="Permanent link">&para;</a></h2>
-<h3 id="desarrollo-nueva-funcionalidad"><strong>Desarrollo Nueva Funcionalidad:</strong><a class="headerlink" href="#desarrollo-nueva-funcionalidad" title="Permanent link">&para;</a></h3>
+<h3 id="validaciones-internas">Validaciones internas<a class="headerlink" href="#validaciones-internas" title="Permanent link">&para;</a></h3>
 <ol>
-<li><strong>Layer 1:</strong> Crear unit tests para nuevos componentes</li>
-<li><strong>Layer 2:</strong> Validar integración con módulos existentes</li>
-<li><strong>Layer 3:</strong> Probar workflow completo en sistema</li>
-<li><strong>Layer 4:</strong> Validar requerimientos de negocio cumplidos</li>
+<li>Calcula SHA256 del XML para detectar archivos idénticos</li>
+<li>Parsea el XML (solo CFDI 4.0 — rechaza versión 3.3)</li>
+<li>Detecta duplicados por UUID antes de insertar</li>
+<li>Valida que <code>receiver_rfc</code> del XML coincida con <code>Company.tax_id</code></li>
+<li>Persiste conceptos como filas child en <code>CFDI Recibido Concepto</code></li>
+<li>Adjunta el XML original como archivo privado al documento</li>
 </ol>
-<h3 id="mantenimiento"><strong>Mantenimiento:</strong><a class="headerlink" href="#mantenimiento" title="Permanent link">&para;</a></h3>
+<hr />
+<h2 id="resolve_supplier"><code>resolve_supplier</code><a class="headerlink" href="#resolve_supplier" title="Permanent link">&para;</a></h2>
+<p>Asigna el proveedor al CFDI Recibido. Busca automáticamente por RFC o acepta vinculación manual.</p>
+<h3 id="parametros">Parámetros<a class="headerlink" href="#parametros" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cfdi_recibido</code></td>
+<td>string</td>
+<td>✅</td>
+<td>Nombre del CFDI Recibido</td>
+</tr>
+<tr>
+<td><code>supplier</code></td>
+<td>string</td>
+<td>❌</td>
+<td>Supplier específico (vinculación manual)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="respuesta_1">Respuesta<a class="headerlink" href="#respuesta_1" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ok&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;supplier&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Proveedor Ejemplo S.A.&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Proveedor asignado por RFC&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th><code>status</code></th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ok</code></td>
+<td>Proveedor asignado correctamente</td>
+</tr>
+<tr>
+<td><code>falta_proveedor</code></td>
+<td>No existe <code>Supplier</code> con <code>tax_id</code> igual al RFC del CFDI</td>
+</tr>
+<tr>
+<td><code>error</code></td>
+<td>Error interno (CFDI sin RFC emisor, Supplier inexistente, etc.)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="modos-de-operacion">Modos de operación<a class="headerlink" href="#modos-de-operacion" title="Permanent link">&para;</a></h3>
+<p><strong>Automático</strong> (sin <code>supplier</code>): busca <code>Supplier</code> donde <code>tax_id == cfdi_recibido.supplier_rfc</code>. No autocrea proveedores.</p>
+<p><strong>Manual</strong> (con <code>supplier</code>): asigna el Supplier indicado directamente, aunque el RFC no coincida. Útil para CFDIs de proveedores sin <code>tax_id</code> configurado en ERPNext.</p>
+<h3 id="efecto-en-el-estado-del-cfdi">Efecto en el estado del CFDI<a class="headerlink" href="#efecto-en-el-estado-del-cfdi" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Tests Layer 1 ejecutar en cada commit</li>
-<li>Tests Layer 2-4 ejecutar en CI/CD pipeline</li>
-<li>Métricas de performance monitorear continuamente</li>
-</ul>
-<h3 id="release-validation"><strong>Release Validation:</strong><a class="headerlink" href="#release-validation" title="Permanent link">&para;</a></h3>
-<ul>
-<li>100% tests Layer 1-4 deben pasar</li>
-<li>Performance benchmarks mantenidos</li>
-<li>REGLA #34 validated: código production-ready</li>
+<li>Si se asigna proveedor: estado avanza a <code>Parseado</code> (listo para clasificar conceptos).</li>
+<li>Si no se encuentra: estado queda en <code>Falta proveedor</code>.</li>
 </ul>
 <hr />
-<p><strong>Este framework establece la base sólida para testing comprehensivo y quality assurance en el proyecto Facturación México.</strong></p>
+<h2 id="classify_concepts"><code>classify_concepts</code><a class="headerlink" href="#classify_concepts" title="Permanent link">&para;</a></h2>
+<p>Aplica las reglas de <strong>CFDI Concepto Mapping</strong> sobre todos los conceptos del CFDI y actualiza su estado.</p>
+<h3 id="parametros_1">Parámetros<a class="headerlink" href="#parametros_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cfdi_recibido</code></td>
+<td>string</td>
+<td>✅</td>
+<td>Nombre del CFDI Recibido</td>
+</tr>
+</tbody>
+</table>
+<h3 id="respuesta_2">Respuesta<a class="headerlink" href="#respuesta_2" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ok&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;total&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;matched&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;unmatched&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Todos los conceptos clasificados&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th><code>status</code></th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ok</code></td>
+<td>Todos los conceptos tienen regla aplicable → CFDI pasa a <code>Listo</code></td>
+</tr>
+<tr>
+<td><code>falta_clasif</code></td>
+<td>Al menos un concepto sin regla → CFDI pasa a <code>Falta clasif.</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="algoritmo-de-matching-3-niveles">Algoritmo de matching (3 niveles)<a class="headerlink" href="#algoritmo-de-matching-3-niveles" title="Permanent link">&para;</a></h3>
+<p>Para cada concepto, busca en <code>CFDI Concepto Mapping</code> en orden de especificidad decreciente:</p>
+<table>
+<thead>
+<tr>
+<th>Nivel</th>
+<th>Condiciones</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>company</code> + <code>supplier_rfc</code> + <code>sat_product_key</code></td>
+<td>Exacto — empresa + proveedor + clave SAT</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>company</code> + <code>supplier_rfc</code> + <code>sat_product_key</code> vacío</td>
+<td>Fallback por proveedor — cualquier clave SAT</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>company</code> + <code>supplier_rfc</code> vacío + <code>sat_product_key</code></td>
+<td>Fallback por clave SAT — cualquier proveedor</td>
+</tr>
+</tbody>
+</table>
+<p>Las reglas con <code>company</code> vacío son <strong>globales</strong> y aplican a cualquier empresa.
+Solo se consideran reglas con <code>is_active = 1</code>.</p>
+<hr />
+<h2 id="save_mapping_rule"><code>save_mapping_rule</code><a class="headerlink" href="#save_mapping_rule" title="Permanent link">&para;</a></h2>
+<p>Crea o actualiza una regla en <strong>CFDI Concepto Mapping</strong>. Si ya existe una regla con la misma combinación <code>(company, supplier_rfc, sat_product_key)</code>, la actualiza. Si no, crea una nueva.</p>
+<h3 id="parametros_2">Parámetros<a class="headerlink" href="#parametros_2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>target_type</code></td>
+<td>string</td>
+<td>✅</td>
+<td><code>"Item"</code> o <code>"ExpenseAccount"</code></td>
+</tr>
+<tr>
+<td><code>supplier_rfc</code></td>
+<td>string</td>
+<td>❌</td>
+<td>RFC del proveedor (vacío = cualquier proveedor)</td>
+</tr>
+<tr>
+<td><code>sat_product_key</code></td>
+<td>string</td>
+<td>❌</td>
+<td>Clave SAT del producto/servicio (vacío = cualquier clave)</td>
+</tr>
+<tr>
+<td><code>target_item</code></td>
+<td>string</td>
+<td>❌</td>
+<td>Nombre del Item en ERPNext (requerido si <code>target_type = "Item"</code>)</td>
+</tr>
+<tr>
+<td><code>target_account</code></td>
+<td>string</td>
+<td>❌</td>
+<td>Nombre de la cuenta de gasto (requerido si <code>target_type = "ExpenseAccount"</code>)</td>
+</tr>
+<tr>
+<td><code>target_cost_center</code></td>
+<td>string</td>
+<td>❌</td>
+<td>Centro de costo (opcional)</td>
+</tr>
+<tr>
+<td><code>company</code></td>
+<td>string</td>
+<td>❌</td>
+<td>Empresa (vacío = regla global)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="respuesta_3">Respuesta<a class="headerlink" href="#respuesta_3" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ok&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;mapping&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CFDI-MAP-0001&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Regla creada: CFDI-MAP-0001&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="ejemplos">Ejemplos<a class="headerlink" href="#ejemplos" title="Permanent link">&para;</a></h3>
+<p><strong>Regla exacta para un proveedor específico:</strong>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;target_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ExpenseAccount&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;supplier_rfc&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;PROV901011AAA&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;sat_product_key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;43231500&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;target_account&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Gastos de Tecnología - MX&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;company&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Mi Empresa S.A. de C.V.&quot;</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<p><strong>Regla global para toda la empresa (cualquier proveedor, cualquier clave SAT):</strong>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;target_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ExpenseAccount&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;supplier_rfc&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;sat_product_key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;target_account&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Gastos Generales - MX&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;company&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Mi Empresa S.A. de C.V.&quot;</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<hr />
+<h2 id="doctypes-relacionados">DocTypes relacionados<a class="headerlink" href="#doctypes-relacionados" title="Permanent link">&para;</a></h2>
+<h3 id="cfdi-recibido">CFDI Recibido<a class="headerlink" href="#cfdi-recibido" title="Permanent link">&para;</a></h3>
+<p>Documento principal que representa un CFDI recibido de un proveedor.</p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>uuid</code></td>
+<td>UUID único del CFDI (clave de deduplicación)</td>
+</tr>
+<tr>
+<td><code>company</code></td>
+<td>Empresa receptora</td>
+</tr>
+<tr>
+<td><code>supplier_rfc</code></td>
+<td>RFC del emisor (proveedor)</td>
+</tr>
+<tr>
+<td><code>supplier</code></td>
+<td>Link al <code>Supplier</code> en ERPNext (asignado por <code>resolve_supplier</code>)</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td><code>Parseado</code> / <code>Falta proveedor</code> / <code>Falta clasif.</code> / <code>Listo</code> / <code>Error</code></td>
+</tr>
+<tr>
+<td><code>cfdi_type</code></td>
+<td>Tipo de comprobante: <code>I</code> (Ingreso), <code>E</code> (Egreso), <code>P</code> (Pago), etc.</td>
+</tr>
+<tr>
+<td><code>xml_file</code></td>
+<td>URL del XML original adjunto (privado)</td>
+</tr>
+<tr>
+<td><code>xml_hash</code></td>
+<td>SHA256 del XML para detección de duplicados</td>
+</tr>
+<tr>
+<td><code>conceptos</code></td>
+<td>Child table — filas <code>CFDI Recibido Concepto</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="cfdi-recibido-concepto">CFDI Recibido Concepto<a class="headerlink" href="#cfdi-recibido-concepto" title="Permanent link">&para;</a></h3>
+<p>Fila child del CFDI Recibido. Representa una línea del XML.</p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sat_product_key</code></td>
+<td>Clave SAT del producto/servicio</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>Descripción del concepto</td>
+</tr>
+<tr>
+<td><code>quantity</code></td>
+<td>Cantidad</td>
+</tr>
+<tr>
+<td><code>unit_price</code></td>
+<td>Precio unitario</td>
+</tr>
+<tr>
+<td><code>amount</code></td>
+<td>Importe total</td>
+</tr>
+<tr>
+<td><code>taxes_json</code></td>
+<td>Impuestos del concepto en JSON</td>
+</tr>
+</tbody>
+</table>
+<h3 id="cfdi-concepto-mapping">CFDI Concepto Mapping<a class="headerlink" href="#cfdi-concepto-mapping" title="Permanent link">&para;</a></h3>
+<p>Reglas de clasificación para mapear conceptos de CFDIs recibidos a Items o cuentas de gasto.</p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>company</code></td>
+<td>Empresa a la que aplica (vacío = global)</td>
+</tr>
+<tr>
+<td><code>supplier_rfc</code></td>
+<td>RFC del proveedor (vacío = cualquier proveedor)</td>
+</tr>
+<tr>
+<td><code>sat_product_key</code></td>
+<td>Clave SAT (vacío = cualquier clave)</td>
+</tr>
+<tr>
+<td><code>target_type</code></td>
+<td><code>Item</code> o <code>ExpenseAccount</code></td>
+</tr>
+<tr>
+<td><code>target_item</code></td>
+<td>Item de ERPNext destino</td>
+</tr>
+<tr>
+<td><code>target_account</code></td>
+<td>Cuenta de gasto destino</td>
+</tr>
+<tr>
+<td><code>target_cost_center</code></td>
+<td>Centro de costo (opcional)</td>
+</tr>
+<tr>
+<td><code>is_active</code></td>
+<td>Activa / inactiva (solo reglas activas aplican en el matching)</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="admonition-title">Unicidad de reglas</p>
+<p>No puede existir más de una regla activa con la misma combinación <code>(company, supplier_rfc, sat_product_key)</code>.
+El DocType valida esto en <code>validate()</code> y la API lo maneja como upsert.</p>
+</div>
 
 
 

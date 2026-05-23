@@ -13,6 +13,10 @@
       
       
       
+        <link rel="prev" href="../draft-invoices/">
+      
+      
+        <link rel="next" href="../troubleshooting/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -20,7 +24,7 @@
     
     
       
-        <title>ADR-0022 — Solución Issue #112: Reclasificación Fiscal en Payment Entry - Facturación México - Documentación Técnica</title>
+        <title>CFDI Recibidos - Facturación México - Documentación Técnica</title>
       
     
     
@@ -86,7 +90,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#adr-0022-solucion-issue-112-reclasificacion-fiscal-en-payment-entry" class="md-skip">
+        <a href="#cfdi-recibidos" class="md-skip">
           Saltar a contenido
         </a>
       
@@ -124,7 +128,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              ADR-0022 — Solución Issue #112: Reclasificación Fiscal en Payment Entry
+              CFDI Recibidos
             
           </span>
         </div>
@@ -236,11 +240,13 @@
         
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../user-guide/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
           
   
   Guía de Usuario
@@ -344,8 +350,10 @@
       
   
   
+    
   
   
+  
     
     
     
@@ -354,14 +362,12 @@
       
       
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
           <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
@@ -375,7 +381,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             Guía de Usuario
@@ -389,7 +395,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user-guide/" class="md-nav__link">
+      <a href="../" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -410,7 +416,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user-guide/getting-started/" class="md-nav__link">
+      <a href="../getting-started/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -431,7 +437,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user-guide/multisucursal/" class="md-nav__link">
+      <a href="../multisucursal/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -452,7 +458,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user-guide/addendas/" class="md-nav__link">
+      <a href="../addendas/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -473,7 +479,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user-guide/draft-invoices/" class="md-nav__link">
+      <a href="../draft-invoices/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -491,10 +497,30 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../user-guide/cfdi-recibidos/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    CFDI Recibidos
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -503,6 +529,113 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#que-es-un-cfdi-recibido" class="md-nav__link">
+    <span class="md-ellipsis">
+      ¿Qué es un CFDI Recibido?
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#flujo-de-trabajo" class="md-nav__link">
+    <span class="md-ellipsis">
+      Flujo de trabajo
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#paso-1-cargar-el-xml" class="md-nav__link">
+    <span class="md-ellipsis">
+      Paso 1 — Cargar el XML
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#paso-2-resolver-proveedor" class="md-nav__link">
+    <span class="md-ellipsis">
+      Paso 2 — Resolver proveedor
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#paso-3-clasificar-conceptos" class="md-nav__link">
+    <span class="md-ellipsis">
+      Paso 3 — Clasificar conceptos
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Paso 3 — Clasificar conceptos">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#crear-reglas-de-clasificacion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Crear reglas de clasificación
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#niveles-de-especificidad" class="md-nav__link">
+    <span class="md-ellipsis">
+      Niveles de especificidad
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ejemplo-de-configuracion-de-reglas" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ejemplo de configuración de reglas
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#preguntas-frecuentes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Preguntas frecuentes
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -515,7 +648,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user-guide/troubleshooting/" class="md-nav__link">
+      <a href="../troubleshooting/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -892,28 +1025,73 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#contexto" class="md-nav__link">
+  <a href="#que-es-un-cfdi-recibido" class="md-nav__link">
     <span class="md-ellipsis">
-      Contexto
+      ¿Qué es un CFDI Recibido?
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#arquitectura-implementada" class="md-nav__link">
+  <a href="#flujo-de-trabajo" class="md-nav__link">
     <span class="md-ellipsis">
-      Arquitectura implementada
+      Flujo de trabajo
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Arquitectura implementada">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#paso-1-cargar-el-xml" class="md-nav__link">
+    <span class="md-ellipsis">
+      Paso 1 — Cargar el XML
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#paso-2-resolver-proveedor" class="md-nav__link">
+    <span class="md-ellipsis">
+      Paso 2 — Resolver proveedor
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#paso-3-clasificar-conceptos" class="md-nav__link">
+    <span class="md-ellipsis">
+      Paso 3 — Clasificar conceptos
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Paso 3 — Clasificar conceptos">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#principios-de-diseno" class="md-nav__link">
+  <a href="#crear-reglas-de-clasificacion" class="md-nav__link">
     <span class="md-ellipsis">
-      Principios de diseño
+      Crear reglas de clasificación
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#niveles-de-especificidad" class="md-nav__link">
+    <span class="md-ellipsis">
+      Niveles de especificidad
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ejemplo-de-configuracion-de-reglas" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ejemplo de configuración de reglas
     </span>
   </a>
   
@@ -925,96 +1103,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#fase-0-eliminar-silencio-contable-pr-126-completo" class="md-nav__link">
+  <a href="#preguntas-frecuentes" class="md-nav__link">
     <span class="md-ellipsis">
-      Fase 0 — Eliminar silencio contable (PR #126 — completo)
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#fase-1-doctype-crfm-este-pr" class="md-nav__link">
-    <span class="md-ellipsis">
-      Fase 1 — DocType CRFM (este PR)
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Fase 1 — DocType CRFM (este PR)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#nuevos-doctypes" class="md-nav__link">
-    <span class="md-ellipsis">
-      Nuevos DocTypes
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#flujo-de-uso" class="md-nav__link">
-    <span class="md-ellipsis">
-      Flujo de uso
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#archivos-creados" class="md-nav__link">
-    <span class="md-ellipsis">
-      Archivos creados
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#tests" class="md-nav__link">
-    <span class="md-ellipsis">
-      Tests
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#fase-2-pagosegresos-pendiente-issue-separado" class="md-nav__link">
-    <span class="md-ellipsis">
-      Fase 2 — Pagos/Egresos (pendiente, issue separado)
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#alternativas-descartadas" class="md-nav__link">
-    <span class="md-ellipsis">
-      Alternativas descartadas
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#consecuencias" class="md-nav__link">
-    <span class="md-ellipsis">
-      Consecuencias
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#referencias" class="md-nav__link">
-    <span class="md-ellipsis">
-      Referencias
+      Preguntas frecuentes
     </span>
   </a>
   
@@ -1035,177 +1126,143 @@
                   
 
 
-<h1 id="adr-0022-solucion-issue-112-reclasificacion-fiscal-en-payment-entry">ADR-0022 — Solución Issue #112: Reclasificación Fiscal en Payment Entry<a class="headerlink" href="#adr-0022-solucion-issue-112-reclasificacion-fiscal-en-payment-entry" title="Permanent link">&para;</a></h1>
-<p><strong>Fecha:</strong> 2026-05-11
-<strong>Estado:</strong> Implementado (Fase 0 PR #126 + Fase 1 en progreso)
-<strong>Issue:</strong> #112 — Mapeo Reclasificacion Fiscal Payment Entry necesita validación y UX mejorada</p>
+<h1 id="cfdi-recibidos">CFDI Recibidos<a class="headerlink" href="#cfdi-recibidos" title="Permanent link">&para;</a></h1>
+<p>Guía para registrar y clasificar comprobantes fiscales recibidos de proveedores.</p>
 <hr />
-<h2 id="contexto">Contexto<a class="headerlink" href="#contexto" title="Permanent link">&para;</a></h2>
-<p>Al registrar cobros PPD en Payment Entry, el sistema reclasifica impuestos de
-cuentas transitorias (al timbrar) a cuentas definitivas (al cobrar). Este mecanismo
-usa <code>Mapeo Reclasificacion Fiscal Payment Entry</code> (MRFPE) como tabla operativa.</p>
-<p>El problema tenía dos niveles:
-1. <strong>Silencio contable:</strong> cuando faltaba un mapeo, <code>payment_entry_reclasificacion.py</code>
-   hacía <code>continue</code> silencioso — el IVA no se reclasificaba y nadie se enteraba.
-2. <strong>Sin guía de configuración:</strong> el usuario debía crear los registros MRFPE
-   manualmente sin ninguna validación de completitud ni flujo guiado.</p>
+<h2 id="que-es-un-cfdi-recibido">¿Qué es un CFDI Recibido?<a class="headerlink" href="#que-es-un-cfdi-recibido" title="Permanent link">&para;</a></h2>
+<p>Un CFDI Recibido es el XML que emite un proveedor cuando te vende un bien o servicio. Este módulo permite cargar esos XMLs a ERPNext, validarlos contra el SAT, identificar al proveedor automáticamente y clasificar cada concepto para facilitar el registro contable.</p>
 <hr />
-<h2 id="arquitectura-implementada">Arquitectura implementada<a class="headerlink" href="#arquitectura-implementada" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code>CFM (declaración de alcance fiscal — ingresos)
-  ↓ lectura — sin modificar
-CRFM [NUEVO] (rector: qué cuentas se reclasifican y a dónde)
-  ↓ crea/actualiza idempotente
-MRFPE (tabla operativa — sin cambios de schema)
-  ↓ consume — sin cambios
-payment_entry_reclasificacion.py
+<h2 id="flujo-de-trabajo">Flujo de trabajo<a class="headerlink" href="#flujo-de-trabajo" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>1. Cargar XML  →  2. Resolver proveedor  →  3. Clasificar conceptos  →  4. Listo
+   (upload_xml)    (resolve_supplier)        (classify_concepts)
 </code></pre></div>
-<h3 id="principios-de-diseno">Principios de diseño<a class="headerlink" href="#principios-de-diseno" title="Permanent link">&para;</a></h3>
-<ul>
-<li>CFM no se modifica — solo lectura para detección</li>
-<li>MRFPE permanece como tabla operativa final</li>
-<li>CRFM es el intermediario que conecta CFM con MRFPE</li>
-<li>Sin estados visibles para el usuario — la lógica es implícita en <code>cuenta_destino</code></li>
-<li>Sin conceptos de "Omitido" — filas vacías simplemente se saltan</li>
-</ul>
-<hr />
-<h2 id="fase-0-eliminar-silencio-contable-pr-126-completo">Fase 0 — Eliminar silencio contable (PR #126 — completo)<a class="headerlink" href="#fase-0-eliminar-silencio-contable-pr-126-completo" title="Permanent link">&para;</a></h2>
-<p><strong>Archivo:</strong> <code>payment_entry_reclasificacion.py</code></p>
-<p>Cambio: <code>continue</code> silencioso → <code>frappe.msgprint</code> naranja que lista las cuentas
-sin mapeo. El PE se guarda sin bloquear. La reclasificación sigue saltándose
-las cuentas sin mapeo, pero ahora el usuario lo sabe.</p>
-<p><strong>Tests:</strong> 14/14 PASS (<code>TestPaymentEntryReclasificacion</code>)</p>
-<hr />
-<h2 id="fase-1-doctype-crfm-este-pr">Fase 1 — DocType CRFM (este PR)<a class="headerlink" href="#fase-1-doctype-crfm-este-pr" title="Permanent link">&para;</a></h2>
-<h3 id="nuevos-doctypes">Nuevos DocTypes<a class="headerlink" href="#nuevos-doctypes" title="Permanent link">&para;</a></h3>
-<p><strong><code>Configuracion Reclasificacion Fiscal Mexico</code> (CRFM)</strong>
-- Uno por empresa (<code>CRFM-{company}</code>)
-- Dos métodos whitelisted: <code>cargar_reglas()</code> y <code>aplicar()</code>
-- Sin estados, sin máquina de estados — la lógica vive en <code>cuenta_destino</code></p>
-<p><strong><code>Regla Reclasificacion Fiscal</code></strong> (child table de CRFM)</p>
+<p>Cada paso avanza el estado del documento:</p>
 <table>
 <thead>
 <tr>
-<th>Campo</th>
-<th>Tipo</th>
-<th>Descripción</th>
+<th>Estado</th>
+<th>Significado</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>rol_fiscal</code></td>
-<td>Data, read-only</td>
-<td>Tipo semántico del impuesto (de CFM)</td>
+<td><code>Parseado</code></td>
+<td>XML cargado y válido, proveedor pendiente</td>
 </tr>
 <tr>
-<td><code>cuenta_origen</code></td>
-<td>Link Account, read-only</td>
-<td>Cuenta transitoria (al timbrar)</td>
+<td><code>Falta proveedor</code></td>
+<td>No se encontró Supplier con el RFC del emisor</td>
 </tr>
 <tr>
-<td><code>cuenta_destino</code></td>
-<td>Link Account, <strong>editable</strong></td>
-<td>Cuenta definitiva (al cobrar) — filtro Tax</td>
+<td><code>Falta clasif.</code></td>
+<td>Proveedor asignado, pero hay conceptos sin regla</td>
 </tr>
 <tr>
-<td><code>mrfpe_ref</code></td>
-<td>Link MRFPE, read-only</td>
-<td>Referencia al mapeo operativo vigente</td>
+<td><code>Listo</code></td>
+<td>Todos los conceptos clasificados — listo para registro contable</td>
 </tr>
 <tr>
-<td><code>tipo_operacion</code></td>
-<td>Select, read-only</td>
-<td>Cobro / Pago</td>
-</tr>
-<tr>
-<td><code>source_type</code></td>
-<td>Select, read-only</td>
-<td>Ingresos / CFM | Manual</td>
+<td><code>Error</code></td>
+<td>El RFC receptor del CFDI no corresponde a la empresa, o XML inválido</td>
 </tr>
 </tbody>
 </table>
-<h3 id="flujo-de-uso">Flujo de uso<a class="headerlink" href="#flujo-de-uso" title="Permanent link">&para;</a></h3>
-<p><strong>"1. Cargar Reglas"</strong> → llama <code>cargar_reglas()</code>:
-- Limpia las reglas automáticas (source_type = "Ingresos / CFM")
-- Lee <code>CFM.mapeo_cuentas</code> (solo filas <code>estado_validacion = "Válido"</code>)
-- Para cada cuenta: busca MRFPE existente con <code>frappe.get_all(ignore_permissions=True)</code>
-- Si MRFPE existe → carga <code>cuenta_destino</code> del mapeo actual + <code>mrfpe_ref</code>
-- Si no existe → <code>cuenta_destino</code> vacío para que el usuario la llene
-- Preserva <code>cuenta_destino</code> que el usuario ya había llenado en runs anteriores</p>
-<p><strong>El usuario edita <code>cuenta_destino</code></strong> en el grid directamente (filtro: solo cuentas Tax).</p>
-<p><strong>"2. Generar Mapeos"</strong> → llama <code>aplicar()</code>:
-- Bloquea si alguna fila tiene <code>cuenta_destino</code> vacío — lista cuáles faltan
-- Para cada fila con <code>cuenta_destino</code>:
-  - Si MRFPE existe y <code>cuenta_destino</code> es igual → sin cambios
-  - Si MRFPE existe y <code>cuenta_destino</code> cambió → actualiza MRFPE
-  - Si no existe MRFPE → crea nuevo MRFPE
-- Reporta: Creados / Actualizados / Sin cambios / Sin cuenta destino</p>
-<h3 id="archivos-creados">Archivos creados<a class="headerlink" href="#archivos-creados" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>facturacion_mexico/facturacion_fiscal/doctype/
-  configuracion_reclasificacion_fiscal_mexico/
-    configuracion_reclasificacion_fiscal_mexico.json
-    configuracion_reclasificacion_fiscal_mexico.py
-    configuracion_reclasificacion_fiscal_mexico.js
-    test_configuracion_reclasificacion_fiscal_mexico.py
-
-  regla_reclasificacion_fiscal/
-    regla_reclasificacion_fiscal.json
-    regla_reclasificacion_fiscal.py
-    __init__.py
-</code></pre></div>
-<h3 id="tests">Tests<a class="headerlink" href="#tests" title="Permanent link">&para;</a></h3>
+<hr />
+<h2 id="paso-1-cargar-el-xml">Paso 1 — Cargar el XML<a class="headerlink" href="#paso-1-cargar-el-xml" title="Permanent link">&para;</a></h2>
+<p>Desde la API o desde la interfaz, carga el XML del CFDI recibido indicando la empresa receptora.</p>
+<p>El sistema valida automáticamente:</p>
+<ul>
+<li>Que el XML sea <strong>CFDI versión 4.0</strong> (los CFDI 3.3 son rechazados)</li>
+<li>Que el <strong>RFC receptor</strong> en el XML coincida con el RFC configurado en la empresa de ERPNext</li>
+<li>Que el UUID no sea <strong>duplicado</strong> (si ya existe, retorna el documento existente)</li>
+</ul>
+<p>Si la validación pasa, se crea el documento <code>CFDI Recibido</code> con todos los datos del comprobante y el XML adjunto de forma privada.</p>
+<hr />
+<h2 id="paso-2-resolver-proveedor">Paso 2 — Resolver proveedor<a class="headerlink" href="#paso-2-resolver-proveedor" title="Permanent link">&para;</a></h2>
+<p>El sistema busca automáticamente un <code>Supplier</code> en ERPNext cuyo campo <strong>Tax ID</strong> coincida con el RFC emisor del CFDI.</p>
+<div class="admonition info">
+<p class="admonition-title">Vinculación automática</p>
+<p>Si encuentras que el proveedor no se resuelve automáticamente, verifica que el campo <code>Tax ID</code> del <code>Supplier</code> esté configurado con el RFC correcto.</p>
+</div>
+<p><strong>Si el proveedor no existe en ERPNext:</strong></p>
+<p>El documento queda en estado <code>Falta proveedor</code>. Tienes dos opciones:</p>
+<ol>
+<li><strong>Crear el proveedor</strong> en ERPNext con el RFC correcto en <code>Tax ID</code>, y luego ejecutar <code>resolve_supplier</code> nuevamente.</li>
+<li><strong>Vinculación manual</strong>: llamar a <code>resolve_supplier</code> con el parámetro <code>supplier</code> para asignar directamente un Supplier aunque el RFC no coincida.</li>
+</ol>
+<div class="admonition warning">
+<p class="admonition-title">Este módulo no autocrea proveedores</p>
+<p>Por diseño, el sistema no crea Suppliers automáticamente. Es necesario que el proveedor ya exista en ERPNext.</p>
+</div>
+<hr />
+<h2 id="paso-3-clasificar-conceptos">Paso 3 — Clasificar conceptos<a class="headerlink" href="#paso-3-clasificar-conceptos" title="Permanent link">&para;</a></h2>
+<p>Cada línea del CFDI (concepto) necesita una <strong>regla de clasificación</strong> que indique a qué Item o cuenta de gasto de ERPNext corresponde.</p>
+<p>Las reglas se configuran en el DocType <strong>CFDI Concepto Mapping</strong>.</p>
+<h3 id="crear-reglas-de-clasificacion">Crear reglas de clasificación<a class="headerlink" href="#crear-reglas-de-clasificacion" title="Permanent link">&para;</a></h3>
+<p>Puedes crear reglas desde el Desk (DocType <code>CFDI Concepto Mapping</code>) o via la API <code>save_mapping_rule</code>.</p>
+<p>Una regla define:</p>
+<ul>
+<li><strong>¿A qué empresa aplica?</strong> — vacío significa que aplica a todas las empresas</li>
+<li><strong>¿A qué proveedor aplica?</strong> — por RFC, o vacío para cualquier proveedor</li>
+<li><strong>¿A qué clave SAT aplica?</strong> — la clave del producto/servicio, o vacío para cualquier clave</li>
+<li><strong>¿A qué destino mapea?</strong> — un <code>Item</code> de ERPNext o una cuenta de <code>Gastos</code></li>
+</ul>
+<h3 id="niveles-de-especificidad">Niveles de especificidad<a class="headerlink" href="#niveles-de-especificidad" title="Permanent link">&para;</a></h3>
+<p>Cuando se clasifica un concepto, el sistema busca la regla más específica disponible:</p>
 <table>
 <thead>
 <tr>
-<th>Clase</th>
-<th>Tests</th>
-<th>Cobertura</th>
+<th>Nivel</th>
+<th>Qué aplica</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>TestCRFMCargarReglas</code></td>
-<td>7</td>
-<td>sin CFM, sin MRFPE, con MRFPE, preservar previo, ignorar inválidos, reconstruir</td>
+<td><strong>1 — Exacto</strong></td>
+<td>Empresa + RFC proveedor + clave SAT exactos</td>
 </tr>
 <tr>
-<td><code>TestCRFMAplicar</code></td>
-<td>6</td>
-<td>crear, actualizar, sin cambio, saltar vacíos, datos correctos, sin empresa</td>
+<td><strong>2 — Proveedor</strong></td>
+<td>Empresa + RFC proveedor (cualquier clave SAT)</td>
+</tr>
+<tr>
+<td><strong>3 — Clave SAT</strong></td>
+<td>Empresa + clave SAT (cualquier proveedor)</td>
 </tr>
 </tbody>
 </table>
-<p><strong>13/13 PASS</strong> en <code>test-facturacion.localhost</code></p>
+<p>Si ninguna regla aplica, el concepto queda sin clasificar y el CFDI pasa a <code>Falta clasif.</code></p>
+<h3 id="ejemplo-de-configuracion-de-reglas">Ejemplo de configuración de reglas<a class="headerlink" href="#ejemplo-de-configuracion-de-reglas" title="Permanent link">&para;</a></h3>
+<p><strong>Caso típico: proveedor de software con clave SAT 43231500</strong>
+<div class="highlight"><pre><span></span><code>Empresa:          Mi Empresa S.A. de C.V.
+RFC proveedor:    SOFT901011AAA
+Clave SAT:        43231500
+Tipo destino:     Cuenta de Gasto
+Cuenta:           Gastos de Software - MX
+</code></pre></div></p>
+<p><strong>Fallback genérico para gastos varios (cualquier proveedor, cualquier clave)</strong>
+<div class="highlight"><pre><span></span><code>Empresa:          Mi Empresa S.A. de C.V.
+RFC proveedor:    (vacío)
+Clave SAT:        (vacío)
+Tipo destino:     Cuenta de Gasto
+Cuenta:           Gastos Generales - MX
+</code></pre></div></p>
+<div class="admonition tip">
+<p class="admonition-title">Estrategia recomendada</p>
+<p>Empieza con reglas genéricas (fallbacks) y agrega reglas específicas conforme identifiques proveedores frecuentes. El sistema siempre usa la regla más específica disponible.</p>
+</div>
 <hr />
-<h2 id="fase-2-pagosegresos-pendiente-issue-separado">Fase 2 — Pagos/Egresos (pendiente, issue separado)<a class="headerlink" href="#fase-2-pagosegresos-pendiente-issue-separado" title="Permanent link">&para;</a></h2>
-<p><code>source_type = "Manual"</code> ya existe en el schema. La detección automática para
-Purchase Invoice/pagos a proveedores se implementará en un issue dedicado.</p>
-<hr />
-<h2 id="alternativas-descartadas">Alternativas descartadas<a class="headerlink" href="#alternativas-descartadas" title="Permanent link">&para;</a></h2>
-<p><strong>Extender CFM</strong> con campos de reclasificación: descartado porque CFM está
-orientado a ingresos/facturación, ya causó problemas, y mezclaría
-responsabilidades de timbrado con responsabilidades de cobro.</p>
-<p><strong>Máquina de estados en el grid</strong>: descartado — sobre-ingenierizado. El usuario
-solo necesita ver y editar <code>cuenta_destino</code>. El sistema decide qué hacer.</p>
-<hr />
-<h2 id="consecuencias">Consecuencias<a class="headerlink" href="#consecuencias" title="Permanent link">&para;</a></h2>
-<p><strong>Positivas:</strong>
-- El usuario tiene un flujo guiado para configurar reclasificación
-- CFM no se modifica — sin riesgo de regresión en timbrado
-- MRFPE sigue funcionando sin cambios — instalaciones existentes compatibles
-- Grid simple: 6 columnas, solo <code>cuenta_destino</code> es editable</p>
-<p><strong>Pendientes:</strong>
-- Issue #123 — selector <code>_hide_cancel_button</code> demasiado amplio (PE)
-- Issue #124 — consolidar llamadas <code>get_fiscal_ui_state</code> en SI refresh
-- Issue #127 — revisión de permisos CRFM y Regla Reclasificacion Fiscal</p>
-<hr />
-<h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">&para;</a></h2>
-<ul>
-<li>Issue #112: https://github.com/luisrms69/facturacion_mexico/issues/112</li>
-<li>PR #126: fix(reclasificacion): avisar al usuario cuando falta mapeo en PE</li>
-<li><code>facturacion_mexico/facturacion_fiscal/services/payment_entry_reclasificacion.py</code></li>
-<li><code>facturacion_mexico/facturacion_fiscal/doctype/mapeo_reclasificacion_fiscal_payment_entry/</code></li>
-<li><code>facturacion_mexico/facturacion_fiscal/doctype/configuracion_reclasificacion_fiscal_mexico/</code></li>
-</ul>
+<h2 id="preguntas-frecuentes">Preguntas frecuentes<a class="headerlink" href="#preguntas-frecuentes" title="Permanent link">&para;</a></h2>
+<p><strong>¿Qué pasa si cargo el mismo XML dos veces?</strong>
+El sistema detecta el duplicado por UUID y retorna el documento existente sin crear uno nuevo.</p>
+<p><strong>¿Puedo cargar CFDIs de versión 3.3?</strong>
+No. Este módulo solo soporta CFDI 4.0. Los XMLs de versión 3.3 son rechazados con un mensaje de error explícito.</p>
+<p><strong>¿El RFC del CFDI debe coincidir exactamente con el RFC de la empresa?</strong>
+Sí. Si el RFC receptor en el XML no coincide con <code>Company.tax_id</code> en ERPNext, el CFDI queda en estado <code>Error</code>. Verifica que el RFC de la empresa esté correctamente configurado en ERPNext.</p>
+<p><strong>¿Qué es una regla global?</strong>
+Una regla con <code>company</code> vacío aplica a todas las empresas del sistema. Útil para configuraciones comunes entre múltiples empresas.</p>
+<p><strong>¿Puedo desactivar una regla sin borrarla?</strong>
+Sí. Cada regla en <code>CFDI Concepto Mapping</code> tiene el campo <code>is_active</code>. Las reglas inactivas no participan en el proceso de clasificación.</p>
 
 
 
