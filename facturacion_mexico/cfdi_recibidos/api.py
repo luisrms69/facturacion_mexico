@@ -2,18 +2,25 @@
 API pública de CFDI Recibidos.
 
 Endpoints Fase 1:
-    upload_xml       — carga uno o varios XMLs CFDI y los persiste como CFDI Recibido.
+    upload_xml              — carga uno o varios XMLs CFDI y los persiste como CFDI Recibido.
 
 Endpoints Fase 2:
-    resolve_supplier  — asigna proveedor por RFC o vinculación manual.
-    classify_concepts — aplica CFDI Concepto Mapping sobre conceptos del CFDI.
-    save_mapping_rule — crea o actualiza una regla de clasificación.
+    resolve_supplier        — asigna proveedor por RFC o vinculación manual.
+    classify_concepts       — aplica CFDI Concepto Mapping sobre conceptos del CFDI.
+    save_mapping_rule       — crea o actualiza una regla de clasificación.
+
+Endpoints Fase 3:
+    build_purchase_invoice  — convierte CFDI Recibido Listo a Purchase Invoice Draft.
+    suggest_supplier_from_cfdi — sugiere datos de proveedor sin crearlo automáticamente.
 """
 
 import frappe
 from frappe import _
 
 from facturacion_mexico.cfdi_recibidos.services.xml_ingestion import ingest_xml
+
+# Estados del CFDI Recibido que permiten intentar la conversión a PI
+_ALLOWED_STATUSES_FOR_BUILD = {"Listo", "Error conversión", "Convertido a PI"}
 
 
 @frappe.whitelist()
@@ -153,3 +160,127 @@ def save_mapping_rule(
 
 	action = "actualizada" if existing else "creada"
 	return {"status": "ok", "mapping": doc.name, "message": f"Regla {action}: {doc.name}"}
+
+
+@frappe.whitelist()
+def build_purchase_invoice(cfdi_recibido: str) -> dict:
+	"""
+	Convierte CFDI Recibido Listo a Purchase Invoice Draft.
+
+	Solo permite conversión en estados: Listo, Error conversión, Convertido a PI.
+	En error actualiza el CFDI Recibido a 'Error conversión' con detalle del error.
+	Idempotente por UUID: si ya existe PI para el UUID retorna recovered=True.
+
+	Retorna:
+	    status          — "ok" | "recovered" | "error"
+	    purchase_invoice — nombre del PI creado/recuperado (None si error)
+	    recovered       — True si la PI ya existía y se reparó el vínculo
+	    message         — descripción del resultado
+	"""
+	if not cfdi_recibido:
+		frappe.throw(_("El campo 'cfdi_recibido' es obligatorio"), frappe.MandatoryError)
+
+	doc = frappe.get_doc("CFDI Recibido", cfdi_recibido)
+	if doc.status not in _ALLOWED_STATUSES_FOR_BUILD:
+		frappe.throw(
+			_(
+				"El CFDI debe estar en estado 'Listo' para convertirse a Purchase Invoice. Estado actual: {0}"
+			).format(doc.status),
+			frappe.ValidationError,
+		)
+
+	from facturacion_mexico.cfdi_recibidos.services.purchase_invoice_builder import (
+		build_purchase_invoice as _build,
+	)
+
+	try:
+		result = _build(cfdi_recibido)
+		recovered = result.get("recovered", False)
+		pi_name = result["purchase_invoice"]
+		return {
+			"status": "recovered" if recovered else "ok",
+			"purchase_invoice": pi_name,
+			"recovered": recovered,
+			"message": (
+				f"Purchase Invoice {pi_name} recuperada (idempotente)"
+				if recovered
+				else f"Purchase Invoice {pi_name} creada correctamente"
+			),
+		}
+	except Exception as e:
+		frappe.db.rollback()
+		frappe.db.set_value(
+			"CFDI Recibido",
+			cfdi_recibido,
+			{"status": "Error conversión", "error_message": str(e)[:500]},
+		)
+		if not isinstance(e, frappe.ValidationError):
+			frappe.log_error(
+				message=f"CFDI: {cfdi_recibido} | Error: {e}",
+				title="CFDI Recibidos build_purchase_invoice Error",
+			)
+		return {"status": "error", "purchase_invoice": None, "recovered": False, "message": str(e)}
+
+
+@frappe.whitelist()
+def suggest_supplier_from_cfdi(cfdi_recibido: str) -> dict:
+	"""
+	Sugiere datos de proveedor basándose en el RFC del CFDI. No crea Supplier automáticamente.
+
+	Casos de respuesta:
+	  status="found"     — Supplier ya existe con tax_id == supplier_rfc
+	  status="not_found" — No existe; retorna suggested_data para alta asistida
+	  status="no_rfc"    — El CFDI no tiene RFC de proveedor
+
+	Retorna:
+	    status          — "found" | "not_found" | "no_rfc"
+	    supplier_exists — bool
+	    supplier        — nombre del Supplier encontrado (None si no existe)
+	    message         — descripción del resultado
+	    suggested_data  — dict con datos sugeridos para alta manual
+	"""
+	if not cfdi_recibido:
+		frappe.throw(_("El campo 'cfdi_recibido' es obligatorio"), frappe.MandatoryError)
+
+	doc = frappe.get_doc("CFDI Recibido", cfdi_recibido)
+	supplier_rfc = doc.supplier_rfc or ""
+
+	if not supplier_rfc:
+		return {
+			"status": "no_rfc",
+			"supplier_exists": False,
+			"supplier": None,
+			"message": _("El CFDI no tiene RFC de proveedor"),
+			"suggested_data": {},
+		}
+
+	existing = frappe.db.get_value(
+		"Supplier",
+		{"tax_id": supplier_rfc},
+		["name", "supplier_name", "tax_id"],
+		as_dict=True,
+	)
+
+	if existing:
+		return {
+			"status": "found",
+			"supplier_exists": True,
+			"supplier": existing.name,
+			"message": _("Proveedor encontrado: {0} ({1})").format(existing.supplier_name, supplier_rfc),
+			"suggested_data": {
+				"supplier_name": existing.supplier_name,
+				"tax_id": existing.tax_id,
+			},
+		}
+
+	return {
+		"status": "not_found",
+		"supplier_exists": False,
+		"supplier": None,
+		"message": _("No existe Supplier con RFC {0}").format(supplier_rfc),
+		"suggested_data": {
+			"supplier_name": doc.supplier_name or supplier_rfc,
+			"tax_id": supplier_rfc,
+			"tax_regime": doc.supplier_tax_regime or "",
+		},
+	}
