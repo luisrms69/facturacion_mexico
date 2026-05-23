@@ -1,0 +1,107 @@
+{
+ "doctype": "DocType",
+ "name": "CFDI Concepto Mapping",
+ "module": "CFDI Recibidos",
+ "custom": 0,
+ "is_submittable": 0,
+ "track_changes": 1,
+ "engine": "InnoDB",
+ "naming_rule": "Autoincrement",
+ "fields": [
+  {
+   "fieldname": "section_origen",
+   "label": "Origen",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "company",
+   "label": "Empresa",
+   "fieldtype": "Link",
+   "options": "Company",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "supplier",
+   "label": "Proveedor",
+   "fieldtype": "Link",
+   "options": "Supplier",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "supplier_rfc",
+   "label": "RFC Proveedor",
+   "fieldtype": "Data",
+   "description": "Alternativa a Proveedor si no existe como Supplier en ERPNext"
+  },
+  {
+   "fieldname": "sat_product_key",
+   "label": "Clave Producto/Servicio SAT",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "description": "Vacío = aplica a cualquier clave SAT del proveedor"
+  },
+  {
+   "fieldname": "section_destino",
+   "label": "Destino en ERPNext",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "target_type",
+   "label": "Tipo de Destino",
+   "fieldtype": "Select",
+   "options": "Item\nExpenseAccount",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "target_item",
+   "label": "Item",
+   "fieldtype": "Link",
+   "options": "Item",
+   "depends_on": "eval:doc.target_type == 'Item'"
+  },
+  {
+   "fieldname": "target_account",
+   "label": "Cuenta de Gasto",
+   "fieldtype": "Link",
+   "options": "Account",
+   "depends_on": "eval:doc.target_type == 'ExpenseAccount'"
+  },
+  {
+   "fieldname": "target_cost_center",
+   "label": "Centro de Costo",
+   "fieldtype": "Link",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "is_active",
+   "label": "Activo",
+   "fieldtype": "Check",
+   "default": "1",
+   "in_list_view": 1
+  }
+ ],
+ "permissions": [
+  {
+   "role": "Facturacion Mexico Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1
+  },
+  {
+   "role": "Facturacion Mexico User",
+   "read": 1,
+   "write": 1,
+   "create": 1
+  },
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1
+  }
+ ],
+ "title_field": "supplier_rfc"
+}
