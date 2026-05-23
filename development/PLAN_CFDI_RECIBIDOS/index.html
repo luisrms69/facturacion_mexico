@@ -1,0 +1,2397 @@
+
+<!doctype html>
+<html lang="es" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentación completa del sistema de facturación electrónica para México">
+      
+      
+        <meta name="author" content="Equipo Desarrollo Facturación México">
+      
+      
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.3">
+    
+    
+      
+        <title>Módulo CFDI Recibidos / Compras - Facturación México - Documentación Técnica</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.50c56a3b.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/advanced.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function n(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],n("js",new Date),n("config","G-XXXXXXXXXX"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){this.value&&n("event","search",{search_term:this.value})}),document$.subscribe(function(){var a=document.forms.feedback;if(void 0!==a)for(var e of a.querySelectorAll("[type=submit]"))e.addEventListener("click",function(e){e.preventDefault();var t=document.location.pathname,e=this.getAttribute("data-md-value");n("event","feedback",{page:t,data:e}),a.firstElementChild.disabled=!0;e=a.querySelector(".md-feedback__note [data-md-value='"+e+"']");e&&(e.hidden=!1)}),a.hidden=!1}),location$.subscribe(function(e){n("config","G-XXXXXXXXXX",{page_path:e.pathname})})});var e=document.createElement("script");e.async=!0,e.src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX",document.getElementById("__analytics").insertAdjacentElement("afterEnd",e)}</script>
+  
+    <script>var consent;"undefined"==typeof __md_analytics||(consent=__md_get("__consent"))&&consent.analytics&&__md_analytics()</script>
+  
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#modulo-cfdi-recibidos-compras" class="md-skip">
+          Saltar a contenido
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabecera">
+    <a href="../.." title="Facturación México - Documentación Técnica" class="md-header__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Facturación México - Documentación Técnica
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Módulo CFDI Recibidos / Compras
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo oscuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo oscuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Búsqueda" placeholder="Búsqueda" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Buscar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpiar" aria-label="Limpiar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando búsqueda
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Pestañas" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+    
+  
+  Inicio
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../user-guide/" class="md-tabs__link">
+          
+  
+  Guía de Usuario
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/" class="md-tabs__link">
+          
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../" class="md-tabs__link">
+          
+  
+  Desarrollo
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navegación" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Facturación México - Documentación Técnica" class="md-nav__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Facturación México - Documentación Técnica
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Inicio
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Guía de Usuario
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Guía de Usuario
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Usuario - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/getting-started/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Primeros Pasos
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/draft-invoices/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Facturas en Borrador
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/troubleshooting/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    API Reference
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    API Reference - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/cfdi/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CFDI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/draft-management/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Draft Management
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/catalogos/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Catalogos SAT
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/hooks/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Hooks
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Desarrollo
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Desarrollo
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Desarrollo - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Setup Desarrollo
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../draft-workflow/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Draft Workflow
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#arquitectura-v41-cerrada-para-implementacion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arquitectura v4.1 — Cerrada para implementación
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-introduccion-contexto-para-el-lector-externo" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Introducción — Contexto para el lector externo
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Introducción — Contexto para el lector externo">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-el-sistema-fiscal-mexicano" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.1 El sistema fiscal mexicano
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-la-plataforma-tecnologica" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.2 La plataforma tecnológica
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13-el-proyecto-facturacion_mexico" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.3 El proyecto facturacion_mexico
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-problema-y-objetivo" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Problema y objetivo
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Problema y objetivo">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#el-proceso-hoy-manual-lento-riesgoso" class="md-nav__link">
+    <span class="md-ellipsis">
+      El proceso hoy (manual, lento, riesgoso)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lo-que-queremos-lograr" class="md-nav__link">
+    <span class="md-ellipsis">
+      Lo que queremos lograr
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-principios-de-diseno-no-cambian" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Principios de diseño — No cambian
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-decisiones-cerradas-en-v4" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Decisiones cerradas en v4
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Decisiones cerradas en v4">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#d-a-quitar-campos-de-destino-del-child-fiscal" class="md-nav__link">
+    <span class="md-ellipsis">
+      D-A: Quitar campos de destino del child fiscal
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#d-b-agregar-campos-fiscales-criticos-faltantes" class="md-nav__link">
+    <span class="md-ellipsis">
+      D-B: Agregar campos fiscales críticos faltantes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#d-c-validar-receiver_rfc-contra-la-company" class="md-nav__link">
+    <span class="md-ellipsis">
+      D-C: Validar receiver_rfc contra la Company
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#d-d-simplificar-cfdi-concepto-mapping-para-mvp" class="md-nav__link">
+    <span class="md-ellipsis">
+      D-D: Simplificar CFDI Concepto Mapping para MVP
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#d-e-batch-best-effort-con-reporte-por-xml" class="md-nav__link">
+    <span class="md-ellipsis">
+      D-E: Batch best-effort con reporte por XML
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#d-f-parser-nuevo-no-heredado-de-cfdiparser" class="md-nav__link">
+    <span class="md-ellipsis">
+      D-F: Parser nuevo, no heredado de CFDIParser
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#d-g-cfdi-33-rechazado-con-error-controlado" class="md-nav__link">
+    <span class="md-ellipsis">
+      D-G: CFDI 3.3 rechazado con error controlado
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-modelo-de-datos-v4" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Modelo de datos v4
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Modelo de datos v4">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-cfdi-recibido-campos-definitivos" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.1 CFDI Recibido — campos definitivos
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-cfdi-recibido-concepto-solo-datos-xml" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.2 CFDI Recibido Concepto — solo datos XML
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-cfdi-concepto-mapping-simplificado-para-mvp" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.3 CFDI Concepto Mapping — simplificado para MVP
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-especificacion-del-purchaseinvoicebuilder" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Especificación del PurchaseInvoiceBuilder
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Especificación del PurchaseInvoiceBuilder">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-validaciones-previas-bloquean-generacion" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.1 Validaciones previas (bloquean generación)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-construccion-de-lineas-purchase-invoice-items" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.2 Construcción de líneas (Purchase Invoice Items)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-construccion-de-impuestos-tabla-taxes-nativa-erpnext" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.3 Construcción de impuestos (tabla taxes nativa ERPNext)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64-validacion-de-totales-y-tolerancia-de-redondeo" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.4 Validación de totales y tolerancia de redondeo
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#65-campos-de-cabecera-de-la-pi" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.5 Campos de cabecera de la PI
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#66-trazabilidad-xml-desde-purchase-invoice" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.6 Trazabilidad XML desde Purchase Invoice
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#67-no-crear-payment-entry-regla-explicita" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.7 No crear Payment Entry — regla explícita
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#68-resultado-por-xml-batch-best-effort" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.8 Resultado por XML (batch best-effort)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-estructura-del-modulo" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. Estructura del módulo
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-bandeja-operativa" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. Bandeja operativa
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Bandeja operativa">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#vista-principal-fase-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Vista principal (Fase 1)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-plan-de-fases-v4" class="md-nav__link">
+    <span class="md-ellipsis">
+      9. Plan de fases v4
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Plan de fases v4">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fase-1-ingesta-parseo-y-bandeja" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fase 1 — Ingesta, parseo y bandeja
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fase-2-resolucion-de-proveedor-y-clasificacion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fase 2 — Resolución de proveedor y clasificación
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fase-3-generacion-de-purchase-invoice" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fase 3 — Generación de Purchase Invoice
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fase-4-pagos-post-mvp" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fase 4 — Pagos (post-MVP)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fase-5-gastos-de-empleados-diferida" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fase 5 — Gastos de empleados (diferida)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-temas-diferidos-lista-definitiva" class="md-nav__link">
+    <span class="md-ellipsis">
+      10. Temas diferidos — Lista definitiva
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-riesgos-v4" class="md-nav__link">
+    <span class="md-ellipsis">
+      11. Riesgos — v4
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-decisiones-cerradas-en-v41" class="md-nav__link">
+    <span class="md-ellipsis">
+      12. Decisiones cerradas en v4.1
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-criterios-de-aceptacion-v4" class="md-nav__link">
+    <span class="md-ellipsis">
+      13. Criterios de aceptación — v4
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="13. Criterios de aceptación — v4">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fase-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fase 1
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fase-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fase 2
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fase-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fase 3
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="modulo-cfdi-recibidos-compras">Módulo CFDI Recibidos / Compras<a class="headerlink" href="#modulo-cfdi-recibidos-compras" title="Permanent link">&para;</a></h1>
+<h2 id="arquitectura-v41-cerrada-para-implementacion">Arquitectura v4.1 — Cerrada para implementación<a class="headerlink" href="#arquitectura-v41-cerrada-para-implementacion" title="Permanent link">&para;</a></h2>
+<p><strong>Versión:</strong> 4.1 — FINAL<br />
+<strong>Fecha:</strong> 2026-05-22<br />
+<strong>Estado:</strong> Arquitectura cerrada — lista para épica/issues<br />
+<strong>Revisiones:</strong> v1 (concepción) → v2 (batch + pagos) → v3 (separación fiscal/financiera) → v4 (correcciones bloqueantes) → v4.1 (decisiones pendientes cerradas)</p>
+<hr />
+<h2 id="1-introduccion-contexto-para-el-lector-externo">1. Introducción — Contexto para el lector externo<a class="headerlink" href="#1-introduccion-contexto-para-el-lector-externo" title="Permanent link">&para;</a></h2>
+<h3 id="11-el-sistema-fiscal-mexicano">1.1 El sistema fiscal mexicano<a class="headerlink" href="#11-el-sistema-fiscal-mexicano" title="Permanent link">&para;</a></h3>
+<p>En México, toda transacción comercial que implique un comprobante fiscal debe emitirse como un <strong>CFDI</strong> (Comprobante Fiscal Digital por Internet), un documento XML firmado digitalmente ante el <strong>SAT</strong> (Servicio de Administración Tributaria). Existen dos perspectivas del mismo documento:</p>
+<ul>
+<li><strong>CFDI emitido:</strong> la empresa genera cuando vende. Factura a sus clientes.</li>
+<li><strong>CFDI recibido:</strong> la empresa recibe cuando compra. Factura de sus proveedores.</li>
+</ul>
+<p>Toda empresa mexicana debe guardar y registrar los CFDIs recibidos como respaldo de sus deducciones fiscales. El SAT puede solicitar en cualquier momento demostrar que cada gasto deducido tiene un CFDI válido de respaldo.</p>
+<h3 id="12-la-plataforma-tecnologica">1.2 La plataforma tecnológica<a class="headerlink" href="#12-la-plataforma-tecnologica" title="Permanent link">&para;</a></h3>
+<p>La solución se construye sobre <strong>Frappe Framework</strong> y <strong>ERPNext</strong>: un ERP de código abierto con contabilidad, compras, ventas, inventario y más. Las empresas en México usan ERPNext como su sistema operativo de negocio, pero ERPNext no fue diseñado para la fiscalidad mexicana específica.</p>
+<h3 id="13-el-proyecto-facturacion_mexico">1.3 El proyecto facturacion_mexico<a class="headerlink" href="#13-el-proyecto-facturacion_mexico" title="Permanent link">&para;</a></h3>
+<p><code>facturacion_mexico</code> es una app personalizada que extiende ERPNext con todo lo que México requiere: emisión de CFDIs con timbrado digital via FacturAPI.io, complementos de pago, catálogos SAT, configuración fiscal multi-empresa.</p>
+<p>Hasta ahora el proyecto cubre únicamente <strong>ventas</strong> (CFDI emitidos). Este módulo incorpora el lado de <strong>compras</strong> (CFDI recibidos).</p>
+<hr />
+<h2 id="2-problema-y-objetivo">2. Problema y objetivo<a class="headerlink" href="#2-problema-y-objetivo" title="Permanent link">&para;</a></h2>
+<h3 id="el-proceso-hoy-manual-lento-riesgoso">El proceso hoy (manual, lento, riesgoso)<a class="headerlink" href="#el-proceso-hoy-manual-lento-riesgoso" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Contabilidad descarga XMLs del correo / portal del proveedor</li>
+<li>Alguien revisa cada XML y crea la Purchase Invoice manualmente</li>
+<li>Sin deduplicación: una factura puede registrarse dos veces</li>
+<li>Sin trazabilidad: no hay vínculo estructurado entre XML y ERPNext</li>
+</ol>
+<h3 id="lo-que-queremos-lograr">Lo que queremos lograr<a class="headerlink" href="#lo-que-queremos-lograr" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>Usuario sube 50 XMLs
+Sistema procesa automáticamente todo lo que puede
+Usuario corrige solo las excepciones
+Genera Purchase Invoices en lote
+Trazabilidad completa: XML → Purchase Invoice → contabilidad
+</code></pre></div>
+<hr />
+<h2 id="3-principios-de-diseno-no-cambian">3. Principios de diseño — No cambian<a class="headerlink" href="#3-principios-de-diseno-no-cambian" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Principio</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1</td>
+<td>Sencillez operativa: flujo entendible para usuario administrativo</td>
+</tr>
+<tr>
+<td>P2</td>
+<td>Batch desde Fase 1 — no diseñar para XML individual</td>
+</tr>
+<tr>
+<td>P3</td>
+<td>Resolución automática máxima — intervención manual solo en excepciones</td>
+</tr>
+<tr>
+<td>P4</td>
+<td>No autocrear Items desde conceptos XML</td>
+</tr>
+<tr>
+<td>P5</td>
+<td>XML como fuente de verdad fiscal — conservar íntegro</td>
+</tr>
+<tr>
+<td>P6</td>
+<td>ERPNext como fuente de verdad financiera — no duplicar pagos/saldos</td>
+</tr>
+<tr>
+<td>P7</td>
+<td>CFDI Recibido = datos fiscales del XML. Purchase Invoice = operación financiera</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-decisiones-cerradas-en-v4">4. Decisiones cerradas en v4<a class="headerlink" href="#4-decisiones-cerradas-en-v4" title="Permanent link">&para;</a></h2>
+<h3 id="d-a-quitar-campos-de-destino-del-child-fiscal">D-A: Quitar campos de destino del child fiscal<a class="headerlink" href="#d-a-quitar-campos-de-destino-del-child-fiscal" title="Permanent link">&para;</a></h3>
+<p><strong>Decisión:</strong> <code>CFDI Recibido Concepto</code> guarda <strong>únicamente datos extraídos del XML</strong>. Los campos <code>mapped_item</code>, <code>mapped_account</code>, <code>mapped_cost_center</code>, <code>mapped_warehouse</code>, <code>mapped_type</code>, <code>mapping_rule</code> y <code>classification_status</code> se eliminan del child.</p>
+<p><strong>Motivo:</strong> Estos campos duplican la línea de la <code>Purchase Invoice Item</code> antes de generarla. Una vez creada la PI, la copia en el concepto queda desincronizable — exactamente la deuda que los principios buscan evitar. El destino de clasificación es estado transitorio del proceso; vive en <code>CFDI Concepto Mapping</code> (la regla) y se aplica al generar la PI, sin persistirse en el child.</p>
+<p><strong>Impacto:</strong> El child es solo lectura fiscal. El estado "¿todos los conceptos están clasificados?" se deriva en el servidor consultando <code>CFDI Concepto Mapping</code> — no se almacena en cada fila.</p>
+<hr />
+<h3 id="d-b-agregar-campos-fiscales-criticos-faltantes">D-B: Agregar campos fiscales críticos faltantes<a class="headerlink" href="#d-b-agregar-campos-fiscales-criticos-faltantes" title="Permanent link">&para;</a></h3>
+<p><strong>Decisión:</strong> Los siguientes campos son obligatorios desde Fase 1. Sin ellos el módulo no sirve para deducibilidad ni auditoría SAT.</p>
+<p>Campos agregados a <code>CFDI Recibido</code>:
+- <code>uso_cfdi</code> — código de uso (G01, G03, P01...) del receptor en el XML
+- <code>fecha_timbrado</code> — fecha del TimbreFiscalDigital (distinta de <code>issue_date</code>)
+- <code>rfc_pac</code> — RFC del PAC que timbró
+- <code>no_certificado_sat</code> — número de certificado SAT del timbre
+- <code>no_certificado_emisor</code> — número de certificado del emisor
+- <code>total_impuestos_trasladados</code> — suma total de IVA/IEPS trasladados
+- <code>total_impuestos_retenidos</code> — suma total de ISR/IVA retenidos
+- <code>impuestos_json</code> — estructura completa de impuestos del comprobante (JSON)</p>
+<p><strong>Motivo:</strong> El TimbreFiscalDigital prueba validez ante el SAT. Los totales de retención son los que más se capturan mal manualmente y los que más afectan la contabilidad. Sin <code>uso_cfdi</code> no puede verificarse que el comprobante aplica a la deducción declarada.</p>
+<p><strong>Impacto:</strong> El parser debe extraer el nodo <code>TimbreFiscalDigital</code> del complemento. Los totales de impuestos son accesibles directo en el XML (<code>cfdi:Impuestos</code>).</p>
+<hr />
+<h3 id="d-c-validar-receiver_rfc-contra-la-company">D-C: Validar receiver_rfc contra la Company<a class="headerlink" href="#d-c-validar-receiver_rfc-contra-la-company" title="Permanent link">&para;</a></h3>
+<p><strong>Decisión:</strong> Si el <code>receiver_rfc</code> del XML no coincide con el RFC fiscal de la <code>Company</code> seleccionada, el CFDI queda en estado <strong>Error</strong> con mensaje: <em>"El receptor del CFDI no corresponde a esta empresa — no es deducible"</em>.</p>
+<p><strong>Motivo:</strong> Un XML donde el receptor no es tu empresa no es deducible para ti. Es un error crítico que no debe pasar silenciosamente.</p>
+<p><strong>Impacto:</strong> Durante el parseo, verificar <code>receiver_rfc == company.tax_id</code>. El RFC de la empresa está en <code>Company.tax_id</code>.</p>
+<hr />
+<h3 id="d-d-simplificar-cfdi-concepto-mapping-para-mvp">D-D: Simplificar CFDI Concepto Mapping para MVP<a class="headerlink" href="#d-d-simplificar-cfdi-concepto-mapping-para-mvp" title="Permanent link">&para;</a></h3>
+<p><strong>Decisión:</strong> Para MVP, el mapping usa únicamente: <code>company</code>, <code>supplier</code>, <code>supplier_rfc</code>, <code>sat_product_key</code>, <code>target_type</code>, <code>target_item</code>, <code>target_account</code>, <code>target_cost_center</code>, <code>is_active</code>.</p>
+<p>Diferidos a versión posterior: <code>description_pattern</code>, regex, <code>priority</code>, reglas complejas.</p>
+<p><strong>Motivo:</strong> El matching por regex de texto libre es un motor de reglas declarativo complejo que viola P1 (sencillez) y que en la práctica cubre pocos casos — la mayoría de proveedores recurrentes se resuelven con <code>supplier + sat_product_key</code>. Construir un motor complejo antes de validar el flujo principal es deuda anticipada.</p>
+<hr />
+<h3 id="d-e-batch-best-effort-con-reporte-por-xml">D-E: Batch best-effort con reporte por XML<a class="headerlink" href="#d-e-batch-best-effort-con-reporte-por-xml" title="Permanent link">&para;</a></h3>
+<p><strong>Decisión:</strong> Al generar PIs en lote, el sistema crea las que pasan validaciones y deja pendientes las que fallan. Cada XML recibe un resultado individual: Creada / Error (con motivo). El batch nunca es all-or-nothing.</p>
+<p><strong>Motivo:</strong> En lotes de 50 XMLs, que 3 tengan error no debe bloquear las 47 restantes. La UX de la bandeja debe incluir columna de resultado post-batch.</p>
+<p><strong>Impacto:</strong> El builder retorna <code>dict</code> por XML: <code>{uuid: "...", status: "ok"|"error", pi: "PI-XXX"|None, message: "..."}</code>. La bandeja actualiza el estado de cada CFDI Recibido individualmente.</p>
+<hr />
+<h3 id="d-f-parser-nuevo-no-heredado-de-cfdiparser">D-F: Parser nuevo, no heredado de CFDIParser<a class="headerlink" href="#d-f-parser-nuevo-no-heredado-de-cfdiparser" title="Permanent link">&para;</a></h3>
+<p><strong>Decisión:</strong> <code>CFDIRecibidoParser</code> es una clase nueva independiente. Reutiliza <code>utils/secure_xml.py</code> (parseo seguro) y catálogos SAT, pero <strong>no hereda de <code>CFDIParser</code></strong> (que fue diseñado para insertar addendas en XMLs de emisión).</p>
+<p><strong>Motivo:</strong> Heredar una clase con propósito opuesto produce acoplamiento indeseable. El parser de addendas opera sobre XMLs que la empresa emite; el parser de recibidos opera sobre XMLs que la empresa recibe. Comparten utilidades, no clase base.</p>
+<hr />
+<h3 id="d-g-cfdi-33-rechazado-con-error-controlado">D-G: CFDI 3.3 rechazado con error controlado<a class="headerlink" href="#d-g-cfdi-33-rechazado-con-error-controlado" title="Permanent link">&para;</a></h3>
+<p><strong>Decisión:</strong> El sistema soporta únicamente CFDI versión 4.0. Un XML con <code>Version="3.3"</code> produce error controlado: <em>"CFDI versión 3.3 no soportada. Solo se aceptan CFDIs versión 4.0."</em> El CFDI Recibido queda en estado Error.</p>
+<p><strong>Motivo:</strong> CFDI 3.3 dejó de poderse emitir en 2022. Para MVP no vale la complejidad de soportar ambas versiones con namespaces distintos. Si aparecen XMLs 3.3 en el futuro, se evalúa entonces.</p>
+<hr />
+<h2 id="5-modelo-de-datos-v4">5. Modelo de datos v4<a class="headerlink" href="#5-modelo-de-datos-v4" title="Permanent link">&para;</a></h2>
+<h3 id="51-cfdi-recibido-campos-definitivos">5.1 <code>CFDI Recibido</code> — campos definitivos<a class="headerlink" href="#51-cfdi-recibido-campos-definitivos" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Tipo</th>
+<th>Fuente</th>
+<th>Notas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>uuid</code></td>
+<td>Data (único)</td>
+<td>XML</td>
+<td>Identificador fiscal único</td>
+</tr>
+<tr>
+<td><code>xml_file</code></td>
+<td>Attach</td>
+<td>Ingesta</td>
+<td>XML original — inmutable</td>
+</tr>
+<tr>
+<td><code>xml_hash</code></td>
+<td>Data</td>
+<td>Ingesta</td>
+<td>SHA256 para deduplicación</td>
+</tr>
+<tr>
+<td><code>company</code></td>
+<td>Link → Company</td>
+<td>Usuario</td>
+<td>Empresa receptora</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td>Select</td>
+<td>Sistema</td>
+<td>Estado de procesamiento</td>
+</tr>
+<tr>
+<td><code>error_message</code></td>
+<td>Text</td>
+<td>Sistema</td>
+<td>Detalle de error</td>
+</tr>
+<tr>
+<td><code>cfdi_type</code></td>
+<td>Data</td>
+<td>XML</td>
+<td>I / E / P / N</td>
+</tr>
+<tr>
+<td><code>version</code></td>
+<td>Data</td>
+<td>XML</td>
+<td>Debe ser "4.0"</td>
+</tr>
+<tr>
+<td><code>issue_date</code></td>
+<td>Date</td>
+<td>XML</td>
+<td>Fecha emisión del XML</td>
+</tr>
+<tr>
+<td><code>fecha_timbrado</code></td>
+<td>Datetime</td>
+<td>XML/Timbre</td>
+<td>Del TimbreFiscalDigital (<strong>nuevo</strong>)</td>
+</tr>
+<tr>
+<td><code>serie</code></td>
+<td>Data</td>
+<td>XML</td>
+<td>Serie del comprobante</td>
+</tr>
+<tr>
+<td><code>folio</code></td>
+<td>Data</td>
+<td>XML</td>
+<td>Folio del comprobante</td>
+</tr>
+<tr>
+<td><code>currency</code></td>
+<td>Link → Currency</td>
+<td>XML</td>
+<td>Moneda</td>
+</tr>
+<tr>
+<td><code>exchange_rate</code></td>
+<td>Float</td>
+<td>XML</td>
+<td>TipoCambio</td>
+</tr>
+<tr>
+<td><code>subtotal</code></td>
+<td>Currency</td>
+<td>XML</td>
+<td>SubTotal</td>
+</tr>
+<tr>
+<td><code>discount</code></td>
+<td>Currency</td>
+<td>XML</td>
+<td>Descuento</td>
+</tr>
+<tr>
+<td><code>total_impuestos_trasladados</code></td>
+<td>Currency</td>
+<td>XML</td>
+<td>Total IVA/IEPS (<strong>nuevo</strong>)</td>
+</tr>
+<tr>
+<td><code>total_impuestos_retenidos</code></td>
+<td>Currency</td>
+<td>XML</td>
+<td>Total ISR/IVA retenido (<strong>nuevo</strong>)</td>
+</tr>
+<tr>
+<td><code>total</code></td>
+<td>Currency</td>
+<td>XML</td>
+<td>Total</td>
+</tr>
+<tr>
+<td><code>impuestos_json</code></td>
+<td>JSON</td>
+<td>XML</td>
+<td>Estructura completa impuestos (<strong>nuevo</strong>)</td>
+</tr>
+<tr>
+<td><code>uso_cfdi</code></td>
+<td>Data</td>
+<td>XML</td>
+<td>UsoCFDI del receptor (<strong>nuevo</strong>)</td>
+</tr>
+<tr>
+<td><code>supplier_rfc</code></td>
+<td>Data</td>
+<td>XML</td>
+<td>RFC emisor</td>
+</tr>
+<tr>
+<td><code>supplier_name</code></td>
+<td>Data</td>
+<td>XML</td>
+<td>Nombre emisor</td>
+</tr>
+<tr>
+<td><code>supplier_tax_regime</code></td>
+<td>Data</td>
+<td>XML</td>
+<td>Régimen fiscal emisor</td>
+</tr>
+<tr>
+<td><code>receiver_rfc</code></td>
+<td>Data</td>
+<td>XML</td>
+<td>RFC receptor</td>
+</tr>
+<tr>
+<td><code>receiver_name</code></td>
+<td>Data</td>
+<td>XML</td>
+<td>Nombre receptor</td>
+</tr>
+<tr>
+<td><code>rfc_pac</code></td>
+<td>Data</td>
+<td>XML/Timbre</td>
+<td>RFC del PAC (<strong>nuevo</strong>)</td>
+</tr>
+<tr>
+<td><code>no_certificado_sat</code></td>
+<td>Data</td>
+<td>XML/Timbre</td>
+<td>Cert SAT del timbre (<strong>nuevo</strong>)</td>
+</tr>
+<tr>
+<td><code>no_certificado_emisor</code></td>
+<td>Data</td>
+<td>XML</td>
+<td>Cert del emisor (<strong>nuevo</strong>)</td>
+</tr>
+<tr>
+<td><code>fm_payment_method_sat</code></td>
+<td>Link → Metodo Pago SAT</td>
+<td>XML</td>
+<td>PUE / PPD</td>
+</tr>
+<tr>
+<td><code>fm_payment_form_sat</code></td>
+<td>Link → Forma Pago SAT</td>
+<td>XML</td>
+<td>01, 03, 04...</td>
+</tr>
+<tr>
+<td><code>supplier</code></td>
+<td>Link → Supplier</td>
+<td>Resuelto</td>
+<td>Proveedor ERPNext resuelto</td>
+</tr>
+<tr>
+<td><code>purchase_invoice</code></td>
+<td>Link → Purchase Invoice</td>
+<td>Generado</td>
+<td>PI creada</td>
+</tr>
+<tr>
+<td><code>conceptos</code></td>
+<td>Table</td>
+<td>XML</td>
+<td>CFDI Recibido Concepto</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Estados del flujo:</strong>
+<div class="highlight"><pre><span></span><code>Cargado           → XML almacenado, pendiente parseo
+Parseado          → datos extraídos, resolviendo proveedor
+Falta proveedor   → RFC no encontrado en Suppliers
+Falta clasif.     → al menos un concepto sin regla de mapping aplicable (estado derivado en servidor, no almacenado en child)
+Listo             → proveedor + todos los conceptos clasificables
+Factura creada    → Purchase Invoice generada y ligada
+Duplicado         → UUID ya existe en el sistema
+Error             → ver error_message (incl. receiver_rfc ≠ Company, CFDI 3.3, etc.)
+</code></pre></div></p>
+<hr />
+<h3 id="52-cfdi-recibido-concepto-solo-datos-xml">5.2 <code>CFDI Recibido Concepto</code> — solo datos XML<a class="headerlink" href="#52-cfdi-recibido-concepto-solo-datos-xml" title="Permanent link">&para;</a></h3>
+<p><strong>Eliminados vs v3:</strong> <code>mapped_type</code>, <code>mapped_item</code>, <code>mapped_account</code>, <code>mapped_cost_center</code>, <code>mapped_warehouse</code>, <code>mapping_rule</code>, <code>classification_status</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Tipo</th>
+<th>Fuente</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sat_product_key</code></td>
+<td>Data</td>
+<td>XML — ClaveProdServ</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>Text</td>
+<td>XML — Descripción</td>
+</tr>
+<tr>
+<td><code>quantity</code></td>
+<td>Float</td>
+<td>XML — Cantidad</td>
+</tr>
+<tr>
+<td><code>unit_key</code></td>
+<td>Data</td>
+<td>XML — ClaveUnidad</td>
+</tr>
+<tr>
+<td><code>unit</code></td>
+<td>Data</td>
+<td>XML — Unidad</td>
+</tr>
+<tr>
+<td><code>unit_price</code></td>
+<td>Currency</td>
+<td>XML — ValorUnitario</td>
+</tr>
+<tr>
+<td><code>amount</code></td>
+<td>Currency</td>
+<td>XML — Importe</td>
+</tr>
+<tr>
+<td><code>discount</code></td>
+<td>Currency</td>
+<td>XML — Descuento</td>
+</tr>
+<tr>
+<td><code>tax_object</code></td>
+<td>Data</td>
+<td>XML — ObjetoImp</td>
+</tr>
+<tr>
+<td><code>taxes_json</code></td>
+<td>JSON</td>
+<td>XML — impuestos del concepto</td>
+</tr>
+</tbody>
+</table>
+<p>El child es inmutable una vez parseado. El mapeo se aplica al vuelo al generar la PI.</p>
+<hr />
+<h3 id="53-cfdi-concepto-mapping-simplificado-para-mvp">5.3 <code>CFDI Concepto Mapping</code> — simplificado para MVP<a class="headerlink" href="#53-cfdi-concepto-mapping-simplificado-para-mvp" title="Permanent link">&para;</a></h3>
+<p><strong>Eliminados vs v3:</strong> <code>description_pattern</code>, <code>priority</code>, <code>notes</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Tipo</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>company</code></td>
+<td>Link → Company</td>
+<td>Vacío = aplica a todas</td>
+</tr>
+<tr>
+<td><code>supplier</code></td>
+<td>Link → Supplier</td>
+<td>Vacío = aplica a todos</td>
+</tr>
+<tr>
+<td><code>supplier_rfc</code></td>
+<td>Data</td>
+<td>Alternativa a supplier Link</td>
+</tr>
+<tr>
+<td><code>sat_product_key</code></td>
+<td>Data</td>
+<td>Vacío = cualquier clave SAT</td>
+</tr>
+<tr>
+<td><code>target_type</code></td>
+<td>Select</td>
+<td>Item / ExpenseAccount (GroupedItem diferido)</td>
+</tr>
+<tr>
+<td><code>target_item</code></td>
+<td>Link → Item</td>
+<td>Si target_type = Item</td>
+</tr>
+<tr>
+<td><code>target_account</code></td>
+<td>Link → Account</td>
+<td>Si target_type = ExpenseAccount</td>
+</tr>
+<tr>
+<td><code>target_cost_center</code></td>
+<td>Link → Cost Center</td>
+<td></td>
+</tr>
+<tr>
+<td><code>is_active</code></td>
+<td>Check</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Lógica de matching para MVP:</strong>
+1. Buscar regla exacta: <code>supplier_rfc + sat_product_key</code>
+2. Fallback: <code>supplier_rfc + sat_product_key vacío</code> (cualquier clave del proveedor)
+3. Fallback: <code>sat_product_key + supplier vacío</code> (cualquier proveedor con esa clave)
+4. Sin match → concepto sin clasificar</p>
+<p><strong>Derivación del estado del CFDI Recibido (calculado en servidor):</strong>
+<div class="highlight"><pre><span></span><code>Si todos los conceptos tienen match en CFDI Concepto Mapping → &quot;Listo&quot;
+Si al menos uno no tiene match → &quot;Falta clasif.&quot;
+</code></pre></div>
+Este estado <strong>no se almacena en el child</strong> <code>CFDI Recibido Concepto</code>. Lo calcula el servidor al llamar <code>ConceptClassifier.classify_all()</code> o al consultar si el CFDI está listo para PI.</p>
+<hr />
+<h2 id="6-especificacion-del-purchaseinvoicebuilder">6. Especificación del PurchaseInvoiceBuilder<a class="headerlink" href="#6-especificacion-del-purchaseinvoicebuilder" title="Permanent link">&para;</a></h2>
+<p>Esta es la pieza de mayor riesgo contable. Se especifica aquí para que no quede a interpretación del implementador.</p>
+<h3 id="61-validaciones-previas-bloquean-generacion">6.1 Validaciones previas (bloquean generación)<a class="headerlink" href="#61-validaciones-previas-bloquean-generacion" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Validación</th>
+<th>Error si falla</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>supplier</code> resuelto</td>
+<td>"Proveedor no asignado"</td>
+</tr>
+<tr>
+<td>Todos los conceptos tienen regla de mapping aplicable</td>
+<td>"Hay conceptos sin clasificar"</td>
+</tr>
+<tr>
+<td><code>uuid</code> no existe en otra PI</td>
+<td>"Factura duplicada"</td>
+</tr>
+<tr>
+<td><code>receiver_rfc == company.tax_id</code></td>
+<td>"Receptor no corresponde a esta empresa"</td>
+</tr>
+<tr>
+<td><code>version == "4.0"</code></td>
+<td>"Versión CFDI no soportada"</td>
+</tr>
+<tr>
+<td><code>cfdi_type == "I"</code></td>
+<td>Para MVP solo tipo Ingreso (proveedor vende)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="62-construccion-de-lineas-purchase-invoice-items">6.2 Construcción de líneas (Purchase Invoice Items)<a class="headerlink" href="#62-construccion-de-lineas-purchase-invoice-items" title="Permanent link">&para;</a></h3>
+<p>Para cada concepto en <code>CFDI Recibido Concepto</code>, obtener la regla de mapping:</p>
+<div class="highlight"><pre><span></span><code>Si target_type == &quot;Item&quot;:
+    PI Item: item_code = target_item, qty = concepto.quantity,
+             rate = concepto.unit_price, cost_center = target_cost_center
+
+Si target_type == &quot;ExpenseAccount&quot;:
+    PI Item: item_code = None, expense_account = target_account,
+             qty = 1, rate = concepto.amount,
+             cost_center = target_cost_center
+</code></pre></div>
+<p><code>GroupedItem</code> (acumulación de múltiples conceptos en un solo item destino) queda <strong>diferido</strong>. No entra en MVP. Si se necesita agrupar, el usuario mapea cada concepto a <code>ExpenseAccount</code> individualmente.</p>
+<p>Regla: <strong>nunca usar <code>update_stock = True</code></strong> para CFDI recibidos de servicios/gastos. Solo si el item_code tiene <code>is_stock_item = True</code> y el CFDI corresponde a compra de mercancía (fuera del MVP).</p>
+<h3 id="63-construccion-de-impuestos-tabla-taxes-nativa-erpnext">6.3 Construcción de impuestos (tabla <code>taxes</code> nativa ERPNext)<a class="headerlink" href="#63-construccion-de-impuestos-tabla-taxes-nativa-erpnext" title="Permanent link">&para;</a></h3>
+<p>Este es el punto más crítico. No usar <code>tax_total</code> como número libre — construir la tabla nativa.</p>
+<p><strong>Para IVA trasladado:</strong>
+<div class="highlight"><pre><span></span><code>Por cada traslado en impuestos_json donde impuesto = &quot;002&quot; (IVA):
+    Agregar fila a Purchase Taxes and Charges:
+      charge_type = &quot;Actual&quot;
+      tax_amount = traslado.importe
+      account_head = cuenta_iva_acreditable_compras (de Configuracion Fiscal Mexico, sección compras)
+      description = &quot;IVA {tasa}% trasladado&quot;
+      cost_center = company.cost_center
+</code></pre></div></p>
+<p><strong>Para IEPS trasladado (impuesto = "003"):</strong>
+<div class="highlight"><pre><span></span><code>    account_head = cuenta_ieps_compras (de Configuracion Fiscal Mexico, sección compras)
+</code></pre></div></p>
+<p><strong>Para retenciones (ISR = "001", IVA = "002" en retenciones):</strong>
+<div class="highlight"><pre><span></span><code>⚠️ PENDIENTE DE VALIDACIÓN EN ERPNext v16:
+La estructura correcta de `Purchase Taxes and Charges` para impuestos retenidos
+(si usar `add_deduct_tax = &quot;Deduct&quot;`, `charge_type = &quot;Actual&quot;` con importe negativo,
+o una combinación específica de v16) debe validarse con un XML real de servicios
+profesionales (honorarios) antes de implementar Fase 3. No asumir que el
+comportamiento de v15 se mantiene igual.
+
+Placeholder para implementación:
+    account_head = cuenta_isr_retenido_compras / cuenta_iva_retenido_compras
+    (fuente: Configuracion Fiscal Mexico, sección compras)
+    estructura exacta: a definir en Fase 3 tras prueba con XML real
+</code></pre></div></p>
+<p><strong>Fuente de cuentas:</strong> <code>Configuracion Fiscal Mexico</code> — <strong>sección específica de compras</strong> (nueva, a agregar al DocType). Las cuentas actuales de ese DocType corresponden a emisión. Nunca hardcodear nombres de cuentas.</p>
+<h3 id="64-validacion-de-totales-y-tolerancia-de-redondeo">6.4 Validación de totales y tolerancia de redondeo<a class="headerlink" href="#64-validacion-de-totales-y-tolerancia-de-redondeo" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>xml_total = CFDI Recibido.total
+erp_total = PI.grand_total  (calculado por ERPNext)
+
+diferencia = abs(xml_total - erp_total)
+tolerancia = frappe.db.get_single_value(
+    &quot;Facturacion Mexico Settings&quot;, &quot;cfdi_recibido_rounding_tolerance&quot;
+) or 0.02  # default 2 centavos si no configurado
+
+Si diferencia &lt;= tolerancia:
+    Aceptar. Registrar en log si diferencia &gt; 0.
+Si diferencia &gt; tolerancia:
+    Error bloqueante: &quot;Diferencia de totales: XML={xml_total}, ERPNext={erp_total}&quot;
+    El CFDI Recibido queda en estado Error.
+    No se guarda la PI.
+</code></pre></div>
+<p><strong>Regla:</strong> Confiar en el cálculo de ERPNext. No sobreescribir <code>grand_total</code>. Solo validar que la diferencia esté dentro de tolerancia.</p>
+<h3 id="65-campos-de-cabecera-de-la-pi">6.5 Campos de cabecera de la PI<a class="headerlink" href="#65-campos-de-cabecera-de-la-pi" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="n">pi</span><span class="o">.</span><span class="n">supplier</span> <span class="o">=</span> <span class="n">cfdi_recibido</span><span class="o">.</span><span class="n">supplier</span>
+<span class="c1"># bill_no robusto — evitar colisiones por proveedor</span>
+<span class="k">if</span> <span class="n">cfdi_recibido</span><span class="o">.</span><span class="n">serie</span> <span class="ow">and</span> <span class="n">cfdi_recibido</span><span class="o">.</span><span class="n">folio</span><span class="p">:</span>
+    <span class="n">candidate</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfdi_recibido</span><span class="o">.</span><span class="n">serie</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">cfdi_recibido</span><span class="o">.</span><span class="n">folio</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="k">elif</span> <span class="n">cfdi_recibido</span><span class="o">.</span><span class="n">folio</span><span class="p">:</span>
+    <span class="n">candidate</span> <span class="o">=</span> <span class="n">cfdi_recibido</span><span class="o">.</span><span class="n">folio</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">candidate</span> <span class="o">=</span> <span class="n">cfdi_recibido</span><span class="o">.</span><span class="n">uuid</span>  <span class="c1"># UUID completo como fallback</span>
+
+<span class="c1"># Validar colisión supplier + bill_no</span>
+<span class="n">existing</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s2">&quot;Purchase Invoice&quot;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s2">&quot;supplier&quot;</span><span class="p">:</span> <span class="n">cfdi_recibido</span><span class="o">.</span><span class="n">supplier</span><span class="p">,</span>
+    <span class="s2">&quot;bill_no&quot;</span><span class="p">:</span> <span class="n">candidate</span>
+<span class="p">})</span>
+<span class="n">pi</span><span class="o">.</span><span class="n">bill_no</span> <span class="o">=</span> <span class="n">candidate</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">existing</span> <span class="k">else</span> <span class="n">cfdi_recibido</span><span class="o">.</span><span class="n">uuid</span>
+
+<span class="n">pi</span><span class="o">.</span><span class="n">bill_date</span> <span class="o">=</span> <span class="n">cfdi_recibido</span><span class="o">.</span><span class="n">issue_date</span>
+<span class="c1"># posting_date: default today() como fecha de registro contable.</span>
+<span class="c1"># Dejar preparado para hacerlo configurable por empresa o seleccionable</span>
+<span class="c1"># en UI batch (pendiente de confirmar con contabilidad piloto en Fase 3).</span>
+<span class="n">pi</span><span class="o">.</span><span class="n">posting_date</span> <span class="o">=</span> <span class="n">today</span><span class="p">()</span>
+<span class="n">pi</span><span class="o">.</span><span class="n">currency</span> <span class="o">=</span> <span class="n">cfdi_recibido</span><span class="o">.</span><span class="n">currency</span>
+<span class="n">pi</span><span class="o">.</span><span class="n">conversion_rate</span> <span class="o">=</span> <span class="n">cfdi_recibido</span><span class="o">.</span><span class="n">exchange_rate</span>
+<span class="n">pi</span><span class="o">.</span><span class="n">buying_price_list</span> <span class="o">=</span> <span class="s2">&quot;Standard Buying&quot;</span>
+<span class="n">pi</span><span class="o">.</span><span class="n">company</span> <span class="o">=</span> <span class="n">cfdi_recibido</span><span class="o">.</span><span class="n">company</span>
+
+<span class="c1"># Referencia fiscal</span>
+<span class="n">pi</span><span class="o">.</span><span class="n">remarks</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;CFDI UUID: </span><span class="si">{</span><span class="n">cfdi_recibido</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">&quot;</span>
+
+<span class="c1"># No crear pago automático</span>
+<span class="n">pi</span><span class="o">.</span><span class="n">is_paid</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">pi</span><span class="o">.</span><span class="n">payment_terms_template</span> <span class="o">=</span> <span class="kc">None</span>
+</code></pre></div>
+<h3 id="66-trazabilidad-xml-desde-purchase-invoice">6.6 Trazabilidad XML desde Purchase Invoice<a class="headerlink" href="#66-trazabilidad-xml-desde-purchase-invoice" title="Permanent link">&para;</a></h3>
+<p>El XML original vive como adjunto del <code>CFDI Recibido</code> y no se duplica físicamente en la PI. Duplicar el archivo crea riesgo de deduplicación/borrado por el hash de Frappe y acopla los ciclos de vida de dos documentos.</p>
+<p><strong>Mecanismo de trazabilidad:</strong>
+1. <code>CFDI Recibido.purchase_invoice</code> (Link → PI) — ya definido.
+2. Custom Field <code>fm_cfdi_recibido</code> (Link → CFDI Recibido) en <code>Purchase Invoice</code> — navegación inversa desde PI.
+3. Custom Field <code>fm_cfdi_uuid</code> (Data, read_only, indexed) en <code>Purchase Invoice</code> — UUID consultable para deduplicación y reportes.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Después de pi.submit():</span>
+<span class="n">pi</span><span class="o">.</span><span class="n">db_set</span><span class="p">(</span><span class="s2">&quot;fm_cfdi_recibido&quot;</span><span class="p">,</span> <span class="n">cfdi_recibido</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+<span class="n">pi</span><span class="o">.</span><span class="n">db_set</span><span class="p">(</span><span class="s2">&quot;fm_cfdi_uuid&quot;</span><span class="p">,</span> <span class="n">cfdi_recibido</span><span class="o">.</span><span class="n">uuid</span><span class="p">)</span>
+<span class="c1"># El XML se accede desde PI → link fm_cfdi_recibido → CFDI Recibido → xml_file</span>
+</code></pre></div>
+<p><strong>Decisión de Fase 3:</strong> Si el cliente requiere ver el XML directamente desde la PI, implementar un botón "Ver XML" que cargue el archivo desde el <code>CFDI Recibido</code> ligado — no copiar el archivo.</p>
+<h3 id="67-no-crear-payment-entry-regla-explicita">6.7 No crear Payment Entry — regla explícita<a class="headerlink" href="#67-no-crear-payment-entry-regla-explicita" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># PROHIBIDO en PurchaseInvoiceBuilder:</span>
+<span class="c1"># - frappe.call(&quot;make_payment_entry&quot;)</span>
+<span class="c1"># - pi.make_payment_entry()</span>
+<span class="c1"># - frappe.new_doc(&quot;Payment Entry&quot;)</span>
+<span class="c1"># - cualquier operación de pago</span>
+</code></pre></div>
+<p>El pago es responsabilidad del usuario, no del builder. ERPNext calcula <code>outstanding_amount</code> nativamente al hacer submit de la PI — no se asume ni establece manualmente.</p>
+<h3 id="68-resultado-por-xml-batch-best-effort">6.8 Resultado por XML (batch best-effort)<a class="headerlink" href="#68-resultado-por-xml-batch-best-effort" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfdi_recibido_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># ... construcción ...</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;cfdi_recibido&quot;</span><span class="p">:</span> <span class="n">cfdi_recibido_name</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;ok&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;purchase_invoice&quot;</span><span class="p">:</span> <span class="n">pi</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="kc">None</span>
+        <span class="p">}</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;cfdi_recibido&quot;</span><span class="p">:</span> <span class="n">cfdi_recibido_name</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;purchase_invoice&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="p">}</span>
+</code></pre></div>
+<hr />
+<h2 id="7-estructura-del-modulo">7. Estructura del módulo<a class="headerlink" href="#7-estructura-del-modulo" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>facturacion_mexico/
+├── cfdi_recibidos/                    ← Módulo nuevo
+│   ├── __init__.py
+│   ├── api.py                         # Endpoints: subir XML, procesar, generar PI
+│   ├── doctype/
+│   │   ├── cfdi_recibido/
+│   │   ├── cfdi_recibido_concepto/
+│   │   └── cfdi_concepto_mapping/
+│   ├── parsers/
+│   │   └── cfdi_recibido_parser.py    # Clase nueva — no hereda de CFDIParser
+│   ├── services/
+│   │   ├── xml_ingestion.py           # Carga, deduplicación, validación
+│   │   ├── supplier_resolver.py       # RFC → Supplier
+│   │   ├── concept_classifier.py      # Aplica CFDI Concepto Mapping
+│   │   └── purchase_invoice_builder.py
+│   └── tests/
+│
+└── utils/
+    └── secure_xml.py                  # Compartido — parser seguro base
+</code></pre></div>
+<p><strong>Reutilización clara:</strong>
+- <code>utils/secure_xml.py</code> → reutilizado directamente
+- Catálogos SAT → compartidos sin modificación
+- <code>validaciones/api.py</code> → validación RFC si necesario
+- <code>Configuracion Fiscal Mexico</code> → fuente de cuentas de impuestos
+- <code>CFDIParser</code> de addendas → NO reutilizado. Propósito diferente.</p>
+<hr />
+<h2 id="8-bandeja-operativa">8. Bandeja operativa<a class="headerlink" href="#8-bandeja-operativa" title="Permanent link">&para;</a></h2>
+<h3 id="vista-principal-fase-1">Vista principal (Fase 1)<a class="headerlink" href="#vista-principal-fase-1" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>┌────────────────────────────────────────────────────────────────────┐
+│  CFDI Recibidos                                   [Subir XMLs]     │
+├────────────────────────────────────────────────────────────────────┤
+│  Empresa: [Todas ▼]  Estado: [Todos ▼]  Fecha: [Mayo 2026 ▼]      │
+├─────┬───────────────────┬──────────┬───────────────┬──────────────┤
+│  ☐  │ Proveedor         │ Total    │ Estado        │ Resultado     │
+├─────┼───────────────────┼──────────┼───────────────┼──────────────┤
+│  ☑  │ Office Depot      │ $3,480   │ ✅ Listo      │              │
+│  ☑  │ Pemex             │ $1,200   │ ✅ Listo      │              │
+│  ☑  │ Telcel            │ $890     │ ✅ Listo      │              │
+│  ☐  │ —                 │ $2,100   │ ⚠ Falta prov.│              │
+│  ☐  │ Serv. General     │ $450     │ ⚠ Falta clas.│              │
+│  ☐  │ —                 │ —        │ 🔴 Error      │ Ver detalle  │
+│  ☐  │ Papelería Sur     │ $380     │ 🔁 Duplicado  │              │
+├─────┴───────────────────┴──────────┴───────────────┴──────────────┤
+│ Post-batch:  PI-0045 ✅  PI-0046 ✅  PI-0047 ❌ diferencia $0.05  │
+├────────────────────────────────────────────────────────────────────┤
+│                    [Crear Purchase Invoices]  3 seleccionadas       │
+└────────────────────────────────────────────────────────────────────┘
+</code></pre></div>
+<p>La columna <strong>Resultado</strong> se puebla post-batch: muestra PI creada o error por XML. El batch no bloquea el lote completo si algunos fallan.</p>
+<hr />
+<h2 id="9-plan-de-fases-v4">9. Plan de fases v4<a class="headerlink" href="#9-plan-de-fases-v4" title="Permanent link">&para;</a></h2>
+<h3 id="fase-1-ingesta-parseo-y-bandeja">Fase 1 — Ingesta, parseo y bandeja<a class="headerlink" href="#fase-1-ingesta-parseo-y-bandeja" title="Permanent link">&para;</a></h3>
+<p><strong>Entregables:</strong>
+- DocTypes: <code>CFDI Recibido</code>, <code>CFDI Recibido Concepto</code>
+- <code>CFDIRecibidoParser</code>: extrae todo del XML incluyendo timbre, retenciones, uso_cfdi
+- <code>XMLIngestionService</code>: carga múltiple, hash, UUID, deduplicación, validación versión y receiver_rfc
+- Bandeja operativa con filtros y estados
+- API de carga (<code>/api/method/cfdi_recibidos.api.upload_xml</code>)</p>
+<p><strong>No incluye:</strong> resolución de proveedor, mapping, generación de PI.</p>
+<p><strong>Criterio de éxito:</strong> Subir 10 XMLs. Los parseados muestran emisor, receptor, timbre, totales de impuestos, método de pago SAT. Los que tienen receiver_rfc incorrecto quedan en Error.</p>
+<hr />
+<h3 id="fase-2-resolucion-de-proveedor-y-clasificacion">Fase 2 — Resolución de proveedor y clasificación<a class="headerlink" href="#fase-2-resolucion-de-proveedor-y-clasificacion" title="Permanent link">&para;</a></h3>
+<p><strong>Entregables:</strong>
+- <code>SupplierResolver</code>: <code>tax_id == RFC emisor</code> → Supplier
+- DocType <code>CFDI Concepto Mapping</code> (simplificado MVP)
+- <code>ConceptClassifier</code>: aplica reglas sobre conceptos
+- UI inline en bandeja para asignar proveedor
+- UI inline para clasificar concepto y crear regla de mapping</p>
+<p><strong>Criterio de éxito:</strong> XML en "Falta proveedor" se resuelve desde la bandeja sin cambiar de pantalla. La regla guardada se aplica automáticamente al siguiente XML del mismo proveedor con misma clave SAT.</p>
+<hr />
+<h3 id="fase-3-generacion-de-purchase-invoice">Fase 3 — Generación de Purchase Invoice<a class="headerlink" href="#fase-3-generacion-de-purchase-invoice" title="Permanent link">&para;</a></h3>
+<p><strong>Entregables:</strong>
+- <code>PurchaseInvoiceBuilder</code> completo (según sección 6)
+- Construcción de tabla de impuestos nativa ERPNext
+- Validación de totales con tolerancia configurable por empresa (default 0.02)
+- Generación individual y en lote (best-effort)
+- XML adjunto a la PI
+- Liga <code>CFDI Recibido.purchase_invoice</code></p>
+<p><strong>Criterio de éxito:</strong> 10 PIs generadas en lote. Cada PI tiene: impuestos en tabla nativa (IVA, retenciones en cuentas correctas), XML adjunto, <code>grand_total</code> dentro de tolerancia del XML, <code>outstanding_amount = total</code>.</p>
+<hr />
+<h3 id="fase-4-pagos-post-mvp">Fase 4 — Pagos (post-MVP)<a class="headerlink" href="#fase-4-pagos-post-mvp" title="Permanent link">&para;</a></h3>
+<p><strong>Alcance:</strong> Botón "Registrar Pago" en CFDI Recibido que invoca <code>make_payment_entry</code> nativo de ERPNext. No guarda estado de pago en CFDI Recibido. El estado financiero vive en <code>PI.status</code> y <code>PI.outstanding_amount</code>.</p>
+<p>Para gastos de empleados: definir cuando haya caso de negocio real (cuenta puente, Employee Advance, Journal Entry según diseño aprobado entonces).</p>
+<hr />
+<h3 id="fase-5-gastos-de-empleados-diferida">Fase 5 — Gastos de empleados (diferida)<a class="headerlink" href="#fase-5-gastos-de-empleados-diferida" title="Permanent link">&para;</a></h3>
+<p>Evaluar cuando haya requisito concreto: Purchase Invoice + cuenta puente del empleado o Expense Claim para el reembolso.</p>
+<hr />
+<h2 id="10-temas-diferidos-lista-definitiva">10. Temas diferidos — Lista definitiva<a class="headerlink" href="#10-temas-diferidos-lista-definitiva" title="Permanent link">&para;</a></h2>
+<p>Estos temas <strong>no se implementan</strong> en ninguna fase del MVP. Quedan documentados para evaluación futura:</p>
+<table>
+<thead>
+<tr>
+<th>Tema</th>
+<th>Motivo del diferimiento</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CFDI 3.3</td>
+<td>Sin emisión desde 2022. Rechazar con error controlado es suficiente</td>
+</tr>
+<tr>
+<td>REP recibidos (complemento de pago)</td>
+<td>Flujo distinto — requiere ligar con PI previa</td>
+</tr>
+<tr>
+<td>Notas de crédito de proveedor (CFDI E recibido)</td>
+<td>Requiere ligar con PI original y ajuste contable</td>
+</tr>
+<tr>
+<td>Cancelaciones / sustituciones entre UUIDs</td>
+<td>Relación UUID-anterior / UUID-nuevo no modelada aún</td>
+</tr>
+<tr>
+<td>Consulta automática al SAT</td>
+<td>API de descarga masiva requiere FIEL — fuera de alcance</td>
+</tr>
+<tr>
+<td>Recepción por correo electrónico</td>
+<td>Infraestructura distinta</td>
+</tr>
+<tr>
+<td>OCR sobre PDFs</td>
+<td>No CFDIs</td>
+</tr>
+<tr>
+<td>Expense Claim integrado</td>
+<td>Sin requisito concreto definido</td>
+</tr>
+<tr>
+<td>Regex y prioridades en mapping</td>
+<td>Motor de reglas complejo — diferir hasta validar flujo básico</td>
+</tr>
+<tr>
+<td>GroupedItem en mapping</td>
+<td>Acumulación de múltiples conceptos en un Item — diferir hasta validar flujo con Item y ExpenseAccount</td>
+</tr>
+<tr>
+<td>Estructura nativa retenciones ERPNext v16</td>
+<td>Validar con XML real de honorarios antes de implementar — no asumir comportamiento v15</td>
+</tr>
+<tr>
+<td>CFDI tipo P recibido (pago de cliente)</td>
+<td>Caso inverso — no aplica a compras</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="11-riesgos-v4">11. Riesgos — v4<a class="headerlink" href="#11-riesgos-v4" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Riesgo</th>
+<th>Prob.</th>
+<th>Impacto</th>
+<th>Mitigación</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tabla de impuestos PI mal construida</td>
+<td>Alta</td>
+<td>Crítico</td>
+<td>Sección 6.3 especifica cada escenario; pruebas con XMLs reales antes de Fase 3</td>
+</tr>
+<tr>
+<td>receiver_rfc ≠ Company silencioso</td>
+<td>Alta</td>
+<td>Alto</td>
+<td>Validación obligatoria en parseo — estado Error con mensaje claro</td>
+</tr>
+<tr>
+<td>Diferencia de totales &gt; tolerancia</td>
+<td>Media</td>
+<td>Alto</td>
+<td>Tolerancia configurable por empresa (default 0.02); error bloqueante si excede</td>
+</tr>
+<tr>
+<td>Items basura en catálogo</td>
+<td>Alta</td>
+<td>Alto</td>
+<td>No autocrear Items nunca — solo mediante mapping explícito</td>
+</tr>
+<tr>
+<td>Duplicados silenciosos</td>
+<td>Media</td>
+<td>Alto</td>
+<td>Deduplicación por UUID y hash desde Fase 1</td>
+</tr>
+<tr>
+<td>Proveedor no encontrado por RFC</td>
+<td>Alta</td>
+<td>Bajo</td>
+<td>Estado "Falta proveedor" — resolución manual desde bandeja</td>
+</tr>
+<tr>
+<td>Batch lento con 100+ XMLs</td>
+<td>Media</td>
+<td>Medio</td>
+<td>Best-effort por XML; evaluar cola de trabajos si necesario</td>
+</tr>
+<tr>
+<td>XMLs CFDI 3.3 en lote</td>
+<td>Media</td>
+<td>Bajo</td>
+<td>Rechazar con error controlado individual — no bloquea el lote</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="12-decisiones-cerradas-en-v41">12. Decisiones cerradas en v4.1<a class="headerlink" href="#12-decisiones-cerradas-en-v41" title="Permanent link">&para;</a></h2>
+<p>Las siguientes decisiones estaban pendientes en v4 y quedan cerradas:</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Decisión</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DP-1</td>
+<td>El DocType se llamará <strong><code>CFDI Recibido</code></strong></td>
+</tr>
+<tr>
+<td>DP-2</td>
+<td>Tolerancia de redondeo: <strong>configurable por empresa en <code>Facturacion Mexico Settings</code></strong>, campo <code>cfdi_recibido_rounding_tolerance</code>, default <code>0.02</code></td>
+</tr>
+<tr>
+<td>DP-3</td>
+<td>Las cuentas de impuestos para compras viven en <strong><code>Configuracion Fiscal Mexico</code></strong>, en una sección específica de compras. Las cuentas actuales de esa configuración son para emisión (ventas); se agrega una sección hermana para recepción (compras). No hardcodear cuentas.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="13-criterios-de-aceptacion-v4">13. Criterios de aceptación — v4<a class="headerlink" href="#13-criterios-de-aceptacion-v4" title="Permanent link">&para;</a></h2>
+<h3 id="fase-1">Fase 1<a class="headerlink" href="#fase-1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Subir 50 XMLs simultáneamente sin error técnico</li>
+<li>[ ] XML con <code>receiver_rfc ≠ company.tax_id</code> queda en Error con mensaje claro</li>
+<li>[ ] XML CFDI 3.3 queda en Error con mensaje claro</li>
+<li>[ ] UUID duplicado queda en estado Duplicado — no crea segundo registro</li>
+<li>[ ] Datos del TimbreFiscalDigital (fecha, RFC PAC, certificado) extraídos correctamente</li>
+<li>[ ] <code>total_impuestos_trasladados</code> y <code>total_impuestos_retenidos</code> extraídos correctamente</li>
+<li>[ ] <code>uso_cfdi</code> y <code>fm_payment_method_sat</code> extraídos correctamente</li>
+<li>[ ] <code>impuestos_json</code> contiene estructura completa de impuestos del comprobante</li>
+<li>[ ] Bandeja muestra estados operativos (no técnicos) con filtros funcionales</li>
+</ul>
+<h3 id="fase-2">Fase 2<a class="headerlink" href="#fase-2" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] RFC emisor resuelve automáticamente a Supplier si <code>Supplier.tax_id</code> coincide</li>
+<li>[ ] Resolución de proveedor desde bandeja sin cambiar de pantalla</li>
+<li>[ ] Regla de mapping guardada aplica automáticamente en siguiente XML del mismo proveedor + clave SAT</li>
+<li>[ ] Conceptos sin regla aplicable: CFDI queda en "Falta clasif." con lista de conceptos pendientes</li>
+</ul>
+<h3 id="fase-3">Fase 3<a class="headerlink" href="#fase-3" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Purchase Invoice generada tiene impuestos en tabla nativa ERPNext (no texto libre)</li>
+<li>[ ] IVA trasladado en cuenta de IVA acreditable correcta</li>
+<li>[ ] ISR retenido en cuenta ISR retenido con estructura nativa correcta de ERPNext v16 (validada con XML real)</li>
+<li>[ ] IVA retenido en cuenta IVA retenido con estructura nativa correcta de ERPNext v16 (validada con XML real antes de implementar)</li>
+<li>[ ] <code>PI.grand_total</code> dentro de la tolerancia configurada en <code>Facturacion Mexico Settings</code> (default 0.02) respecto a <code>CFDI Recibido.total</code></li>
+<li>[ ] Si diferencia &gt; tolerancia configurada: error bloqueante, PI no guardada, CFDI en Error</li>
+<li>[ ] XML adjunto a la PI</li>
+<li>[ ] <code>CFDI Recibido.purchase_invoice</code> ligado correctamente</li>
+<li>[ ] Batch de 45 XMLs: los que pasan → PI creada, los que fallan → Error con motivo, sin bloquear los demás</li>
+<li>[ ] Columna de resultado en bandeja post-batch muestra estado por XML</li>
+<li>[ ] No se crea Payment Entry — ERPNext calcula <code>outstanding_amount</code> nativamente al submit de la PI</li>
+<li>[ ] Catálogo de Items no recibe ningún Item nuevo por el proceso</li>
+</ul>
+<hr />
+<p><em>Versión 4.1 — 2026-05-22. Decisiones DP-1/DP-2/DP-3 cerradas. <code>GroupedItem</code> diferido. Retenciones ERPNext v16 marcadas para validación con XML real antes de Fase 3. Adjunto XML corregido a File nativo. Tolerancia de redondeo configurable. No hay decisiones pendientes — arquitectura lista para épica/issues.</em></p>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Volver al principio
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 Facturación México - Documentación Técnica
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/tu-org/facturacion_mexico" target="_blank" rel="noopener" title="GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+      <div class="md-consent" data-md-component="consent" id="__consent" hidden>
+        <div class="md-consent__overlay"></div>
+        <aside class="md-consent__inner">
+          <form class="md-consent__form md-grid md-typeset" name="consent">
+            
+
+  
+    
+  
+
+
+
+
+
+<h4>Consentimiento de cookies</h4>
+<p>Utilizamos cookies para reconocer tus visitas repetidas y preferencias, así como para medir la efectividad de nuestra documentación y si los usuarios encuentran lo que están buscando. Con tu consentimiento, nos ayudas a mejorar nuestra documentación.
+</p>
+<input class="md-toggle" type="checkbox" id="__settings" >
+<div class="md-consent__settings">
+  <ul class="task-list">
+    
+      
+      
+        
+        
+      
+      <li class="task-list-item">
+        <label class="task-list-control">
+          <input type="checkbox" name="analytics" checked>
+          <span class="task-list-indicator"></span>
+          Google Analytics
+        </label>
+      </li>
+    
+  </ul>
+</div>
+<div class="md-consent__controls">
+  
+    
+      <button class="md-button md-button--primary">Aceptar</button>
+    
+    
+    
+  
+    
+    
+      <button type="reset" class="md-button md-button--primary">Rechazar</button>
+    
+    
+  
+    
+    
+    
+      <label class="md-button" for="__settings">Gestionar cookies</label>
+    
+  
+</div>
+          </form>
+        </aside>
+      </div>
+      <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout(function(){document.querySelector("[data-md-component=consent]").hidden=!1},250);var action,form=document.forms.consent;for(action of["submit","reset"])form.addEventListener(action,function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map(function(e){return[e,!0]}))),location.hash="",location.reload()})</script>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.expand", "navigation.instant", "navigation.sections", "navigation.tabs", "navigation.top", "search.highlight", "search.suggest"], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copiado al portapapeles", "clipboard.copy": "Copiar al portapapeles", "search.result.more.one": "1 m\u00e1s en esta p\u00e1gina", "search.result.more.other": "# m\u00e1s en esta p\u00e1gina", "search.result.none": "No se encontraron documentos", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Teclee para comenzar b\u00fasqueda", "search.result.term.missing": "Falta", "select.version": "Seleccionar versi\u00f3n"}, "version": {"default": "latest", "provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7c377c4.min.js"></script>
+      
+        <script src="../../assets/javascripts/extra.js"></script>
+      
+        <script src="../../assets/javascripts/advanced.js"></script>
+      
+    
+  </body>
+</html>
