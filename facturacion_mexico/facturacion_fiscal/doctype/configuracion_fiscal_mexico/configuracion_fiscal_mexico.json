@@ -125,20 +125,6 @@
    "reqd": 1
   },
   {
-   "fieldname": "section_cfdi_recibidos",
-   "label": "CFDI Recibidos",
-   "fieldtype": "Section Break",
-   "collapsible": 1,
-   "description": "Configuración para generación de Purchase Invoice desde CFDI Recibido."
-  },
-  {
-   "fieldname": "cfdi_recibidos_tax_template",
-   "label": "Template Impuestos CFDI Recibidos",
-   "fieldtype": "Link",
-   "options": "Purchase Taxes and Charges Template",
-   "description": "Template con filas charge_type='Actual' para cada cuenta de impuesto de compras (IVA acreditable, IEPS acreditable, retenciones). Requerido para generar Purchase Invoice desde CFDI Recibido."
-  },
-  {
    "fieldname": "section_estado",
    "label": "Estado de Configuración",
    "fieldtype": "Section Break"

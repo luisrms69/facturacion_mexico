@@ -80,27 +80,6 @@
    "default": "1",
    "in_list_view": 1
   },
-  {
-   "fieldname": "section_retenciones",
-   "label": "Retenciones",
-   "fieldtype": "Section Break",
-   "collapsible": 1,
-   "description": "Configurar solo si los conceptos con esta regla pueden generar retenciones en el XML del proveedor."
-  },
-  {
-   "fieldname": "retencion_iva_rol_fiscal",
-   "label": "Rol Retención IVA",
-   "fieldtype": "Select",
-   "options": "\nIVA Retenido (Honorarios)\nIVA Retenido (Arrendamiento)\nIVA Retenido (Autotransporte)\nIVA Retenido (RESICO)",
-   "description": "Requerido si el XML incluye retención IVA para conceptos con esta regla. Sin configurar → bloquea generación de Purchase Invoice."
-  },
-  {
-   "fieldname": "retencion_isr_rol_fiscal",
-   "label": "Rol Retención ISR",
-   "fieldtype": "Select",
-   "options": "\nISR Retenido (Honorarios)\nISR Retenido (Arrendamiento)\nISR Retenido (Autotransporte)\nISR Retenido (RESICO)",
-   "description": "Requerido si el XML incluye retención ISR para conceptos con esta regla. Sin configurar → bloquea generación de Purchase Invoice."
-  }
  ],
  "permissions": [
   {

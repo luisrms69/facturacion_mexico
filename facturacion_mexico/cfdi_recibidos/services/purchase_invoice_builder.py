@@ -151,8 +151,6 @@ def _get_mapping_for_concepto(company: str, supplier_rfc: str, sat_product_key: 
 		"target_item",
 		"target_account",
 		"target_cost_center",
-		"retencion_iva_rol_fiscal",
-		"retencion_isr_rol_fiscal",
 	]
 	for filters in [
 		{
