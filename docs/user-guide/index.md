@@ -11,6 +11,7 @@ Documentación completa para usuarios del sistema de facturación electrónica.
 
 ### Funcionalidades Principales
 - **CFDI 4.0** - Timbrado y validación
+- **CFDI Recibidos** - Ingesta y clasificación de comprobantes de proveedores
 - **Multi-sucursal** - Gestión de branches
 - **Addendas** - Generación dinámica
 - **Email Automático** - [Automatización CFDI por email](email-automation.md)

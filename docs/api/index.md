@@ -13,6 +13,9 @@ APIs para gestión de múltiples branches y coordinación.
 ### Addendas
 Generación dinámica de addendas según reglas de negocio.
 
+### CFDI Recibidos
+Ingesta, validación y clasificación de CFDIs recibidos de proveedores.
+
 ### Catalogos SAT
 Sincronización y gestión de catalogos oficiales del SAT.
 
