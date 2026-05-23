@@ -36,7 +36,8 @@
   {
    "fieldname": "xml_file",
    "label": "Archivo XML",
-   "fieldtype": "Attach"
+   "fieldtype": "Attach",
+   "read_only": 1
   },
   {
    "fieldname": "xml_hash",

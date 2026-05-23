@@ -46,6 +46,10 @@ def upload_xml(company: str) -> list[dict]:
 			xml_bytes = uploaded_file.read()
 			result = ingest_xml(xml_bytes, company, file_name=file_name)
 		except Exception as e:
+			frappe.log_error(
+				message=f"Archivo: {file_name} | Empresa: {company} | Error: {e}",
+				title="CFDI Recibidos Upload Error",
+			)
 			result = {
 				"status": "error",
 				"cfdi_recibido": None,
