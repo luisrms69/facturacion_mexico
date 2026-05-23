@@ -9,3 +9,4 @@ Facturas Globales
 Motor Reglas
 Dashboard Fiscal
 Multi Sucursal
+CFDI Recibidos

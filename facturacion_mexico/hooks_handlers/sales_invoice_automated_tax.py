@@ -408,7 +408,7 @@ def before_validate(doc, method=None):
 			doc.fm_branch = branch
 
 		# 2.2) Price List por prioridad
-		pl, source = _pick_price_list(doc.customer, cc_now)
+		pl, _source = _pick_price_list(doc.customer, cc_now)
 		if pl and getattr(doc, "selling_price_list", None) != pl:
 			doc.selling_price_list = pl
 			frappe.msgprint("Lista de precios asignada automáticamente.", alert=True, indicator="green")

@@ -1,0 +1,330 @@
+{
+ "doctype": "DocType",
+ "name": "CFDI Recibido",
+ "module": "CFDI Recibidos",
+ "custom": 0,
+ "is_submittable": 0,
+ "track_changes": 1,
+ "engine": "InnoDB",
+ "naming_rule": "By \"Naming Series\" field",
+ "autoname": "naming_series:",
+ "title_field": "supplier_name",
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "label": "Serie",
+   "fieldtype": "Select",
+   "options": "CFDI-REC-.YYYY.-.#####",
+   "default": "CFDI-REC-.YYYY.-.#####",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_identificacion",
+   "label": "Identificación Fiscal",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "uuid",
+   "label": "UUID CFDI",
+   "fieldtype": "Data",
+   "reqd": 1,
+   "unique": 1,
+   "search_index": 1,
+   "in_list_view": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "xml_file",
+   "label": "Archivo XML",
+   "fieldtype": "Attach"
+  },
+  {
+   "fieldname": "xml_hash",
+   "label": "Hash XML (SHA256)",
+   "fieldtype": "Data",
+   "read_only": 1,
+   "hidden": 1
+  },
+  {
+   "fieldname": "company",
+   "label": "Empresa",
+   "fieldtype": "Link",
+   "options": "Company",
+   "reqd": 1,
+   "in_list_view": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "column_break_ident",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "status",
+   "label": "Estado",
+   "fieldtype": "Select",
+   "options": "Cargado\nParseado\nFalta proveedor\nFalta clasificación\nListo\nFactura creada\nDuplicado\nError",
+   "default": "Cargado",
+   "reqd": 1,
+   "in_list_view": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "error_message",
+   "label": "Mensaje de Error",
+   "fieldtype": "Text",
+   "read_only": 1,
+   "depends_on": "eval:doc.status == 'Error' || doc.status == 'Duplicado'"
+  },
+  {
+   "fieldname": "section_cfdi",
+   "label": "Datos del CFDI",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "cfdi_type",
+   "label": "Tipo CFDI",
+   "fieldtype": "Data",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "version",
+   "label": "Versión",
+   "fieldtype": "Data",
+   "read_only": 1
+  },
+  {
+   "fieldname": "issue_date",
+   "label": "Fecha Emisión",
+   "fieldtype": "Date",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "serie",
+   "label": "Serie",
+   "fieldtype": "Data",
+   "read_only": 1
+  },
+  {
+   "fieldname": "folio",
+   "label": "Folio",
+   "fieldtype": "Data",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_cfdi",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "currency",
+   "label": "Moneda",
+   "fieldtype": "Data",
+   "read_only": 1
+  },
+  {
+   "fieldname": "exchange_rate",
+   "label": "Tipo de Cambio",
+   "fieldtype": "Float",
+   "read_only": 1,
+   "default": "1"
+  },
+  {
+   "fieldname": "fm_payment_method_sat",
+   "label": "Método de Pago SAT",
+   "fieldtype": "Link",
+   "options": "Metodo Pago SAT",
+   "read_only": 1
+  },
+  {
+   "fieldname": "fm_payment_form_sat",
+   "label": "Forma de Pago SAT",
+   "fieldtype": "Link",
+   "options": "Forma Pago SAT",
+   "read_only": 1
+  },
+  {
+   "fieldname": "uso_cfdi",
+   "label": "Uso CFDI",
+   "fieldtype": "Data",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_emisor",
+   "label": "Emisor",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "supplier_rfc",
+   "label": "RFC Emisor",
+   "fieldtype": "Data",
+   "read_only": 1,
+   "in_list_view": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "supplier_name",
+   "label": "Nombre Emisor",
+   "fieldtype": "Data",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "supplier_tax_regime",
+   "label": "Régimen Fiscal Emisor",
+   "fieldtype": "Data",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_emisor",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "receiver_rfc",
+   "label": "RFC Receptor",
+   "fieldtype": "Data",
+   "read_only": 1
+  },
+  {
+   "fieldname": "receiver_name",
+   "label": "Nombre Receptor",
+   "fieldtype": "Data",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_totales",
+   "label": "Totales Fiscales",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "subtotal",
+   "label": "Subtotal",
+   "fieldtype": "Currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "discount",
+   "label": "Descuento",
+   "fieldtype": "Currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_impuestos_trasladados",
+   "label": "Total Impuestos Trasladados",
+   "fieldtype": "Currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_impuestos_retenidos",
+   "label": "Total Impuestos Retenidos",
+   "fieldtype": "Currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total",
+   "label": "Total",
+   "fieldtype": "Currency",
+   "read_only": 1,
+   "in_list_view": 1,
+   "bold": 1
+  },
+  {
+   "fieldname": "column_break_totales",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "impuestos_json",
+   "label": "Impuestos (JSON completo)",
+   "fieldtype": "JSON",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_timbre",
+   "label": "Timbre Fiscal Digital",
+   "fieldtype": "Section Break",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "fecha_timbrado",
+   "label": "Fecha Timbrado",
+   "fieldtype": "Datetime",
+   "read_only": 1
+  },
+  {
+   "fieldname": "rfc_pac",
+   "label": "RFC del PAC",
+   "fieldtype": "Data",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_timbre",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "no_certificado_sat",
+   "label": "No. Certificado SAT",
+   "fieldtype": "Data",
+   "read_only": 1
+  },
+  {
+   "fieldname": "no_certificado_emisor",
+   "label": "No. Certificado Emisor",
+   "fieldtype": "Data",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_vinculos",
+   "label": "Vínculos ERPNext",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "supplier",
+   "label": "Proveedor",
+   "fieldtype": "Link",
+   "options": "Supplier",
+   "search_index": 1
+  },
+  {
+   "fieldname": "purchase_invoice",
+   "label": "Factura de Compra",
+   "fieldtype": "Link",
+   "options": "Purchase Invoice",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_conceptos",
+   "label": "Conceptos del XML",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "conceptos",
+   "label": "Conceptos",
+   "fieldtype": "Table",
+   "options": "CFDI Recibido Concepto"
+  }
+ ],
+ "permissions": [
+  {
+   "role": "Facturacion Mexico Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1
+  },
+  {
+   "role": "Facturacion Mexico User",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "print": 1
+  },
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1
+  }
+ ]
+}
