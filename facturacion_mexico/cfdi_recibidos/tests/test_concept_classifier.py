@@ -67,6 +67,19 @@ def _cleanup_rules(supplier_rfc: str, sat_key: str = ""):
 		frappe.db.commit()
 
 
+def _get_expense_account() -> str:
+	"""Devuelve una cuenta de gasto válida en el site de pruebas."""
+	for filters in [
+		{"account_type": "Expense Account", "company": TEST_COMPANY, "is_group": 0},
+		{"root_type": "Expense", "company": TEST_COMPANY, "is_group": 0},
+		{"root_type": "Expense", "is_group": 0},
+	]:
+		account = frappe.db.get_value("Account", filters, "name")
+		if account:
+			return account
+	frappe.throw("No se encontró ninguna cuenta de tipo Expense en el site de pruebas")
+
+
 class TestMappingValidation(unittest.TestCase):
 	def test_item_requiere_target_item(self):
 		doc = frappe.new_doc("CFDI Concepto Mapping")
@@ -94,19 +107,12 @@ class TestMappingValidation(unittest.TestCase):
 
 class TestMatchingExacto(unittest.TestCase):
 	def setUp(self):
-		# Buscar una cuenta de tipo Expense disponible
-		self.account = frappe.db.get_value(
-			"Account",
-			{"account_type": "Expense Account", "company": TEST_COMPANY, "is_group": 0},
-			"name",
-		)
-		if not self.account:
-			self.account = frappe.db.get_value("Account", {"account_type": "Expense", "is_group": 0}, "name")
+		self.account = _get_expense_account()
 		self.rule = _make_rule(
 			TEST_RFC,
 			TEST_SAT_KEY,
 			"ExpenseAccount",
-			target_account=self.account or "Expenses - TEC",
+			target_account=self.account,
 		)
 		self.cfdi = _make_cfdi(
 			"001A",
@@ -148,14 +154,7 @@ class TestMatchingExacto(unittest.TestCase):
 
 class TestMatchingFallback(unittest.TestCase):
 	def setUp(self):
-		self.account = (
-			frappe.db.get_value(
-				"Account",
-				{"account_type": "Expense Account", "company": TEST_COMPANY, "is_group": 0},
-				"name",
-			)
-			or "Expenses - TEC"
-		)
+		self.account = _get_expense_account()
 		# Regla con sat_product_key vacío — aplica a cualquier clave del proveedor
 		self.rule = _make_rule(TEST_RFC, "", "ExpenseAccount", target_account=self.account)
 		self.cfdi = _make_cfdi(
