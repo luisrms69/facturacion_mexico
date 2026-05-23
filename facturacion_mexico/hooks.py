@@ -212,6 +212,9 @@ fixtures = [
 					"Sales Invoice-fm_quick_status",
 					# "Sales Invoice-fm_informacion_fiscal_section", # ELIMINADO - Sección vacía migrada a Factura Fiscal Mexico
 					# "Sales Invoice-fm_lugar_expedicion", # MIGRADO A Factura Fiscal Mexico
+					# Purchase Invoice custom fields — CFDI Recibidos Fase 3
+					"Purchase Invoice-fm_cfdi_uuid",
+					"Purchase Invoice-fm_cfdi_recibido",
 					"Sales Invoice-fm_multi_sucursal_column",
 					"Sales Invoice-fm_multi_sucursal_section",
 					# "Sales Invoice-fm_payment_method_sat", # MIGRADO A Factura Fiscal Mexico
