@@ -21,9 +21,18 @@ def _get_or_create_supplier(rfc: str) -> str:
 	existing = frappe.db.get_value("Supplier", {"tax_id": rfc}, "name")
 	if existing:
 		return existing
+
+	supplier_group = frappe.db.get_value("Supplier Group", {"is_group": 0}, "name")
+	if not supplier_group:
+		sg = frappe.new_doc("Supplier Group")
+		sg.supplier_group_name = "Test Suppliers"
+		sg.insert(ignore_permissions=True)
+		frappe.db.commit()
+		supplier_group = sg.name
+
 	sup = frappe.new_doc("Supplier")
 	sup.supplier_name = f"Proveedor Test {rfc}"
-	sup.supplier_group = frappe.db.get_value("Supplier Group", {}, "name") or "All Supplier Groups"
+	sup.supplier_group = supplier_group
 	sup.tax_id = rfc
 	sup.insert(ignore_permissions=True)
 	frappe.db.commit()

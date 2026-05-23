@@ -126,10 +126,12 @@ def save_mapping_rule(
 	if target_type not in ("Item", "ExpenseAccount"):
 		frappe.throw(_("target_type debe ser 'Item' o 'ExpenseAccount'"), frappe.ValidationError)
 
-	# Check for existing rule with same key combination
-	filters = {"supplier_rfc": supplier_rfc, "sat_product_key": sat_product_key}
-	if company:
-		filters["company"] = company
+	# Check for existing rule with same key combination — company siempre incluido en la clave
+	filters = {
+		"supplier_rfc": supplier_rfc,
+		"sat_product_key": sat_product_key,
+		"company": company if company else ["in", ["", None]],
+	}
 
 	existing = frappe.db.get_value("CFDI Concepto Mapping", filters, "name")
 
