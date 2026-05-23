@@ -1,0 +1,73 @@
+{
+ "doctype": "DocType",
+ "name": "CFDI Recibido Concepto",
+ "module": "CFDI Recibidos",
+ "custom": 0,
+ "istable": 1,
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "fields": [
+  {
+   "fieldname": "sat_product_key",
+   "label": "Clave Producto/Servicio SAT",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "description",
+   "label": "Descripción",
+   "fieldtype": "Text",
+   "in_list_view": 1,
+   "columns": 4
+  },
+  {
+   "fieldname": "quantity",
+   "label": "Cantidad",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "unit_key",
+   "label": "Clave Unidad",
+   "fieldtype": "Data"
+  },
+  {
+   "fieldname": "unit",
+   "label": "Unidad",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "unit_price",
+   "label": "Valor Unitario",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "amount",
+   "label": "Importe",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "discount",
+   "label": "Descuento",
+   "fieldtype": "Currency"
+  },
+  {
+   "fieldname": "tax_object",
+   "label": "Objeto Impuesto",
+   "fieldtype": "Data"
+  },
+  {
+   "fieldname": "taxes_json",
+   "label": "Impuestos (JSON)",
+   "fieldtype": "JSON"
+  }
+ ]
+}
