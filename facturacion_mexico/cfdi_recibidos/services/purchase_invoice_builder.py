@@ -122,7 +122,7 @@ def _build_pi_doc(cfdi_doc, concepto_mappings: list):
 	if isinstance(impuestos, str):
 		impuestos = json.loads(impuestos)
 
-	tax_rows = resolve_taxes(impuestos or {}, cfdi_doc.company, concepto_mappings)
+	tax_rows = resolve_taxes(impuestos or {}, cfdi_doc.company)
 	for row in tax_rows:
 		_append_tax(pi, row)
 
