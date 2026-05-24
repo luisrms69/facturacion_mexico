@@ -76,12 +76,14 @@ def _load_config(company: str):
 	return config
 
 
-def _find_traslado_rule(config, impuesto: str, tasa_cuota):
+def _find_traslado_rule(config, impuesto: str, tipo_factor: str, tasa_cuota):
 	"""
 	Busca la regla activa para un traslado.
 
 	Para IVA (002): coincidencia exacta de tasa_cuota (tolerancia ±0.0001).
-	Para IEPS (003): cualquier tasa → primera regla activa IEPS no retención.
+	Para IEPS (003): coincidencia exacta de tipo_factor; tasa_cuota=0 en la regla
+	  es comodín (placeholder) y coincide con cualquier tasa del XML; tasa_cuota≠0
+	  requiere coincidencia con tolerancia.
 	"""
 	tasa = flt(tasa_cuota)
 	for regla in config.reglas_impuesto:
@@ -91,6 +93,12 @@ def _find_traslado_rule(config, impuesto: str, tasa_cuota):
 			continue
 		if impuesto == _SAT_IVA:
 			if abs(flt(regla.tasa_cuota) - tasa) > _TASA_TOLERANCE:
+				continue
+		elif impuesto == _SAT_IEPS:
+			if regla.tipo_factor != tipo_factor:
+				continue
+			regla_tasa = flt(regla.tasa_cuota)
+			if regla_tasa > _TASA_TOLERANCE and abs(regla_tasa - tasa) > _TASA_TOLERANCE:
 				continue
 		return regla
 	return None
@@ -130,13 +138,13 @@ def _resolve_traslado(t: dict, config) -> "dict | None":
 		)
 
 	tasa_cuota = t.get("tasa_cuota", "0")
-	regla = _find_traslado_rule(config, impuesto, tasa_cuota)
+	regla = _find_traslado_rule(config, impuesto, tipo_factor, tasa_cuota)
 	if regla is None:
 		frappe.throw(
 			_(
 				"No existe regla activa en Configuracion CFDI Recibidos de {0} para: "
-				"impuesto={1}, tasa={2}. Agregue la regla y regenere el template."
-			).format(config.company, impuesto, tasa_cuota),
+				"impuesto={1}, tipo_factor={2}, tasa={3}. Agregue la regla y regenere el template."
+			).format(config.company, impuesto, tipo_factor, tasa_cuota),
 			frappe.ValidationError,
 		)
 	return _build_row(regla.cuenta_impuesto, t.get("importe", 0), regla.descripcion)

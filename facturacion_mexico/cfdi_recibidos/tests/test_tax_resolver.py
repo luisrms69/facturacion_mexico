@@ -255,3 +255,131 @@ class TestTaxResolver(unittest.TestCase):
 		impuestos = {"traslados": [], "retenciones": [{"impuesto": "999", "importe": 10.0}]}
 		with self.assertRaises(frappe.ValidationError):
 			resolve_taxes(impuestos, TEST_COMPANY)
+
+
+# ---------------------------------------------------------------------------
+# Tests IEPS — matching por tipo_factor y tasa_cuota (Grupo 3)
+# Dos clases independientes, ejecutan secuencialmente sobre TEST_COMPANY.
+# Cada una recrea el config de _Test Company para sus propias reglas.
+# ---------------------------------------------------------------------------
+
+
+class TestTaxResolverIEPS(unittest.TestCase):
+	"""IEPS Tasa y Cuota no deben confundirse entre sí."""
+
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls.acc_ieps_tasa = _get_or_create_tax_account(f"_TR IEPSt {_H}", TEST_COMPANY)
+		cls.acc_ieps_cuota = _get_or_create_tax_account(f"_TR IEPSc {_H}", TEST_COMPANY)
+		cls.acc_iva = _get_or_create_tax_account(f"_TR IVA3 {_H}", TEST_COMPANY)
+		cls.all_accounts = [cls.acc_ieps_tasa, cls.acc_ieps_cuota, cls.acc_iva]
+
+		cls.config_name = _make_config(
+			TEST_COMPANY,
+			[
+				_regla("002", 0.16, "IVA Acreditable (Nacional)", cls.acc_iva),
+				_regla("003", 0.00, "IEPS Acreditable (Tasa)", cls.acc_ieps_tasa, tipo_factor="Tasa"),
+				_regla("003", 0.00, "IEPS Acreditable (Cuota)", cls.acc_ieps_cuota, tipo_factor="Cuota"),
+			],
+		)
+
+	@classmethod
+	def tearDownClass(cls):
+		_delete_if_exists("Configuracion CFDI Recibidos", cls.config_name)
+		for acc in getattr(cls, "all_accounts", []):
+			try:
+				_delete_if_exists("Account", acc)
+			except Exception:
+				pass
+		super().tearDownClass()
+
+	def _traslado(self, impuesto, tipo_factor, tasa_cuota, importe):
+		return {
+			"traslados": [
+				{
+					"impuesto": impuesto,
+					"tipo_factor": tipo_factor,
+					"tasa_cuota": tasa_cuota,
+					"importe": importe,
+				}
+			],
+			"retenciones": [],
+		}
+
+	def test_ieps_tasa_no_matchea_regla_cuota(self):
+		"""IEPS Tasa usa cuenta IEPS Tasa, nunca la de IEPS Cuota."""
+		rows = resolve_taxes(self._traslado("003", "Tasa", "0.265000", 26.5), TEST_COMPANY)
+		self.assertEqual(len(rows), 1)
+		self.assertEqual(rows[0]["account_head"], self.acc_ieps_tasa)
+
+	def test_ieps_cuota_no_matchea_regla_tasa(self):
+		"""IEPS Cuota usa cuenta IEPS Cuota, nunca la de IEPS Tasa."""
+		rows = resolve_taxes(self._traslado("003", "Cuota", "1.2346", 12.35), TEST_COMPANY)
+		self.assertEqual(len(rows), 1)
+		self.assertEqual(rows[0]["account_head"], self.acc_ieps_cuota)
+
+	def test_iva_16_sigue_funcionando_con_ieps_en_config(self):
+		"""IVA 16% resuelve aunque haya reglas IEPS en el mismo config."""
+		rows = resolve_taxes(self._traslado("002", "Tasa", "0.160000", 160.0), TEST_COMPANY)
+		self.assertEqual(len(rows), 1)
+		self.assertEqual(rows[0]["account_head"], self.acc_iva)
+
+	def test_iva_exento_no_genera_linea_con_ieps_en_config(self):
+		"""IVA Exento no genera línea aunque haya reglas IEPS en el mismo config."""
+		rows = resolve_taxes(self._traslado("002", "Exento", "", 0.0), TEST_COMPANY)
+		self.assertEqual(len(rows), 0)
+
+
+class TestTaxResolverIEPSTasaExacta(unittest.TestCase):
+	"""IEPS: dos reglas Tasa con tasa_cuota distintos → matching exacto."""
+
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls.acc_ieps_08 = _get_or_create_tax_account(f"_TR IEPSt08 {_H}", TEST_COMPANY)
+		cls.acc_ieps_265 = _get_or_create_tax_account(f"_TR IEPSt265 {_H}", TEST_COMPANY)
+		cls.all_accounts = [cls.acc_ieps_08, cls.acc_ieps_265]
+
+		cls.config_name = _make_config(
+			TEST_COMPANY,
+			[
+				_regla("003", 0.08, "IEPS 8%", cls.acc_ieps_08, tipo_factor="Tasa"),
+				_regla("003", 0.265, "IEPS 26.5%", cls.acc_ieps_265, tipo_factor="Tasa"),
+			],
+		)
+
+	@classmethod
+	def tearDownClass(cls):
+		_delete_if_exists("Configuracion CFDI Recibidos", cls.config_name)
+		for acc in getattr(cls, "all_accounts", []):
+			try:
+				_delete_if_exists("Account", acc)
+			except Exception:
+				pass
+		super().tearDownClass()
+
+	def _traslado(self, impuesto, tipo_factor, tasa_cuota, importe):
+		return {
+			"traslados": [
+				{
+					"impuesto": impuesto,
+					"tipo_factor": tipo_factor,
+					"tasa_cuota": tasa_cuota,
+					"importe": importe,
+				}
+			],
+			"retenciones": [],
+		}
+
+	def test_ieps_tasa_265_usa_cuenta_correcta(self):
+		"""IEPS Tasa 26.5% elige la cuenta 26.5%, no la de 8%."""
+		rows = resolve_taxes(self._traslado("003", "Tasa", "0.265000", 26.5), TEST_COMPANY)
+		self.assertEqual(len(rows), 1)
+		self.assertEqual(rows[0]["account_head"], self.acc_ieps_265)
+
+	def test_ieps_tasa_08_usa_cuenta_correcta(self):
+		"""IEPS Tasa 8% elige la cuenta 8%, no la de 26.5%."""
+		rows = resolve_taxes(self._traslado("003", "Tasa", "0.080000", 8.0), TEST_COMPANY)
+		self.assertEqual(len(rows), 1)
+		self.assertEqual(rows[0]["account_head"], self.acc_ieps_08)
