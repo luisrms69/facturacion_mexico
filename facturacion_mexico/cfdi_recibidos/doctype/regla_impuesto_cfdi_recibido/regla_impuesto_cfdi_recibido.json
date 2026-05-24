@@ -9,12 +9,11 @@
  "fields": [
   {
    "fieldname": "impuesto_sat",
-   "label": "Código SAT",
-   "fieldtype": "Select",
-   "options": "002\n001\n003",
+   "label": "Impuesto SAT",
+   "fieldtype": "Link",
+   "options": "Impuesto SAT",
    "reqd": 1,
-   "in_list_view": 1,
-   "description": "002=IVA, 001=ISR, 003=IEPS"
+   "in_list_view": 1
   },
   {
    "fieldname": "tipo_factor",
