@@ -52,7 +52,6 @@
    "label": "Cuenta Contable",
    "fieldtype": "Link",
    "options": "Account",
-   "reqd": 1,
    "in_list_view": 1
   },
   {

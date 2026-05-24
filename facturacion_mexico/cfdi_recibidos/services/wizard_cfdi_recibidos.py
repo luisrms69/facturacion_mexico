@@ -18,6 +18,99 @@ import frappe
 from frappe import _
 from frappe.utils import flt, now_datetime
 
+from facturacion_mexico.config.sat_tax_rates import FacturAPITaxRates
+from facturacion_mexico.utils.roles_fiscales import (
+	ROL_IEPS_ACR,
+	ROL_IVA_ACR_CERO,
+	ROL_IVA_ACR_FRO,
+	ROL_IVA_ACR_NAC,
+)
+
+# Códigos canónicos SAT — ver fixtures/sat_impuesto.json
+_SAT_ISR = "001"
+_SAT_IVA = "002"
+_SAT_IEPS = "003"
+_TASA = "Tasa"
+_CUOTA = "Cuota"
+
+# Tasas desde catálogo central. Actualizar en sat_tax_rates.py si cambian.
+_iva_rates = FacturAPITaxRates.IVA_RATES  # [general, frontera, cero]
+_TASA_IVA_GENERAL = _iva_rates[0]
+_TASA_IVA_FRONTERA = _iva_rates[1]
+_TASA_IVA_CERO = _iva_rates[2]
+# Placeholder sin significado fiscal fijo; IEPS/retenciones se resuelven contra la regla/configuración real, no contra esta tasa.
+_TASA_PLACEHOLDER = 0.0
+
+_OPCIONES_INICIALES = [
+	{
+		"clave": "IVA_NACIONAL",
+		"impuesto_sat": _SAT_IVA,
+		"tipo_factor": _TASA,
+		"tasa_cuota": _TASA_IVA_GENERAL,
+		"descripcion": ROL_IVA_ACR_NAC,
+		"es_retencion": 0,
+	},
+	{
+		"clave": "IVA_FRONTERA",
+		"impuesto_sat": _SAT_IVA,
+		"tipo_factor": _TASA,
+		"tasa_cuota": _TASA_IVA_FRONTERA,
+		"descripcion": ROL_IVA_ACR_FRO,
+		"es_retencion": 0,
+	},
+	{
+		"clave": "IVA_TASA_CERO",
+		"impuesto_sat": _SAT_IVA,
+		"tipo_factor": _TASA,
+		"tasa_cuota": _TASA_IVA_CERO,
+		"descripcion": ROL_IVA_ACR_CERO,
+		"es_retencion": 0,
+	},
+	{
+		"clave": "IEPS_TASA",
+		"impuesto_sat": _SAT_IEPS,
+		"tipo_factor": _TASA,
+		"tasa_cuota": _TASA_PLACEHOLDER,
+		"descripcion": f"{ROL_IEPS_ACR} (Tasa)",
+		"es_retencion": 0,
+	},
+	{
+		"clave": "IEPS_CUOTA",
+		"impuesto_sat": _SAT_IEPS,
+		"tipo_factor": _CUOTA,
+		"tasa_cuota": _TASA_PLACEHOLDER,
+		"descripcion": f"{ROL_IEPS_ACR} (Cuota)",
+		"es_retencion": 0,
+	},
+	{
+		"clave": "ISR_RETENIDO",
+		"impuesto_sat": _SAT_ISR,
+		"tipo_factor": _TASA,
+		"tasa_cuota": _TASA_PLACEHOLDER,
+		"descripcion": "ISR Retenido",
+		"es_retencion": 1,
+	},
+	{
+		"clave": "IVA_RETENIDO",
+		"impuesto_sat": _SAT_IVA,
+		"tipo_factor": _TASA,
+		"tasa_cuota": _TASA_PLACEHOLDER,
+		"descripcion": "IVA Retenido",
+		"es_retencion": 1,
+	},
+]
+
+
+@frappe.whitelist()
+def get_opciones_impuesto_iniciales() -> list:
+	"""
+	Retorna opciones de impuesto iniciales para el wizard de Configuracion CFDI Recibidos.
+
+	Las tasas provienen del catálogo central (FacturAPITaxRates), no del cliente JS.
+	Los nombres conceptuales son estables: no dependen de la tasa como identidad.
+	"""
+	return _OPCIONES_INICIALES
+
 
 @frappe.whitelist()
 def generar_template_impuestos(config_name: str) -> dict:
