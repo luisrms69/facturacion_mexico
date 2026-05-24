@@ -129,9 +129,9 @@ Antes de ejecutar la conversión, verifica:
 
 1. **Proveedor asignado** — el campo `supplier` del CFDI Recibido debe estar vinculado.
 2. **Reglas de clasificación** — todos los conceptos deben tener una regla activa en CFDI Concepto Mapping.
-3. **Configuracion Fiscal Mexico** — debe existir para la empresa, con:
-   - `cfdi_recibidos_tax_template` configurado (template de impuestos de compras)
-   - `mapeo_cuentas` con las cuentas para cada rol fiscal (IVA, IEPS, retenciones)
+3. **Configuracion CFDI Recibidos** — debe existir para la empresa (nombre: `CFDI-REC-CFG-{empresa}`), con:
+   - Reglas de impuesto configuradas (IVA 16%/8%/0%, IEPS, retenciones según aplique)
+   - `wizard_completado` activo (usar el botón "Generar Template de Impuestos")
 
 ### Qué genera la conversión
 

@@ -247,7 +247,7 @@ Convierte un **CFDI Recibido** en estado `Listo` a una **Purchase Invoice Draft*
 
 Para que la conversión funcione, deben existir:
 
-1. **Configuracion Fiscal Mexico** para la empresa — con `cfdi_recibidos_tax_template` configurado.
+1. **Configuracion CFDI Recibidos** para la empresa (nombre: `CFDI-REC-CFG-{empresa}`) — con reglas de impuesto configuradas y `wizard_completado=True`.
 2. **CFDI Concepto Mapping** activo para cada concepto del CFDI — con cuenta de gasto o Item destino.
 3. El `supplier` del CFDI debe estar asignado (usar `resolve_supplier` antes si es necesario).
 

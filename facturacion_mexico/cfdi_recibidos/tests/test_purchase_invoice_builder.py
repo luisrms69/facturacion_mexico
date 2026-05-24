@@ -1,7 +1,7 @@
 """
 Tests de PurchaseInvoiceBuilder — Fase 3c.
 
-Crea y limpia fixtures reales en BD: CFDI Recibido, supplier, CFM, template, cuentas de impuesto.
+Crea y limpia fixtures reales en BD: CFDI Recibido, supplier, Configuracion CFDI Recibidos, cuentas de impuesto.
 """
 
 import json
@@ -103,58 +103,39 @@ def _create_supplier(supplier_name: str) -> str:
 	return sup.name
 
 
-def _make_template(title: str, accounts: list) -> str:
-	if frappe.db.exists("Purchase Taxes and Charges Template", title):
-		frappe.delete_doc("Purchase Taxes and Charges Template", title, force=True)
-	tmpl = frappe.new_doc("Purchase Taxes and Charges Template")
-	tmpl.title = title
-	tmpl.company = TEST_COMPANY
-	for account in accounts:
-		tmpl.append(
-			"taxes",
-			{
-				"charge_type": "Actual",
-				"account_head": account,
-				"description": account,
-				"tax_amount": 0,
-			},
-		)
-	tmpl.insert(ignore_permissions=True)
+def _regla(impuesto_sat, tasa_cuota, descripcion, cuenta, *, es_retencion=False, tipo_factor="Tasa"):
+	return {
+		"impuesto_sat": impuesto_sat,
+		"tipo_factor": tipo_factor,
+		"tasa_cuota": tasa_cuota,
+		"descripcion": descripcion,
+		"es_retencion": 1 if es_retencion else 0,
+		"cuenta_impuesto": cuenta,
+		"activo": 1,
+	}
+
+
+def _make_config(company: str, reglas: list, *, wizard_completado: bool = True) -> str:
+	config_name = f"CFDI-REC-CFG-{company}"
+	if frappe.db.exists("Configuracion CFDI Recibidos", config_name):
+		frappe.delete_doc("Configuracion CFDI Recibidos", config_name, force=True)
+	config = frappe.new_doc("Configuracion CFDI Recibidos")
+	config.company = company
+	config.wizard_completado = 1 if wizard_completado else 0
+	for regla in reglas:
+		config.append("reglas_impuesto", regla)
+	config.insert(ignore_permissions=True, ignore_links=True)
 	frappe.db.commit()
-	return tmpl.name
+	return config_name
 
 
-def _make_cfm(company: str, template: str, mapeos: list) -> str:
-	cfm_name = f"CFM-{company}"
-	if frappe.db.exists("Configuracion Fiscal Mexico", cfm_name):
-		frappe.delete_doc("Configuracion Fiscal Mexico", cfm_name, force=True)
-	cfm = frappe.new_doc("Configuracion Fiscal Mexico")
-	cfm.company = company
-	cfm.cfdi_recibidos_tax_template = template
-	for rol, cuenta in mapeos:
-		cfm.append("mapeo_cuentas", {"rol_fiscal": rol, "cuenta_impuesto": cuenta})
-	cfm.insert(ignore_permissions=True, ignore_mandatory=not mapeos)
-	frappe.db.commit()
-	return cfm_name
-
-
-def _make_mapping(
-	supplier_rfc: str,
-	sat_key: str,
-	expense_account: str,
-	retencion_isr_rol: str = "",
-	retencion_iva_rol: str = "",
-) -> str:
+def _make_mapping(supplier_rfc: str, sat_key: str, expense_account: str) -> str:
 	doc = frappe.new_doc("CFDI Concepto Mapping")
 	doc.supplier_rfc = supplier_rfc
 	doc.sat_product_key = sat_key
 	doc.target_type = "ExpenseAccount"
 	doc.target_account = expense_account
 	doc.is_active = 1
-	if retencion_isr_rol:
-		doc.retencion_isr_rol_fiscal = retencion_isr_rol
-	if retencion_iva_rol:
-		doc.retencion_iva_rol_fiscal = retencion_iva_rol
 	doc.insert(ignore_permissions=True)
 	frappe.db.commit()
 	return doc.name
@@ -187,15 +168,12 @@ class TestPurchaseInvoiceBuilder(unittest.TestCase):
 		cls.acc_ret_iva = _get_or_create_tax_account(f"_PIB Ret IVA {_H}", TEST_COMPANY)
 		cls.all_tax_accounts = [cls.acc_iva_nac, cls.acc_ret_isr, cls.acc_ret_iva]
 
-		cls.template_name = _make_template(f"_PIB Tpl {_H}", cls.all_tax_accounts)
-
-		cls.cfm_name = _make_cfm(
+		cls.config_name = _make_config(
 			TEST_COMPANY,
-			cls.template_name,
 			[
-				("IVA Acreditable (Nacional)", cls.acc_iva_nac),
-				("ISR Retenido (Honorarios)", cls.acc_ret_isr),
-				("IVA Retenido (Honorarios)", cls.acc_ret_iva),
+				_regla("002", 0.16, "IVA Acreditable (Nacional)", cls.acc_iva_nac),
+				_regla("001", 0.00, "ISR Retenido", cls.acc_ret_isr, es_retencion=True),
+				_regla("002", 0.00, "IVA Retenido", cls.acc_ret_iva, es_retencion=True),
 			],
 		)
 
@@ -205,15 +183,12 @@ class TestPurchaseInvoiceBuilder(unittest.TestCase):
 			supplier_rfc=TEST_SUPPLIER_RFC,
 			sat_key=TEST_SAT_KEY,
 			expense_account=cls.expense_account,
-			retencion_isr_rol="ISR Retenido (Honorarios)",
-			retencion_iva_rol="IVA Retenido (Honorarios)",
 		)
 
 	@classmethod
 	def tearDownClass(cls):
 		_delete_if_exists("CFDI Concepto Mapping", cls.mapping_name)
-		_delete_if_exists("Configuracion Fiscal Mexico", cls.cfm_name)
-		_delete_if_exists("Purchase Taxes and Charges Template", cls.template_name)
+		_delete_if_exists("Configuracion CFDI Recibidos", cls.config_name)
 		for acc in getattr(cls, "all_tax_accounts", []):
 			try:
 				_delete_if_exists("Account", acc)
