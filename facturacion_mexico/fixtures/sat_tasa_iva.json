@@ -1,0 +1,26 @@
+[
+ {
+  "doctype": "Tasa IVA SAT",
+  "name": "IVA_NACIONAL",
+  "clave": "IVA_NACIONAL",
+  "descripcion": "IVA Nacional 16%",
+  "tasa_cuota": 0.16,
+  "activo": 1
+ },
+ {
+  "doctype": "Tasa IVA SAT",
+  "name": "IVA_FRONTERA",
+  "clave": "IVA_FRONTERA",
+  "descripcion": "IVA Frontera 8%",
+  "tasa_cuota": 0.08,
+  "activo": 1
+ },
+ {
+  "doctype": "Tasa IVA SAT",
+  "name": "IVA_TASA_CERO",
+  "clave": "IVA_TASA_CERO",
+  "descripcion": "IVA Tasa Cero 0%",
+  "tasa_cuota": 0.0,
+  "activo": 1
+ }
+]

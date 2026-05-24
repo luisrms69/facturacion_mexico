@@ -72,9 +72,7 @@ class TestSyncRolesFiscalesJSONPython(FrappeTestCase):
 				rol_fiscal_field = field
 				break
 
-		self.assertIsNotNone(
-			rol_fiscal_field, "Campo 'rol_fiscal' no encontrado en JSON DocType"
-		)
+		self.assertIsNotNone(rol_fiscal_field, "Campo 'rol_fiscal' no encontrado en JSON DocType")
 
 		# Parsear opciones Select (string separado por \n)
 		json_options_str = rol_fiscal_field.get("options", "")
@@ -104,9 +102,7 @@ class TestSyncRolesFiscalesJSONPython(FrappeTestCase):
 		if error_msg:
 			error_msg.insert(
 				0,
-				"\n" + "=" * 80 + "\n"
-				"DESINCRONIZACIÓN DETECTADA: JSON ↔ Python\n"
-				+ "=" * 80,
+				"\n" + "=" * 80 + "\nDESINCRONIZACIÓN DETECTADA: JSON ↔ Python\n" + "=" * 80,
 			)
 			error_msg.append(
 				"\n" + "=" * 80 + "\n"
@@ -114,8 +110,7 @@ class TestSyncRolesFiscalesJSONPython(FrappeTestCase):
 				"1. Actualizar TABLA_MAESTRA_ROLES_FISCALES en roles_fiscales.py\n"
 				"2. Actualizar opciones Select en mapeo_cuenta_fiscal_mexico.json\n"
 				"3. bench migrate\n"
-				"4. Re-ejecutar este test\n"
-				+ "=" * 80
+				"4. Re-ejecutar este test\n" + "=" * 80
 			)
 			self.fail("".join(error_msg))
 
@@ -170,8 +165,9 @@ class TestSyncRolesFiscalesJSONPython(FrappeTestCase):
 		Actualizar este número si se agregan/remueven categorías de roles.
 		"""
 		# Según TABLA_MAESTRA_ROLES_FISCALES debemos tener:
-		# 4 IVA + 5 IEPS + 8 Retenciones (4 tipos × IVA+ISR) = 17 roles
-		CANTIDAD_ESPERADA = 17
+		# 17 originales (IVA emisión + IEPS + retenciones) + 4 acreditables CFDI Recibidos
+		# (IVA_ACR_NAC, IVA_ACR_FRO, IVA_ACR_CERO, IEPS_ACR) = 21 roles
+		CANTIDAD_ESPERADA = 21
 
 		cantidad_actual = len(TODOS_LOS_ROLES)
 

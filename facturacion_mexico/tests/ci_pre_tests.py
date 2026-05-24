@@ -132,7 +132,34 @@ def run():
 		if not frappe.db.exists("Impuesto SAT", imp["name"]):
 			frappe.get_doc({"doctype": "Impuesto SAT", **imp}).insert(ignore_permissions=True)
 
-	# --- 10) Defaults suaves para evitar warnings de "lugar expedición" en branch factories ---
+	# --- 10) Tasa IVA SAT — tasas IVA para wizard CFDI Recibidos ---
+	for tiva in (
+		{
+			"name": "IVA_NACIONAL",
+			"clave": "IVA_NACIONAL",
+			"descripcion": "IVA Nacional 16%",
+			"tasa_cuota": 0.16,
+			"activo": 1,
+		},
+		{
+			"name": "IVA_FRONTERA",
+			"clave": "IVA_FRONTERA",
+			"descripcion": "IVA Frontera 8%",
+			"tasa_cuota": 0.08,
+			"activo": 1,
+		},
+		{
+			"name": "IVA_TASA_CERO",
+			"clave": "IVA_TASA_CERO",
+			"descripcion": "IVA Tasa Cero 0%",
+			"tasa_cuota": 0.0,
+			"activo": 1,
+		},
+	):
+		if not frappe.db.exists("Tasa IVA SAT", tiva["name"]):
+			frappe.get_doc({"doctype": "Tasa IVA SAT", **tiva}).insert(ignore_permissions=True)
+
+	# --- 11) Defaults suaves para evitar warnings de "lugar expedición" en branch factories ---
 	#     (Si tus factories no los setean, al menos deja un postal general válido)
 	frappe.db.set_default("country", "Mexico")
 	frappe.db.commit()
@@ -140,6 +167,11 @@ def run():
 	# Reporte rápido
 	report = {
 		"impuesto_sat": [i for i in ("001", "002", "003") if frappe.db.exists("Impuesto SAT", i)],
+		"tasa_iva_sat": [
+			t
+			for t in ("IVA_NACIONAL", "IVA_FRONTERA", "IVA_TASA_CERO")
+			if frappe.db.exists("Tasa IVA SAT", t)
+		],
 		"warehouse_types": [
 			wt
 			for wt in ("Stores", "Work In Progress", "Finished Goods", "Transit")
