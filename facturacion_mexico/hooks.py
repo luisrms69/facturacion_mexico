@@ -60,6 +60,9 @@ doctype_js = {
 		"ffm_cancel_ui_v2.js",
 		"facturacion_fiscal/doctype/factura_fiscal_mexico/factura_fiscal_mexico.js",
 	],
+	"Configuracion CFDI Recibidos": [
+		"cfdi_recibidos/doctype/configuracion_cfdi_recibidos/configuracion_cfdi_recibidos.js",
+	],
 }
 
 # include css in doctype views

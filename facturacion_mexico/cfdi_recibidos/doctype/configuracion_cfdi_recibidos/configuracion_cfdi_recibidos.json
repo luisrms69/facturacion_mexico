@@ -1,0 +1,89 @@
+{
+ "doctype": "DocType",
+ "name": "Configuracion CFDI Recibidos",
+ "module": "CFDI Recibidos",
+ "custom": 0,
+ "is_submittable": 0,
+ "track_changes": 1,
+ "engine": "InnoDB",
+ "naming_rule": "Expression",
+ "autoname": "format:CFDI-REC-CFG-{company}",
+ "fields": [
+  {
+   "fieldname": "company",
+   "label": "Empresa",
+   "fieldtype": "Link",
+   "options": "Company",
+   "reqd": 1,
+   "unique": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "section_reglas",
+   "label": "Reglas de Impuesto",
+   "fieldtype": "Section Break",
+   "description": "Configure una regla por tipo de impuesto que recibirá en CFDIs de proveedores. IVA Exento no requiere regla (se ignora automáticamente). Después de completar las reglas, haga clic en 'Generar Template' para crear el Purchase Taxes and Charges Template."
+  },
+  {
+   "fieldname": "reglas_impuesto",
+   "label": "Reglas de Impuesto",
+   "fieldtype": "Table",
+   "options": "Regla Impuesto CFDI Recibido"
+  },
+  {
+   "fieldname": "section_template",
+   "label": "Template Generado",
+   "fieldtype": "Section Break",
+   "collapsible": 1,
+   "description": "Generado automáticamente por el wizard. No editar manualmente."
+  },
+  {
+   "fieldname": "purchase_taxes_template",
+   "label": "Purchase Taxes and Charges Template",
+   "fieldtype": "Link",
+   "options": "Purchase Taxes and Charges Template",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_template",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "wizard_completado",
+   "label": "Template Generado",
+   "fieldtype": "Check",
+   "read_only": 1,
+   "default": "0"
+  },
+  {
+   "fieldname": "ultima_generacion",
+   "label": "Última Generación",
+   "fieldtype": "Datetime",
+   "read_only": 1
+  }
+ ],
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1
+  },
+  {
+   "role": "Accounts Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1
+  },
+  {
+   "role": "Facturacion Mexico Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1
+  }
+ ],
+ "title_field": "company"
+}
