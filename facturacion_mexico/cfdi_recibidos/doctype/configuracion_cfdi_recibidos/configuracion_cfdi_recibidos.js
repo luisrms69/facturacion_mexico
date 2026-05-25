@@ -32,6 +32,11 @@ frappe.ui.form.on("Configuracion CFDI Recibidos", {
 			frm.add_custom_button(__("Generar Template de Impuestos"), () => {
 				_generar_template(frm);
 			});
+			frm.add_custom_button(__("Ver Templates de Impuestos"), () => {
+				frappe.set_route("List", "Purchase Taxes and Charges Template", {
+					company: frm.doc.company,
+				});
+			});
 		}
 	},
 	company(frm) {

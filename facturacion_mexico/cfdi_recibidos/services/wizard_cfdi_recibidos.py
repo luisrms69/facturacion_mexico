@@ -212,8 +212,20 @@ def _safe_generate_template(config, active_rules: list) -> str:
 			return _update_template_in_place(existing, active_rules)
 	else:
 		base_name = f"{config.company} — CFDI Recibidos"
-		if frappe.db.exists("Purchase Taxes and Charges Template", base_name):
-			base_name = _versioned_name(base_name)
+		# Frappe autonombra como "{title} - {abbr}", buscar por título + empresa
+		existing_by_title = frappe.db.get_value(
+			"Purchase Taxes and Charges Template",
+			{"title": base_name, "company": config.company},
+			"name",
+		)
+		if existing_by_title:
+			pi_count = frappe.db.count(
+				"Purchase Invoice",
+				{"taxes_and_charges": existing_by_title, "docstatus": 1},
+			)
+			if pi_count > 0:
+				return _create_template(_versioned_name(base_name), config.company, active_rules)
+			return _update_template_in_place(existing_by_title, active_rules)
 		return _create_template(base_name, config.company, active_rules)
 
 
