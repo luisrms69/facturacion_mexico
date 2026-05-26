@@ -32,6 +32,17 @@ def after_install():
 		frappe.log_error(frappe.get_traceback(), "[FMX][Install] Error creating default payment terms")
 		frappe.logger().warning(f"⚠️ No se pudieron crear Payment Terms FM: {e}")
 
+	# Item Groups de gasto CFDI Recibidos
+	try:
+		from facturacion_mexico.setup.cfdi_received_expense_item_groups import (
+			ensure_cfdi_received_expense_item_groups,
+		)
+
+		ensure_cfdi_received_expense_item_groups()
+	except Exception as e:
+		frappe.log_error(frappe.get_traceback(), "[FMX][Install] Error creating expense item groups")
+		frappe.logger().warning(f"⚠️ No se pudieron crear Item Groups de gasto: {e}")
+
 	# Crear customer template Público General
 	try:
 		_create_publico_general_customer()
