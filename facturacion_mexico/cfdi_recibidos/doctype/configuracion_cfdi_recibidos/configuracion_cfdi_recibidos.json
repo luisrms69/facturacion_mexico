@@ -31,6 +31,20 @@
    "options": "Regla Impuesto CFDI Recibido"
   },
   {
+   "fieldname": "section_proveedores",
+   "label": "Proveedores",
+   "fieldtype": "Section Break",
+   "collapsible": 1,
+   "description": "Defaults opcionales que se aplican automáticamente al crear proveedores desde CFDI Recibidos."
+  },
+  {
+   "fieldname": "default_payment_terms_supplier",
+   "label": "Condiciones de Pago por Defecto (Proveedor)",
+   "fieldtype": "Link",
+   "options": "Payment Terms Template",
+   "description": "Se asigna a proveedores nuevos creados desde CFDI Recibidos. No sobrescribe proveedores existentes."
+  },
+  {
    "fieldname": "section_template",
    "label": "Template Generado",
    "fieldtype": "Section Break",

@@ -23,6 +23,15 @@ def after_install():
 	# MANUAL FIRST: NO crear automáticamente setup fiscal, STCT, ITT, Tax Rules
 	# Estos se crean SOLO desde el Wizard de Configuración Fiscal México
 
+	# Payment Terms estándar FM
+	try:
+		from facturacion_mexico.setup.payment_terms import ensure_default_payment_terms
+
+		ensure_default_payment_terms()
+	except Exception as e:
+		frappe.log_error(frappe.get_traceback(), "[FMX][Install] Error creating default payment terms")
+		frappe.logger().warning(f"⚠️ No se pudieron crear Payment Terms FM: {e}")
+
 	# Crear customer template Público General
 	try:
 		_create_publico_general_customer()

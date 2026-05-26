@@ -197,6 +197,14 @@ function _show_generate_summary(result) {
 		   </details>`
 		: "";
 
+	const actionable = creados + ya_existian_y_asignados;
+	const reviewNote =
+		actionable > 0
+			? `<p style="margin-top:10px;padding:8px;background:#fff8e1;border-left:3px solid #f9a825;font-size:0.9em;color:#555">${__(
+					"Proveedores creados/asignados correctamente. Revise y complete los datos fiscales, grupo de proveedor, cuenta por pagar y condiciones de pago cuando sea necesario."
+			  )}</p>`
+			: "";
+
 	frappe.msgprint({
 		title: __("Resultado — Generar proveedores"),
 		message: `
@@ -204,6 +212,7 @@ function _show_generate_summary(result) {
 			<p>${__("Existentes asignados")}: <strong>${ya_existian_y_asignados}</strong></p>
 			<p>${__("Omitidos")}: <strong>${omitidos}</strong></p>
 			<p>${__("Errores")}: <strong>${errCount}</strong></p>
+			${reviewNote}
 			${errDetail}
 		`,
 		indicator,

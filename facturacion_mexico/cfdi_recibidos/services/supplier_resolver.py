@@ -69,6 +69,8 @@ def generate_missing_suppliers(cfdi_names: list[str] | None = None) -> dict:
 	Si cfdi_names se provee, procesa solo esos documentos; los no candidatos
 	van a omitidos. Sin cfdi_names, procesa todos los candidatos activos.
 	Idempotente: dos ejecuciones no duplican Suppliers.
+	Si Configuracion Fiscal Mexico tiene default_payment_terms_supplier, se asigna
+	a proveedores nuevos. Los proveedores existentes no se modifican.
 	"""
 	creados = 0
 	ya_existian_y_asignados = 0
@@ -87,7 +89,7 @@ def generate_missing_suppliers(cfdi_names: list[str] | None = None) -> dict:
 		candidates = frappe.get_all(
 			"CFDI Recibido",
 			filters={**candidate_filters, "name": ["in", cfdi_names]},
-			fields=["name", "supplier_rfc", "supplier_name"],
+			fields=["name", "supplier_rfc", "supplier_name", "company"],
 		)
 		candidate_set = {c.name for c in candidates}
 		omitidos = sum(1 for n in cfdi_names if n not in candidate_set)
@@ -95,14 +97,17 @@ def generate_missing_suppliers(cfdi_names: list[str] | None = None) -> dict:
 		candidates = frappe.get_all(
 			"CFDI Recibido",
 			filters=candidate_filters,
-			fields=["name", "supplier_rfc", "supplier_name"],
+			fields=["name", "supplier_rfc", "supplier_name", "company"],
 		)
 
 	# Cache RFC → Supplier.name para evitar duplicados dentro del mismo lote
 	rfc_to_supplier: dict[str, str] = {}
+	# Cache company → payment_terms para evitar queries repetidas
+	company_pt_cache: dict[str, str | None] = {}
 
 	for cfdi in candidates:
 		rfc = cfdi.supplier_rfc
+		company = cfdi.company
 		try:
 			# Primero buscar en cache del lote, luego en BD
 			existing = rfc_to_supplier.get(rfc) or frappe.db.get_value("Supplier", {"tax_id": rfc}, "name")
@@ -126,11 +131,17 @@ def generate_missing_suppliers(cfdi_names: list[str] | None = None) -> dict:
 				)
 				continue
 
+			if company not in company_pt_cache:
+				company_pt_cache[company] = _get_default_payment_terms(company)
+			payment_terms = company_pt_cache[company]
+
 			sup = frappe.new_doc("Supplier")
 			sup.supplier_name = cfdi.supplier_name
 			sup.supplier_group = supplier_group
 			sup.supplier_type = "Company"
 			sup.tax_id = rfc
+			if payment_terms:
+				sup.payment_terms = payment_terms
 			sup.insert(ignore_permissions=True)
 
 			rfc_to_supplier[rfc] = sup.name
@@ -161,3 +172,21 @@ def _get_default_supplier_group() -> str | None:
 	if group:
 		return group
 	return frappe.db.get_value("Supplier Group", {}, "name")
+
+
+def _get_default_payment_terms(company: str) -> str | None:
+	"""
+	Lee default_payment_terms_supplier de Configuracion CFDI Recibidos para la empresa.
+	Retorna None si no existe la configuración o el campo está vacío.
+	"""
+	config_name = f"CFDI-REC-CFG-{company}"
+	if not frappe.db.exists("Configuracion CFDI Recibidos", config_name):
+		return None
+	return (
+		frappe.db.get_value(
+			"Configuracion CFDI Recibidos",
+			config_name,
+			"default_payment_terms_supplier",
+		)
+		or None
+	)

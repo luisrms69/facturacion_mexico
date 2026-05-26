@@ -141,6 +141,72 @@ RFC_B2 = "HITOB002BBBB"  # CFDI con Supplier existente → asignar
 RFC_B3 = "HITOB003CCCC"  # Dos CFDI mismo RFC
 RFC_B4 = "HITOB004DDDD"  # Ejecución repetida
 
+# --- RFC únicos para Hito C.1 ---
+RFC_C1 = "HITOC001AAAA"  # Payment terms asignado a nuevo Supplier
+RFC_C2 = "HITOC002BBBB"  # Sin payment terms configurado → no bloquea
+RFC_C3 = "HITOC003CCCC"  # Supplier existente con payment_terms → no sobrescribir
+
+
+def _get_or_create_payment_terms(name: str) -> str:
+	"""Obtiene o crea un Payment Terms Template mínimo para pruebas."""
+	if frappe.db.exists("Payment Terms Template", name):
+		return name
+	doc = frappe.new_doc("Payment Terms Template")
+	doc.template_name = name
+	doc.append(
+		"terms",
+		{
+			"payment_term": _get_or_create_payment_term(name),
+			"invoice_portion": 100,
+			"credit_days_based_on": "Day(s) after invoice date",
+			"credit_days": 30,
+		},
+	)
+	doc.insert(ignore_permissions=True)
+	frappe.db.commit()
+	return doc.name
+
+
+def _get_or_create_payment_term(name: str) -> str:
+	if frappe.db.exists("Payment Term", name):
+		return name
+	doc = frappe.new_doc("Payment Term")
+	doc.payment_term_name = name
+	doc.invoice_portion = 100
+	doc.credit_days_based_on = "Day(s) after invoice date"
+	doc.credit_days = 30
+	doc.insert(ignore_permissions=True)
+	frappe.db.commit()
+	return doc.name
+
+
+def _set_cfdi_rec_payment_terms(company: str, payment_terms: str | None):
+	"""Escribe default_payment_terms_supplier en Configuracion CFDI Recibidos si existe."""
+	config_name = f"CFDI-REC-CFG-{company}"
+	if frappe.db.exists("Configuracion CFDI Recibidos", config_name):
+		frappe.db.set_value(
+			"Configuracion CFDI Recibidos",
+			config_name,
+			"default_payment_terms_supplier",
+			payment_terms,
+		)
+		frappe.db.commit()
+
+
+def _create_minimal_cfdi_rec_cfg(company: str, payment_terms: str | None = None) -> str:
+	"""Crea Configuracion CFDI Recibidos mínima para pruebas."""
+	config_name = f"CFDI-REC-CFG-{company}"
+	if frappe.db.exists("Configuracion CFDI Recibidos", config_name):
+		_set_cfdi_rec_payment_terms(company, payment_terms)
+		return config_name
+	cfg = frappe.new_doc("Configuracion CFDI Recibidos")
+	cfg.company = company
+	if payment_terms:
+		cfg.default_payment_terms_supplier = payment_terms
+	cfg.insert(ignore_permissions=True)
+	frappe.db.commit()
+	return config_name
+
 
 class TestGenerateMissingSuppliers(unittest.TestCase):
 	"""Hito B — generate_missing_suppliers: 8 casos del plan."""
@@ -235,3 +301,86 @@ class TestGenerateMissingSuppliers(unittest.TestCase):
 		for key in ["creados", "ya_existian_y_asignados", "omitidos", "errores"]:
 			self.assertIn(key, result)
 		self.assertIsInstance(result["errores"], list)
+
+
+class TestGenerateSuppliersPaymentTerms(unittest.TestCase):
+	"""Hito C.1 — payment_terms por defecto al crear Suppliers desde CFDI Recibidos."""
+
+	_pt_name = "_Test PT CFDI Recibidos"
+	_cfm_created = False
+
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		# Crear Payment Terms Template de prueba
+		_get_or_create_payment_terms(cls._pt_name)
+		# Guardar valor previo del campo en Configuracion CFDI Recibidos si ya existe
+		config_name = f"CFDI-REC-CFG-{TEST_COMPANY}"
+		cls._cfm_existed = frappe.db.exists("Configuracion CFDI Recibidos", config_name)
+		if cls._cfm_existed:
+			cls._pt_prev = frappe.db.get_value(
+				"Configuracion CFDI Recibidos",
+				config_name,
+				"default_payment_terms_supplier",
+			)
+		else:
+			cls._pt_prev = None
+			cls._cfm_created = True
+
+	@classmethod
+	def tearDownClass(cls):
+		# Restaurar estado previo de Configuracion CFDI Recibidos
+		config_name = f"CFDI-REC-CFG-{TEST_COMPANY}"
+		if cls._cfm_created and frappe.db.exists("Configuracion CFDI Recibidos", config_name):
+			frappe.delete_doc("Configuracion CFDI Recibidos", config_name, force=True)
+			frappe.db.commit()
+		elif cls._cfm_existed:
+			_set_cfdi_rec_payment_terms(TEST_COMPANY, cls._pt_prev)
+		super().tearDownClass()
+
+	def setUp(self):
+		for rfc in [RFC_C1, RFC_C2, RFC_C3]:
+			_cleanup_supplier(rfc)
+		for suffix in ["C01", "C02", "C03"]:
+			_cleanup(suffix)
+
+	def tearDown(self):
+		for rfc in [RFC_C1, RFC_C2, RFC_C3]:
+			_cleanup_supplier(rfc)
+		for suffix in ["C01", "C02", "C03"]:
+			_cleanup(suffix)
+
+	def test_payment_terms_asignado_a_nuevo_supplier(self):
+		"""C.1 Caso 1: CFM con payment_terms configurado → nuevo Supplier lo recibe."""
+		_create_minimal_cfdi_rec_cfg(TEST_COMPANY, self._pt_name)
+		cfdi = _make_cfdi("C01", RFC_C1, TEST_COMPANY, status="Falta proveedor")
+		result = generate_missing_suppliers([cfdi])
+		self.assertEqual(result["creados"], 1)
+		supplier_name = frappe.db.get_value("CFDI Recibido", cfdi, "supplier")
+		pt = frappe.db.get_value("Supplier", supplier_name, "payment_terms")
+		self.assertEqual(pt, self._pt_name)
+
+	def test_sin_payment_terms_configurado_no_bloquea(self):
+		"""C.1 Caso 2: CFM sin payment_terms → Supplier se crea sin error."""
+		_create_minimal_cfdi_rec_cfg(TEST_COMPANY, None)
+		cfdi = _make_cfdi("C02", RFC_C2, TEST_COMPANY, status="Falta proveedor")
+		result = generate_missing_suppliers([cfdi])
+		self.assertEqual(result["creados"], 1)
+		self.assertEqual(len(result["errores"]), 0)
+
+	def test_supplier_existente_payment_terms_no_sobrescrito(self):
+		"""C.1 Caso 3: Supplier existente con payment_terms propios → no se sobreescriben."""
+		_create_minimal_cfdi_rec_cfg(TEST_COMPANY, self._pt_name)
+		# Crear Supplier con payment_terms diferente
+		supplier = _get_or_create_supplier(RFC_C3)
+		original_pt = "_Test PT Original"
+		_get_or_create_payment_terms(original_pt)
+		frappe.db.set_value("Supplier", supplier, "payment_terms", original_pt)
+		frappe.db.commit()
+
+		cfdi = _make_cfdi("C03", RFC_C3, TEST_COMPANY, status="Falta proveedor")
+		result = generate_missing_suppliers([cfdi])
+		self.assertGreaterEqual(result["ya_existian_y_asignados"], 1)
+		# El payment_terms del Supplier existente no debe cambiar
+		pt_after = frappe.db.get_value("Supplier", supplier, "payment_terms")
+		self.assertEqual(pt_after, original_pt)
