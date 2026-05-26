@@ -3,6 +3,9 @@ frappe.listview_settings["CFDI Recibido"] = {
 		listview.page.add_button(__("Cargar XML"), () => {
 			_select_company_then_upload(listview);
 		});
+		listview.page.add_button(__("Generar proveedores faltantes"), () => {
+			_generate_missing_suppliers(listview);
+		});
 	},
 };
 
@@ -127,4 +130,82 @@ function _show_results(results, listview) {
 
 	const created = results.filter((r) => r.cfdi_recibido);
 	if (created.length) listview.refresh();
+}
+
+function _generate_missing_suppliers(listview) {
+	const selected = listview.get_checked_items().map((r) => r.name);
+
+	if (selected.length) {
+		frappe.confirm(
+			__("Se generarán proveedores para {0} CFDI seleccionados. ¿Continuar?", [
+				selected.length,
+			]),
+			() => _do_generate(selected, listview)
+		);
+	} else {
+		frappe.call({
+			method: "frappe.client.get_count",
+			args: {
+				doctype: "CFDI Recibido",
+				filters: { status: "Falta proveedor", no_procesar: 0 },
+			},
+			callback(r) {
+				const count = r.message || 0;
+				if (!count) {
+					frappe.msgprint(__("No hay CFDI con estado 'Falta proveedor'."));
+					return;
+				}
+				frappe.confirm(
+					__(
+						"Se generarán proveedores para {0} CFDI con 'Falta proveedor'. ¿Continuar?",
+						[count]
+					),
+					() => _do_generate(null, listview)
+				);
+			},
+		});
+	}
+}
+
+function _do_generate(cfdi_names, listview) {
+	frappe.call({
+		method: "facturacion_mexico.cfdi_recibidos.api.generate_missing_suppliers",
+		args: { cfdi_names: cfdi_names ? JSON.stringify(cfdi_names) : null },
+		freeze: true,
+		freeze_message: __("Generando proveedores..."),
+		callback(r) {
+			if (r.message) {
+				_show_generate_summary(r.message);
+				listview.refresh();
+			}
+		},
+	});
+}
+
+function _show_generate_summary(result) {
+	const { creados, ya_existian_y_asignados, omitidos, errores } = result;
+	const errCount = errores ? errores.length : 0;
+	const indicator = errCount > 0 ? "orange" : "green";
+	const errDetail = errCount
+		? `<details style="margin-top:8px"><summary style="cursor:pointer">${__(
+				"Ver errores ({0})",
+				[errCount]
+		  )}</summary>
+			<ul style="margin-top:4px">${errores
+				.map((e) => `<li><b>${e.name}</b>: ${e.message}</li>`)
+				.join("")}</ul>
+		   </details>`
+		: "";
+
+	frappe.msgprint({
+		title: __("Resultado — Generar proveedores"),
+		message: `
+			<p>${__("Proveedores creados")}: <strong>${creados}</strong></p>
+			<p>${__("Existentes asignados")}: <strong>${ya_existian_y_asignados}</strong></p>
+			<p>${__("Omitidos")}: <strong>${omitidos}</strong></p>
+			<p>${__("Errores")}: <strong>${errCount}</strong></p>
+			${errDetail}
+		`,
+		indicator,
+	});
 }

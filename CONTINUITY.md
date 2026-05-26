@@ -1,126 +1,84 @@
 # CONTINUITY.md — facturacion_mexico
 
-**Fecha:** 2026-05-25
+**Fecha:** 2026-05-26
 **Rama activa:** `feature/cfdi-recibidos-fase3-pi`
-**Último PR mergeado:** #156 (Fase 1) y #157 (Fase 2) — ambos en main
+**Último commit funcional:** `7c6b44f feat(cfdi-recibidos): Hito A — Upload → Proveedor (UX por etapas)`
 
 ---
 
-## Cómo ponerse al tanto — leer en este orden
+## Recuperación rápida
 
-```
-1. /home/erpnext/frappe-bench-v16/.claude/CLAUDE.md     ← reglas globales del bench
-2. CLAUDE.md (raíz de este repo)                         ← contexto del app
-3. Este archivo: CONTINUITY.md                           ← estado actual
-4. docs/development/cfdi-recibidos-fase-3-purchase-invoice.md ← plan Fase 3
-```
+Estoy trabajando en:
+Hito B — Generar proveedores faltantes (CFDI Recibidos)
 
----
+Plan que estoy siguiendo:
+`docs/development/PLAN_ACTUAL_CFDI_RECIBIDOS.md` — fuente única vigente.
+**No usar ningún otro documento de `docs/development/` como guía.**
 
-## Estado del módulo cfdi_recibidos
+Objetivo inmediato:
+Terminar implementación de Hito B, correr tests, validar GUI, luego commit.
 
-### Fase 1 — ✅ Mergeada (PR #156)
-### Fase 2 — ✅ Mergeada (PR #157)
-
-### Fase 3 — 🔄 En progreso (rama: feature/cfdi-recibidos-fase3-pi)
-
-**Rediseño UX aprobado 2026-05-25.** El flujo original (directo a clasificación y PI) fue
-reemplazado por un flujo por etapas explícitas, una acción por etapa.
-
-#### Etapas del flujo aprobado
-
-```
-Upload XML
-  → XML inválido          (no crea doc)
-  → Duplicado             (link al existente)
-  → No aplicable          (doc creado, excluido del flujo)
-  → Falta proveedor       (candidato a "Generar proveedores")
-  → Proveedor encontrado  (siguiente: clasificar conceptos — hito futuro)
-  [→ Falta clasificación  — hito futuro]
-  [→ Listo para PI        — hito futuro]
-  [→ Convertido a PI      — hito futuro]
-  [→ Error conversión     — hito futuro]
-```
-
-#### Hito actual: Upload → Proveedor
-
-**Objetivo:** Al subir XML, cada archivo queda en exactamente uno de estos estados:
-`XML inválido`, `Duplicado`, `No aplicable`, `No procesar`, `Proveedor encontrado`, `Falta proveedor`
-
-**Decisiones de diseño vigentes:**
-- `cfdi_type` válido para este flujo: solo `"I"` (Ingreso) — leído de `sat.constants.TIPO_COMPROBANTE`
-- Tipos no soportados (P, E, T, N) → doc creado con status `"No aplicable"`, no entra al flujo
-- RFC receptor no coincide con empresa → NO crear doc, retornar `"XML inválido"`
-- `no_procesar` es campo Check manual — el usuario lo activa después, no es resultado de carga
-- NO clasificar conceptos en este hito
-- NO llamar a ConceptClassifier, PurchaseInvoiceBuilder, TaxResolver ni API de PI
-- Estados futuros (`Falta clasificación`, `Listo`, `Convertido a PI`, `Error conversión`) se conservan en el DocType
-
-**Resultado de upload por archivo:**
-```
-file_name, cfdi_recibido, uuid, supplier_rfc,
-supplier_found, status, candidato_generar_proveedor, message
-```
-
-#### Archivos a modificar en hito actual
-
-| Archivo | Cambio |
-|---|---|
-| `cfdi_recibidos/services/xml_ingestion.py` | Eliminar classify_concepts; validar cfdi_type; RFC mismatch sin doc; agregar supplier_found y candidato al resultado |
-| `cfdi_recibidos/doctype/cfdi_recibido/cfdi_recibido.json` | Agregar `no_procesar` (Check); agregar states `"Proveedor encontrado"` y `"No aplicable"` |
-| `cfdi_recibidos/services/status_manager.py` | compute_stage solo devuelve Proveedor encontrado / Falta proveedor; agregar mensajes nuevos |
-| `cfdi_recibidos/doctype/cfdi_recibido/cfdi_recibido_list.js` | Mostrar supplier_rfc, supplier_found, candidato en tabla de resultados |
-| `cfdi_recibidos/tests/test_xml_ingestion.py` | Actualizar tests existentes; agregar tests para tipo P/E, RFC mismatch sin doc, supplier_found |
-
-#### Tests mínimos aprobados
-
-1. XML roto → `"XML inválido"`, sin doc
-2. RFC receptor no coincide → `"XML inválido"`, sin doc
-3. `cfdi_type="P"` → `"No aplicable"`, doc creado, `candidato=False`
-4. `cfdi_type="E"` → `"No aplicable"`, doc creado, `candidato=False`
-5. `cfdi_type="I"`, Supplier existe → `"Proveedor encontrado"`, `supplier_found=True`, `candidato=False`
-6. `cfdi_type="I"`, sin Supplier → `"Falta proveedor"`, `supplier_found=False`, `candidato=True`
-7. Duplicado → `"duplicado"`, `candidato=False`
-
-**No hacer commit hasta validación GUI.**
+Criterio de avance:
+Tests pasan + validación GUI completa (8 pasos del plan) + sin código funcional pendiente.
 
 ---
 
-## Componentes implementados en la rama (no en main aún)
+## Estado actual
 
-| Componente | Estado |
-|---|---|
-| `PurchaseInvoiceBuilder` | ✅ Implementado, tests OK — en espera de hitos previos |
-| `TaxResolver` (lee `Configuracion CFDI Recibidos`) | ✅ Implementado, 22/22 tests |
-| DocType `Configuracion CFDI Recibidos` + wizard | ✅ Implementado |
-| DocType `Regla Impuesto CFDI Recibido` (child) | ✅ Implementado |
-| DocType `Tasa IVA SAT` (catálogo) | ✅ Implementado, fixture en repo |
-| Endpoints `build_purchase_invoice`, `suggest_supplier_from_cfdi` | ✅ Implementados |
-| `cfdi_recibido.json` — campo `status` como `Data` | ✅ Listo |
-| `cfdi_recibido.json` — `states` con colores | ✅ Parcial (faltan estados nuevos del rediseño) |
-| UI list JS — botón "Cargar XML" persistente | ✅ Funcional |
+### Ya cerrado
+- **Hito A** — Upload → Proveedor (`7c6b44f`, empujado a `upstream/feature/cfdi-recibidos-fase3-pi`)
+- Limpieza documental de `docs/development/` (no commiteada — pendiente decidir)
 
----
+### En progreso
+- **Hito B** — Generar proveedores faltantes: implementación parcialmente hecha, pendiente correr tests y fix de prettier en JS
 
-## Cambios sin commitear (sesión 2026-05-25)
+### Pendiente inmediato
+1. Corregir formato JS con `prettier@2.7.1` en `cfdi_recibido_list.js`
+2. Correr tests: `bench --site test-facturacion.localhost run-tests --module facturacion_mexico.cfdi_recibidos.tests.test_supplier_resolver --lightmode`
+3. Validación GUI (8 pasos del plan)
+4. Commit de Hito B
+5. Decidir si commitear limpieza documental en mismo commit o separado
 
-- `cfdi_recibido.json` — status cambiado de Select a Data
-- `cfdi_recibido_list.js` — nuevo archivo (untracked)
-- `cfdi_recibido.js` — nuevo archivo (untracked)
-- `status_manager.py` — nuevo archivo (untracked)
-- `xml_ingestion.py` — ajustes menores mensaje duplicado
-
-**Todos pendientes de commit — no commitear hasta terminar hito actual y validación GUI.**
+### No repetir
+- No referenciar `docs/development/cfdi-recibidos-fase-3-purchase-invoice.md` — eliminado
+- No usar planes viejos de `docs/development/` para decidir flujo
+- No avanzar a clasificación de conceptos en este hito
+- No usar TaxResolver, PurchaseInvoiceBuilder, PI, Payment Entry en Hito B
 
 ---
 
-## PRs recientes
+## Decisiones vigentes
 
-| PR | Descripción | Estado |
-|---|---|---|
-| #155 | docs: arquitectura CFDI Recibidos aprobada | Mergeado |
-| #156 | feat: Fase 1 — ingesta, parser y DocTypes | Mergeado |
-| #157 | feat: Fase 2 — SupplierResolver, ConceptClassifier, CFDI Concepto Mapping | Mergeado |
+- Flujo por etapas: una acción por hito, no flujo automático completo
+- Upload termina solo en: `XML inválido`, `Duplicado`, `No aplicable`, `Proveedor encontrado`, `Falta proveedor`
+- `generate_missing_suppliers` usa `_get_default_supplier_group()` — no hardcodea, detecta dinámicamente
+- `Configuracion CFDI Recibidos` no tiene `default_supplier_group` ni `default_supplier_type` — fallback dinámico en código
+- Linters: `ruff check` + `ruff format` antes de commit; `prettier@2.7.1` para JS
+
+---
+
+## Archivos relevantes ahora
+
+### Leer primero
+- `docs/development/PLAN_ACTUAL_CFDI_RECIBIDOS.md` — plan vigente Hito B
+
+### Probablemente editar (Hito B en curso)
+- `cfdi_recibidos/services/supplier_resolver.py` — `generate_missing_suppliers` ya escrito, pendiente tests
+- `cfdi_recibidos/api.py` — endpoint `generate_missing_suppliers` ya agregado
+- `cfdi_recibidos/doctype/cfdi_recibido/cfdi_recibido_list.js` — botón agregado, pendiente prettier
+- `cfdi_recibidos/tests/test_supplier_resolver.py` — 8 tests nuevos escritos, pendiente ejecutar
+
+### No tocar
+- `concept_classifier.py`, `tax_resolver.py`, `purchase_invoice_builder.py`
+- `xml_ingestion.py` (Hito A cerrado)
+- `docs/development/` archivos históricos
+
+---
+
+## Riesgos / cuidados
+- `prettier@2.7.1` exacto — CI usa esa versión; no usar v3
+- No commitear `one_offs/` (14 scripts untracked, correctos)
+- La limpieza documental (no commiteada) incluye archivos rastreados — al commitear Hito B, no incluirlos accidentalmente
 
 ---
 
@@ -132,5 +90,4 @@ supplier_found, status, candidato_generar_proveedor, message
 | Site desarrollo | `facturacion-v16.dev` |
 | Site tests | `test-facturacion.localhost` |
 | Seed tests | `bench --site test-facturacion.localhost execute facturacion_mexico.tests.ci_pre_tests.run` |
-| Comando tests | `bench --site test-facturacion.localhost run-tests --module <módulo> --lightmode` |
-| Fixtures | `bench --site facturacion-v16.dev export-fixtures --app facturacion_mexico` |
+| Tests Hito B | `bench --site test-facturacion.localhost run-tests --module facturacion_mexico.cfdi_recibidos.tests.test_supplier_resolver --lightmode` |

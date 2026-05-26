@@ -1,8 +1,13 @@
 """
-SupplierResolver — resuelve el proveedor de un CFDI Recibido por RFC.
+SupplierResolver — resuelve y genera proveedores para CFDI Recibidos.
 
-Busca Supplier donde tax_id == supplier_rfc del CFDI.
-No autocrea proveedores.
+resolve_supplier(cfdi_recibido_name, supplier_override=None)
+    Asigna Supplier a un CFDI por RFC o vinculación manual. No autocrea.
+
+generate_missing_suppliers(cfdi_names=None)
+    Crea Suppliers en lote para CFDIs en estado "Falta proveedor".
+    Idempotente: si el Supplier ya existe por RFC, lo asigna sin duplicar.
+    Retorna: {creados, ya_existian_y_asignados, omitidos, errores}
 """
 
 import frappe
@@ -55,3 +60,104 @@ def _assign_supplier(doc, supplier_name: str, manual: bool) -> dict:
 
 def _result(status: str, supplier: str | None, message: str) -> dict:
 	return {"status": status, "supplier": supplier, "message": message}
+
+
+def generate_missing_suppliers(cfdi_names: list[str] | None = None) -> dict:
+	"""
+	Crea o asigna Supplier para CFDIs en estado 'Falta proveedor'.
+
+	Si cfdi_names se provee, procesa solo esos documentos; los no candidatos
+	van a omitidos. Sin cfdi_names, procesa todos los candidatos activos.
+	Idempotente: dos ejecuciones no duplican Suppliers.
+	"""
+	creados = 0
+	ya_existian_y_asignados = 0
+	omitidos = 0
+	errores = []
+
+	candidate_filters = {
+		"status": "Falta proveedor",
+		"no_procesar": 0,
+		"supplier_rfc": ["is", "set"],
+		"supplier_name": ["is", "set"],
+		"supplier": ["is", "not set"],
+	}
+
+	if cfdi_names:
+		candidates = frappe.get_all(
+			"CFDI Recibido",
+			filters={**candidate_filters, "name": ["in", cfdi_names]},
+			fields=["name", "supplier_rfc", "supplier_name"],
+		)
+		candidate_set = {c.name for c in candidates}
+		omitidos = sum(1 for n in cfdi_names if n not in candidate_set)
+	else:
+		candidates = frappe.get_all(
+			"CFDI Recibido",
+			filters=candidate_filters,
+			fields=["name", "supplier_rfc", "supplier_name"],
+		)
+
+	# Cache RFC → Supplier.name para evitar duplicados dentro del mismo lote
+	rfc_to_supplier: dict[str, str] = {}
+
+	for cfdi in candidates:
+		rfc = cfdi.supplier_rfc
+		try:
+			# Primero buscar en cache del lote, luego en BD
+			existing = rfc_to_supplier.get(rfc) or frappe.db.get_value("Supplier", {"tax_id": rfc}, "name")
+			if existing:
+				rfc_to_supplier[rfc] = existing
+				frappe.db.set_value(
+					"CFDI Recibido",
+					cfdi.name,
+					{"supplier": existing, "status": "Proveedor encontrado"},
+				)
+				ya_existian_y_asignados += 1
+				continue
+
+			supplier_group = _get_default_supplier_group()
+			if not supplier_group:
+				errores.append(
+					{
+						"name": cfdi.name,
+						"message": "No se encontró Supplier Group en ERPNext. Configure al menos un grupo de proveedores.",
+					}
+				)
+				continue
+
+			sup = frappe.new_doc("Supplier")
+			sup.supplier_name = cfdi.supplier_name
+			sup.supplier_group = supplier_group
+			sup.supplier_type = "Company"
+			sup.tax_id = rfc
+			sup.insert(ignore_permissions=True)
+
+			rfc_to_supplier[rfc] = sup.name
+			frappe.db.set_value(
+				"CFDI Recibido",
+				cfdi.name,
+				{"supplier": sup.name, "status": "Proveedor encontrado"},
+			)
+			creados += 1
+
+		except Exception as e:
+			errores.append({"name": cfdi.name, "message": str(e)})
+
+	return {
+		"creados": creados,
+		"ya_existian_y_asignados": ya_existian_y_asignados,
+		"omitidos": omitidos,
+		"errores": errores,
+	}
+
+
+def _get_default_supplier_group() -> str | None:
+	"""
+	Detecta el primer Supplier Group hoja (no raíz) disponible en ERPNext.
+	Fallback: cualquier grupo si no hay hojas. None si no existe ninguno.
+	"""
+	group = frappe.db.get_value("Supplier Group", {"is_group": 0}, "name")
+	if group:
+		return group
+	return frappe.db.get_value("Supplier Group", {}, "name")

@@ -70,6 +70,13 @@
    "search_index": 1
   },
   {
+   "fieldname": "no_procesar",
+   "label": "No procesar",
+   "fieldtype": "Check",
+   "default": "0",
+   "description": "Excluye este CFDI del flujo automático de generación de proveedor y PI"
+  },
+  {
    "fieldname": "error_message",
    "label": "Mensaje de Error",
    "fieldtype": "Text",
@@ -279,18 +286,12 @@
    "fieldtype": "Section Break"
   },
   {
-   "fieldname": "no_procesar",
-   "label": "No procesar",
-   "fieldtype": "Check",
-   "default": "0",
-   "description": "Excluye este CFDI del flujo automático de generación de proveedor y PI"
-  },
-  {
    "fieldname": "supplier",
    "label": "Proveedor",
    "fieldtype": "Link",
    "options": "Supplier",
-   "search_index": 1
+   "search_index": 1,
+   "read_only": 1
   },
   {
    "fieldname": "purchase_invoice",

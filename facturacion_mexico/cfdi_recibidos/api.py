@@ -9,6 +9,9 @@ Endpoints Fase 2:
     classify_concepts       — aplica CFDI Concepto Mapping sobre conceptos del CFDI.
     save_mapping_rule       — crea o actualiza una regla de clasificación.
 
+Endpoints Hito B:
+    generate_missing_suppliers — crea Suppliers en lote para CFDIs en "Falta proveedor".
+
 Endpoints Fase 3:
     build_purchase_invoice  — convierte CFDI Recibido Listo a Purchase Invoice Draft.
     suggest_supplier_from_cfdi — sugiere datos de proveedor sin crearlo automáticamente.
@@ -163,6 +166,29 @@ def save_mapping_rule(
 
 	action = "actualizada" if existing else "creada"
 	return {"status": "ok", "mapping": doc.name, "message": f"Regla {action}: {doc.name}"}
+
+
+@frappe.whitelist()
+def generate_missing_suppliers(cfdi_names=None) -> dict:
+	"""
+	Crea Suppliers en lote para CFDIs en estado 'Falta proveedor'.
+
+	Parámetros:
+	    cfdi_names — JSON array de nombres de CFDI Recibido (opcional).
+	                 Sin valor: procesa todos los candidatos activos.
+
+	Retorna:
+	    creados               — Suppliers nuevos creados y asignados
+	    ya_existian_y_asignados — Suppliers preexistentes asignados
+	    omitidos              — CFDIs no candidatos (pasados en cfdi_names)
+	    errores               — lista de {name, message} con fallos por CFDI
+	"""
+	from facturacion_mexico.cfdi_recibidos.services.supplier_resolver import (
+		generate_missing_suppliers as _generate,
+	)
+
+	names = frappe.parse_json(cfdi_names) if cfdi_names else None
+	return _generate(names)
 
 
 @frappe.whitelist()
