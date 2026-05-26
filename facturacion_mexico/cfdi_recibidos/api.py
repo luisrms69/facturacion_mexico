@@ -34,10 +34,12 @@ def upload_xml(company: str) -> list[dict]:
 
 	Retorna lista de resultados por archivo:
 	    file_name     — nombre del archivo recibido
-	    status        — "ok" | "duplicado" | "error"
+	    status        — etapa del CFDI ("Falta proveedor" | "Falta clasificación" | "Listo" |
+	                    "duplicado" | "error")
 	    cfdi_recibido — nombre del doc creado (None si duplicado sin doc nuevo)
 	    uuid          — UUID extraído del XML
 	    message       — descripción del resultado
+	    next_action   — acción sugerida al usuario (None para duplicado/error)
 	"""
 	if not company:
 		frappe.throw(_("El campo 'company' es obligatorio"), frappe.MandatoryError)
@@ -67,6 +69,7 @@ def upload_xml(company: str) -> list[dict]:
 				"cfdi_recibido": None,
 				"uuid": None,
 				"message": str(e),
+				"next_action": None,
 			}
 
 		results.append({"file_name": file_name, **result})

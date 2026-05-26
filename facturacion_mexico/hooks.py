@@ -74,7 +74,10 @@ doctype_list_js = {
 	"Factura Fiscal Mexico": [
 		"public/js/fm_enums.js",  # enum/colores primero
 		"facturacion_fiscal/doctype/factura_fiscal_mexico/factura_fiscal_mexico_list.js",
-	]
+	],
+	"CFDI Recibido": [
+		"cfdi_recibidos/doctype/cfdi_recibido/cfdi_recibido_list.js",
+	],
 }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}

@@ -1,8 +1,8 @@
 # CONTINUITY.md — facturacion_mexico
 
-**Fecha:** 2026-05-23
-**Último PR:** #157 — feat(cfdi-recibidos): Fase 2 — SupplierResolver, ConceptClassifier y CFDI Concepto Mapping
-**Branch:** feature/issue151-cfdi-recibidos-fase2 → main (PR abierto)
+**Fecha:** 2026-05-25
+**Rama activa:** `feature/cfdi-recibidos-fase3-pi`
+**Último PR mergeado:** #156 (Fase 1) y #157 (Fase 2) — ambos en main
 
 ---
 
@@ -12,40 +12,105 @@
 1. /home/erpnext/frappe-bench-v16/.claude/CLAUDE.md     ← reglas globales del bench
 2. CLAUDE.md (raíz de este repo)                         ← contexto del app
 3. Este archivo: CONTINUITY.md                           ← estado actual
-4. gh pr view 157                                        ← último PR
+4. docs/development/cfdi-recibidos-fase-3-purchase-invoice.md ← plan Fase 3
 ```
 
 ---
 
 ## Estado del módulo cfdi_recibidos
 
-### Fase 1 — ✅ Mergeada (PR #156, 2026-05-23)
+### Fase 1 — ✅ Mergeada (PR #156)
+### Fase 2 — ✅ Mergeada (PR #157)
+
+### Fase 3 — 🔄 En progreso (rama: feature/cfdi-recibidos-fase3-pi)
+
+**Rediseño UX aprobado 2026-05-25.** El flujo original (directo a clasificación y PI) fue
+reemplazado por un flujo por etapas explícitas, una acción por etapa.
+
+#### Etapas del flujo aprobado
+
+```
+Upload XML
+  → XML inválido          (no crea doc)
+  → Duplicado             (link al existente)
+  → No aplicable          (doc creado, excluido del flujo)
+  → Falta proveedor       (candidato a "Generar proveedores")
+  → Proveedor encontrado  (siguiente: clasificar conceptos — hito futuro)
+  [→ Falta clasificación  — hito futuro]
+  [→ Listo para PI        — hito futuro]
+  [→ Convertido a PI      — hito futuro]
+  [→ Error conversión     — hito futuro]
+```
+
+#### Hito actual: Upload → Proveedor
+
+**Objetivo:** Al subir XML, cada archivo queda en exactamente uno de estos estados:
+`XML inválido`, `Duplicado`, `No aplicable`, `No procesar`, `Proveedor encontrado`, `Falta proveedor`
+
+**Decisiones de diseño vigentes:**
+- `cfdi_type` válido para este flujo: solo `"I"` (Ingreso) — leído de `sat.constants.TIPO_COMPROBANTE`
+- Tipos no soportados (P, E, T, N) → doc creado con status `"No aplicable"`, no entra al flujo
+- RFC receptor no coincide con empresa → NO crear doc, retornar `"XML inválido"`
+- `no_procesar` es campo Check manual — el usuario lo activa después, no es resultado de carga
+- NO clasificar conceptos en este hito
+- NO llamar a ConceptClassifier, PurchaseInvoiceBuilder, TaxResolver ni API de PI
+- Estados futuros (`Falta clasificación`, `Listo`, `Convertido a PI`, `Error conversión`) se conservan en el DocType
+
+**Resultado de upload por archivo:**
+```
+file_name, cfdi_recibido, uuid, supplier_rfc,
+supplier_found, status, candidato_generar_proveedor, message
+```
+
+#### Archivos a modificar en hito actual
+
+| Archivo | Cambio |
+|---|---|
+| `cfdi_recibidos/services/xml_ingestion.py` | Eliminar classify_concepts; validar cfdi_type; RFC mismatch sin doc; agregar supplier_found y candidato al resultado |
+| `cfdi_recibidos/doctype/cfdi_recibido/cfdi_recibido.json` | Agregar `no_procesar` (Check); agregar states `"Proveedor encontrado"` y `"No aplicable"` |
+| `cfdi_recibidos/services/status_manager.py` | compute_stage solo devuelve Proveedor encontrado / Falta proveedor; agregar mensajes nuevos |
+| `cfdi_recibidos/doctype/cfdi_recibido/cfdi_recibido_list.js` | Mostrar supplier_rfc, supplier_found, candidato en tabla de resultados |
+| `cfdi_recibidos/tests/test_xml_ingestion.py` | Actualizar tests existentes; agregar tests para tipo P/E, RFC mismatch sin doc, supplier_found |
+
+#### Tests mínimos aprobados
+
+1. XML roto → `"XML inválido"`, sin doc
+2. RFC receptor no coincide → `"XML inválido"`, sin doc
+3. `cfdi_type="P"` → `"No aplicable"`, doc creado, `candidato=False`
+4. `cfdi_type="E"` → `"No aplicable"`, doc creado, `candidato=False`
+5. `cfdi_type="I"`, Supplier existe → `"Proveedor encontrado"`, `supplier_found=True`, `candidato=False`
+6. `cfdi_type="I"`, sin Supplier → `"Falta proveedor"`, `supplier_found=False`, `candidato=True`
+7. Duplicado → `"duplicado"`, `candidato=False`
+
+**No hacer commit hasta validación GUI.**
+
+---
+
+## Componentes implementados en la rama (no en main aún)
 
 | Componente | Estado |
 |---|---|
-| DocType `CFDI Recibido` | ✅ Funcional |
-| DocType `CFDI Recibido Concepto` (child) | ✅ Funcional |
-| Parser XML CFDI 4.0 | ✅ Funcional |
-| Ingesta multi-archivo via API | ✅ Funcional |
-| Deduplicación por UUID + hash | ✅ Funcional |
-| Endpoint `upload_xml` | ✅ Funcional |
+| `PurchaseInvoiceBuilder` | ✅ Implementado, tests OK — en espera de hitos previos |
+| `TaxResolver` (lee `Configuracion CFDI Recibidos`) | ✅ Implementado, 22/22 tests |
+| DocType `Configuracion CFDI Recibidos` + wizard | ✅ Implementado |
+| DocType `Regla Impuesto CFDI Recibido` (child) | ✅ Implementado |
+| DocType `Tasa IVA SAT` (catálogo) | ✅ Implementado, fixture en repo |
+| Endpoints `build_purchase_invoice`, `suggest_supplier_from_cfdi` | ✅ Implementados |
+| `cfdi_recibido.json` — campo `status` como `Data` | ✅ Listo |
+| `cfdi_recibido.json` — `states` con colores | ✅ Parcial (faltan estados nuevos del rediseño) |
+| UI list JS — botón "Cargar XML" persistente | ✅ Funcional |
 
-### Fase 2 — ⏳ PR #157 abierto
+---
 
-| Componente | Estado |
-|---|---|
-| DocType `CFDI Concepto Mapping` | ✅ Implementado, 18/18 tests |
-| Servicio `SupplierResolver` | ✅ Implementado, tests OK |
-| Servicio `ConceptClassifier` (3 niveles fallback) | ✅ Implementado, tests OK |
-| Endpoints `resolve_supplier`, `classify_concepts`, `save_mapping_rule` | ✅ Implementados |
-| UI inline en bandeja | ❌ Diferida a Fase 2.5 o Fase 3 |
+## Cambios sin commitear (sesión 2026-05-25)
 
-### Restricciones de diseño confirmadas (no modificar sin PR)
+- `cfdi_recibido.json` — status cambiado de Select a Data
+- `cfdi_recibido_list.js` — nuevo archivo (untracked)
+- `cfdi_recibido.js` — nuevo archivo (untracked)
+- `status_manager.py` — nuevo archivo (untracked)
+- `xml_ingestion.py` — ajustes menores mensaje duplicado
 
-- Child `CFDI Recibido Concepto` no almacena resultado de clasificación — estado derivado en servidor
-- No autocreación de Suppliers
-- Sin regex, sin priority, sin GroupedItem en mapping MVP
-- Sin Custom Fields en Purchase Invoice
+**Todos pendientes de commit — no commitear hasta terminar hito actual y validación GUI.**
 
 ---
 
@@ -54,23 +119,8 @@
 | PR | Descripción | Estado |
 |---|---|---|
 | #155 | docs: arquitectura CFDI Recibidos aprobada | Mergeado |
-| #156 | feat: Fase 1 — ingesta, parser y DocTypes | Mergeado 2026-05-23 |
-| #157 | feat: Fase 2 — SupplierResolver, ConceptClassifier, CFDI Concepto Mapping | Abierto |
-
----
-
-## Próxima tarea
-
-**Issue:** #152 — [CFDI Recibidos][Fase 3] PurchaseInvoiceBuilder, impuestos nativos y batch best-effort
-**Épica:** #149 — [EPIC] CFDI Recibidos / Compras — MVP
-**Dependencia:** PR #157 mergeado
-**Rama a crear:** `feature/issue152-cfdi-recibidos-fase3`
-
-**Pendientes de Fase 2 a resolver en Fase 2.5 o Fase 3:**
-- UI inline en bandeja para resolver proveedor y clasificar conceptos
-- Prueba manual explícita: fallback `supplier_rfc + any clave SAT`
-- Prueba manual explícita: `save_mapping_rule` actualización de regla existente
-- Advertencia en UI al vincular proveedor con RFC diferente al del CFDI
+| #156 | feat: Fase 1 — ingesta, parser y DocTypes | Mergeado |
+| #157 | feat: Fase 2 — SupplierResolver, ConceptClassifier, CFDI Concepto Mapping | Mergeado |
 
 ---
 
@@ -81,5 +131,6 @@
 | Bench | `/home/erpnext/frappe-bench-v16` |
 | Site desarrollo | `facturacion-v16.dev` |
 | Site tests | `test-facturacion.localhost` |
-| Comando tests | `bench --site test-facturacion.localhost run-tests --app facturacion_mexico` |
+| Seed tests | `bench --site test-facturacion.localhost execute facturacion_mexico.tests.ci_pre_tests.run` |
+| Comando tests | `bench --site test-facturacion.localhost run-tests --module <módulo> --lightmode` |
 | Fixtures | `bench --site facturacion-v16.dev export-fixtures --app facturacion_mexico` |
