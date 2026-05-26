@@ -8,8 +8,8 @@ Dos funciones según el contexto de uso:
     Retorna: "Falta proveedor" | "Proveedor encontrado"
 
   compute_stage(doc)
-    Flujo completo posterior al upload. Evalúa supplier + clasificación.
-    Retorna: "Falta proveedor" | "Falta clasificación" | "Listo"
+    Flujo completo posterior al upload. Evalúa supplier → departamento → clasificación.
+    Retorna: "Falta proveedor" | "Falta departamento" | "Falta clasificación" | "Listo"
 
 Clasificación completa de un concepto:
   - Existe regla en CFDI Concepto Mapping para (company, supplier_rfc, sat_product_key)
@@ -26,6 +26,7 @@ _NEXT_ACTION = {
 	"Falta proveedor": "Crear proveedor",
 	"Proveedor encontrado": "Clasificar conceptos",
 	"Falta clasificación": "Clasificar conceptos",
+	"Falta departamento": "Asignar departamento",
 	"Listo": "Convertir a PI",
 }
 
@@ -36,6 +37,7 @@ _STAGE_MESSAGE = {
 	"Falta proveedor": "Proveedor no encontrado por RFC",
 	"Proveedor encontrado": "Proveedor asignado correctamente",
 	"Falta clasificación": "Proveedor resuelto, faltan conceptos por clasificar",
+	"Falta departamento": "Proveedor y conceptos resueltos, falta asignar departamento",
 	"Listo": "CFDI listo para convertir a Purchase Invoice",
 }
 
@@ -48,9 +50,11 @@ def compute_supplier_stage(doc) -> str:
 
 
 def compute_stage(doc) -> str:
-	"""Etapa completa: evalúa supplier y clasificación de todos los conceptos."""
+	"""Etapa completa: evalúa supplier, departamento y clasificación de conceptos."""
 	if not doc.supplier:
 		return "Falta proveedor"
+	if not doc.department:
+		return "Falta departamento"
 	for concepto in doc.conceptos or []:
 		rule = _find_rule(doc.company, doc.supplier_rfc or "", concepto.sat_product_key or "")
 		if not rule or not _rule_is_complete(rule):

@@ -45,6 +45,19 @@
    "description": "Se asigna a proveedores nuevos creados desde CFDI Recibidos. No sobrescribe proveedores existentes."
   },
   {
+   "fieldname": "section_departamentos",
+   "label": "Clasificación de Departamentos",
+   "fieldtype": "Section Break",
+   "collapsible": 1,
+   "description": "Mapee cada Departamento ERPNext a la familia de gasto SAT (601-604). Se usa para clasificar el gasto al procesar CFDIs."
+  },
+  {
+   "fieldname": "mapeo_departamentos",
+   "label": "Mapeo de Departamentos",
+   "fieldtype": "Table",
+   "options": "Mapeo Departamento CFDI Recibido"
+  },
+  {
    "fieldname": "section_template",
    "label": "Template Generado",
    "fieldtype": "Section Break",

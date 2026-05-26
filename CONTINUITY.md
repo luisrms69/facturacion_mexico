@@ -2,83 +2,86 @@
 
 **Fecha:** 2026-05-26
 **Rama activa:** `feature/cfdi-recibidos-fase3-pi`
-**Último commit funcional:** `7c6b44f feat(cfdi-recibidos): Hito A — Upload → Proveedor (UX por etapas)`
+**Tarea actual:** C.1 + Item Groups commiteados — pendiente validación GUI antes de PR
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-Hito B — Generar proveedores faltantes (CFDI Recibidos)
+Módulo CFDI Recibidos — flujo de recepción de facturas de proveedores.
 
 Plan que estoy siguiendo:
 `docs/development/PLAN_ACTUAL_CFDI_RECIBIDOS.md` — fuente única vigente.
-**No usar ningún otro documento de `docs/development/` como guía.**
+**No usar ningún otro documento de `docs/development/` como guía. Todos los demás son obsoletos.**
+⚠️ Este archivo necesita actualización pronto — refleja Hito B como último cerrado; ya están cerrados C.1 e Item Groups.
 
 Objetivo inmediato:
-Terminar implementación de Hito B, correr tests, validar GUI, luego commit.
+Validación GUI de C.1 e Item Groups → abrir PR → diseño Hito C.2.
 
 Criterio de avance:
-Tests pasan + validación GUI completa (8 pasos del plan) + sin código funcional pendiente.
+GUI validada (PT asignado, banner visible, Item Groups visibles) → PR abierto → recién entonces C.2.
 
 ---
 
 ## Estado actual
 
 ### Ya cerrado
-- **Hito A** — Upload → Proveedor (`7c6b44f`, empujado a `upstream/feature/cfdi-recibidos-fase3-pi`)
-- Limpieza documental de `docs/development/` (no commiteada — pendiente decidir)
+- **Hito A** — Upload → Proveedor (`7c6b44f`)
+- **Hito B** — Generar proveedores faltantes (`ac318a7`)
+- **Hito C.1** — Defaults de proveedor y Payment Terms FM (`40638d5`)
+- **Item Groups gastos SAT** — 96 grupos creados, carga idempotente (`82e9849`)
 
 ### En progreso
-- **Hito B** — Generar proveedores faltantes: implementación parcialmente hecha, pendiente correr tests y fix de prettier en JS
+- Nada. Todos los hitos están commiteados.
 
 ### Pendiente inmediato
-1. Corregir formato JS con `prettier@2.7.1` en `cfdi_recibido_list.js`
-2. Correr tests: `bench --site test-facturacion.localhost run-tests --module facturacion_mexico.cfdi_recibidos.tests.test_supplier_resolver --lightmode`
-3. Validación GUI (8 pasos del plan)
-4. Commit de Hito B
-5. Decidir si commitear limpieza documental en mismo commit o separado
+1. Actualizar `docs/development/PLAN_ACTUAL_CFDI_RECIBIDOS.md` — refleja estado desactualizado (Hito B como último).
+2. Validación GUI de C.1: configurar template en `Configuracion CFDI Recibidos`,
+   subir XML, generar proveedor, confirmar PT asignado y banner visible.
+3. Validación GUI de Item Groups: verificar árbol "Gastos" en `facturacion-v16.dev`.
+4. Abrir PR de `feature/cfdi-recibidos-fase3-pi` hacia `main`.
+5. Diseño Hito C.2: decisiones sobre Supplier Group, asignación de Item Group a ítems/proveedores,
+   Item Tax Template por concepto.
 
 ### No repetir
-- No referenciar `docs/development/cfdi-recibidos-fase-3-purchase-invoice.md` — eliminado
-- No usar planes viejos de `docs/development/` para decidir flujo
-- No avanzar a clasificación de conceptos en este hito
-- No usar TaxResolver, PurchaseInvoiceBuilder, PI, Payment Entry en Hito B
+- No usar planes viejos de `docs/development/` — solo `PLAN_ACTUAL_CFDI_RECIBIDOS.md` es vigente
+- No avanzar a clasificación de conceptos ni Purchase Invoice sin decisión explícita de Hito C
+- No tocar TaxResolver, PurchaseInvoiceBuilder, Items
+- No poner campos de CFDI Recibidos en `Configuracion Fiscal Mexico` — esa config es para impuestos de ventas
 
 ---
 
 ## Decisiones vigentes
 
-- Flujo por etapas: una acción por hito, no flujo automático completo
-- Upload termina solo en: `XML inválido`, `Duplicado`, `No aplicable`, `Proveedor encontrado`, `Falta proveedor`
-- `generate_missing_suppliers` usa `_get_default_supplier_group()` — no hardcodea, detecta dinámicamente
-- `Configuracion CFDI Recibidos` no tiene `default_supplier_group` ni `default_supplier_type` — fallback dinámico en código
-- Linters: `ruff check` + `ruff format` antes de commit; `prettier@2.7.1` para JS
+- Campo `default_payment_terms_supplier` vive en `Configuracion CFDI Recibidos` (no en CFM)
+- `Payment Terms Template` en ERPNext no tiene campo `company` — no se puede filtrar por empresa
+- `ensure_default_payment_terms()` y `ensure_cfdi_received_expense_item_groups()` se llaman en `after_install`;
+  en sites existentes ejecutar manualmente con `bench execute`
+- Item Groups: paraguas "Gastos" → 11 categorías padre → 84 subcategorías (sin números SAT en nombres)
+- Linters: `ruff check` + `ruff format` antes de commit; `prettier@2.7.1` exacto para JS
 
 ---
 
 ## Archivos relevantes ahora
 
 ### Leer primero
-- `docs/development/PLAN_ACTUAL_CFDI_RECIBIDOS.md` — plan vigente Hito B
+- `docs/development/PLAN_ACTUAL_CFDI_RECIBIDOS.md` — plan vigente, pero desactualizado (ver arriba)
 
-### Probablemente editar (Hito B en curso)
-- `cfdi_recibidos/services/supplier_resolver.py` — `generate_missing_suppliers` ya escrito, pendiente tests
-- `cfdi_recibidos/api.py` — endpoint `generate_missing_suppliers` ya agregado
-- `cfdi_recibidos/doctype/cfdi_recibido/cfdi_recibido_list.js` — botón agregado, pendiente prettier
-- `cfdi_recibidos/tests/test_supplier_resolver.py` — 8 tests nuevos escritos, pendiente ejecutar
+### Probablemente editar (próximo hito)
+- A definir en Hito C.2 — no hay archivos activos hasta que haya decisión
 
 ### No tocar
 - `concept_classifier.py`, `tax_resolver.py`, `purchase_invoice_builder.py`
-- `xml_ingestion.py` (Hito A cerrado)
-- `docs/development/` archivos históricos
+- `docs/development/` — todos los archivos excepto `PLAN_ACTUAL_CFDI_RECIBIDOS.md` son obsoletos
 
 ---
 
 ## Riesgos / cuidados
-- `prettier@2.7.1` exacto — CI usa esa versión; no usar v3
-- No commitear `one_offs/` (14 scripts untracked, correctos)
-- La limpieza documental (no commiteada) incluye archivos rastreados — al commitear Hito B, no incluirlos accidentalmente
+- `one_offs/` tiene ~16 scripts untracked — no commitear nunca
+- `docs/development/` tiene varios REPORTE_*.md untracked — no commitear
+- Validación GUI de C.1 e Item Groups no completada todavía (pendiente del usuario)
+- Hito C prohíbe explícitamente código hasta tener decisiones de diseño aprobadas
 
 ---
 
@@ -90,4 +93,6 @@ Tests pasan + validación GUI completa (8 pasos del plan) + sin código funciona
 | Site desarrollo | `facturacion-v16.dev` |
 | Site tests | `test-facturacion.localhost` |
 | Seed tests | `bench --site test-facturacion.localhost execute facturacion_mexico.tests.ci_pre_tests.run` |
-| Tests Hito B | `bench --site test-facturacion.localhost run-tests --module facturacion_mexico.cfdi_recibidos.tests.test_supplier_resolver --lightmode` |
+| Tests C.1 | `bench --site test-facturacion.localhost run-tests --module facturacion_mexico.cfdi_recibidos.tests.test_supplier_resolver --lightmode` |
+| Tests setup | `bench --site test-facturacion.localhost run-tests --module facturacion_mexico.tests.test_setup_payment_terms --lightmode` |
+| Tests Item Groups | `bench --site test-facturacion.localhost run-tests --module facturacion_mexico.tests.test_setup_expense_item_groups --lightmode` |

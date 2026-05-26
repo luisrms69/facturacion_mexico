@@ -6,6 +6,9 @@ frappe.listview_settings["CFDI Recibido"] = {
 		listview.page.add_button(__("Generar proveedores faltantes"), () => {
 			_generate_missing_suppliers(listview);
 		});
+		listview.page.add_button(__("Asignar Departamentos"), () => {
+			_assign_departments_flow(listview);
+		});
 	},
 };
 
@@ -213,6 +216,204 @@ function _show_generate_summary(result) {
 			<p>${__("Omitidos")}: <strong>${omitidos}</strong></p>
 			<p>${__("Errores")}: <strong>${errCount}</strong></p>
 			${reviewNote}
+			${errDetail}
+		`,
+		indicator,
+	});
+}
+
+// ─── Department assignment flow ──────────────────────────────────────────────
+
+function _assign_departments_flow(listview) {
+	const companyDialog = new frappe.ui.Dialog({
+		title: __("Asignar Departamentos"),
+		fields: [
+			{
+				fieldname: "company",
+				fieldtype: "Link",
+				options: "Company",
+				label: __("Empresa"),
+				reqd: 1,
+				default: frappe.defaults.get_default("company"),
+			},
+		],
+		primary_action_label: __("Cargar candidatos"),
+		primary_action(values) {
+			if (!values.company) return;
+			companyDialog.hide();
+			_load_department_candidates(values.company, listview);
+		},
+	});
+	companyDialog.show();
+}
+
+function _load_department_candidates(company, listview) {
+	frappe.call({
+		method: "facturacion_mexico.cfdi_recibidos.api.get_department_candidates",
+		args: { company },
+		callback(r) {
+			const candidates = r.message || [];
+			if (!candidates.length) {
+				frappe.msgprint({
+					title: __("Sin candidatos"),
+					message: __(
+						"No hay CFDIs con proveedor asignado y sin departamento para la empresa seleccionada."
+					),
+					indicator: "blue",
+				});
+				return;
+			}
+			_load_departments_then_show(candidates, company, listview);
+		},
+	});
+}
+
+function _load_departments_then_show(candidates, company, listview) {
+	frappe.call({
+		method: "frappe.client.get_list",
+		args: {
+			doctype: "Department",
+			filters: [
+				["company", "=", company],
+				["is_group", "=", 0],
+				["disabled", "=", 0],
+			],
+			fields: ["name"],
+			limit: 500,
+			order_by: "name asc",
+		},
+		callback(r) {
+			const departments = r.message || [];
+			_show_department_dialog(candidates, departments, listview);
+		},
+	});
+}
+
+function _show_department_dialog(candidates, departments, listview) {
+	const dept_options = departments
+		.map(
+			(d) =>
+				`<option value="${frappe.utils.escape_html(d.name)}">${frappe.utils.escape_html(
+					d.name
+				)}</option>`
+		)
+		.join("");
+
+	const rows = candidates
+		.map((c) => {
+			const safe_id = c.name.replace(/[^a-zA-Z0-9]/g, "_");
+			const total_fmt = frappe.format(c.total || 0, { fieldtype: "Currency" });
+			return `<tr style="border-bottom:1px solid #f0f0f0">
+				<td style="padding:4px 8px;white-space:nowrap">
+					<a href="/app/cfdi-recibido/${encodeURIComponent(c.name)}" target="_blank"
+					   style="font-size:0.85em">${frappe.utils.escape_html(c.name)}</a>
+				</td>
+				<td style="padding:4px 8px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"
+				    title="${frappe.utils.escape_html(c.supplier_name || c.supplier || "")}">
+					${frappe.utils.escape_html(c.supplier_name || c.supplier || "—")}
+				</td>
+				<td style="padding:4px 8px;white-space:nowrap">${c.issue_date || "—"}</td>
+				<td style="padding:4px 8px;text-align:right;white-space:nowrap">${total_fmt}</td>
+				<td style="padding:4px 8px;min-width:180px">
+					<select id="dept_${safe_id}"
+					        data-cfdi="${frappe.utils.escape_html(c.name)}"
+					        style="width:100%;border:1px solid #d1d8dd;border-radius:4px;padding:3px 6px;font-size:0.9em">
+						<option value="">${__("— Sin asignar —")}</option>
+						${dept_options}
+					</select>
+				</td>
+			</tr>`;
+		})
+		.join("");
+
+	const d = new frappe.ui.Dialog({
+		title: __("Asignar Departamentos — {0} candidato(s)", [candidates.length]),
+		fields: [
+			{
+				fieldtype: "HTML",
+				fieldname: "table_html",
+			},
+		],
+		primary_action_label: __("Guardar asignaciones"),
+		primary_action() {
+			const assignments = {};
+			d.$wrapper.find("select[data-cfdi]").each(function () {
+				const cfdi_name = $(this).data("cfdi");
+				const dept = $(this).val();
+				if (dept) assignments[cfdi_name] = dept;
+			});
+
+			if (!Object.keys(assignments).length) {
+				frappe.msgprint(__("Seleccione al menos un departamento para continuar."));
+				return;
+			}
+
+			d.hide();
+			_do_assign_departments(assignments, listview);
+		},
+	});
+
+	d.show();
+
+	d.fields_dict.table_html.$wrapper.html(`
+		<div style="max-height:420px;overflow-y:auto;margin:-4px">
+			<table style="width:100%;border-collapse:collapse;font-size:0.9em">
+				<thead style="position:sticky;top:0;background:#fff;z-index:1">
+					<tr style="border-bottom:2px solid #ddd;text-align:left">
+						<th style="padding:6px 8px">${__("CFDI")}</th>
+						<th style="padding:6px 8px">${__("Proveedor")}</th>
+						<th style="padding:6px 8px">${__("Fecha")}</th>
+						<th style="padding:6px 8px">${__("Total")}</th>
+						<th style="padding:6px 8px">${__("Departamento")}</th>
+					</tr>
+				</thead>
+				<tbody>${rows}</tbody>
+			</table>
+		</div>
+	`);
+}
+
+function _do_assign_departments(assignments, listview) {
+	frappe.call({
+		method: "facturacion_mexico.cfdi_recibidos.api.assign_departments",
+		args: { assignments: JSON.stringify(assignments) },
+		freeze: true,
+		freeze_message: __("Asignando departamentos..."),
+		callback(r) {
+			if (r.message) {
+				_show_assign_departments_summary(r.message);
+				listview.refresh();
+			}
+		},
+	});
+}
+
+function _show_assign_departments_summary(result) {
+	const { asignados, omitidos, errores } = result;
+	const errCount = errores ? errores.length : 0;
+	const indicator = errCount > 0 ? "orange" : "green";
+	const errDetail = errCount
+		? `<details style="margin-top:8px"><summary style="cursor:pointer">${__(
+				"Ver errores ({0})",
+				[errCount]
+		  )}</summary>
+			<ul style="margin-top:4px">${errores
+				.map(
+					(e) =>
+						`<li><b>${frappe.utils.escape_html(
+							e.name
+						)}</b>: ${frappe.utils.escape_html(e.message)}</li>`
+				)
+				.join("")}</ul>
+		   </details>`
+		: "";
+
+	frappe.msgprint({
+		title: __("Resultado — Asignar Departamentos"),
+		message: `
+			<p>${__("Asignados")}: <strong>${asignados}</strong></p>
+			<p>${__("Omitidos")}: <strong>${omitidos}</strong></p>
+			<p>${__("Errores")}: <strong>${errCount}</strong></p>
 			${errDetail}
 		`,
 		indicator,

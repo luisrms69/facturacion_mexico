@@ -12,6 +12,10 @@ Endpoints Fase 2:
 Endpoints Hito B:
     generate_missing_suppliers — crea Suppliers en lote para CFDIs en "Falta proveedor".
 
+Endpoints C.2 — Department:
+    get_department_candidates  — CFDIs con proveedor pero sin departamento asignado.
+    assign_departments         — asigna departamento en lote, valida contra configuración.
+
 Endpoints Fase 3:
     build_purchase_invoice  — convierte CFDI Recibido Listo a Purchase Invoice Draft.
     suggest_supplier_from_cfdi — sugiere datos de proveedor sin crearlo automáticamente.
@@ -189,6 +193,113 @@ def generate_missing_suppliers(cfdi_names=None) -> dict:
 
 	names = frappe.parse_json(cfdi_names) if cfdi_names else None
 	return _generate(names)
+
+
+_TERMINAL_STATUSES = frozenset(
+	["XML inválido", "No aplicable", "No procesar", "Convertido a PI", "Error conversión"]
+)
+
+
+@frappe.whitelist()
+def get_department_candidates(company: str = "") -> list[dict]:
+	"""
+	Retorna CFDIs con proveedor asignado y sin departamento.
+
+	Candidatos: supplier definido, department vacío, no_procesar=0,
+	status fuera de terminales.
+	"""
+	filters: dict = {
+		"supplier": ["is", "set"],
+		"department": ["is", "not set"],
+		"no_procesar": 0,
+		"status": ["not in", list(_TERMINAL_STATUSES)],
+	}
+	if company:
+		filters["company"] = company
+
+	return frappe.get_all(
+		"CFDI Recibido",
+		filters=filters,
+		fields=[
+			"name",
+			"supplier",
+			"supplier_name",
+			"supplier_rfc",
+			"company",
+			"total",
+			"issue_date",
+			"status",
+		],
+		order_by="issue_date desc",
+		limit=500,
+	)
+
+
+@frappe.whitelist()
+def assign_departments(assignments: str) -> dict:
+	"""
+	Asigna departamento a múltiples CFDIs Recibidos en lote.
+
+	assignments: JSON dict {cfdi_name: department_name, ...}
+
+	Reglas:
+	- CFDI ya con departamento → omitido
+	- department vacío en el dict → omitido
+	- departamento no registrado en Configuracion CFDI Recibidos de la empresa → omitido
+	- resto → asignado; status recalculado con compute_stage
+
+	Retorna: {asignados, omitidos, errores}
+	"""
+	from facturacion_mexico.cfdi_recibidos.services.status_manager import compute_stage
+
+	data: dict = frappe.parse_json(assignments) if isinstance(assignments, str) else assignments
+
+	asignados = 0
+	omitidos = 0
+	errores = []
+
+	# Cache company → set of mapped departments (evita queries repetidas)
+	config_cache: dict[str, set] = {}
+
+	for cfdi_name, department in data.items():
+		try:
+			doc = frappe.get_doc("CFDI Recibido", cfdi_name)
+
+			if doc.department:
+				omitidos += 1
+				continue
+
+			if not department:
+				omitidos += 1
+				continue
+
+			company = doc.company
+			if company not in config_cache:
+				config_name = f"CFDI-REC-CFG-{company}"
+				if frappe.db.exists("Configuracion CFDI Recibidos", config_name):
+					cfg = frappe.get_doc("Configuracion CFDI Recibidos", config_name)
+					config_cache[company] = {row.department for row in cfg.mapeo_departamentos}
+				else:
+					config_cache[company] = set()
+
+			if department not in config_cache[company]:
+				omitidos += 1
+				continue
+
+			doc.department = department
+			new_status = compute_stage(doc)
+			frappe.db.set_value(
+				"CFDI Recibido",
+				cfdi_name,
+				{"department": department, "status": new_status},
+			)
+			asignados += 1
+
+		except Exception as e:
+			errores.append({"name": cfdi_name, "message": str(e)})
+
+	frappe.db.commit()
+	return {"asignados": asignados, "omitidos": omitidos, "errores": errores}
 
 
 @frappe.whitelist()
