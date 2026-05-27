@@ -1,5 +1,7 @@
 import frappe
 
+from facturacion_mexico.cfdi_recibidos.services.uom_policy import get_sat_uom_list
+
 
 @frappe.whitelist()
 @frappe.validate_and_sanitize_search_inputs
@@ -51,13 +53,17 @@ def get_expense_item_groups(doctype, txt, searchfield, start, page_len, filters)
 def get_expense_items(doctype, txt, searchfield, start, page_len, filters):
 	"""
 	Retorna Items válidos para asignar en conceptos CFDI:
-	is_purchase_item=1, is_stock_item=0, is_sales_item=0, grupo hoja bajo "Gastos".
+	is_purchase_item=1, is_stock_item=0, is_sales_item=0,
+	stock_uom SAT (c_ClaveUnidad), grupo hoja bajo "Gastos".
 	"""
+	sat_uoms = tuple(get_sat_uom_list())
+	sat_placeholders = ", ".join(["%s"] * len(sat_uoms))
+
 	gastos = frappe.db.get_value("Item Group", "Gastos", ["lft", "rgt"], as_dict=True)
 
 	if gastos:
 		return frappe.db.sql(
-			"""
+			f"""
 			SELECT i.name, i.item_name, ig.name AS item_group_name
 			FROM `tabItem` i
 			JOIN `tabItem Group` ig ON ig.name = i.item_group
@@ -65,32 +71,28 @@ def get_expense_items(doctype, txt, searchfield, start, page_len, filters):
 			  AND i.is_stock_item = 0
 			  AND i.is_sales_item = 0
 			  AND ig.is_group = 0
-			  AND ig.lft > %(lft)s
-			  AND ig.rgt < %(rgt)s
-			  AND (i.name LIKE %(txt)s OR i.item_name LIKE %(txt)s)
+			  AND ig.lft > %s
+			  AND ig.rgt < %s
+			  AND i.stock_uom IN ({sat_placeholders})
+			  AND (i.name LIKE %s OR i.item_name LIKE %s)
 			ORDER BY i.name
-			LIMIT %(start)s, %(page_len)s
+			LIMIT %s, %s
 			""",
-			{
-				"lft": gastos.lft,
-				"rgt": gastos.rgt,
-				"txt": f"%{txt}%",
-				"start": start,
-				"page_len": page_len,
-			},
+			(gastos.lft, gastos.rgt, *sat_uoms, f"%{txt}%", f"%{txt}%", start, page_len),
 		)
 
-	# Fallback: sin árbol "Gastos", al menos filtra por flags
+	# Fallback: sin árbol "Gastos", al menos filtra por flags y UOM SAT
 	return frappe.db.sql(
-		"""
+		f"""
 		SELECT i.name, i.item_name
 		FROM `tabItem` i
 		WHERE i.is_purchase_item = 1
 		  AND i.is_stock_item = 0
 		  AND i.is_sales_item = 0
-		  AND (i.name LIKE %(txt)s OR i.item_name LIKE %(txt)s)
+		  AND i.stock_uom IN ({sat_placeholders})
+		  AND (i.name LIKE %s OR i.item_name LIKE %s)
 		ORDER BY i.name
-		LIMIT %(start)s, %(page_len)s
+		LIMIT %s, %s
 		""",
-		{"txt": f"%{txt}%", "start": start, "page_len": page_len},
+		(*sat_uoms, f"%{txt}%", f"%{txt}%", start, page_len),
 	)

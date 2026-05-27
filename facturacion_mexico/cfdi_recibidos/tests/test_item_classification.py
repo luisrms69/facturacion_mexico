@@ -90,6 +90,8 @@ def _get_or_create_item_group(name: str) -> str:
 
 def _get_or_create_item(item_code: str, item_group: str) -> str:
 	if frappe.db.exists("Item", item_code):
+		frappe.db.set_value("Item", item_code, "stock_uom", "H87 - Pieza")
+		frappe.db.commit()
 		return item_code
 	doc = frappe.new_doc("Item")
 	doc.item_code = item_code
@@ -98,7 +100,7 @@ def _get_or_create_item(item_code: str, item_group: str) -> str:
 	doc.is_stock_item = 0
 	doc.is_purchase_item = 1
 	doc.is_sales_item = 0
-	doc.stock_uom = frappe.db.get_value("Stock Settings", None, "stock_uom") or "Nos"
+	doc.stock_uom = "H87 - Pieza"
 	doc.insert(ignore_permissions=True)
 	frappe.db.commit()
 	return doc.name

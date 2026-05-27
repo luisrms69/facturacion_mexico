@@ -133,6 +133,7 @@ def _get_or_create_item(
 				"is_stock_item": is_stock_item,
 				"is_sales_item": is_sales_item,
 				"is_purchase_item": is_purchase_item,
+				"stock_uom": "H87 - Pieza",
 			},
 		)
 		frappe.db.commit()
@@ -144,7 +145,7 @@ def _get_or_create_item(
 	doc.is_stock_item = is_stock_item
 	doc.is_sales_item = is_sales_item
 	doc.is_purchase_item = is_purchase_item
-	doc.stock_uom = frappe.db.get_value("Stock Settings", None, "stock_uom") or "Nos"
+	doc.stock_uom = "H87 - Pieza"
 	doc.insert(ignore_permissions=True)
 	frappe.db.commit()
 	return doc.name

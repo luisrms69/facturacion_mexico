@@ -1,5 +1,7 @@
 import frappe
 
+from facturacion_mexico.cfdi_recibidos.services.uom_policy import is_sat_uom
+
 
 def validate_expense_item(item_code: str) -> tuple[bool, str]:
 	"""
@@ -10,6 +12,7 @@ def validate_expense_item(item_code: str) -> tuple[bool, str]:
 	- is_purchase_item = 1
 	- is_stock_item = 0
 	- is_sales_item = 0
+	- stock_uom pertenece al catálogo SAT (c_ClaveUnidad)
 	- item_group existe y es hoja (is_group = 0)
 	- item_group está dentro del árbol "Gastos" (si la raíz existe)
 
@@ -18,7 +21,7 @@ def validate_expense_item(item_code: str) -> tuple[bool, str]:
 	item = frappe.db.get_value(
 		"Item",
 		item_code,
-		["is_purchase_item", "is_stock_item", "is_sales_item", "item_group"],
+		["is_purchase_item", "is_stock_item", "is_sales_item", "item_group", "stock_uom"],
 		as_dict=True,
 	)
 	if not item:
@@ -29,6 +32,8 @@ def validate_expense_item(item_code: str) -> tuple[bool, str]:
 		return False, f"El Item '{item_code}' es de inventario (is_stock_item=1)"
 	if item.is_sales_item:
 		return False, f"El Item '{item_code}' es de venta (is_sales_item=1)"
+	if not is_sat_uom(item.stock_uom or ""):
+		return False, f"La UOM '{item.stock_uom}' del Item '{item_code}' no pertenece al catálogo SAT"
 
 	ig = frappe.db.get_value("Item Group", item.item_group, ["is_group", "lft", "rgt"], as_dict=True)
 	if not ig:
