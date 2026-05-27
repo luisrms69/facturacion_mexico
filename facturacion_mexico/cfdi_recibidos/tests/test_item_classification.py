@@ -56,18 +56,33 @@ def _get_or_create_dept() -> str:
 	return doc.name
 
 
+def _ensure_gastos_group() -> str:
+	if not frappe.db.exists("Item Group", "Gastos"):
+		root = frappe.db.get_value("Item Group", {"parent_item_group": ""}, "name") or "All Item Groups"
+		g = frappe.new_doc("Item Group")
+		g.item_group_name = "Gastos"
+		g.parent_item_group = root
+		g.insert(ignore_permissions=True)
+		frappe.db.commit()
+	return "Gastos"
+
+
 def _get_or_create_item_group(name: str) -> str:
+	"""Crea o retorna un Item Group hoja bajo el árbol 'Gastos'. Reparenta si es necesario."""
+	_ensure_gastos_group()
 	existing = frappe.db.get_value("Item Group", {"item_group_name": name}, "name")
 	if existing:
+		gastos = frappe.db.get_value("Item Group", "Gastos", ["lft", "rgt"], as_dict=True)
+		ig_data = frappe.db.get_value("Item Group", existing, ["lft", "rgt"], as_dict=True)
+		if not (ig_data.lft > gastos.lft and ig_data.rgt < gastos.rgt):
+			doc = frappe.get_doc("Item Group", existing)
+			doc.parent_item_group = "Gastos"
+			doc.save(ignore_permissions=True)
+			frappe.db.commit()
 		return existing
-	# Usar "All Item Groups" como parent (siempre existe en ERPNext)
-	parent = (
-		frappe.db.get_value("Item Group", {"is_group": 1, "parent_item_group": ""}, "name")
-		or "All Item Groups"
-	)
 	doc = frappe.new_doc("Item Group")
 	doc.item_group_name = name
-	doc.parent_item_group = parent
+	doc.parent_item_group = "Gastos"
 	doc.insert(ignore_permissions=True)
 	frappe.db.commit()
 	return doc.name
@@ -182,30 +197,31 @@ class TestItemGroupConsistency(unittest.TestCase):
 		for s in ["IB01", "IB02"]:
 			_cleanup(s)
 
-	def test_item_group_inconsistente_lanza_throw(self):
-		"""item_group del concepto ≠ item_group del Item → frappe.throw()."""
-		with self.assertRaises(frappe.ValidationError):
-			_make_cfdi(
-				"IB01",
-				self.supplier,
-				self.dept,
-				conceptos=[
-					{
-						"sat_product_key": "80141600",
-						"description": "Servicio X",
-						"quantity": 1,
-						"unit_key": "E48",
-						"unit": "Servicio",
-						"unit_price": 100,
-						"amount": 100,
-						"discount": 0,
-						"tax_object": "02",
-						"taxes_json": "{}",
-						"item_group": self.ig_b,  # diferente al item_group del item
-						"item_code": self.item_in_a,  # pertenece a ig_a
-					}
-				],
-			)
+	def test_item_group_diferente_es_sobreescrito(self):
+		"""validate() sobreescribe item_group del concepto con el del Item, sin lanzar error."""
+		name = _make_cfdi(
+			"IB01",
+			self.supplier,
+			self.dept,
+			conceptos=[
+				{
+					"sat_product_key": "80141600",
+					"description": "Servicio X",
+					"quantity": 1,
+					"unit_key": "E48",
+					"unit": "Servicio",
+					"unit_price": 100,
+					"amount": 100,
+					"discount": 0,
+					"tax_object": "02",
+					"taxes_json": "{}",
+					"item_group": self.ig_b,  # diferente al item_group del item
+					"item_code": self.item_in_a,  # pertenece a ig_a
+				}
+			],
+		)
+		doc = frappe.get_doc("CFDI Recibido", name)
+		self.assertEqual(doc.conceptos[0].item_group, self.ig_a)
 
 	def test_item_group_consistente_guarda_ok(self):
 		"""item_group del concepto == item_group del Item → guarda sin error."""

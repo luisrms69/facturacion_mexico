@@ -363,6 +363,107 @@ def build_purchase_invoice(cfdi_recibido: str) -> dict:
 
 
 @frappe.whitelist()
+def propose_item(
+	cfdi_recibido: str,
+	sat_product_key: str = "",
+	no_identificacion: str = "",
+	item_group: str = "",
+) -> dict:
+	"""
+	Propone item_code e item_resolution para un concepto CFDI.
+	Solo lectura — delega a ItemResolver sin modificar documentos.
+	"""
+	from facturacion_mexico.cfdi_recibidos.services.item_resolver import ItemResolver
+
+	if not cfdi_recibido:
+		frappe.throw(_("El campo 'cfdi_recibido' es obligatorio"), frappe.MandatoryError)
+
+	doc = frappe.get_doc("CFDI Recibido", cfdi_recibido)
+	return ItemResolver().propose(
+		sat_product_key=sat_product_key,
+		no_identificacion=no_identificacion,
+		item_group=item_group,
+		company=doc.company,
+		supplier=doc.supplier or "",
+		supplier_rfc=doc.supplier_rfc or "",
+	)
+
+
+@frappe.whitelist()
+def classify_all_concepts(cfdi_recibido: str) -> dict:
+	"""
+	Aplica ItemResolver a todos los conceptos que aún no tienen item_code.
+	No sobreescribe conceptos ya clasificados.
+	Rechaza ítems que no pasen validate_expense_item.
+	Actualiza status con compute_stage tras las asignaciones.
+
+	Retorna: {actualizados, sin_match, nuevo_status}
+	"""
+	from facturacion_mexico.cfdi_recibidos.services.item_resolver import ItemResolver
+	from facturacion_mexico.cfdi_recibidos.services.item_validator import validate_expense_item
+	from facturacion_mexico.cfdi_recibidos.services.status_manager import compute_stage
+
+	_PROTECTED = frozenset(
+		["XML inválido", "No aplicable", "No procesar", "Convertido a PI", "Error conversión"]
+	)
+
+	if not cfdi_recibido:
+		frappe.throw(_("El campo 'cfdi_recibido' es obligatorio"), frappe.MandatoryError)
+
+	doc = frappe.get_doc("CFDI Recibido", cfdi_recibido)
+	if doc.status in _PROTECTED:
+		frappe.throw(
+			_("No se puede clasificar un CFDI en estado '{0}'.").format(doc.status),
+			frappe.ValidationError,
+		)
+
+	resolver = ItemResolver()
+	actualizados = 0
+	sin_match = 0
+
+	for concepto in doc.conceptos or []:
+		if concepto.item_code:
+			continue  # no sobreescribir
+
+		proposal = resolver.propose(
+			sat_product_key=concepto.sat_product_key or "",
+			no_identificacion=concepto.no_identificacion or "",
+			item_group=concepto.item_group or "",
+			company=doc.company,
+			supplier=doc.supplier or "",
+			supplier_rfc=doc.supplier_rfc or "",
+		)
+
+		if not proposal["item_code"]:
+			sin_match += 1
+			continue
+
+		ok, _reason = validate_expense_item(proposal["item_code"])
+		if not ok:
+			sin_match += 1
+			continue
+
+		item_group = frappe.db.get_value("Item", proposal["item_code"], "item_group")
+		frappe.db.set_value(
+			"CFDI Recibido Concepto",
+			concepto.name,
+			{
+				"item_code": proposal["item_code"],
+				"item_resolution": proposal["item_resolution"],
+				"item_group": item_group,
+			},
+		)
+		actualizados += 1
+
+	doc.reload()
+	nuevo_status = compute_stage(doc)
+	frappe.db.set_value("CFDI Recibido", cfdi_recibido, "status", nuevo_status)
+	frappe.db.commit()
+
+	return {"actualizados": actualizados, "sin_match": sin_match, "nuevo_status": nuevo_status}
+
+
+@frappe.whitelist()
 def suggest_supplier_from_cfdi(cfdi_recibido: str) -> dict:
 	"""
 	Sugiere datos de proveedor basándose en el RFC del CFDI. No crea Supplier automáticamente.

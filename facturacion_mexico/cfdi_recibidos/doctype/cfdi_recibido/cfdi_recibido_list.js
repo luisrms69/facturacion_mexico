@@ -1,14 +1,34 @@
 frappe.listview_settings["CFDI Recibido"] = {
 	onload(listview) {
-		listview.page.add_button(__("Cargar XML"), () => {
-			_select_company_then_upload(listview);
-		});
-		listview.page.add_button(__("Generar proveedores faltantes"), () => {
-			_generate_missing_suppliers(listview);
-		});
-		listview.page.add_button(__("Asignar Departamentos"), () => {
-			_assign_departments_flow(listview);
-		});
+		const g = __("Flujo CFDI");
+		listview.page.add_inner_button(
+			__("1. Cargar XML"),
+			() => {
+				_select_company_then_upload(listview);
+			},
+			g
+		);
+		listview.page.add_inner_button(
+			__("2. Generar proveedores faltantes"),
+			() => {
+				_generate_missing_suppliers(listview);
+			},
+			g
+		);
+		listview.page.add_inner_button(
+			__("3. Asignar Departamentos"),
+			() => {
+				_assign_departments_flow(listview);
+			},
+			g
+		);
+		listview.page.add_inner_button(
+			__("4. Clasificar automáticamente"),
+			() => {
+				_classify_all_flow(listview);
+			},
+			g
+		);
 	},
 };
 
@@ -413,6 +433,131 @@ function _show_assign_departments_summary(result) {
 		message: `
 			<p>${__("Asignados")}: <strong>${asignados}</strong></p>
 			<p>${__("Omitidos")}: <strong>${omitidos}</strong></p>
+			<p>${__("Errores")}: <strong>${errCount}</strong></p>
+			${errDetail}
+		`,
+		indicator,
+	});
+}
+
+// ─── Clasificar automáticamente ──────────────────────────────────────────────
+
+function _classify_all_flow(listview) {
+	const selected = listview.get_checked_items().map((r) => r.name);
+
+	if (selected.length) {
+		frappe.confirm(
+			__("Se clasificarán conceptos de {0} CFDI seleccionados. ¿Continuar?", [
+				selected.length,
+			]),
+			() => _do_classify_batch(selected, listview)
+		);
+	} else {
+		frappe.call({
+			method: "frappe.client.get_count",
+			args: {
+				doctype: "CFDI Recibido",
+				filters: { status: "Falta clasificación", no_procesar: 0 },
+			},
+			callback(r) {
+				const count = r.message || 0;
+				if (!count) {
+					frappe.msgprint(__("No hay CFDI con estado 'Falta clasificación'."));
+					return;
+				}
+				frappe.confirm(
+					__(
+						"Se clasificarán conceptos de {0} CFDI en estado 'Falta clasificación'. ¿Continuar?",
+						[count]
+					),
+					() => {
+						frappe.call({
+							method: "frappe.client.get_list",
+							args: {
+								doctype: "CFDI Recibido",
+								filters: { status: "Falta clasificación", no_procesar: 0 },
+								fields: ["name"],
+								limit: 500,
+							},
+							callback(r2) {
+								const names = (r2.message || []).map((x) => x.name);
+								if (names.length) _do_classify_batch(names, listview);
+							},
+						});
+					}
+				);
+			},
+		});
+	}
+}
+
+function _do_classify_batch(cfdi_names, listview) {
+	const totals = { actualizados: 0, sin_match: 0 };
+	const errores = [];
+	let pending = cfdi_names.length;
+
+	if (!pending) return;
+
+	frappe.show_progress(__("Clasificando..."), 0, pending);
+
+	cfdi_names.forEach((name) => {
+		frappe.call({
+			method: "facturacion_mexico.cfdi_recibidos.api.classify_all_concepts",
+			args: { cfdi_recibido: name },
+			callback(r) {
+				if (r.message) {
+					totals.actualizados += r.message.actualizados || 0;
+					totals.sin_match += r.message.sin_match || 0;
+				}
+				pending--;
+				frappe.show_progress(
+					__("Clasificando..."),
+					cfdi_names.length - pending,
+					cfdi_names.length
+				);
+				if (pending === 0) {
+					frappe.hide_progress();
+					_show_classify_summary(totals, errores);
+					listview.refresh();
+				}
+			},
+			error(err) {
+				errores.push({ name, message: (err && err.message) || "Error" });
+				pending--;
+				if (pending === 0) {
+					frappe.hide_progress();
+					_show_classify_summary(totals, errores);
+					listview.refresh();
+				}
+			},
+		});
+	});
+}
+
+function _show_classify_summary(totals, errores) {
+	const errCount = errores.length;
+	const indicator = errCount > 0 ? "orange" : "green";
+	const errDetail = errCount
+		? `<details style="margin-top:8px"><summary style="cursor:pointer">${__(
+				"Ver errores ({0})",
+				[errCount]
+		  )}</summary>
+			<ul style="margin-top:4px">${errores
+				.map(
+					(e) =>
+						`<li><b>${frappe.utils.escape_html(
+							e.name
+						)}</b>: ${frappe.utils.escape_html(e.message)}</li>`
+				)
+				.join("")}</ul>
+		   </details>`
+		: "";
+
+	frappe.msgprint({
+		title: __("Resultado — Clasificar automáticamente"),
+		message: `
+			<p>${__("Conceptos clasificados")}: <strong>${totals.actualizados}</strong></p>
+			<p>${__("Sin coincidencia")}: <strong>${totals.sin_match}</strong></p>
 			<p>${__("Errores")}: <strong>${errCount}</strong></p>
 			${errDetail}
 		`,

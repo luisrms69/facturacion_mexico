@@ -44,3 +44,53 @@ def get_expense_item_groups(doctype, txt, searchfield, start, page_len, filters)
 		""",
 		{"txt": f"%{txt}%", "start": start, "page_len": page_len},
 	)
+
+
+@frappe.whitelist()
+@frappe.validate_and_sanitize_search_inputs
+def get_expense_items(doctype, txt, searchfield, start, page_len, filters):
+	"""
+	Retorna Items válidos para asignar en conceptos CFDI:
+	is_purchase_item=1, is_stock_item=0, is_sales_item=0, grupo hoja bajo "Gastos".
+	"""
+	gastos = frappe.db.get_value("Item Group", "Gastos", ["lft", "rgt"], as_dict=True)
+
+	if gastos:
+		return frappe.db.sql(
+			"""
+			SELECT i.name, i.item_name, ig.name AS item_group_name
+			FROM `tabItem` i
+			JOIN `tabItem Group` ig ON ig.name = i.item_group
+			WHERE i.is_purchase_item = 1
+			  AND i.is_stock_item = 0
+			  AND i.is_sales_item = 0
+			  AND ig.is_group = 0
+			  AND ig.lft > %(lft)s
+			  AND ig.rgt < %(rgt)s
+			  AND (i.name LIKE %(txt)s OR i.item_name LIKE %(txt)s)
+			ORDER BY i.name
+			LIMIT %(start)s, %(page_len)s
+			""",
+			{
+				"lft": gastos.lft,
+				"rgt": gastos.rgt,
+				"txt": f"%{txt}%",
+				"start": start,
+				"page_len": page_len,
+			},
+		)
+
+	# Fallback: sin árbol "Gastos", al menos filtra por flags
+	return frappe.db.sql(
+		"""
+		SELECT i.name, i.item_name
+		FROM `tabItem` i
+		WHERE i.is_purchase_item = 1
+		  AND i.is_stock_item = 0
+		  AND i.is_sales_item = 0
+		  AND (i.name LIKE %(txt)s OR i.item_name LIKE %(txt)s)
+		ORDER BY i.name
+		LIMIT %(start)s, %(page_len)s
+		""",
+		{"txt": f"%{txt}%", "start": start, "page_len": page_len},
+	)

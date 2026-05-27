@@ -1,8 +1,8 @@
 # PLAN — Items de Gasto y UOM para CFDI Recibidos
 
 **Fecha:** 2026-05-26  
-**Estado:** Aprobado para implementación  
-**Rama:** feature/issue151-cfdi-recibidos-fase2  
+**Estado:** En implementación — Bloque A completado  
+**Rama:** feature/cfdi-recibidos-fase3-pi  
 **Módulo:** cfdi_recibidos
 
 ---
@@ -510,22 +510,27 @@ if concepto.item_code:
 
 ## 11. Bloques de implementación
 
-### Bloque A — Setup de Items genéricos, UOM y ClaveProdServ
+### Bloque A — Setup de Items genéricos, UOM y ClaveProdServ ✅ COMPLETADO
 
-**Objetivo:** Datos de referencia disponibles antes de cualquier clasificación.
+**Commit:** `30022f9` — feat(cfdi-recibidos): Bloque A — 84 Items genéricos de gasto + setup idempotente  
+**Fecha:** 2026-05-26  
+**Tests:** 10/10 ✅ (`facturacion_mexico/tests/test_setup_expense_items.py`)
 
-1. Crear `facturacion_mexico/setup/cfdi_received_expense_items.py`:
-   - Función `ensure_cfdi_received_expense_items()` — idempotente
-   - Crea 84 Items genéricos según la matriz de sección 5
-   - `fm_producto_servicio_sat`: se asigna solo si el código existe en `SAT Producto Servicio`
-     (check `frappe.db.exists` antes de asignar — sin fallo si no existe)
-   - Se llama desde el punto de entrada setup existente
-2. Agregar llamada en `after_install` / `after_migrate`
-3. Tests unitarios: al menos idempotencia + campos clave de 3 Items representativos
+**Lo que se implementó:**
 
-**No incluye:** UI, campos nuevos en Concepto, PI.  
-**Nota KWH:** ítem #51 se crea con `MON - Mes`. Añadir KWH al fixture es paso separado
-pendiente validación SAT (DC-09).
+1. `facturacion_mexico/setup/cfdi_received_expense_items.py`:
+   - `ensure_cfdi_received_expense_items()` — idempotente, hard-skip en Items existentes
+   - 84 Items según la matriz de sección 5 (item_code `GASTO-{CAT}-{NNN}`)
+   - `fm_producto_servicio_sat`: asignado solo si el código existe en `SAT Producto Servicio`
+   - Guard de compilación: `assert len(_ITEMS) == 84`
+   - Retorna `{creados, existentes, sin_clave_prod_serv}`
+2. `hooks.py`: `after_migrate` incluye la función
+3. `install.py`: `after_install` incluye la función con try/except + log_error
+4. Tests: idempotencia, campos clave (NOM-001, OPR-003, SRV-007, MOV-001, ARR-001, SEG-001), flags is_stock_item/is_purchase_item/is_sales_item
+
+**UOM de ítem #51 (Energía eléctrica):** `MON - Mes` provisional. KWH es pendiente bloqueante (DC-09).
+
+**No incluye:** UI, campos nuevos en Concepto, PI.
 
 ### Bloque B — Campos de clasificación en CFDI Recibido Concepto
 
