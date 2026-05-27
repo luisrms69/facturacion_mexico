@@ -118,9 +118,15 @@ doctype_list_js = {
 # ------------
 
 # before_install = "facturacion_mexico.install.before_install"
-after_install = "facturacion_mexico.install.after_install"
+after_install = [
+	"facturacion_mexico.install.after_install",
+	"facturacion_mexico.setup.enforce_sat_uom.enforce_sat_uom_policy_on_install",
+]
 after_migrate = [
+	"facturacion_mexico.setup.enforce_sat_uom.enforce_sat_uom_policy",
 	"facturacion_mexico.setup.item_groups.ensure_fiscal_item_groups",
+	"facturacion_mexico.setup.cfdi_received_expense_item_groups.ensure_cfdi_received_expense_item_groups",
+	"facturacion_mexico.setup.cfdi_received_expense_items.ensure_cfdi_received_expense_items",
 ]
 
 # Custom Fields & SAT Catalogs Fixtures
