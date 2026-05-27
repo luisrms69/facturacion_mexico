@@ -273,7 +273,7 @@ class TestPurchaseInvoiceBuilder(unittest.TestCase):
 		doc.supplier_rfc = TEST_SUPPLIER_RFC
 		doc.supplier_name = f"_PIB Proveedor {_H}"
 		doc.receiver_rfc = frappe.db.get_value("Company", TEST_COMPANY, "tax_id") or "RFC000000000"
-		doc.status = "Listo"
+		doc.status = "Clasificado"
 		doc.cfdi_type = "I"
 		doc.xml_hash = frappe.generate_hash()[:64]
 		doc.supplier = self.supplier_name
@@ -374,7 +374,7 @@ class TestPurchaseInvoiceBuilder(unittest.TestCase):
 		pi_name = result1["purchase_invoice"]
 
 		# Simular que cfdi_doc.save() falló: desvinculamos el CFDI
-		frappe.db.set_value("CFDI Recibido", cfdi, {"purchase_invoice": None, "status": "Listo"})
+		frappe.db.set_value("CFDI Recibido", cfdi, {"purchase_invoice": None, "status": "Clasificado"})
 		frappe.db.commit()
 
 		result2 = build_purchase_invoice(cfdi)
@@ -521,7 +521,7 @@ class TestPurchaseInvoiceBuilder(unittest.TestCase):
 		self.assertFalse(result1["recovered"])
 
 		# Simular fallo de cfdi_doc.save(): el CFDI no quedó vinculado
-		frappe.db.set_value("CFDI Recibido", cfdi, {"purchase_invoice": None, "status": "Listo"})
+		frappe.db.set_value("CFDI Recibido", cfdi, {"purchase_invoice": None, "status": "Clasificado"})
 		frappe.db.commit()
 
 		# Reintento debe reconocer el PI existente (Caso A) y reparar vínculo

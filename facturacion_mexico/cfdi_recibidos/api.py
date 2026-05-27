@@ -17,7 +17,7 @@ Endpoints C.2 — Department:
     assign_departments         — asigna departamento en lote, valida contra configuración.
 
 Endpoints Fase 3:
-    build_purchase_invoice  — convierte CFDI Recibido Listo a Purchase Invoice Draft.
+    build_purchase_invoice  — convierte CFDI Recibido Clasificado a Purchase Invoice Draft.
     suggest_supplier_from_cfdi — sugiere datos de proveedor sin crearlo automáticamente.
 """
 
@@ -27,7 +27,7 @@ from frappe import _
 from facturacion_mexico.cfdi_recibidos.services.xml_ingestion import ingest_xml
 
 # Estados del CFDI Recibido que permiten intentar la conversión a PI
-_ALLOWED_STATUSES_FOR_BUILD = {"Listo", "Error conversión", "Convertido a PI"}
+_ALLOWED_STATUSES_FOR_BUILD = {"Clasificado", "Error conversión", "Convertido a PI"}
 
 
 @frappe.whitelist()
@@ -41,7 +41,7 @@ def upload_xml(company: str) -> list[dict]:
 
 	Retorna lista de resultados por archivo:
 	    file_name     — nombre del archivo recibido
-	    status        — etapa del CFDI ("Falta proveedor" | "Falta clasificación" | "Listo" |
+	    status        — etapa del CFDI ("Falta proveedor" | "Falta clasificación" | "Clasificado" |
 	                    "duplicado" | "error")
 	    cfdi_recibido — nombre del doc creado (None si duplicado sin doc nuevo)
 	    uuid          — UUID extraído del XML
@@ -109,7 +109,7 @@ def classify_concepts(cfdi_recibido: str) -> dict:
 	Aplica reglas de CFDI Concepto Mapping sobre todos los conceptos.
 
 	Actualiza status del CFDI Recibido:
-	  - Listo: todos los conceptos tienen regla aplicable
+	  - Clasificado: todos los conceptos tienen item_code asignado
 	  - Falta clasif.: al menos uno sin regla
 	"""
 	from facturacion_mexico.cfdi_recibidos.services.concept_classifier import (
@@ -305,9 +305,9 @@ def assign_departments(assignments: str) -> dict:
 @frappe.whitelist()
 def build_purchase_invoice(cfdi_recibido: str) -> dict:
 	"""
-	Convierte CFDI Recibido Listo a Purchase Invoice Draft.
+	Convierte CFDI Recibido Clasificado a Purchase Invoice Draft.
 
-	Solo permite conversión en estados: Listo, Error conversión, Convertido a PI.
+	Solo permite conversión en estados: Clasificado, Error conversión, Convertido a PI.
 	En error actualiza el CFDI Recibido a 'Error conversión' con detalle del error.
 	Idempotente por UUID: si ya existe PI para el UUID retorna recovered=True.
 
@@ -324,7 +324,7 @@ def build_purchase_invoice(cfdi_recibido: str) -> dict:
 	if doc.status not in _ALLOWED_STATUSES_FOR_BUILD:
 		frappe.throw(
 			_(
-				"El CFDI debe estar en estado 'Listo' para convertirse a Purchase Invoice. Estado actual: {0}"
+				"El CFDI debe estar en estado 'Clasificado' para convertirse a Purchase Invoice. Estado actual: {0}"
 			).format(doc.status),
 			frappe.ValidationError,
 		)

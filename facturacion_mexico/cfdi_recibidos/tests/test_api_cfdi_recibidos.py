@@ -149,7 +149,7 @@ def _delete_if_exists(doctype: str, name: str):
 
 def _make_cfdi(
 	uuid: str,
-	status: str = "Listo",
+	status: str = "Clasificado",
 	supplier: str | None = None,
 	impuestos: dict | None = None,
 	supplier_rfc: str = TEST_SUPPLIER_RFC,

@@ -70,6 +70,25 @@
    "fieldtype": "Data"
   },
   {
+   "fieldname": "item_group",
+   "label": "Grupo de Gasto",
+   "fieldtype": "Link",
+   "options": "Item Group"
+  },
+  {
+   "fieldname": "item_code",
+   "label": "Item",
+   "fieldtype": "Link",
+   "options": "Item"
+  },
+  {
+   "fieldname": "item_resolution",
+   "label": "Resolución",
+   "fieldtype": "Select",
+   "options": "Genérico\nEspecífico\nMapeado\nManual",
+   "read_only": 1
+  },
+  {
    "fieldname": "taxes_json",
    "label": "Impuestos (JSON)",
    "fieldtype": "JSON"

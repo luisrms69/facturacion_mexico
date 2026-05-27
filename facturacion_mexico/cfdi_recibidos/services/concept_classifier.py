@@ -26,7 +26,7 @@ def classify_concepts(cfdi_recibido_name: str) -> dict:
 	if not doc.conceptos:
 		stage = compute_stage(doc)
 		doc.db_set("status", stage)
-		return _result("ok", 0, 0, 0, "Sin conceptos — marcado como Listo")
+		return _result("ok", 0, 0, 0, "Sin conceptos — marcado como Clasificado")
 
 	supplier_rfc = doc.supplier_rfc or ""
 	company = doc.company or ""

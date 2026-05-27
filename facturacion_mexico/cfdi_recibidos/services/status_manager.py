@@ -9,25 +9,19 @@ Dos funciones según el contexto de uso:
 
   compute_stage(doc)
     Flujo completo posterior al upload. Evalúa supplier → departamento → clasificación.
-    Retorna: "Falta proveedor" | "Falta departamento" | "Falta clasificación" | "Listo"
+    Retorna: "Falta proveedor" | "Falta departamento" | "Falta clasificación" | "Clasificado"
 
 Clasificación completa de un concepto:
-  - Existe regla en CFDI Concepto Mapping para (company, supplier_rfc, sat_product_key)
-  - Si target_type == "Item"          → target_item no vacío
-  - Si target_type == "ExpenseAccount" → target_account no vacío
+  - Todos los conceptos tienen item_code asignado (por ItemResolver o manualmente).
+  - Sin conceptos → vacuously clasificado.
 """
-
-from facturacion_mexico.cfdi_recibidos.services.concept_classifier import (
-	_find_rule,
-	_rule_is_complete,
-)
 
 _NEXT_ACTION = {
 	"Falta proveedor": "Crear proveedor",
-	"Proveedor encontrado": "Clasificar conceptos",
+	"Proveedor encontrado": "Asignar departamento",
 	"Falta clasificación": "Clasificar conceptos",
 	"Falta departamento": "Asignar departamento",
-	"Listo": "Convertir a PI",
+	"Clasificado": "Convertir a PI",
 }
 
 _STAGE_MESSAGE = {
@@ -36,9 +30,9 @@ _STAGE_MESSAGE = {
 	"No procesar": "Excluido manualmente del flujo automático",
 	"Falta proveedor": "Proveedor no encontrado por RFC",
 	"Proveedor encontrado": "Proveedor asignado correctamente",
-	"Falta clasificación": "Proveedor resuelto, faltan conceptos por clasificar",
-	"Falta departamento": "Proveedor y conceptos resueltos, falta asignar departamento",
-	"Listo": "CFDI listo para convertir a Purchase Invoice",
+	"Falta clasificación": "Proveedor y departamento resueltos, faltan conceptos por clasificar",
+	"Falta departamento": "Proveedor resuelto, falta asignar departamento",
+	"Clasificado": "CFDI clasificado y listo para convertir a Purchase Invoice",
 }
 
 
@@ -56,10 +50,9 @@ def compute_stage(doc) -> str:
 	if not doc.department:
 		return "Falta departamento"
 	for concepto in doc.conceptos or []:
-		rule = _find_rule(doc.company, doc.supplier_rfc or "", concepto.sat_product_key or "")
-		if not rule or not _rule_is_complete(rule):
+		if not getattr(concepto, "item_code", None):
 			return "Falta clasificación"
-	return "Listo"
+	return "Clasificado"
 
 
 def get_next_action(stage: str) -> str | None:

@@ -3,7 +3,7 @@ Tests para asignación de Department a CFDI Recibidos (C.2).
 
 Valida:
 - compute_stage retorna "Falta departamento" cuando supplier OK, conceptos OK, sin dept
-- compute_stage retorna "Listo" cuando supplier + conceptos + dept OK
+- compute_stage retorna "Clasificado" cuando supplier + dept OK y todos los conceptos tienen item_code
 - get_department_candidates incluye CFDI con supplier pero sin dept
 - get_department_candidates excluye: sin supplier, con dept, no_procesar, terminales
 - assign_departments asigna dept válido y recalcula status
@@ -138,19 +138,19 @@ class TestComputeStageConDepartamento(unittest.TestCase):
 		# Sin conceptos no hay Falta clasificación → pasa a chequear dept
 		self.assertEqual(compute_stage(doc), "Falta departamento")
 
-	def test_con_supplier_con_dept_sin_conceptos_retorna_listo(self):
+	def test_con_supplier_con_dept_sin_conceptos_retorna_clasificado(self):
 		doc = _FakeDoc(supplier="PROV-001", department="IT", conceptos=[])
-		self.assertEqual(compute_stage(doc), "Listo")
+		self.assertEqual(compute_stage(doc), "Clasificado")
 
-	def test_con_supplier_con_dept_con_concepto_sin_regla_retorna_falta_clasificacion(self):
-		"""Dept asignado pero concepto sin regla → sigue siendo Falta clasificación."""
+	def test_con_supplier_con_dept_con_concepto_sin_item_code_retorna_falta_clasificacion(self):
+		"""Dept asignado pero concepto sin item_code → Falta clasificación."""
 
 		class FakeConcepto:
 			sat_product_key = "99999999-NOEXISTE-TEST"
+			# item_code ausente → getattr(..., None) → "Falta clasificación"
 
 		doc = _FakeDoc(supplier="PROV-001", department="IT", conceptos=[FakeConcepto()])
 		result = compute_stage(doc)
-		# La clave inexistente no tiene regla → "Falta clasificación"
 		self.assertEqual(result, "Falta clasificación")
 
 	def test_con_supplier_sin_dept_con_concepto_sin_regla_retorna_falta_departamento(self):
@@ -195,7 +195,7 @@ class TestGetDepartmentCandidates(unittest.TestCase):
 
 	def test_excluye_cfdi_con_dept_asignado(self):
 		dept_name = _get_or_create_dept("_TestDept GTC01", TEST_COMPANY)
-		cfdi = _make_cfdi("GC03", supplier=self.supplier, department=dept_name, status="Listo")
+		cfdi = _make_cfdi("GC03", supplier=self.supplier, department=dept_name, status="Clasificado")
 		self.assertNotIn(cfdi, self._candidate_names())
 
 	def test_excluye_no_procesar(self):
@@ -247,16 +247,16 @@ class TestAssignDepartments(unittest.TestCase):
 		dept_en_doc = frappe.db.get_value("CFDI Recibido", cfdi, "department")
 		self.assertEqual(dept_en_doc, self.dept_valido)
 
-		# Sin conceptos + dept asignado → Listo
+		# Sin conceptos + dept asignado → Clasificado
 		status = frappe.db.get_value("CFDI Recibido", cfdi, "status")
-		self.assertEqual(status, "Listo")
+		self.assertEqual(status, "Clasificado")
 
 	def test_omite_cfdi_con_dept_ya_asignado(self):
 		cfdi = _make_cfdi(
 			"AD02",
 			supplier=self.supplier,
 			department=self.dept_valido,
-			status="Listo",
+			status="Clasificado",
 		)
 		result = self._assign({cfdi: self.dept_valido})
 		self.assertEqual(result["asignados"], 0)
