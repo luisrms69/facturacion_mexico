@@ -121,6 +121,8 @@ doctype_list_js = {
 after_install = "facturacion_mexico.install.after_install"
 after_migrate = [
 	"facturacion_mexico.setup.item_groups.ensure_fiscal_item_groups",
+	"facturacion_mexico.setup.cfdi_received_expense_item_groups.ensure_cfdi_received_expense_item_groups",
+	"facturacion_mexico.setup.cfdi_received_expense_items.ensure_cfdi_received_expense_items",
 ]
 
 # Custom Fields & SAT Catalogs Fixtures

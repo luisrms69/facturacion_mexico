@@ -43,6 +43,17 @@ def after_install():
 		frappe.log_error(frappe.get_traceback(), "[FMX][Install] Error creating expense item groups")
 		frappe.logger().warning(f"⚠️ No se pudieron crear Item Groups de gasto: {e}")
 
+	# Items genéricos de gasto CFDI Recibidos (84 items, uno por Item Group hoja)
+	try:
+		from facturacion_mexico.setup.cfdi_received_expense_items import (
+			ensure_cfdi_received_expense_items,
+		)
+
+		ensure_cfdi_received_expense_items()
+	except Exception as e:
+		frappe.log_error(frappe.get_traceback(), "[FMX][Install] Error creating expense items")
+		frappe.logger().warning(f"⚠️ No se pudieron crear Items genéricos de gasto: {e}")
+
 	# Crear customer template Público General
 	try:
 		_create_publico_general_customer()
