@@ -140,6 +140,58 @@ XML_CFDI_4_CON_RETENCIONES = """<?xml version="1.0" encoding="UTF-8"?>
   </cfdi:Complemento>
 </cfdi:Comprobante>"""
 
+# XML con NoIdentificacion en concepto
+XML_CFDI_4_CON_NO_IDENTIFICACION = """<?xml version="1.0" encoding="UTF-8"?>
+<cfdi:Comprobante
+  xmlns:cfdi="http://www.sat.gob.mx/cfd/4"
+  xmlns:tfd="http://www.sat.gob.mx/TimbreFiscalDigital"
+  Version="4.0"
+  Fecha="2025-12-01T08:00:00"
+  FormaPago="03"
+  NoCertificado="30001000000300023708"
+  SubTotal="2000.00"
+  Moneda="MXN"
+  Total="2320.00"
+  TipoDeComprobante="I"
+  MetodoPago="PUE"
+  LugarExpedicion="06600">
+  <cfdi:Emisor Rfc="PROV123456789" Nombre="PROVEEDOR TEST" RegimenFiscal="601"/>
+  <cfdi:Receptor Rfc="XAXX010101000" Nombre="RECEPTOR TEST" DomicilioFiscalReceptor="06600"
+    RegimenFiscalReceptor="601" UsoCFDI="G03"/>
+  <cfdi:Conceptos>
+    <cfdi:Concepto
+      ClaveProdServ="43231500"
+      NoIdentificacion="SKU-001-PROV"
+      Cantidad="2.0"
+      ClaveUnidad="H87"
+      Unidad="Pieza"
+      Descripcion="Producto con código interno"
+      ValorUnitario="1000.00"
+      Importe="2000.00"
+      ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="2000.00" Impuesto="002" TipoFactor="Tasa"
+            TasaOCuota="0.160000" Importe="320.00"/>
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+  </cfdi:Conceptos>
+  <cfdi:Impuestos TotalImpuestosTrasladados="320.00">
+    <cfdi:Traslados>
+      <cfdi:Traslado Base="2000.00" Impuesto="002" TipoFactor="Tasa"
+        TasaOCuota="0.160000" Importe="320.00"/>
+    </cfdi:Traslados>
+  </cfdi:Impuestos>
+  <cfdi:Complemento>
+    <tfd:TimbreFiscalDigital Version="1.1"
+      UUID="ccddee00-0000-1111-2222-333344445555"
+      FechaTimbrado="2025-12-01T08:05:00"
+      RfcProvCertif="SAT970701NN3"
+      NoCertificadoSAT="20001000000300022816"/>
+  </cfdi:Complemento>
+</cfdi:Comprobante>"""
+
 # XML versión 3.3 — debe ser rechazado
 XML_CFDI_33 = """<?xml version="1.0" encoding="UTF-8"?>
 <cfdi:Comprobante xmlns:cfdi="http://www.sat.gob.mx/cfd/3" Version="3.3"
@@ -251,6 +303,22 @@ class TestCFDIRecibidoParserRetenciones(unittest.TestCase):
 		taxes = json.loads(c["taxes_json"])
 		self.assertEqual(len(taxes["retenciones"]), 2)
 
+	def test_concepto_retencion_tipo_factor(self):
+		"""Retenciones por concepto deben incluir tipo_factor."""
+		c = self.data["conceptos"][0]
+		taxes = json.loads(c["taxes_json"])
+		for r in taxes["retenciones"]:
+			self.assertIn("tipo_factor", r)
+			self.assertEqual(r["tipo_factor"], "Tasa")
+
+	def test_concepto_retencion_tasa_cuota(self):
+		"""Retenciones por concepto deben incluir tasa_cuota."""
+		c = self.data["conceptos"][0]
+		taxes = json.loads(c["taxes_json"])
+		tasa_cuotas = {r["tasa_cuota"] for r in taxes["retenciones"]}
+		self.assertIn("0.106667", tasa_cuotas)  # IVA retenido
+		self.assertIn("0.100000", tasa_cuotas)  # ISR
+
 
 class TestCFDIRecibidoParserVersionInvalida(unittest.TestCase):
 	def test_rechaza_cfdi_33(self):
@@ -266,6 +334,25 @@ class TestCFDIRecibidoParserVersionInvalida(unittest.TestCase):
 			CFDIRecibidoParser(XML_CFDI_33).parse()
 		except Exception as e:
 			self.assertIn("3.3", str(e))
+
+
+class TestCFDIRecibidoParserNoIdentificacion(unittest.TestCase):
+	def setUp(self):
+		self.parser = CFDIRecibidoParser(XML_CFDI_4_CON_NO_IDENTIFICACION)
+		self.data = self.parser.parse()
+
+	def test_no_identificacion_se_parsea(self):
+		"""no_identificacion se extrae del atributo NoIdentificacion del concepto."""
+		c = self.data["conceptos"][0]
+		self.assertEqual(c["no_identificacion"], "SKU-001-PROV")
+
+	def test_sin_no_identificacion_retorna_vacio(self):
+		"""XML sin NoIdentificacion devuelve cadena vacía, no KeyError."""
+		parser = CFDIRecibidoParser(XML_CFDI_4_BASICO)
+		data = parser.parse()
+		c = data["conceptos"][0]
+		self.assertIn("no_identificacion", c)
+		self.assertEqual(c["no_identificacion"], "")
 
 
 class TestCFDIRecibidoParserFechas(unittest.TestCase):

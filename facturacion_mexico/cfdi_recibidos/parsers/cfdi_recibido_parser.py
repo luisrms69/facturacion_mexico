@@ -194,6 +194,7 @@ class CFDIRecibidoParser:
 
 		return {
 			"sat_product_key": node.get("ClaveProdServ", ""),
+			"no_identificacion": node.get("NoIdentificacion", ""),
 			"description": node.get("Descripcion", ""),
 			"quantity": float(node.get("Cantidad", "0") or "0"),
 			"unit_key": node.get("ClaveUnidad", ""),
@@ -237,6 +238,8 @@ class CFDIRecibidoParser:
 				impuestos["retenciones"].append(
 					{
 						"impuesto": r.get("Impuesto", ""),
+						"tipo_factor": r.get("TipoFactor", ""),
+						"tasa_cuota": r.get("TasaOCuota", ""),
 						"base": float(r.get("Base", "0") or "0"),
 						"importe": float(r.get("Importe", "0") or "0"),
 					}

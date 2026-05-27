@@ -49,7 +49,7 @@ El upload NO debe:
 
 ### Hito B — Generar proveedores faltantes
 
-Cerrado en commit: pendiente (cierre de sesión 2026-05-26)
+Cerrado en commit: `ac318a7`
 
 Resultado:
 
@@ -73,47 +73,61 @@ El Hito B NO toca:
 
 ---
 
+### Hito C.1 — Configuracion CFDI Recibidos + defaults proveedor + Item Groups
+
+Cerrado en commits: `40638d5` (C.1), `82e9849` (Item Groups)
+
+Resultado:
+
+- DocType `Configuracion CFDI Recibidos` — singleton por empresa, config de defaults.
+- Campo `default_payment_terms_supplier` — Payment Terms heredado por proveedores auto-creados.
+- Child table `Mapeo Departamento CFDI Recibido` con campo `department` (Link → Department).
+- `ensure_default_payment_terms()` en `after_install`.
+- Item Groups SAT: árbol "Gastos" → 11 padres → 84 hijos (96 total). Idempotente.
+- Tests: suite de supplier_resolver + setup_payment_terms + setup_expense_item_groups.
+
+---
+
+### Hito C.2 — Department assignment
+
+Cerrado en sesión 2026-05-26.
+
+Resultado:
+
+- Campo `department` (Link → Department) en `CFDI Recibido`.
+- Estado "Falta departamento" en el flujo: supplier → **department** → clasificación → Listo.
+- `compute_stage(doc)` evalúa en orden correcto: supplier → department → conceptos → Listo.
+- Endpoint `get_department_candidates` — CFDIs con supplier pero sin dept, no terminales.
+- Endpoint `assign_departments` — asignación en lote, valida contra `mapeo_departamentos` de la empresa.
+- Botón "Asignar Departamentos" en List View + diálogo con tabla de candidatos.
+- Tests: 15 tests en `test_department_assignment.py` + 8 en `test_department_mapping.py` (23 total OK).
+- Validación GUI: completa.
+
+El flujo Upload → Proveedor → Department está **completo y cerrado**.
+
+---
+
 ## Hito siguiente
 
-### Hito C — Diseño base: proveedores, ítems e impuestos
+### Hito D — Creación de Purchase Invoice
 
-**Prohibición:** No avanzar a clasificación de conceptos ni Purchase Invoice hasta cerrar Hito C.
+**Prohibición:** No implementar hasta completar revisión arquitectónica de TaxResolver y PIBuilder.
 
-**Objetivo:**
+**Contexto:**
 
-Resolver la arquitectura antes de clasificar conceptos o crear ítems. Hito C es diseño y decisión, no implementación de flujo.
+El código de `purchase_invoice_builder.py` y `tax_resolver.py` existe en la rama pero **no está validado**.
+El PIBuilder original (Issue #152) falló en GUI al paso ~2 de 20+.
+`REPORTE_INVESTIGACION_SAT_CFDI_RECIBIDOS.md` documenta problemas arquitectónicos en TaxResolver:
+necesita reescritura para leer desde `Configuracion CFDI Recibidos` en lugar de `Configuracion Fiscal Mexico`.
 
-**Temas obligatorios:**
+**Antes de implementar Hito D:**
 
-1. **Supplier Group dedicado** para proveedores creados automáticamente desde CFDI.
-   - Definir nombre y propiedades del grupo (cuenta contable, términos de pago).
-   - Decidir si va como fixture o como campo configurable en `Configuracion CFDI Recibidos`.
+1. Revisión completa de `tax_resolver.py` y `purchase_invoice_builder.py`.
+2. Decisión explícita sobre manejo de retenciones (requiere XML real de honorarios).
+3. Decisión sobre impuesto por línea vs. impuesto global del CFDI.
+4. Plan de implementación aprobado.
 
-2. **Defaults para Suppliers auto-creados.**
-   - Qué propiedades hereda el proveedor del grupo.
-   - Qué propiedades requieren configuración posterior.
-
-3. **Arquitectura fiscal existente.**
-   - Aprovechar la lógica de STCT/ITT ya implementada en el sistema de ventas.
-   - No duplicar ni contradecir la lógica actual de Items, Item Tax Templates y roles fiscales.
-
-4. **Impuestos por concepto del XML.**
-   - El XML SAT CFDI tiene impuestos a nivel CFDI (global) y a nivel concepto (por ítem).
-   - Definir si el PI debe usar impuesto global o Item Tax Template por línea.
-   - El campo `taxes_json` ya existe en `CFDI Recibido Concepto`.
-
-5. **Item Group dedicado.**
-   - Definir si se requiere Item Group específico para ítems creados/importados desde CFDI.
-   - Misma decisión fixture vs. campo configurable que Supplier Group.
-
-6. **Item Tax Template por concepto.**
-   - Definir cómo se asignará Item Tax Template a conceptos/ítems según tasa del XML SAT.
-   - Considerar: IVA 16%, IVA 0%, exento, IEPS, retenciones.
-
-**Entregable de Hito C:**
-
-Documento de decisiones + plan de implementación aprobado.
-No hay código hasta que las decisiones estén tomadas.
+**No hay código nuevo hasta que el plan esté aprobado.**
 
 ---
 
