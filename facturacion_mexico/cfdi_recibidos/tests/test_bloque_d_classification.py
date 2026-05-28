@@ -2,12 +2,13 @@
 Tests de Bloque D — clasificación automática de conceptos (UI/API).
 
 Valida:
-1. propose_item nivel 3: retorna item_code e item_resolution "Genérico"
-2. classify_all_concepts: actualiza status a "Clasificado" cuando todos reciben item_code
-3. validate(): auto-deriva item_group cuando item_code está presente y item_group vacío
-4. classify_all_concepts: no sobreescribe conceptos que ya tienen item_code
-5. classify_all_concepts: rechaza ítems con is_sales_item=1 o is_stock_item=1
-6-14. validate_expense_item: cobertura completa de condiciones de rechazo y aceptación
+1. propose_item sin match retorna None (nivel 3 genérico ya no es automático)
+2. classify_all_concepts: clasifica vía Mapeado (nivel 1) cuando hay CFDI Concepto Mapping
+3. classify_all_concepts: deja concepto pendiente cuando no hay match automático
+4. validate(): auto-deriva item_group cuando item_code está presente y item_group vacío
+5. classify_all_concepts: no sobreescribe conceptos que ya tienen item_code
+6. classify_all_concepts: rechaza ítems con is_sales_item=1 o is_stock_item=1
+7-15. validate_expense_item: cobertura completa de condiciones de rechazo y aceptación
 """
 
 import unittest
@@ -125,7 +126,6 @@ def _get_or_create_item(
 	if is_purchase_item is None:
 		is_purchase_item = computed_purchase
 	if frappe.db.exists("Item", item_code):
-		# Actualizar flags si difieren (idempotente para reruns del test suite)
 		frappe.db.set_value(
 			"Item",
 			item_code,
@@ -170,10 +170,30 @@ def _make_cfdi(uuid_suffix: str, supplier: str, department: str, conceptos=None)
 	return doc.name
 
 
+def _make_mapping(company: str, supplier_rfc: str, sat_product_key: str, target_item: str) -> str:
+	"""Crea un CFDI Concepto Mapping de tipo Item para tests de nivel 1 (Mapeado)."""
+	doc = frappe.new_doc("CFDI Concepto Mapping")
+	doc.company = company
+	doc.supplier_rfc = supplier_rfc
+	doc.sat_product_key = sat_product_key
+	doc.target_type = "Item"
+	doc.target_item = target_item
+	doc.is_active = 1
+	doc.insert(ignore_permissions=True)
+	frappe.db.commit()
+	return doc.name
+
+
 def _cleanup(uuid_suffix: str):
 	name = frappe.db.get_value("CFDI Recibido", {"uuid": f"{_UUID_BASE}{uuid_suffix}"}, "name")
 	if name:
 		frappe.delete_doc("CFDI Recibido", name, force=True)
+		frappe.db.commit()
+
+
+def _cleanup_mapping(name: str):
+	if name and frappe.db.exists("CFDI Concepto Mapping", name):
+		frappe.delete_doc("CFDI Concepto Mapping", name, force=True)
 		frappe.db.commit()
 
 
@@ -195,8 +215,8 @@ class TestProposeItemEndpoint(unittest.TestCase):
 	def tearDown(self):
 		_cleanup("PRP01")
 
-	def test_propose_item_nivel3_retorna_propuesta(self):
-		"""propose_item retorna item_code e item_resolution 'Genérico' por nivel 3."""
+	def test_propose_item_sin_match_retorna_none(self):
+		"""propose_item retorna None cuando no hay match en niveles 1-2 (generico ya no es automatico)."""
 		from facturacion_mexico.cfdi_recibidos.api import propose_item
 
 		name = _make_cfdi("PRP01", self.supplier, self.dept)
@@ -205,11 +225,11 @@ class TestProposeItemEndpoint(unittest.TestCase):
 			cfdi_recibido=name,
 			sat_product_key="80111500",
 			no_identificacion="",
-			item_group=self.ig,
+			item_group=self.ig,  # item_group ya no influye en propose()
 		)
 
-		self.assertEqual(result["item_code"], self.item)
-		self.assertEqual(result["item_resolution"], "Genérico")
+		self.assertIsNone(result["item_code"])
+		self.assertIsNone(result["item_resolution"])
 
 
 class TestClassifyAllConcepts(unittest.TestCase):
@@ -222,33 +242,61 @@ class TestClassifyAllConcepts(unittest.TestCase):
 		cls.item = _get_or_create_item("GASTO-BLD-CLSA-001", cls.ig)
 
 	def setUp(self):
-		for s in ["CA01", "CA02", "CA03"]:
+		for s in ["CA01", "CA02", "CA03", "CA04"]:
 			_cleanup(s)
 
 	def tearDown(self):
-		for s in ["CA01", "CA02", "CA03"]:
+		for s in ["CA01", "CA02", "CA03", "CA04"]:
 			_cleanup(s)
 
-	def test_classify_all_actualiza_status_a_clasificado(self):
-		"""classify_all_concepts asigna item_code y cambia status a 'Clasificado'."""
+	def test_classify_all_nivel1_actualiza_status_a_clasificado(self):
+		"""classify_all_concepts asigna item_code vía Mapeado (nivel 1) y actualiza status."""
 		from facturacion_mexico.cfdi_recibidos.api import classify_all_concepts
 
 		name = _make_cfdi(
 			"CA01",
 			self.supplier,
 			self.dept,
-			conceptos=[{**_CONCEPTO_BASE, "item_group": self.ig}],
+			conceptos=[_CONCEPTO_BASE],
+		)
+		mapping = _make_mapping(
+			company=TEST_COMPANY,
+			supplier_rfc="BLDTEST001RFC",
+			sat_product_key="80111500",
+			target_item=self.item,
+		)
+		try:
+			result = classify_all_concepts(cfdi_recibido=name)
+
+			self.assertEqual(result["auto_clasificados"], 1)
+			self.assertEqual(result["pendientes"], 0)
+			self.assertEqual(result["status"], "Clasificado")
+
+			doc = frappe.get_doc("CFDI Recibido", name)
+			self.assertEqual(doc.conceptos[0].item_code, self.item)
+			self.assertEqual(doc.conceptos[0].item_resolution, "Mapeado")
+		finally:
+			_cleanup_mapping(mapping)
+
+	def test_classify_all_sin_match_deja_pendiente(self):
+		"""classify_all_concepts no asigna item_code cuando no hay match — concepto queda pendiente."""
+		from facturacion_mexico.cfdi_recibidos.api import classify_all_concepts
+
+		name = _make_cfdi(
+			"CA04",
+			self.supplier,
+			self.dept,
+			conceptos=[_CONCEPTO_BASE],
 		)
 
 		result = classify_all_concepts(cfdi_recibido=name)
 
-		self.assertEqual(result["actualizados"], 1)
-		self.assertEqual(result["sin_match"], 0)
-		self.assertEqual(result["nuevo_status"], "Clasificado")
+		self.assertEqual(result["auto_clasificados"], 0)
+		self.assertEqual(result["pendientes"], 1)
+		self.assertEqual(result["status"], "Falta clasificación")
 
 		doc = frappe.get_doc("CFDI Recibido", name)
-		self.assertEqual(doc.conceptos[0].item_code, self.item)
-		self.assertEqual(doc.conceptos[0].item_resolution, "Genérico")
+		self.assertFalse(doc.conceptos[0].item_code)
 
 	def test_classify_all_no_sobrescribe_item_code_existente(self):
 		"""classify_all_concepts no toca conceptos que ya tienen item_code."""
@@ -263,13 +311,13 @@ class TestClassifyAllConcepts(unittest.TestCase):
 
 		result = classify_all_concepts(cfdi_recibido=name)
 
-		self.assertEqual(result["actualizados"], 0)
+		self.assertEqual(result["auto_clasificados"], 0)
 
 		doc = frappe.get_doc("CFDI Recibido", name)
 		self.assertEqual(doc.conceptos[0].item_code, self.item)
 
 	def test_classify_all_rechaza_item_ventas(self):
-		"""classify_all_concepts no asigna ítems con is_sales_item=1."""
+		"""classify_all_concepts no asigna ítems con is_sales_item=1 — quedan como pendientes."""
 		from facturacion_mexico.cfdi_recibidos.api import classify_all_concepts
 		from facturacion_mexico.cfdi_recibidos.services import item_resolver as ir_module
 
@@ -286,12 +334,12 @@ class TestClassifyAllConcepts(unittest.TestCase):
 		with patch.object(
 			ir_module.ItemResolver,
 			"propose",
-			return_value={"item_code": sales_item, "item_resolution": "Genérico"},
+			return_value={"item_code": sales_item, "item_resolution": "Mapeado"},
 		):
 			result = classify_all_concepts(cfdi_recibido=name)
 
-		self.assertEqual(result["actualizados"], 0)
-		self.assertEqual(result["sin_match"], 1)
+		self.assertEqual(result["auto_clasificados"], 0)
+		self.assertEqual(result["pendientes"], 1)
 
 		doc = frappe.get_doc("CFDI Recibido", name)
 		self.assertFalse(doc.conceptos[0].item_code)
@@ -324,7 +372,6 @@ class TestValidateDerivesItemGroup(unittest.TestCase):
 				{
 					**_CONCEPTO_BASE,
 					"item_code": self.item,
-					# item_group vacío a propósito
 				}
 			],
 		)
@@ -344,13 +391,12 @@ class TestValidateDerivesItemGroup(unittest.TestCase):
 				{
 					**_CONCEPTO_BASE,
 					"item_code": self.item,
-					"item_group": ig_otro,  # diferente al item_group del item
+					"item_group": ig_otro,
 				}
 			],
 		)
 
 		doc = frappe.get_doc("CFDI Recibido", name)
-		# item_group debe ser el del Item, no el que se pasó
 		self.assertEqual(doc.conceptos[0].item_group, self.ig)
 
 
@@ -364,14 +410,12 @@ class TestValidateExpenseItem(unittest.TestCase):
 		cls.item_valid = _get_or_create_item("GASTO-BLD-VLD-001", cls.ig_valid)
 		cls.item_stock = _get_or_create_item("GASTO-BLD-VLD-002", cls.ig_valid, is_stock_item=1)
 		cls.item_no_purchase = _get_or_create_item("GASTO-BLD-VLD-003", cls.ig_valid, is_purchase_item=0)
-		# Item con is_purchase_item=1 y is_sales_item=1 para testear rechazo por ventas
 		cls.item_ventas = _get_or_create_item(
 			"GASTO-BLD-VLD-004", cls.ig_valid, is_sales_item=1, is_purchase_item=1
 		)
 		cls.ig_out = _get_or_create_item_group_outside_gastos("_Test IG BLD OutGastos")
 		cls.item_out = _get_or_create_item("GASTO-BLD-VLD-005", cls.ig_out)
 
-		# Grupo padre (is_group=1): set explícito — Frappe no lo propaga automáticamente
 		_ensure_gastos_group()
 		if not frappe.db.exists("Item Group", "_Test IG BLD ParentVld"):
 			pg = frappe.new_doc("Item Group")
@@ -447,7 +491,7 @@ class TestValidateExpenseItem(unittest.TestCase):
 			)
 
 	def test_classify_all_rechaza_item_no_purchase(self):
-		"""classify_all_concepts no asigna ítems con is_purchase_item=0."""
+		"""classify_all_concepts no asigna ítems con is_purchase_item=0 — quedan como pendientes."""
 		from facturacion_mexico.cfdi_recibidos.api import classify_all_concepts
 		from facturacion_mexico.cfdi_recibidos.services import item_resolver as ir_module
 
@@ -458,9 +502,9 @@ class TestValidateExpenseItem(unittest.TestCase):
 		with patch.object(
 			ir_module.ItemResolver,
 			"propose",
-			return_value={"item_code": self.item_no_purchase, "item_resolution": "Genérico"},
+			return_value={"item_code": self.item_no_purchase, "item_resolution": "Mapeado"},
 		):
 			result = classify_all_concepts(cfdi_recibido=name)
 
-		self.assertEqual(result["actualizados"], 0)
-		self.assertEqual(result["sin_match"], 1)
+		self.assertEqual(result["auto_clasificados"], 0)
+		self.assertEqual(result["pendientes"], 1)

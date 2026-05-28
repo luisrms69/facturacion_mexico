@@ -1,7 +1,7 @@
 # PLAN — Items de Gasto y UOM para CFDI Recibidos
 
-**Fecha:** 2026-05-26  
-**Estado:** En implementación — Bloque A completado  
+**Fecha:** 2026-05-27  
+**Estado:** Bloques A–E.1 completados — próximo: Bloque E.2 (enforcement CFDI Recibidos)  
 **Rama:** feature/cfdi-recibidos-fase3-pi  
 **Módulo:** cfdi_recibidos
 
@@ -61,9 +61,11 @@ No como comodín para cubrir categorías sin UOM clara.
 El XML trae la ClaveProdServ que el emisor eligió. El Item genérico lleva la ClaveProdServ
 que el receptor considera correcta para ese tipo de gasto. Son datos independientes.
 
-**DC-05 — Bloqueo (no advertencia) en selección inconsistente**  
-Si `item_group` del concepto no coincide con `item_group` del Item seleccionado → 
-`frappe.throw()`. No `frappe.msgprint`. No es una advertencia.
+**DC-05 — item_group es derivado, nunca input manual del usuario** *(corregido en Bloque D)*  
+El usuario selecciona `item_code`. El sistema deriva `item_group` automáticamente desde
+el Item. `item_group` en Concepto es `read_only`. No existe input de item_group por el usuario.
+Si item_group difiere del Item seleccionado → se sobreescribe sin `frappe.throw`.
+La inconsistencia se corrige silenciosamente (invariante: siempre item_group = item.item_group).
 
 **DC-06 — Cuatro valores fijos de `item_resolution`**  
 `Genérico` / `Específico` / `Mapeado` / `Manual`. Solo el ItemResolver asigna los tres
@@ -458,31 +460,33 @@ coincidirá con la UOM declarada en el ítem — problema de consistencia fiscal
 
 ## 9. Flujo de clasificación de conceptos
 
+*(Implementado en Bloque D con corrección arquitectónica: item_group es derivado, no input)*
+
 ```
 1. CFDI Recibido llega al estado "Departamento asignado"
 2. Usuario abre CFDI Recibido
-3. Grid de conceptos muestra líneas con item_group/item_code vacíos
-4. Para cada línea, usuario selecciona item_group (naturaleza del gasto)
-5. Sistema llama ItemResolver.propose(concepto, item_group):
-   Prioridad 1: CFDI Concepto Mapping activo
-                company + supplier_rfc + sat_product_key → target_item
-                (solo target_type = 'Item' y is_active = 1)
-                → item_resolution = "Mapeado"
-   Prioridad 2: Item Supplier
-                supplier + no_identificacion → item
-                → item_resolution = "Específico"
-   Prioridad 3: Item genérico por item_group
-                → item_resolution = "Genérico"
-   Sin match: item_code = vacío, item_resolution = nulo
-6. Sistema muestra item_code sugerido en la línea
-7. Validación de consistencia:
-   item_group del concepto ≠ item_group del Item seleccionado
-   → frappe.throw() (bloquea guardado)
-8. Usuario confirma → item_resolution conserva Genérico/Específico/Mapeado
-   Usuario selecciona otro Item → item_resolution = "Manual"
-9. Todos los conceptos tienen item_code
-10. Estado CFDI Recibido → "Clasificado"
-    Habilita: botón "Generar PI" (hito posterior, requiere Bloque E)
+3. Grid de conceptos muestra líneas con item_code/item_group vacíos
+4. Opción A — Clasificación automática (botón "Clasificar automáticamente"):
+   - classify_all_concepts() en api.py itera todos los conceptos
+   - Llama ItemResolver.propose(concepto):
+     Prioridad 1: CFDI Concepto Mapping activo
+                  company + supplier_rfc + sat_product_key → target_item
+                  → item_resolution = "Mapeado"
+     Prioridad 2: Item Supplier
+                  supplier + no_identificacion → item
+                  → item_resolution = "Específico"
+     Prioridad 3: Item genérico GASTO-{CAT}-NNN por item_group actual
+                  → item_resolution = "Genérico"
+     Sin match: item_code = vacío, item_resolution = nulo
+   - Valida con validate_expense_item() antes de asignar
+   - Deriva item_group desde Item seleccionado
+5. Opción B — Clasificación manual por línea:
+   - Usuario selecciona item_code en el selector (filtrado por get_expense_items)
+   - JS deriva item_group automáticamente (read_only)
+   - item_resolution = "Manual"
+6. validate() al guardar: re-valida cada item_code y re-deriva item_group
+7. Todos los conceptos con item_code → compute_stage() → Estado "Clasificado"
+   Habilita: botón "Generar PI" (hito posterior, requiere Bloque E)
 ```
 
 ---
@@ -532,40 +536,97 @@ if concepto.item_code:
 
 **No incluye:** UI, campos nuevos en Concepto, PI.
 
-### Bloque B — Campos de clasificación en CFDI Recibido Concepto
+### Bloque B — Campos de clasificación en CFDI Recibido Concepto ✅ COMPLETADO
 
-1. Agregar `item_group`, `item_code`, `item_resolution` en `cfdi_recibido_concepto.json`
-2. `bench migrate` para aplicar schema
-3. Agregar validación de consistencia en controller (`frappe.throw()`)
-4. Agregar estados "Falta clasificación" y "Clasificado" en flujo de CFDI Recibido
-5. Tests para validación de consistencia
+**Commit:** `6e2321f` — feat(cfdi-recibidos): Bloque B — campos de clasificación en CFDI Recibido Concepto  
+**Fecha:** 2026-05-27  
+**Tests:** 8/8 ✅
 
-### Bloque C — ItemResolver
+**Lo que se implementó:**
 
-1. Crear `facturacion_mexico/cfdi_recibidos/services/item_resolver.py`
-2. Clase `ItemResolver` con método `propose(concepto_doc, item_group) → {item_code, item_resolution}`
-3. Tres niveles de matching (Mapeado → Específico → Genérico)
-4. Tests unitarios exhaustivos (mock BD lookups — no `frappe.get_doc`)
+1. Campos `item_group`, `item_code`, `item_resolution` en `cfdi_recibido_concepto.json`
+2. `bench migrate` aplicado — schema activo en `facturacion-v16.dev`
+3. `compute_stage()` — calcula estado del CFDI según conceptos clasificados
+4. Estados "Falta clasificación" y "Clasificado" integrados en flujo de CFDI Recibido
+5. Tests para validación de campos y transición de estados
 
-### Bloque D — UI/API de clasificación
+### Bloque C — ItemResolver ✅ COMPLETADO
 
-1. Endpoint de clasificación en `cfdi_recibidos/api.py`
-2. JS en CFDI Recibido: trigger al cambiar `item_group` → llama ItemResolver → puebla `item_code`
-3. Botón "Clasificar automáticamente" — aplica ItemResolver a todos los conceptos
-4. Filtro en selector `item_code`: solo Items de gasto + bloqueo por item_group
-5. Transición de estado automática al completar clasificación
-6. Tests de integración
+**Commit:** `d4b6e96` — feat(cfdi-recibidos): Bloque C — ItemResolver, 3 niveles de matching  
+**Fecha:** 2026-05-27  
+**Tests:** 9/9 ✅
 
-### Bloque E — Diagnóstico y limpieza UOM no-SAT
+**Lo que se implementó:**
 
-**Es prerequisito hard del hito de PI (DC-08).**
+1. `facturacion_mexico/cfdi_recibidos/services/item_resolver.py`
+2. `ItemResolver.propose(concepto_doc) → {item_code, item_resolution} | None`
+3. Nivel 1 (Mapeado): CFDI Concepto Mapping activo (company + supplier_rfc + sat_product_key)
+4. Nivel 2 (Específico): Item Supplier (supplier + no_identificacion)
+5. Nivel 3 (Genérico): Item genérico GASTO-{CAT}-NNN por item_group
+6. Múltiples candidatos en nivel 3 → retorna `None` (no elige arbitrariamente)
+7. Tests exhaustivos con `unittest.TestCase` (no `FrappeTestCase` — evita preloading SI)
 
-1. Crear `one_offs/diagnose_uom_non_sat.py` — solo lectura
-2. Script clasifica cada UOM en los 4 buckets (A/B/C/D)
-3. Reporta: conteo de referencias por UOM en tablas clave + Stock Settings
-4. Output: lista de candidatos a borrar (B) y a inhabilitar (C)
-5. Revisar output con usuario → **autorización explícita** antes de ejecutar limpieza
-6. Ejecutar limpieza en one-off separado tras autorización
+### Bloque D — UI/API de clasificación ✅ COMPLETADO
+
+**Commit:** `72969fa` — feat(cfdi-recibidos): Bloque D — clasificación de conceptos, validación y UI  
+**Fecha:** 2026-05-27  
+**Tests:** 23/23 ✅
+
+**Lo que se implementó (con corrección arquitectónica respecto al diseño original):**
+
+1. `item_validator.py` — `validate_expense_item()`: 5 condiciones (exists, is_purchase_item=1,
+   is_stock_item=0, is_sales_item=0, grupo hoja bajo árbol Gastos via lft/rgt nested set)
+2. `cfdi_recibido.py` validate(): usa `validate_expense_item` + siempre deriva item_group del Item
+3. `api.py` `classify_all_concepts`: usa `validate_expense_item`; `ok, _reason =` (evita conflicto con `from frappe import _`)
+4. `queries.py` `get_expense_items`: server-side query con filtro `@frappe.validate_and_sanitize_search_inputs`
+5. JS reescrito: user selecciona `item_code` → sistema deriva `item_group` (read_only); sin trigger de item_group
+6. `item_group` en Concepto: `read_only: 1` en JSON — nunca input manual
+7. Botones de clasificación agrupados en `cfdi_recibido_list.js`
+
+**Corrección arquitectónica DC-05:** diseño original pedía que usuario seleccionara item_group
+primero. Bloque D corrigió: usuario selecciona item_code únicamente. item_group es siempre derivado.
+
+### Bloque E.1 — Política base UOM SAT ✅ COMPLETADO
+
+**Commit:** `795e179` — feat(cfdi-recibidos): Bloque E.1 — política base UOM SAT (enforce + tests)  
+**Fecha:** 2026-05-27  
+**Tests:** 15/15 ✅ (`facturacion_mexico/cfdi_recibidos/tests/test_bloque_e_uom.py`)
+
+**Lo que se implementó:**
+
+1. `facturacion_mexico/cfdi_recibidos/services/uom_policy.py`:
+   - `SAT_UOMS` (frozenset, 20 entradas), `is_sat_uom()`, `validate_sat_uom()`, `get_sat_uom_list()`
+2. `facturacion_mexico/setup/enforce_sat_uom.py`:
+   - `enforce_sat_uom_policy(is_install)` — idempotente; habilita SAT, deshabilita no-SAT,
+     excluye `_Test*`, no borra ni migra histórico; `_handle_stock_settings` diferencia
+     after_migrate (solo log_error) vs after_install (cambia a H87 si stock_uom no es SAT)
+3. `hooks.py`: `after_install` → lista; `enforce_sat_uom_policy` primero en `after_migrate`
+4. `bench migrate facturacion-v16.dev`: 20 SAT enabled, 255 no-SAT disabled, _Test* intactas,
+   total 277 (sin borrado). Verificación GUI: selectores de UOM muestran solo SAT.
+
+**KWH comentado en SAT_UOMS** — descomentar cuando se confirme c_ClaveUnidad SAT.
+
+### Bloque E.2 — Enforcement UOM en CFDI Recibidos ✅ COMPLETADO
+
+**Commit:** `0ff3ad3` — feat(cfdi-recibidos): Bloque E.2 — enforcement UOM SAT en CFDI Recibidos
+**Fecha:** 2026-05-27
+**Tests:** 29/29 ✅ (6 nuevos + 15 Bloque D + 8 Bloque B sin regresión)
+
+**Lo que se implementó:**
+
+1. `item_validator.py`: 6ª condición `is_sat_uom(stock_uom)` en `validate_expense_item()`
+2. `queries.py` `get_expense_items()`: `AND stock_uom IN (SAT_UOMS)`; params → posicionales `%s`
+3. Test helpers Bloque B/D: `stock_uom = "H87 - Pieza"` (ya no lee Stock Settings)
+4. `test_bloque_e2_uom_enforcement.py`: 6 tests — validación lógica + filtro query
+5. GUI: selector `item_code` en concepto CFDI confirmado — solo muestra ítems SAT
+
+### Bloque E.3 — Enforcement Sales Invoice / timbrado ✅ COMPLETADO
+
+**Commit:** `7467c45` — feat(cfdi-recibidos): Bloque E.3 — enforcement UOM SAT en timbrado Sales Invoice
+
+1. `invoice_uom_validator.py`: `validate_invoice_items_uom()` — reporta línea, item_code, item_name y UOM
+2. `timbrado_api._validate_invoice_for_timbrado()`: llamada pre-PAC, antes de `_prepare_facturapi_data()`
+3. 8 tests con stubs (sin BD) — GUI no testeable porque E.1 deshabilita UOMs no-SAT system-wide
 
 ---
 

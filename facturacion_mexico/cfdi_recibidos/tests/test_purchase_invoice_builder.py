@@ -1,7 +1,13 @@
 """
-Tests de PurchaseInvoiceBuilder — Fase 3c.
+Tests de PurchaseInvoiceBuilder — F.3.
 
-Crea y limpia fixtures reales en BD: CFDI Recibido, supplier, Configuracion CFDI Recibidos, cuentas de impuesto.
+Crea y limpia fixtures reales en BD: CFDI Recibido, supplier, Configuracion CFDI Recibidos,
+cuentas de impuesto, Items con item_defaults.
+
+Arquitectura F.3:
+- PIBuilder lee item_code desde CFDI Recibido Concepto.
+- No consulta CFDI Concepto Mapping para construir la PI.
+- Bloquea si algún concepto no tiene item_code.
 """
 
 import json
@@ -58,15 +64,6 @@ def _get_expense_account() -> str:
 		if account:
 			return account
 	frappe.throw("No se encontró ninguna cuenta de tipo Expense en el site de pruebas")
-
-
-def _get_or_create_uom(uom_name: str) -> str:
-	if not frappe.db.exists("UOM", uom_name):
-		uom = frappe.new_doc("UOM")
-		uom.uom_name = uom_name
-		uom.insert(ignore_permissions=True)
-		frappe.db.commit()
-	return uom_name
 
 
 def _get_or_create_supplier_group() -> str:
@@ -129,16 +126,50 @@ def _make_config(company: str, reglas: list, *, wizard_completado: bool = True) 
 	return config_name
 
 
-def _make_mapping(supplier_rfc: str, sat_key: str, expense_account: str) -> str:
-	doc = frappe.new_doc("CFDI Concepto Mapping")
-	doc.supplier_rfc = supplier_rfc
-	doc.sat_product_key = sat_key
-	doc.target_type = "ExpenseAccount"
-	doc.target_account = expense_account
-	doc.is_active = 1
+def _get_or_create_test_item(item_code: str, expense_account: str) -> str:
+	"""
+	Crea un item de compra (no stock, no ventas) con expense_account en item_defaults.
+	ERPNext derivará expense_account en la PI desde estos defaults.
+	"""
+	if frappe.db.exists("Item", item_code):
+		return item_code
+
+	if not frappe.db.exists("Item Group", "Gastos"):
+		root = frappe.db.get_value("Item Group", {"parent_item_group": ""}, "name") or "All Item Groups"
+		g = frappe.new_doc("Item Group")
+		g.item_group_name = "Gastos"
+		g.parent_item_group = root
+		g.insert(ignore_permissions=True)
+		frappe.db.commit()
+
+	if not frappe.db.exists("Item Group", "_PIB TestIG"):
+		ig = frappe.new_doc("Item Group")
+		ig.item_group_name = "_PIB TestIG"
+		ig.parent_item_group = "Gastos"
+		ig.insert(ignore_permissions=True)
+		frappe.db.commit()
+
+	doc = frappe.new_doc("Item")
+	doc.item_code = item_code
+	doc.item_name = item_code
+	doc.item_group = "_PIB TestIG"
+	doc.is_stock_item = 0
+	doc.is_purchase_item = 1
+	doc.is_sales_item = 0
+	doc.stock_uom = "H87 - Pieza"
+	doc.append("uoms", {"uom": "H87 - Pieza", "conversion_factor": 1})
+	doc.append(
+		"item_defaults",
+		{
+			"company": TEST_COMPANY,
+			"expense_account": expense_account,
+			"default_warehouse": "",
+		},
+	)
+	doc.flags.ignore_validate = True
 	doc.insert(ignore_permissions=True)
 	frappe.db.commit()
-	return doc.name
+	return item_code
 
 
 def _delete_if_exists(doctype: str, name: str):
@@ -153,13 +184,11 @@ def _delete_if_exists(doctype: str, name: str):
 
 
 class TestPurchaseInvoiceBuilder(unittest.TestCase):
-	"""Tests del PurchaseInvoiceBuilder — conversión CFDI Recibido → Purchase Invoice."""
+	"""Tests del PurchaseInvoiceBuilder — conversión CFDI Recibido → Purchase Invoice (F.3)."""
 
 	@classmethod
 	def setUpClass(cls):
 		super().setUpClass()
-
-		_get_or_create_uom("Nos")
 
 		cls.expense_account = _get_expense_account()
 
@@ -179,16 +208,13 @@ class TestPurchaseInvoiceBuilder(unittest.TestCase):
 
 		cls.supplier_name = _create_supplier(f"_PIB Proveedor {_H}")
 
-		cls.mapping_name = _make_mapping(
-			supplier_rfc=TEST_SUPPLIER_RFC,
-			sat_key=TEST_SAT_KEY,
-			expense_account=cls.expense_account,
-		)
+		# Item de prueba con expense_account configurado — PIBuilder lo usará vía concepto.item_code
+		cls.test_item = _get_or_create_test_item(f"_PIB-ITEM-{_H}", cls.expense_account)
 
 	@classmethod
 	def tearDownClass(cls):
-		_delete_if_exists("CFDI Concepto Mapping", cls.mapping_name)
 		_delete_if_exists("Configuracion CFDI Recibidos", cls.config_name)
+		_delete_if_exists("Item", cls.test_item)
 		for acc in getattr(cls, "all_tax_accounts", []):
 			try:
 				_delete_if_exists("Account", acc)
@@ -227,6 +253,24 @@ class TestPurchaseInvoiceBuilder(unittest.TestCase):
 	def _uuid(self, suffix: str) -> str:
 		return f"{_UUID_PREFIX}{suffix}"
 
+	def _concepto(
+		self, item_code=None, sat_key=None, description="Servicio de prueba", unit_price=100.0, quantity=1
+	) -> dict:
+		"""Crea un concepto con item_code pre-asignado."""
+		return {
+			"sat_product_key": sat_key or TEST_SAT_KEY,
+			"description": description,
+			"quantity": quantity,
+			"unit_key": "E48",
+			"unit": "Servicio",
+			"unit_price": unit_price,
+			"amount": unit_price * quantity,
+			"discount": 0,
+			"tax_object": "02",
+			"taxes_json": "{}",
+			"item_code": item_code or self.test_item,
+		}
+
 	def _make_cfdi(
 		self,
 		suffix: str,
@@ -252,20 +296,7 @@ class TestPurchaseInvoiceBuilder(unittest.TestCase):
 			}
 
 		if conceptos is None:
-			conceptos = [
-				{
-					"sat_product_key": TEST_SAT_KEY,
-					"description": "Servicio de prueba",
-					"quantity": 1,
-					"unit_key": "E48",
-					"unit": "Servicio",
-					"unit_price": 100.0,
-					"amount": 100.0,
-					"discount": 0,
-					"tax_object": "02",
-					"taxes_json": "{}",
-				}
-			]
+			conceptos = [self._concepto()]
 
 		doc = frappe.new_doc("CFDI Recibido")
 		doc.company = TEST_COMPANY
@@ -280,7 +311,6 @@ class TestPurchaseInvoiceBuilder(unittest.TestCase):
 		doc.issue_date = issue_date or today()
 		doc.total = total
 		doc.subtotal = total - 16.0
-		# Usar la moneda real de la empresa para evitar mismatch con Creditors account
 		doc.currency = frappe.db.get_value("Company", TEST_COMPANY, "default_currency") or "MXN"
 		doc.exchange_rate = 1.0
 		doc.impuestos_json = json.dumps(impuestos_json)
@@ -338,10 +368,78 @@ class TestPurchaseInvoiceBuilder(unittest.TestCase):
 		self.assertEqual(pi_link, result["purchase_invoice"])
 
 	# ------------------------------------------------------------------ #
+	# Tests F.3 — item_code desde concepto                                 #
+	# ------------------------------------------------------------------ #
+
+	def test_pi_usa_item_code_del_concepto(self):
+		"""PI line usa el item_code del concepto, no de CFDI Concepto Mapping."""
+		cfdi = self._make_cfdi("F01")
+		result = build_purchase_invoice(cfdi)
+		pi = frappe.get_doc("Purchase Invoice", result["purchase_invoice"])
+		self.assertGreater(len(pi.items), 0)
+		self.assertEqual(pi.items[0].item_code, self.test_item)
+
+	def test_bloquea_si_falta_item_code(self):
+		"""PIBuilder lanza ValidationError si algún concepto no tiene item_code."""
+		concepto_sin_item = {
+			"sat_product_key": TEST_SAT_KEY,
+			"description": "Sin clasificar",
+			"quantity": 1,
+			"unit_key": "E48",
+			"unit": "Servicio",
+			"unit_price": 100.0,
+			"amount": 100.0,
+			"discount": 0,
+			"tax_object": "02",
+			"taxes_json": "{}",
+			# item_code ausente a propósito
+		}
+		cfdi = self._make_cfdi("F02", conceptos=[concepto_sin_item])
+		with self.assertRaises(frappe.ValidationError) as ctx:
+			build_purchase_invoice(cfdi)
+		self.assertIn("item_code", str(ctx.exception))
+
+	def test_bloquea_si_un_concepto_sin_item_code_entre_varios(self):
+		"""Bloquea si hay mezcla de conceptos con y sin item_code."""
+		conceptos = [
+			self._concepto(),  # tiene item_code
+			{  # sin item_code
+				"sat_product_key": TEST_SAT_KEY,
+				"description": "Sin clasificar",
+				"quantity": 1,
+				"unit_key": "E48",
+				"unit": "Servicio",
+				"unit_price": 50.0,
+				"amount": 50.0,
+				"discount": 0,
+				"tax_object": "02",
+				"taxes_json": "{}",
+			},
+		]
+		cfdi = self._make_cfdi("F03", total=174.0, conceptos=conceptos)
+		with self.assertRaises(frappe.ValidationError):
+			build_purchase_invoice(cfdi)
+
+	def test_mapping_no_consultado_para_construir_pi(self):
+		"""PIBuilder NO consulta CFDI Concepto Mapping — usa concepto.item_code directamente."""
+		from unittest.mock import patch
+
+		import facturacion_mexico.cfdi_recibidos.services.purchase_invoice_builder as pib_module
+
+		cfdi = self._make_cfdi("F04")
+		# Si PIBuilder aún consultara CFDI Concepto Mapping, este patch lo detectaría
+		with patch.object(frappe.db, "get_value", wraps=frappe.db.get_value) as mock_gv:
+			result = build_purchase_invoice(cfdi)
+			calls_mapping = [c for c in mock_gv.call_args_list if c[0] and c[0][0] == "CFDI Concepto Mapping"]
+		self.assertEqual(len(calls_mapping), 0, "PIBuilder no debe consultar CFDI Concepto Mapping")
+		self.assertIsNotNone(result["purchase_invoice"])
+
+	# ------------------------------------------------------------------ #
 	# Tests de items y taxes                                               #
 	# ------------------------------------------------------------------ #
 
-	def test_expense_account_en_item(self):
+	def test_expense_account_derivada_del_item(self):
+		"""expense_account en PI viene de item_defaults del item, no del mapping."""
 		cfdi = self._make_cfdi("008")
 		result = build_purchase_invoice(cfdi)
 		pi = frappe.get_doc("Purchase Invoice", result["purchase_invoice"])
@@ -363,6 +461,16 @@ class TestPurchaseInvoiceBuilder(unittest.TestCase):
 		diff = abs(flt(pi.grand_total) - 116.0)
 		self.assertLessEqual(diff, 0.02)
 
+	def test_item_uom_derivado_del_item(self):
+		"""UOM del PI item viene del stock_uom del item (H87 - Pieza)."""
+		cfdi = self._make_cfdi("U01")
+		result = build_purchase_invoice(cfdi)
+		pi = frappe.get_doc("Purchase Invoice", result["purchase_invoice"])
+		self.assertGreater(len(pi.items), 0)
+		item_uom = frappe.db.get_value("Item", self.test_item, "stock_uom")
+		self.assertEqual(pi.items[0].uom, item_uom)
+		self.assertNotEqual(pi.items[0].uom, "Nos")
+
 	# ------------------------------------------------------------------ #
 	# Idempotencia                                                         #
 	# ------------------------------------------------------------------ #
@@ -373,7 +481,6 @@ class TestPurchaseInvoiceBuilder(unittest.TestCase):
 		result1 = build_purchase_invoice(cfdi)
 		pi_name = result1["purchase_invoice"]
 
-		# Simular que cfdi_doc.save() falló: desvinculamos el CFDI
 		frappe.db.set_value("CFDI Recibido", cfdi, {"purchase_invoice": None, "status": "Clasificado"})
 		frappe.db.commit()
 
@@ -382,7 +489,6 @@ class TestPurchaseInvoiceBuilder(unittest.TestCase):
 		self.assertEqual(result2["purchase_invoice"], pi_name)
 		self.assertTrue(result2["recovered"])
 
-		# Verificar que el CFDI quedó reparado
 		status = frappe.db.get_value("CFDI Recibido", cfdi, "status")
 		self.assertEqual(status, "Convertido a PI")
 
@@ -391,7 +497,6 @@ class TestPurchaseInvoiceBuilder(unittest.TestCase):
 		cfdi = self._make_cfdi("B01", total=116.0)
 		build_purchase_invoice(cfdi)
 
-		# Cambiar total del CFDI para provocar mismatch (diff=4 MXN > 0.02)
 		frappe.db.set_value("CFDI Recibido", cfdi, "total", 120.0)
 		frappe.db.commit()
 
@@ -404,35 +509,27 @@ class TestPurchaseInvoiceBuilder(unittest.TestCase):
 		result = build_purchase_invoice(cfdi)
 		pi_name = result["purchase_invoice"]
 
-		# Simular que el PI pertenece a un CFDI diferente
 		frappe.db.set_value("Purchase Invoice", pi_name, "fm_cfdi_recibido", "CFDI-RECIBIDO-OTRO")
 		frappe.db.commit()
 
 		with self.assertRaises(frappe.ValidationError):
 			build_purchase_invoice(cfdi)
 
-		# Restaurar para cleanup correcto
 		frappe.db.set_value("Purchase Invoice", pi_name, "fm_cfdi_recibido", cfdi)
 		frappe.db.commit()
 
 	# ------------------------------------------------------------------ #
-	# Bloqueante B1 — retenciones y grand_total                            #
+	# Retenciones y grand_total                                            #
 	# ------------------------------------------------------------------ #
 
-	def test_b1_retencion_add_deduct_tax_deduct(self):
+	def test_retencion_add_deduct_tax_deduct(self):
 		"""Retención ISR → fila con add_deduct_tax='Deduct' y tax_amount positivo."""
 		impuestos = {
 			"traslados": [
-				{
-					"impuesto": "002",
-					"tipo_factor": "Tasa",
-					"tasa_cuota": "0.160000",
-					"importe": 16.0,
-				}
+				{"impuesto": "002", "tipo_factor": "Tasa", "tasa_cuota": "0.160000", "importe": 16.0}
 			],
 			"retenciones": [{"impuesto": "001", "importe": 10.0}],
 		}
-		# total = 100 + 16 - 10 = 106
 		cfdi = self._make_cfdi("B11", total=106.0, impuestos_json=impuestos)
 		result = build_purchase_invoice(cfdi)
 		pi = frappe.get_doc("Purchase Invoice", result["purchase_invoice"])
@@ -442,52 +539,18 @@ class TestPurchaseInvoiceBuilder(unittest.TestCase):
 		self.assertEqual(ret_rows[0].add_deduct_tax, "Deduct")
 		self.assertGreater(flt(ret_rows[0].tax_amount), 0)
 
-		# grand_total debe ser 106 ± tolerancia
 		diff = abs(flt(pi.grand_total) - 106.0)
 		self.assertLessEqual(diff, 0.02, f"grand_total={pi.grand_total}, esperado≈106")
 
-	# ------------------------------------------------------------------ #
-	# Bloqueante B1b — múltiples conceptos procesados correctamente        #
-	# (item_wise_tax_detail fue removido en ERPNext v16; se verifica        #
-	#  que todos los items tienen expense_account y el grand_total es OK)  #
-	# ------------------------------------------------------------------ #
-
-	def test_b1b_multiples_conceptos_procesados(self):
-		"""Múltiples conceptos: todos los items tienen expense_account y grand_total correcto."""
+	def test_multiples_conceptos_procesados(self):
+		"""Múltiples conceptos: todos los items tienen item_code y grand_total correcto."""
 		conceptos = [
-			{
-				"sat_product_key": TEST_SAT_KEY,
-				"description": "Servicio A",
-				"quantity": 1,
-				"unit_key": "E48",
-				"unit": "Servicio",
-				"unit_price": 60.0,
-				"amount": 60.0,
-				"discount": 0,
-				"tax_object": "02",
-				"taxes_json": "{}",
-			},
-			{
-				"sat_product_key": TEST_SAT_KEY,
-				"description": "Servicio B",
-				"quantity": 1,
-				"unit_key": "E48",
-				"unit": "Servicio",
-				"unit_price": 40.0,
-				"amount": 40.0,
-				"discount": 0,
-				"tax_object": "02",
-				"taxes_json": "{}",
-			},
+			self._concepto(description="Servicio A", unit_price=60.0),
+			self._concepto(description="Servicio B", unit_price=40.0),
 		]
 		impuestos = {
 			"traslados": [
-				{
-					"impuesto": "002",
-					"tipo_factor": "Tasa",
-					"tasa_cuota": "0.160000",
-					"importe": 16.0,
-				}
+				{"impuesto": "002", "tipo_factor": "Tasa", "tasa_cuota": "0.160000", "importe": 16.0}
 			],
 			"retenciones": [],
 		}
@@ -495,42 +558,32 @@ class TestPurchaseInvoiceBuilder(unittest.TestCase):
 		result = build_purchase_invoice(cfdi)
 		pi = frappe.get_doc("Purchase Invoice", result["purchase_invoice"])
 
-		# Dos conceptos → dos items en la PI
 		self.assertEqual(len(pi.items), 2)
-
-		# Cada item tiene expense_account asignada por el mapping
 		for item in pi.items:
-			self.assertIsNotNone(
-				item.expense_account,
-				f"expense_account es None en item '{item.description}'",
-			)
+			self.assertEqual(item.item_code, self.test_item)
 
-		# grand_total correcto con 2 items (60+40=100 base, IVA 16 → 116)
 		diff = abs(flt(pi.grand_total) - 116.0)
 		self.assertLessEqual(diff, 0.02, f"grand_total={pi.grand_total}, esperado≈116")
 
 	# ------------------------------------------------------------------ #
-	# Bloqueante B2 — recuperación tras fallo simulado en cfdi_doc.save()  #
+	# Recuperación tras fallo simulado                                     #
 	# ------------------------------------------------------------------ #
 
-	def test_b2_recovery_after_failed_cfdi_save(self):
+	def test_recovery_after_failed_cfdi_save(self):
 		"""PI insertado OK pero cfdi_doc.save() falló → segundo intento recupera idempotente."""
 		cfdi = self._make_cfdi("B21")
 		result1 = build_purchase_invoice(cfdi)
 		pi_name = result1["purchase_invoice"]
 		self.assertFalse(result1["recovered"])
 
-		# Simular fallo de cfdi_doc.save(): el CFDI no quedó vinculado
 		frappe.db.set_value("CFDI Recibido", cfdi, {"purchase_invoice": None, "status": "Clasificado"})
 		frappe.db.commit()
 
-		# Reintento debe reconocer el PI existente (Caso A) y reparar vínculo
 		result2 = build_purchase_invoice(cfdi)
 		self.assertEqual(result2["status"], "ok")
 		self.assertEqual(result2["purchase_invoice"], pi_name)
 		self.assertTrue(result2["recovered"])
 
-		# El CFDI debe quedar correctamente vinculado
 		cfdi_doc = frappe.get_doc("CFDI Recibido", cfdi)
 		self.assertEqual(cfdi_doc.purchase_invoice, pi_name)
 		self.assertEqual(cfdi_doc.status, "Convertido a PI")

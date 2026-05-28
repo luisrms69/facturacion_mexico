@@ -392,12 +392,14 @@ def propose_item(
 @frappe.whitelist()
 def classify_all_concepts(cfdi_recibido: str) -> dict:
 	"""
-	Aplica ItemResolver a todos los conceptos que aún no tienen item_code.
+	Aplica niveles automáticos confiables de ItemResolver (Mapeado + Específico).
 	No sobreescribe conceptos ya clasificados.
+	No asigna Items genéricos GASTO-* automáticamente.
+	Si no hay match, deja el concepto sin item_code (pendiente).
 	Rechaza ítems que no pasen validate_expense_item.
 	Actualiza status con compute_stage tras las asignaciones.
 
-	Retorna: {actualizados, sin_match, nuevo_status}
+	Retorna: {auto_clasificados, pendientes, status}
 	"""
 	from facturacion_mexico.cfdi_recibidos.services.item_resolver import ItemResolver
 	from facturacion_mexico.cfdi_recibidos.services.item_validator import validate_expense_item
@@ -418,8 +420,8 @@ def classify_all_concepts(cfdi_recibido: str) -> dict:
 		)
 
 	resolver = ItemResolver()
-	actualizados = 0
-	sin_match = 0
+	auto_clasificados = 0
+	pendientes = 0
 
 	for concepto in doc.conceptos or []:
 		if concepto.item_code:
@@ -435,12 +437,12 @@ def classify_all_concepts(cfdi_recibido: str) -> dict:
 		)
 
 		if not proposal["item_code"]:
-			sin_match += 1
+			pendientes += 1
 			continue
 
 		ok, _reason = validate_expense_item(proposal["item_code"])
 		if not ok:
-			sin_match += 1
+			pendientes += 1
 			continue
 
 		item_group = frappe.db.get_value("Item", proposal["item_code"], "item_group")
@@ -453,14 +455,14 @@ def classify_all_concepts(cfdi_recibido: str) -> dict:
 				"item_group": item_group,
 			},
 		)
-		actualizados += 1
+		auto_clasificados += 1
 
 	doc.reload()
 	nuevo_status = compute_stage(doc)
 	frappe.db.set_value("CFDI Recibido", cfdi_recibido, "status", nuevo_status)
 	frappe.db.commit()
 
-	return {"actualizados": actualizados, "sin_match": sin_match, "nuevo_status": nuevo_status}
+	return {"auto_clasificados": auto_clasificados, "pendientes": pendientes, "status": nuevo_status}
 
 
 @frappe.whitelist()

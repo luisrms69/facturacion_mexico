@@ -1,7 +1,11 @@
 """
 PurchaseInvoiceBuilder — Convierte CFDI Recibido a Purchase Invoice Draft.
 
-Flujo: CFDI Recibido → idempotencia → items (via mapeo) → taxes (via TaxResolver) → PI draft
+Flujo: CFDI Recibido → idempotencia → validar item_codes → items → taxes → PI draft
+
+Precondición: todos los conceptos deben tener item_code confirmado en CFDI Recibido Concepto.
+La clasificación (asignación de item_code) ocurre antes en el flujo de clasificación.
+CFDI Concepto Mapping NO se consulta aquí — su rol es clasificar, no construir la PI.
 
 Idempotencia:
   A: UUID existe, mismo CFDI, grand_total OK          → repara vínculo, recovered=True
@@ -18,18 +22,19 @@ from frappe.utils import flt, today
 from facturacion_mexico.cfdi_recibidos.services.tax_resolver import resolve_taxes
 
 _TOLERANCE = 0.02
-_DEFAULT_UOM = "Nos"
 
 
 def build_purchase_invoice(cfdi_recibido_name: str) -> dict:
 	"""
 	Crea Purchase Invoice Draft desde CFDI Recibido. Idempotente por UUID.
 
+	Precondición: todos los conceptos deben tener item_code asignado.
+
 	Returns:
 	    {"status": "ok", "purchase_invoice": name, "recovered": bool}
 
 	Raises:
-	    frappe.ValidationError: configuración faltante o incongruencia de datos
+	    frappe.ValidationError: item_code faltante, configuración faltante o incongruencia
 	"""
 	cfdi_doc = frappe.get_doc("CFDI Recibido", cfdi_recibido_name)
 
@@ -37,8 +42,9 @@ def build_purchase_invoice(cfdi_recibido_name: str) -> dict:
 	if recovery is not None:
 		return recovery
 
-	concepto_mappings = _get_concepto_mappings(cfdi_doc)
-	pi = _build_pi_doc(cfdi_doc, concepto_mappings)
+	_validate_all_conceptos_classified(cfdi_doc)
+
+	pi = _build_pi_doc(cfdi_doc)
 	pi.insert(ignore_permissions=True)
 
 	_validate_grand_total(pi, cfdi_doc)
@@ -48,6 +54,19 @@ def build_purchase_invoice(cfdi_recibido_name: str) -> dict:
 	cfdi_doc.save(ignore_permissions=True)
 
 	return {"status": "ok", "purchase_invoice": pi.name, "recovered": False}
+
+
+def _validate_all_conceptos_classified(cfdi_doc):
+	"""Bloquea si algún concepto no tiene item_code confirmado."""
+	unclassified = [c for c in (cfdi_doc.conceptos or []) if not getattr(c, "item_code", None)]
+	if unclassified:
+		frappe.throw(
+			_(
+				"No se puede generar Purchase Invoice: {0} concepto(s) sin item_code. "
+				"Clasifique todos los conceptos antes de generar la PI."
+			).format(len(unclassified)),
+			frappe.ValidationError,
+		)
 
 
 def _check_idempotency(cfdi_doc) -> "dict | None":
@@ -98,7 +117,7 @@ def _check_idempotency(cfdi_doc) -> "dict | None":
 	)
 
 
-def _build_pi_doc(cfdi_doc, concepto_mappings: list):
+def _build_pi_doc(cfdi_doc):
 	pi = frappe.new_doc("Purchase Invoice")
 	pi.supplier = cfdi_doc.supplier
 	pi.company = cfdi_doc.company
@@ -113,10 +132,7 @@ def _build_pi_doc(cfdi_doc, concepto_mappings: list):
 	pi.is_paid = 0
 
 	for concepto in cfdi_doc.conceptos:
-		mapping = _get_mapping_for_concepto(
-			cfdi_doc.company, cfdi_doc.supplier_rfc or "", concepto.sat_product_key or ""
-		)
-		_append_item(pi, concepto, mapping)
+		_append_item(pi, concepto)
 
 	impuestos = cfdi_doc.impuestos_json
 	if isinstance(impuestos, str):
@@ -129,81 +145,16 @@ def _build_pi_doc(cfdi_doc, concepto_mappings: list):
 	return pi
 
 
-def _get_concepto_mappings(cfdi_doc) -> list:
-	"""Retorna lista deduplicada de mappings completos para todos los conceptos."""
-	seen = set()
-	mappings = []
-	for concepto in cfdi_doc.conceptos:
-		mapping = _get_mapping_for_concepto(
-			cfdi_doc.company, cfdi_doc.supplier_rfc or "", concepto.sat_product_key or ""
-		)
-		if mapping and mapping.get("name") not in seen:
-			seen.add(mapping["name"])
-			mappings.append(mapping)
-	return mappings
-
-
-def _get_mapping_for_concepto(company: str, supplier_rfc: str, sat_product_key: str) -> "dict | None":
-	company_filter = ["in", [company, "", None]]
-	fields = [
-		"name",
-		"target_type",
-		"target_item",
-		"target_account",
-		"target_cost_center",
-	]
-	for filters in [
+def _append_item(pi, concepto):
+	pi.append(
+		"items",
 		{
-			"is_active": 1,
-			"company": company_filter,
-			"supplier_rfc": supplier_rfc,
-			"sat_product_key": sat_product_key,
+			"item_code": concepto.item_code,
+			"description": concepto.description or concepto.sat_product_key or "",
+			"qty": flt(concepto.quantity) or 1,
+			"rate": flt(concepto.unit_price),
 		},
-		{
-			"is_active": 1,
-			"company": company_filter,
-			"supplier_rfc": supplier_rfc,
-			"sat_product_key": ["in", ["", None]],
-		},
-		{
-			"is_active": 1,
-			"company": company_filter,
-			"supplier_rfc": ["in", ["", None]],
-			"sat_product_key": sat_product_key,
-		},
-	]:
-		result = frappe.db.get_value("CFDI Concepto Mapping", filters, fields, as_dict=True)
-		if result:
-			return result
-	return None
-
-
-def _append_item(pi, concepto, mapping: "dict | None"):
-	if not mapping:
-		frappe.throw(
-			_("Concepto con clave SAT '{0}' no tiene regla de clasificación configurada").format(
-				concepto.sat_product_key or "(sin clave)"
-			),
-			frappe.ValidationError,
-		)
-
-	row = {
-		"description": concepto.description or concepto.sat_product_key or "",
-		"qty": flt(concepto.quantity) or 1,
-		"rate": flt(concepto.unit_price),
-		"uom": _DEFAULT_UOM,
-	}
-
-	if mapping.get("target_type") == "Item":
-		row["item_code"] = mapping["target_item"]
-	else:
-		row["item_name"] = concepto.description or concepto.sat_product_key or "Servicio"
-		row["expense_account"] = mapping["target_account"]
-
-	if mapping.get("target_cost_center"):
-		row["cost_center"] = mapping["target_cost_center"]
-
-	pi.append("items", row)
+	)
 
 
 def _append_tax(pi, row: dict):

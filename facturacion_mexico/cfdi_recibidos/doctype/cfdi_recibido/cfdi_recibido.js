@@ -4,8 +4,13 @@
 frappe.ui.form.on("CFDI Recibido", {
 	refresh(frm) {
 		_set_item_code_query(frm);
-		if (!frm.is_new() && frm.doc.status === "Falta clasificación") {
-			_add_classify_button(frm);
+		if (!frm.is_new()) {
+			if (frm.doc.status === "Falta clasificación") {
+				_add_classify_button(frm);
+			}
+			if (frm.doc.status === "Clasificado" || frm.doc.status === "Error conversión") {
+				_add_generar_pi_button(frm);
+			}
 		}
 	},
 });
@@ -34,15 +39,47 @@ function _add_classify_button(frm) {
 			freeze_message: __("Clasificando conceptos..."),
 			callback(r) {
 				if (!r.message) return;
-				const { actualizados, sin_match, nuevo_status } = r.message;
+				const { auto_clasificados, pendientes, status } = r.message;
 				frappe.msgprint({
 					title: __("Clasificación automática"),
 					message: `
-						<p>${__("Conceptos clasificados")}: <strong>${actualizados}</strong></p>
-						<p>${__("Sin coincidencia")}: <strong>${sin_match}</strong></p>
-						<p>${__("Estado")}: <strong>${nuevo_status}</strong></p>
+						<p>${__("Clasificados automáticamente")}: <strong>${auto_clasificados}</strong></p>
+						<p>${__("Pendientes de decisión")}: <strong>${pendientes}</strong></p>
+						<p>${__("Estado")}: <strong>${status}</strong></p>
 					`,
-					indicator: sin_match > 0 ? "orange" : "green",
+					indicator: pendientes > 0 ? "orange" : "green",
+				});
+				frm.reload_doc();
+			},
+		});
+	});
+}
+
+function _add_generar_pi_button(frm) {
+	frm.add_custom_button(__("Generar Purchase Invoice"), () => {
+		frappe.call({
+			method: "facturacion_mexico.cfdi_recibidos.api.build_purchase_invoice",
+			args: { cfdi_recibido: frm.doc.name },
+			freeze: true,
+			freeze_message: __("Generando Purchase Invoice..."),
+			callback(r) {
+				if (!r.message) return;
+				const { status, purchase_invoice, message } = r.message;
+				if (status === "error") {
+					frappe.msgprint({
+						title: __("Error al generar PI"),
+						message: message,
+						indicator: "red",
+					});
+					frm.reload_doc();
+					return;
+				}
+				frappe.msgprint({
+					title: __("Purchase Invoice generada"),
+					message:
+						`<p>${message}</p>` +
+						`<p><a href="/app/purchase-invoice/${purchase_invoice}">${purchase_invoice}</a></p>`,
+					indicator: "green",
 				});
 				frm.reload_doc();
 			},
