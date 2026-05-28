@@ -6,9 +6,7 @@ ensure_cfdi_received_expense_items()
     Idempotente: no modifica Items existentes.
     fm_producto_servicio_sat: se asigna solo si el código existe en SAT Producto Servicio.
 
-    Ítem GASTO-OPR-003 (Energía eléctrica) usa UOM provisional MON - Mes.
-    KWH - Kilowatt hora pendiente validación contra c_ClaveUnidad SAT (DC-09).
-    Actualizar uom y fixture uom.json cuando se valide.
+    Ítem GASTO-OPR-003 (Energía eléctrica) usa KWH - Kilowatt hora (c_ClaveUnidad SAT confirmado).
 
     Retorna: {creados, existentes, sin_clave_prod_serv}
 """
@@ -72,7 +70,7 @@ _ITEMS = [
     {"item_code": "GASTO-OPR-001", "item_name": "Teléfono, internet",           "item_group": "Teléfono, internet",           "uom": "MON - Mes",        "clave_prod_serv": "83111500"},
     {"item_code": "GASTO-OPR-002", "item_name": "Agua",                         "item_group": "Agua",                         "uom": "MTQ - Metro cúbico","clave_prod_serv": "83111700"},
     # UOM provisional MON - Mes. KWH pendiente validación c_ClaveUnidad SAT (DC-09, bloqueante antes de PI).
-    {"item_code": "GASTO-OPR-003", "item_name": "Energía eléctrica",            "item_group": "Energía eléctrica",            "uom": "MON - Mes",        "clave_prod_serv": "81101500"},
+    {"item_code": "GASTO-OPR-003", "item_name": "Energía eléctrica",            "item_group": "Energía eléctrica",            "uom": "KWH - Kilowatt hora", "clave_prod_serv": "81101500"},
     {"item_code": "GASTO-OPR-004", "item_name": "Vigilancia y seguridad",       "item_group": "Vigilancia y seguridad",       "uom": "MON - Mes",        "clave_prod_serv": "92101500"},
     {"item_code": "GASTO-OPR-005", "item_name": "Limpieza",                     "item_group": "Limpieza",                     "uom": "MON - Mes",        "clave_prod_serv": "76111501"},
     {"item_code": "GASTO-OPR-006", "item_name": "Mantenimiento y conservación", "item_group": "Mantenimiento y conservación", "uom": "MON - Mes",        "clave_prod_serv": "72101500"},

@@ -2,7 +2,7 @@
 
 **Fecha:** 2026-05-27
 **Rama activa:** `feature/cfdi-recibidos-fase3-pi`
-**Tarea actual:** Infraestructura prerequisito PI completa — próximo: revisar TaxResolver/PIBuilder para desbloquear Hito D
+**Tarea actual:** Prerequisites PI completos (incl. KWH) — próximo: revisión TaxResolver/PIBuilder para desbloquear Hito D
 
 ---
 
@@ -39,7 +39,8 @@ Plan de Hito D aprobado + decisión sobre retenciones + KWH confirmado → imple
 - Bloque D `72969fa` — validate_expense_item, classify_all_concepts, UI
 - Bloque E.1 `795e179` — uom_policy.py, enforce_sat_uom.py, hooks
 - Bloque E.2 `0ff3ad3` — enforcement UOM en CFDI Recibidos
-- Bloque E.3 `(este commit)` — invoice_uom_validator.py, enforcement en timbrado
+- Bloque E.3 `7467c45` — invoice_uom_validator.py, enforcement en timbrado
+- KWH `(este commit)` — c_ClaveUnidad confirmado, SAT_UOMS=21, GASTO-OPR-003 corregido
 
 ### En progreso
 - Nada — prerequisites completos, pendiente arquitectura Hito D
@@ -47,8 +48,8 @@ Plan de Hito D aprobado + decisión sobre retenciones + KWH confirmado → imple
 ### Pendiente inmediato
 1. Revisión `tax_resolver.py` + `purchase_invoice_builder.py` — arquitectura y plan Hito D
 2. Decisión sobre retenciones (ISR/IVA retenido) — requiere XML real de honorarios
-3. KWH — confirmar c_ClaveUnidad SAT; descomentar en uom_policy.py + corregir GASTO-OPR-003
-4. Implementar Hito D (PI Builder) — bloqueado hasta los 3 puntos anteriores
+3. ~~KWH~~ — resuelto en este commit
+4. Implementar Hito D (PI Builder) — bloqueado hasta los 2 puntos anteriores
 
 ### No repetir
 - No proponer commits sin que el usuario lo solicite explícitamente en ese turno
@@ -62,8 +63,8 @@ Plan de Hito D aprobado + decisión sobre retenciones + KWH confirmado → imple
 
 ## Decisiones vigentes
 - SAT_UOMS: frozenset 20 entradas en `uom_policy.py` — fuente de verdad única
-- KWH comentado en SAT_UOMS — descomentar solo cuando se confirme c_ClaveUnidad SAT
-- GASTO-OPR-003 usa MON — válido pero semánticamente incorrecto; corregir con KWH
+- KWH - Kilowatt hora en SAT_UOMS (21 entradas) — c_ClaveUnidad SAT confirmado
+- GASTO-OPR-003 usa KWH - Kilowatt hora (corregido)
 - E.3 enforcement en `_validate_invoice_for_timbrado()` — no en `before_submit`
 - `get_expense_items()`: params posicionales `%s` para IN clause
 - Test helpers: `stock_uom = "H87 - Pieza"` hardcoded — no leer Stock Settings
@@ -95,5 +96,4 @@ Plan de Hito D aprobado + decisión sobre retenciones + KWH confirmado → imple
 
 ## Información faltante
 - XML real de honorarios con ISR/IVA retenido (prerequisito retenciones)
-- c_ClaveUnidad SAT para KWH (prerequisito GASTO-OPR-003)
 - Arquitectura correcta de TaxResolver para v16

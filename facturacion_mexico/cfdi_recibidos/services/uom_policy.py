@@ -22,7 +22,7 @@ SAT_UOMS: frozenset[str] = frozenset(
 		"MON - Mes",
 		"ANN - Año",
 		"NA - No Aplica",
-		# "KWH - Kilowatt hora",  ← descomentar cuando se confirme c_ClaveUnidad SAT
+		"KWH - Kilowatt hora",
 	}
 )
 
