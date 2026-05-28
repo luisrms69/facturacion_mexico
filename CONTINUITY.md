@@ -2,90 +2,98 @@
 
 **Fecha:** 2026-05-27
 **Rama activa:** `feature/cfdi-recibidos-fase3-pi`
-**Tarea actual:** Bloque E (UOM) — E.2 listo para commit, próximo E.3 (Sales Invoice)
+**Tarea actual:** Infraestructura prerequisito PI completa — próximo: revisar TaxResolver/PIBuilder para desbloquear Hito D
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-Módulo CFDI Recibidos — flujo de recepción y clasificación de facturas de proveedores.
-Bloques A–D + E.1 commiteados. E.2 implementado y validado, pendiente commit.
+Módulo CFDI Recibidos — flujo completo XML → Purchase Invoice.
+Bloques A–E (items de gasto + clasificación + UOM) completados y commiteados.
+Estos bloques son infraestructura prerequisito del PI Builder, no el PI Builder en sí.
 
 Plan que estoy siguiendo:
-`docs/development/PLAN_CFDI_RECIBIDOS_ITEMS_GASTO_UOM.md` — PLAN ACTIVO.
+`docs/development/PLAN_ACTUAL_CFDI_RECIBIDOS.md` — FUENTE DE VERDAD ÚNICA.
+(PLAN_CFDI_RECIBIDOS_ITEMS_GASTO_UOM.md era el plan de los Bloques A–E, ya terminado.)
 
 Objetivo inmediato:
-Commitear E.2 y avanzar a E.3 — enforcement UOM en Sales Invoice / timbrado.
+Revisión arquitectónica de `tax_resolver.py` y `purchase_invoice_builder.py` para
+definir plan de implementación de Hito D. Ningún código nuevo antes de ese plan.
 
 Criterio de avance:
-E.3: timbrado de Sales Invoice con línea de item UOM no-SAT debe ser bloqueado.
+Plan de Hito D aprobado + decisión sobre retenciones + KWH confirmado → implementar PI Builder.
 
 ---
 
 ## Estado actual
 
 ### Ya cerrado
-- Bloque A `30022f9` — 84 Items genéricos GASTO-{CAT}-{NNN}, 10 tests
-- Bloque B `6e2321f` — campos clasificación en concepto, 8 tests
-- Bloque C `d4b6e96` — ItemResolver 3 niveles, 9 tests
-- Bloque D `72969fa` — validate_expense_item, classify_all_concepts, UI, 23 tests
-- Bloque E.1 `795e179` — uom_policy.py, enforce_sat_uom.py, hooks, 15 tests
+- Hito A `7c6b44f` — Upload → Proveedor
+- Hito B `ac318a7` — Generar proveedores faltantes
+- Hito C.1 `40638d5` / `82e9849` — Config CFDI Recibidos + Item Groups
+- Hito C.2 `8699ae7` — Department assignment (23 tests)
+- Bloque A `30022f9` — 84 Items genéricos GASTO-{CAT}-{NNN}
+- Bloque B `6e2321f` — campos clasificación en concepto
+- Bloque C `d4b6e96` — ItemResolver 3 niveles
+- Bloque D `72969fa` — validate_expense_item, classify_all_concepts, UI
+- Bloque E.1 `795e179` — uom_policy.py, enforce_sat_uom.py, hooks
+- Bloque E.2 `0ff3ad3` — enforcement UOM en CFDI Recibidos
+- Bloque E.3 `(este commit)` — invoice_uom_validator.py, enforcement en timbrado
 
 ### En progreso
-- E.2 implementado y validado — pendiente commit en este turno
+- Nada — prerequisites completos, pendiente arquitectura Hito D
 
 ### Pendiente inmediato
-1. Commit E.2 (este turno)
-2. Bloque E.3 — enforcement UOM en Sales Invoice / timbrado
-3. KWH — confirmar c_ClaveUnidad SAT; descomentar en uom_policy.py y corregir GASTO-OPR-003
+1. Revisión `tax_resolver.py` + `purchase_invoice_builder.py` — arquitectura y plan Hito D
+2. Decisión sobre retenciones (ISR/IVA retenido) — requiere XML real de honorarios
+3. KWH — confirmar c_ClaveUnidad SAT; descomentar en uom_policy.py + corregir GASTO-OPR-003
+4. Implementar Hito D (PI Builder) — bloqueado hasta los 3 puntos anteriores
 
 ### No repetir
 - No proponer commits sin que el usuario lo solicite explícitamente en ese turno
 - No hacer bench migrate sin autorización explícita
 - No usar `FrappeTestCase` — usar `unittest.TestCase`
+- No modificar `tax_resolver.py` ni `purchase_invoice_builder.py` sin plan aprobado
 - No borrar UOMs, no migrar histórico, no tocar conversiones
-- No cambiar el default de `stock_uom` en Item DocType — es ERPNext nativo
-- item_group en concepto es read_only y siempre derivado
+- GUI test de E.3 no es posible: E.1 deshabilita UOMs no-SAT system-wide. Validación aceptada vía 8 tests unitarios.
 
 ---
 
 ## Decisiones vigentes
 - SAT_UOMS: frozenset 20 entradas en `uom_policy.py` — fuente de verdad única
-- `validate_expense_item()`: 6 condiciones — la 5ª es `is_sat_uom(stock_uom)`
-- `get_expense_items()`: usa params posicionales `%s` (necesario para IN clause)
-- Test helpers en Bloque B/D usan `stock_uom = "H87 - Pieza"` — no leer Stock Settings
-- KWH comentado en SAT_UOMS — descomentar solo cuando se confirme c_ClaveUnidad
-- GASTO-OPR-003 usa MON — válido (MON está en SAT_UOMS); KWH es corrección semántica futura
+- KWH comentado en SAT_UOMS — descomentar solo cuando se confirme c_ClaveUnidad SAT
+- GASTO-OPR-003 usa MON — válido pero semánticamente incorrecto; corregir con KWH
+- E.3 enforcement en `_validate_invoice_for_timbrado()` — no en `before_submit`
+- `get_expense_items()`: params posicionales `%s` para IN clause
+- Test helpers: `stock_uom = "H87 - Pieza"` hardcoded — no leer Stock Settings
 
 ---
 
 ## Archivos relevantes ahora
 
-### Leer primero
-- `facturacion_mexico/cfdi_recibidos/services/uom_policy.py` — SAT_UOMS
-- `facturacion_mexico/cfdi_recibidos/services/item_validator.py` — 6 condiciones actuales
-
-### Probablemente editar (E.3)
-- Código de timbrado / Sales Invoice validate — agregar check UOM SAT en líneas
-- Tests E.3
-
-### No tocar
-- `facturacion_mexico/cfdi_recibidos/services/item_resolver.py`
+### Leer primero (para Hito D)
+- `docs/development/PLAN_ACTUAL_CFDI_RECIBIDOS.md` — fuente de verdad del flujo completo
 - `facturacion_mexico/cfdi_recibidos/services/purchase_invoice_builder.py`
+- `facturacion_mexico/cfdi_recibidos/services/tax_resolver.py`
+- `docs/development/REPORTE_INVESTIGACION_SAT_CFDI_RECIBIDOS.md` — problemas encontrados
+
+### No tocar sin plan aprobado
+- `facturacion_mexico/cfdi_recibidos/services/purchase_invoice_builder.py`
+- `facturacion_mexico/cfdi_recibidos/services/tax_resolver.py`
 - `facturacion_mexico/one_offs/` — nunca commitear
 
 ---
 
 ## Riesgos / cuidados
-- E.3 requiere identificar el punto exacto de enforcement en Sales Invoice / timbrado
-  (before_submit o validate según alcance definido)
-- KWH con MON en GASTO-OPR-003: semánticamente incorrecto para PI Builder,
-  no bloquea E.3 — corregir después de confirmar c_ClaveUnidad SAT
-- bench migrate debe correr en `facturacion-v16.dev` al cambiar schema
+- PIBuilder original falló en GUI al paso ~2 de 20+ — necesita reescritura con arquitectura nueva
+- Retenciones ERPNext v16 pueden diferir de v15 — no implementar sin XML real
+- KWH: nombre exacto en c_ClaveUnidad SAT puede diferir de "KWH - Kilowatt hora"
+- bench migrate requerido al agregar campos en Purchase Invoice (Hito D)
 
 ---
 
 ## Información faltante
-- UOM SAT correcta para KWH — verificar catálogo SAT c_ClaveUnidad
-- Punto exacto de enforcement E.3: ¿validate() o before_submit() en Sales Invoice?
+- XML real de honorarios con ISR/IVA retenido (prerequisito retenciones)
+- c_ClaveUnidad SAT para KWH (prerequisito GASTO-OPR-003)
+- Arquitectura correcta de TaxResolver para v16
