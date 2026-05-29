@@ -1,3 +1,9 @@
+> **OBSOLETO**
+>
+> Este documento queda archivado como referencia histórica. No representa el plan vigente ni debe usarse como fuente operativa actual.
+
+---
+
 # PROPUESTA: ITT Específico por Item con Cuota IEPS
 
 **Fecha:** 2025-10-29 04:00

@@ -1,3 +1,9 @@
+> **OBSOLETO**
+>
+> Este documento queda archivado como referencia histórica. No representa el plan vigente ni debe usarse como fuente operativa actual.
+
+---
+
 # 📊 REPORTE AS-IS: SISTEMA TEMPLATES FISCALES MÉXICO (POST-HITO 1)
 
 **Fecha:** 2025-09-22 (Actualizado post-Hito 1)

@@ -1,3 +1,9 @@
+> **OBSOLETO**
+>
+> Este documento queda archivado como referencia histórica. No representa el plan vigente ni debe usarse como fuente operativa actual.
+
+---
+
 # Tabla Comparativa - Generación Parcial Templates Fiscales
 
 **Fecha:** 2025-10-25
