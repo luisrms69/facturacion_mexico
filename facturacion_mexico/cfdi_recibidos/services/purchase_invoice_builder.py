@@ -21,7 +21,43 @@ from frappe.utils import flt
 
 from facturacion_mexico.cfdi_recibidos.services.tax_resolver import resolve_taxes
 
-_TOLERANCE = 0.02
+_DEFAULT_TOL_ABS = 1.00
+_DEFAULT_TOL_PCT = 0.5
+
+
+def _load_tolerances(company: str) -> "tuple[float, float]":
+	"""Lee tolerancias de Configuracion CFDI Recibidos. Usa defaults si no están configuradas."""
+	config_name = f"CFDI-REC-CFG-{company}"
+	if not frappe.db.exists("Configuracion CFDI Recibidos", config_name):
+		return _DEFAULT_TOL_ABS, _DEFAULT_TOL_PCT
+	values = frappe.db.get_value(
+		"Configuracion CFDI Recibidos",
+		config_name,
+		["tolerancia_total_absoluta", "tolerancia_total_porcentual"],
+		as_dict=True,
+	)
+	if not values:
+		return _DEFAULT_TOL_ABS, _DEFAULT_TOL_PCT
+	tol_abs = (
+		flt(values.tolerancia_total_absoluta)
+		if values.tolerancia_total_absoluta is not None
+		else _DEFAULT_TOL_ABS
+	)
+	tol_pct = (
+		flt(values.tolerancia_total_porcentual)
+		if values.tolerancia_total_porcentual is not None
+		else _DEFAULT_TOL_PCT
+	)
+	return tol_abs, tol_pct
+
+
+def _within_tolerance(diff: float, total_xml: float, tol_abs: float, tol_pct: float) -> bool:
+	"""True si diff es aceptable: cumple tolerancia absoluta O porcentual (si pct > 0)."""
+	if diff <= tol_abs:
+		return True
+	if tol_pct > 0 and total_xml > 0:
+		return diff <= total_xml * (tol_pct / 100)
+	return False
 
 
 def build_purchase_invoice(cfdi_recibido_name: str) -> dict:
@@ -100,7 +136,8 @@ def _check_idempotency(cfdi_doc) -> "dict | None":
 
 	# Mismo CFDI → Caso A (reparación) o Caso B (mismatch)
 	diff = abs(flt(existing.grand_total) - flt(cfdi_doc.total))
-	if diff <= _TOLERANCE:
+	tol_abs, tol_pct = _load_tolerances(cfdi_doc.company)
+	if _within_tolerance(diff, flt(cfdi_doc.total), tol_abs, tol_pct):
 		# Caso A: reparar vínculo si es necesario
 		needs_save = cfdi_doc.purchase_invoice != existing.name or cfdi_doc.status != "Convertido a PI"
 		if needs_save:
@@ -113,14 +150,13 @@ def _check_idempotency(cfdi_doc) -> "dict | None":
 	frappe.throw(
 		_(
 			"Purchase Invoice {0} ya existe para UUID {1} pero su grand_total ({2}) "
-			"difiere del XML ({3}) en {4} MXN, mayor a la tolerancia ({5})."
+			"difiere del XML ({3}) en {4} MXN, mayor a la tolerancia configurada."
 		).format(
 			existing.name,
 			cfdi_doc.uuid,
 			flt(existing.grand_total, 2),
 			flt(cfdi_doc.total, 2),
 			round(diff, 4),
-			_TOLERANCE,
 		),
 		frappe.ValidationError,
 	)
@@ -190,16 +226,16 @@ def _append_tax(pi, row: dict):
 
 def _validate_grand_total(pi, cfdi_doc):
 	diff = abs(flt(pi.grand_total) - flt(cfdi_doc.total))
-	if diff > _TOLERANCE:
+	tol_abs, tol_pct = _load_tolerances(cfdi_doc.company)
+	if not _within_tolerance(diff, flt(cfdi_doc.total), tol_abs, tol_pct):
 		frappe.throw(
 			_(
 				"grand_total calculado ({0}) difiere del XML ({1}) en {2} MXN, "
-				"mayor a la tolerancia ({3}). Verificar impuestos y conceptos."
+				"mayor a la tolerancia configurada. Verificar impuestos y conceptos."
 			).format(
 				flt(pi.grand_total, 2),
 				flt(cfdi_doc.total, 2),
 				round(diff, 4),
-				_TOLERANCE,
 			),
 			frappe.ValidationError,
 		)

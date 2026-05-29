@@ -112,13 +112,24 @@ def _regla(impuesto_sat, tasa_cuota, descripcion, cuenta, *, es_retencion=False,
 	}
 
 
-def _make_config(company: str, reglas: list, *, wizard_completado: bool = True) -> str:
+def _make_config(
+	company: str,
+	reglas: list,
+	*,
+	wizard_completado: bool = True,
+	tol_abs: "float | None" = None,
+	tol_pct: "float | None" = None,
+) -> str:
 	config_name = f"CFDI-REC-CFG-{company}"
 	if frappe.db.exists("Configuracion CFDI Recibidos", config_name):
 		frappe.delete_doc("Configuracion CFDI Recibidos", config_name, force=True)
 	config = frappe.new_doc("Configuracion CFDI Recibidos")
 	config.company = company
 	config.wizard_completado = 1 if wizard_completado else 0
+	if tol_abs is not None:
+		config.tolerancia_total_absoluta = tol_abs
+	if tol_pct is not None:
+		config.tolerancia_total_porcentual = tol_pct
 	for regla in reglas:
 		config.append("reglas_impuesto", regla)
 	config.insert(ignore_permissions=True, ignore_links=True)
@@ -587,3 +598,215 @@ class TestPurchaseInvoiceBuilder(unittest.TestCase):
 		cfdi_doc = frappe.get_doc("CFDI Recibido", cfdi)
 		self.assertEqual(cfdi_doc.purchase_invoice, pi_name)
 		self.assertEqual(cfdi_doc.status, "Convertido a PI")
+
+
+# ---------------------------------------------------------------------------
+# Tests de lógica pura — _within_tolerance (sin BD, sin frappe)
+# ---------------------------------------------------------------------------
+
+
+class TestWithinTolerance(unittest.TestCase):
+	"""Tests de _within_tolerance como función pura."""
+
+	def _call(self, diff, total_xml, tol_abs, tol_pct):
+		from facturacion_mexico.cfdi_recibidos.services.purchase_invoice_builder import (
+			_within_tolerance,
+		)
+
+		return _within_tolerance(diff, total_xml, tol_abs, tol_pct)
+
+	def test_pasa_por_tolerancia_absoluta(self):
+		self.assertTrue(self._call(0.5, 100.0, 1.0, 0.0))
+
+	def test_falla_absoluta_porcentual_desactivada(self):
+		self.assertFalse(self._call(2.0, 100.0, 1.0, 0.0))
+
+	def test_pasa_por_tolerancia_porcentual(self):
+		# diff=1.5, tol_abs=1.0 → abs falla; tol_pct=2.0% de 100=2.0 ≥ 1.5 → pasa
+		self.assertTrue(self._call(1.5, 100.0, 1.0, 2.0))
+
+	def test_falla_excede_ambas_tolerancias(self):
+		# diff=3.0, tol_abs=1.0 → abs falla; 2% de 100=2.0 < 3.0 → pct falla
+		self.assertFalse(self._call(3.0, 100.0, 1.0, 2.0))
+
+	def test_porcentual_cero_desactiva_porcentual(self):
+		# tol_pct=0 → pct desactivado; abs falla también → False
+		self.assertFalse(self._call(2.0, 100.0, 0.5, 0.0))
+
+	def test_diff_cero_siempre_pasa(self):
+		self.assertTrue(self._call(0.0, 100.0, 0.0, 0.0))
+
+	def test_total_cero_no_activa_porcentual(self):
+		# total=0 → división bloqueada; solo importa abs
+		self.assertFalse(self._call(2.0, 0.0, 1.0, 5.0))
+
+	def test_diff_exactamente_igual_a_absoluta_pasa(self):
+		self.assertTrue(self._call(1.0, 100.0, 1.0, 0.0))
+
+	def test_diff_exactamente_igual_a_porcentual_pasa(self):
+		# diff=2.0, 2% de 100=2.0 → pasa (<=)
+		self.assertTrue(self._call(2.0, 100.0, 0.5, 2.0))
+
+
+# ---------------------------------------------------------------------------
+# Tests de tolerancia configurable — integración con Configuracion CFDI
+# ---------------------------------------------------------------------------
+
+
+class TestToleranciaConfigurable(unittest.TestCase):
+	"""Tests de tolerancia leída desde Configuracion CFDI Recibidos."""
+
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls.expense_account = _get_expense_account()
+		cls.acc_iva = _get_or_create_tax_account(f"_TOLA IVA {_H}", TEST_COMPANY)
+		cls.supplier_name = _create_supplier(f"_TOLA Prov {_H}")
+		cls.test_item = _get_or_create_test_item(f"_TOLA-ITEM-{_H}", cls.expense_account)
+
+	@classmethod
+	def tearDownClass(cls):
+		config_name = f"CFDI-REC-CFG-{TEST_COMPANY}"
+		if frappe.db.exists("Configuracion CFDI Recibidos", config_name):
+			frappe.delete_doc("Configuracion CFDI Recibidos", config_name, force=True)
+		_delete_if_exists("Item", cls.test_item)
+		try:
+			_delete_if_exists("Account", cls.acc_iva)
+		except Exception:
+			pass
+		try:
+			_delete_if_exists("Supplier", cls.supplier_name)
+		except Exception:
+			pass
+		super().tearDownClass()
+
+	def setUp(self):
+		self._cleanup_uuids = []
+
+	def tearDown(self):
+		for uuid in self._cleanup_uuids:
+			pi_name = frappe.db.get_value("Purchase Invoice", {"fm_cfdi_uuid": uuid}, "name")
+			if pi_name:
+				try:
+					frappe.delete_doc("Purchase Invoice", pi_name, force=True)
+				except Exception:
+					pass
+			cfdi_name = frappe.db.get_value("CFDI Recibido", {"uuid": uuid}, "name")
+			if cfdi_name:
+				try:
+					frappe.delete_doc("CFDI Recibido", cfdi_name, force=True)
+				except Exception:
+					pass
+		if self._cleanup_uuids:
+			frappe.db.commit()
+
+	def _uuid(self, suffix: str) -> str:
+		return f"{_UUID_PREFIX}TC{suffix}"
+
+	def _make_cfdi_tola(self, suffix: str, total: float = 116.0) -> str:
+		uuid = self._uuid(suffix)
+		self._cleanup_uuids.append(uuid)
+		doc = frappe.new_doc("CFDI Recibido")
+		doc.company = TEST_COMPANY
+		doc.uuid = uuid
+		doc.supplier_rfc = TEST_SUPPLIER_RFC
+		doc.supplier_name = f"_TOLA Prov {_H}"
+		doc.receiver_rfc = frappe.db.get_value("Company", TEST_COMPANY, "tax_id") or "RFC000000000"
+		doc.status = "Clasificado"
+		doc.cfdi_type = "I"
+		doc.xml_hash = frappe.generate_hash()[:64]
+		doc.supplier = self.supplier_name
+		doc.issue_date = "2026-01-15"
+		doc.total = total
+		doc.subtotal = total - 16.0
+		doc.currency = frappe.db.get_value("Company", TEST_COMPANY, "default_currency") or "MXN"
+		doc.exchange_rate = 1.0
+		doc.impuestos_json = json.dumps(
+			{
+				"traslados": [
+					{"impuesto": "002", "tipo_factor": "Tasa", "tasa_cuota": "0.160000", "importe": 16.0}
+				],
+				"retenciones": [],
+			}
+		)
+		doc.append(
+			"conceptos",
+			{
+				"sat_product_key": TEST_SAT_KEY,
+				"description": "Servicio TOLA",
+				"quantity": 1,
+				"unit_key": "E48",
+				"unit": "Servicio",
+				"unit_price": total - 16.0,
+				"amount": total - 16.0,
+				"discount": 0,
+				"tax_object": "02",
+				"taxes_json": "{}",
+				"item_code": self.test_item,
+			},
+		)
+		doc.insert(ignore_permissions=True)
+		frappe.db.commit()
+		return doc.name
+
+	def test_usa_defaults_si_config_sin_campos(self):
+		"""Config sin tolerancias explícitas usa defaults: abs=1.0, pct=0.5."""
+		_make_config(TEST_COMPANY, [_regla("002", 0.16, "IVA", self.acc_iva)])
+		# defaults → tol_abs=1.0; diff=0 al crear PI normal → pasa
+		cfdi = self._make_cfdi_tola("D01")
+		result = build_purchase_invoice(cfdi)
+		self.assertEqual(result["status"], "ok")
+
+	def test_tolerancia_absoluta_estricta_bloquea_diff_pequena(self):
+		"""Config con tol_abs=0.10 y tol_pct=0 → diff=0.50 en idempotencia causa error."""
+		_make_config(
+			TEST_COMPANY,
+			[_regla("002", 0.16, "IVA", self.acc_iva)],
+			tol_abs=0.10,
+			tol_pct=0.0,
+		)
+		cfdi = self._make_cfdi_tola("E01", total=116.0)
+		build_purchase_invoice(cfdi)
+		# Simular idempotencia con diff=0.50 (mayor que tol_abs=0.10, pct desactivado)
+		frappe.db.set_value(
+			"CFDI Recibido", cfdi, {"purchase_invoice": None, "status": "Clasificado", "total": 116.5}
+		)
+		frappe.db.commit()
+		with self.assertRaises(frappe.ValidationError):
+			build_purchase_invoice(cfdi)
+
+	def test_tolerancia_porcentual_permite_diff_mayor_que_absoluta(self):
+		"""Config tol_abs=0.10, tol_pct=2.0 → diff=0.50 pasa (0.50/116.5 ≈ 0.43% < 2%)."""
+		_make_config(
+			TEST_COMPANY,
+			[_regla("002", 0.16, "IVA", self.acc_iva)],
+			tol_abs=0.10,
+			tol_pct=2.0,
+		)
+		cfdi = self._make_cfdi_tola("P01", total=116.0)
+		build_purchase_invoice(cfdi)
+		frappe.db.set_value(
+			"CFDI Recibido", cfdi, {"purchase_invoice": None, "status": "Clasificado", "total": 116.5}
+		)
+		frappe.db.commit()
+		result = build_purchase_invoice(cfdi)
+		self.assertEqual(result["status"], "ok")
+		self.assertTrue(result["recovered"])
+
+	def test_porcentual_cero_no_salva_diff_mayor_que_absoluta(self):
+		"""tol_pct=0 no activa tolerancia porcentual aunque diff sea pequeño en porcentaje."""
+		_make_config(
+			TEST_COMPANY,
+			[_regla("002", 0.16, "IVA", self.acc_iva)],
+			tol_abs=0.10,
+			tol_pct=0.0,
+		)
+		cfdi = self._make_cfdi_tola("P02", total=116.0)
+		build_purchase_invoice(cfdi)
+		# diff=0.30 < 0.5% de 116 pero tol_pct=0 → solo importa abs=0.10 → falla
+		frappe.db.set_value(
+			"CFDI Recibido", cfdi, {"purchase_invoice": None, "status": "Clasificado", "total": 116.3}
+		)
+		frappe.db.commit()
+		with self.assertRaises(frappe.ValidationError):
+			build_purchase_invoice(cfdi)

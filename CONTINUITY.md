@@ -2,25 +2,25 @@
 
 **Fecha:** 2026-05-28
 **Rama activa:** `feature/cfdi-recibidos-fase3-pi`
-**Tarea actual:** Cerrar issue #152 — gaps restantes del PurchaseInvoiceBuilder
+**Tarea actual:** Issue #152 — tolerancia configurable completada; decidir si batch bloquea el cierre
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-Pipeline CFDI Recibidos. El botón "Generar Purchase Invoice" ya funciona — se probó
-en GUI y creó ACC-PINV-2026-00001 correctamente. Tres bugs corregidos en esta sesión.
+Pipeline CFDI Recibidos. El botón "Generar Purchase Invoice" funciona en GUI.
+La tolerancia configurable (absoluta + porcentual) fue implementada y testeada (34/34).
 
 Plan que estoy siguiendo:
 Issue #152 — PurchaseInvoiceBuilder, impuestos nativos y batch best-effort.
 
 Objetivo inmediato:
-Revisar ACC-PINV-2026-00001 en GUI — verificar si ERPNext exige cost_center y
-expense_account por línea al intentar Submit de la PI.
+Decidir si el criterio "Batch" de #152 se cierra en issue separado o bloquea el issue.
+Pendiente: bench migrate en facturacion-v16.dev para activar columnas de tolerancia en dev.
 
 Criterio de avance:
-PI puede someterse (Submit) sin errores → issue #152 cerrado o gaps documentados.
+#152 cerrado o batch separado → rama lista para PR.
 
 ---
 
@@ -30,37 +30,37 @@ PI puede someterse (Submit) sin errores → issue #152 cerrado o gaps documentad
 - `fm_cfdi_uuid` y `fm_cfdi_recibido` en Purchase Invoice
 - Idempotencia por UUID (casos A/B/C)
 - IVA y retenciones en tabla nativa via TaxResolver
-- Tolerancia de redondeo (0.02 hardcoded)
+- Tolerancia configurable: absoluta (MXN) y porcentual (%) en Configuracion CFDI Recibidos
 - bill_no: serie-folio → folio → uuid[:13]
-- Motor de resolución de items + flujo guiado (commit 907a700)
+- Motor de resolución de items + flujo guiado
 - Botón "Generar PI" oculto con no_procesar=1
-- posting_date y due_date usan issue_date del CFDI (no today())
+- posting_date y due_date usan issue_date del CFDI
 - Bloqueo "Convertido a PI": frm.disable_form() + validate hook + flag in_cfdi_builder
-- Deuda técnica is_submittable → issue #165
+- cost_center y bill_no collision: **eliminados definitivamente del alcance**
 
-### Pendiente (issue #152)
-- cost_center por línea de PI (probable error al Submit en ERPNext)
-- expense_account por línea de PI (probable error al Submit en ERPNext)
-- Colisión supplier+bill_no → usar UUID completo
-- Tolerancia configurable desde `Facturacion Mexico Settings`
-- Batch desde lista (múltiples CFDIs)
+### Pendiente
+- Batch desde lista (múltiples CFDIs) — criterio de #152 aún abierto
+- Deuda técnica is_submittable → issue #165
 
 ### No repetir
 - No proponer commits sin que el usuario lo solicite
 - No incluir one_offs/ ni REPORTE_*.md en commits
 - No hacer bench migrate sin autorización
-- No reiniciar servidor sin autorización (el autoreload de Werkzeug funciona)
-- No usar ignore_default_payment_terms_template=1 (usuario lo rechazó)
+- No reiniciar servidor sin autorización
+- No usar ignore_default_payment_terms_template=1
+- **No volver a incluir cost_center ni bill_no collision en pendientes de #152**
 
 ---
 
 ## Decisiones vigentes
+- Tolerancia: abs=1.00 MXN y pct=0.5% en Configuracion CFDI Recibidos por empresa
+- Aceptable si cumple cualquiera: diff ≤ tol_abs OR diff ≤ total_xml × (tol_pct/100)
+- tol_pct=0 desactiva la tolerancia porcentual
 - posting_date = issue_date del CFDI (no today())
 - due_date = issue_date del CFDI (explícito, evita type mismatch con Payment Terms)
 - Bloqueo "Convertido a PI" es temporal — issue #165 registra la deuda (is_submittable)
 - frappe.flags.in_cfdi_builder como bypass del validate lock para saves internos
 - TaxResolver lee de `Configuracion CFDI Recibidos`, no de `Configuracion Fiscal Mexico`
-- Auto-asignación en upload: SOLO nivel 5 (no_identificacion == item_code)
 
 ---
 
@@ -68,10 +68,10 @@ PI puede someterse (Submit) sin errores → issue #152 cerrado o gaps documentad
 
 ### Leer primero
 - `facturacion_mexico/cfdi_recibidos/services/purchase_invoice_builder.py`
-- `facturacion_mexico/cfdi_recibidos/services/tax_resolver.py`
+- `facturacion_mexico/cfdi_recibidos/doctype/configuracion_cfdi_recibidos/configuracion_cfdi_recibidos.json`
 
 ### Probablemente editar
-- `purchase_invoice_builder.py` — cost_center, expense_account, bill_no collision, tolerancia
+- Ninguno inmediato — pendiente decisión sobre batch
 
 ### No tocar
 - `facturacion_mexico/one_offs/` — nunca commitear
@@ -80,7 +80,7 @@ PI puede someterse (Submit) sin errores → issue #152 cerrado o gaps documentad
 ---
 
 ## Riesgos / cuidados
-- ERPNext exige cost_center y expense_account por línea al Submit de PI
-- Batch no implementado — criterio de aceptación del issue aún abierto
+- `bench migrate` pendiente en `facturacion-v16.dev` para activar columnas de tolerancia en dev
+- Batch no implementado — criterio de aceptación del issue #152 aún abierto
 - 30 commits adelante de upstream/main sin push ni PR
 - issue #165 (is_submittable) debe hacerse antes de producción

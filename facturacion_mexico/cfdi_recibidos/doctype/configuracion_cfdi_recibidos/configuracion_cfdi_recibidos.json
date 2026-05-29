@@ -87,6 +87,31 @@
    "label": "Última Generación",
    "fieldtype": "Datetime",
    "read_only": 1
+  },
+  {
+   "fieldname": "section_validacion_totales",
+   "label": "Validación de Totales",
+   "fieldtype": "Section Break",
+   "collapsible": 1,
+   "description": "Tolerancias al comparar el total del XML CFDI contra el total calculado por ERPNext. La diferencia es aceptable si cumple cualquiera de las dos condiciones."
+  },
+  {
+   "fieldname": "tolerancia_total_absoluta",
+   "label": "Tolerancia Absoluta (MXN)",
+   "fieldtype": "Float",
+   "default": "1.00",
+   "description": "Diferencia máxima permitida en MXN. Si la diferencia ≤ este valor, se acepta."
+  },
+  {
+   "fieldname": "column_break_tolerancia",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "tolerancia_total_porcentual",
+   "label": "Tolerancia Porcentual (%)",
+   "fieldtype": "Percent",
+   "default": "0.5",
+   "description": "Porcentaje máximo del total del XML. 0.5 = 0.5%. Valor 0 desactiva esta tolerancia."
   }
  ],
  "permissions": [
