@@ -59,11 +59,11 @@ class TestEnsureCFDIExpenseItems(FrappeTestCase):
 		self.assertEqual(item.is_purchase_item, 1)
 		self.assertEqual(item.is_sales_item, 0)
 
-	def test_item_opr_003_energia_electrica_uom_provisional(self):
+	def test_item_opr_003_energia_electrica_uom_kwh(self):
 		item = frappe.get_doc("Item", "GASTO-OPR-003")
 		self.assertEqual(item.item_name, "Energía eléctrica")
 		self.assertEqual(item.item_group, "Energía eléctrica")
-		self.assertEqual(item.stock_uom, "MON - Mes", "UOM provisional — KWH pendiente validación SAT")
+		self.assertEqual(item.stock_uom, "KWH - Kilowatt hora")
 
 	def test_item_srv_007_honorarios_pm_uom_e48(self):
 		item = frappe.get_doc("Item", "GASTO-SRV-007")

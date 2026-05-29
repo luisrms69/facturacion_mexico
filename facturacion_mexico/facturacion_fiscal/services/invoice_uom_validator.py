@@ -1,9 +1,10 @@
 import frappe
+from frappe import _
 
 from facturacion_mexico.cfdi_recibidos.services.uom_policy import is_sat_uom
 
 
-def validate_invoice_items_uom(items) -> None:
+def validate_invoice_items_uom(items: list) -> None:
 	"""Verifica que todas las líneas del Sales Invoice tengan UOM del catálogo SAT.
 
 	Debe llamarse antes de contactar el PAC para evitar que _extract_sat_code_from_uom
@@ -24,8 +25,10 @@ def validate_invoice_items_uom(items) -> None:
 
 	if invalid:
 		frappe.throw(
-			"Las siguientes líneas tienen UOM fuera del catálogo SAT (c_ClaveUnidad).\n"
-			"Corrija la UOM en cada ítem antes de timbrar:\n\n" + "\n".join(f"  • {i}" for i in invalid),
+			_(
+				"Las siguientes líneas tienen UOM fuera del catálogo SAT (c_ClaveUnidad).\n"
+				"Corrija la UOM en cada ítem antes de timbrar:\n\n{0}"
+			).format("\n".join(f"  • {i}" for i in invalid)),
 			frappe.ValidationError,
-			title="UOM no válida para timbrado",
+			title=_("UOM no válida para timbrado"),
 		)

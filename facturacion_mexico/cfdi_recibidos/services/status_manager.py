@@ -36,14 +36,14 @@ _STAGE_MESSAGE = {
 }
 
 
-def compute_supplier_stage(doc) -> str:
+def compute_supplier_stage(doc: object) -> str:
 	"""Etapa limitada al hito Upload → Proveedor. No evalúa clasificación."""
 	if not doc.supplier:
 		return "Falta proveedor"
 	return "Proveedor encontrado"
 
 
-def compute_stage(doc) -> str:
+def compute_stage(doc: object) -> str:
 	"""Etapa completa: evalúa supplier, departamento y clasificación de conceptos."""
 	if not doc.supplier:
 		return "Falta proveedor"

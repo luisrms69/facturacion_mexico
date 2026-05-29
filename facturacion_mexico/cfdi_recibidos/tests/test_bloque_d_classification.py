@@ -249,8 +249,12 @@ class TestClassifyAllConcepts(unittest.TestCase):
 		for s in ["CA01", "CA02", "CA03", "CA04"]:
 			_cleanup(s)
 
-	def test_classify_all_nivel1_actualiza_status_a_clasificado(self):
-		"""classify_all_concepts asigna item_code vía Mapeado (nivel 1) y actualiza status."""
+	def test_classify_all_mapeado_no_se_auto_asigna(self):
+		"""classify_all_concepts NO auto-asigna conceptos por Mapeado — requiere decisión del usuario.
+
+		Solo auto-asigna por coincidencia exacta no_identificacion ("Código proveedor").
+		Mapeado y texto van a pendientes para ser resueltos vía "Resolver Items pendientes".
+		"""
 		from facturacion_mexico.cfdi_recibidos.api import classify_all_concepts
 
 		name = _make_cfdi(
@@ -268,13 +272,12 @@ class TestClassifyAllConcepts(unittest.TestCase):
 		try:
 			result = classify_all_concepts(cfdi_recibido=name)
 
-			self.assertEqual(result["auto_clasificados"], 1)
-			self.assertEqual(result["pendientes"], 0)
-			self.assertEqual(result["status"], "Clasificado")
+			self.assertEqual(result["auto_clasificados"], 0)
+			self.assertEqual(result["pendientes"], 1)
+			self.assertEqual(result["status"], "Falta clasificación")
 
 			doc = frappe.get_doc("CFDI Recibido", name)
-			self.assertEqual(doc.conceptos[0].item_code, self.item)
-			self.assertEqual(doc.conceptos[0].item_resolution, "Mapeado")
+			self.assertFalse(doc.conceptos[0].item_code)
 		finally:
 			_cleanup_mapping(mapping)
 

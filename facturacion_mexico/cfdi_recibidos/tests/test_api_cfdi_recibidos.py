@@ -189,6 +189,7 @@ def _make_cfdi(
 		},
 	)
 	cfdi.insert(ignore_permissions=True)
+	frappe.db.set_value("CFDI Recibido", cfdi.name, "status", status)
 	frappe.db.commit()
 	return cfdi.name
 

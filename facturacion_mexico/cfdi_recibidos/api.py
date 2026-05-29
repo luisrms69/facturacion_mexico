@@ -181,7 +181,7 @@ def save_mapping_rule(
 
 
 @frappe.whitelist()
-def generate_missing_suppliers(cfdi_names=None) -> dict:
+def generate_missing_suppliers(cfdi_names: str | None = None) -> dict:
 	"""
 	Crea Suppliers en lote para CFDIs en estado 'Falta proveedor'.
 
@@ -306,7 +306,6 @@ def assign_departments(assignments: str) -> dict:
 		except Exception as e:
 			errores.append({"name": cfdi_name, "message": str(e)})
 
-	frappe.db.commit()
 	return {"asignados": asignados, "omitidos": omitidos, "errores": errores}
 
 
@@ -408,7 +407,7 @@ def build_purchase_invoices_pending_batch() -> dict:
 		cfdi_name = row["name"]
 		try:
 			result = _build(cfdi_name)
-			frappe.db.commit()
+			frappe.db.commit()  # nosemgrep: frappe-semgrep-rules.rules.frappe-manual-commit
 			pi_name = result["purchase_invoice"]
 			recovered = result.get("recovered", False)
 			ok_count += 1
@@ -433,7 +432,7 @@ def build_purchase_invoices_pending_batch() -> dict:
 					cfdi_name,
 					{"status": "Error conversión", "error_message": error_message[:500]},
 				)
-				frappe.db.commit()
+				frappe.db.commit()  # nosemgrep: frappe-semgrep-rules.rules.frappe-manual-commit
 			except Exception:
 				pass
 			if not isinstance(e, frappe.ValidationError):
@@ -571,7 +570,6 @@ def classify_all_concepts(cfdi_recibido: str) -> dict:
 	doc.reload()
 	nuevo_status = compute_stage(doc)
 	frappe.db.set_value("CFDI Recibido", cfdi_recibido, "status", nuevo_status)
-	frappe.db.commit()
 
 	return {"auto_clasificados": auto_clasificados, "pendientes": pendientes, "status": nuevo_status}
 
@@ -732,8 +730,6 @@ def assign_item_to_concepto(
 			concepto_doc.no_identificacion,
 			item_code,
 		)
-
-	frappe.db.commit()
 
 	return {
 		"status": "ok",
@@ -898,12 +894,12 @@ def _create_item_and_assign(
 
 	item.flags.ignore_validate = True
 	item.insert(ignore_permissions=True)
-	frappe.db.commit()
+	frappe.db.commit()  # nosemgrep: frappe-semgrep-rules.rules.frappe-manual-commit
 
 	ok, reason = validate_expense_item(item_code)
 	if not ok:
 		frappe.delete_doc("Item", item_code, force=True)
-		frappe.db.commit()
+		frappe.db.commit()  # nosemgrep: frappe-semgrep-rules.rules.frappe-manual-commit
 		frappe.throw(
 			_("El Item creado no pasa la validación de gasto: {0}").format(reason),
 			frappe.ValidationError,
