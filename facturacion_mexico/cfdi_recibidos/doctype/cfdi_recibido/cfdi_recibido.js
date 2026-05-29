@@ -5,11 +5,18 @@ frappe.ui.form.on("CFDI Recibido", {
 	refresh(frm) {
 		_set_item_code_query(frm);
 		if (!frm.is_new()) {
+			if (frm.doc.status === "Convertido a PI") {
+				frm.disable_form();
+				return;
+			}
 			_add_no_procesar_button(frm);
 			if (frm.doc.status === "Falta clasificación") {
 				_add_resolver_button(frm);
 			}
-			if (frm.doc.status === "Clasificado" || frm.doc.status === "Error conversión") {
+			if (
+				(frm.doc.status === "Clasificado" || frm.doc.status === "Error conversión") &&
+				!frm.doc.no_procesar
+			) {
 				_add_generar_pi_button(frm);
 			}
 		}

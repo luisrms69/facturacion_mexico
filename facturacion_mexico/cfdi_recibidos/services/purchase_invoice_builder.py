@@ -17,7 +17,7 @@ import json
 
 import frappe
 from frappe import _
-from frappe.utils import flt, today
+from frappe.utils import flt
 
 from facturacion_mexico.cfdi_recibidos.services.tax_resolver import resolve_taxes
 
@@ -25,6 +25,15 @@ _TOLERANCE = 0.02
 
 
 def build_purchase_invoice(cfdi_recibido_name: str) -> dict:
+	# El flag permite que los saves internos del builder pasen el lock de validate.
+	frappe.flags.in_cfdi_builder = True
+	try:
+		return _build_purchase_invoice(cfdi_recibido_name)
+	finally:
+		frappe.flags.in_cfdi_builder = False
+
+
+def _build_purchase_invoice(cfdi_recibido_name: str) -> dict:
 	"""
 	Crea Purchase Invoice Draft desde CFDI Recibido. Idempotente por UUID.
 
@@ -121,7 +130,8 @@ def _build_pi_doc(cfdi_doc):
 	pi = frappe.new_doc("Purchase Invoice")
 	pi.supplier = cfdi_doc.supplier
 	pi.company = cfdi_doc.company
-	pi.posting_date = today()
+	pi.posting_date = cfdi_doc.issue_date
+	pi.due_date = cfdi_doc.issue_date
 	pi.bill_date = cfdi_doc.issue_date
 	pi.bill_no = _fmt_bill_no(cfdi_doc)
 	pi.currency = cfdi_doc.currency or "MXN"

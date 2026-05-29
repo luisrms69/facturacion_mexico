@@ -12,6 +12,13 @@ _TERMINAL_STAGES = frozenset(
 
 class CFDIRecibido(Document):
 	def validate(self):
+		if not self.is_new() and not frappe.flags.get("in_cfdi_builder"):
+			old_status = frappe.db.get_value("CFDI Recibido", self.name, "status")
+			if old_status == "Convertido a PI":
+				frappe.throw(
+					_("CFDI Recibido en estado 'Convertido a PI' no puede modificarse."),
+					frappe.ValidationError,
+				)
 		for concepto in self.conceptos or []:
 			if not concepto.item_code:
 				continue
