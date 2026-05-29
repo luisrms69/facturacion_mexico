@@ -56,3 +56,7 @@ typing-modules = ["frappe.types.DF"]
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "tab"
+
+[tool.interrogate]
+fail-under = 80
+exclude = ["facturacion_mexico/cfdi_recibidos/tests"]

@@ -141,6 +141,37 @@ def _make_mapping(supplier_rfc: str, sat_key: str, expense_account: str) -> str:
 	return doc.name
 
 
+def _get_or_create_expense_item() -> str:
+	"""Crea un Item de gasto válido (SAT UOM, bajo Gastos) para pruebas de PI."""
+	item_code = f"_GASTO-API-{_H}"
+	if frappe.db.exists("Item", item_code):
+		return item_code
+	ig_name = f"_API Gastos {_H}"
+	if not frappe.db.exists("Item Group", ig_name):
+		gastos = frappe.db.get_value("Item Group", "Gastos", "name")
+		if not gastos:
+			root = frappe.db.get_value("Item Group", {"parent_item_group": ""}, "name") or "All Item Groups"
+			g = frappe.new_doc("Item Group")
+			g.item_group_name = "Gastos"
+			g.parent_item_group = root
+			g.insert(ignore_permissions=True)
+		ig = frappe.new_doc("Item Group")
+		ig.item_group_name = ig_name
+		ig.parent_item_group = "Gastos"
+		ig.insert(ignore_permissions=True)
+	item = frappe.new_doc("Item")
+	item.item_code = item_code
+	item.item_name = f"Item gasto API test {_H}"
+	item.item_group = ig_name
+	item.is_stock_item = 0
+	item.is_purchase_item = 1
+	item.is_sales_item = 0
+	item.stock_uom = "H87 - Pieza"
+	item.insert(ignore_permissions=True)
+	frappe.db.commit()
+	return item_code
+
+
 def _delete_if_exists(doctype: str, name: str):
 	if name and frappe.db.exists(doctype, name):
 		frappe.delete_doc(doctype, name, force=True)
@@ -153,6 +184,7 @@ def _make_cfdi(
 	supplier: str | None = None,
 	impuestos: dict | None = None,
 	supplier_rfc: str = TEST_SUPPLIER_RFC,
+	item_code: str | None = None,
 ) -> str:
 	"""Crea CFDI Recibido mínimo con un concepto para pruebas."""
 	if impuestos is None:
@@ -176,18 +208,18 @@ def _make_cfdi(
 	cfdi.total_impuestos_trasladados = 16.0
 	cfdi.total = 116.0
 	cfdi.impuestos_json = json.dumps(impuestos)
-	cfdi.append(
-		"conceptos",
-		{
-			"sat_product_key": TEST_SAT_KEY,
-			"description": "Servicio API test",
-			"quantity": 1.0,
-			"unit_price": 100.0,
-			"subtotal": 100.0,
-			"discount": 0.0,
-			"total": 116.0,
-		},
-	)
+	concepto = {
+		"sat_product_key": TEST_SAT_KEY,
+		"description": "Servicio API test",
+		"quantity": 1.0,
+		"unit_price": 100.0,
+		"subtotal": 100.0,
+		"discount": 0.0,
+		"total": 116.0,
+	}
+	if item_code:
+		concepto["item_code"] = item_code
+	cfdi.append("conceptos", concepto)
 	cfdi.insert(ignore_permissions=True)
 	frappe.db.set_value("CFDI Recibido", cfdi.name, "status", status)
 	frappe.db.commit()
@@ -216,9 +248,11 @@ class TestBuildPurchaseInvoiceEndpoint(unittest.TestCase):
 		)
 		cls.supplier_name = _create_supplier(f"_API Prov {_H}", TEST_SUPPLIER_RFC)
 		cls.mapping_name = _make_mapping(TEST_SUPPLIER_RFC, TEST_SAT_KEY, cls.expense_account)
+		cls.test_item = _get_or_create_expense_item()
 
 	@classmethod
 	def tearDownClass(cls):
+		_delete_if_exists("Item", cls.test_item)
 		_delete_if_exists("CFDI Concepto Mapping", cls.mapping_name)
 		_delete_if_exists("Configuracion CFDI Recibidos", cls.config_name)
 		_delete_if_exists("Account", cls.acc_iva)
@@ -239,7 +273,7 @@ class TestBuildPurchaseInvoiceEndpoint(unittest.TestCase):
 		return f"{_UUID_PREFIX}BLD{n:04d}"
 
 	def test_crea_pi_draft_correctamente(self):
-		cfdi_name = _make_cfdi(self._uuid(1), supplier=self.supplier_name)
+		cfdi_name = _make_cfdi(self._uuid(1), supplier=self.supplier_name, item_code=self.test_item)
 		self._cleanup_cfdis.append(cfdi_name)
 
 		result = build_purchase_invoice(cfdi_name)
@@ -268,7 +302,12 @@ class TestBuildPurchaseInvoiceEndpoint(unittest.TestCase):
 			],
 			"retenciones": [],
 		}
-		cfdi_name = _make_cfdi(self._uuid(3), supplier=self.supplier_name, impuestos=impuestos_invalidos)
+		cfdi_name = _make_cfdi(
+			self._uuid(3),
+			supplier=self.supplier_name,
+			impuestos=impuestos_invalidos,
+			item_code=self.test_item,
+		)
 		self._cleanup_cfdis.append(cfdi_name)
 
 		result = build_purchase_invoice(cfdi_name)
@@ -279,7 +318,7 @@ class TestBuildPurchaseInvoiceEndpoint(unittest.TestCase):
 		self.assertIn("999", result["message"])
 
 	def test_idempotencia_devuelve_recovered(self):
-		cfdi_name = _make_cfdi(self._uuid(4), supplier=self.supplier_name)
+		cfdi_name = _make_cfdi(self._uuid(4), supplier=self.supplier_name, item_code=self.test_item)
 		self._cleanup_cfdis.append(cfdi_name)
 
 		result1 = build_purchase_invoice(cfdi_name)
@@ -299,7 +338,12 @@ class TestBuildPurchaseInvoiceEndpoint(unittest.TestCase):
 			],
 			"retenciones": [],
 		}
-		cfdi_name = _make_cfdi(self._uuid(5), supplier=self.supplier_name, impuestos=impuestos_invalidos)
+		cfdi_name = _make_cfdi(
+			self._uuid(5),
+			supplier=self.supplier_name,
+			impuestos=impuestos_invalidos,
+			item_code=self.test_item,
+		)
 		self._cleanup_cfdis.append(cfdi_name)
 
 		build_purchase_invoice(cfdi_name)

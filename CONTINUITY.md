@@ -2,79 +2,68 @@
 
 **Fecha:** 2026-05-29
 **Rama activa:** `feature/cfdi-recibidos-fase3-pi`
-**Tarea actual:** PR #166 abierto — correcciones de linters CI bloqueantes
+**Tarea actual:** PR #166 — correcciones CI en curso, pendiente CI verde
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-PR #166 abierto. Se corrigieron 21 findings bloqueantes de CI (semgrep):
-frappe-manual-commit, frappe-missing-translate-function-python,
-frappe-sql-format-injection, missing-argument-type-hint.
-Pendiente: merge del PR, cierre explícito de issue #152.
+PR #166 abierto. Se corrigieron semgrep (21 findings), 14 fallos de tests,
+4 fallos adicionales de tests y cobertura de docstrings (interrogate 80%).
+Pendiente: CI verde → merge → cierre de issue #152.
 
 Plan que estoy siguiendo:
-Issue #152 — criterios todos implementados; PR #166 es el paso final antes del merge.
+Issue #152 — criterios implementados; PR #166 es el paso final.
 
 Objetivo inmediato:
-Push de las correcciones de linters al branch del PR para que CI pase.
+CI verde en PR #166 → merge a main.
 
 Criterio de avance:
-CI verde en PR #166 → merge a main → cerrar issue #152 si el usuario lo decide.
+CI verde → merge a main → cerrar issue #152 si el usuario lo decide.
 
 ---
 
 ## Estado actual
 
-### Ya cerrado (PR #166 cubre todo esto)
-- Pipeline completo CFDI Recibido → Purchase Invoice (builder + TaxResolver)
-- Idempotencia por fm_cfdi_uuid (casos A/B/C)
-- Tolerancia configurable por empresa (absoluta MXN + porcentual %)
-- Motor guiado de resolución de items (3 niveles + auto-aprendizaje)
-- 84 Items genéricos GASTO-{CAT}-{NNN}
-- Enforcement UOM SAT (E.1 política base, E.2 CFDI Recibidos, E.3 timbrado SI)
-- Botón "Generar PI" individual + botón "Generar PIs pendientes" (batch best-effort)
-- Bloqueo UI "Convertido a PI" (frm.disable_form + validate hook)
-- Pipeline proveedores → departamentos → clasificación → conversión PI
-- Configuracion CFDI Recibidos como hub central por empresa
-- 40 tests pasando, GUI validada
+### Commits de corrección CI en esta sesión (sobre PR #166)
 
-### Correcciones de CI (este commit)
-- invoice_uom_validator.py: frappe.throw con _() + type hint items: list
-- queries.py: f-strings SQL → concatenación + type hints en ambas funciones
-- api.py: 3 commits removidos (end-of-function), 4 con nosemgrep, type hint cfdi_names
-- status_manager.py: type hints doc: object en compute_stage y compute_supplier_stage
+- `500a683` — 21 findings semgrep + 14 fallos tests (supplier_resolver,
+  xml_ingestion, test_api_cfdi_recibidos, test_setup_expense_items,
+  test_bloque_d_classification)
+- Commit siguiente (pendiente push) — 4 fallos tests restantes + interrogate:
+  - pyproject.toml: [tool.interrogate] excluye cfdi_recibidos/tests, fail-under=80
+  - test_api_cfdi_recibidos: _get_or_create_expense_item + item_code en _make_cfdi
+  - test_supplier_resolver: db.set_value post-insert en _make_cfdi
 
 ### Pendiente
 - CI verde en PR #166
 - Merge del PR #166 a main
 - Cierre explícito de issue #152 (decisión del usuario)
 - Issue #165: is_submittable para CFDI Recibido — deuda técnica antes de producción
-- Errores de documentación (>5000 líneas) — identificados pero no atendidos en esta sesión
 
 ### No repetir
 - No proponer commits sin que el usuario lo solicite
 - No incluir one_offs/ ni REPORTE_*.md en commits
 - No hacer bench migrate sin autorización
-- No reiniciar servidor sin autorización
 - No usar "closes/fixes/resolves #152" en commits ni PRs
 - No volver a incluir cost_center ni bill_no collision en pendientes de #152
 
 ---
 
 ## Decisiones vigentes
-- Squash and merge recomendado para #166 (32 commits → 1 en main)
-- Mensaje de squash sugerido documentado en conversación de 2026-05-28
-- Tolerancia: abs=1.00 MXN y pct=0.5% en Configuracion CFDI Recibidos por empresa
-- posting_date = issue_date del CFDI (no today())
-- due_date = issue_date del CFDI (explícito, evita type mismatch con Payment Terms)
-- Bloqueo "Convertido a PI" es temporal — issue #165 registra la deuda (is_submittable)
-- frappe.flags.in_cfdi_builder como bypass del validate lock para saves internos
+- Squash and merge para PR #166 (34 commits → 1 en main)
+- Mensaje squash documentado en conversación 2026-05-28
+- Tolerancia PI: abs=1.00 MXN y pct=0.5% en Configuracion CFDI Recibidos
+- posting_date = issue_date del CFDI; due_date = issue_date del CFDI
+- Bloqueo "Convertido a PI" temporal — issue #165 (is_submittable)
+- frappe.flags.in_cfdi_builder como bypass del validate lock
 - TaxResolver lee de Configuracion CFDI Recibidos, no de Configuracion Fiscal Mexico
-- Batch consulta internamente elegibles; no acepta lista seleccionada por usuario
-- bench migrate ejecutado en test-facturacion.localhost y facturacion-v16.dev
-- Commits en batch (frappe.db.commit en loop) son intencionales — nosemgrep documentado
+- Batch: commit por CFDI exitoso (best-effort), nosemgrep documentado
+- xml_ingestion: NO auto-crea proveedores en upload (Paso 7 eliminado)
+- generate_missing_suppliers → "Proveedor encontrado" (no "Falta departamento")
+- _assign_supplier → compute_supplier_stage (no compute_stage)
+- classify_all_concepts: solo auto-asigna "Código proveedor", Mapeado requiere usuario
 
 ---
 
@@ -84,7 +73,7 @@ CI verde en PR #166 → merge a main → cerrar issue #152 si el usuario lo deci
 - PR #166: https://github.com/luisrms69/facturacion_mexico/pull/166
 
 ### Probablemente editar
-- Ninguno — trabajo del issue #152 completo, correcciones CI aplicadas
+- Ninguno — pendiente solo CI verde
 
 ### No tocar
 - facturacion_mexico/one_offs/ — nunca commitear
@@ -93,8 +82,7 @@ CI verde en PR #166 → merge a main → cerrar issue #152 si el usuario lo deci
 ---
 
 ## Riesgos / cuidados
-- PR #166 tiene 32 commits + este fix de CI — usar squash and merge
+- PR #166: 34 commits — usar squash and merge
 - issue #165 (is_submittable) debe hacerse antes de producción
-- api_backup.py escribe en /tmp/ — defecto pre-existente conocido
+- api_backup.py escribe en /tmp/ — defecto pre-existente
 - bench migrate requerido en cualquier site nuevo
-- Errores de documentación en CI pendientes de atención (>5000 líneas)

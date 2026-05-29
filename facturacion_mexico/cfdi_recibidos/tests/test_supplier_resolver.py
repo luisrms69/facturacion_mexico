@@ -54,6 +54,7 @@ def _make_cfdi(uuid_suffix: str, supplier_rfc: str, company: str, status: str = 
 	doc.cfdi_type = "I"
 	doc.xml_hash = frappe.generate_hash()[:64]
 	doc.insert(ignore_permissions=True)
+	frappe.db.set_value("CFDI Recibido", doc.name, "status", status)
 	frappe.db.commit()
 	return doc.name
 
