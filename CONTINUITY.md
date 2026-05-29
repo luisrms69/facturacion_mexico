@@ -2,97 +2,84 @@
 
 **Fecha:** 2026-05-28
 **Rama activa:** `feature/cfdi-recibidos-fase3-pi`
-**Tarea actual:** Implementar motor de resolución de Items para conceptos CFDI Recibidos
+**Tarea actual:** Motor de resolución de items commiteado — próximo paso: PR o hito F.3 (build PI)
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-Motor de resolución de Items: dado un concepto CFDI (sat_product_key, no_identificacion,
-descripción), propone qué ERPNext Item asignar usando reglas configurables + búsqueda textual.
-F.3 (PIBuilder) está commiteado como WIP — funcional pero no arquitectura final validada.
+Pipeline de ingesta CFDI Recibidos (XML → PI Draft). El motor guiado de resolución de items
+quedó commiteado. El flujo completo Upload → proveedor → departamento → items → Generar PI
+está funcional en GUI.
 
 Plan que estoy siguiendo:
-Arquitectura documentada en conversación: "Resolución de Items para conceptos CFDI recibidos".
-8 niveles: Reglas → no_identificacion → texto → crear específico → genérico.
+No hay doc externo de plan activo. Todo el contexto está en esta sesión.
 
 Objetivo inmediato:
-Implementar TODO en un solo paso:
-1. DocType `Regla Item CFDI Recibido`
-2. `concept_text_normalizer.py`
-3. `item_resolution_engine.py` (8 niveles)
-4. 5 endpoints nuevos en `api.py`
-5. Botón "Resolver Items pendientes" + diálogo en `cfdi_recibido.js`
-6. Tests `test_concept_text_normalizer.py` + `test_item_resolution_engine.py`
+Decidir entre abrir PR de esta rama o continuar con hito F.3 (mejoras al build_purchase_invoice).
 
 Criterio de avance:
-Motor implementado + tests pasan + `bench migrate` limpio.
+Usuario decide si PR o continuar en la misma rama.
 
 ---
 
 ## Estado actual
 
 ### Ya cerrado
-- Hito A–C.2 — Upload, Proveedores, Config, Department
-- Bloque A–E.3 — Items genéricos, clasificación, UOM SAT enforcement
-- F.3 WIP `(este commit)` — PIBuilder 21/21 PASS, item_resolver refinado
+- DocType `Regla Item CFDI Recibido` + `concept_text_normalizer.py` + `item_resolution_engine.py`
+- 5 endpoints: get_item_resolution_options, assign_item_to_concepto,
+  create_specific/grouping_item_from_concepto, assign_generic_item_to_concepto
+- Dialog "Resolver Items pendientes": chips con item_name, sección Sugerencias con estilo
+- Auto-código item: `{SLUG}-{NNN}` desde primera palabra del grupo
+- Auto-creación de `Regla Item CFDI Recibido` al asignar item con no_identificacion
+- Pipeline upload encadenado: auto-proveedor → dialog dept → clasificar items → form CFDI
+- Botón "Cargar XML" standalone; grupo "Flujo Manual"; botón "Marcar No Procesar"
+- Campo sat_product_key en Regla Item → Link a SAT Producto Servicio
+- 44 tests pasando (20 normalizer + 24 motor)
+- bench migrate ejecutado en esta sesión
 
 ### En progreso
-- Motor resolución items: DocType Regla + normalizer + engine + API + JS + tests
+- Nada
 
 ### Pendiente inmediato
-1. Crear DocType `Regla Item CFDI Recibido` (JSON + .py + __init__.py)
-2. `concept_text_normalizer.py` — normalize() + keywords_match()
-3. `item_resolution_engine.py` — 8 niveles, retorna {primary, alternatives, generic}
-4. 5 endpoints en api.py: get_item_resolution_options, assign_item_to_concepto,
-   create_specific_item_from_concepto, create_grouping_item_from_concepto,
-   assign_generic_item_to_concepto
-5. `cfdi_recibido.js` — botón "Resolver Items pendientes" + diálogo por concepto
-6. Tests: test_concept_text_normalizer.py + test_item_resolution_engine.py
-7. Actualizar `cfdi_recibido_concepto.json` — campos item_match_reason, item_match_confidence,
-   opciones item_resolution: Pendiente/Mapeado/Código proveedor/Sugerido/Nuevo específico/
-   Nuevo agrupador/Genérico/Manual
-8. `bench --site facturacion-v16.dev migrate` (requiere autorización)
+1. Decidir: PR de la rama actual vs continuar con hito F.3
 
 ### No repetir
-- No asignar Items genéricos GASTO-* automáticamente — solo con acción explícita del usuario
-- No crear ítems por línea XML sin input del usuario
-- No usar FrappeTestCase — usar unittest.TestCase
-- No proponer commits sin que el usuario lo solicite explícitamente
-- No hacer bench migrate sin autorización explícita
+- No hacer bench migrate de nuevo sin necesidad
+- No proponer commits sin que el usuario lo solicite
+- No asignar GASTO-* genéricos automáticamente
+- No incluir docs/development/REPORTE_*.md en commits
+- No incluir one_offs/ en commits
 
 ---
 
 ## Decisiones vigentes
-- item_resolution values: Pendiente/Mapeado/Código proveedor/Sugerido/Nuevo específico/
-  Nuevo agrupador/Genérico/Manual
-- match_confidence: Alta (regla exacta/RFC+SAT/no_ident) | Media (keywords) | Baja (texto)
-- classify_all_concepts: solo asigna Mapeado (reglas) + Código proveedor (no_ident alta confianza)
-- Genérico y Nuevo específico/agrupador: SIEMPRE requieren acción explícita del usuario
-- SAT_UOMS: frozenset 21 entradas — fuente de verdad única
-- test setUp: default_warehouse="" en item_defaults para evitar contaminación Stores-TQC
+- Auto-asignación en upload: SOLO nivel 5 (no_identificacion == item_code existente)
+- Regla auto-aprendida: RFC + keywords=no_identificacion → item_code (priority 5)
+- Keywords en motor: match contra `description` OR `no_identificacion`
+- sat_product_key en Regla Item: Link a SAT Producto Servicio (no Data)
+- Chips en resolver dialog muestran item_name; item_code en tooltip
+- "Cargar XML" standalone fuera del grupo "Flujo Manual"
 
 ---
 
 ## Archivos relevantes ahora
 
 ### Leer primero
-- `facturacion_mexico/cfdi_recibidos/doctype/cfdi_recibido_concepto/cfdi_recibido_concepto.json`
-- `facturacion_mexico/cfdi_recibidos/services/item_resolver.py`
 - `facturacion_mexico/cfdi_recibidos/api.py`
 - `facturacion_mexico/cfdi_recibidos/doctype/cfdi_recibido/cfdi_recibido.js`
+- `facturacion_mexico/cfdi_recibidos/doctype/cfdi_recibido/cfdi_recibido_list.js`
 
-### Probablemente editar
-- Los 4 anteriores + nuevos archivos a crear (ver pendiente inmediato)
+### Probablemente editar (próxima sesión)
+- `facturacion_mexico/cfdi_recibidos/services/purchase_invoice_builder.py` — hito F.3
 
 ### No tocar
 - `facturacion_mexico/one_offs/` — nunca commitear
-- `facturacion_mexico/cfdi_recibidos/services/purchase_invoice_builder.py` — WIP, no modificar
+- `docs/development/REPORTE_*.md` — no commitear
 
 ---
 
 ## Riesgos / cuidados
-- bench migrate requerido después de agregar DocType y campos nuevos
-- El diálogo JS puede ser complejo; priorizar funcionalidad sobre estética
-- item_resolver.py ya tiene búsqueda de candidatos — no duplicar lógica
+- `purchase_invoice_builder.py` marcado WIP desde sesiones anteriores — revisar antes de tocar
+- Fixtures de `Regla Item CFDI Recibido` no exportados explícitamente (DocType nuevo en JSON)

@@ -25,6 +25,9 @@ from facturacion_mexico.cfdi_recibidos.services.status_manager import (
 	get_stage_message,
 )
 from facturacion_mexico.cfdi_recibidos.services.supplier_resolver import (
+	generate_missing_suppliers as _generate_suppliers,
+)
+from facturacion_mexico.cfdi_recibidos.services.supplier_resolver import (
 	resolve_supplier as _resolve_supplier,
 )
 from facturacion_mexico.sat.constants import TIPO_COMPROBANTE
@@ -115,13 +118,30 @@ def ingest_xml(xml_bytes: bytes, company: str, file_name: str = "cfdi.xml") -> d
 	doc = _crear_doc(company, xml_hash, data, "Falta proveedor")
 	_adjuntar_xml(doc, xml_bytes, file_name)
 
-	# Paso 6: resolver proveedor
+	# Paso 6: resolver proveedor existente por RFC
 	_resolve_supplier(doc.name)
 	doc.reload()
+
+	# Paso 7: auto-crear proveedor si no se encontró uno existente
+	supplier_created = False
+	if doc.status == "Falta proveedor":
+		gen = _generate_suppliers([doc.name])
+		if gen.get("creados", 0) > 0:
+			supplier_created = True
+			doc.reload()
 
 	stage = doc.status
 	supplier_found = bool(doc.supplier)
 	candidato = stage == "Falta proveedor"
+
+	if supplier_created:
+		message = _("Proveedor nuevo creado automáticamente — revísalo y complétalo")
+	else:
+		message = get_stage_message(stage)
+
+	supplier_name = ""
+	if doc.supplier:
+		supplier_name = frappe.db.get_value("Supplier", doc.supplier, "supplier_name") or doc.supplier
 
 	return _result(
 		stage,
@@ -130,8 +150,11 @@ def ingest_xml(xml_bytes: bytes, company: str, file_name: str = "cfdi.xml") -> d
 		supplier_rfc,
 		supplier_found,
 		candidato,
-		get_stage_message(stage),
+		message,
 		get_next_action(stage),
+		supplier_created=supplier_created,
+		supplier=doc.supplier or "",
+		supplier_name=supplier_name,
 	)
 
 
@@ -207,6 +230,10 @@ def _result(
 	candidato_generar_proveedor: bool,
 	message: str,
 	next_action: str | None,
+	*,
+	supplier_created: bool = False,
+	supplier: str = "",
+	supplier_name: str = "",
 ) -> dict:
 	return {
 		"status": status,
@@ -217,4 +244,7 @@ def _result(
 		"candidato_generar_proveedor": candidato_generar_proveedor,
 		"message": message,
 		"next_action": next_action,
+		"supplier_created": supplier_created,
+		"supplier": supplier,
+		"supplier_name": supplier_name,
 	}

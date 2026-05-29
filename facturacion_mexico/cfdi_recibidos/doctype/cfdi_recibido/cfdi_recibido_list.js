@@ -1,29 +1,26 @@
 frappe.listview_settings["CFDI Recibido"] = {
 	onload(listview) {
-		const g = __("Flujo CFDI");
+		listview.page.add_inner_button(__("Cargar XML"), () => {
+			_select_company_then_upload(listview);
+		});
+
+		const g = __("Flujo Manual");
 		listview.page.add_inner_button(
-			__("1. Cargar XML"),
-			() => {
-				_select_company_then_upload(listview);
-			},
-			g
-		);
-		listview.page.add_inner_button(
-			__("2. Generar proveedores faltantes"),
+			__("Generar proveedores faltantes"),
 			() => {
 				_generate_missing_suppliers(listview);
 			},
 			g
 		);
 		listview.page.add_inner_button(
-			__("3. Asignar Departamentos"),
+			__("Asignar Departamentos"),
 			() => {
 				_assign_departments_flow(listview);
 			},
 			g
 		);
 		listview.page.add_inner_button(
-			__("4. Clasificar automáticamente"),
+			__("Clasificar automáticamente"),
 			() => {
 				_classify_all_flow(listview);
 			},
@@ -77,7 +74,7 @@ function _open_file_picker(company, listview) {
 		})
 			.then((r) => r.json())
 			.then((data) => {
-				_show_results(data.message || [], listview);
+				_show_results(data.message || [], listview, company);
 			})
 			.catch((err) => {
 				frappe.msgprint({
@@ -91,18 +88,20 @@ function _open_file_picker(company, listview) {
 	input.click();
 }
 
-function _show_results(results, listview) {
+function _show_results(results, listview, company) {
 	if (!results.length) {
 		frappe.msgprint(__("No se procesó ningún archivo."));
 		return;
 	}
 
-	const _icon = (status) => {
-		if (status === "Proveedor encontrado") return "✅";
-		if (status === "Falta proveedor") return "⚠️";
-		if (status === "duplicado") return "🔵";
-		if (status === "No aplicable") return "⬜";
-		if (status === "XML inválido") return "❌";
+	const _icon = (r) => {
+		if (r.supplier_created) return "🆕";
+		if (r.status === "Proveedor encontrado") return "✅";
+		if (r.status === "Falta departamento") return "📋";
+		if (r.status === "Falta proveedor") return "⚠️";
+		if (r.status === "duplicado") return "🔵";
+		if (r.status === "No aplicable") return "⬜";
+		if (r.status === "XML inválido") return "❌";
 		return "⚠️";
 	};
 
@@ -111,18 +110,37 @@ function _show_results(results, listview) {
 			? `<a href="/app/cfdi-recibido/${r.cfdi_recibido}">${r.cfdi_recibido}</a>`
 			: "—";
 		const rfc = r.supplier_rfc || "—";
-		const candidato = r.candidato_generar_proveedor ? "✔" : "";
-		const hint = r.next_action ? `<i>${r.next_action}</i>` : r.message || "";
+		const supplierCell = r.supplier
+			? `<a href="/app/supplier/${encodeURIComponent(r.supplier)}" target="_blank">
+				${frappe.utils.escape_html(r.supplier_name || r.supplier)}
+			   </a>`
+			: `<span class="text-muted">${frappe.utils.escape_html(r.supplier_rfc || "—")}</span>`;
+		let hint = r.next_action ? `<i>${r.next_action}</i>` : r.message || "";
+		if (r.supplier_created) {
+			hint = `<span style="color:#e67e22;font-weight:600">⚠️ ${__(
+				"Proveedor nuevo — da clic en su nombre para completar sus datos"
+			)}</span>`;
+		}
 		return `<tr>
-			<td>${_icon(r.status)}</td>
+			<td>${_icon(r)}</td>
 			<td>${r.file_name}</td>
 			<td>${docLink}</td>
-			<td>${rfc}</td>
+			<td>${supplierCell}</td>
 			<td>${r.status}</td>
-			<td>${candidato}</td>
-			<td style="color:#888;font-size:0.9em">${hint}</td>
+			<td style="font-size:0.9em">${hint}</td>
 		</tr>`;
 	});
+
+	const newSupplierCount = results.filter((r) => r.supplier_created).length;
+	const newSupplierNote =
+		newSupplierCount > 0
+			? `<p style="margin-top:10px;color:#e67e22">
+				⚠️ ${__(
+					"{0} proveedor(es) nuevo(s) creado(s) automáticamente. Revisa y completa sus datos antes de procesar.",
+					[newSupplierCount]
+				)}
+			   </p>`
+			: "";
 
 	const table = `
 		<table style="width:100%;border-collapse:collapse;font-size:0.9em">
@@ -131,25 +149,46 @@ function _show_results(results, listview) {
 					<th></th>
 					<th>${__("Archivo")}</th>
 					<th>${__("CFDI")}</th>
-					<th>${__("RFC Proveedor")}</th>
+					<th>${__("Proveedor")}</th>
 					<th>${__("Estado")}</th>
-					<th title="${__("Candidato para generar proveedor")}">👤?</th>
 					<th>${__("Detalle")}</th>
 				</tr>
 			</thead>
 			<tbody>${rows.join("")}</tbody>
-		</table>`;
+		</table>
+		${newSupplierNote}`;
 
+	const hasFaltaDepartamento = results.some((r) => r.status === "Falta departamento");
 	const hasFaltaProveedor = results.some((r) => r.status === "Falta proveedor");
 	const hasError = results.some((r) => r.status === "XML inválido");
-	const hasOk = results.some((r) => r.status === "Proveedor encontrado");
-	const indicator = hasError && !hasOk ? "red" : hasFaltaProveedor ? "orange" : "green";
+	const hasOk = results.some(
+		(r) => r.status === "Proveedor encontrado" || r.status === "Falta departamento"
+	);
+	const hasNewSupplier = newSupplierCount > 0;
+	const indicator =
+		hasError && !hasOk ? "red" : hasFaltaProveedor || hasNewSupplier ? "orange" : "green";
 
-	frappe.msgprint({
+	const primaryLabel =
+		hasFaltaDepartamento && company ? __("Continuar → Asignar departamento") : __("Cerrar");
+
+	const d = new frappe.ui.Dialog({
 		title: __("Resultado de carga — {0} archivo(s)", [results.length]),
-		message: table,
-		indicator,
+		fields: [{ fieldtype: "HTML", fieldname: "content" }],
+		primary_action_label: primaryLabel,
+		primary_action() {
+			d.hide();
+			if (hasFaltaDepartamento && company) {
+				_load_department_candidates(company, listview);
+			}
+		},
+		secondary_action_label: hasFaltaDepartamento ? __("Detener aquí") : null,
+		secondary_action() {
+			d.hide();
+		},
 	});
+
+	d.show();
+	d.fields_dict.content.$wrapper.html(table);
 
 	const created = results.filter((r) => r.cfdi_recibido);
 	if (created.length) listview.refresh();
@@ -401,14 +440,15 @@ function _do_assign_departments(assignments, listview) {
 		freeze_message: __("Asignando departamentos..."),
 		callback(r) {
 			if (r.message) {
-				_show_assign_departments_summary(r.message);
+				const assignedNames = Object.keys(assignments);
+				_show_assign_departments_summary(r.message, assignedNames, listview);
 				listview.refresh();
 			}
 		},
 	});
 }
 
-function _show_assign_departments_summary(result) {
+function _show_assign_departments_summary(result, assignedNames, listview) {
 	const { asignados, omitidos, errores } = result;
 	const errCount = errores ? errores.length : 0;
 	const indicator = errCount > 0 ? "orange" : "green";
@@ -428,16 +468,37 @@ function _show_assign_departments_summary(result) {
 		   </details>`
 		: "";
 
-	frappe.msgprint({
+	const hasAssigned = asignados > 0 && assignedNames && assignedNames.length > 0;
+	const multipleAssigned = asignados > 1;
+
+	const d = new frappe.ui.Dialog({
 		title: __("Resultado — Asignar Departamentos"),
-		message: `
-			<p>${__("Asignados")}: <strong>${asignados}</strong></p>
-			<p>${__("Omitidos")}: <strong>${omitidos}</strong></p>
-			<p>${__("Errores")}: <strong>${errCount}</strong></p>
-			${errDetail}
-		`,
-		indicator,
+		fields: [{ fieldtype: "HTML", fieldname: "content" }],
+		primary_action_label: hasAssigned ? __("Continuar → Clasificar Items") : __("Cerrar"),
+		primary_action() {
+			d.hide();
+			if (hasAssigned) {
+				if (multipleAssigned) {
+					// Múltiples CFDIs: ir a la lista filtrada por estado
+					frappe.set_route("List", "CFDI Recibido", { status: "Falta clasificación" });
+				} else {
+					// Un solo CFDI: abrir el formulario directamente
+					frappe.set_route("Form", "CFDI Recibido", assignedNames[0]);
+				}
+			}
+		},
+		secondary_action_label: hasAssigned ? __("Detener aquí") : null,
+		secondary_action() {
+			d.hide();
+		},
 	});
+	d.show();
+	d.fields_dict.content.$wrapper.html(`
+		<p>${__("Asignados")}: <strong>${asignados}</strong></p>
+		<p>${__("Omitidos")}: <strong>${omitidos}</strong></p>
+		<p>${__("Errores")}: <strong>${errCount}</strong></p>
+		${errDetail}
+	`);
 }
 
 // ─── Clasificar automáticamente ──────────────────────────────────────────────

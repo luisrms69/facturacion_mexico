@@ -16,12 +16,12 @@
   },
   {
    "fieldname": "no_identificacion",
-   "label": "No. Identificación",
+   "label": "No. Identificacion",
    "fieldtype": "Data"
   },
   {
    "fieldname": "description",
-   "label": "Descripción",
+   "label": "Descripcion",
    "fieldtype": "Text",
    "in_list_view": 1,
    "columns": 4
@@ -86,9 +86,22 @@
   },
   {
    "fieldname": "item_resolution",
-   "label": "Resolución",
+   "label": "Resolucion",
    "fieldtype": "Select",
-   "options": "Genérico\nEspecífico\nMapeado\nManual",
+   "options": "Pendiente\nMapeado\nCodigo proveedor\nSugerido\nNuevo especifico\nNuevo agrupador\nGenerico\nManual",
+   "read_only": 1
+  },
+  {
+   "fieldname": "item_match_reason",
+   "label": "Motivo de match",
+   "fieldtype": "Data",
+   "read_only": 1
+  },
+  {
+   "fieldname": "item_match_confidence",
+   "label": "Confianza",
+   "fieldtype": "Select",
+   "options": "\nAlta\nMedia\nBaja",
    "read_only": 1
   },
   {

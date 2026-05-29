@@ -3,6 +3,11 @@ from frappe import _
 from frappe.model.document import Document
 
 from facturacion_mexico.cfdi_recibidos.services.item_validator import validate_expense_item
+from facturacion_mexico.cfdi_recibidos.services.status_manager import compute_stage
+
+_TERMINAL_STAGES = frozenset(
+	["XML inválido", "No aplicable", "No procesar", "Convertido a PI", "Error conversión"]
+)
 
 
 class CFDIRecibido(Document):
@@ -17,3 +22,5 @@ class CFDIRecibido(Document):
 					frappe.ValidationError,
 				)
 			concepto.item_group = frappe.db.get_value("Item", concepto.item_code, "item_group")
+		if self.status not in _TERMINAL_STAGES:
+			self.status = compute_stage(self)

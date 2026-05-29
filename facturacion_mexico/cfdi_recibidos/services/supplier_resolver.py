@@ -12,7 +12,10 @@ generate_missing_suppliers(cfdi_names=None)
 
 import frappe
 
-from facturacion_mexico.cfdi_recibidos.services.status_manager import compute_supplier_stage
+from facturacion_mexico.cfdi_recibidos.services.status_manager import (
+	compute_stage,
+	compute_supplier_stage,
+)
 
 
 def resolve_supplier(cfdi_recibido_name: str, supplier_override: str | None = None) -> dict:
@@ -51,7 +54,7 @@ def _assign_supplier(doc, supplier_name: str, manual: bool) -> dict:
 	doc.db_set("supplier", supplier_name)
 	doc.supplier = supplier_name
 
-	stage = compute_supplier_stage(doc)
+	stage = compute_stage(doc)
 	doc.db_set("status", stage)
 
 	source = "manual" if manual else "RFC"
@@ -116,7 +119,7 @@ def generate_missing_suppliers(cfdi_names: list[str] | None = None) -> dict:
 				frappe.db.set_value(
 					"CFDI Recibido",
 					cfdi.name,
-					{"supplier": existing, "status": "Proveedor encontrado"},
+					{"supplier": existing, "status": "Falta departamento"},
 				)
 				ya_existian_y_asignados += 1
 				continue
@@ -148,7 +151,7 @@ def generate_missing_suppliers(cfdi_names: list[str] | None = None) -> dict:
 			frappe.db.set_value(
 				"CFDI Recibido",
 				cfdi.name,
-				{"supplier": sup.name, "status": "Proveedor encontrado"},
+				{"supplier": sup.name, "status": "Falta departamento"},
 			)
 			creados += 1
 
