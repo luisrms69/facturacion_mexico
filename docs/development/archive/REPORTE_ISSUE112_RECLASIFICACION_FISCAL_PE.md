@@ -1,3 +1,9 @@
+> **OBSOLETO**
+>
+> Este documento queda archivado como referencia histórica. No representa el plan vigente ni debe usarse como fuente operativa actual.
+
+---
+
 # Issue #112 — Reclasificación Fiscal en Payment Entry
 # Análisis de Arquitectura y Diseño para Resolución
 # Fecha: 2026-05-10

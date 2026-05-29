@@ -1,3 +1,9 @@
+> **OBSOLETO**
+>
+> Este documento queda archivado como referencia histórica. No representa el plan vigente ni debe usarse como fuente operativa actual.
+
+---
+
 # 🤖 REPORTE TÉCNICO: REFACTORING SISTEMA TEMPLATES FISCALES
 
 **Fecha:** 2025-09-22
