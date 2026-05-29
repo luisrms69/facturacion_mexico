@@ -21,7 +21,6 @@
    "label": "Familia SAT",
    "fieldtype": "Select",
    "options": "\n601 Gastos generales\n602 Gastos de venta\n603 Gastos de administración\n604 Gastos de fabricación",
-   "reqd": 1,
    "in_list_view": 1
   }
  ]
