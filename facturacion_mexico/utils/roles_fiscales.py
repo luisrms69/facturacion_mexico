@@ -56,6 +56,11 @@ TABLA_MAESTRA_ROLES_FISCALES = [
 	("RET_ISR_ARR", "ISR Retenido (Arrendamiento)", "RETENCION", "Retención ISR Arrendamiento"),
 	("RET_ISR_AUTO", "ISR Retenido (Autotransporte)", "RETENCION", "Retención ISR Autotransporte"),
 	("RET_ISR_RESICO", "ISR Retenido (RESICO)", "RETENCION", "Retención ISR RESICO"),
+	# IVA acreditable — compras (traslados recibidos de proveedores)
+	("IVA_ACR_NAC", "IVA Acreditable (Nacional)", "IVA_COMPRAS", "IVA 16% acreditable en compras"),
+	("IVA_ACR_FRO", "IVA Acreditable (Frontera)", "IVA_COMPRAS", "IVA 8% acreditable en compras"),
+	("IVA_ACR_CERO", "IVA Acreditable (0% exportación)", "IVA_COMPRAS", "IVA 0% exportación acreditable"),
+	("IEPS_ACR", "IEPS Acreditable", "IEPS_COMPRAS", "IEPS acreditable en compras"),
 ]
 
 # Auto-generar constantes ROL_* desde tabla maestra

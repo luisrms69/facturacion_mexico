@@ -62,19 +62,26 @@
   {
    "fieldname": "status",
    "label": "Estado",
-   "fieldtype": "Select",
-   "options": "Cargado\nParseado\nFalta proveedor\nFalta clasificación\nListo\nFactura creada\nDuplicado\nError",
-   "default": "Cargado",
+   "fieldtype": "Data",
+   "default": "Falta proveedor",
    "reqd": 1,
+   "read_only": 1,
    "in_list_view": 1,
    "search_index": 1
+  },
+  {
+   "fieldname": "no_procesar",
+   "label": "No procesar",
+   "fieldtype": "Check",
+   "default": "0",
+   "description": "Excluye este CFDI del flujo automático de generación de proveedor y PI"
   },
   {
    "fieldname": "error_message",
    "label": "Mensaje de Error",
    "fieldtype": "Text",
    "read_only": 1,
-   "depends_on": "eval:doc.status == 'Error' || doc.status == 'Duplicado'"
+   "depends_on": "eval:['Error conversión'].includes(doc.status)"
   },
   {
    "fieldname": "section_cfdi",
@@ -283,7 +290,16 @@
    "label": "Proveedor",
    "fieldtype": "Link",
    "options": "Supplier",
-   "search_index": 1
+   "search_index": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "department",
+   "label": "Departamento",
+   "fieldtype": "Link",
+   "options": "Department",
+   "search_index": 1,
+   "link_filters": "[[\"Department\", \"is_group\", \"=\", 0]]"
   },
   {
    "fieldname": "purchase_invoice",
@@ -302,6 +318,45 @@
    "label": "Conceptos",
    "fieldtype": "Table",
    "options": "CFDI Recibido Concepto"
+  }
+ ],
+ "state_fieldname": "status",
+ "states": [
+  {
+   "color": "Orange",
+   "title": "Falta proveedor"
+  },
+  {
+   "color": "Green",
+   "title": "Proveedor encontrado"
+  },
+  {
+   "color": "Yellow",
+   "title": "Falta clasificación"
+  },
+  {
+   "color": "Yellow",
+   "title": "Falta departamento"
+  },
+  {
+   "color": "Green",
+   "title": "Clasificado"
+  },
+  {
+   "color": "Blue",
+   "title": "Convertido a PI"
+  },
+  {
+   "color": "Red",
+   "title": "Error conversión"
+  },
+  {
+   "color": "Gray",
+   "title": "No aplicable"
+  },
+  {
+   "color": "Gray",
+   "title": "No procesar"
   }
  ],
  "permissions": [

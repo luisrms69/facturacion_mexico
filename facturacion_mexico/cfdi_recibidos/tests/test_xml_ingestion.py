@@ -1,5 +1,8 @@
 """
-Tests de XMLIngestionService — Fase 1.
+Tests de XMLIngestionService.
+
+Pipeline: parseo → validación RFC → validación tipo → inserción → resolver proveedor.
+Clasificación y PI son hitos posteriores — no se prueban aquí.
 
 unittest.TestCase con contexto Frappe activo (bench run-tests ya lo setea).
 No usa FrappeTestCase para evitar el compat_preload_test_records_upfront que
@@ -19,7 +22,7 @@ from facturacion_mexico.cfdi_recibidos.services.xml_ingestion import ingest_xml
 # RFC de prueba — se setea en setUp sobre la Company del site de test
 TEST_RFC_EMPRESA = "EMP9001011AA"
 
-# XML CFDI 4.0 mínimo — receptor coincide con TEST_RFC_EMPRESA
+# XML CFDI 4.0 mínimo — receptor coincide con TEST_RFC_EMPRESA, tipo I
 XML_VALIDO = """<?xml version="1.0" encoding="UTF-8"?>
 <cfdi:Comprobante
   xmlns:cfdi="http://www.sat.gob.mx/cfd/4"
@@ -83,6 +86,22 @@ XML_RFC_INCORRECTO = XML_VALIDO.replace(
 	"FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF",
 )
 
+XML_TIPO_P = XML_VALIDO.replace(
+	'TipoDeComprobante="I"',
+	'TipoDeComprobante="P"',
+).replace(
+	"11111111-2222-3333-4444-555555555555",
+	"PPPPPPPP-PPPP-PPPP-PPPP-PPPPPPPPPPPP",
+)
+
+XML_TIPO_E = XML_VALIDO.replace(
+	'TipoDeComprobante="I"',
+	'TipoDeComprobante="E"',
+).replace(
+	"11111111-2222-3333-4444-555555555555",
+	"EEEEEEEE-EEEE-EEEE-EEEE-EEEEEEEEEEEE",
+)
+
 XML_33 = """<?xml version="1.0" encoding="UTF-8"?>
 <cfdi:Comprobante xmlns:cfdi="http://www.sat.gob.mx/cfd/3" Version="3.3"
   Total="100.00" TipoDeComprobante="I">
@@ -103,29 +122,49 @@ def _cleanup_uuid(uuid: str):
 		frappe.db.commit()
 
 
+def _cleanup_supplier(tax_id: str):
+	name = frappe.db.get_value("Supplier", {"tax_id": tax_id}, "name")
+	if name:
+		frappe.delete_doc("Supplier", name, force=True)
+		frappe.db.commit()
+
+
 class TestXMLIngestionExitosa(unittest.TestCase):
 	def setUp(self):
 		self.company = _get_company()
 		frappe.db.set_value("Company", self.company, "tax_id", TEST_RFC_EMPRESA)
 		frappe.db.commit()
+		_cleanup_supplier("PROV123456AAA")
 		self.xml_bytes = XML_VALIDO.encode("utf-8")
 
 	def tearDown(self):
 		_cleanup_uuid("11111111-2222-3333-4444-555555555555")
 
-	def test_status_ok(self):
+	def test_status_falta_proveedor(self):
+		# Proveedor PROV123456AAA no existe en el site de test → "Falta proveedor"
 		result = ingest_xml(self.xml_bytes, self.company, "test.xml")
-		self.assertEqual(result["status"], "ok")
+		self.assertEqual(result["status"], "Falta proveedor")
+
+	def test_supplier_found_false_sin_proveedor(self):
+		result = ingest_xml(self.xml_bytes, self.company, "test.xml")
+		self.assertFalse(result["supplier_found"])
+
+	def test_candidato_true_sin_proveedor(self):
+		result = ingest_xml(self.xml_bytes, self.company, "test.xml")
+		self.assertTrue(result["candidato_generar_proveedor"])
+
+	def test_supplier_rfc_en_resultado(self):
+		result = ingest_xml(self.xml_bytes, self.company, "test.xml")
+		self.assertEqual(result["supplier_rfc"], "PROV123456AAA")
 
 	def test_crea_cfdi_recibido(self):
 		result = ingest_xml(self.xml_bytes, self.company, "test.xml")
 		self.assertIsNotNone(result["cfdi_recibido"])
 		doc = frappe.get_doc("CFDI Recibido", result["cfdi_recibido"])
 		self.assertEqual(doc.uuid, "11111111-2222-3333-4444-555555555555")
-		self.assertEqual(doc.status, "Parseado")
+		self.assertEqual(doc.status, "Falta proveedor")
 		self.assertEqual(doc.supplier_rfc, "PROV123456AAA")
 		self.assertEqual(doc.receiver_rfc, "EMP9001011AA")
-		self.assertEqual(doc.uso_cfdi, "G03")
 		self.assertEqual(doc.cfdi_type, "I")
 
 	def test_guarda_xml_hash(self):
@@ -166,6 +205,49 @@ class TestXMLIngestionExitosa(unittest.TestCase):
 		result = ingest_xml(self.xml_bytes, self.company, "test.xml")
 		self.assertEqual(result["uuid"], "11111111-2222-3333-4444-555555555555")
 
+	def test_next_action_presente(self):
+		result = ingest_xml(self.xml_bytes, self.company, "test.xml")
+		self.assertIn("next_action", result)
+
+
+class TestXMLIngestionConProveedorExistente(unittest.TestCase):
+	"""Proveedor con RFC del XML existe en BD → Proveedor encontrado."""
+
+	def setUp(self):
+		self.company = _get_company()
+		frappe.db.set_value("Company", self.company, "tax_id", TEST_RFC_EMPRESA)
+		frappe.db.commit()
+		# Crear Supplier con RFC del XML
+		if not frappe.db.exists("Supplier", {"tax_id": "PROV123456AAA"}):
+			s = frappe.new_doc("Supplier")
+			s.supplier_name = "Proveedor Test RFC"
+			s.supplier_type = "Company"
+			s.tax_id = "PROV123456AAA"
+			s.insert(ignore_permissions=True)
+			frappe.db.commit()
+		self.supplier_name = frappe.db.get_value("Supplier", {"tax_id": "PROV123456AAA"}, "name")
+
+	def tearDown(self):
+		_cleanup_uuid("11111111-2222-3333-4444-555555555555")
+		_cleanup_supplier("PROV123456AAA")
+
+	def test_status_proveedor_encontrado(self):
+		result = ingest_xml(XML_VALIDO.encode(), self.company, "test.xml")
+		self.assertEqual(result["status"], "Proveedor encontrado")
+
+	def test_supplier_found_true(self):
+		result = ingest_xml(XML_VALIDO.encode(), self.company, "test.xml")
+		self.assertTrue(result["supplier_found"])
+
+	def test_candidato_false_con_proveedor(self):
+		result = ingest_xml(XML_VALIDO.encode(), self.company, "test.xml")
+		self.assertFalse(result["candidato_generar_proveedor"])
+
+	def test_supplier_asignado_en_doc(self):
+		result = ingest_xml(XML_VALIDO.encode(), self.company, "test.xml")
+		doc = frappe.get_doc("CFDI Recibido", result["cfdi_recibido"])
+		self.assertEqual(doc.supplier, self.supplier_name)
+
 
 class TestXMLIngestionDuplicado(unittest.TestCase):
 	def setUp(self):
@@ -191,6 +273,10 @@ class TestXMLIngestionDuplicado(unittest.TestCase):
 		result = ingest_xml(self.xml_bytes, self.company, "segundo.xml")
 		self.assertEqual(result["cfdi_recibido"], self._first["cfdi_recibido"])
 
+	def test_duplicado_candidato_false(self):
+		result = ingest_xml(self.xml_bytes, self.company, "segundo.xml")
+		self.assertFalse(result["candidato_generar_proveedor"])
+
 
 class TestXMLIngestionRFCIncorrecto(unittest.TestCase):
 	def setUp(self):
@@ -198,23 +284,54 @@ class TestXMLIngestionRFCIncorrecto(unittest.TestCase):
 		frappe.db.set_value("Company", self.company, "tax_id", TEST_RFC_EMPRESA)
 		frappe.db.commit()
 
-	def tearDown(self):
-		_cleanup_uuid("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF")
-
-	def test_status_error(self):
+	def test_status_xml_invalido(self):
 		result = ingest_xml(XML_RFC_INCORRECTO.encode(), self.company, "rfc_mal.xml")
-		self.assertEqual(result["status"], "error")
+		self.assertEqual(result["status"], "XML inválido")
 
-	def test_doc_creado_en_estado_error(self):
+	def test_no_crea_doc(self):
 		result = ingest_xml(XML_RFC_INCORRECTO.encode(), self.company, "rfc_mal.xml")
-		self.assertIsNotNone(result["cfdi_recibido"])
-		doc = frappe.get_doc("CFDI Recibido", result["cfdi_recibido"])
-		self.assertEqual(doc.status, "Error")
+		self.assertIsNone(result["cfdi_recibido"])
+
+	def test_candidato_false(self):
+		result = ingest_xml(XML_RFC_INCORRECTO.encode(), self.company, "rfc_mal.xml")
+		self.assertFalse(result["candidato_generar_proveedor"])
 
 	def test_mensaje_error_descriptivo(self):
 		result = ingest_xml(XML_RFC_INCORRECTO.encode(), self.company, "rfc_mal.xml")
+		self.assertIn("no corresponde", result["message"].lower())
+
+
+class TestXMLIngestionTipoNoAplicable(unittest.TestCase):
+	def setUp(self):
+		self.company = _get_company()
+		frappe.db.set_value("Company", self.company, "tax_id", TEST_RFC_EMPRESA)
+		frappe.db.commit()
+
+	def tearDown(self):
+		_cleanup_uuid("PPPPPPPP-PPPP-PPPP-PPPP-PPPPPPPPPPPP")
+		_cleanup_uuid("EEEEEEEE-EEEE-EEEE-EEEE-EEEEEEEEEEEE")
+
+	def test_tipo_p_no_aplicable(self):
+		result = ingest_xml(XML_TIPO_P.encode(), self.company, "pago.xml")
+		self.assertEqual(result["status"], "No aplicable")
+
+	def test_tipo_p_crea_doc_trazabilidad(self):
+		result = ingest_xml(XML_TIPO_P.encode(), self.company, "pago.xml")
+		self.assertIsNotNone(result["cfdi_recibido"])
 		doc = frappe.get_doc("CFDI Recibido", result["cfdi_recibido"])
-		self.assertIn("no corresponde", doc.error_message.lower())
+		self.assertEqual(doc.status, "No aplicable")
+
+	def test_tipo_p_candidato_false(self):
+		result = ingest_xml(XML_TIPO_P.encode(), self.company, "pago.xml")
+		self.assertFalse(result["candidato_generar_proveedor"])
+
+	def test_tipo_e_no_aplicable(self):
+		result = ingest_xml(XML_TIPO_E.encode(), self.company, "egreso.xml")
+		self.assertEqual(result["status"], "No aplicable")
+
+	def test_tipo_e_candidato_false(self):
+		result = ingest_xml(XML_TIPO_E.encode(), self.company, "egreso.xml")
+		self.assertFalse(result["candidato_generar_proveedor"])
 
 
 class TestXMLIngestionVersionInvalida(unittest.TestCase):
@@ -223,12 +340,11 @@ class TestXMLIngestionVersionInvalida(unittest.TestCase):
 		frappe.db.set_value("Company", self.company, "tax_id", TEST_RFC_EMPRESA)
 		frappe.db.commit()
 
-	def test_cfdi_33_retorna_error(self):
+	def test_cfdi_33_retorna_xml_invalido(self):
 		result = ingest_xml(XML_33.encode(), self.company, "cfdi33.xml")
-		self.assertEqual(result["status"], "error")
+		self.assertEqual(result["status"], "XML inválido")
 
 	def test_cfdi_33_no_crea_doc(self):
-		# CFDI 3.3 falla en el parser antes de crear el doc
 		ingest_xml(XML_33.encode(), self.company, "cfdi33.xml")
 		count = frappe.db.count("CFDI Recibido", {"supplier_rfc": "EKU9003173C9"})
 		self.assertEqual(count, 0)
@@ -253,14 +369,21 @@ class TestIngestResultadosEstructura(unittest.TestCase):
 
 	def test_resultado_tiene_campos_esperados(self):
 		result = ingest_xml(XML_VALIDO.encode(), self.company, "a.xml")
-		self.assertIn("status", result)
-		self.assertIn("cfdi_recibido", result)
-		self.assertIn("uuid", result)
-		self.assertIn("message", result)
+		for campo in [
+			"status",
+			"cfdi_recibido",
+			"uuid",
+			"supplier_rfc",
+			"supplier_found",
+			"candidato_generar_proveedor",
+			"message",
+			"next_action",
+		]:
+			self.assertIn(campo, result, f"Falta campo: {campo}")
 
 	def test_dos_xmls_distintos_crea_dos_docs(self):
 		r1 = ingest_xml(XML_VALIDO.encode(), self.company, "a.xml")
 		r2 = ingest_xml(XML_UUID_DISTINTO.encode(), self.company, "b.xml")
-		self.assertEqual(r1["status"], "ok")
-		self.assertEqual(r2["status"], "ok")
+		self.assertIsNotNone(r1["cfdi_recibido"])
+		self.assertIsNotNone(r2["cfdi_recibido"])
 		self.assertNotEqual(r1["cfdi_recibido"], r2["cfdi_recibido"])

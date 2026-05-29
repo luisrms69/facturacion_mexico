@@ -1,85 +1,101 @@
 # CONTINUITY.md — facturacion_mexico
 
-**Fecha:** 2026-05-23
-**Último PR:** #157 — feat(cfdi-recibidos): Fase 2 — SupplierResolver, ConceptClassifier y CFDI Concepto Mapping
-**Branch:** feature/issue151-cfdi-recibidos-fase2 → main (PR abierto)
+**Fecha:** 2026-05-29
+**Rama activa:** `feature/cfdi-recibidos-fase3-pi`
+**Tarea actual:** PR #166 — correcciones pre-merge CodeRabbit aplicadas, pendiente CI verde y merge
 
 ---
 
-## Cómo ponerse al tanto — leer en este orden
+## Recuperación rápida
 
-```
-1. /home/erpnext/frappe-bench-v16/.claude/CLAUDE.md     ← reglas globales del bench
-2. CLAUDE.md (raíz de este repo)                         ← contexto del app
-3. Este archivo: CONTINUITY.md                           ← estado actual
-4. gh pr view 157                                        ← último PR
-```
+Estoy trabajando en:
+PR #166 abierto. CI verde tras correcciones semgrep/tests/docstrings.
+Se aplicaron 9 correcciones pre-merge identificadas por CodeRabbit.
+Pendiente: CI verde con estas correcciones → merge → cierre de issue #152.
 
----
+Plan que estoy siguiendo:
+Issue #152 — criterios implementados; PR #166 es el paso final.
 
-## Estado del módulo cfdi_recibidos
+Objetivo inmediato:
+CI verde en PR #166 → merge a main.
 
-### Fase 1 — ✅ Mergeada (PR #156, 2026-05-23)
-
-| Componente | Estado |
-|---|---|
-| DocType `CFDI Recibido` | ✅ Funcional |
-| DocType `CFDI Recibido Concepto` (child) | ✅ Funcional |
-| Parser XML CFDI 4.0 | ✅ Funcional |
-| Ingesta multi-archivo via API | ✅ Funcional |
-| Deduplicación por UUID + hash | ✅ Funcional |
-| Endpoint `upload_xml` | ✅ Funcional |
-
-### Fase 2 — ⏳ PR #157 abierto
-
-| Componente | Estado |
-|---|---|
-| DocType `CFDI Concepto Mapping` | ✅ Implementado, 18/18 tests |
-| Servicio `SupplierResolver` | ✅ Implementado, tests OK |
-| Servicio `ConceptClassifier` (3 niveles fallback) | ✅ Implementado, tests OK |
-| Endpoints `resolve_supplier`, `classify_concepts`, `save_mapping_rule` | ✅ Implementados |
-| UI inline en bandeja | ❌ Diferida a Fase 2.5 o Fase 3 |
-
-### Restricciones de diseño confirmadas (no modificar sin PR)
-
-- Child `CFDI Recibido Concepto` no almacena resultado de clasificación — estado derivado en servidor
-- No autocreación de Suppliers
-- Sin regex, sin priority, sin GroupedItem en mapping MVP
-- Sin Custom Fields en Purchase Invoice
+Criterio de avance:
+CI verde → merge a main → cerrar issue #152 si el usuario lo decide.
 
 ---
 
-## PRs recientes
+## Estado actual
 
-| PR | Descripción | Estado |
-|---|---|---|
-| #155 | docs: arquitectura CFDI Recibidos aprobada | Mergeado |
-| #156 | feat: Fase 1 — ingesta, parser y DocTypes | Mergeado 2026-05-23 |
-| #157 | feat: Fase 2 — SupplierResolver, ConceptClassifier, CFDI Concepto Mapping | Abierto |
+### Commits de corrección CI + CodeRabbit en esta sesión
+
+- `500a683` — 21 findings semgrep + 14 fallos tests (supplier_resolver,
+  xml_ingestion, test_api_cfdi_recibidos, test_setup_expense_items,
+  test_bloque_d_classification)
+- `854dcf9` — 4 fallos tests restantes + interrogate 80%
+  (pyproject.toml, test_api_cfdi_recibidos item fixture, test_supplier_resolver)
+- Commit siguiente (pendiente push) — 9 correcciones pre-merge CodeRabbit:
+  - item_resolution: options con acentos correctos + Específico faltante
+  - api.py: "Generico" → "Genérico"
+  - cfdi_recibido_list.js: escape_html en r.file_name y e.message (XSS)
+  - cfdi_recibido.json: depends_on quita estado 'Error' muerto
+  - configuracion_cfdi_recibidos.js: escape_html en warnings/message
+  - mapeo_departamento: familia_sat reqd=1
+  - regla_item: label "Item" → "Artículo"
+  - tax_resolver: guard cuenta_impuesto vacía antes de _build_row
+
+### Pendiente
+- CI verde en PR #166 con las 9 correcciones
+- Merge del PR #166 a main (squash and merge)
+- Cierre explícito de issue #152 (decisión del usuario)
+- Issue #165: is_submittable para CFDI Recibido — deuda técnica antes de producción
+
+### Pendiente CodeRabbit (no atendido en este PR)
+- FrappeTestCase en tests con unittest.TestCase (varios archivos)
+- test_item_resolver.py: mocks de frappe.db (heavy lift)
+- Naming/comments en inglés (concept_classifier, regla_item)
+- Throttle en batch classify (cfdi_recibido_list.js)
+- Parámetro config unused en wizard_cfdi_recibidos.py
+
+### No repetir
+- No proponer commits sin que el usuario lo solicite
+- No incluir one_offs/ ni REPORTE_*.md en commits
+- No hacer bench migrate sin autorización
+- No usar "closes/fixes/resolves #152" en commits ni PRs
 
 ---
 
-## Próxima tarea
-
-**Issue:** #152 — [CFDI Recibidos][Fase 3] PurchaseInvoiceBuilder, impuestos nativos y batch best-effort
-**Épica:** #149 — [EPIC] CFDI Recibidos / Compras — MVP
-**Dependencia:** PR #157 mergeado
-**Rama a crear:** `feature/issue152-cfdi-recibidos-fase3`
-
-**Pendientes de Fase 2 a resolver en Fase 2.5 o Fase 3:**
-- UI inline en bandeja para resolver proveedor y clasificar conceptos
-- Prueba manual explícita: fallback `supplier_rfc + any clave SAT`
-- Prueba manual explícita: `save_mapping_rule` actualización de regla existente
-- Advertencia en UI al vincular proveedor con RFC diferente al del CFDI
+## Decisiones vigentes
+- Squash and merge para PR #166
+- Mensaje squash documentado en conversación 2026-05-28
+- item_resolution options canónicos: Mapeado, Código proveedor, Específico,
+  Sugerido, Nuevo especifico, Nuevo agrupador, Genérico, Manual
+- tax_resolver valida cuenta_impuesto no vacía en regla activa antes de _build_row
+- xml_ingestion: NO auto-crea proveedores en upload (Paso 7 eliminado)
+- generate_missing_suppliers → "Proveedor encontrado" (no "Falta departamento")
+- _assign_supplier → compute_supplier_stage (no compute_stage)
+- classify_all_concepts: solo auto-asigna "Código proveedor", Mapeado requiere usuario
+- bench migrate ejecutado en test-facturacion.localhost y facturacion-v16.dev
 
 ---
 
-## Configuración de desarrollo
+## Archivos relevantes ahora
 
-| Ítem | Valor |
-|---|---|
-| Bench | `/home/erpnext/frappe-bench-v16` |
-| Site desarrollo | `facturacion-v16.dev` |
-| Site tests | `test-facturacion.localhost` |
-| Comando tests | `bench --site test-facturacion.localhost run-tests --app facturacion_mexico` |
-| Fixtures | `bench --site facturacion-v16.dev export-fixtures --app facturacion_mexico` |
+### Leer primero
+- PR #166: https://github.com/luisrms69/facturacion_mexico/pull/166
+
+### Probablemente editar
+- Ninguno — pendiente solo CI verde y merge
+
+### No tocar
+- facturacion_mexico/one_offs/ — nunca commitear
+- docs/development/REPORTE_*.md — no commitear
+
+---
+
+## Riesgos / cuidados
+- PR #166: 35 commits — usar squash and merge
+- issue #165 (is_submittable) debe hacerse antes de producción
+- api_backup.py escribe en /tmp/ — defecto pre-existente
+- bench migrate requerido en cualquier site nuevo
+- Las 9 correcciones CodeRabbit pueden activar tests de tax_resolver
+  que testean cuenta_impuesto vacía (si existen)

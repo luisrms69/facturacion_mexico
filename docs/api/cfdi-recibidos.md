@@ -1,6 +1,6 @@
 # CFDI Recibidos - API Reference
 
-Documentación de los endpoints para ingesta y clasificación de CFDIs recibidos (XML de proveedores).
+Documentación de los endpoints para ingesta, clasificación y conversión de CFDIs recibidos (XML de proveedores).
 
 ---
 
@@ -12,6 +12,8 @@ Documentación de los endpoints para ingesta y clasificación de CFDIs recibidos
 | `resolve_supplier` | POST | Asigna proveedor por RFC o vinculación manual |
 | `classify_concepts` | POST | Aplica reglas de clasificación a los conceptos del CFDI |
 | `save_mapping_rule` | POST | Crea o actualiza una regla de CFDI Concepto Mapping |
+| `build_purchase_invoice` | POST | Convierte CFDI Recibido Listo a Purchase Invoice Draft |
+| `suggest_supplier_from_cfdi` | POST | Sugiere datos de proveedor sin crearlo automáticamente |
 
 Todos los endpoints están bajo:
 
@@ -203,6 +205,129 @@ Crea o actualiza una regla en **CFDI Concepto Mapping**. Si ya existe una regla 
   "company": "Mi Empresa S.A. de C.V."
 }
 ```
+
+---
+
+## `build_purchase_invoice`
+
+Convierte un **CFDI Recibido** en estado `Listo` a una **Purchase Invoice Draft** de ERPNext.
+
+### Parámetros
+
+| Campo | Tipo | Requerido | Descripción |
+|---|---|---|---|
+| `cfdi_recibido` | string | ✅ | Nombre del CFDI Recibido |
+
+### Respuesta
+
+```json
+{
+  "status": "ok",
+  "purchase_invoice": "ACC-PINV-2024-00001",
+  "recovered": false,
+  "message": "Purchase Invoice ACC-PINV-2024-00001 creada correctamente"
+}
+```
+
+| `status` | `recovered` | Descripción |
+|---|---|---|
+| `ok` | `false` | PI creada por primera vez |
+| `recovered` | `true` | UUID ya tenía PI vinculada — se reparó el vínculo |
+| `error` | `false` | Error de configuración o datos — PI no creada |
+
+### Comportamiento
+
+- Solo permite conversión si el CFDI está en estado `Listo`, `Error conversión` o `Convertido a PI`.
+- Al crear la PI exitosamente, el CFDI pasa a estado `Convertido a PI`.
+- En caso de error, el CFDI pasa a `Error conversión` y se guarda el detalle en `error_message`.
+- **Idempotente por UUID**: si ya existe una `Purchase Invoice` con el mismo `fm_cfdi_uuid`, retorna `recovered=True` sin crear duplicados.
+- La PI se crea como **Draft** (`docstatus=0`). No se hace submit automáticamente.
+
+### Configuración requerida
+
+Para que la conversión funcione, deben existir:
+
+1. **Configuracion CFDI Recibidos** para la empresa (nombre: `CFDI-REC-CFG-{empresa}`) — con reglas de impuesto configuradas y `wizard_completado=True`.
+2. **CFDI Concepto Mapping** activo para cada concepto del CFDI — con cuenta de gasto o Item destino.
+3. El `supplier` del CFDI debe estar asignado (usar `resolve_supplier` antes si es necesario).
+
+### Flujo de impuestos
+
+Los impuestos del XML se resuelven vía `TaxResolver`:
+
+- **Traslados IVA 16% / 8% / 0%** → `charge_type=Actual`, `add_deduct_tax=Add`
+- **Traslados IEPS** → `charge_type=Actual`, `add_deduct_tax=Add`
+- **Retenciones ISR/IVA** → `charge_type=Actual`, `add_deduct_tax=Deduct`, importe negativo en la PI
+
+!!! warning "Tolerancia de cuadre"
+    Se valida que `grand_total` calculado no difiera del `total` del XML en más de **0.02 MXN**.
+    Si difiere más, se lanza error y el CFDI queda en `Error conversión`.
+
+---
+
+## `suggest_supplier_from_cfdi`
+
+Busca si existe un `Supplier` en ERPNext con `tax_id` igual al RFC del CFDI y retorna sugerencia
+de datos para alta manual. **Nunca crea proveedores automáticamente.**
+
+### Parámetros
+
+| Campo | Tipo | Requerido | Descripción |
+|---|---|---|---|
+| `cfdi_recibido` | string | ✅ | Nombre del CFDI Recibido |
+
+### Respuesta — Proveedor encontrado
+
+```json
+{
+  "status": "found",
+  "supplier_exists": true,
+  "supplier": "Proveedor Ejemplo S.A.",
+  "message": "Proveedor encontrado: Proveedor Ejemplo S.A. (PROV901011AAA)",
+  "suggested_data": {
+    "supplier_name": "Proveedor Ejemplo S.A.",
+    "tax_id": "PROV901011AAA"
+  }
+}
+```
+
+### Respuesta — Proveedor no encontrado
+
+```json
+{
+  "status": "not_found",
+  "supplier_exists": false,
+  "supplier": null,
+  "message": "No existe Supplier con RFC PROV901011AAA",
+  "suggested_data": {
+    "supplier_name": "Nombre del Proveedor según XML",
+    "tax_id": "PROV901011AAA",
+    "tax_regime": "601"
+  }
+}
+```
+
+### Respuesta — CFDI sin RFC
+
+```json
+{
+  "status": "no_rfc",
+  "supplier_exists": false,
+  "supplier": null,
+  "message": "El CFDI no tiene RFC de proveedor",
+  "suggested_data": {}
+}
+```
+
+| `status` | Descripción |
+|---|---|
+| `found` | Existe `Supplier` con `tax_id == supplier_rfc` del CFDI |
+| `not_found` | No existe; `suggested_data` contiene datos para alta asistida |
+| `no_rfc` | El CFDI no tiene RFC de proveedor |
+
+!!! info "Alta asistida"
+    Use `suggested_data` para pre-poblar el formulario de alta de proveedor.
+    Una vez creado el `Supplier`, use `resolve_supplier` para vincularlo al CFDI.
 
 ---
 

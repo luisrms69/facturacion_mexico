@@ -60,6 +60,9 @@ doctype_js = {
 		"ffm_cancel_ui_v2.js",
 		"facturacion_fiscal/doctype/factura_fiscal_mexico/factura_fiscal_mexico.js",
 	],
+	"Configuracion CFDI Recibidos": [
+		"cfdi_recibidos/doctype/configuracion_cfdi_recibidos/configuracion_cfdi_recibidos.js",
+	],
 }
 
 # include css in doctype views
@@ -71,7 +74,10 @@ doctype_list_js = {
 	"Factura Fiscal Mexico": [
 		"public/js/fm_enums.js",  # enum/colores primero
 		"facturacion_fiscal/doctype/factura_fiscal_mexico/factura_fiscal_mexico_list.js",
-	]
+	],
+	"CFDI Recibido": [
+		"cfdi_recibidos/doctype/cfdi_recibido/cfdi_recibido_list.js",
+	],
 }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
@@ -112,9 +118,15 @@ doctype_list_js = {
 # ------------
 
 # before_install = "facturacion_mexico.install.before_install"
-after_install = "facturacion_mexico.install.after_install"
+after_install = [
+	"facturacion_mexico.install.after_install",
+	"facturacion_mexico.setup.enforce_sat_uom.enforce_sat_uom_policy_on_install",
+]
 after_migrate = [
+	"facturacion_mexico.setup.enforce_sat_uom.enforce_sat_uom_policy",
 	"facturacion_mexico.setup.item_groups.ensure_fiscal_item_groups",
+	"facturacion_mexico.setup.cfdi_received_expense_item_groups.ensure_cfdi_received_expense_item_groups",
+	"facturacion_mexico.setup.cfdi_received_expense_items.ensure_cfdi_received_expense_items",
 ]
 
 # Custom Fields & SAT Catalogs Fixtures
@@ -212,6 +224,9 @@ fixtures = [
 					"Sales Invoice-fm_quick_status",
 					# "Sales Invoice-fm_informacion_fiscal_section", # ELIMINADO - Sección vacía migrada a Factura Fiscal Mexico
 					# "Sales Invoice-fm_lugar_expedicion", # MIGRADO A Factura Fiscal Mexico
+					# Purchase Invoice custom fields — CFDI Recibidos Fase 3
+					"Purchase Invoice-fm_cfdi_uuid",
+					"Purchase Invoice-fm_cfdi_recibido",
 					"Sales Invoice-fm_multi_sucursal_column",
 					"Sales Invoice-fm_multi_sucursal_section",
 					# "Sales Invoice-fm_payment_method_sat", # MIGRADO A Factura Fiscal Mexico

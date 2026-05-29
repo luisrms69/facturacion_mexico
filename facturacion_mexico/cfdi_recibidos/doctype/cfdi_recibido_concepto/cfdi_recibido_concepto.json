@@ -15,6 +15,11 @@
    "columns": 2
   },
   {
+   "fieldname": "no_identificacion",
+   "label": "No. Identificacion",
+   "fieldtype": "Data"
+  },
+  {
    "fieldname": "description",
    "label": "Descripción",
    "fieldtype": "Text",
@@ -63,6 +68,41 @@
    "fieldname": "tax_object",
    "label": "Objeto Impuesto",
    "fieldtype": "Data"
+  },
+  {
+   "fieldname": "item_group",
+   "label": "Grupo de Gasto",
+   "fieldtype": "Link",
+   "options": "Item Group",
+   "in_list_view": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "item_code",
+   "label": "Item",
+   "fieldtype": "Link",
+   "options": "Item",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "item_resolution",
+   "label": "Resolución",
+   "fieldtype": "Select",
+   "options": "Pendiente\nMapeado\nCódigo proveedor\nEspecífico\nSugerido\nNuevo especifico\nNuevo agrupador\nGenérico\nManual",
+   "read_only": 1
+  },
+  {
+   "fieldname": "item_match_reason",
+   "label": "Motivo de match",
+   "fieldtype": "Data",
+   "read_only": 1
+  },
+  {
+   "fieldname": "item_match_confidence",
+   "label": "Confianza",
+   "fieldtype": "Select",
+   "options": "\nAlta\nMedia\nBaja",
+   "read_only": 1
   },
   {
    "fieldname": "taxes_json",

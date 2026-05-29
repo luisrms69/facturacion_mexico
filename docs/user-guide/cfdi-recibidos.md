@@ -13,8 +13,8 @@ Un CFDI Recibido es el XML que emite un proveedor cuando te vende un bien o serv
 ## Flujo de trabajo
 
 ```
-1. Cargar XML  →  2. Resolver proveedor  →  3. Clasificar conceptos  →  4. Listo
-   (upload_xml)    (resolve_supplier)        (classify_concepts)
+1. Cargar XML  →  2. Resolver proveedor  →  3. Clasificar conceptos  →  4. Convertir a Purchase Invoice
+   (upload_xml)    (resolve_supplier)        (classify_concepts)          (build_purchase_invoice)
 ```
 
 Cada paso avanza el estado del documento:
@@ -24,7 +24,9 @@ Cada paso avanza el estado del documento:
 | `Parseado` | XML cargado y válido, proveedor pendiente |
 | `Falta proveedor` | No se encontró Supplier con el RFC del emisor |
 | `Falta clasif.` | Proveedor asignado, pero hay conceptos sin regla |
-| `Listo` | Todos los conceptos clasificados — listo para registro contable |
+| `Listo` | Todos los conceptos clasificados — listo para conversión a PI |
+| `Convertido a PI` | Purchase Invoice Draft creada exitosamente |
+| `Error conversión` | Falló la conversión a PI — revisar `error_message` en el documento |
 | `Error` | El RFC receptor del CFDI no corresponde a la empresa, o XML inválido |
 
 ---
@@ -116,6 +118,49 @@ Cuenta:           Gastos Generales - MX
 
 ---
 
+## Paso 4 — Convertir a Purchase Invoice
+
+Cuando el CFDI está en estado `Listo`, puedes convertirlo en una **Purchase Invoice Draft** de ERPNext
+usando `build_purchase_invoice`.
+
+### Prerrequisitos
+
+Antes de ejecutar la conversión, verifica:
+
+1. **Proveedor asignado** — el campo `supplier` del CFDI Recibido debe estar vinculado.
+2. **Reglas de clasificación** — todos los conceptos deben tener una regla activa en CFDI Concepto Mapping.
+3. **Configuracion CFDI Recibidos** — debe existir para la empresa (nombre: `CFDI-REC-CFG-{empresa}`), con:
+   - Reglas de impuesto configuradas (IVA 16%/8%/0%, IEPS, retenciones según aplique)
+   - `wizard_completado` activo (usar el botón "Generar Template de Impuestos")
+
+### Qué genera la conversión
+
+La Purchase Invoice Draft incluye:
+
+- **Líneas de items** — una por cada concepto del CFDI, mapeada a Item o cuenta de gasto según las reglas
+- **Impuestos** — IVA, IEPS y retenciones como filas en la tabla de impuestos, con montos exactos del XML
+- **Campos de trazabilidad** — `fm_cfdi_uuid` y `fm_cfdi_recibido` vinculan la PI al CFDI original
+
+La PI se crea como **Draft** (sin validar). El usuario debe revisarla y hacer Submit manualmente.
+
+### Idempotencia
+
+Si la conversión ya fue realizada (UUID ya tiene una PI), el endpoint retorna `recovered=True`
+sin crear duplicados. Esto permite reintentar llamadas sin riesgo.
+
+### Manejo de errores
+
+Si la conversión falla (por ejemplo, impuesto no reconocido o cuadre fuera de tolerancia),
+el CFDI pasa a estado `Error conversión` y el detalle queda en el campo `error_message`.
+Puedes corregir la configuración y reintentar — el endpoint lo permite desde `Error conversión`.
+
+!!! tip "Sugerir alta de proveedor"
+    Si el proveedor no existe en ERPNext, usa primero `suggest_supplier_from_cfdi` para obtener los
+    datos sugeridos del XML y facilitar el alta manual. Luego usa `resolve_supplier` para vincularlo
+    antes de intentar la conversión.
+
+---
+
 ## Preguntas frecuentes
 
 **¿Qué pasa si cargo el mismo XML dos veces?**
@@ -132,3 +177,16 @@ Una regla con `company` vacío aplica a todas las empresas del sistema. Útil pa
 
 **¿Puedo desactivar una regla sin borrarla?**
 Sí. Cada regla en `CFDI Concepto Mapping` tiene el campo `is_active`. Las reglas inactivas no participan en el proceso de clasificación.
+
+**¿La Purchase Invoice se crea como borrador o validada?**
+Siempre como Draft (`docstatus=0`). El submit es manual — el sistema no lo hace automáticamente.
+
+**¿Qué pasa si intento convertir el mismo CFDI dos veces?**
+El endpoint es idempotente: si ya existe una PI con el mismo UUID, retorna `recovered=True` y la PI existente. No se crean duplicados.
+
+**¿Puedo reintentar la conversión después de un error?**
+Sí. El estado `Error conversión` permite reintentar `build_purchase_invoice`. Corrige la configuración faltante (regla de clasificación, CFM, template) y vuelve a llamar el endpoint.
+
+**¿Cómo sé si un proveedor ya existe en ERPNext antes de crear la PI?**
+Usa `suggest_supplier_from_cfdi`. Retorna si existe un `Supplier` con `tax_id` igual al RFC del CFDI.
+Si no existe, devuelve los datos del XML para facilitar el alta manual.

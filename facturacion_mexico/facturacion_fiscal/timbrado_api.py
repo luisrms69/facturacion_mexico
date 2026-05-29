@@ -420,6 +420,13 @@ class TimbradoAPI:
 		if not sales_invoice.items:
 			frappe.throw(_("La factura debe tener al menos un item"))
 
+		# E.3: Verificar que todas las líneas tengan UOM del catálogo SAT (c_ClaveUnidad)
+		from facturacion_mexico.facturacion_fiscal.services.invoice_uom_validator import (
+			validate_invoice_items_uom,
+		)
+
+		validate_invoice_items_uom(sales_invoice.items)
+
 	def _get_factura_fiscal(self, sales_invoice):
 		"""Obtener Factura Fiscal México existente."""
 		if not sales_invoice.fm_factura_fiscal_mx:

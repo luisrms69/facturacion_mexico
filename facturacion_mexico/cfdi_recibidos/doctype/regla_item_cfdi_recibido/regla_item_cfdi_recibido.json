@@ -1,0 +1,123 @@
+{
+ "doctype": "DocType",
+ "name": "Regla Item CFDI Recibido",
+ "module": "CFDI Recibidos",
+ "autoname": "RICFDI-.YYYY.-.###",
+ "engine": "InnoDB",
+ "field_order": [
+  "target_item",
+  "match_reason",
+  "section_filtros",
+  "company",
+  "col_break_1",
+  "supplier_rfc",
+  "sat_product_key",
+  "keywords",
+  "section_config",
+  "priority",
+  "col_break_2",
+  "is_active"
+ ],
+ "fields": [
+  {
+   "fieldname": "target_item",
+   "label": "Artículo",
+   "fieldtype": "Link",
+   "options": "Item",
+   "reqd": 1,
+   "in_list_view": 1,
+   "bold": 1,
+   "columns": 3
+  },
+  {
+   "fieldname": "match_reason",
+   "label": "Motivo / Descripcion",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "columns": 4
+  },
+  {
+   "fieldname": "section_filtros",
+   "label": "Filtros de coincidencia",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "company",
+   "label": "Empresa",
+   "fieldtype": "Link",
+   "options": "Company",
+   "description": "Vacio = aplica a todas las empresas"
+  },
+  {
+   "fieldname": "col_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "supplier_rfc",
+   "label": "RFC Proveedor",
+   "fieldtype": "Data",
+   "description": "Vacio = aplica a cualquier proveedor"
+  },
+  {
+   "fieldname": "sat_product_key",
+   "label": "Clave SAT Producto/Servicio",
+   "fieldtype": "Link",
+   "options": "SAT Producto Servicio",
+   "description": "Vacio = aplica a cualquier clave SAT"
+  },
+  {
+   "fieldname": "keywords",
+   "label": "Palabras clave",
+   "fieldtype": "Data",
+   "description": "Separadas por coma — deben aparecer en la descripcion del concepto"
+  },
+  {
+   "fieldname": "section_config",
+   "label": "Configuracion",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "priority",
+   "label": "Prioridad",
+   "fieldtype": "Int",
+   "default": "10",
+   "description": "Menor numero = mayor prioridad al evaluar reglas"
+  },
+  {
+   "fieldname": "col_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "is_active",
+   "label": "Activa",
+   "fieldtype": "Check",
+   "default": "1",
+   "in_list_view": 1
+  }
+ ],
+ "permissions": [
+  {
+   "role": "Facturacion Mexico Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "export": 1
+  },
+  {
+   "role": "Facturacion Mexico User",
+   "read": 1
+  },
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "export": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

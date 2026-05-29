@@ -7,7 +7,7 @@ Matching MVP (3 niveles, sin regex ni priority):
   3. sat_product_key + supplier vacío           (fallback por clave SAT)
 
 El resultado NO se almacena en CFDI Recibido Concepto.
-El estado del padre (Listo / Falta clasif.) se actualiza directamente.
+El estado del padre se calcula via status_manager.compute_stage().
 """
 
 import frappe
@@ -19,11 +19,14 @@ def classify_concepts(cfdi_recibido_name: str) -> dict:
 
 	Retorna: {status, total, matched, unmatched, message}
 	"""
+	from facturacion_mexico.cfdi_recibidos.services.status_manager import compute_stage
+
 	doc = frappe.get_doc("CFDI Recibido", cfdi_recibido_name)
 
 	if not doc.conceptos:
-		doc.db_set("status", "Listo")
-		return _result("ok", 0, 0, 0, "Sin conceptos — marcado como Listo")
+		stage = compute_stage(doc)
+		doc.db_set("status", stage)
+		return _result("ok", 0, 0, 0, "Sin conceptos — marcado como Clasificado")
 
 	supplier_rfc = doc.supplier_rfc or ""
 	company = doc.company or ""
@@ -34,7 +37,7 @@ def classify_concepts(cfdi_recibido_name: str) -> dict:
 	for concepto in doc.conceptos:
 		sat_key = concepto.sat_product_key or ""
 		rule = _find_rule(company, supplier_rfc, sat_key)
-		if rule:
+		if rule and _rule_is_complete(rule):
 			matched += 1
 		else:
 			unmatched_keys.append(sat_key or "(sin clave SAT)")
@@ -42,18 +45,28 @@ def classify_concepts(cfdi_recibido_name: str) -> dict:
 	total = len(doc.conceptos)
 	unmatched = total - matched
 
+	stage = compute_stage(doc)
+	doc.db_set("status", stage)
+
 	if unmatched == 0:
-		doc.db_set("status", "Listo")
 		return _result("ok", total, matched, 0, "Todos los conceptos clasificados")
 
-	doc.db_set("status", "Falta clasif.")
 	return _result(
 		"falta_clasif",
 		total,
 		matched,
 		unmatched,
-		f"Sin regla para: {', '.join(set(unmatched_keys))}",
+		f"Sin clasificación completa para: {', '.join(set(unmatched_keys))}",
 	)
+
+
+def _rule_is_complete(rule: dict) -> bool:
+	"""Verifica que la regla tenga un target válido según su tipo."""
+	if rule.get("target_type") == "Item":
+		return bool(rule.get("target_item"))
+	if rule.get("target_type") == "ExpenseAccount":
+		return bool(rule.get("target_account"))
+	return False
 
 
 def _find_rule(company: str, supplier_rfc: str, sat_product_key: str) -> dict | None:
