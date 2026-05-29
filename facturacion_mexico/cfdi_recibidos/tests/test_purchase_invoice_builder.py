@@ -810,3 +810,327 @@ class TestToleranciaConfigurable(unittest.TestCase):
 		frappe.db.commit()
 		with self.assertRaises(frappe.ValidationError):
 			build_purchase_invoice(cfdi)
+
+
+# ---------------------------------------------------------------------------
+# Tests de batch — build_purchase_invoices_pending_batch
+# ---------------------------------------------------------------------------
+
+_BATCH_UUID_PREFIX = f"PIB{_H}BTCH"
+
+
+class TestBatchGenerate(unittest.TestCase):
+	"""Tests del endpoint batch build_purchase_invoices_pending_batch."""
+
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls.expense_account = _get_expense_account()
+		cls.acc_iva = _get_or_create_tax_account(f"_BTC IVA {_H}", TEST_COMPANY)
+		cls.supplier_name = _create_supplier(f"_BTC Prov {_H}")
+		cls.test_item = _get_or_create_test_item(f"_BTC-ITEM-{_H}", cls.expense_account)
+		cls.config_name = _make_config(
+			TEST_COMPANY,
+			[_regla("002", 0.16, "IVA Acreditable", cls.acc_iva)],
+		)
+
+	@classmethod
+	def tearDownClass(cls):
+		_delete_if_exists("Configuracion CFDI Recibidos", cls.config_name)
+		_delete_if_exists("Item", cls.test_item)
+		try:
+			_delete_if_exists("Account", cls.acc_iva)
+		except Exception:
+			pass
+		try:
+			_delete_if_exists("Supplier", cls.supplier_name)
+		except Exception:
+			pass
+		super().tearDownClass()
+
+	def setUp(self):
+		self._cleanup_uuids = []
+
+	def tearDown(self):
+		for uuid in self._cleanup_uuids:
+			pi_name = frappe.db.get_value("Purchase Invoice", {"fm_cfdi_uuid": uuid}, "name")
+			if pi_name:
+				try:
+					frappe.delete_doc("Purchase Invoice", pi_name, force=True)
+				except Exception:
+					pass
+			cfdi_name = frappe.db.get_value("CFDI Recibido", {"uuid": uuid}, "name")
+			if cfdi_name:
+				try:
+					frappe.delete_doc("CFDI Recibido", cfdi_name, force=True)
+				except Exception:
+					pass
+		if self._cleanup_uuids:
+			frappe.db.commit()
+
+	def _uuid(self, suffix):
+		return f"{_BATCH_UUID_PREFIX}{suffix}"
+
+	def _impuestos_iva(self):
+		return {
+			"traslados": [
+				{"impuesto": "002", "tipo_factor": "Tasa", "tasa_cuota": "0.160000", "importe": 16.0}
+			],
+			"retenciones": [],
+		}
+
+	def _make_clasificado(self, suffix):
+		"""CFDI elegible: todos los conceptos con item_code → status Clasificado."""
+		uuid = self._uuid(suffix)
+		self._cleanup_uuids.append(uuid)
+		doc = frappe.new_doc("CFDI Recibido")
+		doc.company = TEST_COMPANY
+		doc.uuid = uuid
+		doc.supplier_rfc = TEST_SUPPLIER_RFC
+		doc.supplier_name = f"_BTC Prov {_H}"
+		doc.receiver_rfc = frappe.db.get_value("Company", TEST_COMPANY, "tax_id") or "RFC000000000"
+		doc.cfdi_type = "I"
+		doc.xml_hash = frappe.generate_hash()[:64]
+		doc.supplier = self.supplier_name
+		doc.issue_date = "2026-01-20"
+		doc.total = 116.0
+		doc.subtotal = 100.0
+		doc.currency = frappe.db.get_value("Company", TEST_COMPANY, "default_currency") or "MXN"
+		doc.exchange_rate = 1.0
+		doc.impuestos_json = json.dumps(self._impuestos_iva())
+		doc.append(
+			"conceptos",
+			{
+				"sat_product_key": TEST_SAT_KEY,
+				"description": "Servicio batch",
+				"quantity": 1,
+				"unit_key": "E48",
+				"unit": "Servicio",
+				"unit_price": 100.0,
+				"amount": 100.0,
+				"discount": 0,
+				"tax_object": "02",
+				"taxes_json": "{}",
+				"item_code": self.test_item,
+			},
+		)
+		doc.insert(ignore_permissions=True)
+		# compute_stage requiere department; forzamos status para que el batch lo encuentre
+		frappe.db.set_value("CFDI Recibido", doc.name, "status", "Clasificado")
+		frappe.db.commit()
+		return doc.name
+
+	def _make_sin_item_code(self, suffix):
+		"""CFDI que fallará en build: sin item_code, forzado a status 'Error conversión'."""
+		uuid = self._uuid(suffix)
+		self._cleanup_uuids.append(uuid)
+		doc = frappe.new_doc("CFDI Recibido")
+		doc.company = TEST_COMPANY
+		doc.uuid = uuid
+		doc.supplier_rfc = TEST_SUPPLIER_RFC
+		doc.supplier_name = f"_BTC Prov {_H}"
+		doc.receiver_rfc = frappe.db.get_value("Company", TEST_COMPANY, "tax_id") or "RFC000000000"
+		doc.cfdi_type = "I"
+		doc.xml_hash = frappe.generate_hash()[:64]
+		doc.supplier = self.supplier_name
+		doc.issue_date = "2026-01-20"
+		doc.total = 116.0
+		doc.subtotal = 100.0
+		doc.currency = frappe.db.get_value("Company", TEST_COMPANY, "default_currency") or "MXN"
+		doc.exchange_rate = 1.0
+		doc.impuestos_json = json.dumps({"traslados": [], "retenciones": []})
+		doc.append(
+			"conceptos",
+			{
+				"sat_product_key": TEST_SAT_KEY,
+				"description": "Sin clasificar",
+				"quantity": 1,
+				"unit_key": "E48",
+				"unit": "Servicio",
+				"unit_price": 100.0,
+				"amount": 100.0,
+				"discount": 0,
+				"tax_object": "02",
+				"taxes_json": "{}",
+				# item_code ausente a propósito
+			},
+		)
+		# "Error conversión" es terminal → validate no llama compute_stage
+		doc.status = "Error conversión"
+		doc.insert(ignore_permissions=True)
+		frappe.db.commit()
+		return doc.name
+
+	def _make_no_procesar(self, suffix):
+		"""CFDI con no_procesar=1 → inelegible para batch."""
+		uuid = self._uuid(suffix)
+		self._cleanup_uuids.append(uuid)
+		doc = frappe.new_doc("CFDI Recibido")
+		doc.company = TEST_COMPANY
+		doc.uuid = uuid
+		doc.supplier_rfc = TEST_SUPPLIER_RFC
+		doc.supplier_name = f"_BTC Prov {_H}"
+		doc.receiver_rfc = frappe.db.get_value("Company", TEST_COMPANY, "tax_id") or "RFC000000000"
+		doc.cfdi_type = "I"
+		doc.xml_hash = frappe.generate_hash()[:64]
+		doc.supplier = self.supplier_name
+		doc.issue_date = "2026-01-20"
+		doc.total = 116.0
+		doc.subtotal = 100.0
+		doc.currency = frappe.db.get_value("Company", TEST_COMPANY, "default_currency") or "MXN"
+		doc.exchange_rate = 1.0
+		doc.impuestos_json = json.dumps(self._impuestos_iva())
+		doc.no_procesar = 1
+		doc.append(
+			"conceptos",
+			{
+				"sat_product_key": TEST_SAT_KEY,
+				"description": "No procesar",
+				"quantity": 1,
+				"unit_key": "E48",
+				"unit": "Servicio",
+				"unit_price": 100.0,
+				"amount": 100.0,
+				"discount": 0,
+				"tax_object": "02",
+				"taxes_json": "{}",
+				"item_code": self.test_item,
+			},
+		)
+		doc.insert(ignore_permissions=True)
+		frappe.db.commit()
+		return doc.name
+
+	def _run_batch(self):
+		from facturacion_mexico.cfdi_recibidos.api import build_purchase_invoices_pending_batch
+
+		return build_purchase_invoices_pending_batch()
+
+	def _our_results(self, result, *cfdi_names):
+		"""Filtra los resultados del batch a los CFDIs de este test."""
+		names = set(cfdi_names)
+		return [r for r in result["results"] if r["cfdi_recibido"] in names]
+
+	# ------------------------------------------------------------------ #
+
+	def test_procesa_todos_elegibles(self):
+		"""Batch procesa múltiples CFDIs Clasificados y genera PI para cada uno."""
+		c1 = self._make_clasificado("BT01")
+		c2 = self._make_clasificado("BT02")
+		result = self._run_batch()
+		ours = self._our_results(result, c1, c2)
+		self.assertEqual(len(ours), 2)
+		self.assertTrue(all(r["status"] == "ok" for r in ours))
+		self.assertTrue(all(r["purchase_invoice"] for r in ours))
+
+	def test_omite_no_procesar(self):
+		"""CFDIs con no_procesar=1 no aparecen en los resultados del batch."""
+		elegible = self._make_clasificado("BT03")
+		excluido = self._make_no_procesar("BT04")
+		result = self._run_batch()
+		cfdi_names_in_results = {r["cfdi_recibido"] for r in result["results"]}
+		self.assertIn(elegible, cfdi_names_in_results)
+		self.assertNotIn(excluido, cfdi_names_in_results)
+
+	def test_omite_estados_no_elegibles(self):
+		"""CFDIs en estados distintos de Clasificado/Error conversión no se procesan."""
+		elegible = self._make_clasificado("BT05")
+		# Sin item_code → compute_stage devuelve "Falta clasificación" (inelegible)
+		uuid_inel = self._uuid("BT06")
+		self._cleanup_uuids.append(uuid_inel)
+		doc = frappe.new_doc("CFDI Recibido")
+		doc.company = TEST_COMPANY
+		doc.uuid = uuid_inel
+		doc.supplier_rfc = TEST_SUPPLIER_RFC
+		doc.supplier_name = f"_BTC Prov {_H}"
+		doc.receiver_rfc = frappe.db.get_value("Company", TEST_COMPANY, "tax_id") or "RFC000000000"
+		doc.cfdi_type = "I"
+		doc.xml_hash = frappe.generate_hash()[:64]
+		doc.supplier = self.supplier_name
+		doc.issue_date = "2026-01-20"
+		doc.total = 116.0
+		doc.subtotal = 100.0
+		doc.currency = frappe.db.get_value("Company", TEST_COMPANY, "default_currency") or "MXN"
+		doc.exchange_rate = 1.0
+		doc.impuestos_json = json.dumps({"traslados": [], "retenciones": []})
+		doc.append(
+			"conceptos",
+			{
+				"sat_product_key": TEST_SAT_KEY,
+				"description": "Sin item",
+				"quantity": 1,
+				"unit_key": "E48",
+				"unit": "Servicio",
+				"unit_price": 100.0,
+				"amount": 100.0,
+				"discount": 0,
+				"tax_object": "02",
+				"taxes_json": "{}",
+				# sin item_code → status Falta clasificación
+			},
+		)
+		doc.insert(ignore_permissions=True)
+		frappe.db.commit()
+		inelegible = doc.name
+
+		result = self._run_batch()
+		cfdi_names_in_results = {r["cfdi_recibido"] for r in result["results"]}
+		self.assertIn(elegible, cfdi_names_in_results)
+		self.assertNotIn(inelegible, cfdi_names_in_results)
+
+	def test_continua_si_cfdi_falla(self):
+		"""Un CFDI con error no detiene el lote — el siguiente se procesa."""
+		ok_cfdi = self._make_clasificado("BT07")
+		err_cfdi = self._make_sin_item_code("BT08")
+
+		result = self._run_batch()
+		ours = self._our_results(result, ok_cfdi, err_cfdi)
+
+		ok_results = [r for r in ours if r["cfdi_recibido"] == ok_cfdi]
+		err_results = [r for r in ours if r["cfdi_recibido"] == err_cfdi]
+
+		self.assertEqual(len(ok_results), 1)
+		self.assertEqual(ok_results[0]["status"], "ok")
+
+		self.assertEqual(len(err_results), 1)
+		self.assertEqual(err_results[0]["status"], "error")
+		self.assertIsNone(err_results[0]["purchase_invoice"])
+
+	def test_respeta_idempotencia_no_duplica_pi(self):
+		"""Segunda ejecución del batch no crea PI duplicada para CFDI ya convertido."""
+		cfdi = self._make_clasificado("BT09")
+
+		result1 = self._run_batch()
+		ours1 = self._our_results(result1, cfdi)
+		self.assertEqual(len(ours1), 1)
+		self.assertEqual(ours1[0]["status"], "ok")
+
+		# Segunda ejecución: CFDI ya es "Convertido a PI" → no aparece en batch
+		result2 = self._run_batch()
+		ours2 = self._our_results(result2, cfdi)
+		self.assertEqual(len(ours2), 0, "CFDI convertido no debe aparecer en segundo batch")
+
+		# Solo una PI para este UUID
+		pi_count = frappe.db.count("Purchase Invoice", {"fm_cfdi_uuid": self._uuid("BT09")})
+		self.assertEqual(pi_count, 1)
+
+	def test_retorna_estructura_correcta(self):
+		"""Batch retorna {total, ok, error, skipped, results} con tipos correctos."""
+		c1 = self._make_clasificado("BT10")
+		c2 = self._make_sin_item_code("BT11")
+
+		result = self._run_batch()
+		ours = self._our_results(result, c1, c2)
+
+		self.assertIn("total", result)
+		self.assertIn("ok", result)
+		self.assertIn("error", result)
+		self.assertIn("skipped", result)
+		self.assertIn("results", result)
+		self.assertIsInstance(result["results"], list)
+		self.assertEqual(result["skipped"], 0)
+
+		ok_ours = sum(1 for r in ours if r["status"] == "ok")
+		err_ours = sum(1 for r in ours if r["status"] == "error")
+		self.assertEqual(ok_ours, 1)
+		self.assertEqual(err_ours, 1)

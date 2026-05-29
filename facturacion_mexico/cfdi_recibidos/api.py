@@ -17,8 +17,9 @@ Endpoints C.2 — Department:
     assign_departments         — asigna departamento en lote, valida contra configuración.
 
 Endpoints Fase 3:
-    build_purchase_invoice  — convierte CFDI Recibido Clasificado a Purchase Invoice Draft.
-    suggest_supplier_from_cfdi — sugiere datos de proveedor sin crearlo automáticamente.
+    build_purchase_invoice               — convierte CFDI Recibido Clasificado a Purchase Invoice Draft.
+    build_purchase_invoices_pending_batch — convierte todos los CFDI elegibles a PI en lote.
+    suggest_supplier_from_cfdi           — sugiere datos de proveedor sin crearlo automáticamente.
 
 Endpoints Motor de Resolución de Items:
     get_item_resolution_options        — propone opciones de Item para un concepto.
@@ -367,6 +368,96 @@ def build_purchase_invoice(cfdi_recibido: str) -> dict:
 				title="CFDI Recibidos build_purchase_invoice Error",
 			)
 		return {"status": "error", "purchase_invoice": None, "recovered": False, "message": str(e)}
+
+
+@frappe.whitelist()
+def build_purchase_invoices_pending_batch() -> dict:
+	"""
+	Convierte todos los CFDI Recibidos elegibles a Purchase Invoice en lote.
+
+	Elegibles: status IN ("Clasificado", "Error conversión"), no_procesar = 0.
+	Un error individual no detiene el lote — se captura y el siguiente se procesa.
+
+	Retorna:
+	    total    — CFDIs encontrados elegibles
+	    ok       — convertidos exitosamente (incluye idempotencia recuperada)
+	    error    — fallidos
+	    skipped  — omitidos (siempre 0 con este criterio de elegibilidad)
+	    results  — lista de {cfdi_recibido, status, purchase_invoice, message}
+	"""
+	from facturacion_mexico.cfdi_recibidos.services.purchase_invoice_builder import (
+		build_purchase_invoice as _build,
+	)
+
+	candidates = frappe.get_all(
+		"CFDI Recibido",
+		filters={
+			"status": ["in", ["Clasificado", "Error conversión"]],
+			"no_procesar": 0,
+		},
+		fields=["name"],
+		order_by="issue_date asc",
+		limit=0,
+	)
+
+	ok_count = 0
+	error_count = 0
+	results = []
+
+	for row in candidates:
+		cfdi_name = row["name"]
+		try:
+			result = _build(cfdi_name)
+			frappe.db.commit()
+			pi_name = result["purchase_invoice"]
+			recovered = result.get("recovered", False)
+			ok_count += 1
+			results.append(
+				{
+					"cfdi_recibido": cfdi_name,
+					"status": "ok",
+					"purchase_invoice": pi_name,
+					"message": (
+						_("PI {0} recuperada (idempotente)").format(pi_name)
+						if recovered
+						else _("PI {0} creada").format(pi_name)
+					),
+				}
+			)
+		except Exception as e:
+			frappe.db.rollback()
+			error_message = str(e)
+			try:
+				frappe.db.set_value(
+					"CFDI Recibido",
+					cfdi_name,
+					{"status": "Error conversión", "error_message": error_message[:500]},
+				)
+				frappe.db.commit()
+			except Exception:
+				pass
+			if not isinstance(e, frappe.ValidationError):
+				frappe.log_error(
+					message=f"Batch PI | CFDI: {cfdi_name} | Error: {e}",
+					title="CFDI Recibidos Batch Error",
+				)
+			error_count += 1
+			results.append(
+				{
+					"cfdi_recibido": cfdi_name,
+					"status": "error",
+					"purchase_invoice": None,
+					"message": error_message,
+				}
+			)
+
+	return {
+		"total": len(candidates),
+		"ok": ok_count,
+		"error": error_count,
+		"skipped": 0,
+		"results": results,
+	}
 
 
 @frappe.whitelist()

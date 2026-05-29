@@ -26,6 +26,13 @@ frappe.listview_settings["CFDI Recibido"] = {
 			},
 			g
 		);
+		listview.page.add_inner_button(
+			__("Generar PIs pendientes"),
+			() => {
+				_batch_generate_pis(listview);
+			},
+			g
+		);
 	},
 };
 
@@ -624,4 +631,124 @@ function _show_classify_summary(totals, errores) {
 		`,
 		indicator,
 	});
+}
+
+// ─── Batch Generar PIs pendientes ────────────────────────────────────────────
+
+function _batch_generate_pis(listview) {
+	frappe.call({
+		method: "frappe.client.get_count",
+		args: {
+			doctype: "CFDI Recibido",
+			filters: { status: ["in", ["Clasificado", "Error conversión"]], no_procesar: 0 },
+		},
+		callback(r) {
+			const count = r.message || 0;
+			if (!count) {
+				frappe.msgprint({
+					title: __("Sin CFDI elegibles"),
+					message: __(
+						"No hay CFDI en estado 'Clasificado' o 'Error conversión' pendientes de procesar."
+					),
+					indicator: "blue",
+				});
+				return;
+			}
+			frappe.confirm(
+				__(
+					"Se intentará generar PI para {0} CFDI en estado Clasificado o Error conversión que no estén marcados como No Procesar. ¿Continuar?",
+					[count]
+				),
+				() => _do_batch_generate_pis(listview)
+			);
+		},
+	});
+}
+
+function _do_batch_generate_pis(listview) {
+	frappe.call({
+		method: "facturacion_mexico.cfdi_recibidos.api.build_purchase_invoices_pending_batch",
+		freeze: true,
+		freeze_message: __("Generando Purchase Invoices..."),
+		callback(r) {
+			if (r.message) {
+				_show_batch_pi_results(r.message, listview);
+			}
+		},
+	});
+}
+
+function _show_batch_pi_results(result, listview) {
+	const { total, ok, error, skipped, results } = result;
+
+	if (total === 0) {
+		frappe.msgprint({
+			title: __("Sin resultados"),
+			message: __("No se encontraron CFDI elegibles para procesar."),
+			indicator: "blue",
+		});
+		return;
+	}
+
+	const rows = results
+		.map((r) => {
+			const cfdiLink = `<a href="/app/cfdi-recibido/${encodeURIComponent(
+				r.cfdi_recibido
+			)}" target="_blank" style="font-size:0.85em">${frappe.utils.escape_html(
+				r.cfdi_recibido
+			)}</a>`;
+			const piLink = r.purchase_invoice
+				? `<a href="/app/purchase-invoice/${encodeURIComponent(
+						r.purchase_invoice
+				  )}" target="_blank">${frappe.utils.escape_html(r.purchase_invoice)}</a>`
+				: "—";
+			const statusCell =
+				r.status === "ok"
+					? `<span style="color:green;font-weight:600">✔ ok</span>`
+					: `<span style="color:red;font-weight:600">✖ error</span>`;
+			const msg = frappe.utils.escape_html(r.message || "");
+			return `<tr style="border-bottom:1px solid #f0f0f0">
+				<td style="padding:4px 8px;white-space:nowrap">${cfdiLink}</td>
+				<td style="padding:4px 8px;white-space:nowrap">${statusCell}</td>
+				<td style="padding:4px 8px;white-space:nowrap">${piLink}</td>
+				<td style="padding:4px 8px;font-size:0.85em;max-width:260px;word-break:break-word">${msg}</td>
+			</tr>`;
+		})
+		.join("");
+
+	const indicator = error > 0 && ok === 0 ? "red" : error > 0 ? "orange" : "green";
+
+	const d = new frappe.ui.Dialog({
+		title: __("Resultado — Generar PIs pendientes"),
+		fields: [{ fieldtype: "HTML", fieldname: "content" }],
+		primary_action_label: __("Cerrar"),
+		primary_action() {
+			d.hide();
+		},
+	});
+
+	d.show();
+	d.fields_dict.content.$wrapper.html(`
+		<div style="margin-bottom:12px;padding:8px;background:#f8f9fa;border-radius:4px;display:flex;gap:16px;flex-wrap:wrap">
+			<span>${__("Total encontrados")}: <strong>${total}</strong></span>
+			<span style="color:green">${__("Exitosos")}: <strong>${ok}</strong></span>
+			<span style="color:red">${__("Errores")}: <strong>${error}</strong></span>
+			<span style="color:#888">${__("Omitidos")}: <strong>${skipped}</strong></span>
+		</div>
+		<div style="max-height:420px;overflow-y:auto">
+			<table style="width:100%;border-collapse:collapse;font-size:0.9em">
+				<thead>
+					<tr style="border-bottom:2px solid #ddd;text-align:left;background:#fff;position:sticky;top:0">
+						<th style="padding:6px 8px">${__("CFDI")}</th>
+						<th style="padding:6px 8px">${__("Resultado")}</th>
+						<th style="padding:6px 8px">${__("Purchase Invoice")}</th>
+						<th style="padding:6px 8px">${__("Mensaje")}</th>
+					</tr>
+				</thead>
+				<tbody>${rows}</tbody>
+			</table>
+		</div>
+	`);
+
+	listview.refresh();
 }

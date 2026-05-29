@@ -2,44 +2,45 @@
 
 **Fecha:** 2026-05-28
 **Rama activa:** `feature/cfdi-recibidos-fase3-pi`
-**Tarea actual:** Issue #152 — tolerancia configurable completada; decidir si batch bloquea el cierre
+**Tarea actual:** Issue #152 — todos los criterios implementados; pendiente cierre explícito del issue y PR
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-Pipeline CFDI Recibidos. El botón "Generar Purchase Invoice" funciona en GUI.
-La tolerancia configurable (absoluta + porcentual) fue implementada y testeada (34/34).
+Pipeline CFDI Recibidos. PurchaseInvoiceBuilder completo, validado en GUI.
+Batch "Generar PIs pendientes" implementado y probado: 4/4 exitosos en dev.
 
 Plan que estoy siguiendo:
 Issue #152 — PurchaseInvoiceBuilder, impuestos nativos y batch best-effort.
 
 Objetivo inmediato:
-Decidir si el criterio "Batch" de #152 se cierra en issue separado o bloquea el issue.
-Pendiente: bench migrate en facturacion-v16.dev para activar columnas de tolerancia en dev.
+El usuario decide cuándo cerrar issue #152 y cuándo abrir el PR de la rama.
 
 Criterio de avance:
-#152 cerrado o batch separado → rama lista para PR.
+Issue #152 cerrado por el usuario → PR de la rama → merge a main.
 
 ---
 
 ## Estado actual
 
-### Ya cerrado (issue #152)
+### Ya cerrado (issue #152 — todos los criterios)
 - `fm_cfdi_uuid` y `fm_cfdi_recibido` en Purchase Invoice
 - Idempotencia por UUID (casos A/B/C)
 - IVA y retenciones en tabla nativa via TaxResolver
 - Tolerancia configurable: absoluta (MXN) y porcentual (%) en Configuracion CFDI Recibidos
 - bill_no: serie-folio → folio → uuid[:13]
 - Motor de resolución de items + flujo guiado
-- Botón "Generar PI" oculto con no_procesar=1
+- Botón "Generar PI" individual (form view), oculto con no_procesar=1
+- Botón "Generar PIs pendientes" (list view) — batch best-effort
 - posting_date y due_date usan issue_date del CFDI
 - Bloqueo "Convertido a PI": frm.disable_form() + validate hook + flag in_cfdi_builder
-- cost_center y bill_no collision: **eliminados definitivamente del alcance**
+- cost_center y bill_no collision: eliminados definitivamente del alcance
 
 ### Pendiente
-- Batch desde lista (múltiples CFDIs) — criterio de #152 aún abierto
+- Cierre explícito de issue #152 (solo el usuario lo cierra)
+- PR de la rama feature/cfdi-recibidos-fase3-pi → main
 - Deuda técnica is_submittable → issue #165
 
 ### No repetir
@@ -48,30 +49,31 @@ Criterio de avance:
 - No hacer bench migrate sin autorización
 - No reiniciar servidor sin autorización
 - No usar ignore_default_payment_terms_template=1
-- **No volver a incluir cost_center ni bill_no collision en pendientes de #152**
+- No volver a incluir cost_center ni bill_no collision en pendientes de #152
+- No usar "closes/fixes/resolves #152" en commits ni PRs — el issue lo cierra el usuario
 
 ---
 
 ## Decisiones vigentes
 - Tolerancia: abs=1.00 MXN y pct=0.5% en Configuracion CFDI Recibidos por empresa
 - Aceptable si cumple cualquiera: diff ≤ tol_abs OR diff ≤ total_xml × (tol_pct/100)
-- tol_pct=0 desactiva la tolerancia porcentual
 - posting_date = issue_date del CFDI (no today())
 - due_date = issue_date del CFDI (explícito, evita type mismatch con Payment Terms)
 - Bloqueo "Convertido a PI" es temporal — issue #165 registra la deuda (is_submittable)
 - frappe.flags.in_cfdi_builder como bypass del validate lock para saves internos
 - TaxResolver lee de `Configuracion CFDI Recibidos`, no de `Configuracion Fiscal Mexico`
+- Batch consulta internamente elegibles; no acepta lista seleccionada por usuario
 
 ---
 
 ## Archivos relevantes ahora
 
 ### Leer primero
-- `facturacion_mexico/cfdi_recibidos/services/purchase_invoice_builder.py`
-- `facturacion_mexico/cfdi_recibidos/doctype/configuracion_cfdi_recibidos/configuracion_cfdi_recibidos.json`
+- `facturacion_mexico/cfdi_recibidos/api.py` — endpoint batch recién agregado
+- `facturacion_mexico/cfdi_recibidos/doctype/cfdi_recibido/cfdi_recibido_list.js`
 
 ### Probablemente editar
-- Ninguno inmediato — pendiente decisión sobre batch
+- Ninguno — trabajo del issue #152 completo
 
 ### No tocar
 - `facturacion_mexico/one_offs/` — nunca commitear
@@ -80,7 +82,7 @@ Criterio de avance:
 ---
 
 ## Riesgos / cuidados
-- `bench migrate` pendiente en `facturacion-v16.dev` para activar columnas de tolerancia en dev
-- Batch no implementado — criterio de aceptación del issue #152 aún abierto
-- 30 commits adelante de upstream/main sin push ni PR
+- 32 commits adelante de upstream/main sin push ni PR
 - issue #165 (is_submittable) debe hacerse antes de producción
+- bench migrate ejecutado en test-facturacion.localhost y facturacion-v16.dev
+  (columnas de tolerancia activas en ambos sites)
