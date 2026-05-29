@@ -1,0 +1,1791 @@
+
+<!doctype html>
+<html lang="es" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentación completa del sistema de facturación electrónica para México">
+      
+      
+        <meta name="author" content="Equipo Desarrollo Facturación México">
+      
+      
+      
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.3">
+    
+    
+      
+        <title>REPORTE IMPLEMENTACIÓN: TASAS IEPS DESDE CONSTANTES (E1) - Facturación México - Documentación Técnica</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.50c56a3b.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/advanced.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function n(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],n("js",new Date),n("config","G-XXXXXXXXXX"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){this.value&&n("event","search",{search_term:this.value})}),document$.subscribe(function(){var a=document.forms.feedback;if(void 0!==a)for(var e of a.querySelectorAll("[type=submit]"))e.addEventListener("click",function(e){e.preventDefault();var t=document.location.pathname,e=this.getAttribute("data-md-value");n("event","feedback",{page:t,data:e}),a.firstElementChild.disabled=!0;e=a.querySelector(".md-feedback__note [data-md-value='"+e+"']");e&&(e.hidden=!1)}),a.hidden=!1}),location$.subscribe(function(e){n("config","G-XXXXXXXXXX",{page_path:e.pathname})})});var e=document.createElement("script");e.async=!0,e.src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX",document.getElementById("__analytics").insertAdjacentElement("afterEnd",e)}</script>
+  
+    <script>var consent;"undefined"==typeof __md_analytics||(consent=__md_get("__consent"))&&consent.analytics&&__md_analytics()</script>
+  
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#reporte-implementacion-tasas-ieps-desde-constantes-e1" class="md-skip">
+          Saltar a contenido
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabecera">
+    <a href="../../.." title="Facturación México - Documentación Técnica" class="md-header__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Facturación México - Documentación Técnica
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              REPORTE IMPLEMENTACIÓN: TASAS IEPS DESDE CONSTANTES (E1)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo oscuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo oscuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Búsqueda" placeholder="Búsqueda" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Buscar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpiar" aria-label="Limpiar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando búsqueda
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Pestañas" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+    
+  
+  Inicio
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../user-guide/" class="md-tabs__link">
+          
+  
+  Guía de Usuario
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/" class="md-tabs__link">
+          
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../" class="md-tabs__link">
+          
+  
+  Desarrollo
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navegación" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Facturación México - Documentación Técnica" class="md-nav__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Facturación México - Documentación Técnica
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Inicio
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Guía de Usuario
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Guía de Usuario
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../user-guide/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Usuario - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../user-guide/getting-started/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Primeros Pasos
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../user-guide/multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../user-guide/addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../user-guide/draft-invoices/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Facturas en Borrador
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../user-guide/cfdi-recibidos/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CFDI Recibidos
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../user-guide/troubleshooting/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    API Reference
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    API Reference - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/cfdi/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CFDI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/cfdi-recibidos/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CFDI Recibidos
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/draft-management/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Draft Management
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/catalogos/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Catalogos SAT
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/hooks/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Hooks
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Desarrollo
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Desarrollo
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Desarrollo - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../setup/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Setup Desarrollo
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../draft-workflow/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Draft Workflow
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#resumen-ejecutivo" class="md-nav__link">
+    <span class="md-ellipsis">
+      RESUMEN EJECUTIVO
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-cambios-implementados-en-codigo" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. CAMBIOS IMPLEMENTADOS EN CÓDIGO
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. CAMBIOS IMPLEMENTADOS EN CÓDIGO">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-archivo-generador_templates_fiscalpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.1 Archivo: generador_templates_fiscal.py
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-archivo-hookspy" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.2 Archivo: hooks.py
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-regeneracion-templates" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. REGENERACIÓN TEMPLATES
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. REGENERACIÓN TEMPLATES">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-itt-regenerados" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.1 ITT Regenerados
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-stct-regenerados" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.2 STCT Regenerados
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-resultados-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. RESULTADOS TESTING
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. RESULTADOS TESTING">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-comparacion-si-creados" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.1 Comparación SI Creados
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-progreso-confirmado" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.2 Progreso Confirmado
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-problema-bloqueante-identificado" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. PROBLEMA BLOQUEANTE IDENTIFICADO
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. PROBLEMA BLOQUEANTE IDENTIFICADO">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-causa-raiz" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.1 Causa Raíz
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-por-que-no-es-solucion" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.2 Por Qué NO Es Solución
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-analisis-arquitectural" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. ANÁLISIS ARQUITECTURAL
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. ANÁLISIS ARQUITECTURAL">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-ieps-cuota-vs-ieps-tasa" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.1 IEPS Cuota vs IEPS Tasa
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-diferencias-clave" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.2 Diferencias Clave
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-investigacion-realizada" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. INVESTIGACIÓN REALIZADA
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. INVESTIGACIÓN REALIZADA">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-timeline-cambios" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.1 Timeline Cambios
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-pruebas-realizadas" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.2 Pruebas Realizadas
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-soluciones-evaluadas" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. SOLUCIONES EVALUADAS
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. SOLUCIONES EVALUADAS">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-desactivar-setting" class="md-nav__link">
+    <span class="md-ellipsis">
+      7.1 Desactivar Setting ❌
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-restaurar-hook-despues-de-erpnext" class="md-nav__link">
+    <span class="md-ellipsis">
+      7.2 Restaurar Hook Después de ERPNext ⚠️
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-modificar-arquitectura-itt" class="md-nav__link">
+    <span class="md-ellipsis">
+      7.3 Modificar Arquitectura ITT 🔍
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-proximos-pasos" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. PRÓXIMOS PASOS
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. PRÓXIMOS PASOS">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-investigacion-pendiente" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.1 Investigación Pendiente
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-alternativas" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.2 Alternativas
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-scripts-creados" class="md-nav__link">
+    <span class="md-ellipsis">
+      9. SCRIPTS CREADOS
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. SCRIPTS CREADOS">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#91-scripts-regeneracion" class="md-nav__link">
+    <span class="md-ellipsis">
+      9.1 Scripts Regeneración
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#92-scripts-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      9.2 Scripts Testing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#93-scripts-investigacion" class="md-nav__link">
+    <span class="md-ellipsis">
+      9.3 Scripts Investigación
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#94-scripts-revertidos" class="md-nav__link">
+    <span class="md-ellipsis">
+      9.4 Scripts Revertidos
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-archivos-documentacion" class="md-nav__link">
+    <span class="md-ellipsis">
+      10. ARCHIVOS DOCUMENTACIÓN
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      CONCLUSIÓN
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="reporte-implementacion-tasas-ieps-desde-constantes-e1">REPORTE IMPLEMENTACIÓN: TASAS IEPS DESDE CONSTANTES (E1)<a class="headerlink" href="#reporte-implementacion-tasas-ieps-desde-constantes-e1" title="Permanent link">&para;</a></h1>
+<p><strong>Fecha:</strong> 2025-10-26
+<strong>Branch:</strong> feature/e1-automated-tax-system
+<strong>Objetivo:</strong> Corregir tasas IEPS Tasa (Alcohol/Tabaco) desde constantes_fiscales.py</p>
+<hr />
+<h2 id="resumen-ejecutivo">RESUMEN EJECUTIVO<a class="headerlink" href="#resumen-ejecutivo" title="Permanent link">&para;</a></h2>
+<p><strong>CAMBIOS IMPLEMENTADOS:</strong>
+✅ Modificado <code>generador_templates_fiscal.py</code> para leer tasas IEPS desde constantes
+✅ ITT regenerados con tasas correctas (Alcohol 26.5%, Tabaco 160%)
+✅ IEPS Tasa ahora calcula correctamente ($874.50 + $800.00 = $1,674.50)
+❌ <strong>PROBLEMA BLOQUEANTE:</strong> Filas IVA del STCT se pierden con múltiples items</p>
+<p><strong>PROGRESO:</strong>
+- Grand Total: $6,432.02 (antes) → $7,149.34 (ahora)
+- <strong>Mejora: +$717.32</strong> gracias a IEPS Tasa
+- <strong>Falta:</strong> $1,050.76 para alcanzar PAC ($8,200.10)</p>
+<p><strong>CAUSA PROBLEMA:</strong> Setting ERPNext <code>add_taxes_from_item_tax_template=1</code> reemplaza taxes del STCT cuando hay múltiples items con ITT</p>
+<hr />
+<h2 id="1-cambios-implementados-en-codigo">1. CAMBIOS IMPLEMENTADOS EN CÓDIGO<a class="headerlink" href="#1-cambios-implementados-en-codigo" title="Permanent link">&para;</a></h2>
+<h3 id="11-archivo-generador_templates_fiscalpy">1.1 Archivo: <code>generador_templates_fiscal.py</code><a class="headerlink" href="#11-archivo-generador_templates_fiscalpy" title="Permanent link">&para;</a></h3>
+<p><strong>Líneas modificadas: 28-29, 1052, 1063, 1074, 1085</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># LÍNEA 28-29: Import tasas IEPS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">facturacion_mexico.facturacion_fiscal.config.constantes_fiscales</span><span class="w"> </span><span class="kn">import</span> <span class="n">TASAS_IEPS</span>
+
+<span class="c1"># LÍNEA 1052: ITT IEPS Alcohol - tasa desde constantes</span>
+<span class="k">if</span> <span class="n">cfg</span><span class="o">.</span><span class="n">enable_ieps_alcohol</span><span class="p">:</span>
+    <span class="n">created</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">_crear_o_actualizar_itt</span><span class="p">(</span>
+            <span class="n">company</span><span class="p">,</span> <span class="n">abbr</span><span class="p">,</span>
+            <span class="s2">&quot;ITT IEPS Alcohol&quot;</span><span class="p">,</span>
+            <span class="p">[{</span><span class="s2">&quot;rol_fiscal&quot;</span><span class="p">:</span> <span class="s2">&quot;IEPS por Pagar (Alcohol)&quot;</span><span class="p">,</span> <span class="s2">&quot;tax_rate&quot;</span><span class="p">:</span> <span class="n">TASAS_IEPS</span><span class="p">[</span><span class="s2">&quot;alcohol&quot;</span><span class="p">][</span><span class="s2">&quot;tasa&quot;</span><span class="p">]}],</span>  <span class="c1"># 26.5%</span>
+            <span class="n">mapeo_cuentas</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+<span class="c1"># LÍNEA 1085: ITT IEPS Tabaco - tasa desde constantes</span>
+<span class="k">if</span> <span class="n">cfg</span><span class="o">.</span><span class="n">enable_ieps_tabaco</span><span class="p">:</span>
+    <span class="n">created</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">_crear_o_actualizar_itt</span><span class="p">(</span>
+            <span class="n">company</span><span class="p">,</span> <span class="n">abbr</span><span class="p">,</span>
+            <span class="s2">&quot;ITT IEPS Tabaco&quot;</span><span class="p">,</span>
+            <span class="p">[{</span><span class="s2">&quot;rol_fiscal&quot;</span><span class="p">:</span> <span class="s2">&quot;IEPS por Pagar (Tabaco)&quot;</span><span class="p">,</span> <span class="s2">&quot;tax_rate&quot;</span><span class="p">:</span> <span class="n">TASAS_IEPS</span><span class="p">[</span><span class="s2">&quot;tabaco&quot;</span><span class="p">][</span><span class="s2">&quot;tasa&quot;</span><span class="p">]}],</span>  <span class="c1"># 160%</span>
+            <span class="n">mapeo_cuentas</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+<span class="c1"># LÍNEAS 1063, 1074: Comentarios aclarados para IEPS Cuota</span>
+<span class="c1"># Rate 0 correcto: hook calcular_ieps_cuota() asigna monto dinámicamente</span>
+</code></pre></div>
+<p><strong>ANTES:</strong>
+<div class="highlight"><pre><span></span><code><span class="p">[{</span><span class="s2">&quot;rol_fiscal&quot;</span><span class="p">:</span> <span class="s2">&quot;IEPS por Pagar (Alcohol)&quot;</span><span class="p">,</span> <span class="s2">&quot;tax_rate&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}],</span>  <span class="c1"># Tasa se fija en ITT del item</span>
+</code></pre></div></p>
+<p><strong>DESPUÉS:</strong>
+<div class="highlight"><pre><span></span><code><span class="p">[{</span><span class="s2">&quot;rol_fiscal&quot;</span><span class="p">:</span> <span class="s2">&quot;IEPS por Pagar (Alcohol)&quot;</span><span class="p">,</span> <span class="s2">&quot;tax_rate&quot;</span><span class="p">:</span> <span class="n">TASAS_IEPS</span><span class="p">[</span><span class="s2">&quot;alcohol&quot;</span><span class="p">][</span><span class="s2">&quot;tasa&quot;</span><span class="p">]}],</span>  <span class="c1"># Tasa desde constantes - heredada por items vía Item Group</span>
+</code></pre></div></p>
+<h3 id="12-archivo-hookspy">1.2 Archivo: <code>hooks.py</code><a class="headerlink" href="#12-archivo-hookspy" title="Permanent link">&para;</a></h3>
+<p><strong>PRUEBA TEMPORAL realizada (NO committeada):</strong></p>
+<p>Movió <code>corregir_ieps_cuota_final</code> de <code>before_save</code> a <code>before_submit</code> para confirmar si era la causa del problema.</p>
+<p><strong>Resultado:</strong> NO es la causa. El problema persiste en ambas configuraciones.</p>
+<hr />
+<h2 id="2-regeneracion-templates">2. REGENERACIÓN TEMPLATES<a class="headerlink" href="#2-regeneracion-templates" title="Permanent link">&para;</a></h2>
+<h3 id="21-itt-regenerados">2.1 ITT Regenerados<a class="headerlink" href="#21-itt-regenerados" title="Permanent link">&para;</a></h3>
+<p><strong>Comando ejecutado:</strong>
+<div class="highlight"><pre><span></span><code>bench<span class="w"> </span>--site<span class="w"> </span>facturacion.dev<span class="w"> </span>execute<span class="w"> </span><span class="s2">&quot;facturacion_mexico.one_offs.regenerar_itt_tasas_ieps.run&quot;</span>
+</code></pre></div></p>
+<p><strong>Resultado:</strong>
+<div class="highlight"><pre><span></span><code>ITT IEPS Alcohol - _TC:     26.50% ✅ (antes: 0%)
+ITT IEPS Tabaco - _TC:      160.00% ✅ (antes: 0%)
+ITT IEPS Azúcar - _TC:      0.00% ✅ (correcto - hook dinámico)
+ITT IEPS Combustibles - _TC: 0.00% ✅ (correcto - hook dinámico)
+</code></pre></div></p>
+<h3 id="22-stct-regenerados">2.2 STCT Regenerados<a class="headerlink" href="#22-stct-regenerados" title="Permanent link">&para;</a></h3>
+<p><strong>Comando ejecutado:</strong>
+<div class="highlight"><pre><span></span><code>bench<span class="w"> </span>--site<span class="w"> </span>facturacion.dev<span class="w"> </span>execute<span class="w"> </span><span class="s2">&quot;facturacion_mexico.one_offs.regenerar_stct_completo.run&quot;</span>
+</code></pre></div></p>
+<p><strong>Resultado:</strong>
+- STCT "IVA Nacional - IEPS - _TC": <strong>11 filas</strong> generadas correctamente
+- Incluye 5 filas IVA cascada (una después de cada IEPS)</p>
+<p><strong>Estructura STCT:</strong>
+<div class="highlight"><pre><span></span><code>1.  IVA Nacional - Base (Resto)
+2.  IEPS Alcohol - Tasa (via ITT)
+3.  IVA sobre IEPS Alcohol
+4.  IEPS Azúcar - Cuota (via ITT)
+5.  IVA sobre IEPS Azúcar
+6.  IEPS Combustibles - Cuota (via ITT)
+7.  IVA sobre IEPS Combustibles
+8.  IEPS Tabaco - Tasa (via ITT)
+9.  IVA sobre IEPS Tabaco Tasa
+10. IEPS Tabaco - Cuota (via ITT)
+11. IVA sobre IEPS Tabaco Cuota
+</code></pre></div></p>
+<hr />
+<h2 id="3-resultados-testing">3. RESULTADOS TESTING<a class="headerlink" href="#3-resultados-testing" title="Permanent link">&para;</a></h2>
+<h3 id="31-comparacion-si-creados">3.1 Comparación SI Creados<a class="headerlink" href="#31-comparacion-si-creados" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>SI</th>
+<th>Fecha/Hora</th>
+<th>Items</th>
+<th>Filas Taxes</th>
+<th>IEPS Tasa</th>
+<th>IVA Base</th>
+<th>IVA Cascada</th>
+<th>Grand Total</th>
+<th>vs PAC</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ACC-SINV-2025-01647</td>
+<td>18:27</td>
+<td>4</td>
+<td>11</td>
+<td>$0.00</td>
+<td>$838.40</td>
+<td>$48.78</td>
+<td>$6,432.02</td>
+<td>-$1,768.08</td>
+</tr>
+<tr>
+<td>ACC-SINV-2025-01649</td>
+<td>19:30</td>
+<td>4</td>
+<td>4</td>
+<td>$1,674.50</td>
+<td>$0.00</td>
+<td>$0.00</td>
+<td>$7,149.34</td>
+<td>-$1,050.76</td>
+</tr>
+<tr>
+<td>ACC-SINV-2025-01654</td>
+<td>19:45</td>
+<td>4</td>
+<td>4</td>
+<td>$1,674.50</td>
+<td>$0.00</td>
+<td>$0.00</td>
+<td>$7,149.34</td>
+<td>-$1,050.76</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Nota:</strong> ACC-SINV-2025-01654 creado con hook en <code>before_submit</code> (config original) - mismo resultado.</p>
+<h3 id="32-progreso-confirmado">3.2 Progreso Confirmado<a class="headerlink" href="#32-progreso-confirmado" title="Permanent link">&para;</a></h3>
+<p><strong>ÉXITO PARCIAL:</strong>
+- ✅ IEPS Alcohol: $0.00 → $874.50 (26.5% de $3,300)
+- ✅ IEPS Tabaco: $0.00 → $800.00 (160% de $500)
+- ✅ <strong>Total IEPS Tasa agregado: $1,674.50</strong>
+- ✅ <strong>Mejora grand total: +$717.32</strong></p>
+<p><strong>PROBLEMA:</strong>
+- ❌ IVA Base: $838.40 → $0.00 (PERDIDO)
+- ❌ IVA Cascada: $48.78 → $0.00 (PERDIDO)
+- ❌ <strong>Filas STCT reducidas: 11 → 4</strong></p>
+<hr />
+<h2 id="4-problema-bloqueante-identificado">4. PROBLEMA BLOQUEANTE IDENTIFICADO<a class="headerlink" href="#4-problema-bloqueante-identificado" title="Permanent link">&para;</a></h2>
+<h3 id="41-causa-raiz">4.1 Causa Raíz<a class="headerlink" href="#41-causa-raiz" title="Permanent link">&para;</a></h3>
+<p><strong>Setting ERPNext:</strong> <code>add_taxes_from_item_tax_template = 1</code> (ACTIVADO)</p>
+<p>Este setting causa que ERPNext REEMPLACE el array completo de taxes del STCT con taxes construidas únicamente desde los ITT de los items.</p>
+<p><strong>Comportamiento observado:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Escenario</th>
+<th>Filas Taxes</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 item con ITT</td>
+<td>11</td>
+<td>✅ STCT se mantiene completo</td>
+</tr>
+<tr>
+<td>2 items con ITT</td>
+<td>2</td>
+<td>❌ Solo filas IEPS (una por ITT único)</td>
+</tr>
+<tr>
+<td>4 items con ITT</td>
+<td>4</td>
+<td>❌ Solo filas IEPS (una por ITT único)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Evidencia:</strong>
+<div class="highlight"><pre><span></span><code><span class="c1"># Test 1 item: ACC-SINV-2025-01651</span>
+Filas:<span class="w"> </span><span class="m">11</span><span class="w"> </span>✅
+-<span class="w"> </span>IVA<span class="w"> </span>Nacional<span class="w"> </span>-<span class="w"> </span>Base<span class="w"> </span><span class="o">(</span>Resto<span class="o">)</span>
+-<span class="w"> </span>IEPS<span class="w"> </span>Alcohol<span class="w"> </span>-<span class="w"> </span>Tasa<span class="w"> </span><span class="o">(</span>via<span class="w"> </span>ITT<span class="o">)</span>
+-<span class="w"> </span>IVA<span class="w"> </span>sobre<span class="w"> </span>IEPS<span class="w"> </span>Alcohol
+<span class="o">[</span>...<span class="w"> </span>todas<span class="w"> </span>las<span class="w"> </span>filas<span class="w"> </span>del<span class="w"> </span>STCT<span class="o">]</span>
+
+<span class="c1"># Test 2 items: ACC-SINV-2025-01652</span>
+Filas:<span class="w"> </span><span class="m">2</span><span class="w"> </span>❌
+-<span class="w"> </span><span class="m">2117001</span><span class="w"> </span>-<span class="w"> </span>IEPS<span class="w"> </span>Alcohol<span class="w"> </span>-<span class="w"> </span>_TC
+-<span class="w"> </span><span class="m">2117004</span><span class="w"> </span>-<span class="w"> </span>IEPS<span class="w"> </span>Tabaco<span class="w"> </span>-<span class="w"> </span>_TC
+<span class="o">[</span>FALTAN:<span class="w"> </span>todas<span class="w"> </span>las<span class="w"> </span>filas<span class="w"> </span>IVA<span class="o">]</span>
+</code></pre></div></p>
+<h3 id="42-por-que-no-es-solucion">4.2 Por Qué NO Es Solución<a class="headerlink" href="#42-por-que-no-es-solucion" title="Permanent link">&para;</a></h3>
+<p><strong>Desactivar el setting NO ES MIGRABLE:</strong>
+<div class="highlight"><pre><span></span><code><span class="c1"># ❌ PROHIBIDO: Cambio manual BD</span>
+<span class="n">frappe</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">set_single_value</span><span class="p">(</span><span class="s2">&quot;Accounts Settings&quot;</span><span class="p">,</span> <span class="s2">&quot;add_taxes_from_item_tax_template&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</code></pre></div></p>
+<p><strong>Viola:</strong>
+- RC-009 (Zero-config deployment)
+- No se replica en otros sites
+- No hay fixture para Accounts Settings</p>
+<hr />
+<h2 id="5-analisis-arquitectural">5. ANÁLISIS ARQUITECTURAL<a class="headerlink" href="#5-analisis-arquitectural" title="Permanent link">&para;</a></h2>
+<h3 id="51-ieps-cuota-vs-ieps-tasa">5.1 IEPS Cuota vs IEPS Tasa<a class="headerlink" href="#51-ieps-cuota-vs-ieps-tasa" title="Permanent link">&para;</a></h3>
+<p><strong>IEPS Cuota (Azúcar, Combustibles, Tabaco Cuota):</strong>
+- ✅ DocType <code>IEPS Cuota SAT</code> para lookup centralizado
+- ✅ Hook <code>calcular_ieps_cuota()</code> calcula dinámicamente
+- ✅ ITT con rate=0 es CORRECTO (hook asigna monto)
+- ✅ charge_type: "Actual"</p>
+<p><strong>IEPS Tasa (Alcohol, Tabaco Tasa):</strong>
+- ✅ Tasas en <code>constantes_fiscales.py</code> (single source of truth)
+- ✅ ITT heredan tasas vía Item Group
+- ✅ ERPNext calcula automáticamente: net_amount × rate
+- ✅ charge_type: "On Net Total"
+- ❌ ITT tenían rate=0 (CORREGIDO en esta implementación)</p>
+<h3 id="52-diferencias-clave">5.2 Diferencias Clave<a class="headerlink" href="#52-diferencias-clave" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Aspecto</th>
+<th>IEPS Cuota</th>
+<th>IEPS Tasa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Fuente tasa</strong></td>
+<td>DocType lookup</td>
+<td>ITT rate</td>
+</tr>
+<tr>
+<td><strong>Cálculo</strong></td>
+<td>Hook dinámico</td>
+<td>ERPNext nativo</td>
+</tr>
+<tr>
+<td><strong>Variabilidad</strong></td>
+<td>Por producto (clave SAT)</td>
+<td>Fija por categoría</td>
+</tr>
+<tr>
+<td><strong>Vigencias</strong></td>
+<td>Soportadas (tabla SAT)</td>
+<td>Estables (ley)</td>
+</tr>
+<tr>
+<td><strong>Conversión UOM</strong></td>
+<td>Requerida</td>
+<td>No aplica</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-investigacion-realizada">6. INVESTIGACIÓN REALIZADA<a class="headerlink" href="#6-investigacion-realizada" title="Permanent link">&para;</a></h2>
+<h3 id="61-timeline-cambios">6.1 Timeline Cambios<a class="headerlink" href="#61-timeline-cambios" title="Permanent link">&para;</a></h3>
+<p><strong>Commits relevantes:</strong>
+<div class="highlight"><pre><span></span><code>26e8bc5 - refactor(e1): consolidar fuente verdad Item Groups
+3fdb47b - feat(e1): implementar sistema 8 STCT específicos
+</code></pre></div></p>
+<p><strong>Hooks.py última modificación:</strong>
+<div class="highlight"><pre><span></span><code>2025-10-21 04:12:23 - wip(e4): commit seguridad - sistema IEPS Cuota parcial
+</code></pre></div></p>
+<p><strong>SI creados:</strong>
+<div class="highlight"><pre><span></span><code>18:27 - ACC-SINV-2025-01647 (ANTES de regenerar templates) - 11 filas ✅
+19:23 - Regeneración ITT/STCT
+19:30 - ACC-SINV-2025-01649 (DESPUÉS de regenerar) - 4 filas ❌
+</code></pre></div></p>
+<h3 id="62-pruebas-realizadas">6.2 Pruebas Realizadas<a class="headerlink" href="#62-pruebas-realizadas" title="Permanent link">&para;</a></h3>
+<p><strong>Test 1:</strong> SI con 1 item
+- <strong>Resultado:</strong> 11 filas se mantienen ✅
+- <strong>Conclusión:</strong> STCT funciona correctamente</p>
+<p><strong>Test 2:</strong> SI con 2 items diferentes ITT
+- <strong>Resultado:</strong> Solo 2 filas (una por ITT) ❌
+- <strong>Conclusión:</strong> ERPNext reemplaza taxes con múltiples ITT</p>
+<p><strong>Test 3:</strong> Verificar Accounts Settings
+- <strong>Setting encontrado:</strong> <code>add_taxes_from_item_tax_template = 1</code>
+- <strong>Comportamiento:</strong> Reemplaza STCT con ITT cuando múltiples items</p>
+<p><strong>Test 4:</strong> Hook en before_submit vs before_save
+- <strong>Resultado:</strong> Mismo problema en ambas configuraciones
+- <strong>Conclusión:</strong> NO es el cambio de hook la causa</p>
+<hr />
+<h2 id="7-soluciones-evaluadas">7. SOLUCIONES EVALUADAS<a class="headerlink" href="#7-soluciones-evaluadas" title="Permanent link">&para;</a></h2>
+<h3 id="71-desactivar-setting">7.1 Desactivar Setting ❌<a class="headerlink" href="#71-desactivar-setting" title="Permanent link">&para;</a></h3>
+<p><strong>Propuesta:</strong> <code>add_taxes_from_item_tax_template = 0</code></p>
+<p><strong>Rechazo:</strong>
+- Cambio manual BD NO migrable
+- Viola RC-009 (Zero-config deployment)
+- No se replica en otros sites</p>
+<h3 id="72-restaurar-hook-despues-de-erpnext">7.2 Restaurar Hook Después de ERPNext ⚠️<a class="headerlink" href="#72-restaurar-hook-despues-de-erpnext" title="Permanent link">&para;</a></h3>
+<p><strong>Propuesta:</strong> Hook que detecte y restaure filas STCT faltantes</p>
+<p><strong>Desafíos:</strong>
+- Complejidad alta
+- Conflicto con lógica ERPNext nativa
+- Mantenimiento difícil</p>
+<h3 id="73-modificar-arquitectura-itt">7.3 Modificar Arquitectura ITT 🔍<a class="headerlink" href="#73-modificar-arquitectura-itt" title="Permanent link">&para;</a></h3>
+<p><strong>Propuesta:</strong> Revisar si ITT deben incluir IVA además de IEPS</p>
+<p><strong>Requiere:</strong> Investigación adicional de arquitectura original</p>
+<hr />
+<h2 id="8-proximos-pasos">8. PRÓXIMOS PASOS<a class="headerlink" href="#8-proximos-pasos" title="Permanent link">&para;</a></h2>
+<h3 id="81-investigacion-pendiente">8.1 Investigación Pendiente<a class="headerlink" href="#81-investigacion-pendiente" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Revisar STCT original (19 filas) que funcionaba</strong></li>
+<li>¿Qué era diferente en estructura?</li>
+<li>
+<p>¿Cómo manejaba múltiples ITT?</p>
+</li>
+<li>
+<p><strong>Analizar comportamiento ERPNext v15</strong></p>
+</li>
+<li>¿Es bug o feature?</li>
+<li>
+<p>¿Cambió entre versiones?</p>
+</li>
+<li>
+<p><strong>Verificar si ITT deben incluir IVA</strong></p>
+</li>
+<li>Revisar arquitectura Item Groups</li>
+<li>Determinar si IEPS Alcohol debería tener ITT con IEPS+IVA</li>
+</ol>
+<h3 id="82-alternativas">8.2 Alternativas<a class="headerlink" href="#82-alternativas" title="Permanent link">&para;</a></h3>
+<p><strong>OPCIÓN A:</strong> ITT combinados (IEPS + IVA)
+- Generar ITT que incluyan ambas tasas
+- Pros: ERPNext maneja todo nativamente
+- Contras: Duplicación lógica, más ITT complejos</p>
+<p><strong>OPCIÓN B:</strong> Hook restaurador
+- Hook que agregue filas IVA faltantes después de ERPNext
+- Pros: Mantiene STCT como fuente verdad
+- Contras: Complejo, posibles conflictos</p>
+<p><strong>OPCIÓN C:</strong> Deshabilitar ITT en items, solo STCT
+- Remover ITT de items, usar solo STCT
+- Pros: Simple, STCT se respeta
+- Contras: Pierde flexibilidad por item</p>
+<hr />
+<h2 id="9-scripts-creados">9. SCRIPTS CREADOS<a class="headerlink" href="#9-scripts-creados" title="Permanent link">&para;</a></h2>
+<h3 id="91-scripts-regeneracion">9.1 Scripts Regeneración<a class="headerlink" href="#91-scripts-regeneracion" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>regenerar_itt_tasas_ieps.py</code> - Regenerar ITT con tasas correctas</li>
+<li><code>regenerar_stct_completo.py</code> - Regenerar STCT con 11 filas</li>
+</ul>
+<h3 id="92-scripts-testing">9.2 Scripts Testing<a class="headerlink" href="#92-scripts-testing" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>crear_si_final_stct_actualizado.py</code> - Crear SI test</li>
+<li><code>analizar_si_tasas_actualizadas.py</code> - Análisis detallado SI</li>
+<li><code>comparar_tres_si.py</code> - Comparación evolución 3 SI</li>
+<li><code>test_stct_sin_items.py</code> - Test STCT con 1 item</li>
+<li><code>test_stct_dos_items.py</code> - Test STCT con 2 items</li>
+<li><code>test_items_itt_con_tasas.py</code> - Test ITT con múltiples tasas</li>
+</ul>
+<h3 id="93-scripts-investigacion">9.3 Scripts Investigación<a class="headerlink" href="#93-scripts-investigacion" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>investigar_si_timeline.py</code> - Timeline SI y cambios código</li>
+<li><code>analizar_diferencia_stct.py</code> - Comparar STCT vs SI</li>
+<li><code>verificar_accounts_settings.py</code> - Verificar settings ERPNext</li>
+<li><code>diagnosticar_si_taxes.py</code> - Diagnóstico filas faltantes</li>
+</ul>
+<h3 id="94-scripts-revertidos">9.4 Scripts Revertidos<a class="headerlink" href="#94-scripts-revertidos" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>desactivar_itt_setting.py</code> - ❌ Cambio no migrable (REVERTIDO)</li>
+<li><code>revertir_itt_setting.py</code> - ✅ Reversión aplicada</li>
+</ul>
+<hr />
+<h2 id="10-archivos-documentacion">10. ARCHIVOS DOCUMENTACIÓN<a class="headerlink" href="#10-archivos-documentacion" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>REPORTE_ARQUITECTURA_IEPS_CUOTA_VS_TASA.md</code> - Análisis arquitectural completo</li>
+<li><code>INFORME_ANALISIS_IMPUESTOS_ON_SAVE.md</code> - Análisis comportamiento hooks</li>
+<li><code>REPORTE_CAMBIOS_POST_SUBMIT_E1.md</code> - Análisis ACC-SINV-2025-01647 original</li>
+</ul>
+<hr />
+<h2 id="conclusion">CONCLUSIÓN<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
+<p><strong>ÉXITO PARCIAL:</strong>
+- ✅ Tasas IEPS implementadas correctamente desde constantes
+- ✅ IEPS Tasa ahora calcula: +$1,674.50
+- ✅ Grand total mejoró: +$717.32</p>
+<p><strong>BLOQUEADOR:</strong>
+- ❌ Setting ERPNext causa pérdida filas IVA con múltiples items
+- ❌ Solución directa (desactivar setting) NO es migrable
+- ⚠️ Requiere solución arquitectural más profunda</p>
+<p><strong>ESTADO:</strong> En investigación - Requiere decisión arquitectural para proceder.</p>
+<hr />
+<p><strong>🤖 Generated with <a href="https://claude.com/claude-code">Claude Code</a></strong></p>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Volver al principio
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 Facturación México - Documentación Técnica
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/tu-org/facturacion_mexico" target="_blank" rel="noopener" title="GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+      <div class="md-consent" data-md-component="consent" id="__consent" hidden>
+        <div class="md-consent__overlay"></div>
+        <aside class="md-consent__inner">
+          <form class="md-consent__form md-grid md-typeset" name="consent">
+            
+
+  
+    
+  
+
+
+
+
+
+<h4>Consentimiento de cookies</h4>
+<p>Utilizamos cookies para reconocer tus visitas repetidas y preferencias, así como para medir la efectividad de nuestra documentación y si los usuarios encuentran lo que están buscando. Con tu consentimiento, nos ayudas a mejorar nuestra documentación.
+</p>
+<input class="md-toggle" type="checkbox" id="__settings" >
+<div class="md-consent__settings">
+  <ul class="task-list">
+    
+      
+      
+        
+        
+      
+      <li class="task-list-item">
+        <label class="task-list-control">
+          <input type="checkbox" name="analytics" checked>
+          <span class="task-list-indicator"></span>
+          Google Analytics
+        </label>
+      </li>
+    
+  </ul>
+</div>
+<div class="md-consent__controls">
+  
+    
+      <button class="md-button md-button--primary">Aceptar</button>
+    
+    
+    
+  
+    
+    
+      <button type="reset" class="md-button md-button--primary">Rechazar</button>
+    
+    
+  
+    
+    
+    
+      <label class="md-button" for="__settings">Gestionar cookies</label>
+    
+  
+</div>
+          </form>
+        </aside>
+      </div>
+      <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout(function(){document.querySelector("[data-md-component=consent]").hidden=!1},250);var action,form=document.forms.consent;for(action of["submit","reset"])form.addEventListener(action,function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map(function(e){return[e,!0]}))),location.hash="",location.reload()})</script>
+    
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["content.code.copy", "navigation.expand", "navigation.instant", "navigation.sections", "navigation.tabs", "navigation.top", "search.highlight", "search.suggest"], "search": "../../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copiado al portapapeles", "clipboard.copy": "Copiar al portapapeles", "search.result.more.one": "1 m\u00e1s en esta p\u00e1gina", "search.result.more.other": "# m\u00e1s en esta p\u00e1gina", "search.result.none": "No se encontraron documentos", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Teclee para comenzar b\u00fasqueda", "search.result.term.missing": "Falta", "select.version": "Seleccionar versi\u00f3n"}, "version": {"default": "latest", "provider": "mike"}}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.d7c377c4.min.js"></script>
+      
+        <script src="../../../assets/javascripts/extra.js"></script>
+      
+        <script src="../../../assets/javascripts/advanced.js"></script>
+      
+    
+  </body>
+</html>
