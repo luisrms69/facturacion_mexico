@@ -21,7 +21,7 @@
  "fields": [
   {
    "fieldname": "target_item",
-   "label": "Item",
+   "label": "Artículo",
    "fieldtype": "Link",
    "options": "Item",
    "reqd": 1,

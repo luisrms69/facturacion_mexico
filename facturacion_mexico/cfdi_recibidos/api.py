@@ -827,7 +827,7 @@ def assign_generic_item_to_concepto(cfdi_recibido: str, concepto_name: str) -> d
 	result = assign_item_to_concepto(
 		concepto_name=concepto_name,
 		item_code=generic["item_code"],
-		item_resolution="Generico",
+		item_resolution="Genérico",
 		match_reason=generic["match_reason"],
 		match_confidence="Baja",
 	)

@@ -147,6 +147,14 @@ def _resolve_traslado(t: dict, config) -> "dict | None":
 			).format(config.company, impuesto, tipo_factor, tasa_cuota),
 			frappe.ValidationError,
 		)
+	if not regla.cuenta_impuesto:
+		frappe.throw(
+			_(
+				"La regla '{0}' no tiene cuenta de impuesto configurada en "
+				"Configuracion CFDI Recibidos de {1}. Asigne una cuenta antes de generar la PI."
+			).format(regla.descripcion, config.company),
+			frappe.ValidationError,
+		)
 	return _build_row(regla.cuenta_impuesto, t.get("importe", 0), regla.descripcion)
 
 
@@ -165,6 +173,14 @@ def _resolve_retencion(r: dict, config) -> dict:
 				"No existe regla activa de retención en Configuracion CFDI Recibidos de {0} "
 				"para impuesto={1}. Agregue la regla y regenere el template."
 			).format(config.company, impuesto),
+			frappe.ValidationError,
+		)
+	if not regla.cuenta_impuesto:
+		frappe.throw(
+			_(
+				"La regla de retención '{0}' no tiene cuenta de impuesto configurada en "
+				"Configuracion CFDI Recibidos de {1}. Asigne una cuenta antes de generar la PI."
+			).format(regla.descripcion, config.company),
 			frappe.ValidationError,
 		)
 	return _build_row(regla.cuenta_impuesto, -flt(r.get("importe", 0)), regla.descripcion)

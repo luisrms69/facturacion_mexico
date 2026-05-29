@@ -81,7 +81,7 @@
    "label": "Mensaje de Error",
    "fieldtype": "Text",
    "read_only": 1,
-   "depends_on": "eval:['Error', 'Error conversión'].includes(doc.status)"
+   "depends_on": "eval:['Error conversión'].includes(doc.status)"
   },
   {
    "fieldname": "section_cfdi",

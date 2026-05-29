@@ -130,7 +130,7 @@ function _show_results(results, listview, company) {
 		}
 		return `<tr>
 			<td>${_icon(r)}</td>
-			<td>${r.file_name}</td>
+			<td>${frappe.utils.escape_html(r.file_name)}</td>
 			<td>${docLink}</td>
 			<td>${supplierCell}</td>
 			<td>${r.status}</td>
@@ -261,7 +261,12 @@ function _show_generate_summary(result) {
 				[errCount]
 		  )}</summary>
 			<ul style="margin-top:4px">${errores
-				.map((e) => `<li><b>${e.name}</b>: ${e.message}</li>`)
+				.map(
+					(e) =>
+						`<li><b>${frappe.utils.escape_html(
+							e.name
+						)}</b>: ${frappe.utils.escape_html(e.message)}</li>`
+				)
 				.join("")}</ul>
 		   </details>`
 		: "";

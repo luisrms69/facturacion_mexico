@@ -81,10 +81,14 @@ function _generar_template(frm) {
 					const result = r.message;
 					frm.reload_doc();
 					if (result.warnings && result.warnings.length) {
-						const warning_list = result.warnings.map((w) => `<li>${w}</li>`).join("");
+						const warning_list = result.warnings
+							.map((w) => `<li>${frappe.utils.escape_html(w)}</li>`)
+							.join("");
 						frappe.msgprint({
 							title: __("Template generado con advertencias"),
-							message: `<p>${result.message}</p><ul>${warning_list}</ul>`,
+							message: `<p>${frappe.utils.escape_html(
+								result.message
+							)}</p><ul>${warning_list}</ul>`,
 							indicator: "orange",
 						});
 					} else {

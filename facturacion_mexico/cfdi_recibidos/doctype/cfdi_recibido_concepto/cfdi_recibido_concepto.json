@@ -21,7 +21,7 @@
   },
   {
    "fieldname": "description",
-   "label": "Descripcion",
+   "label": "Descripción",
    "fieldtype": "Text",
    "in_list_view": 1,
    "columns": 4
@@ -86,9 +86,9 @@
   },
   {
    "fieldname": "item_resolution",
-   "label": "Resolucion",
+   "label": "Resolución",
    "fieldtype": "Select",
-   "options": "Pendiente\nMapeado\nCodigo proveedor\nSugerido\nNuevo especifico\nNuevo agrupador\nGenerico\nManual",
+   "options": "Pendiente\nMapeado\nCódigo proveedor\nEspecífico\nSugerido\nNuevo especifico\nNuevo agrupador\nGenérico\nManual",
    "read_only": 1
   },
   {
