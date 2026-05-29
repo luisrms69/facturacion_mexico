@@ -1,0 +1,3154 @@
+
+<!doctype html>
+<html lang="es" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentación completa del sistema de facturación electrónica para México">
+      
+      
+        <meta name="author" content="Equipo Desarrollo Facturación México">
+      
+      
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.3">
+    
+    
+      
+        <title>PLAN — Items de Gasto y UOM para CFDI Recibidos - Facturación México - Documentación Técnica</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.50c56a3b.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/advanced.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function n(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],n("js",new Date),n("config","G-XXXXXXXXXX"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){this.value&&n("event","search",{search_term:this.value})}),document$.subscribe(function(){var a=document.forms.feedback;if(void 0!==a)for(var e of a.querySelectorAll("[type=submit]"))e.addEventListener("click",function(e){e.preventDefault();var t=document.location.pathname,e=this.getAttribute("data-md-value");n("event","feedback",{page:t,data:e}),a.firstElementChild.disabled=!0;e=a.querySelector(".md-feedback__note [data-md-value='"+e+"']");e&&(e.hidden=!1)}),a.hidden=!1}),location$.subscribe(function(e){n("config","G-XXXXXXXXXX",{page_path:e.pathname})})});var e=document.createElement("script");e.async=!0,e.src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX",document.getElementById("__analytics").insertAdjacentElement("afterEnd",e)}</script>
+  
+    <script>var consent;"undefined"==typeof __md_analytics||(consent=__md_get("__consent"))&&consent.analytics&&__md_analytics()</script>
+  
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#plan-items-de-gasto-y-uom-para-cfdi-recibidos" class="md-skip">
+          Saltar a contenido
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabecera">
+    <a href="../.." title="Facturación México - Documentación Técnica" class="md-header__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Facturación México - Documentación Técnica
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              PLAN — Items de Gasto y UOM para CFDI Recibidos
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo oscuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo oscuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Búsqueda" placeholder="Búsqueda" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Buscar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpiar" aria-label="Limpiar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando búsqueda
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Pestañas" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+    
+  
+  Inicio
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../user-guide/" class="md-tabs__link">
+          
+  
+  Guía de Usuario
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/" class="md-tabs__link">
+          
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../" class="md-tabs__link">
+          
+  
+  Desarrollo
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navegación" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Facturación México - Documentación Técnica" class="md-nav__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Facturación México - Documentación Técnica
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Inicio
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Guía de Usuario
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Guía de Usuario
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Usuario - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/getting-started/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Primeros Pasos
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/draft-invoices/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Facturas en Borrador
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/cfdi-recibidos/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CFDI Recibidos
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/troubleshooting/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    API Reference
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    API Reference - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/cfdi/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CFDI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/cfdi-recibidos/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CFDI Recibidos
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/draft-management/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Draft Management
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/catalogos/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Catalogos SAT
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/hooks/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Hooks
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Desarrollo
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Desarrollo
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Desarrollo - Facturación México
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Setup Desarrollo
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../draft-workflow/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Draft Workflow
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-resumen-ejecutivo" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Resumen ejecutivo
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-alcance" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Alcance
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-decisiones-cerradas" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Decisiones cerradas
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-arquitectura-final" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Arquitectura final
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-matriz-de-84-items-genericos" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Matriz de 84 Items genéricos
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Matriz de 84 Items genéricos">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-nomina-y-prestaciones-31-items" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.1 Nómina y prestaciones (31 items)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-servicios-administrativos-y-profesionales-14-items" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.2 Servicios administrativos y profesionales (14 items)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-arrendamientos-3-items" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.3 Arrendamientos (3 items)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-servicios-basicos-y-operacion-10-items" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.4 Servicios básicos y operación (10 items)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#55-movilidad-viaticos-y-combustibles-2-items" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.5 Movilidad, viáticos y combustibles (2 items)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#56-comercializacion-y-ventas-3-items" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.6 Comercialización y ventas (3 items)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#57-seguros-impuestos-y-cumplimiento-4-items" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.7 Seguros, impuestos y cumplimiento (4 items)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#58-donativos-y-no-deducibles-2-items" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.8 Donativos y no deducibles (2 items)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#59-regalias-y-propiedad-intelectual-8-items" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.9 Regalías y propiedad intelectual (8 items)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#510-logistica-fletes-e-importacion-4-items" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.10 Logística, fletes e importación (4 items)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#511-construccion-urbanizacion-y-otros-3-items" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.11 Construcción, urbanización y otros (3 items)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#512-resumen-uom" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.12 Resumen UOM
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-lista-de-uom-sat-requeridas" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Lista de UOM SAT requeridas
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-lista-de-claveprodserv-requeridas-27-codigos-unicos" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. Lista de ClaveProdServ requeridas (27 códigos únicos)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Lista de ClaveProdServ requeridas (27 códigos únicos)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-por-que-27-analisis-de-consolidacion" class="md-nav__link">
+    <span class="md-ellipsis">
+      7.1 Por qué 27 (análisis de consolidación)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-tabla-de-27-codigos" class="md-nav__link">
+    <span class="md-ellipsis">
+      7.2 Tabla de 27 códigos
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-estrategia-uom-no-sat-bloque-e-prerequisito-pi" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. Estrategia UOM no-SAT (Bloque E — prerequisito PI)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Estrategia UOM no-SAT (Bloque E — prerequisito PI)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-estado-actual-del-sitio" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.1 Estado actual del sitio
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-cuatro-buckets-de-clasificacion" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.2 Cuatro buckets de clasificación
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83-impacto-de-enabled-0" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.3 Impacto de enabled = 0
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#84-checklist-del-diagnostico-bloque-e" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.4 Checklist del diagnóstico (Bloque E)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#85-prohibiciones" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.5 Prohibiciones
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#86-dependencia-con-pi" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.6 Dependencia con PI
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-flujo-de-clasificacion-de-conceptos" class="md-nav__link">
+    <span class="md-ellipsis">
+      9. Flujo de clasificación de conceptos
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-campos-nuevos-en-cfdi-recibido-concepto-bloque-b" class="md-nav__link">
+    <span class="md-ellipsis">
+      10. Campos nuevos en CFDI Recibido Concepto (Bloque B)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-bloques-de-implementacion" class="md-nav__link">
+    <span class="md-ellipsis">
+      11. Bloques de implementación
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11. Bloques de implementación">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bloque-a-setup-de-items-genericos-uom-y-claveprodserv-completado" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bloque A — Setup de Items genéricos, UOM y ClaveProdServ ✅ COMPLETADO
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bloque-b-campos-de-clasificacion-en-cfdi-recibido-concepto-completado" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bloque B — Campos de clasificación en CFDI Recibido Concepto ✅ COMPLETADO
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bloque-c-itemresolver-completado" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bloque C — ItemResolver ✅ COMPLETADO
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bloque-d-uiapi-de-clasificacion-completado" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bloque D — UI/API de clasificación ✅ COMPLETADO
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bloque-e1-politica-base-uom-sat-completado" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bloque E.1 — Política base UOM SAT ✅ COMPLETADO
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bloque-e2-enforcement-uom-en-cfdi-recibidos-completado" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bloque E.2 — Enforcement UOM en CFDI Recibidos ✅ COMPLETADO
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bloque-e3-enforcement-sales-invoice-timbrado-completado" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bloque E.3 — Enforcement Sales Invoice / timbrado ✅ COMPLETADO
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-riesgos" class="md-nav__link">
+    <span class="md-ellipsis">
+      12. Riesgos
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-que-queda-fuera" class="md-nav__link">
+    <span class="md-ellipsis">
+      13. Qué queda fuera
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14-pendientes-bloqueantes-antes-de-pifacturacion" class="md-nav__link">
+    <span class="md-ellipsis">
+      14. Pendientes bloqueantes antes de PI/facturación
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="plan-items-de-gasto-y-uom-para-cfdi-recibidos">PLAN — Items de Gasto y UOM para CFDI Recibidos<a class="headerlink" href="#plan-items-de-gasto-y-uom-para-cfdi-recibidos" title="Permanent link">&para;</a></h1>
+<p><strong>Fecha:</strong> 2026-05-27<br />
+<strong>Estado:</strong> Bloques A–E.1 completados — próximo: Bloque E.2 (enforcement CFDI Recibidos)<br />
+<strong>Rama:</strong> feature/cfdi-recibidos-fase3-pi<br />
+<strong>Módulo:</strong> cfdi_recibidos</p>
+<hr />
+<h2 id="1-resumen-ejecutivo">1. Resumen ejecutivo<a class="headerlink" href="#1-resumen-ejecutivo" title="Permanent link">&para;</a></h2>
+<p>El módulo CFDI Recibidos tiene ingesta, parser y DocTypes funcionales. El siguiente paso
+es vincular los conceptos XML a Items de ERPNext para poder generar Purchase Invoices.
+Se crearán 84 Items genéricos (uno por cada Item Group hoja bajo "Gastos"), se agregarán
+3 campos de clasificación en CFDI Recibido Concepto, y se construirá un <code>ItemResolver</code>
+que propone Items automáticamente. La UI de clasificación permite que el usuario confirme
+o ajuste la propuesta. El Bloque E (diagnóstico UOM no-SAT) es prerequisito hard del hito
+de PI/facturación.</p>
+<hr />
+<h2 id="2-alcance">2. Alcance<a class="headerlink" href="#2-alcance" title="Permanent link">&para;</a></h2>
+<p><strong>Dentro:</strong>
+- Items de gasto: <code>is_stock_item=0</code>, <code>is_purchase_item=1</code>, <code>is_sales_item=0</code>
+- 84 Items genéricos, uno por Item Group hoja bajo "Gastos"
+- UOM SAT semánticamente correctas por categoría
+- ClaveProdServ por categoría (con nivel de confianza explícito)
+- Campos <code>item_group</code>, <code>item_code</code>, <code>item_resolution</code> en CFDI Recibido Concepto
+- ItemResolver con 3 niveles de matching (Mapeado → Específico → Genérico)
+- UI de clasificación de conceptos
+- Diagnóstico y limpieza de UOM no-SAT (prerequisito PI)</p>
+<p><strong>Fuera:</strong>
+- Costos, inventario, reventa, Items que también se venden
+- Purchase Invoice Builder (hito posterior)
+- TaxResolver y resolución de cuentas contables (hito posterior)
+- Cuenta contable: <code>f(familia SAT del Department, Item Group) → Account</code> — no se define aquí
+- CFDI de tipo distinto a gasto (complementos de pago, nómina tipo N)</p>
+<hr />
+<h2 id="3-decisiones-cerradas">3. Decisiones cerradas<a class="headerlink" href="#3-decisiones-cerradas" title="Permanent link">&para;</a></h2>
+<p><strong>DC-01 — Department ≠ resolutor de Item Group</strong><br />
+Department solo determina familia SAT (601/602/603/604). Es una dimensión contable
+para el momento en que se construya la PI. Item Group define naturaleza del gasto y
+es una dimensión independiente asignada manualmente por el usuario en la UI.</p>
+<p><strong>DC-02 — 84 Items genéricos, uno por hoja</strong><br />
+No existe un único "Gasto CFDI". No 11 Items. No un Item por línea XML. No un Item
+por proveedor como regla principal.</p>
+<p><strong>DC-03 — E48 no es UOM universal</strong><br />
+<code>E48 - Servicio</code> solo se usa donde aplica genuinamente: honorarios de personas morales
+(la empresa factura "1 servicio"), honorarios aduanales, fletes por envío, gastos de
+importación por operación, servicios de construcción/urbanización por proyecto.
+No como comodín para cubrir categorías sin UOM clara.</p>
+<p><strong>DC-04 — ClaveProdServ del Item ≠ ClaveProdServ del XML</strong><br />
+El XML trae la ClaveProdServ que el emisor eligió. El Item genérico lleva la ClaveProdServ
+que el receptor considera correcta para ese tipo de gasto. Son datos independientes.</p>
+<p><strong>DC-05 — item_group es derivado, nunca input manual del usuario</strong> <em>(corregido en Bloque D)</em><br />
+El usuario selecciona <code>item_code</code>. El sistema deriva <code>item_group</code> automáticamente desde
+el Item. <code>item_group</code> en Concepto es <code>read_only</code>. No existe input de item_group por el usuario.
+Si item_group difiere del Item seleccionado → se sobreescribe sin <code>frappe.throw</code>.
+La inconsistencia se corrige silenciosamente (invariante: siempre item_group = item.item_group).</p>
+<p><strong>DC-06 — Cuatro valores fijos de <code>item_resolution</code></strong><br />
+<code>Genérico</code> / <code>Específico</code> / <code>Mapeado</code> / <code>Manual</code>. Solo el ItemResolver asigna los tres
+primeros. La UI asigna <code>Manual</code> cuando el usuario selecciona un Item diferente al sugerido.</p>
+<p><strong>DC-07 — Cuenta contable es futura</strong><br />
+<code>f(familia SAT, Item Group) → Account</code> se definirá en el hito de PI/TaxResolver.
+No se diseña en estos Bloques.</p>
+<p><strong>DC-08 — Bloque E es prerequisito hard de PI</strong><br />
+La limpieza de UOM no-SAT no es opcional ni postergable. El hito "Generar PI"
+está bloqueado hasta que Bloque E esté completo y la limpieza ejecutada y aprobada.</p>
+<p><strong>DC-09 — KWH pendiente validación SAT</strong><br />
+<code>KWH - Kilowatt hora</code> no se agrega al fixture hasta validar contra <code>c_ClaveUnidad.xls</code>
+oficial. Es un bloqueante antes de PI/facturación. El ítem #51 (Energía eléctrica)
+usa <code>MON - Mes</code> como UOM provisional documentada.</p>
+<hr />
+<h2 id="4-arquitectura-final">4. Arquitectura final<a class="headerlink" href="#4-arquitectura-final" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>CFDI Recibido
+  ├── company
+  ├── Department → familia SAT (601/602/603/604)  [solo para PI, no para Item Group]
+  └── conceptos (child table: CFDI Recibido Concepto)
+        ├── sat_product_key    — clave SAT del emisor
+        ├── no_identificacion  — código interno del proveedor
+        ├── description        — texto libre del emisor (≠ descripción oficial SAT)
+        ├── quantity, unit_key, unit, unit_price, amount
+        ├── tax_object, taxes_json
+        ├── item_group         ← nuevo (Bloque B)
+        ├── item_code          ← nuevo (Bloque B)
+        └── item_resolution    ← nuevo (Bloque B)
+
+ItemResolver (Bloque C) — propone, no escribe BD directamente
+  Prioridad 1 (Mapeado):   CFDI Concepto Mapping activo
+                           company + supplier_rfc + sat_product_key → target_item
+                           (solo cuando target_type = &#39;Item&#39; y is_active = 1)
+  Prioridad 2 (Específico): Item Supplier
+                           supplier + no_identificacion → item
+  Prioridad 3 (Genérico):  item_group → Item genérico GASTO-{CAT}-NNN
+  Sin match:               item_code = vacío, item_resolution = nulo
+
+UI de clasificación (Bloque D):
+  - Grid de conceptos con item_code/item_group vacíos
+  - Usuario asigna item_group por línea
+  - Sistema llama ItemResolver → muestra item_code sugerido
+  - Validación: item_group concepto ≠ item_group del Item → bloqueo
+  - Usuario confirma o selecciona otro (item_resolution = Manual)
+
+Estado CFDI Recibido — flujo completo:
+  Falta proveedor
+  → Proveedor encontrado
+  → Falta departamento
+  → Departamento asignado
+  → Falta clasificación     ← nuevo
+  → Clasificado             ← nuevo
+  → Convertido a PI         (hito posterior, requiere Bloque E completado)
+</code></pre></div>
+<hr />
+<h2 id="5-matriz-de-84-items-genericos">5. Matriz de 84 Items genéricos<a class="headerlink" href="#5-matriz-de-84-items-genericos" title="Permanent link">&para;</a></h2>
+<p>Convenciones:
+- UOM: código SAT (ver sección 6 para nombres completos)
+- ClaveProdServ: 8 dígitos UNSPSC
+- 🟢 Alta confianza | 🟡 Media — requiere validación SAT | 🔴 Baja — requiere validación SAT</p>
+<h3 id="51-nomina-y-prestaciones-31-items">5.1 Nómina y prestaciones (31 items)<a class="headerlink" href="#51-nomina-y-prestaciones-31-items" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>Nota: Estos Items raramente tienen CFDI de proveedor externo directo (nómina es interna;
+IMSS/Infonavit se pagan vía SUA/SIPARE, no CFDI). Los Items existen para consistencia
+del catálogo. <code>fm_producto_servicio_sat</code> se carga si el código existe en SAT Producto
+Servicio; si no, queda vacío y se completa cuando se cargue el catálogo completo.</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Item Group hoja</th>
+<th>item_code</th>
+<th>UOM</th>
+<th>ClaveProdServ</th>
+<th>Notas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Sueldos y salarios</td>
+<td>GASTO-NOM-001</td>
+<td>MON</td>
+<td>80141600 🟡</td>
+<td>HR management services</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Compensaciones</td>
+<td>GASTO-NOM-002</td>
+<td>H87</td>
+<td>80141600 🟡</td>
+<td>Pago único por persona</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Tiempos extras</td>
+<td>GASTO-NOM-003</td>
+<td>HUR</td>
+<td>80141600 🟡</td>
+<td>Se factura por hora</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Premios de asistencia</td>
+<td>GASTO-NOM-004</td>
+<td>H87</td>
+<td>80141600 🟡</td>
+<td>Pago discreto</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Premios de puntualidad</td>
+<td>GASTO-NOM-005</td>
+<td>H87</td>
+<td>80141600 🟡</td>
+<td>Pago discreto</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Vacaciones</td>
+<td>GASTO-NOM-006</td>
+<td>DAY</td>
+<td>80141600 🟡</td>
+<td>Días de goce</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Prima vacacional</td>
+<td>GASTO-NOM-007</td>
+<td>H87</td>
+<td>80141600 🟡</td>
+<td>Pago único</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Prima dominical</td>
+<td>GASTO-NOM-008</td>
+<td>DAY</td>
+<td>80141600 🟡</td>
+<td>Por día domingo</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Días festivos</td>
+<td>GASTO-NOM-009</td>
+<td>DAY</td>
+<td>80141600 🟡</td>
+<td>Por día</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Gratificaciones</td>
+<td>GASTO-NOM-010</td>
+<td>H87</td>
+<td>80141600 🟡</td>
+<td>Pago único</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Primas de antigüedad</td>
+<td>GASTO-NOM-011</td>
+<td>H87</td>
+<td>80141600 🟡</td>
+<td>Pago único</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Aguinaldo</td>
+<td>GASTO-NOM-012</td>
+<td>H87</td>
+<td>80141600 🟡</td>
+<td>Pago anual único</td>
+</tr>
+<tr>
+<td>13</td>
+<td>Indemnizaciones</td>
+<td>GASTO-NOM-013</td>
+<td>H87</td>
+<td>80141600 🟡</td>
+<td>Pago único por evento</td>
+</tr>
+<tr>
+<td>14</td>
+<td>Destajo</td>
+<td>GASTO-NOM-014</td>
+<td>H87</td>
+<td>80141600 🟡</td>
+<td>Por unidad producida</td>
+</tr>
+<tr>
+<td>15</td>
+<td>Despensa</td>
+<td>GASTO-NOM-015</td>
+<td>H87</td>
+<td>80141600 🟡</td>
+<td>Por trabajador</td>
+</tr>
+<tr>
+<td>16</td>
+<td>Transporte</td>
+<td>GASTO-NOM-016</td>
+<td>MON</td>
+<td>78101600 🟡</td>
+<td>Subsidio transporte mensual</td>
+</tr>
+<tr>
+<td>17</td>
+<td>Servicio médico</td>
+<td>GASTO-NOM-017</td>
+<td>MON</td>
+<td>85100000 🟡</td>
+<td>Prima mensual</td>
+</tr>
+<tr>
+<td>18</td>
+<td>Ayuda en gastos funerarios</td>
+<td>GASTO-NOM-018</td>
+<td>H87</td>
+<td>80141600 🟡</td>
+<td>Pago único por evento</td>
+</tr>
+<tr>
+<td>19</td>
+<td>Fondo de ahorro</td>
+<td>GASTO-NOM-019</td>
+<td>MON</td>
+<td>80141600 🟡</td>
+<td>Aportación mensual</td>
+</tr>
+<tr>
+<td>20</td>
+<td>Cuotas sindicales</td>
+<td>GASTO-NOM-020</td>
+<td>MON</td>
+<td>80141600 🟡</td>
+<td>Mensual</td>
+</tr>
+<tr>
+<td>21</td>
+<td>PTU</td>
+<td>GASTO-NOM-021</td>
+<td>H87</td>
+<td>80141600 🟡</td>
+<td>Distribución anual</td>
+</tr>
+<tr>
+<td>22</td>
+<td>Estímulo al personal</td>
+<td>GASTO-NOM-022</td>
+<td>H87</td>
+<td>80141600 🟡</td>
+<td>Pago único</td>
+</tr>
+<tr>
+<td>23</td>
+<td>Previsión social</td>
+<td>GASTO-NOM-023</td>
+<td>MON</td>
+<td>80141600 🟡</td>
+<td>Mensual</td>
+</tr>
+<tr>
+<td>24</td>
+<td>Aportaciones para el plan de jubilación</td>
+<td>GASTO-NOM-024</td>
+<td>MON</td>
+<td>80141600 🟡</td>
+<td>Mensual</td>
+</tr>
+<tr>
+<td>25</td>
+<td>Otras prestaciones al personal</td>
+<td>GASTO-NOM-025</td>
+<td>MON</td>
+<td>80141600 🟡</td>
+<td>Genérico</td>
+</tr>
+<tr>
+<td>26</td>
+<td>Cuotas al IMSS</td>
+<td>GASTO-NOM-026</td>
+<td>MON</td>
+<td>84121500 🟡</td>
+<td>Aportación mensual seguridad social</td>
+</tr>
+<tr>
+<td>27</td>
+<td>Aportaciones al Infonavit</td>
+<td>GASTO-NOM-027</td>
+<td>MON</td>
+<td>84121500 🟡</td>
+<td>Mensual</td>
+</tr>
+<tr>
+<td>28</td>
+<td>Aportaciones al SAR</td>
+<td>GASTO-NOM-028</td>
+<td>MON</td>
+<td>84121500 🟡</td>
+<td>Mensual</td>
+</tr>
+<tr>
+<td>29</td>
+<td>Impuesto estatal sobre nóminas</td>
+<td>GASTO-NOM-029</td>
+<td>MON</td>
+<td>93121800 🔴</td>
+<td>Impuesto mensual estatal</td>
+</tr>
+<tr>
+<td>30</td>
+<td>Otras aportaciones</td>
+<td>GASTO-NOM-030</td>
+<td>MON</td>
+<td>80141600 🟡</td>
+<td>Genérico</td>
+</tr>
+<tr>
+<td>31</td>
+<td>Asimilados a salarios</td>
+<td>GASTO-NOM-031</td>
+<td>MON</td>
+<td>80141600 🟡</td>
+<td>Mensual</td>
+</tr>
+</tbody>
+</table>
+<h3 id="52-servicios-administrativos-y-profesionales-14-items">5.2 Servicios administrativos y profesionales (14 items)<a class="headerlink" href="#52-servicios-administrativos-y-profesionales-14-items" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Item Group hoja</th>
+<th>item_code</th>
+<th>UOM</th>
+<th>ClaveProdServ</th>
+<th>Notas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>32</td>
+<td>Servicios administrativos</td>
+<td>GASTO-SRV-001</td>
+<td>MON</td>
+<td>80111500 🟡</td>
+<td>Retainer mensual</td>
+</tr>
+<tr>
+<td>33</td>
+<td>Servicios administrativos partes relacionadas</td>
+<td>GASTO-SRV-002</td>
+<td>MON</td>
+<td>80111500 🟡</td>
+<td>Retainer mensual</td>
+</tr>
+<tr>
+<td>34</td>
+<td>Honorarios a personas físicas residentes nacionales</td>
+<td>GASTO-SRV-003</td>
+<td>HUR</td>
+<td>80111500 🟡</td>
+<td>PF cobra por hora</td>
+</tr>
+<tr>
+<td>35</td>
+<td>Honorarios a personas físicas residentes nacionales partes relacionadas</td>
+<td>GASTO-SRV-004</td>
+<td>HUR</td>
+<td>80111500 🟡</td>
+<td>PF cobra por hora</td>
+</tr>
+<tr>
+<td>36</td>
+<td>Honorarios a personas físicas residentes del extranjero</td>
+<td>GASTO-SRV-005</td>
+<td>HUR</td>
+<td>80111500 🟡</td>
+<td>PF extranjero, hora</td>
+</tr>
+<tr>
+<td>37</td>
+<td>Honorarios a personas físicas residentes del extranjero partes relacionadas</td>
+<td>GASTO-SRV-006</td>
+<td>HUR</td>
+<td>80111500 🟡</td>
+<td>PF extranjero, hora</td>
+</tr>
+<tr>
+<td>38</td>
+<td>Honorarios a personas morales residentes nacionales</td>
+<td>GASTO-SRV-007</td>
+<td>E48</td>
+<td>80111500 🟡</td>
+<td>PM factura "1 servicio"</td>
+</tr>
+<tr>
+<td>39</td>
+<td>Honorarios a personas morales residentes nacionales partes relacionadas</td>
+<td>GASTO-SRV-008</td>
+<td>E48</td>
+<td>80111500 🟡</td>
+<td>PM factura "1 servicio"</td>
+</tr>
+<tr>
+<td>40</td>
+<td>Honorarios a personas morales residentes del extranjero</td>
+<td>GASTO-SRV-009</td>
+<td>E48</td>
+<td>80111500 🟡</td>
+<td>PM factura "1 servicio"</td>
+</tr>
+<tr>
+<td>41</td>
+<td>Honorarios a personas morales residentes del extranjero partes relacionadas</td>
+<td>GASTO-SRV-010</td>
+<td>E48</td>
+<td>80111500 🟡</td>
+<td>PM factura "1 servicio"</td>
+</tr>
+<tr>
+<td>42</td>
+<td>Honorarios aduanales personas físicas</td>
+<td>GASTO-SRV-011</td>
+<td>E48</td>
+<td>78181500 🟡</td>
+<td>Por operación aduanal; customs clearance</td>
+</tr>
+<tr>
+<td>43</td>
+<td>Honorarios aduanales personas morales</td>
+<td>GASTO-SRV-012</td>
+<td>E48</td>
+<td>78181500 🟡</td>
+<td>Por operación aduanal</td>
+</tr>
+<tr>
+<td>44</td>
+<td>Honorarios al consejo de administración</td>
+<td>GASTO-SRV-013</td>
+<td>MON</td>
+<td>80111500 🟡</td>
+<td>Mensual</td>
+</tr>
+<tr>
+<td>45</td>
+<td>Asistencia técnica</td>
+<td>GASTO-SRV-014</td>
+<td>HUR</td>
+<td>80111501 🟡</td>
+<td>Por hora de asesoría técnica</td>
+</tr>
+</tbody>
+</table>
+<h3 id="53-arrendamientos-3-items">5.3 Arrendamientos (3 items)<a class="headerlink" href="#53-arrendamientos-3-items" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Item Group hoja</th>
+<th>item_code</th>
+<th>UOM</th>
+<th>ClaveProdServ</th>
+<th>Notas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>46</td>
+<td>Arrendamiento a personas físicas residentes nacionales</td>
+<td>GASTO-ARR-001</td>
+<td>MON</td>
+<td>80131501 🟡</td>
+<td>Renta mensual, PF</td>
+</tr>
+<tr>
+<td>47</td>
+<td>Arrendamiento a personas morales residentes nacionales</td>
+<td>GASTO-ARR-002</td>
+<td>MON</td>
+<td>80131501 🟡</td>
+<td>Renta mensual, PM</td>
+</tr>
+<tr>
+<td>48</td>
+<td>Arrendamiento a residentes del extranjero</td>
+<td>GASTO-ARR-003</td>
+<td>MON</td>
+<td>80131501 🟡</td>
+<td>Renta mensual, extranjero</td>
+</tr>
+</tbody>
+</table>
+<h3 id="54-servicios-basicos-y-operacion-10-items">5.4 Servicios básicos y operación (10 items)<a class="headerlink" href="#54-servicios-basicos-y-operacion-10-items" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Item Group hoja</th>
+<th>item_code</th>
+<th>UOM</th>
+<th>ClaveProdServ</th>
+<th>Notas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>49</td>
+<td>Teléfono, internet</td>
+<td>GASTO-OPR-001</td>
+<td>MON</td>
+<td>83111500 🟢</td>
+<td>Factura mensual telecom</td>
+</tr>
+<tr>
+<td>50</td>
+<td>Agua</td>
+<td>GASTO-OPR-002</td>
+<td>MTQ</td>
+<td>83111700 🟡</td>
+<td>Metro cúbico, recibo SACMEX/CMAS</td>
+</tr>
+<tr>
+<td>51</td>
+<td>Energía eléctrica</td>
+<td>GASTO-OPR-003</td>
+<td>MON</td>
+<td>81101500 🟢</td>
+<td><strong>UOM PROVISIONAL</strong> — KWH pendiente validación c_ClaveUnidad SAT (DC-09). Bloqueante antes de PI.</td>
+</tr>
+<tr>
+<td>52</td>
+<td>Vigilancia y seguridad</td>
+<td>GASTO-OPR-004</td>
+<td>MON</td>
+<td>92101500 🟡</td>
+<td>Contrato mensual</td>
+</tr>
+<tr>
+<td>53</td>
+<td>Limpieza</td>
+<td>GASTO-OPR-005</td>
+<td>MON</td>
+<td>76111501 🟡</td>
+<td>Contrato mensual</td>
+</tr>
+<tr>
+<td>54</td>
+<td>Mantenimiento y conservación</td>
+<td>GASTO-OPR-006</td>
+<td>MON</td>
+<td>72101500 🟡</td>
+<td>Contrato mensual de mantenimiento</td>
+</tr>
+<tr>
+<td>55</td>
+<td>Papelería y artículos de oficina</td>
+<td>GASTO-OPR-007</td>
+<td>H87</td>
+<td>44121700 🟡</td>
+<td>Por pieza/paquete</td>
+</tr>
+<tr>
+<td>56</td>
+<td>Cuotas y suscripciones</td>
+<td>GASTO-OPR-008</td>
+<td>MON</td>
+<td>80141600 🔴</td>
+<td>⚠️ Catch-all: software→43231500; gremios/colegios→sin código mejor confirmado. Validar con fiscalista.</td>
+</tr>
+<tr>
+<td>57</td>
+<td>Capacitación al personal</td>
+<td>GASTO-OPR-009</td>
+<td>ACT</td>
+<td>86101500 🟡</td>
+<td>Por evento/curso</td>
+</tr>
+<tr>
+<td>58</td>
+<td>Uniformes</td>
+<td>GASTO-OPR-010</td>
+<td>H87</td>
+<td>53101600 🟡</td>
+<td>Por pieza de ropa de trabajo</td>
+</tr>
+</tbody>
+</table>
+<h3 id="55-movilidad-viaticos-y-combustibles-2-items">5.5 Movilidad, viáticos y combustibles (2 items)<a class="headerlink" href="#55-movilidad-viaticos-y-combustibles-2-items" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Item Group hoja</th>
+<th>item_code</th>
+<th>UOM</th>
+<th>ClaveProdServ</th>
+<th>Notas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>59</td>
+<td>Combustibles y lubricantes</td>
+<td>GASTO-MOV-001</td>
+<td>LTR</td>
+<td>15101500 🟢</td>
+<td>Litro de gasolina/diesel</td>
+</tr>
+<tr>
+<td>60</td>
+<td>Viáticos y gastos de viaje</td>
+<td>GASTO-MOV-002</td>
+<td>DAY</td>
+<td>90111501 🔴</td>
+<td>Por día; validar si existe este código en c_ClaveProdServ</td>
+</tr>
+</tbody>
+</table>
+<h3 id="56-comercializacion-y-ventas-3-items">5.6 Comercialización y ventas (3 items)<a class="headerlink" href="#56-comercializacion-y-ventas-3-items" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Item Group hoja</th>
+<th>item_code</th>
+<th>UOM</th>
+<th>ClaveProdServ</th>
+<th>Notas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>61</td>
+<td>Propaganda y publicidad</td>
+<td>GASTO-VNT-001</td>
+<td>MON</td>
+<td>82101500 🟢</td>
+<td>Retainer agencia mensual</td>
+</tr>
+<tr>
+<td>62</td>
+<td>Comisiones sobre ventas</td>
+<td>GASTO-VNT-002</td>
+<td>MON</td>
+<td>80141600 🔴</td>
+<td>⚠️ Comisiones a agentes de venta. Sin código específico confirmado. Pendiente validación.</td>
+</tr>
+<tr>
+<td>63</td>
+<td>Comisiones por tarjetas de crédito</td>
+<td>GASTO-VNT-003</td>
+<td>MON</td>
+<td>84111500 🔴</td>
+<td>Cobro mensual del banco; validar código</td>
+</tr>
+</tbody>
+</table>
+<h3 id="57-seguros-impuestos-y-cumplimiento-4-items">5.7 Seguros, impuestos y cumplimiento (4 items)<a class="headerlink" href="#57-seguros-impuestos-y-cumplimiento-4-items" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Item Group hoja</th>
+<th>item_code</th>
+<th>UOM</th>
+<th>ClaveProdServ</th>
+<th>Notas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>64</td>
+<td>Seguros y fianzas</td>
+<td>GASTO-SEG-001</td>
+<td>ANN</td>
+<td>84121500 🟢</td>
+<td>Prima anual</td>
+</tr>
+<tr>
+<td>65</td>
+<td>Otros impuestos y derechos</td>
+<td>GASTO-SEG-002</td>
+<td>H87</td>
+<td>93121800 🔴</td>
+<td>Pago único por derecho</td>
+</tr>
+<tr>
+<td>66</td>
+<td>Recargos fiscales</td>
+<td>GASTO-SEG-003</td>
+<td>H87</td>
+<td>93121800 🔴</td>
+<td>Pago único de recargo</td>
+</tr>
+<tr>
+<td>67</td>
+<td>Prediales</td>
+<td>GASTO-SEG-004</td>
+<td>ANN</td>
+<td>93121800 🔴</td>
+<td>Pago anual predial</td>
+</tr>
+</tbody>
+</table>
+<h3 id="58-donativos-y-no-deducibles-2-items">5.8 Donativos y no deducibles (2 items)<a class="headerlink" href="#58-donativos-y-no-deducibles-2-items" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Item Group hoja</th>
+<th>item_code</th>
+<th>UOM</th>
+<th>ClaveProdServ</th>
+<th>Notas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>68</td>
+<td>Donativos y ayudas</td>
+<td>GASTO-DON-001</td>
+<td>H87</td>
+<td>93141500 🔴</td>
+<td>Por evento de donativo</td>
+</tr>
+<tr>
+<td>69</td>
+<td>Gastos no deducibles (sin requisitos fiscales)</td>
+<td>GASTO-DON-002</td>
+<td>H87</td>
+<td>80141600 🔴</td>
+<td>⚠️ Catch-all; sin clasificación SAT útil para gastos no deducibles</td>
+</tr>
+</tbody>
+</table>
+<h3 id="59-regalias-y-propiedad-intelectual-8-items">5.9 Regalías y propiedad intelectual (8 items)<a class="headerlink" href="#59-regalias-y-propiedad-intelectual-8-items" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Item Group hoja</th>
+<th>item_code</th>
+<th>UOM</th>
+<th>ClaveProdServ</th>
+<th>Notas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>70</td>
+<td>Regalías sujetas a otros porcentajes</td>
+<td>GASTO-REG-001</td>
+<td>MON</td>
+<td>80141800 🔴</td>
+<td>License fee mensual; validar código</td>
+</tr>
+<tr>
+<td>71</td>
+<td>Regalías sujetas al 5%</td>
+<td>GASTO-REG-002</td>
+<td>MON</td>
+<td>80141800 🔴</td>
+<td>License fee mensual</td>
+</tr>
+<tr>
+<td>72</td>
+<td>Regalías sujetas al 10%</td>
+<td>GASTO-REG-003</td>
+<td>MON</td>
+<td>80141800 🔴</td>
+<td>License fee mensual</td>
+</tr>
+<tr>
+<td>73</td>
+<td>Regalías sujetas al 15%</td>
+<td>GASTO-REG-004</td>
+<td>MON</td>
+<td>80141800 🔴</td>
+<td>License fee mensual</td>
+</tr>
+<tr>
+<td>74</td>
+<td>Regalías sujetas al 25%</td>
+<td>GASTO-REG-005</td>
+<td>MON</td>
+<td>80141800 🔴</td>
+<td>License fee mensual</td>
+</tr>
+<tr>
+<td>75</td>
+<td>Regalías sujetas al 30%</td>
+<td>GASTO-REG-006</td>
+<td>MON</td>
+<td>80141800 🔴</td>
+<td>License fee mensual</td>
+</tr>
+<tr>
+<td>76</td>
+<td>Regalías sin retención</td>
+<td>GASTO-REG-007</td>
+<td>MON</td>
+<td>80141800 🔴</td>
+<td>License fee mensual</td>
+</tr>
+<tr>
+<td>77</td>
+<td>Patentes y marcas</td>
+<td>GASTO-REG-008</td>
+<td>ANN</td>
+<td>80141800 🔴</td>
+<td>Renovación anual; buscar código IMPI específico</td>
+</tr>
+</tbody>
+</table>
+<h3 id="510-logistica-fletes-e-importacion-4-items">5.10 Logística, fletes e importación (4 items)<a class="headerlink" href="#510-logistica-fletes-e-importacion-4-items" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Item Group hoja</th>
+<th>item_code</th>
+<th>UOM</th>
+<th>ClaveProdServ</th>
+<th>Notas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>78</td>
+<td>Fletes y acarreos</td>
+<td>GASTO-LOG-001</td>
+<td>E48</td>
+<td>78101800 🟡</td>
+<td>Por envío nacional</td>
+</tr>
+<tr>
+<td>79</td>
+<td>Gastos de importación</td>
+<td>GASTO-LOG-002</td>
+<td>E48</td>
+<td>78181500 🟡</td>
+<td>Por operación de importación</td>
+</tr>
+<tr>
+<td>80</td>
+<td>Fletes del extranjero</td>
+<td>GASTO-LOG-003</td>
+<td>E48</td>
+<td>78101800 🟡</td>
+<td>Por envío internacional</td>
+</tr>
+<tr>
+<td>81</td>
+<td>Recolección de bienes del sector agropecuario y/o ganadero</td>
+<td>GASTO-LOG-004</td>
+<td>E48</td>
+<td>78102200 🔴</td>
+<td>Por servicio de recolección</td>
+</tr>
+</tbody>
+</table>
+<h3 id="511-construccion-urbanizacion-y-otros-3-items">5.11 Construcción, urbanización y otros (3 items)<a class="headerlink" href="#511-construccion-urbanizacion-y-otros-3-items" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Item Group hoja</th>
+<th>item_code</th>
+<th>UOM</th>
+<th>ClaveProdServ</th>
+<th>Notas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>82</td>
+<td>Gastos generales de urbanización</td>
+<td>GASTO-OBR-001</td>
+<td>E48</td>
+<td>72131500 🟡</td>
+<td>Por proyecto/etapa</td>
+</tr>
+<tr>
+<td>83</td>
+<td>Gastos generales de construcción</td>
+<td>GASTO-OBR-002</td>
+<td>E48</td>
+<td>72131500 🟡</td>
+<td>Por proyecto/etapa</td>
+</tr>
+<tr>
+<td>84</td>
+<td>Otros gastos generales</td>
+<td>GASTO-OBR-003</td>
+<td>E48</td>
+<td>80141600 🔴</td>
+<td>⚠️ Catch-all; sin clasificación SAT mejor disponible</td>
+</tr>
+</tbody>
+</table>
+<h3 id="512-resumen-uom">5.12 Resumen UOM<a class="headerlink" href="#512-resumen-uom" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>UOM</th>
+<th>Cantidad</th>
+<th>Categorías típicas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MON - Mes</td>
+<td>35</td>
+<td>Nómina mensual, arrendamientos, servicios recurrentes, regalías</td>
+</tr>
+<tr>
+<td>H87 - Pieza</td>
+<td>19</td>
+<td>Pagos únicos discretos (aguinaldo, papelería, uniformes)</td>
+</tr>
+<tr>
+<td>E48 - Servicio</td>
+<td>13</td>
+<td>Honorarios PM, aduanales, fletes, construcción</td>
+</tr>
+<tr>
+<td>HUR - Hora</td>
+<td>6</td>
+<td>Honorarios PF, tiempos extras, asistencia técnica</td>
+</tr>
+<tr>
+<td>DAY - Día</td>
+<td>4</td>
+<td>Vacaciones, prima dominical, días festivos, viáticos</td>
+</tr>
+<tr>
+<td>ANN - Año</td>
+<td>3</td>
+<td>Seguros, prediales, patentes</td>
+</tr>
+<tr>
+<td>ACT - Actividad</td>
+<td>1</td>
+<td>Capacitación</td>
+</tr>
+<tr>
+<td>LTR - Litro</td>
+<td>1</td>
+<td>Combustibles</td>
+</tr>
+<tr>
+<td>MTQ - Metro cúbico</td>
+<td>1</td>
+<td>Agua</td>
+</tr>
+<tr>
+<td>MON provisional</td>
+<td>1</td>
+<td>Energía eléctrica (#51) — KWH pendiente</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>84</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-lista-de-uom-sat-requeridas">6. Lista de UOM SAT requeridas<a class="headerlink" href="#6-lista-de-uom-sat-requeridas" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Código</th>
+<th>Nombre</th>
+<th>En fixture</th>
+<th>Uso en Items</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>H87</td>
+<td>Pieza</td>
+<td>✅</td>
+<td>19 Items</td>
+</tr>
+<tr>
+<td>KGM</td>
+<td>Kilogramo</td>
+<td>✅</td>
+<td>Sin uso en matriz actual</td>
+</tr>
+<tr>
+<td>GRM</td>
+<td>Gramo</td>
+<td>✅</td>
+<td>Sin uso en matriz actual</td>
+</tr>
+<tr>
+<td>LTR</td>
+<td>Litro</td>
+<td>✅</td>
+<td>Combustibles</td>
+</tr>
+<tr>
+<td>MLT</td>
+<td>Mililitro</td>
+<td>✅</td>
+<td>Sin uso en matriz actual</td>
+</tr>
+<tr>
+<td>MTR</td>
+<td>Metro</td>
+<td>✅</td>
+<td>Sin uso en matriz actual</td>
+</tr>
+<tr>
+<td>CMT</td>
+<td>Centímetro</td>
+<td>✅</td>
+<td>Sin uso en matriz actual</td>
+</tr>
+<tr>
+<td>MMT</td>
+<td>Milímetro</td>
+<td>✅</td>
+<td>Sin uso en matriz actual</td>
+</tr>
+<tr>
+<td>MTK</td>
+<td>Metro cuadrado</td>
+<td>✅</td>
+<td>Sin uso en matriz actual</td>
+</tr>
+<tr>
+<td>MTQ</td>
+<td>Metro cúbico</td>
+<td>✅</td>
+<td>Agua</td>
+</tr>
+<tr>
+<td>HUR</td>
+<td>Hora</td>
+<td>✅</td>
+<td>Honorarios PF, tiempos extras</td>
+</tr>
+<tr>
+<td>MIN</td>
+<td>Minuto</td>
+<td>✅</td>
+<td>Sin uso en matriz actual</td>
+</tr>
+<tr>
+<td>SEC</td>
+<td>Segundo</td>
+<td>✅</td>
+<td>Sin uso en matriz actual</td>
+</tr>
+<tr>
+<td>DAY</td>
+<td>Día</td>
+<td>✅</td>
+<td>Vacaciones, viáticos</td>
+</tr>
+<tr>
+<td>E48</td>
+<td>Servicio</td>
+<td>✅</td>
+<td>Honorarios PM, fletes, construcción (13 Items)</td>
+</tr>
+<tr>
+<td>ACT</td>
+<td>Actividad</td>
+<td>✅</td>
+<td>Capacitación</td>
+</tr>
+<tr>
+<td>E51</td>
+<td>Trabajo</td>
+<td>✅</td>
+<td>Sin uso en matriz actual</td>
+</tr>
+<tr>
+<td>MON</td>
+<td>Mes</td>
+<td>✅</td>
+<td>35 Items</td>
+</tr>
+<tr>
+<td>ANN</td>
+<td>Año</td>
+<td>✅</td>
+<td>Seguros, prediales, patentes</td>
+</tr>
+<tr>
+<td>NA</td>
+<td>No Aplica</td>
+<td>✅</td>
+<td>Sin uso en matriz actual</td>
+</tr>
+<tr>
+<td><strong>KWH</strong></td>
+<td><strong>Kilowatt hora</strong></td>
+<td><strong>❌ FALTA</strong></td>
+<td><strong>⚠️ BLOQUEANTE ANTES DE PI — validar contra c_ClaveUnidad.xls SAT. Mientras: ítem #51 usa MON provisional.</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-lista-de-claveprodserv-requeridas-27-codigos-unicos">7. Lista de ClaveProdServ requeridas (27 códigos únicos)<a class="headerlink" href="#7-lista-de-claveprodserv-requeridas-27-codigos-unicos" title="Permanent link">&para;</a></h2>
+<h3 id="71-por-que-27-analisis-de-consolidacion">7.1 Por qué 27 (análisis de consolidación)<a class="headerlink" href="#71-por-que-27-analisis-de-consolidacion" title="Permanent link">&para;</a></h3>
+<p>La sesión previa de diseño identificó 34 códigos únicos. El plan actual usa 27 porque:</p>
+<ul>
+<li>Los ítems de nómina (1–25, 30–31) comparten <code>80141600</code> (HR management services).
+  Es defensible: la naturaleza del servicio es la misma aunque los conceptos contables
+  sean distintos.</li>
+<li>IMSS, Infonavit y SAR (26–28) usan <code>84121500</code> (beneficios/seguridad social) — diferente
+  de nómina general, más específico.</li>
+<li>Los 8 tramos de regalías (70–77) comparten <code>80141800</code> — mismo tipo de servicio con
+  variación solo en la tasa de retención.</li>
+<li>Honorarios aduanales (42–43) usan <code>78181500</code> (customs clearance) — mismo código
+  que Gastos de importación, semánticamente correcto.</li>
+</ul>
+<p>Tres usos de <code>80141600</code> marcados como <code>⚠️</code> donde el código es un catch-all y debería
+refinarse con el catálogo oficial:
+- Ítem 56 (Cuotas y suscripciones): software → 43231500; otros → sin código mejor confirmado
+- Ítem 62 (Comisiones sobre ventas): sin código de comisiones a agentes confirmado
+- Ítems 69, 84 (catch-alls): sin alternativa SAT clara</p>
+<h3 id="72-tabla-de-27-codigos">7.2 Tabla de 27 códigos<a class="headerlink" href="#72-tabla-de-27-codigos" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Código</th>
+<th>Descripción propuesta</th>
+<th>Ítems</th>
+<th>Confianza</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>15101500</td>
+<td>Combustibles derivados del petróleo</td>
+<td>59</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>44121700</td>
+<td>Material de oficina y papelería</td>
+<td>55</td>
+<td>🟡</td>
+</tr>
+<tr>
+<td>53101600</td>
+<td>Ropa de trabajo y uniformes</td>
+<td>58</td>
+<td>🟡</td>
+</tr>
+<tr>
+<td>72101500</td>
+<td>Mantenimiento de edificios</td>
+<td>54</td>
+<td>🟡</td>
+</tr>
+<tr>
+<td>72131500</td>
+<td>Construcción y obras civiles</td>
+<td>82, 83</td>
+<td>🟡</td>
+</tr>
+<tr>
+<td>76111501</td>
+<td>Servicios de limpieza</td>
+<td>53</td>
+<td>🟡</td>
+</tr>
+<tr>
+<td>78101600</td>
+<td>Transporte subsidio personal</td>
+<td>16</td>
+<td>🟡</td>
+</tr>
+<tr>
+<td>78101800</td>
+<td>Fletes nacionales e internacionales</td>
+<td>78, 80</td>
+<td>🟡</td>
+</tr>
+<tr>
+<td>78102200</td>
+<td>Recolección agropecuaria</td>
+<td>81</td>
+<td>🔴</td>
+</tr>
+<tr>
+<td>78181500</td>
+<td>Despacho aduanal / customs clearance</td>
+<td>42, 43, 79</td>
+<td>🟡</td>
+</tr>
+<tr>
+<td>80111500</td>
+<td>Consultoría y asesoría profesional</td>
+<td>32–41, 44</td>
+<td>🟡</td>
+</tr>
+<tr>
+<td>80111501</td>
+<td>Asistencia técnica</td>
+<td>45</td>
+<td>🟡</td>
+</tr>
+<tr>
+<td>80131501</td>
+<td>Arrendamiento de bienes inmuebles</td>
+<td>46, 47, 48</td>
+<td>🟡</td>
+</tr>
+<tr>
+<td>80141600</td>
+<td>Servicios de RRHH y administración</td>
+<td>1–25, 30, 31, 56⚠️, 62⚠️, 69⚠️, 84⚠️</td>
+<td>🟡/🔴</td>
+</tr>
+<tr>
+<td>80141800</td>
+<td>Gestión de propiedad intelectual</td>
+<td>70–77</td>
+<td>🔴</td>
+</tr>
+<tr>
+<td>81101500</td>
+<td>Distribución de energía eléctrica</td>
+<td>51</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>82101500</td>
+<td>Publicidad y mercadotecnia</td>
+<td>61</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>83111500</td>
+<td>Servicios de telecomunicaciones</td>
+<td>49</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>83111700</td>
+<td>Suministro de agua</td>
+<td>50</td>
+<td>🟡</td>
+</tr>
+<tr>
+<td>84111500</td>
+<td>Servicios financieros</td>
+<td>63</td>
+<td>🔴</td>
+</tr>
+<tr>
+<td>84121500</td>
+<td>Seguros y beneficios sociales</td>
+<td>26, 27, 28, 64</td>
+<td>🟢/🟡</td>
+</tr>
+<tr>
+<td>85100000</td>
+<td>Servicios de salud</td>
+<td>17</td>
+<td>🟡</td>
+</tr>
+<tr>
+<td>86101500</td>
+<td>Capacitación y formación</td>
+<td>57</td>
+<td>🟡</td>
+</tr>
+<tr>
+<td>90111501</td>
+<td>Viáticos y gastos de viaje</td>
+<td>60</td>
+<td>🔴</td>
+</tr>
+<tr>
+<td>92101500</td>
+<td>Vigilancia y seguridad</td>
+<td>52</td>
+<td>🟡</td>
+</tr>
+<tr>
+<td>93121800</td>
+<td>Derechos e impuestos gubernamentales</td>
+<td>29, 65, 66, 67</td>
+<td>🔴</td>
+</tr>
+<tr>
+<td>93141500</td>
+<td>Donativos</td>
+<td>68</td>
+<td>🔴</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Gate de validación SAT:</strong> Ningún código 🔴 (9 códigos) se carga como "validado" en
+producción sin cruzar contra <code>c_ClaveProdServ.xls</code> oficial. Para Bloque A se crean como
+placeholder documentado.</p>
+<hr />
+<h2 id="8-estrategia-uom-no-sat-bloque-e-prerequisito-pi">8. Estrategia UOM no-SAT (Bloque E — prerequisito PI)<a class="headerlink" href="#8-estrategia-uom-no-sat-bloque-e-prerequisito-pi" title="Permanent link">&para;</a></h2>
+<h3 id="81-estado-actual-del-sitio">8.1 Estado actual del sitio<a class="headerlink" href="#81-estado-actual-del-sitio" title="Permanent link">&para;</a></h3>
+<ul>
+<li>20 UOMs SAT en fixture (<code>fixtures/uom.json</code>): correctas y garantizadas</li>
+<li>~239 UOMs ERPNext creadas en setup wizard (<code>uom_data.json</code>): NO se recrean con <code>bench migrate</code></li>
+<li>La mayoría de los 239 están en inglés sin clave SAT en el nombre: "Kg", "Nos", "Hour", etc.</li>
+</ul>
+<h3 id="82-cuatro-buckets-de-clasificacion">8.2 Cuatro buckets de clasificación<a class="headerlink" href="#82-cuatro-buckets-de-clasificacion" title="Permanent link">&para;</a></h3>
+<p><strong>Bucket A — Conservar (SAT activos):</strong><br />
+Los 20 del fixture actual + KWH cuando se valide. Son los únicos que se usan en Items
+de gasto. No tocar.</p>
+<p><strong>Bucket B — Borrar (sin referencias):</strong><br />
+UOMs ERPNext sin ninguna referencia en Item, PI, PO, PR, SI ni UOM Conversion Factor.
+Se borran con <code>frappe.delete_doc</code>. Requieren diagnóstico one-off previo para identificarlas.</p>
+<p><strong>Bucket C — Inhabilitar (con referencias históricas):</strong><br />
+UOMs ERPNext que tienen registros existentes. No se pueden borrar sin romper FK.
+Se marca <code>enabled = 0</code>.<br />
+Efecto: ya no aparecen en el selector de UOM en nuevos documentos. Los documentos
+existentes conservan su valor sin error. Las conversiones UOM siguen activas.</p>
+<p><strong>Bucket D — Protegido (proceso controlado requerido):</strong><br />
+- <code>Nos</code>: Hardcodeado en <code>Stock Settings.stock_uom</code>. También referenciado en
+  <code>install_fixtures.py</code> y <code>defaults_setup.py</code> de ERPNext.<br />
+  Para inhabilitar: primero actualizar <code>Stock Settings.stock_uom → H87 - Pieza</code>,
+  verificar que no tenga UOM Conversion Factor con ítems activos, luego mover a B o C.<br />
+  Proceso requiere autorización explícita.</p>
+<h3 id="83-impacto-de-enabled-0">8.3 Impacto de <code>enabled = 0</code><a class="headerlink" href="#83-impacto-de-enabled-0" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Escenario</th>
+<th>Impacto</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nuevo documento, campo UOM</td>
+<td>No aparece en selector — no se puede seleccionar en nuevas líneas</td>
+</tr>
+<tr>
+<td>Documento existente guardado</td>
+<td>Sin impacto — el valor persiste en BD</td>
+</tr>
+<tr>
+<td>Item con stock_uom inhabilitada</td>
+<td>El ítem se muestra; el valor existe pero no aparece en selector al editar</td>
+</tr>
+<tr>
+<td>UOM Conversion Factor</td>
+<td>No afectado por <code>enabled</code> — las conversiones siguen activas</td>
+</tr>
+<tr>
+<td><code>bench migrate</code> con fixture</td>
+<td>Frappe NO borra UOMs que no están en fixture (no es mecanismo delete-not-in-fixture)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="84-checklist-del-diagnostico-bloque-e">8.4 Checklist del diagnóstico (Bloque E)<a class="headerlink" href="#84-checklist-del-diagnostico-bloque-e" title="Permanent link">&para;</a></h3>
+<p>Para cada UOM del sitio, el script one-off reporta:
+- ¿Aparece en <code>tabItem</code> como <code>stock_uom</code>?
+- ¿Aparece en <code>tabUOM Conversion Factor</code> (from_uom o to_uom)?
+- ¿Aparece en <code>tabUOM Conversion Detail</code> (uom)?
+- ¿Aparece en <code>tabPurchase Invoice Item</code>, <code>tabSales Invoice Item</code>, <code>tabPurchase Order Item</code>?
+- ¿Es el valor de <code>Stock Settings.stock_uom</code>?
+- ¿Está en el fixture <code>uom.json</code> (es SAT)?</p>
+<p>Output: lista clasificada en buckets → ejecutar borrado/inhabilitación solo con
+<strong>autorización explícita</strong> del usuario.</p>
+<h3 id="85-prohibiciones">8.5 Prohibiciones<a class="headerlink" href="#85-prohibiciones" title="Permanent link">&para;</a></h3>
+<ul>
+<li>No SQL directo (<code>DELETE FROM tabUOM</code>)</li>
+<li>No <code>frappe.db.sql</code> para borrar</li>
+<li>Usar <code>frappe.delete_doc("UOM", name)</code> para Bucket B</li>
+<li>Usar <code>frappe.db.set_value("UOM", name, "enabled", 0)</code> para Bucket C</li>
+<li>Toda ejecución requiere autorización explícita</li>
+<li><code>bench execute</code> con escrituras requiere autorización previa</li>
+</ul>
+<h3 id="86-dependencia-con-pi">8.6 Dependencia con PI<a class="headerlink" href="#86-dependencia-con-pi" title="Permanent link">&para;</a></h3>
+<p><strong>El hito "Generar PI" está bloqueado hasta que Bloque E esté completo.</strong><br />
+Usar UOMs no-SAT en Purchase Invoice implica que el RFC del proveedor en el XML no
+coincidirá con la UOM declarada en el ítem — problema de consistencia fiscal.</p>
+<hr />
+<h2 id="9-flujo-de-clasificacion-de-conceptos">9. Flujo de clasificación de conceptos<a class="headerlink" href="#9-flujo-de-clasificacion-de-conceptos" title="Permanent link">&para;</a></h2>
+<p><em>(Implementado en Bloque D con corrección arquitectónica: item_group es derivado, no input)</em></p>
+<div class="highlight"><pre><span></span><code>1. CFDI Recibido llega al estado &quot;Departamento asignado&quot;
+2. Usuario abre CFDI Recibido
+3. Grid de conceptos muestra líneas con item_code/item_group vacíos
+4. Opción A — Clasificación automática (botón &quot;Clasificar automáticamente&quot;):
+   - classify_all_concepts() en api.py itera todos los conceptos
+   - Llama ItemResolver.propose(concepto):
+     Prioridad 1: CFDI Concepto Mapping activo
+                  company + supplier_rfc + sat_product_key → target_item
+                  → item_resolution = &quot;Mapeado&quot;
+     Prioridad 2: Item Supplier
+                  supplier + no_identificacion → item
+                  → item_resolution = &quot;Específico&quot;
+     Prioridad 3: Item genérico GASTO-{CAT}-NNN por item_group actual
+                  → item_resolution = &quot;Genérico&quot;
+     Sin match: item_code = vacío, item_resolution = nulo
+   - Valida con validate_expense_item() antes de asignar
+   - Deriva item_group desde Item seleccionado
+5. Opción B — Clasificación manual por línea:
+   - Usuario selecciona item_code en el selector (filtrado por get_expense_items)
+   - JS deriva item_group automáticamente (read_only)
+   - item_resolution = &quot;Manual&quot;
+6. validate() al guardar: re-valida cada item_code y re-deriva item_group
+7. Todos los conceptos con item_code → compute_stage() → Estado &quot;Clasificado&quot;
+   Habilita: botón &quot;Generar PI&quot; (hito posterior, requiere Bloque E)
+</code></pre></div>
+<hr />
+<h2 id="10-campos-nuevos-en-cfdi-recibido-concepto-bloque-b">10. Campos nuevos en CFDI Recibido Concepto (Bloque B)<a class="headerlink" href="#10-campos-nuevos-en-cfdi-recibido-concepto-bloque-b" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>fieldname</th>
+<th>label</th>
+<th>fieldtype</th>
+<th>options</th>
+<th>Notas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>item_group</code></td>
+<td>Grupo de Gasto</td>
+<td>Link</td>
+<td>Item Group</td>
+<td>Filtro: solo hojas bajo "Gastos"</td>
+</tr>
+<tr>
+<td><code>item_code</code></td>
+<td>Item</td>
+<td>Link</td>
+<td>Item</td>
+<td>Filtro: <code>is_purchase_item=1, is_stock_item=0</code> + validación item_group</td>
+</tr>
+<tr>
+<td><code>item_resolution</code></td>
+<td>Resolución</td>
+<td>Select</td>
+<td>Genérico\nEspecífico\nMapeado\nManual</td>
+<td>Escrito por ItemResolver o por UI; Read-only directo en formulario</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Regla de validación (controller):</strong>
+<div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="n">concepto</span><span class="o">.</span><span class="n">item_code</span><span class="p">:</span>
+    <span class="n">item_group_item</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">&quot;Item&quot;</span><span class="p">,</span> <span class="n">concepto</span><span class="o">.</span><span class="n">item_code</span><span class="p">,</span> <span class="s2">&quot;item_group&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">item_group_item</span> <span class="ow">and</span> <span class="n">concepto</span><span class="o">.</span><span class="n">item_group</span> <span class="o">!=</span> <span class="n">item_group_item</span><span class="p">:</span>
+        <span class="n">frappe</span><span class="o">.</span><span class="n">throw</span><span class="p">(</span>
+            <span class="n">_</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;El Item </span><span class="si">{</span><span class="n">concepto</span><span class="o">.</span><span class="n">item_code</span><span class="si">}</span><span class="s2"> pertenece al grupo &#39;</span><span class="si">{</span><span class="n">item_group_item</span><span class="si">}</span><span class="s2">&#39;, &quot;</span>
+              <span class="sa">f</span><span class="s2">&quot;no a &#39;</span><span class="si">{</span><span class="n">concepto</span><span class="o">.</span><span class="n">item_group</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+</code></pre></div></p>
+<hr />
+<h2 id="11-bloques-de-implementacion">11. Bloques de implementación<a class="headerlink" href="#11-bloques-de-implementacion" title="Permanent link">&para;</a></h2>
+<h3 id="bloque-a-setup-de-items-genericos-uom-y-claveprodserv-completado">Bloque A — Setup de Items genéricos, UOM y ClaveProdServ ✅ COMPLETADO<a class="headerlink" href="#bloque-a-setup-de-items-genericos-uom-y-claveprodserv-completado" title="Permanent link">&para;</a></h3>
+<p><strong>Commit:</strong> <code>30022f9</code> — feat(cfdi-recibidos): Bloque A — 84 Items genéricos de gasto + setup idempotente<br />
+<strong>Fecha:</strong> 2026-05-26<br />
+<strong>Tests:</strong> 10/10 ✅ (<code>facturacion_mexico/tests/test_setup_expense_items.py</code>)</p>
+<p><strong>Lo que se implementó:</strong></p>
+<ol>
+<li><code>facturacion_mexico/setup/cfdi_received_expense_items.py</code>:</li>
+<li><code>ensure_cfdi_received_expense_items()</code> — idempotente, hard-skip en Items existentes</li>
+<li>84 Items según la matriz de sección 5 (item_code <code>GASTO-{CAT}-{NNN}</code>)</li>
+<li><code>fm_producto_servicio_sat</code>: asignado solo si el código existe en <code>SAT Producto Servicio</code></li>
+<li>Guard de compilación: <code>assert len(_ITEMS) == 84</code></li>
+<li>Retorna <code>{creados, existentes, sin_clave_prod_serv}</code></li>
+<li><code>hooks.py</code>: <code>after_migrate</code> incluye la función</li>
+<li><code>install.py</code>: <code>after_install</code> incluye la función con try/except + log_error</li>
+<li>Tests: idempotencia, campos clave (NOM-001, OPR-003, SRV-007, MOV-001, ARR-001, SEG-001), flags is_stock_item/is_purchase_item/is_sales_item</li>
+</ol>
+<p><strong>UOM de ítem #51 (Energía eléctrica):</strong> <code>MON - Mes</code> provisional. KWH es pendiente bloqueante (DC-09).</p>
+<p><strong>No incluye:</strong> UI, campos nuevos en Concepto, PI.</p>
+<h3 id="bloque-b-campos-de-clasificacion-en-cfdi-recibido-concepto-completado">Bloque B — Campos de clasificación en CFDI Recibido Concepto ✅ COMPLETADO<a class="headerlink" href="#bloque-b-campos-de-clasificacion-en-cfdi-recibido-concepto-completado" title="Permanent link">&para;</a></h3>
+<p><strong>Commit:</strong> <code>6e2321f</code> — feat(cfdi-recibidos): Bloque B — campos de clasificación en CFDI Recibido Concepto<br />
+<strong>Fecha:</strong> 2026-05-27<br />
+<strong>Tests:</strong> 8/8 ✅</p>
+<p><strong>Lo que se implementó:</strong></p>
+<ol>
+<li>Campos <code>item_group</code>, <code>item_code</code>, <code>item_resolution</code> en <code>cfdi_recibido_concepto.json</code></li>
+<li><code>bench migrate</code> aplicado — schema activo en <code>facturacion-v16.dev</code></li>
+<li><code>compute_stage()</code> — calcula estado del CFDI según conceptos clasificados</li>
+<li>Estados "Falta clasificación" y "Clasificado" integrados en flujo de CFDI Recibido</li>
+<li>Tests para validación de campos y transición de estados</li>
+</ol>
+<h3 id="bloque-c-itemresolver-completado">Bloque C — ItemResolver ✅ COMPLETADO<a class="headerlink" href="#bloque-c-itemresolver-completado" title="Permanent link">&para;</a></h3>
+<p><strong>Commit:</strong> <code>d4b6e96</code> — feat(cfdi-recibidos): Bloque C — ItemResolver, 3 niveles de matching<br />
+<strong>Fecha:</strong> 2026-05-27<br />
+<strong>Tests:</strong> 9/9 ✅</p>
+<p><strong>Lo que se implementó:</strong></p>
+<ol>
+<li><code>facturacion_mexico/cfdi_recibidos/services/item_resolver.py</code></li>
+<li><code>ItemResolver.propose(concepto_doc) → {item_code, item_resolution} | None</code></li>
+<li>Nivel 1 (Mapeado): CFDI Concepto Mapping activo (company + supplier_rfc + sat_product_key)</li>
+<li>Nivel 2 (Específico): Item Supplier (supplier + no_identificacion)</li>
+<li>Nivel 3 (Genérico): Item genérico GASTO-{CAT}-NNN por item_group</li>
+<li>Múltiples candidatos en nivel 3 → retorna <code>None</code> (no elige arbitrariamente)</li>
+<li>Tests exhaustivos con <code>unittest.TestCase</code> (no <code>FrappeTestCase</code> — evita preloading SI)</li>
+</ol>
+<h3 id="bloque-d-uiapi-de-clasificacion-completado">Bloque D — UI/API de clasificación ✅ COMPLETADO<a class="headerlink" href="#bloque-d-uiapi-de-clasificacion-completado" title="Permanent link">&para;</a></h3>
+<p><strong>Commit:</strong> <code>72969fa</code> — feat(cfdi-recibidos): Bloque D — clasificación de conceptos, validación y UI<br />
+<strong>Fecha:</strong> 2026-05-27<br />
+<strong>Tests:</strong> 23/23 ✅</p>
+<p><strong>Lo que se implementó (con corrección arquitectónica respecto al diseño original):</strong></p>
+<ol>
+<li><code>item_validator.py</code> — <code>validate_expense_item()</code>: 5 condiciones (exists, is_purchase_item=1,
+   is_stock_item=0, is_sales_item=0, grupo hoja bajo árbol Gastos via lft/rgt nested set)</li>
+<li><code>cfdi_recibido.py</code> validate(): usa <code>validate_expense_item</code> + siempre deriva item_group del Item</li>
+<li><code>api.py</code> <code>classify_all_concepts</code>: usa <code>validate_expense_item</code>; <code>ok, _reason =</code> (evita conflicto con <code>from frappe import _</code>)</li>
+<li><code>queries.py</code> <code>get_expense_items</code>: server-side query con filtro <code>@frappe.validate_and_sanitize_search_inputs</code></li>
+<li>JS reescrito: user selecciona <code>item_code</code> → sistema deriva <code>item_group</code> (read_only); sin trigger de item_group</li>
+<li><code>item_group</code> en Concepto: <code>read_only: 1</code> en JSON — nunca input manual</li>
+<li>Botones de clasificación agrupados en <code>cfdi_recibido_list.js</code></li>
+</ol>
+<p><strong>Corrección arquitectónica DC-05:</strong> diseño original pedía que usuario seleccionara item_group
+primero. Bloque D corrigió: usuario selecciona item_code únicamente. item_group es siempre derivado.</p>
+<h3 id="bloque-e1-politica-base-uom-sat-completado">Bloque E.1 — Política base UOM SAT ✅ COMPLETADO<a class="headerlink" href="#bloque-e1-politica-base-uom-sat-completado" title="Permanent link">&para;</a></h3>
+<p><strong>Commit:</strong> <code>795e179</code> — feat(cfdi-recibidos): Bloque E.1 — política base UOM SAT (enforce + tests)<br />
+<strong>Fecha:</strong> 2026-05-27<br />
+<strong>Tests:</strong> 15/15 ✅ (<code>facturacion_mexico/cfdi_recibidos/tests/test_bloque_e_uom.py</code>)</p>
+<p><strong>Lo que se implementó:</strong></p>
+<ol>
+<li><code>facturacion_mexico/cfdi_recibidos/services/uom_policy.py</code>:</li>
+<li><code>SAT_UOMS</code> (frozenset, 20 entradas), <code>is_sat_uom()</code>, <code>validate_sat_uom()</code>, <code>get_sat_uom_list()</code></li>
+<li><code>facturacion_mexico/setup/enforce_sat_uom.py</code>:</li>
+<li><code>enforce_sat_uom_policy(is_install)</code> — idempotente; habilita SAT, deshabilita no-SAT,
+     excluye <code>_Test*</code>, no borra ni migra histórico; <code>_handle_stock_settings</code> diferencia
+     after_migrate (solo log_error) vs after_install (cambia a H87 si stock_uom no es SAT)</li>
+<li><code>hooks.py</code>: <code>after_install</code> → lista; <code>enforce_sat_uom_policy</code> primero en <code>after_migrate</code></li>
+<li><code>bench migrate facturacion-v16.dev</code>: 20 SAT enabled, 255 no-SAT disabled, _Test* intactas,
+   total 277 (sin borrado). Verificación GUI: selectores de UOM muestran solo SAT.</li>
+</ol>
+<p><strong>KWH comentado en SAT_UOMS</strong> — descomentar cuando se confirme c_ClaveUnidad SAT.</p>
+<h3 id="bloque-e2-enforcement-uom-en-cfdi-recibidos-completado">Bloque E.2 — Enforcement UOM en CFDI Recibidos ✅ COMPLETADO<a class="headerlink" href="#bloque-e2-enforcement-uom-en-cfdi-recibidos-completado" title="Permanent link">&para;</a></h3>
+<p><strong>Commit:</strong> <code>0ff3ad3</code> — feat(cfdi-recibidos): Bloque E.2 — enforcement UOM SAT en CFDI Recibidos
+<strong>Fecha:</strong> 2026-05-27
+<strong>Tests:</strong> 29/29 ✅ (6 nuevos + 15 Bloque D + 8 Bloque B sin regresión)</p>
+<p><strong>Lo que se implementó:</strong></p>
+<ol>
+<li><code>item_validator.py</code>: 6ª condición <code>is_sat_uom(stock_uom)</code> en <code>validate_expense_item()</code></li>
+<li><code>queries.py</code> <code>get_expense_items()</code>: <code>AND stock_uom IN (SAT_UOMS)</code>; params → posicionales <code>%s</code></li>
+<li>Test helpers Bloque B/D: <code>stock_uom = "H87 - Pieza"</code> (ya no lee Stock Settings)</li>
+<li><code>test_bloque_e2_uom_enforcement.py</code>: 6 tests — validación lógica + filtro query</li>
+<li>GUI: selector <code>item_code</code> en concepto CFDI confirmado — solo muestra ítems SAT</li>
+</ol>
+<h3 id="bloque-e3-enforcement-sales-invoice-timbrado-completado">Bloque E.3 — Enforcement Sales Invoice / timbrado ✅ COMPLETADO<a class="headerlink" href="#bloque-e3-enforcement-sales-invoice-timbrado-completado" title="Permanent link">&para;</a></h3>
+<p><strong>Commit:</strong> <code>7467c45</code> — feat(cfdi-recibidos): Bloque E.3 — enforcement UOM SAT en timbrado Sales Invoice</p>
+<ol>
+<li><code>invoice_uom_validator.py</code>: <code>validate_invoice_items_uom()</code> — reporta línea, item_code, item_name y UOM</li>
+<li><code>timbrado_api._validate_invoice_for_timbrado()</code>: llamada pre-PAC, antes de <code>_prepare_facturapi_data()</code></li>
+<li>8 tests con stubs (sin BD) — GUI no testeable porque E.1 deshabilita UOMs no-SAT system-wide</li>
+</ol>
+<hr />
+<h2 id="12-riesgos">12. Riesgos<a class="headerlink" href="#12-riesgos" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Riesgo</th>
+<th>Prob.</th>
+<th>Impacto</th>
+<th>Mitigación</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>KWH no en c_ClaveUnidad SAT</td>
+<td>Media</td>
+<td>Medio</td>
+<td>Usar MON provisional; KWH se agrega cuando se valide</td>
+</tr>
+<tr>
+<td>Códigos ClaveProdServ 🔴 incorrectos</td>
+<td>Alta</td>
+<td>Bajo (metadatos, no bloquean operación)</td>
+<td>Placeholders documentados; corregibles sin schema change</td>
+</tr>
+<tr>
+<td>fm_producto_servicio_sat: código no existe en SAT Producto Servicio</td>
+<td>Media</td>
+<td>Bajo</td>
+<td>Función usa <code>frappe.db.exists</code> antes de asignar; deja vacío si no existe</td>
+</tr>
+<tr>
+<td>CFDI Concepto Mapping con target_type='ExpenseAccount'</td>
+<td>Conocido</td>
+<td>Bajo</td>
+<td>ItemResolver ignora estos registros; documentado</td>
+</tr>
+<tr>
+<td>UOM "Nos" en Stock Settings bloquea cleanup de Bucket D</td>
+<td>Media</td>
+<td>Bajo en esta fase</td>
+<td>Bloque E solo diagnostica; cleanup de Nos requiere autorización explícita</td>
+</tr>
+<tr>
+<td>ERPNext filtra Items con <code>is_purchase_item=0</code> en PI</td>
+<td>Bajo (contemplado)</td>
+<td>Alto si se omite</td>
+<td>Verificar campo en función de setup</td>
+</tr>
+<tr>
+<td>item_group vacío al llamar ItemResolver</td>
+<td>Baja</td>
+<td>Bajo</td>
+<td>ItemResolver retorna <code>None</code> si item_group no está; UI muestra como pendiente</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="13-que-queda-fuera">13. Qué queda fuera<a class="headerlink" href="#13-que-queda-fuera" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Costos, inventario, reventa, ítems que también se venden</li>
+<li>Purchase Invoice Builder (hito posterior, requiere Bloque E previo)</li>
+<li>TaxResolver (hito posterior)</li>
+<li>Cuenta contable por línea — <code>f(familia SAT, Item Group) → Account</code></li>
+<li>Validación de totales de impuestos vs PI</li>
+<li>Workflow de aprobación de PI</li>
+<li>Catálogo completo c_ClaveProdServ en BD (~54,000 registros)</li>
+<li>Limpieza de UOM "Nos" y Stock Settings (diagnosticada en Bloque E, ejecutada en hito separado)</li>
+<li>CFDI de tipo P (Complemento Pago) y nómina tipo N</li>
+</ul>
+<hr />
+<h2 id="14-pendientes-bloqueantes-antes-de-pifacturacion">14. Pendientes bloqueantes antes de PI/facturación<a class="headerlink" href="#14-pendientes-bloqueantes-antes-de-pifacturacion" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Pendiente</th>
+<th>Bloque</th>
+<th>Gate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Validar KWH en c_ClaveUnidad SAT</td>
+<td>A/fixture</td>
+<td>Antes de PI — actualizar UOM ítem #51</td>
+</tr>
+<tr>
+<td>Validar 9 códigos ClaveProdServ 🔴</td>
+<td>A</td>
+<td>Antes de producción</td>
+</tr>
+<tr>
+<td>Completar Bloque E (diagnóstico + limpieza UOM)</td>
+<td>E</td>
+<td>Antes de habilitar "Generar PI"</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Volver al principio
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 Facturación México - Documentación Técnica
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/tu-org/facturacion_mexico" target="_blank" rel="noopener" title="GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+      <div class="md-consent" data-md-component="consent" id="__consent" hidden>
+        <div class="md-consent__overlay"></div>
+        <aside class="md-consent__inner">
+          <form class="md-consent__form md-grid md-typeset" name="consent">
+            
+
+  
+    
+  
+
+
+
+
+
+<h4>Consentimiento de cookies</h4>
+<p>Utilizamos cookies para reconocer tus visitas repetidas y preferencias, así como para medir la efectividad de nuestra documentación y si los usuarios encuentran lo que están buscando. Con tu consentimiento, nos ayudas a mejorar nuestra documentación.
+</p>
+<input class="md-toggle" type="checkbox" id="__settings" >
+<div class="md-consent__settings">
+  <ul class="task-list">
+    
+      
+      
+        
+        
+      
+      <li class="task-list-item">
+        <label class="task-list-control">
+          <input type="checkbox" name="analytics" checked>
+          <span class="task-list-indicator"></span>
+          Google Analytics
+        </label>
+      </li>
+    
+  </ul>
+</div>
+<div class="md-consent__controls">
+  
+    
+      <button class="md-button md-button--primary">Aceptar</button>
+    
+    
+    
+  
+    
+    
+      <button type="reset" class="md-button md-button--primary">Rechazar</button>
+    
+    
+  
+    
+    
+    
+      <label class="md-button" for="__settings">Gestionar cookies</label>
+    
+  
+</div>
+          </form>
+        </aside>
+      </div>
+      <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout(function(){document.querySelector("[data-md-component=consent]").hidden=!1},250);var action,form=document.forms.consent;for(action of["submit","reset"])form.addEventListener(action,function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map(function(e){return[e,!0]}))),location.hash="",location.reload()})</script>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.expand", "navigation.instant", "navigation.sections", "navigation.tabs", "navigation.top", "search.highlight", "search.suggest"], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copiado al portapapeles", "clipboard.copy": "Copiar al portapapeles", "search.result.more.one": "1 m\u00e1s en esta p\u00e1gina", "search.result.more.other": "# m\u00e1s en esta p\u00e1gina", "search.result.none": "No se encontraron documentos", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Teclee para comenzar b\u00fasqueda", "search.result.term.missing": "Falta", "select.version": "Seleccionar versi\u00f3n"}, "version": {"default": "latest", "provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7c377c4.min.js"></script>
+      
+        <script src="../../assets/javascripts/extra.js"></script>
+      
+        <script src="../../assets/javascripts/advanced.js"></script>
+      
+    
+  </body>
+</html>
