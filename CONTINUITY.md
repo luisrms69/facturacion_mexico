@@ -1,62 +1,55 @@
 # CONTINUITY.md — facturacion_mexico
 
-**Fecha:** 2026-05-29
-**Rama activa:** `fix/xml-ingestion-paso7-restore`
-**Tarea actual:** Restaurar Paso 7 de xml_ingestion + actualizar tests
+**Fecha:** 2026-05-30
+**Rama activa:** `docs/mkdocs-comprehensive-review` → PR #169 abierto
+**Tarea actual:** PR #169 pendiente de revisión y merge
 
 ---
 
 ## Recuperación rápida
 
-Rama de fix para restaurar el auto-creado de proveedor en upload (Paso 7),
-eliminado incorrectamente en commit 500a683 para pasar tests.
-Tests actualizados para reflejar comportamiento correcto.
-
-Pendiente: PR → merge a main.
+Rama de documentación exhaustiva. Fases 1-4 completadas y en PR #169.
+Fase 5 (_quarantine/) queda para PR separado.
 
 ---
 
 ## Estado actual
 
-### Completado en esta sesión
-- Paso 7 restaurado en xml_ingestion.py con compute_stage para avanzar pipeline
-- 5 tests actualizados en test_xml_ingestion.py
-- test-guard.md actualizado en frappe-infrastructure con regla absoluta
-- sync-check.md actualizado con 3 reglas nuevas
+### PR #169 — en revisión
+- Fase 1: nueva estructura docs/ + _quarantine/ + working_docs/
+- Fase 2: scripts/generate_reference.py + docs/referencia/ auto-generada
+- Fase 3: docs/usuario/ con flujos principales
+- Fase 4: docs/tecnico/setup.md y arquitectura.md
 
-### Pendiente
-- PR de fix/xml-ingestion-paso7-restore → main
-- Issue #165: is_submittable para CFDI Recibido
-- 6 docs pendientes de verificación ADR en docs/development/
-- 2 cambios en supplier_resolver.py aún no restaurados:
-  - generate_missing_suppliers: "Proveedor encontrado" en lugar de "Falta departamento"
-  - _assign_supplier: compute_supplier_stage en lugar de compute_stage
-  (mitigados por el compute_stage al final de xml_ingestion, pero Hito B sigue diferente)
+### Pendiente después del merge
+- Fase 5: limpieza de _quarantine/ — PR separado, revisión archivo por archivo
+- issue #165: is_submittable para CFDI Recibido antes de producción
+- supplier_resolver.py tiene 2 cambios pendientes de revisión
+
+### Estructura acordada (en main tras merge)
+```
+docs/ = publicable (usuario/, tecnico/, adr/, referencia/)
+working_docs/ = trabajo en curso (active/, archive/)
+docs/_quarantine/ = contenido previo pendiente de Fase 5
+referencia/ = SIEMPRE auto-generada, nunca editar manualmente
+CONTINUITY.md = estado de sesión
+```
 
 ### No repetir
-- NUNCA modificar comportamiento del app para pasar tests
-- No incluir one_offs/ ni REPORTE_*.md en commits
-- No hacer bench migrate sin autorización
 - No commitear en main directamente
-
----
-
-## Decisiones vigentes
-- Paso 7 en xml_ingestion: auto-crear proveedor + compute_stage → "Falta departamento"
-- item_resolution options canónicos con acentos correctos
-- tax_resolver valida cuenta_impuesto no vacía
-- classify_all_concepts solo auto-asigna "Código proveedor"
+- No editar manualmente archivos en docs/referencia/
+- No incluir one_offs/ ni REPORTE_*.md en commits
 
 ---
 
 ## Archivos relevantes ahora
-- `facturacion_mexico/cfdi_recibidos/services/xml_ingestion.py` — Paso 7 restaurado
-- `facturacion_mexico/cfdi_recibidos/tests/test_xml_ingestion.py` — tests actualizados
-- frappe-infrastructure: test-guard.md y sync-check.md actualizados
+- PR #169: https://github.com/luisrms69/facturacion_mexico/pull/169
+- `docs/_quarantine/` — para Fase 5 en PR separado
+- `scripts/generate_reference.py` — regenerar referencia/
 
 ---
 
 ## Riesgos / cuidados
-- supplier_resolver.py tiene 2 cambios que afectan Hito B (List View "Generar proveedores faltantes")
+- docs/_quarantine/ contiene contenido valioso a clasificar en Fase 5
 - issue #165 (is_submittable) antes de producción
-- api_backup.py escribe en /tmp/ — defecto pre-existente
+- supplier_resolver.py tiene 2 cambios pendientes de revisión

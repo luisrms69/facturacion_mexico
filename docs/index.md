@@ -1,63 +1,54 @@
-# Facturación México - Documentación Técnica
+# Facturación México
 
-![Docstring Coverage](badges/interrogate_badge.svg)
-
-**Sistema integral de facturación electrónica para México con soporte multi-sucursal y addendas dinámicas**
-
-## Características Principales
-
-- ✅ **Timbrado CFDI 4.0** - Integración completa con PACs certificados
-- ✅ **Multi-sucursal** - Gestión de múltiples branches con coordinación automática  
-- ✅ **Addendas Dinámicas** - Generación automática según cliente/proveedor
-- ✅ **Catalogos SAT** - Sincronización completa y actualizada
-- ✅ **Production Ready** - 46 tests automatizados con 100% de éxito
-
-## Inicio Rápido
-
-### Instalación
-
-```bash
-# 1. Instalar la app
-bench get-app facturacion_mexico
-bench --site tu-sitio.local install-app facturacion_mexico
-
-# 2. Configurar certificados
-bench --site tu-sitio.local execute facturacion_mexico.setup.configure_certificates
-
-# 3. Sincronizar catalogos SAT
-bench --site tu-sitio.local execute facturacion_mexico.setup.sync_sat_catalogs
-```
-
-### Configuración Básica
-
-```python
-# Site Config
-{
-    "pac_provider": "finkok",
-    "pac_username": "tu_usuario", 
-    "pac_password": "tu_password",
-    "multisucursal_enabled": 1,
-    "addendas_auto_generation": 1
-}
-```
-
-## Guías de Documentación
-
-- **[Guía de Usuario](user-guide/index.md)** - Aprende a usar el sistema
-- **[API Reference](api/index.md)** - Documentación técnica completa
-- **[Desarrollo](development/index.md)** - Setup y contribuciones
-
-## Métricas del Proyecto
-
-| Métrica | Valor | Estado |
-|---------|-------|--------|
-| Tests Automatizados | 46/46 | ✅ 100% |
-| Cobertura Docstrings | 90.1% | ✅ Excelente |
-| Compatibilidad SAT | CFDI 4.0 | ✅ Actualizado |
-| Production Ready | Sprint 6 | ✅ Alpha |
+Facturación electrónica CFDI 4.0 para México integrada con ERPNext y FacturAPI.io.
 
 ---
 
-**Versión:** Sprint 6 Alpha - Production Ready  
-**Framework:** Frappe v15  
-**Última actualización:** 2025-07-25
+## Emisión de CFDI
+
+| Necesito... | Ir a |
+|---|---|
+| Configurar el sistema por primera vez | [Primeros pasos](usuario/getting-started.md) |
+| Emitir una factura de ingreso (CFDI tipo I) | [Primeros pasos → Primera factura](usuario/getting-started.md#primer-cfdi) |
+| Emitir una nota de crédito (CFDI tipo E) | [Cancelar CFDI → Sustitución](usuario/cancelar-cfdi.md#emitir-un-cfdi-sustituto-motivo-01) |
+| Configurar serie y folios por sucursal | [Multi-sucursal](usuario/multisucursal.md) |
+| Agregar addenda (Walmart, La Comer, etc.) | [Addendas](usuario/addendas.md) |
+
+## Cancelación
+
+| Necesito... | Ir a |
+|---|---|
+| Cancelar un CFDI | [Cancelar CFDI](usuario/cancelar-cfdi.md) |
+| Elegir el motivo correcto (01-04) | [Motivos de cancelación](usuario/cancelar-cfdi.md#motivos-de-cancelación) |
+| Emitir un CFDI sustituto | [CFDI sustituto](usuario/cancelar-cfdi.md#emitir-un-cfdi-sustituto-motivo-01) |
+
+## Pagos
+
+| Necesito... | Ir a |
+|---|---|
+| Registrar el cobro de una factura PPD | [Complemento de Pago](usuario/complemento-pago.md) |
+
+## Compras (CFDI Recibidos)
+
+| Necesito... | Ir a |
+|---|---|
+| Cargar XMLs de facturas de proveedores | [CFDI Recibidos](usuario/cfdi-recibidos.md) |
+| Generar Purchase Invoice desde un XML | [Generar PI](usuario/cfdi-recibidos.md#paso-4--generar-purchase-invoice) |
+
+## Resolver problemas
+
+| Síntoma | Ir a |
+|---|---|
+| La factura no timbra al hacer Submit | [Troubleshooting](usuario/troubleshooting.md#timbrado-falla-al-hacer-submit) |
+| Item sin clave SAT | [Troubleshooting](usuario/troubleshooting.md#item-sin-clave-sat) |
+| El complemento de pago no se generó | [Troubleshooting](usuario/troubleshooting.md#complemento-de-pago-no-se-genera) |
+| Error al generar PI desde CFDI recibido | [Troubleshooting](usuario/troubleshooting.md#cfdi-recibido-error-en-conversión-a-pi) |
+
+---
+
+## Para desarrolladores
+
+- [Arquitectura](tecnico/arquitectura.md)
+- [Setup de desarrollo](tecnico/setup.md)
+- [Referencia técnica](referencia/index.md) — auto-generada desde código
+- [ADRs](adr/index.md)
