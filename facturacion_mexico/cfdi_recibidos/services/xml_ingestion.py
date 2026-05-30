@@ -21,8 +21,12 @@ from frappe.utils.file_manager import save_file
 
 from facturacion_mexico.cfdi_recibidos.parsers.cfdi_recibido_parser import CFDIRecibidoParser
 from facturacion_mexico.cfdi_recibidos.services.status_manager import (
+	compute_stage,
 	get_next_action,
 	get_stage_message,
+)
+from facturacion_mexico.cfdi_recibidos.services.supplier_resolver import (
+	generate_missing_suppliers as _generate_suppliers,
 )
 from facturacion_mexico.cfdi_recibidos.services.supplier_resolver import (
 	resolve_supplier as _resolve_supplier,
@@ -119,10 +123,35 @@ def ingest_xml(xml_bytes: bytes, company: str, file_name: str = "cfdi.xml") -> d
 	_resolve_supplier(doc.name)
 	doc.reload()
 
+	# Step 7: auto-create supplier if none was found by RFC
+	supplier_created = False
+	gen_errors: list = []
+	if doc.status == "Falta proveedor":
+		gen = _generate_suppliers([doc.name])
+		gen_errors = gen.get("errores") or []
+		if gen.get("creados", 0) > 0:
+			supplier_created = True
+		# Reload whenever a supplier was assigned (created or pre-existing)
+		if gen.get("creados", 0) > 0 or gen.get("ya_existian_y_asignados", 0) > 0:
+			doc.reload()
+
+	# Advance to full pipeline stage when supplier is assigned
+	if doc.supplier:
+		next_stage = compute_stage(doc)
+		if doc.status != next_stage:
+			doc.db_set("status", next_stage)
+			doc.reload()
+
 	stage = doc.status
 	supplier_found = bool(doc.supplier)
 	candidato = stage == "Falta proveedor"
-	message = get_stage_message(stage)
+
+	if supplier_created:
+		message = _("Proveedor nuevo creado automáticamente — revísalo y complétalo")
+	elif gen_errors and not supplier_found:
+		message = gen_errors[0].get("message") or get_stage_message(stage)
+	else:
+		message = get_stage_message(stage)
 
 	supplier_name = ""
 	if doc.supplier:
@@ -137,6 +166,7 @@ def ingest_xml(xml_bytes: bytes, company: str, file_name: str = "cfdi.xml") -> d
 		candidato,
 		message,
 		get_next_action(stage),
+		supplier_created=supplier_created,
 		supplier=doc.supplier or "",
 		supplier_name=supplier_name,
 	)

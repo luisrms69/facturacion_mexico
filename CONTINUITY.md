@@ -1,60 +1,62 @@
 # CONTINUITY.md — facturacion_mexico
 
 **Fecha:** 2026-05-29
-**Rama activa:** `chore/archive-docs-development` → PR #167 abierto
-**Tarea actual:** PR #167 — limpieza docs/development post-merge PR #166
+**Rama activa:** `fix/xml-ingestion-paso7-restore`
+**Tarea actual:** Restaurar Paso 7 de xml_ingestion + actualizar tests
 
 ---
 
 ## Recuperación rápida
 
-PR #167 archiva 18 documentos de docs/development/ después del merge de PR #166.
-PR simple de docs, sin código, sin tests. Pendiente merge.
+Rama de fix para restaurar el auto-creado de proveedor en upload (Paso 7),
+eliminado incorrectamente en commit 500a683 para pasar tests.
+Tests actualizados para reflejar comportamiento correcto.
+
+Pendiente: PR → merge a main.
 
 ---
 
 ## Estado actual
 
-### Completado
-- PR #166 mergeado — pipeline CFDI Recibidos completo en main
-- issue #152 cerrado
-- sync-check.md actualizado (frappe-infrastructure `c055158`) con 3 reglas nuevas
+### Completado en esta sesión
+- Paso 7 restaurado en xml_ingestion.py con compute_stage para avanzar pipeline
+- 5 tests actualizados en test_xml_ingestion.py
+- test-guard.md actualizado en frappe-infrastructure con regla absoluta
+- sync-check.md actualizado con 3 reglas nuevas
 
-### PR #167 — en revisión
-- 13 docs marcados OBSOLETO + archivados
-- 5 docs archivados sin nota
-- 18 archivos movidos a docs/development/archive/
-
-### Pendiente después de PR #167
-- **Issue #165** — is_submittable para CFDI Recibido antes de producción
+### Pendiente
+- PR de fix/xml-ingestion-paso7-restore → main
+- Issue #165: is_submittable para CFDI Recibido
 - 6 docs pendientes de verificación ADR en docs/development/
-- 4 docs pendientes de decisión de ubicación permanente
+- 2 cambios en supplier_resolver.py aún no restaurados:
+  - generate_missing_suppliers: "Proveedor encontrado" en lugar de "Falta departamento"
+  - _assign_supplier: compute_supplier_stage en lugar de compute_stage
+  (mitigados por el compute_stage al final de xml_ingestion, pero Hito B sigue diferente)
 
 ### No repetir
-- No proponer commits sin que el usuario lo solicite
+- NUNCA modificar comportamiento del app para pasar tests
 - No incluir one_offs/ ni REPORTE_*.md en commits
 - No hacer bench migrate sin autorización
-- sync-check: leer cada doc antes de clasificar; nunca commitear en main
+- No commitear en main directamente
 
 ---
 
 ## Decisiones vigentes
-- item_resolution options: Mapeado, Código proveedor, Específico,
-  Sugerido, Nuevo especifico, Nuevo agrupador, Genérico, Manual
+- Paso 7 en xml_ingestion: auto-crear proveedor + compute_stage → "Falta departamento"
+- item_resolution options canónicos con acentos correctos
 - tax_resolver valida cuenta_impuesto no vacía
-- xml_ingestion NO auto-crea proveedores en upload
 - classify_all_concepts solo auto-asigna "Código proveedor"
 
 ---
 
 ## Archivos relevantes ahora
-- PR #167: https://github.com/luisrms69/facturacion_mexico/pull/167
-- docs/development/ — 6 ADR pendientes, 2 vigentes, 4 pendientes permanente, 2 protegidos
-- frappe-infrastructure/checkpoints/coderabbit-pr166-review.md — items CodeRabbit pendientes
+- `facturacion_mexico/cfdi_recibidos/services/xml_ingestion.py` — Paso 7 restaurado
+- `facturacion_mexico/cfdi_recibidos/tests/test_xml_ingestion.py` — tests actualizados
+- frappe-infrastructure: test-guard.md y sync-check.md actualizados
 
 ---
 
 ## Riesgos / cuidados
+- supplier_resolver.py tiene 2 cambios que afectan Hito B (List View "Generar proveedores faltantes")
 - issue #165 (is_submittable) antes de producción
-- 6 candidatos ADR sin convertir todavía
 - api_backup.py escribe en /tmp/ — defecto pre-existente
