@@ -29,6 +29,10 @@ theme:
     - search.highlight
     - search.suggest
 
+# Exclude quarantine and working_docs from MkDocs processing
+exclude_docs: |
+  _quarantine/
+
 # Basic plugins
 plugins:
   - search:
@@ -52,26 +56,49 @@ markdown_extensions:
 nav:
   - Inicio: index.md
   - Guía de Usuario:
-    - user-guide/index.md
-    - Primeros Pasos: user-guide/getting-started.md
-    - Multi-sucursal: user-guide/multisucursal.md
-    - Addendas: user-guide/addendas.md
-    - Facturas en Borrador: user-guide/draft-invoices.md
-    - CFDI Recibidos: user-guide/cfdi-recibidos.md
-    - Troubleshooting: user-guide/troubleshooting.md
-  - API Reference:
-    - api/index.md
-    - CFDI: api/cfdi.md
-    - CFDI Recibidos: api/cfdi-recibidos.md
-    - Multi-sucursal: api/multisucursal.md
-    - Addendas: api/addendas.md
-    - Draft Management: api/draft-management.md
-    - Catalogos SAT: api/catalogos.md
-    - Hooks: api/hooks.md
-  - Desarrollo:
-    - development/index.md
-    - Setup Desarrollo: development/setup.md
-    - Draft Workflow: development/draft-workflow.md
+    - usuario/index.md
+    - Primeros Pasos: usuario/getting-started.md
+    - Troubleshooting: usuario/troubleshooting.md
+  - Técnico:
+    - tecnico/index.md
+    - Arquitectura: tecnico/arquitectura.md
+    - Setup: tecnico/setup.md
+    - ADRs:
+      - adr/index.md
+      - adr/0000-estado-real-pre-migracion.md
+      - adr/0002-verificacion-arranque-v16.md
+      - adr/0003-verificacion-configuracion-fiscal.md
+      - adr/0004-verificacion-timbrado.md
+      - adr/0005-workflow-configuracion-inicial-v2.md
+      - adr/0005-workflow-configuracion-inicial.md
+      - adr/0006-analisis-branches-wip.md
+      - adr/0007-analisis-checkout-e4.md
+      - adr/0008-analisis-9-commits-wip.md
+      - adr/0009-checklist-estados-flujo-timbrado.md
+      - adr/0010-verificacion-post-cancelacion.md
+      - adr/0011-diagnostico-sistema-tests.md
+      - adr/0012-solucion-sistema-tests-v16.md
+      - adr/0013-arquitectura-sistema-cancelaciones-cfdi.md
+      - adr/0014-diagnostico-conectividad-si-ffm.md
+      - adr/0015-si-ffm-relationship-architecture.md
+      - adr/0016-reclasificacion-fiscal-payment-entry.md
+      - adr/0017-complemento-pago-mx-schema-normalizacion.md
+      - adr/0018-ffm-status-fiscal-state-migration.md
+      - adr/0019-primera-implementacion-rc-v0.1.md
+      - adr/0020-smoke-test-mvp-flujos-cancelacion.md
+      - adr/0021-fiscal-state-capa-ui-centralizada.md
+      - adr/0022-solucion-issue-112-reclasificacion-fiscal-pe.md
+      - adr/0023-venta-mostrador-cfdi-individual-rfc-generico.md
+      - adr/0024-addendas-pre-timbrado-issue129.md
+      - adr/0025-notas-credito-cfdi-tipo-e-issue116.md
+      - adr/0026-workspace-facturacion-mexico-issue120.md
+      - adr/0027-migracion-facturacion-mx-a-facturacion-mexico.md
+      - adr/0028-ffm-legacy-fields-audit.md
+  - Referencia:
+    - referencia/index.md
+    - DocTypes: referencia/doctypes.md
+    - Hooks: referencia/hooks.md
+    - API: referencia/api.md
 
 # Extra
 extra:
