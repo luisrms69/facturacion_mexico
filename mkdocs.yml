@@ -68,6 +68,8 @@ nav:
     - tecnico/index.md
     - Arquitectura: tecnico/arquitectura.md
     - Setup: tecnico/setup.md
+    - Email CFDI: tecnico/email-system.md
+    - Regeneración STCT: tecnico/proceso-regeneracion-stct-e4.md
     - ADRs:
       - adr/index.md
       - adr/0000-estado-real-pre-migracion.md
