@@ -58,9 +58,10 @@ nav:
   - Guía de Usuario:
     - usuario/index.md
     - Primeros Pasos: usuario/getting-started.md
-    - CFDI Recibidos: usuario/cfdi-recibidos.md
+    - Emitir un CFDI: usuario/emitir-cfdi.md
     - Cancelar CFDI: usuario/cancelar-cfdi.md
     - Complemento de Pago: usuario/complemento-pago.md
+    - CFDI Recibidos: usuario/cfdi-recibidos.md
     - Addendas: usuario/addendas.md
     - Multi-sucursal: usuario/multisucursal.md
     - Troubleshooting: usuario/troubleshooting.md
@@ -68,6 +69,8 @@ nav:
     - tecnico/index.md
     - Arquitectura: tecnico/arquitectura.md
     - Setup: tecnico/setup.md
+    - Email CFDI: tecnico/email-system.md
+    - Regeneración STCT: tecnico/proceso-regeneracion-stct-e4.md
     - ADRs:
       - adr/index.md
       - adr/0000-estado-real-pre-migracion.md
@@ -99,6 +102,8 @@ nav:
       - adr/0026-workspace-facturacion-mexico-issue120.md
       - adr/0027-migracion-facturacion-mx-a-facturacion-mexico.md
       - adr/0028-ffm-legacy-fields-audit.md
+      - adr/0029-facturapi-base-unitaria-ieps-cuota.md
+      - adr/0030-tablas-maestras-python-reglas-fiscales.md
   - Referencia:
     - referencia/index.md
     - DocTypes: referencia/doctypes.md

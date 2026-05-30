@@ -1,55 +1,51 @@
 # CONTINUITY.md — facturacion_mexico
 
 **Fecha:** 2026-05-30
-**Rama activa:** `docs/mkdocs-comprehensive-review` → PR #169 abierto
-**Tarea actual:** PR #169 pendiente de revisión y merge
+**Rama activa:** `chore/quarantine-fase5-partial`
+**Tarea actual:** PR #170 abierto — pendiente de merge
 
 ---
 
 ## Recuperación rápida
 
-Rama de documentación exhaustiva. Fases 1-4 completadas y en PR #169.
-Fase 5 (_quarantine/) queda para PR separado.
+Estoy trabajando en:
+PR #170 abierto con Fases 5–7 de reestructuración documental.
+Pendiente revisión y merge a main.
+
+Plan que estoy siguiendo:
+`working_docs/active/PLAN_MKDOCS_SETUP_ECOSISTEMA.md`
+
+Objetivo inmediato:
+Merge de PR #170
+
+Criterio de avance:
+PR mergeado + main actualizado
 
 ---
 
 ## Estado actual
 
-### PR #169 — en revisión
-- Fase 1: nueva estructura docs/ + _quarantine/ + working_docs/
-- Fase 2: scripts/generate_reference.py + docs/referencia/ auto-generada
-- Fase 3: docs/usuario/ con flujos principales
-- Fase 4: docs/tecnico/setup.md y arquitectura.md
+### Ya cerrado
+- Fases 1–4 (PR #169)
+- PR #170 abierto: Fases 5 (quarantine), 6 (ADRs 0029+0030), 7 (guía usuario)
 
-### Pendiente después del merge
-- Fase 5: limpieza de _quarantine/ — PR separado, revisión archivo por archivo
-- issue #165: is_submittable para CFDI Recibido antes de producción
-- supplier_resolver.py tiene 2 cambios pendientes de revisión
-
-### Estructura acordada (en main tras merge)
-```
-docs/ = publicable (usuario/, tecnico/, adr/, referencia/)
-working_docs/ = trabajo en curso (active/, archive/)
-docs/_quarantine/ = contenido previo pendiente de Fase 5
-referencia/ = SIEMPRE auto-generada, nunca editar manualmente
-CONTINUITY.md = estado de sesión
-```
+### Pendiente inmediato
+1. Merge PR #170
+2. issue #165: is_submittable para CFDI Recibido antes de producción
+3. supplier_resolver.py: 2 cambios pendientes
 
 ### No repetir
 - No commitear en main directamente
-- No editar manualmente archivos en docs/referencia/
-- No incluir one_offs/ ni REPORTE_*.md en commits
+- No editar docs/referencia/ manualmente
+- No sugerir push sin que el usuario lo pida
 
 ---
 
-## Archivos relevantes ahora
-- PR #169: https://github.com/luisrms69/facturacion_mexico/pull/169
-- `docs/_quarantine/` — para Fase 5 en PR separado
-- `scripts/generate_reference.py` — regenerar referencia/
+## Decisiones vigentes
+- docs/_quarantine/instructions/ — no tocar
+- PLAN_MKDOCS_SETUP_ECOSISTEMA.md (untracked) — no incluir en commits
 
 ---
 
 ## Riesgos / cuidados
-- docs/_quarantine/ contiene contenido valioso a clasificar en Fase 5
-- issue #165 (is_submittable) antes de producción
-- supplier_resolver.py tiene 2 cambios pendientes de revisión
+- issue #165 antes de poner CFDI Recibidos en producción

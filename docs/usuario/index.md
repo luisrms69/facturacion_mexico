@@ -1,18 +1,39 @@
 # Guía de Usuario
 
-Documentación para operadores y administradores del sistema de facturación electrónica CFDI 4.0.
+Esta app permite emitir, cancelar y gestionar CFDIs desde ERPNext, integrado con FacturAPI.io como PAC certificado ante el SAT.
 
-## Configuración y primeros pasos
+---
 
-- [Primeros pasos](getting-started.md) — Instalar, configurar y emitir el primer CFDI
+## ¿Por dónde empezar?
 
-## Flujos principales
+Si es la primera vez que configuras el sistema: [Primeros Pasos](getting-started.md)
 
-- [CFDI Recibidos](cfdi-recibidos.md) — Registrar facturas de proveedores y generar Purchase Invoices
-- [Cancelar un CFDI](cancelar-cfdi.md) — Motivos de cancelación y CFDIs sustitutos
-- [Addendas](addendas.md) — Configurar addendas para clientes corporativos
-- [Multi-sucursal](multisucursal.md) — Configurar sucursales con series y folios propios
+Si el sistema ya está configurado y quieres **emitir una factura**: [Emitir un CFDI](emitir-cfdi.md)
 
-## Solución de problemas
+---
 
-- [Troubleshooting](troubleshooting.md) — Errores comunes y cómo resolverlos
+## Flujo principal de facturación
+
+```
+Sales Invoice (submit)
+  → Factura Fiscal Mexico (BORRADOR)
+  → Timbrar con FacturAPI
+  → CFDI timbrado ante el SAT
+```
+
+El flujo completo — incluyendo qué campos se necesitan, cómo opera el timbrado, estados fiscales y cómo revisar errores — está documentado en [Emitir un CFDI](emitir-cfdi.md).
+
+---
+
+## Todas las funciones
+
+| Función | Guía |
+|---|---|
+| Configuración inicial | [Primeros Pasos](getting-started.md) |
+| Emitir un CFDI | [Emitir un CFDI](emitir-cfdi.md) |
+| Cancelar un CFDI | [Cancelar un CFDI](cancelar-cfdi.md) |
+| Registrar pagos PPD | [Complemento de Pago](complemento-pago.md) |
+| Recibir facturas de proveedores | [CFDI Recibidos](cfdi-recibidos.md) |
+| Addendas para clientes corporativos | [Addendas](addendas.md) |
+| Sucursales con series y folios propios | [Multi-sucursal](multisucursal.md) |
+| Errores frecuentes | [Troubleshooting](troubleshooting.md) |
