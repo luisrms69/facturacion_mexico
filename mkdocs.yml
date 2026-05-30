@@ -58,9 +58,10 @@ nav:
   - Guía de Usuario:
     - usuario/index.md
     - Primeros Pasos: usuario/getting-started.md
-    - CFDI Recibidos: usuario/cfdi-recibidos.md
+    - Emitir un CFDI: usuario/emitir-cfdi.md
     - Cancelar CFDI: usuario/cancelar-cfdi.md
     - Complemento de Pago: usuario/complemento-pago.md
+    - CFDI Recibidos: usuario/cfdi-recibidos.md
     - Addendas: usuario/addendas.md
     - Multi-sucursal: usuario/multisucursal.md
     - Troubleshooting: usuario/troubleshooting.md

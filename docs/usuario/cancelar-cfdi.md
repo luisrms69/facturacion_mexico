@@ -10,43 +10,92 @@ El SAT requiere seleccionar uno de estos motivos al cancelar:
 
 | Código | Motivo | Cuándo usar |
 |---|---|---|
-| 01 | Comprobante emitido con errores **con** relación | Hay un CFDI sustituto (corrección con TipoRelación 04) |
-| 02 | Comprobante emitido con errores **sin** relación | Error sin sustituto, monto ≤ $1,000 o CFDI no deducible |
-| 03 | No se llevó a cabo la operación | La venta o servicio no se realizó |
-| 04 | Operación nominativa relacionada en factura global | El ticket ya fue incluido en una Factura Global |
+| **01** | Comprobante emitido con errores **con** relación | Error en la factura; ya existe o vas a emitir un CFDI sustituto |
+| **02** | Comprobante emitido con errores **sin** relación | Error sin sustituto; el cliente no requiere corrección |
+| **03** | No se llevó a cabo la operación | La venta o servicio no se realizó |
+| **04** | Operación nominativa relacionada en factura global | El ticket ya fue incluido en una Factura Global |
+
+> Los motivos **02, 03 y 04** siguen el mismo camino: cancelación directa sin UUID sustituto.
+> El motivo **01** requiere un UUID sustituto y sigue un camino diferente.
 
 ---
 
-## Cómo cancelar
+## Prerrequisito: cancelar el Complemento de Pago primero
 
-1. Abrir el **Sales Invoice** timbrado
-2. Clic en el botón **Cancelar CFDI** (aparece cuando `fm_fiscal_status = TIMBRADO`)
-3. Seleccionar el **motivo** de cancelación
-4. Si el motivo es **01**: ingresar el UUID del CFDI sustituto
-5. Confirmar
+Si la factura tiene un **Complemento de Pago** activo, **no se puede cancelar** hasta cancelar primero el complemento.
 
-El sistema envía la solicitud de cancelación a FacturAPI.io, que la gestiona ante el SAT.
+El sistema bloquea la cancelación y muestra: *"Cancela primero el complemento y luego regresa a cancelar la factura."*
+
+---
+
+## Camino A — Motivos 02, 03 y 04 (cancelación directa)
+
+Este camino cancela el CFDI sin emitir uno nuevo.
+
+### Pasos
+
+1. Abrir el **Sales Invoice** timbrado (`fm_fiscal_status = TIMBRADO`)
+2. Desde el Sales Invoice → abrir la **Factura Fiscal Mexico** (botón **"Ver Factura Fiscal"**)
+3. En el FFM → sección **Cancelación** → seleccionar el **motivo** (02, 03 o 04)
+4. Confirmar
+
+El sistema envía la solicitud de cancelación a FacturAPI.io.
+
+### Qué pasa después
+
+| Respuesta del SAT | Estado resultante | Qué significa |
+|---|---|---|
+| `canceled` / `accepted` | `CANCELADO` | Cancelación aceptada de inmediato |
+| `pending` | `PENDIENTE_CANCELACION` | El receptor tiene 72 horas para aceptar o rechazar |
+| `rejected` | `TIMBRADO` (sin cambio) | El receptor rechazó la cancelación |
+
+Si queda en `PENDIENTE_CANCELACION`: esperar. El SAT acepta automáticamente después de 72 horas si el receptor no responde. Puedes verificar el estado con el botón **"Revisar estatus cancelación"** en el FFM.
+
+---
+
+## Camino B — Motivo 01 (cancelación con sustitución)
+
+Este camino se usa cuando hay un error en la factura y necesitas emitir una versión corregida. El CFDI original se cancela y queda relacionado con el nuevo.
+
+**Flujo obligatorio: primero timbras el sustituto, luego cancelas el original.**
+
+### Pasos
+
+1. **Crear el Sales Invoice sustituto** — nuevo SI con los datos correctos
+2. **Timbrar el SI sustituto** — obtener su UUID (ver [Emitir un CFDI](emitir-cfdi.md))
+3. Volver al **Sales Invoice original** (`fm_fiscal_status = TIMBRADO`)
+4. Buscar el botón **"Sustituir CFDI (01)"** en el Sales Invoice
+5. Ingresar el **UUID del CFDI sustituto** (el que timbraste en el paso 2)
+6. Confirmar
+
+El sistema envía la cancelación con `TipoRelación = 04` (sustitución).
+
+> **Importante:** Si intentas usar motivo 01 desde el FFM directamente (no desde el SI), el sistema te redirigirá al Sales Invoice. El flujo de sustitución está controlado desde el SI.
+
+### Qué pasa después
+
+La cancelación motivo 01 generalmente es inmediata (`CANCELADO`). El SAT vincula ambos CFDIs mediante la relación.
 
 ---
 
 ## Estado después de cancelar
 
-El campo `fm_fiscal_status` cambia a `CANCELADO`. El Sales Invoice permanece en ERPNext pero el CFDI queda cancelado ante el SAT.
+El campo `fm_fiscal_status` en el Sales Invoice cambia a `CANCELADO` (o `PENDIENTE_CANCELACION` mientras espera al receptor).
+
+El Sales Invoice permanece en ERPNext — la cancelación fiscal no implica cancelar el documento ERPNext.
 
 ---
 
-## Emitir un CFDI sustituto (motivo 01)
+## Acuse de cancelación
 
-Si necesitas emitir una versión corregida:
+Al completar la cancelación, el sistema descarga automáticamente el **acuse de cancelación** (PDF y XML) desde FacturAPI.io y los adjunta al FFM.
 
-1. Desde el Sales Invoice cancelado, clic en **"Nueva factura fiscal"** (aparece cuando `fm_fiscal_status = CANCELADO`)
-2. El sistema crea un nuevo Sales Invoice vinculado con **TipoRelación 04**
-3. Corrige los datos y hace Submit para timbrar el sustituto
+Puedes verificar cualquier operación de cancelación en **FacturAPI Response Log** (ver [Emitir un CFDI — FacturAPI Response Log](emitir-cfdi.md#facturapi-response-log)).
 
 ---
 
-## Notas importantes
+## Restricciones adicionales
 
-- La cancelación ante el SAT puede tardar 72 horas en ser aceptada si el receptor no la acepta directamente
-- Un CFDI con complemento de pago registrado no puede cancelarse sin cancelar primero el complemento
-- Los CFDI de tipo E (nota de crédito) requieren cancelar también la nota antes que la factura original en algunos casos
+- Solo se pueden cancelar facturas con `fm_fiscal_status = TIMBRADO`
+- CFDIs con complementos de pago activos requieren cancelar el complemento primero
+- Notas de crédito (tipo E) pueden requerir cancelar la nota antes que la factura original en algunos casos

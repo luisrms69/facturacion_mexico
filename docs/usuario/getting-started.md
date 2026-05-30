@@ -76,12 +76,15 @@ Cada item debe tener configurado `fm_producto_servicio_sat` (clave del catálogo
 ### Emitir la factura
 
 1. Crear Sales Invoice en **Selling > Sales Invoice**
-2. Seleccionar el cliente
+2. Seleccionar el cliente (debe tener RFC en `tax_id`)
 3. Agregar items con clave SAT configurada
 4. Verificar que los impuestos se calculen correctamente
-5. **Submit** — el timbrado ocurre automáticamente
+5. **Submit** — se crea la **Factura Fiscal Mexico** en estado `BORRADOR`
+6. Clic en el botón **"Timbrar Factura"** → abre el FFM → clic en **"Timbrar con FacturAPI"**
 
-Al hacer Submit, el sistema envía el CFDI a FacturAPI.io. Si el timbrado es exitoso, el campo `fm_fiscal_status` cambia a `TIMBRADO` y se crea el documento **Factura Fiscal Mexico** vinculado.
+Si el timbrado es exitoso, el FFM cambia a estado `TIMBRADO` y el Sales Invoice muestra `fm_fiscal_status = TIMBRADO`.
+
+> Ver el flujo completo en [Emitir un CFDI](emitir-cfdi.md).
 
 ---
 
