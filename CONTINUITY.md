@@ -2,16 +2,15 @@
 
 **Fecha:** 2026-05-30
 **Rama activa:** `docs/mkdocs-comprehensive-review`
-**Tarea actual:** Fase 3 completada — docs/usuario/ con flujos principales
+**Tarea actual:** Fase 4 completada — docs/tecnico/ con setup real
 
 ---
 
 ## Recuperación rápida
 
-Rama de documentación exhaustiva. Fases 1, 2 y 3 completadas.
+Rama de documentación exhaustiva. Fases 1-4 completadas.
 
-Siguiente: Fase 4 — docs/tecnico/setup.md desde _quarantine.
-Luego Fase 5 — limpieza final de _quarantine/.
+Siguiente: Fase 5 — limpieza final de _quarantine/.
 
 ---
 
@@ -20,7 +19,6 @@ Luego Fase 5 — limpieza final de _quarantine/.
 ### Fase 1 — Completada
 - docs/_quarantine/: contenido previo preservado (99 archivos)
 - Nueva estructura: docs/usuario/, docs/tecnico/, docs/adr/, docs/referencia/
-- working_docs/active/ y working_docs/archive/ creados
 
 ### Fase 2 — Completada
 - scripts/generate_reference.py: generador idempotente
@@ -28,18 +26,18 @@ Luego Fase 5 — limpieza final de _quarantine/.
 - Regenerar: `python3 scripts/generate_reference.py`
 
 ### Fase 3 — Completada
-- docs/usuario/getting-started.md — configuración inicial y primer CFDI
-- docs/usuario/cfdi-recibidos.md — flujo actualizado post-PR #166/#168
-- docs/usuario/cancelar-cfdi.md — motivos 01-04 y sustitución
-- docs/usuario/troubleshooting.md — errores reales desde el código
-- docs/usuario/addendas.md — migrada desde _quarantine (base mejorable)
-- docs/usuario/multisucursal.md — migrada desde _quarantine (base mejorable)
-- mkdocs.yml nav: 7 páginas bajo Guía de Usuario
+- docs/usuario/: getting-started, cfdi-recibidos, cancelar-cfdi, troubleshooting, addendas, multisucursal
+
+### Fase 4 — Completada
+- docs/tecnico/setup.md: reescrito con realidad actual (Frappe v16, FacturAPI, ruff+prettier)
+- docs/tecnico/index.md: actualizado con links a arquitectura, setup, ADRs
+- mkdocs build --strict ✅
 
 ### Pendiente
-- Fase 4: docs/tecnico/setup.md — desde _quarantine/development/setup.md
 - Fase 5: limpieza final de _quarantine/
-- addendas.md y multisucursal.md pueden mejorarse en iteraciones futuras
+  - Decidir destino de cada subdirectorio
+  - Mover contenido valioso a working_docs/ o docs/
+  - Eliminar lo que ya no sirve
 
 ### Estructura acordada
 ```
@@ -57,13 +55,13 @@ CONTINUITY.md = estado de sesión
 ---
 
 ## Archivos relevantes ahora
-- `docs/_quarantine/development/setup.md` — para Fase 4
+- `docs/_quarantine/` — contenido para decisión en Fase 5
 - `scripts/generate_reference.py` — regenerar referencia/
 - `docs/tecnico/arquitectura.md` — estado actual del sistema
 
 ---
 
 ## Riesgos / cuidados
-- docs/_quarantine/ tiene contenido para Fase 4-5
+- docs/_quarantine/ tiene contenido valioso a decidir en Fase 5
 - issue #165 (is_submittable) pendiente antes de producción
 - supplier_resolver.py tiene 2 cambios pendientes de revisión
