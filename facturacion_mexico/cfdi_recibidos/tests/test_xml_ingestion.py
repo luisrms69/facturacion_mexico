@@ -139,21 +139,21 @@ class TestXMLIngestionExitosa(unittest.TestCase):
 
 	def tearDown(self):
 		_cleanup_uuid("11111111-2222-3333-4444-555555555555")
-		_cleanup_supplier("PROV123456AAA")  # limpia supplier auto-creado por Paso 7
+		_cleanup_supplier("PROV123456AAA")  # clean up supplier auto-created by Step 7
 
 	def test_status_supplier_auto_creado_falta_departamento(self):
-		# Paso 7 auto-crea supplier cuando no existe → compute_stage → "Falta departamento"
+		# Step 7 auto-creates supplier when none exists → compute_stage → "Falta departamento"
 		result = ingest_xml(self.xml_bytes, self.company, "test.xml")
 		self.assertEqual(result["status"], "Falta departamento")
 		self.assertTrue(result["supplier_created"])
 
 	def test_supplier_found_true_con_auto_creacion(self):
-		# Paso 7 auto-crea → supplier queda asignado → supplier_found=True
+		# Step 7 auto-creates → supplier gets assigned → supplier_found=True
 		result = ingest_xml(self.xml_bytes, self.company, "test.xml")
 		self.assertTrue(result["supplier_found"])
 
 	def test_candidato_false_con_auto_creacion(self):
-		# Proveedor auto-creado en Paso 7 → no es candidato para creación posterior
+		# Supplier auto-created in Step 7 → not a candidate for manual creation
 		result = ingest_xml(self.xml_bytes, self.company, "test.xml")
 		self.assertFalse(result["candidato_generar_proveedor"])
 		self.assertTrue(result["supplier_created"])

@@ -123,15 +123,19 @@ def ingest_xml(xml_bytes: bytes, company: str, file_name: str = "cfdi.xml") -> d
 	_resolve_supplier(doc.name)
 	doc.reload()
 
-	# Paso 7: auto-crear proveedor si no se encontró uno existente
+	# Step 7: auto-create supplier if none was found by RFC
 	supplier_created = False
+	gen_errors: list = []
 	if doc.status == "Falta proveedor":
 		gen = _generate_suppliers([doc.name])
+		gen_errors = gen.get("errores") or []
 		if gen.get("creados", 0) > 0:
 			supplier_created = True
+		# Reload whenever a supplier was assigned (created or pre-existing)
+		if gen.get("creados", 0) > 0 or gen.get("ya_existian_y_asignados", 0) > 0:
 			doc.reload()
 
-	# Avanzar al estado completo del pipeline cuando hay supplier asignado
+	# Advance to full pipeline stage when supplier is assigned
 	if doc.supplier:
 		next_stage = compute_stage(doc)
 		if doc.status != next_stage:
@@ -144,6 +148,8 @@ def ingest_xml(xml_bytes: bytes, company: str, file_name: str = "cfdi.xml") -> d
 
 	if supplier_created:
 		message = _("Proveedor nuevo creado automáticamente — revísalo y complétalo")
+	elif gen_errors and not supplier_found:
+		message = gen_errors[0].get("message") or get_stage_message(stage)
 	else:
 		message = get_stage_message(stage)
 
