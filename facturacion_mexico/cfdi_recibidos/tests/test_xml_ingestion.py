@@ -139,19 +139,24 @@ class TestXMLIngestionExitosa(unittest.TestCase):
 
 	def tearDown(self):
 		_cleanup_uuid("11111111-2222-3333-4444-555555555555")
+		_cleanup_supplier("PROV123456AAA")  # limpia supplier auto-creado por Paso 7
 
-	def test_status_falta_proveedor(self):
-		# Proveedor PROV123456AAA no existe en el site de test → "Falta proveedor"
+	def test_status_supplier_auto_creado_falta_departamento(self):
+		# Paso 7 auto-crea supplier cuando no existe → compute_stage → "Falta departamento"
 		result = ingest_xml(self.xml_bytes, self.company, "test.xml")
-		self.assertEqual(result["status"], "Falta proveedor")
+		self.assertEqual(result["status"], "Falta departamento")
+		self.assertTrue(result["supplier_created"])
 
-	def test_supplier_found_false_sin_proveedor(self):
+	def test_supplier_found_true_con_auto_creacion(self):
+		# Paso 7 auto-crea → supplier queda asignado → supplier_found=True
 		result = ingest_xml(self.xml_bytes, self.company, "test.xml")
-		self.assertFalse(result["supplier_found"])
+		self.assertTrue(result["supplier_found"])
 
-	def test_candidato_true_sin_proveedor(self):
+	def test_candidato_false_con_auto_creacion(self):
+		# Proveedor auto-creado en Paso 7 → no es candidato para creación posterior
 		result = ingest_xml(self.xml_bytes, self.company, "test.xml")
-		self.assertTrue(result["candidato_generar_proveedor"])
+		self.assertFalse(result["candidato_generar_proveedor"])
+		self.assertTrue(result["supplier_created"])
 
 	def test_supplier_rfc_en_resultado(self):
 		result = ingest_xml(self.xml_bytes, self.company, "test.xml")
@@ -162,7 +167,8 @@ class TestXMLIngestionExitosa(unittest.TestCase):
 		self.assertIsNotNone(result["cfdi_recibido"])
 		doc = frappe.get_doc("CFDI Recibido", result["cfdi_recibido"])
 		self.assertEqual(doc.uuid, "11111111-2222-3333-4444-555555555555")
-		self.assertEqual(doc.status, "Falta proveedor")
+		# Paso 7 auto-crea supplier → compute_stage → "Falta departamento"
+		self.assertEqual(doc.status, "Falta departamento")
 		self.assertEqual(doc.supplier_rfc, "PROV123456AAA")
 		self.assertEqual(doc.receiver_rfc, "EMP9001011AA")
 		self.assertEqual(doc.cfdi_type, "I")
@@ -231,9 +237,10 @@ class TestXMLIngestionConProveedorExistente(unittest.TestCase):
 		_cleanup_uuid("11111111-2222-3333-4444-555555555555")
 		_cleanup_supplier("PROV123456AAA")
 
-	def test_status_proveedor_encontrado(self):
+	def test_status_falta_departamento_con_proveedor_existente(self):
+		# Paso 6 resuelve supplier existente → compute_stage → "Falta departamento"
 		result = ingest_xml(XML_VALIDO.encode(), self.company, "test.xml")
-		self.assertEqual(result["status"], "Proveedor encontrado")
+		self.assertEqual(result["status"], "Falta departamento")
 
 	def test_supplier_found_true(self):
 		result = ingest_xml(XML_VALIDO.encode(), self.company, "test.xml")
