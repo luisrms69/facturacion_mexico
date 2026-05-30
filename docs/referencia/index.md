@@ -1,12 +1,23 @@
+<!--
+  ARCHIVO GENERADO AUTOMÁTICAMENTE. NO EDITAR MANUALMENTE.
+  Regenerar con: python3 scripts/generate_reference.py
+  Fecha generación: 2026-05-30 02:32
+-->
+
+
 # Referencia
 
-Documentación técnica de referencia — DocTypes, hooks y API.
+Documentación técnica de referencia generada automáticamente desde el código fuente.
 
-> Esta sección se genera automáticamente desde el código con `scripts/generate_docs.py`.
-> Pendiente de generación en rama `docs/mkdocs-comprehensive-review`.
 
 ## Contenido
 
-- [DocTypes](doctypes.md) — Campos, tipos y opciones de cada DocType
-- [Hooks](hooks.md) — Hooks activos y qué hacen
-- [API](api.md) — Endpoints `@frappe.whitelist`
+- [DocTypes](doctypes.md) — Todos los DocTypes con sus campos
+- [Hooks](hooks.md) — Hooks activos, after_install, fixtures
+- [API](api.md) — Endpoints `@frappe.whitelist()`
+
+---
+
+_Generado: 2026-05-30 02:32_
+
+_Para regenerar: `python3 scripts/generate_reference.py` desde la raíz del app._
