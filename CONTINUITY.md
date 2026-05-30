@@ -1,25 +1,25 @@
 # CONTINUITY.md — facturacion_mexico
 
 **Fecha:** 2026-05-30
-**Rama activa:** `chore/quarantine-fase5-partial`
-**Tarea actual:** Fase 5 docs quarantine — committed, pendiente push + PR
+**Rama activa:** `chore/adr-fase6`
+**Tarea actual:** Fase 6 ADRs — committed, pendiente push + PR
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-Limpieza de docs/_quarantine/ — Fase 5 del plan de reestructuración documental.
-Fase 5 está completada y commiteada. Falta push y PR a main.
+Fase 6: escritura y commit de ADRs 0029 y 0030. Committed en `chore/adr-fase6`.
+Falta push y PR a main (stacked sobre `chore/quarantine-fase5-partial`).
 
 Plan que estoy siguiendo:
-`working_docs/active/PLAN_MKDOCS_SETUP_ECOSISTEMA.md` (Fase 5 → Fase 6 ADRs)
+`working_docs/active/PLAN_MKDOCS_SETUP_ECOSISTEMA.md`
 
 Objetivo inmediato:
-Push de `chore/quarantine-fase5-partial` → crear PR a main
+Push ambas ramas (`chore/quarantine-fase5-partial` y `chore/adr-fase6`) → PRs a main
 
 Criterio de avance:
-PR mergeado + docs/_quarantine/development/ queda solo con 3 candidatos ADR
+Ambos PRs mergeados + `docs/_quarantine/development/` vacía + 30 ADRs en repo
 
 ---
 
@@ -27,18 +27,15 @@ PR mergeado + docs/_quarantine/development/ queda solo con 3 candidatos ADR
 
 ### Ya cerrado
 - Fases 1–4 (PR #169): estructura docs/usuario/, docs/tecnico/, docs/adr/, docs/referencia/
-- Fase 5: 93 archivos movidos de _quarantine/ a destinos permanentes — commiteado
+- Fase 5 (commit `5e56188`): 93 archivos de _quarantine → destinos permanentes
+- Fase 6 (este commit): ADR 0029 + ADR 0030 — _quarantine/development/ vacía
 
 ### En progreso
-- PR `chore/quarantine-fase5-partial` → pendiente push y apertura
+- PRs pendientes: `chore/quarantine-fase5-partial` y `chore/adr-fase6` → push + PR
 
 ### Pendiente inmediato
-1. Push `chore/quarantine-fase5-partial` → abrir PR a main
-2. Fase 6 (PR separado): escribir 2 ADRs desde _quarantine/development/:
-   - ADR urgente: FacturAPI multiplica base × cantidad; enviar base unitaria
-     (fuente: SOLUCION-IEPS-CUOTA-FACTURAPI.md, implementado en timbrado_api.py:533)
-   - ADR combinado: reglas fiscales como tablas maestras Python + mapeo dinámico charge_type
-     (fuente: REPORTE_ARQUITECTURA_REGLAS_CALCULO.md + REPORTE_MIGRACION_CHARGE_TYPE_DINAMICO_E1.md)
+1. Push `chore/quarantine-fase5-partial` + PR a main
+2. Push `chore/adr-fase6` + PR a main (base: Fase 5)
 3. issue #165: is_submittable para CFDI Recibido antes de producción
 4. supplier_resolver.py: 2 cambios pendientes de revisión
 
@@ -47,37 +44,30 @@ PR mergeado + docs/_quarantine/development/ queda solo con 3 candidatos ADR
 - No editar manualmente docs/referencia/ — regenerar con script
 - No incluir one_offs/ en commits
 - No hacer bench migrate sin autorización
-- No convertir candidatos ADR sin verificar implementación + PR correspondiente
 
 ---
 
 ## Decisiones vigentes
-- docs/_quarantine/development/ retiene exactamente 3 candidatos ADR para Fase 6;
-  no mover ni eliminar sin escribir el ADR primero
-- PLAN_MKDOCS_SETUP_ECOSISTEMA.md (untracked) queda fuera de este PR — no incluir
+- docs/_quarantine/ solo retiene instructions/ — no tocar
+- PLAN_MKDOCS_SETUP_ECOSISTEMA.md (untracked) — decidir si commitearlo en tercer PR
+- Las ramas Fase 5 y Fase 6 están stacked — mergear Fase 5 primero
 
 ---
 
 ## Archivos relevantes ahora
 
 ### Leer primero
-- `working_docs/active/PLAN_MKDOCS_SETUP_ECOSISTEMA.md` — plan activo Fases 5–6
-- `docs/_quarantine/development/SOLUCION-IEPS-CUOTA-FACTURAPI.md` — ADR urgente Fase 6
-- `docs/_quarantine/development/REPORTE_ARQUITECTURA_REGLAS_CALCULO.md` — ADR combinado Fase 6
-- `docs/_quarantine/development/REPORTE_MIGRACION_CHARGE_TYPE_DINAMICO_E1.md` — ADR combinado Fase 6
-
-### Probablemente editar
-- `docs/adr/` — donde irán los nuevos ADRs en Fase 6
-- `mkdocs.yml` — agregar entradas nav cuando se creen los ADRs
+- `docs/adr/0029-facturapi-base-unitaria-ieps-cuota.md`
+- `docs/adr/0030-tablas-maestras-python-reglas-fiscales.md`
+- `working_docs/active/PLAN_MKDOCS_SETUP_ECOSISTEMA.md`
 
 ### No tocar
 - `docs/instructions/` — solo el usuario puede crear archivos ahí
-- `docs/_quarantine/development/` (los 3 candidatos ADR) — no mover hasta escribir ADR
+- `docs/_quarantine/` — solo queda instructions/, no tocar
 
 ---
 
 ## Riesgos / cuidados
-- Fase 6 (ADRs): verificar que SOLUCION-IEPS-CUOTA-FACTURAPI corresponde exactamente
-  a timbrado_api.py:533 antes de escribir el ADR (ya verificado: FIX E4.1 presente)
+- PRs stacked: Fase 6 tiene Fase 5 como base — mergear en orden
 - issue #165 (is_submittable) antes de poner CFDI Recibidos en producción
-- api_backup.py escribe en /tmp/ — defecto conocido, no tocar sin plan
+- api_backup.py escribe en /tmp/ — defecto conocido

@@ -101,6 +101,8 @@ nav:
       - adr/0026-workspace-facturacion-mexico-issue120.md
       - adr/0027-migracion-facturacion-mx-a-facturacion-mexico.md
       - adr/0028-ffm-legacy-fields-audit.md
+      - adr/0029-facturapi-base-unitaria-ieps-cuota.md
+      - adr/0030-tablas-maestras-python-reglas-fiscales.md
   - Referencia:
     - referencia/index.md
     - DocTypes: referencia/doctypes.md
