@@ -13,10 +13,10 @@
       
       
       
-        <link rel="prev" href="../">
+        <link rel="prev" href="../email-system/">
       
       
-        <link rel="next" href="../setup/">
+        <link rel="next" href="../../adr/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -24,7 +24,7 @@
     
     
       
-        <title>Arquitectura - Facturación México - Documentación Técnica</title>
+        <title>Regeneración STCT - Facturación México - Documentación Técnica</title>
       
     
     
@@ -90,7 +90,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#arquitectura-facturacion-mexico" class="md-skip">
+        <a href="#proceso-regeneracion-stct-post-migrate-e4" class="md-skip">
           Saltar a contenido
         </a>
       
@@ -128,7 +128,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Arquitectura
+              Regeneración STCT
             
           </span>
         </div>
@@ -651,30 +651,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    Arquitectura
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../arquitectura/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -683,89 +663,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Tabla de contenidos
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#modulos-principales" class="md-nav__link">
-    <span class="md-ellipsis">
-      Módulos principales
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#flujo-principal-cfdi-emitido" class="md-nav__link">
-    <span class="md-ellipsis">
-      Flujo principal — CFDI emitido
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#flujo-principal-cfdi-recibido" class="md-nav__link">
-    <span class="md-ellipsis">
-      Flujo principal — CFDI recibido
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#flujo-complemento-de-pago-ppd" class="md-nav__link">
-    <span class="md-ellipsis">
-      Flujo — Complemento de Pago PPD
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#doctypes-principales" class="md-nav__link">
-    <span class="md-ellipsis">
-      DocTypes principales
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#integraciones-externas" class="md-nav__link">
-    <span class="md-ellipsis">
-      Integraciones externas
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#custom-fields-criticos" class="md-nav__link">
-    <span class="md-ellipsis">
-      Custom Fields críticos
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -817,10 +714,30 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../proceso-regeneracion-stct-e4/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Regeneración STCT
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -829,6 +746,278 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#resumen" class="md-nav__link">
+    <span class="md-ellipsis">
+      📋 RESUMEN
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pre-requisitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      🎯 PRE-REQUISITOS
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🎯 PRE-REQUISITOS">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#verificar-cambios-migrados" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Verificar cambios migrados
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verificar-tabla-maestra-actualizada" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Verificar tabla maestra actualizada
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#backup-obligatorio" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Backup obligatorio
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#paso-1-ejecutar-regeneracion" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔧 PASO 1: EJECUTAR REGENERACIÓN
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔧 PASO 1: EJECUTAR REGENERACIÓN">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#comando-bench" class="md-nav__link">
+    <span class="md-ellipsis">
+      Comando bench
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#importante" class="md-nav__link">
+    <span class="md-ellipsis">
+      ⚠️ IMPORTANTE
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#output-esperado" class="md-nav__link">
+    <span class="md-ellipsis">
+      Output esperado
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#paso-2-verificacion-post-regeneracion" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ PASO 2: VERIFICACIÓN POST-REGENERACIÓN
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="✅ PASO 2: VERIFICACIÓN POST-REGENERACIÓN">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-verificar-charge_type-en-stct" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.1 Verificar charge_type en STCT
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-verificar-orden-fiscal-iepsiva" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.2 Verificar orden fiscal IEPS→IVA
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-contar-stct-generados" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.3 Contar STCT generados
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#paso-3-testing-funcional" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧪 PASO 3: TESTING FUNCIONAL
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🧪 PASO 3: TESTING FUNCIONAL">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-crear-sales-invoice-de-prueba" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.1 Crear Sales Invoice de prueba
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-verificar-charge_type-persiste-en-draft" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.2 Verificar charge_type persiste en Draft
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-submit-y-verificar-estabilidad" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.3 Submit y verificar estabilidad
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rollback-si-falla" class="md-nav__link">
+    <span class="md-ellipsis">
+      🚨 ROLLBACK (SI FALLA)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🚨 ROLLBACK (SI FALLA)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#escenario-a-regeneracion-fallo-parcialmente" class="md-nav__link">
+    <span class="md-ellipsis">
+      Escenario A: Regeneración falló parcialmente
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#escenario-b-stct-generados-incorrectos" class="md-nav__link">
+    <span class="md-ellipsis">
+      Escenario B: STCT generados incorrectos
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#criterios-exito" class="md-nav__link">
+    <span class="md-ellipsis">
+      📊 CRITERIOS ÉXITO
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📊 CRITERIOS ÉXITO">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regeneracion-exitosa-si" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Regeneración exitosa si:
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testing-funcional-exitoso-si" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Testing funcional exitoso si:
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#siguiente-paso" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔗 SIGUIENTE PASO
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1723,63 +1912,252 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#modulos-principales" class="md-nav__link">
+  <a href="#resumen" class="md-nav__link">
     <span class="md-ellipsis">
-      Módulos principales
+      📋 RESUMEN
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#flujo-principal-cfdi-emitido" class="md-nav__link">
+  <a href="#pre-requisitos" class="md-nav__link">
     <span class="md-ellipsis">
-      Flujo principal — CFDI emitido
+      🎯 PRE-REQUISITOS
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🎯 PRE-REQUISITOS">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#verificar-cambios-migrados" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Verificar cambios migrados
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#flujo-principal-cfdi-recibido" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#verificar-tabla-maestra-actualizada" class="md-nav__link">
     <span class="md-ellipsis">
-      Flujo principal — CFDI recibido
+      ✅ Verificar tabla maestra actualizada
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#flujo-complemento-de-pago-ppd" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#backup-obligatorio" class="md-nav__link">
     <span class="md-ellipsis">
-      Flujo — Complemento de Pago PPD
+      ✅ Backup obligatorio
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#doctypes-principales" class="md-nav__link">
-    <span class="md-ellipsis">
-      DocTypes principales
-    </span>
-  </a>
+        
+      </ul>
+    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#integraciones-externas" class="md-nav__link">
+  <a href="#paso-1-ejecutar-regeneracion" class="md-nav__link">
     <span class="md-ellipsis">
-      Integraciones externas
+      🔧 PASO 1: EJECUTAR REGENERACIÓN
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔧 PASO 1: EJECUTAR REGENERACIÓN">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#comando-bench" class="md-nav__link">
+    <span class="md-ellipsis">
+      Comando bench
     </span>
   </a>
   
 </li>
+        
+          <li class="md-nav__item">
+  <a href="#importante" class="md-nav__link">
+    <span class="md-ellipsis">
+      ⚠️ IMPORTANTE
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#output-esperado" class="md-nav__link">
+    <span class="md-ellipsis">
+      Output esperado
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
       
         <li class="md-nav__item">
-  <a href="#custom-fields-criticos" class="md-nav__link">
+  <a href="#paso-2-verificacion-post-regeneracion" class="md-nav__link">
     <span class="md-ellipsis">
-      Custom Fields críticos
+      ✅ PASO 2: VERIFICACIÓN POST-REGENERACIÓN
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="✅ PASO 2: VERIFICACIÓN POST-REGENERACIÓN">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-verificar-charge_type-en-stct" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.1 Verificar charge_type en STCT
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-verificar-orden-fiscal-iepsiva" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.2 Verificar orden fiscal IEPS→IVA
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-contar-stct-generados" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.3 Contar STCT generados
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#paso-3-testing-funcional" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧪 PASO 3: TESTING FUNCIONAL
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🧪 PASO 3: TESTING FUNCIONAL">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-crear-sales-invoice-de-prueba" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.1 Crear Sales Invoice de prueba
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-verificar-charge_type-persiste-en-draft" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.2 Verificar charge_type persiste en Draft
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-submit-y-verificar-estabilidad" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.3 Submit y verificar estabilidad
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rollback-si-falla" class="md-nav__link">
+    <span class="md-ellipsis">
+      🚨 ROLLBACK (SI FALLA)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🚨 ROLLBACK (SI FALLA)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#escenario-a-regeneracion-fallo-parcialmente" class="md-nav__link">
+    <span class="md-ellipsis">
+      Escenario A: Regeneración falló parcialmente
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#escenario-b-stct-generados-incorrectos" class="md-nav__link">
+    <span class="md-ellipsis">
+      Escenario B: STCT generados incorrectos
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#criterios-exito" class="md-nav__link">
+    <span class="md-ellipsis">
+      📊 CRITERIOS ÉXITO
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📊 CRITERIOS ÉXITO">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regeneracion-exitosa-si" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Regeneración exitosa si:
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testing-funcional-exitoso-si" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Testing funcional exitoso si:
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#siguiente-paso" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔗 SIGUIENTE PASO
     </span>
   </a>
   
@@ -1800,184 +2178,238 @@
                   
 
 
-<h1 id="arquitectura-facturacion-mexico">Arquitectura — Facturación México<a class="headerlink" href="#arquitectura-facturacion-mexico" title="Permanent link">&para;</a></h1>
-<p>Estado actual del sistema. Se actualiza cuando un PR cambia arquitectura real.</p>
+<h1 id="proceso-regeneracion-stct-post-migrate-e4">Proceso Regeneración STCT Post-Migrate E4<a class="headerlink" href="#proceso-regeneracion-stct-post-migrate-e4" title="Permanent link">&para;</a></h1>
+<p><strong>Proyecto:</strong> Facturación México
+<strong>Fecha:</strong> 2025-10-27
+<strong>Objetivo:</strong> Regenerar 7 STCT con charge_type="On Item Quantity" después de migrate E4</p>
 <hr />
-<h2 id="modulos-principales">Módulos principales<a class="headerlink" href="#modulos-principales" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Módulo</th>
-<th>Ruta</th>
-<th>Función</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>facturacion_fiscal</code></td>
-<td><code>facturacion_fiscal/</code></td>
-<td>Timbrado, cancelación, Factura Fiscal Mexico</td>
-</tr>
-<tr>
-<td><code>complementos_pago</code></td>
-<td><code>complementos_pago/</code></td>
-<td>Complemento de Pago PPD</td>
-</tr>
-<tr>
-<td><code>ereceipts</code></td>
-<td><code>ereceipts/</code></td>
-<td>E-Receipts / autofactura</td>
-</tr>
-<tr>
-<td><code>facturas_globales</code></td>
-<td><code>facturas_globales/</code></td>
-<td>Factura Global periódica</td>
-</tr>
-<tr>
-<td><code>cfdi_recibidos</code></td>
-<td><code>cfdi_recibidos/</code></td>
-<td>Pipeline CFDI Recibidos → Purchase Invoice</td>
-</tr>
-<tr>
-<td><code>addendas</code></td>
-<td><code>addendas/</code></td>
-<td>Addendas genéricas por cliente</td>
-</tr>
-<tr>
-<td><code>catalogos_sat</code></td>
-<td><code>catalogos_sat/</code></td>
-<td>Catálogos SAT (uso CFDI, forma pago, etc.)</td>
-</tr>
-<tr>
-<td><code>multi_sucursal</code></td>
-<td><code>multi_sucursal/</code></td>
-<td>Configuración fiscal por Branch</td>
-</tr>
-<tr>
-<td><code>validaciones</code></td>
-<td><code>validaciones/</code></td>
-<td>RFC, lista 69B SAT</td>
-</tr>
-</tbody>
-</table>
+<h2 id="resumen">📋 RESUMEN<a class="headerlink" href="#resumen" title="Permanent link">&para;</a></h2>
+<p>Después de ejecutar <code>bench migrate</code> con los cambios E4, es necesario regenerar los Sales Taxes and Charges Templates (STCT) para que las filas de IEPS Cuota usen el nuevo <code>charge_type="On Item Quantity"</code> en lugar del legacy <code>"On Net Total"</code>.</p>
 <hr />
-<h2 id="flujo-principal-cfdi-emitido">Flujo principal — CFDI emitido<a class="headerlink" href="#flujo-principal-cfdi-emitido" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code>Sales Invoice (submit)
-  → hooks: before_validate (STCT por Branch), validate (cost_center + clave SAT)
-  → Factura Fiscal Mexico
-  → timbrado_api.py → FacturAPI.io → SAT
+<h2 id="pre-requisitos">🎯 PRE-REQUISITOS<a class="headerlink" href="#pre-requisitos" title="Permanent link">&para;</a></h2>
+<h3 id="verificar-cambios-migrados">✅ Verificar cambios migrados<a class="headerlink" href="#verificar-cambios-migrados" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># 1. Verificar que mapeo está actualizado</span>
+bench<span class="w"> </span>--site<span class="w"> </span>facturacion.dev<span class="w"> </span>console
+
+<span class="c1"># En consola Python:</span>
+from<span class="w"> </span>facturacion_mexico.facturacion_fiscal.setup.generador_templates_fiscal<span class="w"> </span>import<span class="w"> </span>_MAPEO_CHARGE_TYPE
+print<span class="o">(</span>_MAPEO_CHARGE_TYPE<span class="o">)</span>
+<span class="c1"># Debe mostrar: &#39;cantidad&#39;: &#39;On Item Quantity&#39;</span>
 </code></pre></div>
-<h2 id="flujo-principal-cfdi-recibido">Flujo principal — CFDI recibido<a class="headerlink" href="#flujo-principal-cfdi-recibido" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code>Upload XML
-  → xml_ingestion.py → CFDI Recibido (Falta proveedor)
-  → Paso 7: auto-crea Supplier si no existe
-  → compute_stage → Falta departamento
-  → Asignar departamento
-  → Clasificar conceptos (item_code por concepto)
-  → PurchaseInvoiceBuilder → Purchase Invoice Draft
+<h3 id="verificar-tabla-maestra-actualizada">✅ Verificar tabla maestra actualizada<a class="headerlink" href="#verificar-tabla-maestra-actualizada" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># En consola Python (continuando):</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">facturacion_mexico.utils.reglas_calculo_fiscal</span><span class="w"> </span><span class="kn">import</span> <span class="n">obtener_regla_calculo</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">facturacion_mexico.utils.roles_fiscales</span><span class="w"> </span><span class="kn">import</span> <span class="n">ROL_IEPS_AZU</span><span class="p">,</span> <span class="n">ROL_IEPS_COMB</span><span class="p">,</span> <span class="n">ROL_IEPS_TABQ</span>
+
+<span class="c1"># Verificar 3 roles cuota</span>
+<span class="k">for</span> <span class="n">rol</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ROL_IEPS_AZU</span><span class="p">,</span> <span class="n">ROL_IEPS_COMB</span><span class="p">,</span> <span class="n">ROL_IEPS_TABQ</span><span class="p">]:</span>
+    <span class="n">regla</span> <span class="o">=</span> <span class="n">obtener_regla_calculo</span><span class="p">(</span><span class="n">rol</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">rol</span><span class="si">}</span><span class="s2">: regla_base=&#39;</span><span class="si">{</span><span class="n">regla</span><span class="p">[</span><span class="s1">&#39;regla_base&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+    <span class="c1"># Debe mostrar: regla_base=&#39;cantidad&#39; (no &#39;monto_neto&#39;)</span>
 </code></pre></div>
-<h2 id="flujo-complemento-de-pago-ppd">Flujo — Complemento de Pago PPD<a class="headerlink" href="#flujo-complemento-de-pago-ppd" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code>Payment Entry (submit)
-  → hook on_submit → create_complement_if_required
-  → Complemento Pago MX → timbrado → SAT
+<h3 id="backup-obligatorio">✅ Backup obligatorio<a class="headerlink" href="#backup-obligatorio" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Crear backup antes de regenerar</span>
+bench<span class="w"> </span>--site<span class="w"> </span>facturacion.dev<span class="w"> </span>backup<span class="w"> </span>--with-files
+
+<span class="c1"># Renombrar para identificación</span>
+<span class="nb">cd</span><span class="w"> </span>sites/facturacion.dev/private/backups
+cp<span class="w"> </span><span class="o">[</span>timestamp<span class="o">]</span>-facturacion_dev-database.sql.gz<span class="w"> </span>backup-pre-regeneracion-stct-e4-2025-10-27.sql.gz
 </code></pre></div>
 <hr />
-<h2 id="doctypes-principales">DocTypes principales<a class="headerlink" href="#doctypes-principales" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>DocType</th>
-<th>Tipo</th>
-<th>Función</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>Factura Fiscal Mexico</code></td>
-<td>Submittable</td>
-<td>CFDI tipo I/E timbrado</td>
-</tr>
-<tr>
-<td><code>Complemento Pago MX</code></td>
-<td>Submittable</td>
-<td>CFDI tipo P (PPD)</td>
-</tr>
-<tr>
-<td><code>EReceipt MX</code></td>
-<td>Submittable</td>
-<td>Recibo para autofacturación</td>
-</tr>
-<tr>
-<td><code>Factura Global MX</code></td>
-<td>Submittable</td>
-<td>CFDI global periódico</td>
-</tr>
-<tr>
-<td><code>Facturacion Mexico Settings</code></td>
-<td>Single</td>
-<td>Credenciales FacturAPI, config global</td>
-</tr>
-<tr>
-<td><code>Configuracion Fiscal Mexico</code></td>
-<td>Por empresa</td>
-<td>Wizard STCT/ITT (emitidos)</td>
-</tr>
-<tr>
-<td><code>Configuracion CFDI Recibidos</code></td>
-<td>Por empresa</td>
-<td>Config impuestos + tolerancias (recibidos)</td>
-</tr>
-<tr>
-<td><code>CFDI Recibido</code></td>
-<td>Normal</td>
-<td>XML recibido en proceso</td>
-</tr>
-<tr>
-<td><code>Addenda Type</code></td>
-<td>Normal</td>
-<td>Formato XML de addenda (Jinja2)</td>
-</tr>
-<tr>
-<td><code>Addenda Configuration</code></td>
-<td>Por cliente</td>
-<td>Valores por cliente</td>
-</tr>
-</tbody>
-</table>
+<h2 id="paso-1-ejecutar-regeneracion">🔧 PASO 1: EJECUTAR REGENERACIÓN<a class="headerlink" href="#paso-1-ejecutar-regeneracion" title="Permanent link">&para;</a></h2>
+<h3 id="comando-bench">Comando bench<a class="headerlink" href="#comando-bench" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>bench<span class="w"> </span>--site<span class="w"> </span>facturacion.dev<span class="w"> </span>execute<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>facturacion_mexico.facturacion_fiscal.setup.generador_templates_fiscal.generate_8_stct_for_company<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--kwargs<span class="w"> </span><span class="s2">&quot;{&#39;company&#39;:&#39;Tauro Cigarettes SA de CV&#39;}&quot;</span>
+</code></pre></div>
+<h3 id="importante">⚠️ IMPORTANTE<a class="headerlink" href="#importante" title="Permanent link">&para;</a></h3>
+<ul>
+<li>La función <strong>NO es idempotente</strong> - verificará si templates existen</li>
+<li>Si existen STCT con mismo nombre, los <strong>deshabilitará</strong> y creará nuevos</li>
+<li>Reporta: <code>created</code>, <code>skipped</code>, <code>omitted_rows_por_template</code>, <code>disabled_old</code></li>
+</ul>
+<h3 id="output-esperado">Output esperado<a class="headerlink" href="#output-esperado" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+    <span class="s2">&quot;created&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;STCT - IVA Nacional 16% - Basico - TC&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;STCT - IVA Nacional 16% - IEPS - TC&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;STCT - IVA Nacional 16% - Retenciones - TC&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;STCT - IVA Nacional 16% - Total - TC&quot;</span><span class="p">,</span>
+        <span class="c1"># ... 4 más para Frontera 8%</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;skipped&quot;</span><span class="p">:</span> <span class="p">[],</span>  <span class="c1"># Si alguno falló</span>
+    <span class="s2">&quot;omitted_rows_por_template&quot;</span><span class="p">:</span> <span class="p">{},</span>  <span class="c1"># Filas omitidas por falta mapeo</span>
+    <span class="s2">&quot;disabled_old&quot;</span><span class="p">:</span> <span class="n">true</span>
+<span class="p">}</span>
+</code></pre></div>
 <hr />
-<h2 id="integraciones-externas">Integraciones externas<a class="headerlink" href="#integraciones-externas" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Sistema</th>
-<th>Uso</th>
-<th>Configuración</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>FacturAPI.io</strong></td>
-<td>PAC para timbrado y cancelación</td>
-<td><code>Facturacion Mexico Settings</code></td>
-</tr>
-<tr>
-<td><strong>SAT (lista 69B)</strong></td>
-<td>Validación RFC</td>
-<td>Vía API REST</td>
-</tr>
-</tbody>
-</table>
+<h2 id="paso-2-verificacion-post-regeneracion">✅ PASO 2: VERIFICACIÓN POST-REGENERACIÓN<a class="headerlink" href="#paso-2-verificacion-post-regeneracion" title="Permanent link">&para;</a></h2>
+<h3 id="21-verificar-charge_type-en-stct">2.1 Verificar charge_type en STCT<a class="headerlink" href="#21-verificar-charge_type-en-stct" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Obtener STCT regenerados</span>
+bench<span class="w"> </span>--site<span class="w"> </span>facturacion.dev<span class="w"> </span>console
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># En consola Python:</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">frappe</span>
+
+<span class="c1"># Obtener STCT de IEPS (contiene cuotas)</span>
+<span class="n">stct</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_doc</span><span class="p">(</span><span class="s2">&quot;Sales Taxes and Charges Template&quot;</span><span class="p">,</span> <span class="s2">&quot;STCT - IVA Nacional 16% - IEPS - TC&quot;</span><span class="p">)</span>
+
+<span class="c1"># Buscar filas IEPS Cuota</span>
+<span class="k">for</span> <span class="n">tax</span> <span class="ow">in</span> <span class="n">stct</span><span class="o">.</span><span class="n">taxes</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s2">&quot;IEPS&quot;</span> <span class="ow">in</span> <span class="n">tax</span><span class="o">.</span><span class="n">description</span> <span class="ow">and</span> <span class="s2">&quot;Cuota&quot;</span> <span class="ow">in</span> <span class="n">tax</span><span class="o">.</span><span class="n">description</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Fila </span><span class="si">{</span><span class="n">tax</span><span class="o">.</span><span class="n">idx</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">tax</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  charge_type: </span><span class="si">{</span><span class="n">tax</span><span class="o">.</span><span class="n">charge_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># ← DEBE SER &quot;On Item Quantity&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  rate: </span><span class="si">{</span><span class="n">tax</span><span class="o">.</span><span class="n">rate</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">()</span>
+
+<span class="c1"># RESULTADO ESPERADO:</span>
+<span class="c1"># Fila X: IEPS Tabaco Cuota</span>
+<span class="c1">#   charge_type: On Item Quantity  ← ✅ CORRECTO (no &quot;On Net Total&quot;)</span>
+<span class="c1">#   rate: 0.0</span>
+</code></pre></div>
+<h3 id="22-verificar-orden-fiscal-iepsiva">2.2 Verificar orden fiscal IEPS→IVA<a class="headerlink" href="#22-verificar-orden-fiscal-iepsiva" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Verificar que IEPS aparece ANTES de IVA</span>
+<span class="n">ieps_idx</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">iva_idx</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="k">for</span> <span class="n">tax</span> <span class="ow">in</span> <span class="n">stct</span><span class="o">.</span><span class="n">taxes</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s2">&quot;IEPS&quot;</span> <span class="ow">in</span> <span class="n">tax</span><span class="o">.</span><span class="n">description</span><span class="p">:</span>
+        <span class="n">ieps_idx</span> <span class="o">=</span> <span class="n">tax</span><span class="o">.</span><span class="n">idx</span>
+    <span class="k">if</span> <span class="s2">&quot;IVA&quot;</span> <span class="ow">in</span> <span class="n">tax</span><span class="o">.</span><span class="n">description</span> <span class="ow">and</span> <span class="n">iva_idx</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">iva_idx</span> <span class="o">=</span> <span class="n">tax</span><span class="o">.</span><span class="n">idx</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;IEPS en índice: </span><span class="si">{</span><span class="n">ieps_idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;IVA en índice: </span><span class="si">{</span><span class="n">iva_idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Orden correcto: </span><span class="si">{</span><span class="n">ieps_idx</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">iva_idx</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">ieps_idx</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">iva_idx</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;N/A&#39;</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="c1"># DEBE MOSTRAR: True</span>
+</code></pre></div>
+<h3 id="23-contar-stct-generados">2.3 Contar STCT generados<a class="headerlink" href="#23-contar-stct-generados" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Contar templates activos nuevos</span>
+<span class="n">stct_nuevos</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_all</span><span class="p">(</span>
+    <span class="s2">&quot;Sales Taxes and Charges Template&quot;</span><span class="p">,</span>
+    <span class="n">filters</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;disabled&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+    <span class="n">fields</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;creation&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total STCT activos: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">stct_nuevos</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="c1"># DEBE SER: 8 (o 7 si Frontera no aplica)</span>
+</code></pre></div>
 <hr />
-<h2 id="custom-fields-criticos">Custom Fields críticos<a class="headerlink" href="#custom-fields-criticos" title="Permanent link">&para;</a></h2>
-<p><strong>Sales Invoice:</strong> <code>fm_fiscal_status</code>, <code>fm_factura_fiscal_mx</code>, <code>fm_addenda_*</code>, <code>fm_branch</code>, <code>fm_es_ppd</code>
-<strong>Customer:</strong> <code>fm_rfc</code>, <code>fm_tax_regime</code>, <code>fm_uso_cfdi_default</code>
-<strong>Branch:</strong> <code>fm_enable_fiscal</code>, <code>fm_lugar_expedicion</code>, <code>fm_serie_pattern</code>, folios
-<strong>Payment Entry:</strong> <code>fm_complemento_pago</code>, <code>fm_complement_generated</code>
-<strong>Purchase Invoice:</strong> <code>fm_cfdi_uuid</code>, <code>fm_cfdi_recibido</code></p>
+<h2 id="paso-3-testing-funcional">🧪 PASO 3: TESTING FUNCIONAL<a class="headerlink" href="#paso-3-testing-funcional" title="Permanent link">&para;</a></h2>
+<h3 id="31-crear-sales-invoice-de-prueba">3.1 Crear Sales Invoice de prueba<a class="headerlink" href="#31-crear-sales-invoice-de-prueba" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># En consola Python:</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">frappe</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">frappe.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">nowdate</span>
+
+<span class="c1"># Crear SI con item IEPS Cuota</span>
+<span class="n">si</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">new_doc</span><span class="p">(</span><span class="s2">&quot;Sales Invoice&quot;</span><span class="p">)</span>
+<span class="n">si</span><span class="o">.</span><span class="n">customer</span> <span class="o">=</span> <span class="s2">&quot;TEST-CUSTOMER-001&quot;</span>
+<span class="n">si</span><span class="o">.</span><span class="n">company</span> <span class="o">=</span> <span class="s2">&quot;Tauro Cigarettes SA de CV&quot;</span>
+<span class="n">si</span><span class="o">.</span><span class="n">posting_date</span> <span class="o">=</span> <span class="n">nowdate</span><span class="p">()</span>
+
+<span class="c1"># Agregar item con IEPS Cuota</span>
+<span class="n">si</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;items&quot;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s2">&quot;item_code&quot;</span><span class="p">:</span> <span class="s2">&quot;TEST-IEPS-TABACO-001&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;qty&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>  <span class="c1"># 10 cajetillas</span>
+    <span class="s2">&quot;rate&quot;</span><span class="p">:</span> <span class="mf">50.00</span>
+<span class="p">})</span>
+
+<span class="c1"># Asignar STCT con IEPS</span>
+<span class="n">si</span><span class="o">.</span><span class="n">taxes_and_charges</span> <span class="o">=</span> <span class="s2">&quot;STCT - IVA Nacional 16% - IEPS - TC&quot;</span>
+
+<span class="c1"># Guardar DRAFT (no submit aún)</span>
+<span class="n">si</span><span class="o">.</span><span class="n">insert</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SI creada: </span><span class="si">{</span><span class="n">si</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="32-verificar-charge_type-persiste-en-draft">3.2 Verificar charge_type persiste en Draft<a class="headerlink" href="#32-verificar-charge_type-persiste-en-draft" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Recargar SI y verificar taxes</span>
+<span class="n">si</span><span class="o">.</span><span class="n">reload</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">tax</span> <span class="ow">in</span> <span class="n">si</span><span class="o">.</span><span class="n">taxes</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s2">&quot;IEPS&quot;</span> <span class="ow">in</span> <span class="n">tax</span><span class="o">.</span><span class="n">description</span> <span class="ow">and</span> <span class="s2">&quot;Cuota&quot;</span> <span class="ow">in</span> <span class="n">tax</span><span class="o">.</span><span class="n">description</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;DRAFT - </span><span class="si">{</span><span class="n">tax</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  charge_type: </span><span class="si">{</span><span class="n">tax</span><span class="o">.</span><span class="n">charge_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># ← DEBE SER &quot;On Item Quantity&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  tax_amount: </span><span class="si">{</span><span class="n">tax</span><span class="o">.</span><span class="n">tax_amount</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="33-submit-y-verificar-estabilidad">3.3 Submit y verificar estabilidad<a class="headerlink" href="#33-submit-y-verificar-estabilidad" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Submit SI</span>
+<span class="n">si</span><span class="o">.</span><span class="n">submit</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SI submitted: </span><span class="si">{</span><span class="n">si</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Recargar y verificar que charge_type NO cambió</span>
+<span class="n">si</span><span class="o">.</span><span class="n">reload</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">tax</span> <span class="ow">in</span> <span class="n">si</span><span class="o">.</span><span class="n">taxes</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s2">&quot;IEPS&quot;</span> <span class="ow">in</span> <span class="n">tax</span><span class="o">.</span><span class="n">description</span> <span class="ow">and</span> <span class="s2">&quot;Cuota&quot;</span> <span class="ow">in</span> <span class="n">tax</span><span class="o">.</span><span class="n">description</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SUBMIT - </span><span class="si">{</span><span class="n">tax</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  charge_type: </span><span class="si">{</span><span class="n">tax</span><span class="o">.</span><span class="n">charge_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># ← DEBE SEGUIR &quot;On Item Quantity&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  tax_amount: </span><span class="si">{</span><span class="n">tax</span><span class="o">.</span><span class="n">tax_amount</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># CRITERIO ÉXITO:</span>
+<span class="c1"># charge_type permanece &quot;On Item Quantity&quot; en Draft Y Submit</span>
+<span class="c1"># tax_amount NO cambió entre Draft y Submit</span>
+</code></pre></div>
 <hr />
-<blockquote>
-<p>Este documento describe el estado actual. Para el historial de decisiones, ver <a href="../../adr/">ADRs</a>.</p>
-</blockquote>
+<h2 id="rollback-si-falla">🚨 ROLLBACK (SI FALLA)<a class="headerlink" href="#rollback-si-falla" title="Permanent link">&para;</a></h2>
+<h3 id="escenario-a-regeneracion-fallo-parcialmente">Escenario A: Regeneración falló parcialmente<a class="headerlink" href="#escenario-a-regeneracion-fallo-parcialmente" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># 1. Restaurar backup</span>
+<span class="nb">cd</span><span class="w"> </span>sites/facturacion.dev/private/backups
+bench<span class="w"> </span>--site<span class="w"> </span>facturacion.dev<span class="w"> </span>restore<span class="w"> </span>backup-pre-regeneracion-stct-e4-2025-10-27.sql.gz
+
+<span class="c1"># 2. Revertir cambios código</span>
+git<span class="w"> </span>checkout<span class="w"> </span>HEAD~1<span class="w">  </span><span class="c1"># Volver commit anterior</span>
+
+<span class="c1"># 3. Migrate a versión anterior</span>
+bench<span class="w"> </span>--site<span class="w"> </span>facturacion.dev<span class="w"> </span>migrate
+</code></pre></div>
+<h3 id="escenario-b-stct-generados-incorrectos">Escenario B: STCT generados incorrectos<a class="headerlink" href="#escenario-b-stct-generados-incorrectos" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># En consola Python:</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">frappe</span>
+
+<span class="c1"># Deshabilitar STCT nuevos (no borrar - conservar historial)</span>
+<span class="n">stct_nuevos</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_all</span><span class="p">(</span><span class="s2">&quot;Sales Taxes and Charges Template&quot;</span><span class="p">,</span>
+                              <span class="n">filters</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;disabled&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
+
+<span class="k">for</span> <span class="n">stct</span> <span class="ow">in</span> <span class="n">stct_nuevos</span><span class="p">:</span>
+    <span class="n">doc</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_doc</span><span class="p">(</span><span class="s2">&quot;Sales Taxes and Charges Template&quot;</span><span class="p">,</span> <span class="n">stct</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">doc</span><span class="o">.</span><span class="n">disabled</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">doc</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Deshabilitado: </span><span class="si">{</span><span class="n">stct</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="n">frappe</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+
+<span class="c1"># Reactivar STCT viejos (si los deshabilitó el generador)</span>
+<span class="c1"># (requiere identificar nombres viejos en backup)</span>
+</code></pre></div>
+<hr />
+<h2 id="criterios-exito">📊 CRITERIOS ÉXITO<a class="headerlink" href="#criterios-exito" title="Permanent link">&para;</a></h2>
+<h3 id="regeneracion-exitosa-si">✅ Regeneración exitosa si:<a class="headerlink" href="#regeneracion-exitosa-si" title="Permanent link">&para;</a></h3>
+<ol>
+<li>7-8 STCT creados (según company tenga Frontera o no)</li>
+<li>Filas IEPS Cuota tienen <code>charge_type="On Item Quantity"</code></li>
+<li>Orden fiscal: IEPS antes de IVA</li>
+<li>STCT viejos deshabilitados (no borrados)</li>
+<li>No hay errores en logs durante generación</li>
+</ol>
+<h3 id="testing-funcional-exitoso-si">✅ Testing funcional exitoso si:<a class="headerlink" href="#testing-funcional-exitoso-si" title="Permanent link">&para;</a></h3>
+<ol>
+<li>SI Draft: charge_type permanece "On Item Quantity"</li>
+<li>SI Submit: charge_type NO cambia a "Actual" (problema Pre-E4)</li>
+<li>tax_amount idéntico Draft vs Submit (±$0.05 tolerancia)</li>
+<li>item_wise_tax_detail preservado correctamente</li>
+</ol>
+<hr />
+<h2 id="siguiente-paso">🔗 SIGUIENTE PASO<a class="headerlink" href="#siguiente-paso" title="Permanent link">&para;</a></h2>
+<p>Una vez verificados todos los criterios de éxito, proceder con:</p>
+<p><strong>PASO 7: Refactorizar mapeo a tabla constantes</strong>
+- Crear <code>facturacion_mexico/utils/mapeo_charge_type.py</code>
+- Migrar diccionario <code>_MAPEO_CHARGE_TYPE</code> a constantes
+- Actualizar imports en <code>generador_templates_fiscal.py</code>
+- Testing regeneración con nueva arquitectura</p>
+<hr />
+<p><strong>Fecha:</strong> 2025-10-27
+<strong>Estado:</strong> Documentado - Pendiente ejecución
+<strong>Siguiente:</strong> Ejecutar migrate + regeneración + testing</p>
 
 
 

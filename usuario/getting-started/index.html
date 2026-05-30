@@ -16,7 +16,7 @@
         <link rel="prev" href="../">
       
       
-        <link rel="next" href="../cfdi-recibidos/">
+        <link rel="next" href="../emitir-cfdi/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -588,11 +588,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../cfdi-recibidos/" class="md-nav__link">
+      <a href="../emitir-cfdi/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    CFDI Recibidos
+    Emitir un CFDI
   </span>
   
 
@@ -635,6 +635,27 @@
   
   <span class="md-ellipsis">
     Complemento de Pago
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cfdi-recibidos/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CFDI Recibidos
   </span>
   
 
@@ -825,6 +846,48 @@
   
   
   
+    <li class="md-nav__item">
+      <a href="../../tecnico/email-system/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Email CFDI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tecnico/proceso-regeneracion-stct-e4/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Regeneración STCT
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
     
     
     
@@ -840,10 +903,10 @@
         
           
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_4" >
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_6" >
         
           
-          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="">
+          <label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="">
             
   
   <span class="md-ellipsis">
@@ -854,8 +917,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_4">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_6">
             <span class="md-nav__icon md-icon"></span>
             ADRs
           </label>
@@ -1491,6 +1554,48 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0029-facturapi-base-unitaria-ieps-cuota/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0029 — FacturAPI multiplica base × cantidad: enviar valores unitarios para IEPS Cuota
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0030-tablas-maestras-python-reglas-fiscales/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0030 — Reglas de cálculo fiscal como tablas maestras Python
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1889,12 +1994,16 @@ bench<span class="w"> </span>--site<span class="w"> </span>tu-sitio.local<span c
 <h3 id="emitir-la-factura">Emitir la factura<a class="headerlink" href="#emitir-la-factura" title="Permanent link">&para;</a></h3>
 <ol>
 <li>Crear Sales Invoice en <strong>Selling &gt; Sales Invoice</strong></li>
-<li>Seleccionar el cliente</li>
+<li>Seleccionar el cliente (debe tener RFC en <code>tax_id</code>)</li>
 <li>Agregar items con clave SAT configurada</li>
 <li>Verificar que los impuestos se calculen correctamente</li>
-<li><strong>Submit</strong> — el timbrado ocurre automáticamente</li>
+<li><strong>Submit</strong> — se crea la <strong>Factura Fiscal Mexico</strong> en estado <code>BORRADOR</code></li>
+<li>Clic en el botón <strong>"Timbrar Factura"</strong> → abre el FFM → clic en <strong>"Timbrar con FacturAPI"</strong></li>
 </ol>
-<p>Al hacer Submit, el sistema envía el CFDI a FacturAPI.io. Si el timbrado es exitoso, el campo <code>fm_fiscal_status</code> cambia a <code>TIMBRADO</code> y se crea el documento <strong>Factura Fiscal Mexico</strong> vinculado.</p>
+<p>Si el timbrado es exitoso, el FFM cambia a estado <code>TIMBRADO</code> y el Sales Invoice muestra <code>fm_fiscal_status = TIMBRADO</code>.</p>
+<blockquote>
+<p>Ver el flujo completo en <a href="../emitir-cfdi/">Emitir un CFDI</a>.</p>
+</blockquote>
 <hr />
 <h2 id="siguientes-pasos">Siguientes pasos<a class="headerlink" href="#siguientes-pasos" title="Permanent link">&para;</a></h2>
 <ul>
