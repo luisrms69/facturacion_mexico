@@ -60,6 +60,7 @@ nav:
     - Primeros Pasos: usuario/getting-started.md
     - CFDI Recibidos: usuario/cfdi-recibidos.md
     - Cancelar CFDI: usuario/cancelar-cfdi.md
+    - Complemento de Pago: usuario/complemento-pago.md
     - Addendas: usuario/addendas.md
     - Multi-sucursal: usuario/multisucursal.md
     - Troubleshooting: usuario/troubleshooting.md
