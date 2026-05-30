@@ -58,6 +58,10 @@ nav:
   - Guía de Usuario:
     - usuario/index.md
     - Primeros Pasos: usuario/getting-started.md
+    - CFDI Recibidos: usuario/cfdi-recibidos.md
+    - Cancelar CFDI: usuario/cancelar-cfdi.md
+    - Addendas: usuario/addendas.md
+    - Multi-sucursal: usuario/multisucursal.md
     - Troubleshooting: usuario/troubleshooting.md
   - Técnico:
     - tecnico/index.md
