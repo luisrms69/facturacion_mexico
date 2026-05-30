@@ -1,0 +1,8438 @@
+
+<!doctype html>
+<html lang="es" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentación completa del sistema de facturación electrónica para México">
+      
+      
+        <meta name="author" content="Equipo Desarrollo Facturación México">
+      
+      
+      
+        <link rel="prev" href="../">
+      
+      
+        <link rel="next" href="../hooks/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.3">
+    
+    
+      
+        <title>DocTypes - Facturación México - Documentación Técnica</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.50c56a3b.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/advanced.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function n(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],n("js",new Date),n("config","G-XXXXXXXXXX"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){this.value&&n("event","search",{search_term:this.value})}),document$.subscribe(function(){var a=document.forms.feedback;if(void 0!==a)for(var e of a.querySelectorAll("[type=submit]"))e.addEventListener("click",function(e){e.preventDefault();var t=document.location.pathname,e=this.getAttribute("data-md-value");n("event","feedback",{page:t,data:e}),a.firstElementChild.disabled=!0;e=a.querySelector(".md-feedback__note [data-md-value='"+e+"']");e&&(e.hidden=!1)}),a.hidden=!1}),location$.subscribe(function(e){n("config","G-XXXXXXXXXX",{page_path:e.pathname})})});var e=document.createElement("script");e.async=!0,e.src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX",document.getElementById("__analytics").insertAdjacentElement("afterEnd",e)}</script>
+  
+    <script>var consent;"undefined"==typeof __md_analytics||(consent=__md_get("__consent"))&&consent.analytics&&__md_analytics()</script>
+  
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#referencia-doctypes" class="md-skip">
+          Saltar a contenido
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabecera">
+    <a href="../.." title="Facturación México - Documentación Técnica" class="md-header__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Facturación México - Documentación Técnica
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              DocTypes
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo oscuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo oscuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Búsqueda" placeholder="Búsqueda" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Buscar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpiar" aria-label="Limpiar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando búsqueda
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Pestañas" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+    
+  
+  Inicio
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../usuario/" class="md-tabs__link">
+          
+  
+  Guía de Usuario
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../tecnico/" class="md-tabs__link">
+          
+  
+  Técnico
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  Referencia
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navegación" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Facturación México - Documentación Técnica" class="md-nav__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Facturación México - Documentación Técnica
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Inicio
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Guía de Usuario
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Guía de Usuario
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usuario/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Usuario
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usuario/getting-started/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Primeros Pasos
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usuario/cfdi-recibidos/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CFDI Recibidos
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usuario/cancelar-cfdi/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Cancelar CFDI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usuario/complemento-pago/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Complemento de Pago
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usuario/addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usuario/multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usuario/troubleshooting/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Técnico
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Técnico
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tecnico/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Documentación Técnica
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tecnico/arquitectura/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Arquitectura
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tecnico/setup/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Setup
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    ADRs
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            ADRs
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADRs — Decisiones Arquitectónicas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0000-estado-real-pre-migracion/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0000: Estado Real de la App — Pre-Migración
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0002-verificacion-arranque-v16/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MÓDULO 0 — VERIFICACIÓN DE ARRANQUE
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0003-verificacion-configuracion-fiscal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MÓDULO 1 — CONFIGURACIÓN FISCAL Y DATOS MAESTROS
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0004-verificacion-timbrado/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MÓDULO 2 — VERIFICACIÓN FLUJO DE TIMBRADO CFDI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0005-workflow-configuracion-inicial-v2/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    WORKFLOW DE CONFIGURACIÓN INICIAL — v2
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0005-workflow-configuracion-inicial/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MÓDULO 5 — WORKFLOW DE CONFIGURACIÓN INICIAL
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0006-analisis-branches-wip/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0006 — ANÁLISIS DE BRANCHES WIP
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0007-analisis-checkout-e4/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0007 — ANÁLISIS DE RIESGO: CHECKOUT A feature/e4-ieps-on-item-quantity
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0008-analisis-9-commits-wip/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0008 — ANÁLISIS DETALLADO: 9 COMMITS WIP
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0009-checklist-estados-flujo-timbrado/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0009 — CHECKLIST ESTADOS Y FLUJO DE TIMBRADO
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0010-verificacion-post-cancelacion/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0010 — VERIFICACIÓN ESTADO POST-CANCELACIÓN
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0011-diagnostico-sistema-tests/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0011 — DIAGNÓSTICO SISTEMA DE TESTS
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0012-solucion-sistema-tests-v16/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0012 — SOLUCIÓN SISTEMA DE TESTS V16
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0013-arquitectura-sistema-cancelaciones-cfdi/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0013 — Arquitectura del Sistema de Cancelaciones CFDI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0014-diagnostico-conectividad-si-ffm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0014 — Diagnóstico Conectividad Sales Invoice ↔ Factura Fiscal Mexico
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0015-si-ffm-relationship-architecture/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0015 — Arquitectura Relación Sales Invoice ↔ Factura Fiscal Mexico
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0016-reclasificacion-fiscal-payment-entry/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0016 — Reclasificación Fiscal de Impuestos en Payment Entry
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0017-complemento-pago-mx-schema-normalizacion/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0017 — Complemento Pago MX MVP
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0018-ffm-status-fiscal-state-migration/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0018 — Migración de estado fiscal FFM a status
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0019-primera-implementacion-rc-v0.1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0019: Primera implementación Release Candidates v0.1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0020-smoke-test-mvp-flujos-cancelacion/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0020: Smoke Test MVP v0.1 — Flujos de Cancelación y Refacturación
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0021-fiscal-state-capa-ui-centralizada/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0021 — Capa fiscal_state: UI centralizada via endpoint Python
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0022-solucion-issue-112-reclasificacion-fiscal-pe/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0022 — Solución Issue #112: Reclasificación Fiscal en Payment Entry
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0023-venta-mostrador-cfdi-individual-rfc-generico/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0023 — Venta Mostrador: CFDI Individual con RFC Genérico XAXX010101000
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0024-addendas-pre-timbrado-issue129/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0024 — Addendas CFDI pre-timbrado (Issue #129)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0025-notas-credito-cfdi-tipo-e-issue116/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0025 — Notas de Crédito CFDI tipo E (Issue #116)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0026-workspace-facturacion-mexico-issue120/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0026 — Workspace "Facturación México" (Issue #120)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0027-migracion-facturacion-mx-a-facturacion-mexico/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0027 — Migración facturacion_mx → facturacion_mexico
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0028-ffm-legacy-fields-audit/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0028 — Auditoría campos legacy FFM + desmantelamiento Sistema Resiliente
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Referencia
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Referencia
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Index
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    DocTypes
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    DocTypes
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#addendas" class="md-nav__link">
+    <span class="md-ellipsis">
+      Addendas
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Addendas">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#addenda-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Addenda Configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#addenda-field-definition-child-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Addenda Field Definition Child table
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#addenda-field-value-child-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Addenda Field Value Child table
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#addenda-product-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      Addenda Product Mapping
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#addenda-template" class="md-nav__link">
+    <span class="md-ellipsis">
+      Addenda Template
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#addenda-type" class="md-nav__link">
+    <span class="md-ellipsis">
+      Addenda Type
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cfdi-recibidos" class="md-nav__link">
+    <span class="md-ellipsis">
+      CFDI Recibidos
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="CFDI Recibidos">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cfdi-concepto-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      CFDI Concepto Mapping
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cfdi-recibido" class="md-nav__link">
+    <span class="md-ellipsis">
+      CFDI Recibido
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cfdi-recibido-concepto-child-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      CFDI Recibido Concepto Child table
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuracion-cfdi-recibidos" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuracion CFDI Recibidos
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mapeo-departamento-cfdi-recibido-child-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mapeo Departamento CFDI Recibido Child table
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regla-impuesto-cfdi-recibido-child-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Regla Impuesto CFDI Recibido Child table
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regla-item-cfdi-recibido" class="md-nav__link">
+    <span class="md-ellipsis">
+      Regla Item CFDI Recibido
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#catalogos-sat" class="md-nav__link">
+    <span class="md-ellipsis">
+      Catalogos SAT
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Catalogos SAT">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#forma-pago-sat" class="md-nav__link">
+    <span class="md-ellipsis">
+      Forma Pago SAT
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#impuesto-sat" class="md-nav__link">
+    <span class="md-ellipsis">
+      Impuesto SAT
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metodo-pago-sat" class="md-nav__link">
+    <span class="md-ellipsis">
+      Metodo Pago SAT
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#moneda-sat" class="md-nav__link">
+    <span class="md-ellipsis">
+      Moneda SAT
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regimen-fiscal-sat" class="md-nav__link">
+    <span class="md-ellipsis">
+      Regimen Fiscal SAT
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sat-producto-servicio" class="md-nav__link">
+    <span class="md-ellipsis">
+      SAT Producto Servicio
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tasa-iva-sat" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tasa IVA SAT
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#uso-cfdi-sat" class="md-nav__link">
+    <span class="md-ellipsis">
+      Uso CFDI SAT
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#complementos-pago" class="md-nav__link">
+    <span class="md-ellipsis">
+      Complementos Pago
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Complementos Pago">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#complemento-pago-mx-submittable" class="md-nav__link">
+    <span class="md-ellipsis">
+      Complemento Pago MX Submittable
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#detalle-complemento-pago-mx-child-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Detalle Complemento Pago MX Child table
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#documento-relacionado-pago-mx-child-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Documento Relacionado Pago MX Child table
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dashboard-fiscal" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dashboard Fiscal
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Dashboard Fiscal">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dashboard-user-preference" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dashboard User Preference
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dashboard-widget-allowed-role-child-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dashboard Widget Allowed Role Child table
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dashboard-widget-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dashboard Widget Config
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fiscal-alert-notify-role-child-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fiscal Alert Notify Role Child table
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fiscal-alert-notify-user-child-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fiscal Alert Notify User Child table
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fiscal-alert-rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fiscal Alert Rule
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fiscal-dashboard-config-single" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fiscal Dashboard Config Single
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fiscal-health-factor-child-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fiscal Health Factor Child table
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fiscal-health-recommendation-child-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fiscal Health Recommendation Child table
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fiscal-health-score" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fiscal Health Score
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ereceipts" class="md-nav__link">
+    <span class="md-ellipsis">
+      EReceipts
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="EReceipts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ereceipt-mx-submittable" class="md-nav__link">
+    <span class="md-ellipsis">
+      EReceipt MX Submittable
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#facturacion-fiscal" class="md-nav__link">
+    <span class="md-ellipsis">
+      Facturacion Fiscal
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Facturacion Fiscal">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuracion-fiscal-mexico" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuracion Fiscal Mexico
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuracion-reclasificacion-fiscal-mexico" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuracion Reclasificacion Fiscal Mexico
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#control-panel-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Control Panel Settings
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#facturapi-response-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      FacturAPI Response Log
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#factura-fiscal-mexico-submittable" class="md-nav__link">
+    <span class="md-ellipsis">
+      Factura Fiscal Mexico Submittable
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#facturacion-mexico-settings-single" class="md-nav__link">
+    <span class="md-ellipsis">
+      Facturacion Mexico Settings Single
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ieps-cuota-sat" class="md-nav__link">
+    <span class="md-ellipsis">
+      IEPS Cuota SAT
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mapeo-cuenta-fiscal-mexico-child-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mapeo Cuenta Fiscal Mexico Child table
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mapeo-reclasificacion-fiscal-payment-entry" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mapeo Reclasificacion Fiscal Payment Entry
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regla-reclasificacion-fiscal-child-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Regla Reclasificacion Fiscal Child table
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#system-health-monitor" class="md-nav__link">
+    <span class="md-ellipsis">
+      System Health Monitor
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#facturas-globales" class="md-nav__link">
+    <span class="md-ellipsis">
+      Facturas Globales
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Facturas Globales">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#factura-global-detail-child-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Factura Global Detail Child table
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#factura-global-mx-submittable" class="md-nav__link">
+    <span class="md-ellipsis">
+      Factura Global MX Submittable
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#motor-reglas" class="md-nav__link">
+    <span class="md-ellipsis">
+      Motor Reglas
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Motor Reglas">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fiscal-validation-rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fiscal Validation Rule
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rule-action-child-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Rule Action Child table
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rule-condition-child-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Rule Condition Child table
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rule-execution-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      Rule Execution Log
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multi-sucursal" class="md-nav__link">
+    <span class="md-ellipsis">
+      Multi Sucursal
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Multi Sucursal">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuracion-fiscal-sucursal" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuracion Fiscal Sucursal
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validaciones" class="md-nav__link">
+    <span class="md-ellipsis">
+      Validaciones
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Validaciones">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sat-validation-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      SAT Validation Cache
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hooks/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Hooks
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    API
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#addendas" class="md-nav__link">
+    <span class="md-ellipsis">
+      Addendas
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Addendas">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#addenda-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Addenda Configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#addenda-field-definition-child-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Addenda Field Definition Child table
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#addenda-field-value-child-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Addenda Field Value Child table
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#addenda-product-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      Addenda Product Mapping
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#addenda-template" class="md-nav__link">
+    <span class="md-ellipsis">
+      Addenda Template
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#addenda-type" class="md-nav__link">
+    <span class="md-ellipsis">
+      Addenda Type
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cfdi-recibidos" class="md-nav__link">
+    <span class="md-ellipsis">
+      CFDI Recibidos
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="CFDI Recibidos">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cfdi-concepto-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      CFDI Concepto Mapping
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cfdi-recibido" class="md-nav__link">
+    <span class="md-ellipsis">
+      CFDI Recibido
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cfdi-recibido-concepto-child-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      CFDI Recibido Concepto Child table
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuracion-cfdi-recibidos" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuracion CFDI Recibidos
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mapeo-departamento-cfdi-recibido-child-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mapeo Departamento CFDI Recibido Child table
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regla-impuesto-cfdi-recibido-child-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Regla Impuesto CFDI Recibido Child table
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regla-item-cfdi-recibido" class="md-nav__link">
+    <span class="md-ellipsis">
+      Regla Item CFDI Recibido
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#catalogos-sat" class="md-nav__link">
+    <span class="md-ellipsis">
+      Catalogos SAT
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Catalogos SAT">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#forma-pago-sat" class="md-nav__link">
+    <span class="md-ellipsis">
+      Forma Pago SAT
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#impuesto-sat" class="md-nav__link">
+    <span class="md-ellipsis">
+      Impuesto SAT
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metodo-pago-sat" class="md-nav__link">
+    <span class="md-ellipsis">
+      Metodo Pago SAT
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#moneda-sat" class="md-nav__link">
+    <span class="md-ellipsis">
+      Moneda SAT
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regimen-fiscal-sat" class="md-nav__link">
+    <span class="md-ellipsis">
+      Regimen Fiscal SAT
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sat-producto-servicio" class="md-nav__link">
+    <span class="md-ellipsis">
+      SAT Producto Servicio
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tasa-iva-sat" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tasa IVA SAT
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#uso-cfdi-sat" class="md-nav__link">
+    <span class="md-ellipsis">
+      Uso CFDI SAT
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#complementos-pago" class="md-nav__link">
+    <span class="md-ellipsis">
+      Complementos Pago
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Complementos Pago">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#complemento-pago-mx-submittable" class="md-nav__link">
+    <span class="md-ellipsis">
+      Complemento Pago MX Submittable
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#detalle-complemento-pago-mx-child-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Detalle Complemento Pago MX Child table
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#documento-relacionado-pago-mx-child-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Documento Relacionado Pago MX Child table
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dashboard-fiscal" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dashboard Fiscal
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Dashboard Fiscal">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dashboard-user-preference" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dashboard User Preference
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dashboard-widget-allowed-role-child-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dashboard Widget Allowed Role Child table
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dashboard-widget-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dashboard Widget Config
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fiscal-alert-notify-role-child-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fiscal Alert Notify Role Child table
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fiscal-alert-notify-user-child-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fiscal Alert Notify User Child table
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fiscal-alert-rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fiscal Alert Rule
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fiscal-dashboard-config-single" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fiscal Dashboard Config Single
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fiscal-health-factor-child-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fiscal Health Factor Child table
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fiscal-health-recommendation-child-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fiscal Health Recommendation Child table
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fiscal-health-score" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fiscal Health Score
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ereceipts" class="md-nav__link">
+    <span class="md-ellipsis">
+      EReceipts
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="EReceipts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ereceipt-mx-submittable" class="md-nav__link">
+    <span class="md-ellipsis">
+      EReceipt MX Submittable
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#facturacion-fiscal" class="md-nav__link">
+    <span class="md-ellipsis">
+      Facturacion Fiscal
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Facturacion Fiscal">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuracion-fiscal-mexico" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuracion Fiscal Mexico
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuracion-reclasificacion-fiscal-mexico" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuracion Reclasificacion Fiscal Mexico
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#control-panel-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Control Panel Settings
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#facturapi-response-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      FacturAPI Response Log
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#factura-fiscal-mexico-submittable" class="md-nav__link">
+    <span class="md-ellipsis">
+      Factura Fiscal Mexico Submittable
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#facturacion-mexico-settings-single" class="md-nav__link">
+    <span class="md-ellipsis">
+      Facturacion Mexico Settings Single
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ieps-cuota-sat" class="md-nav__link">
+    <span class="md-ellipsis">
+      IEPS Cuota SAT
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mapeo-cuenta-fiscal-mexico-child-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mapeo Cuenta Fiscal Mexico Child table
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mapeo-reclasificacion-fiscal-payment-entry" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mapeo Reclasificacion Fiscal Payment Entry
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regla-reclasificacion-fiscal-child-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Regla Reclasificacion Fiscal Child table
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#system-health-monitor" class="md-nav__link">
+    <span class="md-ellipsis">
+      System Health Monitor
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#facturas-globales" class="md-nav__link">
+    <span class="md-ellipsis">
+      Facturas Globales
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Facturas Globales">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#factura-global-detail-child-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Factura Global Detail Child table
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#factura-global-mx-submittable" class="md-nav__link">
+    <span class="md-ellipsis">
+      Factura Global MX Submittable
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#motor-reglas" class="md-nav__link">
+    <span class="md-ellipsis">
+      Motor Reglas
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Motor Reglas">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fiscal-validation-rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fiscal Validation Rule
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rule-action-child-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Rule Action Child table
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rule-condition-child-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Rule Condition Child table
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rule-execution-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      Rule Execution Log
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multi-sucursal" class="md-nav__link">
+    <span class="md-ellipsis">
+      Multi Sucursal
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Multi Sucursal">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuracion-fiscal-sucursal" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuracion Fiscal Sucursal
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validaciones" class="md-nav__link">
+    <span class="md-ellipsis">
+      Validaciones
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Validaciones">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sat-validation-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      SAT Validation Cache
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<!--
+  ARCHIVO GENERADO AUTOMÁTICAMENTE. NO EDITAR MANUALMENTE.
+  Regenerar con: python3 scripts/generate_reference.py
+  Fecha generación: 2026-05-30 02:32
+-->
+
+<h1 id="referencia-doctypes">Referencia — DocTypes<a class="headerlink" href="#referencia-doctypes" title="Permanent link">&para;</a></h1>
+<p>DocTypes del app organizados por módulo. Incluye campos activos (excluye Section Break, Column Break, HTML).</p>
+<h2 id="addendas">Addendas<a class="headerlink" href="#addendas" title="Permanent link">&para;</a></h2>
+<h3 id="addenda-configuration">Addenda Configuration<a class="headerlink" href="#addenda-configuration" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/addendas/doctype/addenda_configuration/addenda_configuration.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>customer</code></td>
+<td>Cliente</td>
+<td>Link</td>
+<td>✅</td>
+<td>Customer</td>
+</tr>
+<tr>
+<td><code>addenda_type</code></td>
+<td>Tipo de Addenda</td>
+<td>Link</td>
+<td>✅</td>
+<td>Addenda Type</td>
+</tr>
+<tr>
+<td><code>is_active</code></td>
+<td>Activo</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>priority</code></td>
+<td>Prioridad</td>
+<td>Int</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>auto_apply</code></td>
+<td>Aplicar Automáticamente</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>validation_level</code></td>
+<td>Nivel de Validación</td>
+<td>Select</td>
+<td></td>
+<td>Warning…</td>
+</tr>
+<tr>
+<td><code>effective_date</code></td>
+<td>Fecha de Inicio</td>
+<td>Date</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>expiry_date</code></td>
+<td>Fecha de Fin</td>
+<td>Date</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>notify_on_error</code></td>
+<td>Notificar Errores por Email</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>error_recipients</code></td>
+<td>Destinatarios de Errores</td>
+<td>Small Text</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>field_values</code></td>
+<td>Valores de Campos</td>
+<td>Table</td>
+<td></td>
+<td>Addenda Field Value</td>
+</tr>
+<tr>
+<td><code>creation_date</code></td>
+<td>Fecha de Creación</td>
+<td>Datetime</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>modified_date</code></td>
+<td>Fecha de Modificación</td>
+<td>Datetime</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>created_by</code></td>
+<td>Creado por</td>
+<td>Link</td>
+<td></td>
+<td>User</td>
+</tr>
+<tr>
+<td><code>modified_by</code></td>
+<td>Modificado por</td>
+<td>Link</td>
+<td></td>
+<td>User</td>
+</tr>
+</tbody>
+</table>
+<h3 id="addenda-field-definition-child-table">Addenda Field Definition <em>Child table</em><a class="headerlink" href="#addenda-field-definition-child-table" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/addendas/doctype/addenda_field_definition/addenda_field_definition.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>field_name</code></td>
+<td>Nombre Interno</td>
+<td>Data</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>field_label</code></td>
+<td>Etiqueta Visible</td>
+<td>Data</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>field_type</code></td>
+<td>Tipo de Campo</td>
+<td>Select</td>
+<td>✅</td>
+<td>Data…</td>
+</tr>
+<tr>
+<td><code>is_mandatory</code></td>
+<td>Obligatorio</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>default_value</code></td>
+<td>Valor por Defecto</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>options</code></td>
+<td>Opciones (para Select)</td>
+<td>Small Text</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>validation_pattern</code></td>
+<td>Patrón de Validación (Regex)</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>help_text</code></td>
+<td>Texto de Ayuda</td>
+<td>Text</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>xml_attribute</code></td>
+<td>Nombre del Atributo XML</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>xml_element</code></td>
+<td>Nombre del Elemento XML</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="addenda-field-value-child-table">Addenda Field Value <em>Child table</em><a class="headerlink" href="#addenda-field-value-child-table" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/addendas/doctype/addenda_field_value/addenda_field_value.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>field_definition</code></td>
+<td>Definición Campo</td>
+<td>Link</td>
+<td>✅</td>
+<td>Addenda Field Definition</td>
+</tr>
+<tr>
+<td><code>field_value</code></td>
+<td>Valor Campo</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>is_dynamic</code></td>
+<td>Es Dinámico</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>dynamic_source</code></td>
+<td>Fuente Dinámica</td>
+<td>Select</td>
+<td></td>
+<td>…</td>
+</tr>
+<tr>
+<td><code>dynamic_field</code></td>
+<td>Campo Dinámico</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>transformation</code></td>
+<td>Transformación</td>
+<td>Select</td>
+<td></td>
+<td>…</td>
+</tr>
+<tr>
+<td><code>validation_pattern</code></td>
+<td>Patrón de Validación</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>default_value</code></td>
+<td>Valor Por Defecto</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>is_required</code></td>
+<td>Es Requerido</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="addenda-product-mapping">Addenda Product Mapping<a class="headerlink" href="#addenda-product-mapping" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/addendas/doctype/addenda_product_mapping/addenda_product_mapping.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>customer</code></td>
+<td>Cliente</td>
+<td>Link</td>
+<td>✅</td>
+<td>Customer</td>
+</tr>
+<tr>
+<td><code>item</code></td>
+<td>Artículo</td>
+<td>Link</td>
+<td>✅</td>
+<td>Item</td>
+</tr>
+<tr>
+<td><code>item_code</code></td>
+<td>Código Artículo</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>item_name</code></td>
+<td>Nombre Artículo</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>customer_item_code</code></td>
+<td>Código Cliente</td>
+<td>Data</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>customer_item_description</code></td>
+<td>Descripción Cliente</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>customer_uom</code></td>
+<td>UOM Cliente</td>
+<td>Link</td>
+<td></td>
+<td>UOM</td>
+</tr>
+<tr>
+<td><code>is_active</code></td>
+<td>Activo</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>additional_data</code></td>
+<td>Datos Adicionales</td>
+<td>Code</td>
+<td></td>
+<td>JSON</td>
+</tr>
+<tr>
+<td><code>mapping_notes</code></td>
+<td>Notas del Mapeo</td>
+<td>Text</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>created_by</code></td>
+<td>Creado Por</td>
+<td>Link</td>
+<td></td>
+<td>User</td>
+</tr>
+<tr>
+<td><code>created_date</code></td>
+<td>Fecha de Creación</td>
+<td>Datetime</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>modified_by</code></td>
+<td>Modificado Por</td>
+<td>Link</td>
+<td></td>
+<td>User</td>
+</tr>
+<tr>
+<td><code>modified_date</code></td>
+<td>Fecha de Modificación</td>
+<td>Datetime</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="addenda-template">Addenda Template<a class="headerlink" href="#addenda-template" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/addendas/doctype/addenda_template/addenda_template.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name1</code></td>
+<td>Name</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>addenda_type</code></td>
+<td>Tipo de Addenda</td>
+<td>Link</td>
+<td>✅</td>
+<td>Addenda Type</td>
+</tr>
+<tr>
+<td><code>template_name</code></td>
+<td>Nombre del Template</td>
+<td>Data</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>version</code></td>
+<td>Versión</td>
+<td>Data</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>Descripción</td>
+<td>Small Text</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>is_default</code></td>
+<td>Es Template Por Defecto</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>template_xml</code></td>
+<td>Template XML</td>
+<td>Code</td>
+<td>✅</td>
+<td>XML</td>
+</tr>
+<tr>
+<td><code>usage_notes</code></td>
+<td>Notas de Uso</td>
+<td>Text Editor</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>created_by</code></td>
+<td>Creado Por</td>
+<td>Link</td>
+<td></td>
+<td>User</td>
+</tr>
+<tr>
+<td><code>created_date</code></td>
+<td>Fecha de Creación</td>
+<td>Datetime</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>modified_by</code></td>
+<td>Modificado Por</td>
+<td>Link</td>
+<td></td>
+<td>User</td>
+</tr>
+<tr>
+<td><code>modified_date</code></td>
+<td>Fecha de Modificación</td>
+<td>Datetime</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="addenda-type">Addenda Type<a class="headerlink" href="#addenda-type" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/addendas/doctype/addenda_type/addenda_type.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>Nombre del Tipo</td>
+<td>Data</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>Descripción</td>
+<td>Text</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>version</code></td>
+<td>Versión</td>
+<td>Data</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>namespace</code></td>
+<td>Namespace XML</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>is_active</code></td>
+<td>Activo</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>requires_product_mapping</code></td>
+<td>Requiere Mapeo de Productos</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>requires_specific_certificate</code></td>
+<td>Requiere Certificado Específico</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>documentation_url</code></td>
+<td>URL de Documentación</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>xml_template</code></td>
+<td>Template XML (Jinja2)</td>
+<td>Code</td>
+<td></td>
+<td>XML</td>
+</tr>
+<tr>
+<td><code>sample_xml</code></td>
+<td>XML de Ejemplo</td>
+<td>Code</td>
+<td></td>
+<td>XML</td>
+</tr>
+<tr>
+<td><code>xsd_schema</code></td>
+<td>Esquema XSD</td>
+<td>Code</td>
+<td></td>
+<td>XML</td>
+</tr>
+<tr>
+<td><code>field_definitions</code></td>
+<td>Campos Disponibles</td>
+<td>Table</td>
+<td></td>
+<td>Addenda Field Definition</td>
+</tr>
+<tr>
+<td><code>validation_rules</code></td>
+<td>Reglas de Validación (JSON)</td>
+<td>Code</td>
+<td></td>
+<td>JSON</td>
+</tr>
+<tr>
+<td><code>creation_date</code></td>
+<td>Fecha de Creación</td>
+<td>Datetime</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>modified_date</code></td>
+<td>Fecha de Modificación</td>
+<td>Datetime</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>created_by</code></td>
+<td>Creado por</td>
+<td>Link</td>
+<td></td>
+<td>User</td>
+</tr>
+<tr>
+<td><code>modified_by</code></td>
+<td>Modificado por</td>
+<td>Link</td>
+<td></td>
+<td>User</td>
+</tr>
+</tbody>
+</table>
+<h2 id="cfdi-recibidos">CFDI Recibidos<a class="headerlink" href="#cfdi-recibidos" title="Permanent link">&para;</a></h2>
+<h3 id="cfdi-concepto-mapping">CFDI Concepto Mapping<a class="headerlink" href="#cfdi-concepto-mapping" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/cfdi_recibidos/doctype/cfdi_concepto_mapping/cfdi_concepto_mapping.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>company</code></td>
+<td>Empresa</td>
+<td>Link</td>
+<td></td>
+<td>Company</td>
+</tr>
+<tr>
+<td><code>supplier</code></td>
+<td>Proveedor</td>
+<td>Link</td>
+<td></td>
+<td>Supplier</td>
+</tr>
+<tr>
+<td><code>supplier_rfc</code></td>
+<td>RFC Proveedor</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>sat_product_key</code></td>
+<td>Clave Producto/Servicio SAT</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>target_type</code></td>
+<td>Tipo de Destino</td>
+<td>Select</td>
+<td>✅</td>
+<td>Item…</td>
+</tr>
+<tr>
+<td><code>target_item</code></td>
+<td>Item</td>
+<td>Link</td>
+<td></td>
+<td>Item</td>
+</tr>
+<tr>
+<td><code>target_account</code></td>
+<td>Cuenta de Gasto</td>
+<td>Link</td>
+<td></td>
+<td>Account</td>
+</tr>
+<tr>
+<td><code>target_cost_center</code></td>
+<td>Centro de Costo</td>
+<td>Link</td>
+<td></td>
+<td>Cost Center</td>
+</tr>
+<tr>
+<td><code>is_active</code></td>
+<td>Activo</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="cfdi-recibido">CFDI Recibido<a class="headerlink" href="#cfdi-recibido" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/cfdi_recibidos/doctype/cfdi_recibido/cfdi_recibido.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>naming_series</code></td>
+<td>Serie</td>
+<td>Select</td>
+<td>✅</td>
+<td>CFDI-REC-.YYYY.-.#####</td>
+</tr>
+<tr>
+<td><code>uuid</code></td>
+<td>UUID CFDI</td>
+<td>Data</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>xml_file</code></td>
+<td>Archivo XML</td>
+<td>Attach</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>xml_hash</code></td>
+<td>Hash XML (SHA256)</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>company</code></td>
+<td>Empresa</td>
+<td>Link</td>
+<td>✅</td>
+<td>Company</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td>Estado</td>
+<td>Data</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>no_procesar</code></td>
+<td>No procesar</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>error_message</code></td>
+<td>Mensaje de Error</td>
+<td>Text</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>cfdi_type</code></td>
+<td>Tipo CFDI</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>version</code></td>
+<td>Versión</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>issue_date</code></td>
+<td>Fecha Emisión</td>
+<td>Date</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>serie</code></td>
+<td>Serie</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>folio</code></td>
+<td>Folio</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>currency</code></td>
+<td>Moneda</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>exchange_rate</code></td>
+<td>Tipo de Cambio</td>
+<td>Float</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>fm_payment_method_sat</code></td>
+<td>Método de Pago SAT</td>
+<td>Link</td>
+<td></td>
+<td>Metodo Pago SAT</td>
+</tr>
+<tr>
+<td><code>fm_payment_form_sat</code></td>
+<td>Forma de Pago SAT</td>
+<td>Link</td>
+<td></td>
+<td>Forma Pago SAT</td>
+</tr>
+<tr>
+<td><code>uso_cfdi</code></td>
+<td>Uso CFDI</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>supplier_rfc</code></td>
+<td>RFC Emisor</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>supplier_name</code></td>
+<td>Nombre Emisor</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>supplier_tax_regime</code></td>
+<td>Régimen Fiscal Emisor</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>receiver_rfc</code></td>
+<td>RFC Receptor</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>receiver_name</code></td>
+<td>Nombre Receptor</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>subtotal</code></td>
+<td>Subtotal</td>
+<td>Currency</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>discount</code></td>
+<td>Descuento</td>
+<td>Currency</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>total_impuestos_trasladados</code></td>
+<td>Total Impuestos Trasladados</td>
+<td>Currency</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>total_impuestos_retenidos</code></td>
+<td>Total Impuestos Retenidos</td>
+<td>Currency</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>total</code></td>
+<td>Total</td>
+<td>Currency</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>impuestos_json</code></td>
+<td>Impuestos (JSON completo)</td>
+<td>JSON</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>fecha_timbrado</code></td>
+<td>Fecha Timbrado</td>
+<td>Datetime</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>rfc_pac</code></td>
+<td>RFC del PAC</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>no_certificado_sat</code></td>
+<td>No. Certificado SAT</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>no_certificado_emisor</code></td>
+<td>No. Certificado Emisor</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>supplier</code></td>
+<td>Proveedor</td>
+<td>Link</td>
+<td></td>
+<td>Supplier</td>
+</tr>
+<tr>
+<td><code>department</code></td>
+<td>Departamento</td>
+<td>Link</td>
+<td></td>
+<td>Department</td>
+</tr>
+<tr>
+<td><code>purchase_invoice</code></td>
+<td>Factura de Compra</td>
+<td>Link</td>
+<td></td>
+<td>Purchase Invoice</td>
+</tr>
+<tr>
+<td><code>conceptos</code></td>
+<td>Conceptos</td>
+<td>Table</td>
+<td></td>
+<td>CFDI Recibido Concepto</td>
+</tr>
+</tbody>
+</table>
+<h3 id="cfdi-recibido-concepto-child-table">CFDI Recibido Concepto <em>Child table</em><a class="headerlink" href="#cfdi-recibido-concepto-child-table" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/cfdi_recibidos/doctype/cfdi_recibido_concepto/cfdi_recibido_concepto.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sat_product_key</code></td>
+<td>Clave Producto/Servicio SAT</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>no_identificacion</code></td>
+<td>No. Identificacion</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>Descripción</td>
+<td>Text</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>quantity</code></td>
+<td>Cantidad</td>
+<td>Float</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>unit_key</code></td>
+<td>Clave Unidad</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>unit</code></td>
+<td>Unidad</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>unit_price</code></td>
+<td>Valor Unitario</td>
+<td>Currency</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>amount</code></td>
+<td>Importe</td>
+<td>Currency</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>discount</code></td>
+<td>Descuento</td>
+<td>Currency</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>tax_object</code></td>
+<td>Objeto Impuesto</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>item_group</code></td>
+<td>Grupo de Gasto</td>
+<td>Link</td>
+<td></td>
+<td>Item Group</td>
+</tr>
+<tr>
+<td><code>item_code</code></td>
+<td>Item</td>
+<td>Link</td>
+<td></td>
+<td>Item</td>
+</tr>
+<tr>
+<td><code>item_resolution</code></td>
+<td>Resolución</td>
+<td>Select</td>
+<td></td>
+<td>Pendiente…</td>
+</tr>
+<tr>
+<td><code>item_match_reason</code></td>
+<td>Motivo de match</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>item_match_confidence</code></td>
+<td>Confianza</td>
+<td>Select</td>
+<td></td>
+<td>…</td>
+</tr>
+<tr>
+<td><code>taxes_json</code></td>
+<td>Impuestos (JSON)</td>
+<td>JSON</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="configuracion-cfdi-recibidos">Configuracion CFDI Recibidos<a class="headerlink" href="#configuracion-cfdi-recibidos" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/cfdi_recibidos/doctype/configuracion_cfdi_recibidos/configuracion_cfdi_recibidos.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>company</code></td>
+<td>Empresa</td>
+<td>Link</td>
+<td>✅</td>
+<td>Company</td>
+</tr>
+<tr>
+<td><code>reglas_impuesto</code></td>
+<td>Reglas de Impuesto</td>
+<td>Table</td>
+<td></td>
+<td>Regla Impuesto CFDI Recibido</td>
+</tr>
+<tr>
+<td><code>default_payment_terms_supplier</code></td>
+<td>Condiciones de Pago por Defecto (Proveedor)</td>
+<td>Link</td>
+<td></td>
+<td>Payment Terms Template</td>
+</tr>
+<tr>
+<td><code>mapeo_departamentos</code></td>
+<td>Mapeo de Departamentos</td>
+<td>Table</td>
+<td></td>
+<td>Mapeo Departamento CFDI Recibido</td>
+</tr>
+<tr>
+<td><code>purchase_taxes_template</code></td>
+<td>Purchase Taxes and Charges Template</td>
+<td>Link</td>
+<td></td>
+<td>Purchase Taxes and Charges Template</td>
+</tr>
+<tr>
+<td><code>wizard_completado</code></td>
+<td>Template Generado</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>ultima_generacion</code></td>
+<td>Última Generación</td>
+<td>Datetime</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>tolerancia_total_absoluta</code></td>
+<td>Tolerancia Absoluta (MXN)</td>
+<td>Float</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>tolerancia_total_porcentual</code></td>
+<td>Tolerancia Porcentual (%)</td>
+<td>Percent</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="mapeo-departamento-cfdi-recibido-child-table">Mapeo Departamento CFDI Recibido <em>Child table</em><a class="headerlink" href="#mapeo-departamento-cfdi-recibido-child-table" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/cfdi_recibidos/doctype/mapeo_departamento_cfdi_recibido/mapeo_departamento_cfdi_recibido.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>department</code></td>
+<td>Departamento</td>
+<td>Link</td>
+<td>✅</td>
+<td>Department</td>
+</tr>
+<tr>
+<td><code>familia_sat</code></td>
+<td>Familia SAT</td>
+<td>Select</td>
+<td></td>
+<td>…</td>
+</tr>
+</tbody>
+</table>
+<h3 id="regla-impuesto-cfdi-recibido-child-table">Regla Impuesto CFDI Recibido <em>Child table</em><a class="headerlink" href="#regla-impuesto-cfdi-recibido-child-table" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/cfdi_recibidos/doctype/regla_impuesto_cfdi_recibido/regla_impuesto_cfdi_recibido.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>impuesto_sat</code></td>
+<td>Impuesto SAT</td>
+<td>Link</td>
+<td>✅</td>
+<td>Impuesto SAT</td>
+</tr>
+<tr>
+<td><code>tipo_factor</code></td>
+<td>Tipo Factor</td>
+<td>Select</td>
+<td></td>
+<td>…</td>
+</tr>
+<tr>
+<td><code>tasa_cuota</code></td>
+<td>Tasa</td>
+<td>Float</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>descripcion</code></td>
+<td>Descripción</td>
+<td>Data</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>es_retencion</code></td>
+<td>Es Retención</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>cuenta_impuesto</code></td>
+<td>Cuenta Contable</td>
+<td>Link</td>
+<td></td>
+<td>Account</td>
+</tr>
+<tr>
+<td><code>activo</code></td>
+<td>Activo</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="regla-item-cfdi-recibido">Regla Item CFDI Recibido<a class="headerlink" href="#regla-item-cfdi-recibido" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/cfdi_recibidos/doctype/regla_item_cfdi_recibido/regla_item_cfdi_recibido.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>target_item</code></td>
+<td>Artículo</td>
+<td>Link</td>
+<td>✅</td>
+<td>Item</td>
+</tr>
+<tr>
+<td><code>match_reason</code></td>
+<td>Motivo / Descripcion</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>company</code></td>
+<td>Empresa</td>
+<td>Link</td>
+<td></td>
+<td>Company</td>
+</tr>
+<tr>
+<td><code>supplier_rfc</code></td>
+<td>RFC Proveedor</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>sat_product_key</code></td>
+<td>Clave SAT Producto/Servicio</td>
+<td>Link</td>
+<td></td>
+<td>SAT Producto Servicio</td>
+</tr>
+<tr>
+<td><code>keywords</code></td>
+<td>Palabras clave</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>priority</code></td>
+<td>Prioridad</td>
+<td>Int</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>is_active</code></td>
+<td>Activa</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="catalogos-sat">Catalogos SAT<a class="headerlink" href="#catalogos-sat" title="Permanent link">&para;</a></h2>
+<h3 id="forma-pago-sat">Forma Pago SAT<a class="headerlink" href="#forma-pago-sat" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/catalogos_sat/doctype/forma_pago_sat/forma_pago_sat.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>code</code></td>
+<td>Código</td>
+<td>Data</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>Descripción</td>
+<td>Data</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>vigencia_desde</code></td>
+<td>Vigencia Desde</td>
+<td>Date</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>vigencia_hasta</code></td>
+<td>Vigencia Hasta</td>
+<td>Date</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="impuesto-sat">Impuesto SAT<a class="headerlink" href="#impuesto-sat" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/catalogos_sat/doctype/impuesto_sat/impuesto_sat.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>code</code></td>
+<td>Código</td>
+<td>Data</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>Descripción</td>
+<td>Data</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>vigencia_desde</code></td>
+<td>Vigencia Desde</td>
+<td>Date</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>vigencia_hasta</code></td>
+<td>Vigencia Hasta</td>
+<td>Date</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="metodo-pago-sat">Metodo Pago SAT<a class="headerlink" href="#metodo-pago-sat" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/catalogos_sat/doctype/metodo_pago_sat/metodo_pago_sat.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>code</code></td>
+<td>Código</td>
+<td>Data</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>Descripción</td>
+<td>Data</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>vigencia_desde</code></td>
+<td>Vigencia Desde</td>
+<td>Date</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>vigencia_hasta</code></td>
+<td>Vigencia Hasta</td>
+<td>Date</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="moneda-sat">Moneda SAT<a class="headerlink" href="#moneda-sat" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/catalogos_sat/doctype/moneda_sat/moneda_sat.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>code</code></td>
+<td>Código</td>
+<td>Data</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>Descripción</td>
+<td>Data</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>decimales</code></td>
+<td>Decimales</td>
+<td>Int</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>vigencia_desde</code></td>
+<td>Vigencia Desde</td>
+<td>Date</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>vigencia_hasta</code></td>
+<td>Vigencia Hasta</td>
+<td>Date</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="regimen-fiscal-sat">Regimen Fiscal SAT<a class="headerlink" href="#regimen-fiscal-sat" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/catalogos_sat/doctype/regimen_fiscal_sat/regimen_fiscal_sat.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>code</code></td>
+<td>Código</td>
+<td>Data</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>Descripción</td>
+<td>Data</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>aplica_fisica</code></td>
+<td>Aplica Persona Física</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>aplica_moral</code></td>
+<td>Aplica Persona Moral</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>vigencia_desde</code></td>
+<td>Vigencia Desde</td>
+<td>Date</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>vigencia_hasta</code></td>
+<td>Vigencia Hasta</td>
+<td>Date</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="sat-producto-servicio">SAT Producto Servicio<a class="headerlink" href="#sat-producto-servicio" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/catalogos_sat/doctype/sat_producto_servicio/sat_producto_servicio.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>codigo</code></td>
+<td>Código</td>
+<td>Data</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>descripcion</code></td>
+<td>Descripción</td>
+<td>Data</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>incluye_objeto_impuesto</code></td>
+<td>Incluye Objeto Impuesto</td>
+<td>Select</td>
+<td></td>
+<td>01…</td>
+</tr>
+<tr>
+<td><code>complemento</code></td>
+<td>Complemento</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>fecha_inicio_vigencia</code></td>
+<td>Fecha Inicio Vigencia</td>
+<td>Date</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>fecha_fin_vigencia</code></td>
+<td>Fecha Fin Vigencia</td>
+<td>Date</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>palabras_similares</code></td>
+<td>Palabras Similares</td>
+<td>Text</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="tasa-iva-sat">Tasa IVA SAT<a class="headerlink" href="#tasa-iva-sat" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/catalogos_sat/doctype/tasa_iva_sat/tasa_iva_sat.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>clave</code></td>
+<td>Clave</td>
+<td>Data</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>descripcion</code></td>
+<td>Descripción</td>
+<td>Data</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>tasa_cuota</code></td>
+<td>Tasa</td>
+<td>Float</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>activo</code></td>
+<td>Activo</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="uso-cfdi-sat">Uso CFDI SAT<a class="headerlink" href="#uso-cfdi-sat" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/catalogos_sat/doctype/uso_cfdi_sat/uso_cfdi_sat.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>code</code></td>
+<td>Código</td>
+<td>Data</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>Descripción</td>
+<td>Data</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>aplica_fisica</code></td>
+<td>Aplica Persona Física</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>aplica_moral</code></td>
+<td>Aplica Persona Moral</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>vigencia_desde</code></td>
+<td>Vigencia Desde</td>
+<td>Date</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>vigencia_hasta</code></td>
+<td>Vigencia Hasta</td>
+<td>Date</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="complementos-pago">Complementos Pago<a class="headerlink" href="#complementos-pago" title="Permanent link">&para;</a></h2>
+<h3 id="complemento-pago-mx-submittable">Complemento Pago MX <em>Submittable</em><a class="headerlink" href="#complemento-pago-mx-submittable" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/complementos_pago/doctype/complemento_pago_mx/complemento_pago_mx.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>payment_entry</code></td>
+<td>Payment Entry</td>
+<td>Link</td>
+<td></td>
+<td>Payment Entry</td>
+</tr>
+<tr>
+<td><code>company</code></td>
+<td>Empresa</td>
+<td>Link</td>
+<td></td>
+<td>Company</td>
+</tr>
+<tr>
+<td><code>customer</code></td>
+<td>Cliente</td>
+<td>Link</td>
+<td></td>
+<td>Customer</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td>Estado</td>
+<td>Select</td>
+<td></td>
+<td>…</td>
+</tr>
+<tr>
+<td><code>fecha_pago</code></td>
+<td>Fecha de Pago</td>
+<td>Datetime</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>forma_pago_p</code></td>
+<td>Forma de Pago</td>
+<td>Link</td>
+<td>✅</td>
+<td>Forma Pago SAT</td>
+</tr>
+<tr>
+<td><code>moneda_p</code></td>
+<td>Moneda</td>
+<td>Link</td>
+<td>✅</td>
+<td>Moneda SAT</td>
+</tr>
+<tr>
+<td><code>monto_p</code></td>
+<td>Monto</td>
+<td>Currency</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>tipo_cambio_p</code></td>
+<td>Tipo de Cambio</td>
+<td>Currency</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>uuid_sat</code></td>
+<td>UUID SAT</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>serie_folio</code></td>
+<td>Serie y Folio</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>folio_fiscal</code></td>
+<td>Folio Fiscal</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>estatus_sat</code></td>
+<td>Estatus SAT</td>
+<td>Select</td>
+<td></td>
+<td>…</td>
+</tr>
+<tr>
+<td><code>fecha_timbrado</code></td>
+<td>Fecha de Timbrado</td>
+<td>Datetime</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>id_documento</code></td>
+<td>ID Documento</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>fecha_folio_fiscal</code></td>
+<td>Fecha Folio Fiscal</td>
+<td>Date</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>no_certificado_sat</code></td>
+<td>No. Certificado SAT</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>fecha_certificacion_sat</code></td>
+<td>Fecha Certificación SAT</td>
+<td>Datetime</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>pac_cert_sat</code></td>
+<td>PAC Certificado SAT</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>version</code></td>
+<td>Versión Complemento</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>version_cfdi</code></td>
+<td>Versión CFDI</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>facturapi_id</code></td>
+<td>FacturAPI ID</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>pdf_file</code></td>
+<td>PDF</td>
+<td>Attach</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>xml_file</code></td>
+<td>XML</td>
+<td>Attach</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>fm_ultimo_response_log</code></td>
+<td>Último Log de Respuesta</td>
+<td>Link</td>
+<td></td>
+<td>FacturAPI Response Log</td>
+</tr>
+<tr>
+<td><code>num_operacion</code></td>
+<td>Número de Operación</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>rfc_emisor_cta_ord</code></td>
+<td>RFC Emisor Cuenta Ordenante</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>nom_banco_ord_ext</code></td>
+<td>Nombre Banco Ordenante Extranjero</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>cta_ordenante</code></td>
+<td>Cuenta Ordenante</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>rfc_emisor_cta_ben</code></td>
+<td>RFC Emisor Cuenta Beneficiario</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>cta_beneficiario</code></td>
+<td>Cuenta Beneficiario</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>tipo_cad_pago</code></td>
+<td>Tipo Cadena Pago</td>
+<td>Select</td>
+<td></td>
+<td>…</td>
+</tr>
+<tr>
+<td><code>cert_pago</code></td>
+<td>Certificado Pago</td>
+<td>Long Text</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>cad_pago</code></td>
+<td>Cadena Pago</td>
+<td>Long Text</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>sello_pago</code></td>
+<td>Sello Pago</td>
+<td>Long Text</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>documentos_relacionados</code></td>
+<td>Documentos Relacionados</td>
+<td>Table</td>
+<td></td>
+<td>Documento Relacionado Pago MX</td>
+</tr>
+<tr>
+<td><code>detalles_impuestos</code></td>
+<td>Impuestos Trasladados y Retenidos</td>
+<td>Table</td>
+<td></td>
+<td>Detalle Complemento Pago MX</td>
+</tr>
+<tr>
+<td><code>naming_series</code></td>
+<td>Serie de Nomenclatura</td>
+<td>Select</td>
+<td>✅</td>
+<td>COMP-PAG-.YYYY.-</td>
+</tr>
+<tr>
+<td><code>amended_from</code></td>
+<td>Amended From</td>
+<td>Link</td>
+<td></td>
+<td>Complemento Pago MX</td>
+</tr>
+</tbody>
+</table>
+<h3 id="detalle-complemento-pago-mx-child-table">Detalle Complemento Pago MX <em>Child table</em><a class="headerlink" href="#detalle-complemento-pago-mx-child-table" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/complementos_pago/doctype/detalle_complemento_pago_mx/detalle_complemento_pago_mx.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tipo_impuesto</code></td>
+<td>Tipo Impuesto</td>
+<td>Select</td>
+<td>✅</td>
+<td>…</td>
+</tr>
+<tr>
+<td><code>impuesto</code></td>
+<td>Impuesto</td>
+<td>Link</td>
+<td>✅</td>
+<td>Impuesto SAT</td>
+</tr>
+<tr>
+<td><code>tipo_factor</code></td>
+<td>Tipo Factor</td>
+<td>Select</td>
+<td>✅</td>
+<td>…</td>
+</tr>
+<tr>
+<td><code>tasa_cuota</code></td>
+<td>Tasa o Cuota</td>
+<td>Currency</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>base_dr</code></td>
+<td>Base DR</td>
+<td>Currency</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>importe_dr</code></td>
+<td>Importe DR</td>
+<td>Currency</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>documento_relacionado</code></td>
+<td>ID Documento Relacionado</td>
+<td>Data</td>
+<td>✅</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="documento-relacionado-pago-mx-child-table">Documento Relacionado Pago MX <em>Child table</em><a class="headerlink" href="#documento-relacionado-pago-mx-child-table" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/complementos_pago/doctype/documento_relacionado_pago_mx/documento_relacionado_pago_mx.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id_documento</code></td>
+<td>ID Documento</td>
+<td>Data</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>serie</code></td>
+<td>Serie</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>folio</code></td>
+<td>Folio</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>moneda_dr</code></td>
+<td>Moneda</td>
+<td>Link</td>
+<td>✅</td>
+<td>Moneda SAT</td>
+</tr>
+<tr>
+<td><code>equivalencia_dr</code></td>
+<td>Equivalencia DR</td>
+<td>Currency</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>num_parcialidad</code></td>
+<td>Número Parcialidad</td>
+<td>Int</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>imp_saldo_ant</code></td>
+<td>Importe Saldo Anterior</td>
+<td>Currency</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>imp_pagado</code></td>
+<td>Importe Pagado</td>
+<td>Currency</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>imp_saldo_insoluto</code></td>
+<td>Importe Saldo Insoluto</td>
+<td>Currency</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>objeto_imp_dr</code></td>
+<td>Objeto Impuesto</td>
+<td>Select</td>
+<td>✅</td>
+<td>…</td>
+</tr>
+<tr>
+<td><code>tipo_documento</code></td>
+<td>Tipo Documento</td>
+<td>Select</td>
+<td></td>
+<td>…</td>
+</tr>
+<tr>
+<td><code>referencia_documento</code></td>
+<td>Referencia Documento</td>
+<td>Dynamic Link</td>
+<td></td>
+<td>tipo_documento</td>
+</tr>
+</tbody>
+</table>
+<h2 id="dashboard-fiscal">Dashboard Fiscal<a class="headerlink" href="#dashboard-fiscal" title="Permanent link">&para;</a></h2>
+<h3 id="dashboard-user-preference">Dashboard User Preference<a class="headerlink" href="#dashboard-user-preference" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/dashboard_fiscal/doctype/dashboard_user_preference/dashboard_user_preference.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>user</code></td>
+<td>Usuario</td>
+<td>Link</td>
+<td>✅</td>
+<td>User</td>
+</tr>
+<tr>
+<td><code>last_viewed</code></td>
+<td>Último Acceso</td>
+<td>Datetime</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>default_company</code></td>
+<td>Company por Defecto</td>
+<td>Link</td>
+<td></td>
+<td>Company</td>
+</tr>
+<tr>
+<td><code>dashboard_theme</code></td>
+<td>Tema Dashboard</td>
+<td>Select</td>
+<td></td>
+<td>Light…</td>
+</tr>
+<tr>
+<td><code>dashboard_layout</code></td>
+<td>Layout del Dashboard</td>
+<td>JSON</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>custom_date_range</code></td>
+<td>Rango de Fechas por Defecto</td>
+<td>Select</td>
+<td></td>
+<td>Today…</td>
+</tr>
+<tr>
+<td><code>auto_refresh_enabled</code></td>
+<td>Auto-refresh Activado</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>refresh_interval</code></td>
+<td>Intervalo Refresh (segundos)</td>
+<td>Int</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>favorite_widgets</code></td>
+<td>Widgets Favoritos (JSON)</td>
+<td>Small Text</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>hidden_widgets</code></td>
+<td>Widgets Ocultos (JSON)</td>
+<td>Small Text</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>notification_preferences</code></td>
+<td>Preferencias de Notificaciones</td>
+<td>JSON</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>email_digest_enabled</code></td>
+<td>Resumen Email Activado</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>alert_frequency</code></td>
+<td>Frecuencia de Alertas</td>
+<td>Select</td>
+<td></td>
+<td>Immediate…</td>
+</tr>
+<tr>
+<td><code>mobile_notifications</code></td>
+<td>Notificaciones Móviles</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="dashboard-widget-allowed-role-child-table">Dashboard Widget Allowed Role <em>Child table</em><a class="headerlink" href="#dashboard-widget-allowed-role-child-table" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/dashboard_fiscal/doctype/dashboard_widget_allowed_role/dashboard_widget_allowed_role.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>role</code></td>
+<td>Rol</td>
+<td>Link</td>
+<td>✅</td>
+<td>Role</td>
+</tr>
+</tbody>
+</table>
+<h3 id="dashboard-widget-config">Dashboard Widget Config<a class="headerlink" href="#dashboard-widget-config" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/dashboard_fiscal/doctype/dashboard_widget_config/dashboard_widget_config.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>widget_name</code></td>
+<td>Nombre del Widget</td>
+<td>Data</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>widget_code</code></td>
+<td>Código del Widget</td>
+<td>Data</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>widget_type</code></td>
+<td>Tipo de Widget</td>
+<td>Select</td>
+<td>✅</td>
+<td>KPI…</td>
+</tr>
+<tr>
+<td><code>module</code></td>
+<td>Módulo</td>
+<td>Select</td>
+<td>✅</td>
+<td>Timbrado…</td>
+</tr>
+<tr>
+<td><code>is_active</code></td>
+<td>Widget Activo</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>display_order</code></td>
+<td>Orden de Display</td>
+<td>Int</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>grid_row</code></td>
+<td>Fila del Grid</td>
+<td>Int</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>grid_col</code></td>
+<td>Columna del Grid</td>
+<td>Int</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>grid_width</code></td>
+<td>Ancho del Grid</td>
+<td>Int</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>grid_height</code></td>
+<td>Alto del Grid</td>
+<td>Int</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>css_classes</code></td>
+<td>Clases CSS</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>custom_styles</code></td>
+<td>Estilos Personalizados (JSON)</td>
+<td>Code</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>data_source</code></td>
+<td>Fuente de Datos</td>
+<td>Select</td>
+<td></td>
+<td>Registry KPI…</td>
+</tr>
+<tr>
+<td><code>kpi_function</code></td>
+<td>Función KPI</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>chart_config</code></td>
+<td>Configuración del Chart (JSON)</td>
+<td>Code</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>custom_query</code></td>
+<td>Query Personalizada (SQL)</td>
+<td>Code</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>refresh_interval</code></td>
+<td>Intervalo de Actualización (seg)</td>
+<td>Int</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>cache_enabled</code></td>
+<td>Cache Habilitado</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>cache_ttl</code></td>
+<td>TTL del Cache (seg)</td>
+<td>Int</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>title_template</code></td>
+<td>Template del Título</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>value_format</code></td>
+<td>Formato del Valor</td>
+<td>Select</td>
+<td></td>
+<td>currency…</td>
+</tr>
+<tr>
+<td><code>color_config</code></td>
+<td>Configuración de Colores (JSON)</td>
+<td>Code</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>icon_config</code></td>
+<td>Configuración del Icono (JSON)</td>
+<td>Code</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>show_trend</code></td>
+<td>Mostrar Tendencia</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>trend_period</code></td>
+<td>Período de Tendencia (días)</td>
+<td>Int</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>show_comparison</code></td>
+<td>Mostrar Comparación</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>allowed_roles</code></td>
+<td>Roles Permitidos</td>
+<td>Table</td>
+<td></td>
+<td>Dashboard Widget Allowed Role</td>
+</tr>
+<tr>
+<td><code>required_permissions</code></td>
+<td>Permisos Requeridos</td>
+<td>Text</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>last_updated</code></td>
+<td>Última Actualización</td>
+<td>Datetime</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>view_count</code></td>
+<td>Veces Visualizado</td>
+<td>Int</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>last_accessed</code></td>
+<td>Último Acceso</td>
+<td>Datetime</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="fiscal-alert-notify-role-child-table">Fiscal Alert Notify Role <em>Child table</em><a class="headerlink" href="#fiscal-alert-notify-role-child-table" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/dashboard_fiscal/doctype/fiscal_alert_notify_role/fiscal_alert_notify_role.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>role</code></td>
+<td>Rol</td>
+<td>Link</td>
+<td>✅</td>
+<td>Role</td>
+</tr>
+</tbody>
+</table>
+<h3 id="fiscal-alert-notify-user-child-table">Fiscal Alert Notify User <em>Child table</em><a class="headerlink" href="#fiscal-alert-notify-user-child-table" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/dashboard_fiscal/doctype/fiscal_alert_notify_user/fiscal_alert_notify_user.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>user</code></td>
+<td>Usuario</td>
+<td>Link</td>
+<td>✅</td>
+<td>User</td>
+</tr>
+</tbody>
+</table>
+<h3 id="fiscal-alert-rule">Fiscal Alert Rule<a class="headerlink" href="#fiscal-alert-rule" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/dashboard_fiscal/doctype/fiscal_alert_rule/fiscal_alert_rule.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>alert_name</code></td>
+<td>Nombre de la Alerta</td>
+<td>Data</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>alert_code</code></td>
+<td>Código de Alerta</td>
+<td>Data</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>alert_type</code></td>
+<td>Tipo de Alerta</td>
+<td>Select</td>
+<td>✅</td>
+<td>Error…</td>
+</tr>
+<tr>
+<td><code>module</code></td>
+<td>Módulo</td>
+<td>Select</td>
+<td>✅</td>
+<td>Timbrado…</td>
+</tr>
+<tr>
+<td><code>is_active</code></td>
+<td>Alerta Activa</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>priority</code></td>
+<td>Prioridad</td>
+<td>Int</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>condition_type</code></td>
+<td>Tipo de Condición</td>
+<td>Select</td>
+<td></td>
+<td>Count…</td>
+</tr>
+<tr>
+<td><code>condition_field</code></td>
+<td>Campo a Evaluar</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>condition_operator</code></td>
+<td>Operador</td>
+<td>Select</td>
+<td></td>
+<td>&gt;…</td>
+</tr>
+<tr>
+<td><code>condition_value</code></td>
+<td>Valor de Comparación</td>
+<td>Float</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>custom_condition</code></td>
+<td>Condición Personalizada (Python)</td>
+<td>Code</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>message_template</code></td>
+<td>Plantilla de Mensaje</td>
+<td>Text</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>notify_roles</code></td>
+<td>Roles a Notificar</td>
+<td>Table</td>
+<td></td>
+<td>Fiscal Alert Notify Role</td>
+</tr>
+<tr>
+<td><code>notify_users</code></td>
+<td>Usuarios Específicos</td>
+<td>Table</td>
+<td></td>
+<td>Fiscal Alert Notify User</td>
+</tr>
+<tr>
+<td><code>send_email</code></td>
+<td>Enviar Notificación por Email</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>show_in_dashboard</code></td>
+<td>Mostrar en Dashboard</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>last_triggered</code></td>
+<td>Última Activación</td>
+<td>Datetime</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>trigger_count</code></td>
+<td>Veces Activada</td>
+<td>Int</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="fiscal-dashboard-config-single">Fiscal Dashboard Config <em>Single</em><a class="headerlink" href="#fiscal-dashboard-config-single" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/dashboard_fiscal/doctype/fiscal_dashboard_config/fiscal_dashboard_config.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>refresh_interval</code></td>
+<td>Intervalo de Actualización (segundos)</td>
+<td>Int</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>enable_auto_refresh</code></td>
+<td>Habilitar Actualización Automática</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>cache_duration</code></td>
+<td>Duración Cache (segundos)</td>
+<td>Int</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>performance_mode</code></td>
+<td>Modo Rendimiento</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>default_period</code></td>
+<td>Período Por Defecto</td>
+<td>Select</td>
+<td>✅</td>
+<td>today…</td>
+</tr>
+<tr>
+<td><code>dashboard_theme</code></td>
+<td>Tema del Dashboard</td>
+<td>Select</td>
+<td>✅</td>
+<td>light…</td>
+</tr>
+<tr>
+<td><code>show_trend_indicators</code></td>
+<td>Mostrar Indicadores de Tendencia</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>enable_drill_down</code></td>
+<td>Habilitar Drill-Down</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>show_monetary_in_thousands</code></td>
+<td>Mostrar Montos en Miles</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>default_widgets_layout</code></td>
+<td>Layout Por Defecto de Widgets</td>
+<td>JSON</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>enable_alerts</code></td>
+<td>Sistema de Alertas Activo</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>alert_check_frequency</code></td>
+<td>Frecuencia de Verificación de Alertas</td>
+<td>Select</td>
+<td></td>
+<td>5min…</td>
+</tr>
+</tbody>
+</table>
+<h3 id="fiscal-health-factor-child-table">Fiscal Health Factor <em>Child table</em><a class="headerlink" href="#fiscal-health-factor-child-table" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/dashboard_fiscal/doctype/fiscal_health_factor/fiscal_health_factor.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>factor_type</code></td>
+<td>Tipo de Factor</td>
+<td>Select</td>
+<td>✅</td>
+<td>Timbrado…</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>Descripción</td>
+<td>Text</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>impact_score</code></td>
+<td>Impacto Score</td>
+<td>Int</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>calculation_details</code></td>
+<td>Detalles de Cálculo</td>
+<td>Small Text</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="fiscal-health-recommendation-child-table">Fiscal Health Recommendation <em>Child table</em><a class="headerlink" href="#fiscal-health-recommendation-child-table" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/dashboard_fiscal/doctype/fiscal_health_recommendation/fiscal_health_recommendation.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>category</code></td>
+<td>Categoría</td>
+<td>Select</td>
+<td>✅</td>
+<td>Timbrado…</td>
+</tr>
+<tr>
+<td><code>recommendation</code></td>
+<td>Recomendación</td>
+<td>Text</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>priority</code></td>
+<td>Prioridad</td>
+<td>Select</td>
+<td>✅</td>
+<td>High…</td>
+</tr>
+<tr>
+<td><code>estimated_days</code></td>
+<td>Días Estimados</td>
+<td>Int</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>action_required</code></td>
+<td>Acción Requerida</td>
+<td>Small Text</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>responsible_role</code></td>
+<td>Rol Responsable</td>
+<td>Link</td>
+<td></td>
+<td>Role</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td>Estado</td>
+<td>Select</td>
+<td></td>
+<td>Pending…</td>
+</tr>
+<tr>
+<td><code>implementation_date</code></td>
+<td>Fecha Implementación</td>
+<td>Date</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>completion_notes</code></td>
+<td>Notas de Completado</td>
+<td>Small Text</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="fiscal-health-score">Fiscal Health Score<a class="headerlink" href="#fiscal-health-score" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/dashboard_fiscal/doctype/fiscal_health_score/fiscal_health_score.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>score_date</code></td>
+<td>Fecha del Score</td>
+<td>Date</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>company</code></td>
+<td>Company</td>
+<td>Link</td>
+<td>✅</td>
+<td>Company</td>
+</tr>
+<tr>
+<td><code>overall_score</code></td>
+<td>Score General</td>
+<td>Float</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>calculation_method</code></td>
+<td>Método de Cálculo</td>
+<td>Select</td>
+<td></td>
+<td>Weighted Average…</td>
+</tr>
+<tr>
+<td><code>last_calculated</code></td>
+<td>Última Calculación</td>
+<td>Datetime</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>timbrado_score</code></td>
+<td>Score Timbrado</td>
+<td>Float</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>ppd_score</code></td>
+<td>Score PPD</td>
+<td>Float</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>ereceipts_score</code></td>
+<td>Score E-Receipts</td>
+<td>Float</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>addendas_score</code></td>
+<td>Score Addendas</td>
+<td>Float</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>global_invoices_score</code></td>
+<td>Score Facturas Globales</td>
+<td>Float</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>rules_compliance_score</code></td>
+<td>Score Cumplimiento Reglas</td>
+<td>Float</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>factors_positive</code></td>
+<td>Factores Positivos</td>
+<td>Table</td>
+<td></td>
+<td>Fiscal Health Factor</td>
+</tr>
+<tr>
+<td><code>factors_negative</code></td>
+<td>Factores Negativos</td>
+<td>Table</td>
+<td></td>
+<td>Fiscal Health Factor</td>
+</tr>
+<tr>
+<td><code>recommendations</code></td>
+<td>Recomendaciones</td>
+<td>Table</td>
+<td></td>
+<td>Fiscal Health Recommendation</td>
+</tr>
+<tr>
+<td><code>created_by</code></td>
+<td>Creado por</td>
+<td>Link</td>
+<td></td>
+<td>User</td>
+</tr>
+<tr>
+<td><code>calculation_duration_ms</code></td>
+<td>Duración Cálculo (ms)</td>
+<td>Int</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="ereceipts">EReceipts<a class="headerlink" href="#ereceipts" title="Permanent link">&para;</a></h2>
+<h3 id="ereceipt-mx-submittable">EReceipt MX <em>Submittable</em><a class="headerlink" href="#ereceipt-mx-submittable" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/ereceipts/doctype/ereceipt_mx/ereceipt_mx.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>naming_series</code></td>
+<td>Serie de Nomenclatura</td>
+<td>Select</td>
+<td>✅</td>
+<td>E-REC-.YYYY.-</td>
+</tr>
+<tr>
+<td><code>sales_invoice</code></td>
+<td>Sales Invoice</td>
+<td>Link</td>
+<td></td>
+<td>Sales Invoice</td>
+</tr>
+<tr>
+<td><code>company</code></td>
+<td>Company</td>
+<td>Link</td>
+<td>✅</td>
+<td>Company</td>
+</tr>
+<tr>
+<td><code>customer</code></td>
+<td>Customer</td>
+<td>Link</td>
+<td></td>
+<td>Customer</td>
+</tr>
+<tr>
+<td><code>customer_name</code></td>
+<td>Customer Name</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>total</code></td>
+<td>Total</td>
+<td>Currency</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>date_issued</code></td>
+<td>Fecha de Emisión</td>
+<td>Date</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td>Status</td>
+<td>Select</td>
+<td>✅</td>
+<td>open…</td>
+</tr>
+<tr>
+<td><code>expiry_type</code></td>
+<td>Tipo de Vencimiento</td>
+<td>Select</td>
+<td>✅</td>
+<td>Fixed Days…</td>
+</tr>
+<tr>
+<td><code>expiry_days</code></td>
+<td>Días para Vencer</td>
+<td>Int</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>expiry_date</code></td>
+<td>Fecha de Vencimiento</td>
+<td>Date</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>days_to_expire</code></td>
+<td>Días Restantes</td>
+<td>Int</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>facturapi_id</code></td>
+<td>FacturAPI ID</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>key</code></td>
+<td>Clave de Autofactura</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>self_invoice_url</code></td>
+<td>URL de Autofacturación</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>receipt_pdf_url</code></td>
+<td>URL del PDF</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>invoiced</code></td>
+<td>Ya Facturado</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>related_factura_fiscal</code></td>
+<td>Factura Fiscal Generada</td>
+<td>Link</td>
+<td></td>
+<td>Factura Fiscal Mexico</td>
+</tr>
+<tr>
+<td><code>included_in_global</code></td>
+<td>Incluido en Factura Global</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>global_invoice_date</code></td>
+<td>Fecha Factura Global</td>
+<td>Date</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>creation_method</code></td>
+<td>Método de Creación</td>
+<td>Select</td>
+<td></td>
+<td>Automatic…</td>
+</tr>
+<tr>
+<td><code>created_by_user</code></td>
+<td>Creado Por</td>
+<td>Link</td>
+<td></td>
+<td>User</td>
+</tr>
+<tr>
+<td><code>last_status_check</code></td>
+<td>Última Verificación de Status</td>
+<td>Datetime</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>notes</code></td>
+<td>Notas</td>
+<td>Small Text</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>amended_from</code></td>
+<td>Amended From</td>
+<td>Link</td>
+<td></td>
+<td>EReceipt MX</td>
+</tr>
+</tbody>
+</table>
+<h2 id="facturacion-fiscal">Facturacion Fiscal<a class="headerlink" href="#facturacion-fiscal" title="Permanent link">&para;</a></h2>
+<h3 id="configuracion-fiscal-mexico">Configuracion Fiscal Mexico<a class="headerlink" href="#configuracion-fiscal-mexico" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/facturacion_fiscal/doctype/configuracion_fiscal_mexico/configuracion_fiscal_mexico.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>company</code></td>
+<td>Empresa</td>
+<td>Link</td>
+<td>✅</td>
+<td>Company</td>
+</tr>
+<tr>
+<td><code>enable_exento</code></td>
+<td>IVA Exento</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>enable_frontera</code></td>
+<td>Zona Fronteriza</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>enable_exportacion</code></td>
+<td>Exportación (IVA 0%)</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>enable_ieps_alcohol</code></td>
+<td>IEPS Alcohol</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>enable_ieps_azucar</code></td>
+<td>IEPS Azúcar/Bebidas</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>enable_ieps_combustibles</code></td>
+<td>IEPS Combustibles</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>enable_ieps_tabaco</code></td>
+<td>IEPS Tabaco</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>enable_ret_honorarios</code></td>
+<td>Retenciones Honorarios</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>enable_ret_arrendamiento</code></td>
+<td>Retenciones Arrendamiento</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>enable_ret_autotransporte</code></td>
+<td>Retenciones Autotransporte</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>enable_ret_resico</code></td>
+<td>Retenciones RESICO</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>tasa_isr_resico</code></td>
+<td>Tasa ISR RESICO</td>
+<td>Percent</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>mapeo_cuentas</code></td>
+<td>Cuentas de Impuestos</td>
+<td>Table</td>
+<td>✅</td>
+<td>Mapeo Cuenta Fiscal Mexico</td>
+</tr>
+<tr>
+<td><code>configuracion_completa</code></td>
+<td>Configuración Completa</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>ultima_actualizacion</code></td>
+<td>Última Actualización</td>
+<td>Datetime</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>templates_generados</code></td>
+<td>Templates Generados</td>
+<td>Int</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>version_esquema</code></td>
+<td>Versión Esquema</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="configuracion-reclasificacion-fiscal-mexico">Configuracion Reclasificacion Fiscal Mexico<a class="headerlink" href="#configuracion-reclasificacion-fiscal-mexico" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/facturacion_fiscal/doctype/configuracion_reclasificacion_fiscal_mexico/configuracion_reclasificacion_fiscal_mexico.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>company</code></td>
+<td>Empresa</td>
+<td>Link</td>
+<td>✅</td>
+<td>Company</td>
+</tr>
+<tr>
+<td><code>ultima_deteccion</code></td>
+<td>Última Carga</td>
+<td>Datetime</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>ultima_generacion</code></td>
+<td>Último Aplicar</td>
+<td>Datetime</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>reglas</code></td>
+<td>Reglas</td>
+<td>Table</td>
+<td></td>
+<td>Regla Reclasificacion Fiscal</td>
+</tr>
+</tbody>
+</table>
+<h3 id="control-panel-settings">Control Panel Settings<a class="headerlink" href="#control-panel-settings" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/facturacion_fiscal/doctype/control_panel_settings/control_panel_settings.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pac_failure_threshold</code></td>
+<td>Umbral PAC Failure Rate (%)</td>
+<td>Int</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>recovery_tasks_threshold</code></td>
+<td>Umbral Recovery Tasks Pendientes</td>
+<td>Int</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>response_time_threshold</code></td>
+<td>Umbral Tiempo Respuesta (ms)</td>
+<td>Int</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>filesystem_usage_threshold</code></td>
+<td>Umbral Filesystem Usage (%)</td>
+<td>Int</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>email_notifications</code></td>
+<td>Activar Notificaciones Email</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>email_recipients</code></td>
+<td>Email Recipients (separados por coma)</td>
+<td>Small Text</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>system_notifications</code></td>
+<td>Activar Notificaciones Sistema Frappe</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>webhook_notifications</code></td>
+<td>Activar Webhook Notifications</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>webhook_url</code></td>
+<td>Webhook URL (Slack, Teams, etc.)</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>check_interval</code></td>
+<td>Frecuencia de Verificación</td>
+<td>Select</td>
+<td>✅</td>
+<td>5 minutos…</td>
+</tr>
+<tr>
+<td><code>alert_cooldown</code></td>
+<td>Cooldown Entre Alertas (minutos)</td>
+<td>Int</td>
+<td>✅</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="facturapi-response-log">FacturAPI Response Log<a class="headerlink" href="#facturapi-response-log" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/facturacion_fiscal/doctype/facturapi_response_log/facturapi_response_log.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>naming_series</code></td>
+<td>Serie de Numeración</td>
+<td>Select</td>
+<td>✅</td>
+<td>FAPI-LOG-.YYYY.-</td>
+</tr>
+<tr>
+<td><code>request_id</code></td>
+<td>ID de Solicitud</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>request_timestamp</code></td>
+<td>Timestamp de Solicitud</td>
+<td>Datetime</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>request_payload</code></td>
+<td>Payload de Auditoría (no payload real a FacturAPI)</td>
+<td>JSON</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>factura_fiscal_mexico</code></td>
+<td>Factura Fiscal Mexico</td>
+<td>Link</td>
+<td></td>
+<td>Factura Fiscal Mexico</td>
+</tr>
+<tr>
+<td><code>complemento_pago_mx</code></td>
+<td>Complemento Pago MX</td>
+<td>Link</td>
+<td></td>
+<td>Complemento Pago MX</td>
+</tr>
+<tr>
+<td><code>timestamp</code></td>
+<td>Fecha y Hora</td>
+<td>Datetime</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>operation_type</code></td>
+<td>Tipo de Operación</td>
+<td>Select</td>
+<td>✅</td>
+<td>Timbrado…</td>
+</tr>
+<tr>
+<td><code>timeout_flag</code></td>
+<td>Timeout</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>retry_of</code></td>
+<td>Reintento de</td>
+<td>Link</td>
+<td></td>
+<td>FacturAPI Response Log</td>
+</tr>
+<tr>
+<td><code>success</code></td>
+<td>Éxito</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>status_code</code></td>
+<td>Código HTTP</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>response_time_ms</code></td>
+<td>Tiempo de Respuesta (ms)</td>
+<td>Float</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>facturapi_response</code></td>
+<td>Respuesta JSON Completa</td>
+<td>JSON</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>error_message</code></td>
+<td>Mensaje de Error</td>
+<td>Text</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>user_role</code></td>
+<td>Rol de Usuario</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>ip_address</code></td>
+<td>Dirección IP</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="factura-fiscal-mexico-submittable">Factura Fiscal Mexico <em>Submittable</em><a class="headerlink" href="#factura-fiscal-mexico-submittable" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/facturacion_fiscal/doctype/factura_fiscal_mexico/factura_fiscal_mexico.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>naming_series</code></td>
+<td>Serie de Numeración</td>
+<td>Select</td>
+<td>✅</td>
+<td>FFMX-.YYYY.-</td>
+</tr>
+<tr>
+<td><code>sales_invoice</code></td>
+<td>Factura de Venta</td>
+<td>Link</td>
+<td>✅</td>
+<td>Sales Invoice</td>
+</tr>
+<tr>
+<td><code>company</code></td>
+<td>Empresa Vendedora</td>
+<td>Link</td>
+<td>✅</td>
+<td>Company</td>
+</tr>
+<tr>
+<td><code>customer</code></td>
+<td>Cliente</td>
+<td>Link</td>
+<td>✅</td>
+<td>Customer</td>
+</tr>
+<tr>
+<td><code>fm_facturar_venta_mostrador</code></td>
+<td>¿Facturar a Venta Mostrador?</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td>Estado Fiscal</td>
+<td>Select</td>
+<td>✅</td>
+<td>BORRADOR…</td>
+</tr>
+<tr>
+<td><code>fm_payment_method_sat</code></td>
+<td>Método de Pago SAT</td>
+<td>Select</td>
+<td></td>
+<td>PUE…</td>
+</tr>
+<tr>
+<td><code>fm_forma_pago_timbrado</code></td>
+<td>Forma de Pago para Timbrado</td>
+<td>Link</td>
+<td></td>
+<td>Mode of Payment</td>
+</tr>
+<tr>
+<td><code>fm_tipo_comprobante</code></td>
+<td>Tipo de comprobante (SAT)</td>
+<td>Select</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>fm_tipo_relacion_sat</code></td>
+<td>Tipo de Relación (SAT)</td>
+<td>Select</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>fm_uuid_relacionado</code></td>
+<td>UUID relacionado</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>fecha_timbrado</code></td>
+<td>Fecha de Timbrado</td>
+<td>Datetime</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>facturapi_id</code></td>
+<td>FacturAPI ID</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>fm_cfdi_use</code></td>
+<td>Uso del CFDI</td>
+<td>Link</td>
+<td></td>
+<td>Uso CFDI SAT</td>
+</tr>
+<tr>
+<td><code>fm_uuid</code></td>
+<td>UUID Fiscal</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>fm_motivo_cancelacion</code></td>
+<td>Motivo Cancelación SAT</td>
+<td>Select</td>
+<td></td>
+<td>01…</td>
+</tr>
+<tr>
+<td><code>fm_serie_folio</code></td>
+<td>Serie y Folio</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>fm_lugar_expedicion</code></td>
+<td>Lugar de Expedición</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>serie</code></td>
+<td>Serie</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>folio</code></td>
+<td>Folio</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>total_fiscal</code></td>
+<td>Total Fiscal</td>
+<td>Currency</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>si_total_antes_iva</code></td>
+<td>Total antes de IVA (SI)</td>
+<td>Currency</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>si_iva</code></td>
+<td>IVA (SI)</td>
+<td>Currency</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>si_otros_impuestos</code></td>
+<td>Otros Impuestos (SI)</td>
+<td>Currency</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>si_total_neto</code></td>
+<td>Total Neto (SI)</td>
+<td>Currency</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>pdf_file</code></td>
+<td>Archivo PDF</td>
+<td>Attach</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>xml_file</code></td>
+<td>Archivo XML</td>
+<td>Attach</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>fm_enviar_email_timbrado</code></td>
+<td>Enviar CFDI por email al timbrar</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>cancellation_reason</code></td>
+<td>Motivo de Cancelación</td>
+<td>Select</td>
+<td></td>
+<td>01 - Comprobantes emitidos con errores con relación…</td>
+</tr>
+<tr>
+<td><code>cancellation_date</code></td>
+<td>Fecha de Cancelación</td>
+<td>Datetime</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>fm_cp_cliente</code></td>
+<td>CP Cliente</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>fm_email_facturacion</code></td>
+<td>Email Facturación</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>fm_rfc_cliente</code></td>
+<td>RFC Cliente</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>fm_tax_system</code></td>
+<td>Régimen Fiscal (Código)</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>fm_direccion_principal_link</code></td>
+<td>Dirección Principal</td>
+<td>Link</td>
+<td></td>
+<td>Address</td>
+</tr>
+<tr>
+<td><code>fm_direccion_principal_display</code></td>
+<td>Dirección Completa</td>
+<td>Small Text</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>fm_last_pac_sync</code></td>
+<td>Última Sincronización PAC</td>
+<td>Datetime</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>fm_sync_status</code></td>
+<td>Estado de Sincronización</td>
+<td>Select</td>
+<td></td>
+<td>synced…</td>
+</tr>
+<tr>
+<td><code>fm_sync_error</code></td>
+<td>Error de Sincronización</td>
+<td>Text</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>fm_xml_url</code></td>
+<td>URL del XML</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>fm_pdf_url</code></td>
+<td>URL del PDF</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>fm_last_response_log</code></td>
+<td>Último Log de Respuesta</td>
+<td>Link</td>
+<td></td>
+<td>FacturAPI Response Log</td>
+</tr>
+</tbody>
+</table>
+<h3 id="facturacion-mexico-settings-single">Facturacion Mexico Settings <em>Single</em><a class="headerlink" href="#facturacion-mexico-settings-single" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/facturacion_fiscal/doctype/facturacion_mexico_settings/facturacion_mexico_settings.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>Nombre</td>
+<td>Data</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>api_key</code></td>
+<td>API Key Producción</td>
+<td>Password</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>test_api_key</code></td>
+<td>API Key Pruebas</td>
+<td>Password</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>sandbox_mode</code></td>
+<td>Modo Sandbox</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>timeout</code></td>
+<td>Timeout (segundos)</td>
+<td>Int</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>rfc_emisor</code></td>
+<td>RFC Emisor</td>
+<td>Data</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>lugar_expedicion</code></td>
+<td>Lugar de Expedición</td>
+<td>Data</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>ereceipt_mode_default</code></td>
+<td>Modo Facturación por Defecto</td>
+<td>Select</td>
+<td></td>
+<td>Normal…</td>
+</tr>
+<tr>
+<td><code>ereceipt_expiry_type_default</code></td>
+<td>Tipo Vencimiento por Defecto</td>
+<td>Select</td>
+<td></td>
+<td>Fixed Days…</td>
+</tr>
+<tr>
+<td><code>ereceipt_expiry_days_default</code></td>
+<td>Días Vencimiento por Defecto</td>
+<td>Int</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>ereceipt_notification_email</code></td>
+<td>Email Notificaciones E-Receipt</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>ereceipt_self_invoice_message</code></td>
+<td>Mensaje E-Receipt</td>
+<td>Text</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>send_email_default</code></td>
+<td>Enviar Email por Defecto</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>download_files_default</code></td>
+<td>Descargar PDF/XML automáticamente</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>enable_global_invoices</code></td>
+<td>Habilitar Facturas Globales</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>global_invoice_serie</code></td>
+<td>Serie Facturas Globales</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>global_invoice_periodicidad</code></td>
+<td>Periodicidad por Defecto</td>
+<td>Select</td>
+<td></td>
+<td>Diaria…</td>
+</tr>
+<tr>
+<td><code>auto_generate_global</code></td>
+<td>Generación Automática</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>global_generation_day</code></td>
+<td>Día de Generación</td>
+<td>Int</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>global_generation_time</code></td>
+<td>Hora de Generación</td>
+<td>Time</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>include_zero_receipts</code></td>
+<td>Incluir Períodos Vacíos</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>notify_global_generation</code></td>
+<td>Notificar por Email</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>global_notification_emails</code></td>
+<td>Emails de Notificación</td>
+<td>Small Text</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>enable_fiscal_dashboard</code></td>
+<td>Habilitar Dashboard Fiscal</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>dashboard_default_company</code></td>
+<td>Company por Defecto</td>
+<td>Link</td>
+<td></td>
+<td>Company</td>
+</tr>
+<tr>
+<td><code>dashboard_data_retention_days</code></td>
+<td>Días Retención Datos</td>
+<td>Int</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>enable_dashboard_notifications</code></td>
+<td>Notificaciones Activas</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>dashboard_admin_roles</code></td>
+<td>Roles Administrativos</td>
+<td>Small Text</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>ereceipt_monthly_limit</code></td>
+<td>Límite Mensual E-Receipts</td>
+<td>Int</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>global_invoice_monthly_limit</code></td>
+<td>Límite Mensual Facturas Globales</td>
+<td>Int</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>customer_email_fallback</code></td>
+<td>Email Fallback Cliente</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>metodo_pago_default</code></td>
+<td>Método de Pago por Defecto</td>
+<td>Select</td>
+<td></td>
+<td>PUE…</td>
+</tr>
+<tr>
+<td><code>habilitar_traslado</code></td>
+<td>Habilitar Traslado (T)</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>permitir_editar_relacion_en_egreso</code></td>
+<td>Permitir editar relación en Egreso (avanzado)</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>enable_ereceipts</code></td>
+<td>Habilitar E-Receipts</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>log_retention_days</code></td>
+<td>Días de retención de logs</td>
+<td>Int</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="ieps-cuota-sat">IEPS Cuota SAT<a class="headerlink" href="#ieps-cuota-sat" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/facturacion_fiscal/doctype/ieps_cuota_sat/ieps_cuota_sat.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>naming_series</code></td>
+<td>Serie</td>
+<td>Select</td>
+<td>✅</td>
+<td>IEPS-CUOTA-.YYYY.-</td>
+</tr>
+<tr>
+<td><code>company</code></td>
+<td>Empresa</td>
+<td>Link</td>
+<td>✅</td>
+<td>Company</td>
+</tr>
+<tr>
+<td><code>clave_prod_serv</code></td>
+<td>Clave Producto/Servicio SAT</td>
+<td>Link</td>
+<td>✅</td>
+<td>SAT Producto Servicio</td>
+</tr>
+<tr>
+<td><code>descripcion</code></td>
+<td>Descripción</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>uom</code></td>
+<td>Unidad de Medida</td>
+<td>Link</td>
+<td>✅</td>
+<td>UOM</td>
+</tr>
+<tr>
+<td><code>cuota</code></td>
+<td>Cuota por Unidad</td>
+<td>Currency</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>cuenta_ieps</code></td>
+<td>Cuenta IEPS</td>
+<td>Link</td>
+<td></td>
+<td>Account</td>
+</tr>
+<tr>
+<td><code>vigencia_desde</code></td>
+<td>Vigente Desde</td>
+<td>Date</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>vigencia_hasta</code></td>
+<td>Vigente Hasta</td>
+<td>Date</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="mapeo-cuenta-fiscal-mexico-child-table">Mapeo Cuenta Fiscal Mexico <em>Child table</em><a class="headerlink" href="#mapeo-cuenta-fiscal-mexico-child-table" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/facturacion_fiscal/doctype/mapeo_cuenta_fiscal_mexico/mapeo_cuenta_fiscal_mexico.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>rol_fiscal</code></td>
+<td>Tipo de Impuesto</td>
+<td>Select</td>
+<td>✅</td>
+<td>IVA por Pagar (Nacional)…</td>
+</tr>
+<tr>
+<td><code>cuenta_impuesto</code></td>
+<td>Cuenta de Impuesto</td>
+<td>Link</td>
+<td>✅</td>
+<td>Account</td>
+</tr>
+<tr>
+<td><code>sugerido_automaticamente</code></td>
+<td>Sugerido Automáticamente</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>justificacion_sugerencia</code></td>
+<td>Justificación</td>
+<td>Small Text</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>estado_validacion</code></td>
+<td>Estado</td>
+<td>Select</td>
+<td></td>
+<td>Válido…</td>
+</tr>
+<tr>
+<td><code>es_retencion</code></td>
+<td>Es Retención</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>tipo_factor</code></td>
+<td>Tipo de Factor SAT</td>
+<td>Select</td>
+<td></td>
+<td>Tasa…</td>
+</tr>
+<tr>
+<td><code>integra_base_iva</code></td>
+<td>Integra Base IVA</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="mapeo-reclasificacion-fiscal-payment-entry">Mapeo Reclasificacion Fiscal Payment Entry<a class="headerlink" href="#mapeo-reclasificacion-fiscal-payment-entry" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/facturacion_fiscal/doctype/mapeo_reclasificacion_fiscal_payment_entry/mapeo_reclasificacion_fiscal_payment_entry.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>company</code></td>
+<td>Empresa</td>
+<td>Link</td>
+<td>✅</td>
+<td>Company</td>
+</tr>
+<tr>
+<td><code>tipo_operacion</code></td>
+<td>Tipo de Operación</td>
+<td>Select</td>
+<td>✅</td>
+<td>…</td>
+</tr>
+<tr>
+<td><code>activo</code></td>
+<td>Activo</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>cuenta_origen</code></td>
+<td>Cuenta Origen (al timbrar)</td>
+<td>Link</td>
+<td>✅</td>
+<td>Account</td>
+</tr>
+<tr>
+<td><code>cuenta_destino</code></td>
+<td>Cuenta Destino (al cobrar/pagar)</td>
+<td>Link</td>
+<td>✅</td>
+<td>Account</td>
+</tr>
+</tbody>
+</table>
+<h3 id="regla-reclasificacion-fiscal-child-table">Regla Reclasificacion Fiscal <em>Child table</em><a class="headerlink" href="#regla-reclasificacion-fiscal-child-table" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/facturacion_fiscal/doctype/regla_reclasificacion_fiscal/regla_reclasificacion_fiscal.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>rol_fiscal</code></td>
+<td>Tipo de Impuesto</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>cuenta_origen</code></td>
+<td>Cuenta Origen (al timbrar)</td>
+<td>Link</td>
+<td></td>
+<td>Account</td>
+</tr>
+<tr>
+<td><code>cuenta_destino</code></td>
+<td>Cuenta Destino (al cobrar)</td>
+<td>Link</td>
+<td></td>
+<td>Account</td>
+</tr>
+<tr>
+<td><code>mrfpe_ref</code></td>
+<td>Mapeo Activo</td>
+<td>Link</td>
+<td></td>
+<td>Mapeo Reclasificacion Fiscal Payment Entry</td>
+</tr>
+<tr>
+<td><code>tipo_operacion</code></td>
+<td>Tipo</td>
+<td>Select</td>
+<td></td>
+<td>…</td>
+</tr>
+<tr>
+<td><code>source_type</code></td>
+<td>Origen</td>
+<td>Select</td>
+<td></td>
+<td>Ingresos / CFM…</td>
+</tr>
+<tr>
+<td><code>nota</code></td>
+<td>Nota</td>
+<td>Small Text</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="system-health-monitor">System Health Monitor<a class="headerlink" href="#system-health-monitor" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/facturacion_fiscal/doctype/system_health_monitor/system_health_monitor.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>timestamp</code></td>
+<td>Timestamp</td>
+<td>Datetime</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pac_success_rate</code></td>
+<td>PAC Success Rate (%)</td>
+<td>Float</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>recovery_tasks_pending</code></td>
+<td>Recovery Tasks Pendientes</td>
+<td>Int</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>avg_response_time</code></td>
+<td>Tiempo Respuesta Promedio (ms)</td>
+<td>Int</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>failed_transactions</code></td>
+<td>Transacciones Fallidas (24h)</td>
+<td>Int</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>filesystem_usage</code></td>
+<td>Filesystem Usage (%)</td>
+<td>Float</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="facturas-globales">Facturas Globales<a class="headerlink" href="#facturas-globales" title="Permanent link">&para;</a></h2>
+<h3 id="factura-global-detail-child-table">Factura Global Detail <em>Child table</em><a class="headerlink" href="#factura-global-detail-child-table" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/facturas_globales/doctype/factura_global_detail/factura_global_detail.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ereceipt</code></td>
+<td>E-Receipt</td>
+<td>Link</td>
+<td>✅</td>
+<td>EReceipt MX</td>
+</tr>
+<tr>
+<td><code>folio_receipt</code></td>
+<td>Folio Receipt</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>fecha_receipt</code></td>
+<td>Fecha Receipt</td>
+<td>Date</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>monto</code></td>
+<td>Monto</td>
+<td>Currency</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>customer_name</code></td>
+<td>Nombre Cliente</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>included_in_cfdi</code></td>
+<td>Incluido en CFDI</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="factura-global-mx-submittable">Factura Global MX <em>Submittable</em><a class="headerlink" href="#factura-global-mx-submittable" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/facturas_globales/doctype/factura_global_mx/factura_global_mx.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>company</code></td>
+<td>Company</td>
+<td>Link</td>
+<td>✅</td>
+<td>Company</td>
+</tr>
+<tr>
+<td><code>naming_series</code></td>
+<td>Serie</td>
+<td>Select</td>
+<td></td>
+<td>FG-.YYYY.-.MM.-…</td>
+</tr>
+<tr>
+<td><code>periodo_inicio</code></td>
+<td>Período Inicio</td>
+<td>Date</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>periodo_fin</code></td>
+<td>Período Fin</td>
+<td>Date</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>periodicidad</code></td>
+<td>Periodicidad</td>
+<td>Select</td>
+<td>✅</td>
+<td>Diaria…</td>
+</tr>
+<tr>
+<td><code>receipts_detail</code></td>
+<td>Detalle de Receipts</td>
+<td>Table</td>
+<td></td>
+<td>Factura Global Detail</td>
+</tr>
+<tr>
+<td><code>total_periodo</code></td>
+<td>Total del Período</td>
+<td>Currency</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>cantidad_receipts</code></td>
+<td>Cantidad de Receipts</td>
+<td>Int</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>facturapi_id</code></td>
+<td>FacturAPI ID</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>uuid</code></td>
+<td>UUID Fiscal</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>serie</code></td>
+<td>Serie Fiscal</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>folio</code></td>
+<td>Folio Fiscal</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td>Status</td>
+<td>Select</td>
+<td>✅</td>
+<td>Draft…</td>
+</tr>
+<tr>
+<td><code>processing_time</code></td>
+<td>Tiempo de Procesamiento (s)</td>
+<td>Float</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>pdf_file</code></td>
+<td>PDF Timbrado</td>
+<td>Attach</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>xml_file</code></td>
+<td>XML Timbrado</td>
+<td>Attach</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>error_message</code></td>
+<td>Mensaje de Error</td>
+<td>Text</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>created_by</code></td>
+<td>Creado por</td>
+<td>Link</td>
+<td></td>
+<td>User</td>
+</tr>
+<tr>
+<td><code>creation_timestamp</code></td>
+<td>Fecha de Creación</td>
+<td>Datetime</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>modified_by</code></td>
+<td>Modificado por</td>
+<td>Link</td>
+<td></td>
+<td>User</td>
+</tr>
+<tr>
+<td><code>modified_timestamp</code></td>
+<td>Fecha de Modificación</td>
+<td>Datetime</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="motor-reglas">Motor Reglas<a class="headerlink" href="#motor-reglas" title="Permanent link">&para;</a></h2>
+<h3 id="fiscal-validation-rule">Fiscal Validation Rule<a class="headerlink" href="#fiscal-validation-rule" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/motor_reglas/doctype/fiscal_validation_rule/fiscal_validation_rule.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>rule_name</code></td>
+<td>Nombre de la Regla</td>
+<td>Data</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>rule_code</code></td>
+<td>Código de Regla</td>
+<td>Data</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>Descripción</td>
+<td>Text</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>rule_type</code></td>
+<td>Tipo de Regla</td>
+<td>Select</td>
+<td>✅</td>
+<td>Validation…</td>
+</tr>
+<tr>
+<td><code>apply_to_doctype</code></td>
+<td>Aplicar a DocType</td>
+<td>Select</td>
+<td>✅</td>
+<td>Sales Invoice…</td>
+</tr>
+<tr>
+<td><code>is_active</code></td>
+<td>Activa</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>priority</code></td>
+<td>Prioridad (1-100)</td>
+<td>Int</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>effective_date</code></td>
+<td>Fecha de Vigencia</td>
+<td>Date</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>expiry_date</code></td>
+<td>Fecha de Expiración</td>
+<td>Date</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>error_message</code></td>
+<td>Mensaje de Error</td>
+<td>Text</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>warning_message</code></td>
+<td>Mensaje de Advertencia</td>
+<td>Text</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>severity</code></td>
+<td>Severidad</td>
+<td>Select</td>
+<td></td>
+<td>Error…</td>
+</tr>
+<tr>
+<td><code>conditions</code></td>
+<td>Condiciones de la Regla</td>
+<td>Table</td>
+<td></td>
+<td>Rule Condition</td>
+</tr>
+<tr>
+<td><code>actions</code></td>
+<td>Acciones a Ejecutar</td>
+<td>Table</td>
+<td></td>
+<td>Rule Action</td>
+</tr>
+<tr>
+<td><code>execution_count</code></td>
+<td>Veces Ejecutada</td>
+<td>Int</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>last_execution</code></td>
+<td>Última Ejecución</td>
+<td>Datetime</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>average_execution_time</code></td>
+<td>Tiempo Promedio (ms)</td>
+<td>Float</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>last_error</code></td>
+<td>Último Error</td>
+<td>Text</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="rule-action-child-table">Rule Action <em>Child table</em><a class="headerlink" href="#rule-action-child-table" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/motor_reglas/doctype/rule_action/rule_action.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>action_type</code></td>
+<td>Tipo de Acción</td>
+<td>Select</td>
+<td>✅</td>
+<td>Set Field…</td>
+</tr>
+<tr>
+<td><code>target_field</code></td>
+<td>Campo Objetivo</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>action_value</code></td>
+<td>Valor/Script a Ejecutar</td>
+<td>Text</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>continue_on_error</code></td>
+<td>Continuar si Falla</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>log_action</code></td>
+<td>Registrar en Log</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>Descripción</td>
+<td>Small Text</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="rule-condition-child-table">Rule Condition <em>Child table</em><a class="headerlink" href="#rule-condition-child-table" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/motor_reglas/doctype/rule_condition/rule_condition.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>condition_type</code></td>
+<td>Tipo de Condición</td>
+<td>Select</td>
+<td>✅</td>
+<td>Field…</td>
+</tr>
+<tr>
+<td><code>field_name</code></td>
+<td>Campo a Evaluar</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>operator</code></td>
+<td>Operador</td>
+<td>Select</td>
+<td>✅</td>
+<td>equals…</td>
+</tr>
+<tr>
+<td><code>value</code></td>
+<td>Valor de Comparación</td>
+<td>Text</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>value_type</code></td>
+<td>Tipo de Valor</td>
+<td>Select</td>
+<td></td>
+<td>Static…</td>
+</tr>
+<tr>
+<td><code>logical_operator</code></td>
+<td>Operador Lógico</td>
+<td>Select</td>
+<td></td>
+<td>AND…</td>
+</tr>
+<tr>
+<td><code>group_start</code></td>
+<td>Inicio de Grupo</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>group_end</code></td>
+<td>Fin de Grupo</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="rule-execution-log">Rule Execution Log<a class="headerlink" href="#rule-execution-log" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/motor_reglas/doctype/rule_execution_log/rule_execution_log.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>naming_series</code></td>
+<td>Naming Series</td>
+<td>Select</td>
+<td></td>
+<td>REL-.YYYY.-</td>
+</tr>
+<tr>
+<td><code>rule</code></td>
+<td>Regla</td>
+<td>Link</td>
+<td>✅</td>
+<td>Fiscal Validation Rule</td>
+</tr>
+<tr>
+<td><code>rule_name</code></td>
+<td>Nombre de Regla</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>document_type</code></td>
+<td>Tipo de Documento</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>document_name</code></td>
+<td>Documento</td>
+<td>Dynamic Link</td>
+<td></td>
+<td>document_type</td>
+</tr>
+<tr>
+<td><code>execution_time</code></td>
+<td>Tiempo Ejecución (ms)</td>
+<td>Float</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>result</code></td>
+<td>Resultado</td>
+<td>Select</td>
+<td></td>
+<td>Success…</td>
+</tr>
+<tr>
+<td><code>creation</code></td>
+<td>Fecha/Hora</td>
+<td>Datetime</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>action_type</code></td>
+<td>Tipo de Acción</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>action_idx</code></td>
+<td>Índice de Acción</td>
+<td>Int</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>conditions_evaluated</code></td>
+<td>Condiciones Evaluadas</td>
+<td>Int</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>actions_executed</code></td>
+<td>Acciones Ejecutadas</td>
+<td>Int</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>error_details</code></td>
+<td>Detalles de Error</td>
+<td>Text</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>action_details</code></td>
+<td>Detalles de Acción (JSON)</td>
+<td>Long Text</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="multi-sucursal">Multi Sucursal<a class="headerlink" href="#multi-sucursal" title="Permanent link">&para;</a></h2>
+<h3 id="configuracion-fiscal-sucursal">Configuracion Fiscal Sucursal<a class="headerlink" href="#configuracion-fiscal-sucursal" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/multi_sucursal/doctype/configuracion_fiscal_sucursal/configuracion_fiscal_sucursal.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>naming_series</code></td>
+<td>Series</td>
+<td>Select</td>
+<td>✅</td>
+<td>CFS-.YYYY.-</td>
+</tr>
+<tr>
+<td><code>branch</code></td>
+<td>Sucursal</td>
+<td>Link</td>
+<td>✅</td>
+<td>Branch</td>
+</tr>
+<tr>
+<td><code>company</code></td>
+<td>Empresa</td>
+<td>Link</td>
+<td>✅</td>
+<td>Company</td>
+</tr>
+<tr>
+<td><code>certificate_ids</code></td>
+<td>IDs de Certificados</td>
+<td>JSON</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>serie_fiscal</code></td>
+<td>Serie Fiscal</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>folio_current</code></td>
+<td>Folio Actual</td>
+<td>Int</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>folio_warning_threshold</code></td>
+<td>Umbral de Advertencia</td>
+<td>Int</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>folio_critical_threshold</code></td>
+<td>Umbral Crítico</td>
+<td>Int</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>last_invoice_date</code></td>
+<td>Última Factura</td>
+<td>Datetime</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>monthly_average</code></td>
+<td>Promedio Mensual</td>
+<td>Float</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>days_until_exhaustion</code></td>
+<td>Días hasta Agotamiento</td>
+<td>Int</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>total_invoices_generated</code></td>
+<td>Total Facturas Generadas</td>
+<td>Int</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>is_active</code></td>
+<td>Activa</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>last_sync_date</code></td>
+<td>Última Sincronización</td>
+<td>Datetime</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>created_automatically</code></td>
+<td>Creación Automática</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>needs_attention</code></td>
+<td>Necesita Atención</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="validaciones">Validaciones<a class="headerlink" href="#validaciones" title="Permanent link">&para;</a></h2>
+<h3 id="sat-validation-cache">SAT Validation Cache<a class="headerlink" href="#sat-validation-cache" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/validaciones/doctype/sat_validation_cache/sat_validation_cache.json</code></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>validation_type</code></td>
+<td>Tipo de Validación</td>
+<td>Select</td>
+<td>✅</td>
+<td>…</td>
+</tr>
+<tr>
+<td><code>lookup_value</code></td>
+<td>Valor Consultado</td>
+<td>Data</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>validation_date</code></td>
+<td>Fecha de Validación</td>
+<td>Datetime</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>expiry_date</code></td>
+<td>Fecha de Expiración</td>
+<td>Date</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>is_valid</code></td>
+<td>Resultado Válido</td>
+<td>Check</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>validation_count</code></td>
+<td>Veces Validado</td>
+<td>Int</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>validation_data</code></td>
+<td>Respuesta Completa</td>
+<td>JSON</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>last_updated_by</code></td>
+<td>Última Actualización Por</td>
+<td>Link</td>
+<td></td>
+<td>User</td>
+</tr>
+<tr>
+<td><code>notes</code></td>
+<td>Notas</td>
+<td>Small Text</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Volver al principio
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 Facturación México - Documentación Técnica
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/tu-org/facturacion_mexico" target="_blank" rel="noopener" title="GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+      <div class="md-consent" data-md-component="consent" id="__consent" hidden>
+        <div class="md-consent__overlay"></div>
+        <aside class="md-consent__inner">
+          <form class="md-consent__form md-grid md-typeset" name="consent">
+            
+
+  
+    
+  
+
+
+
+
+
+<h4>Consentimiento de cookies</h4>
+<p>Utilizamos cookies para reconocer tus visitas repetidas y preferencias, así como para medir la efectividad de nuestra documentación y si los usuarios encuentran lo que están buscando. Con tu consentimiento, nos ayudas a mejorar nuestra documentación.
+</p>
+<input class="md-toggle" type="checkbox" id="__settings" >
+<div class="md-consent__settings">
+  <ul class="task-list">
+    
+      
+      
+        
+        
+      
+      <li class="task-list-item">
+        <label class="task-list-control">
+          <input type="checkbox" name="analytics" checked>
+          <span class="task-list-indicator"></span>
+          Google Analytics
+        </label>
+      </li>
+    
+  </ul>
+</div>
+<div class="md-consent__controls">
+  
+    
+      <button class="md-button md-button--primary">Aceptar</button>
+    
+    
+    
+  
+    
+    
+      <button type="reset" class="md-button md-button--primary">Rechazar</button>
+    
+    
+  
+    
+    
+    
+      <label class="md-button" for="__settings">Gestionar cookies</label>
+    
+  
+</div>
+          </form>
+        </aside>
+      </div>
+      <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout(function(){document.querySelector("[data-md-component=consent]").hidden=!1},250);var action,form=document.forms.consent;for(action of["submit","reset"])form.addEventListener(action,function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map(function(e){return[e,!0]}))),location.hash="",location.reload()})</script>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.expand", "navigation.instant", "navigation.sections", "navigation.tabs", "navigation.top", "search.highlight", "search.suggest"], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copiado al portapapeles", "clipboard.copy": "Copiar al portapapeles", "search.result.more.one": "1 m\u00e1s en esta p\u00e1gina", "search.result.more.other": "# m\u00e1s en esta p\u00e1gina", "search.result.none": "No se encontraron documentos", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Teclee para comenzar b\u00fasqueda", "search.result.term.missing": "Falta", "select.version": "Seleccionar versi\u00f3n"}, "version": {"default": "latest", "provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7c377c4.min.js"></script>
+      
+        <script src="../../assets/javascripts/extra.js"></script>
+      
+        <script src="../../assets/javascripts/advanced.js"></script>
+      
+    
+  </body>
+</html>
