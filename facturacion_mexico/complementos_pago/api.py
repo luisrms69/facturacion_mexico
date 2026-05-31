@@ -318,7 +318,11 @@ def timbrar_complemento_pago(complemento_name: str) -> dict:
 	comp_submitted = frappe.get_doc("Complemento Pago MX", complemento_name)
 	comp_submitted.submit()
 
-	if frappe.db.get_single_value("Facturacion Mexico Settings", "download_files_default"):
+	if frappe.db.get_value(
+		"Facturacion Mexico Company Settings",
+		{"company": comp_submitted.company},
+		"download_files_default",
+	):
 		_attach_files_complemento(comp_submitted, facturapi_id, uuid)
 
 	frappe.logger().info(f"Complemento {complemento_name} timbrado. UUID: {uuid}")

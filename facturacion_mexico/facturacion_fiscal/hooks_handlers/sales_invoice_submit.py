@@ -161,7 +161,7 @@ def _auto_timbrar_factura(doc):
 		frappe.log_error(f"📦 TimbradoAPI importado para {doc.name}", "TIMBRADO TRACE")
 
 		# Crear instancia de API
-		_api = TimbradoAPI()
+		_api = TimbradoAPI(company=doc.company)
 		frappe.log_error(f"🔧 TimbradoAPI instanciado para {doc.name}", "TIMBRADO TRACE")
 
 		# Timbrar en background job para no bloquear el submit

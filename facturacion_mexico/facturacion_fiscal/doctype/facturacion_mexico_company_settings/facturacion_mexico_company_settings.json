@@ -1,0 +1,118 @@
+{
+ "actions": [],
+ "autoname": "format:FMCS-{company}",
+ "creation": "2026-05-30 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "column_break_1",
+  "sandbox_mode",
+  "api_key",
+  "test_api_key",
+  "metodo_pago_default",
+  "send_email_default",
+  "download_files_default",
+  "customer_email_fallback"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "description": "Activar modo sandbox para pruebas con FacturAPI. Si no está configurado, se usa el valor de Facturacion Mexico Settings.",
+   "fieldname": "sandbox_mode",
+   "fieldtype": "Check",
+   "label": "Modo Sandbox"
+  },
+  {
+   "description": "API Key de producción de FacturAPI.io para esta Company.",
+   "fieldname": "api_key",
+   "fieldtype": "Password",
+   "label": "API Key Producción"
+  },
+  {
+   "description": "API Key de pruebas (sandbox) de FacturAPI.io para esta Company.",
+   "fieldname": "test_api_key",
+   "fieldtype": "Password",
+   "label": "API Key Pruebas"
+  },
+  {
+   "default": "PUE",
+   "description": "Método de pago SAT asignado automáticamente a nuevas Facturas Fiscales Mexico.",
+   "fieldname": "metodo_pago_default",
+   "fieldtype": "Select",
+   "label": "Método de Pago por Defecto",
+   "options": "PUE\nPPD"
+  },
+  {
+   "default": "0",
+   "description": "Enviar XML y PDF del CFDI por correo al cliente automáticamente al timbrar. El cliente puede anular esta preferencia en su perfil.",
+   "fieldname": "send_email_default",
+   "fieldtype": "Check",
+   "label": "Enviar Email por Defecto"
+  },
+  {
+   "default": "1",
+   "description": "Descargar y adjuntar PDF y XML automáticamente al timbrar Factura Fiscal Mexico y Complemento Pago MX.",
+   "fieldname": "download_files_default",
+   "fieldtype": "Check",
+   "label": "Descargar PDF/XML automáticamente"
+  },
+  {
+   "description": "Email que se usa como destinatario cuando el cliente no tiene email configurado. Si está vacío, no se envía email.",
+   "fieldname": "customer_email_fallback",
+   "fieldtype": "Data",
+   "label": "Email Fallback Cliente",
+   "options": "Email"
+  }
+ ],
+ "links": [],
+ "modified": "2026-05-30 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Facturacion Fiscal",
+ "name": "Facturacion Mexico Company Settings",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "Facturacion Mexico System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Facturacion Mexico Manager"
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

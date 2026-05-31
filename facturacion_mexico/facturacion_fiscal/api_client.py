@@ -8,15 +8,16 @@ from frappe import _
 class FacturAPIClient:
 	"""Cliente para FacturAPI.io usando requests (ya incluido en Frappe)."""
 
-	def __init__(self, settings_doc=None):
-		"""Inicializar cliente con configuración."""
-		if not settings_doc:
-			settings_doc = frappe.get_single("Facturacion Mexico Settings")
+	# Timeout por defecto — se reemplazará cuando se migre el campo
+	_DEFAULT_TIMEOUT = 30
 
-		self.settings = settings_doc
+	def __init__(self, company=None):
+		"""Inicializar cliente con configuración."""
+		self.company = company
+		self.sandbox_mode = self._resolve_sandbox_mode()
 		self.base_url = self._get_base_url()
 		self.api_key = self._get_api_key()
-		self.timeout = self.settings.timeout or 30
+		self.timeout = self._DEFAULT_TIMEOUT
 
 		# Headers estándar
 		self.headers = {
@@ -25,19 +26,39 @@ class FacturAPIClient:
 			"Accept": "application/json",
 		}
 
+	def _get_company_settings(self):
+		"""Obtener Facturacion Mexico Company Settings para la company activa."""
+		if not self.company:
+			frappe.throw(_("Se requiere Company para inicializar el cliente FacturAPI."))
+		doc = frappe.db.get_value(
+			"Facturacion Mexico Company Settings",
+			{"company": self.company},
+			["sandbox_mode", "api_key", "test_api_key"],
+			as_dict=True,
+		)
+		if not doc:
+			frappe.throw(
+				_(
+					"No existe configuración FacturAPI para la Company '{0}'. "
+					"Configure Facturacion Mexico Company Settings."
+				).format(self.company)
+			)
+		return doc
+
+	def _resolve_sandbox_mode(self) -> bool:
+		"""Resolver sandbox_mode desde Company Settings."""
+		return bool(self._get_company_settings().sandbox_mode)
+
 	def _get_base_url(self) -> str:
-		"""Obtener URL base según modo sandbox/producción."""
-		if self.settings.sandbox_mode:
-			return "https://www.facturapi.io/v2"
-		else:
-			return "https://www.facturapi.io/v2"
+		"""URL base FacturAPI."""
+		return "https://www.facturapi.io/v2"
 
 	def _get_api_key(self) -> str:
-		"""Obtener API key según modo sandbox/producción."""
-		if self.settings.sandbox_mode:
-			return self.settings.get_password("test_api_key")
-		else:
-			return self.settings.get_password("api_key")
+		"""Obtener API key desde Company Settings según modo sandbox/producción."""
+		settings = self._get_company_settings()
+		if settings.sandbox_mode:
+			return settings.test_api_key or ""
+		return settings.api_key or ""
 
 	def _make_request(self, method: str, endpoint: str, data: dict | None = None) -> dict[str, Any]:
 		"""Realizar petición HTTP a FacturAPI."""
@@ -320,7 +341,7 @@ class FacturAPIClient:
 					frappe.throw(_(f"Campo requerido para E-Receipt: {field}"))
 
 			# Configurar valores por defecto para ambiente de prueba
-			if self.settings.sandbox_mode:
+			if self.sandbox_mode:
 				# En sandbox, usar datos de prueba seguros
 				receipt_data.setdefault("payment_form", "28")  # Tarjeta de crédito
 
@@ -331,7 +352,7 @@ class FacturAPIClient:
 				customer.setdefault("tax_id", "XAXX010101000")  # RFC genérico para pruebas
 
 			# Log para debugging en ambiente de prueba
-			if self.settings.sandbox_mode:
+			if self.sandbox_mode:
 				frappe.logger().info(
 					f"Creando E-Receipt en SANDBOX: {receipt_data.get('folio_number', 'N/A')}"
 				)
@@ -364,9 +385,9 @@ class FacturAPIClient:
 			return False
 
 
-def get_facturapi_client(settings_doc=None) -> FacturAPIClient:
+def get_facturapi_client(company=None) -> FacturAPIClient:
 	"""Factory function para obtener cliente FacturAPI."""
-	return FacturAPIClient(settings_doc)
+	return FacturAPIClient(company=company)
 
 
 @frappe.whitelist()
