@@ -86,15 +86,41 @@ class FacturaGlobalMX(Document):
 			)
 
 	def validate_company_settings(self):
-		"""Validar configuración de la empresa."""
-		settings = frappe.get_single("Facturacion Mexico Settings")
+		"""Validar que Company Settings tiene los campos requeridos para Factura Global."""
+		cs = frappe.db.get_value(
+			"Facturacion Mexico Company Settings",
+			{"company": self.company},
+			["global_customer", "global_item"],
+			as_dict=True,
+		)
+		if not cs:
+			frappe.throw(
+				_("No existe Facturacion Mexico Company Settings para la Company '{0}'.").format(self.company)
+			)
+		if not cs.global_customer:
+			frappe.throw(_("Configure 'Customer Público en General' en Facturacion Mexico Company Settings."))
+		if not cs.global_item:
+			frappe.throw(
+				_("Configure 'Item Concepto Factura Global' en Facturacion Mexico Company Settings.")
+			)
 
-		if not settings.enable_global_invoices:
-			frappe.throw(_("Las facturas globales no están habilitadas en la configuración"))
+		# Validar RFC del customer
+		rfc = frappe.db.get_value("Customer", cs.global_customer, "tax_id") or ""
+		if rfc != "XAXX010101000":
+			frappe.throw(
+				_("El Customer '{0}' debe tener RFC XAXX010101000 para usarse en Factura Global.").format(
+					cs.global_customer
+				)
+			)
 
-		# Validar serie si está configurada
-		if settings.global_invoice_serie:
-			self.serie = settings.global_invoice_serie
+		# Validar clave SAT del item
+		product_key = frappe.db.get_value("Item", cs.global_item, "fm_producto_servicio_sat")
+		if not product_key:
+			frappe.throw(
+				_("El Item '{0}' debe tener clave SAT (fm_producto_servicio_sat) configurada.").format(
+					cs.global_item
+				)
+			)
 
 	def check_period_overlaps(self):
 		"""Verificar que no existan facturas globales con períodos solapados."""
