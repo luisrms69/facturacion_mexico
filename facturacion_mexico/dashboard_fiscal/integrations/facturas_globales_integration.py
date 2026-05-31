@@ -50,7 +50,6 @@ def register_facturas_globales_alerts():
 		"Facturas Globales",
 		{
 			"consolidacion_retrasada": check_delayed_consolidation,
-			"limite_mensual_globales": check_monthly_global_limit,
 			"errores_consolidacion": check_consolidation_errors,
 			"ereceipts_sin_consolidar": check_unconsolidated_ereceipts,
 		},
@@ -290,34 +289,6 @@ def check_delayed_consolidation(**kwargs):
 		return {"triggered": False, "error": str(e)}
 
 
-def check_monthly_global_limit(**kwargs):
-	"""Verificar límite mensual de facturas globales"""
-	from datetime import date
-
-	import frappe
-
-	try:
-		# Límite recomendado SAT: 500 facturas globales por mes
-		monthly_limit = (
-			frappe.db.get_single_value("Facturacion Mexico Settings", "global_invoice_monthly_limit") or 500
-		)
-
-		today = date.today()
-		first_day = date(today.year, today.month, 1)
-
-		count = frappe.db.count("Factura Global MX", filters={"creation": [">=", first_day], "docstatus": 1})
-
-		percentage_used = (count / monthly_limit * 100) if monthly_limit > 0 else 0
-
-		return {
-			"triggered": percentage_used >= 80,  # Alerta al 80%
-			"message": f"Uso mensual facturas globales: {count}/{monthly_limit} ({percentage_used:.1f}%)",
-			"priority": 6 if percentage_used >= 90 else 4,
-			"data": {"count": count, "limit": monthly_limit, "percentage": percentage_used},
-		}
-	except Exception as e:
-		frappe.log_error(f"Error verificando límite mensual: {e!s}")
-		return {"triggered": False, "error": str(e)}
 
 
 def check_consolidation_errors(**kwargs):

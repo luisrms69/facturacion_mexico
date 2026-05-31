@@ -17,11 +17,12 @@ class SATValidationCache(Document):
 		self.set_last_updated_by()
 		self.increment_validation_count()
 
+	_RFC_CACHE_DAYS = 30  # Días de retención del caché de validaciones SAT
+
 	def set_expiry_date(self):
 		"""Establecer fecha de expiración según tipo de validación."""
 		if not self.expiry_date:
-			settings = frappe.get_single("Facturacion Mexico Settings")
-			cache_days = settings.get("rfc_cache_days", 30)
+			cache_days = self._RFC_CACHE_DAYS
 
 			# Diferentes duraciones según tipo de validación
 			if self.validation_type == "fm_rfc":

@@ -2,7 +2,7 @@
 
 **Fecha:** 2026-05-31
 **Rama activa:** `feat/multi-company-facturapi-settings`
-**Tarea actual:** Migración multi-company — E-Receipts y Factura Global committed, campos pendientes por revisar
+**Tarea actual:** Migración multi-company — referencias al Single eliminadas, DocType completo
 
 ---
 
@@ -10,17 +10,16 @@
 
 Estoy trabajando en:
 Migración campo por campo de `Facturacion Mexico Settings` (Single) a `Facturacion Mexico Company Settings`.
-Sección básica, E-Receipts y Factura Global ya committed. Quedan referencias al Single sin resolver.
+Todos los grupos A-D procesados. Cero llamadas activas al Single fuera del propio DocType.
 
 Plan que estoy siguiendo:
 `working_docs/active/PLAN_MULTI_COMPANY_FACTURAPI_SETTINGS.md`
 
 Objetivo inmediato:
-Resolver referencias restantes al Single detectadas en grep exhaustivo (Grupos A-D).
+Correr tests completos, preparar PR.
 
 Criterio de avance:
-Cero llamadas activas a `frappe.get_single("Facturacion Mexico Settings")` fuera del
-propio DocType y archivos de inicialización.
+Tests pasan + PR abierto.
 
 ---
 
@@ -28,36 +27,35 @@ propio DocType y archivos de inicialización.
 
 ### Ya committed en esta rama
 - cb5cf42: DocType base + sección básica (campos 1-12)
-- este commit: E-Receipts (campos 13-18) + Factura Global (campos 19-21)
+- fb41aa2: E-Receipts + Factura Global migrados
+- este commit: eliminación de referencias al Single (Grupos A-D)
 
-### Pendiente — referencias activas al Single sin resolver
-| Archivo | Campo/uso | Decisión pendiente |
-|---|---|---|
-| `install.py:1919-1923` | Diagnóstico: `pac_name`, `pac_api_key`, `pac_test_mode` — phantom | Eliminar líneas |
-| `facturas_globales/hooks_handlers/factura_global_submit.py:119-126` | `notify_global_generation`, `global_notification_emails` | Eliminar (feature no implementada) |
-| `multi_sucursal/branch_manager.py:368-378` | `api_key`, `sandbox_mode`, etc. | Actualizar a Company Settings |
-| `sales_invoice_cancel.py:122` | `auto_cancel_fiscal` — phantom | Eliminar check |
-| `validaciones/api.py:1441` | `daily_rfc_validation_limit` — custom field | ¿Migrar? ¿Constante? |
-| `sat_validation_cache.py:23` | `rfc_cache_days` — phantom | ¿Migrar? ¿Constante? |
-| `addendas/addenda_auto_detector.py:219` | `addenda_detection_rules` — phantom | Eliminar check |
-| `dashboard_fiscal/...` | `global_invoice_monthly_limit`, `ereceipt_monthly_limit` | Eliminar (dashboard roto) |
-| `sales_invoice_validate.py:33` | `db.exists(Settings)` como guard | Reemplazar por check Company Settings |
+### Campos en Company Settings
+**Sección API:** sandbox_mode, api_key, test_api_key
+**Sección Operativa:** metodo_pago_default, send_email_default, download_files_default, customer_email_fallback
+**Sección E-Receipts:** ereceipt_mode_default, ereceipt_expiry_type_default, ereceipt_expiry_days_default, ereceipt_payment_form_default, ereceipt_notification_email, ereceipt_self_invoice_message
+**Sección Factura Global:** global_customer, global_item, global_payment_form_default, notify_global_generation, global_notification_emails
+
+### Pendiente
+1. Tests completos via /test-guard antes de PR
+2. bench migrate en test-facturacion.localhost
+3. PR
 
 ### No repetir
-- No hacer fallback al Single para campos ya migrados
-- No commitear en main directamente
-- No hacer bench migrate sin autorización
+- No hacer fallback al Single para campos migrados
+- No commitear en main
 
 ---
 
 ## Decisiones vigentes
-- `Facturacion Mexico Settings` (Single) intacto — ningún campo eliminado
-- `FacturAPIClient(company=None)` lanza ValidationError — intencional
-- E-Receipts: payment_form desde Payment Entry → Company Settings → "28"
-- Factura Global: use="S01", payment_method="PUE", objeto "global" con periodicity/months/year
+- `Facturacion Mexico Settings` (Single) intacto — ningún campo eliminado del JSON
+- Cero llamadas activas al Single fuera del propio DocType y archivos de instalación
+- E-Receipts: siempre activos (enable_ereceipts eliminado)
+- Factura Global: siempre disponible (enable_global_invoices eliminado)
+- Cancelación fiscal: siempre manual (auto_cancel_fiscal eliminado)
 
 ---
 
 ## Riesgos / cuidados
+- Instalaciones existentes necesitan crear Company Settings para que funcione el timbrado
 - issue #165 (is_submittable CFDI Recibido) sigue pendiente
-- Instalaciones existentes necesitan crear Company Settings para funcionar

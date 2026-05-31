@@ -1436,12 +1436,7 @@ def run_nightly_rfc_validation():
 	try:
 		frappe.logger().info("🌙 Iniciando validación RFC nocturna automática...")
 
-		# Obtener configuración del límite diario (configurable via Settings)
-		try:
-			settings = frappe.get_single("Facturacion Mexico Settings")
-			daily_validation_limit = getattr(settings, "daily_rfc_validation_limit", 30)
-		except Exception:
-			daily_validation_limit = 30  # Fallback por defecto
+		daily_validation_limit = 30  # Límite diario de validaciones RFC
 
 		# Obtener customers candidatos priorizados
 		candidates = get_customers_needing_rfc_validation(limit=daily_validation_limit)
