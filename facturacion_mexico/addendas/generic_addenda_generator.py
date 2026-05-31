@@ -195,17 +195,55 @@ class AddendaGenerator:
 					"default_currency": "MXN",
 				}
 
+		# 4. Agregar Addenda Product Mapping por item
+		# product_mapping: {item_code: {customer_item_code, customer_item_description,
+		#                               customer_uom, additional_data}}
+		customer = invoice_data.get("customer")
+		items = invoice_data.get("items") or []
+		context["product_mapping"] = self._load_product_mappings(customer, items)
+
 		# 5. Agregar helpers/funciones útiles
 		context["helpers"] = {
 			"format_currency": lambda x: f"{float(x):.2f}",
-			"format_date": lambda x: datetime.strptime(x, "%Y-%m-%d").strftime("%d/%m/%Y")
-			if isinstance(x, str)
-			else x,
+			"format_date": lambda x: (
+				datetime.strptime(x, "%Y-%m-%d").strftime("%d/%m/%Y") if isinstance(x, str) else x
+			),
 			"upper": lambda x: str(x).upper(),
 			"lower": lambda x: str(x).lower(),
 		}
 
 		return context
+
+	def _load_product_mappings(self, customer: str | None, items: list) -> dict:
+		"""Cargar Addenda Product Mapping activos para el cliente e items de la factura.
+
+		Returns:
+		    {item_code: {customer_item_code, customer_item_description, customer_uom,
+		                 additional_data}} — vacío si no hay customer, items o mappings.
+		"""
+		if not customer or not items:
+			return {}
+
+		item_codes = [i.get("item_code") for i in items if i.get("item_code")]
+		if not item_codes:
+			return {}
+
+		try:
+			rows = frappe.get_all(
+				"Addenda Product Mapping",
+				filters={"customer": customer, "item_code": ["in", item_codes], "is_active": 1},
+				fields=[
+					"item_code",
+					"customer_item_code",
+					"customer_item_description",
+					"customer_uom",
+					"additional_data",
+				],
+			)
+		except Exception:
+			return {}
+
+		return {r["item_code"]: r for r in rows}
 
 	def _validate_generated_xml(self, xml_content: str) -> dict:
 		"""Validar XML generado"""

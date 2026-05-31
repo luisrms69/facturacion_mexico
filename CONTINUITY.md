@@ -1,25 +1,25 @@
 # CONTINUITY.md — facturacion_mexico
 
 **Fecha:** 2026-05-31
-**Rama activa:** `feat/multi-company-facturapi-settings`
-**Tarea actual:** PR #172 abierto — pendiente de merge
+**Rama activa:** `feature/addenda-la-comer`
+**Tarea actual:** Addenda La Comer — soporte genérico committed, esperando spec del cliente
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-PR #172 abierto con la migración completa de Facturacion Mexico Settings a
-Facturacion Mexico Company Settings (multi-company). Pendiente revisión y merge.
+Implementación de Addenda La Comer. El soporte genérico (`product_mapping` en contexto
+Jinja) está committed. Falta spec del cliente para el template.
 
 Plan que estoy siguiendo:
-`working_docs/active/PLAN_MULTI_COMPANY_FACTURAPI_SETTINGS.md`
+No hay working doc activo — trabajo directo en rama.
 
 Objetivo inmediato:
-Merge de PR #172
+Recibir XML de ejemplo + spec La Comer para implementar el template Jinja2.
 
 Criterio de avance:
-PR mergeado + main actualizado + bench migrate en sites de producción
+Template Jinja2 en Addenda Type "La Comer" renderiza XML válido con datos del cliente.
 
 ---
 
@@ -27,28 +27,37 @@ PR mergeado + main actualizado + bench migrate en sites de producción
 
 ### Ya cerrado
 - PR #170: reestructuración documental (Fases 5–7)
-- PR #172 abierto: Facturacion Mexico Company Settings completo (4 commits)
+- PR #172: Facturacion Mexico Company Settings — configuración multi-company
+
+### En esta rama
+- `product_mapping` en contexto Jinja de addendas — committed (`dc055cf`)
 
 ### Pendiente inmediato
-1. Merge PR #172
-2. bench migrate en LlantasCS y demás sites post-merge
-3. Crear Facturacion Mexico Company Settings para cada Company existente
-4. issue #165: is_submittable CFDI Recibido
-5. issue #171: indicador visual sandbox (futura implementación)
+1. Recibir del cliente: XML ejemplo, namespace, número de proveedor, spec Provecomer
+2. Implementar template Jinja2 en Addenda Type "La Comer"
+3. issue #165: is_submittable CFDI Recibido (fuera de alcance aquí)
 
 ### No repetir
-- No commitear en main directamente
-- instalaciones existentes NECESITAN crear Company Settings para timbrar
+- No hardcodear La Comer en código Python
+- No crear campos custom para La Comer
+- El template vive en Addenda Type DocType, no en código
 
 ---
 
-## Decisiones vigentes
-- `Facturacion Mexico Settings` (Single) intacto como legacy
-- `FacturAPIClient(company=None)` lanza ValidationError — intencional
-- issue #171 creado, no implementar en esta rama
+## Información faltante (bloqueante para template)
+- XML ejemplo aceptado por La Comer / Provecomer
+- Namespace URI exacto
+- Número de proveedor asignado por La Comer
+- Si usan código interno, EAN/GTIN o código del proveedor por línea
+
+---
+
+## Archivos relevantes ahora
+- `facturacion_mexico/addendas/generic_addenda_generator.py` — _prepare_template_context
+- `facturacion_mexico/addendas/tests/test_addenda_generator_product_mapping.py`
 
 ---
 
 ## Riesgos / cuidados
-- LlantasCS, ACG y demás sites necesitan bench migrate + crear Company Settings post-merge
 - issue #165 (is_submittable) antes de poner CFDI Recibidos en producción
+- Instalaciones existentes deben crear Company Settings y correr bench migrate
