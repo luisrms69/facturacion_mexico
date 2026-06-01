@@ -360,7 +360,6 @@ class BranchManager:
 		return suggestions
 
 
-
 @frappe.whitelist()
 def get_company_branch_health_summary(company: str) -> dict:
 	"""API para obtener resumen de salud de sucursales de una empresa"""

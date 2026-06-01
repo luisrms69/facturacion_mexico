@@ -113,5 +113,3 @@ def _create_cancellation_event(doc):
 		f"Evento cancelación creado para {doc.name}",
 		"Sales Invoice Cancellation Event",
 	)
-
-
