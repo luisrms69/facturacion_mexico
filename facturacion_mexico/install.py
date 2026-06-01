@@ -61,6 +61,13 @@ def after_install():
 		frappe.log_error(frappe.get_traceback(), "[FMX][Install] Error creating Publico General customer")
 		frappe.logger().warning(f"⚠️ No se pudo crear customer Público General: {e}")
 
+	# Crear item Concepto Factura Global
+	try:
+		_create_global_invoice_item()
+	except Exception as e:
+		frappe.log_error(frappe.get_traceback(), "[FMX][Install] Error creating global invoice item")
+		frappe.logger().warning(f"⚠️ No se pudo crear item Concepto Factura Global: {e}")
+
 	frappe.logger().info("Facturacion Mexico installation completed successfully.")
 	frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure installation process completes successfully
 
@@ -1895,8 +1902,6 @@ def test_invoice_submit():
 		return False
 
 
-
-
 def investigate_timbrado_issue():
 	"""Investigar por qué no se ejecuta el timbrado automático."""
 	try:
@@ -2093,3 +2098,32 @@ def _create_publico_general_customer():
 	_create_customer_template("VENTA MOSTRADOR", "VENTA MOSTRADOR")
 	# PUBLICO EN GENERAL — reservado para futura Factura Global
 	_create_customer_template("PUBLICO EN GENERAL", "PUBLICO EN GENERAL")
+
+
+def _create_global_invoice_item():
+	"""Crear el item Concepto Factura Global si no existe. Idempotente."""
+	item_name = "CONCEPTO FACTURA GLOBAL"
+	if frappe.db.exists("Item", item_name):
+		frappe.logger().info(f"Item {item_name} ya existe, omitiendo creación.")
+		return
+
+	item = frappe.new_doc("Item")
+	item.item_code = item_name
+	item.item_name = item_name
+	item.description = "Ventas agrupadas al público en general — Factura Global"
+	item.item_group = "Services"
+	item.is_stock_item = 0
+	item.is_sales_item = 1
+	item.is_purchase_item = 0
+	item.stock_uom = "H87 - Pieza"
+
+	# Clave SAT para ventas al menudeo (servicios de venta al detalle)
+	if frappe.db.exists("SAT Producto Servicio", "84111506"):
+		item.fm_producto_servicio_sat = "84111506"
+
+	# Unidad SAT: ACT (Actividad) — estándar para conceptos agrupados
+	if frappe.db.exists("UOM", "ACT"):
+		item.fm_unidad_sat = "ACT"
+
+	item.insert(ignore_permissions=True)
+	frappe.logger().info(f"✅ Item {item_name} creado: {item.name}")

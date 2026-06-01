@@ -5,21 +5,24 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "section_general",
   "company",
-  "column_break_1",
   "sandbox_mode",
+  "ereceipt_mode_default",
+  "column_break_1",
   "api_key",
   "test_api_key",
+  "section_facturas",
   "metodo_pago_default",
   "send_email_default",
+  "column_break_facturas",
   "download_files_default",
   "customer_email_fallback",
   "section_ereceipts",
-  "ereceipt_mode_default",
   "ereceipt_expiry_type_default",
-  "column_break_ereceipts",
   "ereceipt_expiry_days_default",
   "ereceipt_payment_form_default",
+  "column_break_ereceipts",
   "ereceipt_notification_email",
   "ereceipt_self_invoice_message",
   "section_global_invoices",
@@ -31,6 +34,11 @@
   "global_notification_emails"
  ],
  "fields": [
+  {
+   "fieldname": "section_general",
+   "fieldtype": "Section Break",
+   "label": "General del Sistema"
+  },
   {
    "fieldname": "company",
    "fieldtype": "Link",
@@ -46,7 +54,7 @@
   },
   {
    "default": "1",
-   "description": "Activar modo sandbox para pruebas con FacturAPI. Si no está configurado, se usa el valor de Facturacion Mexico Settings.",
+   "description": "Activar modo sandbox para pruebas con FacturAPI.",
    "fieldname": "sandbox_mode",
    "fieldtype": "Check",
    "label": "Modo Sandbox"
@@ -62,6 +70,19 @@
    "fieldname": "test_api_key",
    "fieldtype": "Password",
    "label": "API Key Pruebas"
+  },
+  {
+   "default": "Normal",
+   "description": "Modo de facturación por defecto para nuevas Sales Invoices: Normal = timbrado directo, E-Receipt = recibo para autofacturación posterior.",
+   "fieldname": "ereceipt_mode_default",
+   "fieldtype": "Select",
+   "label": "Modo Facturación por Defecto",
+   "options": "Normal\nE-Receipt"
+  },
+  {
+   "fieldname": "section_facturas",
+   "fieldtype": "Section Break",
+   "label": "Facturas"
   },
   {
    "default": "PUE",
@@ -86,6 +107,10 @@
    "label": "Descargar PDF/XML automáticamente"
   },
   {
+   "fieldname": "column_break_facturas",
+   "fieldtype": "Column Break"
+  },
+  {
    "description": "Email que se usa como destinatario cuando el cliente no tiene email configurado. Si está vacío, no se envía email.",
    "fieldname": "customer_email_fallback",
    "fieldtype": "Data",
@@ -96,14 +121,6 @@
    "fieldname": "section_ereceipts",
    "fieldtype": "Section Break",
    "label": "E-Receipts"
-  },
-  {
-   "default": "Normal",
-   "description": "Modo de facturación por defecto para nuevas Sales Invoices: Normal = timbrado directo, E-Receipt = recibo para autofacturación posterior.",
-   "fieldname": "ereceipt_mode_default",
-   "fieldtype": "Select",
-   "label": "Modo Facturación por Defecto",
-   "options": "Normal\nE-Receipt"
   },
   {
    "default": "Fixed Days",
