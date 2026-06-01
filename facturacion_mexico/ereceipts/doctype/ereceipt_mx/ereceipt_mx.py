@@ -61,9 +61,14 @@ class EReceiptMX(Document):
 			self.created_by_user = frappe.session.user
 
 	def get_default_expiry_days(self):
-		"""Obtener días de vencimiento por defecto."""
-		settings = frappe.get_single("Facturacion Mexico Settings")
-		return settings.get("default_expiry_days", 3)
+		"""Obtener días de vencimiento por defecto desde Company Settings."""
+		company = self.company or frappe.defaults.get_global_default("company")
+		days = frappe.db.get_value(
+			"Facturacion Mexico Company Settings",
+			{"company": company},
+			"ereceipt_expiry_days_default",
+		)
+		return days or 3
 
 	def validate(self):
 		"""Validaciones del documento."""
@@ -103,8 +108,7 @@ class EReceiptMX(Document):
 
 	def after_insert(self):
 		"""Procesar después de insertar."""
-		if frappe.db.get_single_value("Facturacion Mexico Settings", "enable_ereceipts"):
-			self.generate_facturapi_ereceipt()
+		self.generate_facturapi_ereceipt()
 
 	def generate_facturapi_ereceipt(self):
 		"""Generar E-Receipt en FacturAPI."""
@@ -187,11 +191,9 @@ class EReceiptMX(Document):
 				frappe.throw(_("Esta factura ya tiene factura fiscal asociada"))
 
 	def auto_generate_facturapi(self):
-		"""Generar automáticamente en FacturAPI si está habilitado."""
-		if frappe.db.get_single_value("Facturacion Mexico Settings", "enable_ereceipts"):
-			self.generate_facturapi_ereceipt()
-			return True
-		return False
+		"""Generar automáticamente en FacturAPI."""
+		self.generate_facturapi_ereceipt()
+		return True
 
 	def cancel_ereceipt(self, reason=""):
 		"""Cancelar E-Receipt."""
@@ -293,7 +295,12 @@ def bulk_expire_ereceipts():
 
 
 @frappe.whitelist()
-def get_ereceipts_for_period(date_from, date_to, company=None, customer=None):
+def get_ereceipts_for_period(
+	date_from: str | None = None,
+	date_to: str | None = None,
+	company: str | None = None,
+	customer: str | None = None,
+):
 	"""Obtener E-Receipts para un período."""
 	try:
 		filters = {"date_issued": ["between", [date_from, date_to]]}
@@ -329,7 +336,7 @@ def get_ereceipts_for_period(date_from, date_to, company=None, customer=None):
 
 
 @frappe.whitelist()
-def get_expiring_ereceipts(days_ahead=3):
+def get_expiring_ereceipts(days_ahead: int = 3):
 	"""Obtener E-Receipts que vencen pronto."""
 	try:
 		future_date = frappe.utils.add_days(frappe.utils.today(), days_ahead)

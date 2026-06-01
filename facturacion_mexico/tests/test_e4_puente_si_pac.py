@@ -72,7 +72,6 @@ class TestE4ReadTaxesFromSI(_E4TestBase):
 	def test_read_taxes_empty_item_tax_rate(self):
 		"""Test: item sin item_tax_rate retorna lista vacía."""
 
-
 		service = TimbradoAPI()
 
 		# Mock item sin item_tax_rate
@@ -85,7 +84,6 @@ class TestE4ReadTaxesFromSI(_E4TestBase):
 
 	def test_read_taxes_with_single_tax(self):
 		"""Test: item con 1 impuesto retorna lista con 1 elemento."""
-
 
 		service = TimbradoAPI()
 
@@ -136,7 +134,6 @@ class TestE4TaxAmountRobust(_E4TestBase):
 	def test_fallback_row_name_priority(self):
 		"""Test: prioridad 1 = row.name encontrado."""
 
-
 		service = TimbradoAPI()
 
 		sales_invoice = frappe._dict(
@@ -166,7 +163,6 @@ class TestE4TaxAmountRobust(_E4TestBase):
 	def test_fallback_item_code_when_row_missing(self):
 		"""Test: fallback a item_code si row.name no existe."""
 
-
 		service = TimbradoAPI()
 
 		sales_invoice = frappe._dict(
@@ -190,7 +186,6 @@ class TestE4TaxAmountRobust(_E4TestBase):
 
 	def test_return_zero_when_no_keys_match(self):
 		"""Test: retorna 0.0 cuando ninguna llave coincide."""
-
 
 		service = TimbradoAPI()
 
@@ -224,7 +219,6 @@ class TestE4ResolveObjetoImp(_E4TestBase):
 	def test_throw_when_clave_prod_serv_missing(self):
 		"""Test: lanza error si item no tiene ClaveProdServ."""
 
-
 		service = TimbradoAPI()
 
 		item_doc = frappe._dict({"name": "TEST-ITEM", "fm_producto_servicio_sat": None})
@@ -245,34 +239,32 @@ class TestE4MapTaxToSAT(_E4TestBase):
 	def test_throw_when_account_not_mapped(self):
 		"""Test: lanza error si cuenta no tiene mapeo SAT."""
 
-
-		service = TimbradoAPI()
-
-		# Mock Facturacion Mexico Settings con company
-		mock_settings = frappe._dict({"company": "Test Company"})
+		# Mock Company Settings para que FacturAPIClient inicialice correctamente
+		mock_company_settings = frappe._dict({"sandbox_mode": 1, "api_key": "", "test_api_key": "test-key"})
 
 		# Mock Configuracion Fiscal Mexico sin mapeos
 		mock_config = frappe._dict({"mapeos_cuentas_fiscales": []})
 
-		def get_single_side_effect(doctype):
-			if doctype == "Facturacion Mexico Settings":
-				return mock_settings
-			return frappe._dict({})
+		def get_value_side_effect(doctype, filters, fields=None, **kw):
+			if doctype == "Facturacion Mexico Company Settings":
+				return mock_company_settings
+			if doctype == "Configuracion Fiscal Mexico":
+				return "CFM-Test Company"
+			return None
 
 		def get_doc_side_effect(doctype, name):
 			if doctype == "Configuracion Fiscal Mexico":
 				return mock_config
 			return frappe._dict({})
 
-		with patch("frappe.get_single", side_effect=get_single_side_effect):
-			with patch("frappe.db.get_value", return_value="Test Config"):
-				with patch("frappe.get_doc", side_effect=get_doc_side_effect):
-					with self.assertRaises(frappe.ValidationError) as context:
-						service._map_tax_account_to_sat("Cuenta Sin Mapeo - _TC")
+		with patch("frappe.db.get_value", side_effect=get_value_side_effect):
+			service = TimbradoAPI(company="Test Company")
+			with patch("frappe.get_doc", side_effect=get_doc_side_effect):
+				with self.assertRaises(frappe.ValidationError) as context:
+					service._map_tax_account_to_sat("Cuenta Sin Mapeo - _TC")
 
-					error_msg = str(context.exception)
-					# Verificar que el error menciona la cuenta
-					self.assertIn("Cuenta Sin Mapeo", error_msg)
+				error_msg = str(context.exception)
+				self.assertIn("Cuenta Sin Mapeo", error_msg)
 
 
 class TestE4ValidateObjetoImp(_E4TestBase):
@@ -284,7 +276,6 @@ class TestE4ValidateObjetoImp(_E4TestBase):
 
 	def test_throw_when_objeto_imp_01_but_has_taxes(self):
 		"""Test: error si ObjetoImp 01 (no objeto) pero tiene impuestos."""
-
 
 		service = TimbradoAPI()
 
@@ -302,7 +293,6 @@ class TestE4ValidateObjetoImp(_E4TestBase):
 	def test_throw_when_objeto_imp_02_but_no_taxes(self):
 		"""Test: error si ObjetoImp 02 (sí objeto) pero sin impuestos."""
 
-
 		service = TimbradoAPI()
 
 		item = frappe._dict({"item_code": "ITEM-001"})
@@ -318,7 +308,6 @@ class TestE4ValidateObjetoImp(_E4TestBase):
 
 	def test_pass_when_objeto_imp_02_with_taxes(self):
 		"""Test: pasa validación si ObjetoImp 02 y tiene impuestos."""
-
 
 		service = TimbradoAPI()
 
@@ -342,7 +331,6 @@ class TestE4ValidateCurrency(_E4TestBase):
 	def test_throw_when_currencies_mismatch(self):
 		"""Test: error si moneda payload ≠ moneda SI."""
 
-
 		service = TimbradoAPI()
 
 		invoice_data = {"currency": "USD"}
@@ -355,7 +343,6 @@ class TestE4ValidateCurrency(_E4TestBase):
 
 	def test_pass_when_currencies_match(self):
 		"""Test: pasa validación si monedas coinciden."""
-
 
 		service = TimbradoAPI()
 
@@ -379,7 +366,6 @@ class TestE4ValidatePayloadCompleteness(_E4TestBase):
 	def test_throw_when_customer_data_incomplete(self):
 		"""Test: error si faltan campos customer requeridos."""
 
-
 		service = TimbradoAPI()
 
 		invoice_data = {
@@ -401,7 +387,6 @@ class TestE4ValidatePayloadCompleteness(_E4TestBase):
 	def test_throw_when_items_empty(self):
 		"""Test: error si items[] vacío."""
 
-
 		service = TimbradoAPI()
 
 		invoice_data = {
@@ -419,7 +404,6 @@ class TestE4ValidatePayloadCompleteness(_E4TestBase):
 
 	def test_throw_when_tax_fields_incomplete(self):
 		"""Test: error si faltan campos en taxes del item."""
-
 
 		service = TimbradoAPI()
 
@@ -456,7 +440,6 @@ class TestE4ValidatePayloadCompleteness(_E4TestBase):
 
 	def test_pass_when_payload_complete(self):
 		"""Test: pasa validación con payload completo."""
-
 
 		service = TimbradoAPI()
 
@@ -497,7 +480,6 @@ class TestE4IntegrationSmoke(_E4TestBase):
 	def test_integration_validate_currency_and_completeness(self):
 		"""Test: validaciones E4.7 + E4.8 con payload completo."""
 
-
 		service = TimbradoAPI()
 
 		# Sales Invoice mínimo
@@ -508,7 +490,11 @@ class TestE4IntegrationSmoke(_E4TestBase):
 			"currency": "MXN",
 			"payment_form": "01",
 			"use": "G03",
-			"customer": {"legal_name": "Test Customer SA de CV", "tax_id": "XAXX010101000", "tax_system": "601"},
+			"customer": {
+				"legal_name": "Test Customer SA de CV",
+				"tax_id": "XAXX010101000",
+				"tax_system": "601",
+			},
 			"items": [
 				{
 					"product": {
@@ -532,4 +518,4 @@ class TestE4IntegrationSmoke(_E4TestBase):
 			self.assertTrue(result)
 
 		except frappe.ValidationError as e:
-			self.fail(f"Validaciones E4.7/E4.8 fallaron con payload válido: {str(e)}")
+			self.fail(f"Validaciones E4.7/E4.8 fallaron con payload válido: {e!s}")

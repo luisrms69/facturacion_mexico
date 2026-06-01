@@ -213,17 +213,8 @@ class AddendaAutoDetector:
 		return {"detected": False, "confidence": 0, "addenda_type": None, "auto_detected": True}
 
 	def _load_detection_rules(self) -> dict:
-		"""Cargar reglas de detección desde configuración"""
+		"""Cargar reglas de detección por defecto."""
 		try:
-			# Intentar cargar desde custom settings o file
-			rules_setting = frappe.get_single("Facturacion Mexico Settings")
-
-			if hasattr(rules_setting, "addenda_detection_rules") and rules_setting.addenda_detection_rules:
-				import json
-
-				return json.loads(rules_setting.addenda_detection_rules)
-
-			# Reglas por defecto (ejemplos genéricos)
 			return {
 				"company_name_patterns": [
 					{"pattern": "WALMART", "addenda_type": "WALMART", "confidence": 95},

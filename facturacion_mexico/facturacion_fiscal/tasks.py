@@ -16,7 +16,7 @@ def cleanup_old_logs():
 	try:
 		frappe.logger().info("Iniciando limpieza de logs antiguos...")
 
-		retention_days = frappe.db.get_single_value("Facturacion Mexico Settings", "log_retention_days") or 90
+		retention_days = 90
 		cutoff_date = add_days(today(), -retention_days)
 
 		logs_to_archive = frappe.db.count("FacturAPI Response Log", filters={"timestamp": ["<", cutoff_date]})

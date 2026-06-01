@@ -61,6 +61,13 @@ def after_install():
 		frappe.log_error(frappe.get_traceback(), "[FMX][Install] Error creating Publico General customer")
 		frappe.logger().warning(f"⚠️ No se pudo crear customer Público General: {e}")
 
+	# Crear item Concepto Factura Global
+	try:
+		_create_global_invoice_item()
+	except Exception as e:
+		frappe.log_error(frappe.get_traceback(), "[FMX][Install] Error creating global invoice item")
+		frappe.logger().warning(f"⚠️ No se pudo crear item Concepto Factura Global: {e}")
+
 	frappe.logger().info("Facturacion Mexico installation completed successfully.")
 	frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure installation process completes successfully
 
@@ -71,7 +78,6 @@ def create_initial_configuration():
 		settings = frappe.new_doc("Facturacion Mexico Settings")
 		settings.sandbox_mode = 1
 		settings.timeout = 30
-		settings.auto_generate_ereceipts = 1
 		settings.send_email_default = 0
 		settings.download_files_default = 1
 		settings.save()
@@ -1896,82 +1902,6 @@ def test_invoice_submit():
 		return False
 
 
-def check_fiscal_configuration_for_timbrado():
-	"""Verificar configuración necesaria para timbrado CFDI."""
-	try:
-		print("🔍 Verificando configuración para timbrado CFDI...")
-
-		# 1. Verificar configuración de Company
-		companies = frappe.get_all("Company", fields=["name"], limit=1)
-		if not companies:
-			print("❌ No se encontró company")
-			return False
-
-		company_name = companies[0].name
-		company_doc = frappe.get_doc("Company", company_name)
-
-		print(f"\n🏢 CONFIGURACIÓN DE COMPANY: {company_name}")
-		print(f"   📋 RFC: {company_doc.tax_id or 'NO CONFIGURADO'}")
-		print(f"   🌎 País: {company_doc.country or 'NO CONFIGURADO'}")
-		print(f"   💰 Moneda: {company_doc.default_currency}")
-
-		# 2. Verificar configuración Facturación México Settings
-		try:
-			fm_settings = frappe.get_single("Facturacion Mexico Settings")
-			print("\n⚙️ FACTURACIÓN MÉXICO SETTINGS:")
-			print(f"   🔗 PAC Configurado: {fm_settings.get('pac_name') or 'NO CONFIGURADO'}")
-			print(f"   🔑 API Key: {'CONFIGURADA' if fm_settings.get('pac_api_key') else 'NO CONFIGURADA'}")
-			print(f"   🏭 Ambiente: {fm_settings.get('pac_test_mode', 'NO CONFIGURADO')}")
-		except Exception as e:
-			print(f"\n⚠️ Facturación México Settings no configurado: {e}")
-
-		# 3. Verificar certificados SAT
-		certificates = frappe.get_all("SAT Certificate", fields=["name", "certificate_type", "status"])
-		print("\n🔐 CERTIFICADOS SAT:")
-		if certificates:
-			for cert in certificates:
-				print(f"   📜 {cert.name}: {cert.certificate_type} - {cert.status}")
-		else:
-			print("   ❌ NO HAY CERTIFICADOS SAT CONFIGURADOS")
-
-		# 4. Verificar última factura
-		invoices = frappe.db.sql("""
-			SELECT name, fm_fiscal_status, fm_cfdi_use, fm_payment_method_sat
-			FROM `tabSales Invoice`
-			WHERE docstatus = 1
-			ORDER BY creation DESC
-			LIMIT 1
-		""")
-
-		if invoices:
-			invoice = invoices[0]
-			print("\n📄 ÚLTIMA FACTURA SUBMITTED:")
-			print(f"   🧾 Número: {invoice[0]}")
-			print(f"   📊 Status Fiscal: {invoice[1]}")
-			print(f"   🎯 Uso CFDI: {invoice[2]}")
-			print(f"   💳 Método Pago: {invoice[3]}")
-
-		# 5. Mostrar pasos para timbrado
-		print("\n🚀 PASOS PARA HABILITAR TIMBRADO:")
-		print("   1. Configurar RFC de Company")
-		print("   2. Obtener certificados SAT (.cer y .key)")
-		print("   3. Configurar PAC (FacturAPI, Finkok, etc.)")
-		print("   4. Configurar Facturación México Settings")
-		print("   5. Crear Branch con lugar de expedición")
-		print("   6. Ejecutar timbrado desde Sales Invoice")
-
-		print("=" * 60)
-
-		return True
-
-	except Exception as e:
-		print(f"❌ Error verificando configuración fiscal: {e}")
-		import traceback
-
-		traceback.print_exc()
-		return False
-
-
 def investigate_timbrado_issue():
 	"""Investigar por qué no se ejecuta el timbrado automático."""
 	try:
@@ -2168,3 +2098,32 @@ def _create_publico_general_customer():
 	_create_customer_template("VENTA MOSTRADOR", "VENTA MOSTRADOR")
 	# PUBLICO EN GENERAL — reservado para futura Factura Global
 	_create_customer_template("PUBLICO EN GENERAL", "PUBLICO EN GENERAL")
+
+
+def _create_global_invoice_item():
+	"""Crear el item Concepto Factura Global si no existe. Idempotente."""
+	item_name = "CONCEPTO FACTURA GLOBAL"
+	if frappe.db.exists("Item", item_name):
+		frappe.logger().info(f"Item {item_name} ya existe, omitiendo creación.")
+		return
+
+	item = frappe.new_doc("Item")
+	item.item_code = item_name
+	item.item_name = item_name
+	item.description = "Ventas agrupadas al público en general — Factura Global"
+	item.item_group = "Services"
+	item.is_stock_item = 0
+	item.is_sales_item = 1
+	item.is_purchase_item = 0
+	item.stock_uom = "H87 - Pieza"
+
+	# Clave SAT para ventas al menudeo (servicios de venta al detalle)
+	if frappe.db.exists("SAT Producto Servicio", "84111506"):
+		item.fm_producto_servicio_sat = "84111506"
+
+	# Unidad SAT: ACT (Actividad) — estándar para conceptos agrupados
+	if frappe.db.exists("UOM", "ACT"):
+		item.fm_unidad_sat = "ACT"
+
+	item.insert(ignore_permissions=True)
+	frappe.logger().info(f"✅ Item {item_name} creado: {item.name}")

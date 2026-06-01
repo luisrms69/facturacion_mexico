@@ -318,7 +318,11 @@ def timbrar_complemento_pago(complemento_name: str) -> dict:
 	comp_submitted = frappe.get_doc("Complemento Pago MX", complemento_name)
 	comp_submitted.submit()
 
-	if frappe.db.get_single_value("Facturacion Mexico Settings", "download_files_default"):
+	if frappe.db.get_value(
+		"Facturacion Mexico Company Settings",
+		{"company": comp_submitted.company},
+		"download_files_default",
+	):
 		_attach_files_complemento(comp_submitted, facturapi_id, uuid)
 
 	frappe.logger().info(f"Complemento {complemento_name} timbrado. UUID: {uuid}")
@@ -913,7 +917,7 @@ def reconcile_payment_tracking():
 
 
 @frappe.whitelist()
-def crear_complemento_desde_payment_entry(payment_entry_name):
+def crear_complemento_desde_payment_entry(payment_entry_name: str | None = None):
 	"""
 	Crea un Complemento de Pago MX basado en un Payment Entry de ERPNext
 	"""
@@ -1051,7 +1055,7 @@ def obtener_numero_parcialidad(invoice_name, outstanding_amount):
 
 
 @frappe.whitelist()
-def consultar_estatus_complemento(complemento_id):
+def consultar_estatus_complemento(complemento_id: str | None = None):
 	"""
 	Consulta el estatus de un complemento de pago en el SAT
 	"""
@@ -1124,7 +1128,7 @@ def realizar_consulta_sat(consulta_data):
 
 
 @frappe.whitelist()
-def generar_xml_complemento(complemento_name):
+def generar_xml_complemento(complemento_name: str | None = None):
 	"""
 	Genera el XML del complemento de pago según estándar SAT
 	"""
@@ -1223,7 +1227,7 @@ def obtener_complementos_pendientes_timbrado():
 
 
 @frappe.whitelist()
-def reporte_complementos_periodo(fecha_inicio, fecha_fin):
+def reporte_complementos_periodo(fecha_inicio: str | None = None, fecha_fin: str | None = None):
 	"""
 	Genera reporte de complementos de pago por período
 	"""

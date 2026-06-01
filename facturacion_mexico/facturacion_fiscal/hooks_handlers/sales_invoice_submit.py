@@ -114,22 +114,17 @@ def _get_or_create_factura_fiscal(doc):
 
 
 def _should_auto_timbrar(doc):
-	"""Determinar si se debe auto-timbrar facturas normales VS ereceipts."""
+	"""Determinar si se debe auto-timbrar. E-Receipt vs timbrado normal se decide
+	por fm_ereceipt_mode en el Sales Invoice, no por un flag global."""
 
 	frappe.log_error(f"🔍 EVALUANDO auto-timbrado para {doc.name}", "Auto-Timbrado Check")
 
-	settings = frappe.get_single("Facturacion Mexico Settings")
-
-	# LÓGICA CORRECTA: Si ereceipts está habilitado, NO timbrar (usar ereceipts)
-	if settings.auto_generate_ereceipts:
-		frappe.log_error(
-			f"📱 EReceipts HABILITADO para {doc.name} - NO timbrar, usar ereceipts", "Auto-Timbrado Check"
-		)
+	# Si el SI está en modo E-Receipt, no timbrar
+	if doc.get("fm_ereceipt_mode") == "E-Receipt":
+		frappe.log_error(f"📱 SI en modo E-Receipt para {doc.name} - NO timbrar", "Auto-Timbrado Check")
 		return False
 
-	frappe.log_error(
-		f"📄 EReceipts DESHABILITADO para {doc.name} - Proceder con timbrado normal", "Auto-Timbrado Check"
-	)
+	frappe.log_error(f"📄 Proceder con timbrado normal para {doc.name}", "Auto-Timbrado Check")
 
 	# Solo si hay datos fiscales completos
 	if not doc.fm_cfdi_use:
@@ -161,7 +156,7 @@ def _auto_timbrar_factura(doc):
 		frappe.log_error(f"📦 TimbradoAPI importado para {doc.name}", "TIMBRADO TRACE")
 
 		# Crear instancia de API
-		_api = TimbradoAPI()
+		_api = TimbradoAPI(company=doc.company)
 		frappe.log_error(f"🔧 TimbradoAPI instanciado para {doc.name}", "TIMBRADO TRACE")
 
 		# Timbrar en background job para no bloquear el submit

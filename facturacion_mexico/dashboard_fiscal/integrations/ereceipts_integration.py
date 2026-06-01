@@ -51,7 +51,6 @@ def register_ereceipts_alerts():
 		{
 			"ereceipts_sin_procesar_24h": check_unprocessed_ereceipts,
 			"errores_autofacturacion": check_auto_billing_errors,
-			"limite_mensual_ereceipts": check_monthly_limit,
 			"clientes_inactivos": check_inactive_customers,
 		},
 	)
@@ -287,36 +286,6 @@ def check_auto_billing_errors(**kwargs):
 		}
 	except Exception as e:
 		frappe.log_error(f"Error verificando errores autofacturación: {e!s}")
-		return {"triggered": False, "error": str(e)}
-
-
-def check_monthly_limit(**kwargs):
-	"""Verificar límite mensual de E-Receipts"""
-	from datetime import date
-
-	import frappe
-
-	try:
-		# Obtener límite de configuración (default: 1000)
-		monthly_limit = (
-			frappe.db.get_single_value("Facturacion Mexico Settings", "ereceipt_monthly_limit") or 1000
-		)
-
-		today = date.today()
-		first_day = date(today.year, today.month, 1)
-
-		count = frappe.db.count("EReceipt MX", filters={"creation": [">=", first_day], "docstatus": 1})
-
-		percentage_used = (count / monthly_limit * 100) if monthly_limit > 0 else 0
-
-		return {
-			"triggered": percentage_used >= 80,  # Alerta al 80% del límite
-			"message": f"Uso mensual e-receipts: {count}/{monthly_limit} ({percentage_used:.1f}%)",
-			"priority": 5 if percentage_used >= 90 else 4,
-			"data": {"count": count, "limit": monthly_limit, "percentage": percentage_used},
-		}
-	except Exception as e:
-		frappe.log_error(f"Error verificando límite mensual: {e!s}")
 		return {"triggered": False, "error": str(e)}
 
 

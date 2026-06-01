@@ -153,17 +153,16 @@ function handle_expiry_type_change(frm) {
 
 function setup_ereceipt_defaults_from_settings(frm) {
 	// Solo para nuevos documentos
-	if (frm.is_new()) {
+	if (frm.is_new() && frm.doc.company) {
 		frappe.call({
 			method: "frappe.client.get_value",
 			args: {
-				doctype: "Facturacion Mexico Settings",
-				name: "Facturacion Mexico Settings",
+				doctype: "Facturacion Mexico Company Settings",
+				filters: { company: frm.doc.company },
 				fieldname: "ereceipt_mode_default",
 			},
 			callback: function (r) {
 				if (r.message && r.message.ereceipt_mode_default) {
-					// Configurar modo por defecto
 					frm.set_value("fm_ereceipt_mode", r.message.ereceipt_mode_default);
 				}
 			},

@@ -114,27 +114,46 @@ def update_company_stats_on_cancel(doc):
 
 
 def send_notifications(doc):
-	"""Enviar notificaciones de factura global creada."""
+	"""Enviar notificaciones de factura global timbrada."""
 	try:
-		settings = frappe.get_single("Facturacion Mexico Settings")
-
-		if not settings.notify_global_generation:
+		cs = frappe.db.get_value(
+			"Facturacion Mexico Company Settings",
+			{"company": doc.company},
+			["notify_global_generation", "global_notification_emails"],
+			as_dict=True,
+		)
+		if not cs:
+			frappe.log_error(
+				f"No existe Company Settings para {doc.company} — notificación Factura Global omitida.",
+				"Factura Global Notificación",
+			)
 			return
 
-		recipients = []
-		if settings.global_notification_emails:
-			recipients.extend(settings.global_notification_emails.split(","))
+		if not cs.notify_global_generation:
+			return
 
-		# Agregar usuario creador
+		# Construir lista de destinatarios
+		recipients = []
+		if cs.global_notification_emails:
+			for email in cs.global_notification_emails.split(","):
+				email = email.strip()
+				if email:
+					recipients.append(email)
+
+		# Siempre incluir al usuario creador
 		if doc.created_by:
 			recipients.append(doc.created_by)
 
+		recipients = list(dict.fromkeys(recipients))  # deduplicar preservando orden
+
 		if not recipients:
+			frappe.log_error(
+				f"notify_global_generation=1 pero sin destinatarios configurados para {doc.company}.",
+				"Factura Global Notificación",
+			)
 			return
 
-		# Preparar datos del email
-		subject = f"Factura Global {doc.name} - Timbrada Exitosamente"
-
+		subject = f"Factura Global {doc.name} — Timbrada Exitosamente"
 		template_data = {
 			"factura_name": doc.name,
 			"company": doc.company,
@@ -146,10 +165,8 @@ def send_notifications(doc):
 			"folio": doc.folio,
 			"processing_time": doc.processing_time,
 		}
-
 		message = get_notification_template(template_data)
 
-		# Enviar email
 		frappe.sendmail(
 			recipients=recipients,
 			subject=subject,
@@ -158,7 +175,7 @@ def send_notifications(doc):
 		)
 
 	except Exception as e:
-		frappe.log_error(f"Error enviando notificaciones: {e}")
+		frappe.log_error(f"Error enviando notificaciones Factura Global: {e}")
 
 
 def get_notification_template(data):
@@ -169,18 +186,18 @@ def get_notification_template(data):
 
 		<div style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0;">
 			<h3>Información de la Factura</h3>
-			<p><strong>Factura:</strong> {data['factura_name']}</p>
-			<p><strong>Empresa:</strong> {data['company']}</p>
-			<p><strong>Período:</strong> {data['periodo_inicio']} al {data['periodo_fin']}</p>
-			<p><strong>Total:</strong> ${data['total_periodo']:,.2f} MXN</p>
-			<p><strong>Receipts Incluidos:</strong> {data['cantidad_receipts']}</p>
+			<p><strong>Factura:</strong> {data["factura_name"]}</p>
+			<p><strong>Empresa:</strong> {data["company"]}</p>
+			<p><strong>Período:</strong> {data["periodo_inicio"]} al {data["periodo_fin"]}</p>
+			<p><strong>Total:</strong> ${data["total_periodo"]:,.2f} MXN</p>
+			<p><strong>Receipts Incluidos:</strong> {data["cantidad_receipts"]}</p>
 		</div>
 
 		<div style="background-color: #e8f5e8; padding: 15px; border-radius: 5px; margin: 20px 0;">
 			<h3>Información Fiscal</h3>
-			<p><strong>UUID:</strong> {data['uuid']}</p>
-			<p><strong>Folio:</strong> {data['folio']}</p>
-			<p><strong>Tiempo de Procesamiento:</strong> {data['processing_time']:.2f} segundos</p>
+			<p><strong>UUID:</strong> {data["uuid"]}</p>
+			<p><strong>Folio:</strong> {data["folio"]}</p>
+			<p><strong>Tiempo de Procesamiento:</strong> {data["processing_time"]:.2f} segundos</p>
 		</div>
 
 		<div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; font-size: 12px;">

@@ -29,8 +29,10 @@ def _should_validate_fiscal_data(doc):
 	if doc.docstatus == 2:
 		return False
 
-	# Solo si hay configuración de facturación México
-	if not frappe.db.exists("Facturacion Mexico Settings", "Facturacion Mexico Settings"):
+	# Solo si la company tiene configuración de facturación México
+	if not doc.company or not frappe.db.exists(
+		"Facturacion Mexico Company Settings", {"company": doc.company}
+	):
 		return False
 
 	# Solo si el cliente tiene RFC (indica facturación fiscal)

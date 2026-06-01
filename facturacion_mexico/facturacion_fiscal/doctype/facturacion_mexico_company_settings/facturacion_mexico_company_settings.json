@@ -1,0 +1,247 @@
+{
+ "actions": [],
+ "autoname": "format:FMCS-{company}",
+ "creation": "2026-05-30 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_general",
+  "company",
+  "sandbox_mode",
+  "ereceipt_mode_default",
+  "column_break_1",
+  "api_key",
+  "test_api_key",
+  "section_facturas",
+  "metodo_pago_default",
+  "send_email_default",
+  "column_break_facturas",
+  "download_files_default",
+  "customer_email_fallback",
+  "section_ereceipts",
+  "ereceipt_expiry_type_default",
+  "ereceipt_expiry_days_default",
+  "ereceipt_payment_form_default",
+  "column_break_ereceipts",
+  "ereceipt_notification_email",
+  "ereceipt_self_invoice_message",
+  "section_global_invoices",
+  "global_customer",
+  "global_item",
+  "column_break_global",
+  "global_payment_form_default",
+  "notify_global_generation",
+  "global_notification_emails"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_general",
+   "fieldtype": "Section Break",
+   "label": "General del Sistema"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "description": "Activar modo sandbox para pruebas con FacturAPI.",
+   "fieldname": "sandbox_mode",
+   "fieldtype": "Check",
+   "label": "Modo Sandbox"
+  },
+  {
+   "description": "API Key de producción de FacturAPI.io para esta Company.",
+   "fieldname": "api_key",
+   "fieldtype": "Password",
+   "label": "API Key Producción"
+  },
+  {
+   "description": "API Key de pruebas (sandbox) de FacturAPI.io para esta Company.",
+   "fieldname": "test_api_key",
+   "fieldtype": "Password",
+   "label": "API Key Pruebas"
+  },
+  {
+   "default": "Normal",
+   "description": "Modo de facturación por defecto para nuevas Sales Invoices: Normal = timbrado directo, E-Receipt = recibo para autofacturación posterior.",
+   "fieldname": "ereceipt_mode_default",
+   "fieldtype": "Select",
+   "label": "Modo Facturación por Defecto",
+   "options": "Normal\nE-Receipt"
+  },
+  {
+   "fieldname": "section_facturas",
+   "fieldtype": "Section Break",
+   "label": "Facturas"
+  },
+  {
+   "default": "PUE",
+   "description": "Método de pago SAT asignado automáticamente a nuevas Facturas Fiscales Mexico.",
+   "fieldname": "metodo_pago_default",
+   "fieldtype": "Select",
+   "label": "Método de Pago por Defecto",
+   "options": "PUE\nPPD"
+  },
+  {
+   "default": "0",
+   "description": "Enviar XML y PDF del CFDI por correo al cliente automáticamente al timbrar. El cliente puede anular esta preferencia en su perfil.",
+   "fieldname": "send_email_default",
+   "fieldtype": "Check",
+   "label": "Enviar Email por Defecto"
+  },
+  {
+   "default": "1",
+   "description": "Descargar y adjuntar PDF y XML automáticamente al timbrar Factura Fiscal Mexico y Complemento Pago MX.",
+   "fieldname": "download_files_default",
+   "fieldtype": "Check",
+   "label": "Descargar PDF/XML automáticamente"
+  },
+  {
+   "fieldname": "column_break_facturas",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Email que se usa como destinatario cuando el cliente no tiene email configurado. Si está vacío, no se envía email.",
+   "fieldname": "customer_email_fallback",
+   "fieldtype": "Data",
+   "label": "Email Fallback Cliente",
+   "options": "Email"
+  },
+  {
+   "fieldname": "section_ereceipts",
+   "fieldtype": "Section Break",
+   "label": "E-Receipts"
+  },
+  {
+   "default": "Fixed Days",
+   "description": "Tipo de vencimiento por defecto para E-Receipts.",
+   "fieldname": "ereceipt_expiry_type_default",
+   "fieldtype": "Select",
+   "label": "Tipo Vencimiento por Defecto",
+   "options": "Fixed Days\nEnd of Month\nCustom Date"
+  },
+  {
+   "fieldname": "column_break_ereceipts",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "3",
+   "description": "Días de vencimiento por defecto para E-Receipts (aplica cuando el tipo es Fixed Days).",
+   "fieldname": "ereceipt_expiry_days_default",
+   "fieldtype": "Int",
+   "label": "Días Vencimiento por Defecto"
+  },
+  {
+   "default": "28",
+   "description": "Forma de pago SAT para E-Receipts cuando no se puede obtener del Payment Entry. 28=Tarjeta débito, 04=Tarjeta crédito, 01=Efectivo, 03=Transferencia.",
+   "fieldname": "ereceipt_payment_form_default",
+   "fieldtype": "Data",
+   "label": "Forma de Pago E-Receipt por Defecto"
+  },
+  {
+   "description": "Email para notificaciones de E-Receipts próximos a vencer o sin convertir.",
+   "fieldname": "ereceipt_notification_email",
+   "fieldtype": "Data",
+   "label": "Email Notificaciones E-Receipt",
+   "options": "Email"
+  },
+  {
+   "default": "Su compra está pendiente de facturación. Use el enlace para generar su factura fiscal.",
+   "description": "Mensaje para clientes en el portal de autofacturación.",
+   "fieldname": "ereceipt_self_invoice_message",
+   "fieldtype": "Text",
+   "label": "Mensaje Portal Autofactura"
+  },
+  {
+   "fieldname": "section_global_invoices",
+   "fieldtype": "Section Break",
+   "label": "Factura Global"
+  },
+  {
+   "description": "Customer configurado como Público en General (RFC XAXX010101000, régimen 616). Se usa como receptor de todas las facturas globales de esta Company.",
+   "fieldname": "global_customer",
+   "fieldtype": "Link",
+   "label": "Customer Público en General",
+   "options": "Customer"
+  },
+  {
+   "description": "Item que representa el concepto de ventas agrupadas en la factura global. Debe tener clave SAT y unidad SAT configuradas.",
+   "fieldname": "global_item",
+   "fieldtype": "Link",
+   "label": "Item Concepto Factura Global",
+   "options": "Item"
+  },
+  {
+   "fieldname": "column_break_global",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "01",
+   "description": "Forma de pago SAT para facturas globales cuando no hay una forma clara de los receipts. 01=Efectivo, 28=Tarjeta débito, 04=Tarjeta crédito.",
+   "fieldname": "global_payment_form_default",
+   "fieldtype": "Data",
+   "label": "Forma de Pago Global por Defecto"
+  },
+  {
+   "default": "0",
+   "description": "Enviar notificación por email al timbrar una Factura Global.",
+   "fieldname": "notify_global_generation",
+   "fieldtype": "Check",
+   "label": "Notificar al Timbrar Factura Global"
+  },
+  {
+   "depends_on": "notify_global_generation",
+   "description": "Emails separados por coma que recibirán la notificación. El usuario creador siempre se incluye.",
+   "fieldname": "global_notification_emails",
+   "fieldtype": "Small Text",
+   "label": "Emails de Notificación Factura Global"
+  }
+ ],
+ "links": [],
+ "modified": "2026-05-30 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Facturacion Fiscal",
+ "name": "Facturacion Mexico Company Settings",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "Facturacion Mexico System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Facturacion Mexico Manager"
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

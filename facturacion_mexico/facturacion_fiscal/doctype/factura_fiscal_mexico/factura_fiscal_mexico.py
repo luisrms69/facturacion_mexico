@@ -98,7 +98,7 @@ def get_payment_entry_by_invoice(invoice_name):
 
 
 @frappe.whitelist()
-def get_payment_entry_for_javascript(invoice_name):
+def get_payment_entry_for_javascript(invoice_name: str | None = None):
 	"""
 	Wrapper para JavaScript - buscar Payment Entry por Sales Invoice.
 
@@ -154,15 +154,21 @@ class FacturaFiscalMexico(Document):
 
 	def before_insert(self):
 		if not (self.fm_payment_method_sat or "").strip() or self.fm_payment_method_sat == "PUE":
+			company = self.company or frappe.defaults.get_global_default("company")
 			self.fm_payment_method_sat = (
-				frappe.db.get_single_value("Facturacion Mexico Settings", "metodo_pago_default") or "PUE"
+				frappe.db.get_value(
+					"Facturacion Mexico Company Settings",
+					{"company": company},
+					"metodo_pago_default",
+				)
+				or "PUE"
 			)
 
 		# Asignar fm_enviar_email_timbrado usando lógica cascade Customer/Settings
 		try:
 			from frappe.utils import cint
 
-			flag = _resolve_auto_email_flag(self.customer)
+			flag = _resolve_auto_email_flag(self.customer, company=self.company)
 			self.fm_enviar_email_timbrado = cint(flag)
 		except Exception as e:
 			# Si algo falla, NO forzar; dejar en 0 (seguro)
@@ -828,11 +834,15 @@ class FacturaFiscalMexico(Document):
 		"""Validar método de pago SAT - MIGRADO desde Sales Invoice."""
 		# Solo si sigue vacío (no sobreescribir elección del usuario)
 		if not (self.fm_payment_method_sat or "").strip():
-			try:
-				settings = frappe.get_single("Facturacion Mexico Settings")
-				self.fm_payment_method_sat = (getattr(settings, "metodo_pago_default", None) or "PUE").strip()
-			except Exception:
-				self.fm_payment_method_sat = "PUE"
+			company = self.company or frappe.defaults.get_global_default("company")
+			self.fm_payment_method_sat = (
+				frappe.db.get_value(
+					"Facturacion Mexico Company Settings",
+					{"company": company},
+					"metodo_pago_default",
+				)
+				or "PUE"
+			).strip()
 
 		# Validar que el método existe
 		valid_methods = ["PUE", "PPD"]
@@ -848,11 +858,15 @@ class FacturaFiscalMexico(Document):
 	def _ensure_payment_method_default(self):
 		# Solo si sigue vacío (no sobreescribir elección del usuario)
 		if not (self.fm_payment_method_sat or "").strip():
-			try:
-				settings = frappe.get_single("Facturacion Mexico Settings")
-				self.fm_payment_method_sat = (getattr(settings, "metodo_pago_default", None) or "PUE").strip()
-			except Exception:
-				self.fm_payment_method_sat = "PUE"
+			company = self.company or frappe.defaults.get_global_default("company")
+			self.fm_payment_method_sat = (
+				frappe.db.get_value(
+					"Facturacion Mexico Company Settings",
+					{"company": company},
+					"metodo_pago_default",
+				)
+				or "PUE"
+			).strip()
 
 	def validate_ppd_vs_forma_pago(self):
 		"""Validar compatibilidad entre PPD/PUE y forma de pago SAT - MIGRADO desde Sales Invoice."""
@@ -1236,7 +1250,14 @@ def sat_options():
 
 
 @frappe.whitelist()
-def get_sales_invoice_for_ffm(doctype, txt, searchfield, start, page_len, filters):
+def get_sales_invoice_for_ffm(
+	doctype: str | None = None,
+	txt: str | None = None,
+	searchfield: str | None = None,
+	start: int | None = None,
+	page_len: int | None = None,
+	filters: str | None = None,
+):
 	"""
 	Devuelve SOLO Sales Invoices elegibles para FFM:
 	  - si.docstatus = 1 (enviadas)
@@ -1325,26 +1346,36 @@ def cancel_ffm_keep_si(ffm_name: str):
 # ========== EMAIL AUTOMATION LOGIC ==========
 
 
-def _get_settings_email_defaults():
-	"""Lee settings existentes (NO crear campos nuevos).
-	Debe devolver:
+def _get_settings_email_defaults(company=None):
+	"""Lee defaults de email por Company.
+	Devuelve:
 		- default_on: 0/1 (enviar por defecto)
-		- fallback_email: str o None
+		- fallback_email: str o None (pendiente de migrar — customer_email_fallback)
 	"""
 	from frappe.utils import cint
 
-	settings = frappe.get_single("Facturacion Mexico Settings")
-	# AJUSTAR nombres de fields existentes en settings
-	default_on = cint(getattr(settings, "send_email_default", 0))
-	fallback_email = getattr(settings, "customer_email_fallback", None)
+	_company = company or frappe.defaults.get_global_default("company")
+	default_on = cint(
+		frappe.db.get_value(
+			"Facturacion Mexico Company Settings",
+			{"company": _company},
+			"send_email_default",
+		)
+		or 0
+	)
+	fallback_email = frappe.db.get_value(
+		"Facturacion Mexico Company Settings",
+		{"company": _company},
+		"customer_email_fallback",
+	)
 	return default_on, (fallback_email or "").strip() or None
 
 
-def _resolve_auto_email_flag(customer_name: str) -> int:
-	"""Aplica la cascada Settings -> Customer tri-estado. Devuelve 0/1."""
+def _resolve_auto_email_flag(customer_name: str, company=None) -> int:
+	"""Aplica la cascada Company Settings -> Customer tri-estado. Devuelve 0/1."""
 	from frappe.utils import cint
 
-	default_on, _ = _get_settings_email_defaults()
+	default_on, _ = _get_settings_email_defaults(company=company)
 
 	opt = None
 	if customer_name:

@@ -11,7 +11,7 @@ from frappe import _
 
 
 @frappe.whitelist()
-def crear_ereceipt(sales_invoice_name):
+def crear_ereceipt(sales_invoice_name: str | None = None):
 	"""Crea E-Receipt desde Sales Invoice."""
 	try:
 		# REGLA #35: Validate required parameters
@@ -48,22 +48,19 @@ def crear_ereceipt(sales_invoice_name):
 
 		ereceipt.insert()
 
-		# Generar en FacturAPI si está configurado
-		facturapi_result = None
-		settings = frappe.get_single("Facturacion Mexico Settings")
-		if settings.get("enable_ereceipts") and (settings.get("api_key") or settings.get("test_api_key")):
-			facturapi_result = _generar_facturapi_ereceipt(ereceipt)
+		# Generar en FacturAPI
+		facturapi_result = _generar_facturapi_ereceipt(ereceipt)
 
-			if not facturapi_result.get("success"):
-				# E-Receipt creado localmente pero falló en FacturAPI
-				return {
-					"success": True,
-					"ereceipt_name": ereceipt.name,
-					"message": _("E-Receipt creado (sin sincronizar con FacturAPI): {0}").format(
-						facturapi_result.get("message", "")
-					),
-					"warning": True,
-				}
+		if not facturapi_result.get("success"):
+			# E-Receipt creado localmente pero falló en FacturAPI
+			return {
+				"success": True,
+				"ereceipt_name": ereceipt.name,
+				"message": _("E-Receipt creado (sin sincronizar con FacturAPI): {0}").format(
+					facturapi_result.get("message", "")
+				),
+				"warning": True,
+			}
 
 		message = _("E-Receipt creado exitosamente")
 		if facturapi_result and facturapi_result.get("success"):
@@ -81,7 +78,7 @@ def crear_ereceipt(sales_invoice_name):
 
 
 @frappe.whitelist()
-def get_ereceipt_status(ereceipt_name):
+def get_ereceipt_status(ereceipt_name: str | None = None):
 	"""Consulta status de E-Receipt."""
 	try:
 		# REGLA #35: Validate required parameters
@@ -152,7 +149,9 @@ def expire_ereceipts():
 
 
 @frappe.whitelist()
-def get_ereceipts_for_global_invoice(date_from, date_to, customer=None):
+def get_ereceipts_for_global_invoice(
+	date_from: str | None = None, date_to: str | None = None, customer: str | None = None
+):
 	"""Obtiene E-Receipts para factura global."""
 	try:
 		filters = {
@@ -182,7 +181,7 @@ def get_ereceipts_for_global_invoice(date_from, date_to, customer=None):
 
 
 @frappe.whitelist()
-def invoice_ereceipt(ereceipt_name, customer_data):
+def invoice_ereceipt(ereceipt_name: str | None = None, customer_data: str | None = None):
 	"""Convierte E-Receipt a factura."""
 	try:
 		# REGLA #35: Validate required parameters
@@ -231,26 +230,60 @@ def invoice_ereceipt(ereceipt_name, customer_data):
 
 
 def _calcular_fecha_vencimiento(ereceipt):
-	"""Calcula fecha de vencimiento según configuración."""
-	settings = frappe.get_single("Facturacion Mexico Settings")
+	"""Calcula fecha de vencimiento según configuración de Company Settings."""
+	company = ereceipt.get("company")
+	cs = (
+		frappe.db.get_value(
+			"Facturacion Mexico Company Settings",
+			{"company": company},
+			["ereceipt_expiry_type_default", "ereceipt_expiry_days_default"],
+			as_dict=True,
+		)
+		or {}
+	)
 
-	expiry_type = ereceipt.get("expiry_type") or settings.get("default_expiry_type", "Fixed Days")
+	expiry_type = ereceipt.get("expiry_type") or cs.get("ereceipt_expiry_type_default") or "Fixed Days"
 
 	if expiry_type == "Fixed Days":
-		days = ereceipt.get("expiry_days") or settings.get("default_expiry_days", 3)
+		days = ereceipt.get("expiry_days") or cs.get("ereceipt_expiry_days_default") or 3
 		ereceipt.expiry_date = frappe.utils.add_days(ereceipt.date_issued, days)
 
 	elif expiry_type == "End of Month":
-		# Último día del mes actual
 		year = datetime.now().year
 		month = datetime.now().month
 		last_day = calendar.monthrange(year, month)[1]
 		ereceipt.expiry_date = datetime(year, month, last_day).date()
 
 	elif expiry_type == "Custom Date":
-		# Se debe proporcionar expiry_date manualmente
 		if not ereceipt.get("expiry_date"):
 			ereceipt.expiry_date = frappe.utils.add_days(ereceipt.date_issued, 3)
+
+
+def _get_payment_form_for_ereceipt(sales_invoice, company):
+	"""Obtener forma de pago para el E-Receipt.
+	Prioridad: Payment Entry vinculado → Company Settings → default '28'.
+	"""
+	# Intentar obtener del Payment Entry vinculado
+	pe = frappe.db.get_value(
+		"Payment Entry Reference",
+		{"reference_doctype": "Sales Invoice", "reference_name": sales_invoice.name},
+		"parent",
+	)
+	if pe:
+		mode = frappe.db.get_value("Payment Entry", pe, "mode_of_payment")
+		if mode:
+			# Intentar mapear Mode of Payment → código SAT via Forma Pago SAT
+			sat_code = frappe.db.get_value("Mode of Payment", mode, "fm_codigo_sat")
+			if sat_code:
+				return sat_code
+
+	# Fallback: Company Settings
+	company_default = frappe.db.get_value(
+		"Facturacion Mexico Company Settings",
+		{"company": company},
+		"ereceipt_payment_form_default",
+	)
+	return company_default or "28"
 
 
 def _generar_facturapi_ereceipt(ereceipt):
@@ -258,7 +291,8 @@ def _generar_facturapi_ereceipt(ereceipt):
 	try:
 		from facturacion_mexico.facturacion_fiscal.api_client import get_facturapi_client
 
-		client = get_facturapi_client()
+		company = ereceipt.company
+		client = get_facturapi_client(company=company)
 		sales_invoice = frappe.get_doc("Sales Invoice", ereceipt.sales_invoice)
 
 		# Preparar datos del customer
@@ -272,11 +306,14 @@ def _generar_facturapi_ereceipt(ereceipt):
 		if customer_doc.get("rfc"):
 			customer_data["tax_id"] = customer_doc.rfc
 
+		# Forma de pago: intentar obtener del Payment Entry, si no usar Company Settings
+		payment_form = _get_payment_form_for_ereceipt(sales_invoice, company)
+
 		receipt_data = {
 			"type": "receipt",
 			"customer": customer_data,
 			"items": [],
-			"payment_form": "28",  # Tarjeta de crédito por defecto para e-receipts
+			"payment_form": payment_form,
 			"folio_number": ereceipt.name,
 			"expires_at": ereceipt.expiry_date.isoformat() if ereceipt.expiry_date else None,
 		}

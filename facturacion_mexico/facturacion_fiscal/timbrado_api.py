@@ -96,10 +96,10 @@ def _extract_sat_code_from_uom(uom_name):
 class TimbradoAPI:
 	"""API para timbrado de facturas usando FacturAPI.io."""
 
-	def __init__(self):
+	def __init__(self, company=None):
 		"""Inicializar API de timbrado."""
-		self.client = get_facturapi_client()
-		self.settings = frappe.get_single("Facturacion Mexico Settings")
+		self.company = company
+		self.client = get_facturapi_client(company=company)
 
 	def timbrar_factura(self, sales_invoice_name: str) -> dict[str, Any]:
 		"""Timbrar factura de Sales Invoice con arquitectura resiliente de 3 fases.
@@ -465,7 +465,12 @@ class TimbradoAPI:
 				customer.customer_name
 			),  # ← SIN mapas de acentos, PRESERVA Ñ y comillas
 			"tax_id": customer.get("tax_id"),
-			"email": customer.email_id or self.settings.get("customer_email_fallback"),
+			"email": customer.email_id
+			or frappe.db.get_value(
+				"Facturacion Mexico Company Settings",
+				{"company": self.company},
+				"customer_email_fallback",
+			),
 		}
 
 		# TODO: Email fallback configurable desde Facturacion Mexico Settings
@@ -964,7 +969,11 @@ class TimbradoAPI:
 			)
 
 			# Descargar archivos si está configurado
-			if self.settings.download_files_default:
+			if frappe.db.get_value(
+				"Facturacion Mexico Company Settings",
+				{"company": self.company},
+				"download_files_default",
+			):
 				self._download_fiscal_files(factura_fiscal, response.get("id"))
 
 			# Enviar email si está configurado (ESPEJO EXACTO de descarga archivos)
@@ -1955,13 +1964,7 @@ class TimbradoAPI:
 		Raises:
 			frappe.ValidationError: Si cuenta no mapeada
 		"""
-		# Obtener company desde settings (asumiendo que está configurado)
-		settings = frappe.get_single("Facturacion Mexico Settings")
-		company = (
-			settings.company
-			if hasattr(settings, "company")
-			else frappe.defaults.get_global_default("company")
-		)
+		company = self.company or frappe.defaults.get_global_default("company")
 
 		if not company:
 			frappe.throw(
@@ -2499,14 +2502,21 @@ def timbrar_factura(sales_invoice: str):
 		)
 		if ffm_name and frappe.db.get_value("Factura Fiscal Mexico", ffm_name, "fm_uuid"):
 			frappe.throw(_("Esta factura fiscal ya está timbrada."))
-		api = TimbradoAPI()
+		company = frappe.db.get_value("Sales Invoice", sales_invoice, "company")
+		api = TimbradoAPI(company=company)
 		return api.timbrar_factura(sales_invoice)
 	finally:
 		frappe.cache().delete_value(cache_key)
 
 
 @frappe.whitelist()
-def cancelar_factura(sales_invoice=None, uuid=None, ffm_name=None, motivo=None, substitution_uuid=None):
+def cancelar_factura(
+	sales_invoice: str | None = None,
+	uuid: str | None = None,
+	ffm_name: str | None = None,
+	motivo: str | None = None,
+	substitution_uuid: str | None = None,
+):
 	"""API para cancelar factura desde interfaz - tolerante a múltiples parámetros."""
 	# Si no se proporciona sales_invoice, intentar derivarlo
 	if not sales_invoice:
@@ -2562,7 +2572,8 @@ def cancelar_factura(sales_invoice=None, uuid=None, ffm_name=None, motivo=None, 
 	if ffm_name:
 		frappe.db.set_value("Factura Fiscal Mexico", ffm_name, {"fm_motivo_cancelacion": motivo_code})
 
-	api = TimbradoAPI()
+	company = frappe.db.get_value("Sales Invoice", sales_invoice, "company")
+	api = TimbradoAPI(company=company)
 	return api.cancelar_factura(sales_invoice, motivo_code, substitution_uuid)
 
 

@@ -75,7 +75,6 @@ class FacturacionMexicoSettings(Document):
 			settings = frappe.new_doc("Facturacion Mexico Settings")
 			settings.sandbox_mode = 1
 			settings.timeout = 30
-			settings.auto_generate_ereceipts = 1
 			settings.send_email_default = 0
 			settings.download_files_default = 1
 			settings.save()

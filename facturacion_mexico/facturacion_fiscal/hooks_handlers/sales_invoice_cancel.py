@@ -64,9 +64,7 @@ def _request_fiscal_cancellation(doc):
 		# Actualizar Sales Invoice
 		frappe.db.set_value("Sales Invoice", doc.name, "fm_fiscal_status", "PENDIENTE_CANCELACION")
 
-		# Intentar cancelación automática si está configurado
-		if _should_auto_cancel():
-			_auto_cancel_fiscal_invoice(doc)
+		# Cancelación fiscal es manual — el usuario cancela desde Factura Fiscal Mexico
 
 	except Exception as e:
 		frappe.logger().error(f"Error solicitando cancelación fiscal {doc.name}: {e!s}")
@@ -115,34 +113,3 @@ def _create_cancellation_event(doc):
 		f"Evento cancelación creado para {doc.name}",
 		"Sales Invoice Cancellation Event",
 	)
-
-
-def _should_auto_cancel():
-	"""Determinar si se debe auto-cancelar fiscalmente."""
-	settings = frappe.get_single("Facturacion Mexico Settings")
-	return getattr(settings, "auto_cancel_fiscal", False)
-
-
-def _auto_cancel_fiscal_invoice(doc):
-	"""Auto-cancelar factura fiscal si está configurado."""
-	try:
-		from facturacion_mexico.facturacion_fiscal.timbrado_api import TimbradoAPI
-
-		# Crear instancia de API
-		_api = TimbradoAPI()
-
-		# Cancelar en background job
-		frappe.enqueue(
-			method="facturacion_mexico.facturacion_fiscal.timbrado_api.cancelar_factura",
-			queue="default",
-			timeout=300,
-			sales_invoice_name=doc.name,
-			motivo="02",
-		)
-
-		frappe.msgprint(_("La factura se está cancelando fiscalmente"))
-
-	except Exception as e:
-		frappe.logger().error(f"Error auto-cancelando factura {doc.name}: {e!s}")
-		# No lanzar error para no bloquear la cancelación
-		frappe.msgprint(_("Error al auto-cancelar fiscalmente:") + str(e))

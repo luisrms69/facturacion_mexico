@@ -422,11 +422,9 @@ def _should_validate_fiscal_data(doc):
 		customer = frappe.get_doc("Customer", doc.customer)
 		has_rfc = bool(customer.get("tax_id"))
 
-		# Si tiene RFC, verificar si se va a timbrar
+		# Si tiene RFC y no está en modo E-Receipt, se va a timbrar normal
 		if has_rfc:
-			settings = frappe.get_single("Facturacion Mexico Settings")
-			# Si ereceipts está deshabilitado, se va a timbrar normal
-			if not settings.auto_generate_ereceipts:
+			if doc.get("fm_ereceipt_mode") != "E-Receipt":
 				return True
 
 		return False

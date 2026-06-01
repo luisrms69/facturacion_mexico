@@ -359,38 +359,6 @@ class BranchManager:
 
 		return suggestions
 
-	def get_integration_status(self) -> dict[str, Any]:
-		"""
-		Obtener estado de integración con otros sistemas
-		Incluye FacturAPI, Dashboard, etc.
-		"""
-		# FacturAPI usa API keys por organización, no certificados por sucursal
-		facturapi_config = frappe.get_single("Facturacion Mexico Settings")
-
-		integration_status = {
-			"facturapi_integration": {
-				"configured": bool(facturapi_config.api_key or facturapi_config.test_api_key),
-				"sandbox_mode": facturapi_config.sandbox_mode,
-				"api_timeout": facturapi_config.timeout,
-				"note": "FacturAPI usa API keys globales, no certificados por sucursal",
-			},
-			"dashboard_integration": {
-				"enabled": facturapi_config.enable_fiscal_dashboard,
-				"default_company": facturapi_config.dashboard_default_company,
-				"health_monitoring": True,  # Nuestro sistema es compatible
-				"notification_enabled": facturapi_config.enable_dashboard_notifications,
-			},
-			"certificate_system": {
-				"type": "multibranch_selector",
-				"supports_shared_pool": True,
-				"supports_branch_specific": True,
-				"health_monitoring": True,
-				"priority_selection": True,
-			},
-		}
-
-		return integration_status
-
 
 @frappe.whitelist()
 def get_company_branch_health_summary(company: str) -> dict:
