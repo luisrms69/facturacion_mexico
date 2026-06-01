@@ -295,7 +295,12 @@ def bulk_expire_ereceipts():
 
 
 @frappe.whitelist()
-def get_ereceipts_for_period(date_from: str | None = None, date_to: str | None = None, company: str | None = None, customer: str | None = None):
+def get_ereceipts_for_period(
+	date_from: str | None = None,
+	date_to: str | None = None,
+	company: str | None = None,
+	customer: str | None = None,
+):
 	"""Obtener E-Receipts para un período."""
 	try:
 		filters = {"date_issued": ["between", [date_from, date_to]]}

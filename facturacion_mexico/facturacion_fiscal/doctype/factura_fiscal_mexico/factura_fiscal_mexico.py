@@ -1250,7 +1250,14 @@ def sat_options():
 
 
 @frappe.whitelist()
-def get_sales_invoice_for_ffm(doctype: str | None = None, txt: str | None = None, searchfield: str | None = None, start: int | None = None, page_len: int | None = None, filters: str | None = None):
+def get_sales_invoice_for_ffm(
+	doctype: str | None = None,
+	txt: str | None = None,
+	searchfield: str | None = None,
+	start: int | None = None,
+	page_len: int | None = None,
+	filters: str | None = None,
+):
 	"""
 	Devuelve SOLO Sales Invoices elegibles para FFM:
 	  - si.docstatus = 1 (enviadas)

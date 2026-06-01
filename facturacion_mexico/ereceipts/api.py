@@ -149,7 +149,9 @@ def expire_ereceipts():
 
 
 @frappe.whitelist()
-def get_ereceipts_for_global_invoice(date_from: str | None = None, date_to: str | None = None, customer: str | None = None):
+def get_ereceipts_for_global_invoice(
+	date_from: str | None = None, date_to: str | None = None, customer: str | None = None
+):
 	"""Obtiene E-Receipts para factura global."""
 	try:
 		filters = {
