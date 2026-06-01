@@ -6,9 +6,15 @@ frappe.ui.form.on("Facturacion Mexico Company Settings", {
 					method: "facturacion_mexico.facturacion_fiscal.api_client.test_facturapi_connection",
 					callback(r) {
 						if (r.message && r.message.success) {
-							frappe.show_alert({ message: __("Conexión exitosa"), indicator: "green" });
+							frappe.show_alert({
+								message: __("Conexión exitosa"),
+								indicator: "green",
+							});
 						} else {
-							frappe.show_alert({ message: __("Error de conexión"), indicator: "red" });
+							frappe.show_alert({
+								message: __("Error de conexión"),
+								indicator: "red",
+							});
 						}
 					},
 				});

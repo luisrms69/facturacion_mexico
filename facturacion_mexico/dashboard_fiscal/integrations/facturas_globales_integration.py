@@ -289,8 +289,6 @@ def check_delayed_consolidation(**kwargs):
 		return {"triggered": False, "error": str(e)}
 
 
-
-
 def check_consolidation_errors(**kwargs):
 	"""Verificar errores en consolidación"""
 	from datetime import datetime, timedelta

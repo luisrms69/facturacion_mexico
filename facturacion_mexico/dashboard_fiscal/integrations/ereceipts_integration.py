@@ -289,8 +289,6 @@ def check_auto_billing_errors(**kwargs):
 		return {"triggered": False, "error": str(e)}
 
 
-
-
 def check_inactive_customers(**kwargs):
 	"""Verificar clientes inactivos con E-Receipts configurados"""
 	from datetime import date, timedelta
