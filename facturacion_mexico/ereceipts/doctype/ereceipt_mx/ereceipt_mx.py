@@ -295,7 +295,7 @@ def bulk_expire_ereceipts():
 
 
 @frappe.whitelist()
-def get_ereceipts_for_period(date_from, date_to, company=None, customer=None):
+def get_ereceipts_for_period(date_from: str | None = None, date_to: str | None = None, company: str | None = None, customer: str | None = None):
 	"""Obtener E-Receipts para un período."""
 	try:
 		filters = {"date_issued": ["between", [date_from, date_to]]}
@@ -331,7 +331,7 @@ def get_ereceipts_for_period(date_from, date_to, company=None, customer=None):
 
 
 @frappe.whitelist()
-def get_expiring_ereceipts(days_ahead=3):
+def get_expiring_ereceipts(days_ahead: int = 3):
 	"""Obtener E-Receipts que vencen pronto."""
 	try:
 		future_date = frappe.utils.add_days(frappe.utils.today(), days_ahead)

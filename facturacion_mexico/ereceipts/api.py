@@ -11,7 +11,7 @@ from frappe import _
 
 
 @frappe.whitelist()
-def crear_ereceipt(sales_invoice_name):
+def crear_ereceipt(sales_invoice_name: str | None = None):
 	"""Crea E-Receipt desde Sales Invoice."""
 	try:
 		# REGLA #35: Validate required parameters
@@ -78,7 +78,7 @@ def crear_ereceipt(sales_invoice_name):
 
 
 @frappe.whitelist()
-def get_ereceipt_status(ereceipt_name):
+def get_ereceipt_status(ereceipt_name: str | None = None):
 	"""Consulta status de E-Receipt."""
 	try:
 		# REGLA #35: Validate required parameters
@@ -149,7 +149,7 @@ def expire_ereceipts():
 
 
 @frappe.whitelist()
-def get_ereceipts_for_global_invoice(date_from, date_to, customer=None):
+def get_ereceipts_for_global_invoice(date_from: str | None = None, date_to: str | None = None, customer: str | None = None):
 	"""Obtiene E-Receipts para factura global."""
 	try:
 		filters = {
@@ -179,7 +179,7 @@ def get_ereceipts_for_global_invoice(date_from, date_to, customer=None):
 
 
 @frappe.whitelist()
-def invoice_ereceipt(ereceipt_name, customer_data):
+def invoice_ereceipt(ereceipt_name: str | None = None, customer_data: str | None = None):
 	"""Convierte E-Receipt a factura."""
 	try:
 		# REGLA #35: Validate required parameters

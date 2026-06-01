@@ -23,7 +23,7 @@ def bulk_validate_customers():
 
 
 @frappe.whitelist()
-def validate_rfc(rfc, use_cache=True):
+def validate_rfc(rfc: str | None = None, use_cache: bool = True):
 	"""
 	Validar RFC con SAT usando cache inteligente.
 
@@ -289,7 +289,7 @@ def validate_customer_rfc_with_facturapi(customer_name: str):
 
 
 @frappe.whitelist()
-def validate_lista_69b(rfc, use_cache=True):
+def validate_lista_69b(rfc: str | None = None, use_cache: bool = True):
 	"""
 	Validar si RFC está en Lista 69B (Contribuyentes no localizados).
 
@@ -328,7 +328,7 @@ def validate_lista_69b(rfc, use_cache=True):
 
 
 @frappe.whitelist()
-def bulk_validate_rfc(rfc_list):
+def bulk_validate_rfc(rfc_list: str | None = None):
 	"""
 	Validar múltiples RFCs en lote.
 
@@ -430,7 +430,7 @@ def get_cache_stats():
 
 
 @frappe.whitelist()
-def cleanup_expired_cache(days_to_keep=90):
+def cleanup_expired_cache(days_to_keep: int = 90):
 	"""
 	Limpiar cache expirado más antiguo que X días.
 
@@ -463,7 +463,7 @@ def cleanup_expired_cache(days_to_keep=90):
 
 
 @frappe.whitelist()
-def force_refresh_cache(validation_key, validation_type):
+def force_refresh_cache(validation_key: str | None = None, validation_type: str | None = None):
 	"""
 	Forzar actualización de un cache específico.
 
@@ -1322,7 +1322,7 @@ def _get_customer_primary_address_exists(customer_name):
 
 
 @frappe.whitelist()
-def validate_customers_bulk(customer_names, max_validations_per_run=30):
+def validate_customers_bulk(customer_names: str | None = None, max_validations_per_run: int = 30):
 	"""
 	Validar múltiples customers en lote (para scheduled job).
 

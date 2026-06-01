@@ -98,7 +98,7 @@ def get_payment_entry_by_invoice(invoice_name):
 
 
 @frappe.whitelist()
-def get_payment_entry_for_javascript(invoice_name):
+def get_payment_entry_for_javascript(invoice_name: str | None = None):
 	"""
 	Wrapper para JavaScript - buscar Payment Entry por Sales Invoice.
 
@@ -1250,7 +1250,7 @@ def sat_options():
 
 
 @frappe.whitelist()
-def get_sales_invoice_for_ffm(doctype, txt, searchfield, start, page_len, filters):
+def get_sales_invoice_for_ffm(doctype: str | None = None, txt: str | None = None, searchfield: str | None = None, start: int | None = None, page_len: int | None = None, filters: str | None = None):
 	"""
 	Devuelve SOLO Sales Invoices elegibles para FFM:
 	  - si.docstatus = 1 (enviadas)
