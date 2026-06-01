@@ -174,7 +174,8 @@ fixtures = [
 					"Customer-fm_tax_regime",
 					"Customer-fm_uso_cfdi_default",
 					"Customer-fm_validacion_sat_section",
-					# Customer addenda EDI fields (5 campos)
+					# Customer tab + addenda EDI fields
+					"Customer-fm_fiscal_mexico_tab",
 					"Customer-fm_buyer_gln",
 					"Customer-fm_dias_credito_addenda",
 					"Customer-fm_seller_gln",
