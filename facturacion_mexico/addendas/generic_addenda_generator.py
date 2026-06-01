@@ -159,7 +159,7 @@ class AddendaGenerator:
 		# 1. Agregar datos de factura
 		context["invoice"] = invoice_data
 
-		# 2. Agregar valores de addenda
+		# 2. Agregar valores de addenda (campo flexible para casos especiales)
 		context.update(addenda_values)
 
 		# 3. Agregar variables de sistema
@@ -176,7 +176,7 @@ class AddendaGenerator:
 			}
 		)
 
-		# REGLA #35: Agregar datos de empresa con defensive access
+		# 4. Empresa emisora — dirección principal via Dynamic Link
 		company_name = invoice_data.get("company")
 		if company_name:
 			try:
@@ -187,6 +187,21 @@ class AddendaGenerator:
 					"country": getattr(company_doc, "country", "N/A"),
 					"default_currency": getattr(company_doc, "default_currency", "MXN"),
 				}
+				company_addr = frappe.db.sql(
+					"SELECT a.pincode, a.address_line1, a.city, a.state"
+					" FROM tabAddress a"
+					" INNER JOIN `tabDynamic Link` dl ON dl.parent = a.name"
+					" WHERE dl.link_doctype = 'Company' AND dl.link_name = %s"
+					" ORDER BY a.is_primary_address DESC, a.modified DESC"
+					" LIMIT 1",
+					company_name,
+					as_dict=True,
+				)
+				addr = company_addr[0] if company_addr else {}
+				context["emisor_cp"] = addr.get("pincode") or ""
+				context["emisor_calle"] = addr.get("address_line1") or ""
+				context["emisor_ciudad"] = addr.get("city") or ""
+				context["emisor_estado"] = addr.get("state") or ""
 			except Exception:
 				context["company"] = {
 					"name": "N/A",
@@ -194,15 +209,48 @@ class AddendaGenerator:
 					"country": "N/A",
 					"default_currency": "MXN",
 				}
+				context["emisor_cp"] = ""
+				context["emisor_calle"] = ""
+				context["emisor_ciudad"] = ""
+				context["emisor_estado"] = ""
 
-		# 4. Agregar Addenda Product Mapping por item
-		# product_mapping: {item_code: {customer_item_code, customer_item_description,
-		#                               customer_uom, additional_data}}
+		# 5. Customer — fuente de buyer_gln y dias_credito
+		customer_name = invoice_data.get("customer")
+		if customer_name:
+			try:
+				customer_doc = frappe.get_cached_doc("Customer", customer_name)
+				context["customer"] = customer_doc
+				context["dias_credito"] = getattr(customer_doc, "fm_dias_credito_addenda", 0) or 0
+			except Exception:
+				context["customer"] = frappe._dict()
+				context["dias_credito"] = 0
+
+		# 6. Dirección de envío (sucursal destino) desde el Sales Invoice
+		shipping_address_name = invoice_data.get("shipping_address_name") or invoice_data.get(
+			"customer_address"
+		)
+		if shipping_address_name:
+			try:
+				addr = frappe.get_cached_doc("Address", shipping_address_name)
+				context["shipping_address"] = addr
+			except Exception:
+				context["shipping_address"] = frappe._dict()
+		else:
+			context["shipping_address"] = frappe._dict()
+
+		# 7. IDs de proveedor desde Customer (asignados por este cliente a nuestra empresa)
+		if context.get("customer"):
+			cust = context["customer"]
+			context.setdefault("seller_gln", getattr(cust, "fm_seller_gln", "") or "")
+			context.setdefault("seller_id", getattr(cust, "fm_seller_id", "") or "")
+			context.setdefault("invoice_creator_gln", getattr(cust, "fm_invoice_creator_gln", "") or "")
+
+		# 8. Addenda Product Mapping por item
 		customer = invoice_data.get("customer")
 		items = invoice_data.get("items") or []
 		context["product_mapping"] = self._load_product_mappings(customer, items)
 
-		# 5. Agregar helpers/funciones útiles
+		# 9. Helpers
 		context["helpers"] = {
 			"format_currency": lambda x: f"{float(x):.2f}",
 			"format_date": lambda x: (

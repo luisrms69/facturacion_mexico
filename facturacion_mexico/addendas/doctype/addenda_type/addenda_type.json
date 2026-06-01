@@ -1,13 +1,13 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "field:name",
+ "autoname": "field:addenda_name",
  "creation": "2025-07-20 05:00:00.000000",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
   "basic_information_section",
-  "name",
+  "addenda_name",
   "description",
   "version",
   "namespace",
@@ -36,11 +36,10 @@
    "label": "Información Básica"
   },
   {
-   "fieldname": "name",
+   "fieldname": "addenda_name",
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Nombre del Tipo",
-   "reqd": 1,
    "unique": 1
   },
   {
@@ -212,6 +211,6 @@
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
- "title_field": "description",
+ "title_field": "addenda_name",
  "track_changes": 1
 }

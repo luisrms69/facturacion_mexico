@@ -2,43 +2,50 @@
 
 **Fecha:** 2026-06-01
 **Rama activa:** `feature/addenda-la-comer`
-**Tarea actual:** Arquitectura addendas — datos EDI en Customer/Address
+**Tarea actual:** Addenda La Comer — template Jinja2 pendiente
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-Single Facturacion Mexico Settings eliminado (commit 2 ✅). Pendiente commit 3:
-arquitectura addendas con Customer/Address como fuente de datos EDI.
+Arquitectura addendas completada (3 commits). Todos los datos EDI viven en Customer
+y Address. Pendiente: poblar Customer La Comer en BD y crear el template Jinja2.
 
 Objetivo inmediato:
-Commit 3 de arquitectura addendas, luego poblar Customer La Comer y crear template Jinja2.
+Poblar Customer La Comer con fm_seller_gln/fm_seller_id/fm_invoice_creator_gln,
+luego crear el template XML Jinja2 en Addenda Type "La Comer".
 
 ---
 
 ## Estado actual
 
 ### Ya cerrado
-- PR #172 + docs (commits 1 y 2 ✅)
-- Facturacion Mexico Settings Single: eliminado de código y BD
+- PR #172 + docs + eliminación Single + arquitectura addendas (3 commits ✅)
+- Addenda Type = template puro, sin IDs de empresa
+- Customer = fuente única de todos los IDs EDI
+- Address (shipping) = fuente del GLN de tienda destino (fm_gln)
+- Company primary address = fuente del CP emisor
 
 ### Pendiente inmediato
-1. Commit 3: arquitectura addendas
-2. Poblar Customer La Comer: fm_seller_gln, fm_seller_id, fm_invoice_creator_gln
-3. Template Jinja2 en Addenda Type "La Comer"
+1. Poblar BD: Customer La Comer → fm_seller_gln, fm_seller_id, fm_invoice_creator_gln
+2. Crear template Jinja2 en Addenda Type "La Comer"
+3. Company address para emisor_cp
 
 ### No repetir
-- No buscar datos en Facturacion Mexico Settings — eliminado completamente
+- No poner seller_gln en Addenda Type — van en Customer
+- No buscar emisor_cp en Configuracion Fiscal Mexico — tabla no existe
 
 ---
 
 ## Archivos relevantes ahora
 - `facturacion_mexico/addendas/generic_addenda_generator.py`
-- `facturacion_mexico/fixtures/custom_field.json`
+- `working_docs/active/addenda_la_comer_evidencia/` — XML ejemplo + spec
 
 ---
 
 ## Riesgos / cuidados
-- Commit 3 pendiente — no hacer PR hasta tenerlo
 - Company address no configurada en site dev — emisor_cp retornará ""
+- Se crea este commit de manera precautoria, dado que claude code ha demostrado ser
+  un riesgo para el código no committed y resulta peligroso mantener código de manera
+  local dado su comportamiento errático
