@@ -34,3 +34,4 @@ Registro permanente de decisiones de arquitectura. Un ADR nunca se modifica — 
 | [0026](0026-workspace-facturacion-mexico-issue120.md) | Workspace Facturación México |
 | [0027](0027-migracion-facturacion-mx-a-facturacion-mexico.md) | Migración facturacion_mx → facturacion_mexico |
 | [0028](0028-ffm-legacy-fields-audit.md) | Auditoría campos legacy FFM |
+| [0031](0031-migracion-settings-por-company.md) | Migración Settings global (Single) a configuración por Company |

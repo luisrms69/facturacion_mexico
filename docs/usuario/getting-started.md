@@ -25,20 +25,24 @@ bench --site tu-sitio.local migrate
 
 ## Configuración inicial
 
-### 1. Facturacion Mexico Settings
+### 1. Facturacion Mexico Company Settings
 
-Accede desde el workspace **Facturación México**.
+Accede desde el workspace **Facturación México → Facturacion Mexico Company Settings**.
+
+Crea un registro **por cada empresa** que emitirá CFDIs.
 
 | Campo | Descripción |
 |---|---|
+| Company | Empresa emisora (Link a ERPNext Company) |
 | API Key Producción | API Key de FacturAPI.io para producción |
 | API Key Pruebas | API Key de FacturAPI.io para sandbox |
 | Modo Sandbox | Activar para pruebas, desactivar para producción |
-| RFC Emisor | RFC de la empresa emisora |
-| Lugar de Expedición | Código postal fiscal de expedición |
-| Régimen Fiscal por Defecto | Régimen SAT de la empresa |
+| Método de Pago por Defecto | PUE o PPD — se aplica al crear nuevas facturas |
+| Enviar Email por Defecto | Si el sistema envía CFDI por email automáticamente |
 
-> Los certificados SAT se gestionan en el portal de FacturAPI.io, no en ERPNext.
+> Los certificados SAT (.cer/.key) se gestionan en el portal de FacturAPI.io, no en ERPNext.
+
+> Si tienes varias empresas, crea un registro de Company Settings por cada una.
 
 ### 2. Company — datos fiscales
 

@@ -59,7 +59,7 @@ Payment Entry (submit)
 | `Complemento Pago MX` | Submittable | CFDI tipo P (PPD) |
 | `EReceipt MX` | Submittable | Recibo para autofacturación |
 | `Factura Global MX` | Submittable | CFDI global periódico |
-| `Facturacion Mexico Settings` | Single | Credenciales FacturAPI, config global |
+| `Facturacion Mexico Company Settings` | Por Company | Credenciales FacturAPI y defaults por empresa |
 | `Configuracion Fiscal Mexico` | Por empresa | Wizard STCT/ITT (emitidos) |
 | `Configuracion CFDI Recibidos` | Por empresa | Config impuestos + tolerancias (recibidos) |
 | `CFDI Recibido` | Normal | XML recibido en proceso |
@@ -72,7 +72,7 @@ Payment Entry (submit)
 
 | Sistema | Uso | Configuración |
 |---|---|---|
-| **FacturAPI.io** | PAC para timbrado y cancelación | `Facturacion Mexico Settings` |
+| **FacturAPI.io** | PAC para timbrado y cancelación | `Facturacion Mexico Company Settings` |
 | **SAT (lista 69B)** | Validación RFC | Vía API REST |
 
 ---

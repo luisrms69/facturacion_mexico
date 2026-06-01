@@ -1,63 +1,52 @@
 # CONTINUITY.md — facturacion_mexico
 
-**Fecha:** 2026-05-31
+**Fecha:** 2026-06-01
 **Rama activa:** `feature/addenda-la-comer`
-**Tarea actual:** Addenda La Comer — soporte genérico committed, esperando spec del cliente
+**Tarea actual:** Eliminando Facturacion Mexico Settings Single + arquitectura addendas
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-Implementación de Addenda La Comer. El soporte genérico (`product_mapping` en contexto
-Jinja) está committed. Falta spec del cliente para el template.
+Tres commits en curso. Commit 1 (docs PR #172) hecho. Pendientes commit 2
+(eliminación Single) y commit 3 (arquitectura addendas Customer/Address).
 
 Plan que estoy siguiendo:
-No hay working doc activo — trabajo directo en rama.
+Rama `feature/addenda-la-comer`. Trabajo directo en rama.
 
 Objetivo inmediato:
-Recibir XML de ejemplo + spec La Comer para implementar el template Jinja2.
+Completar commits 2 y 3, luego retomar template Jinja2 de La Comer.
 
 Criterio de avance:
-Template Jinja2 en Addenda Type "La Comer" renderiza XML válido con datos del cliente.
+3 commits limpios en rama. Tests pasan.
 
 ---
 
 ## Estado actual
 
 ### Ya cerrado
-- PR #170: reestructuración documental (Fases 5–7)
-- PR #172: Facturacion Mexico Company Settings — configuración multi-company
-
-### En esta rama
-- `product_mapping` en contexto Jinja de addendas — committed (`dc055cf`)
+- PR #172: Facturacion Mexico Company Settings
+- Docs PR #172: arquitectura.md, getting-started.md, ADR-0031 (commit 1 ✅)
 
 ### Pendiente inmediato
-1. Recibir del cliente: XML ejemplo, namespace, número de proveedor, spec Provecomer
-2. Implementar template Jinja2 en Addenda Type "La Comer"
-3. issue #165: is_submittable CFDI Recibido (fuera de alcance aquí)
+1. Commit 2: eliminación Facturacion Mexico Settings Single
+2. Commit 3: arquitectura addendas (Customer/Address como fuente de datos EDI)
+3. Poblar Customer La Comer con fm_seller_gln, fm_seller_id, fm_invoice_creator_gln
+4. Template Jinja2 en Addenda Type "La Comer"
 
 ### No repetir
-- No hardcodear La Comer en código Python
-- No crear campos custom para La Comer
-- El template vive en Addenda Type DocType, no en código
-
----
-
-## Información faltante (bloqueante para template)
-- XML ejemplo aceptado por La Comer / Provecomer
-- Namespace URI exacto
-- Número de proveedor asignado por La Comer
-- Si usan código interno, EAN/GTIN o código del proveedor por línea
+- No buscar datos en Facturacion Mexico Settings — eliminado
+- No poner seller_gln en Addenda Type — van en Customer
 
 ---
 
 ## Archivos relevantes ahora
-- `facturacion_mexico/addendas/generic_addenda_generator.py` — _prepare_template_context
-- `facturacion_mexico/addendas/tests/test_addenda_generator_product_mapping.py`
+- `facturacion_mexico/addendas/generic_addenda_generator.py`
+- `facturacion_mexico/fixtures/custom_field.json`
 
 ---
 
 ## Riesgos / cuidados
-- issue #165 (is_submittable) antes de poner CFDI Recibidos en producción
-- Instalaciones existentes deben crear Company Settings y correr bench migrate
+- Commit 2 y 3 pendientes — no hacer PR hasta tener los 3 commits
+- Company address no configurada en site dev — emisor_cp retornará ""
