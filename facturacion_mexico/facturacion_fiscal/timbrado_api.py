@@ -2510,7 +2510,13 @@ def timbrar_factura(sales_invoice: str):
 
 
 @frappe.whitelist()
-def cancelar_factura(sales_invoice=None, uuid=None, ffm_name=None, motivo=None, substitution_uuid=None):
+def cancelar_factura(
+	sales_invoice: str | None = None,
+	uuid: str | None = None,
+	ffm_name: str | None = None,
+	motivo: str | None = None,
+	substitution_uuid: str | None = None,
+):
 	"""API para cancelar factura desde interfaz - tolerante a múltiples parámetros."""
 	# Si no se proporciona sales_invoice, intentar derivarlo
 	if not sales_invoice:
