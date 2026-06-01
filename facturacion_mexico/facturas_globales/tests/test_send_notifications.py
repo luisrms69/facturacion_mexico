@@ -4,7 +4,7 @@ Tests para send_notifications — Factura Global.
 Cubre:
   1. No envía si notify_global_generation = 0
   2. Envía si notify_global_generation = 1 y hay emails
-  3. No lee Facturacion Mexico Settings
+  3. No lee Facturacion Mexico Company Settings
   4. Maneja lista separada por comas (trim, vacíos ignorados)
   5. Log de error claro si falta Company Settings
   6. Log de error claro si notify=1 pero sin emails ni creador
@@ -74,10 +74,10 @@ class TestSendNotifications(FrappeTestCase):
 		recipients = mock_mail.call_args.kwargs["recipients"]
 		self.assertIn("creador@test.com", recipients)
 
-	# ── no lee Facturacion Mexico Settings ───────────────────────────────────
+	# ── no lee Facturacion Mexico Company Settings ───────────────────────────────────
 
 	def test_does_not_read_single_settings(self):
-		"""No llama frappe.get_single('Facturacion Mexico Settings')."""
+		"""No llama frappe.get_single('Facturacion Mexico Company Settings')."""
 		with patch("frappe.get_single") as mock_single:
 			with patch("frappe.db.get_value", return_value=_mock_cs(notify=0)):
 				from facturacion_mexico.facturas_globales.hooks_handlers.factura_global_submit import (

@@ -98,12 +98,12 @@ function remove_ereceipt_styling(frm) {
 }
 
 function set_ereceipt_defaults(frm) {
-	// Obtener defaults de settings
+	// Obtener defaults de Company Settings
 	frappe.call({
 		method: "frappe.client.get_value",
 		args: {
-			doctype: "Facturacion Mexico Settings",
-			name: "Facturacion Mexico Settings",
+			doctype: "Facturacion Mexico Company Settings",
+			filters: { company: frm.doc.company },
 			fieldname: ["ereceipt_expiry_type_default", "ereceipt_expiry_days_default"],
 		},
 		callback: function (r) {

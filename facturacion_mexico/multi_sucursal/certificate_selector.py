@@ -196,10 +196,10 @@ class MultibranchCertificateManager:
 
 	def _get_global_certificates(self, certificate_type: str | None = None) -> list[dict]:
 		"""
-		Obtener certificados del pool global (Facturacion Mexico Settings)
+		Obtener certificados del pool global (Facturacion Mexico Company Settings)
 		"""
 		# Por ahora retornar lista vacía ya que el DocType principal no tiene certificados
-		# En el futuro aquí se conectaría con Facturacion Mexico Settings
+		# En el futuro aquí se conectaría con Facturacion Mexico Company Settings
 
 		# TODO: Implementar cuando se agreguen campos de certificado a Settings
 		global_certificates = []
@@ -345,7 +345,7 @@ class MultibranchCertificateManager:
 		"""
 		Buscar certificado en configuración global
 		"""
-		# TODO: Implementar búsqueda en Facturacion Mexico Settings
+		# TODO: Implementar búsqueda en Facturacion Mexico Company Settings
 		# cuando se agreguen los campos de certificado
 		return None
 
