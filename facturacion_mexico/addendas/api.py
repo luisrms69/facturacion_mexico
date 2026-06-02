@@ -34,7 +34,7 @@ def get_addenda_types():
 
 
 @frappe.whitelist()
-def validate_addenda_xml_api(xml_content, addenda_type):
+def validate_addenda_xml_api(xml_content: str, addenda_type: str):
 	"""Validar XML contra XSD."""
 	try:
 		result = validate_addenda_xml(xml_content, addenda_type)
@@ -45,7 +45,7 @@ def validate_addenda_xml_api(xml_content, addenda_type):
 
 
 @frappe.whitelist()
-def generate_generic_addenda(sales_invoice, addenda_type, addenda_values=None):
+def generate_generic_addenda(sales_invoice: str, addenda_type: str, addenda_values: str | None = None):
 	"""Generar addenda usando sistema genérico con Jinja2 templates."""
 	try:
 		if isinstance(addenda_values, str):
@@ -60,7 +60,7 @@ def generate_generic_addenda(sales_invoice, addenda_type, addenda_values=None):
 
 
 @frappe.whitelist()
-def get_addenda_field_definitions(addenda_type):
+def get_addenda_field_definitions(addenda_type: str):
 	"""Obtener definición de campos para un tipo de addenda."""
 	try:
 		from facturacion_mexico.addendas.generic_addenda_generator import get_addenda_type_fields
