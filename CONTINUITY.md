@@ -2,57 +2,51 @@
 
 **Fecha:** 2026-06-01
 **Rama activa:** `feature/addenda-la-comer`
-**Tarea actual:** Addenda La Comer — prueba completa exitosa, pendiente PR
+**Tarea actual:** PR #173 abierto — esperando merge
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-La prueba completa de addenda La Comer fue exitosa (FFMX-2026-00034). El XML generado
-coincide con la referencia en todos los campos principales. Pendiente: hacer el PR.
+PR #173 abierto con soporte completo de addendas EDI + eliminación Single Settings.
+Prueba real exitosa (FFMX-00032, 00033, 00034). Esperando CI y merge.
 
 Objetivo inmediato:
-Abrir PR con todos los commits de esta rama.
-
-Criterio de avance:
-PR abierto, CI verde.
+Merge PR #173. Después: issue para eliminar Addenda Configuration y Addenda
+Product Mapping DocTypes.
 
 ---
 
 ## Estado actual
 
-### Ya cerrado
-- Arquitectura addendas completa: datos EDI en Customer/Address/Company ✅
-- importe_letras automático con num2words ✅
+### Ya cerrado en esta rama
+- Arquitectura addendas: Customer/Address/Company como fuente de datos ✅
+- importe_letras automático (num2words) ✅
 - fm_customer_uom + fm_customer_description en Item Customer Detail ✅
 - Fix tasa 0% ObjetoImp=02 ✅
-- Fix get_decrypted_password en api_client ✅
+- Fix get_decrypted_password + fallback company default ✅
 - Fix invoice.items con SimpleNamespace ✅
-- Subgrupos fiscales (38 subgrupos) ✅
-- Limpieza código muerto (Addenda Configuration, Addenda Product Mapping refs) ✅
-- Docs: addendas.md reescrito, getting-started.md actualizado ✅
-- Prueba real exitosa: FFMX-2026-00034 ✅
+- Tab "Fiscal México" en Customer ✅
+- 38 subgrupos fiscales idempotentes ✅
+- Eliminación Facturacion Mexico Settings Single ✅
+- Limpieza código muerto (api.py, hooks_handlers) ✅
+- Docs: addendas.md, getting-started.md, arquitectura.md, ADR-0031 ✅
+- PR #173 abierto ✅
 
-### Pendiente inmediato
-1. PR con todos los commits de la rama
-2. Capturar fm_customer_description = "ALBAHACAR   1 PZA" en ALBAHACA-PZA (dato en GUI)
+### Pendiente post-merge
+1. Abrir issue: eliminar DocTypes Addenda Configuration y Addenda Product Mapping
+2. Capturar fm_customer_description = "ALBAHACAR   1 PZA" en ALBAHACA-PZA (dato GUI)
 
 ### No repetir
 - No usar frappe.db.get_value para campos Password — usar get_decrypted_password
-- No pasar invoice como frappe._dict al template — usar SimpleNamespace
+- No pasar invoice como frappe._dict al template Jinja2 — usar SimpleNamespace
 - No usar export-fixtures sin autorización explícita
 - No usar git checkout sin autorización explícita
 
 ---
 
-## Archivos relevantes ahora
-- `facturacion_mexico/addendas/generic_addenda_generator.py`
-- `facturacion_mexico/facturacion_fiscal/api_client.py`
-
----
-
 ## Riesgos / cuidados
-- Addenda Configuration y Addenda Product Mapping DocTypes siguen en repo (archivos JSON/py)
-  pero sin referencias activas — eliminarlos en PR separado futuro
-- shipTo.city = "CDMX" vs "MEXICO DF" — dato de Address, corregir en GUI si aplica
+- Addenda Configuration y Addenda Product Mapping DocTypes siguen en repo
+  sin referencias — eliminar en PR separado
+- bench migrate requerido en todos los sites
