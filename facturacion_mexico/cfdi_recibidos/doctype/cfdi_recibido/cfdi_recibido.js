@@ -2,8 +2,12 @@
 // List view settings: cfdi_recibido_list.js
 
 frappe.ui.form.on("CFDI Recibido", {
+	setup(frm) {
+		_set_company_filters(frm);
+	},
 	refresh(frm) {
 		_set_item_code_query(frm);
+		_set_company_filters(frm);
 		if (!frm.is_new()) {
 			if (frm.doc.status === "Convertido a PI") {
 				frm.disable_form();
@@ -20,6 +24,12 @@ frappe.ui.form.on("CFDI Recibido", {
 				_add_generar_pi_button(frm);
 			}
 		}
+	},
+	company(frm) {
+		_set_company_filters(frm);
+		frm.set_value("department", "");
+		frm.set_value("cost_center", "");
+		frm.set_value("project", "");
 	},
 });
 
@@ -379,4 +389,31 @@ function _show_create_item_dialog(frm, concepto, resolution_type, on_done) {
 			},
 		});
 	}
+}
+
+function _set_company_filters(frm) {
+	frm.set_query("department", function () {
+		return {
+			filters: {
+				company: frm.doc.company,
+				is_group: 0,
+			},
+		};
+	});
+	frm.set_query("cost_center", function () {
+		return {
+			filters: {
+				company: frm.doc.company,
+				is_group: 0,
+			},
+		};
+	});
+	frm.set_query("project", function () {
+		return {
+			filters: {
+				company: frm.doc.company,
+				status: "Open",
+			},
+		};
+	});
 }

@@ -1,52 +1,44 @@
 # CONTINUITY.md — facturacion_mexico
 
-**Fecha:** 2026-06-01
-**Rama activa:** `feature/addenda-la-comer`
-**Tarea actual:** PR #173 abierto — esperando merge
+**Fecha:** 2026-06-02
+**Rama activa:** `feature/cfdi-recibidos-cost-center-project`
+**Tarea actual:** CFDI Recibidos — Department → Cost Center / Project completado
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-PR #173 abierto con soporte completo de addendas EDI + eliminación Single Settings.
-Prueba real exitosa (FFMX-00032, 00033, 00034). Esperando CI y merge.
+Implementación de Cost Center y Project en el flujo CFDI Recibidos.
+Prueba completa exitosa: asignación en modal, propagación al PI header y líneas.
 
 Objetivo inmediato:
-Merge PR #173. Después: issue para eliminar Addenda Configuration y Addenda
-Product Mapping DocTypes.
+PR de esta rama.
 
 ---
 
 ## Estado actual
 
-### Ya cerrado en esta rama
-- Arquitectura addendas: Customer/Address/Company como fuente de datos ✅
-- importe_letras automático (num2words) ✅
-- fm_customer_uom + fm_customer_description en Item Customer Detail ✅
-- Fix tasa 0% ObjetoImp=02 ✅
-- Fix get_decrypted_password + fallback company default ✅
-- Fix invoice.items con SimpleNamespace ✅
-- Tab "Fiscal México" en Customer ✅
-- 38 subgrupos fiscales idempotentes ✅
-- Eliminación Facturacion Mexico Settings Single ✅
-- Limpieza código muerto (api.py, hooks_handlers) ✅
-- Docs: addendas.md, getting-started.md, arquitectura.md, ADR-0031 ✅
-- PR #173 abierto ✅
+### Ya cerrado
+- Nuevos campos cost_center y project en CFDI Recibido ✅
+- Modal "Asignar Departamentos" extendido con CC y Proyecto ✅
+- purchase_invoice_builder propaga cost_center/project al PI y líneas ✅
+- cfdi_recibido.js: set_query dinámico con company (link_filters estáticos eliminados) ✅
+- Validación server-side en cfdi_recibido.py ✅
+- Tests: TestPurchaseInvoiceBuilderCostCenterProject ✅
+- Prueba end-to-end exitosa ✅
 
-### Pendiente post-merge
-1. Abrir issue: eliminar DocTypes Addenda Configuration y Addenda Product Mapping
-2. Capturar fm_customer_description = "ALBAHACAR   1 PZA" en ALBAHACA-PZA (dato GUI)
+### Pendiente
+1. PR de esta rama
 
 ### No repetir
-- No usar frappe.db.get_value para campos Password — usar get_decrypted_password
-- No pasar invoice como frappe._dict al template Jinja2 — usar SimpleNamespace
-- No usar export-fixtures sin autorización explícita
-- No usar git checkout sin autorización explícita
+- link_filters en JSON sobreescriben set_query JS — documentado en frappe-conventions skill
+- bench clear-cache requerido después de cambios a JS de DocTypes
+- is_group: 0 NO puede usarse en link_filters JSON (Frappe v16 lo rechaza)
 
 ---
 
-## Riesgos / cuidados
-- Addenda Configuration y Addenda Product Mapping DocTypes siguen en repo
-  sin referencias — eliminar en PR separado
-- bench migrate requerido en todos los sites
+## Archivos relevantes
+- `facturacion_mexico/cfdi_recibidos/doctype/cfdi_recibido/cfdi_recibido.json`
+- `facturacion_mexico/cfdi_recibidos/doctype/cfdi_recibido/cfdi_recibido.js`
+- `facturacion_mexico/cfdi_recibidos/services/purchase_invoice_builder.py`

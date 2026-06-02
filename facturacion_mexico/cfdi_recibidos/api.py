@@ -269,7 +269,17 @@ def assign_departments(assignments: str) -> dict:
 	# Cache company → set of mapped departments (evita queries repetidas)
 	config_cache: dict[str, set] = {}
 
-	for cfdi_name, department in data.items():
+	for cfdi_name, value in data.items():
+		# Acepta formato string (solo departamento) o dict {department, cost_center, project}
+		if isinstance(value, str):
+			department = value
+			cost_center = ""
+			project = ""
+		else:
+			department = value.get("department") or ""
+			cost_center = value.get("cost_center") or ""
+			project = value.get("project") or ""
+
 		try:
 			doc = frappe.get_doc("CFDI Recibido", cfdi_name)
 
@@ -296,11 +306,12 @@ def assign_departments(assignments: str) -> dict:
 
 			doc.department = department
 			new_status = compute_stage(doc)
-			frappe.db.set_value(
-				"CFDI Recibido",
-				cfdi_name,
-				{"department": department, "status": new_status},
-			)
+			update_values = {"department": department, "status": new_status}
+			if cost_center:
+				update_values["cost_center"] = cost_center
+			if project:
+				update_values["project"] = project
+			frappe.db.set_value("CFDI Recibido", cfdi_name, update_values)
 			asignados += 1
 
 		except Exception as e:

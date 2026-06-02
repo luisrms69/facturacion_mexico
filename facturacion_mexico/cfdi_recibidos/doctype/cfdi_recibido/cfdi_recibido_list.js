@@ -355,17 +355,98 @@ function _load_departments_then_show(candidates, company, listview) {
 		},
 		callback(r) {
 			const departments = r.message || [];
-			_show_department_dialog(candidates, departments, listview);
+			frappe.call({
+				method: "frappe.client.get_list",
+				args: {
+					doctype: "Cost Center",
+					filters: [
+						["company", "=", company],
+						["is_group", "=", 0],
+						["disabled", "=", 0],
+					],
+					fields: ["name"],
+					limit: 500,
+					order_by: "name asc",
+				},
+				callback(r2) {
+					const cost_centers = r2.message || [];
+					// Cargar Proyectos filtrados por empresa
+					frappe.call({
+						method: "frappe.client.get_list",
+						args: {
+							doctype: "Project",
+							filters: [
+								["company", "=", company],
+								["status", "=", "Open"],
+							],
+							fields: ["name"],
+							limit: 500,
+							order_by: "name asc",
+						},
+						callback(r3) {
+							let projects = r3.message || [];
+							if (!projects.length) {
+								// Fallback sin filtro company si no hay resultados
+								frappe.call({
+									method: "frappe.client.get_list",
+									args: {
+										doctype: "Project",
+										filters: [["status", "=", "Open"]],
+										fields: ["name"],
+										limit: 500,
+										order_by: "name asc",
+									},
+									callback(r4) {
+										_show_department_dialog(
+											candidates,
+											departments,
+											cost_centers,
+											r4.message || [],
+											listview
+										);
+									},
+								});
+							} else {
+								_show_department_dialog(
+									candidates,
+									departments,
+									cost_centers,
+									projects,
+									listview
+								);
+							}
+						},
+					});
+				},
+			});
 		},
 	});
 }
 
-function _show_department_dialog(candidates, departments, listview) {
+function _show_department_dialog(candidates, departments, cost_centers, projects, listview) {
 	const dept_options = departments
 		.map(
 			(d) =>
 				`<option value="${frappe.utils.escape_html(d.name)}">${frappe.utils.escape_html(
 					d.name
+				)}</option>`
+		)
+		.join("");
+
+	const cc_options = cost_centers
+		.map(
+			(cc) =>
+				`<option value="${frappe.utils.escape_html(cc.name)}">${frappe.utils.escape_html(
+					cc.name
+				)}</option>`
+		)
+		.join("");
+
+	const proj_options = projects
+		.map(
+			(p) =>
+				`<option value="${frappe.utils.escape_html(p.name)}">${frappe.utils.escape_html(
+					p.name
 				)}</option>`
 		)
 		.join("");
@@ -379,18 +460,31 @@ function _show_department_dialog(candidates, departments, listview) {
 					<a href="/app/cfdi-recibido/${encodeURIComponent(c.name)}" target="_blank"
 					   style="font-size:0.85em">${frappe.utils.escape_html(c.name)}</a>
 				</td>
-				<td style="padding:4px 8px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"
+				<td style="padding:4px 8px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"
 				    title="${frappe.utils.escape_html(c.supplier_name || c.supplier || "")}">
 					${frappe.utils.escape_html(c.supplier_name || c.supplier || "—")}
 				</td>
 				<td style="padding:4px 8px;white-space:nowrap">${c.issue_date || "—"}</td>
 				<td style="padding:4px 8px;text-align:right;white-space:nowrap">${total_fmt}</td>
-				<td style="padding:4px 8px;min-width:180px">
-					<select id="dept_${safe_id}"
-					        data-cfdi="${frappe.utils.escape_html(c.name)}"
+				<td style="padding:4px 8px;min-width:160px">
+					<select data-cfdi="${frappe.utils.escape_html(c.name)}" data-field="department"
 					        style="width:100%;border:1px solid #d1d8dd;border-radius:4px;padding:3px 6px;font-size:0.9em">
 						<option value="">${__("— Sin asignar —")}</option>
 						${dept_options}
+					</select>
+				</td>
+				<td style="padding:4px 8px;min-width:160px">
+					<select data-cfdi="${frappe.utils.escape_html(c.name)}" data-field="cost_center"
+					        style="width:100%;border:1px solid #d1d8dd;border-radius:4px;padding:3px 6px;font-size:0.9em">
+						<option value="">${__("— Opcional —")}</option>
+						${cc_options}
+					</select>
+				</td>
+				<td style="padding:4px 8px;min-width:160px">
+					<select data-cfdi="${frappe.utils.escape_html(c.name)}" data-field="project"
+					        style="width:100%;border:1px solid #d1d8dd;border-radius:4px;padding:3px 6px;font-size:0.9em">
+						<option value="">${__("— Opcional —")}</option>
+						${proj_options}
 					</select>
 				</td>
 			</tr>`;
@@ -398,7 +492,9 @@ function _show_department_dialog(candidates, departments, listview) {
 		.join("");
 
 	const d = new frappe.ui.Dialog({
-		title: __("Asignar Departamentos — {0} candidato(s)", [candidates.length]),
+		title: __("Asignar Departamento, Centro de Costo y Proyecto — {0} candidato(s)", [
+			candidates.length,
+		]),
 		fields: [
 			{
 				fieldtype: "HTML",
@@ -408,10 +504,29 @@ function _show_department_dialog(candidates, departments, listview) {
 		primary_action_label: __("Guardar asignaciones"),
 		primary_action() {
 			const assignments = {};
-			d.$wrapper.find("select[data-cfdi]").each(function () {
-				const cfdi_name = $(this).data("cfdi");
-				const dept = $(this).val();
-				if (dept) assignments[cfdi_name] = dept;
+			const rows_wrapper = d.$wrapper;
+
+			// Collect per-cfdi values
+			const cfdi_names = [
+				...new Set([...rows_wrapper.find("[data-cfdi]")].map((el) => el.dataset.cfdi)),
+			];
+
+			cfdi_names.forEach((cfdi_name) => {
+				const dept = rows_wrapper
+					.find(`select[data-cfdi="${CSS.escape(cfdi_name)}"][data-field="department"]`)
+					.val();
+				if (!dept) return; // skip if no department selected
+				const cc = rows_wrapper
+					.find(`select[data-cfdi="${CSS.escape(cfdi_name)}"][data-field="cost_center"]`)
+					.val();
+				const project = rows_wrapper
+					.find(`select[data-cfdi="${CSS.escape(cfdi_name)}"][data-field="project"]`)
+					.val();
+				assignments[cfdi_name] = {
+					department: dept,
+					cost_center: cc || "",
+					project: project || "",
+				};
 			});
 
 			if (!Object.keys(assignments).length) {
@@ -436,6 +551,8 @@ function _show_department_dialog(candidates, departments, listview) {
 						<th style="padding:6px 8px">${__("Fecha")}</th>
 						<th style="padding:6px 8px">${__("Total")}</th>
 						<th style="padding:6px 8px">${__("Departamento")}</th>
+						<th style="padding:6px 8px">${__("Centro de Costo")}</th>
+						<th style="padding:6px 8px">${__("Proyecto")}</th>
 					</tr>
 				</thead>
 				<tbody>${rows}</tbody>
