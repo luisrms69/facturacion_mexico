@@ -13,10 +13,10 @@
       
       
       
-        <link rel="prev" href="../0017-complemento-pago-mx-schema-normalizacion/">
+        <link rel="prev" href="../0030-tablas-maestras-python-reglas-fiscales/">
       
       
-        <link rel="next" href="../0019-primera-implementacion-rc-v0.1/">
+        <link rel="next" href="../../referencia/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -24,7 +24,7 @@
     
     
       
-        <title>ADR 0018 — Migración de estado fiscal FFM a status - Facturación México - Documentación Técnica</title>
+        <title>ADR-0031 — Migración de Settings global (Single) a configuración por Company - Facturación México - Documentación Técnica</title>
       
     
     
@@ -90,7 +90,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#adr-0018-migracion-de-estado-fiscal-ffm-a-status" class="md-skip">
+        <a href="#adr-0031-migracion-de-settings-global-single-a-configuracion-por-company" class="md-skip">
           Saltar a contenido
         </a>
       
@@ -128,7 +128,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              ADR 0018 — Migración de estado fiscal FFM a status
+              ADR-0031 — Migración de Settings global (Single) a configuración por Company
             
           </span>
         </div>
@@ -1176,30 +1176,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    ADR 0018 — Migración de estado fiscal FFM a status
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../0018-ffm-status-fiscal-state-migration/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1208,80 +1188,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Tabla de contenidos
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#contexto" class="md-nav__link">
-    <span class="md-ellipsis">
-      Contexto
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#decision" class="md-nav__link">
-    <span class="md-ellipsis">
-      Decisión
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#etapa-1-pr-actual" class="md-nav__link">
-    <span class="md-ellipsis">
-      Etapa 1 — PR actual
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#etapa-2-completada" class="md-nav__link">
-    <span class="md-ellipsis">
-      Etapa 2 — COMPLETADA
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#consecuencias" class="md-nav__link">
-    <span class="md-ellipsis">
-      Consecuencias
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#validaciones-etapa-1" class="md-nav__link">
-    <span class="md-ellipsis">
-      Validaciones Etapa 1
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1543,10 +1449,30 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../0031-migracion-settings-por-company/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    ADR-0031 — Migración de Settings global (Single) a configuración por Company
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -1555,6 +1481,71 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#contexto" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contexto
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      Decisión
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#alternativas-evaluadas" class="md-nav__link">
+    <span class="md-ellipsis">
+      Alternativas evaluadas
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#consecuencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      Consecuencias
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#campos-migrados" class="md-nav__link">
+    <span class="md-ellipsis">
+      Campos migrados
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1753,18 +1744,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#etapa-1-pr-actual" class="md-nav__link">
+  <a href="#alternativas-evaluadas" class="md-nav__link">
     <span class="md-ellipsis">
-      Etapa 1 — PR actual
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#etapa-2-completada" class="md-nav__link">
-    <span class="md-ellipsis">
-      Etapa 2 — COMPLETADA
+      Alternativas evaluadas
     </span>
   </a>
   
@@ -1780,9 +1762,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#validaciones-etapa-1" class="md-nav__link">
+  <a href="#campos-migrados" class="md-nav__link">
     <span class="md-ellipsis">
-      Validaciones Etapa 1
+      Campos migrados
     </span>
   </a>
   
@@ -1803,86 +1785,92 @@
                   
 
 
-<h1 id="adr-0018-migracion-de-estado-fiscal-ffm-a-status">ADR 0018 — Migración de estado fiscal FFM a status<a class="headerlink" href="#adr-0018-migracion-de-estado-fiscal-ffm-a-status" title="Permanent link">&para;</a></h1>
-<p><strong>Fecha:</strong> 2026-05-07 | <strong>Última revisión:</strong> 2026-05-07 | <strong>Estado:</strong> APROBADO — Etapas 1 y 2 completadas</p>
+<h1 id="adr-0031-migracion-de-settings-global-single-a-configuracion-por-company">ADR-0031 — Migración de Settings global (Single) a configuración por Company<a class="headerlink" href="#adr-0031-migracion-de-settings-global-single-a-configuracion-por-company" title="Permanent link">&para;</a></h1>
+<p><strong>Fecha:</strong> 2026-06-01
+<strong>Estado:</strong> Aceptado
+<strong>PR:</strong> #172</p>
 <hr />
 <h2 id="contexto">Contexto<a class="headerlink" href="#contexto" title="Permanent link">&para;</a></h2>
-<p>Factura Fiscal Mexico tenía dos campos relacionados con estado:</p>
-<ul>
-<li><code>status</code></li>
-<li><code>fm_fiscal_status</code></li>
-</ul>
-<p>El campo <code>status</code> existía pero estaba roto/inconsistente:
-- options antiguas: <code>Draft / Submitted / Cancelled</code>
-- el código escribía valores no declarados como <code>draft</code>, <code>stamped</code>, <code>cancelled</code>, <code>pending_cancellation</code>
-- en BD había registros TIMBRADO con <code>status=draft</code>
-- el campo aparecía en list view mostrando información incorrecta</p>
-<p>El campo <code>fm_fiscal_status</code> era la fuente real del estado fiscal SAT.</p>
+<p><code>Facturacion Mexico Settings</code> era un DocType Single (instancia única global) que almacenaba
+credenciales FacturAPI, defaults de e-receipts, factura global y otros parámetros operativos.</p>
+<p>En un entorno multi-empresa (múltiples <code>Company</code> en el mismo site ERPNext), este modelo
+presentaba un problema estructural: un solo set de credenciales FacturAPI para todas las
+empresas. Cada empresa emisora de CFDIs necesita su propia API Key en FacturAPI.io, su
+propio modo sandbox/producción y sus propios defaults operativos.</p>
 <hr />
 <h2 id="decision">Decisión<a class="headerlink" href="#decision" title="Permanent link">&para;</a></h2>
-<p>Usar <code>FFM.status</code> como estado fiscal SAT del DocType Factura Fiscal Mexico.</p>
-<p><strong>Estados fiscales válidos:</strong>
-- <code>BORRADOR</code>
-- <code>PROCESANDO</code>
-- <code>TIMBRADO</code>
-- <code>ERROR</code>
-- <code>CANCELADO</code>
-- <code>PENDIENTE_CANCELACION</code>
-- <code>ARCHIVADO</code></p>
-<p>Mantener temporalmente <code>FFM.fm_fiscal_status</code> como campo legacy sincronizado durante Etapa 1.</p>
-<p><strong>Sales Invoice NO se migra.</strong>
-<code>Sales Invoice.fm_fiscal_status</code> se conserva como snapshot fiscal custom.
-No se toca <code>status</code>/<code>docstatus</code> nativo de Sales Invoice.</p>
+<p>Reemplazar <code>Facturacion Mexico Settings</code> (Single) con <code>Facturacion Mexico Company Settings</code>
+(DocType normal, un registro por Company).</p>
+<p>El Single fue <strong>eliminado completamente</strong> del código y la base de datos.</p>
 <hr />
-<h2 id="etapa-1-pr-actual">Etapa 1 — PR actual<a class="headerlink" href="#etapa-1-pr-actual" title="Permanent link">&para;</a></h2>
-<ul>
-<li><code>status</code> se configura con valores fiscales SAT</li>
-<li><code>status_field = status</code></li>
-<li><code>states[]</code> configurados para indicador visual nativo Frappe</li>
-<li>Datos existentes migrados:</li>
-<li><code>status = fm_fiscal_status</code></li>
-<li><code>FAILED → ERROR</code></li>
-<li><code>PENDIENTE → BORRADOR</code></li>
-<li>Escritura dual activa en todos los puntos de transición:</li>
-<li><code>FFM.status</code></li>
-<li><code>FFM.fm_fiscal_status</code></li>
-<li>0 divergencias permitidas entre ambos campos</li>
-<li>Archivos con escritura dual: <code>timbrado_api.py</code>, <code>factura_fiscal_mexico.py</code>, <code>utils.py</code>, <code>api/__init__.py</code>, <code>hooks_handlers/sales_invoice_submit.py</code></li>
-<li>Método muerto <code>calculate_status_from_fiscal_status()</code> eliminado</li>
-</ul>
-<hr />
-<h2 id="etapa-2-completada">Etapa 2 — COMPLETADA<a class="headerlink" href="#etapa-2-completada" title="Permanent link">&para;</a></h2>
-<ul>
-<li><code>FFM.fm_fiscal_status</code> eliminado del DocType JSON</li>
-<li>Todas las lecturas/escrituras internas de FFM migradas a <code>status</code></li>
-<li><code>SI.fm_fiscal_status</code> conservado como snapshot operativo — sin cambios</li>
-<li><code>sales_invoice_cancel_guard.py</code> actualizado: lee <code>status</code> en lugar de <code>fm_fiscal_status</code></li>
-<li>Columna física <code>fm_fiscal_status</code> sigue en BD — limpieza futura pendiente</li>
-<li>Código muerto (<code>diagnose_migration.py</code>, <code>migrate_single_record.py</code>) — limpieza futura pendiente</li>
-<li>Tests y GUI validados: BORRADOR → TIMBRADO → CANCELADO correcto</li>
-<li>0 divergencias <code>FFM.status != SI.fm_fiscal_status</code></li>
-</ul>
+<h2 id="alternativas-evaluadas">Alternativas evaluadas<a class="headerlink" href="#alternativas-evaluadas" title="Permanent link">&para;</a></h2>
+<p><strong>Mantener el Single con un campo Company opcional:</strong> descartado — no resuelve el aislamiento
+de credenciales y genera ambigüedad sobre qué configuración aplica cuando hay varias empresas.</p>
+<p><strong>Child table en Company:</strong> descartado — requiere modificar un DocType de ERPNext y complica
+el acceso programático.</p>
 <hr />
 <h2 id="consecuencias">Consecuencias<a class="headerlink" href="#consecuencias" title="Permanent link">&para;</a></h2>
-<p><strong>Positivas:</strong>
-- FFM usa convención Frappe para estado funcional (<code>status_field</code>)
-- List view y encabezado muestran estado fiscal correcto nativamente
-- Se elimina campo <code>status</code> inconsistente con valores fuera de opciones
-- Se prepara limpieza futura de <code>fm_fiscal_status</code></p>
-<p><strong>Riesgos:</strong>
-- Timbrado y cancelación dependen fuertemente del estado fiscal
-- Por eso Etapa 1 mantiene compatibilidad dual
-- Etapa 2 debe hacerse en PR separado con backup previo</p>
-<hr />
-<h2 id="validaciones-etapa-1">Validaciones Etapa 1<a class="headerlink" href="#validaciones-etapa-1" title="Permanent link">&para;</a></h2>
 <ul>
-<li>0 divergencias <code>status != fm_fiscal_status</code></li>
-<li>0 valores fuera de options</li>
-<li>GUI validada: BORRADOR → TIMBRADO → CANCELADO</li>
-<li>Encabezado FFM muestra estado correcto</li>
-<li><code>SI.fm_fiscal_status</code> sigue funcionando como snapshot</li>
-<li>PPD sigue leyendo <code>SI.fm_fiscal_status</code></li>
+<li>Cada empresa debe tener su propio registro de <code>Facturacion Mexico Company Settings</code> antes
+  de poder timbrar.</li>
+<li><code>FacturAPIClient</code> recibe <code>company</code> como parámetro obligatorio y resuelve las credenciales
+  en tiempo de ejecución.</li>
+<li>El JS de <code>factura_fiscal_mexico.js</code> y <code>ereceipt_handler.js</code> usa <code>frm.doc.company</code> para
+  consultar los defaults correctos.</li>
+<li>Instalaciones existentes con el Single configurado deben migrar sus datos al nuevo DocType
+  manualmente (crear un registro por empresa con las mismas credenciales).</li>
 </ul>
+<hr />
+<h2 id="campos-migrados">Campos migrados<a class="headerlink" href="#campos-migrados" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Origen (Single)</th>
+<th>Destino (Company Settings)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>API Key Producción</td>
+<td><code>api_key</code></td>
+<td><code>api_key</code></td>
+</tr>
+<tr>
+<td>API Key Pruebas</td>
+<td><code>test_api_key</code></td>
+<td><code>test_api_key</code></td>
+</tr>
+<tr>
+<td>Modo Sandbox</td>
+<td><code>sandbox_mode</code></td>
+<td><code>sandbox_mode</code></td>
+</tr>
+<tr>
+<td>Método Pago Default</td>
+<td><code>metodo_pago_default</code></td>
+<td><code>metodo_pago_default</code></td>
+</tr>
+<tr>
+<td>Enviar Email Default</td>
+<td><code>send_email_default</code></td>
+<td><code>send_email_default</code></td>
+</tr>
+<tr>
+<td>E-Receipt defaults</td>
+<td>varios</td>
+<td>varios</td>
+</tr>
+<tr>
+<td>Factura Global defaults</td>
+<td>varios</td>
+<td>varios</td>
+</tr>
+</tbody>
+</table>
+<p>Los campos <code>rfc_emisor</code>, <code>lugar_expedicion</code> y <code>timeout</code> del Single no fueron migrados —
+<code>rfc_emisor</code> y <code>lugar_expedicion</code> se leen de <code>Company.tax_id</code> y la dirección principal
+de la empresa respectivamente.</p>
 
 
 

@@ -762,6 +762,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#item-groups-fiscales" class="md-nav__link">
+    <span class="md-ellipsis">
+      Item Groups fiscales
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1548,6 +1557,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0031-migracion-settings-por-company/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0031 — Migración de Settings global (Single) a configuración por Company
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1785,6 +1815,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#item-groups-fiscales" class="md-nav__link">
+    <span class="md-ellipsis">
+      Item Groups fiscales
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1913,9 +1952,9 @@
 <td>CFDI global periódico</td>
 </tr>
 <tr>
-<td><code>Facturacion Mexico Settings</code></td>
-<td>Single</td>
-<td>Credenciales FacturAPI, config global</td>
+<td><code>Facturacion Mexico Company Settings</code></td>
+<td>Por Company</td>
+<td>Credenciales FacturAPI y defaults por empresa</td>
 </tr>
 <tr>
 <td><code>Configuracion Fiscal Mexico</code></td>
@@ -1935,12 +1974,7 @@
 <tr>
 <td><code>Addenda Type</code></td>
 <td>Normal</td>
-<td>Formato XML de addenda (Jinja2)</td>
-</tr>
-<tr>
-<td><code>Addenda Configuration</code></td>
-<td>Por cliente</td>
-<td>Valores por cliente</td>
+<td>Template Jinja2 de addenda — global, un registro por formato de cadena</td>
 </tr>
 </tbody>
 </table>
@@ -1958,7 +1992,7 @@
 <tr>
 <td><strong>FacturAPI.io</strong></td>
 <td>PAC para timbrado y cancelación</td>
-<td><code>Facturacion Mexico Settings</code></td>
+<td><code>Facturacion Mexico Company Settings</code></td>
 </tr>
 <tr>
 <td><strong>SAT (lista 69B)</strong></td>
@@ -1970,10 +2004,49 @@
 <hr />
 <h2 id="custom-fields-criticos">Custom Fields críticos<a class="headerlink" href="#custom-fields-criticos" title="Permanent link">&para;</a></h2>
 <p><strong>Sales Invoice:</strong> <code>fm_fiscal_status</code>, <code>fm_factura_fiscal_mx</code>, <code>fm_addenda_*</code>, <code>fm_branch</code>, <code>fm_es_ppd</code>
-<strong>Customer:</strong> <code>fm_rfc</code>, <code>fm_tax_regime</code>, <code>fm_uso_cfdi_default</code>
+<strong>Customer:</strong> <code>fm_tax_regime</code>, <code>fm_uso_cfdi_default</code>, <code>fm_requires_addenda</code>, <code>fm_default_addenda_type</code>, <code>fm_buyer_gln</code>, <code>fm_seller_gln</code>, <code>fm_seller_id</code>, <code>fm_invoice_creator_gln</code>, <code>fm_dias_credito_addenda</code>
+<strong>Address:</strong> <code>fm_gln</code> (GLN de sucursal destino para addendas EDI)
+<strong>Item Customer Detail:</strong> <code>ref_code</code> (nativo ERPNext), <code>fm_customer_uom</code>, <code>fm_customer_description</code>
 <strong>Branch:</strong> <code>fm_enable_fiscal</code>, <code>fm_lugar_expedicion</code>, <code>fm_serie_pattern</code>, folios
 <strong>Payment Entry:</strong> <code>fm_complemento_pago</code>, <code>fm_complement_generated</code>
 <strong>Purchase Invoice:</strong> <code>fm_cfdi_uuid</code>, <code>fm_cfdi_recibido</code></p>
+<h2 id="item-groups-fiscales">Item Groups fiscales<a class="headerlink" href="#item-groups-fiscales" title="Permanent link">&para;</a></h2>
+<p>El app crea automáticamente grupos raíz y subgrupos de categorización fiscal. El ITT (Item Tax Template) se asigna al grupo raíz; los items en subgrupos heredan el impuesto.</p>
+<table>
+<thead>
+<tr>
+<th>Grupo raíz</th>
+<th>Subgrupos incluidos</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Artículos con IVA al 0%</code></td>
+<td>Frutas y verduras, Carnes, Lácteos y huevo, Medicamentos, Agua natural, etc.</td>
+</tr>
+<tr>
+<td><code>Artículos Exentos</code></td>
+<td>Libros, Servicios médicos, Servicios educativos, etc.</td>
+</tr>
+<tr>
+<td><code>Artículos IEPS Alcohol</code></td>
+<td>Cerveza, Vinos, Licores, etc.</td>
+</tr>
+<tr>
+<td><code>Artículos IEPS Azúcar</code></td>
+<td>Refrescos, Bebidas energéticas, Botanas, etc.</td>
+</tr>
+<tr>
+<td><code>Artículos IEPS Combustibles</code></td>
+<td>Gasolina, Diésel, Gas LP, etc.</td>
+</tr>
+<tr>
+<td><code>Artículos IEPS Tabaco</code></td>
+<td>Cigarros, Puros, Tabaco labrado</td>
+</tr>
+</tbody>
+</table>
+<p>Los subgrupos se crean idempotentemente en cada <code>bench migrate</code> — nunca se modifican ni borran grupos existentes.</p>
 <hr />
 <blockquote>
 <p>Este documento describe el estado actual. Para el historial de decisiones, ver <a href="../../adr/">ADRs</a>.</p>

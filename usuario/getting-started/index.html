@@ -490,18 +490,18 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-facturacion-mexico-settings" class="md-nav__link">
+  <a href="#1-facturacion-mexico-company-settings" class="md-nav__link">
     <span class="md-ellipsis">
-      1. Facturacion Mexico Settings
+      1. Facturacion Mexico Company Settings
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-company-datos-fiscales" class="md-nav__link">
+  <a href="#2-company-datos-fiscales-y-direccion" class="md-nav__link">
     <span class="md-ellipsis">
-      2. Company — datos fiscales
+      2. Company — datos fiscales y dirección
     </span>
   </a>
   
@@ -541,9 +541,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#item-con-clave-sat" class="md-nav__link">
+  <a href="#item-con-clave-sat-e-item-group-fiscal" class="md-nav__link">
     <span class="md-ellipsis">
-      Item con clave SAT
+      Item con clave SAT e Item Group fiscal
     </span>
   </a>
   
@@ -1596,6 +1596,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0031-migracion-settings-por-company/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0031 — Migración de Settings global (Single) a configuración por Company
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1799,18 +1820,18 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-facturacion-mexico-settings" class="md-nav__link">
+  <a href="#1-facturacion-mexico-company-settings" class="md-nav__link">
     <span class="md-ellipsis">
-      1. Facturacion Mexico Settings
+      1. Facturacion Mexico Company Settings
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-company-datos-fiscales" class="md-nav__link">
+  <a href="#2-company-datos-fiscales-y-direccion" class="md-nav__link">
     <span class="md-ellipsis">
-      2. Company — datos fiscales
+      2. Company — datos fiscales y dirección
     </span>
   </a>
   
@@ -1850,9 +1871,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#item-con-clave-sat" class="md-nav__link">
+  <a href="#item-con-clave-sat-e-item-group-fiscal" class="md-nav__link">
     <span class="md-ellipsis">
-      Item con clave SAT
+      Item con clave SAT e Item Group fiscal
     </span>
   </a>
   
@@ -1914,8 +1935,9 @@ bench<span class="w"> </span>--site<span class="w"> </span>tu-sitio.local<span c
 </code></pre></div>
 <hr />
 <h2 id="configuracion-inicial">Configuración inicial<a class="headerlink" href="#configuracion-inicial" title="Permanent link">&para;</a></h2>
-<h3 id="1-facturacion-mexico-settings">1. Facturacion Mexico Settings<a class="headerlink" href="#1-facturacion-mexico-settings" title="Permanent link">&para;</a></h3>
-<p>Accede desde el workspace <strong>Facturación México</strong>.</p>
+<h3 id="1-facturacion-mexico-company-settings">1. Facturacion Mexico Company Settings<a class="headerlink" href="#1-facturacion-mexico-company-settings" title="Permanent link">&para;</a></h3>
+<p>Accede desde el workspace <strong>Facturación México → Facturacion Mexico Company Settings</strong>.</p>
+<p>Crea un registro <strong>por cada empresa</strong> que emitirá CFDIs.</p>
 <table>
 <thead>
 <tr>
@@ -1924,6 +1946,10 @@ bench<span class="w"> </span>--site<span class="w"> </span>tu-sitio.local<span c
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>Company</td>
+<td>Empresa emisora (Link a ERPNext Company)</td>
+</tr>
 <tr>
 <td>API Key Producción</td>
 <td>API Key de FacturAPI.io para producción</td>
@@ -1937,36 +1963,98 @@ bench<span class="w"> </span>--site<span class="w"> </span>tu-sitio.local<span c
 <td>Activar para pruebas, desactivar para producción</td>
 </tr>
 <tr>
-<td>RFC Emisor</td>
-<td>RFC de la empresa emisora</td>
+<td>Método de Pago por Defecto</td>
+<td>PUE o PPD — se aplica al crear nuevas facturas</td>
 </tr>
 <tr>
-<td>Lugar de Expedición</td>
-<td>Código postal fiscal de expedición</td>
-</tr>
-<tr>
-<td>Régimen Fiscal por Defecto</td>
-<td>Régimen SAT de la empresa</td>
+<td>Enviar Email por Defecto</td>
+<td>Si el sistema envía CFDI por email automáticamente</td>
 </tr>
 </tbody>
 </table>
 <blockquote>
-<p>Los certificados SAT se gestionan en el portal de FacturAPI.io, no en ERPNext.</p>
+<p>Los certificados SAT (.cer/.key) se gestionan en el portal de FacturAPI.io, no en ERPNext.</p>
+<p>Si tienes varias empresas, crea un registro de Company Settings por cada una.</p>
 </blockquote>
-<h3 id="2-company-datos-fiscales">2. Company — datos fiscales<a class="headerlink" href="#2-company-datos-fiscales" title="Permanent link">&para;</a></h3>
+<h3 id="2-company-datos-fiscales-y-direccion">2. Company — datos fiscales y dirección<a class="headerlink" href="#2-company-datos-fiscales-y-direccion" title="Permanent link">&para;</a></h3>
 <p>En <strong>Setup &gt; Company</strong>:</p>
 <ul>
 <li><strong>Tax ID</strong>: RFC de la empresa</li>
 <li><strong>Default Currency</strong>: MXN</li>
 </ul>
+<p>Además, crea una <strong>Address</strong> vinculada a la Company con la dirección fiscal:</p>
+<ol>
+<li>Ve a <strong>Contacts &gt; Address &gt; New</strong></li>
+<li>Llena <code>Address Line 1</code>, <code>City</code>, <code>Pincode</code> (CP fiscal)</li>
+<li>En la sección <strong>Links</strong> agrega: <code>Company → [nombre de tu empresa]</code></li>
+<li>Marca <strong>Is Primary Address</strong></li>
+</ol>
+<blockquote>
+<p>El CP de esta dirección se usa como <code>LugarExpedicion</code> en el CFDI y en addendas EDI.</p>
+</blockquote>
 <h3 id="3-configuracion-fiscal-mexico">3. Configuracion Fiscal Mexico<a class="headerlink" href="#3-configuracion-fiscal-mexico" title="Permanent link">&para;</a></h3>
-<p>Accede desde el workspace <strong>Facturación México</strong>.</p>
-<p>Ejecuta el wizard <strong>"Generar Template de Impuestos"</strong> para crear los Sales Taxes and Charges Templates necesarios. Sin este paso el timbrado falla.</p>
-<p>Prerrequisito: tener las cuentas contables de impuestos configuradas en el Chart of Accounts (IVA por pagar, IEPS, retenciones según aplique).</p>
+<p>Accede desde el workspace <strong>Facturación México → Configuracion Fiscal Mexico → New</strong>.</p>
+<p>Selecciona la <strong>Company</strong> y activa los regímenes de impuestos que apliquen:</p>
+<table>
+<thead>
+<tr>
+<th>Opción</th>
+<th>Cuándo activar</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IVA Exento</td>
+<td>Productos o servicios legalmente exentos de IVA</td>
+</tr>
+<tr>
+<td>Zona Fronteriza</td>
+<td>Empresa con operaciones en franja fronteriza norte (IVA 8%)</td>
+</tr>
+<tr>
+<td>Exportación</td>
+<td>Ventas al extranjero (IVA 0% exportación)</td>
+</tr>
+<tr>
+<td>IEPS Alcohol</td>
+<td>Venta de bebidas alcohólicas</td>
+</tr>
+<tr>
+<td>IEPS Azúcar</td>
+<td>Venta de bebidas con azúcar añadida</td>
+</tr>
+<tr>
+<td>IEPS Combustibles</td>
+<td>Venta de combustibles</td>
+</tr>
+<tr>
+<td>IEPS Tabaco</td>
+<td>Venta de tabaco</td>
+</tr>
+<tr>
+<td>Ret. Honorarios</td>
+<td>Pagos a personas físicas por honorarios</td>
+</tr>
+<tr>
+<td>Ret. Arrendamiento</td>
+<td>Pagos por arrendamiento</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Nota para alimentos frescos (frutas y verduras):</strong> Bajo el Art. 2-A LIVA, los vegetales
+no industrializados se gravan a <strong>tasa 0% de IVA</strong> — no exento, sino tasa cero.
+No activar IEPS. La tasa 0% se genera automáticamente al ejecutar el wizard.</p>
+</blockquote>
+<p>Ejecuta el botón <strong>"Generar Template de Impuestos"</strong> después de configurar las opciones.
+Esto crea los Sales Taxes and Charges Templates necesarios para el timbrado.</p>
+<blockquote>
+<p>Sin este paso el timbrado falla con error de impuestos.</p>
+</blockquote>
 <hr />
 <h2 id="primer-cfdi">Primer CFDI<a class="headerlink" href="#primer-cfdi" title="Permanent link">&para;</a></h2>
 <h3 id="cliente-con-datos-fiscales">Cliente con datos fiscales<a class="headerlink" href="#cliente-con-datos-fiscales" title="Permanent link">&para;</a></h3>
-<p>En <strong>Selling &gt; Customer</strong>, llenar en la sección fiscal:</p>
+<p>En <strong>Selling &gt; Customer</strong>, llenar en la sección <strong>Tax</strong>:</p>
 <table>
 <thead>
 <tr>
@@ -1976,8 +2064,8 @@ bench<span class="w"> </span>--site<span class="w"> </span>tu-sitio.local<span c
 </thead>
 <tbody>
 <tr>
-<td><code>fm_rfc</code></td>
-<td>RFC del cliente</td>
+<td><code>tax_id</code></td>
+<td>RFC del cliente (campo nativo ERPNext)</td>
 </tr>
 <tr>
 <td><code>fm_tax_regime</code></td>
@@ -1989,8 +2077,57 @@ bench<span class="w"> </span>--site<span class="w"> </span>tu-sitio.local<span c
 </tr>
 </tbody>
 </table>
-<h3 id="item-con-clave-sat">Item con clave SAT<a class="headerlink" href="#item-con-clave-sat" title="Permanent link">&para;</a></h3>
-<p>Cada item debe tener configurado <code>fm_producto_servicio_sat</code> (clave del catálogo SAT). Sin esta clave el timbrado se bloquea.</p>
+<h3 id="item-con-clave-sat-e-item-group-fiscal">Item con clave SAT e Item Group fiscal<a class="headerlink" href="#item-con-clave-sat-e-item-group-fiscal" title="Permanent link">&para;</a></h3>
+<p>Cada item debe tener:
+- <code>fm_producto_servicio_sat</code> — clave del catálogo SAT. Sin esta clave el timbrado se bloquea.
+- <strong>Item Group</strong> correcto — el sistema asigna impuestos por Item Group, no por item individual.</p>
+<p>El wizard de Configuracion Fiscal Mexico crea estos Item Groups automáticamente:</p>
+<table>
+<thead>
+<tr>
+<th>Item Group</th>
+<th>Cuándo usarlo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Artículos con IVA al 0%</code></td>
+<td>Alimentos frescos, agua, medicamentos (Art. 2-A LIVA)</td>
+</tr>
+<tr>
+<td><code>Artículos Exentos</code></td>
+<td>Productos legalmente exentos de IVA</td>
+</tr>
+<tr>
+<td><code>Artículos IEPS Alcohol</code></td>
+<td>Bebidas alcohólicas</td>
+</tr>
+<tr>
+<td><code>Artículos IEPS Azúcar</code></td>
+<td>Bebidas con azúcar añadida</td>
+</tr>
+<tr>
+<td><code>Artículos IEPS Combustibles</code></td>
+<td>Combustibles</td>
+</tr>
+<tr>
+<td><code>Artículos IEPS Tabaco</code></td>
+<td>Tabaco</td>
+</tr>
+<tr>
+<td><code>Servicios Profesionales (Honorarios)</code></td>
+<td>Honorarios a personas físicas</td>
+</tr>
+<tr>
+<td><code>Arrendamiento</code></td>
+<td>Pagos por arrendamiento</td>
+</tr>
+</tbody>
+</table>
+<p>Los items en cualquier otro grupo (ej. <em>All Item Groups</em>) aplican IVA 16% estándar.</p>
+<blockquote>
+<p>Los Item Tax Templates se asignan automáticamente al Item Group — no es necesario configurarlos en cada item.</p>
+</blockquote>
 <h3 id="emitir-la-factura">Emitir la factura<a class="headerlink" href="#emitir-la-factura" title="Permanent link">&para;</a></h3>
 <ol>
 <li>Crear Sales Invoice en <strong>Selling &gt; Sales Invoice</strong></li>
