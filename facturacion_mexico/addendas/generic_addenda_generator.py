@@ -17,6 +17,23 @@ from jinja2 import Environment, Template, TemplateError, meta
 from facturacion_mexico.addendas.validators.xsd_validator import validate_addenda_xml
 
 
+def _importe_a_letras(monto) -> str:
+	"""Convierte un monto numérico a palabras en español, formato MXN.
+
+	Ejemplo: 6640.50 → 'SEIS MIL SEISCIENTOS CUARENTA Pesos 50/100 M.N.'
+	"""
+	try:
+		from num2words import num2words
+
+		monto = float(monto or 0)
+		entero = int(monto)
+		centavos = round((monto - entero) * 100)
+		palabras = num2words(entero, lang="es").upper()
+		return f"{palabras} Pesos {centavos:02d}/100 M.N."
+	except Exception:
+		return ""
+
+
 class AddendaGenerator:
 	"""
 	Generador genérico de addendas con templates Jinja2 dinámicos
@@ -154,10 +171,14 @@ class AddendaGenerator:
 
 	def _prepare_template_context(self, invoice_data: dict, addenda_values: dict) -> dict:
 		"""Preparar contexto completo para el template Jinja2"""
+		from types import SimpleNamespace
+
 		context = {}
 
 		# 1. Agregar datos de factura
-		context["invoice"] = invoice_data
+		# Usar SimpleNamespace para evitar conflicto invoice.items → dict.items() method
+		invoice_ns = SimpleNamespace(**{k: v for k, v in invoice_data.items() if isinstance(k, str)})
+		context["invoice"] = invoice_ns
 
 		# 2. Agregar valores de addenda (campo flexible para casos especiales)
 		context.update(addenda_values)
@@ -245,12 +266,16 @@ class AddendaGenerator:
 			context.setdefault("seller_id", getattr(cust, "fm_seller_id", "") or "")
 			context.setdefault("invoice_creator_gln", getattr(cust, "fm_invoice_creator_gln", "") or "")
 
-		# 8. Addenda Product Mapping por item
+		# 8. Mapeo de productos por item (desde Item Customer Detail)
 		customer = invoice_data.get("customer")
 		items = invoice_data.get("items") or []
 		context["product_mapping"] = self._load_product_mappings(customer, items)
 
-		# 9. Helpers
+		# 9. importe_letras — monto total en palabras (español, formato MXN)
+		grand_total = invoice_data.get("grand_total") or 0
+		context.setdefault("importe_letras", _importe_a_letras(grand_total))
+
+		# 10. Helpers
 		context["helpers"] = {
 			"format_currency": lambda x: f"{float(x):.2f}",
 			"format_date": lambda x: (
@@ -263,11 +288,14 @@ class AddendaGenerator:
 		return context
 
 	def _load_product_mappings(self, customer: str | None, items: list) -> dict:
-		"""Cargar Addenda Product Mapping activos para el cliente e items de la factura.
+		"""Cargar códigos de cliente desde Item Customer Detail (pestaña Sales del Item).
+
+		Lee el campo nativo de ERPNext `ref_code` en `Item Customer Detail`.
+		La descripción y UOM se toman de los datos del item en la factura como fallback.
 
 		Returns:
-		    {item_code: {customer_item_code, customer_item_description, customer_uom,
-		                 additional_data}} — vacío si no hay customer, items o mappings.
+		    {item_code: {customer_item_code, customer_item_description, customer_uom}}
+		    vacío si no hay customer, items o registros.
 		"""
 		if not customer or not items:
 			return {}
@@ -277,21 +305,36 @@ class AddendaGenerator:
 			return {}
 
 		try:
-			rows = frappe.get_all(
-				"Addenda Product Mapping",
-				filters={"customer": customer, "item_code": ["in", item_codes], "is_active": 1},
-				fields=[
-					"item_code",
-					"customer_item_code",
-					"customer_item_description",
-					"customer_uom",
-					"additional_data",
-				],
+			rows = frappe.db.sql(
+				"""SELECT parent AS item_code, ref_code AS customer_item_code,
+				          fm_customer_uom, fm_customer_description
+				   FROM `tabItem Customer Detail`
+				   WHERE customer_name = %s AND parent IN %s AND ref_code IS NOT NULL""",
+				(customer, tuple(item_codes)),
+				as_dict=True,
 			)
 		except Exception:
 			return {}
 
-		return {r["item_code"]: r for r in rows}
+		items_by_code = {i.get("item_code"): i for i in items if i.get("item_code")}
+		result = {}
+		for r in rows:
+			item_data = items_by_code.get(r["item_code"], {})
+			# UOM: prioriza código EDI del cliente; fallback al código SAT del item
+			customer_uom = r.get("fm_customer_uom") or ""
+			if not customer_uom:
+				uom = item_data.get("uom", "")
+				customer_uom = uom.split(" - ")[0] if " - " in uom else uom
+			# Descripción: prioriza descripción del cliente; fallback a item_name
+			customer_desc = r.get("fm_customer_description") or item_data.get("item_name", "")
+			result[r["item_code"]] = frappe._dict(
+				{
+					"customer_item_code": r["customer_item_code"],
+					"customer_item_description": customer_desc,
+					"customer_uom": customer_uom,
+				}
+			)
+		return result
 
 	def _validate_generated_xml(self, xml_content: str) -> dict:
 		"""Validar XML generado"""

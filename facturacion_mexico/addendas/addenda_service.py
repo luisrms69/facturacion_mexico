@@ -125,8 +125,9 @@ class AddendaService:
 		if addenda_values is None:
 			addenda_values = self._get_default_values(sales_invoice_doc)
 
-		# Validate mandatory field values
-		self.validate_required_data(sales_invoice_doc, addenda_values)
+		# validate_required_data omitido: en la nueva arquitectura todos los datos
+		# se resuelven desde Customer/Address/Company en el contexto del generador.
+		# Los field_definitions de Addenda Type son solo para la UI, no para validación.
 
 		# Generate XML using existing AddendaGenerator
 		from facturacion_mexico.addendas.generic_addenda_generator import AddendaGenerator

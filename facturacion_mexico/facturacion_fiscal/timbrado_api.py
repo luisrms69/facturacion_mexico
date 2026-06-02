@@ -1838,18 +1838,17 @@ class TimbradoAPI:
 			amount = detail["amount"]
 			source = detail["source"]
 
-			# Solo agregar si hay rate o amount != 0
-			if rate_from_detail != 0 or amount != 0:
-				if tax.account_head not in taxes_dict:
-					taxes_dict[tax.account_head] = {
-						"account_head": tax.account_head,
-						"rate": rate_from_detail,
-						"amount": amount,
-					}
-					frappe.logger().info(
-						f"E4-RO - Item {item.item_code}: Tax {tax.account_head} "
-						f"leído desde {source} (rate={rate_from_detail}, amount={amount})"
-					)
+			# Incluir siempre si hay item_tax_template (tasa 0% es válida para ObjetoImp=02)
+			if tax.account_head not in taxes_dict:
+				taxes_dict[tax.account_head] = {
+					"account_head": tax.account_head,
+					"rate": rate_from_detail,
+					"amount": amount,
+				}
+				frappe.logger().info(
+					f"E4-RO - Item {item.item_code}: Tax {tax.account_head} "
+					f"leído desde {source} (rate={rate_from_detail}, amount={amount})"
+				)
 
 		# Convertir dict a list
 		taxes_data = list(taxes_dict.values())

@@ -29,7 +29,7 @@ class MultibranchAddendaManager:
 	def get_branch_addenda_configuration(self, customer: str | None = None) -> dict[str, Any]:
 		"""
 		Obtener configuración de addendas para una sucursal específica
-		Integra con sistema existente de Addenda Configuration
+		Integra con configuración de addendas del Customer
 		"""
 		try:
 			# 1. Obtener configuración base de addendas del sistema existente

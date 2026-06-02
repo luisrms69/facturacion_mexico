@@ -23,7 +23,6 @@ class TestLayer2AddendaTemplatesMultiSucursal(unittest.TestCase):
         """Test: Estructura de DocType para templates de addenda"""
         template_doctypes = [
             "Addenda Template",
-            "Addenda Configuration",
             "Addenda Type"
         ]
 
@@ -57,7 +56,7 @@ class TestLayer2AddendaTemplatesMultiSucursal(unittest.TestCase):
         # Variables esperadas que los templates deberían soportar
 
         # Verificar si existe documentación o ejemplos de variables
-        template_doctypes = ["Addenda Template", "Addenda Type", "Addenda Configuration"]
+        template_doctypes = ["Addenda Template", "Addenda Type"]
 
         for doctype in template_doctypes:
             if not frappe.db.exists("DocType", doctype):
@@ -100,7 +99,7 @@ class TestLayer2AddendaTemplatesMultiSucursal(unittest.TestCase):
         if available_engines:
             print(f"✓ Motores de template disponibles: {available_engines}")
         else:
-            print("ℹ Motores de template específicos no encontrados")
+            print("i Motores de template específicos no encontrados")
 
     def test_addenda_template_branch_context_injection(self):
         """Test: Inyección de contexto de sucursal en templates"""
@@ -126,7 +125,7 @@ class TestLayer2AddendaTemplatesMultiSucursal(unittest.TestCase):
                 print(f"✓ Métodos específicos de sucursal: {branch_methods}")
 
         except ImportError:
-            print("ℹ Generador de addendas no disponible para testing")
+            print("i Generador de addendas no disponible para testing")
 
     def test_template_validation_with_branch_fields(self):
         """Test: Validación de templates con campos de sucursal"""
@@ -207,7 +206,7 @@ class TestLayer2AddendaTemplatesMultiSucursal(unittest.TestCase):
         if available_preprocessors:
             print(f"✓ Preprocesadores de template disponibles: {available_preprocessors}")
         else:
-            print("ℹ Preprocesadores específicos no encontrados, usando generador genérico")
+            print("i Preprocesadores específicos no encontrados, usando generador genérico")
 
     def test_addenda_template_branch_field_mapping(self):
         """Test: Mapeo de campos de sucursal en templates"""

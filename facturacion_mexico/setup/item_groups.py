@@ -48,6 +48,64 @@ CATEGORIAS_RETENCION = {row[2] for row in TABLA_MAESTRA_GRUPOS_FISCALES if row[3
 # Lista de nombres Item Groups (para creación/validación)
 ITEM_GROUPS_FISCALES = [row[0] for row in TABLA_MAESTRA_GRUPOS_FISCALES]
 
+# -----------------------------------------------------------
+# SUBGRUPOS FISCALES — ESQUELETO DE CATEGORIZACIÓN
+# -----------------------------------------------------------
+# Solo se crean si no existen. NUNCA se modifican, renombran, mueven ni borran.
+# Estructura: {parent_group: [child_name, ...]}
+
+SUBGRUPOS_FISCALES = {
+	"Artículos con IVA al 0%": [
+		"Frutas y verduras",
+		"Carnes, aves y pescados",
+		"Lácteos y huevo",
+		"Granos, semillas y cereales",
+		"Pan, tortilla y básicos",
+		"Medicamentos",
+		"Agua natural",
+		"Alimentos para animales",
+		"Otros IVA 0%",
+	],
+	"Artículos Exentos": [
+		"Libros y publicaciones",
+		"Servicios médicos",
+		"Servicios educativos",
+		"Arrendamiento casa habitación",
+		"Otros exentos",
+	],
+	"Artículos IEPS Alcohol": [
+		"Cerveza",
+		"Vinos",
+		"Licores y destilados",
+		"Bebidas preparadas",
+		"Otros IEPS Alcohol",
+	],
+	"Artículos IEPS Azúcar": [
+		"Refrescos",
+		"Bebidas saborizadas",
+		"Concentrados y jarabes",
+		"Bebidas energéticas",
+		"Botanas y dulces",
+		"Chocolates y confitería",
+		"Helados y nieves",
+		"Alimentos preparados a base de cereales",
+		"Otros IEPS Azúcar",
+	],
+	"Artículos IEPS Combustibles": [
+		"Gasolina",
+		"Diésel",
+		"Gas LP",
+		"Lubricantes y aditivos",
+		"Otros IEPS Combustibles",
+	],
+	"Artículos IEPS Tabaco": [
+		"Cigarros",
+		"Puros",
+		"Tabaco labrado",
+		"Otros IEPS Tabaco",
+	],
+}
+
 
 def _get_root_item_group() -> str | None:
 	"""Detect the root Item Group without assuming the site language."""
@@ -90,9 +148,86 @@ def _ensure_item_group(name: str) -> str | None:
 	return doc.name
 
 
+def _ensure_subgroup(name: str, parent: str) -> tuple[bool, dict | None]:
+	"""
+	Create subgroup under parent only if it does not already exist.
+	NEVER modifies, renames, moves or deletes existing groups.
+
+	Returns:
+	    (created, conflict) where conflict is a dict if the group exists
+	    under a different parent than expected, None otherwise.
+	"""
+	existing_parent = frappe.db.get_value("Item Group", name, "parent_item_group")
+	if existing_parent is not None:
+		if existing_parent != parent:
+			return False, {"name": name, "expected_parent": parent, "actual_parent": existing_parent}
+		return False, None
+
+	if not frappe.db.exists("Item Group", {"name": parent}):
+		frappe.logger().warning(f"[FMX][ItemGroups] Parent '{parent}' no existe, omitiendo subgrupo '{name}'")
+		return False, None
+
+	doc = frappe.get_doc(
+		{
+			"doctype": "Item Group",
+			"item_group_name": name,
+			"name": name,
+			"is_group": 0,
+			"parent_item_group": parent,
+		}
+	)
+	doc.insert(ignore_permissions=True)
+	return True, None
+
+
+def ensure_fiscal_subgroups() -> dict:
+	"""
+	Create fiscal subgroups under their parent fiscal groups.
+	Idempotent — only creates, never modifies, renames, moves or deletes.
+	Safe to call in after_install and after_migrate.
+
+	Returns dict with creados, existentes, conflictos.
+	"""
+	try:
+		creados = 0
+		existentes = 0
+		conflictos = []
+
+		for parent, children in SUBGRUPOS_FISCALES.items():
+			for child in children:
+				created, conflict = _ensure_subgroup(child, parent)
+				if conflict:
+					conflictos.append(conflict)
+				elif created:
+					creados += 1
+				else:
+					existentes += 1
+
+		if creados:
+			frappe.db.commit()  # nosemgrep: frappe-manual-commit
+
+		if conflictos:
+			frappe.logger().warning(
+				f"[FMX][ItemGroups] {len(conflictos)} conflictos de subgrupos: "
+				+ ", ".join(
+					f"{c['name']} (esperado en '{c['expected_parent']}', está en '{c['actual_parent']}')"
+					for c in conflictos
+				)
+			)
+
+		frappe.logger().info(
+			f"[FMX][ItemGroups] Subgrupos: {creados} creados, {existentes} existentes, {len(conflictos)} conflictos."
+		)
+		return {"creados": creados, "existentes": existentes, "conflictos": conflictos}
+
+	except Exception:
+		frappe.log_error(frappe.get_traceback(), "[FMX][ItemGroups] Error ensure_fiscal_subgroups")
+		raise
+
+
 def ensure_fiscal_item_groups():
 	"""
-	Ensure all 10 fiscal Item Groups exist (without assigning ITTs).
+	Ensure all fiscal Item Groups and subgroups exist (without assigning ITTs).
 	Idempotent — safe to call in after_install, after_migrate, and before the wizard.
 	If no root group exists (ERPNext not yet configured), logs a warning and exits without error.
 	"""
@@ -116,6 +251,7 @@ def ensure_fiscal_item_groups():
 			frappe.logger().info(
 				f"[FMX][ItemGroups] {len(ITEM_GROUP_ITT_MAP)} grupos verificados, {len(creados)} creados."
 			)
+			ensure_fiscal_subgroups()
 	except Exception:
 		frappe.log_error(frappe.get_traceback(), "[FMX][ItemGroups] Error ensure_fiscal_item_groups")
 		raise

@@ -29,11 +29,15 @@ class FacturAPIClient:
 	def _get_company_settings(self):
 		"""Obtener Facturacion Mexico Company Settings para la company activa."""
 		if not self.company:
+			self.company = frappe.defaults.get_global_default("company") or frappe.db.get_value(
+				"Facturacion Mexico Company Settings", {}, "company"
+			)
+		if not self.company:
 			frappe.throw(_("Se requiere Company para inicializar el cliente FacturAPI."))
 		doc = frappe.db.get_value(
 			"Facturacion Mexico Company Settings",
 			{"company": self.company},
-			["sandbox_mode", "api_key", "test_api_key"],
+			["name", "sandbox_mode", "api_key", "test_api_key"],
 			as_dict=True,
 		)
 		if not doc:
@@ -55,10 +59,11 @@ class FacturAPIClient:
 
 	def _get_api_key(self) -> str:
 		"""Obtener API key desde Company Settings según modo sandbox/producción."""
+		from frappe.utils.password import get_decrypted_password
+
 		settings = self._get_company_settings()
-		if settings.sandbox_mode:
-			return settings.test_api_key or ""
-		return settings.api_key or ""
+		field = "test_api_key" if settings.sandbox_mode else "api_key"
+		return get_decrypted_password("Facturacion Mexico Company Settings", settings.name, field) or ""
 
 	def _make_request(self, method: str, endpoint: str, data: dict | None = None) -> dict[str, Any]:
 		"""Realizar petición HTTP a FacturAPI."""

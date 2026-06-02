@@ -188,7 +188,7 @@ class TestLayer2AddendaMultiSucursalIntegration(unittest.TestCase):
             if branch_aware_methods:
                 print(f"✓ Generador de addendas con contexto de sucursal: {branch_aware_methods}")
             else:
-                print("ℹ Generador de addendas genérico disponible")
+                print("i Generador de addendas genérico disponible")
 
         except ImportError:
             self.skipTest("Módulo de generación de addendas no disponible")
@@ -217,7 +217,7 @@ class TestLayer2AddendaMultiSucursalIntegration(unittest.TestCase):
                 self.assertIsNotNone(field.fieldtype,
                     f"Campo de certificado {field.fieldname} debe tener tipo definido")
         else:
-            print("ℹ Branch no tiene campos específicos de certificados")
+            print("i Branch no tiene campos específicos de certificados")
 
     def test_addenda_template_branch_variables(self):
         """Test: Templates de addenda con variables de sucursal"""
@@ -227,7 +227,6 @@ class TestLayer2AddendaMultiSucursalIntegration(unittest.TestCase):
         # Verificar si existe DocType para templates
         template_doctypes = [
             "Addenda Template",
-            "Addenda Configuration"
         ]
 
         available_templates = []
@@ -254,7 +253,7 @@ class TestLayer2AddendaMultiSucursalIntegration(unittest.TestCase):
                 except Exception as e:
                     print(f"⚠ Error accediendo {template_doctype}: {e}")
         else:
-            print("ℹ No hay DocTypes de templates específicos disponibles")
+            print("i No hay DocTypes de templates específicos disponibles")
 
     def test_cross_module_validation(self):
         """Test: Validación cruzada entre módulos de Multi-Sucursal y Addendas"""

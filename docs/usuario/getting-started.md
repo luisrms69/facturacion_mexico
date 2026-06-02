@@ -44,20 +44,48 @@ Crea un registro **por cada empresa** que emitirá CFDIs.
 
 > Si tienes varias empresas, crea un registro de Company Settings por cada una.
 
-### 2. Company — datos fiscales
+### 2. Company — datos fiscales y dirección
 
 En **Setup > Company**:
 
 - **Tax ID**: RFC de la empresa
 - **Default Currency**: MXN
 
+Además, crea una **Address** vinculada a la Company con la dirección fiscal:
+
+1. Ve a **Contacts > Address > New**
+2. Llena `Address Line 1`, `City`, `Pincode` (CP fiscal)
+3. En la sección **Links** agrega: `Company → [nombre de tu empresa]`
+4. Marca **Is Primary Address**
+
+> El CP de esta dirección se usa como `LugarExpedicion` en el CFDI y en addendas EDI.
+
 ### 3. Configuracion Fiscal Mexico
 
-Accede desde el workspace **Facturación México**.
+Accede desde el workspace **Facturación México → Configuracion Fiscal Mexico → New**.
 
-Ejecuta el wizard **"Generar Template de Impuestos"** para crear los Sales Taxes and Charges Templates necesarios. Sin este paso el timbrado falla.
+Selecciona la **Company** y activa los regímenes de impuestos que apliquen:
 
-Prerrequisito: tener las cuentas contables de impuestos configuradas en el Chart of Accounts (IVA por pagar, IEPS, retenciones según aplique).
+| Opción | Cuándo activar |
+|---|---|
+| IVA Exento | Productos o servicios legalmente exentos de IVA |
+| Zona Fronteriza | Empresa con operaciones en franja fronteriza norte (IVA 8%) |
+| Exportación | Ventas al extranjero (IVA 0% exportación) |
+| IEPS Alcohol | Venta de bebidas alcohólicas |
+| IEPS Azúcar | Venta de bebidas con azúcar añadida |
+| IEPS Combustibles | Venta de combustibles |
+| IEPS Tabaco | Venta de tabaco |
+| Ret. Honorarios | Pagos a personas físicas por honorarios |
+| Ret. Arrendamiento | Pagos por arrendamiento |
+
+> **Nota para alimentos frescos (frutas y verduras):** Bajo el Art. 2-A LIVA, los vegetales
+> no industrializados se gravan a **tasa 0% de IVA** — no exento, sino tasa cero.
+> No activar IEPS. La tasa 0% se genera automáticamente al ejecutar el wizard.
+
+Ejecuta el botón **"Generar Template de Impuestos"** después de configurar las opciones.
+Esto crea los Sales Taxes and Charges Templates necesarios para el timbrado.
+
+> Sin este paso el timbrado falla con error de impuestos.
 
 ---
 
@@ -65,17 +93,36 @@ Prerrequisito: tener las cuentas contables de impuestos configuradas en el Chart
 
 ### Cliente con datos fiscales
 
-En **Selling > Customer**, llenar en la sección fiscal:
+En **Selling > Customer**, llenar en la sección **Tax**:
 
 | Campo | Descripción |
 |---|---|
-| `fm_rfc` | RFC del cliente |
+| `tax_id` | RFC del cliente (campo nativo ERPNext) |
 | `fm_tax_regime` | Régimen fiscal SAT |
 | `fm_uso_cfdi_default` | Uso CFDI por defecto |
 
-### Item con clave SAT
+### Item con clave SAT e Item Group fiscal
 
-Cada item debe tener configurado `fm_producto_servicio_sat` (clave del catálogo SAT). Sin esta clave el timbrado se bloquea.
+Cada item debe tener:
+- `fm_producto_servicio_sat` — clave del catálogo SAT. Sin esta clave el timbrado se bloquea.
+- **Item Group** correcto — el sistema asigna impuestos por Item Group, no por item individual.
+
+El wizard de Configuracion Fiscal Mexico crea estos Item Groups automáticamente:
+
+| Item Group | Cuándo usarlo |
+|---|---|
+| `Artículos con IVA al 0%` | Alimentos frescos, agua, medicamentos (Art. 2-A LIVA) |
+| `Artículos Exentos` | Productos legalmente exentos de IVA |
+| `Artículos IEPS Alcohol` | Bebidas alcohólicas |
+| `Artículos IEPS Azúcar` | Bebidas con azúcar añadida |
+| `Artículos IEPS Combustibles` | Combustibles |
+| `Artículos IEPS Tabaco` | Tabaco |
+| `Servicios Profesionales (Honorarios)` | Honorarios a personas físicas |
+| `Arrendamiento` | Pagos por arrendamiento |
+
+Los items en cualquier otro grupo (ej. *All Item Groups*) aplican IVA 16% estándar.
+
+> Los Item Tax Templates se asignan automáticamente al Item Group — no es necesario configurarlos en cada item.
 
 ### Emitir la factura
 

@@ -19,6 +19,7 @@ frappe.ui.form.on("Configuracion Fiscal Mexico", {
 					filters: {
 						company: frm.doc.company,
 						account_type: "Tax",
+						is_group: 0,
 					},
 				};
 			});
@@ -103,6 +104,7 @@ frappe.ui.form.on("Configuracion Fiscal Mexico", {
 					filters: {
 						company: frm.doc.company,
 						account_type: "Tax",
+						is_group: 0,
 					},
 				};
 			});
