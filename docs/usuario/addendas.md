@@ -60,11 +60,16 @@ En la dirección de envío del cliente (Address), campo **GLN (Addenda EDI)** (`
 
 En **Stock → Item → pestaña Sales → Customer Details**:
 
-Agrega una fila por cada cliente con su código de producto:
-- **Customer Name**: el cliente (ej: COMERCIAL CITY FRESKO)
-- **Ref Code**: el GTIN o código interno que el cliente asigna a este producto
+Agrega una fila por cada cliente con los datos de mapeo:
 
-No se requiere un DocType separado — ERPNext ya tiene esta funcionalidad nativa.
+| Campo | Descripción |
+|---|---|
+| **Customer Name** | El cliente (ej: COMERCIAL CITY FRESKO) |
+| **Ref Code** | GTIN o código interno que el cliente asigna a este producto (ej: `45865`) |
+| **Customer UOM** (`fm_customer_uom`) | Código EDI de unidad que el cliente espera en la addenda (ej: `EA`, `KGM`, `PCE`). Si está vacío, se usa el código SAT del item (ej: `H87`). |
+| **Descripción Addenda** (`fm_customer_description`) | Descripción del producto según catálogo del cliente (ej: `ALBAHACAR   1 PZA`). Si está vacío, se usa el `item_name` de ERPNext. |
+
+No se requiere un DocType separado — ERPNext ya tiene esta funcionalidad nativa con dos campos custom adicionales.
 
 ### 5. Company — dirección fiscal
 
@@ -126,15 +131,27 @@ Asegúrate de que la Company tenga una **Address** vinculada con `Is Primary Add
 | `emisor_calle` | Company Address → Address Line 1 |
 | `emisor_ciudad` | Company Address → City |
 
+### Importe en letras
+| Variable | Origen |
+|---|---|
+| `importe_letras` | Calculado automáticamente desde `invoice.grand_total` (español, formato MXN) |
+
+Ejemplo: `DOS MIL SEISCIENTOS OCHENTA Pesos 00/100 M.N.`
+
 ### Mapeo de productos
 | Variable | Uso |
 |---|---|
 | `product_mapping` | Dict `{item_code: {customer_item_code, customer_item_description, customer_uom}}` |
 
+- `customer_item_code`: del campo `ref_code` en Item Customer Detail
+- `customer_item_description`: de `fm_customer_description` (fallback: `item_name` del item)
+- `customer_uom`: de `fm_customer_uom` (fallback: código SAT del UOM, ej: `H87` de `H87 - Pieza`)
+
 Ejemplo en template:
 ```xml
 {% set m = product_mapping.get(item.item_code) %}
 <gtin>{{ m.customer_item_code if m else item.item_code }}</gtin>
+<invoicedQuantity unitOfMeasure="{{ m.customer_uom if m else item.uom }}">
 ```
 
 ### Helpers
@@ -148,5 +165,4 @@ Ejemplo en template:
 
 ## Gaps conocidos
 
-- **`importe_letras`**: El monto en letras (requerido por algunos formatos) no está automatizado. Se puede pasar como variable manual en `addenda_values`.
-- **Items globales**: Los items y sus `Customer Details` son globales del site — no hay aislamiento por Company.
+- **Items globales**: Los items y sus `Customer Details` son globales del site — no hay aislamiento por Company en un entorno multi-empresa de giros distintos.
