@@ -80,7 +80,7 @@ function _populate_fields(frm, defs) {
 	});
 	frm.refresh_field("field_values");
 	frappe.show_alert({
-		message: __(`${defs.length} campos cargados desde "${frm.doc.addenda_type}"`),
+		message: __('{0} campos cargados desde "{1}"', [defs.length, frm.doc.addenda_type]),
 		indicator: "green",
 	});
 }

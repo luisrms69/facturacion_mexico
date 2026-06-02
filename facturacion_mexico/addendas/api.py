@@ -72,7 +72,7 @@ def get_addenda_field_definitions(addenda_type):
 
 
 @frappe.whitelist()
-def setup_customer_addenda_auto_detection(customer=None, apply_changes=False):
+def setup_customer_addenda_auto_detection(customer: str | None = None, apply_changes: bool = False):
 	"""Ejecutar auto-detección de addendas para cliente."""
 	try:
 		from facturacion_mexico.addendas.addenda_auto_detector import (
@@ -96,7 +96,7 @@ def setup_customer_addenda_auto_detection(customer=None, apply_changes=False):
 
 
 @frappe.whitelist()
-def get_customer_addenda_info(customer):
+def get_customer_addenda_info(customer: str):
 	"""Obtener información completa de addenda para un cliente."""
 	try:
 		if not customer:
