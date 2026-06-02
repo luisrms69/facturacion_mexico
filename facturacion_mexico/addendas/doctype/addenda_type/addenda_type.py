@@ -183,7 +183,7 @@ class AddendaType(Document):
 
 	def invalidate_related_configurations(self):
 		"""Invalidar cache de configuraciones relacionadas."""
-		# Esto se implementará cuando tengamos el DocType Addenda Configuration
+
 		pass
 
 	def get_template_variables(self):

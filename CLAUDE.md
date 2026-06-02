@@ -267,42 +267,12 @@ bench --site facturacion-v16.dev execute "facturacion_mexico.one_offs.script_nam
 
 ## REGLAS GIT — FACTURACION MEXICO
 
-### Antes de cada commit
+Para commits, push y PRs usar **siempre** `/ship`:
+- `/ship commit` — para commits
+- `/ship push` — para push
+- `/ship pr` — para pull requests (incluye `/pr-ready` completo con linters, tests, fixtures y doc-review)
 
-- Correr linters en archivos modificados:
-  ```bash
-  ruff format <archivos .py modificados>
-  npx prettier@2.7.1 --write <archivos .js modificados>
-  ```
-
-### Antes de cada PR
-
-- [ ] Linters pasados (ver arriba)
-- [ ] Tests pasan — usar `/test-guard` con site `test-facturacion.localhost`
-- [ ] Fixtures exportados si hubo cambios de Custom Fields, Workflows o Roles
-- [ ] Patch creado si hay cambios de esquema — **requiere autorización explícita del usuario**
-- [ ] Sin secretos (credenciales FacturAPI nunca en código)
-- [ ] `bench --site facturacion-v16.dev migrate` limpio
-
-### PROHIBICIÓN ABSOLUTA — NUNCA TRABAJAR EN MAIN
-
-**main no es rama de trabajo. Es solo punto de sincronización con upstream.**
-
-- **Nunca implementar cambios estando en `main`.**
-- **Nunca crear commits estando en `main`.**
-- **Nunca preparar commits estando en `main`.**
-- Todo cambio debe iniciar en una rama feature creada desde `main` limpio.
-- Antes de tocar cualquier archivo, confirmar rama: `git branch --show-current`
-- Si la rama es `main`, **detenerse inmediatamente** y crear rama feature.
-- Si ya hay cambios en `main`, **detenerse** y pedir autorización para rescatarlos a rama.
-- `/ship commit` y `/ship commit-push` deben rechazar si la rama es `main`.
-- `/ship pr` debe exigir rama distinta de `main`.
-
-### Reglas específicas del proyecto
-
-- PRs siempre a `main` — nunca a `develop`
-- Site de desarrollo: `facturacion-v16.dev`
-- Site de tests: `test-facturacion.localhost`
+Site de desarrollo: `facturacion-v16.dev` — Site de tests: `test-facturacion.localhost`
 
 ---
 

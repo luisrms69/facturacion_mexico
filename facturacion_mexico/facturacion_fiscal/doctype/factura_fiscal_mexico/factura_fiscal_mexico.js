@@ -2698,12 +2698,16 @@ function validate_billing_data_visual(frm) {
 			if (!frm.is_new()) return;
 
 			// Frappe ya puso "PUE" por ser la primera opción.
-			// Aquí lo reemplazamos por el valor de Settings, si difiere.
+			// Aquí lo reemplazamos por el valor de Company Settings, si difiere.
 			frappe.after_ajax(() => {
 				frappe.db
-					.get_single_value("Facturacion Mexico Settings", "metodo_pago_default")
-					.then((val) => {
-						const def = val || "PUE";
+					.get_value(
+						"Facturacion Mexico Company Settings",
+						{ company: frm.doc.company },
+						"metodo_pago_default"
+					)
+					.then((r) => {
+						const def = (r && r.message && r.message.metodo_pago_default) || "PUE";
 						if (
 							!frm.doc.fm_payment_method_sat ||
 							frm.doc.fm_payment_method_sat === "PUE"

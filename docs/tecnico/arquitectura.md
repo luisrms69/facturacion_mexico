@@ -59,12 +59,11 @@ Payment Entry (submit)
 | `Complemento Pago MX` | Submittable | CFDI tipo P (PPD) |
 | `EReceipt MX` | Submittable | Recibo para autofacturación |
 | `Factura Global MX` | Submittable | CFDI global periódico |
-| `Facturacion Mexico Settings` | Single | Credenciales FacturAPI, config global |
+| `Facturacion Mexico Company Settings` | Por Company | Credenciales FacturAPI y defaults por empresa |
 | `Configuracion Fiscal Mexico` | Por empresa | Wizard STCT/ITT (emitidos) |
 | `Configuracion CFDI Recibidos` | Por empresa | Config impuestos + tolerancias (recibidos) |
 | `CFDI Recibido` | Normal | XML recibido en proceso |
-| `Addenda Type` | Normal | Formato XML de addenda (Jinja2) |
-| `Addenda Configuration` | Por cliente | Valores por cliente |
+| `Addenda Type` | Normal | Template Jinja2 de addenda — global, un registro por formato de cadena |
 
 ---
 
@@ -72,7 +71,7 @@ Payment Entry (submit)
 
 | Sistema | Uso | Configuración |
 |---|---|---|
-| **FacturAPI.io** | PAC para timbrado y cancelación | `Facturacion Mexico Settings` |
+| **FacturAPI.io** | PAC para timbrado y cancelación | `Facturacion Mexico Company Settings` |
 | **SAT (lista 69B)** | Validación RFC | Vía API REST |
 
 ---
@@ -80,10 +79,27 @@ Payment Entry (submit)
 ## Custom Fields críticos
 
 **Sales Invoice:** `fm_fiscal_status`, `fm_factura_fiscal_mx`, `fm_addenda_*`, `fm_branch`, `fm_es_ppd`
-**Customer:** `fm_rfc`, `fm_tax_regime`, `fm_uso_cfdi_default`
+**Customer:** `fm_tax_regime`, `fm_uso_cfdi_default`, `fm_requires_addenda`, `fm_default_addenda_type`, `fm_buyer_gln`, `fm_seller_gln`, `fm_seller_id`, `fm_invoice_creator_gln`, `fm_dias_credito_addenda`
+**Address:** `fm_gln` (GLN de sucursal destino para addendas EDI)
+**Item Customer Detail:** `ref_code` (nativo ERPNext), `fm_customer_uom`, `fm_customer_description`
 **Branch:** `fm_enable_fiscal`, `fm_lugar_expedicion`, `fm_serie_pattern`, folios
 **Payment Entry:** `fm_complemento_pago`, `fm_complement_generated`
 **Purchase Invoice:** `fm_cfdi_uuid`, `fm_cfdi_recibido`
+
+## Item Groups fiscales
+
+El app crea automáticamente grupos raíz y subgrupos de categorización fiscal. El ITT (Item Tax Template) se asigna al grupo raíz; los items en subgrupos heredan el impuesto.
+
+| Grupo raíz | Subgrupos incluidos |
+|---|---|
+| `Artículos con IVA al 0%` | Frutas y verduras, Carnes, Lácteos y huevo, Medicamentos, Agua natural, etc. |
+| `Artículos Exentos` | Libros, Servicios médicos, Servicios educativos, etc. |
+| `Artículos IEPS Alcohol` | Cerveza, Vinos, Licores, etc. |
+| `Artículos IEPS Azúcar` | Refrescos, Bebidas energéticas, Botanas, etc. |
+| `Artículos IEPS Combustibles` | Gasolina, Diésel, Gas LP, etc. |
+| `Artículos IEPS Tabaco` | Cigarros, Puros, Tabaco labrado |
+
+Los subgrupos se crean idempotentemente en cada `bench migrate` — nunca se modifican ni borran grupos existentes.
 
 ---
 

@@ -177,12 +177,7 @@ class AddendaTemplate(Document):
 	def get_usage_stats(self) -> dict:
 		"""Obtener estadísticas de uso del template."""
 		try:
-			# Contar configuraciones que usan este template
-			configurations = frappe.get_all(
-				"Addenda Configuration",
-				filters={"addenda_type": self.addenda_type},
-				fields=["name", "customer"],
-			)
+			configurations = []  # Addenda Configuration eliminado de arquitectura
 
 			# Contar facturas recientes que podrían usar este template
 			recent_invoices = frappe.get_all(

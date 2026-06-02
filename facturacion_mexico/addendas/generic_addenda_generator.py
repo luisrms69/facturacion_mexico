@@ -17,6 +17,23 @@ from jinja2 import Environment, Template, TemplateError, meta
 from facturacion_mexico.addendas.validators.xsd_validator import validate_addenda_xml
 
 
+def _importe_a_letras(monto) -> str:
+	"""Convierte un monto numérico a palabras en español, formato MXN.
+
+	Ejemplo: 6640.50 → 'SEIS MIL SEISCIENTOS CUARENTA Pesos 50/100 M.N.'
+	"""
+	try:
+		from num2words import num2words
+
+		monto = float(monto or 0)
+		entero = int(monto)
+		centavos = round((monto - entero) * 100)
+		palabras = num2words(entero, lang="es").upper()
+		return f"{palabras} Pesos {centavos:02d}/100 M.N."
+	except Exception:
+		return ""
+
+
 class AddendaGenerator:
 	"""
 	Generador genérico de addendas con templates Jinja2 dinámicos
@@ -154,12 +171,16 @@ class AddendaGenerator:
 
 	def _prepare_template_context(self, invoice_data: dict, addenda_values: dict) -> dict:
 		"""Preparar contexto completo para el template Jinja2"""
+		from types import SimpleNamespace
+
 		context = {}
 
 		# 1. Agregar datos de factura
-		context["invoice"] = invoice_data
+		# Usar SimpleNamespace para evitar conflicto invoice.items → dict.items() method
+		invoice_ns = SimpleNamespace(**{k: v for k, v in invoice_data.items() if isinstance(k, str)})
+		context["invoice"] = invoice_ns
 
-		# 2. Agregar valores de addenda
+		# 2. Agregar valores de addenda (campo flexible para casos especiales)
 		context.update(addenda_values)
 
 		# 3. Agregar variables de sistema
@@ -176,7 +197,7 @@ class AddendaGenerator:
 			}
 		)
 
-		# REGLA #35: Agregar datos de empresa con defensive access
+		# 4. Empresa emisora — dirección principal via Dynamic Link
 		company_name = invoice_data.get("company")
 		if company_name:
 			try:
@@ -187,6 +208,21 @@ class AddendaGenerator:
 					"country": getattr(company_doc, "country", "N/A"),
 					"default_currency": getattr(company_doc, "default_currency", "MXN"),
 				}
+				company_addr = frappe.db.sql(
+					"SELECT a.pincode, a.address_line1, a.city, a.state"
+					" FROM tabAddress a"
+					" INNER JOIN `tabDynamic Link` dl ON dl.parent = a.name"
+					" WHERE dl.link_doctype = 'Company' AND dl.link_name = %s"
+					" ORDER BY a.is_primary_address DESC, a.modified DESC"
+					" LIMIT 1",
+					company_name,
+					as_dict=True,
+				)
+				addr = company_addr[0] if company_addr else {}
+				context["emisor_cp"] = addr.get("pincode") or ""
+				context["emisor_calle"] = addr.get("address_line1") or ""
+				context["emisor_ciudad"] = addr.get("city") or ""
+				context["emisor_estado"] = addr.get("state") or ""
 			except Exception:
 				context["company"] = {
 					"name": "N/A",
@@ -194,18 +230,111 @@ class AddendaGenerator:
 					"country": "N/A",
 					"default_currency": "MXN",
 				}
+				context["emisor_cp"] = ""
+				context["emisor_calle"] = ""
+				context["emisor_ciudad"] = ""
+				context["emisor_estado"] = ""
 
-		# 5. Agregar helpers/funciones útiles
+		# 5. Customer — fuente de buyer_gln y dias_credito
+		customer_name = invoice_data.get("customer")
+		if customer_name:
+			try:
+				customer_doc = frappe.get_cached_doc("Customer", customer_name)
+				context["customer"] = customer_doc
+				context["dias_credito"] = getattr(customer_doc, "fm_dias_credito_addenda", 0) or 0
+			except Exception:
+				context["customer"] = frappe._dict()
+				context["dias_credito"] = 0
+
+		# 6. Dirección de envío (sucursal destino) desde el Sales Invoice
+		shipping_address_name = invoice_data.get("shipping_address_name") or invoice_data.get(
+			"customer_address"
+		)
+		if shipping_address_name:
+			try:
+				addr = frappe.get_cached_doc("Address", shipping_address_name)
+				context["shipping_address"] = addr
+			except Exception:
+				context["shipping_address"] = frappe._dict()
+		else:
+			context["shipping_address"] = frappe._dict()
+
+		# 7. IDs de proveedor desde Customer (asignados por este cliente a nuestra empresa)
+		if context.get("customer"):
+			cust = context["customer"]
+			context.setdefault("seller_gln", getattr(cust, "fm_seller_gln", "") or "")
+			context.setdefault("seller_id", getattr(cust, "fm_seller_id", "") or "")
+			context.setdefault("invoice_creator_gln", getattr(cust, "fm_invoice_creator_gln", "") or "")
+
+		# 8. Mapeo de productos por item (desde Item Customer Detail)
+		customer = invoice_data.get("customer")
+		items = invoice_data.get("items") or []
+		context["product_mapping"] = self._load_product_mappings(customer, items)
+
+		# 9. importe_letras — monto total en palabras (español, formato MXN)
+		grand_total = invoice_data.get("grand_total") or 0
+		context.setdefault("importe_letras", _importe_a_letras(grand_total))
+
+		# 10. Helpers
 		context["helpers"] = {
 			"format_currency": lambda x: f"{float(x):.2f}",
-			"format_date": lambda x: datetime.strptime(x, "%Y-%m-%d").strftime("%d/%m/%Y")
-			if isinstance(x, str)
-			else x,
+			"format_date": lambda x: (
+				datetime.strptime(x, "%Y-%m-%d").strftime("%d/%m/%Y") if isinstance(x, str) else x
+			),
 			"upper": lambda x: str(x).upper(),
 			"lower": lambda x: str(x).lower(),
 		}
 
 		return context
+
+	def _load_product_mappings(self, customer: str | None, items: list) -> dict:
+		"""Cargar códigos de cliente desde Item Customer Detail (pestaña Sales del Item).
+
+		Lee el campo nativo de ERPNext `ref_code` en `Item Customer Detail`.
+		La descripción y UOM se toman de los datos del item en la factura como fallback.
+
+		Returns:
+		    {item_code: {customer_item_code, customer_item_description, customer_uom}}
+		    vacío si no hay customer, items o registros.
+		"""
+		if not customer or not items:
+			return {}
+
+		item_codes = [i.get("item_code") for i in items if i.get("item_code")]
+		if not item_codes:
+			return {}
+
+		try:
+			rows = frappe.db.sql(
+				"""SELECT parent AS item_code, ref_code AS customer_item_code,
+				          fm_customer_uom, fm_customer_description
+				   FROM `tabItem Customer Detail`
+				   WHERE customer_name = %s AND parent IN %s AND ref_code IS NOT NULL""",
+				(customer, tuple(item_codes)),
+				as_dict=True,
+			)
+		except Exception:
+			return {}
+
+		items_by_code = {i.get("item_code"): i for i in items if i.get("item_code")}
+		result = {}
+		for r in rows:
+			item_data = items_by_code.get(r["item_code"], {})
+			# UOM: prioriza código EDI del cliente; fallback al código SAT del item
+			customer_uom = r.get("fm_customer_uom") or ""
+			if not customer_uom:
+				uom = item_data.get("uom", "")
+				customer_uom = uom.split(" - ")[0] if " - " in uom else uom
+			# Descripción: prioriza descripción del cliente; fallback a item_name
+			customer_desc = r.get("fm_customer_description") or item_data.get("item_name", "")
+			result[r["item_code"]] = frappe._dict(
+				{
+					"customer_item_code": r["customer_item_code"],
+					"customer_item_description": customer_desc,
+					"customer_uom": customer_uom,
+				}
+			)
+		return result
 
 	def _validate_generated_xml(self, xml_content: str) -> dict:
 		"""Validar XML generado"""

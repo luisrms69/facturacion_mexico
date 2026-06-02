@@ -174,6 +174,18 @@ fixtures = [
 					"Customer-fm_tax_regime",
 					"Customer-fm_uso_cfdi_default",
 					"Customer-fm_validacion_sat_section",
+					# Customer tab + addenda EDI fields
+					"Customer-fm_fiscal_mexico_tab",
+					"Customer-fm_buyer_gln",
+					"Customer-fm_dias_credito_addenda",
+					"Customer-fm_seller_gln",
+					"Customer-fm_seller_id",
+					"Customer-fm_invoice_creator_gln",
+					# Address addenda EDI field
+					"Address-fm_gln",
+					# Item Customer Detail — campos EDI por cliente
+					"Item Customer Detail-fm_customer_uom",
+					"Item Customer Detail-fm_customer_description",
 					# Cost Center custom fields (2 campos)
 					"Cost Center-fm_default_selling_price_list",
 					"Cost Center-fm_mapped_branch",

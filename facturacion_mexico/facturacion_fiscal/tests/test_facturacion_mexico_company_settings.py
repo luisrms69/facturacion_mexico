@@ -17,18 +17,31 @@ from frappe.tests.utils import FrappeTestCase
 
 def _mock_company_settings(sandbox_mode=1, api_key="cs-prod-key", test_api_key="cs-test-key"):
 	"""Dict que simula Facturacion Mexico Company Settings."""
-	return frappe._dict({"sandbox_mode": sandbox_mode, "api_key": api_key, "test_api_key": test_api_key})
+	return frappe._dict(
+		{"name": "FMCS-Test", "sandbox_mode": sandbox_mode, "api_key": api_key, "test_api_key": test_api_key}
+	)
 
 
 class TestCompanySettingsClient(FrappeTestCase):
 	def _make_client(self, company="Test Company", company_settings=None):
-		"""Construye FacturAPIClient mockeando acceso a BD."""
+		"""Construye FacturAPIClient mockeando acceso a BD y desencriptación de passwords."""
 		from facturacion_mexico.facturacion_fiscal.api_client import FacturAPIClient
 
-		with patch(
-			"frappe.db.get_value",
-			side_effect=lambda doctype, filters, fields, **kw: (
-				company_settings if doctype == "Facturacion Mexico Company Settings" else None
+		def mock_get_decrypted_password(doctype, name, fieldname, raise_exception=True):
+			if company_settings is None:
+				return ""
+			return company_settings.get(fieldname) or ""
+
+		with (
+			patch(
+				"frappe.db.get_value",
+				side_effect=lambda doctype, filters, fields, **kw: (
+					company_settings if doctype == "Facturacion Mexico Company Settings" else None
+				),
+			),
+			patch(
+				"frappe.utils.password.get_decrypted_password",
+				side_effect=mock_get_decrypted_password,
 			),
 		):
 			return FacturAPIClient(company=company)

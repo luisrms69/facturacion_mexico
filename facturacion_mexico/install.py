@@ -6,7 +6,6 @@ from frappe.utils import now_datetime
 def after_install():
 	"""Ejecutar después de instalar la app - SOLO catálogos/fixtures/custom fields."""
 	frappe.logger().info("Starting Facturacion Mexico installation...")
-	create_initial_configuration()
 	create_basic_sat_catalogs()  # PRIMERO: crear catálogos SAT
 	create_custom_fields_for_erpnext()  # SEGUNDO: crear custom fields que referencian catálogos
 	setup_multi_sucursal_system()  # TERCERO: configurar sistema multi-sucursal Sprint 6
@@ -70,21 +69,6 @@ def after_install():
 
 	frappe.logger().info("Facturacion Mexico installation completed successfully.")
 	frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure installation process completes successfully
-
-
-def create_initial_configuration():
-	"""Crear configuración inicial de Facturación México."""
-	if not frappe.db.exists("Facturacion Mexico Settings", "Facturacion Mexico Settings"):
-		settings = frappe.new_doc("Facturacion Mexico Settings")
-		settings.sandbox_mode = 1
-		settings.timeout = 30
-		settings.send_email_default = 0
-		settings.download_files_default = 1
-		settings.save()
-		frappe.msgprint(_("Configuración inicial de Facturación México creada"))
-
-	# Agregar campo de límite diario de validación RFC si no existe
-	add_rfc_validation_limit_field()
 
 
 def create_custom_fields_for_erpnext():
@@ -992,7 +976,7 @@ def _detect_existing_tax_accounts(company_name, company_abbr):
 		account_name_lower = account.account_name.lower()
 
 		for pattern_key, keywords in search_patterns.items():
-			if all(any(keyword.lower() in account_name_lower for keyword in keywords[:2]) for _ in [1]):
+			if all(any(keyword.lower() in account_name_lower for keyword in keywords[:2]) for _x in [1]):
 				if any(keyword.lower() in account_name_lower for keyword in keywords):
 					detected[pattern_key] = account.name
 					break
@@ -1968,23 +1952,19 @@ def investigate_timbrado_issue():
 		print("\n⚙️ VERIFICANDO CONFIGURACIÓN PAC:")
 
 		try:
-			# Intentar obtener settings de diferentes formas
-			settings_data = frappe.db.sql("""
-				SELECT field, value
-				FROM `tabSingles`
-				WHERE doctype = 'Facturacion Mexico Settings'
-			""")
-
-			if settings_data:
-				print("   📋 Configuración encontrada:")
-				for field, value in settings_data:
-					if "key" in field.lower() or "password" in field.lower():
-						display_value = "***CONFIGURADO***" if value else "NO CONFIGURADO"
-					else:
-						display_value = value or "NO CONFIGURADO"
-					print(f"      • {field}: {display_value}")
+			company_settings = frappe.db.get_all(
+				"Facturacion Mexico Company Settings",
+				fields=["company", "sandbox_mode", "api_key", "test_api_key"],
+				limit=10,
+			)
+			if company_settings:
+				print("   📋 Configuración por empresa encontrada:")
+				for cs in company_settings:
+					mode = "SANDBOX" if cs.sandbox_mode else "PRODUCCIÓN"
+					api = "***CONFIGURADO***" if cs.api_key else "NO CONFIGURADO"
+					print(f"      • {cs.company}: modo={mode}, api_key={api}")
 			else:
-				print("   ❌ No se encontró configuración de Facturación México")
+				print("   ❌ No hay empresas configuradas en Facturacion Mexico Company Settings")
 
 		except Exception as e:
 			print(f"   ⚠️ Error accediendo a configuración: {e}")
@@ -2008,53 +1988,6 @@ def investigate_timbrado_issue():
 
 		traceback.print_exc()
 		return False
-
-
-def add_rfc_validation_limit_field():
-	"""
-	Agregar campo daily_rfc_validation_limit a Facturacion Mexico Settings de forma segura.
-	Utiliza Custom Field para evitar modificar el DocType JSON directamente.
-	"""
-	try:
-		# Verificar si el campo ya existe
-		if frappe.db.exists("Custom Field", "Facturacion Mexico Settings-daily_rfc_validation_limit"):
-			return
-
-		# Crear Custom Field para el límite diario de validación RFC
-		custom_field = frappe.get_doc(
-			{
-				"doctype": "Custom Field",
-				"dt": "Facturacion Mexico Settings",
-				"fieldname": "daily_rfc_validation_limit",
-				"fieldtype": "Int",
-				"label": "Límite Diario Validación RFC",
-				"description": "Máximo número de customers a validar por día en el proceso nocturno automático",
-				"default": "30",
-				"insert_after": "global_invoice_monthly_limit",
-			}
-		)
-
-		custom_field.insert(ignore_permissions=True)
-
-		# También crear sección si no existe
-		if not frappe.db.exists("Custom Field", "Facturacion Mexico Settings-validacion_rfc_section"):
-			section_field = frappe.get_doc(
-				{
-					"doctype": "Custom Field",
-					"dt": "Facturacion Mexico Settings",
-					"fieldname": "validacion_rfc_section",
-					"fieldtype": "Section Break",
-					"label": "Validación RFC Automática",
-					"insert_after": "global_invoice_monthly_limit",
-				}
-			)
-			section_field.insert(ignore_permissions=True)
-
-		frappe.logger().info("✅ Campo daily_rfc_validation_limit agregado a Facturacion Mexico Settings")
-
-	except Exception as e:
-		frappe.log_error(f"Error adding RFC validation limit field: {e!s}", "Settings Field Creation")
-		frappe.logger().warning(f"⚠️ No se pudo agregar campo RFC validation limit: {e!s}")
 
 
 def _create_customer_template(customer_name: str, address_title: str):

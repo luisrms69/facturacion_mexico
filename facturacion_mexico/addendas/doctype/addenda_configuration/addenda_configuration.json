@@ -10,15 +10,10 @@
   "addenda_type",
   "is_active",
   "column_break_basic",
-  "priority",
   "auto_apply",
-  "validation_level",
   "date_range_section",
   "effective_date",
   "expiry_date",
-  "notification_section",
-  "notify_on_error",
-  "error_recipients",
   "field_values_section",
   "field_values",
   "audit_section",
@@ -61,24 +56,10 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "priority",
-   "fieldtype": "Int",
-   "label": "Prioridad",
-   "default": 1,
-   "description": "Menor número = mayor prioridad"
-  },
-  {
    "fieldname": "auto_apply",
    "fieldtype": "Check",
    "label": "Aplicar Automáticamente",
    "default": 1
-  },
-  {
-   "fieldname": "validation_level",
-   "fieldtype": "Select",
-   "label": "Nivel de Validación",
-   "options": "Warning\nError\nStrict",
-   "default": "Warning"
   },
   {
    "fieldname": "date_range_section",
@@ -94,22 +75,6 @@
    "fieldname": "expiry_date",
    "fieldtype": "Date",
    "label": "Fecha de Fin"
-  },
-  {
-   "fieldname": "notification_section",
-   "fieldtype": "Section Break",
-   "label": "Notificaciones"
-  },
-  {
-   "fieldname": "notify_on_error",
-   "fieldtype": "Check",
-   "label": "Notificar Errores por Email"
-  },
-  {
-   "fieldname": "error_recipients",
-   "fieldtype": "Small Text",
-   "label": "Destinatarios de Errores",
-   "description": "Emails separados por comas"
   },
   {
    "fieldname": "field_values_section",
