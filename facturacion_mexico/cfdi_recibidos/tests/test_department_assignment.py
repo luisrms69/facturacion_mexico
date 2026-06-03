@@ -282,4 +282,3 @@ class TestAssignDepartments(unittest.TestCase):
 		for key in ["asignados", "omitidos", "errores"]:
 			self.assertIn(key, result)
 		self.assertIsInstance(result["errores"], list)
-

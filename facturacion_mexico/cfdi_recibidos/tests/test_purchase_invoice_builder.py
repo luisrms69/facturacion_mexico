@@ -1186,18 +1186,19 @@ class TestPurchaseInvoiceBuilderCostCenterProject(unittest.TestCase):
 		# Project
 		proj_name = f"_Test Proj PI {cls._HCC}"
 		cls.project = None
-		if not frappe.db.exists("Project", proj_name):
+		existing = frappe.db.get_value("Project", {"project_name": proj_name}, "name")
+		if existing:
+			cls.project = existing
+		else:
 			try:
 				proj = frappe.new_doc("Project")
 				proj.project_name = proj_name
 				proj.status = "Open"
 				proj.insert(ignore_permissions=True)
 				frappe.db.commit()
-				cls.project = proj_name
+				cls.project = proj.name  # usar el name real asignado por ERPNext
 			except Exception:
 				pass
-		else:
-			cls.project = proj_name
 
 	@classmethod
 	def tearDownClass(cls):
