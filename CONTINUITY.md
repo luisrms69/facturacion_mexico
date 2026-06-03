@@ -2,43 +2,59 @@
 
 **Fecha:** 2026-06-02
 **Rama activa:** `feature/cfdi-recibidos-cost-center-project`
-**Tarea actual:** CFDI Recibidos — Department → Cost Center / Project completado
+**Tarea actual:** CFDI Recibidos — plan CoA SAT comprometido, implementación pendiente
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-Implementación de Cost Center y Project en el flujo CFDI Recibidos.
-Prueba completa exitosa: asignación en modal, propagación al PI header y líneas.
+El módulo CFDI Recibidos ya tiene Department, Cost Center y Project funcionando
+(commit cc8910c). El siguiente paso es la asignación automática de `expense_account`
+en el Purchase Invoice, basada en el Código Agrupador SAT.
+
+Plan rector aprobado en `working_docs/active/PLAN_CFDI_RECIBIDOS_COA_SAT_NORMALIZATION.md`.
 
 Objetivo inmediato:
-PR de esta rama.
+Implementar los cambios del plan: campo `modo_resolucion_cuenta_gasto` y
+`formato_cuenta_gasto` en `Configuracion CFDI Recibidos`, campo `codigo_sufijo_sat`
+en Item Group, y lógica en `purchase_invoice_builder`.
 
 ---
 
 ## Estado actual
 
-### Ya cerrado
-- Nuevos campos cost_center y project en CFDI Recibido ✅
-- Modal "Asignar Departamentos" extendido con CC y Proyecto ✅
+### Ya cerrado en esta rama
+- cost_center y project en CFDI Recibido (campos directos) ✅
+- Modal "Asignar Departamentos" con CC y Proyecto ✅
 - purchase_invoice_builder propaga cost_center/project al PI y líneas ✅
-- cfdi_recibido.js: set_query dinámico con company (link_filters estáticos eliminados) ✅
+- link_filters estáticos eliminados del JSON (causa raíz del filtro JS) ✅
 - Validación server-side en cfdi_recibido.py ✅
-- Tests: TestPurchaseInvoiceBuilderCostCenterProject ✅
-- Prueba end-to-end exitosa ✅
+- Plan técnico CoA SAT aprobado ✅
 
-### Pendiente
-1. PR de esta rama
+### Pendiente inmediato
+1. Implementar campo `codigo_sufijo_sat` en Item Group (Custom Field via fixture)
+2. Implementar campos `modo_resolucion_cuenta_gasto` + `formato_cuenta_gasto` en `Configuracion CFDI Recibidos`
+3. Implementar lógica de resolución en `purchase_invoice_builder._append_item()`
+4. Tests para las tres estrategias de resolución
+5. PR de esta rama
 
 ### No repetir
-- link_filters en JSON sobreescriben set_query JS — documentado en frappe-conventions skill
+- link_filters en JSON del DocType sobreescriben set_query JS (frappe-conventions skill)
+- account_number NO debe ser forzado a formato SAT — es número operativo de la empresa
 - bench clear-cache requerido después de cambios a JS de DocTypes
-- is_group: 0 NO puede usarse en link_filters JSON (Frappe v16 lo rechaza)
+
+---
+
+## Decisiones ya tomadas (ver plan)
+- Tres estrategias: `patron`, `matriz_equivalencias`, `manual_asistido`
+- `account_number` es número operativo, no código SAT
+- Sin fallback silencioso a item_defaults
+- Formato recomendado para clientes nuevos: `{f}-{s}-000` (ej: `603-48-000`)
 
 ---
 
 ## Archivos relevantes
-- `facturacion_mexico/cfdi_recibidos/doctype/cfdi_recibido/cfdi_recibido.json`
-- `facturacion_mexico/cfdi_recibidos/doctype/cfdi_recibido/cfdi_recibido.js`
+- `working_docs/active/PLAN_CFDI_RECIBIDOS_COA_SAT_NORMALIZATION.md`
 - `facturacion_mexico/cfdi_recibidos/services/purchase_invoice_builder.py`
+- `facturacion_mexico/cfdi_recibidos/doctype/configuracion_cfdi_recibidos/`
