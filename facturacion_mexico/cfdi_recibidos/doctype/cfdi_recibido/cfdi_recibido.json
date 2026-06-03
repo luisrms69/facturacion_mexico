@@ -298,8 +298,19 @@
    "label": "Departamento",
    "fieldtype": "Link",
    "options": "Department",
-   "search_index": 1,
-   "link_filters": "[[\"Department\", \"is_group\", \"=\", 0]]"
+   "search_index": 1
+  },
+  {
+   "fieldname": "cost_center",
+   "label": "Centro de Costo",
+   "fieldtype": "Link",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "project",
+   "label": "Proyecto",
+   "fieldtype": "Link",
+   "options": "Project"
   },
   {
    "fieldname": "purchase_invoice",

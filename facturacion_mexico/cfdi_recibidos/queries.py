@@ -1,6 +1,50 @@
 import frappe
+from frappe.desk.reportview import get_match_cond
 
 from facturacion_mexico.cfdi_recibidos.services.uom_policy import get_sat_uom_list
+
+
+@frappe.whitelist()
+@frappe.validate_and_sanitize_search_inputs
+def department_query(
+	doctype: str, txt: str, searchfield: str, start: int, page_len: int, filters: dict | None = None
+):
+	"""Query server-side para Department filtrado por company."""
+	company = (filters or {}).get("company", "")
+	return frappe.db.sql(
+		"""
+		SELECT name, department_name
+		FROM `tabDepartment`
+		WHERE disabled = 0
+		  AND is_group = 0
+		  AND company = %(company)s
+		  AND (name LIKE %(txt)s OR department_name LIKE %(txt)s)
+		ORDER BY name
+		LIMIT %(start)s, %(page_len)s
+		""",
+		{"company": company, "txt": f"%{txt}%", "start": start, "page_len": page_len},
+	)
+
+
+@frappe.whitelist()
+@frappe.validate_and_sanitize_search_inputs
+def cost_center_query(
+	doctype: str, txt: str, searchfield: str, start: int, page_len: int, filters: dict | None = None
+):
+	"""Query server-side para Cost Center filtrado por company, solo hojas."""
+	company = (filters or {}).get("company", "")
+	return frappe.db.sql(
+		"""
+		SELECT name, cost_center_name
+		FROM `tabCost Center`
+		WHERE company = %(company)s
+		  AND is_group = 0
+		  AND (name LIKE %(txt)s OR cost_center_name LIKE %(txt)s)
+		ORDER BY name
+		LIMIT %(start)s, %(page_len)s
+		""",
+		{"company": company, "txt": f"%{txt}%", "start": start, "page_len": page_len},
+	)
 
 
 @frappe.whitelist()

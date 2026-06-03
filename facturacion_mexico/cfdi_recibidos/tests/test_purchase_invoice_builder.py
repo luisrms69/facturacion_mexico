@@ -1134,3 +1134,186 @@ class TestBatchGenerate(unittest.TestCase):
 		err_ours = sum(1 for r in ours if r["status"] == "error")
 		self.assertEqual(ok_ours, 1)
 		self.assertEqual(err_ours, 1)
+
+
+# ---------------------------------------------------------------------------
+# Tests de propagación cost_center y project al Purchase Invoice
+# ---------------------------------------------------------------------------
+
+
+class TestPurchaseInvoiceBuilderCostCenterProject(unittest.TestCase):
+	"""Verifica que cost_center y project del CFDI Recibido se propagan al PI y sus líneas."""
+
+	_HCC = frappe.generate_hash()[:6]
+	_UUID_PREFIX_CC = f"PICC{_HCC}0001000100"
+
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls.expense_account = _get_expense_account()
+		cls.config_name = _make_config(
+			TEST_COMPANY,
+			[
+				_regla(
+					"002",
+					0.16,
+					"IVA Test CC",
+					_get_or_create_tax_account(f"_CC IVA {cls._HCC}", TEST_COMPANY),
+				)
+			],
+		)
+		cls.supplier_name = _create_supplier(f"_CC Prov {cls._HCC}")
+		cls.test_item = _get_or_create_test_item(f"_CC-ITEM-{cls._HCC}", cls.expense_account)
+		# Cost Center
+		parent_cc = frappe.db.get_value("Cost Center", {"is_group": 1, "company": TEST_COMPANY}, "name")
+		cls.cost_center = None
+		if parent_cc:
+			cc_name = f"_Test CC PI {cls._HCC}"
+			existing = frappe.db.get_value(
+				"Cost Center", {"cost_center_name": cc_name, "company": TEST_COMPANY}, "name"
+			)
+			if existing:
+				cls.cost_center = existing
+			else:
+				cc = frappe.new_doc("Cost Center")
+				cc.cost_center_name = cc_name
+				cc.company = TEST_COMPANY
+				cc.parent_cost_center = parent_cc
+				cc.is_group = 0
+				cc.insert(ignore_permissions=True)
+				frappe.db.commit()
+				cls.cost_center = cc.name
+		# Project
+		proj_name = f"_Test Proj PI {cls._HCC}"
+		cls.project = None
+		existing = frappe.db.get_value("Project", {"project_name": proj_name}, "name")
+		if existing:
+			cls.project = existing
+		else:
+			try:
+				proj = frappe.new_doc("Project")
+				proj.project_name = proj_name
+				proj.status = "Open"
+				proj.insert(ignore_permissions=True)
+				frappe.db.commit()
+				cls.project = proj.name  # usar el name real asignado por ERPNext
+			except Exception:
+				pass
+
+	@classmethod
+	def tearDownClass(cls):
+		_delete_if_exists("Configuracion CFDI Recibidos", cls.config_name)
+		_delete_if_exists("Item", cls.test_item)
+		if cls.cost_center:
+			_delete_if_exists("Cost Center", cls.cost_center)
+		_delete_if_exists("Project", cls.project)
+		try:
+			_delete_if_exists("Supplier", cls.supplier_name)
+		except Exception:
+			pass
+		super().tearDownClass()
+
+	def setUp(self):
+		self._cleanup_uuids = []
+
+	def tearDown(self):
+		for uuid in self._cleanup_uuids:
+			pi_name = frappe.db.get_value("Purchase Invoice", {"fm_cfdi_uuid": uuid}, "name")
+			if pi_name:
+				try:
+					frappe.delete_doc("Purchase Invoice", pi_name, force=True)
+				except Exception:
+					pass
+			cfdi_name = frappe.db.get_value("CFDI Recibido", {"uuid": uuid}, "name")
+			if cfdi_name:
+				try:
+					frappe.delete_doc("CFDI Recibido", cfdi_name, force=True)
+				except Exception:
+					pass
+		if self._cleanup_uuids:
+			frappe.db.commit()
+
+	def _make_cfdi_with_cc(self, suffix, cost_center=None, project=None):
+		uuid = f"{self._UUID_PREFIX_CC}{suffix}"
+		self._cleanup_uuids.append(uuid)
+		doc = frappe.new_doc("CFDI Recibido")
+		doc.company = TEST_COMPANY
+		doc.uuid = uuid
+		doc.supplier_rfc = f"CC{self._HCC}"[:13]
+		doc.supplier_name = f"_CC Prov {self._HCC}"
+		doc.receiver_rfc = frappe.db.get_value("Company", TEST_COMPANY, "tax_id") or "RFC000000000"
+		doc.cfdi_type = "I"
+		doc.xml_hash = frappe.generate_hash()[:64]
+		doc.supplier = self.supplier_name
+		doc.issue_date = "2026-01-20"
+		doc.total = 116.0
+		doc.subtotal = 100.0
+		doc.currency = frappe.db.get_value("Company", TEST_COMPANY, "default_currency") or "MXN"
+		doc.exchange_rate = 1.0
+		doc.impuestos_json = json.dumps(
+			{
+				"traslados": [
+					{"impuesto": "002", "tipo_factor": "Tasa", "tasa_cuota": "0.160000", "importe": 16.0}
+				],
+				"retenciones": [],
+			}
+		)
+		if cost_center:
+			doc.cost_center = cost_center
+		if project:
+			doc.project = project
+		doc.append(
+			"conceptos",
+			{
+				"sat_product_key": TEST_SAT_KEY,
+				"description": "Servicio CC test",
+				"quantity": 1,
+				"unit_key": "E48",
+				"unit": "Servicio",
+				"unit_price": 100.0,
+				"amount": 100.0,
+				"discount": 0,
+				"tax_object": "02",
+				"taxes_json": "{}",
+				"item_code": self.test_item,
+			},
+		)
+		doc.insert(ignore_permissions=True)
+		frappe.db.set_value("CFDI Recibido", doc.name, "status", "Clasificado")
+		frappe.db.commit()
+		return doc.name
+
+	def test_cost_center_y_project_llegan_al_pi_header_y_lineas(self):
+		"""PI hereda cost_center y project del CFDI Recibido en header y en cada línea."""
+		if not self.cost_center:
+			self.skipTest("No hay Cost Center disponible en el site de pruebas")
+		cfdi = self._make_cfdi_with_cc("CC01", cost_center=self.cost_center, project=self.project)
+		result = build_purchase_invoice(cfdi)
+		self.assertEqual(result["status"], "ok")
+		pi = frappe.get_doc("Purchase Invoice", result["purchase_invoice"])
+		self.assertEqual(pi.cost_center, self.cost_center)
+		self.assertEqual(pi.project, self.project)
+		for item in pi.items:
+			self.assertEqual(item.cost_center, self.cost_center)
+			self.assertEqual(item.project, self.project)
+
+	def test_sin_cost_center_ni_project_pi_se_crea_sin_error(self):
+		"""CFDI sin cost_center ni project genera PI correctamente — campos vacíos no bloquean."""
+		cfdi = self._make_cfdi_with_cc("CC02", cost_center=None, project=None)
+		result = build_purchase_invoice(cfdi)
+		self.assertEqual(result["status"], "ok")
+		pi = frappe.get_doc("Purchase Invoice", result["purchase_invoice"])
+		# No deben tener valor forzado
+		self.assertIn(pi.cost_center or "", ["", None] + ([self.cost_center] if self.cost_center else []))
+
+	def test_solo_cost_center_sin_project(self):
+		"""Solo cost_center definido — llega al PI; project queda vacío."""
+		if not self.cost_center:
+			self.skipTest("No hay Cost Center disponible en el site de pruebas")
+		cfdi = self._make_cfdi_with_cc("CC03", cost_center=self.cost_center, project=None)
+		result = build_purchase_invoice(cfdi)
+		self.assertEqual(result["status"], "ok")
+		pi = frappe.get_doc("Purchase Invoice", result["purchase_invoice"])
+		self.assertEqual(pi.cost_center, self.cost_center)
+		for item in pi.items:
+			self.assertEqual(item.cost_center, self.cost_center)

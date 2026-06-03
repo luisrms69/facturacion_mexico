@@ -176,9 +176,13 @@ def _build_pi_doc(cfdi_doc):
 	pi.fm_cfdi_recibido = cfdi_doc.name
 	pi.update_stock = 0
 	pi.is_paid = 0
+	if cfdi_doc.cost_center:
+		pi.cost_center = cfdi_doc.cost_center
+	if cfdi_doc.project:
+		pi.project = cfdi_doc.project
 
 	for concepto in cfdi_doc.conceptos:
-		_append_item(pi, concepto)
+		_append_item(pi, concepto, cfdi_doc)
 
 	impuestos = cfdi_doc.impuestos_json
 	if isinstance(impuestos, str):
@@ -191,16 +195,18 @@ def _build_pi_doc(cfdi_doc):
 	return pi
 
 
-def _append_item(pi, concepto):
-	pi.append(
-		"items",
-		{
-			"item_code": concepto.item_code,
-			"description": concepto.description or concepto.sat_product_key or "",
-			"qty": flt(concepto.quantity) or 1,
-			"rate": flt(concepto.unit_price),
-		},
-	)
+def _append_item(pi, concepto, cfdi_doc=None):
+	item = {
+		"item_code": concepto.item_code,
+		"description": concepto.description or concepto.sat_product_key or "",
+		"qty": flt(concepto.quantity) or 1,
+		"rate": flt(concepto.unit_price),
+	}
+	if cfdi_doc and cfdi_doc.cost_center:
+		item["cost_center"] = cfdi_doc.cost_center
+	if cfdi_doc and cfdi_doc.project:
+		item["project"] = cfdi_doc.project
+	pi.append("items", item)
 
 
 def _append_tax(pi, row: dict):

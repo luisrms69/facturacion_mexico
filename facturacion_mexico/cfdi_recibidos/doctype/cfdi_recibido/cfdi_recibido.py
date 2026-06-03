@@ -29,5 +29,38 @@ class CFDIRecibido(Document):
 					frappe.ValidationError,
 				)
 			concepto.item_group = frappe.db.get_value("Item", concepto.item_code, "item_group")
+		self._validate_company_scoped_links()
 		if self.status not in _TERMINAL_STAGES:
 			self.status = compute_stage(self)
+
+	def _validate_company_scoped_links(self):
+		"""Valida que department, cost_center y project pertenezcan a la misma empresa."""
+		if not self.company:
+			return
+		if self.department:
+			dept_company = frappe.db.get_value("Department", self.department, "company")
+			if dept_company and dept_company != self.company:
+				frappe.throw(
+					_("El Departamento '{0}' no pertenece a la empresa '{1}'.").format(
+						self.department, self.company
+					),
+					frappe.ValidationError,
+				)
+		if self.cost_center:
+			cc_company = frappe.db.get_value("Cost Center", self.cost_center, "company")
+			if cc_company and cc_company != self.company:
+				frappe.throw(
+					_("El Centro de Costo '{0}' no pertenece a la empresa '{1}'.").format(
+						self.cost_center, self.company
+					),
+					frappe.ValidationError,
+				)
+		if self.project:
+			proj_company = frappe.db.get_value("Project", self.project, "company")
+			if proj_company and proj_company != self.company:
+				frappe.throw(
+					_("El Proyecto '{0}' no pertenece a la empresa '{1}'.").format(
+						self.project, self.company
+					),
+					frappe.ValidationError,
+				)
