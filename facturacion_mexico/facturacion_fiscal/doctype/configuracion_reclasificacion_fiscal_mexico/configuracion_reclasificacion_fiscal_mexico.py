@@ -94,7 +94,7 @@ class ConfiguracionReclasificacionFiscalMexico(Document):
 			]
 
 			cuentas_pago_vistas = set()
-			for regla in cfdi_rec.reglas_impuesto:
+			for regla in getattr(cfdi_rec, "reglas_impuesto", None) or []:
 				if not regla.activo or not regla.cuenta_impuesto:
 					continue
 				if regla.cuenta_impuesto in cuentas_pago_vistas:
