@@ -22,7 +22,7 @@ class ConfiguracionReclasificacionFiscalMexico(Document):
 
 	@frappe.whitelist()
 	def cargar_reglas(self):
-		"""Reconstruye la tabla desde CFM. Preserva cuenta_destino que el usuario ya llenó."""
+		"""Reconstruye la tabla desde CFM (Cobros) y CFDI Recibidos (Pagos). Preserva cuenta_destino."""
 		if not self.company:
 			frappe.throw(_("Seleccione una empresa primero."))
 
@@ -32,14 +32,12 @@ class ConfiguracionReclasificacionFiscalMexico(Document):
 
 		cfm = frappe.get_doc("Configuracion Fiscal Mexico", cfm_name)
 
-		# Guardar lo que el usuario ya había llenado
-		destino_previo = {
+		# ── Bloque 1: Cobros (Ingresos / CFM) ─────────────────────────────────
+		destino_previo_cobro = {
 			r.cuenta_origen: r.cuenta_destino
 			for r in self.reglas
 			if r.source_type == "Ingresos / CFM" and r.tipo_operacion == "Cobro"
 		}
-
-		# Reconstruir reglas automáticas
 		self.reglas = [
 			r for r in self.reglas if not (r.source_type == "Ingresos / CFM" and r.tipo_operacion == "Cobro")
 		]
@@ -47,8 +45,6 @@ class ConfiguracionReclasificacionFiscalMexico(Document):
 		for row in cfm.mapeo_cuentas:
 			if row.estado_validacion != "Válido" or not row.cuenta_impuesto:
 				continue
-
-			# Buscar MRFPE existente para esta cuenta
 			mrfpe_list = frappe.get_all(
 				"Mapeo Reclasificacion Fiscal Payment Entry",
 				filters={
@@ -62,15 +58,12 @@ class ConfiguracionReclasificacionFiscalMexico(Document):
 				ignore_permissions=True,
 			)
 			mrfpe = mrfpe_list[0] if mrfpe_list else None
-
-			# Prioridad de cuenta_destino: MRFPE > lo que el usuario tenía > vacío
 			if mrfpe:
-				cuenta_destino = mrfpe.cuenta_destino or destino_previo.get(row.cuenta_impuesto, "")
+				cuenta_destino = mrfpe.cuenta_destino or destino_previo_cobro.get(row.cuenta_impuesto, "")
 				mrfpe_ref = mrfpe.name
 			else:
-				cuenta_destino = destino_previo.get(row.cuenta_impuesto, "")
+				cuenta_destino = destino_previo_cobro.get(row.cuenta_impuesto, "")
 				mrfpe_ref = None
-
 			self.append(
 				"reglas",
 				{
@@ -83,6 +76,64 @@ class ConfiguracionReclasificacionFiscalMexico(Document):
 					"nota": row.rol_fiscal,
 				},
 			)
+
+		# ── Bloque 2: Pagos (Gastos / CFDI Recibidos) ─────────────────────────
+		cfdi_rec_name = f"CFDI-REC-CFG-{self.company}"
+		if frappe.db.exists("Configuracion CFDI Recibidos", cfdi_rec_name):
+			cfdi_rec = frappe.get_doc("Configuracion CFDI Recibidos", cfdi_rec_name)
+
+			destino_previo_pago = {
+				r.cuenta_origen: r.cuenta_destino
+				for r in self.reglas
+				if r.source_type == "Gastos / CFDI Recibidos" and r.tipo_operacion == "Pago"
+			}
+			self.reglas = [
+				r
+				for r in self.reglas
+				if not (r.source_type == "Gastos / CFDI Recibidos" and r.tipo_operacion == "Pago")
+			]
+
+			cuentas_pago_vistas = set()
+			for regla in getattr(cfdi_rec, "reglas_impuesto", None) or []:
+				if not regla.activo or not regla.cuenta_impuesto:
+					continue
+				if regla.cuenta_impuesto in cuentas_pago_vistas:
+					continue
+				cuentas_pago_vistas.add(regla.cuenta_impuesto)
+
+				mrfpe_list = frappe.get_all(
+					"Mapeo Reclasificacion Fiscal Payment Entry",
+					filters={
+						"company": self.company,
+						"tipo_operacion": "Pago",
+						"cuenta_origen": regla.cuenta_impuesto,
+						"activo": 1,
+					},
+					fields=["name", "cuenta_destino"],
+					limit=1,
+					ignore_permissions=True,
+				)
+				mrfpe = mrfpe_list[0] if mrfpe_list else None
+				if mrfpe:
+					cuenta_destino = mrfpe.cuenta_destino or destino_previo_pago.get(
+						regla.cuenta_impuesto, ""
+					)
+					mrfpe_ref = mrfpe.name
+				else:
+					cuenta_destino = destino_previo_pago.get(regla.cuenta_impuesto, "")
+					mrfpe_ref = None
+				self.append(
+					"reglas",
+					{
+						"source_type": "Gastos / CFDI Recibidos",
+						"tipo_operacion": "Pago",
+						"rol_fiscal": regla.descripcion,
+						"cuenta_origen": regla.cuenta_impuesto,
+						"cuenta_destino": cuenta_destino,
+						"mrfpe_ref": mrfpe_ref,
+						"nota": regla.descripcion,
+					},
+				)
 
 		self.ultima_deteccion = now_datetime()
 		self.save()

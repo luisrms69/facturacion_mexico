@@ -196,8 +196,8 @@ El flujo es:
 Accede desde el workspace **Facturación México → Configuracion Reclasificacion Fiscal Mexico → New**.
 
 1. Selecciona la **Company**
-2. Clic en **"Cargar Reglas"** — el sistema detecta las cuentas de impuestos configuradas en el paso anterior
-3. Para cada regla, captura la **cuenta destino** (IVA trasladado cobrado)
+2. Clic en **"Cargar Reglas"** — carga reglas de Cobro (ventas, desde Configuracion Fiscal Mexico) y reglas de Pago (compras, desde Configuracion CFDI Recibidos)
+3. Para cada regla, captura la **cuenta destino**
 4. Clic en **"Aplicar"**
 
 Ejemplo conceptual:

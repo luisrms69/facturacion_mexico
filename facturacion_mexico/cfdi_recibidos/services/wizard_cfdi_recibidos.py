@@ -150,6 +150,9 @@ def generar_template_impuestos(config_name: str) -> dict:
 
 	template_name = _safe_generate_template(config, active_rules)
 
+	# Generar también el template porcentual para PIs manuales y asignarlo como default
+	manual_template_name = _ensure_manual_template(config)
+
 	config.purchase_taxes_template = template_name
 	config.wizard_completado = 1
 	config.ultima_generacion = now_datetime()
@@ -158,6 +161,7 @@ def generar_template_impuestos(config_name: str) -> dict:
 	return {
 		"status": "ok",
 		"template_name": template_name,
+		"manual_template_name": manual_template_name,
 		"warnings": warnings,
 		"message": _("Template '{0}' generado correctamente.").format(template_name),
 	}
@@ -261,6 +265,73 @@ def _build_template_rows(active_rules: list) -> list:
 			}
 		)
 	return rows
+
+
+def _ensure_manual_template(config) -> str:
+	"""
+	Genera un PTCT porcentual (On Net Total) por cada regla de IVA traslado activa.
+	Son los templates para Purchase Invoices manuales (sin XML).
+	El de mayor tasa se marca como is_default=1.
+	Es idempotente — re-ejecutar el wizard no duplica templates.
+	Retorna el nombre del template marcado como default.
+	"""
+	# Reglas de traslado activas con tipo_factor=Tasa (IVA o IEPS Tasa) — generan template porcentual
+	# Excluir: retenciones, Cuota (monto fijo/litro — no aplica como % sobre base)
+	iva_rules = [
+		r
+		for r in config.reglas_impuesto
+		if r.activo and not r.es_retencion and r.tipo_factor == "Tasa" and r.cuenta_impuesto
+	]
+	if not iva_rules:
+		return ""
+
+	# Ordenar: primero IVA (002), luego IEPS (003); dentro de cada grupo, descendente por tasa
+	iva_rules.sort(key=lambda r: (r.impuesto_sat, -flt(r.tasa_cuota)))
+
+	default_template_name = ""
+
+	for idx, rule in enumerate(iva_rules):
+		tasa = flt(rule.tasa_cuota)
+		tasa_pct = round(tasa * 100, 4)
+		impuesto_label = "IVA" if rule.impuesto_sat == "002" else "IEPS"
+		title = f"{config.company} — {rule.impuesto_sat} {impuesto_label} Compras {tasa_pct}%"
+
+		existing = frappe.db.get_value(
+			"Purchase Taxes and Charges Template",
+			{"title": title, "company": config.company},
+			"name",
+		)
+
+		row_data = {
+			"charge_type": "On Net Total",
+			"account_head": rule.cuenta_impuesto,
+			"description": rule.descripcion or f"IVA {tasa_pct}%",
+			"add_deduct_tax": "Add",
+			"rate": tasa_pct,
+		}
+
+		is_default = 1 if idx == 0 else 0  # solo el primero (mayor tasa) es default
+
+		if existing:
+			tmpl = frappe.get_doc("Purchase Taxes and Charges Template", existing)
+			tmpl.taxes = []
+			tmpl.append("taxes", row_data)
+			tmpl.is_default = is_default
+			tmpl.save(ignore_permissions=True)
+			template_name = tmpl.name
+		else:
+			tmpl = frappe.new_doc("Purchase Taxes and Charges Template")
+			tmpl.title = title
+			tmpl.company = config.company
+			tmpl.is_default = is_default
+			tmpl.append("taxes", row_data)
+			tmpl.insert(ignore_permissions=True)
+			template_name = tmpl.name
+
+		if idx == 0:
+			default_template_name = template_name
+
+	return default_template_name
 
 
 def _versioned_name(base_name: str) -> str:

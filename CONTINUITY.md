@@ -1,81 +1,62 @@
 # CONTINUITY.md — facturacion_mexico
 
 **Fecha:** 2026-06-04
-**Rama activa:** `feature/expense-account-coa-sat-resolution`
-**Tarea actual:** commit listo para ejecutar — feature expense_account + catálogo GASTO-* + docs Fase 2
+**Rama activa:** `feature/cfdi-recibidos-fase2-configuracion-fiscal`
+**Tarea actual:** Configuración fiscal CFDI Recibidos — templates y reclasificación IVA compras
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-Feature de resolución automática de expense_account en CFDI Recibidos + catálogo de items
-de gasto + documentación completa de Fase 2 (configuración fiscal del app).
-
-Plan que estoy siguiendo:
-`working_docs/active/PLAN_CFDI_RECIBIDOS_COA_SAT_NORMALIZATION.md`
+Completar Fase 2 de configuración en actiglobal-restore.dev: wizard genera templates para compras
+(XML/Actual + porcentuales por tasa), reclasificación de IVA al pagar extiende a compras.
 
 Objetivo inmediato:
-Commit aprobado → push → PR. Luego: Fase 3 en actiglobal-restore.dev (Customer + Item para primera emisión).
+Commit de los cambios actuales → push → restore en producción (next.actiglobal.com)
 
 Criterio de avance:
-PR abierto, CI verde.
+Commit creado, push hecho, backup de actiglobal-restore.dev disponible para restore.
 
 ---
 
 ## Estado actual
 
 ### Ya cerrado
-- expense_account resolution: modo patron/matriz_equivalencias/manual_asistido ✅
-- Nuevo DocType Mapeo Equivalencias SAT ✅
-- Configuracion CFDI Recibidos: 4 campos nuevos ✅
-- Custom Field Item Group-fm_codigo_sufijo_sat ✅
-- Item Groups familias 701 y 702 (gastos financieros, productos financieros) ✅
-- 105 items GASTO-* (84 base + 21 overlay operativo) ✅
-- Fixture sat_claves_gastos_comunes.json (55 claves SAT) ✅
-- Tests: 30/30 test_expense_account_resolver ✅
-- Docs getting-started.md: Fase 2 completa (wizard + cuentas IVA + reclasificación) ✅
-- Docs cfdi-recibidos.md: items GASTO-* corregido ✅
-- actiglobal-restore.dev: sitio restaurado, CoA normalizado ###-##-###, Fase 2 configurada ✅
+- Fase 2 configurada en actiglobal-restore.dev ✅
+- wizard genera PTCT Actual (para XML) + PTCT porcentual por tasa activa ✅
+- cargar_reglas extiende a compras desde Configuracion CFDI Recibidos ✅
+- source_type "Gastos / CFDI Recibidos" agregado al DocType ✅
+- tests wizard_manual_templates 7/7 ✅
+- bench migrate en actiglobal-restore.dev y test-facturacion.localhost ✅
 
 ### Pendiente inmediato
-1. Commit (aprobado, listo para ejecutar)
-2. Push + PR
-3. Fase 3 actiglobal-restore.dev: configurar 1 Customer + 1 Item para primera emisión CFDI
+1. Commit + push de esta rama
+2. Backup actiglobal-restore.dev → restore en next.actiglobal.com
+3. install-app facturacion_mexico en producción + migrate
+4. Verificar Fase 3 en producción (customers con RFC, items con clave SAT)
 
 ### No repetir
-- `cls.project = proj_name` → usar `proj.name` (naming series ERPNext)
-- link_filters en JSON sobreescriben set_query JS
-- No documentar basándose en código — pensar desde la perspectiva del usuario
-- `account_number` es número operativo de la empresa, NO el Código Agrupador SAT
+- No commitear en main
+- Los tests de reclasificación fallaban porque test site no tenía migrate — ya se corrió
+- account_number es número operativo, NO el Código Agrupador SAT
 
 ---
 
 ## Decisiones vigentes
-- Tres modos de resolución expense_account: patron (default {f}{s}000), matriz_equivalencias, manual_asistido
-- CoA Actiglobal Cloud Experts: patrón {f}{s}000 → validado 100% de 500 cuentas hoja
-- items GASTO-* son de compra: fm_producto_servicio_sat no es requerido para PI
-- Overlay de 21 items: subclasificaciones frecuentes, NO reemplazan los 84 base
-- GASTO-FIN-* prefix aprobado para familia 701
+- A partir de v1.0.0: facturacion_mexico es sistema en producción
+- wizard genera DOS tipos de PTCT: Actual (para XML) + porcentual (para PIs manuales)
+- template porcentual de mayor tasa queda con is_default=1
+- cargar_reglas en Configuracion Reclasificacion lee de CFM (Cobros) Y CFDI Recibidos (Pagos)
+- Cuota SAT no genera template porcentual (monto fijo/unidad, no porcentaje)
 
 ---
 
 ## Archivos relevantes ahora
 
-### Leer primero
-- `working_docs/active/PLAN_CFDI_RECIBIDOS_COA_SAT_NORMALIZATION.md`
-
-### Probablemente editar (próxima fase)
-- `facturacion_mexico/cfdi_recibidos/services/purchase_invoice_builder.py`
-- `facturacion_mexico/cfdi_recibidos/doctype/configuracion_cfdi_recibidos/`
+### Probablemente editar (post-commit)
+- ninguno — commit limpia el estado
 
 ### No tocar
-- `patches.txt` — vacío por diseño
-- `working_docs/active/addenda_la_comer_evidencia/` — evidencias cliente, NO commitear
-
----
-
-## Riesgos / cuidados
-- one_offs/ no van en el commit
-- bench update de otras apps aún pendiente (wiki, erpnext_proposals con cambios sin commit)
-- Evidencias La Comer respaldadas: `/home/erpnext/Developer/frappe-infrastructure/checkpoints/addenda_la_comer_evidencia_backup_20260602`
+- one_offs/ — no se commitean
+- working_docs/active/addenda_la_comer_evidencia/ — evidencias cliente
