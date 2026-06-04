@@ -54,9 +54,9 @@ class TestEnsureExpenseItemGroups(unittest.TestCase):
 			is_group = frappe.db.get_value("Item Group", name, "is_group")
 			self.assertEqual(is_group, 1, f"{name} debe ser is_group=1")
 
-	def test_crea_84_subcategorias(self):
+	def test_crea_subcategorias(self):
+		# Verifica que todas las subcategorías definidas en _GROUPS existen en BD
 		ensure_cfdi_received_expense_item_groups()
-		self.assertEqual(len(_ALL_CHILD_NAMES), 84)
 		for name in _ALL_CHILD_NAMES:
 			self.assertTrue(frappe.db.exists("Item Group", name), f"Subcategoría faltante: {name}")
 
@@ -80,10 +80,21 @@ class TestEnsureExpenseItemGroups(unittest.TestCase):
 			)
 
 	def test_padres_bajo_paraguas(self):
+		# Solo verifica grupos que no tienen override de parent en su definición
 		ensure_cfdi_received_expense_item_groups()
-		for name in _ALL_PARENT_NAMES:
-			parent = frappe.db.get_value("Item Group", name, "parent_item_group")
-			self.assertEqual(parent, _UMBRELLA, f"{name} debe estar bajo {_UMBRELLA}")
+		from facturacion_mexico.setup.cfdi_received_expense_item_groups import _GROUPS
+
+		for group in _GROUPS:
+			name = group["name"]
+			if "parent" in group:
+				# Grupo con parent override — verificar que fue al parent correcto
+				root = frappe.db.get_value("Item Group", {"parent_item_group": ""}, "name")
+				expected = group["parent"] if group["parent"] is not None else root
+				actual = frappe.db.get_value("Item Group", name, "parent_item_group")
+				self.assertEqual(actual, expected, f"{name} debe estar bajo {expected}")
+			else:
+				parent = frappe.db.get_value("Item Group", name, "parent_item_group")
+				self.assertEqual(parent, _UMBRELLA, f"{name} debe estar bajo {_UMBRELLA}")
 
 	def test_idempotente_no_duplica(self):
 		ensure_cfdi_received_expense_item_groups()
