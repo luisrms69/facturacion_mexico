@@ -1,9 +1,9 @@
 # Plan técnico — Normalización CoA hacia Código Agrupador SAT
 ## Prerequisito para asignación contable automática en CFDI Recibidos
 
-**Fecha:** 2026-06-02
+**Fecha:** 2026-06-03
 **Módulo:** CFDI Recibidos — `facturacion_mexico`
-**Estado:** BORRADOR v2 — pendiente de revisión y decisiones
+**Estado:** v3 — patrón `{f}{s}000` validado con CoA real (Actiglobal Cloud Experts)
 **Stack:** Frappe / ERPNext v16
 
 ---
@@ -126,10 +126,20 @@ Clasificación sugerida:
 | `NNN.NN` | `603.48` | Compatible — verificar que sea el código correcto |
 | `NNN-NN` | `603-48` | Normalizable por formato |
 | `NNNNN` | `60348` | Normalizable si longitud = 5 |
+| **`{f}{s}000` (8 dígitos)** | **`60348000`** | **Compatible — SAT derivable: `account_number[0:3] + '.' + account_number[3:5]`** |
 | `NNN.N` o `NNN.NNN` | `603.480` | Requiere revisión |
 | Estructura interna | `6030-048-001` | Requiere revisión contable |
 | Texto libre | `GASTO-COMB` | No normalizable automáticamente |
 | Vacío / NULL | — | Requiere asignación |
+
+**Caso validado — Actiglobal Cloud Experts (2026-06-03):**
+- 503 cuentas hoja de tipo Expense
+- 500/500 consultadas siguen patrón `{f}{s}000` exacto (100%)
+- 0 variantes, 0 sin patrón
+- Fórmula de extracción: `sat_code = account_number[0:3] + '.' + account_number[3:5]`
+- Ejemplos: `60422000` → `604.22` (Estímulo al personal), `60101000` → `601.01` (Sueldos y salarios)
+- Estrategia aplicable: **`patron`** con `formato_cuenta_gasto = {f}{s}000`
+- GL Entries: 0 — sitio sin transacciones, CoA base configurado
 
 ### 4.4 Detectar cuentas ligadas a configuraciones sensibles
 
@@ -512,16 +522,56 @@ modo_resolucion_cuenta_gasto
 
 formato_cuenta_gasto
   fieldtype: Data
-  default:   {f}-{s}-000
+  default:   {f}{s}000
   label:     Formato de cuenta (aplica solo en modo patrón)
-  description: {f}=familia(ej:603), {s}=sufijo sin punto(ej:48)
+  description: {f}=familia SAT (3 dígitos, ej:603), {s}=sufijo SAT (2 dígitos, ej:48)
+               Formatos documentados: {f}{s}000 → 60348000 | {f}-{s}-000 → 603-48-000
+               | {f}.{s} → 603.48
+  depends_on: modo_resolucion_cuenta_gasto = patron
+
+usar_fallback_matriz
+  fieldtype: Check
+  default:   0
+  label:     Usar matriz de equivalencias como fallback si el patrón no encuentra cuenta
+  description: Si está activo y el patrón no encuentra una cuenta, el sistema busca
+               en la Matriz de Equivalencias SAT antes de reportar error.
+               Útil para empresas cuyo CoA es mayormente patrón pero tiene excepciones.
   depends_on: modo_resolucion_cuenta_gasto = patron
 
 [child table nueva: Matriz de Equivalencias SAT]
-  aplica solo en modo: matriz_equivalencias
-  campos: codigo_agrupador_sat (Data, reqd), account (Link→Account, reqd)
-  requiere: validado_por_contador (Check)
+  disponible en modos: matriz_equivalencias y patron (cuando usar_fallback_matriz = 1)
+  campos:
+    codigo_agrupador_sat  Data  reqd  — ej: 603.48
+    account               Link→Account  reqd  — cuenta hoja activa de esta empresa
+    validado_por_contador Check  — requiere aprobación contable antes de usar en producción
+    notas                 Small Text    — motivo de la excepción o decisión contable
 ```
+
+**Lógica de resolución (cascada por modo):**
+
+```
+modo = patron:
+  1. Construir account_number desde patrón: formato_cuenta_gasto.format(f=familia, s=sufijo)
+  2. Buscar Account hoja activa con ese account_number en la empresa
+  3. Si encontrada → usar esa cuenta ✅
+  4. Si NO encontrada:
+     a. usar_fallback_matriz = True → buscar en Matriz de Equivalencias SAT por codigo_agrupador_sat
+        - Encontrada en matriz → usar esa cuenta ✅
+        - No en matriz → error auditable: "No se encontró cuenta SAT {familia}.{sufijo} ni en patrón ni en matriz"
+     b. usar_fallback_matriz = False → error auditable inmediato
+
+modo = matriz_equivalencias:
+  1. Buscar directamente en Matriz de Equivalencias SAT por codigo_agrupador_sat
+  2. Si encontrada → usar esa cuenta ✅
+  3. Si NO encontrada → error auditable
+
+modo = manual_asistido:
+  1. No se resuelve automáticamente
+  2. PI Draft generado sin expense_account en esa línea (si ERPNext lo permite)
+  3. Advertencia visible en CFDI Recibido: "Asignación manual requerida para SAT {familia}.{sufijo}"
+```
+
+**Regla en todos los modos:** nunca silencioso. Si no hay cuenta, siempre error o advertencia visible.
 
 ### 9.2 Comportamiento cuando no existe la cuenta SAT
 
@@ -710,6 +760,8 @@ Aprobación:
 | **Tres estrategias de resolución** | ✅ Decidido | `patron`, `matriz_equivalencias`, `manual_asistido`. Configuradas por empresa en `Configuracion CFDI Recibidos`. Ver sección 9.1. |
 | **Distinción tabla libre vs. matriz auditada** | ✅ Decidido | Tabla libre para esconder CoA mal configurado: rechazada. Matriz auditada validada por contador: aceptable como estrategia `matriz_equivalencias`. |
 | **Compatibilidad con contabilidad electrónica** | ✅ Decidido (alcance) | No se implementa ahora, pero el diseño no la cierra. Ver sección 9.4. |
+| **Patrón `{f}{s}000` validado** | ✅ Validado 2026-06-03 | Actiglobal Cloud Experts: 500/500 cuentas Expense en este patrón. Fórmula: `sat = account_number[0:3] + '.' + account_number[3:5]`. Default `formato_cuenta_gasto` = `{f}{s}000`. |
+| **Fallback `usar_fallback_matriz` en modo patron** | ✅ Decidido | Campo Check en `Configuracion CFDI Recibidos`. Si activo: patron falla → busca en Matriz de Equivalencias → error si tampoco. La child table disponible en ambos modos. Ver sección 9.1. |
 | **Fuente del sufijo SAT** | Pendiente | MVP = `Item Group.codigo_sufijo_sat`. Override por proveedor/concepto reservado para fase futura. |
 | **Comportamiento cuando falta cuenta** | Pendiente técnico | Opción preferida: PI Draft sin expense_account + advertencia. Alternativa: bloquear PI. Requiere validar si ERPNext lo permite. |
 | **Campo `codigo_sufijo_sat` en Item Group** | Pendiente | Custom Field del app (fixture) vs. campo en JSON nativo ERPNext. |

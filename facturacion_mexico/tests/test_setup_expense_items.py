@@ -35,8 +35,11 @@ class TestEnsureCFDIExpenseItems(FrappeTestCase):
 				frappe.delete_doc("Item", code, ignore_permissions=True, force=True)
 		frappe.db.commit()  # nosemgrep: frappe-manual-commit
 
-	def test_catalogo_tiene_84_entradas(self):
-		self.assertEqual(len(_ITEMS), 84)
+	def test_catalogo_tiene_entradas_validas(self):
+		# 84 base + 21 overlay operativo = 105
+		self.assertEqual(len(_ITEMS), 105)
+		codes = [i["item_code"] for i in _ITEMS]
+		self.assertEqual(len(codes), len(set(codes)), "item_codes duplicados en _ITEMS")
 
 	def test_todos_los_items_fueron_creados(self):
 		for item_def in _ITEMS:
@@ -48,7 +51,7 @@ class TestEnsureCFDIExpenseItems(FrappeTestCase):
 	def test_idempotencia(self):
 		result = ensure_cfdi_received_expense_items()
 		self.assertEqual(result["creados"], 0)
-		self.assertEqual(result["existentes"], 84)
+		self.assertEqual(result["existentes"], len(_ITEMS))
 
 	def test_item_nom_001_campos_clave(self):
 		item = frappe.get_doc("Item", "GASTO-NOM-001")

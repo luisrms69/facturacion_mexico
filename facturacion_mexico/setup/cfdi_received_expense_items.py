@@ -2,10 +2,13 @@
 Setup de Items genéricos de gasto para CFDI Recibidos.
 
 ensure_cfdi_received_expense_items()
-    Crea los 84 Items genéricos de gasto (uno por Item Group hoja bajo "Gastos").
-    Idempotente: no modifica Items existentes.
-    fm_producto_servicio_sat: se asigna solo si el código existe en SAT Producto Servicio.
+    Crea el catálogo de Items GASTO-* si no existen. Idempotente.
+    Incluye:
+    - 84 items base: uno por categoría hoja del árbol de Item Groups de gasto
+    - 21 items del overlay operativo: subclasificaciones frecuentes en CFDIs
+      (combustibles específicos, viáticos, mensajería, gastos financieros, etc.)
 
+    fm_producto_servicio_sat: se asigna solo si el código existe en SAT Producto Servicio.
     Ítem GASTO-OPR-003 (Energía eléctrica) usa KWH - Kilowatt hora (c_ClaveUnidad SAT confirmado).
 
     Retorna: {creados, existentes, sin_clave_prod_serv}
@@ -111,14 +114,45 @@ _ITEMS = [
     {"item_code": "GASTO-OBR-001", "item_name": "Gastos generales de urbanización", "item_group": "Gastos generales de urbanización", "uom": "E48 - Servicio", "clave_prod_serv": "72131500"},
     {"item_code": "GASTO-OBR-002", "item_name": "Gastos generales de construcción", "item_group": "Gastos generales de construcción", "uom": "E48 - Servicio", "clave_prod_serv": "72131500"},
     {"item_code": "GASTO-OBR-003", "item_name": "Otros gastos generales",           "item_group": "Otros gastos generales",           "uom": "E48 - Servicio", "clave_prod_serv": "80141600"},
+    # ── Overlay operativo — subclasificaciones frecuentes en CFDI Recibidos (21) ─────
+    # Combustibles específicos (especializan GASTO-MOV-001)
+    {"item_code": "GASTO-MOV-003", "item_name": "Gasolina regular (<91 oct)",      "item_group": "Combustibles y lubricantes",                          "uom": "LTR - Litro",    "clave_prod_serv": "15101514"},
+    {"item_code": "GASTO-MOV-004", "item_name": "Gasolina premium (≥91 oct)",      "item_group": "Combustibles y lubricantes",                          "uom": "LTR - Litro",    "clave_prod_serv": "15101515"},
+    {"item_code": "GASTO-MOV-005", "item_name": "Diésel",                          "item_group": "Combustibles y lubricantes",                          "uom": "LTR - Litro",    "clave_prod_serv": "15101505"},
+    # Viáticos específicos (especializan GASTO-MOV-002)
+    {"item_code": "GASTO-MOV-006", "item_name": "Hospedaje",                       "item_group": "Viáticos y gastos de viaje",                          "uom": "E48 - Servicio", "clave_prod_serv": "90111501"},
+    {"item_code": "GASTO-MOV-007", "item_name": "Restaurante",                     "item_group": "Viáticos y gastos de viaje",                          "uom": "E48 - Servicio", "clave_prod_serv": "90101501"},
+    {"item_code": "GASTO-MOV-008", "item_name": "Vuelo comercial",                 "item_group": "Viáticos y gastos de viaje",                          "uom": "E48 - Servicio", "clave_prod_serv": "78111502"},
+    {"item_code": "GASTO-MOV-009", "item_name": "Taxi y transporte ejecutivo",     "item_group": "Viáticos y gastos de viaje",                          "uom": "E48 - Servicio", "clave_prod_serv": "78111804"},
+    {"item_code": "GASTO-MOV-010", "item_name": "Peajes y casetas",                "item_group": "Viáticos y gastos de viaje",                          "uom": "E48 - Servicio", "clave_prod_serv": "95111602"},
+    {"item_code": "GASTO-MOV-011", "item_name": "Estacionamiento",                 "item_group": "Viáticos y gastos de viaje",                          "uom": "E48 - Servicio", "clave_prod_serv": "78111807"},
+    # Operación específica (especializan OPR-002 y OPR-007)
+    {"item_code": "GASTO-OPR-011", "item_name": "Agua purificada",                 "item_group": "Agua",                                               "uom": "H87 - Pieza",    "clave_prod_serv": "50202301"},
+    {"item_code": "GASTO-OPR-012", "item_name": "Tóner y cartuchos",              "item_group": "Papelería y artículos de oficina",                    "uom": "H87 - Pieza",    "clave_prod_serv": "44103103"},
+    # Honorarios con clave específica (especializan SRV-003 y SRV-007)
+    {"item_code": "GASTO-SRV-015", "item_name": "Servicios contables PF",          "item_group": "Honorarios a personas físicas residentes nacionales", "uom": "E48 - Servicio", "clave_prod_serv": "84111500"},
+    {"item_code": "GASTO-SRV-016", "item_name": "Servicios legales PF",            "item_group": "Honorarios a personas físicas residentes nacionales", "uom": "E48 - Servicio", "clave_prod_serv": "80121600"},
+    {"item_code": "GASTO-SRV-017", "item_name": "Servicios contables PM",          "item_group": "Honorarios a personas morales residentes nacionales", "uom": "E48 - Servicio", "clave_prod_serv": "84111500"},
+    {"item_code": "GASTO-SRV-018", "item_name": "Servicios legales PM",            "item_group": "Honorarios a personas morales residentes nacionales", "uom": "E48 - Servicio", "clave_prod_serv": "80121600"},
+    # Logística específica (especializan LOG-001 y LOG-003)
+    {"item_code": "GASTO-LOG-005", "item_name": "Paquetería y mensajería nacional", "item_group": "Fletes y acarreos",                                  "uom": "E48 - Servicio", "clave_prod_serv": "78102205"},
+    {"item_code": "GASTO-LOG-006", "item_name": "Mensajería internacional",         "item_group": "Fletes y acarreos",                                  "uom": "E48 - Servicio", "clave_prod_serv": "78102204"},
+    # Gastos financieros — familia 701 (sin item base equivalente)
+    {"item_code": "GASTO-FIN-001", "item_name": "Comisiones bancarias",             "item_group": "Comisiones bancarias",                               "uom": "E48 - Servicio", "clave_prod_serv": "84121500"},
+    {"item_code": "GASTO-FIN-002", "item_name": "Intereses bancarios",              "item_group": "Intereses a cargo bancario nacional",                "uom": "E48 - Servicio", "clave_prod_serv": "84121500"},
+    # Seguros con clave específica (especializan SEG-001)
+    {"item_code": "GASTO-SEG-005", "item_name": "Seguro de automóvil",              "item_group": "Seguros y fianzas",                                  "uom": "E48 - Servicio", "clave_prod_serv": "84131503"},
+    {"item_code": "GASTO-SEG-006", "item_name": "Seguro de responsabilidad civil",  "item_group": "Seguros y fianzas",                                  "uom": "E48 - Servicio", "clave_prod_serv": "84131506"},
 ]
 # fmt: on
 
-assert len(_ITEMS) == 84, f"_ITEMS debe tener 84 entradas, tiene {len(_ITEMS)}"
+_CODES = [i["item_code"] for i in _ITEMS]
+assert len(_CODES) == len(set(_CODES)), f"item_codes duplicados: {[c for c in _CODES if _CODES.count(c) > 1]}"
+# fmt: on
 
 
 def ensure_cfdi_received_expense_items() -> dict:
-	"""Crea los 84 Items genéricos de gasto si no existen. Idempotente."""
+	"""Crea los items genéricos de gasto CFDI Recibidos si no existen. Idempotente."""
 	creados = 0
 	existentes = 0
 	sin_clave_prod_serv = 0

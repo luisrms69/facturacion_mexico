@@ -76,6 +76,25 @@ La PI se crea como Draft con:
 
 ## Configuración previa necesaria
 
+!!! warning "Prerequisito: CoA validado"
+    Antes de configurar CFDI Recibidos, el Chart of Accounts debe estar revisado y aceptado
+    (ver [Fase 1 — Validación del CoA](getting-started.md#fase-1-validacion-del-chart-of-accounts)).
+    Los templates de impuestos de compras y la asignación de cuentas de gasto quedan vinculados
+    al CoA en el momento de crearlos. Corregir el CoA después de tener transacciones es
+    significativamente más complejo.
+
+### Items genéricos de gasto (GASTO-*)
+
+El app instala automáticamente un catálogo de items GASTO-* para clasificar los conceptos de los XMLs recibidos. Incluye categorías contables generales alineadas al Código Agrupador SAT, más un overlay de conceptos operativos frecuentes como gasolina, hospedaje, restaurante, paquetería, comisiones bancarias y seguros específicos.
+
+Los items GASTO-* son items de compra. El app puede cargarles la clave SAT como referencia de clasificación, pero no se usan para emitir CFDIs de venta.
+
+Para CFDI Recibidos, lo relevante de cada item es:
+
+- **`item_group`** — determina la categoría de gasto SAT
+- **Department → familia SAT** — configurable en `Configuracion CFDI Recibidos`
+- **`expense_account`** — resuelta automáticamente al generar la Purchase Invoice, según la estrategia configurada (patrón, matriz de equivalencias o manual)
+
 ### Configuracion CFDI Recibidos
 
 Accede desde el workspace **Facturación México**.
