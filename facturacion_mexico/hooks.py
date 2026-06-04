@@ -239,6 +239,8 @@ fixtures = [
 					# Purchase Invoice custom fields — CFDI Recibidos Fase 3
 					"Purchase Invoice-fm_cfdi_uuid",
 					"Purchase Invoice-fm_cfdi_recibido",
+					# Item Group custom fields — CFDI Recibidos resolución de cuenta de gasto
+					"Item Group-fm_codigo_sufijo_sat",
 					"Sales Invoice-fm_multi_sucursal_column",
 					"Sales Invoice-fm_multi_sucursal_section",
 					# "Sales Invoice-fm_payment_method_sat", # MIGRADO A Factura Fiscal Mexico

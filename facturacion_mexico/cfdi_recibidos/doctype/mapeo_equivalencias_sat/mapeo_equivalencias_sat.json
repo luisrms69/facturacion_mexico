@@ -1,0 +1,54 @@
+{
+ "actions": [],
+ "creation": "2026-06-03 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "codigo_agrupador_sat",
+  "account",
+  "validado_por_contador",
+  "notas"
+ ],
+ "fields": [
+  {
+   "fieldname": "codigo_agrupador_sat",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Código Agrupador SAT",
+   "reqd": 1
+  },
+  {
+   "fieldname": "account",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Cuenta contable",
+   "options": "Account",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "validado_por_contador",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Validado por contador"
+  },
+  {
+   "fieldname": "notas",
+   "fieldtype": "Small Text",
+   "label": "Notas"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-06-03 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Cfdi Recibidos",
+ "name": "Mapeo Equivalencias SAT",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

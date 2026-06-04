@@ -2,10 +2,13 @@
 Setup de Items genéricos de gasto para CFDI Recibidos.
 
 ensure_cfdi_received_expense_items()
-    Crea los 84 Items genéricos de gasto (uno por Item Group hoja bajo "Gastos").
-    Idempotente: no modifica Items existentes.
-    fm_producto_servicio_sat: se asigna solo si el código existe en SAT Producto Servicio.
+    Crea el catálogo de Items GASTO-* si no existen. Idempotente.
+    Incluye:
+    - 84 items base: uno por categoría hoja del árbol de Item Groups de gasto
+    - 21 items del overlay operativo: subclasificaciones frecuentes en CFDIs
+      (combustibles específicos, viáticos, mensajería, gastos financieros, etc.)
 
+    fm_producto_servicio_sat: se asigna solo si el código existe en SAT Producto Servicio.
     Ítem GASTO-OPR-003 (Energía eléctrica) usa KWH - Kilowatt hora (c_ClaveUnidad SAT confirmado).
 
     Retorna: {creados, existentes, sin_clave_prod_serv}
@@ -111,14 +114,502 @@ _ITEMS = [
     {"item_code": "GASTO-OBR-001", "item_name": "Gastos generales de urbanización", "item_group": "Gastos generales de urbanización", "uom": "E48 - Servicio", "clave_prod_serv": "72131500"},
     {"item_code": "GASTO-OBR-002", "item_name": "Gastos generales de construcción", "item_group": "Gastos generales de construcción", "uom": "E48 - Servicio", "clave_prod_serv": "72131500"},
     {"item_code": "GASTO-OBR-003", "item_name": "Otros gastos generales",           "item_group": "Otros gastos generales",           "uom": "E48 - Servicio", "clave_prod_serv": "80141600"},
+    # ── Overlay operativo — subclasificaciones frecuentes en CFDI Recibidos (21) ─────
+    # Combustibles específicos (especializan GASTO-MOV-001)
+    {"item_code": "GASTO-MOV-003", "item_name": "Gasolina regular (<91 oct)",      "item_group": "Combustibles y lubricantes",                          "uom": "LTR - Litro",    "clave_prod_serv": "15101514"},
+    {"item_code": "GASTO-MOV-004", "item_name": "Gasolina premium (≥91 oct)",      "item_group": "Combustibles y lubricantes",                          "uom": "LTR - Litro",    "clave_prod_serv": "15101515"},
+    {"item_code": "GASTO-MOV-005", "item_name": "Diésel",                          "item_group": "Combustibles y lubricantes",                          "uom": "LTR - Litro",    "clave_prod_serv": "15101505"},
+    # Viáticos específicos (especializan GASTO-MOV-002)
+    {"item_code": "GASTO-MOV-006", "item_name": "Hospedaje",                       "item_group": "Viáticos y gastos de viaje",                          "uom": "E48 - Servicio", "clave_prod_serv": "90111501"},
+    {"item_code": "GASTO-MOV-007", "item_name": "Restaurante",                     "item_group": "Viáticos y gastos de viaje",                          "uom": "E48 - Servicio", "clave_prod_serv": "90101501"},
+    {"item_code": "GASTO-MOV-008", "item_name": "Vuelo comercial",                 "item_group": "Viáticos y gastos de viaje",                          "uom": "E48 - Servicio", "clave_prod_serv": "78111502"},
+    {"item_code": "GASTO-MOV-009", "item_name": "Taxi y transporte ejecutivo",     "item_group": "Viáticos y gastos de viaje",                          "uom": "E48 - Servicio", "clave_prod_serv": "78111804"},
+    {"item_code": "GASTO-MOV-010", "item_name": "Peajes y casetas",                "item_group": "Viáticos y gastos de viaje",                          "uom": "E48 - Servicio", "clave_prod_serv": "95111602"},
+    {"item_code": "GASTO-MOV-011", "item_name": "Estacionamiento",                 "item_group": "Viáticos y gastos de viaje",                          "uom": "E48 - Servicio", "clave_prod_serv": "78111807"},
+    # Operación específica (especializan OPR-002 y OPR-007)
+    {"item_code": "GASTO-OPR-011", "item_name": "Agua purificada",                 "item_group": "Agua",                                               "uom": "H87 - Pieza",    "clave_prod_serv": "50202301"},
+    {"item_code": "GASTO-OPR-012", "item_name": "Tóner y cartuchos",              "item_group": "Papelería y artículos de oficina",                    "uom": "H87 - Pieza",    "clave_prod_serv": "44103103"},
+    # Honorarios con clave específica (especializan SRV-003 y SRV-007)
+    {"item_code": "GASTO-SRV-015", "item_name": "Servicios contables PF",          "item_group": "Honorarios a personas físicas residentes nacionales", "uom": "E48 - Servicio", "clave_prod_serv": "84111500"},
+    {"item_code": "GASTO-SRV-016", "item_name": "Servicios legales PF",            "item_group": "Honorarios a personas físicas residentes nacionales", "uom": "E48 - Servicio", "clave_prod_serv": "80121600"},
+    {"item_code": "GASTO-SRV-017", "item_name": "Servicios contables PM",          "item_group": "Honorarios a personas morales residentes nacionales", "uom": "E48 - Servicio", "clave_prod_serv": "84111500"},
+    {"item_code": "GASTO-SRV-018", "item_name": "Servicios legales PM",            "item_group": "Honorarios a personas morales residentes nacionales", "uom": "E48 - Servicio", "clave_prod_serv": "80121600"},
+    # Logística específica (especializan LOG-001 y LOG-003)
+    {"item_code": "GASTO-LOG-005", "item_name": "Paquetería y mensajería nacional", "item_group": "Fletes y acarreos",                                  "uom": "E48 - Servicio", "clave_prod_serv": "78102205"},
+    {"item_code": "GASTO-LOG-006", "item_name": "Mensajería internacional",         "item_group": "Fletes y acarreos",                                  "uom": "E48 - Servicio", "clave_prod_serv": "78102204"},
+    # Gastos financieros — familia 701 (sin item base equivalente)
+    {"item_code": "GASTO-FIN-001", "item_name": "Comisiones bancarias",             "item_group": "Comisiones bancarias",                               "uom": "E48 - Servicio", "clave_prod_serv": "84121500"},
+    {"item_code": "GASTO-FIN-002", "item_name": "Intereses bancarios",              "item_group": "Intereses a cargo bancario nacional",                "uom": "E48 - Servicio", "clave_prod_serv": "84121500"},
+    # Seguros con clave específica (especializan SEG-001)
+    {"item_code": "GASTO-SEG-005", "item_name": "Seguro de automóvil",              "item_group": "Seguros y fianzas",                                  "uom": "E48 - Servicio", "clave_prod_serv": "84131503"},
+    {"item_code": "GASTO-SEG-006", "item_name": "Seguro de responsabilidad civil",  "item_group": "Seguros y fianzas",                                  "uom": "E48 - Servicio", "clave_prod_serv": "84131506"},
 ]
 # fmt: on
 
-assert len(_ITEMS) == 84, f"_ITEMS debe tener 84 entradas, tiene {len(_ITEMS)}"
+_CODES = [i["item_code"] for i in _ITEMS]
+assert len(_CODES) == len(set(_CODES)), f"item_codes duplicados: {[c for c in _CODES if _CODES.count(c) > 1]}"
+
+# ── PLACEHOLDER para futuros overlays ────────────────────────────────────────
+# Reservado para próxima expansión aprobada vía issue/PR.
+_ITEMS_OPERATIVOS_V2 = [
+	# Combustibles
+	{
+		"item_code": "GASTO-CMB-001",
+		"item_name": "Gasolina regular menor a 91 octanos",
+		"item_group": "Combustibles y lubricantes",
+		"uom": "LTR - Litro",
+		"clave_prod_serv": "15101514",
+	},
+	{
+		"item_code": "GASTO-CMB-002",
+		"item_name": "Gasolina premium mayor o igual a 91 octanos",
+		"item_group": "Combustibles y lubricantes",
+		"uom": "LTR - Litro",
+		"clave_prod_serv": "15101515",
+	},
+	{
+		"item_code": "GASTO-CMB-003",
+		"item_name": "Diésel",
+		"item_group": "Combustibles y lubricantes",
+		"uom": "LTR - Litro",
+		"clave_prod_serv": "15101505",
+	},
+	{
+		"item_code": "GASTO-CMB-004",
+		"item_name": "Gas LP",
+		"item_group": "Combustibles y lubricantes",
+		"uom": "LTR - Litro",
+		"clave_prod_serv": "15111510",
+	},
+	{
+		"item_code": "GASTO-CMB-005",
+		"item_name": "Gas natural",
+		"item_group": "Combustibles y lubricantes",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "15111512",
+	},
+	{
+		"item_code": "GASTO-CMB-006",
+		"item_name": "Lubricantes automotrices",
+		"item_group": "Combustibles y lubricantes",
+		"uom": "LTR - Litro",
+		"clave_prod_serv": "15121501",
+	},
+	# Viáticos
+	{
+		"item_code": "GASTO-VIA-001",
+		"item_name": "Hospedaje",
+		"item_group": "Viáticos y gastos de viaje",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "90111501",
+	},
+	{
+		"item_code": "GASTO-VIA-002",
+		"item_name": "Restaurante",
+		"item_group": "Viáticos y gastos de viaje",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "90101501",
+	},
+	{
+		"item_code": "GASTO-VIA-003",
+		"item_name": "Vuelo comercial",
+		"item_group": "Viáticos y gastos de viaje",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "78111502",
+	},
+	{
+		"item_code": "GASTO-VIA-004",
+		"item_name": "Taxi o transporte ejecutivo",
+		"item_group": "Viáticos y gastos de viaje",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "78111804",
+	},
+	{
+		"item_code": "GASTO-VIA-005",
+		"item_name": "Peajes y casetas",
+		"item_group": "Viáticos y gastos de viaje",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "95111602",
+	},
+	{
+		"item_code": "GASTO-VIA-006",
+		"item_name": "Estacionamiento",
+		"item_group": "Viáticos y gastos de viaje",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "78111807",
+	},
+	{
+		"item_code": "GASTO-VIA-007",
+		"item_name": "Renta de automóvil",
+		"item_group": "Viáticos y gastos de viaje",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "78111808",
+	},
+	{
+		"item_code": "GASTO-VIA-008",
+		"item_name": "Transporte terrestre de pasajeros",
+		"item_group": "Viáticos y gastos de viaje",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "78111802",
+	},
+	{
+		"item_code": "GASTO-VIA-009",
+		"item_name": "Agencia de viajes",
+		"item_group": "Viáticos y gastos de viaje",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "90121502",
+	},
+	# Telecomunicaciones
+	{
+		"item_code": "GASTO-TEL-001",
+		"item_name": "Telefonía fija",
+		"item_group": "Teléfono, internet",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "83111500",
+	},
+	{
+		"item_code": "GASTO-TEL-002",
+		"item_name": "Telefonía celular",
+		"item_group": "Teléfono, internet",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "83111603",
+	},
+	{
+		"item_code": "GASTO-TEL-003",
+		"item_name": "Internet",
+		"item_group": "Teléfono, internet",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "83112100",
+	},
+	{
+		"item_code": "GASTO-TEL-004",
+		"item_name": "Hosting, dominio y servicios web",
+		"item_group": "Teléfono, internet",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "81112100",
+	},
+	# Agua
+	{
+		"item_code": "GASTO-AGU-001",
+		"item_name": "Servicio de agua potable",
+		"item_group": "Agua",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "83101500",
+	},
+	{
+		"item_code": "GASTO-AGU-002",
+		"item_name": "Agua purificada",
+		"item_group": "Agua",
+		"uom": "H87 - Pieza",
+		"clave_prod_serv": "50202301",
+	},
+	# Energía
+	{
+		"item_code": "GASTO-ENE-001",
+		"item_name": "Energía eléctrica",
+		"item_group": "Energía eléctrica",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "83101800",
+	},
+	# Vigilancia
+	{
+		"item_code": "GASTO-VIG-001",
+		"item_name": "Vigilancia y seguridad",
+		"item_group": "Vigilancia y seguridad",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "92121500",
+	},
+	# Limpieza
+	{
+		"item_code": "GASTO-LIM-001",
+		"item_name": "Servicio de limpieza",
+		"item_group": "Limpieza",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "76111501",
+	},
+	{
+		"item_code": "GASTO-LIM-002",
+		"item_name": "Insumos de limpieza",
+		"item_group": "Limpieza",
+		"uom": "H87 - Pieza",
+		"clave_prod_serv": "47131800",
+	},
+	# Papelería
+	{
+		"item_code": "GASTO-PAP-001",
+		"item_name": "Papelería general",
+		"item_group": "Papelería y artículos de oficina",
+		"uom": "H87 - Pieza",
+		"clave_prod_serv": "44121600",
+	},
+	{
+		"item_code": "GASTO-PAP-002",
+		"item_name": "Papel de oficina",
+		"item_group": "Papelería y artículos de oficina",
+		"uom": "H87 - Pieza",
+		"clave_prod_serv": "14111514",
+	},
+	{
+		"item_code": "GASTO-PAP-003",
+		"item_name": "Tóner y cartuchos",
+		"item_group": "Papelería y artículos de oficina",
+		"uom": "H87 - Pieza",
+		"clave_prod_serv": "44103103",
+	},
+	# Mantenimiento
+	{
+		"item_code": "GASTO-MNT-001",
+		"item_name": "Mantenimiento y conservación general",
+		"item_group": "Mantenimiento y conservación",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "72101507",
+	},
+	{
+		"item_code": "GASTO-MNT-002",
+		"item_name": "Mantenimiento eléctrico",
+		"item_group": "Mantenimiento y conservación",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "72151500",
+	},
+	{
+		"item_code": "GASTO-MNT-003",
+		"item_name": "Mantenimiento de equipo de cómputo",
+		"item_group": "Mantenimiento y conservación",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "81112300",
+	},
+	{
+		"item_code": "GASTO-MNT-004",
+		"item_name": "Reparación y mantenimiento de vehículos",
+		"item_group": "Mantenimiento y conservación",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "78181500",
+	},
+	{
+		"item_code": "GASTO-MNT-005",
+		"item_name": "Pintura y reparaciones menores",
+		"item_group": "Mantenimiento y conservación",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "72151300",
+	},
+	# Seguros (específicos)
+	{
+		"item_code": "GASTO-SEG-005",
+		"item_name": "Seguros generales",
+		"item_group": "Seguros y fianzas",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "84131500",
+	},
+	{
+		"item_code": "GASTO-SEG-006",
+		"item_name": "Seguro de automóvil",
+		"item_group": "Seguros y fianzas",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "84131503",
+	},
+	{
+		"item_code": "GASTO-SEG-007",
+		"item_name": "Seguro de responsabilidad civil",
+		"item_group": "Seguros y fianzas",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "84131506",
+	},
+	# Suscripciones y software
+	{
+		"item_code": "GASTO-SUS-001",
+		"item_name": "Suscripción de software o SaaS",
+		"item_group": "Cuotas y suscripciones",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "81112200",
+	},
+	{
+		"item_code": "GASTO-SUS-002",
+		"item_name": "Licencia de software",
+		"item_group": "Cuotas y suscripciones",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "43231512",
+	},
+	{
+		"item_code": "GASTO-SUS-003",
+		"item_name": "Membresías y cuotas",
+		"item_group": "Cuotas y suscripciones",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "80141600",
+	},
+	# Honorarios PF
+	{
+		"item_code": "GASTO-HON-001",
+		"item_name": "Honorarios contables PF",
+		"item_group": "Honorarios a personas físicas residentes nacionales",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "84111500",
+	},
+	{
+		"item_code": "GASTO-HON-002",
+		"item_name": "Honorarios legales PF",
+		"item_group": "Honorarios a personas físicas residentes nacionales",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "80121600",
+	},
+	{
+		"item_code": "GASTO-HON-003",
+		"item_name": "Honorarios de consultoría PF",
+		"item_group": "Honorarios a personas físicas residentes nacionales",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "80101500",
+	},
+	{
+		"item_code": "GASTO-HON-004",
+		"item_name": "Honorarios médicos PF",
+		"item_group": "Honorarios a personas físicas residentes nacionales",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "85101700",
+	},
+	# Honorarios PM
+	{
+		"item_code": "GASTO-HOM-001",
+		"item_name": "Servicios contables PM",
+		"item_group": "Honorarios a personas morales residentes nacionales",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "84111500",
+	},
+	{
+		"item_code": "GASTO-HOM-002",
+		"item_name": "Servicios legales PM",
+		"item_group": "Honorarios a personas morales residentes nacionales",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "80121600",
+	},
+	{
+		"item_code": "GASTO-HOM-003",
+		"item_name": "Consultoría empresarial PM",
+		"item_group": "Honorarios a personas morales residentes nacionales",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "80101500",
+	},
+	{
+		"item_code": "GASTO-HOM-004",
+		"item_name": "Servicios de capacitación PM",
+		"item_group": "Honorarios a personas morales residentes nacionales",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "86101700",
+	},
+	# Arrendamiento (específicos)
+	{
+		"item_code": "GASTO-ARR-004",
+		"item_name": "Arrendamiento de inmueble PF",
+		"item_group": "Arrendamiento a personas físicas residentes nacionales",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "80131502",
+	},
+	{
+		"item_code": "GASTO-ARR-005",
+		"item_name": "Arrendamiento de inmueble PM",
+		"item_group": "Arrendamiento a personas morales residentes nacionales",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "80131502",
+	},
+	{
+		"item_code": "GASTO-ARR-006",
+		"item_name": "Arrendamiento de equipo",
+		"item_group": "Arrendamiento a personas morales residentes nacionales",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "80161800",
+	},
+	# Fletes específicos
+	{
+		"item_code": "GASTO-FLT-001",
+		"item_name": "Flete terrestre",
+		"item_group": "Fletes y acarreos",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "78101802",
+	},
+	{
+		"item_code": "GASTO-FLT-002",
+		"item_name": "Paquetería y mensajería nacional",
+		"item_group": "Fletes y acarreos",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "78102205",
+	},
+	{
+		"item_code": "GASTO-FLT-003",
+		"item_name": "Mensajería internacional",
+		"item_group": "Fletes y acarreos",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "78102204",
+	},
+	{
+		"item_code": "GASTO-FLT-004",
+		"item_name": "Maniobras de carga y descarga",
+		"item_group": "Fletes y acarreos",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "78121603",
+	},
+	# Gastos de importación específicos
+	{
+		"item_code": "GASTO-IMP-001",
+		"item_name": "Servicios de agente aduanal",
+		"item_group": "Gastos de importación",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "78121601",
+	},
+	{
+		"item_code": "GASTO-IMP-002",
+		"item_name": "Almacenaje aduanal",
+		"item_group": "Gastos de importación",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "78131800",
+	},
+	{
+		"item_code": "GASTO-IMP-003",
+		"item_name": "Logística internacional",
+		"item_group": "Gastos de importación",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "78141500",
+	},
+	# Gastos financieros
+	{
+		"item_code": "GASTO-BAN-001",
+		"item_name": "Comisiones bancarias",
+		"item_group": "Comisiones bancarias",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "84121500",
+	},
+	{
+		"item_code": "GASTO-BAN-002",
+		"item_name": "Intereses bancarios",
+		"item_group": "Intereses a cargo bancario nacional",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "84121500",
+	},
+	{
+		"item_code": "GASTO-BAN-003",
+		"item_name": "Comisión por terminal bancaria",
+		"item_group": "Comisiones bancarias",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "84121500",
+	},
+	# Comisiones comerciales específicas
+	{
+		"item_code": "GASTO-COM-001",
+		"item_name": "Comisión sobre ventas",
+		"item_group": "Comisiones sobre ventas",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "80141607",
+	},
+	{
+		"item_code": "GASTO-COM-002",
+		"item_name": "Comisión por intermediación comercial",
+		"item_group": "Comisiones sobre ventas",
+		"uom": "E48 - Servicio",
+		"clave_prod_serv": "80141600",
+	},
+]
+# fmt: on
 
 
 def ensure_cfdi_received_expense_items() -> dict:
-	"""Crea los 84 Items genéricos de gasto si no existen. Idempotente."""
+	"""Crea los items genéricos de gasto CFDI Recibidos si no existen. Idempotente."""
 	creados = 0
 	existentes = 0
 	sin_clave_prod_serv = 0

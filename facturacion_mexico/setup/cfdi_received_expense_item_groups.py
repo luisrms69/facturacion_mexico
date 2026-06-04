@@ -2,7 +2,7 @@
 Setup de Item Groups de gasto para facturacion_mexico.
 
 ensure_cfdi_received_expense_item_groups()
-    Crea el árbol de Item Groups de gasto (paraguas + 11 categorías + 84 subcategorías)
+    Crea el árbol de Item Groups de gasto (paraguas + 13 categorías + 105 subcategorías)
     basado en el Código Agrupador SAT. Idempotente.
     Retorna: {creados, existentes, conflictos}
 
@@ -154,12 +154,60 @@ _GROUPS = [
 			"Otros gastos generales",
 		],
 	},
+	{
+		"name": "Gastos financieros",
+		"children": [
+			"Pérdida cambiaria",
+			"Pérdida cambiaria nacional parte relacionada",
+			"Pérdida cambiaria extranjero parte relacionada",
+			"Intereses a cargo bancario nacional",
+			"Intereses a cargo bancario extranjero",
+			"Intereses a cargo de personas físicas nacional",
+			"Intereses a cargo de personas físicas extranjero",
+			"Intereses a cargo de personas morales nacional",
+			"Intereses a cargo de personas morales extranjero",
+			"Comisiones bancarias",
+			"Otros gastos financieros",
+		],
+	},
+	{
+		"name": "Productos financieros",
+		"parent": None,  # Se crea bajo la raíz (All Item Groups), no bajo Gastos
+		"children": [
+			"Utilidad cambiaria",
+			"Utilidad cambiaria nacional parte relacionada",
+			"Utilidad cambiaria extranjero parte relacionada",
+			"Intereses a favor bancarios nacional",
+			"Intereses a favor bancarios extranjero",
+			"Intereses a favor de personas físicas nacional",
+			"Intereses a favor de personas físicas extranjero",
+			"Intereses a favor de personas morales nacional",
+			"Intereses a favor de personas morales extranjero",
+			"Otros productos financieros",
+		],
+	},
+]
+
+
+# Correcciones de padre para grupos que pueden haber sido creados bajo el padre incorrecto
+# en versiones anteriores del setup. Se aplican antes de crear grupos nuevos.
+# Formato: {"name": "Nombre del grupo", "correct_parent": "Padre correcto"}
+_PARENT_FIXES = [
+	{"name": "Productos financieros", "correct_parent": None},  # None = raíz
 ]
 
 
 def ensure_cfdi_received_expense_item_groups() -> dict:
 	"""Crea el árbol de Item Groups de gasto si no existen. Idempotente."""
 	root = _get_root_item_group()
+
+	# Aplicar correcciones de padre antes de crear grupos
+	for fix in _PARENT_FIXES:
+		correct_parent = fix["correct_parent"] if fix["correct_parent"] is not None else root
+		existing_parent = frappe.db.get_value("Item Group", fix["name"], "parent_item_group")
+		if existing_parent is not None and existing_parent != correct_parent:
+			frappe.db.set_value("Item Group", fix["name"], "parent_item_group", correct_parent)
+			frappe.db.commit()  # nosemgrep: frappe-manual-commit
 	creados = 0
 	existentes = 0
 	conflictos = []
@@ -176,7 +224,12 @@ def ensure_cfdi_received_expense_item_groups() -> dict:
 
 	for group in _GROUPS:
 		parent_name = group["name"]
-		created, conflict = _ensure_group(parent_name, _UMBRELLA, is_group=True)
+		# Soporte para parent override: None = raíz, omitido = _UMBRELLA
+		if "parent" in group:
+			group_parent = group["parent"] if group["parent"] is not None else root
+		else:
+			group_parent = _UMBRELLA
+		created, conflict = _ensure_group(parent_name, group_parent, is_group=True)
 		if conflict:
 			conflictos.append(conflict)
 			continue

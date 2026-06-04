@@ -1,0 +1,442 @@
+[
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "15101514",
+  "codigo": "15101514",
+  "descripcion": "Gasolina con mezcla de etanol",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "15101515",
+  "codigo": "15101515",
+  "descripcion": "Gasolina con mezcla de etanol premium",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "15101505",
+  "codigo": "15101505",
+  "descripcion": "Gasóleo/diésel",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "15111510",
+  "codigo": "15111510",
+  "descripcion": "Gas licuado de petróleo (LP)",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "15111512",
+  "codigo": "15111512",
+  "descripcion": "Gas natural",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "15121501",
+  "codigo": "15121501",
+  "descripcion": "Aceites lubricantes",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "90111501",
+  "codigo": "90111501",
+  "descripcion": "Alojamiento en hotel o motel",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "90101501",
+  "codigo": "90101501",
+  "descripcion": "Servicios de restaurante",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "78111502",
+  "codigo": "78111502",
+  "descripcion": "Transporte aéreo de pasajeros",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "78111804",
+  "codigo": "78111804",
+  "descripcion": "Servicios de taxi",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "95111602",
+  "codigo": "95111602",
+  "descripcion": "Servicios de cuota de autopista o carretera",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "78111807",
+  "codigo": "78111807",
+  "descripcion": "Servicios de estacionamiento",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "78111808",
+  "codigo": "78111808",
+  "descripcion": "Servicios de arrendamiento de automóviles",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "78111802",
+  "codigo": "78111802",
+  "descripcion": "Servicios de transporte terrestre de pasajeros",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "90121502",
+  "codigo": "90121502",
+  "descripcion": "Servicios de agencia de viajes",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "83111500",
+  "codigo": "83111500",
+  "descripcion": "Servicios de telecomunicaciones",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "83111603",
+  "codigo": "83111603",
+  "descripcion": "Servicios de telefonía móvil",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "83112100",
+  "codigo": "83112100",
+  "descripcion": "Servicios de internet",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "81112100",
+  "codigo": "81112100",
+  "descripcion": "Servicios de tecnología de la información",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "83101500",
+  "codigo": "83101500",
+  "descripcion": "Servicios de distribución de agua",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "50202301",
+  "codigo": "50202301",
+  "descripcion": "Agua purificada",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "83101800",
+  "codigo": "83101800",
+  "descripcion": "Servicios de distribución de energía eléctrica",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "92121500",
+  "codigo": "92121500",
+  "descripcion": "Servicios de vigilancia y seguridad",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "76111501",
+  "codigo": "76111501",
+  "descripcion": "Servicios de limpieza",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "47131800",
+  "codigo": "47131800",
+  "descripcion": "Productos de limpieza",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "44121600",
+  "codigo": "44121600",
+  "descripcion": "Suministros de oficina",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "14111514",
+  "codigo": "14111514",
+  "descripcion": "Papel de impresora",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "44103103",
+  "codigo": "44103103",
+  "descripcion": "Cartuchos o tóner de impresora",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "72101507",
+  "codigo": "72101507",
+  "descripcion": "Servicios de mantenimiento y reparación de instalaciones",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "72151500",
+  "codigo": "72151500",
+  "descripcion": "Servicios de instalación eléctrica",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "81112300",
+  "codigo": "81112300",
+  "descripcion": "Servicios de soporte técnico de tecnología de la información",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "78181500",
+  "codigo": "78181500",
+  "descripcion": "Servicios de reparación de vehículos",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "72151300",
+  "codigo": "72151300",
+  "descripcion": "Servicios de pintura",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "84131500",
+  "codigo": "84131500",
+  "descripcion": "Servicios de seguros",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "84131503",
+  "codigo": "84131503",
+  "descripcion": "Seguros de automóviles",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "84131506",
+  "codigo": "84131506",
+  "descripcion": "Seguros de responsabilidad civil",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "81112200",
+  "codigo": "81112200",
+  "descripcion": "Servicios de software",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "43231512",
+  "codigo": "43231512",
+  "descripcion": "Licencias de software",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "80141600",
+  "codigo": "80141600",
+  "descripcion": "Servicios de intermediación comercial",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "84111500",
+  "codigo": "84111500",
+  "descripcion": "Servicios de contabilidad",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "80121600",
+  "codigo": "80121600",
+  "descripcion": "Servicios jurídicos",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "80101500",
+  "codigo": "80101500",
+  "descripcion": "Servicios de consultoría de gestión",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "85101700",
+  "codigo": "85101700",
+  "descripcion": "Servicios médicos",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "86101700",
+  "codigo": "86101700",
+  "descripcion": "Servicios de capacitación y adiestramiento",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "80131502",
+  "codigo": "80131502",
+  "descripcion": "Arrendamiento de bienes inmuebles",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "80161800",
+  "codigo": "80161800",
+  "descripcion": "Arrendamiento de equipo",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "78101802",
+  "codigo": "78101802",
+  "descripcion": "Transporte de carga por carretera",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "78102205",
+  "codigo": "78102205",
+  "descripcion": "Servicios de mensajería",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "78102204",
+  "codigo": "78102204",
+  "descripcion": "Servicios de mensajería internacional",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "78121603",
+  "codigo": "78121603",
+  "descripcion": "Servicios de manejo de carga",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "78121601",
+  "codigo": "78121601",
+  "descripcion": "Servicios de agencias aduanales",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "78131800",
+  "codigo": "78131800",
+  "descripcion": "Servicios de almacenamiento",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "78141500",
+  "codigo": "78141500",
+  "descripcion": "Servicios de logística",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "84121500",
+  "codigo": "84121500",
+  "descripcion": "Servicios financieros bancarios",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ },
+ {
+  "doctype": "SAT Producto Servicio",
+  "name": "80141607",
+  "codigo": "80141607",
+  "descripcion": "Servicios de comisiones sobre ventas",
+  "incluye_objeto_impuesto": "02",
+  "modified": "2026-06-03 00:00:00.000000"
+ }
+]

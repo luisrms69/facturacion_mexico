@@ -195,6 +195,89 @@ def _build_pi_doc(cfdi_doc):
 	return pi
 
 
+def _get_familia_sat(company: str, department: str) -> str | None:
+	"""Retorna el código de 3 dígitos de familia SAT para el department (ej: '603')."""
+	if not department:
+		return None
+	config_name = f"CFDI-REC-CFG-{company}"
+	if not frappe.db.exists("Configuracion CFDI Recibidos", config_name):
+		return None
+	rows = frappe.get_all(
+		"Mapeo Departamento CFDI Recibido",
+		filters={"parent": config_name, "department": department},
+		fields=["familia_sat"],
+		limit=1,
+	)
+	if not rows or not rows[0].familia_sat:
+		return None
+	return rows[0].familia_sat.split()[0]  # "603 Gastos de administración" → "603"
+
+
+def _get_sufijo_sat(item_group: str) -> str | None:
+	"""Retorna el sufijo SAT de 2 dígitos configurado en el Item Group (ej: '48')."""
+	if not item_group:
+		return None
+	sufijo = frappe.db.get_value("Item Group", item_group, "fm_codigo_sufijo_sat")
+	return sufijo.strip() if sufijo else None
+
+
+def _resolve_expense_account(company: str, familia: str, sufijo: str, config) -> str | None:
+	"""
+	Resuelve expense_account según modo_resolucion_cuenta_gasto de la config.
+	Retorna el name de la Account, o None con advertencia en frappe.msgprint si no se encuentra.
+	Nunca asigna silenciosamente — si no hay cuenta, retorna None y registra advertencia.
+	"""
+	sat_code = f"{familia}.{sufijo.zfill(2)}"
+	modo = config.get("modo_resolucion_cuenta_gasto") or "manual_asistido"
+
+	if modo == "manual_asistido":
+		return None
+
+	if modo == "patron" or modo == "matriz_equivalencias":
+		if modo == "patron":
+			fmt = config.get("formato_cuenta_gasto") or "{f}{s}000"
+			sufijo_padded = sufijo.zfill(2)
+			account_number = fmt.replace("{f}", familia).replace("{s}", sufijo_padded)
+			account = frappe.db.get_value(
+				"Account",
+				{"company": company, "account_number": account_number, "is_group": 0, "disabled": 0},
+				"name",
+			)
+			if account:
+				return account
+
+			usar_fallback = config.get("usar_fallback_matriz")
+			if not usar_fallback:
+				frappe.msgprint(
+					f"No se encontró cuenta para SAT {sat_code} con patrón '{account_number}'. "
+					f"Asigne la cuenta manualmente o configure la Matriz de Equivalencias SAT.",
+					indicator="orange",
+					alert=True,
+				)
+				return None
+
+		# Buscar en matriz (modo matriz_equivalencias, o patron con fallback)
+		config_name = f"CFDI-REC-CFG-{company}"
+		rows = frappe.get_all(
+			"Mapeo Equivalencias SAT",
+			filters={"parent": config_name, "codigo_agrupador_sat": sat_code},
+			fields=["account"],
+			limit=1,
+		)
+		if rows and rows[0].account:
+			return rows[0].account
+
+		frappe.msgprint(
+			f"No se encontró cuenta para SAT {sat_code} en la Matriz de Equivalencias SAT. "
+			f"Asigne la cuenta manualmente o agregue la equivalencia.",
+			indicator="orange",
+			alert=True,
+		)
+		return None
+
+	return None
+
+
 def _append_item(pi, concepto, cfdi_doc=None):
 	item = {
 		"item_code": concepto.item_code,
@@ -206,6 +289,25 @@ def _append_item(pi, concepto, cfdi_doc=None):
 		item["cost_center"] = cfdi_doc.cost_center
 	if cfdi_doc and cfdi_doc.project:
 		item["project"] = cfdi_doc.project
+
+	if cfdi_doc and cfdi_doc.company and concepto.item_group:
+		familia = _get_familia_sat(cfdi_doc.company, cfdi_doc.department)
+		sufijo = _get_sufijo_sat(concepto.item_group)
+		if familia and sufijo:
+			config_name = f"CFDI-REC-CFG-{cfdi_doc.company}"
+			config = (
+				frappe.db.get_value(
+					"Configuracion CFDI Recibidos",
+					config_name,
+					["modo_resolucion_cuenta_gasto", "formato_cuenta_gasto", "usar_fallback_matriz"],
+					as_dict=True,
+				)
+				or {}
+			)
+			expense_account = _resolve_expense_account(cfdi_doc.company, familia, sufijo, config)
+			if expense_account:
+				item["expense_account"] = expense_account
+
 	pi.append("items", item)
 
 
