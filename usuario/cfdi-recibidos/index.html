@@ -601,6 +601,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#items-genericos-de-gasto-gasto-" class="md-nav__link">
+    <span class="md-ellipsis">
+      Items genéricos de gasto (GASTO-*)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#configuracion-cfdi-recibidos" class="md-nav__link">
     <span class="md-ellipsis">
       Configuracion CFDI Recibidos
@@ -1832,6 +1841,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#items-genericos-de-gasto-gasto-" class="md-nav__link">
+    <span class="md-ellipsis">
+      Items genéricos de gasto (GASTO-*)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#configuracion-cfdi-recibidos" class="md-nav__link">
     <span class="md-ellipsis">
       Configuracion CFDI Recibidos
@@ -1967,6 +1985,23 @@
 </div>
 <hr />
 <h2 id="configuracion-previa-necesaria">Configuración previa necesaria<a class="headerlink" href="#configuracion-previa-necesaria" title="Permanent link">&para;</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">Prerequisito: CoA validado</p>
+<p>Antes de configurar CFDI Recibidos, el Chart of Accounts debe estar revisado y aceptado
+(ver <a href="../getting-started/#fase-1-validacion-del-chart-of-accounts">Fase 1 — Validación del CoA</a>).
+Los templates de impuestos de compras y la asignación de cuentas de gasto quedan vinculados
+al CoA en el momento de crearlos. Corregir el CoA después de tener transacciones es
+significativamente más complejo.</p>
+</div>
+<h3 id="items-genericos-de-gasto-gasto-">Items genéricos de gasto (GASTO-*)<a class="headerlink" href="#items-genericos-de-gasto-gasto-" title="Permanent link">&para;</a></h3>
+<p>El app instala automáticamente un catálogo de items GASTO-* para clasificar los conceptos de los XMLs recibidos. Incluye categorías contables generales alineadas al Código Agrupador SAT, más un overlay de conceptos operativos frecuentes como gasolina, hospedaje, restaurante, paquetería, comisiones bancarias y seguros específicos.</p>
+<p>Los items GASTO-* son items de compra. El app puede cargarles la clave SAT como referencia de clasificación, pero no se usan para emitir CFDIs de venta.</p>
+<p>Para CFDI Recibidos, lo relevante de cada item es:</p>
+<ul>
+<li><strong><code>item_group</code></strong> — determina la categoría de gasto SAT</li>
+<li><strong>Department → familia SAT</strong> — configurable en <code>Configuracion CFDI Recibidos</code></li>
+<li><strong><code>expense_account</code></strong> — resuelta automáticamente al generar la Purchase Invoice, según la estrategia configurada (patrón, matriz de equivalencias o manual)</li>
+</ul>
 <h3 id="configuracion-cfdi-recibidos">Configuracion CFDI Recibidos<a class="headerlink" href="#configuracion-cfdi-recibidos" title="Permanent link">&para;</a></h3>
 <p>Accede desde el workspace <strong>Facturación México</strong>.</p>
 <ol>
