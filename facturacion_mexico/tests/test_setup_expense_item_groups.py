@@ -11,6 +11,7 @@ import frappe
 from facturacion_mexico.setup.cfdi_received_expense_item_groups import (
 	_GROUPS,
 	_UMBRELLA,
+	_get_root_item_group,
 	ensure_cfdi_received_expense_item_groups,
 )
 
@@ -82,19 +83,17 @@ class TestEnsureExpenseItemGroups(unittest.TestCase):
 	def test_padres_bajo_paraguas(self):
 		# Solo verifica grupos que no tienen override de parent en su definición
 		ensure_cfdi_received_expense_item_groups()
-		from facturacion_mexico.setup.cfdi_received_expense_item_groups import _GROUPS
+		root = _get_root_item_group()
 
 		for group in _GROUPS:
 			name = group["name"]
+			actual = frappe.db.get_value("Item Group", name, "parent_item_group")
 			if "parent" in group:
-				# Grupo con parent override — verificar que fue al parent correcto
-				root = frappe.db.get_value("Item Group", {"parent_item_group": ""}, "name")
+				# Grupo con parent override explícito
 				expected = group["parent"] if group["parent"] is not None else root
-				actual = frappe.db.get_value("Item Group", name, "parent_item_group")
 				self.assertEqual(actual, expected, f"{name} debe estar bajo {expected}")
 			else:
-				parent = frappe.db.get_value("Item Group", name, "parent_item_group")
-				self.assertEqual(parent, _UMBRELLA, f"{name} debe estar bajo {_UMBRELLA}")
+				self.assertEqual(actual, _UMBRELLA, f"{name} debe estar bajo {_UMBRELLA}")
 
 	def test_idempotente_no_duplica(self):
 		ensure_cfdi_received_expense_item_groups()

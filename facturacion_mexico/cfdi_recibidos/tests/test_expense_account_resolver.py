@@ -39,14 +39,16 @@ def _table_exists(doctype: str) -> bool:
 def _mapeo_sat_migrated() -> bool:
 	try:
 		return frappe.db.table_exists("Mapeo Equivalencias SAT")
-	except Exception:
+	except RuntimeError:
+		# Frappe no inicializado en import-time (pytest sin contexto)
 		return False
 
 
 def _sufijo_field_migrated() -> bool:
 	try:
 		return bool(frappe.db.get_value("Custom Field", "Item Group-fm_codigo_sufijo_sat", "name"))
-	except Exception:
+	except RuntimeError:
+		# Frappe no inicializado en import-time (pytest sin contexto)
 		return False
 
 
@@ -97,17 +99,29 @@ def _make_config(
 	dept_familia: "list|None" = None,
 ) -> str:
 	config_name = f"CFDI-REC-CFG-{company}"
+	# No hace delete_doc del config existente — solo sobreescribe si ya existe para esta empresa.
+	# El autoname de Configuracion CFDI Recibidos es por empresa (CFDI-REC-CFG-{company}),
+	# así que no puede usarse nombre aleatorio. El cleanup se hace en tearDownClass.
 	if frappe.db.exists("Configuracion CFDI Recibidos", config_name):
-		frappe.delete_doc("Configuracion CFDI Recibidos", config_name, force=True)
-	cfg = frappe.new_doc("Configuracion CFDI Recibidos")
-	cfg.company = company
-	cfg.modo_resolucion_cuenta_gasto = modo
-	cfg.formato_cuenta_gasto = formato
-	cfg.usar_fallback_matriz = usar_fallback
-	if dept_familia:
-		for dept, familia in dept_familia:
-			cfg.append("mapeo_departamentos", {"department": dept, "familia_sat": familia})
-	cfg.insert(ignore_permissions=True, ignore_links=True)
+		cfg = frappe.get_doc("Configuracion CFDI Recibidos", config_name)
+		cfg.modo_resolucion_cuenta_gasto = modo
+		cfg.formato_cuenta_gasto = formato
+		cfg.usar_fallback_matriz = usar_fallback
+		cfg.mapeo_departamentos = []
+		if dept_familia:
+			for dept, family in dept_familia:
+				cfg.append("mapeo_departamentos", {"department": dept, "familia_sat": family})
+		cfg.save(ignore_permissions=True)
+	else:
+		cfg = frappe.new_doc("Configuracion CFDI Recibidos")
+		cfg.company = company
+		cfg.modo_resolucion_cuenta_gasto = modo
+		cfg.formato_cuenta_gasto = formato
+		cfg.usar_fallback_matriz = usar_fallback
+		if dept_familia:
+			for dept, family in dept_familia:
+				cfg.append("mapeo_departamentos", {"department": dept, "familia_sat": family})
+		cfg.insert(ignore_permissions=True, ignore_links=True)
 	frappe.db.commit()
 	return config_name
 
@@ -179,20 +193,22 @@ class TestGetSufijoSat(unittest.TestCase):
 	def setUpClass(cls):
 		super().setUpClass()
 		root = frappe.db.get_value("Item Group", {"parent_item_group": ""}, "name") or "All Item Groups"
-		if not frappe.db.exists("Item Group", "_TestIG Sufijo SAT"):
+		ig_name = f"_TestIG Sufijo SAT {_H}"
+		if not frappe.db.exists("Item Group", ig_name):
 			ig = frappe.new_doc("Item Group")
-			ig.item_group_name = "_TestIG Sufijo SAT"
+			ig.item_group_name = ig_name
 			ig.parent_item_group = root
 			ig.insert(ignore_permissions=True)
 			frappe.db.commit()
-		cls.item_group = "_TestIG Sufijo SAT"
+		cls.item_group = ig_name
 		frappe.db.set_value("Item Group", cls.item_group, "fm_codigo_sufijo_sat", "48")
 		frappe.db.commit()
 
 	@classmethod
 	def tearDownClass(cls):
-		frappe.db.set_value("Item Group", cls.item_group, "fm_codigo_sufijo_sat", "")
-		frappe.db.commit()
+		if frappe.db.exists("Item Group", cls.item_group):
+			frappe.delete_doc("Item Group", cls.item_group, force=True)
+			frappe.db.commit()
 		super().tearDownClass()
 
 	def test_retorna_sufijo_configurado(self):
@@ -200,7 +216,7 @@ class TestGetSufijoSat(unittest.TestCase):
 		self.assertEqual(sufijo, "48")
 
 	def test_strip_espacios(self):
-		frappe.db.set_value("Item Group", self.item_group, "fm_codigo_sufijo_sat", " 50 ")
+		frappe.db.set_value("Item Group", self.__class__.item_group, "fm_codigo_sufijo_sat", " 50 ")
 		frappe.db.commit()
 		sufijo = _get_sufijo_sat(self.item_group)
 		self.assertEqual(sufijo, "50")

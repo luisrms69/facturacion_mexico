@@ -5460,7 +5460,7 @@
   "is_system_generated": 0,
   "is_virtual": 0,
   "label": "Sufijo SAT de gasto",
-  "length": 0,
+  "length": 2,
   "link_filters": null,
   "mandatory_depends_on": null,
   "modified": "2026-06-03 00:00:00.000000",
