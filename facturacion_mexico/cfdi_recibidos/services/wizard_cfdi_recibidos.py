@@ -305,7 +305,7 @@ def _ensure_manual_template(config) -> str:
 		row_data = {
 			"charge_type": "On Net Total",
 			"account_head": rule.cuenta_impuesto,
-			"description": rule.descripcion or f"IVA {tasa_pct}%",
+			"description": rule.descripcion or f"{impuesto_label} {tasa_pct}%",
 			"add_deduct_tax": "Add",
 			"rate": tasa_pct,
 		}
