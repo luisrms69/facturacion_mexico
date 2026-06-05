@@ -93,7 +93,9 @@ Para CFDI Recibidos, lo relevante de cada item es:
 
 - **`item_group`** — determina la categoría de gasto SAT
 - **Department → familia SAT** — configurable en `Configuracion CFDI Recibidos`
-- **`expense_account`** — resuelta automáticamente al generar la Purchase Invoice, según la estrategia configurada (patrón, matriz de equivalencias o manual)
+- **`expense_account`** — cuenta de gasto asignada por concepto antes de convertir a PI. Dos modos:
+    - **Manual**: el usuario la selecciona directamente en cada concepto
+    - **Automático CoA SAT**: el sistema la resuelve combinando familia SAT del departamento + código SAT del grupo de gasto + formato del CoA configurado
 
 ### Configuracion CFDI Recibidos
 
@@ -103,6 +105,14 @@ Accede desde el workspace **Facturación México**.
 2. Configurar reglas de impuesto (IVA acreditable, IEPS, retenciones según aplique)
 3. Clic en **"Generar Template de Impuestos"**
 4. Configurar mapeo de departamentos (familia SAT por departamento)
+5. Configurar **Modo de resolución contable** (`Manual` o `Automatico CoA SAT`)
+6. Si modo Automático: seleccionar **Formato CoA** (`########`, `###-##-###` o `###.##.###`)
+
+!!! tip "Modo Automático CoA SAT"
+    El sistema construye un prefijo (ej: `603-50-`) a partir de la familia SAT del departamento y
+    el código SAT del grupo de gasto, y busca en el CoA exactamente una cuenta activa e imputable
+    bajo ese prefijo. Si encuentra cero o más de una, la conversión falla con mensaje claro y el
+    CFDI queda en `Error conversión`.
 
 ### Tolerancia de totales
 

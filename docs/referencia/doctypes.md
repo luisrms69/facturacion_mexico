@@ -230,6 +230,7 @@ Fuente: `facturacion_mexico/cfdi_recibidos/doctype/cfdi_recibido_concepto/cfdi_r
 | `tax_object` | Objeto Impuesto | Data |  |  |
 | `item_group` | Grupo de Gasto | Link |  | Item Group |
 | `item_code` | Item | Link |  | Item |
+| `expense_account` | Cuenta de Gasto | Link |  | Account |
 | `item_resolution` | Resolución | Select |  | Pendiente… |
 | `item_match_reason` | Motivo de match | Data |  |  |
 | `item_match_confidence` | Confianza | Select |  | … |
@@ -250,6 +251,8 @@ Fuente: `facturacion_mexico/cfdi_recibidos/doctype/configuracion_cfdi_recibidos/
 | `purchase_taxes_template` | Purchase Taxes and Charges Template | Link |  | Purchase Taxes and Charges Template |
 | `wizard_completado` | Template Generado | Check |  |  |
 | `ultima_generacion` | Última Generación | Datetime |  |  |
+| `modo_resolucion_contable` | Modo de resolución contable | Select |  | Manual / Automatico CoA SAT |
+| `formato_coa` | Formato CoA | Select |  | \#\#\#\#\#\#\#\# / \#\#\#-\#\#-\#\#\# / \#\#\#.\#\#.\#\#\# |
 | `tolerancia_total_absoluta` | Tolerancia Absoluta (MXN) | Float |  |  |
 | `tolerancia_total_porcentual` | Tolerancia Porcentual (%) | Percent |  |  |
 
