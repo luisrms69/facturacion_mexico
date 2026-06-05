@@ -89,42 +89,27 @@
    "read_only": 1
   },
   {
-   "fieldname": "section_cuenta_gasto",
-   "label": "Resolución de Cuenta de Gasto",
+   "fieldname": "section_resolucion_contable",
+   "label": "Resolución Contable",
    "fieldtype": "Section Break",
    "collapsible": 1,
-   "description": "Configura cómo el sistema determina la cuenta de gasto (expense_account) al generar Purchase Invoice Drafts desde CFDIs Recibidos."
+   "description": "Define cómo el sistema obtiene la cuenta de gasto al generar Purchase Invoice Drafts desde CFDIs Recibidos."
   },
   {
-   "fieldname": "modo_resolucion_cuenta_gasto",
-   "label": "Modo de resolución de cuenta de gasto",
+   "fieldname": "modo_resolucion_contable",
+   "label": "Modo de resolución contable",
    "fieldtype": "Select",
-   "options": "\nmanual_asistido\npatron\nmatriz_equivalencias",
-   "default": "manual_asistido",
-   "description": "manual_asistido: sin asignación automática, el usuario completa manualmente. patron: construye account_number desde patrón configurable. matriz_equivalencias: busca en tabla auditada SAT → Cuenta."
+   "options": "\nManual\nAutomatico CoA SAT",
+   "default": "Manual",
+   "description": "Manual: el usuario asigna la cuenta en cada concepto antes de convertir. Automatico CoA SAT: el sistema busca la cuenta en el CoA según la familia SAT del departamento y el código SAT del grupo de gasto."
   },
   {
-   "fieldname": "formato_cuenta_gasto",
-   "label": "Formato de cuenta (modo patrón)",
-   "fieldtype": "Data",
-   "default": "{f}{s}000",
-   "description": "{f}=familia SAT 3 dígitos (ej: 603), {s}=sufijo SAT 2 dígitos (ej: 48). Formatos válidos: {f}{s}000 → 60348000 | {f}-{s}-000 → 603-48-000 | {f}.{s} → 603.48",
-   "depends_on": "eval:doc.modo_resolucion_cuenta_gasto=='patron'"
-  },
-  {
-   "fieldname": "usar_fallback_matriz",
-   "label": "Usar matriz de equivalencias como fallback",
-   "fieldtype": "Check",
-   "default": "0",
-   "description": "Si el patrón no encuentra la cuenta, busca en la Matriz de Equivalencias SAT antes de reportar error.",
-   "depends_on": "eval:doc.modo_resolucion_cuenta_gasto=='patron'"
-  },
-  {
-   "fieldname": "matriz_equivalencias_sat",
-   "label": "Matriz de Equivalencias SAT",
-   "fieldtype": "Table",
-   "options": "Mapeo Equivalencias SAT",
-   "description": "Tabla auditada: Código Agrupador SAT → Cuenta contable. Cada fila debe ser validada por el contador."
+   "fieldname": "formato_coa",
+   "label": "Formato CoA",
+   "fieldtype": "Select",
+   "options": "\n########\n###-##-###\n###.##.###",
+   "description": "Formato del account_number en el CoA de esta empresa. Ejemplos: 60350000 (########), 603-50-000 (###-##-###), 603.50.000 (###.##.###). Solo aplica en modo Automatico CoA SAT.",
+   "depends_on": "eval:doc.modo_resolucion_contable=='Automatico CoA SAT'"
   },
   {
    "fieldname": "section_validacion_totales",

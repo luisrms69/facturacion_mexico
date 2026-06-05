@@ -8,6 +8,11 @@ _FAMILIAS_SAT_VALIDAS = frozenset(
 		"602 Gastos de venta",
 		"603 Gastos de administración",
 		"604 Gastos de fabricación",
+		# Soporte para valores legacy con solo el código numérico
+		"601",
+		"602",
+		"603",
+		"604",
 	]
 )
 

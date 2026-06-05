@@ -1,62 +1,64 @@
 # CONTINUITY.md — facturacion_mexico
 
 **Fecha:** 2026-06-04
-**Rama activa:** `feature/cfdi-recibidos-fase2-configuracion-fiscal`
-**Tarea actual:** Configuración fiscal CFDI Recibidos — templates y reclasificación IVA compras
+**Rama activa:** `feature/cfdi-recibidos-simplificar-resolucion-contable`
+**Tarea actual:** Simplificación resolución contable CFDI Recibidos — pendiente commit + PR
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-Completar Fase 2 de configuración en actiglobal-restore.dev: wizard genera templates para compras
-(XML/Actual + porcentuales por tasa), reclasificación de IVA al pagar extiende a compras.
+Simplificación del sistema de resolución de expense_account al generar Purchase Invoice
+desde CFDI Recibidos. Se reemplazaron 3 modos con fallbacks por 2 modos estrictos.
 
 Objetivo inmediato:
-Commit de los cambios actuales → push → restore en producción (next.actiglobal.com)
+Commit aprobado → push → PR.
 
 Criterio de avance:
-Commit creado, push hecho, backup de actiglobal-restore.dev disponible para restore.
+PR abierto, CI verde.
 
 ---
 
 ## Estado actual
 
 ### Ya cerrado
-- Fase 2 configurada en actiglobal-restore.dev ✅
-- wizard genera PTCT Actual (para XML) + PTCT porcentual por tasa activa ✅
-- cargar_reglas extiende a compras desde Configuracion CFDI Recibidos ✅
-- source_type "Gastos / CFDI Recibidos" agregado al DocType ✅
-- tests wizard_manual_templates 7/7 ✅
-- bench migrate en actiglobal-restore.dev y test-facturacion.localhost ✅
+- Modo Manual: expense_account por concepto, falla estricta si falta ✅
+- Modo Automatico CoA SAT: family + subcuenta + formato → busca prefijo en CoA ✅
+- Eliminado DocType `Mapeo Equivalencias SAT` ✅
+- Eliminados campos viejos en `Configuracion CFDI Recibidos` ✅
+- Campo `expense_account` agregado a `CFDI Recibido Concepto` ✅
+- `_SAT_SUBCUENTA` (81 items) + populate `fm_codigo_sufijo_sat` en `after_migrate` ✅
+- bench migrate en facturacion-v16.dev + actiglobal-restore.dev ✅
+- Tests: 17 resolver + 44 PI builder + 8 api = 69/69 ✅
+- Test integración: falla cuenta → no PI → CFDI en "Error conversión" ✅
 
 ### Pendiente inmediato
-1. Commit + push de esta rama
-2. Backup actiglobal-restore.dev → restore en next.actiglobal.com
-3. install-app facturacion_mexico en producción + migrate
-4. Verificar Fase 3 en producción (customers con RFC, items con clave SAT)
+1. Commit + push
+2. PR hacia main
+3. Verificación GUI completa en facturacion-v16.dev (pendiente)
 
 ### No repetir
-- No commitear en main
-- Los tests de reclasificación fallaban porque test site no tenía migrate — ya se corrió
-- account_number es número operativo, NO el Código Agrupador SAT
+- `Mapeo Equivalencias SAT` fue eliminado — Frappe lo detecta como huérfano en migrate
+- Los tests de `test_setup_expense_item_groups` y `test_custom_fields_naming_consistency` fallan por razones pre-existentes (no relacionadas con esta rama)
 
 ---
 
 ## Decisiones vigentes
-- A partir de v1.0.0: facturacion_mexico es sistema en producción
-- wizard genera DOS tipos de PTCT: Actual (para XML) + porcentual (para PIs manuales)
-- template porcentual de mayor tasa queda con is_default=1
-- cargar_reglas en Configuracion Reclasificacion lee de CFM (Cobros) Y CFDI Recibidos (Pagos)
-- Cuota SAT no genera template porcentual (monto fijo/unidad, no porcentaje)
+- 2 modos: Manual / Automatico CoA SAT — sin fallbacks
+- Si la cuenta no resuelve → no se crea PI, CFDI = "Error conversión"
+- `fm_codigo_sufijo_sat` se puebla como fixture vía `after_migrate` (81 item groups mapeados)
+- El prefijo SAT se construye desde family + subcuenta + formato CoA seleccionado
+- Formato CoA: Select con 3 opciones fijas (########, ###-##-###, ###.##.###)
 
 ---
 
 ## Archivos relevantes ahora
 
-### Probablemente editar (post-commit)
-- ninguno — commit limpia el estado
+### Leer primero
+- `purchase_invoice_builder.py` — lógica de resolución nueva
+- `configuracion_cfdi_recibidos.json` — schema simplificado
 
 ### No tocar
-- one_offs/ — no se commitean
-- working_docs/active/addenda_la_comer_evidencia/ — evidencias cliente
+- `one_offs/` — no se commitean
+- `actiglobal-restore.dev` — DFP External Storage tiene problema de enc_key, no escribir

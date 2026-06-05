@@ -105,6 +105,14 @@
    "read_only": 1
   },
   {
+   "fieldname": "expense_account",
+   "label": "Cuenta de Gasto",
+   "fieldtype": "Link",
+   "options": "Account",
+   "in_list_view": 1,
+   "description": "Cuenta contable de gasto. En modo Automático CoA SAT se asigna al convertir. En modo Manual el usuario la selecciona antes de convertir."
+  },
+  {
    "fieldname": "taxes_json",
    "label": "Impuestos (JSON)",
    "fieldtype": "JSON"

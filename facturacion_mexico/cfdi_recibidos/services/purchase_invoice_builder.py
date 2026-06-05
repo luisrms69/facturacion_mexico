@@ -1,16 +1,15 @@
 """
 PurchaseInvoiceBuilder — Convierte CFDI Recibido a Purchase Invoice Draft.
 
-Flujo: CFDI Recibido → idempotencia → validar item_codes → items → taxes → PI draft
+Flujo: CFDI Recibido → idempotencia → validar item_codes → resolver cuentas → PI draft
 
-Precondición: todos los conceptos deben tener item_code confirmado en CFDI Recibido Concepto.
-La clasificación (asignación de item_code) ocurre antes en el flujo de clasificación.
-CFDI Concepto Mapping NO se consulta aquí — su rol es clasificar, no construir la PI.
+Resolución de cuenta de gasto:
+  Automático CoA SAT: family (dept) + subcuenta SAT (item_group) + formato CoA
+    → busca en Account exactamente 1 cuenta activa e imputable con ese prefijo.
+  Manual: lee concepto.expense_account (el usuario lo seleccionó previamente).
 
-Idempotencia:
-  A: UUID existe, mismo CFDI, grand_total OK          → repara vínculo, recovered=True
-  B: UUID existe, mismo CFDI, grand_total mismatch    → ValidationError
-  C: UUID existe, CFDI diferente                      → ValidationError (bloqueo)
+En ambos modos, el resultado se escribe en concepto.expense_account antes de crear la PI.
+Si cualquier concepto no puede resolverse → ValidationError, no se crea PI.
 """
 
 import json
@@ -26,7 +25,6 @@ _DEFAULT_TOL_PCT = 0.5
 
 
 def _load_tolerances(company: str) -> "tuple[float, float]":
-	"""Lee tolerancias de Configuracion CFDI Recibidos. Usa defaults si no están configuradas."""
 	config_name = f"CFDI-REC-CFG-{company}"
 	if not frappe.db.exists("Configuracion CFDI Recibidos", config_name):
 		return _DEFAULT_TOL_ABS, _DEFAULT_TOL_PCT
@@ -52,7 +50,6 @@ def _load_tolerances(company: str) -> "tuple[float, float]":
 
 
 def _within_tolerance(diff: float, total_xml: float, tol_abs: float, tol_pct: float) -> bool:
-	"""True si diff es aceptable: cumple tolerancia absoluta O porcentual (si pct > 0)."""
 	if diff <= tol_abs:
 		return True
 	if tol_pct > 0 and total_xml > 0:
@@ -61,7 +58,6 @@ def _within_tolerance(diff: float, total_xml: float, tol_abs: float, tol_pct: fl
 
 
 def build_purchase_invoice(cfdi_recibido_name: str) -> dict:
-	# El flag permite que los saves internos del builder pasen el lock de validate.
 	frappe.flags.in_cfdi_builder = True
 	try:
 		return _build_purchase_invoice(cfdi_recibido_name)
@@ -79,7 +75,7 @@ def _build_purchase_invoice(cfdi_recibido_name: str) -> dict:
 	    {"status": "ok", "purchase_invoice": name, "recovered": bool}
 
 	Raises:
-	    frappe.ValidationError: item_code faltante, configuración faltante o incongruencia
+	    frappe.ValidationError: item_code faltante, cuenta no resuelta o incongruencia
 	"""
 	cfdi_doc = frappe.get_doc("CFDI Recibido", cfdi_recibido_name)
 
@@ -88,6 +84,10 @@ def _build_purchase_invoice(cfdi_recibido_name: str) -> dict:
 		return recovery
 
 	_validate_all_conceptos_classified(cfdi_doc)
+
+	# Resolver y escribir expense_account en cada concepto (en memoria)
+	config = _load_resolution_config(cfdi_doc.company)
+	_resolve_all_expense_accounts(cfdi_doc, config)
 
 	pi = _build_pi_doc(cfdi_doc)
 	pi.insert(ignore_permissions=True)
@@ -101,8 +101,190 @@ def _build_purchase_invoice(cfdi_recibido_name: str) -> dict:
 	return {"status": "ok", "purchase_invoice": pi.name, "recovered": False}
 
 
+def _load_resolution_config(company: str) -> dict:
+	config_name = f"CFDI-REC-CFG-{company}"
+	if not frappe.db.exists("Configuracion CFDI Recibidos", config_name):
+		return {}
+	return (
+		frappe.db.get_value(
+			"Configuracion CFDI Recibidos",
+			config_name,
+			["modo_resolucion_contable", "formato_coa"],
+			as_dict=True,
+		)
+		or {}
+	)
+
+
+def _resolve_all_expense_accounts(cfdi_doc, config: dict):
+	"""
+	Resuelve expense_account para cada concepto. Escribe en concepto.expense_account (en memoria).
+	Si cualquier concepto falla → ValidationError. No se crea ninguna PI.
+	"""
+	mode = config.get("modo_resolucion_contable") or "Manual"
+	formato = config.get("formato_coa") or ""
+
+	family = None
+	if mode == "Automatico CoA SAT":
+		family = _get_familia_sat(cfdi_doc.company, cfdi_doc.department)
+		if not family:
+			frappe.throw(
+				_(
+					"Departamento '{0}' no tiene familia SAT configurada. "
+					"Configure el mapeo en Configuracion CFDI Recibidos antes de convertir."
+				).format(cfdi_doc.department or "—"),
+				frappe.ValidationError,
+			)
+		if not formato:
+			frappe.throw(
+				_("Formato CoA no configurado en Configuracion CFDI Recibidos."),
+				frappe.ValidationError,
+			)
+
+	for concepto in cfdi_doc.conceptos or []:
+		concepto.expense_account = _resolve_one(concepto, cfdi_doc.company, mode, family, formato)
+
+
+def _resolve_one(concepto, company: str, mode: str, family: str | None, formato: str) -> str:
+	"""
+	Resuelve la cuenta de gasto para un concepto. Retorna el nombre de la Account.
+	Lanza ValidationError si no puede resolver.
+	"""
+	label = concepto.item_code or concepto.description or "?"
+
+	if mode == "Manual":
+		account = getattr(concepto, "expense_account", None) or ""
+		if not account:
+			frappe.throw(
+				_(
+					"Concepto '{0}': Cuenta de Gasto vacía. "
+					"En modo Manual seleccione la cuenta en cada concepto antes de convertir."
+				).format(label),
+				frappe.ValidationError,
+			)
+		_validate_account(account, company, label)
+		return account
+
+	# Automatico CoA SAT
+	subcuenta = _get_sufijo_sat(concepto.item_group)
+	if not subcuenta:
+		frappe.throw(
+			_(
+				"Concepto '{0}': el Grupo de Gasto '{1}' no tiene código SAT configurado "
+				"(fm_codigo_sufijo_sat vacío). No se puede resolver automáticamente."
+			).format(label, concepto.item_group or "—"),
+			frappe.ValidationError,
+		)
+
+	prefix = _build_prefix(formato, family, subcuenta)
+
+	accounts = frappe.get_all(
+		"Account",
+		filters={
+			"company": company,
+			"account_number": ["like", f"{prefix}%"],
+			"is_group": 0,
+			"disabled": 0,
+		},
+		pluck="name",
+	)
+
+	if len(accounts) == 1:
+		return accounts[0]
+
+	if len(accounts) == 0:
+		frappe.throw(
+			_(
+				"No se pudo resolver una cuenta contable válida para el concepto '{0}'. "
+				"No existe ninguna cuenta activa e imputable con account_number que empiece por '{1}'. "
+				"Verifique el CoA o use modo Manual."
+			).format(label, prefix),
+			frappe.ValidationError,
+		)
+
+	frappe.throw(
+		_(
+			"Hay {0} cuentas con account_number que empieza por '{1}': {2}. "
+			"Debe existir exactamente una cuenta imputable bajo ese prefijo. "
+			"Corrija el CoA o use modo Manual."
+		).format(len(accounts), prefix, ", ".join(accounts[:3])),
+		frappe.ValidationError,
+	)
+
+
+def _build_prefix(formato_coa: str, family: str, subcuenta: str) -> str:
+	"""Construye el prefijo para buscar account_number en CoA."""
+	sub = subcuenta.zfill(2)
+	if formato_coa == "###-##-###":
+		return f"{family}-{sub}-"
+	if formato_coa == "###.##.###":
+		return f"{family}.{sub}."
+	if formato_coa == "########":
+		return f"{family}{sub}"
+	frappe.throw(
+		_("Formato CoA '{0}' no reconocido. Formatos válidos: ########, ###-##-###, ###.##.###").format(
+			formato_coa
+		),
+		frappe.ValidationError,
+	)
+
+
+def _validate_account(account_name: str, company: str, label: str):
+	"""Valida que la cuenta exista, sea de la empresa, activa y no grupo."""
+	data = frappe.db.get_value("Account", account_name, ["company", "is_group", "disabled"], as_dict=True)
+	if not data:
+		frappe.throw(
+			_("Concepto '{0}': la cuenta '{1}' no existe.").format(label, account_name),
+			frappe.ValidationError,
+		)
+	if data.company != company:
+		frappe.throw(
+			_("Concepto '{0}': la cuenta '{1}' pertenece a '{2}', no a '{3}'.").format(
+				label, account_name, data.company, company
+			),
+			frappe.ValidationError,
+		)
+	if data.is_group:
+		frappe.throw(
+			_("Concepto '{0}': la cuenta '{1}' es un grupo contable, no es imputable.").format(
+				label, account_name
+			),
+			frappe.ValidationError,
+		)
+	if data.disabled:
+		frappe.throw(
+			_("Concepto '{0}': la cuenta '{1}' está deshabilitada.").format(label, account_name),
+			frappe.ValidationError,
+		)
+
+
+def _get_familia_sat(company: str, department: str) -> str | None:
+	"""Retorna el código de 3 dígitos de familia SAT para el department."""
+	if not department:
+		return None
+	config_name = f"CFDI-REC-CFG-{company}"
+	if not frappe.db.exists("Configuracion CFDI Recibidos", config_name):
+		return None
+	rows = frappe.get_all(
+		"Mapeo Departamento CFDI Recibido",
+		filters={"parent": config_name, "department": department},
+		fields=["familia_sat"],
+		limit=1,
+	)
+	if not rows or not rows[0].familia_sat:
+		return None
+	return rows[0].familia_sat.split()[0]  # "603 Gastos de administración" → "603"
+
+
+def _get_sufijo_sat(item_group: str) -> str | None:
+	"""Retorna el código SAT de 2 dígitos del Item Group."""
+	if not item_group:
+		return None
+	suffix = frappe.db.get_value("Item Group", item_group, "fm_codigo_sufijo_sat")
+	return suffix.strip() if suffix else None
+
+
 def _validate_all_conceptos_classified(cfdi_doc):
-	"""Bloquea si algún concepto no tiene item_code confirmado."""
 	unclassified = [c for c in (cfdi_doc.conceptos or []) if not getattr(c, "item_code", None)]
 	if unclassified:
 		frappe.throw(
@@ -124,7 +306,6 @@ def _check_idempotency(cfdi_doc) -> "dict | None":
 	if not existing:
 		return None
 
-	# Caso C: mismo UUID, CFDI diferente → bloquear
 	if existing.fm_cfdi_recibido and existing.fm_cfdi_recibido != cfdi_doc.name:
 		frappe.throw(
 			_(
@@ -134,11 +315,9 @@ def _check_idempotency(cfdi_doc) -> "dict | None":
 			frappe.ValidationError,
 		)
 
-	# Mismo CFDI → Caso A (reparación) o Caso B (mismatch)
 	diff = abs(flt(existing.grand_total) - flt(cfdi_doc.total))
 	tol_abs, tol_pct = _load_tolerances(cfdi_doc.company)
 	if _within_tolerance(diff, flt(cfdi_doc.total), tol_abs, tol_pct):
-		# Caso A: reparar vínculo si es necesario
 		needs_save = cfdi_doc.purchase_invoice != existing.name or cfdi_doc.status != "Convertido a PI"
 		if needs_save:
 			cfdi_doc.purchase_invoice = existing.name
@@ -146,7 +325,6 @@ def _check_idempotency(cfdi_doc) -> "dict | None":
 			cfdi_doc.save(ignore_permissions=True)
 		return {"status": "ok", "purchase_invoice": existing.name, "recovered": True}
 
-	# Caso B: grand_total difiere más de la tolerancia → error
 	frappe.throw(
 		_(
 			"Purchase Invoice {0} ya existe para UUID {1} pero su grand_total ({2}) "
@@ -195,128 +373,18 @@ def _build_pi_doc(cfdi_doc):
 	return pi
 
 
-def _get_familia_sat(company: str, department: str) -> str | None:
-	"""Retorna el código de 3 dígitos de familia SAT para el department (ej: '603')."""
-	if not department:
-		return None
-	config_name = f"CFDI-REC-CFG-{company}"
-	if not frappe.db.exists("Configuracion CFDI Recibidos", config_name):
-		return None
-	rows = frappe.get_all(
-		"Mapeo Departamento CFDI Recibido",
-		filters={"parent": config_name, "department": department},
-		fields=["familia_sat"],
-		limit=1,
-	)
-	if not rows or not rows[0].familia_sat:
-		return None
-	return rows[0].familia_sat.split()[0]  # "603 Gastos de administración" → "603"
-
-
-def _get_sufijo_sat(item_group: str) -> str | None:
-	"""Retorna el sufijo SAT de 2 dígitos configurado en el Item Group (ej: '48')."""
-	if not item_group:
-		return None
-	suffix = frappe.db.get_value("Item Group", item_group, "fm_codigo_sufijo_sat")
-	return suffix.strip() if suffix else None
-
-
-def _resolve_expense_account(company: str, family: str, suffix: str, config) -> str | None:
-	"""
-	Resuelve expense_account según modo_resolucion_cuenta_gasto de la config.
-	Retorna el name de la Account, o None con advertencia en frappe.msgprint si no se encuentra.
-	Nunca asigna silenciosamente — si no hay cuenta, retorna None y registra advertencia.
-	"""
-	sat_code = f"{family}.{suffix.zfill(2)}"
-	mode = config.get("modo_resolucion_cuenta_gasto") or "manual_asistido"
-
-	if mode == "manual_asistido":
-		return None
-
-	if mode in {"patron", "matriz_equivalencias"}:
-		if mode == "patron":
-			fmt = config.get("formato_cuenta_gasto") or "{f}{s}000"
-			suffix_padded = suffix.zfill(2)
-			account_number = fmt.replace("{f}", family).replace("{s}", suffix_padded)
-			account = frappe.db.get_value(
-				"Account",
-				{"company": company, "account_number": account_number, "is_group": 0, "disabled": 0},
-				"name",
-			)
-			if account:
-				return account
-
-			use_fallback = config.get("usar_fallback_matriz")
-			if not use_fallback:
-				frappe.msgprint(
-					f"No se encontró cuenta para SAT {sat_code} con patrón '{account_number}'. "
-					f"Asigne la cuenta manualmente o configure la Matriz de Equivalencias SAT.",
-					indicator="orange",
-					alert=True,
-				)
-				return None
-
-		# Buscar en matriz (modo matriz_equivalencias, o patron con fallback)
-		config_name = f"CFDI-REC-CFG-{company}"
-		rows = frappe.get_all(
-			"Mapeo Equivalencias SAT",
-			filters={"parent": config_name, "codigo_agrupador_sat": sat_code, "validado_por_contador": 1},
-			fields=["account"],
-			order_by="idx asc",
-			limit=2,
-		)
-		if len(rows) > 1:
-			frappe.throw(
-				_(
-					"Hay múltiples equivalencias SAT validadas para {0}. "
-					"Deje solo una fila con 'Validado por contador' activo."
-				).format(sat_code),
-				frappe.ValidationError,
-			)
-		if rows and rows[0].account:
-			return rows[0].account
-
-		frappe.msgprint(
-			f"No se encontró cuenta para SAT {sat_code} en la Matriz de Equivalencias SAT. "
-			f"Asigne la cuenta manualmente o agregue la equivalencia.",
-			indicator="orange",
-			alert=True,
-		)
-		return None
-
-	return None
-
-
 def _append_item(pi, concepto, cfdi_doc=None):
 	item = {
 		"item_code": concepto.item_code,
 		"description": concepto.description or concepto.sat_product_key or "",
 		"qty": flt(concepto.quantity) or 1,
 		"rate": flt(concepto.unit_price),
+		"expense_account": concepto.expense_account,
 	}
 	if cfdi_doc and cfdi_doc.cost_center:
 		item["cost_center"] = cfdi_doc.cost_center
 	if cfdi_doc and cfdi_doc.project:
 		item["project"] = cfdi_doc.project
-
-	if cfdi_doc and cfdi_doc.company and concepto.item_group:
-		family = _get_familia_sat(cfdi_doc.company, cfdi_doc.department)
-		suffix = _get_sufijo_sat(concepto.item_group)
-		if family and suffix:
-			config_name = f"CFDI-REC-CFG-{cfdi_doc.company}"
-			config = (
-				frappe.db.get_value(
-					"Configuracion CFDI Recibidos",
-					config_name,
-					["modo_resolucion_cuenta_gasto", "formato_cuenta_gasto", "usar_fallback_matriz"],
-					as_dict=True,
-				)
-				or {}
-			)
-			expense_account = _resolve_expense_account(cfdi_doc.company, family, suffix, config)
-			if expense_account:
-				item["expense_account"] = expense_account
-
 	pi.append("items", item)
 
 
