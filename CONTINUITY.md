@@ -1,64 +1,55 @@
 # CONTINUITY.md — facturacion_mexico
 
 **Fecha:** 2026-06-04
-**Rama activa:** `feature/cfdi-recibidos-simplificar-resolucion-contable`
-**Tarea actual:** Simplificación resolución contable CFDI Recibidos — pendiente commit + PR
+**Rama activa:** `main` (post-merge PR #178)
+**Tarea actual:** Preparar micro-PR de fixes CodeRabbit + continuar roadmap Fase 4
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-Simplificación del sistema de resolución de expense_account al generar Purchase Invoice
-desde CFDI Recibidos. Se reemplazaron 3 modos con fallbacks por 2 modos estrictos.
+PR #178 mergeado. Pendiente micro-PR con 3 fixes de CodeRabbit (PR #177 + #178).
+Después de ese micro-PR, siguiente tarea es Fase 4 — Registrar pago (#153).
 
 Objetivo inmediato:
-Commit aprobado → push → PR.
+1. Micro-PR de fixes CodeRabbit (ver propuesta en frappe-infrastructure/checkpoints/micro-pr-coderabbit-followup.md)
+2. Iniciar Fase 4 — botón "Registrar Pago" con API nativa ERPNext (#153)
 
 Criterio de avance:
-PR abierto, CI verde.
+Micro-PR mergeado + issue #153 iniciado.
 
 ---
 
 ## Estado actual
 
 ### Ya cerrado
-- Modo Manual: expense_account por concepto, falla estricta si falta ✅
-- Modo Automatico CoA SAT: family + subcuenta + formato → busca prefijo en CoA ✅
-- Eliminado DocType `Mapeo Equivalencias SAT` ✅
-- Eliminados campos viejos en `Configuracion CFDI Recibidos` ✅
-- Campo `expense_account` agregado a `CFDI Recibido Concepto` ✅
-- `_SAT_SUBCUENTA` (81 items) + populate `fm_codigo_sufijo_sat` en `after_migrate` ✅
-- bench migrate en facturacion-v16.dev + actiglobal-restore.dev ✅
-- Tests: 17 resolver + 44 PI builder + 8 api = 69/69 ✅
-- Test integración: falla cuenta → no PI → CFDI en "Error conversión" ✅
+- PR #177 mergeado: wizard PTCT porcentual + cargar_reglas Pagos ✅
+- PR #178 mergeado: simplificación resolución contable 2 modos estrictos ✅
+- bench migrate: test-facturacion.localhost + facturacion-v16.dev + actiglobal-restore.dev ✅
 
 ### Pendiente inmediato
-1. Commit + push
-2. PR hacia main
-3. Verificación GUI completa en facturacion-v16.dev (pendiente)
+1. Micro-PR: 3 fixes CodeRabbit (propuesta lista en checkpoints)
+2. Issue #153: Fase 4 — Registrar Pago via API nativa ERPNext
 
 ### No repetir
-- `Mapeo Equivalencias SAT` fue eliminado — Frappe lo detecta como huérfano en migrate
-- Los tests de `test_setup_expense_item_groups` y `test_custom_fields_naming_consistency` fallan por razones pre-existentes (no relacionadas con esta rama)
+- Mapeo Equivalencias SAT eliminado — no reintroducir
+- actiglobal-restore.dev: problema enc_key DFP External Storage — no escribir
 
 ---
 
 ## Decisiones vigentes
-- 2 modos: Manual / Automatico CoA SAT — sin fallbacks
-- Si la cuenta no resuelve → no se crea PI, CFDI = "Error conversión"
-- `fm_codigo_sufijo_sat` se puebla como fixture vía `after_migrate` (81 item groups mapeados)
-- El prefijo SAT se construye desde family + subcuenta + formato CoA seleccionado
-- Formato CoA: Select con 3 opciones fijas (########, ###-##-###, ###.##.###)
+- Resolución contable CFDI Recibidos: 2 modos (Manual / Automatico CoA SAT), sin fallbacks
+- fm_codigo_sufijo_sat se puebla via after_migrate (81 item groups)
+- Micro-PR CodeRabbit pendiente: ver frappe-infrastructure/checkpoints/micro-pr-coderabbit-followup.md
 
 ---
 
 ## Archivos relevantes ahora
 
 ### Leer primero
-- `purchase_invoice_builder.py` — lógica de resolución nueva
-- `configuracion_cfdi_recibidos.json` — schema simplificado
+- `frappe-infrastructure/checkpoints/micro-pr-coderabbit-followup.md` — propuesta micro-PR
 
 ### No tocar
 - `one_offs/` — no se commitean
-- `actiglobal-restore.dev` — DFP External Storage tiene problema de enc_key, no escribir
+- `actiglobal-restore.dev` — problema enc_key DFP External Storage

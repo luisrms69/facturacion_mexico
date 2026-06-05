@@ -273,7 +273,8 @@ def _get_familia_sat(company: str, department: str) -> str | None:
 	)
 	if not rows or not rows[0].familia_sat:
 		return None
-	return rows[0].familia_sat.split()[0]  # "603 Gastos de administración" → "603"
+	parts = rows[0].familia_sat.split()
+	return parts[0] if parts else None
 
 
 def _get_sufijo_sat(item_group: str) -> str | None:
