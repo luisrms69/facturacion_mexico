@@ -185,6 +185,7 @@ def _make_cfdi(
 	impuestos: dict | None = None,
 	supplier_rfc: str = TEST_SUPPLIER_RFC,
 	item_code: str | None = None,
+	expense_account: str | None = None,
 ) -> str:
 	"""Crea CFDI Recibido mínimo con un concepto para pruebas."""
 	if impuestos is None:
@@ -219,6 +220,8 @@ def _make_cfdi(
 	}
 	if item_code:
 		concepto["item_code"] = item_code
+	if expense_account:
+		concepto["expense_account"] = expense_account
 	cfdi.append("conceptos", concepto)
 	cfdi.insert(ignore_permissions=True)
 	frappe.db.set_value("CFDI Recibido", cfdi.name, "status", status)
@@ -273,7 +276,12 @@ class TestBuildPurchaseInvoiceEndpoint(unittest.TestCase):
 		return f"{_UUID_PREFIX}BLD{n:04d}"
 
 	def test_crea_pi_draft_correctamente(self):
-		cfdi_name = _make_cfdi(self._uuid(1), supplier=self.supplier_name, item_code=self.test_item)
+		cfdi_name = _make_cfdi(
+			self._uuid(1),
+			supplier=self.supplier_name,
+			item_code=self.test_item,
+			expense_account=self.expense_account,
+		)
 		self._cleanup_cfdis.append(cfdi_name)
 
 		result = build_purchase_invoice(cfdi_name)
@@ -307,6 +315,7 @@ class TestBuildPurchaseInvoiceEndpoint(unittest.TestCase):
 			supplier=self.supplier_name,
 			impuestos=impuestos_invalidos,
 			item_code=self.test_item,
+			expense_account=self.expense_account,
 		)
 		self._cleanup_cfdis.append(cfdi_name)
 
@@ -318,7 +327,12 @@ class TestBuildPurchaseInvoiceEndpoint(unittest.TestCase):
 		self.assertIn("999", result["message"])
 
 	def test_idempotencia_devuelve_recovered(self):
-		cfdi_name = _make_cfdi(self._uuid(4), supplier=self.supplier_name, item_code=self.test_item)
+		cfdi_name = _make_cfdi(
+			self._uuid(4),
+			supplier=self.supplier_name,
+			item_code=self.test_item,
+			expense_account=self.expense_account,
+		)
 		self._cleanup_cfdis.append(cfdi_name)
 
 		result1 = build_purchase_invoice(cfdi_name)
@@ -343,6 +357,7 @@ class TestBuildPurchaseInvoiceEndpoint(unittest.TestCase):
 			supplier=self.supplier_name,
 			impuestos=impuestos_invalidos,
 			item_code=self.test_item,
+			expense_account=self.expense_account,
 		)
 		self._cleanup_cfdis.append(cfdi_name)
 

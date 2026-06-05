@@ -14,6 +14,101 @@ import frappe
 
 _UMBRELLA = "Gastos"
 
+# Mapa Item Group → código SAT de subcuenta (2 dígitos, base 10).
+# Derivado del Código Agrupador SAT 2024 — familia 603 como referencia;
+# los mismos subcódigos aplican a 601, 602 y 604 para las mismas categorías.
+# Items sin entrada aquí no tienen resolución automática disponible.
+_SAT_SUBCUENTA = {
+	"Sueldos y salarios": "01",
+	"Compensaciones": "02",
+	"Tiempos extras": "03",
+	"Premios de asistencia": "04",
+	"Premios de puntualidad": "05",
+	"Vacaciones": "06",
+	"Prima vacacional": "07",
+	"Prima dominical": "08",
+	"Días festivos": "09",
+	"Gratificaciones": "10",
+	"Primas de antigüedad": "11",
+	"Aguinaldo": "12",
+	"Indemnizaciones": "13",
+	"Destajo": "14",
+	"Despensa": "15",
+	"Transporte": "16",
+	"Servicio médico": "17",
+	"Ayuda en gastos funerarios": "18",
+	"Fondo de ahorro": "19",
+	"Cuotas sindicales": "20",
+	"PTU": "21",
+	"Estímulo al personal": "22",
+	"Previsión social": "23",
+	"Aportaciones para el plan de jubilación": "24",
+	"Otras prestaciones al personal": "25",
+	"Cuotas al IMSS": "26",
+	"Aportaciones al Infonavit": "27",
+	"Aportaciones al SAR": "28",
+	"Impuesto estatal sobre nóminas": "29",
+	"Otras aportaciones": "30",
+	"Asimilados a salarios": "31",
+	"Servicios administrativos": "32",
+	"Servicios administrativos partes relacionadas": "33",
+	"Honorarios a personas físicas residentes nacionales": "34",
+	"Honorarios a personas físicas residentes nacionales partes relacionadas": "35",
+	"Honorarios a personas físicas residentes del extranjero": "36",
+	"Honorarios a personas físicas residentes del extranjero partes relacionadas": "37",
+	"Honorarios a personas morales residentes nacionales": "38",
+	"Honorarios a personas morales residentes nacionales partes relacionadas": "39",
+	"Honorarios a personas morales residentes del extranjero": "40",
+	"Honorarios a personas morales residentes del extranjero partes relacionadas": "41",
+	"Honorarios aduanales personas físicas": "42",
+	"Honorarios aduanales personas morales": "43",
+	"Honorarios al consejo de administración": "44",
+	"Arrendamiento a personas físicas residentes nacionales": "45",
+	"Arrendamiento a personas morales residentes nacionales": "46",
+	"Arrendamiento a residentes del extranjero": "47",
+	"Combustibles y lubricantes": "48",
+	"Viáticos y gastos de viaje": "49",
+	"Teléfono, internet": "50",
+	"Agua": "51",
+	"Energía eléctrica": "52",
+	"Vigilancia y seguridad": "53",
+	"Limpieza": "54",
+	"Papelería y artículos de oficina": "55",
+	"Mantenimiento y conservación": "56",
+	"Seguros y fianzas": "57",
+	"Otros impuestos y derechos": "58",
+	"Recargos fiscales": "59",
+	"Cuotas y suscripciones": "60",
+	"Propaganda y publicidad": "61",
+	"Capacitación al personal": "62",
+	"Donativos y ayudas": "63",
+	"Asistencia técnica": "64",
+	"Regalías sujetas a otros porcentajes": "65",
+	"Regalías sujetas al 5%": "66",
+	"Regalías sujetas al 10%": "67",
+	"Regalías sujetas al 15%": "68",
+	"Regalías sujetas al 25%": "69",
+	"Regalías sujetas al 30%": "70",
+	"Regalías sin retención": "71",
+	"Fletes y acarreos": "72",
+	"Gastos de importación": "73",
+	"Patentes y marcas": "74",
+	"Uniformes": "75",
+	"Prediales": "76",
+	"Fletes del extranjero": "79",
+	"Gastos no deducibles (sin requisitos fiscales)": "81",
+	"Otros gastos generales": "82",
+	# Los siguientes no tienen código en la familia 601-604 del SAT.
+	# En modo Automático CoA SAT fallarán (comportamiento correcto — usar modo Manual).
+	# "Gastos generales de urbanización"  → CoA: 603-77 "Gastos de adm. de urbanización" (nombre diferente)
+	# "Gastos generales de construcción"  → CoA: 603-78 "Gastos de adm. de construcción" (nombre diferente)
+	# "Comisiones sobre ventas"           → no confirmado en familia 601-604
+	# "Comisiones por tarjetas de crédito"→ no confirmado en familia 601-604
+	# "Recolección de bienes del sector agropecuario y/o ganadero" → no en 601-604
+	# Gastos financieros (pérdida cambiaria, intereses, comisiones bancarias) → familia 702
+	# Productos financieros (utilidad cambiaria, intereses a favor)           → familia 702/701
+}
+
 _GROUPS = [
 	{
 		"name": "Nómina y prestaciones",
@@ -254,7 +349,7 @@ def ensure_cfdi_received_expense_item_groups() -> dict:
 
 def _ensure_group(name: str, parent: str, is_group: bool) -> "tuple[bool, dict | None]":
 	"""
-	Crea el Item Group si no existe.
+	Crea el Item Group si no existe y asigna fm_codigo_sufijo_sat desde _SAT_SUBCUENTA.
 	Retorna (created: bool, conflict: dict | None).
 	Conflicto = existe con padre diferente al esperado.
 	"""
@@ -266,12 +361,21 @@ def _ensure_group(name: str, parent: str, is_group: bool) -> "tuple[bool, dict |
 				"expected_parent": parent,
 				"actual_parent": existing_parent,
 			}
+		# Actualizar fm_codigo_sufijo_sat si está vacío y tenemos el código
+		sat_code = _SAT_SUBCUENTA.get(name)
+		if sat_code:
+			current = frappe.db.get_value("Item Group", name, "fm_codigo_sufijo_sat")
+			if not current:
+				frappe.db.set_value("Item Group", name, "fm_codigo_sufijo_sat", sat_code)
 		return False, None
 
 	doc = frappe.new_doc("Item Group")
 	doc.item_group_name = name
 	doc.parent_item_group = parent
 	doc.is_group = 1 if is_group else 0
+	sat_code = _SAT_SUBCUENTA.get(name)
+	if sat_code:
+		doc.fm_codigo_sufijo_sat = sat_code
 	doc.insert(ignore_permissions=True)
 	return True, None
 

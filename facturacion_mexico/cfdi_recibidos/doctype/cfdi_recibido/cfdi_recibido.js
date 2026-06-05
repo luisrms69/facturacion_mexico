@@ -306,7 +306,9 @@ function _show_create_item_dialog(frm, concepto, resolution_type, on_done) {
 				reqd: 1,
 				default: concepto.item_group || "",
 				get_query() {
-					return { filters: { is_group: 0 } };
+					return {
+						query: "facturacion_mexico.cfdi_recibidos.queries.get_expense_item_groups",
+					};
 				},
 			},
 			{

@@ -265,9 +265,15 @@ class TestPurchaseInvoiceBuilder(unittest.TestCase):
 		return f"{_UUID_PREFIX}{suffix}"
 
 	def _concepto(
-		self, item_code=None, sat_key=None, description="Servicio de prueba", unit_price=100.0, quantity=1
+		self,
+		item_code=None,
+		sat_key=None,
+		description="Servicio de prueba",
+		unit_price=100.0,
+		quantity=1,
+		expense_account=None,
 	) -> dict:
-		"""Crea un concepto con item_code pre-asignado."""
+		"""Crea un concepto con item_code y expense_account pre-asignados."""
 		return {
 			"sat_product_key": sat_key or TEST_SAT_KEY,
 			"description": description,
@@ -280,6 +286,7 @@ class TestPurchaseInvoiceBuilder(unittest.TestCase):
 			"tax_object": "02",
 			"taxes_json": "{}",
 			"item_code": item_code or self.test_item,
+			"expense_account": expense_account or self.expense_account,
 		}
 
 	def _make_cfdi(
@@ -450,7 +457,7 @@ class TestPurchaseInvoiceBuilder(unittest.TestCase):
 	# ------------------------------------------------------------------ #
 
 	def test_expense_account_derivada_del_item(self):
-		"""expense_account en PI viene de item_defaults del item, no del mapping."""
+		"""expense_account en PI viene de concepto.expense_account (asignado en el concepto)."""
 		cfdi = self._make_cfdi("008")
 		result = build_purchase_invoice(cfdi)
 		pi = frappe.get_doc("Purchase Invoice", result["purchase_invoice"])
@@ -556,8 +563,8 @@ class TestPurchaseInvoiceBuilder(unittest.TestCase):
 	def test_multiples_conceptos_procesados(self):
 		"""Múltiples conceptos: todos los items tienen item_code y grand_total correcto."""
 		conceptos = [
-			self._concepto(description="Servicio A", unit_price=60.0),
-			self._concepto(description="Servicio B", unit_price=40.0),
+			self._concepto(description="Servicio A", unit_price=60.0, expense_account=self.expense_account),
+			self._concepto(description="Servicio B", unit_price=40.0, expense_account=self.expense_account),
 		]
 		impuestos = {
 			"traslados": [
@@ -743,6 +750,7 @@ class TestToleranciaConfigurable(unittest.TestCase):
 				"tax_object": "02",
 				"taxes_json": "{}",
 				"item_code": self.test_item,
+				"expense_account": self.expense_account,
 			},
 		)
 		doc.insert(ignore_permissions=True)
@@ -912,6 +920,7 @@ class TestBatchGenerate(unittest.TestCase):
 				"tax_object": "02",
 				"taxes_json": "{}",
 				"item_code": self.test_item,
+				"expense_account": self.expense_account,
 			},
 		)
 		doc.insert(ignore_permissions=True)
@@ -995,6 +1004,7 @@ class TestBatchGenerate(unittest.TestCase):
 				"tax_object": "02",
 				"taxes_json": "{}",
 				"item_code": self.test_item,
+				"expense_account": self.expense_account,
 			},
 		)
 		doc.insert(ignore_permissions=True)
@@ -1276,6 +1286,7 @@ class TestPurchaseInvoiceBuilderCostCenterProject(unittest.TestCase):
 				"tax_object": "02",
 				"taxes_json": "{}",
 				"item_code": self.test_item,
+				"expense_account": self.expense_account,
 			},
 		)
 		doc.insert(ignore_permissions=True)
@@ -1317,3 +1328,243 @@ class TestPurchaseInvoiceBuilderCostCenterProject(unittest.TestCase):
 		self.assertEqual(pi.cost_center, self.cost_center)
 		for item in pi.items:
 			self.assertEqual(item.cost_center, self.cost_center)
+
+
+# ---------------------------------------------------------------------------
+# Test de integración — falla de cuenta contable no crea PI
+# ---------------------------------------------------------------------------
+
+_INT_H = frappe.generate_hash()[:6]
+_INT_UUID_PREFIX = f"INT{_INT_H}0000000100"
+_INT_SUPPLIER_RFC = f"BINT{_INT_H}"[:13]
+
+
+class TestExpenseAccountFallaNoCreaPi(unittest.TestCase):
+	"""
+	Integración end-to-end: modo Automatico CoA SAT sin cuenta imputable
+	→ no se crea Purchase Invoice, CFDI queda en 'Error conversión'.
+
+	Flujo completo a través de api.build_purchase_invoice (incluye rollback
+	y actualización de status).
+	"""
+
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+
+		# Asegurar que existe el grupo "Gastos"
+		if not frappe.db.exists("Item Group", "Gastos"):
+			root_ig = (
+				frappe.db.get_value("Item Group", {"parent_item_group": ""}, "name") or "All Item Groups"
+			)
+			g = frappe.new_doc("Item Group")
+			g.item_group_name = "Gastos"
+			g.parent_item_group = root_ig
+			g.is_group = 1
+			g.insert(ignore_permissions=True)
+
+		# Limpiar residuos de runs anteriores (item groups _INT IG * en cualquier padre)
+		stale = frappe.get_all("Item Group", filters={"item_group_name": ["like", "_INT IG %"]}, pluck="name")
+		for s in stale:
+			try:
+				frappe.delete_doc("Item Group", s, force=True)
+			except Exception:
+				pass
+		if stale:
+			frappe.db.commit()
+
+		# Item Group con código SAT "99" bajo "Gastos" — ninguna cuenta en CoA empieza con "603-99-"
+		cls.ig_name = f"_INT IG {_INT_H}"
+		ig = frappe.new_doc("Item Group")
+		ig.item_group_name = cls.ig_name
+		ig.parent_item_group = "Gastos"
+		ig.is_group = 0
+		ig.insert(ignore_permissions=True)
+		frappe.db.set_value("Item Group", cls.ig_name, "fm_codigo_sufijo_sat", "99")
+
+		# Item de compra bajo ese item_group
+		cls.item_code = f"_INT-ITEM-{_INT_H}"
+		if not frappe.db.exists("Item", cls.item_code):
+			item = frappe.new_doc("Item")
+			item.item_code = cls.item_code
+			item.item_name = cls.item_code
+			item.item_group = cls.ig_name
+			item.is_stock_item = 0
+			item.is_purchase_item = 1
+			item.is_sales_item = 0
+			item.stock_uom = "H87 - Pieza"
+			item.append("uoms", {"uom": "H87 - Pieza", "conversion_factor": 1})
+			item.flags.ignore_validate = True
+			item.insert(ignore_permissions=True)
+
+		# Department para el mapeo SAT
+		cls.department = f"_Test INT Dept {_INT_H}"
+		if not frappe.db.exists("Department", cls.department):
+			parent_dept = frappe.db.get_value("Department", {"is_group": 1}, "name") or "All Departments"
+			dept = frappe.new_doc("Department")
+			dept.department_name = cls.department
+			dept.parent_department = parent_dept
+			dept.company = TEST_COMPANY
+			dept.is_group = 0
+			dept.insert(ignore_permissions=True)
+			frappe.db.commit()
+
+		# Supplier
+		cls.supplier_name = f"_INT Prov {_INT_H}"
+		if not frappe.db.exists("Supplier", cls.supplier_name):
+			sup_group = frappe.db.get_value("Supplier Group", {"is_group": 0}, "name")
+			sup = frappe.new_doc("Supplier")
+			sup.supplier_name = cls.supplier_name
+			sup.supplier_group = sup_group
+			sup.tax_id = _INT_SUPPLIER_RFC
+			sup.insert(ignore_permissions=True)
+
+		# Cuenta de impuesto (para no fallar en tax_resolver)
+		cls.acc_iva = _get_or_create_tax_account(f"_INT IVA {_INT_H}", TEST_COMPANY)
+
+		# Configuracion CFDI Recibidos — modo Automatico CoA SAT, formato ###-##-###
+		config_name = f"CFDI-REC-CFG-{TEST_COMPANY}"
+		if frappe.db.exists("Configuracion CFDI Recibidos", config_name):
+			frappe.delete_doc("Configuracion CFDI Recibidos", config_name, force=True)
+		config = frappe.new_doc("Configuracion CFDI Recibidos")
+		config.company = TEST_COMPANY
+		config.modo_resolucion_contable = "Automatico CoA SAT"
+		config.formato_coa = "###-##-###"
+		config.append(
+			"reglas_impuesto",
+			{
+				"impuesto_sat": "002",
+				"tipo_factor": "Tasa",
+				"tasa_cuota": 0.16,
+				"descripcion": "IVA Test INT",
+				"es_retencion": 0,
+				"cuenta_impuesto": cls.acc_iva,
+				"activo": 1,
+			},
+		)
+		# Mapeo de departamento → familia SAT 603
+		config.append(
+			"mapeo_departamentos",
+			{
+				"department": cls.department,
+				"familia_sat": "603 Gastos de administración",
+			},
+		)
+		config.insert(ignore_permissions=True, ignore_links=True)
+
+		frappe.db.commit()
+
+	@classmethod
+	def tearDownClass(cls):
+		config_name = f"CFDI-REC-CFG-{TEST_COMPANY}"
+		if frappe.db.exists("Configuracion CFDI Recibidos", config_name):
+			frappe.delete_doc("Configuracion CFDI Recibidos", config_name, force=True)
+		_delete_if_exists("Item", cls.item_code)
+		try:
+			_delete_if_exists("Account", cls.acc_iva)
+		except Exception:
+			pass
+		try:
+			_delete_if_exists("Supplier", cls.supplier_name)
+		except Exception:
+			pass
+		try:
+			frappe.delete_doc("Item Group", cls.ig_name, force=True)
+		except Exception:
+			pass
+		try:
+			frappe.delete_doc("Department", cls.department, force=True)
+		except Exception:
+			pass
+		frappe.db.commit()
+		super().tearDownClass()
+
+	def setUp(self):
+		self._cfdi_name = None
+
+	def tearDown(self):
+		if self._cfdi_name and frappe.db.exists("CFDI Recibido", self._cfdi_name):
+			try:
+				frappe.delete_doc("CFDI Recibido", self._cfdi_name, force=True)
+				frappe.db.commit()
+			except Exception:
+				pass
+
+	def _make_cfdi_sin_cuenta(self, suffix: str) -> str:
+		uuid = f"{_INT_UUID_PREFIX}{suffix}"
+		doc = frappe.new_doc("CFDI Recibido")
+		doc.company = TEST_COMPANY
+		doc.uuid = uuid
+		doc.supplier_rfc = _INT_SUPPLIER_RFC
+		doc.supplier_name = self.supplier_name
+		doc.receiver_rfc = frappe.db.get_value("Company", TEST_COMPANY, "tax_id") or "RFC000000000"
+		doc.status = "Clasificado"
+		doc.cfdi_type = "I"
+		doc.xml_hash = frappe.generate_hash()[:64]
+		doc.supplier = self.supplier_name
+		doc.department = self.__class__.department
+		doc.issue_date = "2026-01-15"
+		doc.total = 116.0
+		doc.subtotal = 100.0
+		doc.currency = frappe.db.get_value("Company", TEST_COMPANY, "default_currency") or "MXN"
+		doc.exchange_rate = 1.0
+		doc.impuestos_json = json.dumps(
+			{
+				"traslados": [
+					{"impuesto": "002", "tipo_factor": "Tasa", "tasa_cuota": "0.160000", "importe": 16.0}
+				],
+				"retenciones": [],
+			}
+		)
+		doc.append(
+			"conceptos",
+			{
+				"sat_product_key": TEST_SAT_KEY,
+				"description": "Servicio sin cuenta",
+				"quantity": 1,
+				"unit_key": "E48",
+				"unit": "Servicio",
+				"unit_price": 100.0,
+				"amount": 100.0,
+				"discount": 0,
+				"tax_object": "02",
+				"taxes_json": "{}",
+				"item_code": self.item_code,
+				"item_group": self.ig_name,
+				# expense_account vacío — debe resolverse automáticamente pero fallará
+			},
+		)
+		doc.insert(ignore_permissions=True, ignore_links=True)
+		frappe.db.commit()
+		return doc.name
+
+	def test_sin_cuenta_no_crea_pi_y_cfdi_queda_en_error(self):
+		"""
+		Regla de negocio crítica: si la resolución automática falla por ausencia de cuenta
+		compatible en el CoA, NO se crea Purchase Invoice y el CFDI queda en 'Error conversión'.
+		"""
+		from facturacion_mexico.cfdi_recibidos.api import build_purchase_invoice as api_build
+
+		self._cfdi_name = self._make_cfdi_sin_cuenta("E01")
+		uuid = frappe.db.get_value("CFDI Recibido", self._cfdi_name, "uuid")
+
+		# Confirmar que no existe PI previa
+		self.assertIsNone(frappe.db.get_value("Purchase Invoice", {"fm_cfdi_uuid": uuid}, "name"))
+
+		# Llamar a través de la api (que hace rollback + set status)
+		result = api_build(self._cfdi_name)
+
+		# La api debe retornar error
+		self.assertEqual(result["status"], "error", f"Esperado 'error', obtenido: {result}")
+
+		# No debe existir Purchase Invoice vinculada al UUID
+		pi_name = frappe.db.get_value("Purchase Invoice", {"fm_cfdi_uuid": uuid}, "name")
+		self.assertIsNone(pi_name, f"No debe existir PI para UUID {uuid}, pero existe: {pi_name}")
+
+		# El CFDI debe quedar en 'Error conversión'
+		status = frappe.db.get_value("CFDI Recibido", self._cfdi_name, "status")
+		self.assertEqual(
+			status,
+			"Error conversión",
+			f"CFDI debe quedar en 'Error conversión', está en: {status}",
+		)
