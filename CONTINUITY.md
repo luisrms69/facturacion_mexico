@@ -1,65 +1,79 @@
 # CONTINUITY.md — facturacion_mexico
 
 **Fecha:** 2026-06-06
-**Rama activa:** `fix/issue-162-clave-sat-obligatoria`
-**Tarea actual:** Dos commits listos — pendiente push + PR
+**Rama activa:** `feature/160-factura-global-hardcodes`
+**Tarea actual:** Issue #160 — eliminar hardcodes fiscales en Factura Global / EReceipt MX
 
 ---
 
 ## Recuperación rápida
 
-Esta rama contiene correcciones para los issues #162 y #161:
+Estoy trabajando en:
+Issue #160: valores fiscales hardcodeados en `cfdi_global_builder.py`. Commit hecho en
+esta rama, pendiente de push y PR hacia `main`.
 
-- **Commit 1 (`05d11bc`)** — issue #162: eliminar fallback "01010101" clave SAT en timbrado
-- **Commit 2 (pendiente push)** — issue #161: eliminar inferencia forma de pago por string-slice
+Plan que estoy siguiendo:
+GitHub issue #160 — "feat: prerequisitos fiscales requeridos antes de activar Factura Global MX"
 
-Objetivo inmediato: push → PR.
+Objetivo inmediato:
+Push + PR de esta rama a `main`.
+
+Criterio de avance:
+PR creado, CI verde, merge autorizado por el usuario.
 
 ---
 
 ## Estado actual
 
 ### Ya cerrado
-- PR #177–#180 mergeados ✅
-- Issue #162: fallback "01010101" eliminado — 3 capas de defensa ✅
-- Issue #161: string-slice eliminado — helper `_resolver_forma_pago_sat` ✅
-- Validado en GUI (actiglobal-restore.dev:8406) ✅
-- Suite completa: 1136 tests — 2 failures preexistentes no relacionados ✅
+- PR #181 mergeado ✅ — issues #161 y #162 cerrados
+- Issue #182 creado ✅ — modelo line-level IEPS para EReceipt MX / Factura Global
+
+### En progreso
+- Rama `feature/160-factura-global-hardcodes`: commit hecho, push pendiente
 
 ### Pendiente inmediato
-1. Push + PR de esta rama
-2. Decidir siguiente frente: issue #163 (limpieza técnica) o Fase 4 pagos (#153)
+1. Push de `feature/160-factura-global-hardcodes` → upstream
+2. Crear PR → `main`
+3. Revisión + merge
 
 ### No repetir
-- `or "01010101"` como fallback de clave SAT — eliminado (#162)
-- `[:2].strip()` como inferencia de forma de pago SAT — eliminado (#161)
-- `fm_codigo_sat` / `custom_forma_pago_sat` — campos fantasma, no crear ni usar
+- `\n` dentro de `_()` dispara `frappe-translation-python-splitting`
+- `tax_rate` en EReceipt MX es modelo **transitorio** — el definitivo es issue #182 (line-level)
+- "no IVA rows" ≠ exento — `extract_iva_info_from_si_taxes` retorna `None`, no `0.0`
+- Test runner falla pre-existente (`_Test Item is not a stock Item`) — ERPNext, no causado por este PR
 
 ---
 
 ## Decisiones vigentes
 
-- Clave SAT obligatoria en flujo fiscal (no global en Item)
-- Forma de pago SAT solo desde MoP del fixture con patrón `^\d{2} - .+$` + lookup en Forma Pago SAT
-- MoP nativos ERPNext (Cash, Wire Transfer, etc.) deshabilitados en fixture
-- Mensaje de error en español claro y accionable
+- `tax_rate` + `has_ieps` en EReceipt MX son campos transitorios (doc en el JSON del doctype)
+- `extract_iva_info_from_si_taxes`: sin default 16, sin asunción de exento, bloquea si indeterminado
+- IEPS en Factura Global: bloqueado con error explícito referenciando issue #182
+- `frappe.flags.in_test` guard en `sales_invoice_automated_tax.py` — test records de ERPNext no tienen SAT key
+- Clave SAT obligatoria en flujo fiscal (3 capas de defensa) — heredado de main
+- main nunca es rama de trabajo
 
 ---
 
-## Archivos de esta rama
+## Archivos relevantes ahora
 
-### issue #162 (commit 05d11bc)
-- `timbrado_api.py` — `_validate_items_clave_sat_for_timbrado` + defensa final + sin "01010101"
-- `factura_fiscal_mexico.py` — `_validate_items_clave_sat` en `validate()`
-- `hooks_handlers/sales_invoice_automated_tax.py` — mensaje error mejorado
-- `tests/test_issue162_clave_sat_obligatoria.py` — 9 tests
+### Leer primero
+- `facturacion_mexico/facturas_globales/processors/cfdi_global_builder.py`
+- `facturacion_mexico/utils/calculo_impuestos.py` (nueva función `extract_iva_info_from_si_taxes`)
 
-### issue #161 (commit pendiente)
-- `complementos_pago/api.py` — `_resolver_forma_pago_sat` + reemplaza string-slice
-- `fixtures/mode_of_payment.json` — MoP nativos con `enabled: 0`
-- `complementos_pago/tests/test_resolver_forma_pago_sat.py` — 16 tests
+### Probablemente editar en próximos issues
+- `facturacion_mexico/ereceipts/doctype/ereceipt_mx/ereceipt_mx.json` (issue #182)
+- `facturacion_mexico/facturas_globales/processors/ereceipt_aggregator.py` (issue #182)
 
 ### No tocar
-- `one_offs/` — no se commitean
-- `actiglobal-restore.dev` — enc_key DFP External Storage (no adjuntos)
-- E-Receipts, Factura Global, CFDI Recibidos — fuera de alcance de esta rama
+- `working_docs/active/addenda_la_comer_evidencia/` — evidencia de epic distinto
+- `facturacion_mexico/one_offs/verificar_issue_160.py` — no commitear
+
+---
+
+## Riesgos / cuidados
+
+- EReceipts existentes sin `tax_rate`: al incluirlos en Factura Global → `ValidationError` claro (correcto por diseño)
+- Company Settings sin `global_payment_form_default`: bloquea al timbrar Factura Global (correcto)
+- Issue #182 (IEPS line-level) debe hacerse antes de activar Factura Global en producción con productos IEPS

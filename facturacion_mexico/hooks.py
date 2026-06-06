@@ -424,7 +424,10 @@ doc_events = {
 	# =============================================================================
 	# EReceipt Automation - Automatización recibos digitales
 	"EReceipt MX": {
-		"before_save": "facturacion_mexico.ereceipts.hooks_handlers.ereceipt_validate.calculate_expiry_date",
+		"before_save": [
+			"facturacion_mexico.ereceipts.hooks_handlers.ereceipt_validate.calculate_expiry_date",
+			"facturacion_mexico.ereceipts.hooks_handlers.ereceipt_validate.populate_fiscal_info",
+		],
 		"after_insert": "facturacion_mexico.ereceipts.hooks_handlers.ereceipt_insert.generate_facturapi_ereceipt",
 	},
 	# P6.1.4d: Factura Fiscal Mexico hooks eliminados - solo logging legacy sin FiscalEventMX

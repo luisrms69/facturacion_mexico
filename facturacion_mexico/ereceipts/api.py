@@ -43,6 +43,13 @@ def crear_ereceipt(sales_invoice_name: str | None = None):
 		ereceipt.total = sales_invoice.grand_total
 		ereceipt.date_issued = frappe.utils.today()
 
+		# Poblar info fiscal desde SI (transitorio — issue #182 para modelo line-level)
+		from facturacion_mexico.utils.calculo_impuestos import extract_iva_info_from_si_taxes
+
+		tax_rate, has_ieps = extract_iva_info_from_si_taxes(sales_invoice.taxes or [])
+		ereceipt.tax_rate = tax_rate  # None si no determinable
+		ereceipt.has_ieps = 1 if has_ieps else 0
+
 		# Calcular fecha de vencimiento según configuración
 		_calcular_fecha_vencimiento(ereceipt)
 
