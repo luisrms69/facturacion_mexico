@@ -106,9 +106,7 @@ def _validate_items_clave_sat_for_timbrado(sales_invoice):
 			missing.append(f"• {item.item_code} ({item.item_name or item.item_code})")
 	if missing:
 		frappe.throw(
-			_(
-				"No se puede timbrar: los siguientes ítems no tienen Clave SAT Producto/Servicio configurada:\n\n{0}\n\nConfigure el campo en Item → 'Clave SAT Producto/Servicio'."
-			).format("\n".join(missing)),
+			_("No se puede timbrar: ítems sin Clave SAT:\n\n{0}").format("\n".join(missing)),
 			frappe.ValidationError,
 			title=_("Claves SAT Faltantes — Timbrado Bloqueado"),
 		)
@@ -538,10 +536,7 @@ class TimbradoAPI:
 			# si _validate_invoice_for_timbrado corrió primero.
 			if not item_doc.fm_producto_servicio_sat:
 				frappe.throw(
-					_(
-						"Ítem '{0}': Clave SAT Producto/Servicio no configurada. "
-						"Configúrela en Item antes de timbrar."
-					).format(item_doc.name),
+					_("Ítem '{0}': sin Clave SAT Producto/Servicio.").format(item_doc.name),
 					frappe.ValidationError,
 					title=_("Clave SAT Faltante"),
 				)
