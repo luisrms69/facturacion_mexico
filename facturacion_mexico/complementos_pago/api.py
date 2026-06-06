@@ -1,4 +1,5 @@
 import json
+import re
 from datetime import date, datetime
 
 import frappe
@@ -49,15 +50,7 @@ def crear_complemento_pago_desde_pe(payment_entry_name: str) -> dict:
 		)
 
 	# --- Obtener forma de pago SAT desde mode_of_payment ---
-	# ERPNext ya tiene mode_of_payment — tomamos los primeros 2 caracteres como código SAT
-	if not pe.get("mode_of_payment"):
-		frappe.throw(
-			_(
-				"El Payment Entry no tiene Forma de Pago configurada. "
-				"Configure Mode of Payment antes de crear el complemento."
-			)
-		)
-	forma_pago_sat = (pe.mode_of_payment or "")[:2].strip()
+	forma_pago_sat = _resolver_forma_pago_sat(pe.get("mode_of_payment"))
 
 	# --- Crear complemento ---
 	complemento = frappe.new_doc("Complemento Pago MX")
@@ -101,6 +94,77 @@ def crear_complemento_pago_desde_pe(payment_entry_name: str) -> dict:
 
 	frappe.logger().info(f"Complemento {complemento.name} creado para PE {pe.name}")
 	return {"complemento_name": complemento.name}
+
+
+_PATRON_MOP_SAT = re.compile(r"^(\d{2}) - .+$")
+
+
+def _resolver_forma_pago_sat(mode_of_payment: str | None) -> str:
+	"""Resuelve el código SAT de Forma de Pago desde un Mode of Payment del fixture del app.
+
+	Validaciones en orden:
+	1. mode_of_payment no vacío
+	2. Mode of Payment existe en BD
+	3. Mode of Payment está habilitado
+	4. Nombre cumple patrón estricto ^(\\d{2}) - .+$
+	5. Código extraído existe en DocType 'Forma Pago SAT'
+
+	Sin fallback. Sin inferencia. Falla explícitamente si el MoP no
+	corresponde al catálogo SAT (ej: Cash, Wire Transfer, Check).
+	"""
+	if not mode_of_payment:
+		frappe.throw(
+			_(
+				"El Payment Entry no tiene Forma de Pago configurada. "
+				"Configure un modo de pago del catálogo SAT antes de crear el complemento."
+			),
+			frappe.ValidationError,
+			title=_("Forma de Pago Faltante"),
+		)
+
+	enabled = frappe.db.get_value("Mode of Payment", mode_of_payment, "enabled")
+	if enabled is None:
+		frappe.throw(
+			_("El modo de pago '{0}' no existe en el sistema.").format(mode_of_payment),
+			frappe.ValidationError,
+			title=_("Modo de Pago No Encontrado"),
+		)
+	if not enabled:
+		frappe.throw(
+			_(
+				"El modo de pago '{0}' está deshabilitado. "
+				"Seleccione un modo de pago del catálogo SAT activo."
+			).format(mode_of_payment),
+			frappe.ValidationError,
+			title=_("Modo de Pago Deshabilitado"),
+		)
+
+	match = _PATRON_MOP_SAT.match(mode_of_payment)
+	if not match:
+		frappe.throw(
+			_(
+				"El modo de pago '{0}' no corresponde al catálogo SAT. "
+				"Use un modo de pago con formato 'NN - Descripción' "
+				"(ejemplo: '03 - Transferencia electrónica de fondos')."
+			).format(mode_of_payment),
+			frappe.ValidationError,
+			title=_("Modo de Pago No Compatible con SAT"),
+		)
+
+	codigo = match.group(1)
+
+	if not frappe.db.exists("Forma Pago SAT", codigo):
+		frappe.throw(
+			_(
+				"El código '{0}' extraído del modo de pago '{1}' "
+				"no existe en el catálogo SAT de Forma de Pago. "
+				"Verifique la configuración del modo de pago."
+			).format(codigo, mode_of_payment),
+			frappe.ValidationError,
+			title=_("Código SAT No Válido"),
+		)
+
+	return codigo
 
 
 def _obtener_si_ppd_validas(pe) -> list:
