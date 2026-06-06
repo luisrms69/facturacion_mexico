@@ -218,5 +218,59 @@
   "modified": "2025-08-01 02:19:40.223135",
   "name": "03 - Transferencia electrónica de fondos",
   "type": "General"
+ },
+ {
+  "accounts": [],
+  "docstatus": 0,
+  "doctype": "Mode of Payment",
+  "enabled": 0,
+  "mode_of_payment": "Bank Draft",
+  "name": "Bank Draft",
+  "type": "General"
+ },
+ {
+  "accounts": [],
+  "docstatus": 0,
+  "doctype": "Mode of Payment",
+  "enabled": 0,
+  "mode_of_payment": "Cash",
+  "name": "Cash",
+  "type": "Cash"
+ },
+ {
+  "accounts": [],
+  "docstatus": 0,
+  "doctype": "Mode of Payment",
+  "enabled": 0,
+  "mode_of_payment": "Check",
+  "name": "Check",
+  "type": "General"
+ },
+ {
+  "accounts": [],
+  "docstatus": 0,
+  "doctype": "Mode of Payment",
+  "enabled": 0,
+  "mode_of_payment": "Cheque",
+  "name": "Cheque",
+  "type": "General"
+ },
+ {
+  "accounts": [],
+  "docstatus": 0,
+  "doctype": "Mode of Payment",
+  "enabled": 0,
+  "mode_of_payment": "Credit Card",
+  "name": "Credit Card",
+  "type": "General"
+ },
+ {
+  "accounts": [],
+  "docstatus": 0,
+  "doctype": "Mode of Payment",
+  "enabled": 0,
+  "mode_of_payment": "Wire Transfer",
+  "name": "Wire Transfer",
+  "type": "General"
  }
 ]

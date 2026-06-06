@@ -1,63 +1,65 @@
 # CONTINUITY.md — facturacion_mexico
 
-**Fecha:** 2026-06-05
-**Rama activa:** `fix/pi-posting-date-y-dashboard-sql`
-**Tarea actual:** Commit listo — validado en GUI, pendiente push + PR
+**Fecha:** 2026-06-06
+**Rama activa:** `fix/issue-162-clave-sat-obligatoria`
+**Tarea actual:** Dos commits listos — pendiente push + PR
 
 ---
 
 ## Recuperación rápida
 
-Estoy trabajando en:
-Rama `fix/pi-posting-date-y-dashboard-sql` con dos correcciones puntuales listas para PR.
+Esta rama contiene correcciones para los issues #162 y #161:
 
-Objetivo inmediato:
-Push → PR.
+- **Commit 1 (`05d11bc`)** — issue #162: eliminar fallback "01010101" clave SAT en timbrado
+- **Commit 2 (pendiente push)** — issue #161: eliminar inferencia forma de pago por string-slice
 
-Criterio de avance:
-PR mergeado, main sincronizado.
+Objetivo inmediato: push → PR.
 
 ---
 
 ## Estado actual
 
 ### Ya cerrado
-
-- PR #177, #178, #179 mergeados ✅
-- posting_date fix: set_posting_time=1 + guard issue_date vacío + tests ✅ (confirmado GUI)
-- DashboardWidgetConfig: write quitado a Accounts Manager ✅
+- PR #177–#180 mergeados ✅
+- Issue #162: fallback "01010101" eliminado — 3 capas de defensa ✅
+- Issue #161: string-slice eliminado — helper `_resolver_forma_pago_sat` ✅
+- Validado en GUI (actiglobal-restore.dev:8406) ✅
+- Suite completa: 1136 tests — 2 failures preexistentes no relacionados ✅
 
 ### Pendiente inmediato
-
-1. Push + PR de la rama actual
-2. Iniciar Fase 4 — Registrar Pago (#153) después del merge
+1. Push + PR de esta rama
+2. Decidir siguiente frente: issue #163 (limpieza técnica) o Fase 4 pagos (#153)
 
 ### No repetir
-
-- Mapeo Equivalencias SAT eliminado — no reintroducir
-- actiglobal-restore.dev: enc_key DFP — no escribir
-- Sin `set_posting_time = 1`, ERPNext ignora posting_date y usa today() — ya corregido
+- `or "01010101"` como fallback de clave SAT — eliminado (#162)
+- `[:2].strip()` como inferencia de forma de pago SAT — eliminado (#161)
+- `fm_codigo_sat` / `custom_forma_pago_sat` — campos fantasma, no crear ni usar
 
 ---
 
 ## Decisiones vigentes
 
-- PI posting_date = issue_date del XML, usando `set_posting_time = 1`
-- Si issue_date vacío → ValidationError, no se crea PI (no fallback a today)
-- DashboardWidgetConfig write = solo System Manager
-- auditoria_fiscal.py WHERE: confirmado seguro (campos internos + valores parametrizados)
-- ereceipts expire_ereceipts: confirmado seguro (scheduler, sin input externo)
-- Resolución contable CFDI Recibidos: 2 modos, sin fallbacks
+- Clave SAT obligatoria en flujo fiscal (no global en Item)
+- Forma de pago SAT solo desde MoP del fixture con patrón `^\d{2} - .+$` + lookup en Forma Pago SAT
+- MoP nativos ERPNext (Cash, Wire Transfer, etc.) deshabilitados en fixture
+- Mensaje de error en español claro y accionable
 
 ---
 
-## Archivos modificados en esta rama
+## Archivos de esta rama
 
-- `cfdi_recibidos/services/purchase_invoice_builder.py` — set_posting_time + guard issue_date
-- `cfdi_recibidos/tests/test_purchase_invoice_builder.py` — 3 tests fechas
-- `dashboard_fiscal/doctype/dashboard_widget_config/dashboard_widget_config.json` — permisos
+### issue #162 (commit 05d11bc)
+- `timbrado_api.py` — `_validate_items_clave_sat_for_timbrado` + defensa final + sin "01010101"
+- `factura_fiscal_mexico.py` — `_validate_items_clave_sat` en `validate()`
+- `hooks_handlers/sales_invoice_automated_tax.py` — mensaje error mejorado
+- `tests/test_issue162_clave_sat_obligatoria.py` — 9 tests
+
+### issue #161 (commit pendiente)
+- `complementos_pago/api.py` — `_resolver_forma_pago_sat` + reemplaza string-slice
+- `fixtures/mode_of_payment.json` — MoP nativos con `enabled: 0`
+- `complementos_pago/tests/test_resolver_forma_pago_sat.py` — 16 tests
 
 ### No tocar
-
 - `one_offs/` — no se commitean
-- `actiglobal-restore.dev` — enc_key DFP External Storage
+- `actiglobal-restore.dev` — enc_key DFP External Storage (no adjuntos)
+- E-Receipts, Factura Global, CFDI Recibidos — fuera de alcance de esta rama

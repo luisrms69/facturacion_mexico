@@ -93,6 +93,25 @@ def _extract_sat_code_from_uom(uom_name):
 	return uom_mapping.get(uom_name, "H87")
 
 
+def _validate_items_clave_sat_for_timbrado(sales_invoice):
+	"""Verifica que todos los ítems del SI tienen Clave SAT Producto/Servicio.
+
+	Se llama en _validate_invoice_for_timbrado antes de construir el payload.
+	Falla rápido reportando todos los ítems faltantes en un solo error.
+	"""
+	missing = []
+	for item in sales_invoice.items:
+		clave = frappe.db.get_value("Item", item.item_code, "fm_producto_servicio_sat")
+		if not clave:
+			missing.append(f"• {item.item_code} ({item.item_name or item.item_code})")
+	if missing:
+		frappe.throw(
+			_("No se puede timbrar: ítems sin Clave SAT:") + "\n\n" + "\n".join(missing),
+			frappe.ValidationError,
+			title=_("Claves SAT Faltantes — Timbrado Bloqueado"),
+		)
+
+
 class TimbradoAPI:
 	"""API para timbrado de facturas usando FacturAPI.io."""
 
@@ -427,6 +446,8 @@ class TimbradoAPI:
 
 		validate_invoice_items_uom(sales_invoice.items)
 
+		_validate_items_clave_sat_for_timbrado(sales_invoice)
+
 	def _get_factura_fiscal(self, sales_invoice):
 		"""Obtener Factura Fiscal México existente."""
 		if not sales_invoice.fm_factura_fiscal_mx:
@@ -510,6 +531,15 @@ class TimbradoAPI:
 		items = []
 		for item in sales_invoice.items:
 			item_doc = frappe.get_doc("Item", item.item_code)
+
+			# Defensa final contra ausencia de clave SAT — no debe llegar aquí
+			# si _validate_invoice_for_timbrado corrió primero.
+			if not item_doc.fm_producto_servicio_sat:
+				frappe.throw(
+					_("Ítem '{0}': sin Clave SAT Producto/Servicio.").format(item_doc.name),
+					frappe.ValidationError,
+					title=_("Clave SAT Faltante"),
+				)
 
 			# E4.1: Leer taxes desde SI (NO calcular)
 			item_taxes_data = self._read_taxes_from_sales_invoice_item(item, sales_invoice)
@@ -647,7 +677,7 @@ class TimbradoAPI:
 				"quantity": abs(item.qty),  # SIs de devolución tienen qty negativa por diseño ERPNext
 				"product": {
 					"description": item.description or item.item_name,
-					"product_key": item_doc.fm_producto_servicio_sat or "01010101",
+					"product_key": item_doc.fm_producto_servicio_sat,
 					"price": flt(item.rate),
 					"tax_included": False,
 					"unit_key": _extract_sat_code_from_uom(item.uom),
