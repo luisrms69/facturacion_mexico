@@ -195,6 +195,28 @@ class FacturaFiscalMexico(Document):
 		self.validate_cfdi_use()
 		self.validate_payment_method()
 		self.validate_ppd_vs_forma_pago()
+		self._validate_items_clave_sat()
+
+	def _validate_items_clave_sat(self):
+		"""Verificar que todos los ítems del SI tienen Clave SAT Producto/Servicio."""
+		if not self.sales_invoice:
+			return
+		si = frappe.get_doc("Sales Invoice", self.sales_invoice)
+		missing = []
+		for item in si.items:
+			clave = frappe.db.get_value("Item", item.item_code, "fm_producto_servicio_sat")
+			if not clave:
+				missing.append(f"• {item.item_code} ({item.item_name or item.item_code})")
+		if missing:
+			frappe.throw(
+				_(
+					"No se puede procesar esta Factura Fiscal: los siguientes ítems no tienen "
+					"Clave SAT Producto/Servicio configurada:\n\n{0}\n\n"
+					"Configure el campo 'Clave SAT Producto/Servicio' en cada ítem antes de continuar."
+				).format("\n".join(missing)),
+				frappe.ValidationError,
+				title=_("Claves SAT Faltantes"),
+			)
 
 	def _normalize_sync(self):
 		"""Normalizar estado de sincronización a minúsculas."""

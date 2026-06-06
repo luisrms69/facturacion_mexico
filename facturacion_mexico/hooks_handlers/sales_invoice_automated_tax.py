@@ -452,5 +452,5 @@ def validate(doc, method=None):
 		sat_field = frappe.db.get_value("Item", row.item_code, "fm_producto_servicio_sat")
 		if not sat_field:
 			frappe.throw(
-				f"Línea {i} (Item: {row.item_code}) sin <b>ClaveProdServ SAT</b> configurada en el Item. No se puede guardar la factura."
+				f"Línea {i} (Item: {row.item_code}): sin <b>Clave SAT de Producto o Servicio</b> configurada. Asígnela en el artículo para poder facturar."
 			)
