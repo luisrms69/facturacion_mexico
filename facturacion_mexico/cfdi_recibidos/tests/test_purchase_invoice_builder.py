@@ -360,18 +360,35 @@ class TestPurchaseInvoiceBuilder(unittest.TestCase):
 		pi = frappe.get_doc("Purchase Invoice", result["purchase_invoice"])
 		self.assertEqual(pi.fm_cfdi_uuid, self._uuid("003"))
 
-	def test_posting_date_es_hoy(self):
+	def test_posting_date_igual_a_fecha_xml(self):
+		"""posting_date de la PI = fecha de emisión del XML, no la fecha de hoy."""
 		cfdi = self._make_cfdi("004")
 		result = build_purchase_invoice(cfdi)
 		pi = frappe.get_doc("Purchase Invoice", result["purchase_invoice"])
-		self.assertEqual(str(pi.posting_date), today())
+		cfdi_issue_date = frappe.db.get_value("CFDI Recibido", cfdi, "issue_date")
+		self.assertEqual(str(pi.posting_date), str(cfdi_issue_date))
 
-	def test_bill_date_es_fecha_emision(self):
+	def test_fechas_con_xml_antiguo(self):
+		"""CFDI con fecha antigua: posting_date, bill_date y due_date = fecha del XML."""
 		issue = "2024-03-15"
 		cfdi = self._make_cfdi("005", issue_date=issue)
 		result = build_purchase_invoice(cfdi)
 		pi = frappe.get_doc("Purchase Invoice", result["purchase_invoice"])
+		self.assertEqual(str(pi.posting_date), issue)
 		self.assertEqual(str(pi.bill_date), issue)
+		self.assertEqual(str(pi.due_date), issue)
+
+	def test_falla_si_issue_date_vacio(self):
+		"""CFDI sin fecha de emisión debe fallar con ValidationError — no usar today() como fallback."""
+		cfdi = self._make_cfdi("005B", issue_date="2024-03-15")
+		# Vaciar issue_date directamente en BD para simular XML sin fecha
+		frappe.db.set_value("CFDI Recibido", cfdi, "issue_date", None)
+		frappe.db.commit()
+		with self.assertRaises(frappe.ValidationError) as ctx:
+			build_purchase_invoice(cfdi)
+		self.assertIn("fecha de emisión", str(ctx.exception))
+		# No debe existir PI vinculada
+		self.assertIsNone(frappe.db.get_value("CFDI Recibido", cfdi, "purchase_invoice"))
 
 	def test_cfdi_status_convertido(self):
 		cfdi = self._make_cfdi("006")

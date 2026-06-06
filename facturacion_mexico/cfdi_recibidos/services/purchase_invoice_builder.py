@@ -342,9 +342,17 @@ def _check_idempotency(cfdi_doc) -> "dict | None":
 
 
 def _build_pi_doc(cfdi_doc):
+	if not cfdi_doc.issue_date:
+		frappe.throw(
+			_("CFDI '{0}' no tiene fecha de emisión. No se puede generar Purchase Invoice.").format(
+				cfdi_doc.name
+			),
+			frappe.ValidationError,
+		)
 	pi = frappe.new_doc("Purchase Invoice")
 	pi.supplier = cfdi_doc.supplier
 	pi.company = cfdi_doc.company
+	pi.set_posting_time = 1  # requerido para que ERPNext respete posting_date != hoy
 	pi.posting_date = cfdi_doc.issue_date
 	pi.due_date = cfdi_doc.issue_date
 	pi.bill_date = cfdi_doc.issue_date

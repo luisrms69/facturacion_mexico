@@ -1,55 +1,63 @@
 # CONTINUITY.md — facturacion_mexico
 
-**Fecha:** 2026-06-04
-**Rama activa:** `main` (post-merge PR #178)
-**Tarea actual:** Preparar micro-PR de fixes CodeRabbit + continuar roadmap Fase 4
+**Fecha:** 2026-06-05
+**Rama activa:** `fix/pi-posting-date-y-dashboard-sql`
+**Tarea actual:** Commit listo — validado en GUI, pendiente push + PR
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-PR #178 mergeado. Pendiente micro-PR con 3 fixes de CodeRabbit (PR #177 + #178).
-Después de ese micro-PR, siguiente tarea es Fase 4 — Registrar pago (#153).
+Rama `fix/pi-posting-date-y-dashboard-sql` con dos correcciones puntuales listas para PR.
 
 Objetivo inmediato:
-1. Micro-PR de fixes CodeRabbit (ver propuesta en frappe-infrastructure/checkpoints/micro-pr-coderabbit-followup.md)
-2. Iniciar Fase 4 — botón "Registrar Pago" con API nativa ERPNext (#153)
+Push → PR.
 
 Criterio de avance:
-Micro-PR mergeado + issue #153 iniciado.
+PR mergeado, main sincronizado.
 
 ---
 
 ## Estado actual
 
 ### Ya cerrado
-- PR #177 mergeado: wizard PTCT porcentual + cargar_reglas Pagos ✅
-- PR #178 mergeado: simplificación resolución contable 2 modos estrictos ✅
-- bench migrate: test-facturacion.localhost + facturacion-v16.dev + actiglobal-restore.dev ✅
+
+- PR #177, #178, #179 mergeados ✅
+- posting_date fix: set_posting_time=1 + guard issue_date vacío + tests ✅ (confirmado GUI)
+- DashboardWidgetConfig: write quitado a Accounts Manager ✅
 
 ### Pendiente inmediato
-1. Micro-PR: 3 fixes CodeRabbit (propuesta lista en checkpoints)
-2. Issue #153: Fase 4 — Registrar Pago via API nativa ERPNext
+
+1. Push + PR de la rama actual
+2. Iniciar Fase 4 — Registrar Pago (#153) después del merge
 
 ### No repetir
+
 - Mapeo Equivalencias SAT eliminado — no reintroducir
-- actiglobal-restore.dev: problema enc_key DFP External Storage — no escribir
+- actiglobal-restore.dev: enc_key DFP — no escribir
+- Sin `set_posting_time = 1`, ERPNext ignora posting_date y usa today() — ya corregido
 
 ---
 
 ## Decisiones vigentes
-- Resolución contable CFDI Recibidos: 2 modos (Manual / Automatico CoA SAT), sin fallbacks
-- fm_codigo_sufijo_sat se puebla via after_migrate (81 item groups)
-- Micro-PR CodeRabbit pendiente: ver frappe-infrastructure/checkpoints/micro-pr-coderabbit-followup.md
+
+- PI posting_date = issue_date del XML, usando `set_posting_time = 1`
+- Si issue_date vacío → ValidationError, no se crea PI (no fallback a today)
+- DashboardWidgetConfig write = solo System Manager
+- auditoria_fiscal.py WHERE: confirmado seguro (campos internos + valores parametrizados)
+- ereceipts expire_ereceipts: confirmado seguro (scheduler, sin input externo)
+- Resolución contable CFDI Recibidos: 2 modos, sin fallbacks
 
 ---
 
-## Archivos relevantes ahora
+## Archivos modificados en esta rama
 
-### Leer primero
-- `frappe-infrastructure/checkpoints/micro-pr-coderabbit-followup.md` — propuesta micro-PR
+- `cfdi_recibidos/services/purchase_invoice_builder.py` — set_posting_time + guard issue_date
+- `cfdi_recibidos/tests/test_purchase_invoice_builder.py` — 3 tests fechas
+- `dashboard_fiscal/doctype/dashboard_widget_config/dashboard_widget_config.json` — permisos
 
 ### No tocar
+
 - `one_offs/` — no se commitean
-- `actiglobal-restore.dev` — problema enc_key DFP External Storage
+- `actiglobal-restore.dev` — enc_key DFP External Storage
