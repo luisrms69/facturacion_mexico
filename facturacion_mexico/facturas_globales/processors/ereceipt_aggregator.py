@@ -25,6 +25,9 @@ class EReceiptAggregator:
 		if self.receipts:
 			return self.receipts
 
+		# tax_amount y base_amount calculados con fórmula de precio-con-IVA-incluido.
+		# tax_rate NULL → tax_amount=0, base_amount=total (no se asume tasa).
+		# issue #182: migrar a agrupación por tax_type + rate + factor cuando haya modelo line-level.
 		self.receipts = frappe.db.sql(
 			"""
 			SELECT
@@ -32,18 +35,22 @@ class EReceiptAggregator:
 				er.name as folio,
 				er.date_issued as receipt_date,
 				er.total as total_amount,
-				(er.total * 0.16) as tax_amount,
-				(er.total * 0.84) as base_amount,
+				er.tax_rate,
+				CASE
+					WHEN er.tax_rate IS NULL OR er.tax_rate = 0 THEN 0
+					ELSE er.total - (er.total / (1 + er.tax_rate / 100))
+				END as tax_amount,
+				CASE
+					WHEN er.tax_rate IS NULL OR er.tax_rate = 0 THEN er.total
+					ELSE er.total / (1 + er.tax_rate / 100)
+				END as base_amount,
 				er.customer_name,
 				'MXN' as currency,
 				1.0 as exchange_rate,
-				16.0 as tax_rate,
 				er.facturapi_id,
 				er.status,
-				'Efectivo' as payment_method,
-				'G01' as usage_cfdi,
 				er.creation,
-				16.0 as effective_tax_rate
+				er.tax_rate as effective_tax_rate
 			FROM `tabEReceipt MX` er
 			WHERE er.company = %(company)s
 			AND er.date_issued BETWEEN %(periodo_inicio)s AND %(periodo_fin)s
@@ -65,8 +72,9 @@ class EReceiptAggregator:
 
 		grouped = {}
 		for receipt in self.receipts:
-			tax_rate = flt(receipt.get("effective_tax_rate", receipt.get("tax_rate", 16)), 2)
-			rate_key = f"tax_{tax_rate}"
+			# issue #182: clave de agrupación extenderá a tax_type+rate+factor para IVA/IEPS
+			tax_rate = flt(receipt.get("tax_rate"), 2)
+			rate_key = f"iva_{tax_rate}"
 
 			if rate_key not in grouped:
 				grouped[rate_key] = {

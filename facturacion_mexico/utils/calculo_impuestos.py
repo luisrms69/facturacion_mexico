@@ -390,3 +390,52 @@ def limpiar_cache_reglas():
 	"""
 	if hasattr(frappe.local, "reglas_fiscales_cache"):
 		del frappe.local.reglas_fiscales_cache
+
+
+# =============================================================================
+# UTILIDAD PARA ERECEIPT MX — EXTRACCIÓN DE TASA IVA
+# =============================================================================
+# Modelo transitorio: almacena una tasa IVA plana por recibo.
+# El modelo definitivo (issue #182) usará impuestos por línea para soportar
+# IVA + IEPS + exento + tasa 0 + zona fronteriza con mezcla por producto.
+# =============================================================================
+
+
+def extract_iva_info_from_si_taxes(taxes) -> tuple[float | None, bool]:
+	"""Extrae tasa IVA y detecta IEPS de las filas de impuestos de un Sales Invoice.
+
+	Args:
+		taxes: iterable de tax rows con campos account_head, description, rate
+
+	Returns:
+		(tax_rate_percent, has_ieps)
+		- tax_rate_percent: tasa en porcentaje (16.0, 8.0, 0.0) o None si
+		  no determinable. None obliga a bloqueo — nunca se asume exento por
+		  ausencia de filas. Solo retorna 0.0 si existe fila IVA con rate=0
+		  (tasa cero confirmada). Ver issue #182 para distinción exento vs
+		  tasa 0 a nivel de línea.
+		- has_ieps: True si existe alguna fila IEPS en las taxes.
+	"""
+	iva_rates = set()
+	has_ieps = False
+
+	for row in taxes or []:
+		account = (row.get("account_head") or "").upper()
+		desc = (row.get("description") or "").upper()
+
+		is_ieps = "IEPS" in account or "IEPS" in desc
+		is_iva = ("IVA" in account or "IVA" in desc) and not is_ieps
+
+		if is_ieps:
+			has_ieps = True
+		elif is_iva:
+			iva_rates.add(flt(row.get("rate") or 0))
+
+	if len(iva_rates) == 0:
+		return None, has_ieps
+
+	if len(iva_rates) == 1:
+		return iva_rates.pop(), has_ieps
+
+	# Múltiples tasas IVA distintas en el mismo recibo — no determinable
+	return None, has_ieps

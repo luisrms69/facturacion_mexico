@@ -132,10 +132,16 @@ class CFDIGlobalBuilder:
 
 		# Validar campos SAT del item
 		product_key = item_doc.get("fm_producto_servicio_sat")
-		unit_key = item_doc.get("fm_unidad_sat") or "ACT"
+		unit_key = item_doc.get("fm_unidad_sat")
 		if not product_key:
 			frappe.throw(
 				_("El Item '{0}' no tiene clave SAT (fm_producto_servicio_sat) configurada.").format(
+					self.cs.global_item
+				)
+			)
+		if not unit_key:
+			frappe.throw(
+				_("El Item '{0}' no tiene unidad SAT (fm_unidad_sat) configurada.").format(
 					self.cs.global_item
 				)
 			)
@@ -176,9 +182,27 @@ class CFDIGlobalBuilder:
 			if not detail.included_in_cfdi:
 				continue
 
-			# Obtener datos del receipt
 			receipt_doc = frappe.get_doc("EReceipt MX", detail.ereceipt)
-			tax_rate = flt(receipt_doc.get("tax_rate", 16))
+
+			# IEPS bloquea antes de cualquier otra validación (issue #182 para soporte completo)
+			if receipt_doc.get("has_ieps"):
+				frappe.throw(
+					_(
+						"El E-Receipt '{0}' tiene IEPS. Factura Global con IEPS aún no está soportada; "
+						"se requiere modelo line-level de impuestos (issue #182)."
+					).format(detail.ereceipt)
+				)
+
+			# tax_rate sin default silencioso — None bloquea (ver issue #182 para modelo definitivo)
+			tax_rate_raw = receipt_doc.get("tax_rate")
+			if tax_rate_raw is None:
+				frappe.throw(
+					_(
+						"El E-Receipt '{0}' no tiene tasa IVA definida. "
+						"Recrea el recibo desde una Sales Invoice con plantilla de impuestos configurada."
+					).format(detail.ereceipt)
+				)
+			tax_rate = flt(tax_rate_raw)
 
 			rate_key = f"tax_{tax_rate}"
 
@@ -244,7 +268,14 @@ class CFDIGlobalBuilder:
 			if len(modes) == 1:
 				return modes.pop()  # Todos los receipts tienen la misma forma de pago
 
-		return self.cs.global_payment_form_default or "01"
+		if not self.cs.global_payment_form_default:
+			frappe.throw(
+				_(
+					"Falta configurar 'Forma de Pago Global por Defecto' en "
+					"Facturacion Mexico Company Settings para la Company '{0}'."
+				).format(self.company)
+			)
+		return self.cs.global_payment_form_default
 
 	def _get_invoice_date(self) -> str:
 		"""Obtener fecha de la factura."""
