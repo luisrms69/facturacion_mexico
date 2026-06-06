@@ -126,11 +126,9 @@ class TestPrepareFActurapiDataSinFallback(FrappeTestCase):
 	def test_no_existe_fallback_01010101_en_codigo(self):
 		"""El string '01010101' no debe aparecer como fallback en timbrado_api.py."""
 		import re
+		from pathlib import Path
 
-		ruta = (
-			"/home/erpnext/frappe-bench-v16/apps/facturacion_mexico"
-			"/facturacion_mexico/facturacion_fiscal/timbrado_api.py"
-		)
+		ruta = Path(__file__).parent.parent / "facturacion_fiscal" / "timbrado_api.py"
 		with open(ruta) as f:
 			contenido = f.read()
 
@@ -144,11 +142,9 @@ class TestPrepareFActurapiDataSinFallback(FrappeTestCase):
 	def test_product_key_usa_campo_directo(self):
 		"""product_key en el payload debe usar fm_producto_servicio_sat directamente."""
 		import re
+		from pathlib import Path
 
-		ruta = (
-			"/home/erpnext/frappe-bench-v16/apps/facturacion_mexico"
-			"/facturacion_mexico/facturacion_fiscal/timbrado_api.py"
-		)
+		ruta = Path(__file__).parent.parent / "facturacion_fiscal" / "timbrado_api.py"
 		with open(ruta) as f:
 			contenido = f.read()
 

@@ -210,9 +210,7 @@ class FacturaFiscalMexico(Document):
 		if missing:
 			frappe.throw(
 				_(
-					"No se puede procesar esta Factura Fiscal: los siguientes ítems no tienen "
-					"Clave SAT Producto/Servicio configurada:\n\n{0}\n\n"
-					"Configure el campo 'Clave SAT Producto/Servicio' en cada ítem antes de continuar."
+					"No se puede procesar esta Factura Fiscal: los siguientes ítems no tienen Clave SAT Producto/Servicio configurada:\n\n{0}\n\nConfigure el campo 'Clave SAT Producto/Servicio' en cada ítem antes de continuar."
 				).format("\n".join(missing)),
 				frappe.ValidationError,
 				title=_("Claves SAT Faltantes"),

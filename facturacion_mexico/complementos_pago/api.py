@@ -44,8 +44,7 @@ def crear_complemento_pago_desde_pe(payment_entry_name: str) -> dict:
 	if not si_ppd:
 		frappe.throw(
 			_(
-				"No hay facturas PPD timbradas válidas referenciadas en este Payment Entry. "
-				"Verificar que fm_es_ppd=1 y fm_fiscal_status=TIMBRADO."
+				"No hay facturas PPD timbradas válidas referenciadas en este Payment Entry. Verificar que fm_es_ppd=1 y fm_fiscal_status=TIMBRADO."
 			)
 		)
 
@@ -115,8 +114,7 @@ def _resolver_forma_pago_sat(mode_of_payment: str | None) -> str:
 	if not mode_of_payment:
 		frappe.throw(
 			_(
-				"El Payment Entry no tiene Forma de Pago configurada. "
-				"Configure un modo de pago del catálogo SAT antes de crear el complemento."
+				"El Payment Entry no tiene Forma de Pago configurada. Configure un modo de pago del catálogo SAT antes de crear el complemento."
 			),
 			frappe.ValidationError,
 			title=_("Forma de Pago Faltante"),
@@ -132,8 +130,7 @@ def _resolver_forma_pago_sat(mode_of_payment: str | None) -> str:
 	if not enabled:
 		frappe.throw(
 			_(
-				"El modo de pago '{0}' está deshabilitado. "
-				"Seleccione un modo de pago del catálogo SAT activo."
+				"El modo de pago '{0}' está deshabilitado. Seleccione un modo de pago del catálogo SAT activo."
 			).format(mode_of_payment),
 			frappe.ValidationError,
 			title=_("Modo de Pago Deshabilitado"),
@@ -143,9 +140,7 @@ def _resolver_forma_pago_sat(mode_of_payment: str | None) -> str:
 	if not match:
 		frappe.throw(
 			_(
-				"El modo de pago '{0}' no corresponde al catálogo SAT. "
-				"Use un modo de pago con formato 'NN - Descripción' "
-				"(ejemplo: '03 - Transferencia electrónica de fondos')."
+				"El modo de pago '{0}' no corresponde al catálogo SAT. Use un modo de pago con formato 'NN - Descripción' (ejemplo: '03 - Transferencia electrónica de fondos')."
 			).format(mode_of_payment),
 			frappe.ValidationError,
 			title=_("Modo de Pago No Compatible con SAT"),
@@ -156,9 +151,7 @@ def _resolver_forma_pago_sat(mode_of_payment: str | None) -> str:
 	if not frappe.db.exists("Forma Pago SAT", codigo):
 		frappe.throw(
 			_(
-				"El código '{0}' extraído del modo de pago '{1}' "
-				"no existe en el catálogo SAT de Forma de Pago. "
-				"Verifique la configuración del modo de pago."
+				"El código '{0}' extraído del modo de pago '{1}' no existe en el catálogo SAT de Forma de Pago. Verifique la configuración del modo de pago."
 			).format(codigo, mode_of_payment),
 			frappe.ValidationError,
 			title=_("Código SAT No Válido"),
