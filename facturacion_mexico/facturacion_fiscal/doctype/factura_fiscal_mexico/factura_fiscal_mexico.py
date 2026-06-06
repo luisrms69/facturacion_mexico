@@ -209,7 +209,7 @@ class FacturaFiscalMexico(Document):
 				missing.append(f"• {item.item_code} ({item.item_name or item.item_code})")
 		if missing:
 			frappe.throw(
-				_("ítems sin Clave SAT Producto/Servicio:\n\n{0}").format("\n".join(missing)),
+				_("ítems sin Clave SAT Producto/Servicio:") + "\n\n" + "\n".join(missing),
 				frappe.ValidationError,
 				title=_("Claves SAT Faltantes"),
 			)
