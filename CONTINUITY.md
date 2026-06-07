@@ -2,22 +2,23 @@
 
 **Fecha:** 2026-06-06
 **Rama activa:** `feature/ereceipts-fase0-payload-y-trazabilidad`
-**Tarea actual:** Issue #118 E-Receipts — Fase 0 lista para commit/push/PR
+**Tarea actual:** Issue #118 E-Receipts — Fase 0 completa, push + PR pendientes
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-Issue #118: E-Receipts flujo completo. Fase 0 (payload correcto + trazabilidad SI↔EReceipt)
-implementada y validada. Commit autorizado, listo para ejecutar.
+Issue #118: E-Receipts flujo completo. Fase 0 implementada con documentación completa.
+Dos commits en la rama: (1) código Fase 0, (2) documentación para PR #183 y Fase 0.
+Push y PR pendientes de autorización.
 
 Plan que estoy siguiendo:
 Plan arquitectónico aprobado: FacturAPI hace heavy lifting, ERPNext mantiene trazabilidad.
-Fases: 0 (este commit) → 1 (self_invoice_url en UI) → 2 (sync) → 3 (factura individual) → 4 (FG).
+Fases: 0 (lista) → 1 (self_invoice_url en UI) → 2 (sync) → 3 (factura individual) → 4 (FG).
 
 Objetivo inmediato:
-Commit Fase 0 → push → PR.
+Push → PR.
 
 Criterio de avance:
 PR abierto, CI verde, merge autorizado.
@@ -31,31 +32,28 @@ PR abierto, CI verde, merge autorizado.
 - PR #181 mergeado ✅ — issues #161 y #162 cerrados
 
 ### En progreso
-- Rama `feature/ereceipts-fase0-payload-y-trazabilidad`: commit pendiente
+- Rama `feature/ereceipts-fase0-payload-y-trazabilidad`: 2 commits, push pendiente
+  - `5db2a13` — código Fase 0
+  - (este commit) — documentación PR #183 + Fase 0
 
 ### Pendiente inmediato
-1. git commit (autorizado)
-2. push → upstream
-3. PR → main
-4. Revisión + merge
-5. Siguiente fase E-Receipts (#1: exponer self_invoice_url)
+1. `/ship push`
+2. `/ship pr`
 
 ### No repetir
+- Gate documental ahora está en `/ship commit` (ship.md actualizado en frappe-infrastructure)
 - `ruff check --fix` sobre app completa modifica tests ajenos — revertir antes del PR
-- `git checkout -f main` necesario si CONTINUITY.md tiene cambios locales al cambiar de rama
 - `fm_fiscal_status` options en fixture no se sincronizan via migrate solo — usar after_migrate
-  (`setup/add_ereceipt_fiscal_states.py`) como patrón para opciones de Select fields
 - `\n` dentro de `_()` dispara `frappe-translation-python-splitting`
 
 ---
 
 ## Decisiones vigentes
 
-- **Fase 0 aprobada**: FacturAPI heavy lifting, ERPNext solo trazabilidad
+- **Fase 0 aprobada**: FacturAPI heavy lifting, ERPNext solo trazabilidad — ADR-0032
 - UUID/folio/invoice_id NUNCA en Sales Invoice — viven en EReceipt MX o Factura Global MX
-- Widget usa relación SI → EReceipt MX → (Factura Global MX) — mismo patrón que FFM
-- tax_rate/has_ieps en EReceipt MX son transitorios (#160) — definitivo es #182
-- FiscalStates.E_RECEIPT y E_RECEIPT_FACTURADO como constantes
+- Widget usa relación SI → EReceipt MX → (FG) — mismo patrón que FFM
+- Defaults silenciosos eliminados en Factura Global — ADR-0033
 - after_migrate garantiza sync de opciones Select que fixtures no actualizan
 - main nunca es rama de trabajo
 
@@ -63,22 +61,14 @@ PR abierto, CI verde, merge autorizado.
 
 ## Archivos relevantes ahora
 
-### Leer primero (si hay comentario de revisión en PR)
-- `facturacion_mexico/ereceipts/api.py` — `_generar_facturapi_ereceipt` y helpers
-- `facturacion_mexico/api/ereceipt_summary.py` — widget API
-- `facturacion_mexico/public/js/si_ereceipt_summary.js` — widget JS
+### Documentación actualizada en esta rama
+- `docs/usuario/ereceipts.md` — nueva página E-Receipts / Autofactura
+- `docs/tecnico/arquitectura.md` — flujo E-Receipt, Factura Global validaciones
+- `docs/adr/0032-ereceipts-facturapi-arquitectura.md` — ADR Fase 0
+- `docs/adr/0033-factura-global-hardcodes.md` — ADR PR #183
 
-### Próximas fases
-- **Fase 1**: exponer `self_invoice_url` en SI form (botón + widget)
-- **Fase 2**: `sync_ereceipt()` + scheduler + botón manual
-- **Fase 3**: `POST /receipts/{id}/invoice` desde ERPNext
-- **Fase 4**: `POST /receipts/global-invoice` para Factura Global
-- **Fase posterior**: webhooks, IEPS line-level (#182)
-
----
-
-## Riesgos / cuidados
-
-- EReceipts existentes sin `tax_rate` — al crear receipt en FacturAPI sin taxes, autofactura podría generar CFDI sin IVA
-- `fm_ereceipt_summary_html` no muestra nada hasta Fase 1 (botón de creación)
-- `setup/add_ereceipt_fiscal_states.py` debe ejecutarse con cada `bench migrate` (registrado en after_migrate)
+### Próximas fases E-Receipts
+- Fase 1: exponer `self_invoice_url` en SI form (botón + widget)
+- Fase 2: `sync_ereceipt()` + scheduler + botón manual
+- Fase 3: `POST /receipts/{id}/invoice`
+- Fase 4: `POST /receipts/global-invoice`

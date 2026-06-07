@@ -62,6 +62,7 @@ nav:
     - Cancelar CFDI: usuario/cancelar-cfdi.md
     - Complemento de Pago: usuario/complemento-pago.md
     - CFDI Recibidos: usuario/cfdi-recibidos.md
+    - E-Receipts y Autofactura: usuario/ereceipts.md
     - Addendas: usuario/addendas.md
     - Multi-sucursal: usuario/multisucursal.md
     - Troubleshooting: usuario/troubleshooting.md
@@ -105,6 +106,8 @@ nav:
       - adr/0029-facturapi-base-unitaria-ieps-cuota.md
       - adr/0030-tablas-maestras-python-reglas-fiscales.md
       - adr/0031-migracion-settings-por-company.md
+      - adr/0032-ereceipts-facturapi-arquitectura.md
+      - adr/0033-factura-global-hardcodes.md
   - Referencia:
     - referencia/index.md
     - DocTypes: referencia/doctypes.md
