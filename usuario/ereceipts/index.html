@@ -13,10 +13,10 @@
       
       
       
-        <link rel="prev" href="../0014-diagnostico-conectividad-si-ffm/">
+        <link rel="prev" href="../cfdi-recibidos/">
       
       
-        <link rel="next" href="../0016-reclasificacion-fiscal-payment-entry/">
+        <link rel="next" href="../addendas/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -24,7 +24,7 @@
     
     
       
-        <title>ADR 0015 — Arquitectura Relación Sales Invoice ↔ Factura Fiscal Mexico - Facturación México - Documentación Técnica</title>
+        <title>E-Receipts y Autofactura - Facturación México - Documentación Técnica</title>
       
     
     
@@ -90,7 +90,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#adr-0015-arquitectura-relacion-sales-invoice-factura-fiscal-mexico" class="md-skip">
+        <a href="#e-receipts-y-autofactura" class="md-skip">
           Saltar a contenido
         </a>
       
@@ -128,7 +128,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              ADR 0015 — Arquitectura Relación Sales Invoice ↔ Factura Fiscal Mexico
+              E-Receipts y Autofactura
             
           </span>
         </div>
@@ -240,11 +240,13 @@
         
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../usuario/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
           
   
   Guía de Usuario
@@ -258,12 +260,10 @@
         
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
+      <li class="md-tabs__item">
         <a href="../../tecnico/" class="md-tabs__link">
           
   
@@ -350,8 +350,10 @@
       
   
   
+    
   
   
+  
     
     
     
@@ -360,14 +362,12 @@
       
       
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
           <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
@@ -381,7 +381,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             Guía de Usuario
@@ -395,7 +395,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../usuario/" class="md-nav__link">
+      <a href="../" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -416,7 +416,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../usuario/getting-started/" class="md-nav__link">
+      <a href="../getting-started/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -437,7 +437,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../usuario/emitir-cfdi/" class="md-nav__link">
+      <a href="../emitir-cfdi/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -458,7 +458,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../usuario/cancelar-cfdi/" class="md-nav__link">
+      <a href="../cancelar-cfdi/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -479,7 +479,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../usuario/complemento-pago/" class="md-nav__link">
+      <a href="../complemento-pago/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -500,7 +500,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../usuario/cfdi-recibidos/" class="md-nav__link">
+      <a href="../cfdi-recibidos/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -518,10 +518,30 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../usuario/ereceipts/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    E-Receipts y Autofactura
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -530,6 +550,125 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#cuando-usar-e-receipts" class="md-nav__link">
+    <span class="md-ellipsis">
+      ¿Cuándo usar E-Receipts?
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#flujo-general" class="md-nav__link">
+    <span class="md-ellipsis">
+      Flujo general
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configurar-una-venta-en-modo-e-receipt" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configurar una venta en modo E-Receipt
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#el-widget-e-receipt-en-la-sales-invoice" class="md-nav__link">
+    <span class="md-ellipsis">
+      El widget E-Receipt en la Sales Invoice
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#entregar-la-url-al-cliente" class="md-nav__link">
+    <span class="md-ellipsis">
+      Entregar la URL al cliente
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#que-hace-el-cliente-en-el-portal" class="md-nav__link">
+    <span class="md-ellipsis">
+      Qué hace el cliente en el portal
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sincronizacion-de-estado" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sincronización de estado
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#datos-fiscales-que-guarda-el-ereceipt-mx" class="md-nav__link">
+    <span class="md-ellipsis">
+      Datos fiscales que guarda el EReceipt MX
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#factura-global" class="md-nav__link">
+    <span class="md-ellipsis">
+      Factura Global
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configurar-los-defaults-de-e-receipt-por-empresa" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configurar los defaults de E-Receipt por empresa
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#proximas-funcionalidades" class="md-nav__link">
+    <span class="md-ellipsis">
+      Próximas funcionalidades
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -542,7 +681,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../usuario/addendas/" class="md-nav__link">
+      <a href="../addendas/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -563,7 +702,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../usuario/multisucursal/" class="md-nav__link">
+      <a href="../multisucursal/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -584,7 +723,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../usuario/troubleshooting/" class="md-nav__link">
+      <a href="../troubleshooting/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -609,8 +748,6 @@
       
   
   
-    
-  
   
   
     
@@ -621,12 +758,14 @@
       
       
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
         
           
           <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
@@ -640,7 +779,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             Técnico
@@ -756,8 +895,6 @@
                 
   
   
-    
-  
   
   
     
@@ -768,12 +905,14 @@
       
       
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_6" >
         
           
           <label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="">
@@ -787,7 +926,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_6_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_6_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_6">
             <span class="md-nav__icon md-icon"></span>
             ADRs
@@ -801,7 +940,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../" class="md-nav__link">
+      <a href="../../adr/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -822,7 +961,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0000-estado-real-pre-migracion/" class="md-nav__link">
+      <a href="../../adr/0000-estado-real-pre-migracion/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -843,7 +982,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0002-verificacion-arranque-v16/" class="md-nav__link">
+      <a href="../../adr/0002-verificacion-arranque-v16/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -864,7 +1003,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0003-verificacion-configuracion-fiscal/" class="md-nav__link">
+      <a href="../../adr/0003-verificacion-configuracion-fiscal/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -885,7 +1024,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0004-verificacion-timbrado/" class="md-nav__link">
+      <a href="../../adr/0004-verificacion-timbrado/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -906,7 +1045,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0005-workflow-configuracion-inicial-v2/" class="md-nav__link">
+      <a href="../../adr/0005-workflow-configuracion-inicial-v2/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -927,7 +1066,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0005-workflow-configuracion-inicial/" class="md-nav__link">
+      <a href="../../adr/0005-workflow-configuracion-inicial/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -948,7 +1087,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0006-analisis-branches-wip/" class="md-nav__link">
+      <a href="../../adr/0006-analisis-branches-wip/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -969,7 +1108,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0007-analisis-checkout-e4/" class="md-nav__link">
+      <a href="../../adr/0007-analisis-checkout-e4/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -990,7 +1129,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0008-analisis-9-commits-wip/" class="md-nav__link">
+      <a href="../../adr/0008-analisis-9-commits-wip/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1011,7 +1150,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0009-checklist-estados-flujo-timbrado/" class="md-nav__link">
+      <a href="../../adr/0009-checklist-estados-flujo-timbrado/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1032,7 +1171,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0010-verificacion-post-cancelacion/" class="md-nav__link">
+      <a href="../../adr/0010-verificacion-post-cancelacion/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1053,7 +1192,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0011-diagnostico-sistema-tests/" class="md-nav__link">
+      <a href="../../adr/0011-diagnostico-sistema-tests/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1074,7 +1213,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0012-solucion-sistema-tests-v16/" class="md-nav__link">
+      <a href="../../adr/0012-solucion-sistema-tests-v16/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1095,7 +1234,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0013-arquitectura-sistema-cancelaciones-cfdi/" class="md-nav__link">
+      <a href="../../adr/0013-arquitectura-sistema-cancelaciones-cfdi/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1116,7 +1255,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0014-diagnostico-conectividad-si-ffm/" class="md-nav__link">
+      <a href="../../adr/0014-diagnostico-conectividad-si-ffm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1134,30 +1273,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    ADR 0015 — Arquitectura Relación Sales Invoice ↔ Factura Fiscal Mexico
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../adr/0015-si-ffm-relationship-architecture/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1166,104 +1285,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Tabla de contenidos
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#decision" class="md-nav__link">
-    <span class="md-ellipsis">
-      Decisión
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#campos-en-sales-invoice" class="md-nav__link">
-    <span class="md-ellipsis">
-      Campos en Sales Invoice
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Campos en Sales Invoice">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#fm_es_ppd-logica" class="md-nav__link">
-    <span class="md-ellipsis">
-      fm_es_ppd — lógica
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#seccion-fiscal-consolidada" class="md-nav__link">
-    <span class="md-ellipsis">
-      Sección fiscal consolidada
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#campos-eliminados-2026-05-04" class="md-nav__link">
-    <span class="md-ellipsis">
-      Campos eliminados (2026-05-04)
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#tests" class="md-nav__link">
-    <span class="md-ellipsis">
-      Tests
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#incidente-recuperacion-2026-05-06" class="md-nav__link">
-    <span class="md-ellipsis">
-      Incidente recuperación (2026-05-06)
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#gaps-pendientes" class="md-nav__link">
-    <span class="md-ellipsis">
-      Gaps pendientes
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1276,7 +1297,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0016-reclasificacion-fiscal-payment-entry/" class="md-nav__link">
+      <a href="../../adr/0016-reclasificacion-fiscal-payment-entry/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1297,7 +1318,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0017-complemento-pago-mx-schema-normalizacion/" class="md-nav__link">
+      <a href="../../adr/0017-complemento-pago-mx-schema-normalizacion/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1318,7 +1339,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0018-ffm-status-fiscal-state-migration/" class="md-nav__link">
+      <a href="../../adr/0018-ffm-status-fiscal-state-migration/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1339,7 +1360,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0019-primera-implementacion-rc-v0.1/" class="md-nav__link">
+      <a href="../../adr/0019-primera-implementacion-rc-v0.1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1360,7 +1381,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0020-smoke-test-mvp-flujos-cancelacion/" class="md-nav__link">
+      <a href="../../adr/0020-smoke-test-mvp-flujos-cancelacion/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1381,7 +1402,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0021-fiscal-state-capa-ui-centralizada/" class="md-nav__link">
+      <a href="../../adr/0021-fiscal-state-capa-ui-centralizada/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1402,7 +1423,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0022-solucion-issue-112-reclasificacion-fiscal-pe/" class="md-nav__link">
+      <a href="../../adr/0022-solucion-issue-112-reclasificacion-fiscal-pe/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1423,7 +1444,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0023-venta-mostrador-cfdi-individual-rfc-generico/" class="md-nav__link">
+      <a href="../../adr/0023-venta-mostrador-cfdi-individual-rfc-generico/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1444,7 +1465,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0024-addendas-pre-timbrado-issue129/" class="md-nav__link">
+      <a href="../../adr/0024-addendas-pre-timbrado-issue129/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1465,7 +1486,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0025-notas-credito-cfdi-tipo-e-issue116/" class="md-nav__link">
+      <a href="../../adr/0025-notas-credito-cfdi-tipo-e-issue116/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1486,7 +1507,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0026-workspace-facturacion-mexico-issue120/" class="md-nav__link">
+      <a href="../../adr/0026-workspace-facturacion-mexico-issue120/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1507,7 +1528,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0027-migracion-facturacion-mx-a-facturacion-mexico/" class="md-nav__link">
+      <a href="../../adr/0027-migracion-facturacion-mx-a-facturacion-mexico/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1528,7 +1549,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0028-ffm-legacy-fields-audit/" class="md-nav__link">
+      <a href="../../adr/0028-ffm-legacy-fields-audit/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1549,7 +1570,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0029-facturapi-base-unitaria-ieps-cuota/" class="md-nav__link">
+      <a href="../../adr/0029-facturapi-base-unitaria-ieps-cuota/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1570,7 +1591,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0030-tablas-maestras-python-reglas-fiscales/" class="md-nav__link">
+      <a href="../../adr/0030-tablas-maestras-python-reglas-fiscales/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1591,7 +1612,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0031-migracion-settings-por-company/" class="md-nav__link">
+      <a href="../../adr/0031-migracion-settings-por-company/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1612,7 +1633,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0032-ereceipts-facturapi-arquitectura/" class="md-nav__link">
+      <a href="../../adr/0032-ereceipts-facturapi-arquitectura/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1633,7 +1654,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0033-factura-global-hardcodes/" class="md-nav__link">
+      <a href="../../adr/0033-factura-global-hardcodes/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1822,78 +1843,99 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#decision" class="md-nav__link">
+  <a href="#cuando-usar-e-receipts" class="md-nav__link">
     <span class="md-ellipsis">
-      Decisión
+      ¿Cuándo usar E-Receipts?
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#campos-en-sales-invoice" class="md-nav__link">
+  <a href="#flujo-general" class="md-nav__link">
     <span class="md-ellipsis">
-      Campos en Sales Invoice
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Campos en Sales Invoice">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#fm_es_ppd-logica" class="md-nav__link">
-    <span class="md-ellipsis">
-      fm_es_ppd — lógica
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#seccion-fiscal-consolidada" class="md-nav__link">
-    <span class="md-ellipsis">
-      Sección fiscal consolidada
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#campos-eliminados-2026-05-04" class="md-nav__link">
-    <span class="md-ellipsis">
-      Campos eliminados (2026-05-04)
+      Flujo general
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#tests" class="md-nav__link">
+  <a href="#configurar-una-venta-en-modo-e-receipt" class="md-nav__link">
     <span class="md-ellipsis">
-      Tests
+      Configurar una venta en modo E-Receipt
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#incidente-recuperacion-2026-05-06" class="md-nav__link">
+  <a href="#el-widget-e-receipt-en-la-sales-invoice" class="md-nav__link">
     <span class="md-ellipsis">
-      Incidente recuperación (2026-05-06)
+      El widget E-Receipt en la Sales Invoice
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#gaps-pendientes" class="md-nav__link">
+  <a href="#entregar-la-url-al-cliente" class="md-nav__link">
     <span class="md-ellipsis">
-      Gaps pendientes
+      Entregar la URL al cliente
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#que-hace-el-cliente-en-el-portal" class="md-nav__link">
+    <span class="md-ellipsis">
+      Qué hace el cliente en el portal
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sincronizacion-de-estado" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sincronización de estado
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#datos-fiscales-que-guarda-el-ereceipt-mx" class="md-nav__link">
+    <span class="md-ellipsis">
+      Datos fiscales que guarda el EReceipt MX
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#factura-global" class="md-nav__link">
+    <span class="md-ellipsis">
+      Factura Global
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configurar-los-defaults-de-e-receipt-por-empresa" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configurar los defaults de E-Receipt por empresa
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#proximas-funcionalidades" class="md-nav__link">
+    <span class="md-ellipsis">
+      Próximas funcionalidades
     </span>
   </a>
   
@@ -1914,67 +1956,202 @@
                   
 
 
-<h1 id="adr-0015-arquitectura-relacion-sales-invoice-factura-fiscal-mexico">ADR 0015 — Arquitectura Relación Sales Invoice ↔ Factura Fiscal Mexico<a class="headerlink" href="#adr-0015-arquitectura-relacion-sales-invoice-factura-fiscal-mexico" title="Permanent link">&para;</a></h1>
-<p><strong>Fecha:</strong> 2026-05-04 | <strong>Última revisión:</strong> 2026-05-06 | <strong>Estado:</strong> VIGENTE</p>
+<h1 id="e-receipts-y-autofactura">E-Receipts y Autofactura<a class="headerlink" href="#e-receipts-y-autofactura" title="Permanent link">&para;</a></h1>
+<p>Los E-Receipts son recibos digitales para ventas a público en general. El cliente puede
+autofacturarse en un portal web con su RFC, sin intervención del operador.</p>
 <hr />
-<h2 id="decision">Decisión<a class="headerlink" href="#decision" title="Permanent link">&para;</a></h2>
-<p>FFM es fuente de verdad fiscal. SI conserva solo campos operativos mínimos.
-Widget <code>fm_ffm_summary_html</code> lee FFM en tiempo real — sin denormalización.</p>
+<h2 id="cuando-usar-e-receipts">¿Cuándo usar E-Receipts?<a class="headerlink" href="#cuando-usar-e-receipts" title="Permanent link">&para;</a></h2>
+<p>Cuando la venta es a público general (sin RFC conocido de antemano) pero el cliente
+puede necesitar su factura después. Ejemplos: tienda retail, punto de venta, servicio al cliente.</p>
+<p><strong>No usar</strong> para ventas B2B donde el RFC ya se conoce antes de la venta. Para esas, el flujo
+normal de <a href="../emitir-cfdi/">Emitir un CFDI</a> es el correcto.</p>
 <hr />
-<h2 id="campos-en-sales-invoice">Campos en Sales Invoice<a class="headerlink" href="#campos-en-sales-invoice" title="Permanent link">&para;</a></h2>
+<h2 id="flujo-general">Flujo general<a class="headerlink" href="#flujo-general" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>Sales Invoice (Modo E-Receipt)
+  ↓
+EReceipt MX creado automáticamente
+  ↓ FacturAPI genera el receipt + portal URL
+self_invoice_url → cliente lo visita y captura su RFC
+  ↓ FacturAPI timbra el CFDI
+EReceipt MX sincroniza: UUID, folio, fecha
+</code></pre></div>
+<p>El CFDI lo genera FacturAPI — ERPNext guarda la trazabilidad y el link al portal.</p>
+<hr />
+<h2 id="configurar-una-venta-en-modo-e-receipt">Configurar una venta en modo E-Receipt<a class="headerlink" href="#configurar-una-venta-en-modo-e-receipt" title="Permanent link">&para;</a></h2>
+<p>En el Sales Invoice, antes de hacer Submit:</p>
+<ol>
+<li>Ir a la sección <strong>Configuración E-Receipt</strong></li>
+<li>Cambiar el campo <strong>Modo de Facturación</strong> a <code>E-Receipt</code></li>
+<li>Configurar vencimiento (cuántos días tiene el cliente para autofacturarse):</li>
+<li><code>Fixed Days</code> — N días desde la fecha de emisión</li>
+<li><code>End of Month</code> — hasta el último día del mes</li>
+<li>Hacer <strong>Submit</strong></li>
+</ol>
+<p>El sistema crea automáticamente un documento <strong>EReceipt MX</strong> vinculado.</p>
+<hr />
+<h2 id="el-widget-e-receipt-en-la-sales-invoice">El widget E-Receipt en la Sales Invoice<a class="headerlink" href="#el-widget-e-receipt-en-la-sales-invoice" title="Permanent link">&para;</a></h2>
+<p>Después del Submit, en la sección <strong>Configuración E-Receipt</strong> del Sales Invoice aparece
+un widget con el estado del E-Receipt:</p>
 <table>
 <thead>
 <tr>
-<th>Campo</th>
-<th>Tipo</th>
-<th>Cuándo se escribe</th>
+<th>Estado</th>
+<th>Color</th>
+<th>Significa</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>fm_fiscal_status</code></td>
-<td>Select</td>
-<td>Cada transición (BORRADOR→TIMBRADO→CANCELADO)</td>
+<td><code>Abierto</code></td>
+<td>Naranja</td>
+<td>El portal de autofactura está disponible</td>
 </tr>
 <tr>
-<td><code>fm_factura_fiscal_mx</code></td>
-<td>Link → FFM</td>
-<td>Al crear FFM en submit de SI</td>
+<td><code>Autofacturado</code></td>
+<td>Verde</td>
+<td>El cliente ya se autofacturó; CFDI generado</td>
 </tr>
 <tr>
-<td><code>fm_es_ppd</code></td>
-<td>Check</td>
-<td>Al timbrar: 1 si PPD, 0 si PUE</td>
+<td><code>Factura Global</code></td>
+<td>Verde</td>
+<td>El receipt fue incluido en una Factura Global periódica</td>
+</tr>
+<tr>
+<td><code>Expirado</code></td>
+<td>Gris</td>
+<td>La fecha límite pasó sin autofactura</td>
+</tr>
+<tr>
+<td><code>Cancelado</code></td>
+<td>Rojo</td>
+<td>El E-Receipt fue cancelado</td>
 </tr>
 </tbody>
 </table>
-<h3 id="fm_es_ppd-logica">fm_es_ppd — lógica<a class="headerlink" href="#fm_es_ppd-logica" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><span class="n">es_ppd</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">FFM</span><span class="o">.</span><span class="n">fm_payment_method_sat</span> <span class="o">==</span> <span class="s2">&quot;PPD&quot;</span> <span class="k">else</span> <span class="mi">0</span>
-<span class="c1"># escrito en timbrado_api.py junto con fm_fiscal_status = TIMBRADO</span>
-</code></pre></div>
-<h3 id="seccion-fiscal-consolidada">Sección fiscal consolidada<a class="headerlink" href="#seccion-fiscal-consolidada" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>fm_fiscal_section → fm_fiscal_status → fm_factura_fiscal_mx → fm_es_ppd → fm_ffm_summary_html
-</code></pre></div>
+<p>Cuando está <code>Abierto</code>, el widget muestra:
+- La URL del portal de autofactura (botón <strong>Copiar URL</strong> y botón <strong>Abrir portal</strong>)
+- La fecha de expiración</p>
 <hr />
-<h2 id="campos-eliminados-2026-05-04">Campos eliminados (2026-05-04)<a class="headerlink" href="#campos-eliminados-2026-05-04" title="Permanent link">&para;</a></h2>
-<p><code>fm_ffm_estado</code>, <code>fm_ffm_uuid</code>, <code>fm_ffm_numero</code>, <code>fm_ffm_fecha</code>, <code>fm_ffm_pac_msg</code>,
-<code>fm_ffm_col_break</code>, <code>fm_ffm_open_btn</code>, <code>fm_ffm_section</code>,
-<code>fm_last_status_update</code>, <code>fm_timbrado_section</code>, <code>fm_quick_status</code>, <code>fm_column_break_fiscal</code></p>
-<hr />
-<h2 id="tests">Tests<a class="headerlink" href="#tests" title="Permanent link">&para;</a></h2>
-<p><code>facturacion_fiscal/tests/test_si_ffm_cleanup.py</code> — 11 tests verifican
-campos eliminados, <code>fm_es_ppd</code> configurado, campos esenciales presentes.</p>
-<hr />
-<h2 id="incidente-recuperacion-2026-05-06">Incidente recuperación (2026-05-06)<a class="headerlink" href="#incidente-recuperacion-2026-05-06" title="Permanent link">&para;</a></h2>
-<p>Bisect manual recreó campos <code>fm_ffm_*</code> en BD via bench migrate en commits antiguos.
-Restaurado desde backup. Hook <code>on_submit</code> SI ausente desde PR #80 — diagnosticado,
-fix pendiente como tarea separada.</p>
-<hr />
-<h2 id="gaps-pendientes">Gaps pendientes<a class="headerlink" href="#gaps-pendientes" title="Permanent link">&para;</a></h2>
+<h2 id="entregar-la-url-al-cliente">Entregar la URL al cliente<a class="headerlink" href="#entregar-la-url-al-cliente" title="Permanent link">&para;</a></h2>
+<p>El cliente necesita la URL del portal para autofacturarse. Opciones:</p>
 <ul>
-<li><code>Sales Invoice.on_submit</code> hook ausente — fix pendiente</li>
-<li>Draft fields (<code>fm_draft_*</code>) — diferido</li>
-<li><code>fm_pending_amount</code>, <code>fm_complementos_count</code> — diferido (módulo PPD)</li>
+<li><strong>Copiar URL</strong> desde el widget del Sales Invoice y enviársela por mensaje/correo manualmente</li>
+<li>(Fase siguiente) Botón de envío por email directo desde ERPNext</li>
+</ul>
+<p>La URL tiene el formato: <code>https://factura.space/&lt;dominio-empresa&gt;/&lt;clave-receipt&gt;</code></p>
+<hr />
+<h2 id="que-hace-el-cliente-en-el-portal">Qué hace el cliente en el portal<a class="headerlink" href="#que-hace-el-cliente-en-el-portal" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Visita la URL</li>
+<li>Ingresa su RFC, razón social, email y uso CFDI</li>
+<li>FacturAPI genera y timbra el CFDI automáticamente</li>
+<li>El cliente descarga su XML y PDF</li>
+</ol>
+<p>ERPNext no interviene en este paso. Al sincronizar, el EReceipt MX queda con el UUID del CFDI.</p>
+<hr />
+<h2 id="sincronizacion-de-estado">Sincronización de estado<a class="headerlink" href="#sincronizacion-de-estado" title="Permanent link">&para;</a></h2>
+<p>El estado del E-Receipt en FacturAPI (autofacturado, cancelado, etc.) se sincroniza
+automáticamente cada 24 horas. También se puede sincronizar manualmente:</p>
+<ul>
+<li>Abrir el documento <strong>EReceipt MX</strong></li>
+<li>Clic en el botón <strong>Sincronizar con FacturAPI</strong></li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Si no sincronizas antes de Factura Global</p>
+<p>Un EReceipt que aparece como <code>open</code> localmente puede haber sido autofacturado por el
+cliente en el portal. <strong>Siempre sincronizar antes de generar la Factura Global</strong> para
+evitar incluir un receipt que ya tiene CFDI individual.</p>
+</div>
+<hr />
+<h2 id="datos-fiscales-que-guarda-el-ereceipt-mx">Datos fiscales que guarda el EReceipt MX<a class="headerlink" href="#datos-fiscales-que-guarda-el-ereceipt-mx" title="Permanent link">&para;</a></h2>
+<p>El EReceipt MX es el espejo local del receipt en FacturAPI. Estos son los campos principales:</p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>self_invoice_url</code></td>
+<td>URL del portal de autofactura</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td>Estado: open / invoiced_to_customer / invoiced_globally / cancelled</td>
+</tr>
+<tr>
+<td><code>invoice_uuid</code></td>
+<td>UUID del CFDI generado (se llena al sincronizar tras autofactura)</td>
+</tr>
+<tr>
+<td><code>invoice_folio</code></td>
+<td>Folio fiscal del CFDI</td>
+</tr>
+<tr>
+<td><code>invoiced_at</code></td>
+<td>Fecha en que se generó el CFDI</td>
+</tr>
+<tr>
+<td><code>factura_global_mx</code></td>
+<td>Link a la Factura Global si fue incluido en una</td>
+</tr>
+<tr>
+<td><code>last_sync_at</code></td>
+<td>Última sincronización con FacturAPI</td>
+</tr>
+</tbody>
+</table>
+<p><strong>El Sales Invoice NO guarda UUID, folio ni PDF.</strong> Solo guarda el link (<code>fm_ereceipt_mx</code>) y el
+estado operativo (<code>fm_fiscal_status = E-RECEIPT</code>). Los datos fiscales se leen desde el EReceipt MX.</p>
+<hr />
+<h2 id="factura-global">Factura Global<a class="headerlink" href="#factura-global" title="Permanent link">&para;</a></h2>
+<p>Si el cliente no se autofactura antes de que expire el receipt, la empresa puede incluirlo
+en una <strong>Factura Global</strong> periódica (mensual, quincenal, etc.) que cubre todos los receipts
+abiertos del período.</p>
+<p>Ver <a href="../../tecnico/arquitectura/#flujo-e-receipt--autofactura">Factura Global</a> para detalles técnicos.</p>
+<div class="admonition note">
+<p class="admonition-title">Limitación actual</p>
+<p>Los E-Receipts con <strong>IEPS</strong> no pueden incluirse en Factura Global hasta que se implemente
+el modelo line-level de impuestos (issue #182). El sistema bloqueará con un mensaje claro.</p>
+</div>
+<hr />
+<h2 id="configurar-los-defaults-de-e-receipt-por-empresa">Configurar los defaults de E-Receipt por empresa<a class="headerlink" href="#configurar-los-defaults-de-e-receipt-por-empresa" title="Permanent link">&para;</a></h2>
+<p>En <code>Facturacion Mexico Company Settings</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Para qué</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ereceipt_expiry_type_default</code></td>
+<td>Tipo de vencimiento por defecto</td>
+</tr>
+<tr>
+<td><code>ereceipt_expiry_days_default</code></td>
+<td>Días de vencimiento por defecto</td>
+</tr>
+<tr>
+<td><code>ereceipt_payment_form_default</code></td>
+<td>Forma de pago SAT por defecto para E-Receipts</td>
+</tr>
+<tr>
+<td><code>global_payment_form_default</code></td>
+<td>Forma de pago SAT por defecto para Factura Global</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="proximas-funcionalidades">Próximas funcionalidades<a class="headerlink" href="#proximas-funcionalidades" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Fase 1: Botón de envío de URL por email directo desde ERPNext</li>
+<li>Fase 2: Sincronización manual y scheduler configurable</li>
+<li>Fase 3: Facturar individualmente desde ERPNext (para casos donde el operador necesita hacerlo)</li>
+<li>Fase 4: Factura Global vía API de FacturAPI (simplifica la generación)</li>
 </ul>
 
 

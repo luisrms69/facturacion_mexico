@@ -13,10 +13,10 @@
       
       
       
-        <link rel="prev" href="../0014-diagnostico-conectividad-si-ffm/">
+        <link rel="prev" href="../0032-ereceipts-facturapi-arquitectura/">
       
       
-        <link rel="next" href="../0016-reclasificacion-fiscal-payment-entry/">
+        <link rel="next" href="../../referencia/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -24,7 +24,7 @@
     
     
       
-        <title>ADR 0015 — Arquitectura Relación Sales Invoice ↔ Factura Fiscal Mexico - Facturación México - Documentación Técnica</title>
+        <title>ADR-0033: Eliminación de defaults fiscales silenciosos en Factura Global - Facturación México - Documentación Técnica</title>
       
     
     
@@ -90,7 +90,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#adr-0015-arquitectura-relacion-sales-invoice-factura-fiscal-mexico" class="md-skip">
+        <a href="#adr-0033-eliminacion-de-defaults-fiscales-silenciosos-en-factura-global" class="md-skip">
           Saltar a contenido
         </a>
       
@@ -128,7 +128,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              ADR 0015 — Arquitectura Relación Sales Invoice ↔ Factura Fiscal Mexico
+              ADR-0033: Eliminación de defaults fiscales silenciosos en Factura Global
             
           </span>
         </div>
@@ -1134,30 +1134,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    ADR 0015 — Arquitectura Relación Sales Invoice ↔ Factura Fiscal Mexico
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../0015-si-ffm-relationship-architecture/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1166,104 +1146,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Tabla de contenidos
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#decision" class="md-nav__link">
-    <span class="md-ellipsis">
-      Decisión
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#campos-en-sales-invoice" class="md-nav__link">
-    <span class="md-ellipsis">
-      Campos en Sales Invoice
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Campos en Sales Invoice">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#fm_es_ppd-logica" class="md-nav__link">
-    <span class="md-ellipsis">
-      fm_es_ppd — lógica
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#seccion-fiscal-consolidada" class="md-nav__link">
-    <span class="md-ellipsis">
-      Sección fiscal consolidada
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#campos-eliminados-2026-05-04" class="md-nav__link">
-    <span class="md-ellipsis">
-      Campos eliminados (2026-05-04)
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#tests" class="md-nav__link">
-    <span class="md-ellipsis">
-      Tests
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#incidente-recuperacion-2026-05-06" class="md-nav__link">
-    <span class="md-ellipsis">
-      Incidente recuperación (2026-05-06)
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#gaps-pendientes" class="md-nav__link">
-    <span class="md-ellipsis">
-      Gaps pendientes
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1630,10 +1512,30 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../0033-factura-global-hardcodes/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    ADR-0033: Eliminación de defaults fiscales silenciosos en Factura Global
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -1642,6 +1544,95 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#contexto" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contexto
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      Decisión
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#campos-transitorios-en-ereceipt-mx" class="md-nav__link">
+    <span class="md-ellipsis">
+      Campos transitorios en EReceipt MX
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#consecuencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      Consecuencias
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Consecuencias">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#positivas" class="md-nav__link">
+    <span class="md-ellipsis">
+      Positivas
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#negativas-trade-offs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Negativas / trade-offs
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pendiente" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pendiente
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1822,6 +1813,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#contexto" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contexto
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#decision" class="md-nav__link">
     <span class="md-ellipsis">
       Decisión
@@ -1831,28 +1831,46 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#campos-en-sales-invoice" class="md-nav__link">
+  <a href="#campos-transitorios-en-ereceipt-mx" class="md-nav__link">
     <span class="md-ellipsis">
-      Campos en Sales Invoice
+      Campos transitorios en EReceipt MX
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Campos en Sales Invoice">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#consecuencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      Consecuencias
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Consecuencias">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#fm_es_ppd-logica" class="md-nav__link">
+  <a href="#positivas" class="md-nav__link">
     <span class="md-ellipsis">
-      fm_es_ppd — lógica
+      Positivas
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#seccion-fiscal-consolidada" class="md-nav__link">
+  <a href="#negativas-trade-offs" class="md-nav__link">
     <span class="md-ellipsis">
-      Sección fiscal consolidada
+      Negativas / trade-offs
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pendiente" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pendiente
     </span>
   </a>
   
@@ -1860,42 +1878,6 @@
         
       </ul>
     </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#campos-eliminados-2026-05-04" class="md-nav__link">
-    <span class="md-ellipsis">
-      Campos eliminados (2026-05-04)
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#tests" class="md-nav__link">
-    <span class="md-ellipsis">
-      Tests
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#incidente-recuperacion-2026-05-06" class="md-nav__link">
-    <span class="md-ellipsis">
-      Incidente recuperación (2026-05-06)
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#gaps-pendientes" class="md-nav__link">
-    <span class="md-ellipsis">
-      Gaps pendientes
-    </span>
-  </a>
   
 </li>
       
@@ -1914,67 +1896,128 @@
                   
 
 
-<h1 id="adr-0015-arquitectura-relacion-sales-invoice-factura-fiscal-mexico">ADR 0015 — Arquitectura Relación Sales Invoice ↔ Factura Fiscal Mexico<a class="headerlink" href="#adr-0015-arquitectura-relacion-sales-invoice-factura-fiscal-mexico" title="Permanent link">&para;</a></h1>
-<p><strong>Fecha:</strong> 2026-05-04 | <strong>Última revisión:</strong> 2026-05-06 | <strong>Estado:</strong> VIGENTE</p>
+<h1 id="adr-0033-eliminacion-de-defaults-fiscales-silenciosos-en-factura-global">ADR-0033: Eliminación de defaults fiscales silenciosos en Factura Global<a class="headerlink" href="#adr-0033-eliminacion-de-defaults-fiscales-silenciosos-en-factura-global" title="Permanent link">&para;</a></h1>
+<p><strong>Fecha:</strong> 2026-06-06
+<strong>Estado:</strong> Activo
+<strong>Issue:</strong> #160
+<strong>PR:</strong> fix(global-invoice): eliminar hardcodes fiscales en factura global (#183)</p>
+<hr />
+<h2 id="contexto">Contexto<a class="headerlink" href="#contexto" title="Permanent link">&para;</a></h2>
+<p>El módulo de Factura Global (<code>facturas_globales/</code>) agrega E-Receipts de un período en un CFDI
+tipo I con complemento "Información Global". Antes de este PR, el código tenía cuatro defaults
+silenciosos que causaban que la Factura Global se timbrara con valores fiscales incorrectos
+sin ningún error ni advertencia:</p>
+<table>
+<thead>
+<tr>
+<th>Default silencioso</th>
+<th>Código original</th>
+<th>Problema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tasa IVA</td>
+<td><code>flt(receipt.get("tax_rate", 16))</code></td>
+<td>Asumía 16% aunque el receipt fuera exento o tasa 0%</td>
+</tr>
+<tr>
+<td>Clave unidad SAT</td>
+<td><code>unit_key = item.get("fm_unidad_sat") or "ACT"</code></td>
+<td>Usaba ACT aunque el item tuviera otra unidad</td>
+</tr>
+<tr>
+<td>Forma de pago global</td>
+<td><code>return ... or "01"</code></td>
+<td>Usaba "01 - Efectivo" aunque no estuviera configurado</td>
+</tr>
+<tr>
+<td>IEPS ignorado</td>
+<td>Sin validación</td>
+<td>Receipts con IEPS entraban a la FG sin generar impuesto correcto</td>
+</tr>
+</tbody>
+</table>
+<p>Adicionalmente, el SQL del aggregator usaba <code>total * 0.16</code> y <code>total * 0.84</code> hardcodeados,
+lo que producía cálculos incorrectos para cualquier tasa diferente de 16%.</p>
 <hr />
 <h2 id="decision">Decisión<a class="headerlink" href="#decision" title="Permanent link">&para;</a></h2>
-<p>FFM es fuente de verdad fiscal. SI conserva solo campos operativos mínimos.
-Widget <code>fm_ffm_summary_html</code> lee FFM en tiempo real — sin denormalización.</p>
+<p><strong>Bloquear explícitamente en lugar de asumir valores incorrectos.</strong></p>
+<p>Cada uno de los cuatro defaults se reemplazó con un <code>ValidationError</code> que indica exactamente
+qué dato falta y en qué DocType configurarlo:</p>
+<ol>
+<li>
+<p><strong>Tasa IVA sin determinar</strong> → <code>ValidationError</code>: "No se puede determinar la tasa IVA..."
+   El <code>tax_rate</code> debe ser poblado desde las taxes del Sales Invoice al crear el EReceipt.</p>
+</li>
+<li>
+<p><strong>Clave unidad SAT faltante</strong> → <code>ValidationError</code>: "El item global no tiene <code>fm_unidad_sat</code>..."
+   Configurar en <code>Configuracion Fiscal Mexico</code> → item global de la empresa.</p>
+</li>
+<li>
+<p><strong>Forma de pago global faltante</strong> → <code>ValidationError</code>: "Falta <code>global_payment_form_default</code>..."
+   Configurar en <code>Facturacion Mexico Company Settings</code>.</p>
+</li>
+<li>
+<p><strong>IEPS en receipt</strong> → <code>ValidationError</code> con referencia a issue #182:
+   "IEPS en Factura Global no soportado aún. Ver issue #182."
+   Los receipts con IEPS no pueden incluirse en Factura Global hasta que #182 implemente
+   el modelo line-level de impuestos.</p>
+</li>
+</ol>
+<p>El SQL del aggregator se corrigió a:
+<div class="highlight"><pre><span></span><code><span class="n">total</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">tax_rate</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">100</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">base_amount</span><span class="p">,</span>
+<span class="n">total</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="p">(</span><span class="n">total</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">tax_rate</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">100</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">tax_amount</span>
+</code></pre></div></p>
 <hr />
-<h2 id="campos-en-sales-invoice">Campos en Sales Invoice<a class="headerlink" href="#campos-en-sales-invoice" title="Permanent link">&para;</a></h2>
+<h2 id="campos-transitorios-en-ereceipt-mx">Campos transitorios en EReceipt MX<a class="headerlink" href="#campos-transitorios-en-ereceipt-mx" title="Permanent link">&para;</a></h2>
+<p>Para poder validar la tasa IVA antes de incluir un receipt en la Factura Global, se agregaron
+dos campos a <code>EReceipt MX</code>:</p>
 <table>
 <thead>
 <tr>
 <th>Campo</th>
 <th>Tipo</th>
-<th>Cuándo se escribe</th>
+<th>Descripción</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>fm_fiscal_status</code></td>
-<td>Select</td>
-<td>Cada transición (BORRADOR→TIMBRADO→CANCELADO)</td>
+<td><code>tax_rate</code></td>
+<td>Percent (read_only)</td>
+<td>Tasa IVA extraída de las taxes del SI al crear el EReceipt</td>
 </tr>
 <tr>
-<td><code>fm_factura_fiscal_mx</code></td>
-<td>Link → FFM</td>
-<td>Al crear FFM en submit de SI</td>
-</tr>
-<tr>
-<td><code>fm_es_ppd</code></td>
-<td>Check</td>
-<td>Al timbrar: 1 si PPD, 0 si PUE</td>
+<td><code>has_ieps</code></td>
+<td>Check (hidden)</td>
+<td>True si el SI tiene líneas de IEPS</td>
 </tr>
 </tbody>
 </table>
-<h3 id="fm_es_ppd-logica">fm_es_ppd — lógica<a class="headerlink" href="#fm_es_ppd-logica" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><span class="n">es_ppd</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">FFM</span><span class="o">.</span><span class="n">fm_payment_method_sat</span> <span class="o">==</span> <span class="s2">&quot;PPD&quot;</span> <span class="k">else</span> <span class="mi">0</span>
-<span class="c1"># escrito en timbrado_api.py junto con fm_fiscal_status = TIMBRADO</span>
-</code></pre></div>
-<h3 id="seccion-fiscal-consolidada">Sección fiscal consolidada<a class="headerlink" href="#seccion-fiscal-consolidada" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>fm_fiscal_section → fm_fiscal_status → fm_factura_fiscal_mx → fm_es_ppd → fm_ffm_summary_html
-</code></pre></div>
+<p>Estos campos son <strong>transitorios</strong> — el modelo definitivo está pendiente en issue #182
+(impuestos por línea: <code>EReceipt MX Tax Line</code> child table). Cuando #182 se implemente,
+<code>tax_rate</code> y <code>has_ieps</code> serán eliminados.</p>
+<p>La extracción se hace con <code>extract_iva_info_from_si_taxes()</code> en <code>utils/calculo_impuestos.py</code>:
+- Soporta IVA 16%, 8%, 0% explícito (tasa cero confirmada)
+- Retorna <code>None</code> si la tasa no es determinable (sin nodos IVA, o múltiples tasas)
+- <code>None</code> bloquea el timbrado de Factura Global — nunca asume</p>
 <hr />
-<h2 id="campos-eliminados-2026-05-04">Campos eliminados (2026-05-04)<a class="headerlink" href="#campos-eliminados-2026-05-04" title="Permanent link">&para;</a></h2>
-<p><code>fm_ffm_estado</code>, <code>fm_ffm_uuid</code>, <code>fm_ffm_numero</code>, <code>fm_ffm_fecha</code>, <code>fm_ffm_pac_msg</code>,
-<code>fm_ffm_col_break</code>, <code>fm_ffm_open_btn</code>, <code>fm_ffm_section</code>,
-<code>fm_last_status_update</code>, <code>fm_timbrado_section</code>, <code>fm_quick_status</code>, <code>fm_column_break_fiscal</code></p>
-<hr />
-<h2 id="tests">Tests<a class="headerlink" href="#tests" title="Permanent link">&para;</a></h2>
-<p><code>facturacion_fiscal/tests/test_si_ffm_cleanup.py</code> — 11 tests verifican
-campos eliminados, <code>fm_es_ppd</code> configurado, campos esenciales presentes.</p>
-<hr />
-<h2 id="incidente-recuperacion-2026-05-06">Incidente recuperación (2026-05-06)<a class="headerlink" href="#incidente-recuperacion-2026-05-06" title="Permanent link">&para;</a></h2>
-<p>Bisect manual recreó campos <code>fm_ffm_*</code> en BD via bench migrate en commits antiguos.
-Restaurado desde backup. Hook <code>on_submit</code> SI ausente desde PR #80 — diagnosticado,
-fix pendiente como tarea separada.</p>
-<hr />
-<h2 id="gaps-pendientes">Gaps pendientes<a class="headerlink" href="#gaps-pendientes" title="Permanent link">&para;</a></h2>
+<h2 id="consecuencias">Consecuencias<a class="headerlink" href="#consecuencias" title="Permanent link">&para;</a></h2>
+<h3 id="positivas">Positivas<a class="headerlink" href="#positivas" title="Permanent link">&para;</a></h3>
 <ul>
-<li><code>Sales Invoice.on_submit</code> hook ausente — fix pendiente</li>
-<li>Draft fields (<code>fm_draft_*</code>) — diferido</li>
-<li><code>fm_pending_amount</code>, <code>fm_complementos_count</code> — diferido (módulo PPD)</li>
+<li>El sistema no puede timbrar una Factura Global con datos fiscales incorrectos en silencio</li>
+<li>Los errores indican exactamente qué configurar y dónde</li>
+<li>El cálculo de base/impuesto es correcto para IVA 8%, 16%, y 0%</li>
+</ul>
+<h3 id="negativas-trade-offs">Negativas / trade-offs<a class="headerlink" href="#negativas-trade-offs" title="Permanent link">&para;</a></h3>
+<ul>
+<li>EReceipts existentes creados antes de este PR no tienen <code>tax_rate</code> → ValidationError al
+  incluirlos en Factura Global. Solución: recrear los EReceipts desde sus Sales Invoices.</li>
+<li>Clientes con productos IEPS no pueden usar Factura Global hasta #182</li>
+</ul>
+<h3 id="pendiente">Pendiente<a class="headerlink" href="#pendiente" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Issue #182: modelo line-level de impuestos para EReceipt MX / Factura Global</li>
 </ul>
 
 

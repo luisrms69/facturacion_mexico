@@ -521,6 +521,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../usuario/ereceipts/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    E-Receipts y Autofactura
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../usuario/addendas/" class="md-nav__link">
         
   
@@ -718,6 +739,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#flujo-e-receipt-autofactura" class="md-nav__link">
+    <span class="md-ellipsis">
+      Flujo E-Receipt / Autofactura
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#flujo-principal-cfdi-recibido" class="md-nav__link">
     <span class="md-ellipsis">
       Flujo principal — CFDI recibido
@@ -768,6 +798,30 @@
       Item Groups fiscales
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#factura-global-validaciones-fiscales-desde-pr-183" class="md-nav__link">
+    <span class="md-ellipsis">
+      Factura Global — validaciones fiscales (desde PR #183)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Factura Global — validaciones fiscales (desde PR #183)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#campos-transitorios-en-ereceipt-mx-pr-183" class="md-nav__link">
+    <span class="md-ellipsis">
+      Campos transitorios en EReceipt MX (PR #183)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1578,6 +1632,48 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0032-ereceipts-facturapi-arquitectura/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0032: Arquitectura E-Receipts — FacturAPI como motor fiscal, ERPNext como trazabilidad
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0033-factura-global-hardcodes/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0033: Eliminación de defaults fiscales silenciosos en Factura Global
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1771,6 +1867,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#flujo-e-receipt-autofactura" class="md-nav__link">
+    <span class="md-ellipsis">
+      Flujo E-Receipt / Autofactura
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#flujo-principal-cfdi-recibido" class="md-nav__link">
     <span class="md-ellipsis">
       Flujo principal — CFDI recibido
@@ -1821,6 +1926,30 @@
       Item Groups fiscales
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#factura-global-validaciones-fiscales-desde-pr-183" class="md-nav__link">
+    <span class="md-ellipsis">
+      Factura Global — validaciones fiscales (desde PR #183)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Factura Global — validaciones fiscales (desde PR #183)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#campos-transitorios-en-ereceipt-mx-pr-183" class="md-nav__link">
+    <span class="md-ellipsis">
+      Campos transitorios en EReceipt MX (PR #183)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1906,6 +2035,27 @@
   → Factura Fiscal Mexico
   → timbrado_api.py → FacturAPI.io → SAT
 </code></pre></div>
+<h2 id="flujo-e-receipt-autofactura">Flujo E-Receipt / Autofactura<a class="headerlink" href="#flujo-e-receipt-autofactura" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>Sales Invoice (submit, fm_ereceipt_mode=&quot;E-Receipt&quot;)
+  → crear_ereceipt() → EReceipt MX (local)
+  → POST /receipts → FacturAPI.io
+  → FacturAPI genera: receipt + self_invoice_url + key
+  → EReceipt MX guarda: facturapi_id, key, self_invoice_url, status=open
+  → SI actualiza: fm_ereceipt_mx = EReceipt.name, fm_fiscal_status = &quot;E-RECEIPT&quot;
+
+Cliente visita self_invoice_url → portal FacturAPI
+  → captura RFC, razón social, email
+  → FacturAPI timbra CFDI tipo I
+  → receipt.status → invoiced_to_customer
+
+Sync (scheduler o manual)
+  → GET /receipts/{facturapi_id}
+  → EReceipt MX actualiza: status, invoice_uuid, invoice_folio, invoiced_at
+  → SI actualiza: fm_fiscal_status = &quot;E-RECEIPT-FACTURADO&quot;
+</code></pre></div>
+<p><strong>Principio arquitectónico:</strong> FacturAPI hace el heavy lifting fiscal (timbrado, portal, CFDI global).
+ERPNext solo conserva trazabilidad y control. UUID/folio/invoice_id <strong>nunca</strong> se copian a Sales Invoice.
+Ver <a href="../../adr/0032-ereceipts-facturapi-arquitectura/">ADR-0032</a>.</p>
 <h2 id="flujo-principal-cfdi-recibido">Flujo principal — CFDI recibido<a class="headerlink" href="#flujo-principal-cfdi-recibido" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code>Upload XML
   → xml_ingestion.py → CFDI Recibido (Falta proveedor)
@@ -1944,12 +2094,12 @@
 <tr>
 <td><code>EReceipt MX</code></td>
 <td>Submittable</td>
-<td>Recibo para autofacturación</td>
+<td>Recibo para autofacturación — espejo local del receipt en FacturAPI</td>
 </tr>
 <tr>
 <td><code>Factura Global MX</code></td>
 <td>Submittable</td>
-<td>CFDI global periódico</td>
+<td>CFDI global periódico — agrupa EReceipts abiertos del período</td>
 </tr>
 <tr>
 <td><code>Facturacion Mexico Company Settings</code></td>
@@ -2003,7 +2153,9 @@
 </table>
 <hr />
 <h2 id="custom-fields-criticos">Custom Fields críticos<a class="headerlink" href="#custom-fields-criticos" title="Permanent link">&para;</a></h2>
-<p><strong>Sales Invoice:</strong> <code>fm_fiscal_status</code>, <code>fm_factura_fiscal_mx</code>, <code>fm_addenda_*</code>, <code>fm_branch</code>, <code>fm_es_ppd</code>
+<p><strong>Sales Invoice:</strong> <code>fm_fiscal_status</code>, <code>fm_factura_fiscal_mx</code>, <code>fm_addenda_*</code>, <code>fm_branch</code>, <code>fm_es_ppd</code>,
+<code>fm_ereceipt_mx</code> (link al EReceipt MX), <code>fm_ereceipt_summary_html</code> (widget estado E-Receipt),
+<code>fm_ereceipt_mode</code> (Normal / E-Receipt), <code>fm_ereceipt_expiry_*</code> (configuración vencimiento)
 <strong>Customer:</strong> <code>fm_tax_regime</code>, <code>fm_uso_cfdi_default</code>, <code>fm_requires_addenda</code>, <code>fm_default_addenda_type</code>, <code>fm_buyer_gln</code>, <code>fm_seller_gln</code>, <code>fm_seller_id</code>, <code>fm_invoice_creator_gln</code>, <code>fm_dias_credito_addenda</code>
 <strong>Address:</strong> <code>fm_gln</code> (GLN de sucursal destino para addendas EDI)
 <strong>Item Customer Detail:</strong> <code>ref_code</code> (nativo ERPNext), <code>fm_customer_uom</code>, <code>fm_customer_description</code>
@@ -2047,6 +2199,53 @@
 </tbody>
 </table>
 <p>Los subgrupos se crean idempotentemente en cada <code>bench migrate</code> — nunca se modifican ni borran grupos existentes.</p>
+<hr />
+<h2 id="factura-global-validaciones-fiscales-desde-pr-183">Factura Global — validaciones fiscales (desde PR #183)<a class="headerlink" href="#factura-global-validaciones-fiscales-desde-pr-183" title="Permanent link">&para;</a></h2>
+<p>El módulo <code>facturas_globales/</code> tiene un conjunto de validaciones estrictas antes de timbrar.
+Si alguna condición no se cumple, <strong>bloquea con ValidationError</strong> — nunca asume valores por defecto.</p>
+<table>
+<thead>
+<tr>
+<th>Validación</th>
+<th>Error si...</th>
+<th>Cómo resolver</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tax_rate</code> del EReceipt</td>
+<td>Es <code>None</code> (no determinable)</td>
+<td>El EReceipt debe tener tasa IVA definida. Recrear desde SI con taxes configurados.</td>
+</tr>
+<tr>
+<td><code>fm_unidad_sat</code> del item global</td>
+<td>Falta en el item configurado</td>
+<td>Configurar en el item global de la empresa</td>
+</tr>
+<tr>
+<td><code>global_payment_form_default</code></td>
+<td>No configurado</td>
+<td><code>Facturacion Mexico Company Settings</code> → campo <code>global_payment_form_default</code></td>
+</tr>
+<tr>
+<td>IEPS en receipt</td>
+<td>El EReceipt tiene <code>has_ieps = 1</code></td>
+<td>Pendiente issue #182. Los receipts con IEPS no pueden ir a Factura Global aún.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Cálculo de base e impuesto (correcto desde PR #183):</strong></p>
+<div class="highlight"><pre><span></span><code><span class="n">base</span> <span class="o">=</span> <span class="n">total</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">tax_rate</span> <span class="o">/</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">impuesto</span> <span class="o">=</span> <span class="n">total</span> <span class="o">-</span> <span class="n">base</span>
+</code></pre></div>
+<p>Antes del PR #183, el aggregator usaba <code>total * 0.84</code> y <code>total * 0.16</code> (hardcoded 16%),
+lo que producía valores incorrectos para IVA 8% y tasa 0%.</p>
+<p>Ver <a href="../../adr/0033-factura-global-hardcodes/">ADR-0033</a> para el razonamiento completo.</p>
+<h3 id="campos-transitorios-en-ereceipt-mx-pr-183">Campos transitorios en EReceipt MX (PR #183)<a class="headerlink" href="#campos-transitorios-en-ereceipt-mx-pr-183" title="Permanent link">&para;</a></h3>
+<p><code>tax_rate</code> (Percent) y <code>has_ieps</code> (Check) son campos transitorios agregados para habilitar
+las validaciones de Factura Global sin implementar el modelo definitivo de impuestos por línea.</p>
+<p>Serán eliminados cuando issue #182 implemente <code>EReceipt MX Tax Line</code> (child table con
+impuestos por línea de producto). Ver <a href="../../adr/0033-factura-global-hardcodes/">ADR-0033</a>.</p>
 <hr />
 <blockquote>
 <p>Este documento describe el estado actual. Para el historial de decisiones, ver <a href="../../adr/">ADRs</a>.</p>

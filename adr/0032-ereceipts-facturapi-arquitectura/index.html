@@ -13,10 +13,10 @@
       
       
       
-        <link rel="prev" href="../0014-diagnostico-conectividad-si-ffm/">
+        <link rel="prev" href="../0031-migracion-settings-por-company/">
       
       
-        <link rel="next" href="../0016-reclasificacion-fiscal-payment-entry/">
+        <link rel="next" href="../0033-factura-global-hardcodes/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -24,7 +24,7 @@
     
     
       
-        <title>ADR 0015 — Arquitectura Relación Sales Invoice ↔ Factura Fiscal Mexico - Facturación México - Documentación Técnica</title>
+        <title>ADR-0032: Arquitectura E-Receipts — FacturAPI como motor fiscal, ERPNext como trazabilidad - Facturación México - Documentación Técnica</title>
       
     
     
@@ -90,7 +90,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#adr-0015-arquitectura-relacion-sales-invoice-factura-fiscal-mexico" class="md-skip">
+        <a href="#adr-0032-arquitectura-e-receipts-facturapi-como-motor-fiscal-erpnext-como-trazabilidad" class="md-skip">
           Saltar a contenido
         </a>
       
@@ -128,7 +128,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              ADR 0015 — Arquitectura Relación Sales Invoice ↔ Factura Fiscal Mexico
+              ADR-0032: Arquitectura E-Receipts — FacturAPI como motor fiscal, ERPNext como trazabilidad
             
           </span>
         </div>
@@ -1134,30 +1134,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    ADR 0015 — Arquitectura Relación Sales Invoice ↔ Factura Fiscal Mexico
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../0015-si-ffm-relationship-architecture/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1166,104 +1146,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Tabla de contenidos
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#decision" class="md-nav__link">
-    <span class="md-ellipsis">
-      Decisión
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#campos-en-sales-invoice" class="md-nav__link">
-    <span class="md-ellipsis">
-      Campos en Sales Invoice
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Campos en Sales Invoice">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#fm_es_ppd-logica" class="md-nav__link">
-    <span class="md-ellipsis">
-      fm_es_ppd — lógica
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#seccion-fiscal-consolidada" class="md-nav__link">
-    <span class="md-ellipsis">
-      Sección fiscal consolidada
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#campos-eliminados-2026-05-04" class="md-nav__link">
-    <span class="md-ellipsis">
-      Campos eliminados (2026-05-04)
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#tests" class="md-nav__link">
-    <span class="md-ellipsis">
-      Tests
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#incidente-recuperacion-2026-05-06" class="md-nav__link">
-    <span class="md-ellipsis">
-      Incidente recuperación (2026-05-06)
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#gaps-pendientes" class="md-nav__link">
-    <span class="md-ellipsis">
-      Gaps pendientes
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1609,10 +1491,30 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../0032-ereceipts-facturapi-arquitectura/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    ADR-0032: Arquitectura E-Receipts — FacturAPI como motor fiscal, ERPNext como trazabilidad
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -1621,6 +1523,128 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#contexto" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contexto
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      Decisión
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modelo-de-datos-resultante" class="md-nav__link">
+    <span class="md-ellipsis">
+      Modelo de datos resultante
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Modelo de datos resultante">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sales-invoice-campos-nuevos" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sales Invoice (campos nuevos)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ereceipt-mx-campos-relevantes" class="md-nav__link">
+    <span class="md-ellipsis">
+      EReceipt MX (campos relevantes)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#consecuencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      Consecuencias
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Consecuencias">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#positivas" class="md-nav__link">
+    <span class="md-ellipsis">
+      Positivas
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#negativas-trade-offs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Negativas / trade-offs
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fuera-de-alcance-de-esta-decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fuera de alcance de esta decisión
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#alternativa-descartada" class="md-nav__link">
+    <span class="md-ellipsis">
+      Alternativa descartada
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1822,6 +1846,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#contexto" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contexto
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#decision" class="md-nav__link">
     <span class="md-ellipsis">
       Decisión
@@ -1831,28 +1864,28 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#campos-en-sales-invoice" class="md-nav__link">
+  <a href="#modelo-de-datos-resultante" class="md-nav__link">
     <span class="md-ellipsis">
-      Campos en Sales Invoice
+      Modelo de datos resultante
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Campos en Sales Invoice">
+    <nav class="md-nav" aria-label="Modelo de datos resultante">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#fm_es_ppd-logica" class="md-nav__link">
+  <a href="#sales-invoice-campos-nuevos" class="md-nav__link">
     <span class="md-ellipsis">
-      fm_es_ppd — lógica
+      Sales Invoice (campos nuevos)
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#seccion-fiscal-consolidada" class="md-nav__link">
+  <a href="#ereceipt-mx-campos-relevantes" class="md-nav__link">
     <span class="md-ellipsis">
-      Sección fiscal consolidada
+      EReceipt MX (campos relevantes)
     </span>
   </a>
   
@@ -1864,36 +1897,51 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#campos-eliminados-2026-05-04" class="md-nav__link">
+  <a href="#consecuencias" class="md-nav__link">
     <span class="md-ellipsis">
-      Campos eliminados (2026-05-04)
+      Consecuencias
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Consecuencias">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#positivas" class="md-nav__link">
+    <span class="md-ellipsis">
+      Positivas
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#tests" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#negativas-trade-offs" class="md-nav__link">
     <span class="md-ellipsis">
-      Tests
+      Negativas / trade-offs
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#incidente-recuperacion-2026-05-06" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#fuera-de-alcance-de-esta-decision" class="md-nav__link">
     <span class="md-ellipsis">
-      Incidente recuperación (2026-05-06)
+      Fuera de alcance de esta decisión
     </span>
   </a>
   
 </li>
+        
+      </ul>
+    </nav>
+  
+</li>
       
         <li class="md-nav__item">
-  <a href="#gaps-pendientes" class="md-nav__link">
+  <a href="#alternativa-descartada" class="md-nav__link">
     <span class="md-ellipsis">
-      Gaps pendientes
+      Alternativa descartada
     </span>
   </a>
   
@@ -1914,68 +1962,180 @@
                   
 
 
-<h1 id="adr-0015-arquitectura-relacion-sales-invoice-factura-fiscal-mexico">ADR 0015 — Arquitectura Relación Sales Invoice ↔ Factura Fiscal Mexico<a class="headerlink" href="#adr-0015-arquitectura-relacion-sales-invoice-factura-fiscal-mexico" title="Permanent link">&para;</a></h1>
-<p><strong>Fecha:</strong> 2026-05-04 | <strong>Última revisión:</strong> 2026-05-06 | <strong>Estado:</strong> VIGENTE</p>
+<h1 id="adr-0032-arquitectura-e-receipts-facturapi-como-motor-fiscal-erpnext-como-trazabilidad">ADR-0032: Arquitectura E-Receipts — FacturAPI como motor fiscal, ERPNext como trazabilidad<a class="headerlink" href="#adr-0032-arquitectura-e-receipts-facturapi-como-motor-fiscal-erpnext-como-trazabilidad" title="Permanent link">&para;</a></h1>
+<p><strong>Fecha:</strong> 2026-06-06
+<strong>Estado:</strong> Activo
+<strong>Issue:</strong> #118 (E-Receipts flujo completo), Fase 0
+<strong>PR:</strong> feat(ereceipts): Fase 0 — payload fiscal correcto + trazabilidad SI ↔ EReceipt MX</p>
+<hr />
+<h2 id="contexto">Contexto<a class="headerlink" href="#contexto" title="Permanent link">&para;</a></h2>
+<p>El módulo E-Receipts permite emitir recibos digitales a clientes de ventas a público en general,
+ofreciéndoles un portal para autofacturarse cuando lo necesiten. FacturAPI.io (el PAC que ya usa
+la app para timbrado normal) ofrece un flujo completo para esto:</p>
+<ul>
+<li><code>POST /receipts</code> — crea el receipt con items y forma de pago</li>
+<li>Portal <code>factura.space/&lt;domain&gt;/&lt;key&gt;</code> — el cliente captura su RFC y FacturAPI genera el CFDI</li>
+<li><code>POST /receipts/{id}/invoice</code> — facturar individualmente desde la API</li>
+<li><code>POST /receipts/global-invoice</code> — factura global de todos los receipts abiertos del período</li>
+</ul>
+<p>Antes de esta decisión, el código existente intentaba duplicar parte de este trabajo en ERPNext:
+<code>invoice_ereceipt()</code> creaba un Sales Invoice local y lo pasaba por el flujo FFM/timbrado_api.py,
+y <code>cfdi_global_builder.py</code> construía el payload CFDI manualmente en lugar de usar el endpoint
+de FacturAPI para receipts.</p>
 <hr />
 <h2 id="decision">Decisión<a class="headerlink" href="#decision" title="Permanent link">&para;</a></h2>
-<p>FFM es fuente de verdad fiscal. SI conserva solo campos operativos mínimos.
-Widget <code>fm_ffm_summary_html</code> lee FFM en tiempo real — sin denormalización.</p>
+<p><strong>FacturAPI hace el heavy lifting fiscal. ERPNext solo mantiene control, trazabilidad y sincronización.</strong></p>
+<p>Reglas resultantes:</p>
+<ol>
+<li>
+<p><strong>No portal propio.</strong> El portal de autofactura es <code>factura.space/&lt;domain&gt;/&lt;key&gt;</code>. Solo guardamos
+   y exponemos <code>self_invoice_url</code>. No construimos microsite propio.</p>
+</li>
+<li>
+<p><strong>No crear Sales Invoice nueva para facturar un EReceipt.</strong> Cuando el cliente autofactura o
+   cuando el operador factura desde ERPNext, se usa <code>POST /receipts/{id}/invoice</code> de FacturAPI.
+   FacturAPI genera el CFDI. ERPNext solo sincroniza el resultado.</p>
+</li>
+<li>
+<p><strong>No usar el flujo FFM/timbrado_api.py para E-Receipts.</strong> Ese flujo es para CFDI directos
+   (Sales Invoice → FFM → timbrado). Para E-Receipts el flujo es diferente: el receipt vive
+   en FacturAPI; ERPNext es un espejo.</p>
+</li>
+<li>
+<p><strong>No construir Factura Global CFDI manualmente si FacturAPI puede hacerlo desde receipts.</strong>
+   Usar <code>POST /receipts/global-invoice</code> (pendiente Fase 4) en lugar de <code>POST /invoices</code> con
+   payload construido localmente.</p>
+</li>
+<li>
+<p><strong>UUID, folio, invoice_id, PDF, XML nunca se copian a Sales Invoice.</strong> Esos datos viven en
+   <code>EReceipt MX</code> (autofactura individual) o en <code>Factura Global MX</code> (factura global). La Sales
+   Invoice solo guarda el Link (<code>fm_ereceipt_mx</code>) y el status operativo (<code>fm_fiscal_status</code>).
+   El widget del SI lee los datos por relación bajo demanda — mismo patrón que <code>fm_ffm_summary_html</code>.</p>
+</li>
+</ol>
 <hr />
-<h2 id="campos-en-sales-invoice">Campos en Sales Invoice<a class="headerlink" href="#campos-en-sales-invoice" title="Permanent link">&para;</a></h2>
+<h2 id="modelo-de-datos-resultante">Modelo de datos resultante<a class="headerlink" href="#modelo-de-datos-resultante" title="Permanent link">&para;</a></h2>
+<h3 id="sales-invoice-campos-nuevos">Sales Invoice (campos nuevos)<a class="headerlink" href="#sales-invoice-campos-nuevos" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
 <tr>
 <th>Campo</th>
 <th>Tipo</th>
-<th>Cuándo se escribe</th>
+<th>Cuándo se llena</th>
 </tr>
 </thead>
 <tbody>
 <tr>
+<td><code>fm_ereceipt_mx</code></td>
+<td>Link → EReceipt MX</td>
+<td>Al crear EReceipt desde esta SI</td>
+</tr>
+<tr>
+<td><code>fm_ereceipt_summary_html</code></td>
+<td>HTML (widget)</td>
+<td>Siempre visible si hay fm_ereceipt_mx</td>
+</tr>
+<tr>
 <td><code>fm_fiscal_status</code></td>
 <td>Select</td>
-<td>Cada transición (BORRADOR→TIMBRADO→CANCELADO)</td>
-</tr>
-<tr>
-<td><code>fm_factura_fiscal_mx</code></td>
-<td>Link → FFM</td>
-<td>Al crear FFM en submit de SI</td>
-</tr>
-<tr>
-<td><code>fm_es_ppd</code></td>
-<td>Check</td>
-<td>Al timbrar: 1 si PPD, 0 si PUE</td>
+<td><code>E-RECEIPT</code> al crear; <code>E-RECEIPT-FACTURADO</code> tras facturar</td>
 </tr>
 </tbody>
 </table>
-<h3 id="fm_es_ppd-logica">fm_es_ppd — lógica<a class="headerlink" href="#fm_es_ppd-logica" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><span class="n">es_ppd</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">FFM</span><span class="o">.</span><span class="n">fm_payment_method_sat</span> <span class="o">==</span> <span class="s2">&quot;PPD&quot;</span> <span class="k">else</span> <span class="mi">0</span>
-<span class="c1"># escrito en timbrado_api.py junto con fm_fiscal_status = TIMBRADO</span>
-</code></pre></div>
-<h3 id="seccion-fiscal-consolidada">Sección fiscal consolidada<a class="headerlink" href="#seccion-fiscal-consolidada" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>fm_fiscal_section → fm_fiscal_status → fm_factura_fiscal_mx → fm_es_ppd → fm_ffm_summary_html
-</code></pre></div>
+<h3 id="ereceipt-mx-campos-relevantes">EReceipt MX (campos relevantes)<a class="headerlink" href="#ereceipt-mx-campos-relevantes" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Fuente</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>facturapi_id</code></td>
+<td>FacturAPI response</td>
+<td>ID del receipt en FacturAPI — clave para todas las operaciones</td>
+</tr>
+<tr>
+<td><code>key</code></td>
+<td>FacturAPI response</td>
+<td>Clave del receipt para el portal</td>
+</tr>
+<tr>
+<td><code>self_invoice_url</code></td>
+<td>FacturAPI response</td>
+<td>URL completa del portal de autofactura</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td>FacturAPI (sincronizado)</td>
+<td>open / invoiced_to_customer / invoiced_globally / cancelled</td>
+</tr>
+<tr>
+<td><code>tax_rate</code></td>
+<td>SI.taxes (transitorio)</td>
+<td>Tasa IVA del receipt — ver ADR-0033</td>
+</tr>
+<tr>
+<td><code>invoice_id</code></td>
+<td>FacturAPI (sync)</td>
+<td>ID del CFDI generado cuando se factura</td>
+</tr>
+<tr>
+<td><code>invoice_uuid</code></td>
+<td>FacturAPI (sync)</td>
+<td>UUID fiscal del CFDI</td>
+</tr>
+<tr>
+<td><code>invoice_folio</code></td>
+<td>FacturAPI (sync)</td>
+<td>Folio fiscal</td>
+</tr>
+<tr>
+<td><code>invoiced_at</code></td>
+<td>FacturAPI (sync)</td>
+<td>Fecha de facturación</td>
+</tr>
+<tr>
+<td><code>factura_global_mx</code></td>
+<td>ERPNext (al incluir en FG)</td>
+<td>Link a Factura Global MX</td>
+</tr>
+<tr>
+<td><code>last_sync_at</code></td>
+<td>ERPNext</td>
+<td>Última sincronización con FacturAPI</td>
+</tr>
+</tbody>
+</table>
 <hr />
-<h2 id="campos-eliminados-2026-05-04">Campos eliminados (2026-05-04)<a class="headerlink" href="#campos-eliminados-2026-05-04" title="Permanent link">&para;</a></h2>
-<p><code>fm_ffm_estado</code>, <code>fm_ffm_uuid</code>, <code>fm_ffm_numero</code>, <code>fm_ffm_fecha</code>, <code>fm_ffm_pac_msg</code>,
-<code>fm_ffm_col_break</code>, <code>fm_ffm_open_btn</code>, <code>fm_ffm_section</code>,
-<code>fm_last_status_update</code>, <code>fm_timbrado_section</code>, <code>fm_quick_status</code>, <code>fm_column_break_fiscal</code></p>
-<hr />
-<h2 id="tests">Tests<a class="headerlink" href="#tests" title="Permanent link">&para;</a></h2>
-<p><code>facturacion_fiscal/tests/test_si_ffm_cleanup.py</code> — 11 tests verifican
-campos eliminados, <code>fm_es_ppd</code> configurado, campos esenciales presentes.</p>
-<hr />
-<h2 id="incidente-recuperacion-2026-05-06">Incidente recuperación (2026-05-06)<a class="headerlink" href="#incidente-recuperacion-2026-05-06" title="Permanent link">&para;</a></h2>
-<p>Bisect manual recreó campos <code>fm_ffm_*</code> en BD via bench migrate en commits antiguos.
-Restaurado desde backup. Hook <code>on_submit</code> SI ausente desde PR #80 — diagnosticado,
-fix pendiente como tarea separada.</p>
-<hr />
-<h2 id="gaps-pendientes">Gaps pendientes<a class="headerlink" href="#gaps-pendientes" title="Permanent link">&para;</a></h2>
+<h2 id="consecuencias">Consecuencias<a class="headerlink" href="#consecuencias" title="Permanent link">&para;</a></h2>
+<h3 id="positivas">Positivas<a class="headerlink" href="#positivas" title="Permanent link">&para;</a></h3>
 <ul>
-<li><code>Sales Invoice.on_submit</code> hook ausente — fix pendiente</li>
-<li>Draft fields (<code>fm_draft_*</code>) — diferido</li>
-<li><code>fm_pending_amount</code>, <code>fm_complementos_count</code> — diferido (módulo PPD)</li>
+<li>Sin duplicación de lógica fiscal — FacturAPI ya lo resuelve correctamente para SAT</li>
+<li>Portal de autofactura sin infraestructura propia — FacturAPI lo provee con branding</li>
+<li>El CFDI generado por FacturAPI desde el receipt siempre es consistente con el receipt original</li>
+<li>Modelo de sincronización simple: <code>GET /receipts/{id}</code> actualiza el EReceipt MX local</li>
 </ul>
+<h3 id="negativas-trade-offs">Negativas / trade-offs<a class="headerlink" href="#negativas-trade-offs" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Requiere conexión a FacturAPI para operaciones fiscales (ya era el caso para timbrado normal)</li>
+<li>El status del EReceipt puede quedar desincronizado si no se ejecuta el scheduler de sync</li>
+<li>Si el cliente autofactura y no hay webhook/sync, ERPNext lo ve como <code>open</code> temporalmente</li>
+</ul>
+<h3 id="fuera-de-alcance-de-esta-decision">Fuera de alcance de esta decisión<a class="headerlink" href="#fuera-de-alcance-de-esta-decision" title="Permanent link">&para;</a></h3>
+<ul>
+<li>IEPS line-level en E-Receipts: pendiente ADR-0034 e issue #182</li>
+<li>Webhooks: pendiente Fase posterior (#118)</li>
+</ul>
+<hr />
+<h2 id="alternativa-descartada">Alternativa descartada<a class="headerlink" href="#alternativa-descartada" title="Permanent link">&para;</a></h2>
+<p><strong>ERPNext como motor fiscal para E-Receipts</strong> — crear una Sales Invoice nueva con los datos del cliente
+que autofactura, pasarla por <code>timbrado_api.py</code> y generar un FFM. Descartada porque:
+- Duplica el CFDI: FacturAPI ya lo genera al autofacturar en el portal
+- El FFM duplicado no representa la venta original — representa una copia fiscal inconsistente
+- No sincroniza el estado del receipt en FacturAPI → risk de doble facturación en Factura Global</p>
 
 
 

@@ -693,6 +693,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../ereceipts/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    E-Receipts y Autofactura
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../addendas/" class="md-nav__link">
         
   
@@ -1638,6 +1659,48 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0032-ereceipts-facturapi-arquitectura/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0032: Arquitectura E-Receipts — FacturAPI como motor fiscal, ERPNext como trazabilidad
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0033-factura-global-hardcodes/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0033: Eliminación de defaults fiscales silenciosos en Factura Global
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2003,8 +2066,20 @@
 <td><code>CANCELADO</code></td>
 <td>CFDI cancelado ante el SAT</td>
 </tr>
+<tr>
+<td><code>E-RECEIPT</code></td>
+<td>Venta en modo E-Receipt — el cliente puede autofacturarse vía portal</td>
+</tr>
+<tr>
+<td><code>E-RECEIPT-FACTURADO</code></td>
+<td>El E-Receipt fue facturado (individual o incluido en Factura Global)</td>
+</tr>
 </tbody>
 </table>
+<p>Los estados <code>E-RECEIPT</code> y <code>E-RECEIPT-FACTURADO</code> <strong>no provienen del flujo FFM</strong> — son actualizados
+por el módulo EReceipt MX cuando la venta opera en modo autofactura. Una Sales Invoice en modo
+E-Receipt no tiene Factura Fiscal Mexico vinculada; el campo <code>fm_ereceipt_mx</code> apunta al EReceipt MX.
+Ver <a href="../ereceipts/">E-Receipts y Autofactura</a> para el detalle de ese flujo.</p>
 <hr />
 <h2 id="flujo-paso-a-paso">Flujo paso a paso<a class="headerlink" href="#flujo-paso-a-paso" title="Permanent link">&para;</a></h2>
 <h3 id="1-crear-y-configurar-el-sales-invoice">1. Crear y configurar el Sales Invoice<a class="headerlink" href="#1-crear-y-configurar-el-sales-invoice" title="Permanent link">&para;</a></h3>
