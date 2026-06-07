@@ -1,4 +1,5 @@
 import frappe
+from frappe import _
 
 
 @frappe.whitelist()
@@ -13,6 +14,9 @@ def get_ereceipt_summary(ereceipt_name: str) -> dict:
 		return {}
 
 	try:
+		if not frappe.has_permission("EReceipt MX", doc=ereceipt_name, ptype="read"):
+			frappe.throw(_("Sin permiso de lectura sobre EReceipt MX"), frappe.PermissionError)
+
 		er = frappe.get_doc("EReceipt MX", ereceipt_name).as_dict()
 
 		result = {
@@ -27,10 +31,11 @@ def get_ereceipt_summary(ereceipt_name: str) -> dict:
 			"factura_global_uuid": None,
 		}
 
-		# Si fue incluido en Factura Global, leer UUID global desde FG
+		# Si fue incluido en Factura Global, leer UUID global desde FG (solo si tiene permiso)
 		if er.get("factura_global_mx"):
-			fg_uuid = frappe.db.get_value("Factura Global MX", er["factura_global_mx"], "invoice_uuid")
-			result["factura_global_uuid"] = fg_uuid
+			if frappe.has_permission("Factura Global MX", doc=er["factura_global_mx"], ptype="read"):
+				fg_uuid = frappe.db.get_value("Factura Global MX", er["factura_global_mx"], "invoice_uuid")
+				result["factura_global_uuid"] = fg_uuid
 
 		return result
 

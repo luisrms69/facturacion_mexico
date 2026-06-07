@@ -202,7 +202,7 @@
    "description": "ID del invoice generado en FacturAPI cuando el receipt fue facturado.",
    "fieldname": "invoice_id",
    "fieldtype": "Data",
-   "label": "FacturAPI Invoice ID",
+   "label": "ID de Factura en FacturAPI",
    "read_only": 1
   },
   {

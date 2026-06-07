@@ -275,14 +275,19 @@ def _build_item_taxes_for_receipt(tax_rate):
 
 
 def _get_product_key_for_item(item_code):
-	"""Lee clave SAT del producto desde el Item. Nunca asume 01010101 en silencio."""
+	"""Lee clave SAT del producto desde el Item.
+
+	Lanza ValidationError si falta fm_producto_servicio_sat — el receipt puede convertirse
+	en CFDI (portal, individual o Factura Global) y debe nacer con payload fiscal correcto.
+	"""
 	product_key = frappe.db.get_value("Item", item_code, "fm_producto_servicio_sat")
 	if not product_key:
-		frappe.logger().warning(
-			f"Item {item_code} no tiene fm_producto_servicio_sat. "
-			"Usando 01010101 como fallback — corregir en la ficha del Item."
+		frappe.throw(
+			_(
+				"El Item {0} no tiene Clave SAT Producto/Servicio (fm_producto_servicio_sat). "
+				"Configurar en la ficha del Item antes de crear el E-Receipt."
+			).format(item_code)
 		)
-		return "01010101"
 	return product_key
 
 

@@ -21,6 +21,12 @@ from frappe.tests import IntegrationTestCase
 class TestEReceiptPayload(IntegrationTestCase):
 	"""Tests para el payload enviado a FacturAPI al crear E-Receipt."""
 
+	def _db_get_with_product_key(self, doctype, name, field, *args, **kwargs):
+		"""Helper: devuelve clave SAT válida para Items; None para todo lo demás."""
+		if doctype == "Item" and field == "fm_producto_servicio_sat":
+			return "01010101"
+		return None
+
 	def _make_mock_si_item(self, item_code, qty=1, rate=100, uom="H87 - Pieza"):
 		item = MagicMock()
 		item.item_code = item_code
@@ -100,14 +106,16 @@ class TestEReceiptPayload(IntegrationTestCase):
 		self.assertEqual(item_product_key, "84111506")
 		self.assertNotEqual(item_product_key, "01010101")
 
+	@patch("facturacion_mexico.ereceipts.api.frappe.log_error")
+	@patch("facturacion_mexico.ereceipts.api.frappe.throw")
 	@patch("facturacion_mexico.ereceipts.api.frappe.get_doc")
 	@patch("facturacion_mexico.ereceipts.api.frappe.db.get_value")
 	@patch("facturacion_mexico.ereceipts.api.frappe.db.set_value")
 	@patch("facturacion_mexico.ereceipts.api.get_facturapi_client")
-	def test_fallback_product_key_when_item_has_none(
-		self, mock_client, mock_set_value, mock_db_get, mock_get_doc
+	def test_missing_product_key_raises_validation_error(
+		self, mock_client, mock_set_value, mock_db_get, mock_get_doc, mock_throw, mock_log_error
 	):
-		"""Si Item no tiene fm_producto_servicio_sat, usa 01010101 como fallback documentado."""
+		"""Si Item no tiene fm_producto_servicio_sat, se lanza ValidationError — no se crea EReceipt."""
 		from facturacion_mexico.ereceipts.api import _generar_facturapi_ereceipt
 
 		ereceipt = self._make_ereceipt()
@@ -116,15 +124,17 @@ class TestEReceiptPayload(IntegrationTestCase):
 		customer = self._make_mock_customer()
 
 		mock_get_doc.side_effect = lambda dt, name: si if dt == "Sales Invoice" else customer
-		mock_db_get.return_value = None  # No SAT key
+		mock_db_get.return_value = None  # No SAT key en Item
+		mock_throw.side_effect = Exception("ValidationError")  # simular frappe.throw
 		mock_api = MagicMock()
-		mock_api.create_receipt.return_value = {"id": "fp-id-123", "key": "k", "self_invoice_url": "u"}
 		mock_client.return_value = mock_api
 
-		_generar_facturapi_ereceipt(ereceipt)
+		result = _generar_facturapi_ereceipt(ereceipt)
 
-		call_args = mock_api.create_receipt.call_args[0][0]
-		self.assertEqual(call_args["items"][0]["product"]["product_key"], "01010101")
+		# FacturAPI NO debe ser llamado cuando falta la clave SAT
+		mock_api.create_receipt.assert_not_called()
+		# El resultado debe indicar fallo
+		self.assertFalse(result.get("success", True))
 
 	@patch("facturacion_mexico.ereceipts.api.frappe.get_doc")
 	@patch("facturacion_mexico.ereceipts.api.frappe.db.get_value")
@@ -140,7 +150,7 @@ class TestEReceiptPayload(IntegrationTestCase):
 		customer = self._make_mock_customer(tax_id="XEXX010101000")
 
 		mock_get_doc.side_effect = lambda dt, name: si if dt == "Sales Invoice" else customer
-		mock_db_get.return_value = None
+		mock_db_get.side_effect = self._db_get_with_product_key
 		mock_api = MagicMock()
 		mock_api.create_receipt.return_value = {"id": "fp-id", "key": "k", "self_invoice_url": "u"}
 		mock_client.return_value = mock_api
@@ -166,7 +176,7 @@ class TestEReceiptPayload(IntegrationTestCase):
 		customer.customer_primary_contact = None
 
 		mock_get_doc.side_effect = lambda dt, name: si if dt == "Sales Invoice" else customer
-		mock_db_get.return_value = None
+		mock_db_get.side_effect = self._db_get_with_product_key
 		mock_api = MagicMock()
 		mock_api.create_receipt.return_value = {"id": "fp-id", "key": "k", "self_invoice_url": "u"}
 		mock_client.return_value = mock_api
@@ -195,7 +205,7 @@ class TestEReceiptPayload(IntegrationTestCase):
 		customer = self._make_mock_customer()
 
 		mock_get_doc.side_effect = lambda dt, name: si if dt == "Sales Invoice" else customer
-		mock_db_get.return_value = None
+		mock_db_get.side_effect = self._db_get_with_product_key
 		mock_api = MagicMock()
 		mock_api.create_receipt.return_value = {"id": "fp-id", "key": "k", "self_invoice_url": "u"}
 		mock_client.return_value = mock_api
@@ -222,7 +232,7 @@ class TestEReceiptPayload(IntegrationTestCase):
 		customer = self._make_mock_customer()
 
 		mock_get_doc.side_effect = lambda dt, name: si if dt == "Sales Invoice" else customer
-		mock_db_get.return_value = None
+		mock_db_get.side_effect = self._db_get_with_product_key
 		mock_api = MagicMock()
 		mock_api.create_receipt.return_value = {"id": "fp-id", "key": "k", "self_invoice_url": "u"}
 		mock_client.return_value = mock_api
@@ -247,7 +257,7 @@ class TestEReceiptPayload(IntegrationTestCase):
 		customer = self._make_mock_customer()
 
 		mock_get_doc.side_effect = lambda dt, name: si if dt == "Sales Invoice" else customer
-		mock_db_get.return_value = None
+		mock_db_get.side_effect = self._db_get_with_product_key
 		mock_api = MagicMock()
 		mock_api.create_receipt.return_value = {
 			"id": "fp-id-123",
@@ -283,7 +293,7 @@ class TestEReceiptPayload(IntegrationTestCase):
 		customer = self._make_mock_customer()
 
 		mock_get_doc.side_effect = lambda dt, name: si if dt == "Sales Invoice" else customer
-		mock_db_get.return_value = None
+		mock_db_get.side_effect = self._db_get_with_product_key
 		mock_api = MagicMock()
 		mock_api.create_receipt.return_value = {}  # Respuesta inválida
 		mock_client.return_value = mock_api

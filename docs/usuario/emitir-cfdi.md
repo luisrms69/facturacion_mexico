@@ -28,7 +28,9 @@ Los dos documentos están vinculados. El estado fiscal visible en el Sales Invoi
 | `E-RECEIPT` | Venta en modo E-Receipt — el cliente puede autofacturarse vía portal |
 | `E-RECEIPT-FACTURADO` | El E-Receipt fue facturado (individual o incluido en Factura Global) |
 
-Los estados `E-RECEIPT` y `E-RECEIPT-FACTURADO` corresponden al flujo de autofactura.
+Los estados `E-RECEIPT` y `E-RECEIPT-FACTURADO` **no provienen del flujo FFM** — son actualizados
+por el módulo EReceipt MX cuando la venta opera en modo autofactura. Una Sales Invoice en modo
+E-Receipt no tiene Factura Fiscal Mexico vinculada; el campo `fm_ereceipt_mx` apunta al EReceipt MX.
 Ver [E-Receipts y Autofactura](ereceipts.md) para el detalle de ese flujo.
 
 ---

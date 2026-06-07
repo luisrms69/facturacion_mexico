@@ -17,7 +17,7 @@ normal de [Emitir un CFDI](emitir-cfdi.md) es el correcto.
 
 ## Flujo general
 
-```
+```text
 Sales Invoice (Modo E-Receipt)
   ↓
 EReceipt MX creado automáticamente

@@ -31,7 +31,7 @@ Sales Invoice (submit)
 
 ## Flujo E-Receipt / Autofactura
 
-```
+```text
 Sales Invoice (submit, fm_ereceipt_mode="E-Receipt")
   → crear_ereceipt() → EReceipt MX (local)
   → POST /receipts → FacturAPI.io
@@ -144,7 +144,7 @@ Si alguna condición no se cumple, **bloquea con ValidationError** — nunca asu
 
 **Cálculo de base e impuesto (correcto desde PR #183):**
 
-```
+```python
 base = total / (1 + tax_rate / 100)
 impuesto = total - base
 ```

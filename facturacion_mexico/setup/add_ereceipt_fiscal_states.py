@@ -20,7 +20,9 @@ def ensure_ereceipt_fiscal_states():
 	current_options = frappe.db.get_value("Custom Field", cf_name, "options") or ""
 	required_states = ["E-RECEIPT", "E-RECEIPT-FACTURADO"]
 
-	missing = [s for s in required_states if s not in current_options]
+	# Exact match por línea para evitar falsos positivos por substring
+	option_set = {opt.strip() for opt in current_options.split("\n") if opt.strip()}
+	missing = [s for s in required_states if s not in option_set]
 	if not missing:
 		return
 

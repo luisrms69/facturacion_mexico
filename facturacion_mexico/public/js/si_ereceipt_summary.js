@@ -41,6 +41,13 @@ function inject_ereceipt_summary(frm) {
 				return;
 			}
 			wrapper.html(render_ereceipt_summary(d, ereceipt_name));
+			// Botón copiar URL — usa data-url para evitar interpolación en contexto JS
+			wrapper[0]
+				?.querySelector(".copy-ereceipt-url")
+				?.addEventListener("click", function () {
+					navigator.clipboard.writeText(this.dataset.url);
+					frappe.show_alert(__("URL copiada"));
+				});
 		})
 		.catch(() => {
 			wrapper.html(
@@ -58,17 +65,14 @@ function render_ereceipt_summary(d, ereceipt_name) {
 	let detail_html = "";
 
 	if (status === "open") {
-		const expiry = d.expires_at
-			? frappe.datetime.str_to_user(d.expires_at)
-			: __("Sin fecha");
+		const expiry = d.expires_at ? frappe.datetime.str_to_user(d.expires_at) : __("Sin fecha");
 		const url_btn = d.self_invoice_url
 			? `<a href="${frappe.utils.escape_html(d.self_invoice_url)}" target="_blank"
 				class="btn btn-xs btn-default" style="margin-left:8px;">
 				<i class="fa fa-external-link"></i> ${__("Abrir portal")}
 			</a>
-			<button class="btn btn-xs btn-default" style="margin-left:4px;"
-				onclick="navigator.clipboard.writeText('${frappe.utils.escape_html(d.self_invoice_url)}');
-					frappe.show_alert('URL copiada');">
+			<button class="btn btn-xs btn-default copy-ereceipt-url" style="margin-left:4px;"
+				data-url="${frappe.utils.escape_html(d.self_invoice_url)}">
 				<i class="fa fa-copy"></i> ${__("Copiar URL")}
 			</button>`
 			: `<span class="text-muted">${__("URL no disponible")}</span>`;
@@ -79,9 +83,11 @@ function render_ereceipt_summary(d, ereceipt_name) {
 			<div style="margin-top:4px;">
 				<strong>${__("Expira:")}</strong> ${expiry}
 			</div>`;
-	} else if (status === "invoiced_to_customer") {
+	} else if (status === "invoiced_to_customer" || status === "invoiced") {
 		const uuid = d.invoice_uuid
-			? `<span style="font-family:monospace;font-size:11px;">${frappe.utils.escape_html(d.invoice_uuid)}</span>`
+			? `<span style="font-family:monospace;font-size:11px;">${frappe.utils.escape_html(
+					d.invoice_uuid
+			  )}</span>`
 			: "-";
 		detail_html = `
 			<div style="margin-top:4px;"><strong>${__("UUID:")}</strong> ${uuid}</div>
@@ -97,7 +103,9 @@ function render_ereceipt_summary(d, ereceipt_name) {
 				target="_blank">${frappe.utils.escape_html(d.factura_global_mx)}</a>`
 			: "-";
 		const uuid = d.factura_global_uuid
-			? `<span style="font-family:monospace;font-size:11px;">${frappe.utils.escape_html(d.factura_global_uuid)}</span>`
+			? `<span style="font-family:monospace;font-size:11px;">${frappe.utils.escape_html(
+					d.factura_global_uuid
+			  )}</span>`
 			: "-";
 		detail_html = `
 			<div style="margin-top:4px;">
@@ -112,7 +120,9 @@ function render_ereceipt_summary(d, ereceipt_name) {
 	return `<div style="padding:8px;background:#f8f9fa;border-radius:4px;font-size:13px;">
 		<div>
 			<strong>${__("E-Receipt:")}</strong> ${er_link}
-			&nbsp;<span class="indicator ${color}" style="margin-left:4px;">${frappe.utils.escape_html(label)}</span>
+			&nbsp;<span class="indicator ${color}" style="margin-left:4px;">${frappe.utils.escape_html(
+		label
+	)}</span>
 		</div>
 		${detail_html}
 	</div>`;
@@ -122,6 +132,7 @@ function get_status_display(status) {
 	const MAP = {
 		open: { color: "orange", label: "Abierto" },
 		invoiced_to_customer: { color: "green", label: "Autofacturado" },
+		invoiced: { color: "green", label: "Autofacturado" }, // status legacy
 		invoiced_globally: { color: "green", label: "Factura Global" },
 		cancelled: { color: "red", label: "Cancelado" },
 		expired: { color: "grey", label: "Expirado" },

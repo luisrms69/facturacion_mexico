@@ -108,7 +108,7 @@ class EReceiptMX(Document):
 
 	def cancel_ereceipt(self, reason=""):
 		"""Cancelar E-Receipt en FacturAPI y localmente."""
-		if self.status in ["invoiced_to_customer", "invoiced_globally"]:
+		if self.status in ["invoiced_to_customer", "invoiced_globally", "invoiced"]:
 			frappe.throw(
 				_("No se puede cancelar un E-Receipt que ya fue facturado ({0})").format(self.status)
 			)
@@ -119,15 +119,22 @@ class EReceiptMX(Document):
 
 				client = get_facturapi_client(company=self.company)
 				client.cancel_receipt(self.facturapi_id)
+				# Solo marcar cancelado si FacturAPI confirmó la cancelación
+				self.status = "cancelled"
+				if reason:
+					self.notes = (self.notes or "") + f"\nCancelado: {reason}"
+				self.save()
 			except Exception as e:
 				frappe.log_error(
 					message=str(e), title=f"Error cancelando E-Receipt en FacturAPI: {self.name}"
 				)
-
-		self.status = "cancelled"
-		if reason:
-			self.notes = (self.notes or "") + f"\nCancelado: {reason}"
-		self.save()
+				frappe.throw(_("No se pudo cancelar en FacturAPI: {0}").format(str(e)))
+		else:
+			# Sin facturapi_id: cancelación solo local (receipt nunca llegó a FacturAPI)
+			self.status = "cancelled"
+			if reason:
+				self.notes = (self.notes or "") + f"\nCancelado: {reason}"
+			self.save()
 
 
 @frappe.whitelist()

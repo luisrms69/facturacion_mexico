@@ -123,6 +123,8 @@ class FiscalStates:
 				"CANCELADO": cls.CANCELADO,
 				"PENDIENTE_CANCELACION": cls.PENDIENTE_CANCELACION,
 				"ARCHIVADO": cls.ARCHIVADO,
+				"E_RECEIPT": cls.E_RECEIPT,
+				"E_RECEIPT_FACTURADO": cls.E_RECEIPT_FACTURADO,
 			},
 			"all_states": cls.ALL_STATES,
 			"timbrable_states": cls.TIMBRABLE_STATES,
