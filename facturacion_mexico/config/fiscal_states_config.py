@@ -20,7 +20,7 @@ class FiscalStates:
 	Arquitectura resiliente de estados fiscales.
 	"""
 
-	# Estados principales
+	# Estados principales (flujo timbrado normal FFM)
 	BORRADOR = "BORRADOR"
 	PROCESANDO = "PROCESANDO"
 	TIMBRADO = "TIMBRADO"
@@ -28,6 +28,10 @@ class FiscalStates:
 	CANCELADO = "CANCELADO"
 	PENDIENTE_CANCELACION = "PENDIENTE_CANCELACION"
 	ARCHIVADO = "ARCHIVADO"
+
+	# Estados E-Receipt (flujo receipt FacturAPI — sin FFM local)
+	E_RECEIPT = "E-RECEIPT"
+	E_RECEIPT_FACTURADO = "E-RECEIPT-FACTURADO"
 
 	# Lista de todos los estados válidos
 	ALL_STATES: ClassVar[list] = [
@@ -38,6 +42,8 @@ class FiscalStates:
 		CANCELADO,
 		PENDIENTE_CANCELACION,
 		ARCHIVADO,
+		E_RECEIPT,
+		E_RECEIPT_FACTURADO,
 	]
 
 	# Estados que permiten timbrado
@@ -117,6 +123,8 @@ class FiscalStates:
 				"CANCELADO": cls.CANCELADO,
 				"PENDIENTE_CANCELACION": cls.PENDIENTE_CANCELACION,
 				"ARCHIVADO": cls.ARCHIVADO,
+				"E_RECEIPT": cls.E_RECEIPT,
+				"E_RECEIPT_FACTURADO": cls.E_RECEIPT_FACTURADO,
 			},
 			"all_states": cls.ALL_STATES,
 			"timbrable_states": cls.TIMBRABLE_STATES,

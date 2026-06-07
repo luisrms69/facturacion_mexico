@@ -1,79 +1,84 @@
 # CONTINUITY.md — facturacion_mexico
 
 **Fecha:** 2026-06-06
-**Rama activa:** `feature/160-factura-global-hardcodes`
-**Tarea actual:** Issue #160 — eliminar hardcodes fiscales en Factura Global / EReceipt MX
+**Rama activa:** `feature/ereceipts-fase0-payload-y-trazabilidad`
+**Tarea actual:** PR #184 listo para merge — pendiente bench update en producción
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-Issue #160: valores fiscales hardcodeados en `cfdi_global_builder.py`. Commit hecho en
-esta rama, pendiente de push y PR hacia `main`.
+Issue #118 E-Receipts. Fase 0 completa. PR #184 abierto con CI verde.
+El usuario está haciendo `bench update` antes del merge.
+Una vez que el bench update termine, el PR puede mergearse.
 
 Plan que estoy siguiendo:
-GitHub issue #160 — "feat: prerequisitos fiscales requeridos antes de activar Factura Global MX"
+ADR-0032 (arquitectura FacturAPI heavy lifting, ERPNext solo trazabilidad).
+Fases: 0 (✅ lista en PR #184) → 1 (exponer self_invoice_url) → 2 (sync) → 3 (factura individual) → 4 (FG via API).
 
 Objetivo inmediato:
-Push + PR de esta rama a `main`.
+Merge PR #184 → abrir rama para Fase 1.
 
 Criterio de avance:
-PR creado, CI verde, merge autorizado por el usuario.
+PR #184 mergeado a main. CONTINUITY.md actualizado en main post-merge.
 
 ---
 
 ## Estado actual
 
-### Ya cerrado
-- PR #181 mergeado ✅ — issues #161 y #162 cerrados
-- Issue #182 creado ✅ — modelo line-level IEPS para EReceipt MX / Factura Global
+### Ya mergeado
+- PR #183 ✅ — eliminar hardcodes fiscales en Factura Global (#160)
+- PR #181 ✅ — fallbacks silenciosos forma de pago y clave SAT (#161 #162)
 
-### En progreso
-- Rama `feature/160-factura-global-hardcodes`: commit hecho, push pendiente
+### Listo para merge
+- PR #184 — Fase 0 E-Receipts (#118)
+  - `5db2a13` feat: código Fase 0 (payload, trazabilidad, DocType, custom fields)
+  - `3c8811a` docs: ADR-0032, ADR-0033, ereceipts.md, arquitectura
+  - `59a4a35` fix: correcciones CodeRabbit (C1-C14)
+  - CI: ✅ verde
+  - URL: https://github.com/luisrms69/facturacion_mexico/pull/184
 
 ### Pendiente inmediato
-1. Push de `feature/160-factura-global-hardcodes` → upstream
-2. Crear PR → `main`
-3. Revisión + merge
+1. Merge PR #184 (después de bench update)
+2. Abrir `feature/ereceipts-fase1-url-ui` para Fase 1
 
 ### No repetir
-- `\n` dentro de `_()` dispara `frappe-translation-python-splitting`
-- `tax_rate` en EReceipt MX es modelo **transitorio** — el definitivo es issue #182 (line-level)
-- "no IVA rows" ≠ exento — `extract_iva_info_from_si_taxes` retorna `None`, no `0.0`
-- Test runner falla pre-existente (`_Test Item is not a stock Item`) — ERPNext, no causado por este PR
+- `mock_db_get.return_value = None` rompe tests si `_get_product_key_for_item` lanza throw → usar helper `_db_get_with_product_key`
+- `frappe.throw` en función mockeada llama `frappe.get_doc` con kwargs → mockear también `frappe.log_error` en esos tests
+- Gate documental en `/ship commit` — docs van en el mismo commit que el código, no después
+- `fm_fiscal_status` options en fixtures no se sincronizan via migrate → usar after_migrate (`setup/add_ereceipt_fiscal_states.py`)
 
 ---
 
-## Decisiones vigentes
+## Decisiones vigentes — Fase 0 E-Receipts
 
-- `tax_rate` + `has_ieps` en EReceipt MX son campos transitorios (doc en el JSON del doctype)
-- `extract_iva_info_from_si_taxes`: sin default 16, sin asunción de exento, bloquea si indeterminado
-- IEPS en Factura Global: bloqueado con error explícito referenciando issue #182
-- `frappe.flags.in_test` guard en `sales_invoice_automated_tax.py` — test records de ERPNext no tienen SAT key
-- Clave SAT obligatoria en flujo fiscal (3 capas de defensa) — heredado de main
-- main nunca es rama de trabajo
-
----
-
-## Archivos relevantes ahora
-
-### Leer primero
-- `facturacion_mexico/facturas_globales/processors/cfdi_global_builder.py`
-- `facturacion_mexico/utils/calculo_impuestos.py` (nueva función `extract_iva_info_from_si_taxes`)
-
-### Probablemente editar en próximos issues
-- `facturacion_mexico/ereceipts/doctype/ereceipt_mx/ereceipt_mx.json` (issue #182)
-- `facturacion_mexico/facturas_globales/processors/ereceipt_aggregator.py` (issue #182)
-
-### No tocar
-- `working_docs/active/addenda_la_comer_evidencia/` — evidencia de epic distinto
-- `facturacion_mexico/one_offs/verificar_issue_160.py` — no commitear
+- **ADR-0032:** FacturAPI hace el heavy lifting; ERPNext solo trazabilidad y control
+- UUID/folio/invoice_id **nunca** en Sales Invoice — viven en EReceipt MX o FG MX
+- Widget sigue relación SI → EReceipt MX → (FG MX si aplica) — patrón idéntico a FFM
+- `cancel_ereceipt()`: solo persiste "cancelled" si FacturAPI confirma la cancelación
+- `_get_product_key_for_item`: lanza ValidationError si falta `fm_producto_servicio_sat` — no fallback
+- `FiscalStates.to_dict()` exporta `E_RECEIPT` y `E_RECEIPT_FACTURADO`
+- `get_ereceipt_summary()` verifica permisos read antes de exponer datos fiscales
+- Botón "Copiar URL" usa `data-url` + `addEventListener` — no `onclick` inline
 
 ---
 
-## Riesgos / cuidados
+## Fases siguientes E-Receipts (#118)
 
-- EReceipts existentes sin `tax_rate`: al incluirlos en Factura Global → `ValidationError` claro (correcto por diseño)
-- Company Settings sin `global_payment_form_default`: bloquea al timbrar Factura Global (correcto)
-- Issue #182 (IEPS line-level) debe hacerse antes de activar Factura Global en producción con productos IEPS
+| Fase | Objetivo | Estado |
+|---|---|---|
+| 0 | Payload correcto + trazabilidad SI↔EReceipt | ✅ En PR #184 |
+| 1 | Exponer self_invoice_url en UI (botón envío email) | Pendiente |
+| 2 | Sincronización de estado (scheduler + manual) | Pendiente |
+| 3 | Facturar individualmente via `POST /receipts/{id}/invoice` | Pendiente |
+| 4 | Factura Global via `POST /receipts/global-invoice` | Pendiente |
+| ∞ | Webhooks, IEPS line-level (#182) | Futuro |
+
+---
+
+## Archivos relevantes para Fase 1 (referencia)
+- `facturacion_mexico/ereceipts/api.py` — `crear_ereceipt()`, agregar botón envío email
+- `facturacion_mexico/api/ereceipt_summary.py` — widget de estado
+- `facturacion_mexico/public/js/si_ereceipt_summary.js` — widget UI
+- `facturacion_mexico/facturacion_fiscal/api_client.py` — cliente FacturAPI

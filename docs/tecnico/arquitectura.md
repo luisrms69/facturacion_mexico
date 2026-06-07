@@ -29,6 +29,31 @@ Sales Invoice (submit)
   → timbrado_api.py → FacturAPI.io → SAT
 ```
 
+## Flujo E-Receipt / Autofactura
+
+```text
+Sales Invoice (submit, fm_ereceipt_mode="E-Receipt")
+  → crear_ereceipt() → EReceipt MX (local)
+  → POST /receipts → FacturAPI.io
+  → FacturAPI genera: receipt + self_invoice_url + key
+  → EReceipt MX guarda: facturapi_id, key, self_invoice_url, status=open
+  → SI actualiza: fm_ereceipt_mx = EReceipt.name, fm_fiscal_status = "E-RECEIPT"
+
+Cliente visita self_invoice_url → portal FacturAPI
+  → captura RFC, razón social, email
+  → FacturAPI timbra CFDI tipo I
+  → receipt.status → invoiced_to_customer
+
+Sync (scheduler o manual)
+  → GET /receipts/{facturapi_id}
+  → EReceipt MX actualiza: status, invoice_uuid, invoice_folio, invoiced_at
+  → SI actualiza: fm_fiscal_status = "E-RECEIPT-FACTURADO"
+```
+
+**Principio arquitectónico:** FacturAPI hace el heavy lifting fiscal (timbrado, portal, CFDI global).
+ERPNext solo conserva trazabilidad y control. UUID/folio/invoice_id **nunca** se copian a Sales Invoice.
+Ver [ADR-0032](../adr/0032-ereceipts-facturapi-arquitectura.md).
+
 ## Flujo principal — CFDI recibido
 
 ```
@@ -57,8 +82,8 @@ Payment Entry (submit)
 |---|---|---|
 | `Factura Fiscal Mexico` | Submittable | CFDI tipo I/E timbrado |
 | `Complemento Pago MX` | Submittable | CFDI tipo P (PPD) |
-| `EReceipt MX` | Submittable | Recibo para autofacturación |
-| `Factura Global MX` | Submittable | CFDI global periódico |
+| `EReceipt MX` | Submittable | Recibo para autofacturación — espejo local del receipt en FacturAPI |
+| `Factura Global MX` | Submittable | CFDI global periódico — agrupa EReceipts abiertos del período |
 | `Facturacion Mexico Company Settings` | Por Company | Credenciales FacturAPI y defaults por empresa |
 | `Configuracion Fiscal Mexico` | Por empresa | Wizard STCT/ITT (emitidos) |
 | `Configuracion CFDI Recibidos` | Por empresa | Config impuestos + tolerancias (recibidos) |
@@ -78,7 +103,9 @@ Payment Entry (submit)
 
 ## Custom Fields críticos
 
-**Sales Invoice:** `fm_fiscal_status`, `fm_factura_fiscal_mx`, `fm_addenda_*`, `fm_branch`, `fm_es_ppd`
+**Sales Invoice:** `fm_fiscal_status`, `fm_factura_fiscal_mx`, `fm_addenda_*`, `fm_branch`, `fm_es_ppd`,
+`fm_ereceipt_mx` (link al EReceipt MX), `fm_ereceipt_summary_html` (widget estado E-Receipt),
+`fm_ereceipt_mode` (Normal / E-Receipt), `fm_ereceipt_expiry_*` (configuración vencimiento)
 **Customer:** `fm_tax_regime`, `fm_uso_cfdi_default`, `fm_requires_addenda`, `fm_default_addenda_type`, `fm_buyer_gln`, `fm_seller_gln`, `fm_seller_id`, `fm_invoice_creator_gln`, `fm_dias_credito_addenda`
 **Address:** `fm_gln` (GLN de sucursal destino para addendas EDI)
 **Item Customer Detail:** `ref_code` (nativo ERPNext), `fm_customer_uom`, `fm_customer_description`
@@ -100,6 +127,40 @@ El app crea automáticamente grupos raíz y subgrupos de categorización fiscal.
 | `Artículos IEPS Tabaco` | Cigarros, Puros, Tabaco labrado |
 
 Los subgrupos se crean idempotentemente en cada `bench migrate` — nunca se modifican ni borran grupos existentes.
+
+---
+
+## Factura Global — validaciones fiscales (desde PR #183)
+
+El módulo `facturas_globales/` tiene un conjunto de validaciones estrictas antes de timbrar.
+Si alguna condición no se cumple, **bloquea con ValidationError** — nunca asume valores por defecto.
+
+| Validación | Error si... | Cómo resolver |
+|---|---|---|
+| `tax_rate` del EReceipt | Es `None` (no determinable) | El EReceipt debe tener tasa IVA definida. Recrear desde SI con taxes configurados. |
+| `fm_unidad_sat` del item global | Falta en el item configurado | Configurar en el item global de la empresa |
+| `global_payment_form_default` | No configurado | `Facturacion Mexico Company Settings` → campo `global_payment_form_default` |
+| IEPS en receipt | El EReceipt tiene `has_ieps = 1` | Pendiente issue #182. Los receipts con IEPS no pueden ir a Factura Global aún. |
+
+**Cálculo de base e impuesto (correcto desde PR #183):**
+
+```python
+base = total / (1 + tax_rate / 100)
+impuesto = total - base
+```
+
+Antes del PR #183, el aggregator usaba `total * 0.84` y `total * 0.16` (hardcoded 16%),
+lo que producía valores incorrectos para IVA 8% y tasa 0%.
+
+Ver [ADR-0033](../adr/0033-factura-global-hardcodes.md) para el razonamiento completo.
+
+### Campos transitorios en EReceipt MX (PR #183)
+
+`tax_rate` (Percent) y `has_ieps` (Check) son campos transitorios agregados para habilitar
+las validaciones de Factura Global sin implementar el modelo definitivo de impuestos por línea.
+
+Serán eliminados cuando issue #182 implemente `EReceipt MX Tax Line` (child table con
+impuestos por línea de producto). Ver [ADR-0033](../adr/0033-factura-global-hardcodes.md).
 
 ---
 
