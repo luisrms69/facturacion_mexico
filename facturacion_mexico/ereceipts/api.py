@@ -9,6 +9,8 @@ from datetime import datetime
 import frappe
 from frappe import _
 
+from facturacion_mexico.facturacion_fiscal.api_client import get_facturapi_client
+
 
 @frappe.whitelist()
 def crear_ereceipt(sales_invoice_name: str | None = None):
@@ -189,51 +191,18 @@ def get_ereceipts_for_global_invoice(
 
 @frappe.whitelist()
 def invoice_ereceipt(ereceipt_name: str | None = None, customer_data: str | None = None):
-	"""Convierte E-Receipt a factura."""
-	try:
-		# REGLA #35: Validate required parameters
-		if not ereceipt_name:
-			return {"success": False, "message": "ereceipt_name parameter is required"}
+	"""Factura individualmente un E-Receipt via FacturAPI.
 
-		if not customer_data:
-			return {"success": False, "message": "customer_data parameter is required"}
-
-		# REGLA #35: Defensive DocType access
-		try:
-			ereceipt = frappe.get_doc("EReceipt MX", ereceipt_name)
-		except frappe.DoesNotExistError:
-			return {"success": False, "message": f"EReceipt {ereceipt_name} not found"}
-
-		if ereceipt.status != "open":
-			return {"success": False, "message": _("Solo se pueden facturar E-Receipts abiertos")}
-
-		# Crear nueva Sales Invoice con datos del customer
-		sales_invoice = frappe.copy_doc(frappe.get_doc("Sales Invoice", ereceipt.sales_invoice))
-
-		# Actualizar datos del customer
-		sales_invoice.customer = customer_data.get("customer")
-		sales_invoice.customer_name = customer_data.get("customer_name")
-
-		# Limpiar campos fiscales para nuevo timbrado - MIGRADO A ARQUITECTURA RESILIENTE
-		sales_invoice.fm_fiscal_status = "BORRADOR"  # Era: "Pendiente" (legacy)
-		sales_invoice.fm_factura_fiscal_mx = None
-
-		sales_invoice.insert()
-
-		# Marcar E-Receipt como facturado
-		ereceipt.status = "invoiced"
-		ereceipt.related_factura_fiscal = sales_invoice.name
-		ereceipt.save()
-
-		return {
-			"success": True,
-			"sales_invoice": sales_invoice.name,
-			"message": _("E-Receipt convertido a factura exitosamente"),
-		}
-
-	except Exception as e:
-		frappe.log_error(message=str(e), title="Error convirtiendo E-Receipt")
-		return {"success": False, "message": str(e)}
+	Pendiente Fase 3 — usar POST /receipts/{id}/invoice de FacturAPI.
+	No crea Sales Invoice local ni usa flujo FFM.
+	"""
+	return {
+		"success": False,
+		"message": _(
+			"Facturación individual de E-Receipt no implementada aún. "
+			"Use el portal de autofactura (self_invoice_url). Pendiente Fase 3."
+		),
+	}
 
 
 def _calcular_fecha_vencimiento(ereceipt):
@@ -293,27 +262,61 @@ def _get_payment_form_for_ereceipt(sales_invoice, company):
 	return company_default or "28"
 
 
+def _build_item_taxes_for_receipt(tax_rate):
+	"""Construye nodo de impuestos para un item de receipt.
+
+	Si tax_rate es None (no determinable desde el SI), no se envían taxes.
+	FacturAPI soporta taxes en receipts para que la autofactura del portal
+	genere un CFDI con IVA correcto.
+	"""
+	if tax_rate is None:
+		return []
+	return [{"type": "IVA", "rate": float(tax_rate) / 100, "factor": "Tasa", "withholding": False}]
+
+
+def _get_product_key_for_item(item_code):
+	"""Lee clave SAT del producto desde el Item. Nunca asume 01010101 en silencio."""
+	product_key = frappe.db.get_value("Item", item_code, "fm_producto_servicio_sat")
+	if not product_key:
+		frappe.logger().warning(
+			f"Item {item_code} no tiene fm_producto_servicio_sat. "
+			"Usando 01010101 como fallback — corregir en la ficha del Item."
+		)
+		return "01010101"
+	return product_key
+
+
+def _get_unit_key_for_item(uom):
+	"""Lee clave SAT de unidad desde UOM usando el mismo patrón que el timbrado normal."""
+	from facturacion_mexico.facturacion_fiscal.timbrado_api import _extract_sat_code_from_uom
+
+	return _extract_sat_code_from_uom(uom)
+
+
 def _generar_facturapi_ereceipt(ereceipt):
-	"""Genera E-Receipt en FacturAPI."""
+	"""Genera E-Receipt en FacturAPI con payload fiscal correcto."""
 	try:
-		from facturacion_mexico.facturacion_fiscal.api_client import get_facturapi_client
+		from facturacion_mexico.config.fiscal_states_config import FiscalStates
 
 		company = ereceipt.company
 		client = get_facturapi_client(company=company)
 		sales_invoice = frappe.get_doc("Sales Invoice", ereceipt.sales_invoice)
 
-		# Preparar datos del customer
-		customer_data = {
-			"legal_name": sales_invoice.customer_name or "Cliente Público en General",
-			"email": sales_invoice.contact_email or "noreply@example.com",
-		}
-
-		# Si tenemos RFC del customer, agregarlo
+		# RFC del cliente: usar tax_id (campo correcto en Customer)
 		customer_doc = frappe.get_doc("Customer", sales_invoice.customer)
-		if customer_doc.get("rfc"):
-			customer_data["tax_id"] = customer_doc.rfc
+		customer_data = {
+			"legal_name": sales_invoice.customer_name or "Público en General",
+		}
+		if customer_doc.get("tax_id"):
+			customer_data["tax_id"] = customer_doc.tax_id
 
-		# Forma de pago: intentar obtener del Payment Entry, si no usar Company Settings
+		# Email solo si existe y es real (nunca mandar fallback falso)
+		email = sales_invoice.contact_email or customer_doc.get("customer_primary_contact")
+		if not email:
+			email = frappe.db.get_value("Customer", sales_invoice.customer, "customer_primary_contact")
+		if email and "@" in email and "noreply" not in email.lower() and "example" not in email.lower():
+			customer_data["email"] = email
+
 		payment_form = _get_payment_form_for_ereceipt(sales_invoice, company)
 
 		receipt_data = {
@@ -322,44 +325,66 @@ def _generar_facturapi_ereceipt(ereceipt):
 			"items": [],
 			"payment_form": payment_form,
 			"folio_number": ereceipt.name,
-			"expires_at": ereceipt.expiry_date.isoformat() if ereceipt.expiry_date else None,
 		}
+		if ereceipt.expiry_date:
+			receipt_data["expires_at"] = ereceipt.expiry_date.isoformat()
 
-		# Agregar items de la factura
+		# Impuestos: usar tax_rate del EReceipt (poblado por populate_fiscal_info)
+		taxes = _build_item_taxes_for_receipt(ereceipt.get("tax_rate"))
+
+		# Construir items con datos fiscales reales
 		for item in sales_invoice.items:
-			receipt_data["items"].append(
-				{
-					"quantity": item.qty,
-					"product": {
-						"description": item.item_name or item.item_code,
-						"product_key": "01010101",  # Genérico para pruebas
-						"price": item.rate,
-						"unit_key": "H87",  # Pieza
-						"unit_name": "Pieza",
-						"sku": item.item_code,
-					},
-				}
-			)
+			item_data = {
+				"quantity": item.qty,
+				"product": {
+					"description": item.item_name or item.item_code,
+					"product_key": _get_product_key_for_item(item.item_code),
+					"price": item.rate,
+					"unit_key": _get_unit_key_for_item(item.uom),
+					"sku": item.item_code,
+				},
+			}
+			if taxes:
+				item_data["product"]["taxes"] = taxes
+			receipt_data["items"].append(item_data)
 
-		# Crear en FacturAPI
 		response = client.create_receipt(receipt_data)
 
-		# Procesar respuesta exitosa
 		if response and response.get("id"):
 			ereceipt.facturapi_id = response["id"]
 			ereceipt.key = response.get("key")
 			ereceipt.self_invoice_url = response.get("self_invoice_url")
 			ereceipt.status = "open"
+
+			# Si FacturAPI devuelve expires_at, usarlo como fuente de verdad
+			if response.get("expires_at"):
+				try:
+					from frappe.utils import getdate
+
+					ereceipt.expiry_date = getdate(response["expires_at"][:10])
+				except Exception:
+					pass
+
 			ereceipt.save()
 
-			frappe.logger().info(f"E-Receipt {ereceipt.name} creado en FacturAPI: {response['id']}")
+			# Escribir trazabilidad en Sales Invoice
+			if ereceipt.sales_invoice:
+				frappe.db.set_value(
+					"Sales Invoice",
+					ereceipt.sales_invoice,
+					{
+						"fm_ereceipt_mx": ereceipt.name,
+						"fm_fiscal_status": FiscalStates.E_RECEIPT,
+					},
+				)
 
+			frappe.logger().info(f"E-Receipt {ereceipt.name} creado en FacturAPI: {response['id']}")
 			return {"success": True, "facturapi_id": response["id"]}
-		else:
-			frappe.log_error(
-				message=f"Respuesta inválida de FacturAPI: {response}", title="FacturAPI E-Receipt Error"
-			)
-			return {"success": False, "message": "Respuesta inválida de FacturAPI"}
+
+		frappe.log_error(
+			message=f"Respuesta inválida de FacturAPI: {response}", title="FacturAPI E-Receipt Error"
+		)
+		return {"success": False, "message": "Respuesta inválida de FacturAPI"}
 
 	except Exception as e:
 		error_msg = str(e)

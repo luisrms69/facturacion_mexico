@@ -48,6 +48,7 @@ doctype_js = {
 		"public/js/sales_invoice.js",
 		"public/js/ereceipt_handler.js",
 		"public/js/sales_invoice_ffm_summary.js",
+		"public/js/si_ereceipt_summary.js",
 		"public/js/sales_invoice_block_cancel.js",
 		"public/js/si_post_fiscal_actions.js",
 	],
@@ -127,6 +128,7 @@ after_migrate = [
 	"facturacion_mexico.setup.item_groups.ensure_fiscal_item_groups",
 	"facturacion_mexico.setup.cfdi_received_expense_item_groups.ensure_cfdi_received_expense_item_groups",
 	"facturacion_mexico.setup.cfdi_received_expense_items.ensure_cfdi_received_expense_items",
+	"facturacion_mexico.setup.add_ereceipt_fiscal_states.ensure_ereceipt_fiscal_states",
 ]
 
 # Custom Fields & SAT Catalogs Fixtures
