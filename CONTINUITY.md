@@ -1,66 +1,61 @@
 # CONTINUITY.md — facturacion_mexico
 
 **Fecha:** 2026-06-08
-**Rama activa:** `main`
-**Tarea actual:** Post-merge PR #185 — próximo: restore backup ACG en producción
+**Rama activa:** `fix/cfdi-recibidos-department-grupos`
+**Tarea actual:** PR abierto — fix departamentos grupo en CFDI Recibidos
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-PR #185 mergeado y main sincronizado. El sitio acg-v16.dev está completamente
-configurado para el cliente ACG. El siguiente paso es restaurar el backup en
-el servidor de producción ACG y correr bench migrate.
+Fix de 5 filtros `is_group=0` que impedían seleccionar departamentos grupo
+en el módulo CFDI Recibidos. PR abierto para revisión y merge.
 
 Plan que estoy siguiendo:
-`docs/usuario/getting-started.md` — ACG en Fase lista para producción.
+Issue surgido en reunión con cliente — departamentos RRHH tipo grupo deben
+poder mapearse en Configuración CFDI Recibidos.
 
 Objetivo inmediato:
-Restore del backup acg-v16.dev en servidor de producción del cliente ACG.
+Merge del PR → bench update en producción → validar con cliente.
 
 Criterio de avance:
-bench migrate limpio en producción + primer CFDI de prueba timbrado.
+Departamentos grupo visibles en Configuración CFDI Recibidos y en modal
+"Asignar Departamentos" en lista de CFDI Recibidos.
 
 ---
 
 ## Estado actual
 
 ### Ya cerrado
-- ✅ PR #185 mergeado — fix install + wizard IVA 0% + addendas + crash bench migrate
-- ✅ acg-v16.dev configurado completo (CoA, fiscal, 119 items, La Comer, 24 sucursales)
-- ✅ Issue #186 abierto — revisión templates IEPS por variante
+- ✅ PR #185 mergeado — fix install + wizard IVA 0% + addendas + crash migrate
+- ✅ acg-v16.dev configurado completo (CoA, fiscal, 119 items, La Comer)
+
+### En progreso
+- PR fix/cfdi-recibidos-department-grupos — 1 commit, abierto
 
 ### Pendiente inmediato
-1. Restore backup en producción ACG
-2. bench migrate post-restore
-3. Prueba de timbrado CFDI con sandbox FacturAPI
+1. Merge del PR
+2. bench update + migrate + build en producción (actiglobal)
+3. Restore ACG en producción (pendiente desde sesión anterior)
 
 ### No repetir
-- `is_your_company_address` sin prefijo fm_* es excepción documentada — no cambiar
-- Los one_offs de ACG ya fueron ejecutados y eliminados
-- bench migrate sin --site afecta todos los sites del bench
+- Había 5 puntos con is_group=0 para Department — todos corregidos
+- cost_center, item_group, account, supplier_group mantienen is_group=0
 
 ---
 
 ## Decisiones vigentes
 
-- `is_your_company_address` workaround ERPNext 16.21.1 — remover cuando ERPNext lo declare
-- Addenda La Comer en fixtures — se aplica automáticamente en bench migrate
-- Issue #186: revisión IEPS combustibles — no urgente para ACG
-
----
-
-## Backup para restore a producción
-
-- DB: `/home/erpnext/frappe-bench-v16/sites/acg-v16.dev/private/backups/20260607_205644-acg-v16_dev-database.sql.gz`
-- Public: `.../20260607_205644-acg-v16_dev-files.tar`
-- Private: `.../20260607_205644-acg-v16_dev-private-files.tar`
-- Checkpoint: `frappe-infrastructure/checkpoints/20260607-205635-facturacion_mexico-acg-v16.dev/`
+- Department en CFDI Recibidos es llave interna para 601-604, NO se traslada a PI
+- PI recibe solo cuentas contables hoja válidas
+- Resolución 601-604 por coincidencia exacta sin fallback a padre
+- is_your_company_address workaround ERPNext 16.21.1 — mantener hasta que ERPNext lo declare
 
 ---
 
 ## Riesgos
 
-- C5 pendiente: escape XML en template La Comer (|e en campos de texto libre)
-- Issue #186: IEPS combustibles — pendiente investigación
+- bench migrate requerido post-merge (mapeo_departamento_cfdi_recibido.json cambió)
+- bench build requerido post-merge (cfdi_recibido.js y cfdi_recibido_list.js cambiaron)
+- Issue #186: IEPS combustibles — aún pendiente
