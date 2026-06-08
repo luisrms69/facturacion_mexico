@@ -58,7 +58,7 @@ class ConfiguracionCFDIRecibidos(Document):
 
 		departments = frappe.get_all(
 			"Department",
-			filters={"is_group": 0, "disabled": 0, "company": self.company},
+			filters={"disabled": 0, "company": self.company},
 			pluck="name",
 			order_by="name",
 		)

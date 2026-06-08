@@ -398,7 +398,6 @@ function _set_company_filters(frm) {
 		return {
 			filters: {
 				company: frm.doc.company,
-				is_group: 0,
 			},
 		};
 	});

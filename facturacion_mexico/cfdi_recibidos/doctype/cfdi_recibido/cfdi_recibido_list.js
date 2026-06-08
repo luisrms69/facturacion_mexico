@@ -346,7 +346,6 @@ function _load_departments_then_show(candidates, company, listview) {
 			doctype: "Department",
 			filters: [
 				["company", "=", company],
-				["is_group", "=", 0],
 				["disabled", "=", 0],
 			],
 			fields: ["name"],

@@ -16,7 +16,6 @@ def department_query(
 		SELECT name, department_name
 		FROM `tabDepartment`
 		WHERE disabled = 0
-		  AND is_group = 0
 		  AND company = %(company)s
 		  AND (name LIKE %(txt)s OR department_name LIKE %(txt)s)
 		ORDER BY name
