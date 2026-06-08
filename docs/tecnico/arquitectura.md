@@ -86,6 +86,7 @@ Payment Entry (submit)
 | `Factura Global MX` | Submittable | CFDI global periódico — agrupa EReceipts abiertos del período |
 | `Facturacion Mexico Company Settings` | Por Company | Credenciales FacturAPI y defaults por empresa |
 | `Configuracion Fiscal Mexico` | Por empresa | Wizard STCT/ITT (emitidos) |
+| `Configuracion Reclasificacion Fiscal Mexico` | Por empresa | Reglas de reclasificación IVA en Payment Entry (cobros y pagos) |
 | `Configuracion CFDI Recibidos` | Por empresa | Config impuestos + tolerancias (recibidos) |
 | `CFDI Recibido` | Normal | XML recibido en proceso |
 | `Addenda Type` | Normal | Template Jinja2 de addenda — global, un registro por formato de cadena |
@@ -107,7 +108,7 @@ Payment Entry (submit)
 `fm_ereceipt_mx` (link al EReceipt MX), `fm_ereceipt_summary_html` (widget estado E-Receipt),
 `fm_ereceipt_mode` (Normal / E-Receipt), `fm_ereceipt_expiry_*` (configuración vencimiento)
 **Customer:** `fm_tax_regime`, `fm_uso_cfdi_default`, `fm_requires_addenda`, `fm_default_addenda_type`, `fm_buyer_gln`, `fm_seller_gln`, `fm_seller_id`, `fm_invoice_creator_gln`, `fm_dias_credito_addenda`
-**Address:** `fm_gln` (GLN de sucursal destino para addendas EDI)
+**Address:** `fm_gln` (GLN de sucursal destino para addendas EDI), `is_your_company_address` (workaround ERPNext v16 — campo requerido por `erpnext/accounts/custom/address.py` pero no declarado en el DocType nativo; se agrega como Custom Field con default=0 para evitar AttributeError al guardar Address de clientes)
 **Item Customer Detail:** `ref_code` (nativo ERPNext), `fm_customer_uom`, `fm_customer_description`
 **Branch:** `fm_enable_fiscal`, `fm_lugar_expedicion`, `fm_serie_pattern`, folios
 **Payment Entry:** `fm_complemento_pago`, `fm_complement_generated`
