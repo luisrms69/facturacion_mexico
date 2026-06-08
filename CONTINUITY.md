@@ -1,24 +1,24 @@
 # CONTINUITY.md — facturacion_mexico
 
-**Fecha:** 2026-06-07
+**Fecha:** 2026-06-08
 **Rama activa:** `feat/iva-tasa-0-exportacion-label-fix`
-**Tarea actual:** Implementación site acg-v16.dev — configuración fiscal base completada, primera emisión CFDI pendiente
+**Tarea actual:** Configuración completa acg-v16.dev para cliente ACG — en progreso
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-Implementar y configurar el sitio de desarrollo `acg-v16.dev` para el cliente ACG
-(Alimentos del Campo y Ganadería). El objetivo es dejar el sitio en estado listo para
-hacer un restore en producción. Se sigue el instructivo `docs/usuario/getting-started.md`.
+Implementar y configurar el sitio `acg-v16.dev` para el cliente ACG (Alimentos del Campo
+y Ganadería). El objetivo es dejar el sitio listo para restore en producción.
+Se sigue `docs/usuario/getting-started.md`.
 
 Plan que estoy siguiendo:
 `docs/usuario/getting-started.md` — fases 0–5.
 
 Objetivo inmediato:
-Fase 3 — crear Customer y Item de prueba con datos fiscales, luego emitir primer CFDI
-de prueba (Fase 4). Tras validar el timbrado, preparar el restore a producción.
+Commit pendiente (fixtures + install.py fix) → revisión y actualización completa de docs
+(addendas.md + arquitectura.md + getting-started) → Fase 3/4: Items + primer CFDI de prueba.
 
 Criterio de avance:
 Primer CFDI timbrado en sandbox FacturAPI desde acg-v16.dev con UUID válido.
@@ -28,66 +28,58 @@ Primer CFDI timbrado en sandbox FacturAPI desde acg-v16.dev con UUID válido.
 ## Estado actual
 
 ### Ya completado en acg-v16.dev
-- ✅ Fase 0 — Sitio creado, apps instaladas (erpnext + hrms + payments + facturacion_mexico)
-- ✅ Fase 1 — CoA del SAT cargado (1077 cuentas, formato `###-##-###`)
+- ✅ Fase 0 — Sitio acg-v16.dev creado, apps instaladas, puerto 8407
+- ✅ Fase 1 — CoA SAT cargado (1077 cuentas, formato `###-##-###`)
 - ✅ Fase 2.1 — Facturacion Mexico Company Settings (API Key sandbox)
-- ✅ Fase 2.2 — Configuracion Fiscal Mexico: IVA tasa 0% activado, templates generados (4 STCT + 3 ITT)
-- ✅ Fase 2.3 — Configuracion CFDI Recibidos: modo automático CoA SAT, formato `###-##-###`, cuenta `119-01-000`, template generado, 13 departamentos mapeados
-- ✅ Fase 2.4 — Configuracion Reclasificacion Fiscal Mexico: 2 reglas Cobro + 1 Pago aplicadas
+- ✅ Fase 2.2 — Configuracion Fiscal Mexico: IVA tasa 0% activado, 4 STCT + 3 ITT generados
+- ✅ Fase 2.3 — Configuracion CFDI Recibidos: modo automático CoA SAT, 13 departamentos, template generado
+- ✅ Fase 2.4 — Configuracion Reclasificacion Fiscal Mexico: 3 reglas (2 Cobro + 1 Pago)
+- ✅ Customers: VENTA MOSTRADOR, PUBLICO EN GENERAL, COMERCIAL CITY FRESKO (RFC CCF121101KQ4, EDI completo, 24 addresses)
+- ✅ Addenda La Comer en BD y en fixtures
 
 ### Pendiente inmediato
-1. Fase 3 — Customer con RFC + fm_tax_regime + fm_uso_cfdi_default
-2. Fase 3 — Item con fm_producto_servicio_sat
-3. Fase 4 — Primer CFDI de prueba (Sales Invoice → submit → timbrar)
-4. Fase 5 — Validar módulos adicionales si el cliente los requiere
-5. Restore a sitio de producción
+1. Commit 2: `fix(install)` — fixtures/addenda_fixtures + custom_field + hooks + install.py
+2. Commit 3: docs — arquitectura.md + addendas.md (revisión completa pendiente)
+3. Fase 3 — Items con clave SAT para prueba de timbrado
+4. Fase 4 — Primera Sales Invoice → submit → timbrar
 
 ### No repetir
-- `bench migrate` sin `--site` afecta todos los sites del bench — siempre especificar `--site acg-v16.dev`
-- El bug "entered twice in Item Tax" ocurre cuando dos roles en ITT apuntan a la misma cuenta — ya corregido con deduplicación en `_crear_o_actualizar_itt`
-- inotify: límite aumentado a 2048 en `/etc/sysctl.d/99-inotify.conf` — si hay problemas de auto-reload revisarlo ahí
-- Las dos reglas de Cobro en CRFM son duplicadas (mismo origen/destino) porque IVA Nacional e IVA 0% comparten cuenta `209-01-000` — es redundante pero no bloquea
-
----
-
-## Datos de acg-v16.dev
-
-- **URL dev:** `http://localhost:8407`
-- **Puerto:** 8407 (entrada `acg_v16` en frappe-multisite)
-- **Company:** ALIMENTOS DEL CAMPO Y GANADERIA (abbr: ACG)
-- **API Key:** Sandbox FacturAPI (modo sandbox activo)
-- **Cuentas IVA ventas:** 209-01-000 (origen) → 208-01-000 (destino cobro)
-- **Cuentas IVA compras:** 119-01-000 (origen) → 118-01-000 (destino pago)
+- El bug `is_your_company_address` ya está corregido con Custom Field Address — no volver a depurar
+- Las dos reglas de Cobro en CRFM son duplicadas (misma cuenta 209-01 para NAC e IVA 0%) — es redundante pero no bloquea
+- El bug ITT "entered twice" ya está corregido en `generador_templates_fiscal.py` con deduplicación
+- `bench migrate` sin `--site` afecta todos los sites — siempre especificar `--site acg-v16.dev`
+- `one_offs/` y `working_docs/` NO se commitean
 
 ---
 
 ## Decisiones vigentes
 
-- IVA tasa 0% y exportación Art. 29 comparten el mismo rol `ROL_IVA_CERO` — mismo tratamiento en CFDI
-- `enable_exportacion` en Configuracion Fiscal Mexico cubre ambos casos (Art. 2-A y Art. 29 LIVA)
-- Modo resolución CFDI Recibidos: `Automático CoA SAT` con formato `###-##-###`
-- PR #184 (E-Receipts Fase 0) pendiente de merge — no bloquea esta rama
+- `enable_exportacion` en Configuracion Fiscal Mexico cubre Art. 2-A (alimentos) Y Art. 29 (exportación)
+- `is_your_company_address` se agrega como Custom Field de facturacion_mexico como workaround de bug ERPNext 16.21.1
+- Addenda La Comer es fixture del app (genérico), las direcciones de sucursales son datos del cliente (no fixture)
+- Docs de arquitectura.md y addendas.md tienen gaps — revisión completa pendiente en commit separado
+- facturacion-v16.dev y llantascs-v16.dev también necesitan `bench migrate` para el fix de `is_your_company_address`
 
 ---
 
 ## Archivos relevantes ahora
 
 ### Leer primero
-- `docs/usuario/getting-started.md` — instructivo de implementación (actualizado hoy)
-- `docs/usuario/cfdi-recibidos.md` — flujo CFDI Recibidos
+- `docs/usuario/getting-started.md` — instructivo de implementación (actualizado)
+- `docs/usuario/addendas.md` — pendiente revisión completa
 
-### Probablemente editar
-- Ninguno por ahora — siguiente paso es trabajo en UI
+### Probablemente editar en próximo commit
+- `docs/tecnico/arquitectura.md` — ya editado, pendiente commit
+- `docs/usuario/addendas.md` — revisión completa pendiente
 
 ### No tocar
-- `facturacion_mexico/facturacion_fiscal/setup/generador_templates_fiscal.py` — fix de deduplicación recién commiteado
-- `facturacion_mexico/one_offs/run_generador_tests.py` — no commitear (one_off)
-- `working_docs/` — no commitear
+- `one_offs/` — scripts temporales, no commitear
+- `working_docs/` — archivos del cliente ACG, no commitear
 
 ---
 
 ## Riesgos / cuidados
 
-- Las dos reglas duplicadas de Cobro en CRFM merecen investigación futura — podrían causar doble reclasificación en Payment Entry PPD
-- El sitio `acg.dev` (bench v16) tiene datos históricos y una empresa — no confundir con `acg-v16.dev` que es el sitio limpio de implementación
-- `frappe-multisite` en `/home/erpnext/bin/` fue sincronizado a `frappe-infrastructure/scripts/` hoy — commitear en ese repo también
+- Las dos reglas Cobro duplicadas en CRFM podrían causar doble reclasificación en Payment Entry PPD — investigar en Fase 5
+- `acg.dev` (site antiguo) tiene datos históricos — no confundir con `acg-v16.dev` (site limpio)
+- facturacion-v16.dev y llantascs-v16.dev aún tienen el bug `is_your_company_address` activo hasta hacer migrate
