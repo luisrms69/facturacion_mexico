@@ -2112,6 +2112,11 @@ Ver <a href="../../adr/0032-ereceipts-facturapi-arquitectura/">ADR-0032</a>.</p>
 <td>Wizard STCT/ITT (emitidos)</td>
 </tr>
 <tr>
+<td><code>Configuracion Reclasificacion Fiscal Mexico</code></td>
+<td>Por empresa</td>
+<td>Reglas de reclasificación IVA en Payment Entry (cobros y pagos)</td>
+</tr>
+<tr>
 <td><code>Configuracion CFDI Recibidos</code></td>
 <td>Por empresa</td>
 <td>Config impuestos + tolerancias (recibidos)</td>
@@ -2157,7 +2162,7 @@ Ver <a href="../../adr/0032-ereceipts-facturapi-arquitectura/">ADR-0032</a>.</p>
 <code>fm_ereceipt_mx</code> (link al EReceipt MX), <code>fm_ereceipt_summary_html</code> (widget estado E-Receipt),
 <code>fm_ereceipt_mode</code> (Normal / E-Receipt), <code>fm_ereceipt_expiry_*</code> (configuración vencimiento)
 <strong>Customer:</strong> <code>fm_tax_regime</code>, <code>fm_uso_cfdi_default</code>, <code>fm_requires_addenda</code>, <code>fm_default_addenda_type</code>, <code>fm_buyer_gln</code>, <code>fm_seller_gln</code>, <code>fm_seller_id</code>, <code>fm_invoice_creator_gln</code>, <code>fm_dias_credito_addenda</code>
-<strong>Address:</strong> <code>fm_gln</code> (GLN de sucursal destino para addendas EDI)
+<strong>Address:</strong> <code>fm_gln</code> (GLN de sucursal destino para addendas EDI), <code>is_your_company_address</code> (workaround ERPNext v16 — campo requerido por <code>erpnext/accounts/custom/address.py</code> pero no declarado en el DocType nativo; se agrega como Custom Field con default=0 para evitar AttributeError al guardar Address de clientes)
 <strong>Item Customer Detail:</strong> <code>ref_code</code> (nativo ERPNext), <code>fm_customer_uom</code>, <code>fm_customer_description</code>
 <strong>Branch:</strong> <code>fm_enable_fiscal</code>, <code>fm_lugar_expedicion</code>, <code>fm_serie_pattern</code>, folios
 <strong>Payment Entry:</strong> <code>fm_complemento_pago</code>, <code>fm_complement_generated</code>

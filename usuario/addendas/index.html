@@ -634,27 +634,36 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-address-gln-de-tienda-destino" class="md-nav__link">
+  <a href="#3-direcciones-del-cliente-receptor" class="md-nav__link">
     <span class="md-ellipsis">
-      3. Address — GLN de tienda destino
+      3. Direcciones del cliente receptor
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#4-codigos-de-producto-del-cliente" class="md-nav__link">
+  <a href="#4-direccion-del-emisor-invoicecreator" class="md-nav__link">
     <span class="md-ellipsis">
-      4. Códigos de producto del cliente
+      4. Dirección del emisor (InvoiceCreator)
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#5-company-direccion-fiscal" class="md-nav__link">
+  <a href="#5-codigos-de-producto-del-cliente" class="md-nav__link">
     <span class="md-ellipsis">
-      5. Company — dirección fiscal
+      5. Códigos de producto del cliente
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-company-verificacion-final" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Company — verificación final
     </span>
   </a>
   
@@ -1973,27 +1982,36 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-address-gln-de-tienda-destino" class="md-nav__link">
+  <a href="#3-direcciones-del-cliente-receptor" class="md-nav__link">
     <span class="md-ellipsis">
-      3. Address — GLN de tienda destino
+      3. Direcciones del cliente receptor
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#4-codigos-de-producto-del-cliente" class="md-nav__link">
+  <a href="#4-direccion-del-emisor-invoicecreator" class="md-nav__link">
     <span class="md-ellipsis">
-      4. Códigos de producto del cliente
+      4. Dirección del emisor (InvoiceCreator)
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#5-company-direccion-fiscal" class="md-nav__link">
+  <a href="#5-codigos-de-producto-del-cliente" class="md-nav__link">
     <span class="md-ellipsis">
-      5. Company — dirección fiscal
+      5. Códigos de producto del cliente
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-company-verificacion-final" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Company — verificación final
     </span>
   </a>
   
@@ -2236,9 +2254,118 @@
 </tr>
 </tbody>
 </table>
-<h3 id="3-address-gln-de-tienda-destino">3. Address — GLN de tienda destino<a class="headerlink" href="#3-address-gln-de-tienda-destino" title="Permanent link">&para;</a></h3>
-<p>En la dirección de envío del cliente (Address), campo <strong>GLN (Addenda EDI)</strong> (<code>fm_gln</code>): captura el GLN de la sucursal específica a la que se envía la mercancía.</p>
-<h3 id="4-codigos-de-producto-del-cliente">4. Códigos de producto del cliente<a class="headerlink" href="#4-codigos-de-producto-del-cliente" title="Permanent link">&para;</a></h3>
+<h3 id="3-direcciones-del-cliente-receptor">3. Direcciones del cliente receptor<a class="headerlink" href="#3-direcciones-del-cliente-receptor" title="Permanent link">&para;</a></h3>
+<p>El cliente corporativo normalmente tiene dos tipos de Address en ERPNext:</p>
+<p><strong>Dirección de facturación (Billing)</strong></p>
+<p>Una sola dirección fiscal del cliente. Se crea en <strong>Contacts → Address → New</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Address Title</td>
+<td>Nombre del cliente (ej: <code>COMERCIAL CITY FRESKO</code>)</td>
+</tr>
+<tr>
+<td>Address Type</td>
+<td><code>Billing</code></td>
+</tr>
+<tr>
+<td>Address Line 1</td>
+<td>Domicilio fiscal</td>
+</tr>
+<tr>
+<td>City / State / Pincode</td>
+<td>Datos del domicilio fiscal</td>
+</tr>
+<tr>
+<td>Is Primary Address</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Links → Customer</td>
+<td>Vincular al Customer</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Direcciones de envío por sucursal (Shipping)</strong></p>
+<p>Una Address por cada tienda/cedis a la que se envía mercancía. Cada una lleva el GLN específico de esa sucursal:</p>
+<ol>
+<li>Ir a <strong>Contacts → Address → New</strong></li>
+<li>Llenar:</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Address Title</td>
+<td>Nombre identificador de la sucursal (ej: <code>CITY FRESKO SUC 420 - LA COMER INSURGENTES</code>)</td>
+</tr>
+<tr>
+<td>Address Type</td>
+<td><code>Shipping</code></td>
+</tr>
+<tr>
+<td>Address Line 1</td>
+<td>Calle y número</td>
+</tr>
+<tr>
+<td>City / State / Pincode</td>
+<td>Datos de la tienda</td>
+</tr>
+<tr>
+<td><strong>GLN (Addenda EDI)</strong> (<code>fm_gln</code>)</td>
+<td>GLN de esta sucursal específica (ej: <code>7505000354205</code>)</td>
+</tr>
+<tr>
+<td>Links → Customer</td>
+<td>Vincular al mismo Customer</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>El GLN en la Shipping Address es el que aparece en el nodo <code>&lt;shipTo&gt;&lt;gln&gt;</code> de la addenda. Si no hay GLN configurado, el nodo quedará vacío y el EDI fallará la validación del cliente.</p>
+</blockquote>
+<h3 id="4-direccion-del-emisor-invoicecreator">4. Dirección del emisor (InvoiceCreator)<a class="headerlink" href="#4-direccion-del-emisor-invoicecreator" title="Permanent link">&para;</a></h3>
+<p>El bloque <code>&lt;InvoiceCreator&gt;</code> de la addenda usa la dirección de la <strong>Company</strong> de ERPNext, no de un Branch específico.</p>
+<p>Verifica que la Company emisora tenga una Address vinculada con <code>Is Primary Address = 1</code> y los campos correctos:</p>
+<table>
+<thead>
+<tr>
+<th>Campo ERPNext</th>
+<th>Variable addenda</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Address Line 1</td>
+<td><code>emisor_calle</code></td>
+<td>Calle y número del emisor</td>
+</tr>
+<tr>
+<td>City</td>
+<td><code>emisor_ciudad</code></td>
+<td>Ciudad del emisor</td>
+</tr>
+<tr>
+<td>Pincode</td>
+<td><code>emisor_cp</code></td>
+<td>Código postal fiscal del emisor</td>
+</tr>
+</tbody>
+</table>
+<p>Si la dirección de la Company no existe o no tiene los campos completos, los datos del emisor quedarán vacíos en la addenda.</p>
+<h3 id="5-codigos-de-producto-del-cliente">5. Códigos de producto del cliente<a class="headerlink" href="#5-codigos-de-producto-del-cliente" title="Permanent link">&para;</a></h3>
 <p>En <strong>Stock → Item → pestaña Sales → Customer Details</strong>:</p>
 <p>Agrega una fila por cada cliente con los datos de mapeo:</p>
 <table>
@@ -2268,16 +2395,25 @@
 </tbody>
 </table>
 <p>No se requiere un DocType separado — ERPNext ya tiene esta funcionalidad nativa con dos campos custom adicionales.</p>
-<h3 id="5-company-direccion-fiscal">5. Company — dirección fiscal<a class="headerlink" href="#5-company-direccion-fiscal" title="Permanent link">&para;</a></h3>
-<p>Asegúrate de que la Company tenga una <strong>Address</strong> vinculada con <code>Is Primary Address = 1</code>. El CP, calle y ciudad de esa dirección se usan como datos del emisor en la addenda.</p>
+<h3 id="6-company-verificacion-final">6. Company — verificación final<a class="headerlink" href="#6-company-verificacion-final" title="Permanent link">&para;</a></h3>
+<p>El paso 4 anterior cubre la Address de la Company. Antes de emitir, confirma que:
+- La Company tiene Address vinculada con <code>Is Primary Address = 1</code>
+- <code>fm_invoice_creator_gln</code> en el Customer tiene el GLN correcto del nodo <code>InvoiceCreator</code>
+- Todos los campos GLN del Customer están llenos (pasos 2)</p>
 <hr />
 <h2 id="emitir-una-factura-con-addenda">Emitir una factura con addenda<a class="headerlink" href="#emitir-una-factura-con-addenda" title="Permanent link">&para;</a></h2>
 <ol>
-<li>Crear <strong>Sales Invoice</strong> para el cliente con addenda configurada</li>
-<li>En el campo <strong>Shipping Address</strong> seleccionar la sucursal destino (con <code>fm_gln</code> configurado)</li>
-<li><strong>Submit</strong> — la addenda se genera automáticamente antes del timbrado</li>
+<li>Crear <strong>Sales Invoice</strong> para el cliente con addenda configurada (ej: COMERCIAL CITY FRESKO)</li>
+<li>En el campo <strong>Shipping Address</strong> seleccionar la sucursal destino — debe ser una de las Shipping Addresses del cliente con <code>fm_gln</code> configurado (paso 3)</li>
+<li>Completar la factura normalmente (items, cantidades, impuestos)</li>
+<li><strong>Submit</strong> — al hacer submit, el sistema detecta que el cliente requiere addenda y genera el XML antes del timbrado</li>
+<li>Desde la Factura Fiscal Mexico generada, clic en <strong>"Timbrar con FacturAPI"</strong> — el CFDI incluirá el bloque <code>&lt;Addenda&gt;</code> con el XML generado</li>
 <li>El XML de addenda queda en <code>fm_addenda_xml</code>; el estado en <code>fm_addenda_status</code></li>
 </ol>
+<div class="admonition warning">
+<p class="admonition-title">Shipping Address obligatorio</p>
+<p>Si la Sales Invoice no tiene Shipping Address seleccionado, el nodo <code>&lt;shipTo&gt;</code> de la addenda quedará vacío. La mayoría de cadenas rechazan el CFDI en su sistema EDI si el GLN de entrega está vacío.</p>
+</div>
 <hr />
 <h2 id="variables-jinja2-disponibles-en-el-template">Variables Jinja2 disponibles en el template<a class="headerlink" href="#variables-jinja2-disponibles-en-el-template" title="Permanent link">&para;</a></h2>
 <h3 id="datos-de-la-factura">Datos de la factura<a class="headerlink" href="#datos-de-la-factura" title="Permanent link">&para;</a></h3>

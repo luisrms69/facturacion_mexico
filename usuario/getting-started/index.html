@@ -547,6 +547,48 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="1. Facturacion Mexico Company Settings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#seccion-general-del-sistema" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sección: General del Sistema
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#seccion-facturas" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sección: Facturas
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#seccion-e-receipts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sección: E-Receipts
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#seccion-factura-global" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sección: Factura Global
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -574,9 +616,18 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-configuracion-reclasificacion-fiscal-mexico" class="md-nav__link">
+  <a href="#3-configuracion-cfdi-recibidos-template-de-impuestos-de-compras" class="md-nav__link">
     <span class="md-ellipsis">
-      3. Configuracion Reclasificacion Fiscal Mexico
+      3. Configuracion CFDI Recibidos — Template de impuestos de compras
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-configuracion-reclasificacion-fiscal-mexico" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Configuracion Reclasificacion Fiscal Mexico
     </span>
   </a>
   
@@ -2015,6 +2066,48 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="1. Facturacion Mexico Company Settings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#seccion-general-del-sistema" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sección: General del Sistema
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#seccion-facturas" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sección: Facturas
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#seccion-e-receipts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sección: E-Receipts
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#seccion-factura-global" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sección: Factura Global
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -2042,9 +2135,18 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-configuracion-reclasificacion-fiscal-mexico" class="md-nav__link">
+  <a href="#3-configuracion-cfdi-recibidos-template-de-impuestos-de-compras" class="md-nav__link">
     <span class="md-ellipsis">
-      3. Configuracion Reclasificacion Fiscal Mexico
+      3. Configuracion CFDI Recibidos — Template de impuestos de compras
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-configuracion-reclasificacion-fiscal-mexico" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Configuracion Reclasificacion Fiscal Mexico
     </span>
   </a>
   
@@ -2269,7 +2371,9 @@ bench<span class="w"> </span>--site<span class="w"> </span>tu-sitio.local<span c
 <p>Solo después de validar el CoA.</p>
 <h3 id="1-facturacion-mexico-company-settings">1. Facturacion Mexico Company Settings<a class="headerlink" href="#1-facturacion-mexico-company-settings" title="Permanent link">&para;</a></h3>
 <p>Accede desde el workspace <strong>Facturación México → Facturacion Mexico Company Settings</strong>.</p>
-<p>Crea un registro <strong>por cada empresa</strong> que emitirá CFDIs.</p>
+<p>Crea un registro <strong>por cada empresa</strong> que emitirá CFDIs. El nombre del documento se genera automáticamente como <code>FMCS-{Company}</code>.</p>
+<hr />
+<h4 id="seccion-general-del-sistema">Sección: General del Sistema<a class="headerlink" href="#seccion-general-del-sistema" title="Permanent link">&para;</a></h4>
 <table>
 <thead>
 <tr>
@@ -2279,34 +2383,152 @@ bench<span class="w"> </span>--site<span class="w"> </span>tu-sitio.local<span c
 </thead>
 <tbody>
 <tr>
-<td>Company</td>
-<td>Empresa emisora (Link a ERPNext Company)</td>
+<td><strong>Company</strong></td>
+<td>Empresa emisora. Requerido. Único por empresa — no puede haber dos registros para la misma Company.</td>
 </tr>
 <tr>
-<td>API Key Producción</td>
-<td>API Key de FacturAPI.io para producción</td>
+<td><strong>Modo Sandbox</strong></td>
+<td>Controla qué API Key usa el sistema al conectarse con FacturAPI. Ver explicación abajo.</td>
 </tr>
 <tr>
-<td>API Key Pruebas</td>
-<td>API Key de FacturAPI.io para sandbox</td>
+<td><strong>API Key Producción</strong></td>
+<td>API Key de producción de FacturAPI.io. Solo se usa cuando Modo Sandbox está <strong>desactivado</strong>.</td>
 </tr>
 <tr>
-<td>Modo Sandbox</td>
-<td>Activar para pruebas, desactivar para producción</td>
+<td><strong>API Key Pruebas</strong></td>
+<td>API Key de sandbox de FacturAPI.io. Solo se usa cuando Modo Sandbox está <strong>activado</strong>.</td>
 </tr>
 <tr>
-<td>Método de Pago por Defecto</td>
-<td>PUE o PPD — se aplica al crear nuevas facturas</td>
-</tr>
-<tr>
-<td>Enviar Email por Defecto</td>
-<td>Si el sistema envía CFDI por email automáticamente</td>
+<td><strong>Modo Facturación por Defecto</strong></td>
+<td><code>Normal</code> = las nuevas Sales Invoices timbran directamente. <code>E-Receipt</code> = las nuevas Sales Invoices generan un recibo para autofacturación posterior. Se puede cambiar por factura individual.</td>
 </tr>
 </tbody>
 </table>
+<p><strong>Modo Sandbox — qué hace exactamente:</strong></p>
+<p>El modo Sandbox determina cuál de las dos API Keys se envía a FacturAPI en cada petición. No cambia la URL del servicio — FacturAPI usa la misma URL (<code>https://www.facturapi.io/v2</code>) para ambos entornos; la diferencia entre sandbox y producción la determina la propia key.</p>
+<table>
+<thead>
+<tr>
+<th>Modo Sandbox</th>
+<th>API Key usada</th>
+<th>Efecto</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>✅ Activado (default)</td>
+<td>API Key Pruebas</td>
+<td>Timbrado en sandbox FacturAPI — CFDIs no tienen validez fiscal</td>
+</tr>
+<tr>
+<td>☐ Desactivado</td>
+<td>API Key Producción</td>
+<td>Timbrado real ante el SAT — CFDIs con validez fiscal</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Cuando tienes ambas API Keys guardadas:</strong></p>
+<p>Puedes guardar ambas keys desde el principio. El sistema selecciona automáticamente la correcta según el estado del checkbox. Para pasar de pruebas a producción basta con desmarcar Modo Sandbox — sin necesidad de modificar las keys.</p>
+<div class="admonition warning">
+<p class="admonition-title">Nunca timbrar en producción durante implementación</p>
+<p>Asegúrate de que Modo Sandbox esté activado mientras configuras y pruebas el sistema. Desactívalo únicamente cuando el cliente esté listo para operar en producción y los certificados SAT estén cargados en el portal FacturAPI.</p>
+</div>
 <blockquote>
 <p>Los certificados SAT (.cer/.key) se gestionan en el portal de FacturAPI.io, no en ERPNext.</p>
 </blockquote>
+<hr />
+<h4 id="seccion-facturas">Sección: Facturas<a class="headerlink" href="#seccion-facturas" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Método de Pago por Defecto</strong></td>
+<td><code>PUE</code> (Pago en Una Exhibición) o <code>PPD</code> (Pago en Parcialidades o Diferido). Se asigna automáticamente a nuevas Facturas Fiscales Mexico.</td>
+</tr>
+<tr>
+<td><strong>Enviar Email por Defecto</strong></td>
+<td>Si está activado, el sistema envía automáticamente el PDF y XML del CFDI al cliente al timbrar. El cliente puede tener una preferencia distinta en su perfil.</td>
+</tr>
+<tr>
+<td><strong>Descargar PDF/XML automáticamente</strong></td>
+<td>Si está activado, el PDF y XML se descargan y adjuntan al documento (FFM y Complemento Pago MX) inmediatamente al timbrar.</td>
+</tr>
+<tr>
+<td><strong>Email Fallback Cliente</strong></td>
+<td>Email que se usa como destinatario si el cliente no tiene email configurado. Si está vacío, no se envía email cuando el cliente no tiene email.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h4 id="seccion-e-receipts">Sección: E-Receipts<a class="headerlink" href="#seccion-e-receipts" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Tipo Vencimiento por Defecto</strong></td>
+<td><code>Fixed Days</code> = vence a los N días configurados. <code>End of Month</code> = vence al fin del mes en curso. <code>Custom Date</code> = el usuario elige la fecha al crear el recibo.</td>
+</tr>
+<tr>
+<td><strong>Días Vencimiento por Defecto</strong></td>
+<td>Número de días para vencer cuando el tipo es <code>Fixed Days</code>. Default: 3 días.</td>
+</tr>
+<tr>
+<td><strong>Forma de Pago E-Receipt por Defecto</strong></td>
+<td>Código SAT de forma de pago para E-Receipts cuando no se puede obtener del Payment Entry. <code>28</code>=Tarjeta débito, <code>04</code>=Tarjeta crédito, <code>01</code>=Efectivo, <code>03</code>=Transferencia.</td>
+</tr>
+<tr>
+<td><strong>Email Notificaciones E-Receipt</strong></td>
+<td>Email que recibe notificaciones de E-Receipts próximos a vencer o sin convertir.</td>
+</tr>
+<tr>
+<td><strong>Mensaje Portal Autofactura</strong></td>
+<td>Texto que ve el cliente en el portal de autofacturación. Default incluido; se puede personalizar.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h4 id="seccion-factura-global">Sección: Factura Global<a class="headerlink" href="#seccion-factura-global" title="Permanent link">&para;</a></h4>
+<p>Solo relevante si el cliente emite Facturas Globales (agrupa E-Receipts de ventas mostrador sin RFC específico).</p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Customer Público en General</strong></td>
+<td>Customer configurado con RFC genérico <code>XAXX010101000</code> y régimen 616. Receptor de todas las facturas globales de esta Company.</td>
+</tr>
+<tr>
+<td><strong>Item Concepto Factura Global</strong></td>
+<td>Item que representa las ventas agrupadas. Debe tener clave SAT y unidad SAT configuradas.</td>
+</tr>
+<tr>
+<td><strong>Forma de Pago Global por Defecto</strong></td>
+<td>Código SAT de forma de pago para facturas globales cuando no hay forma clara de los receipts. <code>01</code>=Efectivo.</td>
+</tr>
+<tr>
+<td><strong>Notificar al Timbrar Factura Global</strong></td>
+<td>Si está activado, envía notificación por email al generar una Factura Global.</td>
+</tr>
+<tr>
+<td><strong>Emails de Notificación Factura Global</strong></td>
+<td>Emails separados por coma que reciben la notificación. El usuario creador siempre se incluye.</td>
+</tr>
+</tbody>
+</table>
 <h3 id="2-configuracion-fiscal-mexico">2. Configuracion Fiscal Mexico<a class="headerlink" href="#2-configuracion-fiscal-mexico" title="Permanent link">&para;</a></h3>
 <p>Accede desde el workspace <strong>Facturación México → Configuracion Fiscal Mexico → New</strong>.</p>
 <p><strong>Paso 1 — Selecciona los regímenes fiscales de la empresa:</strong></p>
@@ -2319,40 +2541,48 @@ bench<span class="w"> </span>--site<span class="w"> </span>tu-sitio.local<span c
 </thead>
 <tbody>
 <tr>
-<td>IVA Exento</td>
-<td>Productos o servicios legalmente exentos de IVA</td>
+<td><strong>IVA Exento</strong></td>
+<td>Actívalo si la empresa vende productos o servicios legalmente exentos de IVA (medicamentos con receta, libros, etc.). Los ítems exentos no causan IVA en el CFDI — el nodo de impuesto no aparece. No confundir con tasa 0%: exento no es lo mismo que 0%.</td>
 </tr>
 <tr>
-<td>Zona Fronteriza</td>
-<td>Empresa con operaciones en franja fronteriza norte (IVA 8%)</td>
+<td><strong>Zona Fronteriza</strong></td>
+<td>Actívalo si la empresa tiene operaciones en la franja fronteriza norte (Baja California, Sonora, Chihuahua, Coahuila, Nuevo León, Tamaulipas — ciudades específicas según decreto). Genera templates de IVA 8% adicionales a los de 16%.</td>
 </tr>
 <tr>
-<td>Exportación</td>
-<td>Ventas al extranjero (IVA 0% exportación)</td>
+<td><strong>IVA tasa 0% / Exportación</strong></td>
+<td>Actívalo si la empresa vende productos gravados a tasa 0%: alimentos y vegetales no industrializados (Art. 2-A LIVA), agua no gaseosa, medicamentos sin receta, o si realiza exportaciones (Art. 29 LIVA). Ambos casos producen en el CFDI un nodo IVA 002 con <code>TipoFactor=Tasa</code> y <code>TasaOCuota=0.000000</code>. El fundamento legal es distinto pero el tratamiento en CFDI es idéntico.</td>
 </tr>
 <tr>
-<td>IEPS Alcohol</td>
-<td>Venta de bebidas alcohólicas</td>
+<td><strong>IEPS Alcohol</strong></td>
+<td>Actívalo si la empresa vende bebidas alcohólicas (cervezas, vinos, destilados). Genera templates con IEPS a tasa variable sobre precio + IVA 16%.</td>
 </tr>
 <tr>
-<td>IEPS Azúcar</td>
-<td>Venta de bebidas con azúcar añadida</td>
+<td><strong>IEPS Azúcar/Bebidas</strong></td>
+<td>Actívalo si la empresa vende bebidas saborizadas con azúcar añadida (refrescos, jugos con azúcar, energizantes). Genera templates con IEPS cuota fija por litro + IVA 16%.</td>
 </tr>
 <tr>
-<td>IEPS Combustibles</td>
-<td>Venta de combustibles</td>
+<td><strong>IEPS Combustibles</strong></td>
+<td>Actívalo si la empresa vende combustibles (gasolina, diésel, gas). Genera templates con IEPS cuota fija por litro + IVA 16%. Nota: el IEPS de combustibles <strong>no integra la base del IVA</strong> (LIEPS Art. 2-A).</td>
 </tr>
 <tr>
-<td>IEPS Tabaco</td>
-<td>Venta de tabaco</td>
+<td><strong>IEPS Tabaco</strong></td>
+<td>Actívalo si la empresa vende productos de tabaco. Genera templates con IEPS tasa sobre precio + cuota adicional por cigarro + IVA 16%.</td>
 </tr>
 <tr>
-<td>Ret. Honorarios</td>
-<td>Pagos a personas físicas por honorarios</td>
+<td><strong>Retenciones Honorarios</strong></td>
+<td>Actívalo si la empresa paga a personas físicas por servicios profesionales (honorarios). Genera templates con retención ISR (10%) + retención IVA (10.67%) aplicables al emitir CFDI de egreso o al recibir factura de honorarios.</td>
 </tr>
 <tr>
-<td>Ret. Arrendamiento</td>
-<td>Pagos por arrendamiento</td>
+<td><strong>Retenciones Arrendamiento</strong></td>
+<td>Actívalo si la empresa paga arrendamiento de inmuebles a personas físicas. Genera templates con retención ISR (10%) + retención IVA (10.67%).</td>
+</tr>
+<tr>
+<td><strong>Retenciones Autotransporte</strong></td>
+<td>Actívalo si la empresa contrata servicios de autotransporte terrestre de carga federal. Genera template con retención IVA 4% (no retiene ISR).</td>
+</tr>
+<tr>
+<td><strong>Retenciones RESICO</strong></td>
+<td>Actívalo si la empresa paga a personas físicas inscritas en RESICO. La tasa ISR es configurable (default 1.25%). Genera templates con retención ISR variable + retención IVA 6%.</td>
 </tr>
 </tbody>
 </table>
@@ -2391,7 +2621,27 @@ bench<span class="w"> </span>--site<span class="w"> </span>tu-sitio.local<span c
 <blockquote>
 <p>Sin este paso el timbrado falla con error de impuestos.</p>
 </blockquote>
-<h3 id="3-configuracion-reclasificacion-fiscal-mexico">3. Configuracion Reclasificacion Fiscal Mexico<a class="headerlink" href="#3-configuracion-reclasificacion-fiscal-mexico" title="Permanent link">&para;</a></h3>
+<h3 id="3-configuracion-cfdi-recibidos-template-de-impuestos-de-compras">3. Configuracion CFDI Recibidos — Template de impuestos de compras<a class="headerlink" href="#3-configuracion-cfdi-recibidos-template-de-impuestos-de-compras" title="Permanent link">&para;</a></h3>
+<div class="admonition warning">
+<p class="admonition-title">Prerequisito para Configuracion Reclasificacion Fiscal Mexico</p>
+<p>Este paso debe completarse <strong>antes</strong> de ejecutar el paso 4. Si no se genera el template de impuestos de compras, el botón "Cargar Reglas" en CRFM solo cargará reglas de Cobro (ventas) — las reglas de Pago (compras/IVA acreditable) no aparecerán.</p>
+</div>
+<p>Accede desde el workspace <strong>Facturación México → Configuracion CFDI Recibidos</strong>.</p>
+<p>Si no existe el registro para la empresa, créalo. Luego:</p>
+<ol>
+<li>Selecciona la <strong>Company</strong></li>
+<li><strong>Modo de resolución contable</strong> — <code>Manual</code> o <code>Automático CoA SAT</code></li>
+<li><code>Manual</code>: el usuario asigna la cuenta de gasto en cada concepto del XML</li>
+<li><code>Automático CoA SAT</code>: el sistema la resuelve por prefijo del CoA combinando familia SAT del departamento + código SAT del grupo de gasto</li>
+<li>Si modo Automático: seleccionar <strong>Formato CoA</strong> (<code>########</code>, <code>###-##-###</code> o <code>###.##.###</code>) según el formato del Chart of Accounts de la empresa</li>
+<li>En la sección <strong>Reglas de Impuesto</strong>: configurar las cuentas de IVA acreditable (y retenciones si aplica) de las facturas de proveedores</li>
+<li>Clic en <strong>"Generar Template de Impuestos"</strong> — crea el Purchase Taxes and Charges Template que se usará al convertir XMLs a Purchase Invoices</li>
+<li>En la sección <strong>Mapeo de Departamentos</strong>: asignar familia SAT (601/602/603/604) a cada departamento de la empresa. Al guardar, el sistema agrega automáticamente todos los departamentos activos aún no mapeados.</li>
+</ol>
+<blockquote>
+<p>Ver flujo completo de operación en <a href="../cfdi-recibidos/">CFDI Recibidos</a>.</p>
+</blockquote>
+<h3 id="4-configuracion-reclasificacion-fiscal-mexico">4. Configuracion Reclasificacion Fiscal Mexico<a class="headerlink" href="#4-configuracion-reclasificacion-fiscal-mexico" title="Permanent link">&para;</a></h3>
 <p>Esta configuración define cómo mover impuestos entre cuentas cuando se registra un cobro o pago. En México el IVA opera en base a flujo de efectivo: se causa cuando se cobra, no cuando se factura.</p>
 <p>El flujo es:</p>
 <ol>
@@ -2404,7 +2654,7 @@ bench<span class="w"> </span>--site<span class="w"> </span>tu-sitio.local<span c
 <p>Accede desde el workspace <strong>Facturación México → Configuracion Reclasificacion Fiscal Mexico → New</strong>.</p>
 <ol>
 <li>Selecciona la <strong>Company</strong></li>
-<li>Clic en <strong>"Cargar Reglas"</strong> — carga reglas de Cobro (ventas, desde Configuracion Fiscal Mexico) y reglas de Pago (compras, desde Configuracion CFDI Recibidos)</li>
+<li>Clic en <strong>"Cargar Reglas"</strong> — carga reglas de Cobro (ventas, desde Configuracion Fiscal Mexico) y reglas de Pago (compras, desde Configuracion CFDI Recibidos). <strong>Si el paso 3 no se completó, las reglas de Pago no aparecerán.</strong></li>
 <li>Para cada regla, captura la <strong>cuenta destino</strong></li>
 <li>Clic en <strong>"Aplicar"</strong></li>
 </ol>
@@ -2469,6 +2719,35 @@ bench<span class="w"> </span>--site<span class="w"> </span>tu-sitio.local<span c
 </tbody>
 </table>
 <h3 id="item-con-clave-sat-e-item-group-fiscal">Item con clave SAT e Item Group fiscal<a class="headerlink" href="#item-con-clave-sat-e-item-group-fiscal" title="Permanent link">&para;</a></h3>
+<p>Los items de venta en México requieren tres campos fiscales obligatorios. Sin ellos el sistema bloquea el submit de la Sales Invoice.</p>
+<p><strong>En Stock → Item → New:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Dónde</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fm_producto_servicio_sat</code></td>
+<td>Pestaña Fiscal México</td>
+<td>Clave del catálogo SAT <code>c_ClaveProdServ</code>. Obligatorio — sin esta clave el sistema bloquea el guardado de la factura.</td>
+</tr>
+<tr>
+<td><code>fm_unidad_sat</code></td>
+<td>Pestaña Fiscal México</td>
+<td>Clave de unidad SAT <code>c_ClaveUnidad</code> (ej: <code>H87 - Pieza</code>, <code>KGM - Kilogramo</code>, <code>GRM - Gramo</code>). Debe coincidir con la unidad real del producto.</td>
+</tr>
+<tr>
+<td><strong>Item Group</strong></td>
+<td>Datos generales</td>
+<td>El grupo determina el tratamiento de impuestos — ver tabla abajo.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Nota sobre el catálogo SAT:</strong> el campo <code>fm_producto_servicio_sat</code> es un Link a <code>SAT Producto Servicio</code>. Si la clave SAT que necesitas no existe en ese catálogo, debes crearla primero en <strong>Facturación México → SAT Producto Servicio → New</strong> con el código y descripción correctos del catálogo SAT vigente.</p>
 <p><strong>Campo obligatorio en todos los items:</strong></p>
 <ul>
 <li><code>fm_producto_servicio_sat</code> — clave del catálogo SAT. Sin esta clave el sistema bloquea el guardado de la factura.</li>
@@ -2553,6 +2832,35 @@ bench<span class="w"> </span>--site<span class="w"> </span>tu-sitio.local<span c
 <blockquote>
 <p>No configurar el ITT directamente en cada item — siempre a través del Item Group.</p>
 </blockquote>
+<p><strong>Mapeo de cliente (para addendas EDI):</strong></p>
+<p>Si el cliente requiere addenda (ej: La Comer, Liverpool), cada item necesita un mapeo en la pestaña <strong>Sales → Customer Details</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Customer Name</strong></td>
+<td>El cliente con addenda (ej: COMERCIAL CITY FRESKO)</td>
+</tr>
+<tr>
+<td><strong>Ref Code</strong></td>
+<td>Código / GTIN que el cliente asigna a este producto en su sistema</td>
+</tr>
+<tr>
+<td><strong>fm_customer_uom</strong></td>
+<td>Código de unidad que el cliente espera en la addenda (ej: <code>H87</code>, <code>KGM</code>)</td>
+</tr>
+<tr>
+<td><strong>fm_customer_description</strong></td>
+<td>Descripción del producto según catálogo del cliente</td>
+</tr>
+</tbody>
+</table>
+<p>Sin este mapeo, la addenda generará el GTIN vacío y el cliente rechazará el CFDI en su sistema EDI.</p>
 <hr />
 <h2 id="fase-4-primera-emision-cfdi">Fase 4 — Primera emisión CFDI<a class="headerlink" href="#fase-4-primera-emision-cfdi" title="Permanent link">&para;</a></h2>
 <ol>
