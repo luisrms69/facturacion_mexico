@@ -8,7 +8,6 @@ def after_install():
 	frappe.logger().info("Starting Facturacion Mexico installation...")
 	create_basic_sat_catalogs()  # PRIMERO: crear catálogos SAT
 	create_custom_fields_for_erpnext()  # SEGUNDO: crear custom fields que referencian catálogos
-	setup_multi_sucursal_system()  # TERCERO: configurar sistema multi-sucursal Sprint 6
 
 	# AUTOMATIC ITEM GROUPS (0% / EXENTO) - crear grupos raíz fiscal
 	try:

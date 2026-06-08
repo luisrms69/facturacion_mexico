@@ -54,9 +54,8 @@ def _handle_stock_settings(is_install: bool) -> None:
 			frappe.db.commit()  # nosemgrep: frappe-manual-commit
 	else:
 		frappe.log_error(
-			f"Stock Settings.stock_uom = '{stock_uom}' no es una UOM SAT. "
-			"Para operación fiscal correcta, cambiar manualmente a una UOM SAT (ej. 'H87 - Pieza').",
-			"[FMX] Advertencia: stock_uom no es SAT",
+			title="[FMX] stock_uom no es SAT",
+			message=f"Stock Settings.stock_uom = '{stock_uom}'. Cambiar a UOM SAT (ej. 'H87 - Pieza').",
 		)
 
 

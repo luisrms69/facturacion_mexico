@@ -314,6 +314,18 @@ En **Selling > Customer**, llenar en la sección **Tax**:
 
 ### Item con clave SAT e Item Group fiscal
 
+Los items de venta en México requieren tres campos fiscales obligatorios. Sin ellos el sistema bloquea el submit de la Sales Invoice.
+
+**En Stock → Item → New:**
+
+| Campo | Dónde | Descripción |
+|---|---|---|
+| `fm_producto_servicio_sat` | Pestaña Fiscal México | Clave del catálogo SAT `c_ClaveProdServ`. Obligatorio — sin esta clave el sistema bloquea el guardado de la factura. |
+| `fm_unidad_sat` | Pestaña Fiscal México | Clave de unidad SAT `c_ClaveUnidad` (ej: `H87 - Pieza`, `KGM - Kilogramo`, `GRM - Gramo`). Debe coincidir con la unidad real del producto. |
+| **Item Group** | Datos generales | El grupo determina el tratamiento de impuestos — ver tabla abajo. |
+
+**Nota sobre el catálogo SAT:** el campo `fm_producto_servicio_sat` es un Link a `SAT Producto Servicio`. Si la clave SAT que necesitas no existe en ese catálogo, debes crearla primero en **Facturación México → SAT Producto Servicio → New** con el código y descripción correctos del catálogo SAT vigente.
+
 **Campo obligatorio en todos los items:**
 
 - `fm_producto_servicio_sat` — clave del catálogo SAT. Sin esta clave el sistema bloquea el guardado de la factura.
@@ -345,6 +357,19 @@ El sistema usa dos mecanismos complementarios:
 El sistema detecta automáticamente qué ITTs están presentes en las líneas de la factura y selecciona el STCT correspondiente (Básico, IEPS, Retenciones o Total). No es necesario asignar el STCT manualmente.
 
 > No configurar el ITT directamente en cada item — siempre a través del Item Group.
+
+**Mapeo de cliente (para addendas EDI):**
+
+Si el cliente requiere addenda (ej: La Comer, Liverpool), cada item necesita un mapeo en la pestaña **Sales → Customer Details**:
+
+| Campo | Descripción |
+|---|---|
+| **Customer Name** | El cliente con addenda (ej: COMERCIAL CITY FRESKO) |
+| **Ref Code** | Código / GTIN que el cliente asigna a este producto en su sistema |
+| **fm_customer_uom** | Código de unidad que el cliente espera en la addenda (ej: `H87`, `KGM`) |
+| **fm_customer_description** | Descripción del producto según catálogo del cliente |
+
+Sin este mapeo, la addenda generará el GTIN vacío y el cliente rechazará el CFDI en su sistema EDI.
 
 ---
 
