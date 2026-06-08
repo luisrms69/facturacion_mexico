@@ -29,19 +29,22 @@
    "fieldname": "enable_exento",
    "label": "IVA Exento",
    "fieldtype": "Check",
-   "default": "0"
+   "default": "0",
+   "description": "Productos o servicios legalmente exentos de IVA (no causa IVA en CFDI)."
   },
   {
    "fieldname": "enable_frontera",
    "label": "Zona Fronteriza",
    "fieldtype": "Check",
-   "default": "0"
+   "default": "0",
+   "description": "IVA 8% para operaciones en la franja fronteriza norte del país."
   },
   {
    "fieldname": "enable_exportacion",
-   "label": "Exportación (IVA 0%)",
+   "label": "IVA tasa 0% / Exportación",
    "fieldtype": "Check",
-   "default": "0"
+   "default": "0",
+   "description": "IVA tasa 0%: alimentos no industrializados (Art. 2-A LIVA) y exportaciones (Art. 29 LIVA)."
   },
   {
    "fieldname": "column_break_1",
@@ -51,25 +54,29 @@
    "fieldname": "enable_ieps_alcohol",
    "label": "IEPS Alcohol",
    "fieldtype": "Check",
-   "default": "0"
+   "default": "0",
+   "description": "Bebidas alcohólicas — IEPS tasa variable sobre precio + IVA."
   },
   {
    "fieldname": "enable_ieps_azucar",
    "label": "IEPS Azúcar/Bebidas",
    "fieldtype": "Check",
-   "default": "0"
+   "default": "0",
+   "description": "Bebidas con azúcar añadida — IEPS cuota por litro + IVA."
   },
   {
    "fieldname": "enable_ieps_combustibles",
    "label": "IEPS Combustibles",
    "fieldtype": "Check",
-   "default": "0"
+   "default": "0",
+   "description": "Combustibles — IEPS cuota fija por litro + IVA (IEPS no integra base IVA)."
   },
   {
    "fieldname": "enable_ieps_tabaco",
    "label": "IEPS Tabaco",
    "fieldtype": "Check",
-   "default": "0"
+   "default": "0",
+   "description": "Tabaco — IEPS tasa + cuota adicional por cigarro + IVA."
   },
   {
    "fieldname": "section_retenciones",
@@ -80,29 +87,33 @@
    "fieldname": "enable_ret_honorarios",
    "label": "Retenciones Honorarios",
    "fieldtype": "Check",
-   "default": "0"
+   "default": "0",
+   "description": "Pagos a personas físicas por servicios profesionales (ISR + IVA retenidos)."
   },
   {
    "fieldname": "enable_ret_arrendamiento",
    "label": "Retenciones Arrendamiento",
    "fieldtype": "Check",
-   "default": "0"
+   "default": "0",
+   "description": "Pagos por arrendamiento de inmuebles (ISR + IVA retenidos)."
+  },
+  {
+   "fieldname": "column_break_ret",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "enable_ret_autotransporte",
    "label": "Retenciones Autotransporte",
    "fieldtype": "Check",
-   "default": "0"
+   "default": "0",
+   "description": "Servicios de autotransporte terrestre de carga federal (IVA retenido 4%)."
   },
   {
    "fieldname": "enable_ret_resico",
    "label": "Retenciones RESICO",
    "fieldtype": "Check",
-   "default": "0"
-  },
-  {
-   "fieldname": "column_break_3",
-   "fieldtype": "Column Break"
+   "default": "0",
+   "description": "Régimen Simplificado de Confianza — personas físicas (ISR + IVA retenidos)."
   },
   {
    "fieldname": "tasa_isr_resico",

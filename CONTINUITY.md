@@ -1,84 +1,93 @@
 # CONTINUITY.md — facturacion_mexico
 
-**Fecha:** 2026-06-06
-**Rama activa:** `feature/ereceipts-fase0-payload-y-trazabilidad`
-**Tarea actual:** PR #184 listo para merge — pendiente bench update en producción
+**Fecha:** 2026-06-07
+**Rama activa:** `feat/iva-tasa-0-exportacion-label-fix`
+**Tarea actual:** Implementación site acg-v16.dev — configuración fiscal base completada, primera emisión CFDI pendiente
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-Issue #118 E-Receipts. Fase 0 completa. PR #184 abierto con CI verde.
-El usuario está haciendo `bench update` antes del merge.
-Una vez que el bench update termine, el PR puede mergearse.
+Implementar y configurar el sitio de desarrollo `acg-v16.dev` para el cliente ACG
+(Alimentos del Campo y Ganadería). El objetivo es dejar el sitio en estado listo para
+hacer un restore en producción. Se sigue el instructivo `docs/usuario/getting-started.md`.
 
 Plan que estoy siguiendo:
-ADR-0032 (arquitectura FacturAPI heavy lifting, ERPNext solo trazabilidad).
-Fases: 0 (✅ lista en PR #184) → 1 (exponer self_invoice_url) → 2 (sync) → 3 (factura individual) → 4 (FG via API).
+`docs/usuario/getting-started.md` — fases 0–5.
 
 Objetivo inmediato:
-Merge PR #184 → abrir rama para Fase 1.
+Fase 3 — crear Customer y Item de prueba con datos fiscales, luego emitir primer CFDI
+de prueba (Fase 4). Tras validar el timbrado, preparar el restore a producción.
 
 Criterio de avance:
-PR #184 mergeado a main. CONTINUITY.md actualizado en main post-merge.
+Primer CFDI timbrado en sandbox FacturAPI desde acg-v16.dev con UUID válido.
 
 ---
 
 ## Estado actual
 
-### Ya mergeado
-- PR #183 ✅ — eliminar hardcodes fiscales en Factura Global (#160)
-- PR #181 ✅ — fallbacks silenciosos forma de pago y clave SAT (#161 #162)
-
-### Listo para merge
-- PR #184 — Fase 0 E-Receipts (#118)
-  - `5db2a13` feat: código Fase 0 (payload, trazabilidad, DocType, custom fields)
-  - `3c8811a` docs: ADR-0032, ADR-0033, ereceipts.md, arquitectura
-  - `59a4a35` fix: correcciones CodeRabbit (C1-C14)
-  - CI: ✅ verde
-  - URL: https://github.com/luisrms69/facturacion_mexico/pull/184
+### Ya completado en acg-v16.dev
+- ✅ Fase 0 — Sitio creado, apps instaladas (erpnext + hrms + payments + facturacion_mexico)
+- ✅ Fase 1 — CoA del SAT cargado (1077 cuentas, formato `###-##-###`)
+- ✅ Fase 2.1 — Facturacion Mexico Company Settings (API Key sandbox)
+- ✅ Fase 2.2 — Configuracion Fiscal Mexico: IVA tasa 0% activado, templates generados (4 STCT + 3 ITT)
+- ✅ Fase 2.3 — Configuracion CFDI Recibidos: modo automático CoA SAT, formato `###-##-###`, cuenta `119-01-000`, template generado, 13 departamentos mapeados
+- ✅ Fase 2.4 — Configuracion Reclasificacion Fiscal Mexico: 2 reglas Cobro + 1 Pago aplicadas
 
 ### Pendiente inmediato
-1. Merge PR #184 (después de bench update)
-2. Abrir `feature/ereceipts-fase1-url-ui` para Fase 1
+1. Fase 3 — Customer con RFC + fm_tax_regime + fm_uso_cfdi_default
+2. Fase 3 — Item con fm_producto_servicio_sat
+3. Fase 4 — Primer CFDI de prueba (Sales Invoice → submit → timbrar)
+4. Fase 5 — Validar módulos adicionales si el cliente los requiere
+5. Restore a sitio de producción
 
 ### No repetir
-- `mock_db_get.return_value = None` rompe tests si `_get_product_key_for_item` lanza throw → usar helper `_db_get_with_product_key`
-- `frappe.throw` en función mockeada llama `frappe.get_doc` con kwargs → mockear también `frappe.log_error` en esos tests
-- Gate documental en `/ship commit` — docs van en el mismo commit que el código, no después
-- `fm_fiscal_status` options en fixtures no se sincronizan via migrate → usar after_migrate (`setup/add_ereceipt_fiscal_states.py`)
+- `bench migrate` sin `--site` afecta todos los sites del bench — siempre especificar `--site acg-v16.dev`
+- El bug "entered twice in Item Tax" ocurre cuando dos roles en ITT apuntan a la misma cuenta — ya corregido con deduplicación en `_crear_o_actualizar_itt`
+- inotify: límite aumentado a 2048 en `/etc/sysctl.d/99-inotify.conf` — si hay problemas de auto-reload revisarlo ahí
+- Las dos reglas de Cobro en CRFM son duplicadas (mismo origen/destino) porque IVA Nacional e IVA 0% comparten cuenta `209-01-000` — es redundante pero no bloquea
 
 ---
 
-## Decisiones vigentes — Fase 0 E-Receipts
+## Datos de acg-v16.dev
 
-- **ADR-0032:** FacturAPI hace el heavy lifting; ERPNext solo trazabilidad y control
-- UUID/folio/invoice_id **nunca** en Sales Invoice — viven en EReceipt MX o FG MX
-- Widget sigue relación SI → EReceipt MX → (FG MX si aplica) — patrón idéntico a FFM
-- `cancel_ereceipt()`: solo persiste "cancelled" si FacturAPI confirma la cancelación
-- `_get_product_key_for_item`: lanza ValidationError si falta `fm_producto_servicio_sat` — no fallback
-- `FiscalStates.to_dict()` exporta `E_RECEIPT` y `E_RECEIPT_FACTURADO`
-- `get_ereceipt_summary()` verifica permisos read antes de exponer datos fiscales
-- Botón "Copiar URL" usa `data-url` + `addEventListener` — no `onclick` inline
+- **URL dev:** `http://localhost:8407`
+- **Puerto:** 8407 (entrada `acg_v16` en frappe-multisite)
+- **Company:** ALIMENTOS DEL CAMPO Y GANADERIA (abbr: ACG)
+- **API Key:** Sandbox FacturAPI (modo sandbox activo)
+- **Cuentas IVA ventas:** 209-01-000 (origen) → 208-01-000 (destino cobro)
+- **Cuentas IVA compras:** 119-01-000 (origen) → 118-01-000 (destino pago)
 
 ---
 
-## Fases siguientes E-Receipts (#118)
+## Decisiones vigentes
 
-| Fase | Objetivo | Estado |
-|---|---|---|
-| 0 | Payload correcto + trazabilidad SI↔EReceipt | ✅ En PR #184 |
-| 1 | Exponer self_invoice_url en UI (botón envío email) | Pendiente |
-| 2 | Sincronización de estado (scheduler + manual) | Pendiente |
-| 3 | Facturar individualmente via `POST /receipts/{id}/invoice` | Pendiente |
-| 4 | Factura Global via `POST /receipts/global-invoice` | Pendiente |
-| ∞ | Webhooks, IEPS line-level (#182) | Futuro |
+- IVA tasa 0% y exportación Art. 29 comparten el mismo rol `ROL_IVA_CERO` — mismo tratamiento en CFDI
+- `enable_exportacion` en Configuracion Fiscal Mexico cubre ambos casos (Art. 2-A y Art. 29 LIVA)
+- Modo resolución CFDI Recibidos: `Automático CoA SAT` con formato `###-##-###`
+- PR #184 (E-Receipts Fase 0) pendiente de merge — no bloquea esta rama
 
 ---
 
-## Archivos relevantes para Fase 1 (referencia)
-- `facturacion_mexico/ereceipts/api.py` — `crear_ereceipt()`, agregar botón envío email
-- `facturacion_mexico/api/ereceipt_summary.py` — widget de estado
-- `facturacion_mexico/public/js/si_ereceipt_summary.js` — widget UI
-- `facturacion_mexico/facturacion_fiscal/api_client.py` — cliente FacturAPI
+## Archivos relevantes ahora
+
+### Leer primero
+- `docs/usuario/getting-started.md` — instructivo de implementación (actualizado hoy)
+- `docs/usuario/cfdi-recibidos.md` — flujo CFDI Recibidos
+
+### Probablemente editar
+- Ninguno por ahora — siguiente paso es trabajo en UI
+
+### No tocar
+- `facturacion_mexico/facturacion_fiscal/setup/generador_templates_fiscal.py` — fix de deduplicación recién commiteado
+- `facturacion_mexico/one_offs/run_generador_tests.py` — no commitear (one_off)
+- `working_docs/` — no commitear
+
+---
+
+## Riesgos / cuidados
+
+- Las dos reglas duplicadas de Cobro en CRFM merecen investigación futura — podrían causar doble reclasificación en Payment Entry PPD
+- El sitio `acg.dev` (bench v16) tiene datos históricos y una empresa — no confundir con `acg-v16.dev` que es el sitio limpio de implementación
+- `frappe-multisite` en `/home/erpnext/bin/` fue sincronizado a `frappe-infrastructure/scripts/` hoy — commitear en ese repo también
