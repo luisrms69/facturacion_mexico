@@ -2,45 +2,40 @@
 
 **Fecha:** 2026-06-08
 **Rama activa:** `fix/cfdi-recibidos-department-grupos`
-**Tarea actual:** PR abierto — fix departamentos grupo en CFDI Recibidos
+**Tarea actual:** PR #187 listo para merge — fix departamentos grupo CFDI Recibidos
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-Fix de 5 filtros `is_group=0` que impedían seleccionar departamentos grupo
-en el módulo CFDI Recibidos. PR abierto para revisión y merge.
+PR #187 revisado por CodeRabbit (solo comentarios sobre CONTINUITY.md, ignorables).
+Listo para Squash and Merge.
 
 Plan que estoy siguiendo:
-Issue surgido en reunión con cliente — departamentos RRHH tipo grupo deben
-poder mapearse en Configuración CFDI Recibidos.
+Merge PR #187 → bench update en producción actiglobal → validar con cliente.
 
 Objetivo inmediato:
-Merge del PR → bench update en producción → validar con cliente.
+Hacer merge del PR #187.
 
 Criterio de avance:
-Departamentos grupo visibles en Configuración CFDI Recibidos y en modal
-"Asignar Departamentos" en lista de CFDI Recibidos.
+main sincronizado con el fix. Producción actualizada con migrate + build.
 
 ---
 
 ## Estado actual
 
 ### Ya cerrado
-- ✅ PR #185 mergeado — fix install + wizard IVA 0% + addendas + crash migrate
-- ✅ acg-v16.dev configurado completo (CoA, fiscal, 119 items, La Comer)
-
-### En progreso
-- PR fix/cfdi-recibidos-department-grupos — 1 commit, abierto
+- ✅ PR #185 mergeado — fix install + wizard fiscal IVA 0% + addendas
+- ✅ PR #187 abierto — fix departamentos grupo CFDI Recibidos (CodeRabbit OK)
 
 ### Pendiente inmediato
-1. Merge del PR
+1. Merge PR #187
 2. bench update + migrate + build en producción (actiglobal)
-3. Restore ACG en producción (pendiente desde sesión anterior)
+3. Restore ACG en producción (pendiente)
 
 ### No repetir
-- Había 5 puntos con is_group=0 para Department — todos corregidos
+- Había 5 puntos con is_group=0 para Department — todos corregidos en este PR
 - cost_center, item_group, account, supplier_group mantienen is_group=0
 
 ---
@@ -50,12 +45,10 @@ Departamentos grupo visibles en Configuración CFDI Recibidos y en modal
 - Department en CFDI Recibidos es llave interna para 601-604, NO se traslada a PI
 - PI recibe solo cuentas contables hoja válidas
 - Resolución 601-604 por coincidencia exacta sin fallback a padre
-- is_your_company_address workaround ERPNext 16.21.1 — mantener hasta que ERPNext lo declare
 
 ---
 
 ## Riesgos
 
-- bench migrate requerido post-merge (mapeo_departamento_cfdi_recibido.json cambió)
-- bench build requerido post-merge (cfdi_recibido.js y cfdi_recibido_list.js cambiaron)
-- Issue #186: IEPS combustibles — aún pendiente
+- Requiere bench migrate + bench build al deployar en producción
+- Issue #186: IEPS combustibles — pendiente investigación
