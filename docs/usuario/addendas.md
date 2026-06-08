@@ -52,11 +52,56 @@ En **Selling → Customer**, pestaña **Fiscal México**, sección **Configuraci
 | GLN Invoice Creator (Addenda) | GLN del nodo InvoiceCreator |
 | Días de Crédito (Addenda) | Días de crédito para el bloque `paymentTerms` |
 
-### 3. Address — GLN de tienda destino
+### 3. Direcciones del cliente receptor
 
-En la dirección de envío del cliente (Address), campo **GLN (Addenda EDI)** (`fm_gln`): captura el GLN de la sucursal específica a la que se envía la mercancía.
+El cliente corporativo normalmente tiene dos tipos de Address en ERPNext:
 
-### 4. Códigos de producto del cliente
+**Dirección de facturación (Billing)**
+
+Una sola dirección fiscal del cliente. Se crea en **Contacts → Address → New**:
+
+| Campo | Valor |
+|---|---|
+| Address Title | Nombre del cliente (ej: `COMERCIAL CITY FRESKO`) |
+| Address Type | `Billing` |
+| Address Line 1 | Domicilio fiscal |
+| City / State / Pincode | Datos del domicilio fiscal |
+| Is Primary Address | ✅ |
+| Links → Customer | Vincular al Customer |
+
+**Direcciones de envío por sucursal (Shipping)**
+
+Una Address por cada tienda/cedis a la que se envía mercancía. Cada una lleva el GLN específico de esa sucursal:
+
+1. Ir a **Contacts → Address → New**
+2. Llenar:
+
+| Campo | Valor |
+|---|---|
+| Address Title | Nombre identificador de la sucursal (ej: `CITY FRESKO SUC 420 - LA COMER INSURGENTES`) |
+| Address Type | `Shipping` |
+| Address Line 1 | Calle y número |
+| City / State / Pincode | Datos de la tienda |
+| **GLN (Addenda EDI)** (`fm_gln`) | GLN de esta sucursal específica (ej: `7505000354205`) |
+| Links → Customer | Vincular al mismo Customer |
+
+> El GLN en la Shipping Address es el que aparece en el nodo `<shipTo><gln>` de la addenda. Si no hay GLN configurado, el nodo quedará vacío y el EDI fallará la validación del cliente.
+
+### 4. Dirección del emisor (InvoiceCreator)
+
+El bloque `<InvoiceCreator>` de la addenda usa la dirección de la **Company** de ERPNext, no de un Branch específico.
+
+Verifica que la Company emisora tenga una Address vinculada con `Is Primary Address = 1` y los campos correctos:
+
+| Campo ERPNext | Variable addenda | Descripción |
+|---|---|---|
+| Address Line 1 | `emisor_calle` | Calle y número del emisor |
+| City | `emisor_ciudad` | Ciudad del emisor |
+| Pincode | `emisor_cp` | Código postal fiscal del emisor |
+
+Si la dirección de la Company no existe o no tiene los campos completos, los datos del emisor quedarán vacíos en la addenda.
+
+### 5. Códigos de producto del cliente
 
 En **Stock → Item → pestaña Sales → Customer Details**:
 
@@ -71,18 +116,26 @@ Agrega una fila por cada cliente con los datos de mapeo:
 
 No se requiere un DocType separado — ERPNext ya tiene esta funcionalidad nativa con dos campos custom adicionales.
 
-### 5. Company — dirección fiscal
+### 6. Company — verificación final
 
-Asegúrate de que la Company tenga una **Address** vinculada con `Is Primary Address = 1`. El CP, calle y ciudad de esa dirección se usan como datos del emisor en la addenda.
+El paso 4 anterior cubre la Address de la Company. Antes de emitir, confirma que:
+- La Company tiene Address vinculada con `Is Primary Address = 1`
+- `fm_invoice_creator_gln` en el Customer tiene el GLN correcto del nodo `InvoiceCreator`
+- Todos los campos GLN del Customer están llenos (pasos 2)
 
 ---
 
 ## Emitir una factura con addenda
 
-1. Crear **Sales Invoice** para el cliente con addenda configurada
-2. En el campo **Shipping Address** seleccionar la sucursal destino (con `fm_gln` configurado)
-3. **Submit** — la addenda se genera automáticamente antes del timbrado
-4. El XML de addenda queda en `fm_addenda_xml`; el estado en `fm_addenda_status`
+1. Crear **Sales Invoice** para el cliente con addenda configurada (ej: COMERCIAL CITY FRESKO)
+2. En el campo **Shipping Address** seleccionar la sucursal destino — debe ser una de las Shipping Addresses del cliente con `fm_gln` configurado (paso 3)
+3. Completar la factura normalmente (items, cantidades, impuestos)
+4. **Submit** — al hacer submit, el sistema detecta que el cliente requiere addenda y genera el XML antes del timbrado
+5. Desde la Factura Fiscal Mexico generada, clic en **"Timbrar con FacturAPI"** — el CFDI incluirá el bloque `<Addenda>` con el XML generado
+6. El XML de addenda queda en `fm_addenda_xml`; el estado en `fm_addenda_status`
+
+!!! warning "Shipping Address obligatorio"
+    Si la Sales Invoice no tiene Shipping Address seleccionado, el nodo `<shipTo>` de la addenda quedará vacío. La mayoría de cadenas rechazan el CFDI en su sistema EDI si el GLN de entrega está vacío.
 
 ---
 

@@ -1,84 +1,67 @@
 # CONTINUITY.md — facturacion_mexico
 
-**Fecha:** 2026-06-06
-**Rama activa:** `feature/ereceipts-fase0-payload-y-trazabilidad`
-**Tarea actual:** PR #184 listo para merge — pendiente bench update en producción
+**Fecha:** 2026-06-08
+**Rama activa:** `feat/iva-tasa-0-exportacion-label-fix`
+**Tarea actual:** PR abierto — pendiente merge y bench update en producción
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-Issue #118 E-Receipts. Fase 0 completa. PR #184 abierto con CI verde.
-El usuario está haciendo `bench update` antes del merge.
-Una vez que el bench update termine, el PR puede mergearse.
+PR con 4 fixes surgidos de la implementación del sitio acg-v16.dev (cliente ACG).
+El PR está abierto. Después del merge: bench update en servidor de producción ACG
+y restore del backup de acg-v16.dev.
 
 Plan que estoy siguiendo:
-ADR-0032 (arquitectura FacturAPI heavy lifting, ERPNext solo trazabilidad).
-Fases: 0 (✅ lista en PR #184) → 1 (exponer self_invoice_url) → 2 (sync) → 3 (factura individual) → 4 (FG via API).
+`docs/usuario/getting-started.md` — ACG completó Fases 0-4 en acg-v16.dev.
 
 Objetivo inmediato:
-Merge PR #184 → abrir rama para Fase 1.
+Merge del PR → bench update en producción → restore del backup acg-v16.dev.
 
 Criterio de avance:
-PR #184 mergeado a main. CONTINUITY.md actualizado en main post-merge.
+bench update limpio en producción (sin crash de migrate).
 
 ---
 
 ## Estado actual
 
-### Ya mergeado
-- PR #183 ✅ — eliminar hardcodes fiscales en Factura Global (#160)
-- PR #181 ✅ — fallbacks silenciosos forma de pago y clave SAT (#161 #162)
-
-### Listo para merge
-- PR #184 — Fase 0 E-Receipts (#118)
-  - `5db2a13` feat: código Fase 0 (payload, trazabilidad, DocType, custom fields)
-  - `3c8811a` docs: ADR-0032, ADR-0033, ereceipts.md, arquitectura
-  - `59a4a35` fix: correcciones CodeRabbit (C1-C14)
-  - CI: ✅ verde
-  - URL: https://github.com/luisrms69/facturacion_mexico/pull/184
+### Ya completado
+- ✅ acg-v16.dev configurado completamente (CoA, fiscal, items, La Comer)
+- ✅ PR abierto con 4 commits
 
 ### Pendiente inmediato
-1. Merge PR #184 (después de bench update)
-2. Abrir `feature/ereceipts-fase1-url-ui` para Fase 1
+1. Esperar CodeRabbit y hacer merge del PR
+2. bench update en servidor de producción ACG
+3. Restore backup `20260607_205644-acg-v16_dev-database.sql.gz` en producción
+4. bench migrate post-restore en producción
 
 ### No repetir
-- `mock_db_get.return_value = None` rompe tests si `_get_product_key_for_item` lanza throw → usar helper `_db_get_with_product_key`
-- `frappe.throw` en función mockeada llama `frappe.get_doc` con kwargs → mockear también `frappe.log_error` en esos tests
-- Gate documental en `/ship commit` — docs van en el mismo commit que el código, no después
-- `fm_fiscal_status` options en fixtures no se sincronizan via migrate → usar after_migrate (`setup/add_ereceipt_fiscal_states.py`)
+- `is_your_company_address` ya está como Custom Field — no volver a depurar
+- El crash de migrate (CharacterLengthExceededError) estaba en enforce_sat_uom.py — ya corregido
+- Los TEST_GENERIC/AUTOMOTIVE/RETAIL fueron eliminados de install.py — no recrear
+- Antes del merge: correr /update-continuity y commitear el resultado final a la rama
 
 ---
 
-## Decisiones vigentes — Fase 0 E-Receipts
+## Decisiones vigentes
 
-- **ADR-0032:** FacturAPI hace el heavy lifting; ERPNext solo trazabilidad y control
-- UUID/folio/invoice_id **nunca** en Sales Invoice — viven en EReceipt MX o FG MX
-- Widget sigue relación SI → EReceipt MX → (FG MX si aplica) — patrón idéntico a FFM
-- `cancel_ereceipt()`: solo persiste "cancelled" si FacturAPI confirma la cancelación
-- `_get_product_key_for_item`: lanza ValidationError si falta `fm_producto_servicio_sat` — no fallback
-- `FiscalStates.to_dict()` exporta `E_RECEIPT` y `E_RECEIPT_FACTURADO`
-- `get_ereceipt_summary()` verifica permisos read antes de exponer datos fiscales
-- Botón "Copiar URL" usa `data-url` + `addEventListener` — no `onclick` inline
+- `is_your_company_address` workaround temporal ERPNext 16.21.1 — remover cuando ERPNext lo declare
+- Addenda La Comer está en fixtures (se aplica en bench migrate)
+- Las 24 direcciones de sucursales La Comer son datos del cliente, no fixture
+- Multi-Sucursal NO está implementado — el código muerto fue eliminado en este PR
 
 ---
 
-## Fases siguientes E-Receipts (#118)
+## Backup para restore a producción
 
-| Fase | Objetivo | Estado |
-|---|---|---|
-| 0 | Payload correcto + trazabilidad SI↔EReceipt | ✅ En PR #184 |
-| 1 | Exponer self_invoice_url en UI (botón envío email) | Pendiente |
-| 2 | Sincronización de estado (scheduler + manual) | Pendiente |
-| 3 | Facturar individualmente via `POST /receipts/{id}/invoice` | Pendiente |
-| 4 | Factura Global via `POST /receipts/global-invoice` | Pendiente |
-| ∞ | Webhooks, IEPS line-level (#182) | Futuro |
+- DB: `/home/erpnext/frappe-bench-v16/sites/acg-v16.dev/private/backups/20260607_205644-acg-v16_dev-database.sql.gz`
+- Files public: `.../20260607_205644-acg-v16_dev-files.tar`
+- Files private: `.../20260607_205644-acg-v16_dev-private-files.tar`
 
 ---
 
-## Archivos relevantes para Fase 1 (referencia)
-- `facturacion_mexico/ereceipts/api.py` — `crear_ereceipt()`, agregar botón envío email
-- `facturacion_mexico/api/ereceipt_summary.py` — widget de estado
-- `facturacion_mexico/public/js/si_ereceipt_summary.js` — widget UI
-- `facturacion_mexico/facturacion_fiscal/api_client.py` — cliente FacturAPI
+## Riesgos
+
+- facturacion-v16.dev y llantascs-v16.dev necesitan `bench migrate` para fix de Address
+- 2 reglas Cobro duplicadas en CRFM (209-01) — investigar post-PR

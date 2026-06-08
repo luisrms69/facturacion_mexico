@@ -185,6 +185,7 @@ fixtures = [
 					"Customer-fm_invoice_creator_gln",
 					# Address addenda EDI field
 					"Address-fm_gln",
+					"Address-is_your_company_address",
 					# Item Customer Detail — campos EDI por cliente
 					"Item Customer Detail-fm_customer_uom",
 					"Item Customer Detail-fm_customer_description",

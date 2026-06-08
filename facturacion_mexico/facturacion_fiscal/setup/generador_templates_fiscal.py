@@ -963,20 +963,27 @@ def _crear_o_actualizar_itt(
 		doc.company = company
 		doc.taxes = []
 
-	# Reconstruir taxes
-	for idx, tax_config in enumerate(taxes_config, start=1):
+	# Reconstruir taxes — deduplicar por cuenta_impuesto para evitar
+	# "entered twice in Item Tax" cuando múltiples roles comparten la misma cuenta
+	seen_accounts = set()
+	real_idx = 1
+	for tax_config in taxes_config:
 		rol_fiscal = tax_config["rol_fiscal"]
 		cuenta_impuesto = mapeo_cuentas.get(rol_fiscal)
 		if not cuenta_impuesto:
 			continue
+		if cuenta_impuesto in seen_accounts:
+			continue
+		seen_accounts.add(cuenta_impuesto)
 		doc.append(
 			"taxes",
 			{
 				"tax_type": cuenta_impuesto,
 				"tax_rate": tax_config.get("tax_rate", 0.0),
-				"idx": idx,
+				"idx": real_idx,
 			},
 		)
+		real_idx += 1
 
 	if existing_name:
 		doc.save(ignore_permissions=True)

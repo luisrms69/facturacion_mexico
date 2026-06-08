@@ -8,7 +8,6 @@ def after_install():
 	frappe.logger().info("Starting Facturacion Mexico installation...")
 	create_basic_sat_catalogs()  # PRIMERO: crear catálogos SAT
 	create_custom_fields_for_erpnext()  # SEGUNDO: crear custom fields que referencian catálogos
-	setup_multi_sucursal_system()  # TERCERO: configurar sistema multi-sucursal Sprint 6
 
 	# AUTOMATIC ITEM GROUPS (0% / EXENTO) - crear grupos raíz fiscal
 	try:
@@ -2018,6 +2017,9 @@ def _create_customer_template(customer_name: str, address_title: str):
 	address.country = "Mexico"
 	address.pincode = ""
 	address.is_primary_address = 1
+	# ERPNext v16: el validador de Address verifica is_your_company_address;
+	# para direcciones de clientes debe ser 0 explícito.
+	address.is_your_company_address = 0
 	address.append("links", {"link_doctype": "Customer", "link_name": customer.name})
 	address.insert(ignore_permissions=True)
 
@@ -2027,10 +2029,18 @@ def _create_customer_template(customer_name: str, address_title: str):
 
 def _create_publico_general_customer():
 	"""Crear los dos customers template con RFC genérico. Idempotente."""
-	# VENTA MOSTRADOR — para CFDI individual sin RFC del cliente
-	_create_customer_template("VENTA MOSTRADOR", "VENTA MOSTRADOR")
-	# PUBLICO EN GENERAL — reservado para futura Factura Global
-	_create_customer_template("PUBLICO EN GENERAL", "PUBLICO EN GENERAL")
+	# Cada customer se intenta de forma independiente: un fallo no cancela al otro.
+	try:
+		# VENTA MOSTRADOR — para CFDI individual sin RFC del cliente
+		_create_customer_template("VENTA MOSTRADOR", "VENTA MOSTRADOR")
+	except Exception:
+		frappe.log_error(frappe.get_traceback(), "[FMX][Install] Error creando VENTA MOSTRADOR")
+
+	try:
+		# PUBLICO EN GENERAL — receptor de Facturas Globales (RFC genérico XAXX010101000, régimen 616)
+		_create_customer_template("PUBLICO EN GENERAL", "PUBLICO EN GENERAL")
+	except Exception:
+		frappe.log_error(frappe.get_traceback(), "[FMX][Install] Error creando PUBLICO EN GENERAL")
 
 
 def _create_global_invoice_item():

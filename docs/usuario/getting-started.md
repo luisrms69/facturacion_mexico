@@ -124,18 +124,74 @@ Solo después de validar el CoA.
 
 Accede desde el workspace **Facturación México → Facturacion Mexico Company Settings**.
 
-Crea un registro **por cada empresa** que emitirá CFDIs.
+Crea un registro **por cada empresa** que emitirá CFDIs. El nombre del documento se genera automáticamente como `FMCS-{Company}`.
+
+---
+
+#### Sección: General del Sistema
 
 | Campo | Descripción |
 |---|---|
-| Company | Empresa emisora (Link a ERPNext Company) |
-| API Key Producción | API Key de FacturAPI.io para producción |
-| API Key Pruebas | API Key de FacturAPI.io para sandbox |
-| Modo Sandbox | Activar para pruebas, desactivar para producción |
-| Método de Pago por Defecto | PUE o PPD — se aplica al crear nuevas facturas |
-| Enviar Email por Defecto | Si el sistema envía CFDI por email automáticamente |
+| **Company** | Empresa emisora. Requerido. Único por empresa — no puede haber dos registros para la misma Company. |
+| **Modo Sandbox** | Controla qué API Key usa el sistema al conectarse con FacturAPI. Ver explicación abajo. |
+| **API Key Producción** | API Key de producción de FacturAPI.io. Solo se usa cuando Modo Sandbox está **desactivado**. |
+| **API Key Pruebas** | API Key de sandbox de FacturAPI.io. Solo se usa cuando Modo Sandbox está **activado**. |
+| **Modo Facturación por Defecto** | `Normal` = las nuevas Sales Invoices timbran directamente. `E-Receipt` = las nuevas Sales Invoices generan un recibo para autofacturación posterior. Se puede cambiar por factura individual. |
+
+**Modo Sandbox — qué hace exactamente:**
+
+El modo Sandbox determina cuál de las dos API Keys se envía a FacturAPI en cada petición. No cambia la URL del servicio — FacturAPI usa la misma URL (`https://www.facturapi.io/v2`) para ambos entornos; la diferencia entre sandbox y producción la determina la propia key.
+
+| Modo Sandbox | API Key usada | Efecto |
+|---|---|---|
+| ✅ Activado (default) | API Key Pruebas | Timbrado en sandbox FacturAPI — CFDIs no tienen validez fiscal |
+| ☐ Desactivado | API Key Producción | Timbrado real ante el SAT — CFDIs con validez fiscal |
+
+**Cuando tienes ambas API Keys guardadas:**
+
+Puedes guardar ambas keys desde el principio. El sistema selecciona automáticamente la correcta según el estado del checkbox. Para pasar de pruebas a producción basta con desmarcar Modo Sandbox — sin necesidad de modificar las keys.
+
+!!! warning "Nunca timbrar en producción durante implementación"
+    Asegúrate de que Modo Sandbox esté activado mientras configuras y pruebas el sistema. Desactívalo únicamente cuando el cliente esté listo para operar en producción y los certificados SAT estén cargados en el portal FacturAPI.
 
 > Los certificados SAT (.cer/.key) se gestionan en el portal de FacturAPI.io, no en ERPNext.
+
+---
+
+#### Sección: Facturas
+
+| Campo | Descripción |
+|---|---|
+| **Método de Pago por Defecto** | `PUE` (Pago en Una Exhibición) o `PPD` (Pago en Parcialidades o Diferido). Se asigna automáticamente a nuevas Facturas Fiscales Mexico. |
+| **Enviar Email por Defecto** | Si está activado, el sistema envía automáticamente el PDF y XML del CFDI al cliente al timbrar. El cliente puede tener una preferencia distinta en su perfil. |
+| **Descargar PDF/XML automáticamente** | Si está activado, el PDF y XML se descargan y adjuntan al documento (FFM y Complemento Pago MX) inmediatamente al timbrar. |
+| **Email Fallback Cliente** | Email que se usa como destinatario si el cliente no tiene email configurado. Si está vacío, no se envía email cuando el cliente no tiene email. |
+
+---
+
+#### Sección: E-Receipts
+
+| Campo | Descripción |
+|---|---|
+| **Tipo Vencimiento por Defecto** | `Fixed Days` = vence a los N días configurados. `End of Month` = vence al fin del mes en curso. `Custom Date` = el usuario elige la fecha al crear el recibo. |
+| **Días Vencimiento por Defecto** | Número de días para vencer cuando el tipo es `Fixed Days`. Default: 3 días. |
+| **Forma de Pago E-Receipt por Defecto** | Código SAT de forma de pago para E-Receipts cuando no se puede obtener del Payment Entry. `28`=Tarjeta débito, `04`=Tarjeta crédito, `01`=Efectivo, `03`=Transferencia. |
+| **Email Notificaciones E-Receipt** | Email que recibe notificaciones de E-Receipts próximos a vencer o sin convertir. |
+| **Mensaje Portal Autofactura** | Texto que ve el cliente en el portal de autofacturación. Default incluido; se puede personalizar. |
+
+---
+
+#### Sección: Factura Global
+
+Solo relevante si el cliente emite Facturas Globales (agrupa E-Receipts de ventas mostrador sin RFC específico).
+
+| Campo | Descripción |
+|---|---|
+| **Customer Público en General** | Customer configurado con RFC genérico `XAXX010101000` y régimen 616. Receptor de todas las facturas globales de esta Company. |
+| **Item Concepto Factura Global** | Item que representa las ventas agrupadas. Debe tener clave SAT y unidad SAT configuradas. |
+| **Forma de Pago Global por Defecto** | Código SAT de forma de pago para facturas globales cuando no hay forma clara de los receipts. `01`=Efectivo. |
+| **Notificar al Timbrar Factura Global** | Si está activado, envía notificación por email al generar una Factura Global. |
+| **Emails de Notificación Factura Global** | Emails separados por coma que reciben la notificación. El usuario creador siempre se incluye. |
 
 ### 2. Configuracion Fiscal Mexico
 
@@ -145,15 +201,17 @@ Accede desde el workspace **Facturación México → Configuracion Fiscal Mexico
 
 | Opción | Cuándo activar |
 |---|---|
-| IVA Exento | Productos o servicios legalmente exentos de IVA |
-| Zona Fronteriza | Empresa con operaciones en franja fronteriza norte (IVA 8%) |
-| Exportación | Ventas al extranjero (IVA 0% exportación) |
-| IEPS Alcohol | Venta de bebidas alcohólicas |
-| IEPS Azúcar | Venta de bebidas con azúcar añadida |
-| IEPS Combustibles | Venta de combustibles |
-| IEPS Tabaco | Venta de tabaco |
-| Ret. Honorarios | Pagos a personas físicas por honorarios |
-| Ret. Arrendamiento | Pagos por arrendamiento |
+| **IVA Exento** | Actívalo si la empresa vende productos o servicios legalmente exentos de IVA (medicamentos con receta, libros, etc.). Los ítems exentos no causan IVA en el CFDI — el nodo de impuesto no aparece. No confundir con tasa 0%: exento no es lo mismo que 0%. |
+| **Zona Fronteriza** | Actívalo si la empresa tiene operaciones en la franja fronteriza norte (Baja California, Sonora, Chihuahua, Coahuila, Nuevo León, Tamaulipas — ciudades específicas según decreto). Genera templates de IVA 8% adicionales a los de 16%. |
+| **IVA tasa 0% / Exportación** | Actívalo si la empresa vende productos gravados a tasa 0%: alimentos y vegetales no industrializados (Art. 2-A LIVA), agua no gaseosa, medicamentos sin receta, o si realiza exportaciones (Art. 29 LIVA). Ambos casos producen en el CFDI un nodo IVA 002 con `TipoFactor=Tasa` y `TasaOCuota=0.000000`. El fundamento legal es distinto pero el tratamiento en CFDI es idéntico. |
+| **IEPS Alcohol** | Actívalo si la empresa vende bebidas alcohólicas (cervezas, vinos, destilados). Genera templates con IEPS a tasa variable sobre precio + IVA 16%. |
+| **IEPS Azúcar/Bebidas** | Actívalo si la empresa vende bebidas saborizadas con azúcar añadida (refrescos, jugos con azúcar, energizantes). Genera templates con IEPS cuota fija por litro + IVA 16%. |
+| **IEPS Combustibles** | Actívalo si la empresa vende combustibles (gasolina, diésel, gas). Genera templates con IEPS cuota fija por litro + IVA 16%. Nota: el IEPS de combustibles **no integra la base del IVA** (LIEPS Art. 2-A). |
+| **IEPS Tabaco** | Actívalo si la empresa vende productos de tabaco. Genera templates con IEPS tasa sobre precio + cuota adicional por cigarro + IVA 16%. |
+| **Retenciones Honorarios** | Actívalo si la empresa paga a personas físicas por servicios profesionales (honorarios). Genera templates con retención ISR (10%) + retención IVA (10.67%) aplicables al emitir CFDI de egreso o al recibir factura de honorarios. |
+| **Retenciones Arrendamiento** | Actívalo si la empresa paga arrendamiento de inmuebles a personas físicas. Genera templates con retención ISR (10%) + retención IVA (10.67%). |
+| **Retenciones Autotransporte** | Actívalo si la empresa contrata servicios de autotransporte terrestre de carga federal. Genera template con retención IVA 4% (no retiene ISR). |
+| **Retenciones RESICO** | Actívalo si la empresa paga a personas físicas inscritas en RESICO. La tasa ISR es configurable (default 1.25%). Genera templates con retención ISR variable + retención IVA 6%.|
 
 > **Nota para alimentos frescos:** Bajo el Art. 2-A LIVA, los vegetales no industrializados se gravan a tasa 0% de IVA — no exento, sino tasa cero. No activar IEPS. La tasa 0% se genera automáticamente.
 
@@ -181,7 +239,27 @@ Clic en **"Generar Template de Impuestos"**. El sistema crea los Sales Taxes and
 
 > Sin este paso el timbrado falla con error de impuestos.
 
-### 3. Configuracion Reclasificacion Fiscal Mexico
+### 3. Configuracion CFDI Recibidos — Template de impuestos de compras
+
+!!! warning "Prerequisito para Configuracion Reclasificacion Fiscal Mexico"
+    Este paso debe completarse **antes** de ejecutar el paso 4. Si no se genera el template de impuestos de compras, el botón "Cargar Reglas" en CRFM solo cargará reglas de Cobro (ventas) — las reglas de Pago (compras/IVA acreditable) no aparecerán.
+
+Accede desde el workspace **Facturación México → Configuracion CFDI Recibidos**.
+
+Si no existe el registro para la empresa, créalo. Luego:
+
+1. Selecciona la **Company**
+2. **Modo de resolución contable** — `Manual` o `Automático CoA SAT`
+   - `Manual`: el usuario asigna la cuenta de gasto en cada concepto del XML
+   - `Automático CoA SAT`: el sistema la resuelve por prefijo del CoA combinando familia SAT del departamento + código SAT del grupo de gasto
+3. Si modo Automático: seleccionar **Formato CoA** (`########`, `###-##-###` o `###.##.###`) según el formato del Chart of Accounts de la empresa
+4. En la sección **Reglas de Impuesto**: configurar las cuentas de IVA acreditable (y retenciones si aplica) de las facturas de proveedores
+5. Clic en **"Generar Template de Impuestos"** — crea el Purchase Taxes and Charges Template que se usará al convertir XMLs a Purchase Invoices
+6. En la sección **Mapeo de Departamentos**: asignar familia SAT (601/602/603/604) a cada departamento de la empresa. Al guardar, el sistema agrega automáticamente todos los departamentos activos aún no mapeados.
+
+> Ver flujo completo de operación en [CFDI Recibidos](cfdi-recibidos.md).
+
+### 4. Configuracion Reclasificacion Fiscal Mexico
 
 Esta configuración define cómo mover impuestos entre cuentas cuando se registra un cobro o pago. En México el IVA opera en base a flujo de efectivo: se causa cuando se cobra, no cuando se factura.
 
@@ -196,7 +274,7 @@ El flujo es:
 Accede desde el workspace **Facturación México → Configuracion Reclasificacion Fiscal Mexico → New**.
 
 1. Selecciona la **Company**
-2. Clic en **"Cargar Reglas"** — carga reglas de Cobro (ventas, desde Configuracion Fiscal Mexico) y reglas de Pago (compras, desde Configuracion CFDI Recibidos)
+2. Clic en **"Cargar Reglas"** — carga reglas de Cobro (ventas, desde Configuracion Fiscal Mexico) y reglas de Pago (compras, desde Configuracion CFDI Recibidos). **Si el paso 3 no se completó, las reglas de Pago no aparecerán.**
 3. Para cada regla, captura la **cuenta destino**
 4. Clic en **"Aplicar"**
 
@@ -236,6 +314,18 @@ En **Selling > Customer**, llenar en la sección **Tax**:
 
 ### Item con clave SAT e Item Group fiscal
 
+Los items de venta en México requieren tres campos fiscales obligatorios. Sin ellos el sistema bloquea el submit de la Sales Invoice.
+
+**En Stock → Item → New:**
+
+| Campo | Dónde | Descripción |
+|---|---|---|
+| `fm_producto_servicio_sat` | Pestaña Fiscal México | Clave del catálogo SAT `c_ClaveProdServ`. Obligatorio — sin esta clave el sistema bloquea el guardado de la factura. |
+| `fm_unidad_sat` | Pestaña Fiscal México | Clave de unidad SAT `c_ClaveUnidad` (ej: `H87 - Pieza`, `KGM - Kilogramo`, `GRM - Gramo`). Debe coincidir con la unidad real del producto. |
+| **Item Group** | Datos generales | El grupo determina el tratamiento de impuestos — ver tabla abajo. |
+
+**Nota sobre el catálogo SAT:** el campo `fm_producto_servicio_sat` es un Link a `SAT Producto Servicio`. Si la clave SAT que necesitas no existe en ese catálogo, debes crearla primero en **Facturación México → SAT Producto Servicio → New** con el código y descripción correctos del catálogo SAT vigente.
+
 **Campo obligatorio en todos los items:**
 
 - `fm_producto_servicio_sat` — clave del catálogo SAT. Sin esta clave el sistema bloquea el guardado de la factura.
@@ -267,6 +357,19 @@ El sistema usa dos mecanismos complementarios:
 El sistema detecta automáticamente qué ITTs están presentes en las líneas de la factura y selecciona el STCT correspondiente (Básico, IEPS, Retenciones o Total). No es necesario asignar el STCT manualmente.
 
 > No configurar el ITT directamente en cada item — siempre a través del Item Group.
+
+**Mapeo de cliente (para addendas EDI):**
+
+Si el cliente requiere addenda (ej: La Comer, Liverpool), cada item necesita un mapeo en la pestaña **Sales → Customer Details**:
+
+| Campo | Descripción |
+|---|---|
+| **Customer Name** | El cliente con addenda (ej: COMERCIAL CITY FRESKO) |
+| **Ref Code** | Código / GTIN que el cliente asigna a este producto en su sistema |
+| **fm_customer_uom** | Código de unidad que el cliente espera en la addenda (ej: `H87`, `KGM`) |
+| **fm_customer_description** | Descripción del producto según catálogo del cliente |
+
+Sin este mapeo, la addenda generará el GTIN vacío y el cliente rechazará el CFDI en su sistema EDI.
 
 ---
 

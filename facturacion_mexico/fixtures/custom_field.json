@@ -1,5 +1,16 @@
 [
  {
+  "doctype": "Custom Field",
+  "dt": "Address",
+  "fieldname": "is_your_company_address",
+  "fieldtype": "Check",
+  "label": "Is Your Company Address",
+  "default": "0",
+  "insert_after": "county",
+  "module": "Facturacion Mexico",
+  "name": "Address-is_your_company_address"
+ },
+ {
   "alignment": null,
   "allow_in_quick_entry": 0,
   "allow_on_submit": 0,
