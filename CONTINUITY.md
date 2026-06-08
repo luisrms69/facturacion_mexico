@@ -1,67 +1,66 @@
 # CONTINUITY.md — facturacion_mexico
 
 **Fecha:** 2026-06-08
-**Rama activa:** `feat/iva-tasa-0-exportacion-label-fix`
-**Tarea actual:** PR abierto — pendiente merge y bench update en producción
+**Rama activa:** `main`
+**Tarea actual:** Post-merge PR #185 — próximo: restore backup ACG en producción
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-PR con 4 fixes surgidos de la implementación del sitio acg-v16.dev (cliente ACG).
-El PR está abierto. Después del merge: bench update en servidor de producción ACG
-y restore del backup de acg-v16.dev.
+PR #185 mergeado y main sincronizado. El sitio acg-v16.dev está completamente
+configurado para el cliente ACG. El siguiente paso es restaurar el backup en
+el servidor de producción ACG y correr bench migrate.
 
 Plan que estoy siguiendo:
-`docs/usuario/getting-started.md` — ACG completó Fases 0-4 en acg-v16.dev.
+`docs/usuario/getting-started.md` — ACG en Fase lista para producción.
 
 Objetivo inmediato:
-Merge del PR → bench update en producción → restore del backup acg-v16.dev.
+Restore del backup acg-v16.dev en servidor de producción del cliente ACG.
 
 Criterio de avance:
-bench update limpio en producción (sin crash de migrate).
+bench migrate limpio en producción + primer CFDI de prueba timbrado.
 
 ---
 
 ## Estado actual
 
-### Ya completado
-- ✅ acg-v16.dev configurado completamente (CoA, fiscal, items, La Comer)
-- ✅ PR abierto con 4 commits
+### Ya cerrado
+- ✅ PR #185 mergeado — fix install + wizard IVA 0% + addendas + crash bench migrate
+- ✅ acg-v16.dev configurado completo (CoA, fiscal, 119 items, La Comer, 24 sucursales)
+- ✅ Issue #186 abierto — revisión templates IEPS por variante
 
 ### Pendiente inmediato
-1. Esperar CodeRabbit y hacer merge del PR
-2. bench update en servidor de producción ACG
-3. Restore backup `20260607_205644-acg-v16_dev-database.sql.gz` en producción
-4. bench migrate post-restore en producción
+1. Restore backup en producción ACG
+2. bench migrate post-restore
+3. Prueba de timbrado CFDI con sandbox FacturAPI
 
 ### No repetir
-- `is_your_company_address` ya está como Custom Field — no volver a depurar
-- El crash de migrate (CharacterLengthExceededError) estaba en enforce_sat_uom.py — ya corregido
-- Los TEST_GENERIC/AUTOMOTIVE/RETAIL fueron eliminados de install.py — no recrear
-- Antes del merge: correr /update-continuity y commitear el resultado final a la rama
+- `is_your_company_address` sin prefijo fm_* es excepción documentada — no cambiar
+- Los one_offs de ACG ya fueron ejecutados y eliminados
+- bench migrate sin --site afecta todos los sites del bench
 
 ---
 
 ## Decisiones vigentes
 
-- `is_your_company_address` workaround temporal ERPNext 16.21.1 — remover cuando ERPNext lo declare
-- Addenda La Comer está en fixtures (se aplica en bench migrate)
-- Las 24 direcciones de sucursales La Comer son datos del cliente, no fixture
-- Multi-Sucursal NO está implementado — el código muerto fue eliminado en este PR
+- `is_your_company_address` workaround ERPNext 16.21.1 — remover cuando ERPNext lo declare
+- Addenda La Comer en fixtures — se aplica automáticamente en bench migrate
+- Issue #186: revisión IEPS combustibles — no urgente para ACG
 
 ---
 
 ## Backup para restore a producción
 
 - DB: `/home/erpnext/frappe-bench-v16/sites/acg-v16.dev/private/backups/20260607_205644-acg-v16_dev-database.sql.gz`
-- Files public: `.../20260607_205644-acg-v16_dev-files.tar`
-- Files private: `.../20260607_205644-acg-v16_dev-private-files.tar`
+- Public: `.../20260607_205644-acg-v16_dev-files.tar`
+- Private: `.../20260607_205644-acg-v16_dev-private-files.tar`
+- Checkpoint: `frappe-infrastructure/checkpoints/20260607-205635-facturacion_mexico-acg-v16.dev/`
 
 ---
 
 ## Riesgos
 
-- facturacion-v16.dev y llantascs-v16.dev necesitan `bench migrate` para fix de Address
-- 2 reglas Cobro duplicadas en CRFM (209-01) — investigar post-PR
+- C5 pendiente: escape XML en template La Comer (|e en campos de texto libre)
+- Issue #186: IEPS combustibles — pendiente investigación
