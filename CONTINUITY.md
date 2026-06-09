@@ -1,54 +1,56 @@
 # CONTINUITY.md — facturacion_mexico
 
 **Fecha:** 2026-06-08
-**Rama activa:** `fix/cfdi-recibidos-department-grupos`
-**Tarea actual:** PR #187 listo para merge — fix departamentos grupo CFDI Recibidos
+**Rama activa:** `fix/workspace-facturacion-mexico-shortcuts`
+**Tarea actual:** PR abierto — fix workspace Facturación México
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-PR #187 revisado por CodeRabbit (solo comentarios sobre CONTINUITY.md, ignorables).
-Listo para Squash and Merge.
+PR con fix del workspace "Facturación México": Configuracion CFDI Recibidos
+faltaba en shortcuts, más mejoras visuales (labels, colores, iconos).
 
 Plan que estoy siguiendo:
-Merge PR #187 → bench update en producción actiglobal → validar con cliente.
+Merge del PR → sync-check → siguiente tarea.
 
 Objetivo inmediato:
-Hacer merge del PR #187.
+Merge de este PR.
 
 Criterio de avance:
-main sincronizado con el fix. Producción actualizada con migrate + build.
+main con el fix de workspace. Fresh install muestra todos los shortcuts.
 
 ---
 
 ## Estado actual
 
 ### Ya cerrado
-- ✅ PR #185 mergeado — fix install + wizard fiscal IVA 0% + addendas
-- ✅ PR #187 abierto — fix departamentos grupo CFDI Recibidos (CodeRabbit OK)
+- ✅ PR #185 — fix install + wizard + addendas
+- ✅ PR #187 — fix departamentos grupo CFDI Recibidos
+
+### En progreso
+- PR fix/workspace-facturacion-mexico-shortcuts — abierto
 
 ### Pendiente inmediato
-1. Merge PR #187
-2. bench update + migrate + build en producción (actiglobal)
-3. Restore ACG en producción (pendiente)
+1. Merge este PR
+2. Restore ACG producción (pendiente)
+3. Issue #188 — Fase 2 workspace (KPIs, gráficas)
 
 ### No repetir
-- Había 5 puntos con is_group=0 para Department — todos corregidos en este PR
-- cost_center, item_group, account, supplier_group mantienen is_group=0
+- Agregar DocType al workspace: actualizar shortcuts + content + links
+- reload_doc(force=True) para sitios existentes restaurados desde backup
 
 ---
 
 ## Decisiones vigentes
 
-- Department en CFDI Recibidos es llave interna para 601-604, NO se traslada a PI
-- PI recibe solo cuentas contables hoja válidas
-- Resolución 601-604 por coincidencia exacta sin fallback a padre
+- Workspace shortcuts: labels <20 chars, colores por sección, iconos Frappe
+- Issue #186: IEPS combustibles — pendiente investigación
 
 ---
 
 ## Riesgos
 
-- Requiere bench migrate + bench build al deployar en producción
-- Issue #186: IEPS combustibles — pendiente investigación
+- Restore ACG producción pendiente
+- Issue #186: IEPS combustibles

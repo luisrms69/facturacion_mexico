@@ -1,6 +1,6 @@
 {
  "charts": [],
- "content": "[{\"id\": \"e03d9c94a6\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>Facturación Fiscal</b></span>\", \"col\": 12}}, {\"id\": \"225356158a\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Factura Fiscal Mexico\", \"col\": 3}}, {\"id\": \"264b4363c7\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Complemento Pago MX\", \"col\": 3}}, {\"id\": \"b6bd1c70b8\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"EReceipt MX\", \"col\": 3}}, {\"id\": \"0fce252431\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Factura Global MX\", \"col\": 3}}, {\"id\": \"0a8dbd9739\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"fb3cf2b04f\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>Documentos ERPNext</b></span>\", \"col\": 12}}, {\"id\": \"3405f44dec\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Sales Invoice\", \"col\": 3}}, {\"id\": \"c04be4b028\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Payment Entry\", \"col\": 3}}, {\"id\": \"0dc4cb6318\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"1809eeff3e\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>Configuración Fiscal</b></span>\", \"col\": 12}}, {\"id\": \"b8b72ff6a0\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Facturacion Mexico Company Settings\", \"col\": 3}}, {\"id\": \"644dc5be6f\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Configuracion Fiscal Mexico\", \"col\": 3}}, {\"id\": \"2dc140b96e\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Configuracion Fiscal Sucursal\", \"col\": 3}}, {\"id\": \"c3f8a91d04\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Configuracion CFDI Recibidos\", \"col\": 3}}, {\"id\": \"55dd64cbef\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Configuracion Reclasificacion Fiscal Mexico\", \"col\": 3}}, {\"id\": \"4652940d08\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Mapeo Cuenta Fiscal Mexico\", \"col\": 3}}, {\"id\": \"ef6497167e\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Mapeo Reclasificacion Fiscal Payment Entry\", \"col\": 3}}, {\"id\": \"fa5a8e0082\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"e60dc3d990\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>Catálogos SAT</b></span>\", \"col\": 12}}, {\"id\": \"8d9046750e\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Uso CFDI SAT\", \"col\": 3}}, {\"id\": \"1a4a05d2c3\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Forma Pago SAT\", \"col\": 3}}, {\"id\": \"be3306e8b0\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Metodo Pago SAT\", \"col\": 3}}, {\"id\": \"c314fc1501\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Regimen Fiscal SAT\", \"col\": 3}}, {\"id\": \"3186e89412\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"SAT Producto Servicio\", \"col\": 3}}, {\"id\": \"4c9cf4d0c5\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"IEPS Cuota SAT\", \"col\": 3}}, {\"id\": \"dfbbaae8d3\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"a923797e82\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>Auditoría</b></span>\", \"col\": 12}}, {\"id\": \"ea3e44be8c\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Facturas Sin Timbrar\", \"col\": 3}}, {\"id\": \"b7661597e2\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Complementos Pendientes\", \"col\": 3}}, {\"id\": \"c68fbe4ddd\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Auditoría Fiscal\", \"col\": 3}}, {\"id\": \"39a781a873\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"FacturAPI Response Log\", \"col\": 3}}, {\"id\": \"f55501010a\", \"type\": \"spacer\", \"data\": {\"col\": 12}}]",
+ "content": "[{\"id\": \"e03d9c94a6\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\" style=\\\"color:#2490ef; font-weight:700;\\\">💼&nbsp; Facturación Fiscal</span>\", \"col\": 12}}, {\"id\": \"225356158a\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Factura Fiscal\", \"col\": 3}}, {\"id\": \"264b4363c7\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Complemento PPD\", \"col\": 3}}, {\"id\": \"b6bd1c70b8\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"E-Receipt\", \"col\": 3}}, {\"id\": \"0fce252431\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Factura Global\", \"col\": 3}}, {\"id\": \"0a8dbd9739\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"fb3cf2b04f\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\" style=\\\"color:#7576ff; font-weight:700;\\\">📄&nbsp; Documentos ERPNext</span>\", \"col\": 12}}, {\"id\": \"3405f44dec\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Sales Invoice\", \"col\": 3}}, {\"id\": \"c04be4b028\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Payment Entry\", \"col\": 3}}, {\"id\": \"0dc4cb6318\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"1809eeff3e\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\" style=\\\"color:#f8814f; font-weight:700;\\\">⚙️&nbsp; Configuración Fiscal</span>\", \"col\": 12}}, {\"id\": \"b8b72ff6a0\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Config. Empresa\", \"col\": 3}}, {\"id\": \"644dc5be6f\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Config. Fiscal\", \"col\": 3}}, {\"id\": \"2dc140b96e\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Config. Sucursal\", \"col\": 3}}, {\"id\": \"c3f8a91d04\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"CFDI Recibidos\", \"col\": 3}}, {\"id\": \"55dd64cbef\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Reclasificación\", \"col\": 3}}, {\"id\": \"4652940d08\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Mapeo Cuentas\", \"col\": 3}}, {\"id\": \"ef6497167e\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Mapeo Reclass.\", \"col\": 3}}, {\"id\": \"fa5a8e0082\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"e60dc3d990\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\" style=\\\"color:#29cd42; font-weight:700;\\\">📋&nbsp; Catálogos SAT</span>\", \"col\": 12}}, {\"id\": \"8d9046750e\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Uso CFDI\", \"col\": 3}}, {\"id\": \"1a4a05d2c3\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Forma Pago\", \"col\": 3}}, {\"id\": \"be3306e8b0\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Método Pago\", \"col\": 3}}, {\"id\": \"c314fc1501\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Régimen Fiscal\", \"col\": 3}}, {\"id\": \"3186e89412\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Prod. Servicio\", \"col\": 3}}, {\"id\": \"4c9cf4d0c5\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"IEPS Cuota\", \"col\": 3}}, {\"id\": \"dfbbaae8d3\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"a923797e82\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\" style=\\\"color:#e24c4c; font-weight:700;\\\">🔍&nbsp; Auditoría</span>\", \"col\": 12}}, {\"id\": \"ea3e44be8c\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Sin Timbrar\", \"col\": 3}}, {\"id\": \"b7661597e2\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Comp. Pendientes\", \"col\": 3}}, {\"id\": \"c68fbe4ddd\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Auditoría\", \"col\": 3}}, {\"id\": \"39a781a873\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"FacturAPI Log\", \"col\": 3}}, {\"id\": \"f55501010a\", \"type\": \"spacer\", \"data\": {\"col\": 12}}]",
  "creation": "2026-05-14 00:00:00.000000",
  "custom_blocks": [],
  "docstatus": 0,
@@ -18,28 +18,28 @@
    "items": [
     {
      "doc_view": "List",
-     "label": "Factura Fiscal Mexico",
+     "label": "Factura Fiscal",
      "link_to": "Factura Fiscal Mexico",
      "link_type": "DocType",
      "type": "DocType"
     },
     {
      "doc_view": "List",
-     "label": "Complemento Pago MX",
+     "label": "Complemento PPD",
      "link_to": "Complemento Pago MX",
      "link_type": "DocType",
      "type": "DocType"
     },
     {
      "doc_view": "List",
-     "label": "EReceipt MX",
+     "label": "E-Receipt",
      "link_to": "EReceipt MX",
      "link_type": "DocType",
      "type": "DocType"
     },
     {
      "doc_view": "List",
-     "label": "Factura Global MX",
+     "label": "Factura Global",
      "link_to": "Factura Global MX",
      "link_type": "DocType",
      "type": "DocType"
@@ -76,49 +76,49 @@
    "items": [
     {
      "doc_view": "List",
-     "label": "Facturacion Mexico Company Settings",
+     "label": "Config. Empresa",
      "link_to": "Facturacion Mexico Company Settings",
      "link_type": "DocType",
      "type": "DocType"
     },
     {
      "doc_view": "List",
-     "label": "Configuracion Fiscal Mexico",
+     "label": "Config. Fiscal",
      "link_to": "Configuracion Fiscal Mexico",
      "link_type": "DocType",
      "type": "DocType"
     },
     {
      "doc_view": "List",
-     "label": "Configuracion Fiscal Sucursal",
+     "label": "Config. Sucursal",
      "link_to": "Configuracion Fiscal Sucursal",
      "link_type": "DocType",
      "type": "DocType"
     },
     {
      "doc_view": "List",
-     "label": "Configuracion CFDI Recibidos",
+     "label": "CFDI Recibidos",
      "link_to": "Configuracion CFDI Recibidos",
      "link_type": "DocType",
      "type": "DocType"
     },
     {
      "doc_view": "List",
-     "label": "Configuracion Reclasificacion Fiscal Mexico",
+     "label": "Reclasificación",
      "link_to": "Configuracion Reclasificacion Fiscal Mexico",
      "link_type": "DocType",
      "type": "DocType"
     },
     {
      "doc_view": "List",
-     "label": "Mapeo Cuenta Fiscal Mexico",
+     "label": "Mapeo Cuentas",
      "link_to": "Mapeo Cuenta Fiscal Mexico",
      "link_type": "DocType",
      "type": "DocType"
     },
     {
      "doc_view": "List",
-     "label": "Mapeo Reclasificacion Fiscal Payment Entry",
+     "label": "Mapeo Reclass.",
      "link_to": "Mapeo Reclasificacion Fiscal Payment Entry",
      "link_type": "DocType",
      "type": "DocType"
@@ -133,42 +133,42 @@
    "items": [
     {
      "doc_view": "List",
-     "label": "Uso CFDI SAT",
+     "label": "Uso CFDI",
      "link_to": "Uso CFDI SAT",
      "link_type": "DocType",
      "type": "DocType"
     },
     {
      "doc_view": "List",
-     "label": "Forma Pago SAT",
+     "label": "Forma Pago",
      "link_to": "Forma Pago SAT",
      "link_type": "DocType",
      "type": "DocType"
     },
     {
      "doc_view": "List",
-     "label": "Metodo Pago SAT",
+     "label": "Método Pago",
      "link_to": "Metodo Pago SAT",
      "link_type": "DocType",
      "type": "DocType"
     },
     {
      "doc_view": "List",
-     "label": "Regimen Fiscal SAT",
+     "label": "Régimen Fiscal",
      "link_to": "Regimen Fiscal SAT",
      "link_type": "DocType",
      "type": "DocType"
     },
     {
      "doc_view": "List",
-     "label": "SAT Producto Servicio",
+     "label": "Prod. Servicio",
      "link_to": "SAT Producto Servicio",
      "link_type": "DocType",
      "type": "DocType"
     },
     {
      "doc_view": "List",
-     "label": "IEPS Cuota SAT",
+     "label": "IEPS Cuota",
      "link_to": "IEPS Cuota SAT",
      "link_type": "DocType",
      "type": "DocType"
@@ -182,26 +182,26 @@
    "icon": "search",
    "items": [
     {
-     "label": "Facturas Sin Timbrar",
+     "label": "Sin Timbrar",
      "link_to": "Facturas Sin Timbrar",
      "link_type": "Report",
      "type": "Report"
     },
     {
-     "label": "Complementos Pendientes",
+     "label": "Comp. Pendientes",
      "link_to": "Complementos Pendientes",
      "link_type": "Report",
      "type": "Report"
     },
     {
-     "label": "Auditoría Fiscal",
+     "label": "Auditoría",
      "link_to": "Auditoría Fiscal",
      "link_type": "Report",
      "type": "Report"
     },
     {
      "doc_view": "List",
-     "label": "FacturAPI Response Log",
+     "label": "FacturAPI Log",
      "link_to": "FacturAPI Response Log",
      "link_type": "DocType",
      "type": "DocType"
@@ -223,136 +223,188 @@
  "sequence_id": 1.0,
  "shortcuts": [
   {
-   "label": "Factura Fiscal Mexico",
+   "label": "Factura Fiscal",
    "link_to": "Factura Fiscal Mexico",
    "link_type": "DocType",
-   "type": "DocType"
+   "type": "DocType",
+   "color": "Green",
+   "icon": "accounting"
   },
   {
-   "label": "Complemento Pago MX",
+   "label": "Complemento PPD",
    "link_to": "Complemento Pago MX",
    "link_type": "DocType",
-   "type": "DocType"
+   "type": "DocType",
+   "color": "Green",
+   "icon": "accounting"
   },
   {
    "label": "Sales Invoice",
    "link_to": "Sales Invoice",
    "link_type": "DocType",
-   "type": "DocType"
+   "type": "DocType",
+   "color": "Blue",
+   "icon": "file"
   },
   {
    "label": "Payment Entry",
    "link_to": "Payment Entry",
    "link_type": "DocType",
-   "type": "DocType"
+   "type": "DocType",
+   "color": "Blue",
+   "icon": "currency"
   },
   {
-   "label": "EReceipt MX",
+   "label": "E-Receipt",
    "link_to": "EReceipt MX",
    "link_type": "DocType",
-   "type": "DocType"
+   "type": "DocType",
+   "color": "Green",
+   "icon": "receipt"
   },
   {
-   "label": "Factura Global MX",
+   "label": "Factura Global",
    "link_to": "Factura Global MX",
    "link_type": "DocType",
-   "type": "DocType"
+   "type": "DocType",
+   "color": "Green",
+   "icon": "list"
   },
   {
-   "label": "Facturacion Mexico Company Settings",
+   "label": "Config. Empresa",
    "link_to": "Facturacion Mexico Company Settings",
    "link_type": "DocType",
-   "type": "DocType"
+   "type": "DocType",
+   "color": "Orange",
+   "icon": "settings"
   },
   {
-   "label": "Configuracion Fiscal Mexico",
+   "label": "Config. Fiscal",
    "link_to": "Configuracion Fiscal Mexico",
    "link_type": "DocType",
-   "type": "DocType"
+   "type": "DocType",
+   "color": "Orange",
+   "icon": "settings"
   },
   {
-   "label": "Configuracion Fiscal Sucursal",
+   "label": "Config. Sucursal",
    "link_to": "Configuracion Fiscal Sucursal",
    "link_type": "DocType",
-   "type": "DocType"
+   "type": "DocType",
+   "color": "Orange",
+   "icon": "branch"
   },
   {
-   "label": "Configuracion Reclasificacion Fiscal Mexico",
+   "label": "CFDI Recibidos",
+   "link_to": "Configuracion CFDI Recibidos",
+   "link_type": "DocType",
+   "type": "DocType",
+   "color": "Orange",
+   "icon": "inbox"
+  },
+  {
+   "label": "Reclasificación",
    "link_to": "Configuracion Reclasificacion Fiscal Mexico",
    "link_type": "DocType",
-   "type": "DocType"
+   "type": "DocType",
+   "color": "Orange",
+   "icon": "filter"
   },
   {
-   "label": "Mapeo Cuenta Fiscal Mexico",
+   "label": "Mapeo Cuentas",
    "link_to": "Mapeo Cuenta Fiscal Mexico",
    "link_type": "DocType",
-   "type": "DocType"
+   "type": "DocType",
+   "color": "Orange",
+   "icon": "table"
   },
   {
-   "label": "Mapeo Reclasificacion Fiscal Payment Entry",
+   "label": "Mapeo Reclass.",
    "link_to": "Mapeo Reclasificacion Fiscal Payment Entry",
    "link_type": "DocType",
-   "type": "DocType"
+   "type": "DocType",
+   "color": "Orange",
+   "icon": "table"
   },
   {
-   "label": "Uso CFDI SAT",
+   "label": "Uso CFDI",
    "link_to": "Uso CFDI SAT",
    "link_type": "DocType",
-   "type": "DocType"
+   "type": "DocType",
+   "color": "Purple",
+   "icon": "tag"
   },
   {
-   "label": "Forma Pago SAT",
+   "label": "Forma Pago",
    "link_to": "Forma Pago SAT",
    "link_type": "DocType",
-   "type": "DocType"
+   "type": "DocType",
+   "color": "Purple",
+   "icon": "currency"
   },
   {
-   "label": "Metodo Pago SAT",
+   "label": "Método Pago",
    "link_to": "Metodo Pago SAT",
    "link_type": "DocType",
-   "type": "DocType"
+   "type": "DocType",
+   "color": "Purple",
+   "icon": "currency"
   },
   {
-   "label": "Regimen Fiscal SAT",
+   "label": "Régimen Fiscal",
    "link_to": "Regimen Fiscal SAT",
    "link_type": "DocType",
-   "type": "DocType"
+   "type": "DocType",
+   "color": "Purple",
+   "icon": "tax"
   },
   {
-   "label": "SAT Producto Servicio",
+   "label": "Prod. Servicio",
    "link_to": "SAT Producto Servicio",
    "link_type": "DocType",
-   "type": "DocType"
+   "type": "DocType",
+   "color": "Purple",
+   "icon": "item"
   },
   {
-   "label": "IEPS Cuota SAT",
+   "label": "IEPS Cuota",
    "link_to": "IEPS Cuota SAT",
    "link_type": "DocType",
-   "type": "DocType"
+   "type": "DocType",
+   "color": "Purple",
+   "icon": "percentage"
   },
   {
-   "label": "Facturas Sin Timbrar",
+   "label": "Sin Timbrar",
    "link_to": "Facturas Sin Timbrar",
    "link_type": "Report",
-   "type": "Report"
+   "type": "Report",
+   "color": "Red",
+   "icon": "warning"
   },
   {
-   "label": "Complementos Pendientes",
+   "label": "Comp. Pendientes",
    "link_to": "Complementos Pendientes",
    "link_type": "Report",
-   "type": "Report"
+   "type": "Report",
+   "color": "Red",
+   "icon": "pending"
   },
   {
-   "label": "Auditoría Fiscal",
+   "label": "Auditoría",
    "link_to": "Auditoría Fiscal",
    "link_type": "Report",
-   "type": "Report"
+   "type": "Report",
+   "color": "Red",
+   "icon": "search"
   },
   {
-   "label": "FacturAPI Response Log",
+   "label": "FacturAPI Log",
    "link_to": "FacturAPI Response Log",
    "link_type": "DocType",
-   "type": "DocType"
+   "type": "DocType",
+   "color": "Red",
+   "icon": "log"
   }
  ],
  "title": "Facturación México"
