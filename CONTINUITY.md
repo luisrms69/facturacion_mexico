@@ -2,24 +2,24 @@
 
 **Fecha:** 2026-06-08
 **Rama activa:** `fix/workspace-facturacion-mexico-shortcuts`
-**Tarea actual:** Workspace Facturación México — fix shortcuts + visual fase 1
+**Tarea actual:** PR abierto — fix workspace Facturación México
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-Mejoras al workspace "Facturación México": fix de Configuracion CFDI Recibidos
-faltante en shortcuts, labels cortos, colores por sección e iconos.
+PR con fix del workspace "Facturación México": Configuracion CFDI Recibidos
+faltaba en shortcuts, más mejoras visuales (labels, colores, iconos).
 
 Plan que estoy siguiendo:
-Commit pendiente del workspace JSON. Issue #188 para Fase 2 (KPIs + gráficas).
+Merge del PR → sync-check → siguiente tarea.
 
 Objetivo inmediato:
 Merge de este PR.
 
 Criterio de avance:
-Workspace visible con shortcuts completos en cualquier fresh install.
+main con el fix de workspace. Fresh install muestra todos los shortcuts.
 
 ---
 
@@ -30,28 +30,27 @@ Workspace visible con shortcuts completos en cualquier fresh install.
 - ✅ PR #187 — fix departamentos grupo CFDI Recibidos
 
 ### En progreso
-- fix/workspace-facturacion-mexico-shortcuts — listo para commit
+- PR fix/workspace-facturacion-mexico-shortcuts — abierto
 
 ### Pendiente inmediato
-1. Commit + PR de este workspace fix
-2. Fase 2 workspace: Issue #188 (KPIs, gráficas)
-3. Restore ACG en producción (pendiente)
+1. Merge este PR
+2. Restore ACG producción (pendiente)
+3. Issue #188 — Fase 2 workspace (KPIs, gráficas)
 
 ### No repetir
-- Agregar DocType al workspace requiere actualizar shortcuts + content + links
-- reload_doc(force=True) necesario en sitios restaurados desde backup
+- Agregar DocType al workspace: actualizar shortcuts + content + links
+- reload_doc(force=True) para sitios existentes restaurados desde backup
 
 ---
 
 ## Decisiones vigentes
 
-- Workspace shortcuts: labels cortos (<20 chars), colores por sección, iconos Frappe
-- reload_doc(force=True) es el mecanismo para actualizar workspaces en sitios existentes
-- Issue #188 para la versión completa del tablero operativo
+- Workspace shortcuts: labels <20 chars, colores por sección, iconos Frappe
+- Issue #186: IEPS combustibles — pendiente investigación
 
 ---
 
 ## Riesgos
 
-- Issue #186: IEPS combustibles — pendiente
-- Restore ACG producción: pendiente
+- Restore ACG producción pendiente
+- Issue #186: IEPS combustibles
