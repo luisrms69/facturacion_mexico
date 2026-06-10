@@ -426,3 +426,92 @@ class TestBuildRowsSTCT(FrappeTestCase):
 		# cuenta_nac aparece en fila 0 (base) y fila 2 (cascada) — dos veces
 		filas_con_cuenta_nac = [r for r in rows if r["account_head"] == _CUENTA_NAC]
 		self.assertEqual(len(filas_con_cuenta_nac), 2, "STCT debe tener IVA base Y IVA cascada")
+
+	# ------------------------------------------------------------------
+	# sales_prices_include_tax — included_in_print_rate
+	# ------------------------------------------------------------------
+
+	def test_default_included_in_print_rate_es_cero(self):
+		"""Default: included_in_print_rate = 0 — precio no incluye impuesto."""
+		rows, _ = _build_rows(
+			company="_Test Company 1",
+			zona="Nacional",
+			iva_rate=16.0,
+			variant="Básico",
+			mapeos_disponibles=self._mapeos_base(),
+		)
+		self.assertEqual(rows[0]["included_in_print_rate"], 0)
+
+	def test_sales_prices_include_tax_true_setea_included_in_print_rate(self):
+		"""sales_prices_include_tax=True → included_in_print_rate = 1 en fila IVA base."""
+		rows, _ = _build_rows(
+			company="_Test Company 1",
+			zona="Nacional",
+			iva_rate=16.0,
+			variant="Básico",
+			mapeos_disponibles=self._mapeos_base(),
+			included_in_print_rate=1,
+		)
+		self.assertEqual(rows[0]["included_in_print_rate"], 1)
+
+	def test_sales_prices_include_tax_false_setea_cero(self):
+		"""sales_prices_include_tax=False → included_in_print_rate = 0 en fila IVA base."""
+		rows, _ = _build_rows(
+			company="_Test Company 1",
+			zona="Nacional",
+			iva_rate=16.0,
+			variant="Básico",
+			mapeos_disponibles=self._mapeos_base(),
+			included_in_print_rate=0,
+		)
+		self.assertEqual(rows[0]["included_in_print_rate"], 0)
+
+	def test_itt_no_modificado_por_sales_prices_include_tax(self):
+		"""ITT no se modifica — solo se verifica que _build_rows no toca ITT."""
+		rows, _ = _build_rows(
+			company="_Test Company 1",
+			zona="Nacional",
+			iva_rate=16.0,
+			variant="Básico",
+			mapeos_disponibles=self._mapeos_base(),
+			included_in_print_rate=1,
+		)
+		# Solo la fila IVA base (fila 0) lleva included_in_print_rate
+		# Filas IEPS y cascada no deben tener included_in_print_rate = 1
+		self.assertEqual(len(rows), 1)  # Básico solo tiene IVA base
+
+	def test_ieps_variante_solo_iva_base_lleva_included_in_print_rate(self):
+		"""En variante IEPS, solo la fila IVA base lleva included_in_print_rate = 1."""
+		mapeos = self._mapeos_base()
+		mapeos["ieps_disponibles"]["Alcohol"] = True
+		mapeos["tiene_algun_ieps"] = True
+
+		rows, _ = _build_rows(
+			company="_Test Company 1",
+			zona="Nacional",
+			iva_rate=16.0,
+			variant="IEPS",
+			mapeos_disponibles=mapeos,
+			included_in_print_rate=1,
+		)
+		# Fila 0 = IVA base → included_in_print_rate = 1
+		self.assertEqual(rows[0]["included_in_print_rate"], 1)
+		# Filas 1+ (IEPS, cascada) no llevan included_in_print_rate = 1
+		for r in rows[1:]:
+			self.assertNotEqual(r.get("included_in_print_rate", 0), 1)
+
+	def test_frontera_con_sales_prices_include_tax(self):
+		"""Zona Frontera también respeta sales_prices_include_tax."""
+		mapeos = self._mapeos_base()
+		mapeos["tiene_iva_frontera"] = True
+		mapeos["mapeos_por_rol"]["IVA_FRO"] = _CUENTA_FRO
+
+		rows, _ = _build_rows(
+			company="_Test Company 1",
+			zona="Frontera",
+			iva_rate=8.0,
+			variant="Básico",
+			mapeos_disponibles=mapeos,
+			included_in_print_rate=1,
+		)
+		self.assertEqual(rows[0]["included_in_print_rate"], 1)

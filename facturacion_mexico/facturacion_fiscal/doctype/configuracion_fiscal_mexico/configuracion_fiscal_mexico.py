@@ -268,7 +268,10 @@ class ConfiguracionFiscalMexico(Document):
 			ensure_fiscal_item_groups()
 
 			# Generar 8 STCT específicos (Nacional/Frontera x Básico/IEPS/Retenciones/Total)
-			resultados_stct = generate_8_stct_for_company(company=self.company)
+			resultados_stct = generate_8_stct_for_company(
+				company=self.company,
+				sales_prices_include_tax=bool(self.get("sales_prices_include_tax")),
+			)
 
 			# Generar ITT basados en Configuracion Fiscal Mexico
 			resultados_itt = generate_itt_for_company(company=self.company)
