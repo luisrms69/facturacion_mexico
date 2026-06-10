@@ -839,6 +839,9 @@ def generate_8_stct_for_company(
 		abbr: Company abbreviation (auto-detected if None)
 		iva_nacional_rate: IVA rate Nacional (auto-detected if None)
 		iva_frontera_rate: IVA rate Frontera (auto-detected if None)
+		sales_prices_include_tax: Si True, los STCT de venta se generan con
+			included_in_print_rate = 1 en la fila de IVA base — para empresas
+			cuya lista de precios ya incluye IVA. Default False.
 
 	Returns:
 		dict: {

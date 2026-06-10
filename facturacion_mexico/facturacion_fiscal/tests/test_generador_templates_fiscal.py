@@ -504,7 +504,7 @@ class TestBuildRowsSTCT(FrappeTestCase):
 		"""Zona Frontera también respeta sales_prices_include_tax."""
 		mapeos = self._mapeos_base()
 		mapeos["tiene_iva_frontera"] = True
-		mapeos["mapeos_por_rol"]["IVA_FRO"] = _CUENTA_FRO
+		mapeos["mapeos_por_rol"][ROL_IVA_FRO] = _CUENTA_FRO
 
 		rows, _ = _build_rows(
 			company="_Test Company 1",

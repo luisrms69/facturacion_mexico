@@ -105,6 +105,11 @@ class TestValidateInvoiceItemsUOM(unittest.TestCase):
 		items = [_FakeItem(1, "SRV-001", "Servicio", "E48 Unidad de Servicio")]
 		validate_invoice_items_uom(items)
 
+	def test_legacy_doble_espacio_pasa_validacion(self):
+		# "H87  Pieza" (doble espacio) — split(" ")[0] extrae "H87" correctamente
+		items = [_FakeItem(1, "LLAN-001", "Llanta", "H87  Pieza")]
+		validate_invoice_items_uom(items)
+
 
 class TestNormalizeUomToSatCode(unittest.TestCase):
 	def test_canonico_extrae_codigo(self):
