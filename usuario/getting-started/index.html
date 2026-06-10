@@ -2616,7 +2616,35 @@ bench<span class="w"> </span>--site<span class="w"> </span>tu-sitio.local<span c
 </tbody>
 </table>
 <p>La nomenclatura y los números de cuenta exactos dependen del CoA de cada empresa. Lo importante es asignar aquí la <strong>cuenta origen</strong> — la transitoria que usas cuando facturas. La <strong>cuenta destino</strong> se define más adelante en <code>Configuracion Reclasificacion Fiscal Mexico</code>.</p>
-<p><strong>Paso 3 — Genera los templates de impuestos:</strong></p>
+<p><strong>Paso 3 — Configura la política de precios (opcional):</strong></p>
+<p>Si la lista de precios de tu empresa ya incluye IVA (precio capturado = precio final con impuesto), activa el campo <strong>"Precios de venta incluyen impuestos"</strong> antes de generar los templates.</p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Precios de venta incluyen impuestos</code></td>
+<td>Cuando está activo, los STCT de venta generados por la app marcan el IVA como incluido en el precio capturado (<code>included_in_print_rate = 1</code>). ERPNext calcula automáticamente la base gravable y el IVA a partir del precio ingresado.</td>
+</tr>
+</tbody>
+</table>
+<p>Ejemplo con precio 750 y este campo activo:</p>
+<ul>
+<li>Precio capturado: $750.00</li>
+<li>Base (sin IVA): $646.55</li>
+<li>IVA 16%: $103.45</li>
+<li>Total CFDI: $750.00</li>
+</ul>
+<p><strong>Importante:</strong></p>
+<ul>
+<li>No modifica Items, ITT, facturas existentes ni STCT manuales.</li>
+<li>Si cambias este campo después de haber generado los templates, debes volver a ejecutar el paso siguiente para que los STCT se regeneren.</li>
+</ul>
+<p><strong>Paso 4 — Genera los templates de impuestos:</strong></p>
 <p>Clic en <strong>"Generar Template de Impuestos"</strong>. El sistema crea los Sales Taxes and Charges Templates (para tus facturas de venta) e Item Tax Templates (para items con tratamiento especial como IVA 0% o IEPS), y los asigna automáticamente a los Item Groups correspondientes.</p>
 <blockquote>
 <p>Sin este paso el timbrado falla con error de impuestos.</p>
