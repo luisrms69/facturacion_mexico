@@ -99,29 +99,21 @@ def _validate_items_sat_codes(doc):
 
 
 def _validate_uom_sat_format(item):
+	"""Valida que la UOM del ítem contenga un código SAT válido (c_ClaveUnidad).
+
+	Acepta formato canónico "H87 - Pieza", legacy "H87 Pieza" y código puro "H87".
 	"""
-	Validar que UOM tenga formato SAT válido: 'CODIGO - Descripción'
-	Reemplaza la validación anterior de fm_unidad_sat por formato UOM nativo.
-	"""
+	from facturacion_mexico.cfdi_recibidos.services.uom_policy import try_normalize_uom_to_sat_code
+
 	if not item.uom:
 		frappe.throw(_(f"Item {item.item_code}: UOM es obligatoria"))
 
-	# Verificar formato SAT: "CODIGO - Descripción"
-	uom_parts = item.uom.split(" - ")
-	if len(uom_parts) < 2:
+	sat_code = try_normalize_uom_to_sat_code(item.uom)
+	if sat_code is None:
 		frappe.throw(
 			_(
-				f"Item {item.item_code}: UOM '{item.uom}' debe tener formato SAT 'CODIGO - Descripción'. "
-				f"Ejemplo: 'H87 - Pieza', 'KGM - Kilogramo'"
-			)
-		)
-
-	sat_code = uom_parts[0].strip()
-	if len(sat_code) < 2:
-		frappe.throw(
-			_(
-				f"Item {item.item_code}: Código SAT '{sat_code}' inválido en UOM '{item.uom}'. "
-				f"El código debe tener al menos 2 caracteres"
+				f"Item {item.item_code}: UOM '{item.uom}' no contiene código SAT válido. "
+				f"Use formato 'CODIGO - Descripción' (ej. 'H87 - Pieza') o código puro (ej. 'H87')"
 			)
 		)
 

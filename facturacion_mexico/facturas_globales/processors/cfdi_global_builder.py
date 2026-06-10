@@ -146,9 +146,10 @@ class CFDIGlobalBuilder:
 				)
 			)
 
-		# Extraer código de la unidad SAT si tiene formato "H87 - Pieza"
-		if " - " in str(unit_key):
-			unit_key = unit_key.split(" - ")[0].strip()
+		# Extraer código SAT de la unidad (acepta "H87 - Pieza", "H87 Pieza" o "H87")
+		from facturacion_mexico.cfdi_recibidos.services.uom_policy import normalize_uom_to_sat_code
+
+		unit_key = normalize_uom_to_sat_code(str(unit_key))
 
 		description = (
 			item_doc.description

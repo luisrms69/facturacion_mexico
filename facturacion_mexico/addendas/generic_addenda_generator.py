@@ -15,6 +15,7 @@ from frappe import _
 from jinja2 import Environment, Template, TemplateError, meta
 
 from facturacion_mexico.addendas.validators.xsd_validator import validate_addenda_xml
+from facturacion_mexico.cfdi_recibidos.services.uom_policy import try_normalize_uom_to_sat_code
 
 
 def _importe_a_letras(monto) -> str:
@@ -324,7 +325,7 @@ class AddendaGenerator:
 			customer_uom = r.get("fm_customer_uom") or ""
 			if not customer_uom:
 				uom = item_data.get("uom", "")
-				customer_uom = uom.split(" - ")[0] if " - " in uom else uom
+				customer_uom = try_normalize_uom_to_sat_code(uom) or uom
 			# Descripción: prioriza descripción del cliente; fallback a item_name
 			customer_desc = r.get("fm_customer_description") or item_data.get("item_name", "")
 			result[r["item_code"]] = frappe._dict(
