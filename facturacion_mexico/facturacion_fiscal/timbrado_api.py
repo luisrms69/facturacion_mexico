@@ -55,42 +55,20 @@ def _nfc_collapse_upper(s: str) -> str:
 
 
 def _extract_sat_code_from_uom(uom_name):
+	"""Extrae el código SAT puro de una UOM para incluirlo en el payload FacturAPI.
+
+	Delega a normalize_uom_to_sat_code (uom_policy) que acepta:
+	  - Canónico:    "H87 - Pieza"  → "H87"
+	  - Legacy:      "H87 Pieza"    → "H87"  (formato de facturacion_mx)
+	  - Código puro: "H87"          → "H87"
+
+	El fallback genérico (Pieza→H87, Nos→H87, etc.) fue eliminado porque generaba
+	CFDIs con código H87 aunque el ítem tuviera una UOM sin código SAT válido.
+	Ahora se requiere que la UOM contenga un código SAT explícito.
 	"""
-	Extraer código SAT de UOM con formato 'CODIGO - Descripción'
+	from facturacion_mexico.cfdi_recibidos.services.uom_policy import normalize_uom_to_sat_code
 
-	Args:
-		uom_name (str): UOM name como "H87 - Pieza" o "KGM - Kilogramo"
-
-	Returns:
-		str: Código SAT extraído como "H87" o fallback "H87"
-	"""
-	if not uom_name:
-		return "H87"  # Fallback por defecto
-
-	# Verificar si tiene formato SAT: "CODIGO - Descripción"
-	if " - " in uom_name:
-		parts = uom_name.split(" - ")
-		if len(parts) >= 2 and parts[0].strip():
-			return parts[0].strip()
-
-	# Si no tiene formato SAT, intentar mapear UOMs genéricas comunes
-	uom_mapping = {
-		"Pieza": "H87",
-		"Piece": "H87",
-		"Unit": "H87",
-		"Nos": "H87",
-		"Kg": "KGM",
-		"Kilogram": "KGM",
-		"Gram": "GRM",
-		"Liter": "LTR",
-		"Litre": "LTR",
-		"Meter": "MTR",
-		"Hour": "HUR",
-		"Service": "E48",
-		"Activity": "ACT",
-	}
-
-	return uom_mapping.get(uom_name, "H87")
+	return normalize_uom_to_sat_code(uom_name or "")
 
 
 def _validate_items_clave_sat_for_timbrado(sales_invoice):
@@ -600,10 +578,10 @@ class TimbradoAPI:
 											abs(flt(tax_check["rate"])) / 100
 										)
 
-							base_iva_unitaria = flt(item.rate) + ieps_cuota_unitario + ieps_tasa_unitario
+							base_iva_unitaria = flt(item.net_rate) + ieps_cuota_unitario + ieps_tasa_unitario
 						else:
 							# Combustibles: base unitaria = solo precio (sin IEPS)
-							base_iva_unitaria = flt(item.rate)
+							base_iva_unitaria = flt(item.net_rate)
 
 						tax_item["base"] = flt(base_iva_unitaria, 6)
 
@@ -678,7 +656,12 @@ class TimbradoAPI:
 				"product": {
 					"description": item.description or item.item_name,
 					"product_key": item_doc.fm_producto_servicio_sat,
-					"price": flt(item.rate),
+					# Usar net_rate (precio sin impuesto) para el CFDI.
+					# Cuando included_in_print_rate=0: net_rate == rate (sin cambio).
+					# Cuando included_in_print_rate=1 (precios con IVA incluido):
+					# ERPNext calcula net_rate = rate / (1 + tasa), que es el valor
+					# correcto a enviar al PAC como "valor unitario" en el CFDI.
+					"price": flt(item.net_rate),
 					"tax_included": False,
 					"unit_key": _extract_sat_code_from_uom(item.uom),
 					"unit_name": item.uom or "Pieza",

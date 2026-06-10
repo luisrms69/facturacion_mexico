@@ -233,7 +233,27 @@ Para ventas a crédito o PPD, el IVA trasladado normalmente se registra primero 
 
 La nomenclatura y los números de cuenta exactos dependen del CoA de cada empresa. Lo importante es asignar aquí la **cuenta origen** — la transitoria que usas cuando facturas. La **cuenta destino** se define más adelante en `Configuracion Reclasificacion Fiscal Mexico`.
 
-**Paso 3 — Genera los templates de impuestos:**
+**Paso 3 — Configura la política de precios (opcional):**
+
+Si la lista de precios de tu empresa ya incluye IVA (precio capturado = precio final con impuesto), activa el campo **"Precios de venta incluyen impuestos"** antes de generar los templates.
+
+| Campo | Descripción |
+|---|---|
+| `Precios de venta incluyen impuestos` | Cuando está activo, los STCT de venta generados por la app marcan el IVA como incluido en el precio capturado (`included_in_print_rate = 1`). ERPNext calcula automáticamente la base gravable y el IVA a partir del precio ingresado. |
+
+Ejemplo con precio 750 y este campo activo:
+
+- Precio capturado: $750.00
+- Base (sin IVA): $646.55
+- IVA 16%: $103.45
+- Total CFDI: $750.00
+
+**Importante:**
+
+- No modifica Items, ITT, facturas existentes ni STCT manuales.
+- Si cambias este campo después de haber generado los templates, debes volver a ejecutar el paso siguiente para que los STCT se regeneren.
+
+**Paso 4 — Genera los templates de impuestos:**
 
 Clic en **"Generar Template de Impuestos"**. El sistema crea los Sales Taxes and Charges Templates (para tus facturas de venta) e Item Tax Templates (para items con tratamiento especial como IVA 0% o IEPS), y los asigna automáticamente a los Item Groups correspondientes.
 

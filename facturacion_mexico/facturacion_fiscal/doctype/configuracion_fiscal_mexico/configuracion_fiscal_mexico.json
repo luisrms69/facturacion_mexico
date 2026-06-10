@@ -141,6 +141,18 @@
    "fieldtype": "Section Break"
   },
   {
+   "fieldname": "section_precio_venta",
+   "label": "Política de Precios",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "sales_prices_include_tax",
+   "label": "Precios de venta incluyen impuestos",
+   "fieldtype": "Check",
+   "default": "0",
+   "description": "Cuando está activo, los STCT de venta generados por la app marcan el impuesto como incluido en el precio capturado (included_in_print_rate = 1). Active esto si sus precios de lista ya incluyen IVA. No modificar manualmente el STCT — regenerar desde aquí."
+  },
+  {
    "fieldname": "configuracion_completa",
    "label": "Configuración Completa",
    "fieldtype": "Check",

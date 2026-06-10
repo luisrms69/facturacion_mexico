@@ -264,9 +264,14 @@ def _get_iva_rates(
 # 	}
 
 
-def fila_iva_base(account_head: str, zona: str, tasa_valor: float, rol_fiscal: str) -> dict:
-	"""
-	IVA base sobre neto con charge_type dinámico desde tabla maestra.
+def fila_iva_base(
+	account_head: str,
+	zona: str,
+	tasa_valor: float,
+	rol_fiscal: str,
+	included_in_print_rate: int = 0,
+) -> dict:
+	"""IVA base sobre neto con charge_type dinámico desde tabla maestra.
 
 	La tasa se aplica aquí (valor), pero NO se escribe en la descripción.
 	Migración E1: Lee charge_type desde tabla maestra vía rol_fiscal.
@@ -276,6 +281,10 @@ def fila_iva_base(account_head: str, zona: str, tasa_valor: float, rol_fiscal: s
 		zona: "Nacional" o "Frontera"
 		tasa_valor: Tasa IVA numérica (16.0 o 8.0)
 		rol_fiscal: Rol fiscal para obtener charge_type dinámico (ROL_IVA_NAC, ROL_IVA_FRO)
+		included_in_print_rate: 1 si el precio de venta ya incluye este impuesto (precios con IVA
+		    incluido). Controlado por Configuracion Fiscal Mexico.sales_prices_include_tax.
+		    ITT define qué impuesto aplica; STCT define si se suma o va incluido en el precio.
+		    No modificar manualmente el STCT — regenerar desde Configuracion Fiscal Mexico.
 
 	Returns:
 		dict: Configuración fila impuesto para STCT
@@ -288,6 +297,7 @@ def fila_iva_base(account_head: str, zona: str, tasa_valor: float, rol_fiscal: s
 		"account_head": account_head,
 		"add_deduct_tax": "Add",
 		"category": "Valuation and Total",
+		"included_in_print_rate": included_in_print_rate,
 	}
 
 
@@ -452,7 +462,12 @@ def fila_iva_cascada_ieps(account_head: str, concepto_ieps: str, iva_rate: float
 # CONSTRUCCIÓN DE CADA VARIANTE (solo filas necesarias)
 # -----------------------------------------------------------
 def _build_rows(
-	company: str, zona: str, iva_rate: float, variant: str, mapeos_disponibles: dict
+	company: str,
+	zona: str,
+	iva_rate: float,
+	variant: str,
+	mapeos_disponibles: dict,
+	included_in_print_rate: int = 0,
 ) -> tuple[list[dict], list[str]]:
 	"""
 	Construye filas para variante STCT con generación parcial.
@@ -493,7 +508,7 @@ def _build_rows(
 
 	# IVA Base PRIMERO - truco ERPNext: primera fila con (account_head, add_deduct, charge_type) gana
 	# Si IVA Base está primero, ERPNext NO la reemplaza con filas del ITT
-	rows.append(fila_iva_base(iva_acc, zona, iva_rate, rol_iva))
+	rows.append(fila_iva_base(iva_acc, zona, iva_rate, rol_iva, included_in_print_rate))
 
 	# IEPS (parcial - agregar solo disponibles) + IVA cascada
 	if variant in ("IEPS", "Total"):
@@ -808,6 +823,7 @@ def generate_8_stct_for_company(
 	abbr: str | None = None,
 	iva_nacional_rate: float | None = None,
 	iva_frontera_rate: float | None = None,
+	sales_prices_include_tax: bool = False,
 ):
 	"""
 	Genera 8 STCT (Nacional/Frontera x Básico/IEPS/Retenciones/Total) con lógica parcial.
@@ -823,6 +839,9 @@ def generate_8_stct_for_company(
 		abbr: Company abbreviation (auto-detected if None)
 		iva_nacional_rate: IVA rate Nacional (auto-detected if None)
 		iva_frontera_rate: IVA rate Frontera (auto-detected if None)
+		sales_prices_include_tax: Si True, los STCT de venta se generan con
+			included_in_print_rate = 1 en la fila de IVA base — para empresas
+			cuya lista de precios ya incluye IVA. Default False.
 
 	Returns:
 		dict: {
@@ -874,7 +893,14 @@ def generate_8_stct_for_company(
 
 			try:
 				# PASO 3.1: Build rows con lógica parcial (retorna tuple)
-				rows, omitted = _build_rows(company, zona, rate, variant, mapeos_disponibles)
+				rows, omitted = _build_rows(
+					company,
+					zona,
+					rate,
+					variant,
+					mapeos_disponibles,
+					included_in_print_rate=1 if sales_prices_include_tax else 0,
+				)
 
 				# PASO 3.2: Verificar si hay filas para crear
 				if not rows:
