@@ -798,7 +798,7 @@
 		if (!is_egreso && frm.doc.fm_payment_method_sat === "PUE") {
 			if (
 				!frm.doc.fm_forma_pago_timbrado ||
-				frm.doc.fm_forma_pago_timbrado.startsWith("99 -")
+				frm.doc.fm_forma_pago_timbrado === "99 Por definir"
 			) {
 				frappe.throw(__("Para método PUE debe especificar una forma de pago específica"));
 			}
@@ -1493,7 +1493,7 @@
 				frm.set_value("fm_forma_pago_timbrado", "99 Por definir");
 				frappe.show_alert(
 					{
-						message: __("Forma de pago asignada automáticamente: 99 - Por definir"),
+						message: __("Forma de pago asignada automáticamente: 99 Por definir"),
 						indicator: "orange",
 					},
 					ALERT_DURATION_DEFAULT
@@ -1531,10 +1531,10 @@
 		let color = "blue";
 
 		if (method === "PUE") {
-			message = "PUE: Requiere forma de pago específica (no '99 - Por definir')";
+			message = "PUE: Requiere forma de pago específica (no '99 Por definir')";
 			color = "green";
 		} else if (method === "PPD") {
-			message = "PPD: Automáticamente usará '99 - Por definir' como forma de pago";
+			message = "PPD: Automáticamente usará '99 Por definir' como forma de pago";
 			color = "orange";
 		}
 
@@ -2582,7 +2582,7 @@ function validate_billing_data_visual(frm) {
 				frm.doc.fm_forma_pago_timbrado !== "99 Por definir"
 			) {
 				frm.set_value("fm_forma_pago_timbrado", "99 Por definir");
-				console.log("✅ FASE 4: Auto-asignado PPD - 99 - Por definir");
+				console.log("✅ FASE 4: Auto-asignado PPD - 99 Por definir");
 			}
 			return;
 		}

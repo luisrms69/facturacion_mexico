@@ -95,7 +95,7 @@ def crear_complemento_pago_desde_pe(payment_entry_name: str) -> dict:
 	return {"complemento_name": complemento.name}
 
 
-_PATRON_MOP_SAT = re.compile(r"^(\d{2}) (?!-).+$")
+_PATRON_MOP_SAT = re.compile(r"^(\d{2}) (?![-\s]).+$")
 
 
 def _resolver_forma_pago_sat(mode_of_payment: str | None) -> str:

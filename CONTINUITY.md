@@ -2,7 +2,7 @@
 
 **Fecha:** 2026-06-11
 **Rama activa:** `fix/mode-of-payment-formato-legacy`
-**Tarea actual:** PR abierto — fix Mode of Payment formato legacy
+**Tarea actual:** PR #191 — fixes post-CodeRabbit listos para merge
 
 ---
 
@@ -17,7 +17,7 @@ Merge del PR → deploy en staging ActiGlobal → verificación funcional → de
 cleanup one_off en producción.
 
 Objetivo inmediato:
-Merge de este PR. Los cambios ya fueron limpiados en todos los sites de desarrollo.
+Merge de PR #191. CI debe pasar tras el commit de fixes post-CodeRabbit.
 
 Criterio de avance:
 main con el fix. Complementos PPD funcionan con mode_of_payment "03 Transferencia".
@@ -30,7 +30,7 @@ main con el fix. Complementos PPD funcionan con mode_of_payment "03 Transferenci
 - ✅ PR #190 — UOM legacy + precios IVA incluido
 
 ### En progreso
-- PR fix/mode-of-payment-formato-legacy — abierto
+- PR #191 fix/mode-of-payment-formato-legacy — fixes post-review commiteados
 
 ### Pendiente inmediato post-merge
 1. Restore backup ActiGlobal producción → actiglobal-restore.dev
@@ -54,9 +54,11 @@ main con el fix. Complementos PPD funcionan con mode_of_payment "03 Transferenci
 ## Decisiones vigentes
 
 - Estándar único: "NN Descripción" sin guion para Mode of Payment
-- Regex: `^(\d{2}) (?!-).+$` rechaza explícitamente el guion
+- Regex: `^(\d{2}) (?![-\s]).+$` — rechaza guion Y doble espacio/tab
+- Validación PUE: `=== "99 Por definir"` (no startsWith — ver C1 del reporte CodeRabbit)
 - one_off cleanup_mop_canonical.py es el mecanismo para sitios existentes
 - UOM NO cambia fixture — normalización en código ya funciona para ambos formatos
+- Helper centralizado normalize_forma_pago_sat(): pendiente para PR posterior (C2 CodeRabbit)
 
 ---
 
@@ -65,3 +67,4 @@ main con el fix. Complementos PPD funcionan con mode_of_payment "03 Transferenci
 - LlantasCS-v16.dev: "99 - Por definir" tiene 6 FFMs referenciándolo — no se puede
   eliminar hasta que esas FFMs sean sustituidas o canceladas
 - ActiGlobal producción: requiere SCP del one_off script antes de poder ejecutar cleanup
+- test_issue162 sigue fallando en CI (pre-existente, no causado por este PR)
