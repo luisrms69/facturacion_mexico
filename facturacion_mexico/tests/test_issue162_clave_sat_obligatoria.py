@@ -212,11 +212,8 @@ class TestFFMValidateClavesSAT(FrappeTestCase):
 				],
 			}
 		)
-		frappe.flags.in_import = True
-		try:
-			si_ok.insert(ignore_permissions=True, ignore_mandatory=True, ignore_links=True)
-		finally:
-			frappe.flags.in_import = False
+		si_ok.flags.ignore_validate = True
+		si_ok.insert(ignore_permissions=True, ignore_mandatory=True, ignore_links=True)
 		cls.si_con_clave = si_ok.name
 
 		# SI para caso malo: se inserta mientras el item tiene clave SAT,
@@ -238,11 +235,8 @@ class TestFFMValidateClavesSAT(FrappeTestCase):
 				],
 			}
 		)
-		frappe.flags.in_import = True
-		try:
-			si_fail.insert(ignore_permissions=True, ignore_mandatory=True, ignore_links=True)
-		finally:
-			frappe.flags.in_import = False
+		si_fail.flags.ignore_validate = True
+		si_fail.insert(ignore_permissions=True, ignore_mandatory=True, ignore_links=True)
 		cls.si_sin_clave = si_fail.name
 
 		# Ahora eliminar la clave SAT del item — FFM.validate() leerá estado actual del Item
