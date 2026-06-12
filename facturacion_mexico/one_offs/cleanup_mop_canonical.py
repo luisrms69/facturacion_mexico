@@ -108,7 +108,7 @@ def run(dry_run: bool = True) -> None:
 			errors.append({"name": r["name"], "error": str(e)})
 			print(f"   ❌ Error al eliminar {r['name']}: {e}")
 
-	frappe.db.commit()
+	frappe.db.commit()  # nosemgrep: frappe-manual-commit — one_off script, commit intencional tras bulk delete
 
 	print(f"\n{'=' * 60}")
 	print(f"  Resultado: {len(deleted)} eliminados, {len(errors)} errores, {len(cannot_delete)} conservados")

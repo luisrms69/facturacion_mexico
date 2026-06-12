@@ -45,7 +45,7 @@ class TestValidateItemsClavesSATTimbrado(FrappeTestCase):
 				"stock_uom": "Nos",
 				"fm_producto_servicio_sat": "84111506",
 			}
-		).insert(ignore_permissions=True)
+		).insert(ignore_permissions=True, ignore_links=True)
 
 		cls.item_sin_clave = f"TEST-NOSAT-A-{suffix}"
 		frappe.get_doc(
@@ -160,7 +160,7 @@ class TestFFMValidateClavesSAT(FrappeTestCase):
 				"stock_uom": "Nos",
 				"fm_producto_servicio_sat": "84111506",
 			}
-		).insert(ignore_permissions=True)
+		).insert(ignore_permissions=True, ignore_links=True)
 
 		# Item para el caso malo: se crea con clave para poder insertar el SI;
 		# la clave se elimina DESPUÉS de crear el SI para simular dato corrupto.
@@ -174,7 +174,7 @@ class TestFFMValidateClavesSAT(FrappeTestCase):
 				"stock_uom": "Nos",
 				"fm_producto_servicio_sat": "84111506",
 			}
-		).insert(ignore_permissions=True)
+		).insert(ignore_permissions=True, ignore_links=True)
 
 		# Company, Customer y Cost Center mínimos para crear SI
 		cls.company = frappe.db.get_value("Company", {}, "name") or "_Test Company"
