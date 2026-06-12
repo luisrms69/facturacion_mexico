@@ -813,15 +813,15 @@ class TimbradoAPI:
 
 		# Prioridad 1: Campo fm_forma_pago_timbrado de Factura Fiscal Mexico
 		if fiscal_doc.get("fm_forma_pago_timbrado"):
-			# Extraer código SAT del formato "01 - Efectivo"
-			mode_parts = fiscal_doc.fm_forma_pago_timbrado.split(" - ")
-			if len(mode_parts) >= 2 and mode_parts[0].strip().isdigit():
-				return mode_parts[0].strip()
+			# Extraer código SAT — formato estándar: "01 Efectivo" (primeros 2 chars)
+			candidate = fiscal_doc.fm_forma_pago_timbrado[:2].strip()
+			if candidate.isdigit():
+				return candidate
 
 		# Prioridad 2: Lógica basada en método de pago SAT SOLO para PPD
 		if fiscal_doc.get("fm_payment_method_sat"):
 			if fiscal_doc.fm_payment_method_sat == "PPD":
-				# PPD siempre usa "99 - Por definir"
+				# PPD siempre usa "99 Por definir"
 				return "99"
 
 		# Si no hay forma de pago definida, lanzar error - NO usar defaults

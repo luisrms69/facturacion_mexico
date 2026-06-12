@@ -95,17 +95,20 @@ def crear_complemento_pago_desde_pe(payment_entry_name: str) -> dict:
 	return {"complemento_name": complemento.name}
 
 
-_PATRON_MOP_SAT = re.compile(r"^(\d{2}) - .+$")
+_PATRON_MOP_SAT = re.compile(r"^(\d{2}) (?!-).+$")
 
 
 def _resolver_forma_pago_sat(mode_of_payment: str | None) -> str:
 	"""Resuelve el código SAT de Forma de Pago desde un Mode of Payment del fixture del app.
 
+	Formato estándar del app: "NN Descripción" (sin guion).
+	Ejemplos: "03 Transferencia electrónica de fondos", "99 Por definir".
+
 	Validaciones en orden:
 	1. mode_of_payment no vacío
 	2. Mode of Payment existe en BD
 	3. Mode of Payment está habilitado
-	4. Nombre cumple patrón estricto ^(\\d{2}) - .+$
+	4. Nombre cumple patrón estricto ^(\\d{2})\\s+.+$ (dos dígitos + espacio + descripción)
 	5. Código extraído existe en DocType 'Forma Pago SAT'
 
 	Sin fallback. Sin inferencia. Falla explícitamente si el MoP no
@@ -140,7 +143,7 @@ def _resolver_forma_pago_sat(mode_of_payment: str | None) -> str:
 	if not match:
 		frappe.throw(
 			_(
-				"El modo de pago '{0}' no corresponde al catálogo SAT. Use un modo de pago con formato 'NN - Descripción' (ejemplo: '03 - Transferencia electrónica de fondos')."
+				"El modo de pago '{0}' no corresponde al catálogo SAT. Use un modo de pago con formato 'NN Descripción' (ejemplo: '03 Transferencia electrónica de fondos')."
 			).format(mode_of_payment),
 			frappe.ValidationError,
 			title=_("Modo de Pago No Compatible con SAT"),

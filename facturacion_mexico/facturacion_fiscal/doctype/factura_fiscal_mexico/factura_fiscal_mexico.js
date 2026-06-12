@@ -1436,7 +1436,7 @@
 			title = "✅ Método cambiado a PPD";
 			message = `
 			<strong>Pago en Parcialidades o Diferido (PPD)</strong><br>
-			• Forma de pago se asignó automáticamente a "99 - Por definir"<br>
+			• Forma de pago se asignó automáticamente a "99 Por definir"<br>
 			• Campo "Forma de pago para Timbrado" se ocultó (no aplica para PPD)<br>
 			• Este método es para facturas con términos de pago diferido
 		`;
@@ -1447,7 +1447,7 @@
 			<strong>Pago en Una Exhibición (PUE)</strong><br>
 			• Debe especificar una forma de pago específica<br>
 			• Campo "Forma de pago para Timbrado" ahora es visible<br>
-			• NO puede usar "99 - Por definir" para PUE
+			• NO puede usar "99 Por definir" para PUE
 		`;
 			indicator = "green";
 		}
@@ -1479,7 +1479,7 @@
 		}
 
 		if (payment_method === "PPD") {
-			// Para PPD: Ocultar campo y asignar "99 - Por definir"
+			// Para PPD: Ocultar campo y asignar "99 Por definir"
 			frm.set_df_property("fm_forma_pago_timbrado", "hidden", 1);
 
 			// Remover filtros para PPD (todas las opciones disponibles)
@@ -1489,8 +1489,8 @@
 
 			// Only assign and alert if the value is not yet set.
 			// Prevents repeated notice on each refresh of an already stamped PPD.
-			if (frm.doc.fm_forma_pago_timbrado !== "99 - Por definir") {
-				frm.set_value("fm_forma_pago_timbrado", "99 - Por definir");
+			if (frm.doc.fm_forma_pago_timbrado !== "99 Por definir") {
+				frm.set_value("fm_forma_pago_timbrado", "99 Por definir");
 				frappe.show_alert(
 					{
 						message: __("Forma de pago asignada automáticamente: 99 - Por definir"),
@@ -1500,18 +1500,18 @@
 				);
 			}
 		} else if (payment_method === "PUE") {
-			// Para PUE: Mostrar campo y filtrar opciones (sin "99 - Por definir")
+			// Para PUE: Mostrar campo y filtrar opciones (sin "99 Por definir")
 			frm.set_df_property("fm_forma_pago_timbrado", "hidden", 0);
 
-			// Filtrar Mode of Payment para excluir "99 - Por definir"
+			// Filtrar Mode of Payment para excluir "99 Por definir"
 			frm.set_query("fm_forma_pago_timbrado", function () {
 				return {
-					filters: [["Mode of Payment", "name", "!=", "99 - Por definir"]],
+					filters: [["Mode of Payment", "name", "!=", "99 Por definir"]],
 				};
 			});
 
-			// Limpiar si tenía "99 - Por definir"
-			if (frm.doc.fm_forma_pago_timbrado === "99 - Por definir") {
+			// Limpiar si tenía "99 Por definir"
+			if (frm.doc.fm_forma_pago_timbrado === "99 Por definir") {
 				frm.set_value("fm_forma_pago_timbrado", "");
 
 				frappe.show_alert(
@@ -2427,7 +2427,7 @@ function validate_billing_data_visual(frm) {
 			`🔍 FASE 4: Verificando consistencia Payment Entry para documento existente ${frm.doc.name}`
 		);
 
-		// Solo verificar para PUE (PPD siempre usa "99 - Por definir")
+		// Solo verificar para PUE (PPD siempre usa "99 Por definir")
 		if (frm.doc.fm_payment_method_sat === "PUE") {
 			// Buscar Payment Entry relacionada
 			frappe.call({
@@ -2567,7 +2567,7 @@ function validate_billing_data_visual(frm) {
 		 *
 		 * Lógica según especificación:
 		 * - PUE: Buscar Payment Entry relacionada y auto-cargar mode_of_payment
-		 * - PPD: Siempre usar "99 - Por definir"
+		 * - PPD: Siempre usar "99 Por definir"
 		 * - Solo auto-cargar si campo está vacío (no sobrescribir selección manual)
 		 */
 		if (!frm.doc.sales_invoice || !frm.doc.fm_payment_method_sat) {
@@ -2575,13 +2575,13 @@ function validate_billing_data_visual(frm) {
 			return;
 		}
 
-		// Para PPD: Siempre asignar "99 - Por definir"
+		// Para PPD: Siempre asignar "99 Por definir"
 		if (frm.doc.fm_payment_method_sat === "PPD") {
 			if (
 				!frm.doc.fm_forma_pago_timbrado ||
-				frm.doc.fm_forma_pago_timbrado !== "99 - Por definir"
+				frm.doc.fm_forma_pago_timbrado !== "99 Por definir"
 			) {
-				frm.set_value("fm_forma_pago_timbrado", "99 - Por definir");
+				frm.set_value("fm_forma_pago_timbrado", "99 Por definir");
 				console.log("✅ FASE 4: Auto-asignado PPD - 99 - Por definir");
 			}
 			return;
