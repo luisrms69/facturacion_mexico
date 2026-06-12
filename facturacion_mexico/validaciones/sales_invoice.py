@@ -20,10 +20,10 @@ def validate_ppd_vs_forma_pago(doc, method):
 				payment_entry = frappe.get_doc("Payment Entry", payment_ref.parent)
 
 				if payment_entry.mode_of_payment:
-					# Extraer código SAT del Mode of Payment (formato: "01 - Efectivo")
-					mode_parts = payment_entry.mode_of_payment.split(" - ")
-					if len(mode_parts) >= 2 and mode_parts[0].isdigit():
-						forma_pago_sat = mode_parts[0]
+					# Extraer código SAT del Mode of Payment (formato: "01 Efectivo")
+					candidate = payment_entry.mode_of_payment[:2]
+					if candidate.isdigit():
+						forma_pago_sat = candidate
 						break
 
 	if not forma_pago_sat:

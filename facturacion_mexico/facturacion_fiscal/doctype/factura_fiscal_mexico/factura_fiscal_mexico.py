@@ -370,7 +370,7 @@ class FacturaFiscalMexico(Document):
 
 		if nota_total <= origin_outstanding:
 			# Credit fully absorbed by pending debt — no real refund
-			self.fm_forma_pago_timbrado = "15 - Condonación"
+			self.fm_forma_pago_timbrado = "15 Condonación"
 
 		elif origin_outstanding == 0:
 			# Origin fully paid — inherit origin payment form as best available proxy.
@@ -382,7 +382,7 @@ class FacturaFiscalMexico(Document):
 		else:
 			# Mixed case: nota exceeds pending debt partially.
 			# Use 15 as safe default pending business policy definition.
-			self.fm_forma_pago_timbrado = "15 - Condonación"
+			self.fm_forma_pago_timbrado = "15 Condonación"
 
 	def _find_uuid_cfdi_origen(self) -> str | None:
 		"""Buscar el UUID del CFDI original para esta nota de crédito.
@@ -778,7 +778,7 @@ class FacturaFiscalMexico(Document):
 		- Si no existe: Dejar vacío para selección manual
 
 		Para método PPD:
-		- Siempre asignar "99 - Por definir"
+		- Siempre asignar "99 Por definir"
 		"""
 		if not self.sales_invoice or not self.fm_payment_method_sat:
 			return
@@ -790,10 +790,10 @@ class FacturaFiscalMexico(Document):
 				self._auto_populate_forma_pago_tipo_e()
 			return
 
-		# Para PPD: Siempre asignar "99 - Por definir"
+		# Para PPD: Siempre asignar "99 Por definir"
 		if self.fm_payment_method_sat == "PPD":
-			if not self.fm_forma_pago_timbrado or self.fm_forma_pago_timbrado != "99 - Por definir":
-				self.fm_forma_pago_timbrado = "99 - Por definir"
+			if not self.fm_forma_pago_timbrado or self.fm_forma_pago_timbrado != "99 Por definir":
+				self.fm_forma_pago_timbrado = "99 Por definir"
 				frappe.logger().info(f"Auto-asignado PPD: 99 - Por definir para {self.name}")
 			return
 
@@ -906,10 +906,10 @@ class FacturaFiscalMexico(Document):
 					payment_entry = frappe.get_doc("Payment Entry", payment_ref.parent)
 
 					if payment_entry.mode_of_payment:
-						# Extraer código SAT del Mode of Payment (formato: "01 - Efectivo")
-						mode_parts = payment_entry.mode_of_payment.split(" - ")
-						if len(mode_parts) >= 2 and mode_parts[0].isdigit():
-							forma_pago_sat = mode_parts[0]
+						# Extraer código SAT del Mode of Payment (formato: "01 Efectivo")
+						candidate = payment_entry.mode_of_payment[:2]
+						if candidate.isdigit():
+							forma_pago_sat = candidate
 							break
 
 		if not forma_pago_sat:
@@ -923,7 +923,7 @@ class FacturaFiscalMexico(Document):
 			if forma_pago_sat != "99":
 				frappe.throw(
 					_(
-						f"Para facturas PPD (Pago en Parcialidades) solo se permite '99 - Por definir'. "
+						f"Para facturas PPD (Pago en Parcialidades) solo se permite '99 Por definir'. "
 						f"Forma de pago detectada: {forma_pago_sat}"
 					),
 					title=_("Error Validación PPD"),
@@ -933,7 +933,7 @@ class FacturaFiscalMexico(Document):
 			if forma_pago_sat == "99":
 				frappe.throw(
 					_(
-						"Para facturas PUE (Pago Una Exhibición) no se permite '99 - Por definir'. "
+						"Para facturas PUE (Pago Una Exhibición) no se permite '99 Por definir'. "
 						"Debe seleccionar una forma de pago específica (01, 02, 03, etc.)"
 					),
 					title=_("Error Validación PUE"),

@@ -1,61 +1,70 @@
 # CONTINUITY.md — facturacion_mexico
 
-**Fecha:** 2026-06-10
-**Rama activa:** `fix/uom-legacy-y-precios-iva-incluido`
-**Tarea actual:** PR abierto — UOM legacy + precios IVA incluido
+**Fecha:** 2026-06-11
+**Rama activa:** `fix/mode-of-payment-formato-legacy`
+**Tarea actual:** PR #191 — fixes post-CodeRabbit listos para merge
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-PR con dos fixes críticos para migración de sitios desde facturacion_mx:
-1. Normalización de UOM legacy (H87 Pieza → H87) en payload fiscal
-2. Soporte configurable para precios de venta con IVA incluido
+Estandarización del formato de Mode of Payment a "NN Descripción" (sin guion) para
+alinear el app con el formato real de los datos históricos migrados desde facturacion_mx.
 
 Plan que estoy siguiendo:
-Merge del PR → sync-check → continuar con configuración LlantasCS.
+Merge del PR → deploy en staging ActiGlobal → verificación funcional → deploy producción →
+cleanup one_off en producción.
 
 Objetivo inmediato:
-Merge de este PR. Los dos cambios ya están probados en llantascs-v16.dev.
+Merge de PR #191. CI debe pasar tras el commit de fixes post-CodeRabbit.
 
 Criterio de avance:
-main con ambos fixes. Timbrado funciona en sitios legacy y con precios IVA incluido.
+main con el fix. Complementos PPD funcionan con mode_of_payment "03 Transferencia".
 
 ---
 
 ## Estado actual
 
 ### Ya cerrado
-- ✅ PR #185 — fix install + wizard + addendas
-- ✅ PR #187 — fix departamentos grupo CFDI Recibidos
-- ✅ PR #189 — fix workspace shortcuts + visual
+- ✅ PR #190 — UOM legacy + precios IVA incluido
 
 ### En progreso
-- PR fix/uom-legacy-y-precios-iva-incluido — abierto
+- PR #191 fix/mode-of-payment-formato-legacy — fixes post-review commiteados
 
-### Pendiente inmediato
-1. Merge este PR
-2. Configurar Cost Centers/Branches restantes en llantascs-v16.dev
-3. Restore ACG producción (pendiente)
-4. Issue #188 — Fase 2 workspace (KPIs, gráficas)
+### Pendiente inmediato post-merge
+1. Restore backup ActiGlobal producción → actiglobal-restore.dev
+2. Deploy nuevo código en restore.dev + migrate + build
+3. Dry-run cleanup_mop_canonical en restore.dev
+4. Cleanup real en restore.dev
+5. Verificación funcional (PE + complemento PPD)
+6. Si pasa → deploy producción ActiGlobal
+7. Subir one_off al servidor producción vía SCP
+8. Dry-run + cleanup en producción
+9. Backup nuevo post-cambio
 
 ### No repetir
-- UOM del payload usa net_rate (no rate) — correcto para ambos casos (con/sin IVA incluido)
-- base_iva_unitaria también debe usar net_rate
-- sales_prices_include_tax vive en Configuracion Fiscal Mexico, no en STCT directamente
+- "99 - Por definir" (con guion) ya no es el estándar — usar "99 Por definir"
+- cleanup_mop_canonical.py requiere dry_run primero antes de ejecución real
+- LlantasCS staging: "99 - Por definir" conservado (tiene 6 FFMs referenciándolo)
+- ignore_links=True nunca en delete_doc de Mode of Payment
 
 ---
 
 ## Decisiones vigentes
 
-- Normalización UOM: primera fila antes de " - " o antes de espacio → código SAT
-- "Pieza" sin prefijo código SAT falla (correcto — no es un código SAT válido)
-- net_rate es siempre el valor correcto para el CFDI independientemente de included_in_print_rate
+- Estándar único: "NN Descripción" sin guion para Mode of Payment
+- Regex: `^(\d{2}) (?![-\s]).+$` — rechaza guion Y doble espacio/tab
+- Validación PUE: `=== "99 Por definir"` (no startsWith — ver C1 del reporte CodeRabbit)
+- one_off cleanup_mop_canonical.py es el mecanismo para sitios existentes
+- UOM NO cambia fixture — normalización en código ya funciona para ambos formatos
+- Helper centralizado normalize_forma_pago_sat(): pendiente para PR posterior (C2 CodeRabbit)
 
 ---
 
 ## Riesgos
 
-- llantascs-v16.dev: Cost Centers sin Branch mapeado en otras sucursales (pendiente configurar)
-- Issue #186: IEPS combustibles — pendiente investigación
+- LlantasCS-v16.dev: "99 - Por definir" tiene 6 FFMs referenciándolo — no se puede
+  eliminar hasta que esas FFMs sean sustituidas o canceladas
+- ActiGlobal producción: requiere SCP del one_off script antes de poder ejecutar cleanup
+- test_issue162 sigue fallando en CI (pre-existente, no causado por este PR)
