@@ -106,6 +106,7 @@
   "sort_field": "modified",
   "sort_order": "DESC",
   "states": [],
+  "search_fields": "description",
   "title_field": "description",
   "track_changes": 1
 }

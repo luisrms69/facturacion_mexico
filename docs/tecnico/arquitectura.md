@@ -93,6 +93,27 @@ Payment Entry (submit)
 
 ---
 
+## Campos nativos de Factura Fiscal Mexico (DocType JSON)
+
+Campos relevantes definidos directamente en el JSON del DocType (no como Custom Fields):
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| `fm_uuid` | Data | UUID SAT del CFDI |
+| `fm_creation_source` | Select | Origen: `Timbrado directo` / `Migración legacy facturacion_mx` / `Manual`. Default: `Timbrado directo`. Permite identificar FFMs creadas por migración histórica. |
+| `fm_xml_url` | Small Text | URL de verificación SAT (>140 chars — requiere Small Text, no Data) |
+| `fm_serie_folio` | Data | Serie-Folio concatenados (ej: `F-6989`) — usado por complementos PPD |
+| `fm_sync_status` | Select | Estado sincronización PAC: `synced` / `pending` / `error` |
+| `fm_payment_method_sat` | Select | `PUE` o `PPD` |
+
+## API endpoints whitelisted — timbrado_api.py
+
+| Función | Módulo | Descripción |
+|---|---|---|
+| `timbrar_factura` | `timbrado_api` | Timbra CFDI desde SI |
+| `cancelar_factura` | `timbrado_api` | Cancela CFDI con motivo SAT |
+| `descargar_archivos_cfdi` | `timbrado_api` | Descarga PDF+XML desde FacturAPI y los adjunta al FFM. Wrapper de `TimbradoAPI._download_fiscal_files()` — no duplica lógica. |
+
 ## Integraciones externas
 
 | Sistema | Uso | Configuración |
