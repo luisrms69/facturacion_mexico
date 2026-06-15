@@ -113,7 +113,7 @@ def _compute_actions(facts: dict) -> dict:
 		facts["is_submitted"]
 		and facts["is_timbrado"]
 		and facts["has_uuid"]
-		and facts["fm_creation_source"] == "Timbrado directo"
+		and facts.get("fm_creation_source", "Timbrado directo") == "Timbrado directo"
 	)
 
 	can_retry_cancel = facts["is_submitted"] and facts["is_pendiente_cancelacion"]
