@@ -473,7 +473,15 @@ def cancelar_complemento_pago(complemento_name: str, motivo: str = "02") -> dict
 
 @frappe.whitelist()
 def revisar_estatus_cancelacion_complemento(complemento_name: str) -> dict:
-	"""Consulta FacturAPI para actualizar estado de cancelación pendiente."""
+	"""
+	Polls FacturAPI for the current cancellation status of a pending complement and updates the document.
+	
+	Parameters:
+	    complemento_name (str): Name of the Complemento Pago MX document in "Pendiente Cancelación" status.
+	
+	Returns:
+	    dict: Contains "status" key with the new cancellation status.
+	"""
 	from facturacion_mexico.facturacion_fiscal.api_client import get_facturapi_client
 
 	comp = frappe.get_doc("Complemento Pago MX", complemento_name)
@@ -535,7 +543,26 @@ def revisar_estatus_cancelacion_complemento(complemento_name: str) -> dict:
 
 @frappe.whitelist()
 def action_send_email_complemento(complemento_name: str, to: str | None = None) -> dict:
-	"""Envía el Complemento de Pago por email via FacturAPI. Equivalente al botón en FFM."""
+	"""
+	Send a Payment Complement via email using FacturAPI.
+	
+	Resolves the recipient email from the provided parameter, or falls back to the Payment
+	Entry contact email and then the customer email if available. The complement must be
+	timbrado (have a UUID SAT) and have a FacturAPI ID.
+	
+	Parameters:
+		to (str, optional): Email recipient. If not provided, resolves from Payment Entry
+			contact or customer email. Defaults to None.
+	
+	Returns:
+		dict: Result dictionary with "sent" key (bool). On success, includes "to" with the
+			email address. On failure, includes "reason" key with value "no-recipient" if
+			no email could be determined, or "error" key with the error message.
+	
+	Raises:
+		frappe.PermissionError: If the user lacks write permission on the document.
+		frappe.ValidationError: If the complement lacks a UUID SAT or FacturAPI ID.
+	"""
 	comp = frappe.get_doc("Complemento Pago MX", complemento_name)
 	frappe.has_permission(doctype="Complemento Pago MX", ptype="write", doc=comp, throw=True)
 
@@ -576,7 +603,15 @@ def action_send_email_complemento(complemento_name: str, to: str | None = None) 
 
 @frappe.whitelist()
 def descargar_archivos_complemento(complemento_name: str) -> dict:
-	"""Descarga manual de PDF/XML — equivalente al botón en FFM."""
+	"""
+	Downloads and attaches PDF and XML files from FacturAPI for a payment complement.
+	
+	Parameters:
+		complemento_name (str): Name of the Complemento Pago MX document.
+	
+	Returns:
+		dict: A dictionary with `success` set to `True`.
+	"""
 	comp = frappe.get_doc("Complemento Pago MX", complemento_name)
 	if not comp.facturapi_id:
 		frappe.throw(_("El complemento no tiene ID de FacturAPI."))

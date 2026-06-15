@@ -210,7 +210,20 @@ class PACResponseWriter:
 		response_data: dict[str, Any],
 		operation_type: str,
 	) -> Any | None:
-		"""Escribir a FacturAPI Response Log en BD."""
+		"""
+		Write a PAC response to the FacturAPI Response Log database table.
+		
+		Creates a FacturAPI Response Log record containing the PAC response, request metadata, status code, and error information. Attempts to attach the response JSON as a file; file attachment failures do not prevent the log record from being created. Database changes are committed immediately to ensure persistence.
+		
+		Parameters:
+			sales_invoice_name (str): The sales invoice associated with the PAC response.
+			request_data (dict): The request data sent to the PAC provider.
+			response_data (dict): The response received from the PAC provider.
+			operation_type (str): The PAC operation type (timbrado, cancelacion, consulta, or timeout_recovery).
+		
+		Returns:
+			The created FacturAPI Response Log document, or None if creation fails.
+		"""
 		# Obtener referencia a Factura Fiscal Mexico si existe
 		factura_fiscal = frappe.db.get_value(
 			"Factura Fiscal Mexico", {"sales_invoice": sales_invoice_name}, "name"

@@ -105,7 +105,12 @@ def _compute_facts(comp) -> dict:
 
 
 def _compute_actions(facts: dict) -> dict:
-	"""Deriva acciones posibles desde facts. No consulta BD."""
+	"""
+	Compute permitted actions for a Complemento Pago MX document based on fiscal facts.
+	
+	Returns:
+	    dict: A mapping of action names to boolean flags. Keys include `can_stamp`, `can_cancel`, `can_retry_cancel`, `can_download_xml`, `can_download_pdf`, `can_send_email`, and `can_view_payment_entry`. Each boolean indicates whether that action is permitted for the document.
+	"""
 
 	can_stamp = facts["is_draft"] and facts["status"] in _TIMBRABLE_STATUSES
 

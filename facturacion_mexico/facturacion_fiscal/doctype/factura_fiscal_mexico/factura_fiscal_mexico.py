@@ -646,7 +646,12 @@ class FacturaFiscalMexico(Document):
 			frappe.log_error(f"Error creating fiscal event: {e!s}", "Fiscal Event Creation Error")
 
 	def _log_event_to_response_log(self, event_type, event_data):
-		"""Fallback: usar Response Log para eventos fiscales."""
+		"""
+		Records a fiscal event to the response log when the Fiscal Event MX DocType is unavailable.
+		
+		Serializes the event data and writes it to the response log for audit purposes. Errors during logging are captured and
+		recorded without interrupting the document workflow.
+		"""
 		try:
 			import json
 

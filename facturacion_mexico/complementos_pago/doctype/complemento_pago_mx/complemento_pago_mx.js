@@ -22,7 +22,9 @@ frappe.ui.form.on("Complemento Pago MX", {
 	},
 });
 
-// ── Aplicar botones desde fiscal_state ─────────────────────────────────────
+/**
+ * Configures custom action buttons based on fiscal state flags.
+ */
 
 function _apply_buttons(frm, actions) {
 	if (actions.can_stamp) _setup_timbrar_btn(frm);
@@ -74,7 +76,9 @@ function _setup_status_indicators(frm) {
 	}
 }
 
-// ── Ocultar acciones estándar de Frappe (sin cambio) ───────────────────────
+/**
+ * Suppresses Frappe's standard submit, cancel, and amend UI buttons.
+ */
 
 function _hide_standard_actions(frm) {
 	if (frm.page && frm.page.btn_primary) frm.page.btn_primary.addClass("hidden");
@@ -177,6 +181,13 @@ function _setup_revisar_estatus_btn(frm) {
 	}).addClass("btn-warning");
 }
 
+/**
+ * Adds a button to request cancellation of a payment complement with SAT.
+ *
+ * The button is only available if the user has cancel permissions. When clicked, it prompts the
+ * user to select a SAT-required cancellation motive, requests confirmation, and sends the
+ * cancellation request to SAT.
+ */
 function _setup_cancelar_btn(frm) {
 	// Rol controlado por DocPerm de Frappe (configurable por cliente)
 	if (!frappe.model.can_cancel("Complemento Pago MX")) return;
@@ -228,6 +239,9 @@ function _setup_cancelar_btn(frm) {
 	}).addClass("btn-danger");
 }
 
+/**
+ * Adds a button to send the complemento via email.
+ */
 function _setup_email_btn(frm) {
 	frm.add_custom_button(
 		__("Enviar por email"),
@@ -264,6 +278,9 @@ function _setup_email_btn(frm) {
 	);
 }
 
+/**
+ * Enables downloading the PDF and XML files for the Complemento Pago.
+ */
 function _setup_descargar_btn(frm) {
 	frm.add_custom_button(__("Descargar PDF+XML"), function () {
 		frappe.call({
