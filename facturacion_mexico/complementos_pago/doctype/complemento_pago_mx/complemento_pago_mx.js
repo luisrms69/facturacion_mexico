@@ -79,17 +79,39 @@ function _setup_status_indicators(frm) {
 function _hide_standard_actions(frm) {
 	if (frm.page && frm.page.btn_primary) frm.page.btn_primary.addClass("hidden");
 	frm.page.wrapper.find('.btn[data-label="Submit"]').addClass("hidden");
-	if (frm.page && frm.page.btn_cancel) frm.page.btn_cancel.addClass("hidden");
-	frm.page.wrapper.find('.btn[data-label="Cancel"]').addClass("hidden");
-	frm.page.wrapper
-		.find('.btn[data-label="Amend"], .btn[data-label="Corregir"]')
-		.addClass("hidden");
-	frm.page.wrapper
-		.find(
-			'.menu-items .dropdown-item:contains("Amend"), .menu-items .dropdown-item:contains("Corregir")'
-		)
-		.addClass("disabled")
-		.css("pointer-events", "none");
+
+	// Eliminar botón nativo Cancel/Cancelar — la cancelación fiscal va por el botón custom.
+	// Frappe puede reinyectarlo tras renders asíncronos, por eso se ejecuta 3 veces.
+	const nukeCancel = () => {
+		try {
+			frm.perm ||= [];
+			frm.perm[0] ||= {};
+			frm.perm[0].cancel = 0;
+			frm.perm[0].amend = 0;
+			frm.toolbar && frm.toolbar.refresh && frm.toolbar.refresh();
+
+			frm.page.remove_menu_item && frm.page.remove_menu_item("Cancel");
+			frm.page.remove_menu_item && frm.page.remove_menu_item(__("Cancel"));
+			frm.page.remove_menu_item && frm.page.remove_menu_item("Cancelar");
+			frm.page.remove_menu_item && frm.page.remove_menu_item("Amend");
+			frm.page.remove_menu_item && frm.page.remove_menu_item(__("Amend"));
+			frm.page.remove_menu_item && frm.page.remove_menu_item(__("Corregir"));
+
+			const $menu = frm.page.menu || frm.page.actions_menu;
+			if ($menu && $menu.length) {
+				$menu.find("a, .dropdown-item, .menu-item").each(function () {
+					const t = (this.innerText || "").trim().toUpperCase();
+					if (["CANCEL", "CANCELAR", "AMEND", "CORREGIR"].includes(t)) this.remove();
+				});
+			}
+		} catch (e) {
+			/* ignorar */
+		}
+	};
+
+	nukeCancel();
+	setTimeout(nukeCancel, 0);
+	frappe.after_ajax && frappe.after_ajax(nukeCancel);
 }
 
 // ── Botones — callbacks sin cambio ─────────────────────────────────────────
