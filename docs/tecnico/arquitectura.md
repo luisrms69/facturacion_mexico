@@ -106,6 +106,12 @@ Campos relevantes definidos directamente en el JSON del DocType (no como Custom 
 | `fm_sync_status` | Select | Estado sincronización PAC: `synced` / `pending` / `error` |
 | `fm_payment_method_sat` | Select | `PUE` o `PPD` |
 
+### Complemento Pago MX — campos propios del DocType
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| `fm_creation_source` | Select | Origen: `Timbrado directo` / `Migración legacy facturacion_mx` / `Manual`. Solo complementos con `Timbrado directo` permiten cancelación desde la UI. |
+
 ## API endpoints whitelisted — timbrado_api.py
 
 | Función | Módulo | Descripción |

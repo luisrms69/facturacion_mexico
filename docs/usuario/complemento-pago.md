@@ -42,6 +42,18 @@ O desde el Payment Entry, campo `fm_complemento_pago` → link al complemento.
 
 ---
 
+## Complementos migrados del sistema legacy
+
+Los complementos creados durante la migración desde `facturacion_mx` muestran
+**Origen de Creación = Migración legacy facturacion_mx** en el campo `fm_creation_source`.
+
+El botón **Cancelar Complemento** no está disponible para estos registros —
+la cancelación debe gestionarse directamente en el portal del SAT o a través del equipo técnico.
+
+Los complementos nuevos creados por el sistema muestran `Timbrado directo` y sí permiten cancelación desde la UI.
+
+---
+
 ## Troubleshooting
 
 **El complemento no se generó al hacer Submit:**

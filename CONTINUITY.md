@@ -2,85 +2,90 @@
 
 **Fecha:** 2026-06-14
 **Rama activa:** `feat/ffm-migracion-legacy-fase2`
-**Tarea actual:** Migración histórica FFM legacy → facturacion_mexico (Fase 2 Grupo 1 completo)
+**Tarea actual:** Migración complementos PPD legacy → Complemento Pago MX (fase 2)
 
 ---
 
 ## Recuperación rápida
 
-Estoy trabajando en la migración de CFDIs históricos de `facturacion_mx` (legacy) a
-`facturacion_mexico` (nuevo). El Grupo 1 (10,924 FFMs) está completamente migrado y auditado.
+Estoy trabajando en:
+Migración de Complementos de Pago PPD del sistema legacy `facturacion_mx` al nuevo DocType `Complemento Pago MX` en `facturacion_mexico`. Site de trabajo: `llantascs-mig.local`.
 
 Plan que estoy siguiendo:
-`working_docs/active/REPORTE_MIGRACION_GRUPO1_COMPLETO.md`
+`working_docs/active/PLAN_MIGRACION_COMPLEMENTOS_PPD.md`
 
 Objetivo inmediato:
-Abrir PR para los cambios de código de la Fase 2. Luego procesar pendientes (Grupo 2, duplicados).
+Pendiente decidir con el cliente los casos especiales (PUE, cancelados, mixtos, folios sin legacy).
 
 Criterio de avance:
-PR mergeado + pendientes clasificados para próxima sesión.
+Todos los complementos PPD válidos migrados, pendientes documentados y entregados al cliente.
 
 ---
 
 ## Estado actual
 
 ### Ya cerrado
-- Fase 1: 1,790 items (fm_producto_servicio_sat) + 1,432 customers (fm_uso_cfdi_default)
-- Grupo 1 Fase 2: 10,924 FFMs creadas — 0 errores — auditoría 14/14 OK
-- Fix fm_xml_url → Small Text (URLs SAT >140 chars)
-- Fix botón Descargar PDF+XML → descargar_archivos_cfdi() en timbrado_api.py
-- +fm_creation_source en FFM DocType JSON
-- +Método de Pago en widget fiscal de Sales Invoice
+- 3,545 CPMX creados en `llantascs-mig.local` (`COMP-PAY-MX-HIST-2026-00001` a `03545`)
+  - 3,363 Grupo Directo (1 IO, PPD, valid/none, con FFM)
+  - 182 Grupo Multi-IO (PPD vigentes, mismo UUID, confirmados por FacturAPI)
+- Auditoría aprobada: 0 duplicados, 0 errores, 0 PE inválidos
+- Campo `fm_creation_source` en CPMX — commiteado en este turno
+- Documentación actualizada: `arquitectura.md` + `complemento-pago.md`
+- Análisis completo de los 346 multi-IO clasificados y documentados
+- 7 folios faltantes vs FacturAPI investigados y documentados
 
 ### En progreso
-- PR feat/ffm-migracion-legacy-fase2 → pendiente push y apertura
+- Nada en ejecución activa
 
 ### Pendiente inmediato
-1. `/ship push` + `/ship pr`
-2. Grupo 2 (46 dudosos) — procesar con `verify_api=True`
-3. 636 SIs con múltiples Invoice Objects — revisión manual
-4. 611 UUIDs duplicados en dataset — revisar si corresponde misma SI
+1. Entregar al cliente tabla de 25 PUE vigentes para cancelación ante SAT
+2. Cliente decide los 10 PPD cancelados (¿sustituto o definitivo?)
+3. Cliente decide los 5 mixtos PPD+PUE (¿cancelar o mantener?)
+4. Cliente decide P-57, P-2595/2596, P-3235 (folios sin legacy)
+5. Export de fixtures tras bench migrate (campo fm_creation_source en CPMX)
+6. PR de esta rama cuando el cliente haya resuelto los pendientes
 
 ### No repetir
-- No correr bench migrate sin --site explícito en este bench compartido
-- No commitear archivos de one_offs/ ni working_docs/
-- No usar python3 directo para operaciones de BD — siempre bench execute
+- NO crear CPMX sin verificar `fm_es_ppd=1` en todas las SIs del PE
+- NO usar `COUNT(io.name)` para detectar multi-IO cuando hay múltiples SIs (da falso positivo)
+- NO confiar en IO local para estado SAT — siempre verificar FacturAPI para casos con pending/verifying
+- NO restaurar backup sin safe-point previo documentado
+- NO crear archivos nuevos en working_docs/active — solo secciones adicionales al final
 
 ---
 
 ## Decisiones vigentes
-- Opción D (A parcial estricta): solo Grupo 1 en primera corrida, Grupo 2 con verify_api después
-- fm_lugar_expedicion = "03810" fijo para LlantasCS (único CSD, sin branches con ZIP)
-- naming_series FFMs históricas: `FFM-HIST-.YYYY.-` para distinguir de timbrado normal
-- db_insert() + docstatus=1 + ignore_validate/mandatory — no .submit() para evitar hooks
-- Grupo 3 (cancelados): 0 detectados en dataset actual
+- `fm_creation_source = "Migración legacy facturacion_mx"` en todos los CPMX creados por migración
+- `can_cancel` bloqueado para complementos migrados — cancelación solo vía SAT/FacturAPI directa
+- Los 24 PUE 1-IO + 1 PUE multi-IO = 25 en total para cancelación cliente
+- Los 150 PUE multi-IO cancelados en SAT → no requieren acción
+- Site de trabajo: `llantascs-mig.local` (site de migración, no producción)
 
 ---
 
 ## Archivos relevantes ahora
 
 ### Leer primero
-- `working_docs/active/REPORTE_MIGRACION_GRUPO1_COMPLETO.md` — estado completo Fase 2
-- `facturacion_mexico/one_offs/migrate_ffm_historicas.py` — script principal
-- `facturacion_mexico/one_offs/test_migrate_ffm_historicas.py` — 37 tests + auditoría
+- `working_docs/active/PLAN_MIGRACION_COMPLEMENTOS_PPD.md` — estado completo y pendientes
 
 ### Probablemente editar
-- `migrate_ffm_historicas.py` — para procesar Grupo 2 con verify_api=True
+- `facturacion_mexico/fiscal_state/complemento_state.py` — si se ajusta lógica can_cancel
+- `facturacion_mexico/fixtures/custom_field.json` — si se exportan fixtures
 
 ### No tocar
-- `patches.txt` — vacío por diseño, no reactivar patches legacy
-- Archivos en `one_offs/` — no commitear
+- `facturacion_mexico/one_offs/` — scripts temporales, no commitear
+- `patches.txt` — está vacío por diseño (RG-010b)
 
 ---
 
 ## Riesgos / cuidados
-- 636 SIs con múltiples Invoice Objects excluidas — si se migran manualmente, verificar
-  que el UUID no ya exista en FFM antes de insertar
-- fm_creation_source es Select sin reqd — si queda vacío en FFM nueva, no bloquea timbrado
-  pero rompe la distinción de origen
+- `llantascs-mig.local` tiene 3,545 CPMX — cualquier `bench restore` los perdería
+- El campo `fm_creation_source` existe en BD post-migrate pero fixtures aún no exportados
+- P-2595 y P-2596 son posiblemente CFDIs duplicados en FacturAPI para el mismo PE
 
 ---
 
 ## Información faltante
-- Credenciales FacturAPI producción para llantascs-mig.local (necesarias para descarga PDF/XML)
-- Decisión final sobre 46 casos Grupo 2 (verify_api o descarte)
+- Estado de P-57: ¿quién lo emitió directamente en FacturAPI?
+- Decisión del cliente sobre los 10 PPD cancelados sin sustituto
+- Decisión del cliente sobre los 5 mixtos PPD+PUE
