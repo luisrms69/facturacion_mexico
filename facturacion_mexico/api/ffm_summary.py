@@ -43,12 +43,19 @@ def get_ffm_summary(ffm_name: str) -> dict:
 		if not folio_display and doc.get("serie") and doc.get("folio"):
 			folio_display = f"{doc.get('serie')}-{doc.get('folio')}"
 
+		metodo_pago = doc.get("fm_payment_method_sat") or ""
+		metodo_pago_label = {
+			"PUE": "PUE — Pago en una sola exhibición",
+			"PPD": "PPD — Pago en parcialidades o diferido",
+		}.get(metodo_pago, metodo_pago or "-")
+
 		return {
 			"estado": _pick(doc, ALIASES["estado"]),
 			"folio": folio_display,
 			"uuid": _pick(doc, ALIASES["uuid"]),
 			"fecha": _pick(doc, ALIASES["fecha"]),
 			"pac_msg": _pick(doc, ALIASES["pac_msg"]),
+			"metodo_pago": metodo_pago_label,
 			"name": doc.get("name"),
 			"doctype": doc.get("doctype"),
 		}

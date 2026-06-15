@@ -75,6 +75,8 @@ def _compute_facts(comp) -> dict:
 		"forma_pago_p": comp.get("forma_pago_p") or "",
 		# ── Documentos relacionados ───────────────────────────────────────
 		"has_documentos_relacionados": bool(comp.get("documentos_relacionados")),
+		# ── Origen de creación ───────────────────────────────────────────
+		"fm_creation_source": comp.get("fm_creation_source") or "",
 	}
 
 	# ── PE activo o cancelado (para contexto) ────────────────────────────
@@ -107,7 +109,12 @@ def _compute_actions(facts: dict) -> dict:
 
 	can_stamp = facts["is_draft"] and facts["status"] in _TIMBRABLE_STATUSES
 
-	can_cancel = facts["is_submitted"] and facts["is_timbrado"] and facts["has_uuid"]
+	can_cancel = (
+		facts["is_submitted"]
+		and facts["is_timbrado"]
+		and facts["has_uuid"]
+		and facts.get("fm_creation_source", "Timbrado directo") == "Timbrado directo"
+	)
 
 	can_retry_cancel = facts["is_submitted"] and facts["is_pendiente_cancelacion"]
 

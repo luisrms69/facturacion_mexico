@@ -61,7 +61,8 @@
   "section_break_urls_archivos",
   "fm_xml_url",
   "fm_pdf_url",
-  "fm_last_response_log"
+  "fm_last_response_log",
+  "fm_creation_source"
  ],
  "fields": [
   {
@@ -422,9 +423,9 @@
   },
   {
    "fieldname": "fm_xml_url",
-   "fieldtype": "Data",
+   "fieldtype": "Small Text",
    "label": "URL del XML",
-   "description": "Link directo al archivo XML",
+   "description": "Link directo al archivo XML o URL de verificación SAT",
    "allow_on_submit": 1,
    "read_only": 1
   },
@@ -444,6 +445,16 @@
    "description": "Referencia al último log de FacturAPI",
    "allow_on_submit": 1,
    "read_only": 1
+  },
+  {
+   "fieldname": "fm_creation_source",
+   "fieldtype": "Select",
+   "label": "Origen de Creación",
+   "options": "\nTimbrado directo\nMigración legacy facturacion_mx\nManual",
+   "default": "Timbrado directo",
+   "allow_on_submit": 1,
+   "read_only": 1,
+   "in_list_view": 0
   }
  ],
  "index_web_pages_for_search": 1,

@@ -228,13 +228,10 @@
 				async () => {
 					try {
 						await frappe.call({
-							method: "facturacion_mexico.facturacion_fiscal.api_client.download_xml",
+							method: "facturacion_mexico.facturacion_fiscal.timbrado_api.descargar_archivos_cfdi",
 							args: { ffm_name: frm.doc.name },
 						});
-						await frappe.call({
-							method: "facturacion_mexico.facturacion_fiscal.api_client.download_pdf",
-							args: { ffm_name: frm.doc.name },
-						});
+						frm.reload_doc();
 					} catch (e) {
 						frappe.msgprint({
 							title: __("Error de descarga"),

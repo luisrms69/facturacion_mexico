@@ -53,6 +53,9 @@ function inject_ffm_summary(frm) {
 					<div><strong>Fecha Timbrado:</strong>
 						${d.fecha ? frappe.datetime.str_to_user(d.fecha) : "-"}
 					</div>
+					<div><strong>Método de Pago:</strong>
+						<span>${frappe.utils.escape_html(d.metodo_pago || "-")}</span>
+					</div>
 					<div><strong>Estado PAC:</strong>
 						${
 							d.pac_msg

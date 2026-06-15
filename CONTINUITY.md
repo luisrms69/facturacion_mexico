@@ -1,70 +1,91 @@
 # CONTINUITY.md — facturacion_mexico
 
-**Fecha:** 2026-06-11
-**Rama activa:** `fix/mode-of-payment-formato-legacy`
-**Tarea actual:** PR #191 — fixes post-CodeRabbit listos para merge
+**Fecha:** 2026-06-15
+**Rama activa:** `feat/ffm-migracion-legacy-fase2`
+**Tarea actual:** PR abierto — feat/ffm-migracion-legacy-fase2 → main
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-Estandarización del formato de Mode of Payment a "NN Descripción" (sin guion) para
-alinear el app con el formato real de los datos históricos migrados desde facturacion_mx.
+Migración de Complementos de Pago PPD del sistema legacy `facturacion_mx` al nuevo DocType `Complemento Pago MX` en `facturacion_mexico`. Site de trabajo: `llantascs-mig.local`.
 
 Plan que estoy siguiendo:
-Merge del PR → deploy en staging ActiGlobal → verificación funcional → deploy producción →
-cleanup one_off en producción.
+`working_docs/active/PLAN_MIGRACION_COMPLEMENTOS_PPD.md`
 
 Objetivo inmediato:
-Merge de PR #191. CI debe pasar tras el commit de fixes post-CodeRabbit.
+Pendiente decidir con el cliente los casos especiales (PUE, cancelados, mixtos, folios sin legacy).
 
 Criterio de avance:
-main con el fix. Complementos PPD funcionan con mode_of_payment "03 Transferencia".
+Todos los complementos PPD válidos migrados, pendientes documentados y entregados al cliente.
 
 ---
 
 ## Estado actual
 
 ### Ya cerrado
-- ✅ PR #190 — UOM legacy + precios IVA incluido
+- 3,545 CPMX creados en `llantascs-mig.local` (`COMP-PAY-MX-HIST-2026-00001` a `03545`)
+  - 3,363 Grupo Directo (1 IO, PPD, valid/none, con FFM)
+  - 182 Grupo Multi-IO (PPD vigentes, mismo UUID, confirmados por FacturAPI)
+- Auditoría aprobada: 0 duplicados, 0 errores, 0 PE inválidos
+- Campo `fm_creation_source` en CPMX — commiteado en este turno
+- Documentación actualizada: `arquitectura.md` + `complemento-pago.md`
+- Análisis completo de los 346 multi-IO clasificados y documentados
+- 7 folios faltantes vs FacturAPI investigados y documentados
 
 ### En progreso
-- PR #191 fix/mode-of-payment-formato-legacy — fixes post-review commiteados
+- Nada en ejecución activa
 
-### Pendiente inmediato post-merge
-1. Restore backup ActiGlobal producción → actiglobal-restore.dev
-2. Deploy nuevo código en restore.dev + migrate + build
-3. Dry-run cleanup_mop_canonical en restore.dev
-4. Cleanup real en restore.dev
-5. Verificación funcional (PE + complemento PPD)
-6. Si pasa → deploy producción ActiGlobal
-7. Subir one_off al servidor producción vía SCP
-8. Dry-run + cleanup en producción
-9. Backup nuevo post-cambio
+### Pendiente inmediato
+1. Entregar al cliente tabla de 25 PUE vigentes para cancelación ante SAT
+2. Cliente decide los 10 PPD cancelados (¿sustituto o definitivo?)
+3. Cliente decide los 5 mixtos PPD+PUE (¿cancelar o mantener?)
+4. Cliente decide P-57, P-2595/2596, P-3235 (folios sin legacy)
+5. Export de fixtures tras bench migrate (campo fm_creation_source en CPMX)
+6. PR de esta rama cuando el cliente haya resuelto los pendientes
 
 ### No repetir
-- "99 - Por definir" (con guion) ya no es el estándar — usar "99 Por definir"
-- cleanup_mop_canonical.py requiere dry_run primero antes de ejecución real
-- LlantasCS staging: "99 - Por definir" conservado (tiene 6 FFMs referenciándolo)
-- ignore_links=True nunca en delete_doc de Mode of Payment
+- NO crear CPMX sin verificar `fm_es_ppd=1` en todas las SIs del PE
+- NO usar `COUNT(io.name)` para detectar multi-IO cuando hay múltiples SIs (da falso positivo)
+- NO confiar en IO local para estado SAT — siempre verificar FacturAPI para casos con pending/verifying
+- NO restaurar backup sin safe-point previo documentado
+- NO crear archivos nuevos en working_docs/active — solo secciones adicionales al final
 
 ---
 
 ## Decisiones vigentes
-
-- Estándar único: "NN Descripción" sin guion para Mode of Payment
-- Regex: `^(\d{2}) (?![-\s]).+$` — rechaza guion Y doble espacio/tab
-- Validación PUE: `=== "99 Por definir"` (no startsWith — ver C1 del reporte CodeRabbit)
-- one_off cleanup_mop_canonical.py es el mecanismo para sitios existentes
-- UOM NO cambia fixture — normalización en código ya funciona para ambos formatos
-- Helper centralizado normalize_forma_pago_sat(): pendiente para PR posterior (C2 CodeRabbit)
+- `fm_creation_source = "Migración legacy facturacion_mx"` en todos los CPMX creados por migración
+- `can_cancel` bloqueado para complementos migrados — cancelación solo vía SAT/FacturAPI directa
+- Los 24 PUE 1-IO + 1 PUE multi-IO = 25 en total para cancelación cliente
+- Los 150 PUE multi-IO cancelados en SAT → no requieren acción
+- Site de trabajo: `llantascs-mig.local` (site de migración, no producción)
 
 ---
 
-## Riesgos
+## Archivos relevantes ahora
 
-- LlantasCS-v16.dev: "99 - Por definir" tiene 6 FFMs referenciándolo — no se puede
-  eliminar hasta que esas FFMs sean sustituidas o canceladas
-- ActiGlobal producción: requiere SCP del one_off script antes de poder ejecutar cleanup
-- test_issue162 sigue fallando en CI (pre-existente, no causado por este PR)
+### Leer primero
+- `working_docs/active/PLAN_MIGRACION_COMPLEMENTOS_PPD.md` — estado completo y pendientes
+
+### Probablemente editar
+- `facturacion_mexico/fiscal_state/complemento_state.py` — si se ajusta lógica can_cancel
+- `facturacion_mexico/fixtures/custom_field.json` — si se exportan fixtures
+
+### No tocar
+- `facturacion_mexico/one_offs/` — scripts temporales, no commitear
+- `patches.txt` — está vacío por diseño (RG-010b)
+
+---
+
+## Riesgos / cuidados
+- `llantascs-mig.local` tiene 3,545 CPMX — cualquier `bench restore` los perdería
+- El campo `fm_creation_source` existe en BD post-migrate pero fixtures aún no exportados
+- P-2595 y P-2596 son posiblemente CFDIs duplicados en FacturAPI para el mismo PE
+
+---
+
+## Información faltante
+- Estado de P-57: ¿quién lo emitió directamente en FacturAPI?
+- Decisión del cliente sobre los 10 PPD cancelados sin sustituto
+- Decisión del cliente sobre los 5 mixtos PPD+PUE

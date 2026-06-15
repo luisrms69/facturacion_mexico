@@ -2502,6 +2502,18 @@ def _build_cancellation_reason_for_select(motive_code: str) -> str:
 
 # API endpoints para uso desde interfaz
 @frappe.whitelist()
+def descargar_archivos_cfdi(ffm_name: str):
+	"""Descarga PDF y XML del CFDI desde FacturAPI y los adjunta al FFM."""
+	ffm = frappe.get_doc("Factura Fiscal Mexico", ffm_name)
+	if not ffm.facturapi_id:
+		frappe.throw(_("Este CFDI no tiene ID de FacturAPI — no se puede descargar."))
+	company = ffm.company or frappe.db.get_value("Sales Invoice", ffm.sales_invoice, "company")
+	api = TimbradoAPI(company=company)
+	api._download_fiscal_files(ffm, ffm.facturapi_id)
+	return {"success": True}
+
+
+@frappe.whitelist()
 def timbrar_factura(sales_invoice: str):
 	"""API para timbrar factura desde interfaz."""
 	cache_key = f"si:timbrando:{sales_invoice}"

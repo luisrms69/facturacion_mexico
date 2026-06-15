@@ -53,7 +53,8 @@
   "section_impuestos",
   "detalles_impuestos",
   "naming_series",
-  "amended_from"
+  "amended_from",
+  "fm_creation_source"
  ],
  "fields": [
   {
@@ -358,12 +359,21 @@
    "options": "Complemento Pago MX",
    "print_hide": 1,
    "read_only": 1
+  },
+  {
+   "fieldname": "fm_creation_source",
+   "fieldtype": "Select",
+   "label": "Origen de Creación",
+   "options": "\nTimbrado directo\nMigración legacy facturacion_mx\nManual",
+   "default": "Timbrado directo",
+   "allow_on_submit": 1,
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-05-06 00:00:00.000000",
+ "modified": "2026-06-14 00:00:00.000000",
  "modified_by": "Administrator",
  "module": "Complementos Pago",
  "name": "Complemento Pago MX",

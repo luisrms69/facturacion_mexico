@@ -66,6 +66,8 @@ def crear_complemento_pago_desde_pe(payment_entry_name: str) -> dict:
 	if complemento.moneda_p != "MXN":
 		complemento.tipo_cambio_p = flt(pe.get("source_exchange_rate") or 1.0)
 
+	complemento.fm_creation_source = "Timbrado directo"
+
 	# num_operacion — referencia bancaria opcional
 	if pe.get("reference_no"):
 		complemento.num_operacion = pe.reference_no
