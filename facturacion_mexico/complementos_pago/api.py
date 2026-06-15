@@ -539,6 +539,12 @@ def action_send_email_complemento(complemento_name: str, to: str | None = None) 
 	comp = frappe.get_doc("Complemento Pago MX", complemento_name)
 	frappe.has_permission(doctype="Complemento Pago MX", ptype="write", doc=comp, throw=True)
 
+	if comp.status != "Timbrado":
+		frappe.throw(
+			_("Solo se puede enviar por email un complemento en estado Timbrado. Estado actual: {0}").format(
+				comp.status
+			)
+		)
 	if not comp.uuid_sat:
 		frappe.throw(_("El complemento no está timbrado (no tiene UUID)."))
 	if not comp.facturapi_id:
