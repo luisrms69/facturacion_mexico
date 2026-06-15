@@ -2,7 +2,7 @@
 
 **Fecha:** 2026-06-15
 **Rama activa:** `fix/facturapi-response-log-permissions`
-**Tarea actual:** Fixes producción post go-live + feat: email en Complemento Pago MX
+**Tarea actual:** PR abierto — fix/facturapi-response-log-permissions → main (fixes post go-live LlantasCS)
 
 ---
 
