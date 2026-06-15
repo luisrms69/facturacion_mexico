@@ -125,6 +125,7 @@ def _compute_actions(facts: dict) -> dict:
 		# has_facturapi_id requerido: descargar_archivos_complemento lanza si falta
 		"can_download_xml": facts["has_uuid"] and facts["has_facturapi_id"],
 		"can_download_pdf": facts["has_uuid"] and facts["has_facturapi_id"],
+		"can_send_email": facts["has_uuid"] and facts["has_facturapi_id"],
 		"can_view_payment_entry": facts["has_payment_entry"],
 	}
 

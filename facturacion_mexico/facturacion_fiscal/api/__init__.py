@@ -307,7 +307,7 @@ class PACResponseWriter:
 			}
 		)
 
-		response_log.insert()
+		response_log.insert(ignore_permissions=True)
 
 		# Adjuntar JSON response como File para compatibilidad dfp_external_storage
 		try:

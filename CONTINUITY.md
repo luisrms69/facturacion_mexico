@@ -1,8 +1,8 @@
 # CONTINUITY.md — facturacion_mexico
 
 **Fecha:** 2026-06-15
-**Rama activa:** `feat/ffm-migracion-legacy-fase2`
-**Tarea actual:** PR abierto — feat/ffm-migracion-legacy-fase2 → main
+**Rama activa:** `fix/facturapi-response-log-permissions`
+**Tarea actual:** PR abierto — fix/facturapi-response-log-permissions → main (fixes post go-live LlantasCS)
 
 ---
 
