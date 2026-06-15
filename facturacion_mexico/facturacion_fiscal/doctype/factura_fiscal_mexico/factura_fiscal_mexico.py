@@ -650,9 +650,7 @@ class FacturaFiscalMexico(Document):
 		try:
 			import json
 
-			from facturacion_mexico.facturacion_fiscal.doctype.facturapi_response_log.facturapi_response_log import (
-				write_pac_response,
-			)
+			from facturacion_mexico.facturacion_fiscal.api import write_pac_response
 
 			write_pac_response(
 				self.sales_invoice or self.name,
