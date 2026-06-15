@@ -54,6 +54,22 @@ Los complementos nuevos creados por el sistema muestran `Timbrado directo` y sí
 
 ---
 
+## Enviar complemento por email
+
+Desde el Complemento Pago MX timbrado, el menú **Comprobantes** incluye el botón
+**Enviar por email**.
+
+El sistema envía el CFDI tipo P directamente al cliente vía FacturAPI. El destinatario
+se resuelve en este orden:
+
+1. Email del contacto en el Payment Entry
+2. Email del cliente (`Customer.email_id`)
+
+Si no hay destinatario, aparece un aviso naranja. En ese caso, configura el email
+en el cliente o el Payment Entry y vuelve a intentarlo.
+
+---
+
 ## Troubleshooting
 
 **El complemento no se generó al hacer Submit:**

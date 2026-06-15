@@ -534,6 +534,47 @@ def revisar_estatus_cancelacion_complemento(complemento_name: str) -> dict:
 
 
 @frappe.whitelist()
+def action_send_email_complemento(complemento_name: str, to: str | None = None) -> dict:
+	"""Envía el Complemento de Pago por email via FacturAPI. Equivalente al botón en FFM."""
+	comp = frappe.get_doc("Complemento Pago MX", complemento_name)
+	frappe.has_permission(doctype="Complemento Pago MX", ptype="write", doc=comp, throw=True)
+
+	if not comp.uuid_sat:
+		frappe.throw(_("El complemento no está timbrado (no tiene UUID)."))
+	if not comp.facturapi_id:
+		frappe.throw(_("El complemento no tiene ID de FacturAPI."))
+
+	to_email = to
+	if not to_email:
+		to_email = (
+			frappe.db.get_value("Payment Entry", comp.payment_entry, "contact_email")
+			if comp.payment_entry
+			else None
+		)
+	if not to_email:
+		customer = (
+			frappe.db.get_value("Payment Entry", comp.payment_entry, "party") if comp.payment_entry else None
+		)
+		if customer:
+			to_email = frappe.db.get_value("Customer", customer, "email_id")
+
+	if not to_email:
+		comp.add_comment("Comment", "No se envió complemento: no hay destinatario.")
+		return {"sent": False, "reason": "no-recipient"}
+
+	try:
+		from facturacion_mexico.facturacion_fiscal.api_client import get_facturapi_client
+
+		client = get_facturapi_client()
+		client.send_invoice_email(comp.facturapi_id, to_email)
+		comp.add_comment("Comment", f"Complemento enviado por email a: {to_email}")
+		return {"sent": True, "to": to_email}
+	except Exception as e:
+		comp.add_comment("Comment", f"Error al enviar complemento por email: {e}")
+		return {"sent": False, "error": str(e)}
+
+
+@frappe.whitelist()
 def descargar_archivos_complemento(complemento_name: str) -> dict:
 	"""Descarga manual de PDF/XML — equivalente al botón en FFM."""
 	comp = frappe.get_doc("Complemento Pago MX", complemento_name)

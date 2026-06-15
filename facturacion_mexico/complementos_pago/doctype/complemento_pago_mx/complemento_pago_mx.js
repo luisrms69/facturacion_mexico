@@ -29,6 +29,7 @@ function _apply_buttons(frm, actions) {
 	if (actions.can_retry_cancel) _setup_revisar_estatus_btn(frm);
 	if (actions.can_cancel) _setup_cancelar_btn(frm);
 	if (actions.can_download_xml || actions.can_download_pdf) _setup_descargar_btn(frm);
+	if (actions.can_send_email) _setup_email_btn(frm);
 }
 
 // ── Aplicar mensajes desde fiscal_state ────────────────────────────────────
@@ -203,6 +204,42 @@ function _setup_cancelar_btn(frm) {
 			__("Solicitar")
 		);
 	}).addClass("btn-danger");
+}
+
+function _setup_email_btn(frm) {
+	frm.add_custom_button(
+		__("Enviar por email"),
+		async () => {
+			try {
+				const r = await frappe.call({
+					method: "facturacion_mexico.complementos_pago.api.action_send_email_complemento",
+					args: { complemento_name: frm.doc.name, to: null },
+				});
+				const res = r && r.message;
+				if (res && res.sent) {
+					frappe.msgprint({
+						message: __("Complemento enviado a: {0}", [res.to]),
+						indicator: "green",
+					});
+				} else if (res && res.reason === "no-recipient") {
+					frappe.msgprint({
+						message: __(
+							"No se envió: no hay destinatario en el Payment Entry ni en el cliente."
+						),
+						indicator: "orange",
+					});
+				} else {
+					frappe.msgprint({
+						message: __("No se pudo enviar: {0}", [(res && res.error) || ""]),
+						indicator: "red",
+					});
+				}
+			} catch (e) {
+				frappe.msgprint({ message: __(String(e)), indicator: "red" });
+			}
+		},
+		__("Comprobantes")
+	);
 }
 
 function _setup_descargar_btn(frm) {

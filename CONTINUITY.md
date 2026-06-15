@@ -2,7 +2,7 @@
 
 **Fecha:** 2026-06-15
 **Rama activa:** `fix/facturapi-response-log-permissions`
-**Tarea actual:** Fix urgente producción — PermissionError en insert de FacturAPI Response Log al timbrar FFM
+**Tarea actual:** Fixes producción post go-live + feat: email en Complemento Pago MX
 
 ---
 
