@@ -1,8 +1,8 @@
 # CONTINUITY.md — facturacion_mexico
 
-**Fecha:** 2026-06-14
+**Fecha:** 2026-06-15
 **Rama activa:** `feat/ffm-migracion-legacy-fase2`
-**Tarea actual:** Migración complementos PPD legacy → Complemento Pago MX (fase 2)
+**Tarea actual:** PR abierto — feat/ffm-migracion-legacy-fase2 → main
 
 ---
 
