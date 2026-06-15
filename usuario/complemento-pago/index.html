@@ -570,6 +570,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#enviar-complemento-por-email" class="md-nav__link">
+    <span class="md-ellipsis">
+      Enviar complemento por email
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#troubleshooting" class="md-nav__link">
     <span class="md-ellipsis">
       Troubleshooting
@@ -1843,6 +1852,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#enviar-complemento-por-email" class="md-nav__link">
+    <span class="md-ellipsis">
+      Enviar complemento por email
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#troubleshooting" class="md-nav__link">
     <span class="md-ellipsis">
       Troubleshooting
@@ -1902,6 +1920,18 @@ el IVA no se reconoce fiscalmente.</p>
 <p>El botón <strong>Cancelar Complemento</strong> no está disponible para estos registros —
 la cancelación debe gestionarse directamente en el portal del SAT o a través del equipo técnico.</p>
 <p>Los complementos nuevos creados por el sistema muestran <code>Timbrado directo</code> y sí permiten cancelación desde la UI.</p>
+<hr />
+<h2 id="enviar-complemento-por-email">Enviar complemento por email<a class="headerlink" href="#enviar-complemento-por-email" title="Permanent link">&para;</a></h2>
+<p>Desde el Complemento Pago MX timbrado, el menú <strong>Comprobantes</strong> incluye el botón
+<strong>Enviar por email</strong>.</p>
+<p>El sistema envía el CFDI tipo P directamente al cliente vía FacturAPI. El destinatario
+se resuelve en este orden:</p>
+<ol>
+<li>Email del contacto en el Payment Entry</li>
+<li>Email del cliente (<code>Customer.email_id</code>)</li>
+</ol>
+<p>Si no hay destinatario, aparece un aviso naranja. En ese caso, configura el email
+en el cliente o el Payment Entry y vuelve a intentarlo.</p>
 <hr />
 <h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
 <p><strong>El complemento no se generó al hacer Submit:</strong>
