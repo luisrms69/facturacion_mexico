@@ -775,6 +775,39 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#campos-nativos-de-factura-fiscal-mexico-doctype-json" class="md-nav__link">
+    <span class="md-ellipsis">
+      Campos nativos de Factura Fiscal Mexico (DocType JSON)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Campos nativos de Factura Fiscal Mexico (DocType JSON)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#complemento-pago-mx-campos-propios-del-doctype" class="md-nav__link">
+    <span class="md-ellipsis">
+      Complemento Pago MX — campos propios del DocType
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-endpoints-whitelisted-timbrado_apipy" class="md-nav__link">
+    <span class="md-ellipsis">
+      API endpoints whitelisted — timbrado_api.py
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#integraciones-externas" class="md-nav__link">
     <span class="md-ellipsis">
       Integraciones externas
@@ -1903,6 +1936,39 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#campos-nativos-de-factura-fiscal-mexico-doctype-json" class="md-nav__link">
+    <span class="md-ellipsis">
+      Campos nativos de Factura Fiscal Mexico (DocType JSON)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Campos nativos de Factura Fiscal Mexico (DocType JSON)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#complemento-pago-mx-campos-propios-del-doctype" class="md-nav__link">
+    <span class="md-ellipsis">
+      Complemento Pago MX — campos propios del DocType
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-endpoints-whitelisted-timbrado_apipy" class="md-nav__link">
+    <span class="md-ellipsis">
+      API endpoints whitelisted — timbrado_api.py
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#integraciones-externas" class="md-nav__link">
     <span class="md-ellipsis">
       Integraciones externas
@@ -2134,6 +2200,93 @@ Ver <a href="../../adr/0032-ereceipts-facturapi-arquitectura/">ADR-0032</a>.</p>
 </tbody>
 </table>
 <hr />
+<h2 id="campos-nativos-de-factura-fiscal-mexico-doctype-json">Campos nativos de Factura Fiscal Mexico (DocType JSON)<a class="headerlink" href="#campos-nativos-de-factura-fiscal-mexico-doctype-json" title="Permanent link">&para;</a></h2>
+<p>Campos relevantes definidos directamente en el JSON del DocType (no como Custom Fields):</p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Tipo</th>
+<th>Notas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fm_uuid</code></td>
+<td>Data</td>
+<td>UUID SAT del CFDI</td>
+</tr>
+<tr>
+<td><code>fm_creation_source</code></td>
+<td>Select</td>
+<td>Origen: <code>Timbrado directo</code> / <code>Migración legacy facturacion_mx</code> / <code>Manual</code>. Default: <code>Timbrado directo</code>. Permite identificar FFMs creadas por migración histórica.</td>
+</tr>
+<tr>
+<td><code>fm_xml_url</code></td>
+<td>Small Text</td>
+<td>URL de verificación SAT (&gt;140 chars — requiere Small Text, no Data)</td>
+</tr>
+<tr>
+<td><code>fm_serie_folio</code></td>
+<td>Data</td>
+<td>Serie-Folio concatenados (ej: <code>F-6989</code>) — usado por complementos PPD</td>
+</tr>
+<tr>
+<td><code>fm_sync_status</code></td>
+<td>Select</td>
+<td>Estado sincronización PAC: <code>synced</code> / <code>pending</code> / <code>error</code></td>
+</tr>
+<tr>
+<td><code>fm_payment_method_sat</code></td>
+<td>Select</td>
+<td><code>PUE</code> o <code>PPD</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="complemento-pago-mx-campos-propios-del-doctype">Complemento Pago MX — campos propios del DocType<a class="headerlink" href="#complemento-pago-mx-campos-propios-del-doctype" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Tipo</th>
+<th>Notas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fm_creation_source</code></td>
+<td>Select</td>
+<td>Origen: <code>Timbrado directo</code> / <code>Migración legacy facturacion_mx</code> / <code>Manual</code>. Solo complementos con <code>Timbrado directo</code> permiten cancelación desde la UI.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="api-endpoints-whitelisted-timbrado_apipy">API endpoints whitelisted — timbrado_api.py<a class="headerlink" href="#api-endpoints-whitelisted-timbrado_apipy" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Función</th>
+<th>Módulo</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>timbrar_factura</code></td>
+<td><code>timbrado_api</code></td>
+<td>Timbra CFDI desde SI</td>
+</tr>
+<tr>
+<td><code>cancelar_factura</code></td>
+<td><code>timbrado_api</code></td>
+<td>Cancela CFDI con motivo SAT</td>
+</tr>
+<tr>
+<td><code>descargar_archivos_cfdi</code></td>
+<td><code>timbrado_api</code></td>
+<td>Descarga PDF+XML desde FacturAPI y los adjunta al FFM. Wrapper de <code>TimbradoAPI._download_fiscal_files()</code> — no duplica lógica.</td>
+</tr>
+</tbody>
+</table>
 <h2 id="integraciones-externas">Integraciones externas<a class="headerlink" href="#integraciones-externas" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
