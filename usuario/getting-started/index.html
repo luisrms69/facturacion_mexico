@@ -586,6 +586,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#seccion-contenido-pdf-del-cfdi" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sección: Contenido PDF del CFDI
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2105,6 +2114,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#seccion-contenido-pdf-del-cfdi" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sección: Contenido PDF del CFDI
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2529,6 +2547,40 @@ bench<span class="w"> </span>--site<span class="w"> </span>tu-sitio.local<span c
 </tr>
 </tbody>
 </table>
+<hr />
+<h4 id="seccion-contenido-pdf-del-cfdi">Sección: Contenido PDF del CFDI<a class="headerlink" href="#seccion-contenido-pdf-del-cfdi" title="Permanent link">&para;</a></h4>
+<p>Configura el texto adicional que aparece en el PDF generado por FacturAPI para los CFDIs de tipo <strong>Ingreso (I)</strong>. No afecta el XML ni el timbrado fiscal.</p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Incluir Orden de Compra</strong></td>
+<td>Si está activado, agrega el número de orden de compra del cliente (<code>po_no</code> de la Sales Invoice) al PDF, cuando existe.</td>
+</tr>
+<tr>
+<td><strong>Incluir Observaciones</strong></td>
+<td>Si está activado, agrega el campo Observaciones (<code>remarks</code>) de la Sales Invoice al PDF, si tiene contenido relevante.</td>
+</tr>
+<tr>
+<td><strong>Leyenda PUE</strong></td>
+<td>Texto que aparece al final del PDF para facturas con Método de Pago <code>PUE</code>. Dejar vacío para omitir.</td>
+</tr>
+<tr>
+<td><strong>Leyenda PPD</strong></td>
+<td>Texto que aparece al final del PDF para facturas con Método de Pago <code>PPD</code>. Admite tres variables: <code>{company}</code>, <code>{total}</code>, <code>{due_date}</code>. Dejar vacío para omitir.</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Alcance del contenido adicional</p>
+<p>El contenido configurado no convierte el CFDI en un pagaré ni sustituye un contrato,
+pagaré u otro documento firmado que formalice la obligación de pago.</p>
+</div>
 <h3 id="2-configuracion-fiscal-mexico">2. Configuracion Fiscal Mexico<a class="headerlink" href="#2-configuracion-fiscal-mexico" title="Permanent link">&para;</a></h3>
 <p>Accede desde el workspace <strong>Facturación México → Configuracion Fiscal Mexico → New</strong>.</p>
 <p><strong>Paso 1 — Selecciona los regímenes fiscales de la empresa:</strong></p>

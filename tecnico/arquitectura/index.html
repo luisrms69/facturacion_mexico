@@ -835,6 +835,48 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#pdf_custom_section-contenido-adicional-en-pdf-del-cfdi" class="md-nav__link">
+    <span class="md-ellipsis">
+      pdf_custom_section — contenido adicional en PDF del CFDI
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pdf_custom_section — contenido adicional en PDF del CFDI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuracion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuración
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#comportamiento" class="md-nav__link">
+    <span class="md-ellipsis">
+      Comportamiento
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#implementacion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementación
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#factura-global-validaciones-fiscales-desde-pr-183" class="md-nav__link">
     <span class="md-ellipsis">
       Factura Global — validaciones fiscales (desde PR #183)
@@ -1996,6 +2038,48 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#pdf_custom_section-contenido-adicional-en-pdf-del-cfdi" class="md-nav__link">
+    <span class="md-ellipsis">
+      pdf_custom_section — contenido adicional en PDF del CFDI
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pdf_custom_section — contenido adicional en PDF del CFDI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuracion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuración
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#comportamiento" class="md-nav__link">
+    <span class="md-ellipsis">
+      Comportamiento
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#implementacion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementación
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#factura-global-validaciones-fiscales-desde-pr-183" class="md-nav__link">
     <span class="md-ellipsis">
       Factura Global — validaciones fiscales (desde PR #183)
@@ -2241,6 +2325,11 @@ Ver <a href="../../adr/0032-ereceipts-facturapi-arquitectura/">ADR-0032</a>.</p>
 <td>Select</td>
 <td><code>PUE</code> o <code>PPD</code></td>
 </tr>
+<tr>
+<td><code>fm_pdf_custom_section</code></td>
+<td>Long Text</td>
+<td>Texto enviado a FacturAPI como <code>pdf_custom_section</code> al timbrar. Read-only — registra exactamente lo enviado. Solo para CFDI tipo I.</td>
+</tr>
 </tbody>
 </table>
 <h3 id="complemento-pago-mx-campos-propios-del-doctype">Complemento Pago MX — campos propios del DocType<a class="headerlink" href="#complemento-pago-mx-campos-propios-del-doctype" title="Permanent link">&para;</a></h3>
@@ -2357,6 +2446,51 @@ Ver <a href="../../adr/0032-ereceipts-facturapi-arquitectura/">ADR-0032</a>.</p>
 </tbody>
 </table>
 <p>Los subgrupos se crean idempotentemente en cada <code>bench migrate</code> — nunca se modifican ni borran grupos existentes.</p>
+<hr />
+<h2 id="pdf_custom_section-contenido-adicional-en-pdf-del-cfdi">pdf_custom_section — contenido adicional en PDF del CFDI<a class="headerlink" href="#pdf_custom_section-contenido-adicional-en-pdf-del-cfdi" title="Permanent link">&para;</a></h2>
+<p>Campo de FacturAPI que aparece en el PDF generado del CFDI. <strong>No modifica el XML ni el timbrado fiscal.</strong></p>
+<h3 id="configuracion">Configuración<a class="headerlink" href="#configuracion" title="Permanent link">&para;</a></h3>
+<p>En <code>Facturacion Mexico Company Settings</code> (por empresa):</p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pdf_nota_pue</code></td>
+<td>Leyenda para CFDI PUE. Vacío = omitir.</td>
+</tr>
+<tr>
+<td><code>pdf_nota_ppd</code></td>
+<td>Leyenda para CFDI PPD. Variables: <code>{company}</code>, <code>{total}</code>, <code>{due_date}</code>. Vacío = omitir.</td>
+</tr>
+<tr>
+<td><code>pdf_incluir_po_no</code></td>
+<td>Incluir <code>Sales Invoice.po_no</code> si existe.</td>
+</tr>
+<tr>
+<td><code>pdf_incluir_remarks</code></td>
+<td>Incluir <code>Sales Invoice.remarks</code> si no es vacío ni valor legacy.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="comportamiento">Comportamiento<a class="headerlink" href="#comportamiento" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Solo se construye y envía para CFDI tipo <code>I</code> (ingreso). Para <code>E</code> y <code>P</code> no se incluye.</li>
+<li>Si el resultado es cadena vacía, la propiedad se omite del payload (no se envía <code>null</code>).</li>
+<li>El texto exacto enviado se persiste en <code>Factura Fiscal Mexico.fm_pdf_custom_section</code> (read-only).</li>
+<li>Un cambio posterior en Company Settings no modifica FFMs ya timbrados.</li>
+<li>El template PPD se valida al guardar Company Settings — placeholders desconocidos lanzan <code>ValidationError</code>.</li>
+</ul>
+<h3 id="implementacion">Implementación<a class="headerlink" href="#implementacion" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>timbrado_api._build_pdf_custom_section()</code> — construye el texto</li>
+<li><code>timbrado_api.render_pdf_note_template()</code> — renderiza el template PPD con validación de variables</li>
+<li><code>TimbradoAPI._persist_pdf_custom_section()</code> — persiste en FFM</li>
+</ul>
 <hr />
 <h2 id="factura-global-validaciones-fiscales-desde-pr-183">Factura Global — validaciones fiscales (desde PR #183)<a class="headerlink" href="#factura-global-validaciones-fiscales-desde-pr-183" title="Permanent link">&para;</a></h2>
 <p>El módulo <code>facturas_globales/</code> tiene un conjunto de validaciones estrictas antes de timbrar.
