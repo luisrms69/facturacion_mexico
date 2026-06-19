@@ -31,7 +31,13 @@
   "column_break_global",
   "global_payment_form_default",
   "notify_global_generation",
-  "global_notification_emails"
+  "global_notification_emails",
+  "section_pdf_cfdi",
+  "pdf_incluir_po_no",
+  "pdf_incluir_remarks",
+  "column_break_pdf",
+  "pdf_nota_pue",
+  "pdf_nota_ppd"
  ],
  "fields": [
   {
@@ -205,6 +211,41 @@
    "fieldname": "global_notification_emails",
    "fieldtype": "Small Text",
    "label": "Emails de Notificación Factura Global"
+  },
+  {
+   "fieldname": "section_pdf_cfdi",
+   "fieldtype": "Section Break",
+   "label": "Contenido PDF del CFDI"
+  },
+  {
+   "default": "1",
+   "description": "Incluir el número de orden de compra del cliente (po_no de la Sales Invoice) en el PDF del CFDI.",
+   "fieldname": "pdf_incluir_po_no",
+   "fieldtype": "Check",
+   "label": "Incluir Orden de Compra"
+  },
+  {
+   "default": "1",
+   "description": "Incluir el campo Observaciones (remarks) de la Sales Invoice en el PDF del CFDI.",
+   "fieldname": "pdf_incluir_remarks",
+   "fieldtype": "Check",
+   "label": "Incluir Observaciones"
+  },
+  {
+   "fieldname": "column_break_pdf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Leyenda opcional para facturas con método de pago PUE. Dejar vacío para omitir. Ejemplo: Gracias por su compra.",
+   "fieldname": "pdf_nota_pue",
+   "fieldtype": "Small Text",
+   "label": "Leyenda PUE"
+  },
+  {
+   "description": "Leyenda opcional para facturas con método de pago PPD. Variables: {company}, {total}, {due_date}. Dejar vacío para omitir.",
+   "fieldname": "pdf_nota_ppd",
+   "fieldtype": "Small Text",
+   "label": "Leyenda PPD"
   }
  ],
  "links": [],

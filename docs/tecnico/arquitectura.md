@@ -105,6 +105,7 @@ Campos relevantes definidos directamente en el JSON del DocType (no como Custom 
 | `fm_serie_folio` | Data | Serie-Folio concatenados (ej: `F-6989`) — usado por complementos PPD |
 | `fm_sync_status` | Select | Estado sincronización PAC: `synced` / `pending` / `error` |
 | `fm_payment_method_sat` | Select | `PUE` o `PPD` |
+| `fm_pdf_custom_section` | Long Text | Texto enviado a FacturAPI como `pdf_custom_section` al timbrar. Read-only — registra exactamente lo enviado. Solo para CFDI tipo I. |
 
 ### Complemento Pago MX — campos propios del DocType
 
@@ -155,6 +156,37 @@ El app crea automáticamente grupos raíz y subgrupos de categorización fiscal.
 | `Artículos IEPS Tabaco` | Cigarros, Puros, Tabaco labrado |
 
 Los subgrupos se crean idempotentemente en cada `bench migrate` — nunca se modifican ni borran grupos existentes.
+
+---
+
+## pdf_custom_section — contenido adicional en PDF del CFDI
+
+Campo de FacturAPI que aparece en el PDF generado del CFDI. **No modifica el XML ni el timbrado fiscal.**
+
+### Configuración
+
+En `Facturacion Mexico Company Settings` (por empresa):
+
+| Campo | Descripción |
+|---|---|
+| `pdf_nota_pue` | Leyenda para CFDI PUE. Vacío = omitir. |
+| `pdf_nota_ppd` | Leyenda para CFDI PPD. Variables: `{company}`, `{total}`, `{due_date}`. Vacío = omitir. |
+| `pdf_incluir_po_no` | Incluir `Sales Invoice.po_no` si existe. |
+| `pdf_incluir_remarks` | Incluir `Sales Invoice.remarks` si no es vacío ni valor legacy. |
+
+### Comportamiento
+
+- Solo se construye y envía para CFDI tipo `I` (ingreso). Para `E` y `P` no se incluye.
+- Si el resultado es cadena vacía, la propiedad se omite del payload (no se envía `null`).
+- El texto exacto enviado se persiste en `Factura Fiscal Mexico.fm_pdf_custom_section` (read-only).
+- Un cambio posterior en Company Settings no modifica FFMs ya timbrados.
+- El template PPD se valida al guardar Company Settings — placeholders desconocidos lanzan `ValidationError`.
+
+### Implementación
+
+- `timbrado_api._build_pdf_custom_section()` — construye el texto
+- `timbrado_api.render_pdf_note_template()` — renderiza el template PPD con validación de variables
+- `TimbradoAPI._persist_pdf_custom_section()` — persiste en FFM
 
 ---
 

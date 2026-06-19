@@ -1,91 +1,72 @@
 # CONTINUITY.md — facturacion_mexico
 
-**Fecha:** 2026-06-18
-**Rama activa:** `fix/facturapi-response-log-permissions`
-**Tarea actual:** PR abierto — fix/facturapi-response-log-permissions → main (fixes post go-live LlantasCS)
+**Fecha:** 2026-06-19
+**Rama activa:** `fix/post-golive-corrections`
+**Tarea actual:** Correcciones post go-live LlantasCS — PDF custom section + fixes UI
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-Migración de Complementos de Pago PPD del sistema legacy `facturacion_mx` al nuevo DocType `Complemento Pago MX` en `facturacion_mexico`. Site de trabajo: `llantascs-mig.local`.
+Rama `fix/post-golive-corrections` con múltiples correcciones post go-live para LlantasCS.
+Se está haciendo commit del feature `pdf_custom_section` ahora mismo.
 
 Plan que estoy siguiendo:
-`working_docs/active/PLAN_MIGRACION_COMPLEMENTOS_PPD.md`
+Correcciones incrementales sin plan doc — cada fix se commitea en esta rama y al final va a PR.
 
 Objetivo inmediato:
-Pendiente decidir con el cliente los casos especiales (PUE, cancelados, mixtos, folios sin legacy).
+Commitear `pdf_custom_section` y continuar con más correcciones en la misma rama.
 
 Criterio de avance:
-Todos los complementos PPD válidos migrados, pendientes documentados y entregados al cliente.
+Cuando no haya más correcciones pendientes, abrir PR de esta rama a main.
 
 ---
 
 ## Estado actual
 
-### Ya cerrado
-- 3,545 CPMX creados en `llantascs-mig.local` (`COMP-PAY-MX-HIST-2026-00001` a `03545`)
-  - 3,363 Grupo Directo (1 IO, PPD, valid/none, con FFM)
-  - 182 Grupo Multi-IO (PPD vigentes, mismo UUID, confirmados por FacturAPI)
-- Auditoría aprobada: 0 duplicados, 0 errores, 0 PE inválidos
-- Campo `fm_creation_source` en CPMX — commiteado en este turno
-- Documentación actualizada: `arquitectura.md` + `complemento-pago.md`
-- Análisis completo de los 346 multi-IO clasificados y documentados
-- 7 folios faltantes vs FacturAPI investigados y documentados
+### Ya cerrado (en esta rama)
+- Commit `1b4f82e`: botón "Descargar PDF+XML" movido al grupo "Comprobantes" en CPMX
 
 ### En progreso
-- Nada en ejecución activa
+- `pdf_custom_section`: listo para commit — 17/17 tests, docs actualizados, persistencia
+  solo en timbrado exitoso, sin textos hardcoded
 
 ### Pendiente inmediato
-1. Entregar al cliente tabla de 25 PUE vigentes para cancelación ante SAT
-2. Cliente decide los 10 PPD cancelados (¿sustituto o definitivo?)
-3. Cliente decide los 5 mixtos PPD+PUE (¿cancelar o mantener?)
-4. Cliente decide P-57, P-2595/2596, P-3235 (folios sin legacy)
-5. Export de fixtures tras bench migrate (campo fm_creation_source en CPMX)
-6. PR de esta rama cuando el cliente haya resuelto los pendientes
+1. Commit de `pdf_custom_section` (este turno)
+2. Más correcciones pendientes por definir
+3. PR final de `fix/post-golive-corrections` → main
 
 ### No repetir
-- NO crear CPMX sin verificar `fm_es_ppd=1` en todas las SIs del PE
-- NO usar `COUNT(io.name)` para detectar multi-IO cuando hay múltiples SIs (da falso positivo)
-- NO confiar en IO local para estado SAT — siempre verificar FacturAPI para casos con pending/verifying
-- NO restaurar backup sin safe-point previo documentado
-- NO crear archivos nuevos en working_docs/active — solo secciones adicionales al final
+- NO persistir `fm_pdf_custom_section` en el build del payload — solo en `_process_timbrado_success`
+- NO crear Custom Fields para `pdf_nota_pue`/`pdf_nota_ppd` — son campos nativos del DocType
+- NO hardcodear textos PUE/PPD en código — la config es por empresa en Company Settings
 
 ---
 
 ## Decisiones vigentes
-- `fm_creation_source = "Migración legacy facturacion_mx"` en todos los CPMX creados por migración
-- `can_cancel` bloqueado para complementos migrados — cancelación solo vía SAT/FacturAPI directa
-- Los 24 PUE 1-IO + 1 PUE multi-IO = 25 en total para cancelación cliente
-- Los 150 PUE multi-IO cancelados en SAT → no requieren acción
-- Site de trabajo: `llantascs-mig.local` (site de migración, no producción)
+- `pdf_custom_section` solo para CFDI tipo I — tipos E y P quedan sin este campo
+- Sin defaults en `pdf_nota_pue` y `pdf_nota_ppd` — vacío = no enviar
+- Cascada de resolución: Solo Company Settings (sin Customer ni SI override)
+- Template PPD validado en `validate()` de Company Settings — placeholder desconocido = error
+- `_pending_pdf_custom_section` como atributo de instancia para diferir la persistencia
 
 ---
 
 ## Archivos relevantes ahora
 
 ### Leer primero
-- `working_docs/active/PLAN_MIGRACION_COMPLEMENTOS_PPD.md` — estado completo y pendientes
+- `facturacion_fiscal/timbrado_api.py` — funciones `_build_pdf_custom_section`, `_persist_pdf_custom_section`, bloque `_process_timbrado_success`
 
 ### Probablemente editar
-- `facturacion_mexico/fiscal_state/complemento_state.py` — si se ajusta lógica can_cancel
-- `facturacion_mexico/fixtures/custom_field.json` — si se exportan fixtures
+- `facturacion_fiscal/doctype/facturacion_mexico_company_settings/` — si se ajustan campos
 
 ### No tocar
-- `facturacion_mexico/one_offs/` — scripts temporales, no commitear
-- `patches.txt` — está vacío por diseño (RG-010b)
+- `patches.txt` — vacío por diseño (RG-010b)
+- `one_offs/` — no commitear
 
 ---
 
 ## Riesgos / cuidados
-- `llantascs-mig.local` tiene 3,545 CPMX — cualquier `bench restore` los perdería
-- El campo `fm_creation_source` existe en BD post-migrate pero fixtures aún no exportados
-- P-2595 y P-2596 son posiblemente CFDIs duplicados en FacturAPI para el mismo PE
-
----
-
-## Información faltante
-- Estado de P-57: ¿quién lo emitió directamente en FacturAPI?
-- Decisión del cliente sobre los 10 PPD cancelados sin sustituto
-- Decisión del cliente sobre los 5 mixtos PPD+PUE
+- `llantascs-mig.local` (8409) tiene encryption key diferente al backup — re-ingresar API keys manualmente
+- `_pending_pdf_custom_section` queda como atributo de instancia si el timbrado es exitoso pero `_process_timbrado_success` falla antes de limpiar — no es crítico (el atributo se pierde con la instancia)
