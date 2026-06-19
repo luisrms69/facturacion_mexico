@@ -130,6 +130,7 @@ class TimbradoAPI:
 		pac_response = None
 		pac_request = None
 		factura_fiscal = None
+		self._pending_pdf_custom_section = None
 
 		try:
 			# FASE 1: PREPARACIÓN (puede fallar antes de contactar PAC)
@@ -371,6 +372,9 @@ class TimbradoAPI:
 
 			return payload
 			# --- FIN NORMALIZACIÓN ERROR FACTURAPI ---
+
+		finally:
+			self._pending_pdf_custom_section = None
 
 	def _validate_invoice_for_timbrado(self, sales_invoice):
 		"""Validar que la factura se puede timbrar."""
@@ -795,8 +799,9 @@ class TimbradoAPI:
 
 		# PDF custom section — solo para CFDI tipo I
 		if tipo_code == "I":
-			metodo_pago = (factura_fiscal.get("fm_payment_method_sat") or "PUE").upper()
-			pdf_section = _build_pdf_custom_section(sales_invoice, metodo_pago, self.company)
+			payment_method = (factura_fiscal.get("fm_payment_method_sat") or "PUE").upper()
+			pdf_settings = _get_company_pdf_settings(self.company)
+			pdf_section = _build_pdf_custom_section(sales_invoice, payment_method, pdf_settings)
 			if pdf_section:
 				invoice_data["pdf_custom_section"] = pdf_section
 			# Guardar para persistir solo si el timbrado es exitoso
@@ -2488,27 +2493,16 @@ class TimbradoAPI:
 	def _persist_pdf_custom_section(self, factura_fiscal, text: str) -> None:
 		"""Persiste el texto enviado a FacturAPI en fm_pdf_custom_section del FFM.
 
-		Si la FFM aún no existe en BD (timbrado inicial), se omite silenciosamente.
-		El campo es read_only — se escribe solo aquí, durante el timbrado.
+		Usa factura_fiscal.name directamente — el documento que participó en este
+		timbrado. El campo es read_only; se escribe solo aquí, en timbrado exitoso.
 		"""
-		try:
-			ffm_name = frappe.db.get_value(
-				"Factura Fiscal Mexico",
-				{"sales_invoice": factura_fiscal.get("sales_invoice")},
-				"name",
-			)
-			if ffm_name:
-				frappe.db.set_value(
-					"Factura Fiscal Mexico",
-					ffm_name,
-					"fm_pdf_custom_section",
-					text or "",
-					update_modified=False,
-				)
-		except Exception:
-			frappe.logger().warning(
-				f"No se pudo persistir fm_pdf_custom_section para {factura_fiscal.get('sales_invoice')}"
-			)
+		frappe.db.set_value(
+			"Factura Fiscal Mexico",
+			factura_fiscal.name,
+			"fm_pdf_custom_section",
+			text or "",
+			update_modified=False,
+		)
 
 
 def _build_cancellation_reason_for_select(motive_code: str) -> str:
@@ -3303,28 +3297,39 @@ def render_pdf_note_template(template: str, **kwargs) -> str:
 	return template.format(**{k: kwargs.get(k, "") for k in _ALLOWED_PDF_TEMPLATE_KEYS})
 
 
-def _build_pdf_custom_section(si_doc, metodo_pago: str, company: str) -> str:
-	"""Construye pdf_custom_section para CFDI tipo I.
+def _get_company_pdf_settings(company: str):
+	"""Obtiene Facturacion Mexico Company Settings para la empresa indicada.
 
-	Retorna texto vacío si no hay nada configurado. No hardcodea leyendas.
-	Solo se invoca para CFDI tipo I — el caller es responsable de no llamar
-	para tipo E o P.
+	Retorna el documento o None si no existe configuración para esa empresa.
+	Separado de _build_pdf_custom_section para que la lógica pura sea testeable
+	sin mockear frappe.get_doc.
 	"""
 	settings_name = frappe.db.get_value("Facturacion Mexico Company Settings", {"company": company}, "name")
 	if not settings_name:
+		return None
+	return frappe.get_doc("Facturacion Mexico Company Settings", settings_name)
+
+
+def _build_pdf_custom_section(si_doc, payment_method: str, settings) -> str:
+	"""Construye pdf_custom_section para CFDI tipo I.
+
+	Retorna texto vacío si settings es None o no hay nada configurado.
+	No hardcodea leyendas. Solo se invoca para CFDI tipo I.
+	Recibe el objeto settings ya cargado — sin acceso a Frappe.
+	"""
+	if settings is None:
 		return ""
 
-	settings = frappe.get_doc("Facturacion Mexico Company Settings", settings_name)
-	notas = []
+	notes = []
 
 	if settings.pdf_incluir_po_no and (si_doc.po_no or "").strip():
-		notas.append(si_doc.po_no.strip())
+		notes.append(si_doc.po_no.strip())
 
 	remarks = (si_doc.remarks or "").strip()
 	if settings.pdf_incluir_remarks and remarks and remarks not in _SKIP_REMARKS:
-		notas.append(remarks)
+		notes.append(remarks)
 
-	if metodo_pago == "PPD":
+	if payment_method == "PPD":
 		template = (settings.pdf_nota_ppd or "").strip()
 		if template:
 			if si_doc.payment_schedule:
@@ -3334,20 +3339,20 @@ def _build_pdf_custom_section(si_doc, metodo_pago: str, company: str) -> str:
 				)
 			else:
 				due_date = si_doc.due_date
-			notas.append(
+			notes.append(
 				render_pdf_note_template(
 					template,
-					company=company,
+					company=settings.company,
 					total=fmt_money(si_doc.grand_total, currency=si_doc.currency),
 					due_date=format_date(due_date) if due_date else "",
 				)
 			)
 	else:
-		nota_pue = (settings.pdf_nota_pue or "").strip()
-		if nota_pue:
-			notas.append(nota_pue)
+		pue_note = (settings.pdf_nota_pue or "").strip()
+		if pue_note:
+			notes.append(pue_note)
 
-	return "\n".join(nota for nota in notas if nota)
+	return "\n".join(note for note in notes if note)
 
 
 @frappe.whitelist()

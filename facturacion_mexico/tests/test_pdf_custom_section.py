@@ -2,13 +2,15 @@
 
 Cubre los 15 casos definidos en el plan de implementación.
 Sin red, sin FacturAPI, sin base de datos de producción.
+
+_build_pdf_custom_section recibe el objeto settings ya cargado — sin acceso a Frappe.
+Los tests pasan MagicMock como settings sin necesidad de mockear frappe.get_doc.
 """
 
 import unittest
 from unittest.mock import MagicMock, patch
 
 import frappe
-from frappe.tests import IntegrationTestCase
 
 from facturacion_mexico.facturacion_fiscal.timbrado_api import (
 	_build_pdf_custom_section,
@@ -22,6 +24,7 @@ def _mock_settings(**kwargs):
 	s.pdf_nota_ppd = kwargs.get("pdf_nota_ppd", "")
 	s.pdf_incluir_po_no = kwargs.get("pdf_incluir_po_no", 1)
 	s.pdf_incluir_remarks = kwargs.get("pdf_incluir_remarks", 1)
+	s.company = kwargs.get("company", "TestCo")
 	return s
 
 
@@ -36,26 +39,19 @@ def _mock_si(**kwargs):
 	return si
 
 
-def _apply_settings_and_build(si, metodo_pago, company, settings):
+def _apply_settings_and_build(si, payment_method, settings):
+	"""Llama _build_pdf_custom_section sin mockear frappe — settings se pasa directo."""
 	with (
 		patch(
-			"facturacion_mexico.facturacion_fiscal.timbrado_api.frappe.db.get_value",
-			return_value="FMCS-Test",
-		),
-		patch(
-			"facturacion_mexico.facturacion_fiscal.timbrado_api.frappe.get_doc",
-			return_value=settings,
-		),
-		patch(
 			"facturacion_mexico.facturacion_fiscal.timbrado_api.fmt_money",
-			side_effect=lambda amount, currency="": f"${amount:,.2f}",
+			side_effect=lambda amount, **_: f"${amount:,.2f}",
 		),
 		patch(
 			"facturacion_mexico.facturacion_fiscal.timbrado_api.format_date",
 			side_effect=lambda d: str(d) if d else "",
 		),
 	):
-		return _build_pdf_custom_section(si, metodo_pago, company)
+		return _build_pdf_custom_section(si, payment_method, settings)
 
 
 class TestRenderPdfNoteTemplate(unittest.TestCase):
@@ -84,21 +80,21 @@ class TestBuildPdfCustomSection(unittest.TestCase):
 	def test_pue_con_leyenda(self):
 		settings = _mock_settings(pdf_nota_pue="Gracias por su compra.")
 		si = _mock_si()
-		result = _apply_settings_and_build(si, "PUE", "TestCo", settings)
+		result = _apply_settings_and_build(si, "PUE", settings)
 		self.assertIn("Gracias por su compra.", result)
 
 	# Caso 2: PUE con leyenda vacía
 	def test_pue_sin_leyenda(self):
 		settings = _mock_settings(pdf_nota_pue="")
 		si = _mock_si()
-		result = _apply_settings_and_build(si, "PUE", "TestCo", settings)
+		result = _apply_settings_and_build(si, "PUE", settings)
 		self.assertEqual(result, "")
 
 	# Caso 3: PPD con leyenda configurada y variables renderizadas
 	def test_ppd_con_leyenda_y_variables(self):
-		settings = _mock_settings(pdf_nota_ppd="Pagar a {company} antes de {due_date}")
+		settings = _mock_settings(pdf_nota_ppd="Pagar a {company} antes de {due_date}", company="LlantasCS")
 		si = _mock_si(due_date="2026-08-15")
-		result = _apply_settings_and_build(si, "PPD", "LlantasCS", settings)
+		result = _apply_settings_and_build(si, "PPD", settings)
 		self.assertIn("LlantasCS", result)
 		self.assertIn("2026", result)
 
@@ -106,7 +102,7 @@ class TestBuildPdfCustomSection(unittest.TestCase):
 	def test_ppd_sin_leyenda(self):
 		settings = _mock_settings(pdf_nota_ppd="")
 		si = _mock_si()
-		result = _apply_settings_and_build(si, "PPD", "TestCo", settings)
+		result = _apply_settings_and_build(si, "PPD", settings)
 		self.assertEqual(result, "")
 
 	# Caso 5: Company A y Company B con textos distintos
@@ -115,8 +111,8 @@ class TestBuildPdfCustomSection(unittest.TestCase):
 		settings_b = _mock_settings(pdf_nota_pue="Texto empresa B")
 		si = _mock_si()
 
-		result_a = _apply_settings_and_build(si, "PUE", "CompanyA", settings_a)
-		result_b = _apply_settings_and_build(si, "PUE", "CompanyB", settings_b)
+		result_a = _apply_settings_and_build(si, "PUE", settings_a)
+		result_b = _apply_settings_and_build(si, "PUE", settings_b)
 
 		self.assertIn("empresa A", result_a)
 		self.assertIn("empresa B", result_b)
@@ -126,28 +122,28 @@ class TestBuildPdfCustomSection(unittest.TestCase):
 	def test_incluir_po_no(self):
 		settings = _mock_settings(pdf_incluir_po_no=1)
 		si = _mock_si(po_no="OC-12345")
-		result = _apply_settings_and_build(si, "PUE", "TestCo", settings)
+		result = _apply_settings_and_build(si, "PUE", settings)
 		self.assertIn("OC-12345", result)
 
 	# Caso 6 (exclusión): No incluir po_no
 	def test_excluir_po_no(self):
 		settings = _mock_settings(pdf_incluir_po_no=0)
 		si = _mock_si(po_no="OC-12345")
-		result = _apply_settings_and_build(si, "PUE", "TestCo", settings)
+		result = _apply_settings_and_build(si, "PUE", settings)
 		self.assertNotIn("OC-12345", result)
 
 	# Caso 7: Inclusión de remarks
 	def test_incluir_remarks(self):
 		settings = _mock_settings(pdf_incluir_remarks=1)
 		si = _mock_si(remarks="Entrega en bodega central")
-		result = _apply_settings_and_build(si, "PUE", "TestCo", settings)
+		result = _apply_settings_and_build(si, "PUE", settings)
 		self.assertIn("Entrega en bodega central", result)
 
 	# Caso 7 (exclusión): No incluir remarks
 	def test_excluir_remarks(self):
 		settings = _mock_settings(pdf_incluir_remarks=0)
 		si = _mock_si(remarks="Entrega en bodega central")
-		result = _apply_settings_and_build(si, "PUE", "TestCo", settings)
+		result = _apply_settings_and_build(si, "PUE", settings)
 		self.assertNotIn("Entrega en bodega central", result)
 
 	# Caso 8: Filtrado de remarks legacy vacíos
@@ -155,7 +151,7 @@ class TestBuildPdfCustomSection(unittest.TestCase):
 		settings = _mock_settings(pdf_incluir_remarks=1, pdf_nota_pue="")
 		for legacy in ["No Remarks", "None", "", "No hay observaciones"]:
 			si = _mock_si(remarks=legacy)
-			result = _apply_settings_and_build(si, "PUE", "TestCo", settings)
+			result = _apply_settings_and_build(si, "PUE", settings)
 			# Con leyenda PUE vacía y remarks filtrados, el resultado debe estar vacío
 			self.assertEqual(result, "", f"Remarks legacy '{legacy}' no debería generar output")
 
@@ -167,7 +163,7 @@ class TestBuildPdfCustomSection(unittest.TestCase):
 		row2.due_date = "2026-08-30"
 		settings = _mock_settings(pdf_nota_ppd="Vence el {due_date}")
 		si = _mock_si(payment_schedule=[row1, row2])
-		result = _apply_settings_and_build(si, "PPD", "TestCo", settings)
+		result = _apply_settings_and_build(si, "PPD", settings)
 		self.assertIn("2026", result)
 		self.assertNotIn("07/15", result.replace("-", "/"))
 
@@ -175,7 +171,7 @@ class TestBuildPdfCustomSection(unittest.TestCase):
 	def test_ppd_sin_payment_schedule_usa_due_date(self):
 		settings = _mock_settings(pdf_nota_ppd="Vence el {due_date}")
 		si = _mock_si(payment_schedule=[], due_date="2026-09-01")
-		result = _apply_settings_and_build(si, "PPD", "TestCo", settings)
+		result = _apply_settings_and_build(si, "PPD", settings)
 		self.assertIn("2026", result)
 
 	# Caso 11: Template con placeholder inválido
@@ -183,7 +179,7 @@ class TestBuildPdfCustomSection(unittest.TestCase):
 		settings = _mock_settings(pdf_nota_ppd="Pagar antes de {fecha_invalida}")
 		si = _mock_si()
 		with self.assertRaises(frappe.ValidationError):
-			_apply_settings_and_build(si, "PPD", "TestCo", settings)
+			_apply_settings_and_build(si, "PPD", settings)
 
 	# Caso 15: No hay textos hardcoded PUE o PPD en el código
 	def test_sin_textos_hardcoded(self):
