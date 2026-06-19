@@ -203,21 +203,12 @@ Configura el texto adicional que aparece en el PDF generado por FacturAPI para l
 |---|---|
 | **Incluir Orden de Compra** | Si está activado, agrega el número de orden de compra del cliente (`po_no` de la Sales Invoice) al PDF, cuando existe. |
 | **Incluir Observaciones** | Si está activado, agrega el campo Observaciones (`remarks`) de la Sales Invoice al PDF, si tiene contenido relevante. |
-| **Leyenda PUE** | Texto que aparece al final del PDF para facturas con Método de Pago `PUE`. Dejar vacío para no incluir ningún texto. Ejemplo: `Gracias por su compra.` |
-| **Leyenda PPD** | Texto para facturas con Método de Pago `PPD`. Admite tres variables: `{company}`, `{total}`, `{due_date}`. Dejar vacío para omitir. Ejemplo: `Pagar a {company} la cantidad de {total} antes del {due_date}.` |
+| **Leyenda PUE** | Texto que aparece al final del PDF para facturas con Método de Pago `PUE`. Dejar vacío para omitir. |
+| **Leyenda PPD** | Texto que aparece al final del PDF para facturas con Método de Pago `PPD`. Admite tres variables: `{company}`, `{total}`, `{due_date}`. Dejar vacío para omitir. |
 
-!!! note "Estas leyendas no tienen valor legal"
-    El texto configurado aquí es informativo. La Leyenda PPD no constituye un pagaré ni una
-    obligación autónoma de pago — para documentar obligaciones formales se requiere un
-    contrato o pagaré separado firmado por el deudor.
-
-!!! tip "Configuración inicial recomendada"
-    Si migras desde `facturacion_mx`, los textos equivalentes eran:
-
-    - Leyenda PUE: `Gracias por su Compra`
-    - Leyenda PPD: `Me obligo incondicionalmente a pagar a la orden de {company}, la cantidad de {total} con fecha límite {due_date}`
-
-    Puedes adaptarlos o reemplazarlos por textos más neutrales.
+!!! note "Alcance del contenido adicional"
+    El contenido configurado no convierte el CFDI en un pagaré ni sustituye un contrato,
+    pagaré u otro documento firmado que formalice la obligación de pago.
 
 ### 2. Configuracion Fiscal Mexico
 
