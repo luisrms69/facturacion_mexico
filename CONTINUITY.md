@@ -1,6 +1,6 @@
 # CONTINUITY.md — facturacion_mexico
 
-**Fecha:** 2026-06-15
+**Fecha:** 2026-06-18
 **Rama activa:** `fix/facturapi-response-log-permissions`
 **Tarea actual:** PR abierto — fix/facturapi-response-log-permissions → main (fixes post go-live LlantasCS)
 
