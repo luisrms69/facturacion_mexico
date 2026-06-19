@@ -193,6 +193,32 @@ Solo relevante si el cliente emite Facturas Globales (agrupa E-Receipts de venta
 | **Notificar al Timbrar Factura Global** | Si está activado, envía notificación por email al generar una Factura Global. |
 | **Emails de Notificación Factura Global** | Emails separados por coma que reciben la notificación. El usuario creador siempre se incluye. |
 
+---
+
+#### Sección: Contenido PDF del CFDI
+
+Configura el texto adicional que aparece en el PDF generado por FacturAPI para los CFDIs de tipo **Ingreso (I)**. No afecta el XML ni el timbrado fiscal.
+
+| Campo | Descripción |
+|---|---|
+| **Incluir Orden de Compra** | Si está activado, agrega el número de orden de compra del cliente (`po_no` de la Sales Invoice) al PDF, cuando existe. |
+| **Incluir Observaciones** | Si está activado, agrega el campo Observaciones (`remarks`) de la Sales Invoice al PDF, si tiene contenido relevante. |
+| **Leyenda PUE** | Texto que aparece al final del PDF para facturas con Método de Pago `PUE`. Dejar vacío para no incluir ningún texto. Ejemplo: `Gracias por su compra.` |
+| **Leyenda PPD** | Texto para facturas con Método de Pago `PPD`. Admite tres variables: `{company}`, `{total}`, `{due_date}`. Dejar vacío para omitir. Ejemplo: `Pagar a {company} la cantidad de {total} antes del {due_date}.` |
+
+!!! note "Estas leyendas no tienen valor legal"
+    El texto configurado aquí es informativo. La Leyenda PPD no constituye un pagaré ni una
+    obligación autónoma de pago — para documentar obligaciones formales se requiere un
+    contrato o pagaré separado firmado por el deudor.
+
+!!! tip "Configuración inicial recomendada"
+    Si migras desde `facturacion_mx`, los textos equivalentes eran:
+
+    - Leyenda PUE: `Gracias por su Compra`
+    - Leyenda PPD: `Me obligo incondicionalmente a pagar a la orden de {company}, la cantidad de {total} con fecha límite {due_date}`
+
+    Puedes adaptarlos o reemplazarlos por textos más neutrales.
+
 ### 2. Configuracion Fiscal Mexico
 
 Accede desde el workspace **Facturación México → Configuracion Fiscal Mexico → New**.
