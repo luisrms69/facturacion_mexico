@@ -193,6 +193,23 @@ Solo relevante si el cliente emite Facturas Globales (agrupa E-Receipts de venta
 | **Notificar al Timbrar Factura Global** | Si está activado, envía notificación por email al generar una Factura Global. |
 | **Emails de Notificación Factura Global** | Emails separados por coma que reciben la notificación. El usuario creador siempre se incluye. |
 
+---
+
+#### Sección: Contenido PDF del CFDI
+
+Configura el texto adicional que aparece en el PDF generado por FacturAPI para los CFDIs de tipo **Ingreso (I)**. No afecta el XML ni el timbrado fiscal.
+
+| Campo | Descripción |
+|---|---|
+| **Incluir Orden de Compra** | Si está activado, agrega el número de orden de compra del cliente (`po_no` de la Sales Invoice) al PDF, cuando existe. |
+| **Incluir Observaciones** | Si está activado, agrega el campo Observaciones (`remarks`) de la Sales Invoice al PDF, si tiene contenido relevante. |
+| **Leyenda PUE** | Texto que aparece al final del PDF para facturas con Método de Pago `PUE`. Dejar vacío para omitir. |
+| **Leyenda PPD** | Texto que aparece al final del PDF para facturas con Método de Pago `PPD`. Admite tres variables: `{company}`, `{total}`, `{due_date}`. Dejar vacío para omitir. |
+
+!!! note "Alcance del contenido adicional"
+    El contenido configurado no convierte el CFDI en un pagaré ni sustituye un contrato,
+    pagaré u otro documento firmado que formalice la obligación de pago.
+
 ### 2. Configuracion Fiscal Mexico
 
 Accede desde el workspace **Facturación México → Configuracion Fiscal Mexico → New**.

@@ -6,7 +6,7 @@ from typing import Any
 
 import frappe
 from frappe import _
-from frappe.utils import flt, now_datetime, today
+from frappe.utils import flt, fmt_money, format_date, now_datetime, today
 
 from facturacion_mexico.config.sat_objeto_impuesto import SATObjetoImpuesto
 from facturacion_mexico.config.sat_tax_rates import FacturAPITaxRates
@@ -130,6 +130,7 @@ class TimbradoAPI:
 		pac_response = None
 		pac_request = None
 		factura_fiscal = None
+		self._pending_pdf_custom_section = None
 
 		try:
 			# FASE 1: PREPARACIÓN (puede fallar antes de contactar PAC)
@@ -371,6 +372,9 @@ class TimbradoAPI:
 
 			return payload
 			# --- FIN NORMALIZACIÓN ERROR FACTURAPI ---
+
+		finally:
+			self._pending_pdf_custom_section = None
 
 	def _validate_invoice_for_timbrado(self, sales_invoice):
 		"""Validar que la factura se puede timbrar."""
@@ -793,6 +797,16 @@ class TimbradoAPI:
 			if namespaces:
 				invoice_data["namespaces"] = namespaces
 
+		# PDF custom section — solo para CFDI tipo I
+		if tipo_code == "I":
+			payment_method = (factura_fiscal.get("fm_payment_method_sat") or "PUE").upper()
+			pdf_settings = _get_company_pdf_settings(self.company)
+			pdf_section = _build_pdf_custom_section(sales_invoice, payment_method, pdf_settings)
+			if pdf_section:
+				invoice_data["pdf_custom_section"] = pdf_section
+			# Guardar para persistir solo si el timbrado es exitoso
+			self._pending_pdf_custom_section = pdf_section
+
 		return invoice_data
 
 	def _get_payment_form_for_invoice(self, sales_invoice) -> str:
@@ -1011,6 +1025,11 @@ class TimbradoAPI:
 				frappe.log_error(frappe.get_traceback(), "Post-Timbrado: cascada sustitución")
 				frappe.logger().error(f"Cascada sustitución falló para FFM {factura_fiscal.name}: {e}")
 				# NO usar frappe.throw aquí - preservar timbrado exitoso
+
+			# Persistir pdf_custom_section exactamente lo que se envió al PAC (solo en éxito)
+			if hasattr(self, "_pending_pdf_custom_section"):
+				self._persist_pdf_custom_section(factura_fiscal, self._pending_pdf_custom_section)
+				del self._pending_pdf_custom_section
 
 			frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure fiscal transaction is committed after successful stamping
 
@@ -2471,6 +2490,20 @@ class TimbradoAPI:
 
 		return True
 
+	def _persist_pdf_custom_section(self, factura_fiscal, text: str) -> None:
+		"""Persiste el texto enviado a FacturAPI en fm_pdf_custom_section del FFM.
+
+		Usa factura_fiscal.name directamente — el documento que participó en este
+		timbrado. El campo es read_only; se escribe solo aquí, en timbrado exitoso.
+		"""
+		frappe.db.set_value(
+			"Factura Fiscal Mexico",
+			factura_fiscal.name,
+			"fm_pdf_custom_section",
+			text or "",
+			update_modified=False,
+		)
+
 
 def _build_cancellation_reason_for_select(motive_code: str) -> str:
 	"""Devuelve el texto EXACTO esperado por el campo Select, validando contra el DocType."""
@@ -3236,6 +3269,90 @@ def revisar_estatus_cancelacion(ffm_name: str) -> dict:
 		"indicator": indicator,
 		"cancellation_status": cancel_status,
 	}
+
+
+_ALLOWED_PDF_TEMPLATE_KEYS = frozenset({"company", "total", "due_date"})
+_SKIP_REMARKS = frozenset({"No Remarks", "None", "", "No hay observaciones"})
+
+
+def render_pdf_note_template(template: str, **kwargs) -> str:
+	"""Renderiza template de nota PDF con variables permitidas.
+
+	Solo acepta {company}, {total}, {due_date}. Lanza ValidationError si el
+	template contiene un placeholder no permitido.
+	"""
+	import string
+
+	formatter = string.Formatter()
+	keys_used = {field_name for _, field_name, _, _ in formatter.parse(template) if field_name}
+	unknown = keys_used - _ALLOWED_PDF_TEMPLATE_KEYS
+	if unknown:
+		frappe.throw(
+			_(
+				"La leyenda PPD contiene variables no permitidas: {0}. "
+				"Solo se permiten: {{company}}, {{total}}, {{due_date}}."
+			).format(", ".join(f"{{{k}}}" for k in sorted(unknown))),
+			frappe.ValidationError,
+		)
+	return template.format(**{k: kwargs.get(k, "") for k in _ALLOWED_PDF_TEMPLATE_KEYS})
+
+
+def _get_company_pdf_settings(company: str):
+	"""Obtiene Facturacion Mexico Company Settings para la empresa indicada.
+
+	Retorna el documento o None si no existe configuración para esa empresa.
+	Separado de _build_pdf_custom_section para que la lógica pura sea testeable
+	sin mockear frappe.get_doc.
+	"""
+	settings_name = frappe.db.get_value("Facturacion Mexico Company Settings", {"company": company}, "name")
+	if not settings_name:
+		return None
+	return frappe.get_doc("Facturacion Mexico Company Settings", settings_name)
+
+
+def _build_pdf_custom_section(si_doc, payment_method: str, settings) -> str:
+	"""Construye pdf_custom_section para CFDI tipo I.
+
+	Retorna texto vacío si settings es None o no hay nada configurado.
+	No hardcodea leyendas. Solo se invoca para CFDI tipo I.
+	Recibe el objeto settings ya cargado — sin acceso a Frappe.
+	"""
+	if settings is None:
+		return ""
+
+	notes = []
+
+	if settings.pdf_incluir_po_no and (si_doc.po_no or "").strip():
+		notes.append(si_doc.po_no.strip())
+
+	remarks = (si_doc.remarks or "").strip()
+	if settings.pdf_incluir_remarks and remarks and remarks not in _SKIP_REMARKS:
+		notes.append(remarks)
+
+	if payment_method == "PPD":
+		template = (settings.pdf_nota_ppd or "").strip()
+		if template:
+			if si_doc.payment_schedule:
+				due_date = max(
+					(row.due_date for row in si_doc.payment_schedule if row.due_date),
+					default=si_doc.due_date,
+				)
+			else:
+				due_date = si_doc.due_date
+			notes.append(
+				render_pdf_note_template(
+					template,
+					company=settings.company,
+					total=fmt_money(si_doc.grand_total, currency=si_doc.currency),
+					due_date=format_date(due_date) if due_date else "",
+				)
+			)
+	else:
+		pue_note = (settings.pdf_nota_pue or "").strip()
+		if pue_note:
+			notes.append(pue_note)
+
+	return "\n".join(note for note in notes if note)
 
 
 @frappe.whitelist()

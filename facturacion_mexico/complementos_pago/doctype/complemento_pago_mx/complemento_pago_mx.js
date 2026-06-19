@@ -265,27 +265,34 @@ function _setup_email_btn(frm) {
 }
 
 function _setup_descargar_btn(frm) {
-	frm.add_custom_button(__("Descargar PDF+XML"), function () {
-		frappe.call({
-			method: "facturacion_mexico.complementos_pago.api.descargar_archivos_complemento",
-			args: { complemento_name: frm.doc.name },
-			callback: function (r) {
-				if (r.message && r.message.success) {
-					frappe.show_alert(
-						{ message: __("PDF y XML adjuntados correctamente."), indicator: "green" },
-						5
-					);
-					frm.reload_doc();
-				} else {
-					frappe.show_alert(
-						{
-							message: __("Error al descargar archivos. Revisar Error Log."),
-							indicator: "red",
-						},
-						6
-					);
-				}
-			},
-		});
-	});
+	frm.add_custom_button(
+		__("Descargar PDF+XML"),
+		function () {
+			frappe.call({
+				method: "facturacion_mexico.complementos_pago.api.descargar_archivos_complemento",
+				args: { complemento_name: frm.doc.name },
+				callback: function (r) {
+					if (r.message && r.message.success) {
+						frappe.show_alert(
+							{
+								message: __("PDF y XML adjuntados correctamente."),
+								indicator: "green",
+							},
+							5
+						);
+						frm.reload_doc();
+					} else {
+						frappe.show_alert(
+							{
+								message: __("Error al descargar archivos. Revisar Error Log."),
+								indicator: "red",
+							},
+							6
+						);
+					}
+				},
+			});
+		},
+		__("Comprobantes")
+	);
 }

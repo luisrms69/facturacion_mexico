@@ -62,7 +62,8 @@
   "fm_xml_url",
   "fm_pdf_url",
   "fm_last_response_log",
-  "fm_creation_source"
+  "fm_creation_source",
+  "fm_pdf_custom_section"
  ],
  "fields": [
   {
@@ -455,6 +456,14 @@
    "allow_on_submit": 1,
    "read_only": 1,
    "in_list_view": 0
+  },
+  {
+   "fieldname": "fm_pdf_custom_section",
+   "fieldtype": "Long Text",
+   "label": "Sección PDF Enviada a FacturAPI",
+   "allow_on_submit": 1,
+   "read_only": 1,
+   "description": "Texto enviado a FacturAPI como pdf_custom_section al timbrar. Solo lectura — registra exactamente lo enviado."
   }
  ],
  "index_web_pages_for_search": 1,
