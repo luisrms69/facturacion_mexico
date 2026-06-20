@@ -1710,32 +1710,19 @@
 	// ========================================
 
 	function control_multisucursal_field_visibility(frm) {
-		// Control de visibilidad de campos multi-sucursal basado en configuración
-
-		// Verificar si multi-sucursal está habilitado a nivel de sitio
-		frappe.call({
-			method: "frappe.client.get_value",
-			args: {
-				doctype: "System Settings",
-				fieldname: ["multisucursal_enabled"],
-			},
-			callback: function (r) {
-				const is_multisucursal_enabled = r.message && r.message.multisucursal_enabled;
-
-				// Controlar visibilidad del campo lugar_expedicion
-				if (is_multisucursal_enabled) {
-					// Si multi-sucursal está habilitado, mostrar lugar_expedicion
-					show_multisucursal_fields(frm);
-				} else {
-					// Si multi-sucursal NO está habilitado, ocultar lugar_expedicion
-					hide_multisucursal_fields(frm);
-				}
-			},
-			error: function () {
-				// En caso de error, verificar por site_config.json
-				check_site_config_multisucursal(frm);
-			},
-		});
+		// Control de visibilidad de campos multi-sucursal.
+		//
+		// Multi-sucursal fiscal NO está implementado todavía: no existe un
+		// indicador explícito por Company que lo habilite. Mientras tanto,
+		// se ocultan los campos sin hacer llamadas al servidor.
+		//
+		// Antes este método consultaba "System Settings.multisucursal_enabled"
+		// (campo inexistente → 403) y como fallback "frappe.utils.get_site_config"
+		// (método eliminado en Frappe v16 → 417). Ambas llamadas se ejecutaban en
+		// cada refresh de la FFM y ensuciaban la consola sin efecto funcional.
+		//
+		// Ver issue de raíz sobre habilitación explícita de multi-sucursal fiscal.
+		hide_multisucursal_fields(frm);
 	}
 
 	function show_multisucursal_fields(frm) {
@@ -1779,29 +1766,6 @@
 		// Ocultar sección multi-sucursal si existe
 		hide_section(frm, "section_break_multisucursal");
 		hide_section(frm, "fm_multibranch_section");
-	}
-
-	function check_site_config_multisucursal(frm) {
-		// Verificar configuración multi-sucursal en site_config.json
-		frappe.call({
-			method: "frappe.utils.get_site_config",
-			args: {
-				key: "multisucursal_enabled",
-			},
-			callback: function (r) {
-				const is_multisucursal_enabled = r.message === 1 || r.message === true;
-
-				if (is_multisucursal_enabled) {
-					show_multisucursal_fields(frm);
-				} else {
-					hide_multisucursal_fields(frm);
-				}
-			},
-			error: function () {
-				// Si falla todo, usar comportamiento por defecto (ocultar)
-				hide_multisucursal_fields(frm);
-			},
-		});
 	}
 
 	// ========================================
