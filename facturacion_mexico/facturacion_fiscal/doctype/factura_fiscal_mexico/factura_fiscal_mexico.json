@@ -477,6 +477,7 @@
  "permissions": [
   {
    "amend": 0,
+   "cancel": 0,
    "create": 1,
    "delete": 1,
    "email": 1,
@@ -490,7 +491,9 @@
   },
   {
    "amend": 0,
+   "cancel": 0,
    "create": 1,
+   "delete": 0,
    "email": 1,
    "export": 1,
    "print": 1,
@@ -502,6 +505,7 @@
   },
   {
    "amend": 0,
+   "cancel": 1,
    "create": 1,
    "delete": 1,
    "email": 1,
@@ -511,6 +515,37 @@
    "report": 1,
    "role": "System Manager",
    "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "amend": 0,
+   "cancel": 1,
+   "create": 1,
+   "delete": 0,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Facturacion Mexico Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "amend": 0,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Facturacion Mexico System Manager",
+   "share": 1,
+   "submit": 1,
    "write": 1
   }
  ],

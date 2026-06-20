@@ -1330,10 +1330,10 @@ def check_si_customer_rfc_validated(si_name: str):
 @frappe.whitelist()
 def cancel_ffm_keep_si(ffm_name: str):
 	"""Cancela SOLO la FFM (sin cfdi_uuid) y libera la Sales Invoice enlazada.
-	- Requiere rol: System Manager o Facturacion Mexico System Manager
+	- Requiere rol: System Manager, Facturacion Mexico System Manager o Facturacion Mexico Manager
 	- Deja la SI viva (docstatus=1) y sin link a FFM, lista para reintentar.
 	"""
-	frappe.only_for(("System Manager", "Facturacion Mexico System Manager"))
+	frappe.only_for(("System Manager", "Facturacion Mexico System Manager", "Facturacion Mexico Manager"))
 
 	ffm = frappe.get_doc("Factura Fiscal Mexico", ffm_name)
 	if ffm.docstatus != 1 or getattr(ffm, "fm_uuid", None):

@@ -1,72 +1,73 @@
 # CONTINUITY.md — facturacion_mexico
 
 **Fecha:** 2026-06-19
-**Rama activa:** `fix/post-golive-corrections`
-**Tarea actual:** PR abierto — fix/post-golive-corrections → main
+**Rama activa:** `fix/ffm-cancel-permissions`
+**Tarea actual:** Restricción de permisos de cancelación FFM — commit en curso
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-PR de correcciones post go-live LlantasCS — UI CPMX y pdf_custom_section configurable.
+Fix de permisos para cancelación de Factura Fiscal Mexico — solo 3 roles autorizados.
 
 Plan que estoy siguiendo:
-PR #195 (o el número asignado) — esperando review de CodeRabbit y merge.
+Correcciones post go-live LlantasCS — permisos y flujo de cancelación.
 
 Objetivo inmediato:
-Merge del PR y deploy en producción (erpstar.llantascs.com).
+Commit + push + PR de este fix.
 
 Criterio de avance:
-PR mergeado, bench migrate en producción, textos PPD/PUE configurados en Company Settings de LlantasCS.
+PR mergeado y cambios en producción vía bench migrate.
 
 ---
 
 ## Estado actual
 
-### Ya cerrado (en esta rama)
-- `1b4f82e` fix(cpmx): botón "Descargar PDF+XML" movido al grupo "Comprobantes"
-- `5cedd69` feat(timbrado): pdf_custom_section configurable por empresa (17/17 tests)
-- `5ac431b` docs(usuario): sección "Contenido PDF del CFDI" en getting-started
-- `ca5bb73` docs(usuario): corrección — sin textos prescriptivos ni recomendados
+### Ya cerrado
+- PR #195 mergeado: fix pdf_custom_section + CodeRabbit
+- PR #193 mergeado: fixes post go-live timbrado + CPMX email
+- PR #192 mergeado: migración Fase 2 FFM + CPMX
 
 ### En progreso
-- PR abierto — esperando CodeRabbit y autorización de merge
+- Rama `fix/ffm-cancel-permissions`: permisos cancelación FFM
 
 ### Pendiente inmediato
-1. Merge del PR
-2. Deploy: `bench migrate` en erpstar.llantascs.com
-3. Configurar manualmente textos PUE/PPD en Company Settings de LlantasCS
+1. Push de esta rama
+2. Abrir PR
+3. Deploy en producción: `bench migrate` + `bench build`
+4. Configurar textos PUE/PPD en Company Settings de LlantasCS en producción
+5. Ejecutar `fix_fm_tax_regime_from_tax_category.py` en producción cuando esté listo
+6. Reporte pendientes migración entregado al cliente (93 casos + 21 SIs adicionales)
 
 ### No repetir
-- NO persistir `fm_pdf_custom_section` en el payload — solo en `_process_timbrado_success`
-- NO incluir textos específicos del cliente en docs generales del app
-- NO hardcodear leyendas PUE/PPD en código
+- NO persistir fm_pdf_custom_section en el payload — solo en _process_timbrado_success
+- NO mergear chore/track-working-docs-archive directo — tiene código obsoleto mezclado
+- Bug `frappe.utils.get_site_config` en factura_fiscal_mexico.js pendiente — no urgente
 
 ---
 
 ## Decisiones vigentes
+- Solo 3 roles pueden cancelar FFM: System Manager, Facturacion Mexico Manager, Facturacion Mexico System Manager
+- Accounts Manager y Accounts User: cancel=0 explícito en DocPerm
 - `pdf_custom_section` solo para CFDI tipo I
-- Sin defaults en pdf_nota_pue/ppd — vacío = no enviar
 - Solo Company Settings (sin Customer ni SI override)
-- Template PPD validado al guardar (placeholder desconocido = ValidationError)
-- Persistencia solo en timbrado exitoso
 
 ---
 
 ## Archivos relevantes ahora
 
-### Leer primero
-- `facturacion_fiscal/timbrado_api.py` — `_build_pdf_custom_section`, `_process_timbrado_success`
-- `docs/usuario/getting-started.md` — sección "Contenido PDF del CFDI"
+### Probablemente editar
+- `facturacion_mexico/facturacion_fiscal/doctype/factura_fiscal_mexico/factura_fiscal_mexico.py`
+- `facturacion_mexico/facturacion_fiscal/doctype/factura_fiscal_mexico/factura_fiscal_mexico.json`
 
 ### No tocar
 - `patches.txt` — vacío por diseño (RG-010b)
-- `one_offs/` — no commitear
+- `one_offs/fix_fm_tax_regime_from_tax_category.py` — pendiente ejecución producción
 
 ---
 
 ## Riesgos / cuidados
-- Requiere `bench migrate` en producción al deployar — sin esto los campos no existen en BD
-- LlantasCS debe configurar manualmente sus textos PPD/PUE en Company Settings
-- `llantascs-mig.local` (8409) tiene encryption key distinta — API keys deben re-ingresarse
+- Producción necesita `bench migrate` para activar permisos nuevos en FFM
+- `chore/track-working-docs-archive` tiene código obsoleto — no mergear sin cherry-pick
+- Bug `frappe.utils.get_site_config` en JS genera ruido en consola pero no bloquea funcionalidad

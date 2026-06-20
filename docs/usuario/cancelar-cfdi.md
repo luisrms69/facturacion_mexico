@@ -94,6 +94,22 @@ Puedes verificar cualquier operación de cancelación en **FacturAPI Response Lo
 
 ---
 
+## Permisos requeridos para cancelar
+
+Solo los siguientes roles pueden cancelar una Factura Fiscal Mexico:
+
+| Rol | Puede cancelar FFM |
+|---|---|
+| System Manager | ✅ Sí |
+| Facturacion Mexico Manager | ✅ Sí |
+| Facturacion Mexico System Manager | ✅ Sí |
+| Accounts Manager | ❌ No |
+| Accounts User | ❌ No |
+
+El botón **Cancel** no aparece en la UI si el usuario no tiene uno de los roles autorizados.
+
+---
+
 ## Restricciones adicionales
 
 - Solo se pueden cancelar facturas con `fm_fiscal_status = TIMBRADO`
