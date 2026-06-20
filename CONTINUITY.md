@@ -2,7 +2,7 @@
 
 **Fecha:** 2026-06-19
 **Rama activa:** `fix/ffm-cancel-permissions`
-**Tarea actual:** Correcciones post go-live — permisos cancelación + cleanup 403/417
+**Tarea actual:** Correcciones post go-live — PR abierto (permisos cancelación + cleanup 403/417)
 
 ---
 
