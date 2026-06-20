@@ -606,6 +606,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#permisos-requeridos-para-cancelar" class="md-nav__link">
+    <span class="md-ellipsis">
+      Permisos requeridos para cancelar
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#restricciones-adicionales" class="md-nav__link">
     <span class="md-ellipsis">
       Restricciones adicionales
@@ -1957,6 +1966,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#permisos-requeridos-para-cancelar" class="md-nav__link">
+    <span class="md-ellipsis">
+      Permisos requeridos para cancelar
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#restricciones-adicionales" class="md-nav__link">
     <span class="md-ellipsis">
       Restricciones adicionales
@@ -2090,6 +2108,47 @@ El motivo <strong>01</strong> requiere un UUID sustituto y sigue un camino difer
 <h2 id="acuse-de-cancelacion">Acuse de cancelación<a class="headerlink" href="#acuse-de-cancelacion" title="Permanent link">&para;</a></h2>
 <p>Al completar la cancelación, el sistema descarga automáticamente el <strong>acuse de cancelación</strong> (PDF y XML) desde FacturAPI.io y los adjunta al FFM.</p>
 <p>Puedes verificar cualquier operación de cancelación en <strong>FacturAPI Response Log</strong> (ver <a href="../emitir-cfdi/#facturapi-response-log">Emitir un CFDI — FacturAPI Response Log</a>).</p>
+<hr />
+<h2 id="permisos-requeridos-para-cancelar">Permisos requeridos para cancelar<a class="headerlink" href="#permisos-requeridos-para-cancelar" title="Permanent link">&para;</a></h2>
+<p>Solo los siguientes roles pueden cancelar una Factura Fiscal Mexico:</p>
+<table>
+<thead>
+<tr>
+<th>Rol</th>
+<th>Puede cancelar FFM</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>System Manager</td>
+<td>✅ Sí</td>
+</tr>
+<tr>
+<td>Facturacion Mexico Manager</td>
+<td>✅ Sí</td>
+</tr>
+<tr>
+<td>Facturacion Mexico System Manager</td>
+<td>✅ Sí</td>
+</tr>
+<tr>
+<td>Accounts Manager</td>
+<td>❌ No</td>
+</tr>
+<tr>
+<td>Accounts User</td>
+<td>❌ No</td>
+</tr>
+</tbody>
+</table>
+<p>El control de acceso opera en dos niveles:</p>
+<ul>
+<li><strong>Botón Cancel nativo de Frappe</strong> — depende del permiso <code>cancel</code> del DocPerm: solo se
+  habilita para los roles con <code>cancel=1</code>.</li>
+<li><strong>Acción de cancelación personalizada</strong> (<code>cancel_ffm_keep_si</code>) — la autorización se valida
+  en el servidor mediante <code>frappe.only_for</code>. Si el usuario no tiene uno de los roles
+  autorizados, la operación se rechaza con error de permisos al ejecutarse.</li>
+</ul>
 <hr />
 <h2 id="restricciones-adicionales">Restricciones adicionales<a class="headerlink" href="#restricciones-adicionales" title="Permanent link">&para;</a></h2>
 <ul>
