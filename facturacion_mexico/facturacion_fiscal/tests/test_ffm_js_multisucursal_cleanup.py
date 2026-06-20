@@ -81,9 +81,8 @@ class TestFFMJsMultisucursalCleanup(unittest.TestCase):
 	def test_control_visibility_llama_hide(self):
 		"""control_multisucursal_field_visibility debe llamar a hide_multisucursal_fields."""
 		match = re.search(
-			r"function\s+control_multisucursal_field_visibility\s*\(frm\)\s*\{(.*?)\n\t\}",
+			r"function\s+control_multisucursal_field_visibility\s*\(frm\)\s*\{([\s\S]*?)\n\s*\}",
 			self.js_raw,
-			re.DOTALL,
 		)
 		self.assertIsNotNone(
 			match,
@@ -115,9 +114,8 @@ class TestFFMJsMultisucursalCleanup(unittest.TestCase):
 		"""Guard: el payload a FacturAPI sigue sin incluir lugar_expedicion."""
 		# Aislar el dict invoice_data principal para no leer comentarios sueltos.
 		match = re.search(
-			r"invoice_data\s*=\s*\{(.*?)\n\t\t\}",
+			r"invoice_data\s*=\s*\{([\s\S]*?)\n\s*\}",
 			self.timbrado_src,
-			re.DOTALL,
 		)
 		self.assertIsNotNone(match, "No se encontró el dict invoice_data en timbrado_api.py.")
 		self.assertNotIn(

@@ -1610,9 +1610,6 @@
 			"cancellation_date", // Fecha de Cancelación
 		];
 
-		// NUEVA FUNCIONALIDAD: Control de lugar_expedicion basado en multi-sucursal
-		control_multisucursal_field_visibility(frm);
-
 		// Usar estados centralizados para lógica de visibilidad
 		load_fiscal_states(function (states) {
 			if (!states) {
@@ -1624,6 +1621,8 @@
 					hide_section(frm, "section_break_archivos");
 					hide_section(frm, "section_break_cancelacion");
 				}
+				// El ocultamiento multi-sucursal debe prevalecer al terminar el refresh.
+				control_multisucursal_field_visibility(frm);
 				return;
 			}
 
@@ -1670,6 +1669,13 @@
 				show_section(frm, "section_break_archivos");
 				hide_section(frm, "section_break_cancelacion"); // Aún no confirmada
 			}
+
+			// El ocultamiento multi-sucursal debe prevalecer al terminar el refresh.
+			// fm_serie_folio está en facturapi_response_fields y los show_fields de
+			// arriba lo re-exponen; esta llamada al final garantiza que quede oculto
+			// mientras multi-sucursal fiscal no esté habilitado (corrección temporal —
+			// solución definitiva en issue #196).
+			control_multisucursal_field_visibility(frm);
 		});
 	}
 
