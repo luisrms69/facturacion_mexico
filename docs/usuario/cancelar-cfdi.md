@@ -94,6 +94,28 @@ Puedes verificar cualquier operación de cancelación en **FacturAPI Response Lo
 
 ---
 
+## Permisos requeridos para cancelar
+
+Solo los siguientes roles pueden cancelar una Factura Fiscal Mexico:
+
+| Rol | Puede cancelar FFM |
+|---|---|
+| System Manager | ✅ Sí |
+| Facturacion Mexico Manager | ✅ Sí |
+| Facturacion Mexico System Manager | ✅ Sí |
+| Accounts Manager | ❌ No |
+| Accounts User | ❌ No |
+
+El control de acceso opera en dos niveles:
+
+- **Botón Cancel nativo de Frappe** — depende del permiso `cancel` del DocPerm: solo se
+  habilita para los roles con `cancel=1`.
+- **Acción de cancelación personalizada** (`cancel_ffm_keep_si`) — la autorización se valida
+  en el servidor mediante `frappe.only_for`. Si el usuario no tiene uno de los roles
+  autorizados, la operación se rechaza con error de permisos al ejecutarse.
+
+---
+
 ## Restricciones adicionales
 
 - Solo se pueden cancelar facturas con `fm_fiscal_status = TIMBRADO`
