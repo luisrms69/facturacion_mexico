@@ -587,6 +587,14 @@ class PACResponseWriter:
 				# Limpiar UUID si hay error de timbrado para higiene
 				update_fields["fm_uuid"] = None
 
+			# Corrección 6B0: en timbrado exitoso, persistir también facturapi_id si la respuesta
+			# lo trae (top-level o dentro de raw_response). Se limita a TIMBRADO para no alterar
+			# la semántica de cancelación/consulta.
+			if new_status == "TIMBRADO":
+				_resp_uuid, facturapi_id = _extract_response_identifiers(response_data)
+				if facturapi_id:
+					update_fields["facturapi_id"] = facturapi_id
+
 			# Actualizar URLs si están en respuesta
 			if "download" in response_data:
 				download = response_data["download"]
@@ -665,7 +673,10 @@ class PACResponseWriter:
 			m = re.search(r"FacturAPI\s+(\d{3})", error_text)
 			status_code = cint(m.group(1)) if m else 500
 
-		uuid = (resp.get("uuid") or "").strip()
+		# Corrección 6B0: el UUID del timbrado llega dentro de raw_response, no solo a nivel
+		# superior. Reutilizar el extractor normalizado evita derivar ERROR en un timbrado
+		# exitoso por no encontrar el UUID en el nivel equivocado.
+		uuid, _facturapi_id = _extract_response_identifiers(resp)
 
 		# REGLA CANÓNICA POR TIPO DE OPERACIÓN
 		if operation_type == "Timbrado":
