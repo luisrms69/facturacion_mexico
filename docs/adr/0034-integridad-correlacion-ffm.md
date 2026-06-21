@@ -40,7 +40,7 @@ Una Sales Invoice (SI) terminó con **dos Factura Fiscal Mexico (FFM)** y una **
 | `factura_fiscal_mexico/factura_fiscal_mexico.py` | `get_or_create_active_ffm` (creación centralizada + lock + resolución por activos), guard `before_insert` (Regla B) |
 | `config/fiscal_states_config.py` | `ACTIVE_STATES` + helpers `is_active`/`is_final` |
 | `api/fiscal_operations.py` | Refacturación 02/03/04: eliminación del guard `pending` |
-| `public/js/sales_invoice.js` | Botón "Generar Factura Fiscal" → `get_or_create_active_ffm` (servidor); elimina `client.insert`/`set_value` |
+| `public/js/sales_invoice.js` | Botón "Timbrar Factura" → `get_or_create_active_ffm` (servidor); elimina `client.insert`/`set_value` |
 
 ### Los 11 commits
 | # | Hash | Propósito | Depende de | Antes → Después | Riesgo |
@@ -224,7 +224,7 @@ PASO 1 ok (estado fiscal persistido) · PASO 2 falla → rollback al savepoint �
 
 ## 13. Observabilidad posterior al despliegue
 
-Revisar: nuevos FFM duplicados por SI · frecuencia de `FiscalCorrelationError` · distribución de `fm_sync_status` · errores de Response Log (`audit_log_failed`) · FFM en `ERROR` · resultados con `retry_allowed=False` / mensajes "No repita la operación" · tiempos de espera por lock · cancelaciones en `PENDIENTE_CANCELACION` · errores JS del botón "Generar Factura Fiscal".
+Revisar: nuevos FFM duplicados por SI · frecuencia de `FiscalCorrelationError` · distribución de `fm_sync_status` · errores de Response Log (`audit_log_failed`) · FFM en `ERROR` · resultados con `retry_allowed=False` / mensajes "No repita la operación" · tiempos de espera por lock · cancelaciones en `PENDIENTE_CANCELACION` · errores JS del botón "Timbrar Factura".
 
 ---
 
