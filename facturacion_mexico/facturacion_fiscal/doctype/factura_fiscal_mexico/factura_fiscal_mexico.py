@@ -1307,6 +1307,109 @@ def get_sales_invoice_for_ffm(
 
 
 @frappe.whitelist()
+def get_or_create_active_ffm(sales_invoice: str, extra_fields: str | dict | None = None) -> str:
+	"""Obtener o crear el FFM de una Sales Invoice — única vía de creación (Corrección 3).
+
+	Centraliza en servidor la creación que antes hacía el botón con `frappe.client.insert`
+	+ `set_value`. Reutiliza el FFM ya vinculado en `Sales Invoice.fm_factura_fiscal_mx`;
+	si la referencia está vacía, crea uno con la MISMA lógica y valores del botón y lo vincula.
+
+	⚠️ SIN LOCK TODAVÍA: dos llamadas concurrentes con `fm_factura_fiscal_mx` vacío aún pueden
+	crear dos FFM. La condición de carrera NO queda resuelta en esta corrección; la
+	Corrección 4 agregará el lock por Sales Invoice. No asumir unicidad concurrente aquí.
+
+	No llama al PAC.
+	"""
+	import json
+
+	from facturacion_mexico.config.fiscal_states_config import FiscalStates
+
+	if isinstance(extra_fields, str):
+		extra_fields = json.loads(extra_fields) if extra_fields else {}
+	extra_fields = extra_fields or {}
+
+	# La Sales Invoice debe existir.
+	if not frappe.db.exists("Sales Invoice", sales_invoice):
+		frappe.throw(
+			_("La Sales Invoice {0} no existe.").format(sales_invoice),
+			title=_("Sales Invoice inexistente"),
+		)
+
+	# Recargar la SI desde servidor y validar permisos (lectura SI + creación FFM).
+	si = frappe.get_doc("Sales Invoice", sales_invoice)
+	si.check_permission("read")
+	frappe.has_permission("Factura Fiscal Mexico", "create", throw=True)
+
+	# Reutilizar el FFM ya vinculado, si la referencia es válida.
+	existing_ref = si.get("fm_factura_fiscal_mx")
+	if existing_ref:
+		ffm = frappe.db.get_value(
+			"Factura Fiscal Mexico", existing_ref, ["name", "status"], as_dict=True
+		)
+		if ffm:
+			if ffm.status in FiscalStates.FINAL_STATES:
+				# Apunta a un FFM terminal (CANCELADO/ARCHIVADO). La reemisión tras estado
+				# terminal es cardinalidad (Corrección 5); aquí se devuelve sin crear otro.
+				frappe.logger().info(
+					f"get_or_create_active_ffm: SI {sales_invoice} apunta a FFM terminal "
+					f"{existing_ref} ({ffm.status})"
+				)
+			return ffm.name
+		# Referencia rota: apunta a un FFM inexistente. Se documenta y se crea uno nuevo.
+		frappe.logger().warning(
+			f"get_or_create_active_ffm: SI {sales_invoice} apunta a FFM inexistente "
+			f"{existing_ref}; se creará uno nuevo"
+		)
+
+	# Documentar (sin reconciliar) FFM existentes por sales_invoice no vinculados a la SI.
+	# La reconciliación completa de cardinalidad corresponde a la Corrección 5.
+	no_vinculados = [
+		n
+		for n in frappe.get_all(
+			"Factura Fiscal Mexico", filters={"sales_invoice": sales_invoice}, pluck="name"
+		)
+		if n != existing_ref
+	]
+	if no_vinculados:
+		frappe.logger().warning(
+			f"get_or_create_active_ffm: SI {sales_invoice} tiene FFM no vinculados a la SI "
+			f"{no_vinculados} (reconciliación de cardinalidad pendiente — Corrección 5)"
+		)
+
+	# Crear el FFM con la MISMA lógica/valores del botón (cálculo de IVA en servidor).
+	iva_total = 0.0
+	otros_impuestos = 0.0
+	for tax in si.taxes or []:
+		head = (tax.account_head or "").upper()
+		if "IVA" in head:
+			iva_total += flt(tax.tax_amount)
+		else:
+			otros_impuestos += flt(tax.tax_amount)
+
+	ffm_doc = frappe.get_doc(
+		{
+			"doctype": "Factura Fiscal Mexico",
+			"sales_invoice": si.name,
+			"company": si.company,
+			"customer": si.customer,
+			"fm_fiscal_status": FiscalStates.BORRADOR,
+			"si_total_antes_iva": flt(si.net_total),
+			"si_total_neto": flt(si.grand_total),
+			"si_iva": iva_total,
+			"si_otros_impuestos": otros_impuestos,
+			**extra_fields,
+		}
+	)
+	ffm_doc.insert()
+
+	# Vincular el FFM creado a la Sales Invoice.
+	frappe.db.set_value("Sales Invoice", si.name, "fm_factura_fiscal_mx", ffm_doc.name)
+
+	# Devolver el nombre del FFM (sin llamar al PAC).
+	return ffm_doc.name
+
+
+@frappe.whitelist()
 def check_si_customer_rfc_validated(si_name: str):
 	"""Valida que la SI seleccionada tenga cliente con RFC validado (respaldo en on_change)."""
 	if not si_name:

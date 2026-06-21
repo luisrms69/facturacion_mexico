@@ -220,73 +220,42 @@ function _show_uuid_dialog(frm, callback) {
 }
 
 function _do_create_ffm(frm, extra_fields) {
-	let iva_total = 0;
-	let otros_impuestos = 0;
-
-	if (frm.doc.taxes && frm.doc.taxes.length > 0) {
-		frm.doc.taxes.forEach(function (tax) {
-			if (tax.account_head && tax.account_head.toUpperCase().includes("IVA")) {
-				iva_total += tax.tax_amount || 0;
-			} else {
-				otros_impuestos += tax.tax_amount || 0;
-			}
-		});
-	}
-
-	const doc = Object.assign(
-		{
-			doctype: "Factura Fiscal Mexico",
-			sales_invoice: frm.doc.name,
-			company: frm.doc.company,
-			customer: frm.doc.customer,
-			fm_fiscal_status: FISCAL_STATES ? FISCAL_STATES.states.BORRADOR : "BORRADOR",
-			si_total_antes_iva: frm.doc.net_total || 0,
-			si_total_neto: frm.doc.grand_total || 0,
-			si_iva: iva_total,
-			si_otros_impuestos: otros_impuestos,
-		},
-		extra_fields
-	);
-
+	// Corrección 3: la creación del FFM se centraliza en servidor mediante
+	// get_or_create_active_ffm. El cliente ya NO usa frappe.client.insert ni un
+	// set_value separado para vincular; el servidor crea (o reutiliza) el FFM,
+	// lo vincula a la Sales Invoice y devuelve su nombre.
 	frappe.call({
-		method: "frappe.client.insert",
-		args: { doc: doc },
+		method: "facturacion_mexico.facturacion_fiscal.doctype.factura_fiscal_mexico.factura_fiscal_mexico.get_or_create_active_ffm",
+		args: {
+			sales_invoice: frm.doc.name,
+			extra_fields: extra_fields || {},
+		},
 		callback: function (r) {
 			if (r.message) {
-				frappe.call({
-					method: "frappe.client.set_value",
-					args: {
-						doctype: "Sales Invoice",
-						name: frm.doc.name,
-						fieldname: "fm_factura_fiscal_mx",
-						value: r.message.name,
+				const ffm_name = r.message;
+				frappe.show_alert(
+					{
+						message: __("Documento fiscal listo"),
+						indicator: "green",
 					},
-					callback: function () {
-						frappe.show_alert(
-							{
-								message: __("Documento fiscal creado exitosamente"),
-								indicator: "green",
-							},
-							3
-						);
+					3
+				);
 
-						setTimeout(() => {
-							window.location.href = `/app/factura-fiscal-mexico/${r.message.name}`;
-						}, 1000);
-					},
-				});
+				setTimeout(() => {
+					window.location.href = `/app/factura-fiscal-mexico/${ffm_name}`;
+				}, 1000);
 			} else {
 				frappe.msgprint({
 					title: __("Error"),
-					message: __("No se pudo crear el documento fiscal"),
+					message: __("No se pudo preparar el documento fiscal"),
 					indicator: "red",
 				});
 			}
 		},
 		error: function (r) {
 			frappe.msgprint({
-				title: __("Error al Crear Documento"),
-				message: r.message || __("Error desconocido al crear Factura Fiscal Mexico"),
+				title: __("Error al preparar documento"),
+				message: r.message || __("Error desconocido al preparar Factura Fiscal Mexico"),
 				indicator: "red",
 			});
 		},
