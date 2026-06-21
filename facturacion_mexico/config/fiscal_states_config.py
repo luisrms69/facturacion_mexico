@@ -55,6 +55,19 @@ class FiscalStates:
 	# Estados finales (no se pueden modificar)
 	FINAL_STATES: ClassVar[list] = [CANCELADO, ARCHIVADO]
 
+	# Estados activos / no resueltos: un FFM en cualquiera de estos estados BLOQUEA la
+	# creación de otro FFM para la misma Sales Invoice (Regla B — cardinalidad).
+	# Son los estados principales que NO son terminales (CANCELADO/ARCHIVADO).
+	# ARCHIVADO es terminal verdadero: en valid_transitions no tiene transiciones salientes
+	# y ningún flujo del código lo asigna; por eso no bloquea una nueva emisión.
+	ACTIVE_STATES: ClassVar[list] = [
+		BORRADOR,
+		PROCESANDO,
+		TIMBRADO,
+		ERROR,
+		PENDIENTE_CANCELACION,
+	]
+
 	# Estados de error recuperables
 	RECOVERABLE_ERROR_STATES: ClassVar[list] = [ERROR, PROCESANDO]
 
@@ -77,6 +90,11 @@ class FiscalStates:
 	def is_final(cls, state):
 		"""Verifica si es un estado final."""
 		return state in cls.FINAL_STATES
+
+	@classmethod
+	def is_active(cls, state):
+		"""Verifica si el estado es activo/no resuelto (bloquea crear otro FFM por SI)."""
+		return state in cls.ACTIVE_STATES
 
 	@classmethod
 	def is_recoverable_error(cls, state):

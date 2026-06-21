@@ -194,19 +194,22 @@ class TestGetOrCreateActiveFFM(IntegrationTestCase):
 	# Concurrencia (documenta la ventana abierta; NO la corrige) —
 	# se prueba que, simulando el campo aún vacío en una segunda lectura, se crearía
 	# un segundo FFM. Esto evidencia que SIN LOCK la carrera sigue posible (Corrección 4).
-	def test_documenta_ventana_concurrente_sin_lock(self):
+	def test_segunda_llamada_con_vinculo_vaciado_reutiliza_activo(self):
+		# Antes (Corrección 3) esta ventana creaba un segundo FFM. La Corrección 5 la cierra:
+		# aunque el vínculo de la SI esté vacío, la decisión se basa en los FFM activos por
+		# sales_invoice, de modo que la segunda llamada reutiliza el activo y repara el vínculo.
 		si = self._si()
 		ffm1 = self._track_ffm(get_or_create_active_ffm(si))
 
-		# Simular que una segunda llamada entra antes de que la SI refleje el vínculo:
-		# forzamos el campo a vacío justo antes de la segunda invocación.
+		# Vaciar el vínculo justo antes de la segunda invocación (referencia perdida).
 		frappe.db.set_value("Sales Invoice", si, "fm_factura_fiscal_mx", None)
 		frappe.db.commit()
 
 		ffm2 = self._track_ffm(get_or_create_active_ffm(si))
-		# Sin lock, se crea un segundo FFM (ventana abierta — la Corrección 4 lo impedirá).
-		self.assertNotEqual(ffm1, ffm2)
-		self.assertEqual(frappe.db.count("Factura Fiscal Mexico", {"sales_invoice": si}), 2)
+		# Se reutiliza el mismo FFM activo; no se crea otro y el vínculo queda reparado.
+		self.assertEqual(ffm1, ffm2)
+		self.assertEqual(frappe.db.count("Factura Fiscal Mexico", {"sales_invoice": si}), 1)
+		self.assertEqual(frappe.db.get_value("Sales Invoice", si, "fm_factura_fiscal_mx"), ffm1)
 
 	# =========================================================================
 	# REGRESIÓN DEL CÁLCULO DE IMPUESTOS (equivalencia con el comportamiento JS)
