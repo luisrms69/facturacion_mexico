@@ -17,6 +17,8 @@ import frappe
 from frappe import _
 from frappe.utils import add_to_date, now, now_datetime
 
+from facturacion_mexico.config.fiscal_states_config import derive_pac_reconciliation
+
 # Directorio fallback para respuestas PAC cuando DB no disponible
 # Usar directorio sites para compatibilidad multi-sitio
 FALLBACK_DIR = None  # Se calcula dinámicamente por sitio
@@ -78,6 +80,17 @@ def _extract_response_identifiers(response_data: dict) -> tuple[str, str]:
 	return uuid, facturapi_id
 
 
+def _extract_reconciliation_states(response_data: dict) -> tuple[str, str]:
+	"""Extraer (status, cancellation_status) de una respuesta de get_invoice (top-level o raw_response)."""
+	if not isinstance(response_data, dict):
+		return "", ""
+	raw = response_data.get("raw_response")
+	raw = raw if isinstance(raw, dict) else {}
+	status = response_data.get("status") or raw.get("status") or ""
+	cancellation = response_data.get("cancellation_status") or raw.get("cancellation_status") or ""
+	return status, cancellation
+
+
 def _derive_sync_status_from_response(response_data: dict, operation_type: str) -> str | None:
 	"""Derivar fm_sync_status según si el PAC dio una respuesta CONCLUYENTE persistida (7A1).
 
@@ -96,6 +109,23 @@ def _derive_sync_status_from_response(response_data: dict, operation_type: str) 
 	# del PAC. operation_type viene como "fiscal_event_*". No tocar fm_sync_status.
 	if isinstance(operation_type, str) and operation_type.startswith("fiscal_event_"):
 		return None
+
+	# Reconciliación: ante respuesta PAC exitosa, el sync lo decide el helper único (no se duplica
+	# la matriz). Si la respuesta NO es exitosa (error/timeout) cae a la lógica genérica de abajo,
+	# conservando su semántica existente.
+	if (
+		operation_type == "reconciliacion"
+		and isinstance(response_data, dict)
+		and response_data.get("success") is True
+	):
+		sc = response_data.get("status_code")
+		try:
+			code = int(sc) if sc is not None else 0
+		except (TypeError, ValueError):
+			code = 0
+		if code in (200, 201):
+			rs, cs = _extract_reconciliation_states(response_data)
+			return derive_pac_reconciliation(rs, cs)[1]
 
 	if not isinstance(response_data, dict):
 		return "pending"
@@ -446,6 +476,9 @@ class PACResponseWriter:
 			"cancelacion": "Solicitud Cancelación",
 			"consulta": "Consulta Estado",
 			"timeout_recovery": "Consulta Estado",
+			# La reconciliación es una consulta de estado; se registra como tal en el Select del
+			# Response Log (no hay opción dedicada y este paso no modifica esquema).
+			"reconciliacion": "Consulta Estado",
 		}
 
 		# Helper para extraer código de estado del mensaje de error
@@ -619,6 +652,7 @@ class PACResponseWriter:
 				"cancelacion": "Solicitud Cancelación",
 				"consulta": "Consulta Estado",
 				"timeout_recovery": "Consulta Estado",
+				"reconciliacion": "Reconciliacion",
 			}.get(operation_type, operation_type)
 			new_status, _status_code, uuid = self._derive_status_from_response(response_data, _normalized_op)
 
@@ -755,6 +789,19 @@ class PACResponseWriter:
 			if ok and status_code in (200, 201):
 				return "CANCELADO", status_code, ""
 			# ERROR EN CANCELACIÓN: NO cambiar estado fiscal (return None = no update)
+			return None, status_code or 500, ""
+
+		elif operation_type == "Reconciliacion":
+			# Motor de reconciliación: SOLO ante respuesta PAC exitosa se delega en el helper único
+			# derive_pac_reconciliation (no se duplica la matriz de estados aquí). Errores HTTP,
+			# timeout y contradicciones conservan su semántica (esta rama no los reinterpreta).
+			if ok and status_code in (200, 201):
+				rs, cs = _extract_reconciliation_states(resp)
+				fiscal_status, _sync = derive_pac_reconciliation(rs, cs)
+				# fiscal_status None => no se cambia el estado fiscal. No se toca fm_uuid (el FFM ya
+				# lo tiene y la correlación estricta lo validó antes de llegar aquí).
+				return fiscal_status, status_code, ""
+			# Respuesta no exitosa: no cambiar estado fiscal (el sync lo decide la lógica existente).
 			return None, status_code or 500, ""
 
 		else:
