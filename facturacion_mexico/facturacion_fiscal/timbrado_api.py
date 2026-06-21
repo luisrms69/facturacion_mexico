@@ -184,6 +184,7 @@ class TimbradoAPI:
 					json.dumps(pac_request),
 					json.dumps(response_data),
 					"timbrado",
+					factura_fiscal_name=factura_fiscal.name,
 				)
 
 			except Exception as pac_error:
@@ -207,6 +208,7 @@ class TimbradoAPI:
 					json.dumps(pac_request),
 					json.dumps(pac_response),  # ✅ Error REAL del PAC
 					"timbrado",
+					factura_fiscal_name=factura_fiscal.name,
 				)
 
 				# Re-lanzar para manejo de UI
@@ -1279,6 +1281,7 @@ class TimbradoAPI:
 					json.dumps(pac_request),
 					json.dumps(pac_response),  # ✅ Respuesta REAL del PAC
 					"cancelacion",
+					factura_fiscal_name=factura_fiscal.name,
 				)
 
 			except Exception as pac_error:
@@ -1301,6 +1304,7 @@ class TimbradoAPI:
 					json.dumps(pac_request),
 					json.dumps(pac_response),  # ✅ Error REAL del PAC
 					"cancelacion",
+					factura_fiscal_name=factura_fiscal.name,
 				)
 
 				# Re-lanzar para manejo de UI
@@ -3257,6 +3261,7 @@ def revisar_estatus_cancelacion(ffm_name: str) -> dict:
 				default=str,
 			),
 			operation_type="consulta",
+			factura_fiscal_name=ffm_name,
 		)
 	except Exception as log_err:
 		frappe.logger().warning(f"No se pudo registrar log de consulta estatus {ffm_name}: {log_err}")

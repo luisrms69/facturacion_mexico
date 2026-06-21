@@ -657,6 +657,7 @@ class FacturaFiscalMexico(Document):
 				json.dumps({"event_type": event_type, "source": "fiscal_event_fallback"}),
 				json.dumps(event_data),
 				f"fiscal_event_{event_type}",
+				factura_fiscal_name=self.name,
 			)
 
 			frappe.logger().info(f"Fiscal event logged to Response Log: {event_type} for {self.name}")

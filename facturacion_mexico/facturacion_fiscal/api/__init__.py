@@ -35,6 +35,52 @@ def _get_fallback_dir():
 		return fallback_path
 
 
+class FiscalCorrelationError(frappe.ValidationError):
+	"""La respuesta del PAC no puede asociarse de forma inequívoca al FFM de origen.
+
+	No debe degradarse al fallback de filesystem: representa una contradicción de
+	integridad fiscal, no una indisponibilidad de BD.
+	"""
+
+
+def _alerta_correlacion_critica(motivo: str, contexto: dict) -> None:
+	"""Registrar alerta crítica de correlación fiscal (Corrección 1).
+
+	Se invoca cuando la respuesta del PAC no puede asociarse de forma inequívoca
+	al FFM que inició la operación. No modifica ningún documento.
+	"""
+	try:
+		frappe.log_error(
+			message=json.dumps({"motivo": motivo, "contexto": contexto}, default=str, indent=2),
+			title="PAC Correlación Crítica FFM",
+		)
+	except Exception:
+		# El logging nunca debe enmascarar el error de correlación original.
+		pass
+
+
+def _extract_response_identifiers(response_data: dict) -> tuple[str, str]:
+	"""Extraer (uuid, facturapi_id) de una respuesta PAC, si están presentes.
+
+	Busca tanto a nivel superior como dentro de raw_response. Devuelve cadenas
+	vacías cuando el identificador no viene en la respuesta (p. ej. timbrado que
+	aún no devuelve UUID, o errores). La comparación de contradicción solo aplica
+	cuando ambos lados (FFM y respuesta) tienen valor.
+	"""
+	if not isinstance(response_data, dict):
+		return "", ""
+	raw = response_data.get("raw_response")
+	raw = raw if isinstance(raw, dict) else {}
+	uuid = (response_data.get("uuid") or raw.get("uuid") or "").strip()
+	facturapi_id = (
+		response_data.get("facturapi_id")
+		or response_data.get("id")
+		or raw.get("id")
+		or ""
+	).strip()
+	return uuid, facturapi_id
+
+
 def _derive_http_status(data: dict, default=500) -> int:
 	# Éxito explícito → 200 fijo, ignorar 'status_code' dentro del payload y cualquier regex
 	if isinstance(data, dict) and data.get("success") is True:
@@ -109,15 +155,20 @@ class PACResponseWriter:
 		request_data: dict[str, Any],
 		response_data: dict[str, Any],
 		operation_type: str = "timbrado",
+		*,
+		factura_fiscal_name: str | None = None,
 	) -> dict[str, Any]:
 		"""
 		Escribir respuesta PAC con máxima resilencia.
 
 		Args:
-			sales_invoice_name: Nombre de Sales Invoice
+			sales_invoice_name: Nombre de Sales Invoice (solo para validación cruzada)
 			request_data: Datos del request enviado
 			response_data: Respuesta completa de FacturAPI
 			operation_type: Tipo operación (timbrado/cancelacion/consulta)
+			factura_fiscal_name: Nombre EXPLÍCITO del FFM que inició la operación.
+				Obligatorio. La respuesta se asocia exclusivamente a este FFM —
+				nunca se resuelve por Sales Invoice. Ver Corrección 1 (integridad fiscal).
 
 		Returns:
 			Dict con status y referencias creadas
@@ -133,7 +184,11 @@ class PACResponseWriter:
 		try:
 			# PASO 1: Intentar escritura a BD (principal)
 			response_log = self._write_to_database(
-				sales_invoice_name, request_data, response_data, operation_type
+				sales_invoice_name,
+				request_data,
+				response_data,
+				operation_type,
+				factura_fiscal_name=factura_fiscal_name,
 			)
 
 			if response_log:
@@ -141,13 +196,21 @@ class PACResponseWriter:
 				result["response_log_name"] = response_log.name
 				result["method"] = "database"
 
-				# PASO 2: Actualizar Factura Fiscal Mexico si existe
+				# PASO 2: Actualizar el MISMO FFM explícito (nunca por Sales Invoice)
 				self._update_factura_fiscal(
-					sales_invoice_name, response_data, response_log.name, operation_type
+					sales_invoice_name,
+					response_data,
+					response_log.name,
+					operation_type,
+					factura_fiscal_name=factura_fiscal_name,
 				)
 
 				return result
 
+		except FiscalCorrelationError:
+			# Contradicción de correlación: NO degradar a filesystem. Propagar el
+			# error controlado para que el caller lo maneje y nada se modifique.
+			raise
 		except Exception as db_error:
 			result["errors"].append(f"DB Error: {db_error!s}")
 			frappe.log_error(f"Error escritura BD PAC: {traceback.format_exc()}", "PAC Writer DB Error")
@@ -155,7 +218,11 @@ class PACResponseWriter:
 		# PASO 3: Fallback a filesystem si BD falla
 		try:
 			fallback_file = self._write_to_filesystem(
-				sales_invoice_name, request_data, response_data, operation_type
+				sales_invoice_name,
+				request_data,
+				response_data,
+				operation_type,
+				factura_fiscal_name=factura_fiscal_name,
 			)
 
 			result["success"] = True
@@ -203,17 +270,136 @@ class PACResponseWriter:
 
 		return result
 
+	def _resolve_validated_ffm(
+		self,
+		factura_fiscal_name: str | None,
+		sales_invoice_name: str,
+		response_data: dict[str, Any],
+		operation_type: str,
+	) -> str:
+		"""Validar y devolver el FFM EXPLÍCITO que inició la operación.
+
+		Corrección 1 — Correlación estricta por FFM.name:
+		- Nunca resuelve el FFM por Sales Invoice ni por UUID/facturapi_id.
+		- Si falta el nombre, el FFM no existe, pertenece a otra SI, o hay
+		  contradicción de UUID/facturapi_id → registra alerta crítica y lanza
+		  error controlado SIN modificar ningún documento.
+
+		Returns:
+			El factura_fiscal_name validado.
+		"""
+		if not factura_fiscal_name:
+			_alerta_correlacion_critica(
+				"Falta factura_fiscal_name en persistencia de respuesta PAC",
+				{
+					"sales_invoice": sales_invoice_name,
+					"operation_type": operation_type,
+				},
+			)
+			frappe.throw(
+				_("No se puede registrar la respuesta del PAC: falta el FFM de origen."),
+				title=_("Correlación fiscal requerida"),
+				exc=FiscalCorrelationError,
+			)
+
+		ffm = frappe.db.get_value(
+			"Factura Fiscal Mexico",
+			factura_fiscal_name,
+			["name", "sales_invoice", "fm_uuid", "facturapi_id"],
+			as_dict=True,
+		)
+		if not ffm:
+			_alerta_correlacion_critica(
+				"FFM explícito inexistente en persistencia de respuesta PAC",
+				{
+					"factura_fiscal_name": factura_fiscal_name,
+					"sales_invoice": sales_invoice_name,
+					"operation_type": operation_type,
+				},
+			)
+			frappe.throw(
+				_("No se puede registrar la respuesta del PAC: el FFM {0} no existe.").format(
+					factura_fiscal_name
+				),
+				title=_("Correlación fiscal inválida"),
+				exc=FiscalCorrelationError,
+			)
+
+		# El FFM debe pertenecer a la Sales Invoice indicada (cuando se provee).
+		if sales_invoice_name and ffm.get("sales_invoice") and ffm["sales_invoice"] != sales_invoice_name:
+			_alerta_correlacion_critica(
+				"FFM explícito pertenece a otra Sales Invoice",
+				{
+					"factura_fiscal_name": factura_fiscal_name,
+					"ffm_sales_invoice": ffm.get("sales_invoice"),
+					"sales_invoice_param": sales_invoice_name,
+					"operation_type": operation_type,
+				},
+			)
+			frappe.throw(
+				_("No se puede registrar la respuesta del PAC: el FFM {0} pertenece a otra factura.").format(
+					factura_fiscal_name
+				),
+				title=_("Correlación fiscal inválida"),
+				exc=FiscalCorrelationError,
+			)
+
+		# Contradicción de UUID/facturapi_id: solo se valida cuando AMBOS lados
+		# tienen valor (en timbrado el FFM aún no los tiene → no aplica).
+		resp_uuid, resp_facturapi_id = _extract_response_identifiers(response_data)
+		if resp_uuid and ffm.get("fm_uuid") and resp_uuid != ffm["fm_uuid"]:
+			_alerta_correlacion_critica(
+				"UUID de la respuesta PAC no coincide con el FFM explícito",
+				{
+					"factura_fiscal_name": factura_fiscal_name,
+					"ffm_uuid": ffm.get("fm_uuid"),
+					"response_uuid": resp_uuid,
+					"operation_type": operation_type,
+				},
+			)
+			frappe.throw(
+				_("Respuesta del PAC con UUID contradictorio para el FFM {0}.").format(factura_fiscal_name),
+				title=_("Correlación fiscal inválida"),
+				exc=FiscalCorrelationError,
+			)
+		if (
+			resp_facturapi_id
+			and ffm.get("facturapi_id")
+			and resp_facturapi_id != ffm["facturapi_id"]
+		):
+			_alerta_correlacion_critica(
+				"facturapi_id de la respuesta PAC no coincide con el FFM explícito",
+				{
+					"factura_fiscal_name": factura_fiscal_name,
+					"ffm_facturapi_id": ffm.get("facturapi_id"),
+					"response_facturapi_id": resp_facturapi_id,
+					"operation_type": operation_type,
+				},
+			)
+			frappe.throw(
+				_("Respuesta del PAC con facturapi_id contradictorio para el FFM {0}.").format(
+					factura_fiscal_name
+				),
+				title=_("Correlación fiscal inválida"),
+				exc=FiscalCorrelationError,
+			)
+
+		return ffm["name"]
+
 	def _write_to_database(
 		self,
 		sales_invoice_name: str,
 		request_data: dict[str, Any],
 		response_data: dict[str, Any],
 		operation_type: str,
+		*,
+		factura_fiscal_name: str | None = None,
 	) -> Any | None:
 		"""Escribir a FacturAPI Response Log en BD."""
-		# Obtener referencia a Factura Fiscal Mexico si existe
-		factura_fiscal = frappe.db.get_value(
-			"Factura Fiscal Mexico", {"sales_invoice": sales_invoice_name}, "name"
+		# Correlación estricta: el FFM es SIEMPRE el explícito de la operación.
+		# Nunca se resuelve por Sales Invoice.
+		factura_fiscal = self._resolve_validated_ffm(
+			factura_fiscal_name, sales_invoice_name, response_data, operation_type
 		)
 
 		# Mapear operation_type a valores válidos del DocType (ARQUITECTURA RESILIENTE)
@@ -346,6 +532,8 @@ class PACResponseWriter:
 		request_data: dict[str, Any],
 		response_data: dict[str, Any],
 		operation_type: str,
+		*,
+		factura_fiscal_name: str | None = None,
 	) -> str:
 		"""Escribir respuesta a filesystem como fallback."""
 		timestamp = now().replace(" ", "_").replace(":", "-")
@@ -355,6 +543,8 @@ class PACResponseWriter:
 
 		fallback_data = {
 			"sales_invoice": sales_invoice_name,
+			# FFM explícito de origen — necesario para recuperar con correlación estricta.
+			"factura_fiscal_name": factura_fiscal_name,
 			"operation_type": operation_type,
 			"request_data": request_data,
 			"response_data": response_data,
@@ -374,15 +564,16 @@ class PACResponseWriter:
 		response_data: dict[str, Any],
 		response_log_name: str,
 		operation_type: str = "Timbrado",
+		*,
+		factura_fiscal_name: str | None = None,
 	):
 		"""Actualizar Factura Fiscal Mexico con datos de respuesta."""
 		try:
-			factura_fiscal_name = frappe.db.get_value(
-				"Factura Fiscal Mexico", {"sales_invoice": sales_invoice_name}, "name"
+			# Correlación estricta: actualizar SOLO el FFM explícito de la operación.
+			# Nunca se resuelve por Sales Invoice.
+			factura_fiscal_name = self._resolve_validated_ffm(
+				factura_fiscal_name, sales_invoice_name, response_data, operation_type
 			)
-
-			if not factura_fiscal_name:
-				return
 
 			# Normalize operation_type to match _derive_status_from_response expectations
 			_normalized_op = {
@@ -502,17 +693,23 @@ class PACResponseWriter:
 
 @frappe.whitelist()
 def write_pac_response(
-	sales_invoice_name: str, request_data: str, response_data: str, operation_type: str = "timbrado"
+	sales_invoice_name: str,
+	request_data: str,
+	response_data: str,
+	operation_type: str = "timbrado",
+	factura_fiscal_name: str | None = None,
 ) -> dict[str, Any]:
 	"""
 	API pública para escribir respuesta PAC.
 	Ultra-resiliente con filesystem fallback.
 
 	Args:
-		sales_invoice_name: Nombre Sales Invoice
+		sales_invoice_name: Nombre Sales Invoice (validación cruzada)
 		request_data: JSON string con datos request
 		response_data: JSON string con respuesta FacturAPI
 		operation_type: timbrado/cancelacion/consulta
+		factura_fiscal_name: Nombre EXPLÍCITO del FFM que inició la operación
+			(obligatorio para correlación estricta — Corrección 1).
 
 	Returns:
 		Dict con resultado operación
@@ -524,7 +721,13 @@ def write_pac_response(
 
 		# Usar writer resiliente
 		writer = PACResponseWriter()
-		result = writer.write_pac_response(sales_invoice_name, request_dict, response_dict, operation_type)
+		result = writer.write_pac_response(
+			sales_invoice_name,
+			request_dict,
+			response_dict,
+			operation_type,
+			factura_fiscal_name=factura_fiscal_name,
+		)
 
 		return result
 
@@ -535,15 +738,20 @@ def write_pac_response(
 
 @frappe.whitelist()
 def write_pac_timeout(
-	sales_invoice_name: str, request_data: str, timeout_seconds: int = 30
+	sales_invoice_name: str,
+	request_data: str,
+	timeout_seconds: int = 30,
+	factura_fiscal_name: str | None = None,
 ) -> dict[str, Any]:
 	"""
 	Registrar timeout de PAC y programar recovery.
 
 	Args:
-		sales_invoice_name: Nombre Sales Invoice
+		sales_invoice_name: Nombre Sales Invoice (validación cruzada)
 		request_data: JSON string con datos request original
 		timeout_seconds: Segundos de timeout
+		factura_fiscal_name: Nombre EXPLÍCITO del FFM de origen (obligatorio para
+			correlación estricta — Corrección 1).
 
 	Returns:
 		Dict con resultado y recovery task creado
@@ -563,7 +771,11 @@ def write_pac_timeout(
 		# Escribir usando writer resiliente
 		writer = PACResponseWriter()
 		result = writer.write_pac_response(
-			sales_invoice_name, request_dict, timeout_response, "timeout_recovery"
+			sales_invoice_name,
+			request_dict,
+			timeout_response,
+			"timeout_recovery",
+			factura_fiscal_name=factura_fiscal_name,
 		)
 
 		return result
@@ -601,13 +813,16 @@ def recover_from_file(fallback_file_path: str) -> dict[str, Any]:
 				"already_recovered": True,
 			}
 
-		# Procesar con writer (que intentará BD primero)
+		# Procesar con writer (que intentará BD primero). El FFM explícito viaja en
+		# el archivo fallback; si falta (archivos previos a Corrección 1), el writer
+		# generará alerta crítica de correlación en lugar de resolver por SI.
 		writer = PACResponseWriter()
 		result = writer.write_pac_response(
 			fallback_data["sales_invoice"],
 			fallback_data["request_data"],
 			fallback_data["response_data"],
 			fallback_data["operation_type"],
+			factura_fiscal_name=fallback_data.get("factura_fiscal_name"),
 		)
 
 		if result["success"] and result.get("method") == "database":
