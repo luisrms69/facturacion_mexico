@@ -114,6 +114,47 @@ def _raise_correlation_incident() -> None:
 	)
 
 
+def _audit_warning_message() -> str:
+	"""Mensaje visible NO bloqueante de auditoría incompleta (Corrección 6B1)."""
+	return _(
+		"La operación fiscal fue procesada correctamente, pero su registro de auditoría quedó "
+		"incompleto. No repita la operación. Se requiere revisión administrativa."
+	)
+
+
+def _apply_audit_warning(writer_result, user_result):
+	"""Adjuntar una advertencia NO bloqueante si la auditoría quedó incompleta (Corrección 6B1).
+
+	`write_pac_response` puede reportar `audit_log_failed` (no se creó el Response Log) o
+	`audit_log_ref_failed` (el log existe pero no quedó enlazado al FFM). En AMBOS casos la
+	operación fiscal SÍ se procesó: no se altera `success`, no se re-llama al PAC, no se crea
+	Recovery Task ni se reintenta. Se muestra una sola advertencia visible y se conserva la
+	diferencia técnica en el resultado (`audit_detail`). La evidencia detallada ya la registró
+	el writer; aquí NO se duplica esa alerta.
+	"""
+	if not isinstance(writer_result, dict):
+		return user_result
+
+	audit_failed = bool(writer_result.get("audit_log_failed"))
+	audit_ref_failed = bool(writer_result.get("audit_log_ref_failed"))
+	if not (audit_failed or audit_ref_failed):
+		return user_result
+
+	# Diferenciación técnica: el log no se creó vs. el log existe pero no se enlazó.
+	detail = "audit_log_failed" if audit_failed else "audit_log_ref_failed"
+
+	# Advertencia visible (no bloqueante). No revela UUID/facturapi_id/payload.
+	frappe.msgprint(_audit_warning_message(), title=_("Auditoría incompleta"), indicator="orange")
+
+	if isinstance(user_result, dict):
+		user_result.setdefault("success", True)
+		user_result["audit_warning"] = True
+		user_result["audit_status"] = "incomplete"
+		user_result["audit_detail"] = detail
+		user_result["audit_warning_message"] = _audit_warning_message()
+	return user_result
+
+
 class TimbradoAPI:
 	"""API para timbrado de facturas usando FacturAPI.io."""
 
@@ -203,7 +244,7 @@ class TimbradoAPI:
 				}
 
 				# Guardar Response Log INMEDIATAMENTE con respuesta REAL del PAC
-				write_pac_response(
+				writer_result = write_pac_response(
 					sales_invoice_name,
 					json.dumps(pac_request),
 					json.dumps(response_data),
@@ -299,14 +340,17 @@ class TimbradoAPI:
 					},
 				)
 
-				return {
-					"success": True,
-					"status_code": 200,
-					"raw_response": pac_response,
-					"uuid": uuid,
-					"factura_fiscal": factura_fiscal.name,
-					"message": "Factura timbrada exitosamente",  # Mensaje para UI
-				}
+				return _apply_audit_warning(
+					writer_result,
+					{
+						"success": True,
+						"status_code": 200,
+						"raw_response": pac_response,
+						"uuid": uuid,
+						"factura_fiscal": factura_fiscal.name,
+						"message": "Factura timbrada exitosamente",  # Mensaje para UI
+					},
+				)
 
 			except FiscalCorrelationError:
 				# Corrección 6A: propagar la correlación crítica sin degradarla a error ordinario.
@@ -1312,7 +1356,7 @@ class TimbradoAPI:
 				)
 
 				# Guardar Response Log INMEDIATAMENTE con respuesta REAL del PAC
-				write_pac_response(
+				writer_result = write_pac_response(
 					sales_invoice_name,
 					json.dumps(pac_request),
 					json.dumps(pac_response),  # ✅ Respuesta REAL del PAC
@@ -1428,19 +1472,22 @@ class TimbradoAPI:
 				# Obtener estados actualizados para response coherente
 				si_doc = frappe.get_doc("Sales Invoice", sales_invoice_name)
 
-				return {
-					"ok": True,  # Para consistencia con propuesta UX
-					"success": True,  # Backward compatibility
-					"ffm": factura_fiscal.name,
-					"sales_invoice": sales_invoice_name,
-					"status_ffm": fiscal_status,  # Estado correcto basado en respuesta PAC
-					"status_si": si_doc.fm_fiscal_status,
-					"uuid": factura_fiscal.fm_uuid,
-					"cancellation_date": cancellation_date.strftime("%Y-%m-%d %H:%M:%S")
-					if cancellation_date
-					else None,
-					"message": "Solicitud de cancelación procesada exitosamente",
-				}
+				return _apply_audit_warning(
+					writer_result,
+					{
+						"ok": True,  # Para consistencia con propuesta UX
+						"success": True,  # Backward compatibility
+						"ffm": factura_fiscal.name,
+						"sales_invoice": sales_invoice_name,
+						"status_ffm": fiscal_status,  # Estado correcto basado en respuesta PAC
+						"status_si": si_doc.fm_fiscal_status,
+						"uuid": factura_fiscal.fm_uuid,
+						"cancellation_date": cancellation_date.strftime("%Y-%m-%d %H:%M:%S")
+						if cancellation_date
+						else None,
+						"message": "Solicitud de cancelación procesada exitosamente",
+					},
+				)
 
 			except FiscalCorrelationError:
 				# Corrección 6A: propagar la correlación crítica; no crear Recovery Task que
@@ -3293,8 +3340,9 @@ def revisar_estatus_cancelacion(ffm_name: str) -> dict:
 		frappe.db.set_value("Sales Invoice", ffm.sales_invoice, {"fm_fiscal_status": nuevo_estado})
 
 	# Registrar consulta en FacturAPI Response Log para trazabilidad
+	writer_result = None
 	try:
-		write_pac_response(
+		writer_result = write_pac_response(
 			sales_invoice_name=ffm.sales_invoice or "",
 			request_data=json.dumps(
 				{"action": "consulta_estatus", "ffm": ffm_name, "facturapi_id": ffm.facturapi_id}
@@ -3320,12 +3368,15 @@ def revisar_estatus_cancelacion(ffm_name: str) -> dict:
 
 	frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to persist status transition immediately after PAC response
 
-	return {
-		"status": nuevo_estado,
-		"message": msg,
-		"indicator": indicator,
-		"cancellation_status": cancel_status,
-	}
+	return _apply_audit_warning(
+		writer_result,
+		{
+			"status": nuevo_estado,
+			"message": msg,
+			"indicator": indicator,
+			"cancellation_status": cancel_status,
+		},
+	)
 
 
 _ALLOWED_PDF_TEMPLATE_KEYS = frozenset({"company", "total", "due_date"})
