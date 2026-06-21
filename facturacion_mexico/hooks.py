@@ -447,6 +447,10 @@ scheduler_events = {
 		"facturacion_mexico.complementos_pago.api.process_pending_complements",
 		"facturacion_mexico.ereceipts.api.expire_ereceipts",
 	],
+	"hourly_long": [
+		# Reconciliación FFM ↔ FacturAPI: solo consulta al PAC; nunca timbra ni cancela.
+		"facturacion_mexico.facturacion_fiscal.services.ffm_reconciliation.run_auto_reconciliation",
+	],
 	"cron": {
 		# Validación RFC automática nocturna a las 2:00 AM todos los días
 		"0 2 * * *": [
