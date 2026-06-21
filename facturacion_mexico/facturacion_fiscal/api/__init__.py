@@ -73,10 +73,7 @@ def _extract_response_identifiers(response_data: dict) -> tuple[str, str]:
 	raw = raw if isinstance(raw, dict) else {}
 	uuid = (response_data.get("uuid") or raw.get("uuid") or "").strip()
 	facturapi_id = (
-		response_data.get("facturapi_id")
-		or response_data.get("id")
-		or raw.get("id")
-		or ""
+		response_data.get("facturapi_id") or response_data.get("id") or raw.get("id") or ""
 	).strip()
 	return uuid, facturapi_id
 
@@ -350,11 +347,7 @@ class PACResponseWriter:
 				title=_("Correlación fiscal inválida"),
 				exc=FiscalCorrelationError,
 			)
-		if (
-			resp_facturapi_id
-			and ffm.get("facturapi_id")
-			and resp_facturapi_id != ffm["facturapi_id"]
-		):
+		if resp_facturapi_id and ffm.get("facturapi_id") and resp_facturapi_id != ffm["facturapi_id"]:
 			_alerta_correlacion_critica(
 				"facturapi_id de la respuesta PAC no coincide con el FFM explícito",
 				{
@@ -738,6 +731,11 @@ def write_pac_response(
 
 		return result
 
+	except FiscalCorrelationError:
+		# Corrección 6A: la correlación crítica (Corrección 1) NO se degrada a {success:False}.
+		# Se propaga para que el orquestador detenga el flujo (no reintentar, no continuar a
+		# FASE 3, no re-llamar al PAC). La evidencia técnica ya quedó en la alerta del writer.
+		raise
 	except Exception as e:
 		frappe.log_error(f"Error en write_pac_response API: {traceback.format_exc()}", "PAC API Error")
 		return {"success": False, "error": str(e), "timestamp": now()}

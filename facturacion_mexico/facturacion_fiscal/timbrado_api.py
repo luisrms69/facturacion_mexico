@@ -40,7 +40,10 @@ def _log_payload_checkpoint(tag, payload: dict):
 
 from facturacion_mexico.config.fiscal_states_config import FiscalStates, OperationTypes
 
-from .api import write_pac_response  # PAC Response Writer - Arquitectura resiliente activada
+from .api import (  # PAC Response Writer - Arquitectura resiliente activada
+	FiscalCorrelationError,
+	write_pac_response,
+)
 from .api_client import get_facturapi_client
 from .doctype.facturapi_response_log.facturapi_response_log import FacturAPIResponseLog
 
@@ -88,6 +91,27 @@ def _validate_items_clave_sat_for_timbrado(sales_invoice):
 			frappe.ValidationError,
 			title=_("Claves SAT Faltantes — Timbrado Bloqueado"),
 		)
+
+
+def _raise_correlation_incident() -> None:
+	"""Detener el flujo ante una correlación fiscal crítica (Corrección 6A).
+
+	Una `FiscalCorrelationError` después de una operación con el PAC significa que la
+	respuesta no se pudo asociar de forma inequívoca al documento fiscal de origen.
+	El flujo local se detiene SIN continuar a la FASE 3, sin re-llamar al PAC y sin
+	reintentos automáticos. La evidencia técnica (FFM, UUID, facturapi_id, SI) ya quedó
+	registrada en la alerta crítica del writer; aquí solo se comunica un mensaje seguro,
+	sin revelar datos fiscales sensibles, instruyendo a NO repetir la operación.
+	"""
+	frappe.throw(
+		_(
+			"No repita la operación. El PAC pudo haberla procesado, pero el sistema detectó "
+			"una inconsistencia al relacionar la respuesta con el documento fiscal. "
+			"Se requiere revisión administrativa."
+		),
+		title=_("Intervención requerida"),
+		exc=FiscalCorrelationError,
+	)
 
 
 class TimbradoAPI:
@@ -187,6 +211,11 @@ class TimbradoAPI:
 					factura_fiscal_name=factura_fiscal.name,
 				)
 
+			except FiscalCorrelationError:
+				# Corrección 6A: una correlación crítica al persistir la respuesta del PAC NO es
+				# un error de comunicación. No re-llamar al PAC ni continuar; propagar para que
+				# se detenga el flujo (no se ejecuta la FASE 3).
+				raise
 			except Exception as pac_error:
 				# Error DURANTE comunicación con PAC
 				# Construir respuesta de error con datos RAW
@@ -279,6 +308,9 @@ class TimbradoAPI:
 					"message": "Factura timbrada exitosamente",  # Mensaje para UI
 				}
 
+			except FiscalCorrelationError:
+				# Corrección 6A: propagar la correlación crítica sin degradarla a error ordinario.
+				raise
 			except Exception as frappe_error:
 				# PAC exitoso pero Frappe falló al actualizar
 				# Response Log YA tiene la respuesta correcta del PAC
@@ -303,6 +335,10 @@ class TimbradoAPI:
 					"user_error": "La factura se timbró correctamente pero hubo un error actualizando el sistema. Contacte soporte con el UUID mostrado.",
 				}
 
+		except FiscalCorrelationError:
+			# Corrección 6A: incidente de correlación crítica. No se ejecutó la FASE 3, no se
+			# tocó otro FFM, no se re-llamó al PAC. Mensaje seguro y resultado inequívoco.
+			_raise_correlation_incident()
 		except Exception as e:
 			# Error ANTES del PAC o error del PAC ya manejado arriba
 			if not pac_response:
@@ -1284,6 +1320,10 @@ class TimbradoAPI:
 					factura_fiscal_name=factura_fiscal.name,
 				)
 
+			except FiscalCorrelationError:
+				# Corrección 6A: correlación crítica al persistir la respuesta de cancelación.
+				# No tratar como error de comunicación ni re-llamar al PAC; propagar.
+				raise
 			except Exception as pac_error:
 				# Error DURANTE comunicación con PAC
 				pac_response = {
@@ -1402,6 +1442,10 @@ class TimbradoAPI:
 					"message": "Solicitud de cancelación procesada exitosamente",
 				}
 
+			except FiscalCorrelationError:
+				# Corrección 6A: propagar la correlación crítica; no crear Recovery Task que
+				# pueda repetir la operación.
+				raise
 			except Exception as frappe_error:
 				# PAC canceló exitosamente pero Frappe falló - CREAR RECOVERY TASK
 				frappe.log_error(
@@ -1450,6 +1494,10 @@ class TimbradoAPI:
 					"user_error": "La factura se canceló correctamente en el SAT. El sistema se corregirá automáticamente en unos minutos.",
 				}
 
+		except FiscalCorrelationError:
+			# Corrección 6A: incidente de correlación crítica en cancelación. No se ejecutó la
+			# FASE 3, no se creó Recovery Task, no se re-llamó al PAC. Mensaje seguro.
+			_raise_correlation_incident()
 		except Exception as e:
 			# Error ANTES del PAC o error del PAC ya manejado
 			if not pac_response:
@@ -3263,6 +3311,10 @@ def revisar_estatus_cancelacion(ffm_name: str) -> dict:
 			operation_type="consulta",
 			factura_fiscal_name=ffm_name,
 		)
+	except FiscalCorrelationError:
+		# Corrección 6A: la inconsistencia de correlación en la consulta NO se traga; se reporta.
+		# El cambio de estado escrito sobre ESTE FFM se revierte al propagar (no se hace commit).
+		_raise_correlation_incident()
 	except Exception as log_err:
 		frappe.logger().warning(f"No se pudo registrar log de consulta estatus {ffm_name}: {log_err}")
 
