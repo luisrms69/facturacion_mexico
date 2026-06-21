@@ -129,9 +129,10 @@ def refacturar_misma_si(si_name: str):
 				)
 			)
 
-		# Guard avanzado: verificar que no hay operaciones pendientes
-		if ffm.get("fm_sync_status") == "pending":
-			frappe.throw(_("Operación pendiente en FFM. Espera a que complete antes de re-facturar."))
+		# Corrección 7A2: se eliminó el guard `fm_sync_status == "pending"`. Tras 7A1,
+		# fm_sync_status indica sincronización local (no una operación PAC activa); un FFM
+		# CANCELADO es terminal y no tiene operación en curso. Los guards de docstatus,
+		# status==CANCELADO y motivo 02/03/04 ya delimitan completamente el flujo.
 
 	# IDEMPOTENCIA: Si ya está desvinculado, respuesta elegante
 	if not si.get("fm_factura_fiscal_mx"):
