@@ -117,6 +117,9 @@ class TestFFMReconciliation(IntegrationTestCase):
 	def _sync(self, ffm):
 		return frappe.db.get_value("Factura Fiscal Mexico", ffm, "fm_sync_status")
 
+	def _last_sync(self, ffm):
+		return frappe.db.get_value("Factura Fiscal Mexico", ffm, "fm_last_pac_sync")
+
 	# ─────────────────────────── Selector ───────────────────────────
 
 	def test_selector_incluye_timbrado_pending(self):
@@ -255,6 +258,53 @@ class TestFFMReconciliation(IntegrationTestCase):
 		self.assertEqual(res["outcome"], "error")
 		self.assertEqual(res.get("error_type"), "correlacion")
 		self.assertIsNone(frappe.db.get_value("Factura Fiscal Mexico", ffm, "fm_last_pac_sync"))
+
+	# ─────────── fm_last_pac_sync: solo en GET exitoso y correlacionado ───────────
+
+	_VIEJO = "2020-01-01 00:00:00"
+
+	def _ffm_con_last_sync(self, sync="pending"):
+		si = self._si()
+		ffm = self._ffm(si, "TIMBRADO", sync=sync, last_sync=self._VIEJO)
+		return ffm, self._last_sync(ffm)
+
+	def test_last_sync_timeout_no_modifica(self):
+		ffm, antes = self._ffm_con_last_sync()
+		self._reconciliar(ffm, get_return={"success": False, "status_code": 500})
+		self.assertEqual(self._last_sync(ffm), antes)
+
+	def test_last_sync_429_no_modifica(self):
+		ffm, antes = self._ffm_con_last_sync()
+		self._reconciliar(ffm, get_side_effect=_http_error(429))
+		self.assertEqual(self._last_sync(ffm), antes)
+
+	def test_last_sync_5xx_no_modifica(self):
+		ffm, antes = self._ffm_con_last_sync()
+		self._reconciliar(ffm, get_side_effect=_http_error(503))
+		self.assertEqual(self._last_sync(ffm), antes)
+
+	def test_last_sync_404_no_modifica(self):
+		ffm, antes = self._ffm_con_last_sync()
+		self._reconciliar(ffm, get_side_effect=_http_error(404))
+		self.assertEqual(self._last_sync(ffm), antes)
+
+	def test_last_sync_contradiccion_no_modifica(self):
+		ffm, antes = self._ffm_con_last_sync()
+		bad = {"success": True, "status_code": 200, "raw_response": {"id": "FA-OTRO", "status": "valid"}}
+		self._reconciliar(ffm, get_return=bad)
+		self.assertEqual(self._last_sync(ffm), antes)
+
+	def test_last_sync_get_exitoso_con_cambio_si_modifica(self):
+		# FFM pending + valid -> cambio (pending->synced): fm_last_pac_sync se actualiza.
+		ffm, antes = self._ffm_con_last_sync(sync="pending")
+		self._reconciliar(ffm, get_return=_ok({"status": "valid"}))
+		self.assertNotEqual(self._last_sync(ffm), antes)
+
+	def test_last_sync_get_exitoso_sin_cambio_si_modifica(self):
+		# FFM synced + valid -> no-op: igual se actualiza fm_last_pac_sync (consulta exitosa).
+		ffm, antes = self._ffm_con_last_sync(sync="synced")
+		self._reconciliar(ffm, get_return=_ok({"status": "valid"}))
+		self.assertNotEqual(self._last_sync(ffm), antes)
 
 	# ─────────────────────────── Errores y seguridad ───────────────────────────
 

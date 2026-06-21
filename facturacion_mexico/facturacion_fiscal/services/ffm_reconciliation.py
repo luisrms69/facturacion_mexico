@@ -88,21 +88,28 @@ def _classify_http_error(status_code: int) -> str:
 
 
 def _log_and_set_sync(ffm, response_data: dict, sync_status: str) -> None:
-	"""Registra el GET (Response Log, vía writer) y fija fm_sync_status al valor clasificado.
+	"""Registra el GET de error (Response Log, vía writer) y fija fm_sync_status, CONSERVANDO
+	fm_last_pac_sync.
 
-	Se reutiliza write_pac_response para no duplicar la creación del log ni la correlación. En una
-	respuesta de error no hay identificadores, por lo que no dispara FiscalCorrelationError. El
-	estado fiscal NO cambia (el branch 'reconciliacion' del writer devuelve None salvo 2xx).
+	Un error de consulta (timeout/4xx/5xx) NO es una consulta exitosa y correlacionada: fm_last_pac_sync
+	debe quedar con su valor anterior. Como write_pac_response (por M1) sella fm_last_pac_sync, se
+	captura el valor previo y se restaura. El estado fiscal NO cambia (el branch 'reconciliacion'
+	del writer devuelve None salvo 2xx).
 	"""
+	prev_last_sync = ffm.get("fm_last_pac_sync")
 	_write_pac_response(
 		ffm.sales_invoice or "",
 		{"action": "reconciliacion", "facturapi_id": ffm.facturapi_id},
 		response_data,
 		ffm.name,
 	)
-	# El writer deriva fm_sync_status con su lógica genérica para no-2xx; aquí se impone la
-	# clasificación de reconciliación (p. ej. 404 -> error, no 'synced').
-	frappe.db.set_value("Factura Fiscal Mexico", ffm.name, "fm_sync_status", sync_status)
+	# Se impone la clasificación de reconciliación (p. ej. 404 -> error, no 'synced') y se RESTAURA
+	# fm_last_pac_sync al valor previo (el error no cuenta como última consulta exitosa).
+	frappe.db.set_value(
+		"Factura Fiscal Mexico",
+		ffm.name,
+		{"fm_sync_status": sync_status, "fm_last_pac_sync": prev_last_sync},
+	)
 
 
 def _reconcile_ffm(ffm_name: str) -> dict:
