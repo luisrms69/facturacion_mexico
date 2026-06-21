@@ -78,6 +78,63 @@ def _extract_response_identifiers(response_data: dict) -> tuple[str, str]:
 	return uuid, facturapi_id
 
 
+def _derive_sync_status_from_response(response_data: dict, operation_type: str) -> str | None:
+	"""Derivar fm_sync_status según si el PAC dio una respuesta CONCLUYENTE persistida (7A1).
+
+	Semántica: fm_sync_status indica si el FFM local refleja de forma verificable la última
+	respuesta conocida del PAC. NO se confunde con el estado fiscal (PENDIENTE_CANCELACION es
+	'synced' si la respuesta del PAC ya se reflejó localmente).
+
+	Devuelve:
+	- 'synced'  → hubo una respuesta concluyente del PAC (éxito, rechazo conocido o estado de
+	  cancelación) interpretable; el estado local la refleja.
+	- 'pending' → la respuesta es realmente inconclusa (timeout o sin información suficiente).
+	- None      → la llamada NO representa una respuesta del PAC (fallback de logging de eventos
+	  desde create_fiscal_event); en ese caso el caller NO debe alterar fm_sync_status.
+	"""
+	# Fallback no-PAC (create_fiscal_event → _log_event_to_response_log): no es una respuesta
+	# del PAC. operation_type viene como "fiscal_event_*". No tocar fm_sync_status.
+	if isinstance(operation_type, str) and operation_type.startswith("fiscal_event_"):
+		return None
+
+	if not isinstance(response_data, dict):
+		return "pending"
+
+	# Timeout u operación realmente inconclusa.
+	if response_data.get("timeout_flag"):
+		return "pending"
+
+	# Identificadores del CFDI o estado de cancelación (top-level o en raw_response) → el PAC dio
+	# una respuesta concluyente interpretable.
+	uuid, facturapi_id = _extract_response_identifiers(response_data)
+	if uuid or facturapi_id:
+		return "synced"
+	raw = response_data.get("raw_response")
+	raw = raw if isinstance(raw, dict) else {}
+	for d in (response_data, raw):
+		if d.get("status") or d.get("cancellation_status"):
+			return "synced"
+
+	# Código HTTP: 2xx (aceptado) y 4xx (rechazo conocido del PAC) son concluyentes. 5xx (error de
+	# servidor/transporte) y 0/ausente NO son concluyentes solo por tener código → no marcar synced.
+	sc = response_data.get("status_code")
+	try:
+		code = int(sc) if sc is not None else 0
+	except (TypeError, ValueError):
+		code = 0
+	if 200 <= code < 500:
+		return "synced"
+	if code >= 500:
+		return "pending"
+
+	# Sin código concluyente: solo un 'success' explícitamente True cuenta como concluyente.
+	# success=False sin 4xx (timeout/transporte) o sin información → realmente pendiente.
+	if response_data.get("success") is True:
+		return "synced"
+
+	return "pending"
+
+
 def _derive_http_status(data: dict, default=500) -> int:
 	# Éxito explícito → 200 fijo, ignorar 'status_code' dentro del payload y cualquier regex
 	if isinstance(data, dict) and data.get("success") is True:
@@ -569,11 +626,15 @@ class PACResponseWriter:
 			# Corrección 2: NO se establece aquí fm_last_response_log. El estado fiscal
 			# debe persistir ANTES e independientemente del Response Log; la referencia
 			# al log se asigna después, cuando el log ya existe.
-			success = bool(response_data.get("success"))
+			# Corrección 7A1: fm_sync_status refleja si hubo una respuesta CONCLUYENTE del PAC
+			# persistida (no `response_data.get("success")`, que el raw de cancelación no trae).
+			# Si la llamada es un fallback no-PAC (fiscal_event_*), no se altera fm_sync_status.
 			update_fields = {
 				"fm_last_pac_sync": now_datetime(),
-				"fm_sync_status": "synced" if success else "pending",
 			}
+			sync_status = _derive_sync_status_from_response(response_data, operation_type)
+			if sync_status is not None:
+				update_fields["fm_sync_status"] = sync_status
 
 			# Solo actualizar estado fiscal si la operación lo requiere (new_status no es None)
 			if new_status is not None:

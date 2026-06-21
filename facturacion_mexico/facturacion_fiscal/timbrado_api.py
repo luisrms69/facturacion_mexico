@@ -206,6 +206,21 @@ def _alert_persistence_incident(flujo: str, ffm: str, sales_invoice: str, recove
 		pass
 
 
+def _set_sync_status_best_effort(ffm_name: str, value: str) -> None:
+	"""Actualizar fm_sync_status de MEJOR ESFUERZO (Corrección 7A1).
+
+	Usado por los caminos de 6B2: 'synced' cuando la FASE 3 recuperó y se verificó el estado;
+	'error' cuando queda 'unresolved'. No lanza: si no puede actualizarse, registra y continúa
+	para NO tapar el incidente principal ni convertir un unresolved en éxito limpio.
+	"""
+	try:
+		frappe.db.set_value("Factura Fiscal Mexico", ffm_name, "fm_sync_status", value)
+	except Exception as e:
+		frappe.log_error(
+			f"No se pudo actualizar fm_sync_status={value} en {ffm_name}: {e}", "Sync Status 7A1"
+		)
+
+
 def _persistence_recovered_result(
 	base_result, *, status: str = "recovered_by_phase3", source: str = "phase3"
 ):
@@ -467,6 +482,8 @@ class TimbradoAPI:
 					_alert_persistence_incident(
 						"timbrado", factura_fiscal.name, sales_invoice_name, recovered
 					)
+					# 7A1: sync='synced' si el estado quedó verificado; 'error' si no resuelto.
+					_set_sync_status_best_effort(factura_fiscal.name, "synced" if recovered else "error")
 					return (
 						_persistence_recovered_result(base_result)
 						if recovered
@@ -485,6 +502,7 @@ class TimbradoAPI:
 					_alert_persistence_incident(
 						"timbrado", factura_fiscal.name, sales_invoice_name, recovered=False
 					)
+					_set_sync_status_best_effort(factura_fiscal.name, "error")  # 7A1
 					return _persistence_unresolved_result()
 
 				# PAC exitoso pero Frappe falló al actualizar
@@ -1623,6 +1641,9 @@ class TimbradoAPI:
 					_alert_persistence_incident(
 						"cancelacion", factura_fiscal.name, sales_invoice_name, recovered
 					)
+					_set_sync_status_best_effort(
+						factura_fiscal.name, "synced" if recovered else "error"
+					)  # 7A1
 					return (
 						_persistence_recovered_result(base_result)
 						if recovered
@@ -1643,6 +1664,7 @@ class TimbradoAPI:
 					_alert_persistence_incident(
 						"cancelacion", factura_fiscal.name, sales_invoice_name, recovered=False
 					)
+					_set_sync_status_best_effort(factura_fiscal.name, "error")  # 7A1
 					return _persistence_unresolved_result()
 
 				# PAC canceló exitosamente pero Frappe falló - CREAR RECOVERY TASK
@@ -3530,6 +3552,7 @@ def revisar_estatus_cancelacion(ffm_name: str) -> dict:
 	if _writer_persistence_failed(writer_result):
 		recovered = _verify_estado_persisted(ffm_name, nuevo_estado)
 		_alert_persistence_incident("consulta", ffm_name, ffm.sales_invoice, recovered)
+		_set_sync_status_best_effort(ffm_name, "synced" if recovered else "error")  # 7A1
 		return (
 			_persistence_recovered_result(
 				base_result,
