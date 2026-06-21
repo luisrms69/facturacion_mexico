@@ -271,12 +271,6 @@ def _verify_timbrado_persisted(ffm_name: str, response_data: dict) -> bool:
 	return True
 
 
-def _verify_cancelacion_persisted(ffm_name: str) -> bool:
-	"""Lectura NUEVA de BD: el FFM quedó en un estado legítimo del flujo de cancelación."""
-	status = frappe.db.get_value("Factura Fiscal Mexico", ffm_name, "status")
-	return status in (FiscalStates.CANCELADO, FiscalStates.PENDIENTE_CANCELACION)
-
-
 def _verify_estado_persisted(ffm_name: str, expected_status: str) -> bool:
 	"""Lectura NUEVA de BD: el estado persistido coincide con el ya determinado por el flujo."""
 	return frappe.db.get_value("Factura Fiscal Mexico", ffm_name, "status") == expected_status
@@ -1635,9 +1629,15 @@ class TimbradoAPI:
 					"message": "Solicitud de cancelación procesada exitosamente",
 				}
 				# Corrección 6B2: persistencia principal del writer fallida (PAC OK) → verificar si
-				# la FASE 3 dejó un estado legítimo de cancelación. No se re-llama al PAC.
+				# la FASE 3 dejó persistido EXACTAMENTE el estado que el flujo ya derivó del PAC.
+				# M3 (CodeRabbit): se compara contra `fiscal_status` (el destino legítimo:
+				# CANCELADO si aceptada, PENDIENTE_CANCELACION si pendiente, TIMBRADO si rechazada),
+				# en vez de exigir solo CANCELADO/PENDIENTE_CANCELACION. Así una cancelación
+				# RECHAZADA que dejó el FFM en TIMBRADO se reconoce como persistencia correcta, y
+				# una aceptada que quedó en TIMBRADO se sigue detectando como inconsistente.
+				# No se re-llama al PAC.
 				if _writer_persistence_failed(writer_result):
-					recovered = _verify_cancelacion_persisted(factura_fiscal.name)
+					recovered = _verify_estado_persisted(factura_fiscal.name, fiscal_status)
 					_alert_persistence_incident(
 						"cancelacion", factura_fiscal.name, sales_invoice_name, recovered
 					)

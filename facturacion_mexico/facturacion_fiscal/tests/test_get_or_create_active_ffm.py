@@ -1,12 +1,12 @@
-"""Creación centralizada de FFM en servidor (Corrección 3).
+"""Creación centralizada de FFM en servidor (Corrección 3, ya con Correcciones 4/5).
 
 La creación del FFM deja de hacerse desde JavaScript (`frappe.client.insert` +
 `set_value`) y se concentra en `get_or_create_active_ffm(sales_invoice)`.
 
-ADVERTENCIA: esta corrección NO agrega lock. La condición de carrera (dos
-llamadas concurrentes con `fm_factura_fiscal_mx` vacío) sigue abierta y será
-resuelta por la Corrección 4. La prueba de concurrencia documenta la ventana,
-no la corrige.
+La ventana de carrera que describía la Corrección 3 YA está cerrada: la Corrección 4
+agrega el lock de fila (`for_update`) sobre la Sales Invoice y la Corrección 5 impone
+la cardinalidad (un solo FFM activo por SI). Estas pruebas validan ese comportamiento
+ya corregido, no una ventana abierta.
 
 Sin llamadas al PAC. Pruebas en test-facturacion.localhost.
 """
@@ -18,6 +18,7 @@ import frappe
 from frappe.tests import IntegrationTestCase
 from frappe.utils import flt
 
+from facturacion_mexico.facturacion_fiscal.api import FiscalCorrelationError
 from facturacion_mexico.facturacion_fiscal.doctype.factura_fiscal_mexico.factura_fiscal_mexico import (
 	get_or_create_active_ffm,
 )
@@ -284,3 +285,56 @@ class TestGetOrCreateActiveFFM(IntegrationTestCase):
 		self.assertEqual(num_rows, 2)
 		self.assertEqual(si_iva, 80.00)  # "iva" en minúsculas clasifica como IVA
 		self.assertEqual(si_otros, 12.00)
+
+	# --- C1 (CodeRabbit): allow-list de extra_fields ---
+
+	# C1.1 — acepta los dos campos permitidos (nota de crédito / devolución): no lanza y crea el FFM.
+	#        La PERSISTENCIA de esos campos depende del controller del FFM (p. ej. tipo de
+	#        comprobante), no del allow-list; aquí solo se valida que el guard los deja pasar.
+	def test_c1_acepta_campos_permitidos(self):
+		si = self._si()
+		ffm = self._track_ffm(
+			get_or_create_active_ffm(
+				si,
+				extra_fields={
+					"fm_uuid_relacionado": "UUID-REL-1",
+					"fm_tipo_relacion_sat": "03 - Devolución de mercancía sobre facturas o traslados previos",
+				},
+			)
+		)
+		self.assertTrue(ffm)
+		self.assertEqual(frappe.db.get_value("Sales Invoice", si, "fm_factura_fiscal_mx"), ffm)
+
+	# C1.2 — acepta extra_fields vacío
+	def test_c1_acepta_vacio(self):
+		si = self._si()
+		ffm = self._track_ffm(get_or_create_active_ffm(si, extra_fields={}))
+		self.assertTrue(ffm)
+
+	# C1.3 — rechaza intento de fijar status
+	def test_c1_rechaza_status(self):
+		si = self._si()
+		with self.assertRaises(FiscalCorrelationError):
+			get_or_create_active_ffm(si, extra_fields={"status": "TIMBRADO"})
+		self.assertEqual(frappe.db.count("Factura Fiscal Mexico", {"sales_invoice": si}), 0)
+
+	# C1.4 — rechaza intento de inyectar facturapi_id
+	def test_c1_rechaza_facturapi_id(self):
+		si = self._si()
+		with self.assertRaises(FiscalCorrelationError):
+			get_or_create_active_ffm(si, extra_fields={"facturapi_id": "FA-HACK"})
+		self.assertEqual(frappe.db.count("Factura Fiscal Mexico", {"sales_invoice": si}), 0)
+
+	# C1.5 — rechaza intento de reapuntar la sales_invoice
+	def test_c1_rechaza_sales_invoice(self):
+		si = self._si()
+		with self.assertRaises(FiscalCorrelationError):
+			get_or_create_active_ffm(si, extra_fields={"sales_invoice": "OTRA-SI"})
+		self.assertEqual(frappe.db.count("Factura Fiscal Mexico", {"sales_invoice": si}), 0)
+
+	# C1.6 — rechaza cualquier campo desconocido
+	def test_c1_rechaza_campo_desconocido(self):
+		si = self._si()
+		with self.assertRaises(FiscalCorrelationError):
+			get_or_create_active_ffm(si, extra_fields={"campo_que_no_existe": "x"})
+		self.assertEqual(frappe.db.count("Factura Fiscal Mexico", {"sales_invoice": si}), 0)

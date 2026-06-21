@@ -217,13 +217,18 @@ class TestGetOrCreateConcurrencia(IntegrationTestCase):
 	def test_rollback_libera_lock(self):
 		si = self._si()
 
+		# Capturar la función REAL ANTES de parchear: si se captura dentro del `with patch`,
+		# `frappe.get_doc` ya es el mock y la rama "Sales Invoice" recursaría infinitamente
+		# (RecursionError, subclase de RuntimeError) → el test pasaría por la razón equivocada
+		# sin ejercitar el for_update real ni el fallo en creación del FFM.
+		real_get_doc = frappe.get_doc
+
 		# Forzar excepción DESPUÉS de adquirir el for_update (al insertar el FFM).
 		with patch(
 			"facturacion_mexico.facturacion_fiscal.doctype.factura_fiscal_mexico."
 			"factura_fiscal_mexico.frappe.get_doc"
 		) as _mock:
 			# Dejamos pasar la lectura for_update real y rompemos en la creación del FFM.
-			real_get_doc = frappe.get_doc
 
 			def _side(*args, **kwargs):
 				if args and args[0] == "Sales Invoice":

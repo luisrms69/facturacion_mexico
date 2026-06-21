@@ -301,6 +301,47 @@ class TestPersistenceRecovery(IntegrationTestCase):
 		self.assertTrue(result.get("persistence_warning"))
 		mq.assert_called_once()  # consulta al PAC una sola vez
 
+	# --- M3 (CodeRabbit): verificación de persistencia usa el estado derivado (`fiscal_status`) ---
+
+	def _run_cancelacion(self, motivo, raw_response, *, ffm_raises=False):
+		"""Cancelación con writer fallido: dispara la verificación de persistencia (6B2/M3)."""
+		ffm = self._ffm(None, "TIMBRADO", facturapi_id="FA-1", uuid="U-1")
+		si = self._si(fiscal_status="TIMBRADO", ffm=ffm)
+		frappe.db.set_value("Factura Fiscal Mexico", ffm, "sales_invoice", si)
+		frappe.db.commit()
+		client = MagicMock()
+		client.cancel_invoice.return_value = {"success": True, "raw_response": raw_response}
+		with patch(f"{_TIMBRADO_API}.get_facturapi_client", return_value=client):
+			api = TimbradoAPI(company="_Test Company")
+			with (
+				patch("frappe.set_value", side_effect=_set_value_factory(ffm_raises=ffm_raises)),
+				patch(f"{_TIMBRADO_API}.write_pac_response", return_value={"success": False}),
+			):
+				result = api.cancelar_factura(si, motivo)
+		return result, ffm, client
+
+	# 14 — cancelación RECHAZADA: FASE 3 mantiene TIMBRADO → se reconoce como persistido (recuperado)
+	def test_14_cancelacion_rejected_recuperada_timbrado(self):
+		result, ffm, client = self._run_cancelacion("02", {"cancellation_status": "rejected"})
+		self.assertTrue(result["success"])
+		self.assertEqual(result.get("persistence_status"), "recovered_by_phase3")
+		self.assertEqual(frappe.db.get_value("Factura Fiscal Mexico", ffm, "status"), "TIMBRADO")
+		client.cancel_invoice.assert_called_once()
+
+	# 15 — cancelación PENDIENTE: conserva el comportamiento existente (PENDIENTE_CANCELACION recuperado)
+	def test_15_cancelacion_pending_recuperada(self):
+		result, ffm, _ = self._run_cancelacion("02", {"cancellation_status": "pending"})
+		self.assertTrue(result["success"])
+		self.assertEqual(result.get("persistence_status"), "recovered_by_phase3")
+		self.assertEqual(frappe.db.get_value("Factura Fiscal Mexico", ffm, "status"), "PENDIENTE_CANCELACION")
+
+	# 16 — cancelación ACEPTADA pero FASE 3 no persiste (queda en TIMBRADO) → NO recuperada
+	def test_16_cancelacion_accepted_pero_timbrado_no_recuperada(self):
+		result, ffm, _ = self._run_cancelacion("02", {"status": "canceled"}, ffm_raises=True)
+		self.assertFalse(result["success"])
+		self.assertEqual(result.get("persistence_status"), "unresolved")
+		self.assertEqual(frappe.db.get_value("Factura Fiscal Mexico", ffm, "status"), "TIMBRADO")
+
 	# 13 — cero referencias al cliente del PAC en este módulo
 	def test_13_cero_trafico_pac(self):
 		g = globals()

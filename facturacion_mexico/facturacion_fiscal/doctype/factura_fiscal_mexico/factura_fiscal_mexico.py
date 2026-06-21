@@ -1383,6 +1383,32 @@ def get_or_create_active_ffm(sales_invoice: str, extra_fields: str | dict | None
 		extra_fields = json.loads(extra_fields) if extra_fields else {}
 	extra_fields = extra_fields or {}
 
+	from facturacion_mexico.facturacion_fiscal.api import (
+		FiscalCorrelationError,
+		_alerta_correlacion_critica,
+	)
+
+	# Blindaje (C1): `extra_fields` viene de un caller externo (el botón JS) y debe tener una
+	# superficie mínima autorizada. Solo se permiten los campos que hoy un caller legítimo
+	# necesita pasar (nota de crédito / devolución). Cualquier otra clave se rechaza de forma
+	# EXPLÍCITA: permitirla dejaría sobrescribir `sales_invoice`, `company`, `status`, UUID o
+	# `facturapi_id` —los campos de correlación y estado que esta función deriva y valida— y
+	# recrearía el mismatch SI↔FFM que esta corrección previene.
+	_ALLOWED_EXTRA_FIELDS = {
+		"fm_uuid_relacionado",
+		"fm_tipo_relacion_sat",
+	}
+	_campos_no_permitidos = set(extra_fields) - _ALLOWED_EXTRA_FIELDS
+	if _campos_no_permitidos:
+		frappe.throw(
+			_("extra_fields solo admite {0}. Campos no permitidos: {1}.").format(
+				", ".join(sorted(_ALLOWED_EXTRA_FIELDS)),
+				", ".join(sorted(_campos_no_permitidos)),
+			),
+			title=_("Integridad fiscal"),
+			exc=FiscalCorrelationError,
+		)
+
 	# La Sales Invoice debe existir (lectura previa SOLO para error temprano; no decide crear).
 	if not frappe.db.exists("Sales Invoice", sales_invoice):
 		frappe.throw(
@@ -1402,11 +1428,6 @@ def get_or_create_active_ffm(sales_invoice: str, extra_fields: str | dict | None
 	# Reglas de resolución (Corrección 5 — Regla B, un solo FFM activo por SI). La decisión
 	# NO depende solo de Sales Invoice.fm_factura_fiscal_mx: se basa en los FFM activos
 	# (status en ACTIVE_STATES) cuyo sales_invoice es esta SI.
-	from facturacion_mexico.facturacion_fiscal.api import (
-		FiscalCorrelationError,
-		_alerta_correlacion_critica,
-	)
-
 	existing_ref = si.get("fm_factura_fiscal_mx")
 
 	# Integridad: si la SI referencia un FFM que pertenece a OTRA Sales Invoice, detener.

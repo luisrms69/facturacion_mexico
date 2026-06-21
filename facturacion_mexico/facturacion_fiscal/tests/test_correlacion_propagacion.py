@@ -237,6 +237,28 @@ class TestCorrelacionPropagacion(IntegrationTestCase):
 			frappe.db.get_value("Factura Fiscal Mexico", control, "status"), control_status_before
 		)
 
+	# ── M2 (CodeRabbit): write_pac_timeout también propaga la correlación ────
+
+	def test_09_timeout_correlacion_propaga(self):
+		from facturacion_mexico.facturacion_fiscal.api import PACResponseWriter, write_pac_timeout
+
+		si = self._si()
+		ffm = self._ffm(si, "BORRADOR")
+		# Una contradicción de correlación dentro del writer NO debe absorberse a {success:False}.
+		with patch.object(PACResponseWriter, "write_pac_response", side_effect=FiscalCorrelationError("x")):
+			with self.assertRaises(FiscalCorrelationError):
+				write_pac_timeout(si, json.dumps({}), 30, factura_fiscal_name=ffm)
+
+	def test_10_timeout_error_ordinario_no_propaga(self):
+		from facturacion_mexico.facturacion_fiscal.api import PACResponseWriter, write_pac_timeout
+
+		si = self._si()
+		ffm = self._ffm(si, "BORRADOR")
+		# Un error genérico sí conserva el comportamiento ordinario {success:False}.
+		with patch.object(PACResponseWriter, "write_pac_response", side_effect=RuntimeError("boom")):
+			result = write_pac_timeout(si, json.dumps({}), 30, factura_fiscal_name=ffm)
+		self.assertFalse(result["success"])
+
 	# ── 8: cero tráfico real al PAC ──────────────────────────────────────────
 
 	def test_08_cero_trafico_pac(self):

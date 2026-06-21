@@ -629,9 +629,12 @@ class PACResponseWriter:
 			# Corrección 7A1: fm_sync_status refleja si hubo una respuesta CONCLUYENTE del PAC
 			# persistida (no `response_data.get("success")`, que el raw de cancelación no trae).
 			# Si la llamada es un fallback no-PAC (fiscal_event_*), no se altera fm_sync_status.
-			update_fields = {
-				"fm_last_pac_sync": now_datetime(),
-			}
+			# M1 (CodeRabbit): tampoco se refresca fm_last_pac_sync en eventos internos no-PAC;
+			# hacerlo haría que un fallback interno parezca una sincronización fresca con el PAC.
+			_is_fiscal_event = isinstance(operation_type, str) and operation_type.startswith("fiscal_event_")
+			update_fields = {}
+			if not _is_fiscal_event:
+				update_fields["fm_last_pac_sync"] = now_datetime()
 			sync_status = _derive_sync_status_from_response(response_data, operation_type)
 			if sync_status is not None:
 				update_fields["fm_sync_status"] = sync_status
@@ -857,6 +860,10 @@ def write_pac_timeout(
 
 		return result
 
+	except FiscalCorrelationError:
+		# Corrección 6A (consistencia): una contradicción de correlación debe DETENER el flujo,
+		# no degradarse a {success: False} como un fallo ordinario de escritura de timeout.
+		raise
 	except Exception as e:
 		frappe.log_error(f"Error en write_pac_timeout: {traceback.format_exc()}", "PAC Timeout Error")
 		return {"success": False, "error": str(e), "timestamp": now()}

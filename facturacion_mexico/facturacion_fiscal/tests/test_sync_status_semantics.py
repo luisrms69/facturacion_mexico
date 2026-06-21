@@ -218,6 +218,35 @@ class TestSyncStatusSemantics(IntegrationTestCase):
 		)
 		self.assertEqual(self._sync(ffm), "synced")  # sin cambio
 
+	# --- M1 (CodeRabbit): fm_last_pac_sync solo se refresca con respuesta PAC real ---
+
+	# M1.1 — un evento interno (fiscal_event_*) NO refresca fm_last_pac_sync
+	def test_16_fiscal_event_no_actualiza_last_pac_sync(self):
+		si = self._si()
+		ffm = self._ffm(si, "TIMBRADO", sync="synced")  # fm_last_pac_sync nace None
+		antes = frappe.db.get_value("Factura Fiscal Mexico", ffm, "fm_last_pac_sync")
+		self._write(
+			si,
+			ffm,
+			{"sales_invoice": si, "company": "_Test Company", "status": "TIMBRADO"},
+			"fiscal_event_create",
+		)
+		despues = frappe.db.get_value("Factura Fiscal Mexico", ffm, "fm_last_pac_sync")
+		self.assertEqual(antes, despues)  # no se tocó
+
+	# M1.2 — una respuesta PAC real SÍ refresca fm_last_pac_sync
+	def test_17_respuesta_pac_real_actualiza_last_pac_sync(self):
+		si = self._si()
+		ffm = self._ffm(si, "BORRADOR")
+		self.assertIsNone(frappe.db.get_value("Factura Fiscal Mexico", ffm, "fm_last_pac_sync"))
+		self._write(
+			si,
+			ffm,
+			{"success": True, "status_code": 200, "raw_response": {"uuid": "U", "id": "FA"}},
+			"timbrado",
+		)
+		self.assertIsNotNone(frappe.db.get_value("Factura Fiscal Mexico", ffm, "fm_last_pac_sync"))
+
 	# ── 6B2: recuperación y no resuelto actualizan sync ──────────────────────
 
 	def _run_timbrado(self, si, ffm, *, writer_return, fase3="real"):
