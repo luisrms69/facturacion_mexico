@@ -181,8 +181,31 @@ class PACResponseWriter:
 			"timestamp": now(),
 		}
 
+		# Corrección 2: el ESTADO FISCAL se persiste PRIMERO e independientemente del
+		# Response Log. El log es auditoría; su fallo no debe revertir ni ocultar el
+		# resultado fiscal confirmado por el PAC, ni degradar a filesystem.
+
+		# PASO 1: Actualizar y persistir el FFM (estado fiscal, UUID, facturapi_id,
+		# fm_sync_status). Valida correlación estricta (Corrección 1) y commitea el FFM.
+		# - FiscalCorrelationError → propaga (no se toca nada).
+		# - Otro fallo de actualización → _update_factura_fiscal alerta y relanza:
+		#   NO se crea el Response Log y NO se presenta como persistido (punto 3).
+		self._update_factura_fiscal(
+			sales_invoice_name,
+			response_data,
+			None,  # fm_last_response_log se asigna después, cuando el log exista
+			operation_type,
+			factura_fiscal_name=factura_fiscal_name,
+		)
+		result["success"] = True
+		result["method"] = "database"
+		result["fiscal_updated"] = True
+
+		# PASO 2: Response Log de auditoría, AISLADO con savepoint. Si su inserción
+		# falla, se revierte SOLO el log (rollback al savepoint); el FFM ya persistido
+		# permanece intacto. No se relanza y no se degrada a filesystem (prueba 4).
 		try:
-			# PASO 1: Intentar escritura a BD (principal)
+			frappe.db.savepoint("pac_audit_log")
 			response_log = self._write_to_database(
 				sales_invoice_name,
 				request_data,
@@ -190,83 +213,48 @@ class PACResponseWriter:
 				operation_type,
 				factura_fiscal_name=factura_fiscal_name,
 			)
+			result["response_log_name"] = response_log.name
 
-			if response_log:
-				result["success"] = True
-				result["response_log_name"] = response_log.name
-				result["method"] = "database"
-
-				# PASO 2: Actualizar el MISMO FFM explícito (nunca por Sales Invoice)
-				self._update_factura_fiscal(
-					sales_invoice_name,
-					response_data,
+			# PASO 3: enlazar la referencia de auditoría tras crear el log. Su fallo no
+			# revierte ni el FFM fiscal ni el log ya creado.
+			try:
+				frappe.db.set_value(
+					"Factura Fiscal Mexico",
+					factura_fiscal_name,
+					"fm_last_response_log",
 					response_log.name,
-					operation_type,
-					factura_fiscal_name=factura_fiscal_name,
+				)
+			except Exception as ref_error:
+				result["audit_log_ref_failed"] = True
+				_alerta_correlacion_critica(
+					"No se pudo enlazar fm_last_response_log; FFM y Response Log conservados",
+					{
+						"factura_fiscal_name": factura_fiscal_name,
+						"response_log": response_log.name,
+						"error": str(ref_error),
+					},
 				)
 
-				return result
-
 		except FiscalCorrelationError:
-			# Contradicción de correlación: NO degradar a filesystem. Propagar el
-			# error controlado para que el caller lo maneje y nada se modifique.
+			# El log también valida correlación; si contradice, propagar.
 			raise
-		except Exception as db_error:
-			result["errors"].append(f"DB Error: {db_error!s}")
-			frappe.log_error(f"Error escritura BD PAC: {traceback.format_exc()}", "PAC Writer DB Error")
-
-		# PASO 3: Fallback a filesystem si BD falla
-		try:
-			fallback_file = self._write_to_filesystem(
-				sales_invoice_name,
-				request_data,
-				response_data,
-				operation_type,
-				factura_fiscal_name=factura_fiscal_name,
+		except Exception as log_error:
+			frappe.db.rollback(save_point="pac_audit_log")
+			result["audit_log_failed"] = True
+			result["errors"].append(f"Audit log error: {log_error!s}")
+			_alerta_correlacion_critica(
+				"Fallo al guardar Response Log; estado fiscal ya persistido se conserva",
+				{
+					"factura_fiscal_name": factura_fiscal_name,
+					"sales_invoice": sales_invoice_name,
+					"operation_type": operation_type,
+					"error": str(log_error),
+				},
 			)
-
-			result["success"] = True
-			result["fallback_file"] = fallback_file
-			result["method"] = "filesystem_fallback"
-			result["errors"].append("BD no disponible - guardado en filesystem para recovery")
-
-			# Programar recovery automático
-			self._schedule_recovery_task(fallback_file)
-
-			return result
-
-		except Exception as fs_error:
-			result["errors"].append(f"Filesystem Error: {fs_error!s}")
 			frappe.log_error(
-				f"Error filesystem fallback: {traceback.format_exc()}", "PAC Writer Filesystem Error"
+				f"Error guardando Response Log (estado fiscal conservado): {traceback.format_exc()}",
+				"PAC Writer Audit Log Error",
 			)
-
-		# PASO 4: Si todo falla, log crítico pero NO falla silenciosamente
-		result["errors"].append("CRÍTICO: Falló escritura BD y filesystem - respuesta PAC en riesgo")
-		frappe.log_error(
-			f"CRÍTICO PAC Response Writer: {json.dumps(result, indent=2)}", "PAC Writer CRITICAL FAILURE"
-		)
-
-		# Incluso en falla completa, intentamos un último log de emergencia
-		try:
-			emergency_log = {
-				"sales_invoice": sales_invoice_name,
-				"response_data": response_data,
-				"timestamp": now(),
-				"emergency_flag": True,
-			}
-
-			emergency_file = (
-				f"/tmp/pac_emergency_{sales_invoice_name}_{now().replace(' ', '_').replace(':', '-')}.json"
-			)
-			with open(emergency_file, "w") as f:
-				json.dump(emergency_log, f, indent=2, default=str)
-
-			result["emergency_file"] = emergency_file
-
-		except Exception:
-			# Si incluso el log de emergencia falla, al menos tenemos el error en result
-			pass
 
 		return result
 
@@ -585,9 +573,11 @@ class PACResponseWriter:
 			new_status, _status_code, uuid = self._derive_status_from_response(response_data, _normalized_op)
 
 			# Preparar campos a actualizar - NORMALIZACIÓN CRÍTICA A MAYÚSCULAS
+			# Corrección 2: NO se establece aquí fm_last_response_log. El estado fiscal
+			# debe persistir ANTES e independientemente del Response Log; la referencia
+			# al log se asigna después, cuando el log ya existe.
 			success = bool(response_data.get("success"))
 			update_fields = {
-				"fm_last_response_log": response_log_name,
 				"fm_last_pac_sync": now_datetime(),
 				"fm_sync_status": "synced" if success else "pending",
 			}
@@ -618,11 +608,28 @@ class PACResponseWriter:
 			for field, value in update_fields.items():
 				frappe.db.set_value("Factura Fiscal Mexico", factura_fiscal_name, field, value)
 
+			# Persistir el estado fiscal confirmado por el PAC ANTES e independientemente
+			# del Response Log (Corrección 2). Commit ya existente — no se agrega ninguno.
 			frappe.db.commit()
 
+		except FiscalCorrelationError:
+			# Contradicción de correlación (Corrección 1): propagar sin tocar nada.
+			raise
 		except Exception as e:
-			# No fallar si actualización Factura Fiscal falla - respuesta PAC ya guardada
+			# Corrección 2: un fallo al persistir el estado fiscal NO debe ocultarse ni
+			# presentarse como operación correcta. Se alerta de forma crítica y se relanza
+			# para que el orquestador NO cree el Response Log ni reporte éxito.
+			_alerta_correlacion_critica(
+				"Fallo al actualizar el estado fiscal del FFM tras respuesta PAC",
+				{
+					"factura_fiscal_name": factura_fiscal_name,
+					"sales_invoice": sales_invoice_name,
+					"operation_type": operation_type,
+					"error": str(e),
+				},
+			)
 			frappe.log_error(f"Error actualizando Factura Fiscal: {e!s}", "PAC Writer Update Error")
+			raise
 
 	def _is_success_response(self, response_data: dict[str, Any]) -> bool:
 		"""Determinar si respuesta PAC fue exitosa."""
