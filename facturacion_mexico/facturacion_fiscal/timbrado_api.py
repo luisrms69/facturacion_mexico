@@ -40,7 +40,11 @@ def _log_payload_checkpoint(tag, payload: dict):
 
 from facturacion_mexico.config.fiscal_states_config import FiscalStates, OperationTypes
 
-from .api import write_pac_response  # PAC Response Writer - Arquitectura resiliente activada
+from .api import (  # PAC Response Writer - Arquitectura resiliente activada
+	FiscalCorrelationError,
+	_extract_response_identifiers,
+	write_pac_response,
+)
 from .api_client import get_facturapi_client
 from .doctype.facturapi_response_log.facturapi_response_log import FacturAPIResponseLog
 
@@ -88,6 +92,188 @@ def _validate_items_clave_sat_for_timbrado(sales_invoice):
 			frappe.ValidationError,
 			title=_("Claves SAT Faltantes — Timbrado Bloqueado"),
 		)
+
+
+def _raise_correlation_incident() -> None:
+	"""Detener el flujo ante una correlación fiscal crítica (Corrección 6A).
+
+	Una `FiscalCorrelationError` después de una operación con el PAC significa que la
+	respuesta no se pudo asociar de forma inequívoca al documento fiscal de origen.
+	El flujo local se detiene SIN continuar a la FASE 3, sin re-llamar al PAC y sin
+	reintentos automáticos. La evidencia técnica (FFM, UUID, facturapi_id, SI) ya quedó
+	registrada en la alerta crítica del writer; aquí solo se comunica un mensaje seguro,
+	sin revelar datos fiscales sensibles, instruyendo a NO repetir la operación.
+	"""
+	frappe.throw(
+		_(
+			"No repita la operación. El PAC pudo haberla procesado, pero el sistema detectó "
+			"una inconsistencia al relacionar la respuesta con el documento fiscal. "
+			"Se requiere revisión administrativa."
+		),
+		title=_("Intervención requerida"),
+		exc=FiscalCorrelationError,
+	)
+
+
+def _audit_warning_message() -> str:
+	"""Mensaje visible NO bloqueante de auditoría incompleta (Corrección 6B1)."""
+	return _(
+		"La operación fiscal fue procesada correctamente, pero su registro de auditoría quedó "
+		"incompleto. No repita la operación. Se requiere revisión administrativa."
+	)
+
+
+def _apply_audit_warning(writer_result, user_result):
+	"""Adjuntar una advertencia NO bloqueante si la auditoría quedó incompleta (Corrección 6B1).
+
+	`write_pac_response` puede reportar `audit_log_failed` (no se creó el Response Log) o
+	`audit_log_ref_failed` (el log existe pero no quedó enlazado al FFM). En AMBOS casos la
+	operación fiscal SÍ se procesó: no se altera `success`, no se re-llama al PAC, no se crea
+	Recovery Task ni se reintenta. Se muestra una sola advertencia visible y se conserva la
+	diferencia técnica en el resultado (`audit_detail`). La evidencia detallada ya la registró
+	el writer; aquí NO se duplica esa alerta.
+	"""
+	if not isinstance(writer_result, dict):
+		return user_result
+
+	audit_failed = bool(writer_result.get("audit_log_failed"))
+	audit_ref_failed = bool(writer_result.get("audit_log_ref_failed"))
+	if not (audit_failed or audit_ref_failed):
+		return user_result
+
+	# Diferenciación técnica: el log no se creó vs. el log existe pero no se enlazó.
+	detail = "audit_log_failed" if audit_failed else "audit_log_ref_failed"
+
+	# Advertencia visible (no bloqueante). No revela UUID/facturapi_id/payload.
+	frappe.msgprint(_audit_warning_message(), title=_("Auditoría incompleta"), indicator="orange")
+
+	if isinstance(user_result, dict):
+		user_result.setdefault("success", True)
+		user_result["audit_warning"] = True
+		user_result["audit_status"] = "incomplete"
+		user_result["audit_detail"] = detail
+		user_result["audit_warning_message"] = _audit_warning_message()
+	return user_result
+
+
+# ── Corrección 6B2: fallo de la persistencia PRINCIPAL (PASO 1 del writer) tras PAC OK ──
+
+
+def _writer_persistence_failed(writer_result) -> bool:
+	"""True si el writer NO logró persistir el estado fiscal (PASO 1 lanzó → success=False).
+
+	Distinto de la auditoría incompleta (6B1, success sigue True) y de FiscalCorrelationError
+	(6A, se propaga). Solo aplica en caminos donde el PAC respondió exitosamente.
+	"""
+	return isinstance(writer_result, dict) and writer_result.get("success") is False
+
+
+def _persistence_warning_message() -> str:
+	return _(
+		"La operación fiscal fue procesada y el estado local pudo recuperarse, pero falló la "
+		"persistencia principal de la respuesta. No repita la operación. Se requiere revisión "
+		"administrativa."
+	)
+
+
+def _persistence_unresolved_message() -> str:
+	return _(
+		"No repita la operación. El PAC pudo haberla procesado, pero el sistema no pudo confirmar "
+		"la persistencia local del estado fiscal. Se requiere revisión administrativa inmediata."
+	)
+
+
+def _alert_persistence_incident(flujo: str, ffm: str, sales_invoice: str, recovered: bool) -> None:
+	"""Alerta estructurada de orquestación (Corrección 6B2). No duplica el payload técnico
+	que el writer ya registró; solo correlaciona el incidente y deja constancia de que el PAC
+	NO debe llamarse nuevamente."""
+	try:
+		frappe.log_error(
+			message=json.dumps(
+				{
+					"flujo": flujo,
+					"ffm": ffm,
+					"sales_invoice": sales_invoice,
+					"fase3_recupero": recovered,
+					"no_reintentar_pac": True,
+				},
+				default=str,
+				indent=2,
+			),
+			title="PAC Persistencia Principal Falló",
+		)
+	except Exception:
+		pass
+
+
+def _set_sync_status_best_effort(ffm_name: str, value: str) -> None:
+	"""Actualizar fm_sync_status de MEJOR ESFUERZO (Corrección 7A1).
+
+	Usado por los caminos de 6B2: 'synced' cuando la FASE 3 recuperó y se verificó el estado;
+	'error' cuando queda 'unresolved'. No lanza: si no puede actualizarse, registra y continúa
+	para NO tapar el incidente principal ni convertir un unresolved en éxito limpio.
+	"""
+	try:
+		frappe.db.set_value("Factura Fiscal Mexico", ffm_name, "fm_sync_status", value)
+	except Exception as e:
+		frappe.log_error(
+			f"No se pudo actualizar fm_sync_status={value} en {ffm_name}: {e}", "Sync Status 7A1"
+		)
+
+
+def _persistence_recovered_result(
+	base_result, *, status: str = "recovered_by_phase3", source: str = "phase3"
+):
+	"""Caso 1: el estado fiscal quedó verificado pese al fallo de la persistencia principal.
+
+	Para timbrado/cancelación, la FASE 3 lo recuperó (`recovered_by_phase3`/`phase3`). Para
+	consulta NO hay FASE 3 que recupere: el estado se escribe ANTES del writer y solo se
+	verifica que siga correcto; por eso el caller usa un `status`/`source` explícitos.
+	success=True + advertencia crítica; no cambia manual_review_required ni retry_allowed.
+	"""
+	frappe.msgprint(_persistence_warning_message(), title=_("Persistencia recuperada"), indicator="orange")
+	if isinstance(base_result, dict):
+		base_result.setdefault("success", True)
+		base_result["persistence_warning"] = True
+		base_result["persistence_status"] = status
+		base_result["persistence_recovery_source"] = source
+		base_result["manual_review_required"] = True
+		base_result["retry_allowed"] = False
+		base_result["persistence_warning_message"] = _persistence_warning_message()
+	return base_result
+
+
+def _persistence_unresolved_result(base_result=None):
+	"""Caso 2: ni el writer ni la FASE 3 confirmaron la persistencia. Intervención manual."""
+	frappe.msgprint(_persistence_unresolved_message(), title=_("Intervención requerida"), indicator="red")
+	result = base_result if isinstance(base_result, dict) else {}
+	result["success"] = False
+	result["operation_may_be_processed"] = True
+	result["manual_review_required"] = True
+	result["retry_allowed"] = False
+	result["persistence_status"] = "unresolved"
+	result["message"] = _persistence_unresolved_message()
+	return result
+
+
+def _verify_timbrado_persisted(ffm_name: str, response_data: dict) -> bool:
+	"""Lectura NUEVA de BD: el FFM quedó TIMBRADO con UUID (y facturapi_id) coincidentes."""
+	uuid, facturapi_id = _extract_response_identifiers(response_data)
+	row = frappe.db.get_value(
+		"Factura Fiscal Mexico", ffm_name, ["status", "fm_uuid", "facturapi_id"], as_dict=True
+	)
+	if not row or row.get("status") != FiscalStates.TIMBRADO:
+		return False
+	if uuid and row.get("fm_uuid") != uuid:
+		return False
+	if facturapi_id and row.get("facturapi_id") and row.get("facturapi_id") != facturapi_id:
+		return False
+	return True
+
+
+def _verify_estado_persisted(ffm_name: str, expected_status: str) -> bool:
+	"""Lectura NUEVA de BD: el estado persistido coincide con el ya determinado por el flujo."""
+	return frappe.db.get_value("Factura Fiscal Mexico", ffm_name, "status") == expected_status
 
 
 class TimbradoAPI:
@@ -179,13 +365,19 @@ class TimbradoAPI:
 				}
 
 				# Guardar Response Log INMEDIATAMENTE con respuesta REAL del PAC
-				write_pac_response(
+				writer_result = write_pac_response(
 					sales_invoice_name,
 					json.dumps(pac_request),
 					json.dumps(response_data),
 					"timbrado",
+					factura_fiscal_name=factura_fiscal.name,
 				)
 
+			except FiscalCorrelationError:
+				# Corrección 6A: una correlación crítica al persistir la respuesta del PAC NO es
+				# un error de comunicación. No re-llamar al PAC ni continuar; propagar para que
+				# se detenga el flujo (no se ejecuta la FASE 3).
+				raise
 			except Exception as pac_error:
 				# Error DURANTE comunicación con PAC
 				# Construir respuesta de error con datos RAW
@@ -207,6 +399,7 @@ class TimbradoAPI:
 					json.dumps(pac_request),
 					json.dumps(pac_response),  # ✅ Error REAL del PAC
 					"timbrado",
+					factura_fiscal_name=factura_fiscal.name,
 				)
 
 				# Re-lanzar para manejo de UI
@@ -268,7 +461,7 @@ class TimbradoAPI:
 					},
 				)
 
-				return {
+				base_result = {
 					"success": True,
 					"status_code": 200,
 					"raw_response": pac_response,
@@ -276,8 +469,36 @@ class TimbradoAPI:
 					"factura_fiscal": factura_fiscal.name,
 					"message": "Factura timbrada exitosamente",  # Mensaje para UI
 				}
+				# Corrección 6B2: si la persistencia principal del writer falló (PAC OK), verificar
+				# con lectura nueva de BD si la FASE 3 recuperó el estado. No se re-llama al PAC.
+				if _writer_persistence_failed(writer_result):
+					recovered = _verify_timbrado_persisted(factura_fiscal.name, response_data)
+					_alert_persistence_incident(
+						"timbrado", factura_fiscal.name, sales_invoice_name, recovered
+					)
+					# 7A1: sync='synced' si el estado quedó verificado; 'error' si no resuelto.
+					_set_sync_status_best_effort(factura_fiscal.name, "synced" if recovered else "error")
+					return (
+						_persistence_recovered_result(base_result)
+						if recovered
+						else _persistence_unresolved_result(base_result)
+					)
+				return _apply_audit_warning(writer_result, base_result)
 
+			except FiscalCorrelationError:
+				# Corrección 6A: propagar la correlación crítica sin degradarla a error ordinario.
+				raise
 			except Exception as frappe_error:
+				# Corrección 6B2: si la persistencia principal del writer también falló, el estado
+				# fiscal no quedó confirmado por ninguna vía → intervención manual (no reintentar,
+				# no re-llamar al PAC). Si el writer SÍ persistió, se conserva el manejo existente.
+				if _writer_persistence_failed(writer_result):
+					_alert_persistence_incident(
+						"timbrado", factura_fiscal.name, sales_invoice_name, recovered=False
+					)
+					_set_sync_status_best_effort(factura_fiscal.name, "error")  # 7A1
+					return _persistence_unresolved_result()
+
 				# PAC exitoso pero Frappe falló al actualizar
 				# Response Log YA tiene la respuesta correcta del PAC
 				frappe.log_error(
@@ -301,6 +522,10 @@ class TimbradoAPI:
 					"user_error": "La factura se timbró correctamente pero hubo un error actualizando el sistema. Contacte soporte con el UUID mostrado.",
 				}
 
+		except FiscalCorrelationError:
+			# Corrección 6A: incidente de correlación crítica. No se ejecutó la FASE 3, no se
+			# tocó otro FFM, no se re-llamó al PAC. Mensaje seguro y resultado inequívoco.
+			_raise_correlation_incident()
 		except Exception as e:
 			# Error ANTES del PAC o error del PAC ya manejado arriba
 			if not pac_response:
@@ -1274,13 +1499,18 @@ class TimbradoAPI:
 				)
 
 				# Guardar Response Log INMEDIATAMENTE con respuesta REAL del PAC
-				write_pac_response(
+				writer_result = write_pac_response(
 					sales_invoice_name,
 					json.dumps(pac_request),
 					json.dumps(pac_response),  # ✅ Respuesta REAL del PAC
 					"cancelacion",
+					factura_fiscal_name=factura_fiscal.name,
 				)
 
+			except FiscalCorrelationError:
+				# Corrección 6A: correlación crítica al persistir la respuesta de cancelación.
+				# No tratar como error de comunicación ni re-llamar al PAC; propagar.
+				raise
 			except Exception as pac_error:
 				# Error DURANTE comunicación con PAC
 				pac_response = {
@@ -1301,6 +1531,7 @@ class TimbradoAPI:
 					json.dumps(pac_request),
 					json.dumps(pac_response),  # ✅ Error REAL del PAC
 					"cancelacion",
+					factura_fiscal_name=factura_fiscal.name,
 				)
 
 				# Re-lanzar para manejo de UI
@@ -1384,7 +1615,7 @@ class TimbradoAPI:
 				# Obtener estados actualizados para response coherente
 				si_doc = frappe.get_doc("Sales Invoice", sales_invoice_name)
 
-				return {
+				base_result = {
 					"ok": True,  # Para consistencia con propuesta UX
 					"success": True,  # Backward compatibility
 					"ffm": factura_fiscal.name,
@@ -1397,8 +1628,45 @@ class TimbradoAPI:
 					else None,
 					"message": "Solicitud de cancelación procesada exitosamente",
 				}
+				# Corrección 6B2: persistencia principal del writer fallida (PAC OK) → verificar si
+				# la FASE 3 dejó persistido EXACTAMENTE el estado que el flujo ya derivó del PAC.
+				# M3 (CodeRabbit): se compara contra `fiscal_status` (el destino legítimo:
+				# CANCELADO si aceptada, PENDIENTE_CANCELACION si pendiente, TIMBRADO si rechazada),
+				# en vez de exigir solo CANCELADO/PENDIENTE_CANCELACION. Así una cancelación
+				# RECHAZADA que dejó el FFM en TIMBRADO se reconoce como persistencia correcta, y
+				# una aceptada que quedó en TIMBRADO se sigue detectando como inconsistente.
+				# No se re-llama al PAC.
+				if _writer_persistence_failed(writer_result):
+					recovered = _verify_estado_persisted(factura_fiscal.name, fiscal_status)
+					_alert_persistence_incident(
+						"cancelacion", factura_fiscal.name, sales_invoice_name, recovered
+					)
+					_set_sync_status_best_effort(
+						factura_fiscal.name, "synced" if recovered else "error"
+					)  # 7A1
+					return (
+						_persistence_recovered_result(base_result)
+						if recovered
+						else _persistence_unresolved_result(base_result)
+					)
+				return _apply_audit_warning(writer_result, base_result)
 
+			except FiscalCorrelationError:
+				# Corrección 6A: propagar la correlación crítica; no crear Recovery Task que
+				# pueda repetir la operación.
+				raise
 			except Exception as frappe_error:
+				# Corrección 6B2: si la persistencia principal del writer también falló, el estado
+				# fiscal no quedó confirmado por ninguna vía → intervención manual. NO se crea
+				# Recovery Task ni se re-llama al PAC. Si el writer SÍ persistió, se conserva el
+				# manejo existente.
+				if _writer_persistence_failed(writer_result):
+					_alert_persistence_incident(
+						"cancelacion", factura_fiscal.name, sales_invoice_name, recovered=False
+					)
+					_set_sync_status_best_effort(factura_fiscal.name, "error")  # 7A1
+					return _persistence_unresolved_result()
+
 				# PAC canceló exitosamente pero Frappe falló - CREAR RECOVERY TASK
 				frappe.log_error(
 					f"Error post-cancelación actualizando Frappe: {frappe_error}", "Post-Cancelación Error"
@@ -1446,6 +1714,10 @@ class TimbradoAPI:
 					"user_error": "La factura se canceló correctamente en el SAT. El sistema se corregirá automáticamente en unos minutos.",
 				}
 
+		except FiscalCorrelationError:
+			# Corrección 6A: incidente de correlación crítica en cancelación. No se ejecutó la
+			# FASE 3, no se creó Recovery Task, no se re-llamó al PAC. Mensaje seguro.
+			_raise_correlation_incident()
 		except Exception as e:
 			# Error ANTES del PAC o error del PAC ya manejado
 			if not pac_response:
@@ -3241,8 +3513,9 @@ def revisar_estatus_cancelacion(ffm_name: str) -> dict:
 		frappe.db.set_value("Sales Invoice", ffm.sales_invoice, {"fm_fiscal_status": nuevo_estado})
 
 	# Registrar consulta en FacturAPI Response Log para trazabilidad
+	writer_result = None
 	try:
-		write_pac_response(
+		writer_result = write_pac_response(
 			sales_invoice_name=ffm.sales_invoice or "",
 			request_data=json.dumps(
 				{"action": "consulta_estatus", "ffm": ffm_name, "facturapi_id": ffm.facturapi_id}
@@ -3257,18 +3530,39 @@ def revisar_estatus_cancelacion(ffm_name: str) -> dict:
 				default=str,
 			),
 			operation_type="consulta",
+			factura_fiscal_name=ffm_name,
 		)
+	except FiscalCorrelationError:
+		# Corrección 6A: la inconsistencia de correlación en la consulta NO se traga; se reporta.
+		# El cambio de estado escrito sobre ESTE FFM se revierte al propagar (no se hace commit).
+		_raise_correlation_incident()
 	except Exception as log_err:
 		frappe.logger().warning(f"No se pudo registrar log de consulta estatus {ffm_name}: {log_err}")
 
 	frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to persist status transition immediately after PAC response
 
-	return {
+	base_result = {
 		"status": nuevo_estado,
 		"message": msg,
 		"indicator": indicator,
 		"cancellation_status": cancel_status,
 	}
+	# Corrección 6B2: si la persistencia principal del writer falló (PAC OK), verificar que el
+	# estado ya determinado por el flujo quedó persistido. No se repite la consulta al PAC.
+	if _writer_persistence_failed(writer_result):
+		recovered = _verify_estado_persisted(ffm_name, nuevo_estado)
+		_alert_persistence_incident("consulta", ffm_name, ffm.sales_invoice, recovered)
+		_set_sync_status_best_effort(ffm_name, "synced" if recovered else "error")  # 7A1
+		return (
+			_persistence_recovered_result(
+				base_result,
+				status="state_verified_after_writer_failure",
+				source="pre_writer_state_update",
+			)
+			if recovered
+			else _persistence_unresolved_result(base_result)
+		)
+	return _apply_audit_warning(writer_result, base_result)
 
 
 _ALLOWED_PDF_TEMPLATE_KEYS = frozenset({"company", "total", "due_date"})

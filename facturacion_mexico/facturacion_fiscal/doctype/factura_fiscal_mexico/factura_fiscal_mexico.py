@@ -4,6 +4,7 @@ from frappe.contacts.doctype.address.address import get_address_display
 from frappe.model.document import Document
 from frappe.utils import cint, flt, now_datetime
 
+from facturacion_mexico.config.fiscal_states_config import FiscalStates
 from facturacion_mexico.sat.constants import TIPO_COMPROBANTE, TIPO_RELACION, parse_select_code
 
 # Lista blanca de campos permisibles tras submit (operativos, no fiscales)
@@ -153,6 +154,10 @@ class FacturaFiscalMexico(Document):
 				self.customer = sales_invoice.customer
 
 	def before_insert(self):
+		# Regla B (Corrección 5): impedir un segundo FFM activo/no resuelto por Sales Invoice.
+		# Protege TODA vía de inserción (Desk, API, scripts, .insert() directo, código futuro).
+		self._validate_unico_ffm_activo()
+
 		if not (self.fm_payment_method_sat or "").strip() or self.fm_payment_method_sat == "PUE":
 			company = self.company or frappe.defaults.get_global_default("company")
 			self.fm_payment_method_sat = (
@@ -527,6 +532,48 @@ class FacturaFiscalMexico(Document):
 				_("Transición de estado inválida: {0} → {1}").format(old_status or "nuevo", new_status)
 			)
 
+	def _validate_unico_ffm_activo(self):
+		"""Regla B (Corrección 5): impedir un segundo FFM activo/no resuelto por Sales Invoice.
+
+		Se ejecuta en `before_insert`, por lo que protege TODA vía de creación
+		(Desk, API, scripts, `.insert()` directo) y NO afecta a documentos ya existentes
+		(abrir/guardar/consultar/corregir un FFM previo no dispara esta validación).
+
+		Adquiere el lock transaccional de la fila de la Sales Invoice (`for_update`) para
+		serializar inserciones concurrentes; si ya existe otro FFM activo de esa SI, detiene
+		la inserción con un error controlado. La función centralizada `get_or_create_active_ffm`
+		reutiliza el activo y no llega a insertar; la inserción directa de un segundo activo falla.
+		"""
+		if not self.sales_invoice:
+			return
+
+		if not frappe.db.exists("Sales Invoice", self.sales_invoice):
+			frappe.throw(
+				_("La Sales Invoice {0} no existe.").format(self.sales_invoice),
+				title=_("Sales Invoice inexistente"),
+			)
+
+		# Lock de fila de la SI: serializa con get_or_create_active_ffm y otras inserciones.
+		frappe.get_doc("Sales Invoice", self.sales_invoice, for_update=True)
+
+		otros_activos = frappe.get_all(
+			"Factura Fiscal Mexico",
+			filters={
+				"sales_invoice": self.sales_invoice,
+				"status": ["in", FiscalStates.ACTIVE_STATES],
+				"name": ["!=", self.name or "new-ffm"],
+			},
+			pluck="name",
+		)
+		if otros_activos:
+			frappe.throw(
+				_(
+					"La Sales Invoice {0} ya tiene un FFM activo ({1}). No se permite crear otro "
+					"(Regla B: un solo FFM activo por factura)."
+				).format(self.sales_invoice, ", ".join(otros_activos)),
+				title=_("FFM activo ya existe"),
+			)
+
 	def validate_no_duplicate_timbrado(self):
 		"""Prevenir doble timbrado del mismo Sales Invoice."""
 		if not self.sales_invoice:
@@ -657,6 +704,7 @@ class FacturaFiscalMexico(Document):
 				json.dumps({"event_type": event_type, "source": "fiscal_event_fallback"}),
 				json.dumps(event_data),
 				f"fiscal_event_{event_type}",
+				factura_fiscal_name=self.name,
 			)
 
 			frappe.logger().info(f"Fiscal event logged to Response Log: {event_type} for {self.name}")
@@ -1303,6 +1351,181 @@ def get_sales_invoice_for_ffm(
 	""",
 		{"company": company, "txt": f"%{txt}%", "start": start, "page_len": page_len},
 	)
+
+
+@frappe.whitelist()
+def get_or_create_active_ffm(sales_invoice: str, extra_fields: str | dict | None = None) -> str:
+	"""Obtener o crear el FFM de una Sales Invoice — única vía de creación e idempotente.
+
+	Centraliza en servidor la creación que antes hacía el botón con `frappe.client.insert`
+	+ `set_value`.
+
+	Corrección 5 — cardinalidad (Regla B): la decisión de crear o reutilizar NO depende
+	solo de `Sales Invoice.fm_factura_fiscal_mx`, sino de los FFM activos/no resueltos
+	(status en `FiscalStates.ACTIVE_STATES`) cuyo `sales_invoice` es esta SI:
+	- 0 activos → crea uno y lo vincula (incluye el caso de referencia a FFM terminal/roto);
+	- 1 activo → lo reutiliza y repara el vínculo de la SI si está vacío/desactualizado;
+	- ≥2 activos → alerta crítica y error controlado (no elige ni crea, no toca estados).
+	Si la referencia apunta a un FFM de OTRA Sales Invoice → error de integridad.
+
+	Corrección 4 — concurrencia: la Sales Invoice se relee con `for_update=True`
+	(`SELECT ... FOR UPDATE`), que adquiere un lock de fila transaccional. Dos solicitudes
+	concurrentes para la misma SI se serializan: la segunda espera al commit de la primera y,
+	al releer bajo el lock, encuentra el FFM ya vinculado y lo reutiliza. La DECISIÓN de crear
+	o reutilizar se toma SIEMPRE con la lectura posterior al lock. El lock se libera con el
+	commit/rollback NORMAL del request — NO se ejecuta ningún `frappe.db.commit()` aquí.
+
+	No llama al PAC.
+	"""
+	import json
+
+	if isinstance(extra_fields, str):
+		extra_fields = json.loads(extra_fields) if extra_fields else {}
+	extra_fields = extra_fields or {}
+
+	from facturacion_mexico.facturacion_fiscal.api import (
+		FiscalCorrelationError,
+		_alerta_correlacion_critica,
+	)
+
+	# Blindaje (C1): `extra_fields` viene de un caller externo (el botón JS) y debe tener una
+	# superficie mínima autorizada. Solo se permiten los campos que hoy un caller legítimo
+	# necesita pasar (nota de crédito / devolución). Cualquier otra clave se rechaza de forma
+	# EXPLÍCITA: permitirla dejaría sobrescribir `sales_invoice`, `company`, `status`, UUID o
+	# `facturapi_id` —los campos de correlación y estado que esta función deriva y valida— y
+	# recrearía el mismatch SI↔FFM que esta corrección previene.
+	_ALLOWED_EXTRA_FIELDS = {
+		"fm_uuid_relacionado",
+		"fm_tipo_relacion_sat",
+	}
+	_campos_no_permitidos = set(extra_fields) - _ALLOWED_EXTRA_FIELDS
+	if _campos_no_permitidos:
+		frappe.throw(
+			_("extra_fields solo admite {0}. Campos no permitidos: {1}.").format(
+				", ".join(sorted(_ALLOWED_EXTRA_FIELDS)),
+				", ".join(sorted(_campos_no_permitidos)),
+			),
+			title=_("Integridad fiscal"),
+			exc=FiscalCorrelationError,
+		)
+
+	# La Sales Invoice debe existir (lectura previa SOLO para error temprano; no decide crear).
+	if not frappe.db.exists("Sales Invoice", sales_invoice):
+		frappe.throw(
+			_("La Sales Invoice {0} no existe.").format(sales_invoice),
+			title=_("Sales Invoice inexistente"),
+		)
+
+	# Permiso de creación de FFM (no requiere mantener la fila bloqueada).
+	frappe.has_permission("Factura Fiscal Mexico", "create", throw=True)
+
+	# --- Sección crítica: lock de fila transaccional sobre la Sales Invoice ---
+	# Releer con FOR UPDATE serializa las solicitudes concurrentes para la misma SI.
+	# La decisión de crear/reutilizar se basa EXCLUSIVAMENTE en este documento post-lock.
+	si = frappe.get_doc("Sales Invoice", sales_invoice, for_update=True)
+	si.check_permission("read")
+
+	# Reglas de resolución (Corrección 5 — Regla B, un solo FFM activo por SI). La decisión
+	# NO depende solo de Sales Invoice.fm_factura_fiscal_mx: se basa en los FFM activos
+	# (status en ACTIVE_STATES) cuyo sales_invoice es esta SI.
+	existing_ref = si.get("fm_factura_fiscal_mx")
+
+	# Integridad: si la SI referencia un FFM que pertenece a OTRA Sales Invoice, detener.
+	# No se reutiliza ni se sobrescribe silenciosamente la relación.
+	if existing_ref:
+		ref_si = frappe.db.get_value("Factura Fiscal Mexico", existing_ref, "sales_invoice")
+		if ref_si and ref_si != si.name:
+			_alerta_correlacion_critica(
+				"Sales Invoice referencia un FFM de otra Sales Invoice",
+				{
+					"sales_invoice": si.name,
+					"fm_factura_fiscal_mx": existing_ref,
+					"ffm_sales_invoice": ref_si,
+				},
+			)
+			frappe.throw(
+				_(
+					"La Sales Invoice {0} referencia un FFM ({1}) que pertenece a otra "
+					"Sales Invoice ({2}). Integridad fiscal comprometida."
+				).format(si.name, existing_ref, ref_si),
+				title=_("Integridad fiscal"),
+				exc=FiscalCorrelationError,
+			)
+
+	# Todos los FFM activos/no resueltos de esta SI (por status, no por docstatus).
+	activos = frappe.get_all(
+		"Factura Fiscal Mexico",
+		filters={"sales_invoice": si.name, "status": ["in", FiscalStates.ACTIVE_STATES]},
+		pluck="name",
+		order_by="creation asc",
+	)
+
+	# Dos o más activos → integridad crítica. No elegir arbitrariamente, no crear, no tocar estados.
+	if len(activos) >= 2:
+		_alerta_correlacion_critica(
+			"Múltiples FFM activos para la misma Sales Invoice",
+			{"sales_invoice": si.name, "ffm_activos": activos},
+		)
+		frappe.throw(
+			_(
+				"La Sales Invoice {0} tiene {1} FFM activos ({2}). No se puede resolver "
+				"automáticamente; requiere intervención manual."
+			).format(si.name, len(activos), ", ".join(activos)),
+			title=_("Integridad fiscal"),
+			exc=FiscalCorrelationError,
+		)
+
+	# Exactamente un activo → reutilizarlo y reparar el vínculo de la SI si está vacío/desactualizado.
+	if len(activos) == 1:
+		ffm_name = activos[0]
+		if existing_ref != ffm_name:
+			frappe.db.set_value("Sales Invoice", si.name, "fm_factura_fiscal_mx", ffm_name)
+			frappe.logger().info(
+				f"get_or_create_active_ffm: SI {si.name} vínculo reparado al FFM activo {ffm_name} "
+				f"(antes: {existing_ref or 'vacío'})"
+			)
+		return ffm_name
+
+	# Ningún activo → se crea uno nuevo. La referencia previa (si existe) apuntaba a un FFM
+	# terminal (CANCELADO/ARCHIVADO) o inexistente; una nueva emisión está permitida (Regla B).
+	if existing_ref:
+		frappe.logger().info(
+			f"get_or_create_active_ffm: SI {si.name} sin FFM activo (ref previa {existing_ref} "
+			f"terminal o inexistente); se crea uno nuevo"
+		)
+
+	# Crear el FFM con la MISMA lógica/valores del botón (cálculo de IVA en servidor).
+	iva_total = 0.0
+	otros_impuestos = 0.0
+	for tax in si.taxes or []:
+		head = (tax.account_head or "").upper()
+		if "IVA" in head:
+			iva_total += flt(tax.tax_amount)
+		else:
+			otros_impuestos += flt(tax.tax_amount)
+
+	ffm_doc = frappe.get_doc(
+		{
+			"doctype": "Factura Fiscal Mexico",
+			"sales_invoice": si.name,
+			"company": si.company,
+			"customer": si.customer,
+			"fm_fiscal_status": FiscalStates.BORRADOR,
+			"si_total_antes_iva": flt(si.net_total),
+			"si_total_neto": flt(si.grand_total),
+			"si_iva": iva_total,
+			"si_otros_impuestos": otros_impuestos,
+			**extra_fields,
+		}
+	)
+	ffm_doc.insert()
+
+	# Vincular el FFM creado a la Sales Invoice.
+	frappe.db.set_value("Sales Invoice", si.name, "fm_factura_fiscal_mx", ffm_doc.name)
+
+	# Devolver el nombre del FFM (sin llamar al PAC). El lock de fila adquirido con
+	# for_update se libera con el commit/rollback NORMAL del request — sin commit manual.
+	return ffm_doc.name
 
 
 @frappe.whitelist()

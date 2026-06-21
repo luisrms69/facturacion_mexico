@@ -20,6 +20,22 @@ Solución a los problemas más comunes.
 
 ---
 
+## Mensajes de integridad fiscal (correlación y persistencia)
+
+El sistema protege la integridad de la Factura Fiscal Mexico: una sola factura fiscal activa por
+venta y cada respuesta del PAC asociada únicamente a su documento. En casos excepcionales pueden
+aparecer estos mensajes:
+
+| Mensaje | Qué significa | Qué hacer |
+|---|---|---|
+| "No repita la operación. Contacte a soporte." | El sistema detectó una **inconsistencia de correlación** (p. ej. más de una factura fiscal activa para la misma venta, o una respuesta que no corresponde al documento). Se detuvo de forma segura para no timbrar ni cancelar el documento equivocado. | **No reintentar.** Revisar `FacturAPI Response Log` y los FFM vinculados a esa Sales Invoice; escalar a soporte. |
+| Advertencia de **auditoría incompleta** tras un timbrado exitoso | El CFDI **sí** se timbró y el estado fiscal es correcto, pero no pudo registrarse por completo la bitácora de auditoría (Response Log). | El comprobante es válido. Informar a soporte para completar la trazabilidad; **no** volver a timbrar. |
+| "La operación pudo haberse procesado; no reintentar" (persistencia no resuelta) | El PAC respondió pero el sistema no pudo confirmar la persistencia local del resultado. | **No reintentar automáticamente.** Verificar en `FacturAPI Response Log` y en el portal de FacturAPI si la operación ya ocurrió antes de cualquier acción manual. |
+
+> Estos mensajes son de **excepción**, no del flujo normal. En operación habitual no aparecen.
+
+---
+
 ## Item sin clave SAT
 
 El sistema bloquea el timbrado si algún item no tiene `fm_producto_servicio_sat`.

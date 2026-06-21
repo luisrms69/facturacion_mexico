@@ -9,7 +9,9 @@ Guía del flujo completo: Sales Invoice → Factura Fiscal Mexico → Timbrado.
 El timbrado en facturacion_mexico tiene dos documentos:
 
 - **Sales Invoice** — la venta en ERPNext. Se submittea normalmente.
-- **Factura Fiscal Mexico (FFM)** — el documento fiscal. Se crea automáticamente al hacer Submit del Sales Invoice y es donde ocurre el timbrado real.
+- **Factura Fiscal Mexico (FFM)** — el documento fiscal. Se crea la primera vez que haces clic en **"Timbrar Factura"** sobre el Sales Invoice, y es donde ocurre el timbrado real.
+
+> **Un solo FFM activo por Sales Invoice.** La creación del FFM la resuelve el servidor: la primera vez crea el documento y lo vincula; las siguientes veces reutiliza el mismo. No se pueden generar dos facturas fiscales activas para la misma venta.
 
 Los dos documentos están vinculados. El estado fiscal visible en el Sales Invoice (campo `fm_fiscal_status`) refleja siempre el estado del FFM.
 
@@ -56,13 +58,15 @@ Antes de hacer Submit, verificar:
 ### 2. Submit del Sales Invoice
 
 Al hacer Submit:
-- El sistema detecta que el cliente tiene RFC
-- Crea automáticamente un documento **Factura Fiscal Mexico** en estado `BORRADOR`
 - El Sales Invoice muestra el botón **"Timbrar Factura"** como acción primaria
+- Todavía **no** existe Factura Fiscal Mexico — se crea en el siguiente paso
 
-### 3. Abrir la Factura Fiscal Mexico
+### 3. Generar / abrir la Factura Fiscal Mexico
 
-Clic en **"Timbrar Factura"** en el Sales Invoice → abre el FFM vinculado.
+Clic en **"Timbrar Factura"** en el Sales Invoice:
+- Si la venta aún no tiene FFM, el servidor **crea** uno en estado `BORRADOR`, lo vincula y te lleva a él.
+- Si ya tiene un FFM activo, **reutiliza** el existente y te lleva a él (no crea otro).
+- Si el FFM ya está `TIMBRADO`, el sistema avisa que no se puede volver a timbrar.
 
 En el FFM revisar antes de timbrar:
 - **Régimen fiscal** (`fm_tax_system`) — cargado desde el cliente

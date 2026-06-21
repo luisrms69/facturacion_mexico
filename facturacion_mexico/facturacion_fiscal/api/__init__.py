@@ -35,6 +35,106 @@ def _get_fallback_dir():
 		return fallback_path
 
 
+class FiscalCorrelationError(frappe.ValidationError):
+	"""La respuesta del PAC no puede asociarse de forma inequívoca al FFM de origen.
+
+	No debe degradarse al fallback de filesystem: representa una contradicción de
+	integridad fiscal, no una indisponibilidad de BD.
+	"""
+
+
+def _alerta_correlacion_critica(motivo: str, contexto: dict) -> None:
+	"""Registrar alerta crítica de correlación fiscal (Corrección 1).
+
+	Se invoca cuando la respuesta del PAC no puede asociarse de forma inequívoca
+	al FFM que inició la operación. No modifica ningún documento.
+	"""
+	try:
+		frappe.log_error(
+			message=json.dumps({"motivo": motivo, "contexto": contexto}, default=str, indent=2),
+			title="PAC Correlación Crítica FFM",
+		)
+	except Exception:
+		# El logging nunca debe enmascarar el error de correlación original.
+		pass
+
+
+def _extract_response_identifiers(response_data: dict) -> tuple[str, str]:
+	"""Extraer (uuid, facturapi_id) de una respuesta PAC, si están presentes.
+
+	Busca tanto a nivel superior como dentro de raw_response. Devuelve cadenas
+	vacías cuando el identificador no viene en la respuesta (p. ej. timbrado que
+	aún no devuelve UUID, o errores). La comparación de contradicción solo aplica
+	cuando ambos lados (FFM y respuesta) tienen valor.
+	"""
+	if not isinstance(response_data, dict):
+		return "", ""
+	raw = response_data.get("raw_response")
+	raw = raw if isinstance(raw, dict) else {}
+	uuid = (response_data.get("uuid") or raw.get("uuid") or "").strip()
+	facturapi_id = (
+		response_data.get("facturapi_id") or response_data.get("id") or raw.get("id") or ""
+	).strip()
+	return uuid, facturapi_id
+
+
+def _derive_sync_status_from_response(response_data: dict, operation_type: str) -> str | None:
+	"""Derivar fm_sync_status según si el PAC dio una respuesta CONCLUYENTE persistida (7A1).
+
+	Semántica: fm_sync_status indica si el FFM local refleja de forma verificable la última
+	respuesta conocida del PAC. NO se confunde con el estado fiscal (PENDIENTE_CANCELACION es
+	'synced' si la respuesta del PAC ya se reflejó localmente).
+
+	Devuelve:
+	- 'synced'  → hubo una respuesta concluyente del PAC (éxito, rechazo conocido o estado de
+	  cancelación) interpretable; el estado local la refleja.
+	- 'pending' → la respuesta es realmente inconclusa (timeout o sin información suficiente).
+	- None      → la llamada NO representa una respuesta del PAC (fallback de logging de eventos
+	  desde create_fiscal_event); en ese caso el caller NO debe alterar fm_sync_status.
+	"""
+	# Fallback no-PAC (create_fiscal_event → _log_event_to_response_log): no es una respuesta
+	# del PAC. operation_type viene como "fiscal_event_*". No tocar fm_sync_status.
+	if isinstance(operation_type, str) and operation_type.startswith("fiscal_event_"):
+		return None
+
+	if not isinstance(response_data, dict):
+		return "pending"
+
+	# Timeout u operación realmente inconclusa.
+	if response_data.get("timeout_flag"):
+		return "pending"
+
+	# Identificadores del CFDI o estado de cancelación (top-level o en raw_response) → el PAC dio
+	# una respuesta concluyente interpretable.
+	uuid, facturapi_id = _extract_response_identifiers(response_data)
+	if uuid or facturapi_id:
+		return "synced"
+	raw = response_data.get("raw_response")
+	raw = raw if isinstance(raw, dict) else {}
+	for d in (response_data, raw):
+		if d.get("status") or d.get("cancellation_status"):
+			return "synced"
+
+	# Código HTTP: 2xx (aceptado) y 4xx (rechazo conocido del PAC) son concluyentes. 5xx (error de
+	# servidor/transporte) y 0/ausente NO son concluyentes solo por tener código → no marcar synced.
+	sc = response_data.get("status_code")
+	try:
+		code = int(sc) if sc is not None else 0
+	except (TypeError, ValueError):
+		code = 0
+	if 200 <= code < 500:
+		return "synced"
+	if code >= 500:
+		return "pending"
+
+	# Sin código concluyente: solo un 'success' explícitamente True cuenta como concluyente.
+	# success=False sin 4xx (timeout/transporte) o sin información → realmente pendiente.
+	if response_data.get("success") is True:
+		return "synced"
+
+	return "pending"
+
+
 def _derive_http_status(data: dict, default=500) -> int:
 	# Éxito explícito → 200 fijo, ignorar 'status_code' dentro del payload y cualquier regex
 	if isinstance(data, dict) and data.get("success") is True:
@@ -109,15 +209,20 @@ class PACResponseWriter:
 		request_data: dict[str, Any],
 		response_data: dict[str, Any],
 		operation_type: str = "timbrado",
+		*,
+		factura_fiscal_name: str | None = None,
 	) -> dict[str, Any]:
 		"""
 		Escribir respuesta PAC con máxima resilencia.
 
 		Args:
-			sales_invoice_name: Nombre de Sales Invoice
+			sales_invoice_name: Nombre de Sales Invoice (solo para validación cruzada)
 			request_data: Datos del request enviado
 			response_data: Respuesta completa de FacturAPI
 			operation_type: Tipo operación (timbrado/cancelacion/consulta)
+			factura_fiscal_name: Nombre EXPLÍCITO del FFM que inició la operación.
+				Obligatorio. La respuesta se asocia exclusivamente a este FFM —
+				nunca se resuelve por Sales Invoice. Ver Corrección 1 (integridad fiscal).
 
 		Returns:
 			Dict con status y referencias creadas
@@ -130,78 +235,194 @@ class PACResponseWriter:
 			"timestamp": now(),
 		}
 
+		# Corrección 2: el ESTADO FISCAL se persiste PRIMERO e independientemente del
+		# Response Log. El log es auditoría; su fallo no debe revertir ni ocultar el
+		# resultado fiscal confirmado por el PAC, ni degradar a filesystem.
+
+		# PASO 1: Actualizar y persistir el FFM (estado fiscal, UUID, facturapi_id,
+		# fm_sync_status). Valida correlación estricta (Corrección 1) y commitea el FFM.
+		# - FiscalCorrelationError → propaga (no se toca nada).
+		# - Otro fallo de actualización → _update_factura_fiscal alerta y relanza:
+		#   NO se crea el Response Log y NO se presenta como persistido (punto 3).
+		self._update_factura_fiscal(
+			sales_invoice_name,
+			response_data,
+			None,  # fm_last_response_log se asigna después, cuando el log exista
+			operation_type,
+			factura_fiscal_name=factura_fiscal_name,
+		)
+		result["success"] = True
+		result["method"] = "database"
+		result["fiscal_updated"] = True
+
+		# PASO 2: Response Log de auditoría, AISLADO con savepoint. Si su inserción
+		# falla, se revierte SOLO el log (rollback al savepoint); el FFM ya persistido
+		# permanece intacto. No se relanza y no se degrada a filesystem (prueba 4).
 		try:
-			# PASO 1: Intentar escritura a BD (principal)
+			frappe.db.savepoint("pac_audit_log")
 			response_log = self._write_to_database(
-				sales_invoice_name, request_data, response_data, operation_type
+				sales_invoice_name,
+				request_data,
+				response_data,
+				operation_type,
+				factura_fiscal_name=factura_fiscal_name,
 			)
+			result["response_log_name"] = response_log.name
 
-			if response_log:
-				result["success"] = True
-				result["response_log_name"] = response_log.name
-				result["method"] = "database"
-
-				# PASO 2: Actualizar Factura Fiscal Mexico si existe
-				self._update_factura_fiscal(
-					sales_invoice_name, response_data, response_log.name, operation_type
+			# PASO 3: enlazar la referencia de auditoría tras crear el log. Su fallo no
+			# revierte ni el FFM fiscal ni el log ya creado.
+			try:
+				frappe.db.set_value(
+					"Factura Fiscal Mexico",
+					factura_fiscal_name,
+					"fm_last_response_log",
+					response_log.name,
+				)
+			except Exception as ref_error:
+				result["audit_log_ref_failed"] = True
+				_alerta_correlacion_critica(
+					"No se pudo enlazar fm_last_response_log; FFM y Response Log conservados",
+					{
+						"factura_fiscal_name": factura_fiscal_name,
+						"response_log": response_log.name,
+						"error": str(ref_error),
+					},
 				)
 
-				return result
-
-		except Exception as db_error:
-			result["errors"].append(f"DB Error: {db_error!s}")
-			frappe.log_error(f"Error escritura BD PAC: {traceback.format_exc()}", "PAC Writer DB Error")
-
-		# PASO 3: Fallback a filesystem si BD falla
-		try:
-			fallback_file = self._write_to_filesystem(
-				sales_invoice_name, request_data, response_data, operation_type
+		except FiscalCorrelationError:
+			# El log también valida correlación; si contradice, propagar.
+			raise
+		except Exception as log_error:
+			frappe.db.rollback(save_point="pac_audit_log")
+			result["audit_log_failed"] = True
+			result["errors"].append(f"Audit log error: {log_error!s}")
+			_alerta_correlacion_critica(
+				"Fallo al guardar Response Log; estado fiscal ya persistido se conserva",
+				{
+					"factura_fiscal_name": factura_fiscal_name,
+					"sales_invoice": sales_invoice_name,
+					"operation_type": operation_type,
+					"error": str(log_error),
+				},
 			)
-
-			result["success"] = True
-			result["fallback_file"] = fallback_file
-			result["method"] = "filesystem_fallback"
-			result["errors"].append("BD no disponible - guardado en filesystem para recovery")
-
-			# Programar recovery automático
-			self._schedule_recovery_task(fallback_file)
-
-			return result
-
-		except Exception as fs_error:
-			result["errors"].append(f"Filesystem Error: {fs_error!s}")
 			frappe.log_error(
-				f"Error filesystem fallback: {traceback.format_exc()}", "PAC Writer Filesystem Error"
+				f"Error guardando Response Log (estado fiscal conservado): {traceback.format_exc()}",
+				"PAC Writer Audit Log Error",
 			)
-
-		# PASO 4: Si todo falla, log crítico pero NO falla silenciosamente
-		result["errors"].append("CRÍTICO: Falló escritura BD y filesystem - respuesta PAC en riesgo")
-		frappe.log_error(
-			f"CRÍTICO PAC Response Writer: {json.dumps(result, indent=2)}", "PAC Writer CRITICAL FAILURE"
-		)
-
-		# Incluso en falla completa, intentamos un último log de emergencia
-		try:
-			emergency_log = {
-				"sales_invoice": sales_invoice_name,
-				"response_data": response_data,
-				"timestamp": now(),
-				"emergency_flag": True,
-			}
-
-			emergency_file = (
-				f"/tmp/pac_emergency_{sales_invoice_name}_{now().replace(' ', '_').replace(':', '-')}.json"
-			)
-			with open(emergency_file, "w") as f:
-				json.dump(emergency_log, f, indent=2, default=str)
-
-			result["emergency_file"] = emergency_file
-
-		except Exception:
-			# Si incluso el log de emergencia falla, al menos tenemos el error en result
-			pass
 
 		return result
+
+	def _resolve_validated_ffm(
+		self,
+		factura_fiscal_name: str | None,
+		sales_invoice_name: str,
+		response_data: dict[str, Any],
+		operation_type: str,
+	) -> str:
+		"""Validar y devolver el FFM EXPLÍCITO que inició la operación.
+
+		Corrección 1 — Correlación estricta por FFM.name:
+		- Nunca resuelve el FFM por Sales Invoice ni por UUID/facturapi_id.
+		- Si falta el nombre, el FFM no existe, pertenece a otra SI, o hay
+		  contradicción de UUID/facturapi_id → registra alerta crítica y lanza
+		  error controlado SIN modificar ningún documento.
+
+		Returns:
+			El factura_fiscal_name validado.
+		"""
+		if not factura_fiscal_name:
+			_alerta_correlacion_critica(
+				"Falta factura_fiscal_name en persistencia de respuesta PAC",
+				{
+					"sales_invoice": sales_invoice_name,
+					"operation_type": operation_type,
+				},
+			)
+			frappe.throw(
+				_("No se puede registrar la respuesta del PAC: falta el FFM de origen."),
+				title=_("Correlación fiscal requerida"),
+				exc=FiscalCorrelationError,
+			)
+
+		ffm = frappe.db.get_value(
+			"Factura Fiscal Mexico",
+			factura_fiscal_name,
+			["name", "sales_invoice", "fm_uuid", "facturapi_id"],
+			as_dict=True,
+		)
+		if not ffm:
+			_alerta_correlacion_critica(
+				"FFM explícito inexistente en persistencia de respuesta PAC",
+				{
+					"factura_fiscal_name": factura_fiscal_name,
+					"sales_invoice": sales_invoice_name,
+					"operation_type": operation_type,
+				},
+			)
+			frappe.throw(
+				_("No se puede registrar la respuesta del PAC: el FFM {0} no existe.").format(
+					factura_fiscal_name
+				),
+				title=_("Correlación fiscal inválida"),
+				exc=FiscalCorrelationError,
+			)
+
+		# El FFM debe pertenecer a la Sales Invoice indicada (cuando se provee).
+		if sales_invoice_name and ffm.get("sales_invoice") and ffm["sales_invoice"] != sales_invoice_name:
+			_alerta_correlacion_critica(
+				"FFM explícito pertenece a otra Sales Invoice",
+				{
+					"factura_fiscal_name": factura_fiscal_name,
+					"ffm_sales_invoice": ffm.get("sales_invoice"),
+					"sales_invoice_param": sales_invoice_name,
+					"operation_type": operation_type,
+				},
+			)
+			frappe.throw(
+				_("No se puede registrar la respuesta del PAC: el FFM {0} pertenece a otra factura.").format(
+					factura_fiscal_name
+				),
+				title=_("Correlación fiscal inválida"),
+				exc=FiscalCorrelationError,
+			)
+
+		# Contradicción de UUID/facturapi_id: solo se valida cuando AMBOS lados
+		# tienen valor (en timbrado el FFM aún no los tiene → no aplica).
+		resp_uuid, resp_facturapi_id = _extract_response_identifiers(response_data)
+		if resp_uuid and ffm.get("fm_uuid") and resp_uuid != ffm["fm_uuid"]:
+			_alerta_correlacion_critica(
+				"UUID de la respuesta PAC no coincide con el FFM explícito",
+				{
+					"factura_fiscal_name": factura_fiscal_name,
+					"ffm_uuid": ffm.get("fm_uuid"),
+					"response_uuid": resp_uuid,
+					"operation_type": operation_type,
+				},
+			)
+			frappe.throw(
+				_("Respuesta del PAC con UUID contradictorio para el FFM {0}.").format(factura_fiscal_name),
+				title=_("Correlación fiscal inválida"),
+				exc=FiscalCorrelationError,
+			)
+		if resp_facturapi_id and ffm.get("facturapi_id") and resp_facturapi_id != ffm["facturapi_id"]:
+			_alerta_correlacion_critica(
+				"facturapi_id de la respuesta PAC no coincide con el FFM explícito",
+				{
+					"factura_fiscal_name": factura_fiscal_name,
+					"ffm_facturapi_id": ffm.get("facturapi_id"),
+					"response_facturapi_id": resp_facturapi_id,
+					"operation_type": operation_type,
+				},
+			)
+			frappe.throw(
+				_("Respuesta del PAC con facturapi_id contradictorio para el FFM {0}.").format(
+					factura_fiscal_name
+				),
+				title=_("Correlación fiscal inválida"),
+				exc=FiscalCorrelationError,
+			)
+
+		return ffm["name"]
 
 	def _write_to_database(
 		self,
@@ -209,11 +430,14 @@ class PACResponseWriter:
 		request_data: dict[str, Any],
 		response_data: dict[str, Any],
 		operation_type: str,
+		*,
+		factura_fiscal_name: str | None = None,
 	) -> Any | None:
 		"""Escribir a FacturAPI Response Log en BD."""
-		# Obtener referencia a Factura Fiscal Mexico si existe
-		factura_fiscal = frappe.db.get_value(
-			"Factura Fiscal Mexico", {"sales_invoice": sales_invoice_name}, "name"
+		# Correlación estricta: el FFM es SIEMPRE el explícito de la operación.
+		# Nunca se resuelve por Sales Invoice.
+		factura_fiscal = self._resolve_validated_ffm(
+			factura_fiscal_name, sales_invoice_name, response_data, operation_type
 		)
 
 		# Mapear operation_type a valores válidos del DocType (ARQUITECTURA RESILIENTE)
@@ -346,6 +570,8 @@ class PACResponseWriter:
 		request_data: dict[str, Any],
 		response_data: dict[str, Any],
 		operation_type: str,
+		*,
+		factura_fiscal_name: str | None = None,
 	) -> str:
 		"""Escribir respuesta a filesystem como fallback."""
 		timestamp = now().replace(" ", "_").replace(":", "-")
@@ -355,6 +581,8 @@ class PACResponseWriter:
 
 		fallback_data = {
 			"sales_invoice": sales_invoice_name,
+			# FFM explícito de origen — necesario para recuperar con correlación estricta.
+			"factura_fiscal_name": factura_fiscal_name,
 			"operation_type": operation_type,
 			"request_data": request_data,
 			"response_data": response_data,
@@ -374,15 +602,16 @@ class PACResponseWriter:
 		response_data: dict[str, Any],
 		response_log_name: str,
 		operation_type: str = "Timbrado",
+		*,
+		factura_fiscal_name: str | None = None,
 	):
 		"""Actualizar Factura Fiscal Mexico con datos de respuesta."""
 		try:
-			factura_fiscal_name = frappe.db.get_value(
-				"Factura Fiscal Mexico", {"sales_invoice": sales_invoice_name}, "name"
+			# Correlación estricta: actualizar SOLO el FFM explícito de la operación.
+			# Nunca se resuelve por Sales Invoice.
+			factura_fiscal_name = self._resolve_validated_ffm(
+				factura_fiscal_name, sales_invoice_name, response_data, operation_type
 			)
-
-			if not factura_fiscal_name:
-				return
 
 			# Normalize operation_type to match _derive_status_from_response expectations
 			_normalized_op = {
@@ -394,12 +623,21 @@ class PACResponseWriter:
 			new_status, _status_code, uuid = self._derive_status_from_response(response_data, _normalized_op)
 
 			# Preparar campos a actualizar - NORMALIZACIÓN CRÍTICA A MAYÚSCULAS
-			success = bool(response_data.get("success"))
-			update_fields = {
-				"fm_last_response_log": response_log_name,
-				"fm_last_pac_sync": now_datetime(),
-				"fm_sync_status": "synced" if success else "pending",
-			}
+			# Corrección 2: NO se establece aquí fm_last_response_log. El estado fiscal
+			# debe persistir ANTES e independientemente del Response Log; la referencia
+			# al log se asigna después, cuando el log ya existe.
+			# Corrección 7A1: fm_sync_status refleja si hubo una respuesta CONCLUYENTE del PAC
+			# persistida (no `response_data.get("success")`, que el raw de cancelación no trae).
+			# Si la llamada es un fallback no-PAC (fiscal_event_*), no se altera fm_sync_status.
+			# M1 (CodeRabbit): tampoco se refresca fm_last_pac_sync en eventos internos no-PAC;
+			# hacerlo haría que un fallback interno parezca una sincronización fresca con el PAC.
+			_is_fiscal_event = isinstance(operation_type, str) and operation_type.startswith("fiscal_event_")
+			update_fields = {}
+			if not _is_fiscal_event:
+				update_fields["fm_last_pac_sync"] = now_datetime()
+			sync_status = _derive_sync_status_from_response(response_data, operation_type)
+			if sync_status is not None:
+				update_fields["fm_sync_status"] = sync_status
 
 			# Solo actualizar estado fiscal si la operación lo requiere (new_status no es None)
 			if new_status is not None:
@@ -412,6 +650,14 @@ class PACResponseWriter:
 			elif new_status == "ERROR":
 				# Limpiar UUID si hay error de timbrado para higiene
 				update_fields["fm_uuid"] = None
+
+			# Corrección 6B0: en timbrado exitoso, persistir también facturapi_id si la respuesta
+			# lo trae (top-level o dentro de raw_response). Se limita a TIMBRADO para no alterar
+			# la semántica de cancelación/consulta.
+			if new_status == "TIMBRADO":
+				_resp_uuid, facturapi_id = _extract_response_identifiers(response_data)
+				if facturapi_id:
+					update_fields["facturapi_id"] = facturapi_id
 
 			# Actualizar URLs si están en respuesta
 			if "download" in response_data:
@@ -427,11 +673,28 @@ class PACResponseWriter:
 			for field, value in update_fields.items():
 				frappe.db.set_value("Factura Fiscal Mexico", factura_fiscal_name, field, value)
 
+			# Persistir el estado fiscal confirmado por el PAC ANTES e independientemente
+			# del Response Log (Corrección 2). Commit ya existente — no se agrega ninguno.
 			frappe.db.commit()
 
+		except FiscalCorrelationError:
+			# Contradicción de correlación (Corrección 1): propagar sin tocar nada.
+			raise
 		except Exception as e:
-			# No fallar si actualización Factura Fiscal falla - respuesta PAC ya guardada
+			# Corrección 2: un fallo al persistir el estado fiscal NO debe ocultarse ni
+			# presentarse como operación correcta. Se alerta de forma crítica y se relanza
+			# para que el orquestador NO cree el Response Log ni reporte éxito.
+			_alerta_correlacion_critica(
+				"Fallo al actualizar el estado fiscal del FFM tras respuesta PAC",
+				{
+					"factura_fiscal_name": factura_fiscal_name,
+					"sales_invoice": sales_invoice_name,
+					"operation_type": operation_type,
+					"error": str(e),
+				},
+			)
 			frappe.log_error(f"Error actualizando Factura Fiscal: {e!s}", "PAC Writer Update Error")
+			raise
 
 	def _is_success_response(self, response_data: dict[str, Any]) -> bool:
 		"""Determinar si respuesta PAC fue exitosa."""
@@ -474,7 +737,10 @@ class PACResponseWriter:
 			m = re.search(r"FacturAPI\s+(\d{3})", error_text)
 			status_code = cint(m.group(1)) if m else 500
 
-		uuid = (resp.get("uuid") or "").strip()
+		# Corrección 6B0: el UUID del timbrado llega dentro de raw_response, no solo a nivel
+		# superior. Reutilizar el extractor normalizado evita derivar ERROR en un timbrado
+		# exitoso por no encontrar el UUID en el nivel equivocado.
+		uuid, _facturapi_id = _extract_response_identifiers(resp)
 
 		# REGLA CANÓNICA POR TIPO DE OPERACIÓN
 		if operation_type == "Timbrado":
@@ -502,17 +768,23 @@ class PACResponseWriter:
 
 @frappe.whitelist()
 def write_pac_response(
-	sales_invoice_name: str, request_data: str, response_data: str, operation_type: str = "timbrado"
+	sales_invoice_name: str,
+	request_data: str,
+	response_data: str,
+	operation_type: str = "timbrado",
+	factura_fiscal_name: str | None = None,
 ) -> dict[str, Any]:
 	"""
 	API pública para escribir respuesta PAC.
 	Ultra-resiliente con filesystem fallback.
 
 	Args:
-		sales_invoice_name: Nombre Sales Invoice
+		sales_invoice_name: Nombre Sales Invoice (validación cruzada)
 		request_data: JSON string con datos request
 		response_data: JSON string con respuesta FacturAPI
 		operation_type: timbrado/cancelacion/consulta
+		factura_fiscal_name: Nombre EXPLÍCITO del FFM que inició la operación
+			(obligatorio para correlación estricta — Corrección 1).
 
 	Returns:
 		Dict con resultado operación
@@ -524,10 +796,21 @@ def write_pac_response(
 
 		# Usar writer resiliente
 		writer = PACResponseWriter()
-		result = writer.write_pac_response(sales_invoice_name, request_dict, response_dict, operation_type)
+		result = writer.write_pac_response(
+			sales_invoice_name,
+			request_dict,
+			response_dict,
+			operation_type,
+			factura_fiscal_name=factura_fiscal_name,
+		)
 
 		return result
 
+	except FiscalCorrelationError:
+		# Corrección 6A: la correlación crítica (Corrección 1) NO se degrada a {success:False}.
+		# Se propaga para que el orquestador detenga el flujo (no reintentar, no continuar a
+		# FASE 3, no re-llamar al PAC). La evidencia técnica ya quedó en la alerta del writer.
+		raise
 	except Exception as e:
 		frappe.log_error(f"Error en write_pac_response API: {traceback.format_exc()}", "PAC API Error")
 		return {"success": False, "error": str(e), "timestamp": now()}
@@ -535,15 +818,20 @@ def write_pac_response(
 
 @frappe.whitelist()
 def write_pac_timeout(
-	sales_invoice_name: str, request_data: str, timeout_seconds: int = 30
+	sales_invoice_name: str,
+	request_data: str,
+	timeout_seconds: int = 30,
+	factura_fiscal_name: str | None = None,
 ) -> dict[str, Any]:
 	"""
 	Registrar timeout de PAC y programar recovery.
 
 	Args:
-		sales_invoice_name: Nombre Sales Invoice
+		sales_invoice_name: Nombre Sales Invoice (validación cruzada)
 		request_data: JSON string con datos request original
 		timeout_seconds: Segundos de timeout
+		factura_fiscal_name: Nombre EXPLÍCITO del FFM de origen (obligatorio para
+			correlación estricta — Corrección 1).
 
 	Returns:
 		Dict con resultado y recovery task creado
@@ -563,11 +851,19 @@ def write_pac_timeout(
 		# Escribir usando writer resiliente
 		writer = PACResponseWriter()
 		result = writer.write_pac_response(
-			sales_invoice_name, request_dict, timeout_response, "timeout_recovery"
+			sales_invoice_name,
+			request_dict,
+			timeout_response,
+			"timeout_recovery",
+			factura_fiscal_name=factura_fiscal_name,
 		)
 
 		return result
 
+	except FiscalCorrelationError:
+		# Corrección 6A (consistencia): una contradicción de correlación debe DETENER el flujo,
+		# no degradarse a {success: False} como un fallo ordinario de escritura de timeout.
+		raise
 	except Exception as e:
 		frappe.log_error(f"Error en write_pac_timeout: {traceback.format_exc()}", "PAC Timeout Error")
 		return {"success": False, "error": str(e), "timestamp": now()}
@@ -601,13 +897,16 @@ def recover_from_file(fallback_file_path: str) -> dict[str, Any]:
 				"already_recovered": True,
 			}
 
-		# Procesar con writer (que intentará BD primero)
+		# Procesar con writer (que intentará BD primero). El FFM explícito viaja en
+		# el archivo fallback; si falta (archivos previos a Corrección 1), el writer
+		# generará alerta crítica de correlación en lugar de resolver por SI.
 		writer = PACResponseWriter()
 		result = writer.write_pac_response(
 			fallback_data["sales_invoice"],
 			fallback_data["request_data"],
 			fallback_data["response_data"],
 			fallback_data["operation_type"],
+			factura_fiscal_name=fallback_data.get("factura_fiscal_name"),
 		)
 
 		if result["success"] and result.get("method") == "database":
