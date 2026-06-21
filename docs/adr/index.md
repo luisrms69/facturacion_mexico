@@ -37,3 +37,4 @@ Registro permanente de decisiones de arquitectura. Un ADR nunca se modifica — 
 | [0031](0031-migracion-settings-por-company.md) | Migración Settings global (Single) a configuración por Company |
 | [0032](0032-ereceipts-facturapi-arquitectura.md) | Arquitectura E-Receipts — FacturAPI como motor fiscal, ERPNext como trazabilidad |
 | [0033](0033-factura-global-hardcodes.md) | Eliminación de defaults fiscales silenciosos en Factura Global |
+| [0034](0034-integridad-correlacion-ffm.md) | Integridad y correlación de Factura Fiscal Mexico |
