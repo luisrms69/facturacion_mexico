@@ -322,7 +322,9 @@ class TestPersistenceRecovery(IntegrationTestCase):
 
 	# 14 — cancelación RECHAZADA: FASE 3 mantiene TIMBRADO → se reconoce como persistido (recuperado)
 	def test_14_cancelacion_rejected_recuperada_timbrado(self):
-		result, ffm, client = self._run_cancelacion("02", {"cancellation_status": "rejected"})
+		result, ffm, client = self._run_cancelacion(
+			"02", {"status": "valid", "cancellation_status": "rejected"}
+		)
 		self.assertTrue(result["success"])
 		self.assertEqual(result.get("persistence_status"), "recovered_by_phase3")
 		self.assertEqual(frappe.db.get_value("Factura Fiscal Mexico", ffm, "status"), "TIMBRADO")
@@ -330,7 +332,7 @@ class TestPersistenceRecovery(IntegrationTestCase):
 
 	# 15 — cancelación PENDIENTE: conserva el comportamiento existente (PENDIENTE_CANCELACION recuperado)
 	def test_15_cancelacion_pending_recuperada(self):
-		result, ffm, _ = self._run_cancelacion("02", {"cancellation_status": "pending"})
+		result, ffm, _ = self._run_cancelacion("02", {"status": "valid", "cancellation_status": "pending"})
 		self.assertTrue(result["success"])
 		self.assertEqual(result.get("persistence_status"), "recovered_by_phase3")
 		self.assertEqual(frappe.db.get_value("Factura Fiscal Mexico", ffm, "status"), "PENDIENTE_CANCELACION")

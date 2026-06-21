@@ -38,7 +38,11 @@ def _log_payload_checkpoint(tag, payload: dict):
 	_log_text(f"{tag}.customer.legal_name", name)
 
 
-from facturacion_mexico.config.fiscal_states_config import FiscalStates, OperationTypes
+from facturacion_mexico.config.fiscal_states_config import (
+	FiscalStates,
+	OperationTypes,
+	derive_pac_reconciliation,
+)
 
 from .api import (  # PAC Response Writer - Arquitectura resiliente activada
 	FiscalCorrelationError,
@@ -1552,24 +1556,20 @@ class TimbradoAPI:
 					f"Respuesta PAC para FFM {factura_fiscal.name}: status='{response_status}', cancellation_status='{cancellation_status}'"
 				)
 
-				# Mapeo correcto según documentación FacturAPI
-				if response_status == "canceled" or cancellation_status == "accepted":
-					fiscal_status = FiscalStates.CANCELADO
+				# Mapeo ÚNICO (derive_pac_reconciliation): mantiene accepted->CANCELADO y suma
+				# expired->TIMBRADO. Se consume solo el estado fiscal ([0]); el sync lo maneja el writer.
+				fiscal_status = derive_pac_reconciliation(response_status, cancellation_status)[0]
+				if fiscal_status == FiscalStates.CANCELADO:
 					cancellation_date = now_datetime()
-				elif cancellation_status == "pending":
-					fiscal_status = FiscalStates.PENDIENTE_CANCELACION
-					cancellation_date = None
-				elif cancellation_status == "rejected":
-					# Mantener como timbrado - no cambiar estado fiscal
-					fiscal_status = FiscalStates.TIMBRADO
-					cancellation_date = None
-				else:
-					# Fallback conservador para respuestas inesperadas
+				elif fiscal_status is None:
+					# Respuesta inesperada/no definitiva: fallback conservador (comportamiento previo).
 					fiscal_status = FiscalStates.PENDIENTE_CANCELACION
 					cancellation_date = None
 					frappe.logger().warning(
 						f"Respuesta PAC inesperada para FFM {factura_fiscal.name}: status='{response_status}', cancellation_status='{cancellation_status}'. Usando fallback PENDIENTE_CANCELACION"
 					)
+				else:
+					cancellation_date = None
 
 				# Actualizar FFM con estado correcto
 				update_data = {
@@ -3486,23 +3486,25 @@ def revisar_estatus_cancelacion(ffm_name: str) -> dict:
 	pac_status = data.get("status", "")
 	cancel_status = data.get("cancellation_status", "")
 
-	if pac_status == "canceled" or cancel_status == "accepted":
-		nuevo_estado = FiscalStates.CANCELADO
+	# Mapeo ÚNICO (derive_pac_reconciliation): se consume solo el estado fiscal ([0]).
+	# Mantiene accepted->CANCELADO y suma expired->TIMBRADO (antes caía a PENDIENTE_CANCELACION).
+	nuevo_estado = derive_pac_reconciliation(pac_status, cancel_status)[0]
+	if nuevo_estado == FiscalStates.CANCELADO:
 		update_data = {
 			"status": nuevo_estado,
 			"cancellation_date": now_datetime(),
 		}
 		msg = _("Cancelación confirmada por el receptor. CFDI cancelado.")
 		indicator = "green"
-	elif cancel_status == "rejected":
-		nuevo_estado = FiscalStates.TIMBRADO
+	elif nuevo_estado == FiscalStates.TIMBRADO:
 		update_data = {
 			"status": nuevo_estado,
 			"fm_motivo_cancelacion": None,
 		}
-		msg = _("El receptor rechazó la cancelación. CFDI sigue vigente.")
+		msg = _("La cancelación no procedió (rechazada o expirada). CFDI sigue vigente.")
 		indicator = "orange"
 	else:
+		# None (no definitivo) o cualquier otro: conservar PENDIENTE_CANCELACION.
 		nuevo_estado = FiscalStates.PENDIENTE_CANCELACION
 		update_data = {"status": nuevo_estado}
 		msg = _("Cancelación aún pendiente de aceptación por el receptor.")
