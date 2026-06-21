@@ -639,6 +639,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#mensajes-de-integridad-fiscal-correlacion-y-persistencia" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mensajes de integridad fiscal (correlación y persistencia)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#item-sin-clave-sat" class="md-nav__link">
     <span class="md-ellipsis">
       Item sin clave SAT
@@ -1641,6 +1650,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0034-integridad-correlacion-ffm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0034 — Integridad y correlación de Factura Fiscal Mexico
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1825,6 +1855,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#mensajes-de-integridad-fiscal-correlacion-y-persistencia" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mensajes de integridad fiscal (correlación y persistencia)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#item-sin-clave-sat" class="md-nav__link">
     <span class="md-ellipsis">
       Item sin clave SAT
@@ -1924,6 +1963,40 @@
 <p><strong>FacturAPI Response Log</strong> — en el workspace Facturación México, abrir <code>FacturAPI Response Log</code> para ver el detalle del error devuelto por FacturAPI.</p>
 </li>
 </ol>
+<hr />
+<h2 id="mensajes-de-integridad-fiscal-correlacion-y-persistencia">Mensajes de integridad fiscal (correlación y persistencia)<a class="headerlink" href="#mensajes-de-integridad-fiscal-correlacion-y-persistencia" title="Permanent link">&para;</a></h2>
+<p>El sistema protege la integridad de la Factura Fiscal Mexico: una sola factura fiscal activa por
+venta y cada respuesta del PAC asociada únicamente a su documento. En casos excepcionales pueden
+aparecer estos mensajes:</p>
+<table>
+<thead>
+<tr>
+<th>Mensaje</th>
+<th>Qué significa</th>
+<th>Qué hacer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"No repita la operación. Contacte a soporte."</td>
+<td>El sistema detectó una <strong>inconsistencia de correlación</strong> (p. ej. más de una factura fiscal activa para la misma venta, o una respuesta que no corresponde al documento). Se detuvo de forma segura para no timbrar ni cancelar el documento equivocado.</td>
+<td><strong>No reintentar.</strong> Revisar <code>FacturAPI Response Log</code> y los FFM vinculados a esa Sales Invoice; escalar a soporte.</td>
+</tr>
+<tr>
+<td>Advertencia de <strong>auditoría incompleta</strong> tras un timbrado exitoso</td>
+<td>El CFDI <strong>sí</strong> se timbró y el estado fiscal es correcto, pero no pudo registrarse por completo la bitácora de auditoría (Response Log).</td>
+<td>El comprobante es válido. Informar a soporte para completar la trazabilidad; <strong>no</strong> volver a timbrar.</td>
+</tr>
+<tr>
+<td>"La operación pudo haberse procesado; no reintentar" (persistencia no resuelta)</td>
+<td>El PAC respondió pero el sistema no pudo confirmar la persistencia local del resultado.</td>
+<td><strong>No reintentar automáticamente.</strong> Verificar en <code>FacturAPI Response Log</code> y en el portal de FacturAPI si la operación ya ocurrió antes de cualquier acción manual.</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Estos mensajes son de <strong>excepción</strong>, no del flujo normal. En operación habitual no aparecen.</p>
+</blockquote>
 <hr />
 <h2 id="item-sin-clave-sat">Item sin clave SAT<a class="headerlink" href="#item-sin-clave-sat" title="Permanent link">&para;</a></h2>
 <p>El sistema bloquea el timbrado si algún item no tiene <code>fm_producto_servicio_sat</code>.</p>

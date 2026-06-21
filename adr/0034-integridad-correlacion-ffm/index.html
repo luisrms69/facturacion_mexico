@@ -1,0 +1,3050 @@
+
+<!doctype html>
+<html lang="es" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentación completa del sistema de facturación electrónica para México">
+      
+      
+        <meta name="author" content="Equipo Desarrollo Facturación México">
+      
+      
+      
+        <link rel="prev" href="../0033-factura-global-hardcodes/">
+      
+      
+        <link rel="next" href="../../referencia/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.3">
+    
+    
+      
+        <title>ADR-0034 — Integridad y correlación de Factura Fiscal Mexico - Facturación México - Documentación Técnica</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.50c56a3b.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/advanced.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function n(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],n("js",new Date),n("config","G-XXXXXXXXXX"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){this.value&&n("event","search",{search_term:this.value})}),document$.subscribe(function(){var a=document.forms.feedback;if(void 0!==a)for(var e of a.querySelectorAll("[type=submit]"))e.addEventListener("click",function(e){e.preventDefault();var t=document.location.pathname,e=this.getAttribute("data-md-value");n("event","feedback",{page:t,data:e}),a.firstElementChild.disabled=!0;e=a.querySelector(".md-feedback__note [data-md-value='"+e+"']");e&&(e.hidden=!1)}),a.hidden=!1}),location$.subscribe(function(e){n("config","G-XXXXXXXXXX",{page_path:e.pathname})})});var e=document.createElement("script");e.async=!0,e.src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX",document.getElementById("__analytics").insertAdjacentElement("afterEnd",e)}</script>
+  
+    <script>var consent;"undefined"==typeof __md_analytics||(consent=__md_get("__consent"))&&consent.analytics&&__md_analytics()</script>
+  
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#adr-0034-integridad-y-correlacion-de-factura-fiscal-mexico" class="md-skip">
+          Saltar a contenido
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabecera">
+    <a href="../.." title="Facturación México - Documentación Técnica" class="md-header__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Facturación México - Documentación Técnica
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              ADR-0034 — Integridad y correlación de Factura Fiscal Mexico
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo oscuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo oscuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Cambiar a modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Búsqueda" placeholder="Búsqueda" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Buscar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpiar" aria-label="Limpiar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando búsqueda
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Pestañas" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+    
+  
+  Inicio
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../usuario/" class="md-tabs__link">
+          
+  
+  Guía de Usuario
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../tecnico/" class="md-tabs__link">
+          
+  
+  Técnico
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../referencia/" class="md-tabs__link">
+          
+  
+  Referencia
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navegación" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Facturación México - Documentación Técnica" class="md-nav__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Facturación México - Documentación Técnica
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Inicio
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Guía de Usuario
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Guía de Usuario
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usuario/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guía de Usuario
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usuario/getting-started/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Primeros Pasos
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usuario/emitir-cfdi/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Emitir un CFDI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usuario/cancelar-cfdi/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Cancelar CFDI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usuario/complemento-pago/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Complemento de Pago
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usuario/cfdi-recibidos/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CFDI Recibidos
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usuario/ereceipts/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    E-Receipts y Autofactura
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usuario/addendas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Addendas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usuario/multisucursal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multi-sucursal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usuario/troubleshooting/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Técnico
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Técnico
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tecnico/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Documentación Técnica
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tecnico/arquitectura/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Arquitectura
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tecnico/setup/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Setup
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tecnico/email-system/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Email CFDI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tecnico/proceso-regeneracion-stct-e4/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Regeneración STCT
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    ADRs
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_6">
+            <span class="md-nav__icon md-icon"></span>
+            ADRs
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADRs — Decisiones Arquitectónicas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0000-estado-real-pre-migracion/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0000: Estado Real de la App — Pre-Migración
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0002-verificacion-arranque-v16/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MÓDULO 0 — VERIFICACIÓN DE ARRANQUE
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0003-verificacion-configuracion-fiscal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MÓDULO 1 — CONFIGURACIÓN FISCAL Y DATOS MAESTROS
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0004-verificacion-timbrado/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MÓDULO 2 — VERIFICACIÓN FLUJO DE TIMBRADO CFDI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0005-workflow-configuracion-inicial-v2/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    WORKFLOW DE CONFIGURACIÓN INICIAL — v2
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0005-workflow-configuracion-inicial/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MÓDULO 5 — WORKFLOW DE CONFIGURACIÓN INICIAL
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0006-analisis-branches-wip/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0006 — ANÁLISIS DE BRANCHES WIP
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0007-analisis-checkout-e4/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0007 — ANÁLISIS DE RIESGO: CHECKOUT A feature/e4-ieps-on-item-quantity
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0008-analisis-9-commits-wip/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0008 — ANÁLISIS DETALLADO: 9 COMMITS WIP
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0009-checklist-estados-flujo-timbrado/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0009 — CHECKLIST ESTADOS Y FLUJO DE TIMBRADO
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0010-verificacion-post-cancelacion/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0010 — VERIFICACIÓN ESTADO POST-CANCELACIÓN
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0011-diagnostico-sistema-tests/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0011 — DIAGNÓSTICO SISTEMA DE TESTS
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0012-solucion-sistema-tests-v16/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0012 — SOLUCIÓN SISTEMA DE TESTS V16
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0013-arquitectura-sistema-cancelaciones-cfdi/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0013 — Arquitectura del Sistema de Cancelaciones CFDI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0014-diagnostico-conectividad-si-ffm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0014 — Diagnóstico Conectividad Sales Invoice ↔ Factura Fiscal Mexico
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0015-si-ffm-relationship-architecture/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0015 — Arquitectura Relación Sales Invoice ↔ Factura Fiscal Mexico
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0016-reclasificacion-fiscal-payment-entry/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0016 — Reclasificación Fiscal de Impuestos en Payment Entry
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0017-complemento-pago-mx-schema-normalizacion/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0017 — Complemento Pago MX MVP
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0018-ffm-status-fiscal-state-migration/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0018 — Migración de estado fiscal FFM a status
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0019-primera-implementacion-rc-v0.1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0019: Primera implementación Release Candidates v0.1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0020-smoke-test-mvp-flujos-cancelacion/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0020: Smoke Test MVP v0.1 — Flujos de Cancelación y Refacturación
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0021-fiscal-state-capa-ui-centralizada/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0021 — Capa fiscal_state: UI centralizada via endpoint Python
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0022-solucion-issue-112-reclasificacion-fiscal-pe/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0022 — Solución Issue #112: Reclasificación Fiscal en Payment Entry
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0023-venta-mostrador-cfdi-individual-rfc-generico/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0023 — Venta Mostrador: CFDI Individual con RFC Genérico XAXX010101000
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0024-addendas-pre-timbrado-issue129/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0024 — Addendas CFDI pre-timbrado (Issue #129)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0025-notas-credito-cfdi-tipo-e-issue116/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0025 — Notas de Crédito CFDI tipo E (Issue #116)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0026-workspace-facturacion-mexico-issue120/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0026 — Workspace "Facturación México" (Issue #120)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0027-migracion-facturacion-mx-a-facturacion-mexico/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0027 — Migración facturacion_mx → facturacion_mexico
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0028-ffm-legacy-fields-audit/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0028 — Auditoría campos legacy FFM + desmantelamiento Sistema Resiliente
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0029-facturapi-base-unitaria-ieps-cuota/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0029 — FacturAPI multiplica base × cantidad: enviar valores unitarios para IEPS Cuota
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0030-tablas-maestras-python-reglas-fiscales/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0030 — Reglas de cálculo fiscal como tablas maestras Python
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0031-migracion-settings-por-company/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0031 — Migración de Settings global (Single) a configuración por Company
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0032-ereceipts-facturapi-arquitectura/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0032: Arquitectura E-Receipts — FacturAPI como motor fiscal, ERPNext como trazabilidad
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0033-factura-global-hardcodes/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0033: Eliminación de defaults fiscales silenciosos en Factura Global
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    ADR-0034 — Integridad y correlación de Factura Fiscal Mexico
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0034 — Integridad y correlación de Factura Fiscal Mexico
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-contexto-e-incidente-original" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Contexto e incidente original
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Contexto e incidente original">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#incidente-original-produccion-llantascs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Incidente original (producción LlantasCS)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#defectos-estructurales-descubiertos-durante-el-analisis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Defectos estructurales descubiertos durante el análisis
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#datos-historicos-existentes-no-creados-por-este-bloque" class="md-nav__link">
+    <span class="md-ellipsis">
+      Datos históricos existentes (no creados por este bloque)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-alcance-exacto" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Alcance exacto
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Alcance exacto">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#seis-archivos-productivos" class="md-nav__link">
+    <span class="md-ellipsis">
+      Seis archivos productivos
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#los-11-commits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Los 11 commits
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-decisiones-arquitectonicas" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Decisiones arquitectónicas
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-invariantes-que-el-codigo-debe-preservar" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Invariantes que el código debe preservar
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-flujos-afectados" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Flujos afectados
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Flujos afectados">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-generacion-de-ffm-desde-si" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.1 Generación de FFM desde SI
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-segunda-solicitud-secuencial" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.2 Segunda solicitud secuencial
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-solicitudes-concurrentes" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.3 Solicitudes concurrentes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-timbrado-exitoso" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.4 Timbrado exitoso
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#55-rechazo-de-timbrado" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.5 Rechazo de timbrado
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#56-cancelacion-inmediata" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.6 Cancelación inmediata
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#57-cancelacion-pendiente" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.7 Cancelación pendiente
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#58-consulta-de-cancelacion-revisar_estatus_cancelacion" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.8 Consulta de cancelación (revisar_estatus_cancelacion)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#59-fallo-del-writer-con-recuperacion-6b2" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.9 Fallo del writer con recuperación (6B2)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#510-fallo-del-response-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.10 Fallo del Response Log
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#511-refacturacion-020304" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.11 Refacturación 02/03/04
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-transacciones-y-commits" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Transacciones y commits
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-compatibilidad-con-datos-existentes-hallazgos-reales-lectura" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. Compatibilidad con datos existentes (hallazgos reales, lectura)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-que-no-resuelve-este-bloque-declaracion-expresa" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. Qué NO resuelve este bloque (declaración expresa)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-pruebas-y-evidencia" class="md-nav__link">
+    <span class="md-ellipsis">
+      9. Pruebas y evidencia
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-matriz-de-riesgos" class="md-nav__link">
+    <span class="md-ellipsis">
+      10. Matriz de riesgos
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-despliegue-documentado-no-ejecutado" class="md-nav__link">
+    <span class="md-ellipsis">
+      11. Despliegue (documentado, no ejecutado)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-rollback" class="md-nav__link">
+    <span class="md-ellipsis">
+      12. Rollback
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-observabilidad-posterior-al-despliegue" class="md-nav__link">
+    <span class="md-ellipsis">
+      13. Observabilidad posterior al despliegue
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14-decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      14. Decisión
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anexo-a-trazabilidad-commit-decision-prueba" class="md-nav__link">
+    <span class="md-ellipsis">
+      Anexo A — Trazabilidad commit → decisión → prueba
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anexo-b-afirmaciones-verificadas-contra-codigo" class="md-nav__link">
+    <span class="md-ellipsis">
+      Anexo B — Afirmaciones verificadas contra código
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anexo-c-puntos-no-verificados-limitaciones" class="md-nav__link">
+    <span class="md-ellipsis">
+      Anexo C — Puntos NO verificados (limitaciones)
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Referencia
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Referencia
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../referencia/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Index
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../referencia/doctypes/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTypes
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../referencia/hooks/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Hooks
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../referencia/api/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    API
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-contexto-e-incidente-original" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Contexto e incidente original
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Contexto e incidente original">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#incidente-original-produccion-llantascs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Incidente original (producción LlantasCS)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#defectos-estructurales-descubiertos-durante-el-analisis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Defectos estructurales descubiertos durante el análisis
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#datos-historicos-existentes-no-creados-por-este-bloque" class="md-nav__link">
+    <span class="md-ellipsis">
+      Datos históricos existentes (no creados por este bloque)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-alcance-exacto" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Alcance exacto
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Alcance exacto">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#seis-archivos-productivos" class="md-nav__link">
+    <span class="md-ellipsis">
+      Seis archivos productivos
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#los-11-commits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Los 11 commits
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-decisiones-arquitectonicas" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Decisiones arquitectónicas
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-invariantes-que-el-codigo-debe-preservar" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Invariantes que el código debe preservar
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-flujos-afectados" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Flujos afectados
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Flujos afectados">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-generacion-de-ffm-desde-si" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.1 Generación de FFM desde SI
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-segunda-solicitud-secuencial" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.2 Segunda solicitud secuencial
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-solicitudes-concurrentes" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.3 Solicitudes concurrentes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-timbrado-exitoso" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.4 Timbrado exitoso
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#55-rechazo-de-timbrado" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.5 Rechazo de timbrado
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#56-cancelacion-inmediata" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.6 Cancelación inmediata
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#57-cancelacion-pendiente" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.7 Cancelación pendiente
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#58-consulta-de-cancelacion-revisar_estatus_cancelacion" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.8 Consulta de cancelación (revisar_estatus_cancelacion)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#59-fallo-del-writer-con-recuperacion-6b2" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.9 Fallo del writer con recuperación (6B2)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#510-fallo-del-response-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.10 Fallo del Response Log
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#511-refacturacion-020304" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.11 Refacturación 02/03/04
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-transacciones-y-commits" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Transacciones y commits
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-compatibilidad-con-datos-existentes-hallazgos-reales-lectura" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. Compatibilidad con datos existentes (hallazgos reales, lectura)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-que-no-resuelve-este-bloque-declaracion-expresa" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. Qué NO resuelve este bloque (declaración expresa)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-pruebas-y-evidencia" class="md-nav__link">
+    <span class="md-ellipsis">
+      9. Pruebas y evidencia
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-matriz-de-riesgos" class="md-nav__link">
+    <span class="md-ellipsis">
+      10. Matriz de riesgos
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-despliegue-documentado-no-ejecutado" class="md-nav__link">
+    <span class="md-ellipsis">
+      11. Despliegue (documentado, no ejecutado)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-rollback" class="md-nav__link">
+    <span class="md-ellipsis">
+      12. Rollback
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-observabilidad-posterior-al-despliegue" class="md-nav__link">
+    <span class="md-ellipsis">
+      13. Observabilidad posterior al despliegue
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14-decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      14. Decisión
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anexo-a-trazabilidad-commit-decision-prueba" class="md-nav__link">
+    <span class="md-ellipsis">
+      Anexo A — Trazabilidad commit → decisión → prueba
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anexo-b-afirmaciones-verificadas-contra-codigo" class="md-nav__link">
+    <span class="md-ellipsis">
+      Anexo B — Afirmaciones verificadas contra código
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anexo-c-puntos-no-verificados-limitaciones" class="md-nav__link">
+    <span class="md-ellipsis">
+      Anexo C — Puntos NO verificados (limitaciones)
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="adr-0034-integridad-y-correlacion-de-factura-fiscal-mexico">ADR-0034 — Integridad y correlación de Factura Fiscal Mexico<a class="headerlink" href="#adr-0034-integridad-y-correlacion-de-factura-fiscal-mexico" title="Permanent link">&para;</a></h1>
+<ul>
+<li><strong>Estado:</strong> Propuesto</li>
+<li><strong>Fecha:</strong> 2026-06-21</li>
+<li><strong>Rango de código:</strong> <code>9d7353d^..52676d7</code> (11 commits)</li>
+<li><strong>Supersede parcialmente:</strong> ADR-0018 (estados FFM), ADR-0015 (relación SI↔FFM)</li>
+<li><strong>Declaración previa:</strong> Este bloque <strong>NO</strong> implementa un motor de conciliación automática FFM ↔ PAC/SAT. Ese motor <strong>no forma parte de este ADR</strong> (ver §8).</li>
+</ul>
+<hr />
+<h2 id="1-contexto-e-incidente-original">1. Contexto e incidente original<a class="headerlink" href="#1-contexto-e-incidente-original" title="Permanent link">&para;</a></h2>
+<h3 id="incidente-original-produccion-llantascs">Incidente original (producción LlantasCS)<a class="headerlink" href="#incidente-original-produccion-llantascs" title="Permanent link">&para;</a></h3>
+<p>Una Sales Invoice (SI) terminó con <strong>dos Factura Fiscal Mexico (FFM)</strong> y una <strong>cancelación se aplicó al FFM equivocado</strong>. Causa raíz: la respuesta del PAC se asociaba al FFM resolviendo <strong>por Sales Invoice</strong> (<code>frappe.db.get_value</code> con <code>order_by</code> por defecto → <code>ORDER BY creation</code>, es decir el más antiguo), no por el FFM que originó la operación.</p>
+<h3 id="defectos-estructurales-descubiertos-durante-el-analisis">Defectos estructurales descubiertos durante el análisis<a class="headerlink" href="#defectos-estructurales-descubiertos-durante-el-analisis" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Creación del FFM en <strong>JavaScript</strong> (<code>frappe.client.insert</code> + <code>frappe.client.set_value</code>), con <strong>ventana de carrera</strong> entre la lectura del vínculo y la inserción.</li>
+<li>Podían <strong>coexistir varios FFM activos</strong> para una SI (sin regla de cardinalidad).</li>
+<li>Un fallo del <strong>Response Log</strong> podía revertir u ocultar el estado fiscal ya confirmado por el PAC.</li>
+<li><code>fm_sync_status</code> con <strong>semántica inconsistente</strong>: escrito como "¿la respuesta trae <code>success</code>?", consumido como "¿hay operación en curso?".</li>
+<li>La refacturación 02/03/04 se <strong>bloqueaba incorrectamente</strong> por <code>fm_sync_status == "pending"</code>.</li>
+<li>En timbrado exitoso, el writer derivaba <strong><code>ERROR</code> transitorio</strong> porque el UUID llega dentro de <code>raw_response</code>, no a nivel superior.</li>
+</ul>
+<h3 id="datos-historicos-existentes-no-creados-por-este-bloque">Datos históricos existentes (no creados por este bloque)<a class="headerlink" href="#datos-historicos-existentes-no-creados-por-este-bloque" title="Permanent link">&para;</a></h3>
+<ul>
+<li>11.668 FFM cargan correctamente.</li>
+<li>77 con <code>fm_sync_status="pending"</code> (70 <code>TIMBRADO</code>, 6 <code>BORRADOR</code>, 1 <code>ERROR</code>); los 70 <code>TIMBRADO</code> tienen <code>fm_uuid</code> y <code>facturapi_id</code>.</li>
+<li>6 grupos con 2 FFM activos por SI (patrón <code>TIMBRADO + BORRADOR/ERROR</code>).</li>
+</ul>
+<blockquote>
+<p>Separación: <strong>(a)</strong> incidente original = doble FFM + cancelación equivocada; <strong>(b)</strong> defectos estructurales = causas que lo permitieron; <strong>(c)</strong> datos históricos = residuos que este bloque <strong>no</strong> repara.</p>
+</blockquote>
+<hr />
+<h2 id="2-alcance-exacto">2. Alcance exacto<a class="headerlink" href="#2-alcance-exacto" title="Permanent link">&para;</a></h2>
+<h3 id="seis-archivos-productivos">Seis archivos productivos<a class="headerlink" href="#seis-archivos-productivos" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Archivo</th>
+<th>Responsabilidad</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>facturacion_fiscal/api/__init__.py</code></td>
+<td>Writer PAC: correlación estricta, persistencia independiente del log, derivación de estado/UUID/<code>facturapi_id</code>, <code>_derive_sync_status_from_response</code>, propagación de <code>FiscalCorrelationError</code></td>
+</tr>
+<tr>
+<td><code>facturacion_fiscal/timbrado_api.py</code></td>
+<td>Orquestación timbrado/cancelación/consulta: propagación FCE, advertencia de auditoría (6B1), recuperación de persistencia (6B2), escritura de sync best-effort</td>
+</tr>
+<tr>
+<td><code>factura_fiscal_mexico/factura_fiscal_mexico.py</code></td>
+<td><code>get_or_create_active_ffm</code> (creación centralizada + lock + resolución por activos), guard <code>before_insert</code> (Regla B)</td>
+</tr>
+<tr>
+<td><code>config/fiscal_states_config.py</code></td>
+<td><code>ACTIVE_STATES</code> + helpers <code>is_active</code>/<code>is_final</code></td>
+</tr>
+<tr>
+<td><code>api/fiscal_operations.py</code></td>
+<td>Refacturación 02/03/04: eliminación del guard <code>pending</code></td>
+</tr>
+<tr>
+<td><code>public/js/sales_invoice.js</code></td>
+<td>Botón "Timbrar Factura" → <code>get_or_create_active_ffm</code> (servidor); elimina <code>client.insert</code>/<code>set_value</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="los-11-commits">Los 11 commits<a class="headerlink" href="#los-11-commits" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Hash</th>
+<th>Propósito</th>
+<th>Depende de</th>
+<th>Antes → Después</th>
+<th>Riesgo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>9d7353d</code></td>
+<td>Correlación estricta por <code>FFM.name</code></td>
+<td>—</td>
+<td>respuesta por SI (ambigua) → por FFM explícito</td>
+<td>Medio</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>13bdd97</code></td>
+<td>Estado fiscal independiente del Response Log</td>
+<td>1</td>
+<td>log falla → revertía estado → estado primero, log aislado (savepoint)</td>
+<td>Medio</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>caed009</code></td>
+<td>Creación centralizada <code>get_or_create_active_ffm</code></td>
+<td>—</td>
+<td>JS <code>client.insert</code> → servidor</td>
+<td>Medio-alto</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>d0b97ea</code></td>
+<td>Lock <code>for_update</code> sobre SI</td>
+<td>3</td>
+<td>carrera concurrente → serializado</td>
+<td>Medio</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>0bb8caf</code></td>
+<td>Regla B (1 FFM activo) + <code>before_insert</code></td>
+<td>3,4</td>
+<td>múltiples activos → uno; guard toda vía de inserción</td>
+<td><strong>Alto</strong></td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>c0c5e97</code></td>
+<td>Propagación <code>FiscalCorrelationError</code></td>
+<td>1</td>
+<td>aplanada/ignorada → detiene flujo con mensaje seguro</td>
+<td>Medio</td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>503bf15</code></td>
+<td>TIMBRADO correcto (UUID en <code>raw_response</code>)</td>
+<td>2</td>
+<td>ERROR transitorio → TIMBRADO directo; persiste <code>facturapi_id</code></td>
+<td>Medio</td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>3430fae</code></td>
+<td>Advertencia no bloqueante de auditoría</td>
+<td>6</td>
+<td><code>audit_log_failed</code> silencioso → advertencia + metadata</td>
+<td>Bajo</td>
+</tr>
+<tr>
+<td>9</td>
+<td><code>2a92aea</code></td>
+<td>Recuperación tras fallo del writer</td>
+<td>7,8</td>
+<td><code>success=False</code> ignorado → verificación post-FASE 3</td>
+<td>Medio</td>
+</tr>
+<tr>
+<td>10</td>
+<td><code>2ac44ac</code></td>
+<td>Semántica de <code>fm_sync_status</code></td>
+<td>7,9</td>
+<td><code>response.get("success")</code> → respuesta concluyente</td>
+<td>Bajo-medio</td>
+</tr>
+<tr>
+<td>11</td>
+<td><code>52676d7</code></td>
+<td>Refacturación sin guard <code>pending</code></td>
+<td>10</td>
+<td>bloqueo incorrecto → solo estado/motivo</td>
+<td>Bajo</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-decisiones-arquitectonicas">3. Decisiones arquitectónicas<a class="headerlink" href="#3-decisiones-arquitectonicas" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Correlación estricta por <code>FFM.name</code>.</strong> La respuesta del PAC se asocia <strong>solo</strong> al FFM explícito (<code>factura_fiscal_name</code>). <em>Alt.:</em> resolver por SI / por UUID. <em>Seleccionado:</em> nombre explícito. <em>+:</em> elimina ambigüedad. <em>−:</em> el caller debe pasar el nombre. <em>Dep.:</em> 2, 6.</li>
+<li><strong>Prohibición de selección arbitraria por SI.</strong> Ante ≥2 activos: <code>FiscalCorrelationError</code>, no se elige. <em>+:</em> integridad. <em>−:</em> requiere intervención manual. <em>Dep.:</em> 6.</li>
+<li><strong>Estado fiscal independiente del Response Log.</strong> PASO 1 persiste y <strong>commitea</strong> el FFM (<code>api/__init__.py:614</code>); PASO 2 (log) aislado con <strong>savepoint</strong> (<code>pac_audit_log</code>). <em>Alt.:</em> log primero. <em>+:</em> el fallo de auditoría no revierte fiscal. <em>−:</em> doble paso. <em>Dep.:</em> 1.</li>
+<li><strong>Creación exclusiva por servicio servidor</strong> (<code>get_or_create_active_ffm</code>). <em>Alt.:</em> mantener JS. <em>+:</em> punto único e idempotente. <em>−:</em> —. <em>Dep.:</em> base de 4, 5.</li>
+<li><strong>Lock <code>for_update</code> sobre la SI.</strong> <code>frappe.get_doc("Sales Invoice", name, for_update=True)</code>. <em>Alt. rechazadas:</em> <code>filelock</code> (libera antes del commit del request), índice único (rompe Regla B). <em>Seleccionado:</em> row lock liberado por el commit/rollback normal del request, <strong>sin commit manual</strong>. <em>+:</em> serializa concurrencia. <em>−:</em> espera bajo contención. <em>Dep.:</em> 3, 4.</li>
+<li><strong>Regla B — máx. 1 FFM activo por SI.</strong> Decisión por <code>status</code> (no <code>docstatus</code>); búsqueda por <code>sales_invoice</code> + <code>status in ACTIVE_STATES</code>. <em>Alt.:</em> unicidad absoluta. <em>Seleccionado:</em> Regla B. <em>+:</em> permite reemisión tras CANCELADO; varios históricos. <em>−:</em> ≥2 activos preexistentes requieren intervención. <em>Dep.:</em> 4, 5.</li>
+<li><strong>Estados activos/terminales.</strong> <code>ACTIVE_STATES = {BORRADOR, PROCESANDO, TIMBRADO, ERROR, PENDIENTE_CANCELACION}</code>; terminales <code>FINAL_STATES = {CANCELADO, ARCHIVADO}</code>. <em>Razón:</em> CANCELADO/ARCHIVADO no tienen operación viva; ARCHIVADO sin transiciones salientes y ningún flujo lo asigna. <em>+:</em> fuente única. <em>Dep.:</em> 6.</li>
+<li><strong>Propagación de <code>FiscalCorrelationError</code>.</strong> El wrapper público re-lanza la FCE (no la aplana a <code>{success:False}</code>); los flujos la preservan y detienen con mensaje seguro ("No repita la operación…"). <em>+:</em> restaura la garantía de la decisión 1 en la orquestación. <em>−:</em> —. <em>Dep.:</em> 1.</li>
+<li><strong>Doble persistencia writer / FASE 3 como defensa en profundidad.</strong> El writer persiste el estado esencial (commit inmediato); la FASE 3 reafirma y completa campos. <em>Alt.:</em> consolidar en una. <em>Seleccionado:</em> conservar ambas. <em>Razón:</em> recuperación cruzada de 6B2 (writer falla → FASE 3 recupera; FASE 3 falla → writer ya commiteó). <em>−:</em> inconsistencia temporal en campos <strong>secundarios</strong> entre dos commits. <em>Dep.:</em> 2, 9 (6B2).</li>
+<li><strong>Semántica final de <code>fm_sync_status</code>.</strong> <code>synced</code> = respuesta concluyente del PAC reflejada (incluye rechazo conocido y HTTP 2xx/4xx); <code>pending</code> = inconclusa (timeout/5xx/0/sin señal); <code>error</code> = no resuelto (6B2). Fallback <code>fiscal_event_*</code> no altera el campo. <em>Razón:</em> el flag indica sincronización local, no operación viva. <em>Dep.:</em> 7, 9.</li>
+<li><strong>Refacturación 02/03/04 independiente de <code>fm_sync_status</code>.</strong> Se eliminó el guard <code>pending</code>; el flujo se delimita por <code>docstatus==1</code> + <code>status==CANCELADO</code> + motivo 02/03/04. <em>Razón:</em> un FFM CANCELADO es terminal, no tiene operación viva. <em>Dep.:</em> 10.</li>
+</ol>
+<hr />
+<h2 id="4-invariantes-que-el-codigo-debe-preservar">4. Invariantes que el código debe preservar<a class="headerlink" href="#4-invariantes-que-el-codigo-debe-preservar" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Una SI puede tener <strong>varios FFM históricos</strong>.</li>
+<li>Solo puede existir <strong>un FFM activo</strong> por SI (Regla B).</li>
+<li>FFM <code>CANCELADO</code> o <code>ARCHIVADO</code> <strong>no bloquea</strong> la creación de uno nuevo.</li>
+<li>Ninguna respuesta PAC puede actualizar un FFM <strong>ambiguo</strong> (sin nombre explícito / de otra SI).</li>
+<li>UUID o <code>facturapi_id</code> <strong>contradictorios</strong> detienen la operación (<code>FiscalCorrelationError</code>).</li>
+<li>Un <strong>fallo de auditoría</strong> (Response Log) no revierte el estado fiscal.</li>
+<li>Una respuesta PAC exitosa <strong>nunca</strong> provoca repetición automática de timbrado/cancelación.</li>
+<li><code>pending</code> = respuesta <strong>inconclusa</strong>, no operación activa.</li>
+<li>Documentos <strong>históricos duplicados</strong> deben poder abrirse.</li>
+<li><code>before_insert</code> <strong>no</strong> bloquea actualizaciones de documentos existentes (solo inserciones).</li>
+</ul>
+<hr />
+<h2 id="5-flujos-afectados">5. Flujos afectados<a class="headerlink" href="#5-flujos-afectados" title="Permanent link">&para;</a></h2>
+<p>Notación: <strong>In</strong> = documento de entrada · <strong>Id</strong> = identidad usada · <strong>Lock</strong> · <strong>P</strong> = persistencia · <strong>U</strong> = respuesta al usuario · <strong>Fin</strong> = estado final.</p>
+<h3 id="51-generacion-de-ffm-desde-si">5.1 Generación de FFM desde SI<a class="headerlink" href="#51-generacion-de-ffm-desde-si" title="Permanent link">&para;</a></h3>
+<p><code>In:</code> SI submitted sin FFM · <code>Id:</code> SI.name · <code>Lock:</code> <code>for_update</code> SI · <code>P:</code> insert FFM + <code>set_value</code> vínculo (commit request) · <code>U:</code> "Documento fiscal listo" + navegación · <code>Fin:</code> 1 FFM activo vinculado.</p>
+<h3 id="52-segunda-solicitud-secuencial">5.2 Segunda solicitud secuencial<a class="headerlink" href="#52-segunda-solicitud-secuencial" title="Permanent link">&para;</a></h3>
+<p>Igual, pero bajo el lock se halla el activo existente → <strong>se reutiliza y repara el vínculo</strong>. <code>Fin:</code> mismo FFM, no se crea otro.</p>
+<h3 id="53-solicitudes-concurrentes">5.3 Solicitudes concurrentes<a class="headerlink" href="#53-solicitudes-concurrentes" title="Permanent link">&para;</a></h3>
+<p>La 2ª espera el <code>for_update</code> de la 1ª; al desbloquearse ve el FFM vinculado → reutiliza. <code>Fin:</code> 1 solo FFM.</p>
+<h3 id="54-timbrado-exitoso">5.4 Timbrado exitoso<a class="headerlink" href="#54-timbrado-exitoso" title="Permanent link">&para;</a></h3>
+<p><code>In:</code> SI+FFM · PAC <code>create_invoice</code> OK · writer persiste <code>TIMBRADO</code>+<code>fm_uuid</code>+<code>facturapi_id</code>+<code>synced</code> (commit) · FASE 3 completa serie/folio/fecha/total · <code>U:</code> "Timbrado Exitoso" · <code>Fin:</code> TIMBRADO/synced.</p>
+<h3 id="55-rechazo-de-timbrado">5.5 Rechazo de timbrado<a class="headerlink" href="#55-rechazo-de-timbrado" title="Permanent link">&para;</a></h3>
+<p>PAC rechaza → <code>except pac_error</code> → writer registra <code>ERROR</code>+<code>synced</code> (rechazo conocido) · SI→ERROR · <code>U:</code> "Timbrado rechazado". <code>Fin:</code> ERROR/synced.</p>
+<h3 id="56-cancelacion-inmediata">5.6 Cancelación inmediata<a class="headerlink" href="#56-cancelacion-inmediata" title="Permanent link">&para;</a></h3>
+<p>PAC <code>cancel_invoice</code> OK · FASE 3 → <code>CANCELADO</code> · writer → <code>synced</code> · <code>Fin:</code> CANCELADO/synced.</p>
+<h3 id="57-cancelacion-pendiente">5.7 Cancelación pendiente<a class="headerlink" href="#57-cancelacion-pendiente" title="Permanent link">&para;</a></h3>
+<p>FASE 3 → <code>PENDIENTE_CANCELACION</code> (estado fiscal) · <code>fm_sync_status=synced</code> (la respuesta ya se reflejó). <code>Fin:</code> PENDIENTE_CANCELACION/synced.</p>
+<h3 id="58-consulta-de-cancelacion-revisar_estatus_cancelacion">5.8 Consulta de cancelación (<code>revisar_estatus_cancelacion</code>)<a class="headerlink" href="#58-consulta-de-cancelacion-revisar_estatus_cancelacion" title="Permanent link">&para;</a></h3>
+<p><code>query_pac_status</code> → escribe estado sobre <strong>el mismo FFM</strong> → writer log. <code>Fin:</code> estado verificado/synced.</p>
+<h3 id="59-fallo-del-writer-con-recuperacion-6b2">5.9 Fallo del writer con recuperación (6B2)<a class="headerlink" href="#59-fallo-del-writer-con-recuperacion-6b2" title="Permanent link">&para;</a></h3>
+<p>writer <code>success=False</code> (PAC OK) → FASE 3 ejecuta una vez → <strong>verificación con lectura nueva de BD</strong> → si OK: <code>success=True</code> + <code>persistence_status=recovered_by_phase3</code> + <code>retry_allowed=False</code>; si no: <code>unresolved</code>/<code>error</code>. <strong>Nunca</strong> re-PAC.</p>
+<h3 id="510-fallo-del-response-log">5.10 Fallo del Response Log<a class="headerlink" href="#510-fallo-del-response-log" title="Permanent link">&para;</a></h3>
+<p>PASO 1 ok (estado fiscal persistido) · PASO 2 falla → rollback al savepoint · <code>audit_log_failed=True</code> + advertencia. <code>Fin:</code> estado fiscal <strong>conservado</strong>, sin Response Log.</p>
+<h3 id="511-refacturacion-020304">5.11 Refacturación 02/03/04<a class="headerlink" href="#511-refacturacion-020304" title="Permanent link">&para;</a></h3>
+<p><code>In:</code> SI + FFM <code>CANCELADO</code> motivo 02/03/04 · <code>refacturar_misma_si</code> <strong>desvincula</strong> la SI (no toca el FFM) · luego "Generar" → <code>get_or_create</code> crea nuevo FFM (CANCELADO no bloquea). <code>Fin:</code> SI→nuevo FFM activo; cancelado intacto; 1 activo.</p>
+<hr />
+<h2 id="6-transacciones-y-commits">6. Transacciones y commits<a class="headerlink" href="#6-transacciones-y-commits" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong><code>frappe.db.commit()</code> del writer:</strong> <code>api/__init__.py</code> (<code>_update_factura_fiscal</code>, PASO 1). Persiste el estado fiscal esencial <strong>de inmediato</strong> → <strong>no revertible</strong> por excepción posterior.</li>
+<li><strong>Savepoint:</strong> <code>pac_audit_log</code> (PASO 2). Su rollback afecta <strong>solo</strong> el Response Log, no el FFM ya commiteado.</li>
+<li><strong>FASE 3:</strong> commit propio (timbrado/cancelación). Es un <strong>segundo commit</strong>, separado del writer.</li>
+<li><strong><code>get_or_create_active_ffm</code>:</strong> <strong>sin</strong> commit manual; el lock <code>for_update</code> se libera con el commit/rollback <strong>normal del request</strong>.</li>
+<li><strong><code>fiscal_operations.py</code> / <code>timbrado_api.py</code> (consulta):</strong> <code>frappe.db.commit()</code> preexistentes (no añadidos como atajo).</li>
+<li><strong>Qué persiste el writer:</strong> <code>status</code>, <code>fm_uuid</code>, <code>facturapi_id</code> (TIMBRADO), <code>fm_sync_status</code>, <code>fm_last_pac_sync</code>.</li>
+<li><strong>Qué persiste FASE 3:</strong> reafirma <code>status</code>/<code>fm_uuid</code>/<code>facturapi_id</code> + <code>serie</code>, <code>folio</code>, <code>fecha_timbrado</code>, <code>total_fiscal</code>, URLs, campos de la SI.</li>
+<li><strong>Si falla cada etapa:</strong> PASO 1 falla → relanza, no se crea log, 6B2 evalúa; PASO 2 falla → 6B1 advierte, estado conservado; FASE 3 falla con writer ok → estado del writer sobrevive.</li>
+<li><strong>Por qué se conserva la doble escritura:</strong> recuperación cruzada de 6B2 (§3.9).</li>
+<li><strong>Riesgo de inconsistencia temporal:</strong> entre el commit del writer y el de FASE 3, el FFM está commiteado con estado fiscal correcto pero <strong>sin</strong> campos secundarios (serie/folio/fecha). Antes de 6B0 esta ventana mostraba <code>ERROR</code>; 6B0 la redujo a campos secundarios. <strong>No se minimiza esta complejidad: existe y es intencional.</strong></li>
+</ul>
+<hr />
+<h2 id="7-compatibilidad-con-datos-existentes-hallazgos-reales-lectura">7. Compatibilidad con datos existentes (hallazgos reales, lectura)<a class="headerlink" href="#7-compatibilidad-con-datos-existentes-hallazgos-reales-lectura" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>11.668 FFM históricos</strong> cargan correctamente con el código nuevo.</li>
+<li><strong>77</strong> con <code>fm_sync_status="pending"</code> (70 <code>TIMBRADO</code>, 6 <code>BORRADOR</code>, 1 <code>ERROR</code>).</li>
+<li>Los <strong>70 <code>TIMBRADO+pending</code></strong> tienen <code>fm_uuid</code> y <code>facturapi_id</code> (ya sincronizados con el PAC; el flag es residuo del bug).</li>
+<li><strong>6 grupos</strong> con 2 FFM activos por SI (<code>TIMBRADO + BORRADOR/ERROR</code>).</li>
+<li><strong>Estos datos NO se reparan en este bloque.</strong></li>
+<li><code>get_or_create_active_ffm</code> ante un grupo con ≥2 activos <strong>se detiene</strong> (<code>FiscalCorrelationError</code>), no elige.</li>
+<li>Los documentos existentes (incluidos los duplicados) <strong>sí pueden abrirse y evaluarse</strong> (helpers de solo lectura).</li>
+</ul>
+<hr />
+<h2 id="8-que-no-resuelve-este-bloque-declaracion-expresa">8. Qué NO resuelve este bloque (declaración expresa)<a class="headerlink" href="#8-que-no-resuelve-este-bloque-declaracion-expresa" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>No</strong> existe motor automático de conciliación FFM ↔ PAC/SAT (las funciones <code>process_pending_complements</code> y <code>reconcile_payment_tracking</code> son <strong>placeholders vacíos</strong>, preexistentes).</li>
+<li><strong>No</strong> consulta automáticamente los 70 FFM contra el PAC.</li>
+<li><strong>No</strong> repara los 77 <code>pending</code>.</li>
+<li><strong>No</strong> corrige los 6 grupos duplicados.</li>
+<li><strong>No</strong> repara el caso incidente.</li>
+<li><strong>No</strong> resuelve referencias rotas (<code>refacturar_misma_si</code> hace <code>get_doc</code> sin verificar existencia).</li>
+<li><strong>No</strong> corrige el <code>TypeError</code> defensivo de <code>_derive_status_from_response</code> (raw_response <code>dict</code> sin <code>status_code</code>).</li>
+<li><strong>No</strong> modifica datos históricos.</li>
+<li><strong>No</strong> agrega scheduler de conciliación.</li>
+</ul>
+<hr />
+<h2 id="9-pruebas-y-evidencia">9. Pruebas y evidencia<a class="headerlink" href="#9-pruebas-y-evidencia" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Tipo</th>
+<th>Detalle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Unitarias / integración</td>
+<td><strong>110</strong> pruebas en 11 suites del bloque (todas verdes)</td>
+</tr>
+<tr>
+<td>Concurrencia</td>
+<td>procesos independientes (<code>multiprocessing</code> spawn), <code>for_update</code> serializa</td>
+</tr>
+<tr>
+<td>Funcionales reales (site test)</td>
+<td><code>get_or_create_active_ffm</code> y <code>refacturar_misma_si</code> reales; flujo integrado 02/04</td>
+</tr>
+<tr>
+<td>Lectura histórica</td>
+<td>11.668 FFM evaluados en <code>llantascs-v16.dev</code> (solo lectura, baseline inicial=final)</td>
+</tr>
+<tr>
+<td>Aislamiento PAC</td>
+<td>cliente real <strong>no instanciable</strong> en <code>test-facturacion.localhost</code> (sin Company Settings); boundaries mockeados</td>
+</tr>
+<tr>
+<td>Suites relacionadas</td>
+<td><code>ffm_cancel_permissions</code> (6), <code>ffm_js_multisucursal_cleanup</code> (6), <code>layer1</code> (5) verdes</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Limitaciones / deuda documentadas:</strong>
+- <strong>Smoke GUI real (navegador) NO ejecutado</strong> por el agente CLI (sin navegador). Pendiente para operador humano.
+- Fallos <strong>preexistentes de entorno</strong>: <code>test_custom_fields_naming_consistency</code> (custom fields UAE/VAT de ERPNext), <code>test_refacturar_workflow</code>/<code>test_tipo_e_nota_credito</code> (<code>_Test Item is not a stock Item</code>, setup de stock). Ajenos al bloque.
+- <strong>Response Logs residuales</strong> en site de test por <code>tearDown</code> incompleto de algunas suites (deuda de entorno, no productiva).</p>
+<hr />
+<h2 id="10-matriz-de-riesgos">10. Matriz de riesgos<a class="headerlink" href="#10-matriz-de-riesgos" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Riesgo</th>
+<th>Prob.</th>
+<th>Impacto</th>
+<th>Parte del código</th>
+<th>Prueba que mitiga</th>
+<th>Monitoreo</th>
+<th>Rollback</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bloqueo legítimo por cardinalidad</td>
+<td>Media</td>
+<td>Alto</td>
+<td><code>before_insert</code> (commit 5)</td>
+<td><code>test_unico_ffm_activo</code> (16)</td>
+<td>alertas "FFM activo ya existe"</td>
+<td>revert commit 5</td>
+</tr>
+<tr>
+<td>Deadlock/espera por <code>for_update</code></td>
+<td>Baja</td>
+<td>Medio</td>
+<td><code>get_or_create</code> (commit 4)</td>
+<td><code>test_get_or_create_concurrencia</code> (4)</td>
+<td>tiempos de lock</td>
+<td>revert commit 4</td>
+</tr>
+<tr>
+<td>Inconsistencia writer/FASE 3</td>
+<td>Baja</td>
+<td>Bajo</td>
+<td>api/timbrado (2,9)</td>
+<td>suites 6B2</td>
+<td>FFM TIMBRADO sin serie/folio</td>
+<td>— (defensa en profundidad)</td>
+</tr>
+<tr>
+<td>Consumidor con semántica vieja de <code>fm_sync_status</code></td>
+<td>Baja</td>
+<td>Medio</td>
+<td>sync (10)</td>
+<td><code>test_sync_status_semantics</code> (15)</td>
+<td>uso de <code>pending</code> en reportes</td>
+<td>revert commit 10</td>
+</tr>
+<tr>
+<td>Documentos duplicados existentes</td>
+<td>Baja</td>
+<td>Alto</td>
+<td>Regla B / <code>before_insert</code></td>
+<td><code>test_15</code> (modificación no bloqueada) + lectura prod</td>
+<td>apertura de FFM viejos</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Errores JS / permisos no verificados en GUI</td>
+<td>Media</td>
+<td>Medio</td>
+<td><code>sales_invoice.js</code></td>
+<td>análisis estático + <code>ffm_cancel_permissions</code></td>
+<td><strong>smoke GUI humano</strong></td>
+<td>revert commit 3 (JS)</td>
+</tr>
+<tr>
+<td>Ausencia de conciliación automática</td>
+<td>Alta</td>
+<td>Medio (negocio)</td>
+<td>— (no existe)</td>
+<td>—</td>
+<td><code>pending</code> que no se cierran solos</td>
+<td>feature nueva (fuera de alcance)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="11-despliegue-documentado-no-ejecutado">11. Despliegue (documentado, no ejecutado)<a class="headerlink" href="#11-despliegue-documentado-no-ejecutado" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>No hay</strong> cambios de esquema, patches nuevos ni fixtures nuevos en el bloque.</li>
+<li>La rama <strong>no requiere <code>migrate</code> por sí misma</strong>.</li>
+<li>⚠️ <code>bench migrate</code> ejecutaría los hooks <code>after_migrate</code> (5 funciones que <strong>escriben</strong> Item Groups/Items/UOM/estados) y sincronizaría <code>fixtures</code> (Custom Fields + catálogos SAT) → puede <strong>modificar datos</strong>. Evaluar por separado.</li>
+<li>Pasos a evaluar (sin comandos destructivos aquí): pull/checkout del código → <code>bench build</code> de assets → reinicio controlado (vía <code>frappe-multisite</code>) → smoke test → monitoreo.</li>
+</ul>
+<hr />
+<h2 id="12-rollback">12. Rollback<a class="headerlink" href="#12-rollback" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Reversión por commits:</strong> <code>git revert</code> del rango / del PR squash. Código puro, sin migraciones → reversión limpia.</li>
+<li><strong>Efecto sobre documentos creados mientras el bloque estuvo activo:</strong> los FFM creados por <code>get_or_create</code> bajo Regla B <strong>permanecen</strong>; revertir el código no los borra.</li>
+<li><strong>Si ya existen nuevos FFM bajo Regla B:</strong> seguirán siendo válidos; sin el guard <code>before_insert</code>, futuras inserciones dejan de validarse (vuelve el riesgo de duplicado).</li>
+<li><strong>Datos no revertidos automáticamente:</strong> estados fiscales, <code>fm_sync_status</code> y vínculos ya persistidos.</li>
+<li><strong>Backup previo obligatorio</strong> antes de desplegar (para poder restaurar datos si fuese necesario).</li>
+<li><strong>Criterios objetivos de rollback:</strong> aparición de nuevos FFM duplicados atribuibles al bloque; <code>FiscalCorrelationError</code> masivos en flujos legítimos; bloqueo de creación/refacturación legítima; errores de timbrado introducidos por el cambio.</li>
+</ul>
+<hr />
+<h2 id="13-observabilidad-posterior-al-despliegue">13. Observabilidad posterior al despliegue<a class="headerlink" href="#13-observabilidad-posterior-al-despliegue" title="Permanent link">&para;</a></h2>
+<p>Revisar: nuevos FFM duplicados por SI · frecuencia de <code>FiscalCorrelationError</code> · distribución de <code>fm_sync_status</code> · errores de Response Log (<code>audit_log_failed</code>) · FFM en <code>ERROR</code> · resultados con <code>retry_allowed=False</code> / mensajes "No repita la operación" · tiempos de espera por lock · cancelaciones en <code>PENDIENTE_CANCELACION</code> · errores JS del botón "Timbrar Factura".</p>
+<hr />
+<h2 id="14-decision">14. Decisión<a class="headerlink" href="#14-decision" title="Permanent link">&para;</a></h2>
+<p><strong>Se adopta el bloque de 11 commits</strong> que: (a) corrige la correlación y la creación del FFM, (b) establece la cardinalidad Regla B, (c) hace la persistencia fiscal resiliente al Response Log, (d) corrige la semántica de <code>fm_sync_status</code> y la refacturación 02/03/04.</p>
+<p><strong>Necesidad:</strong> previene la repetición del incidente (doble FFM / cancelación equivocada), defecto con impacto fiscal y de negocio.</p>
+<p><strong>Condición de despliegue:</strong> sin <code>migrate</code> obligatorio por el bloque; con <code>build</code> + reinicio controlado + backup previo + smoke GUI humano + monitoreo de §13.</p>
+<p><strong>Trabajo pendiente (fuera de este ADR):</strong> motor de conciliación FFM ↔ SAT; reparación de los 77 <code>pending</code>, los 6 grupos duplicados y el caso incidente; referencias rotas; <code>TypeError</code> defensivo. <strong>Este ADR no declara el sistema completo ni la recuperación de los 70 como resueltos.</strong></p>
+<hr />
+<h2 id="anexo-a-trazabilidad-commit-decision-prueba">Anexo A — Trazabilidad commit → decisión → prueba<a class="headerlink" href="#anexo-a-trazabilidad-commit-decision-prueba" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Commit</th>
+<th>Decisión(es)</th>
+<th>Suite(s) de prueba</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>9d7353d</code></td>
+<td>D1, D2</td>
+<td><code>test_pac_response_correlacion</code> (9)</td>
+</tr>
+<tr>
+<td><code>13bdd97</code></td>
+<td>D3</td>
+<td><code>test_estado_fiscal_independiente_log</code> (7)</td>
+</tr>
+<tr>
+<td><code>caed009</code></td>
+<td>D4</td>
+<td><code>test_get_or_create_active_ffm</code> (15)</td>
+</tr>
+<tr>
+<td><code>d0b97ea</code></td>
+<td>D5</td>
+<td><code>test_get_or_create_concurrencia</code> (4)</td>
+</tr>
+<tr>
+<td><code>0bb8caf</code></td>
+<td>D6, D7</td>
+<td><code>test_unico_ffm_activo</code> (16)</td>
+</tr>
+<tr>
+<td><code>c0c5e97</code></td>
+<td>D8</td>
+<td><code>test_correlacion_propagacion</code> (8)</td>
+</tr>
+<tr>
+<td><code>503bf15</code></td>
+<td>(UUID/<code>facturapi_id</code>)</td>
+<td><code>test_writer_timbrado_uuid</code> (8)</td>
+</tr>
+<tr>
+<td><code>3430fae</code></td>
+<td>(6B1 auditoría)</td>
+<td><code>test_audit_warning</code> (9)</td>
+</tr>
+<tr>
+<td><code>2a92aea</code></td>
+<td>D9 (6B2)</td>
+<td><code>test_persistence_recovery</code> (11)</td>
+</tr>
+<tr>
+<td><code>2ac44ac</code></td>
+<td>D10</td>
+<td><code>test_sync_status_semantics</code> (15)</td>
+</tr>
+<tr>
+<td><code>52676d7</code></td>
+<td>D11</td>
+<td><code>test_refacturar_guard</code> (8)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="anexo-b-afirmaciones-verificadas-contra-codigo">Anexo B — Afirmaciones verificadas contra código<a class="headerlink" href="#anexo-b-afirmaciones-verificadas-contra-codigo" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Correlación estricta por <code>factura_fiscal_name</code> y rechazo de selección por SI — verificado en <code>_resolve_validated_ffm</code> / <code>get_or_create_active_ffm</code>.</li>
+<li><code>frappe.db.commit()</code> del writer y savepoint <code>pac_audit_log</code> — verificado en <code>api/__init__.py</code>.</li>
+<li><code>for_update=True</code> genera <code>SELECT ... FOR UPDATE</code> — verificado empíricamente.</li>
+<li><code>before_insert</code> solo bloquea inserciones (no updates) — verificado (<code>test_15</code>).</li>
+<li>JS del botón llama solo <code>get_or_create_active_ffm</code>, sin <code>client.insert</code>/<code>set_value</code>, sin segunda creación — verificado en <code>sales_invoice.js</code>.</li>
+<li>Guard <code>pending</code> eliminado de <code>refacturar_misma_si</code>; guards <code>docstatus</code>/<code>status</code>/<code>motivo</code> intactos — verificado en <code>fiscal_operations.py</code>.</li>
+<li><code>ACTIVE_STATES</code>/<code>FINAL_STATES</code> y <code>ARCHIVADO</code> sin transiciones salientes — verificado en <code>fiscal_states_config.py</code> y <code>valid_transitions</code>.</li>
+<li>70 <code>TIMBRADO+pending</code> con <code>fm_uuid</code> y <code>facturapi_id</code>; 6 grupos duplicados — verificado por lectura en <code>llantascs-v16.dev</code>.</li>
+<li><code>process_pending_complements</code>/<code>reconcile_payment_tracking</code> son placeholders — verificado.</li>
+</ul>
+<h2 id="anexo-c-puntos-no-verificados-limitaciones">Anexo C — Puntos NO verificados (limitaciones)<a class="headerlink" href="#anexo-c-puntos-no-verificados-limitaciones" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Comportamiento <strong>visual en navegador</strong>: render del botón, red/DevTools, consola JS, visibilidad por rol en UI — <strong>no verificado</strong> (sin navegador).</li>
+<li>Comportamiento del bloque bajo <strong>carga real concurrente de producción</strong> (solo probado con procesos de test).</li>
+<li>Efecto de <code>bench migrate</code> real en un site con datos de producción (solo analizado, no ejecutado).</li>
+</ul>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Volver al principio
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 Facturación México - Documentación Técnica
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/tu-org/facturacion_mexico" target="_blank" rel="noopener" title="GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+      <div class="md-consent" data-md-component="consent" id="__consent" hidden>
+        <div class="md-consent__overlay"></div>
+        <aside class="md-consent__inner">
+          <form class="md-consent__form md-grid md-typeset" name="consent">
+            
+
+  
+    
+  
+
+
+
+
+
+<h4>Consentimiento de cookies</h4>
+<p>Utilizamos cookies para reconocer tus visitas repetidas y preferencias, así como para medir la efectividad de nuestra documentación y si los usuarios encuentran lo que están buscando. Con tu consentimiento, nos ayudas a mejorar nuestra documentación.
+</p>
+<input class="md-toggle" type="checkbox" id="__settings" >
+<div class="md-consent__settings">
+  <ul class="task-list">
+    
+      
+      
+        
+        
+      
+      <li class="task-list-item">
+        <label class="task-list-control">
+          <input type="checkbox" name="analytics" checked>
+          <span class="task-list-indicator"></span>
+          Google Analytics
+        </label>
+      </li>
+    
+  </ul>
+</div>
+<div class="md-consent__controls">
+  
+    
+      <button class="md-button md-button--primary">Aceptar</button>
+    
+    
+    
+  
+    
+    
+      <button type="reset" class="md-button md-button--primary">Rechazar</button>
+    
+    
+  
+    
+    
+    
+      <label class="md-button" for="__settings">Gestionar cookies</label>
+    
+  
+</div>
+          </form>
+        </aside>
+      </div>
+      <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout(function(){document.querySelector("[data-md-component=consent]").hidden=!1},250);var action,form=document.forms.consent;for(action of["submit","reset"])form.addEventListener(action,function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map(function(e){return[e,!0]}))),location.hash="",location.reload()})</script>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.expand", "navigation.instant", "navigation.sections", "navigation.tabs", "navigation.top", "search.highlight", "search.suggest"], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copiado al portapapeles", "clipboard.copy": "Copiar al portapapeles", "search.result.more.one": "1 m\u00e1s en esta p\u00e1gina", "search.result.more.other": "# m\u00e1s en esta p\u00e1gina", "search.result.none": "No se encontraron documentos", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Teclee para comenzar b\u00fasqueda", "search.result.term.missing": "Falta", "select.version": "Seleccionar versi\u00f3n"}, "version": {"default": "latest", "provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7c377c4.min.js"></script>
+      
+        <script src="../../assets/javascripts/extra.js"></script>
+      
+        <script src="../../assets/javascripts/advanced.js"></script>
+      
+    
+  </body>
+</html>

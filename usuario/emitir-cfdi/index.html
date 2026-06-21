@@ -529,9 +529,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-abrir-la-factura-fiscal-mexico" class="md-nav__link">
+  <a href="#3-generar-abrir-la-factura-fiscal-mexico" class="md-nav__link">
     <span class="md-ellipsis">
-      3. Abrir la Factura Fiscal Mexico
+      3. Generar / abrir la Factura Fiscal Mexico
     </span>
   </a>
   
@@ -1701,6 +1701,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0034-integridad-correlacion-ffm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0034 — Integridad y correlación de Factura Fiscal Mexico
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1922,9 +1943,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-abrir-la-factura-fiscal-mexico" class="md-nav__link">
+  <a href="#3-generar-abrir-la-factura-fiscal-mexico" class="md-nav__link">
     <span class="md-ellipsis">
-      3. Abrir la Factura Fiscal Mexico
+      3. Generar / abrir la Factura Fiscal Mexico
     </span>
   </a>
   
@@ -2029,8 +2050,11 @@
 <p>El timbrado en facturacion_mexico tiene dos documentos:</p>
 <ul>
 <li><strong>Sales Invoice</strong> — la venta en ERPNext. Se submittea normalmente.</li>
-<li><strong>Factura Fiscal Mexico (FFM)</strong> — el documento fiscal. Se crea automáticamente al hacer Submit del Sales Invoice y es donde ocurre el timbrado real.</li>
+<li><strong>Factura Fiscal Mexico (FFM)</strong> — el documento fiscal. Se crea la primera vez que haces clic en <strong>"Timbrar Factura"</strong> sobre el Sales Invoice, y es donde ocurre el timbrado real.</li>
 </ul>
+<blockquote>
+<p><strong>Un solo FFM activo por Sales Invoice.</strong> La creación del FFM la resuelve el servidor: la primera vez crea el documento y lo vincula; las siguientes veces reutiliza el mismo. No se pueden generar dos facturas fiscales activas para la misma venta.</p>
+</blockquote>
 <p>Los dos documentos están vinculados. El estado fiscal visible en el Sales Invoice (campo <code>fm_fiscal_status</code>) refleja siempre el estado del FFM.</p>
 <hr />
 <h2 id="estados-fiscales">Estados fiscales<a class="headerlink" href="#estados-fiscales" title="Permanent link">&para;</a></h2>
@@ -2131,11 +2155,13 @@ Ver <a href="../ereceipts/">E-Receipts y Autofactura</a> para el detalle de ese 
 </blockquote>
 <h3 id="2-submit-del-sales-invoice">2. Submit del Sales Invoice<a class="headerlink" href="#2-submit-del-sales-invoice" title="Permanent link">&para;</a></h3>
 <p>Al hacer Submit:
-- El sistema detecta que el cliente tiene RFC
-- Crea automáticamente un documento <strong>Factura Fiscal Mexico</strong> en estado <code>BORRADOR</code>
-- El Sales Invoice muestra el botón <strong>"Timbrar Factura"</strong> como acción primaria</p>
-<h3 id="3-abrir-la-factura-fiscal-mexico">3. Abrir la Factura Fiscal Mexico<a class="headerlink" href="#3-abrir-la-factura-fiscal-mexico" title="Permanent link">&para;</a></h3>
-<p>Clic en <strong>"Timbrar Factura"</strong> en el Sales Invoice → abre el FFM vinculado.</p>
+- El Sales Invoice muestra el botón <strong>"Timbrar Factura"</strong> como acción primaria
+- Todavía <strong>no</strong> existe Factura Fiscal Mexico — se crea en el siguiente paso</p>
+<h3 id="3-generar-abrir-la-factura-fiscal-mexico">3. Generar / abrir la Factura Fiscal Mexico<a class="headerlink" href="#3-generar-abrir-la-factura-fiscal-mexico" title="Permanent link">&para;</a></h3>
+<p>Clic en <strong>"Timbrar Factura"</strong> en el Sales Invoice:
+- Si la venta aún no tiene FFM, el servidor <strong>crea</strong> uno en estado <code>BORRADOR</code>, lo vincula y te lleva a él.
+- Si ya tiene un FFM activo, <strong>reutiliza</strong> el existente y te lleva a él (no crea otro).
+- Si el FFM ya está <code>TIMBRADO</code>, el sistema avisa que no se puede volver a timbrar.</p>
 <p>En el FFM revisar antes de timbrar:
 - <strong>Régimen fiscal</strong> (<code>fm_tax_system</code>) — cargado desde el cliente
 - <strong>Forma de pago</strong> (<code>fm_forma_pago_timbrado</code>) — cargada desde Payment Entry si PUE
