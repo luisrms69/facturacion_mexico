@@ -1308,15 +1308,18 @@ def get_sales_invoice_for_ffm(
 
 @frappe.whitelist()
 def get_or_create_active_ffm(sales_invoice: str, extra_fields: str | dict | None = None) -> str:
-	"""Obtener o crear el FFM de una Sales Invoice — única vía de creación (Corrección 3).
+	"""Obtener o crear el FFM de una Sales Invoice — única vía de creación e idempotente.
 
 	Centraliza en servidor la creación que antes hacía el botón con `frappe.client.insert`
 	+ `set_value`. Reutiliza el FFM ya vinculado en `Sales Invoice.fm_factura_fiscal_mx`;
 	si la referencia está vacía, crea uno con la MISMA lógica y valores del botón y lo vincula.
 
-	⚠️ SIN LOCK TODAVÍA: dos llamadas concurrentes con `fm_factura_fiscal_mx` vacío aún pueden
-	crear dos FFM. La condición de carrera NO queda resuelta en esta corrección; la
-	Corrección 4 agregará el lock por Sales Invoice. No asumir unicidad concurrente aquí.
+	Corrección 4 — concurrencia: la Sales Invoice se relee con `for_update=True`
+	(`SELECT ... FOR UPDATE`), que adquiere un lock de fila transaccional. Dos solicitudes
+	concurrentes para la misma SI se serializan: la segunda espera al commit de la primera y,
+	al releer bajo el lock, encuentra el FFM ya vinculado y lo reutiliza. La DECISIÓN de crear
+	o reutilizar se toma SIEMPRE con la lectura posterior al lock. El lock se libera con el
+	commit/rollback NORMAL del request — NO se ejecuta ningún `frappe.db.commit()` aquí.
 
 	No llama al PAC.
 	"""
@@ -1328,24 +1331,26 @@ def get_or_create_active_ffm(sales_invoice: str, extra_fields: str | dict | None
 		extra_fields = json.loads(extra_fields) if extra_fields else {}
 	extra_fields = extra_fields or {}
 
-	# La Sales Invoice debe existir.
+	# La Sales Invoice debe existir (lectura previa SOLO para error temprano; no decide crear).
 	if not frappe.db.exists("Sales Invoice", sales_invoice):
 		frappe.throw(
 			_("La Sales Invoice {0} no existe.").format(sales_invoice),
 			title=_("Sales Invoice inexistente"),
 		)
 
-	# Recargar la SI desde servidor y validar permisos (lectura SI + creación FFM).
-	si = frappe.get_doc("Sales Invoice", sales_invoice)
-	si.check_permission("read")
+	# Permiso de creación de FFM (no requiere mantener la fila bloqueada).
 	frappe.has_permission("Factura Fiscal Mexico", "create", throw=True)
 
-	# Reutilizar el FFM ya vinculado, si la referencia es válida.
+	# --- Sección crítica: lock de fila transaccional sobre la Sales Invoice ---
+	# Releer con FOR UPDATE serializa las solicitudes concurrentes para la misma SI.
+	# La decisión de crear/reutilizar se basa EXCLUSIVAMENTE en este documento post-lock.
+	si = frappe.get_doc("Sales Invoice", sales_invoice, for_update=True)
+	si.check_permission("read")
+
+	# Reutilizar el FFM ya vinculado, si la referencia es válida (lectura post-lock).
 	existing_ref = si.get("fm_factura_fiscal_mx")
 	if existing_ref:
-		ffm = frappe.db.get_value(
-			"Factura Fiscal Mexico", existing_ref, ["name", "status"], as_dict=True
-		)
+		ffm = frappe.db.get_value("Factura Fiscal Mexico", existing_ref, ["name", "status"], as_dict=True)
 		if ffm:
 			if ffm.status in FiscalStates.FINAL_STATES:
 				# Apunta a un FFM terminal (CANCELADO/ARCHIVADO). La reemisión tras estado
@@ -1405,7 +1410,8 @@ def get_or_create_active_ffm(sales_invoice: str, extra_fields: str | dict | None
 	# Vincular el FFM creado a la Sales Invoice.
 	frappe.db.set_value("Sales Invoice", si.name, "fm_factura_fiscal_mx", ffm_doc.name)
 
-	# Devolver el nombre del FFM (sin llamar al PAC).
+	# Devolver el nombre del FFM (sin llamar al PAC). El lock de fila adquirido con
+	# for_update se libera con el commit/rollback NORMAL del request — sin commit manual.
 	return ffm_doc.name
 
 
