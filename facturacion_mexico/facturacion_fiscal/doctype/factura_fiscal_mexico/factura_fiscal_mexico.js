@@ -329,6 +329,28 @@
 		frm.dashboard.set_headline_alert(primary.text, level_color[primary.level] || "grey");
 	}
 
+	function render_sync_badge(frm) {
+		// Semáforo inline para fm_sync_status: resalta 'pending'.
+		// Pinta una indicator-pill nativa de Frappe en el campo HTML fm_sync_status_badge.
+		const field = frm.fields_dict && frm.fields_dict.fm_sync_status_badge;
+		if (!field) return;
+		const map = {
+			synced: { color: "green", label: __("Sincronizado") },
+			pending: { color: "orange", label: __("Pendiente") },
+			error: { color: "red", label: __("Error de sincronización") },
+		};
+		const cfg = map[frm.doc.fm_sync_status];
+		if (!cfg) {
+			field.$wrapper.html("");
+			return;
+		}
+		field.$wrapper.html(
+			`<span class="indicator-pill ${cfg.color}">${frappe.utils.escape_html(
+				cfg.label
+			)}</span>`
+		);
+	}
+
 	function freeze_fiscal_fields_after_submit(frm) {
 		/**
 		 * Bloquear campos fiscales críticos después de Submit
@@ -390,6 +412,9 @@
 		refresh: function (frm) {
 			// Controlar visibilidad del checkbox Venta Mostrador según el customer
 			_update_venta_mostrador_visibility(frm);
+
+			// Semáforo de sincronización (badge inline)
+			render_sync_badge(frm);
 
 			// Poblar opciones SAT desde el servidor
 			if (!frm._sat_opts_loaded) {
@@ -1598,11 +1623,12 @@
 			"fm_serie_folio", // Serie y Folio custom field (si existe)
 		];
 
-		// Campos de archivos fiscales
-		const fiscal_files_fields = [
-			"pdf_file", // Archivo PDF
-			"xml_file", // Archivo XML
-		];
+		// Campos de archivos fiscales.
+		// pdf_file/xml_file quedan ocultos siempre vía hidden:1 en el DocType: son
+		// ligas redundantes al adjunto. El archivo real sigue accesible por el panel
+		// de Adjuntos y el botón "Descargar PDF+XML". Por eso esta lista va vacía:
+		// la visibilidad por estado ya no debe re-exponer esos campos.
+		const fiscal_files_fields = [];
 
 		// Campos y sección de cancelación (Punto 9)
 		const cancellation_fields = [
@@ -2710,6 +2736,51 @@ function validate_billing_data_visual(frm) {
 						frm.reload_doc();
 					},
 					__("Acciones")
+				);
+			}
+
+			// Paso 5: verificación manual de estado contra FacturAPI (reconciliación).
+			// Visible para cualquier FFM guardado con identidad remota (facturapi_id), sin importar
+			// su estado de sync/cancelación. La seguridad real está en el servidor: reconcile_ffm
+			// exige el permiso fiscal. El JS SOLO consulta, muestra el resultado y recarga; no
+			// interpreta status/cancellation_status, no decide estados ni escribe campos.
+			if (!frm.is_new() && frm.doc.facturapi_id) {
+				frm.add_custom_button(
+					__("Verificar estado en FacturAPI"),
+					async () => {
+						// freeze: true congela la interfaz e impide el doble clic durante la consulta.
+						const r = await frappe.call({
+							method: "facturacion_mexico.facturacion_fiscal.services.ffm_reconciliation.reconcile_ffm",
+							args: { ffm_name: frm.doc.name },
+							freeze: true,
+							freeze_message: __("Consultando FacturAPI..."),
+						});
+						const res = (r && r.message) || {};
+						// Mensajes según el `outcome` que ya devuelve el servidor (no se duplica la
+						// matriz fiscal; solo se traduce el resultado a un texto breve).
+						const MENSAJES = {
+							changed: __("Estado actualizado."),
+							unchanged: __("Sin cambios."),
+							locked: __("Verificación ya en proceso."),
+							pending: __("Pendiente de nueva consulta."),
+							error: __("Error de reconciliación."),
+						};
+						const indicador =
+							res.outcome === "changed"
+								? "green"
+								: res.outcome === "error"
+								? "red"
+								: "blue";
+						frappe.show_alert(
+							{
+								message: MENSAJES[res.outcome] || __("Verificación completada."),
+								indicator: indicador,
+							},
+							ALERT_DURATION_DEFAULT
+						);
+						frm.reload_doc();
+					},
+					__("Comprobantes")
 				);
 			}
 		},

@@ -229,6 +229,65 @@ def get_state_from_facturapi(facturapi_status):
 	return FACTURAPI_STATE_MAPPING.get(facturapi_status, FiscalStates.ERROR)
 
 
+def derive_pac_reconciliation(remote_status, cancellation_status):
+	"""Mapeo ÚNICO de la respuesta del PAC a (estado_fiscal, fm_sync_status).
+
+	Fuente única de verdad usada por: cancelar_factura FASE 3, revisar_estatus_cancelacion y el
+	motor de reconciliación. Los flujos de cancelación consumen solo el estado fiscal ([0]); el
+	motor usa ambos.
+
+	Args:
+	    remote_status: campo `status` del invoice en FacturAPI (valid/canceled/pending/draft...).
+	    cancellation_status: campo `cancellation_status` (none/pending/verifying/accepted/rejected/expired).
+
+	Returns:
+	    tuple (estado_fiscal | None, fm_sync_status):
+	    - estado_fiscal None significa "no cambiar el estado fiscal".
+	    - fm_sync_status es uno de SyncStates (synced/pending/error).
+
+	Precedencia OBLIGATORIA (un CFDI `canceled` manda sobre cualquier `cancellation_status`
+	contradictorio, p. ej. `canceled + rejected` -> CANCELADO):
+
+	    1. status == canceled                      -> (CANCELADO, synced)
+	    2. cancellation_status == accepted         -> (CANCELADO, synced)   # incl. status ausente
+	    3. status == valid + pending/verifying     -> (PENDIENTE_CANCELACION, synced)
+	    4. status == valid + rejected/expired      -> (TIMBRADO, synced)
+	    5. status == valid + none/vacío            -> (TIMBRADO, synced)
+	    6. status == pending                       -> (None, pending)
+	    7. cualquier otra combinación              -> (None, error)
+
+	Las respuestas reales de FacturAPI (get_invoice / query_pac_status) siempre traen `status`.
+	"""
+	rs = (remote_status or "").strip().lower()
+	cs = (cancellation_status or "").strip().lower()
+
+	# 1. CFDI cancelado de forma definitiva: manda sobre cualquier cancellation_status.
+	if rs == "canceled":
+		return FiscalStates.CANCELADO, SyncStates.SYNCED
+
+	# 2. Cancelación aceptada por el receptor (incl. status ausente): conserva el comportamiento
+	#    productivo (query_pac_status / FASE 3) y test_06_consulta_recuperada.
+	if cs == "accepted":
+		return FiscalStates.CANCELADO, SyncStates.SYNCED
+
+	# 3-5. CFDI vigente: el desenlace depende del estado de la cancelación.
+	if rs == "valid":
+		if cs in ("pending", "verifying"):
+			return FiscalStates.PENDIENTE_CANCELACION, SyncStates.SYNCED
+		if cs in ("rejected", "expired"):
+			return FiscalStates.TIMBRADO, SyncStates.SYNCED
+		if cs in ("", "none"):
+			return FiscalStates.TIMBRADO, SyncStates.SYNCED
+		return None, SyncStates.ERROR
+
+	# 6. Estado remoto aún no definitivo (sigue procesándose en el PAC): reintentar.
+	if rs == "pending":
+		return None, SyncStates.PENDING
+
+	# 7. Cualquier otra combinación (draft, status ausente con cancelación no concluyente, etc.).
+	return None, SyncStates.ERROR
+
+
 def get_complete_config():
 	"""
 	Retorna configuración completa para uso en APIs.
