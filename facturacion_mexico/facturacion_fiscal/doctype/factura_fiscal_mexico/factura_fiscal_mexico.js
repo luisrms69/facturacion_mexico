@@ -1598,11 +1598,12 @@
 			"fm_serie_folio", // Serie y Folio custom field (si existe)
 		];
 
-		// Campos de archivos fiscales
-		const fiscal_files_fields = [
-			"pdf_file", // Archivo PDF
-			"xml_file", // Archivo XML
-		];
+		// Campos de archivos fiscales.
+		// pdf_file/xml_file quedan ocultos siempre vía hidden:1 en el DocType: son
+		// ligas redundantes al adjunto. El archivo real sigue accesible por el panel
+		// de Adjuntos y el botón "Descargar PDF+XML". Por eso esta lista va vacía:
+		// la visibilidad por estado ya no debe re-exponer esos campos.
+		const fiscal_files_fields = [];
 
 		// Campos y sección de cancelación (Punto 9)
 		const cancellation_fields = [

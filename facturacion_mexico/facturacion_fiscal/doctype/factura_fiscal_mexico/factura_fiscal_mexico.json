@@ -32,6 +32,7 @@
   "fm_direccion_principal_display",
   "column_break_basic",
   "fecha_timbrado",
+  "fm_pdf_custom_section",
   "section_break_facturapi",
   "facturapi_id",
   "fm_cfdi_use",
@@ -50,20 +51,20 @@
   "si_otros_impuestos",
   "si_total_neto",
   "section_break_archivos",
-  "pdf_file",
-  "xml_file",
   "section_break_cancelacion",
   "cancellation_reason",
   "cancellation_date",
-  "fm_last_pac_sync",
-  "fm_sync_status",
-  "fm_sync_error",
   "section_break_urls_archivos",
-  "fm_xml_url",
-  "fm_pdf_url",
+  "fm_sync_status",
+  "fm_last_pac_sync",
+  "fm_sync_error",
+  "column_break_sincronizacion",
   "fm_last_response_log",
   "fm_creation_source",
-  "fm_pdf_custom_section"
+  "pdf_file",
+  "xml_file",
+  "fm_pdf_url",
+  "fm_xml_url"
  ],
  "fields": [
   {
@@ -304,6 +305,7 @@
    "description": "Archivo PDF de la factura",
    "fieldname": "pdf_file",
    "fieldtype": "Attach",
+   "hidden": 1,
    "label": "Archivo PDF",
    "read_only": 1
   },
@@ -311,6 +313,7 @@
    "description": "Archivo XML de la factura",
    "fieldname": "xml_file",
    "fieldtype": "Attach",
+   "hidden": 1,
    "label": "Archivo XML",
    "read_only": 1
   },
@@ -418,9 +421,13 @@
    "read_only": 1
   },
   {
+   "fieldname": "column_break_sincronizacion",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "section_break_urls_archivos",
    "fieldtype": "Section Break",
-   "label": "URLs y Referencias"
+   "label": "Sincronización y Referencias"
   },
   {
    "fieldname": "fm_xml_url",
@@ -428,6 +435,7 @@
    "label": "URL del XML",
    "description": "Link directo al archivo XML o URL de verificación SAT",
    "allow_on_submit": 1,
+   "hidden": 1,
    "read_only": 1
   },
   {
@@ -436,6 +444,7 @@
    "label": "URL del PDF",
    "description": "Link directo al archivo PDF",
    "allow_on_submit": 1,
+   "hidden": 1,
    "read_only": 1
   },
   {
