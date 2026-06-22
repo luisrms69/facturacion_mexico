@@ -81,6 +81,12 @@ class TestDerivePacReconciliation(IntegrationTestCase):
 		self._assert(None, None, None, SyncStates.ERROR)
 
 
+# Identidades fiscales únicas por corrida (evita colisiones con registros residuales y cumple la
+# regla de IDs generados).
+_FA_ID = "FA-" + frappe.generate_hash()[:10]
+_UUID = "U-" + frappe.generate_hash()[:10]
+
+
 def _seed_si(*, fiscal_status="", ffm=None):
 	si = frappe.get_doc(
 		{
@@ -168,7 +174,7 @@ class TestExpiredUnificado(IntegrationTestCase):
 
 	# FASE 3 de cancelar_factura: una cancelación EXPIRED deja el FFM en TIMBRADO (antes PENDIENTE).
 	def test_fase3_expired_timbrado(self):
-		ffm = self._ffm(None, "TIMBRADO", facturapi_id="FA-1", uuid="U-1")
+		ffm = self._ffm(None, "TIMBRADO", facturapi_id=_FA_ID, uuid=_UUID)
 		si = self._si(fiscal_status="TIMBRADO", ffm=ffm)
 		frappe.db.set_value("Factura Fiscal Mexico", ffm, "sales_invoice", si)
 		frappe.db.commit()
@@ -189,7 +195,7 @@ class TestExpiredUnificado(IntegrationTestCase):
 	# revisar_estatus_cancelacion: EXPIRED resuelve a TIMBRADO (antes quedaba PENDIENTE_CANCELACION).
 	def test_revisar_expired_timbrado(self):
 		si = self._si(fiscal_status="PENDIENTE_CANCELACION")
-		ffm = self._ffm(si, "PENDIENTE_CANCELACION", facturapi_id="FA-1", uuid="U-1")
+		ffm = self._ffm(si, "PENDIENTE_CANCELACION", facturapi_id=_FA_ID, uuid=_UUID)
 		frappe.db.set_value("Sales Invoice", si, "fm_factura_fiscal_mx", ffm)
 		frappe.db.commit()
 		with (
@@ -202,7 +208,7 @@ class TestExpiredUnificado(IntegrationTestCase):
 		):
 			result = revisar_estatus_cancelacion(ffm)
 		self.assertEqual(frappe.db.get_value("Factura Fiscal Mexico", ffm, "status"), "TIMBRADO")
-		self.assertEqual(result.get("nuevo_estado", "TIMBRADO"), "TIMBRADO")
+		self.assertEqual(result.get("status"), "TIMBRADO")
 
 	# cero referencias al cliente PAC importadas en el módulo de prueba
 	def test_cero_trafico_pac(self):

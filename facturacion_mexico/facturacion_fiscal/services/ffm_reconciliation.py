@@ -68,7 +68,9 @@ def _acquire_lock(key: str, ttl: int) -> str | None:
 	"""Adquisición atómica no bloqueante (Redis SET NX EX). Devuelve el token si se obtuvo el lock,
 	o None si ya estaba ocupado. El token identifica al dueño para una liberación segura."""
 	token = frappe.generate_hash(length=16)
-	if frappe.cache().set(_lock_key(key), token, nx=True, ex=ttl):
+	# Lock distribuido atómico (SET NX EX): set_value/get_value no soportan NX/TTL. La multitenancia
+	# queda cubierta por _lock_key (namespace por frappe.local.site).
+	if frappe.cache().set(_lock_key(key), token, nx=True, ex=ttl):  # nosemgrep
 		return token
 	return None
 
@@ -112,7 +114,7 @@ def _log_and_set_sync(ffm, response_data: dict, sync_status: str) -> None:
 	)
 	# Estas escrituras finales corren DESPUÉS del commit del writer; sin un commit propio se
 	# descartan al cerrar la request (p. ej. botón vía frappe.call). Un solo commit al final.
-	frappe.db.commit()
+	frappe.db.commit()  # nosemgrep
 
 
 def _reconcile_ffm(ffm_name: str) -> dict:
@@ -163,16 +165,16 @@ def _reconcile_ffm(ffm_name: str) -> dict:
 			# Identidad contradictoria: no se toca el estado fiscal; se marca error. La alerta
 			# crítica ya quedó registrada por _resolve_validated_ffm. Se preserva el tipo de error.
 			frappe.db.set_value("Factura Fiscal Mexico", ffm.name, "fm_sync_status", SyncStates.ERROR)
-			frappe.db.commit()
+			frappe.db.commit()  # nosemgrep
 			return {"ffm": ffm_name, "outcome": "error", "error_type": "correlacion"}
 
 		remote_status, cancellation_status = _extract_reconciliation_states(response)
 		fiscal_status, sync_status = derive_pac_reconciliation(remote_status, cancellation_status)
 
-		cambia_estado = fiscal_status is not None and fiscal_status != ffm.status
-		cambia_sync = sync_status != ffm.fm_sync_status
+		status_changed = fiscal_status is not None and fiscal_status != ffm.status
+		sync_changed = sync_status != ffm.fm_sync_status
 
-		if cambia_estado or cambia_sync:
+		if status_changed or sync_changed:
 			# Cambio real: el writer persiste estado/sync y crea Response Log correlacionado.
 			_write_pac_response(
 				ffm.sales_invoice or "",
@@ -191,7 +193,7 @@ def _reconcile_ffm(ffm_name: str) -> dict:
 		# Commit explícito: este write no pasa por el writer (que sí commitea) y se descartaría
 		# al cerrar la request (botón vía frappe.call) sin él.
 		frappe.db.set_value("Factura Fiscal Mexico", ffm.name, "fm_last_pac_sync", now_datetime())
-		frappe.db.commit()
+		frappe.db.commit()  # nosemgrep
 		return {"ffm": ffm_name, "outcome": "unchanged"}
 	finally:
 		_release_lock(lock, token)

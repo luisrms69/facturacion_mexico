@@ -14,6 +14,12 @@ from facturacion_mexico.facturacion_fiscal.services import ffm_reconciliation as
 
 MOD = "facturacion_mexico.facturacion_fiscal.services.ffm_reconciliation"
 
+# Identidades fiscales únicas por corrida (evita colisiones con registros residuales y cumple la
+# regla de IDs generados). El seed y el mock de respuesta comparten estas constantes para que la
+# correlación estricta (id/uuid) pase; los tests de contradicción usan literales distintos.
+_FA_ID = "FA-" + frappe.generate_hash()[:10]
+_UUID = "U-" + frappe.generate_hash()[:10]
+
 
 def _seed_si():
 	si = frappe.get_doc(
@@ -35,7 +41,7 @@ def _seed_si():
 	return si.name
 
 
-def _seed_ffm(sales_invoice, status, *, facturapi_id="FA-1", uuid="U-1", sync="pending", last_sync=None):
+def _seed_ffm(sales_invoice, status, *, facturapi_id=_FA_ID, uuid=_UUID, sync="pending", last_sync=None):
 	ffm = frappe.get_doc(
 		{
 			"doctype": "Factura Fiscal Mexico",
@@ -61,7 +67,7 @@ def _seed_ffm(sales_invoice, status, *, facturapi_id="FA-1", uuid="U-1", sync="p
 
 
 def _ok(raw, status_code=200):
-	return {"success": True, "status_code": status_code, "raw_response": {"id": "FA-1", "uuid": "U-1", **raw}}
+	return {"success": True, "status_code": status_code, "raw_response": {"id": _FA_ID, "uuid": _UUID, **raw}}
 
 
 def _http_error(code):
@@ -403,7 +409,7 @@ class TestFFMReconciliation(IntegrationTestCase):
 		bad = {
 			"success": True,
 			"status_code": 200,
-			"raw_response": {"id": "FA-1", "uuid": "U-OTRO", "status": "valid"},
+			"raw_response": {"id": _FA_ID, "uuid": "U-OTRO", "status": "valid"},
 		}
 		res, _, _ = self._reconciliar(ffm, get_return=bad)
 		self.assertEqual(res.get("error_type"), "correlacion")

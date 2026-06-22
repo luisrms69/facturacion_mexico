@@ -795,14 +795,19 @@ class PACResponseWriter:
 			# Motor de reconciliación: SOLO ante respuesta PAC exitosa se delega en el helper único
 			# derive_pac_reconciliation (no se duplica la matriz de estados aquí). Errores HTTP,
 			# timeout y contradicciones conservan su semántica (esta rama no los reinterpreta).
-			if ok and status_code in (200, 201):
+			# status_code se normaliza a int (puede llegar como "200") para no caer fuera del rango.
+			try:
+				code = int(status_code) if status_code is not None else 0
+			except (TypeError, ValueError):
+				code = 0
+			if ok and code in (200, 201):
 				rs, cs = _extract_reconciliation_states(resp)
 				fiscal_status, _sync = derive_pac_reconciliation(rs, cs)
 				# fiscal_status None => no se cambia el estado fiscal. No se toca fm_uuid (el FFM ya
 				# lo tiene y la correlación estricta lo validó antes de llegar aquí).
-				return fiscal_status, status_code, ""
+				return fiscal_status, code, ""
 			# Respuesta no exitosa: no cambiar estado fiscal (el sync lo decide la lógica existente).
-			return None, status_code or 500, ""
+			return None, code or 500, ""
 
 		else:
 			# Otras operaciones (consulta, etc): no cambian estado fiscal

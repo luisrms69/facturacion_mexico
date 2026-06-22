@@ -12,6 +12,12 @@ from frappe.tests import IntegrationTestCase
 
 from facturacion_mexico.facturacion_fiscal.api import FiscalCorrelationError, PACResponseWriter
 
+# Identidades fiscales únicas por corrida (evita colisiones con registros residuales y cumple la
+# regla de IDs generados). El seed y el builder de respuesta comparten estas constantes para que la
+# correlación estricta pase; los tests de contradicción usan pares literales propios.
+_FA_ID = "FA-" + frappe.generate_hash()[:10]
+_UUID = "U-" + frappe.generate_hash()[:10]
+
 
 def _seed_si(*, fiscal_status="", ffm=None):
 	si = frappe.get_doc(
@@ -35,7 +41,7 @@ def _seed_si(*, fiscal_status="", ffm=None):
 	return si.name
 
 
-def _seed_ffm(sales_invoice, status, *, facturapi_id="FA-1", uuid="U-1", sync="pending"):
+def _seed_ffm(sales_invoice, status, *, facturapi_id=_FA_ID, uuid=_UUID, sync="pending"):
 	ffm = frappe.get_doc(
 		{
 			"doctype": "Factura Fiscal Mexico",
@@ -89,10 +95,10 @@ class TestWriterReconciliacion(IntegrationTestCase):
 		"""Ejecuta el writer con operation_type='reconciliacion'. raw = cuerpo del invoice del PAC."""
 		# get_invoice siempre trae id/uuid para que la correlación estricta pase (salvo en los
 		# tests de contradicción, que los sobreescriben).
-		raw_full = {"id": "FA-1", "uuid": "U-1", **raw}
+		raw_full = {"id": _FA_ID, "uuid": _UUID, **raw}
 		self.writer.write_pac_response(
 			si,
-			{"action": "reconciliacion", "facturapi_id": "FA-1"},
+			{"action": "reconciliacion", "facturapi_id": _FA_ID},
 			{"success": success, "status_code": status_code, "raw_response": raw_full},
 			"reconciliacion",
 			factura_fiscal_name=ffm,
