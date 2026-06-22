@@ -13,10 +13,10 @@
       
       
       
-        <link rel="prev" href="../0003-verificacion-configuracion-fiscal/">
+        <link rel="prev" href="../cancelar-cfdi/">
       
       
-        <link rel="next" href="../0005-workflow-configuracion-inicial-v2/">
+        <link rel="next" href="../complemento-pago/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -24,7 +24,7 @@
     
     
       
-        <title>MÓDULO 2 — VERIFICACIÓN FLUJO DE TIMBRADO CFDI - Facturación México - Documentación Técnica</title>
+        <title>Verificar estado en FacturAPI - Facturación México - Documentación Técnica</title>
       
     
     
@@ -90,7 +90,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#modulo-2-verificacion-flujo-de-timbrado-cfdi" class="md-skip">
+        <a href="#verificar-estado-en-facturapi" class="md-skip">
           Saltar a contenido
         </a>
       
@@ -128,7 +128,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              MÓDULO 2 — VERIFICACIÓN FLUJO DE TIMBRADO CFDI
+              Verificar estado en FacturAPI
             
           </span>
         </div>
@@ -240,11 +240,13 @@
         
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../usuario/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
           
   
   Guía de Usuario
@@ -258,12 +260,10 @@
         
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
+      <li class="md-tabs__item">
         <a href="../../tecnico/" class="md-tabs__link">
           
   
@@ -350,8 +350,10 @@
       
   
   
+    
   
   
+  
     
     
     
@@ -360,14 +362,12 @@
       
       
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
           <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
@@ -381,7 +381,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             Guía de Usuario
@@ -395,7 +395,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../usuario/" class="md-nav__link">
+      <a href="../" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -416,7 +416,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../usuario/getting-started/" class="md-nav__link">
+      <a href="../getting-started/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -437,7 +437,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../usuario/emitir-cfdi/" class="md-nav__link">
+      <a href="../emitir-cfdi/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -458,7 +458,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../usuario/cancelar-cfdi/" class="md-nav__link">
+      <a href="../cancelar-cfdi/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -476,10 +476,30 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../usuario/verificar-estado-facturapi/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Verificar estado en FacturAPI
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -488,6 +508,68 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#verificacion-manual-boton" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verificación manual (botón)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Verificación manual (botón)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#resultados-posibles" class="md-nav__link">
+    <span class="md-ellipsis">
+      Resultados posibles
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verificacion-automatica" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verificación automática
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#despliegue-administradores" class="md-nav__link">
+    <span class="md-ellipsis">
+      Despliegue (administradores)
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -500,7 +582,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../usuario/complemento-pago/" class="md-nav__link">
+      <a href="../complemento-pago/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -521,7 +603,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../usuario/cfdi-recibidos/" class="md-nav__link">
+      <a href="../cfdi-recibidos/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -542,7 +624,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../usuario/ereceipts/" class="md-nav__link">
+      <a href="../ereceipts/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -563,7 +645,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../usuario/addendas/" class="md-nav__link">
+      <a href="../addendas/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -584,7 +666,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../usuario/multisucursal/" class="md-nav__link">
+      <a href="../multisucursal/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -605,7 +687,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../usuario/troubleshooting/" class="md-nav__link">
+      <a href="../troubleshooting/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -630,8 +712,6 @@
       
   
   
-    
-  
   
   
     
@@ -642,12 +722,14 @@
       
       
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
         
           
           <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
@@ -661,7 +743,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             Técnico
@@ -777,8 +859,6 @@
                 
   
   
-    
-  
   
   
     
@@ -789,12 +869,14 @@
       
       
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_6" >
         
           
           <label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="">
@@ -808,7 +890,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_6_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_6_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_6">
             <span class="md-nav__icon md-icon"></span>
             ADRs
@@ -822,7 +904,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../" class="md-nav__link">
+      <a href="../../adr/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -843,7 +925,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0000-estado-real-pre-migracion/" class="md-nav__link">
+      <a href="../../adr/0000-estado-real-pre-migracion/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -864,7 +946,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0002-verificacion-arranque-v16/" class="md-nav__link">
+      <a href="../../adr/0002-verificacion-arranque-v16/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -885,7 +967,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0003-verificacion-configuracion-fiscal/" class="md-nav__link">
+      <a href="../../adr/0003-verificacion-configuracion-fiscal/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -903,30 +985,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    MÓDULO 2 — VERIFICACIÓN FLUJO DE TIMBRADO CFDI
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../adr/0004-verificacion-timbrado/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -935,80 +997,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Tabla de contenidos
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#resultados" class="md-nav__link">
-    <span class="md-ellipsis">
-      Resultados
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#detalle-sales-invoices-submitted" class="md-nav__link">
-    <span class="md-ellipsis">
-      Detalle: Sales Invoices submitted
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#detalle-metodos-whitelisted-en-timbrado_apipy" class="md-nav__link">
-    <span class="md-ellipsis">
-      Detalle: Métodos whitelisted en timbrado_api.py
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#advertencia-heredada-del-modulo-1" class="md-nav__link">
-    <span class="md-ellipsis">
-      Advertencia heredada del Módulo 1
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#listo-para-prueba-manual-si" class="md-nav__link">
-    <span class="md-ellipsis">
-      LISTO PARA PRUEBA MANUAL: Sí
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#siguiente-paso" class="md-nav__link">
-    <span class="md-ellipsis">
-      SIGUIENTE PASO
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1021,7 +1009,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0005-workflow-configuracion-inicial-v2/" class="md-nav__link">
+      <a href="../../adr/0005-workflow-configuracion-inicial-v2/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1042,7 +1030,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0005-workflow-configuracion-inicial/" class="md-nav__link">
+      <a href="../../adr/0005-workflow-configuracion-inicial/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1063,7 +1051,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0006-analisis-branches-wip/" class="md-nav__link">
+      <a href="../../adr/0006-analisis-branches-wip/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1084,7 +1072,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0007-analisis-checkout-e4/" class="md-nav__link">
+      <a href="../../adr/0007-analisis-checkout-e4/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1105,7 +1093,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0008-analisis-9-commits-wip/" class="md-nav__link">
+      <a href="../../adr/0008-analisis-9-commits-wip/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1126,7 +1114,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0009-checklist-estados-flujo-timbrado/" class="md-nav__link">
+      <a href="../../adr/0009-checklist-estados-flujo-timbrado/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1147,7 +1135,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0010-verificacion-post-cancelacion/" class="md-nav__link">
+      <a href="../../adr/0010-verificacion-post-cancelacion/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1168,7 +1156,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0011-diagnostico-sistema-tests/" class="md-nav__link">
+      <a href="../../adr/0011-diagnostico-sistema-tests/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1189,7 +1177,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0012-solucion-sistema-tests-v16/" class="md-nav__link">
+      <a href="../../adr/0012-solucion-sistema-tests-v16/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1210,7 +1198,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0013-arquitectura-sistema-cancelaciones-cfdi/" class="md-nav__link">
+      <a href="../../adr/0013-arquitectura-sistema-cancelaciones-cfdi/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1231,7 +1219,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0014-diagnostico-conectividad-si-ffm/" class="md-nav__link">
+      <a href="../../adr/0014-diagnostico-conectividad-si-ffm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1252,7 +1240,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0015-si-ffm-relationship-architecture/" class="md-nav__link">
+      <a href="../../adr/0015-si-ffm-relationship-architecture/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1273,7 +1261,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0016-reclasificacion-fiscal-payment-entry/" class="md-nav__link">
+      <a href="../../adr/0016-reclasificacion-fiscal-payment-entry/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1294,7 +1282,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0017-complemento-pago-mx-schema-normalizacion/" class="md-nav__link">
+      <a href="../../adr/0017-complemento-pago-mx-schema-normalizacion/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1315,7 +1303,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0018-ffm-status-fiscal-state-migration/" class="md-nav__link">
+      <a href="../../adr/0018-ffm-status-fiscal-state-migration/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1336,7 +1324,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0019-primera-implementacion-rc-v0.1/" class="md-nav__link">
+      <a href="../../adr/0019-primera-implementacion-rc-v0.1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1357,7 +1345,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0020-smoke-test-mvp-flujos-cancelacion/" class="md-nav__link">
+      <a href="../../adr/0020-smoke-test-mvp-flujos-cancelacion/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1378,7 +1366,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0021-fiscal-state-capa-ui-centralizada/" class="md-nav__link">
+      <a href="../../adr/0021-fiscal-state-capa-ui-centralizada/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1399,7 +1387,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0022-solucion-issue-112-reclasificacion-fiscal-pe/" class="md-nav__link">
+      <a href="../../adr/0022-solucion-issue-112-reclasificacion-fiscal-pe/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1420,7 +1408,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0023-venta-mostrador-cfdi-individual-rfc-generico/" class="md-nav__link">
+      <a href="../../adr/0023-venta-mostrador-cfdi-individual-rfc-generico/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1441,7 +1429,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0024-addendas-pre-timbrado-issue129/" class="md-nav__link">
+      <a href="../../adr/0024-addendas-pre-timbrado-issue129/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1462,7 +1450,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0025-notas-credito-cfdi-tipo-e-issue116/" class="md-nav__link">
+      <a href="../../adr/0025-notas-credito-cfdi-tipo-e-issue116/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1483,7 +1471,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0026-workspace-facturacion-mexico-issue120/" class="md-nav__link">
+      <a href="../../adr/0026-workspace-facturacion-mexico-issue120/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1504,7 +1492,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0027-migracion-facturacion-mx-a-facturacion-mexico/" class="md-nav__link">
+      <a href="../../adr/0027-migracion-facturacion-mx-a-facturacion-mexico/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1525,7 +1513,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0028-ffm-legacy-fields-audit/" class="md-nav__link">
+      <a href="../../adr/0028-ffm-legacy-fields-audit/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1546,7 +1534,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0029-facturapi-base-unitaria-ieps-cuota/" class="md-nav__link">
+      <a href="../../adr/0029-facturapi-base-unitaria-ieps-cuota/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1567,7 +1555,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0030-tablas-maestras-python-reglas-fiscales/" class="md-nav__link">
+      <a href="../../adr/0030-tablas-maestras-python-reglas-fiscales/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1588,7 +1576,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0031-migracion-settings-por-company/" class="md-nav__link">
+      <a href="../../adr/0031-migracion-settings-por-company/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1609,7 +1597,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0032-ereceipts-facturapi-arquitectura/" class="md-nav__link">
+      <a href="../../adr/0032-ereceipts-facturapi-arquitectura/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1630,7 +1618,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0033-factura-global-hardcodes/" class="md-nav__link">
+      <a href="../../adr/0033-factura-global-hardcodes/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1651,7 +1639,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0034-integridad-correlacion-ffm/" class="md-nav__link">
+      <a href="../../adr/0034-integridad-correlacion-ffm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1672,7 +1660,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0035-motor-reconciliacion-ffm/" class="md-nav__link">
+      <a href="../../adr/0035-motor-reconciliacion-ffm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1861,54 +1849,42 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#resultados" class="md-nav__link">
+  <a href="#verificacion-manual-boton" class="md-nav__link">
     <span class="md-ellipsis">
-      Resultados
+      Verificación manual (botón)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Verificación manual (botón)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#resultados-posibles" class="md-nav__link">
+    <span class="md-ellipsis">
+      Resultados posibles
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verificacion-automatica" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verificación automática
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#detalle-sales-invoices-submitted" class="md-nav__link">
+  <a href="#despliegue-administradores" class="md-nav__link">
     <span class="md-ellipsis">
-      Detalle: Sales Invoices submitted
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#detalle-metodos-whitelisted-en-timbrado_apipy" class="md-nav__link">
-    <span class="md-ellipsis">
-      Detalle: Métodos whitelisted en timbrado_api.py
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#advertencia-heredada-del-modulo-1" class="md-nav__link">
-    <span class="md-ellipsis">
-      Advertencia heredada del Módulo 1
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#listo-para-prueba-manual-si" class="md-nav__link">
-    <span class="md-ellipsis">
-      LISTO PARA PRUEBA MANUAL: Sí
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#siguiente-paso" class="md-nav__link">
-    <span class="md-ellipsis">
-      SIGUIENTE PASO
+      Despliegue (administradores)
     </span>
   </a>
   
@@ -1929,163 +1905,90 @@
                   
 
 
-<h1 id="modulo-2-verificacion-flujo-de-timbrado-cfdi">MÓDULO 2 — VERIFICACIÓN FLUJO DE TIMBRADO CFDI<a class="headerlink" href="#modulo-2-verificacion-flujo-de-timbrado-cfdi" title="Permanent link">&para;</a></h1>
-<p>==================================================
-Fecha: 2026-05-01<br />
-Site: facturacion-v16.dev<br />
-Bench: /home/erpnext/frappe-bench-v16  </p>
+<h1 id="verificar-estado-en-facturapi">Verificar estado en FacturAPI<a class="headerlink" href="#verificar-estado-en-facturapi" title="Permanent link">&para;</a></h1>
+<p>El sistema mantiene sincronizado el estado de cada <strong>Factura Fiscal Mexico (FFM)</strong> con FacturAPI
+de dos formas: <strong>automáticamente</strong> (una revisión periódica) y <strong>manualmente</strong> (un botón en el FFM).
+En ambos casos el sistema <strong>solo consulta</strong> a FacturAPI: nunca timbra, cancela ni modifica la venta.</p>
 <hr />
-<h2 id="resultados">Resultados<a class="headerlink" href="#resultados" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>#</th>
-<th>Check</th>
-<th>Estado</th>
-<th>Detalle</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>1</td>
-<td>Sales Invoices submitted disponibles</td>
-<td>✓</td>
-<td>200 submitted — 60 sin timbrar, 0 timbradas, 0 canceladas</td>
-</tr>
-<tr>
-<td>2</td>
-<td>FacturAPI sandbox responde</td>
-<td>✓</td>
-<td>HTTP 200 — <code>{"success": true, "message": "Conexión exitosa con FacturAPI"}</code></td>
-</tr>
-<tr>
-<td>3</td>
-<td>DocType Factura Fiscal Mexico carga</td>
-<td>✓</td>
-<td>64 fields</td>
-</tr>
-<tr>
-<td>4</td>
-<td>Método <code>timbrar_factura</code> existe</td>
-<td>✓</td>
-<td><code>facturacion_mexico.facturacion_fiscal.timbrado_api.timbrar_factura</code> — <code>@frappe.whitelist</code></td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2 id="detalle-sales-invoices-submitted">Detalle: Sales Invoices submitted<a class="headerlink" href="#detalle-sales-invoices-submitted" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Estado fiscal</th>
-<th>Cantidad</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Sin timbrar (<code>fm_fiscal_status</code> vacío)</td>
-<td><strong>60</strong></td>
-</tr>
-<tr>
-<td>Timbradas</td>
-<td>0</td>
-</tr>
-<tr>
-<td>Canceladas</td>
-<td>0</td>
-</tr>
-<tr>
-<td><strong>Total submitted</strong></td>
-<td><strong>200</strong></td>
-</tr>
-</tbody>
-</table>
-<p>Muestra de las 3 más recientes (todas del mismo cliente, sin <code>fm_fiscal_status</code>):</p>
-<table>
-<thead>
-<tr>
-<th>Factura</th>
-<th>Cliente</th>
-<th>Total</th>
-<th>Fiscal Status</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>ACC-SINV-2025-01676</td>
-<td>CONCESIONARIA VUELA COMPAÑIA DE AVIACION</td>
-<td>8,020.82</td>
-<td>—</td>
-</tr>
-<tr>
-<td>ACC-SINV-2025-01675</td>
-<td>CONCESIONARIA VUELA COMPAÑIA DE AVIACION</td>
-<td>8,020.82</td>
-<td>—</td>
-</tr>
-<tr>
-<td>ACC-SINV-2025-01674</td>
-<td>CONCESIONARIA VUELA COMPAÑIA DE AVIACION</td>
-<td>8,020.82</td>
-<td>—</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2 id="detalle-metodos-whitelisted-en-timbrado_apipy">Detalle: Métodos whitelisted en timbrado_api.py<a class="headerlink" href="#detalle-metodos-whitelisted-en-timbrado_apipy" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Método</th>
-<th>Descripción</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>timbrar_factura(sales_invoice)</code></td>
-<td>Timbrado principal</td>
-</tr>
-<tr>
-<td><code>cancelar_factura(sales_invoice, uuid, ffm_name, motivo, substitution_uuid)</code></td>
-<td>Cancelación</td>
-</tr>
-<tr>
-<td><code>create_substitution_si(si_name)</code></td>
-<td>Refacturación (sustitución)</td>
-</tr>
-<tr>
-<td><code>get_sat_cancellation_motives()</code></td>
-<td>Catálogo de motivos SAT</td>
-</tr>
-<tr>
-<td><code>test_connection()</code></td>
-<td>Prueba de conectividad al PAC</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2 id="advertencia-heredada-del-modulo-1">Advertencia heredada del Módulo 1<a class="headerlink" href="#advertencia-heredada-del-modulo-1" title="Permanent link">&para;</a></h2>
-<p>21 de 37 ítems no tienen <code>fm_producto_servicio_sat</code> asignado. Si alguna de las 60
-facturas sin timbrar usa esos ítems, el proceso fallará en la construcción del XML
-por <code>ClaveProdServ</code> vacía. Verificar antes de la primera prueba qué ítems usan las
-facturas candidatas.</p>
-<hr />
-<h2 id="listo-para-prueba-manual-si">LISTO PARA PRUEBA MANUAL: <strong>Sí</strong><a class="headerlink" href="#listo-para-prueba-manual-si" title="Permanent link">&para;</a></h2>
-<p>Toda la infraestructura de timbrado está operativa:
-- FacturAPI sandbox conecta y autentica correctamente
-- El método <code>timbrar_factura</code> existe y está expuesto como whitelist
-- El DocType <code>Factura Fiscal Mexico</code> carga con 64 campos
-- Hay 60 facturas submitted disponibles como candidatas</p>
-<p><strong>Precaución antes de ejecutar:</strong> confirmar que la factura de prueba elegida
-no usa ítems sin código SAT (ver Módulo 1 — 21 ítems pendientes).</p>
-<hr />
-<h2 id="siguiente-paso">SIGUIENTE PASO<a class="headerlink" href="#siguiente-paso" title="Permanent link">&para;</a></h2>
+<h2 id="verificacion-manual-boton">Verificación manual (botón)<a class="headerlink" href="#verificacion-manual-boton" title="Permanent link">&para;</a></h2>
 <ol>
-<li>Elegir una factura de prueba cuyo(s) ítem(s) tengan <code>fm_producto_servicio_sat</code> configurado</li>
-<li>Ejecutar <code>timbrar_factura("&lt;nombre_factura&gt;")</code> desde consola o UI</li>
-<li>Verificar que se crea el documento <code>Factura Fiscal Mexico</code> con UUID y XML adjunto</li>
-<li>Continuar con <strong>Módulo 3: Cancelación y flujo de errores</strong></li>
+<li>Abre la <strong>Factura Fiscal Mexico</strong> que quieres revisar.</li>
+<li>En la barra de botones, entra al grupo <strong>Comprobantes</strong>.</li>
+<li>Pulsa <strong>"Verificar estado en FacturAPI"</strong>.</li>
 </ol>
+<p>El botón <strong>solo aparece</strong> cuando la FFM ya está <strong>guardada</strong> y tiene un comprobante en FacturAPI
+(<code>facturapi_id</code>). Al pulsarlo, el sistema consulta el estado real en FacturAPI, actualiza la FFM si
+corresponde y <strong>recarga el documento</strong> para mostrar el estado al día.</p>
+<blockquote>
+<p>El botón <strong>no cancela la Sales Invoice</strong>. Si la verificación confirma que el CFDI quedó
+<strong>CANCELADO</strong>, después puedes cancelar la Sales Invoice con el procedimiento normal.</p>
+</blockquote>
+<h3 id="resultados-posibles">Resultados posibles<a class="headerlink" href="#resultados-posibles" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Mensaje</th>
+<th>Significa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Sin cambios</strong></td>
+<td>El estado local ya coincidía con FacturAPI.</td>
+</tr>
+<tr>
+<td><strong>Estado actualizado</strong></td>
+<td>La FFM se actualizó con el estado real del PAC.</td>
+</tr>
+<tr>
+<td><strong>Cancelación pendiente</strong></td>
+<td>La cancelación sigue en proceso (esperando al receptor).</td>
+</tr>
+<tr>
+<td><strong>Cancelación aceptada</strong></td>
+<td>El CFDI quedó cancelado.</td>
+</tr>
+<tr>
+<td><strong>Cancelación rechazada</strong></td>
+<td>El receptor rechazó la cancelación; el CFDI sigue vigente.</td>
+</tr>
+<tr>
+<td><strong>Cancelación expirada</strong></td>
+<td>La cancelación no procedió; el CFDI sigue vigente.</td>
+</tr>
+<tr>
+<td><strong>Verificación ya en proceso</strong></td>
+<td>Otra revisión (manual o automática) ya está consultando esta FFM. Espera un momento.</td>
+</tr>
+<tr>
+<td><strong>Error de reconciliación</strong></td>
+<td>No se pudo confirmar el estado (problema de conexión o de validación). Reintenta más tarde o reporta a soporte.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="verificacion-automatica">Verificación automática<a class="headerlink" href="#verificacion-automatica" title="Permanent link">&para;</a></h2>
+<p>El sistema revisa periódicamente las FFM que necesitan seguimiento (las que tienen sincronización
+<strong>pendiente</strong> o una <strong>cancelación en curso</strong>) y las pone al día sin intervención. No requiere acción
+del usuario.</p>
+<hr />
+<h2 id="despliegue-administradores">Despliegue (administradores)<a class="headerlink" href="#despliegue-administradores" title="Permanent link">&para;</a></h2>
+<p>La verificación automática se registra al desplegar la app:</p>
+<div class="highlight"><pre><span></span><code>bench<span class="w"> </span>--site<span class="w"> </span>&lt;site&gt;<span class="w"> </span>migrate
+bench<span class="w"> </span>build<span class="w"> </span>--app<span class="w"> </span>facturacion_mexico
+bench<span class="w"> </span>--site<span class="w"> </span>&lt;site&gt;<span class="w"> </span>clear-cache
+</code></pre></div>
+<p>⚠️ <strong>Advertencia importante:</strong></p>
+<ul>
+<li><code>migrate</code> <strong>registra la tarea automática</strong> (<code>hourly_long</code>).</li>
+<li>Con el <strong>scheduler habilitado</strong>, el motor puede <strong>empezar a ejecutar consultas reales (GET)
+  contra FacturAPI</strong>.</li>
+<li>Por eso, <strong>desplegar y habilitar el scheduler solo cuando se autorice iniciar ese tráfico</strong> hacia
+  FacturAPI.</li>
+<li><strong>No ejecutar una corrida real contra FacturAPI durante tareas de desarrollo o pruebas.</strong></li>
+</ul>
+<p><code>bench build</code> es necesario para que el botón <strong>"Verificar estado en FacturAPI"</strong> quede disponible
+en la interfaz.</p>
 
 
 

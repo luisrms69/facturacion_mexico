@@ -13,10 +13,10 @@
       
       
       
-        <link rel="prev" href="../0006-analisis-branches-wip/">
+        <link rel="prev" href="../0034-integridad-correlacion-ffm/">
       
       
-        <link rel="next" href="../0008-analisis-9-commits-wip/">
+        <link rel="next" href="../../referencia/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -24,7 +24,7 @@
     
     
       
-        <title>ADR 0007 — ANÁLISIS DE RIESGO: CHECKOUT A feature/e4-ieps-on-item-quantity - Facturación México - Documentación Técnica</title>
+        <title>ADR-0035 — Motor de reconciliación FFM ↔ FacturAPI - Facturación México - Documentación Técnica</title>
       
     
     
@@ -90,7 +90,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#adr-0007-analisis-de-riesgo-checkout-a-featuree4-ieps-on-item-quantity" class="md-skip">
+        <a href="#adr-0035-motor-de-reconciliacion-ffm-facturapi" class="md-skip">
           Saltar a contenido
         </a>
       
@@ -128,7 +128,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              ADR 0007 — ANÁLISIS DE RIESGO: CHECKOUT A feature/e4-ieps-on-item-quantity
+              ADR-0035 — Motor de reconciliación FFM ↔ FacturAPI
             
           </span>
         </div>
@@ -987,30 +987,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    ADR 0007 — ANÁLISIS DE RIESGO: CHECKOUT A feature/e4-ieps-on-item-quantity
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../0007-analisis-checkout-e4/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1019,260 +999,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Tabla de contenidos
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#veredicto-rapido" class="md-nav__link">
-    <span class="md-ellipsis">
-      VEREDICTO RÁPIDO
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#1-patch-de-migracion" class="md-nav__link">
-    <span class="md-ellipsis">
-      1. PATCH DE MIGRACIÓN
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="1. PATCH DE MIGRACIÓN">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#es-idempotente" class="md-nav__link">
-    <span class="md-ellipsis">
-      ¿Es idempotente?
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#puede-romper-datos" class="md-nav__link">
-    <span class="md-ellipsis">
-      ¿Puede romper datos?
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#precondicion-critica" class="md-nav__link">
-    <span class="md-ellipsis">
-      Precondición crítica
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2-nuevos-doctypes" class="md-nav__link">
-    <span class="md-ellipsis">
-      2. NUEVOS DOCTYPES
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="2. NUEVOS DOCTYPES">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#configuracion-fiscal-mexico" class="md-nav__link">
-    <span class="md-ellipsis">
-      Configuracion Fiscal Mexico
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#ieps-cuota-sat" class="md-nav__link">
-    <span class="md-ellipsis">
-      Ieps Cuota SAT
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#mapeo-cuenta-fiscal-mexico" class="md-nav__link">
-    <span class="md-ellipsis">
-      Mapeo Cuenta Fiscal Mexico
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#3-diferencias-en-hookspy" class="md-nav__link">
-    <span class="md-ellipsis">
-      3. DIFERENCIAS EN HOOKS.PY
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="3. DIFERENCIAS EN HOOKS.PY">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#lo-que-cambia-entre-main-y-e4" class="md-nav__link">
-    <span class="md-ellipsis">
-      Lo que cambia entre main y e4
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#4-los-9-commits-wip" class="md-nav__link">
-    <span class="md-ellipsis">
-      4. LOS 9 COMMITS WIP
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="4. LOS 9 COMMITS WIP">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#riesgo-del-commit-42-wip-itt-especifico-por-item" class="md-nav__link">
-    <span class="md-ellipsis">
-      Riesgo del commit 42 (WIP ITT específico por item)
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#5-timbrado_apipy" class="md-nav__link">
-    <span class="md-ellipsis">
-      5. TIMBRADO_API.PY
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#6-riesgo-operativo-principal" class="md-nav__link">
-    <span class="md-ellipsis">
-      6. RIESGO OPERATIVO PRINCIPAL
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="6. RIESGO OPERATIVO PRINCIPAL">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#validate-hook-sobre-sales-invoices-con-items-sin-codigo-sat" class="md-nav__link">
-    <span class="md-ellipsis">
-      Validate hook sobre Sales Invoices con items sin código SAT
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#assign_itt_to_groups-en-after_migrate" class="md-nav__link">
-    <span class="md-ellipsis">
-      assign_itt_to_groups en after_migrate
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#7-resumen-de-riesgos" class="md-nav__link">
-    <span class="md-ellipsis">
-      7. RESUMEN DE RIESGOS
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#8-recomendacion" class="md-nav__link">
-    <span class="md-ellipsis">
-      8. RECOMENDACIÓN
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="8. RECOMENDACIÓN">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#opcion-a-checkout-a-fixieps-tabaco-dual-campos-tax-breakup-commit-33-recomendada" class="md-nav__link">
-    <span class="md-ellipsis">
-      Opción A — Checkout a fix/ieps-tabaco-dual-campos-tax-breakup (commit 33) ✅ RECOMENDADA
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#opcion-b-checkout-a-featuree4-ieps-on-item-quantity-completo-commit-42" class="md-nav__link">
-    <span class="md-ellipsis">
-      Opción B — Checkout a feature/e4-ieps-on-item-quantity completo (commit 42) ⚠️
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#9-orden-correcto-de-operaciones" class="md-nav__link">
-    <span class="md-ellipsis">
-      9. ORDEN CORRECTO DE OPERACIONES
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1849,10 +1575,30 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../0035-motor-reconciliacion-ffm/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    ADR-0035 — Motor de reconciliación FFM ↔ FacturAPI
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -1861,6 +1607,176 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-contexto-y-problema" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Contexto y problema
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Decisión
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Decisión">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-alcance-inicial" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.1 Alcance inicial
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-operacion-contra-el-pac" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.2 Operación contra el PAC
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-identidad-y-correlacion-estricta" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.3 Identidad y correlación estricta
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-helper-unico-de-mapeo" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.4 Helper único de mapeo
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#25-semantica-de-campos" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.5 Semántica de campos
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#26-persistencia-y-response-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.6 Persistencia y Response Log
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#27-selector-lote-y-scheduler" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.7 Selector, lote y scheduler
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#28-verificacion-manual" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.8 Verificación manual
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#29-concurrencia-locks" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.9 Concurrencia (locks)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#210-sin-configuracion-campos-ni-doctypes-nuevos" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.10 Sin configuración, campos ni DocTypes nuevos
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-consecuencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Consecuencias
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-riesgos-operativos-y-despliegue" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Riesgos operativos y despliegue
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-alternativas-descartadas" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Alternativas descartadas
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-despliegue-resumen" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Despliegue (resumen)
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -2041,46 +1957,109 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#veredicto-rapido" class="md-nav__link">
+  <a href="#1-contexto-y-problema" class="md-nav__link">
     <span class="md-ellipsis">
-      VEREDICTO RÁPIDO
+      1. Contexto y problema
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#1-patch-de-migracion" class="md-nav__link">
+  <a href="#2-decision" class="md-nav__link">
     <span class="md-ellipsis">
-      1. PATCH DE MIGRACIÓN
+      2. Decisión
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="1. PATCH DE MIGRACIÓN">
+    <nav class="md-nav" aria-label="2. Decisión">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#es-idempotente" class="md-nav__link">
+  <a href="#21-alcance-inicial" class="md-nav__link">
     <span class="md-ellipsis">
-      ¿Es idempotente?
+      2.1 Alcance inicial
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#puede-romper-datos" class="md-nav__link">
+  <a href="#22-operacion-contra-el-pac" class="md-nav__link">
     <span class="md-ellipsis">
-      ¿Puede romper datos?
+      2.2 Operación contra el PAC
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#precondicion-critica" class="md-nav__link">
+  <a href="#23-identidad-y-correlacion-estricta" class="md-nav__link">
     <span class="md-ellipsis">
-      Precondición crítica
+      2.3 Identidad y correlación estricta
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-helper-unico-de-mapeo" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.4 Helper único de mapeo
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#25-semantica-de-campos" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.5 Semántica de campos
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#26-persistencia-y-response-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.6 Persistencia y Response Log
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#27-selector-lote-y-scheduler" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.7 Selector, lote y scheduler
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#28-verificacion-manual" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.8 Verificación manual
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#29-concurrencia-locks" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.9 Concurrencia (locks)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#210-sin-configuracion-campos-ni-doctypes-nuevos" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.10 Sin configuración, campos ni DocTypes nuevos
     </span>
   </a>
   
@@ -2092,183 +2071,36 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-nuevos-doctypes" class="md-nav__link">
+  <a href="#3-consecuencias" class="md-nav__link">
     <span class="md-ellipsis">
-      2. NUEVOS DOCTYPES
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="2. NUEVOS DOCTYPES">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#configuracion-fiscal-mexico" class="md-nav__link">
-    <span class="md-ellipsis">
-      Configuracion Fiscal Mexico
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#ieps-cuota-sat" class="md-nav__link">
-    <span class="md-ellipsis">
-      Ieps Cuota SAT
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#mapeo-cuenta-fiscal-mexico" class="md-nav__link">
-    <span class="md-ellipsis">
-      Mapeo Cuenta Fiscal Mexico
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#3-diferencias-en-hookspy" class="md-nav__link">
-    <span class="md-ellipsis">
-      3. DIFERENCIAS EN HOOKS.PY
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="3. DIFERENCIAS EN HOOKS.PY">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#lo-que-cambia-entre-main-y-e4" class="md-nav__link">
-    <span class="md-ellipsis">
-      Lo que cambia entre main y e4
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#4-los-9-commits-wip" class="md-nav__link">
-    <span class="md-ellipsis">
-      4. LOS 9 COMMITS WIP
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="4. LOS 9 COMMITS WIP">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#riesgo-del-commit-42-wip-itt-especifico-por-item" class="md-nav__link">
-    <span class="md-ellipsis">
-      Riesgo del commit 42 (WIP ITT específico por item)
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#5-timbrado_apipy" class="md-nav__link">
-    <span class="md-ellipsis">
-      5. TIMBRADO_API.PY
+      3. Consecuencias
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#6-riesgo-operativo-principal" class="md-nav__link">
+  <a href="#4-riesgos-operativos-y-despliegue" class="md-nav__link">
     <span class="md-ellipsis">
-      6. RIESGO OPERATIVO PRINCIPAL
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="6. RIESGO OPERATIVO PRINCIPAL">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#validate-hook-sobre-sales-invoices-con-items-sin-codigo-sat" class="md-nav__link">
-    <span class="md-ellipsis">
-      Validate hook sobre Sales Invoices con items sin código SAT
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#assign_itt_to_groups-en-after_migrate" class="md-nav__link">
-    <span class="md-ellipsis">
-      assign_itt_to_groups en after_migrate
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#7-resumen-de-riesgos" class="md-nav__link">
-    <span class="md-ellipsis">
-      7. RESUMEN DE RIESGOS
+      4. Riesgos operativos y despliegue
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#8-recomendacion" class="md-nav__link">
+  <a href="#5-alternativas-descartadas" class="md-nav__link">
     <span class="md-ellipsis">
-      8. RECOMENDACIÓN
+      5. Alternativas descartadas
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="8. RECOMENDACIÓN">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#opcion-a-checkout-a-fixieps-tabaco-dual-campos-tax-breakup-commit-33-recomendada" class="md-nav__link">
-    <span class="md-ellipsis">
-      Opción A — Checkout a fix/ieps-tabaco-dual-campos-tax-breakup (commit 33) ✅ RECOMENDADA
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#opcion-b-checkout-a-featuree4-ieps-on-item-quantity-completo-commit-42" class="md-nav__link">
-    <span class="md-ellipsis">
-      Opción B — Checkout a feature/e4-ieps-on-item-quantity completo (commit 42) ⚠️
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#9-orden-correcto-de-operaciones" class="md-nav__link">
+  <a href="#6-despliegue-resumen" class="md-nav__link">
     <span class="md-ellipsis">
-      9. ORDEN CORRECTO DE OPERACIONES
+      6. Despliegue (resumen)
     </span>
   </a>
   
@@ -2289,349 +2121,166 @@
                   
 
 
-<h1 id="adr-0007-analisis-de-riesgo-checkout-a-featuree4-ieps-on-item-quantity">ADR 0007 — ANÁLISIS DE RIESGO: CHECKOUT A feature/e4-ieps-on-item-quantity<a class="headerlink" href="#adr-0007-analisis-de-riesgo-checkout-a-featuree4-ieps-on-item-quantity" title="Permanent link">&para;</a></h1>
-<p>==============================================================================
-Fecha: 2026-05-01
-Site analizado: facturacion-v16.dev (datos reales migrados)
-Branch actual: main
-Branch objetivo: feature/e4-ieps-on-item-quantity (42 commits sobre main)</p>
-<hr />
-<h2 id="veredicto-rapido">VEREDICTO RÁPIDO<a class="headerlink" href="#veredicto-rapido" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Pregunta</th>
-<th>Respuesta</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>¿Riesgo de pérdida de datos?</td>
-<td><strong>NO</strong> — ningún cambio sobreescribe ni elimina datos existentes</td>
-</tr>
-<tr>
-<td>¿Riesgo operativo al editar SIs?</td>
-<td><strong>SÍ</strong> — validate hook nuevo bloquea SIs con items sin código SAT</td>
-</tr>
-<tr>
-<td>¿Checkout a e4 completo es seguro?</td>
-<td><strong>CONDICIONAL</strong> — los 9 commits WIP incluyen refactoring incompleto</td>
-</tr>
-<tr>
-<td>¿Recomendación?</td>
-<td><strong>Usar <code>fix/ieps-tabaco-dual-campos-tax-breakup</code> (commit 33)</strong></td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2 id="1-patch-de-migracion">1. PATCH DE MIGRACIÓN<a class="headerlink" href="#1-patch-de-migracion" title="Permanent link">&para;</a></h2>
-<p><strong>Archivo:</strong> <code>patches/v1_0/migrate_customer_tax_category_to_fm_tax_regime.py</code></p>
-<h3 id="es-idempotente">¿Es idempotente?<a class="headerlink" href="#es-idempotente" title="Permanent link">&para;</a></h3>
-<p><strong>Sí, explícitamente diseñado para ello.</strong> El patch tiene tres casos mutuamente excluyentes:</p>
-<table>
-<thead>
-<tr>
-<th>Caso</th>
-<th>Condición</th>
-<th>Acción</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Ya migrado</td>
-<td><code>tax_category == fm_tax_regime</code></td>
-<td>No hace nada (<code>already_equal += 1</code>)</td>
-</tr>
-<tr>
-<td>Migrar</td>
-<td><code>fm_tax_regime</code> vacío</td>
-<td>Copia sin sobreescribir</td>
-</tr>
-<tr>
-<td>Conflicto</td>
-<td>Ambos tienen valores distintos</td>
-<td><strong>No toca nada</strong>, reporta <code>mismatch</code></td>
-</tr>
-</tbody>
-</table>
-<p>La Fase 2 (limpieza) solo vacía <code>tax_category</code> cuando el destino quedó idéntico. Si se ejecuta dos veces, en la segunda pasada todos los registros caen en Caso 1 → cero operaciones.</p>
-<h3 id="puede-romper-datos">¿Puede romper datos?<a class="headerlink" href="#puede-romper-datos" title="Permanent link">&para;</a></h3>
-<p><strong>No.</strong> El único escenario problemático es el Caso 3 (conflicto): un Customer que ya tenía <code>fm_tax_regime</code> con un valor distinto a <code>tax_category</code> queda sin migrar y el patch lo reporta. No hay sobreescritura silenciosa.</p>
-<h3 id="precondicion-critica">Precondición crítica<a class="headerlink" href="#precondicion-critica" title="Permanent link">&para;</a></h3>
-<p>El patch verifica con <code>_exists_custom_field("Customer", "fm_tax_regime")</code> antes de hacer cualquier cosa. Si el fixture no aplicó el campo, el patch aborta limpiamente con <code>frappe.throw</code>. No puede correrse en vacío.</p>
-<p><strong>Con el site actual (19 customers con RFC):</strong> el patch correrá en lotes de 500, verificará si algún Customer tiene <code>tax_category</code> poblado, y migrará o reportará conflicto. Tiempo estimado: bajo un segundo.</p>
-<hr />
-<h2 id="2-nuevos-doctypes">2. NUEVOS DOCTYPES<a class="headerlink" href="#2-nuevos-doctypes" title="Permanent link">&para;</a></h2>
-<h3 id="configuracion-fiscal-mexico">Configuracion Fiscal Mexico<a class="headerlink" href="#configuracion-fiscal-mexico" title="Permanent link">&para;</a></h3>
+<h1 id="adr-0035-motor-de-reconciliacion-ffm-facturapi">ADR-0035 — Motor de reconciliación FFM ↔ FacturAPI<a class="headerlink" href="#adr-0035-motor-de-reconciliacion-ffm-facturapi" title="Permanent link">&para;</a></h1>
 <ul>
-<li><strong>autoname:</strong> <code>format:CFM-{company}</code> → un registro por empresa</li>
-<li><strong>No es Single:</strong> tabla separada creada vacía en el migrate</li>
-<li><strong>Campo obligatorio real:</strong> <code>company</code> (Link) y <code>mapeo_cuentas</code> (Table child)</li>
-<li><strong>¿Toca datos existentes al crearse?</strong> No. La tabla <code>tabConfiguracion Fiscal Mexico</code> se crea vacía.</li>
-<li><strong>Dependencia en código:</strong> <code>sales_invoice_ieps.py</code> la consulta con <code>frappe.db.exists(...)</code> — si no existe el doc, retorna <code>False</code> y el código decide si continúa o falla. <strong>PERO</strong> todos los hooks de <code>sales_invoice_ieps.py</code> están comentados en <code>e4</code> (ver sección 3), así que nunca se llega a ese código en esta rama.</li>
+<li><strong>Estado:</strong> Propuesto</li>
+<li><strong>Fecha:</strong> 2026-06-21</li>
+<li><strong>Rama:</strong> <code>feat/motor-reconciliacion-ffm</code></li>
+<li><strong>Relacionado:</strong> [[0034-integridad-correlacion-ffm]] (integridad y correlación del FFM)</li>
 </ul>
-<h3 id="ieps-cuota-sat">Ieps Cuota SAT<a class="headerlink" href="#ieps-cuota-sat" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>No Single</strong>, autoname por naming_series</li>
-<li>Tabla vacía al crear. Campos requeridos: <code>company</code>, <code>clave_prod_serv</code>, <code>cuota</code>, <code>vigencia_desde</code></li>
-<li>No tiene ningún hook ni evento que se dispare sobre datos existentes</li>
-<li>Se usaría cuando el usuario registre cuotas IEPS (tabaco, combustibles, etc.)</li>
-</ul>
-<h3 id="mapeo-cuenta-fiscal-mexico">Mapeo Cuenta Fiscal Mexico<a class="headerlink" href="#mapeo-cuenta-fiscal-mexico" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Child table de <code>Configuracion Fiscal Mexico</code></li>
-<li>Se crea vacío con el migrate</li>
-<li>Sin impacto en datos existentes</li>
-</ul>
-<p><strong>Conclusión sobre DocTypes nuevos:</strong> Los 3 crean tablas vacías. Zero impacto destructivo.</p>
 <hr />
-<h2 id="3-diferencias-en-hookspy">3. DIFERENCIAS EN HOOKS.PY<a class="headerlink" href="#3-diferencias-en-hookspy" title="Permanent link">&para;</a></h2>
-<h3 id="lo-que-cambia-entre-main-y-e4">Lo que cambia entre main y e4<a class="headerlink" href="#lo-que-cambia-entre-main-y-e4" title="Permanent link">&para;</a></h3>
-<p><strong><code>after_migrate</code> — diferencia crítica:</strong></p>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>main</th>
-<th>e4</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>after_migrate</code></td>
-<td>solo <code>apply_customization</code></td>
-<td><code>apply_customization</code> + <strong><code>assign_itt_to_groups</code></strong></td>
-</tr>
-</tbody>
-</table>
-<p><code>assign_itt_to_groups</code> se ejecuta <strong>automáticamente</strong> en cada <code>bench migrate</code>. Con los 21 Item Groups del site y los 37 items existentes, este job asigna ITT (Item Tax Templates) a grupos de items automáticamente. <strong>Riesgo:</strong> puede modificar las plantillas de impuestos en los Item Groups/Items existentes.</p>
-<p><strong><code>doc_events["Sales Invoice"]</code> — diferencia importante:</strong></p>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>main</th>
-<th>e4</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Sales Invoice hooks</td>
-<td>No existe (comentado)</td>
-<td><code>before_validate</code> + <code>validate</code> activos</td>
-</tr>
-</tbody>
-</table>
-<p>En main no hay hooks de Sales Invoice. En e4, cada vez que se edita o guarda una SI, se ejecutan:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># before_validate:</span>
-<span class="n">sales_invoice_automated_tax</span><span class="o">.</span><span class="n">before_validate</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
-  <span class="err">→</span> <span class="n">detecta</span> <span class="n">branch</span><span class="p">,</span> <span class="n">asigna</span> <span class="n">STCT</span> <span class="n">automáticamente</span>
-  <span class="err">→</span> <span class="n">llama</span> <span class="n">_find_stct_by_variant</span><span class="p">()</span> <span class="n">que</span> <span class="n">busca</span> <span class="n">Item</span> <span class="n">Tax</span> <span class="n">Templates</span> <span class="n">por</span> <span class="n">nombre</span>
-  <span class="err">→</span> <span class="n">si</span> <span class="n">no</span> <span class="n">encuentra</span> <span class="n">STCT</span> <span class="err">→</span> <span class="n">frappe</span><span class="o">.</span><span class="n">throw</span><span class="p">()</span> <span class="p">[</span><span class="n">ver</span> <span class="n">riesgo</span> <span class="n">abajo</span><span class="p">]</span>
-
-<span class="c1"># validate:</span>
-<span class="n">sales_invoice_automated_tax</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
-  <span class="err">→</span> <span class="n">verifica</span> <span class="n">que</span> <span class="n">cada</span> <span class="n">item</span> <span class="n">tenga</span> <span class="n">fm_producto_servicio_sat</span>
-  <span class="err">→</span> <span class="n">si</span> <span class="n">algún</span> <span class="n">item</span> <span class="n">no</span> <span class="n">tiene</span> <span class="n">código</span> <span class="n">SAT</span> <span class="err">→</span> <span class="n">frappe</span><span class="o">.</span><span class="n">throw</span><span class="p">(</span><span class="s2">&quot;Línea N sin código SAT...&quot;</span><span class="p">)</span>
+<h2 id="1-contexto-y-problema">1. Contexto y problema<a class="headerlink" href="#1-contexto-y-problema" title="Permanent link">&para;</a></h2>
+<p>Tras el bloque de integridad (ADR-0034), el estado local de una <code>Factura Fiscal Mexico</code> (FFM)
+puede <strong>divergir</strong> del estado real en FacturAPI/SAT por causas históricas o respuestas inconclusas:</p>
+<ul>
+<li>~70 FFM <code>TIMBRADO</code> con <code>fm_sync_status="pending"</code> (residuo del bug de doble FFM): ya tienen
+  <code>fm_uuid</code> y <code>facturapi_id</code> —están timbrados ante el PAC— pero el flag local quedó en <code>pending</code>.</li>
+<li>Cancelaciones en <code>PENDIENTE_CANCELACION</code> cuyo desenlace (aceptación/rechazo/expiración) ocurre
+  más tarde y nadie vuelve a consultar.</li>
+</ul>
+<p>No existía un proceso que <strong>consultara el PAC y alineara el estado local</strong>. ADR-0034 declaró
+expresamente que el motor de reconciliación NO formaba parte de ese bloque.</p>
+<h2 id="2-decision">2. Decisión<a class="headerlink" href="#2-decision" title="Permanent link">&para;</a></h2>
+<p>Implementar un motor que <strong>consulta</strong> FacturAPI por <strong>GET</strong> y reconcilia el estado local del FFM,
+reutilizando la infraestructura de ADR-0034 (correlación estricta, writer, Response Log).</p>
+<p><strong>Principio rector:</strong> el PAC es la fuente de verdad. El motor <strong>solo lee</strong>. Nunca timbra, cancela
+ni sustituye CFDI, y nunca cancela la Sales Invoice.</p>
+<h3 id="21-alcance-inicial">2.1 Alcance inicial<a class="headerlink" href="#21-alcance-inicial" title="Permanent link">&para;</a></h3>
+<p>Selector acotado a los FFM que necesitan seguimiento:</p>
+<div class="highlight"><pre><span></span><code>facturapi_id != &#39;&#39;  AND  (fm_sync_status = &#39;pending&#39;  OR  status = &#39;PENDIENTE_CANCELACION&#39;)
 </code></pre></div>
-<p><strong><code>before_save</code> — todos los hooks IEPS están comentados:</strong>
-<div class="highlight"><pre><span></span><code><span class="s2">&quot;before_save&quot;</span><span class="p">:</span> <span class="p">[</span>
-    <span class="c1"># E4 DISABLED: &quot;facturacion_mexico.hooks_handlers.sales_invoice_ieps.calcular_ieps_cuota&quot;,</span>
-    <span class="c1"># E4 DISABLED: &quot;facturacion_mexico.hooks_handlers.sales_invoice_ieps.ajustar_base_iva_combustibles&quot;,</span>
-    <span class="c1"># E4 DISABLED: &quot;facturacion_mexico.hooks_handlers.sales_invoice_ieps.corregir_ieps_cuota_final&quot;,</span>
-<span class="p">],</span>
-</code></pre></div></p>
-<p>Los hooks de IEPS cuota están deliberadamente desactivados en e4 (<code># E4 DISABLED</code>). El sistema de IEPS manual fue reemplazado por el enfoque nativo de ERPNext con <code>charge_type="On Item Quantity"</code>.</p>
-<hr />
-<h2 id="4-los-9-commits-wip">4. LOS 9 COMMITS WIP<a class="headerlink" href="#4-los-9-commits-wip" title="Permanent link">&para;</a></h2>
-<p><strong>Commits entre <code>fix/ieps-tabaco</code> (commit 33) y <code>e4</code> (commit 42):</strong></p>
+<p>Fuera de alcance: barrido del histórico completo, <code>fm_sync_status='error'</code>, reparación de
+duplicados, archivado de huérfanos.</p>
+<h3 id="22-operacion-contra-el-pac">2.2 Operación contra el PAC<a class="headerlink" href="#22-operacion-contra-el-pac" title="Permanent link">&para;</a></h3>
+<p>Exclusivamente <code>GET /invoices/{facturapi_id}</code>, vía <code>FacturAPIClient.get_invoice(ffm.facturapi_id)</code>.
+<strong>Prohibido:</strong> <code>create_invoice</code>, <code>cancel_invoice</code>, cualquier POST/DELETE, timbrado o sustitución.
+El cliente se construye con la compañía del FFM: <code>get_facturapi_client(company=ffm.company)</code>.</p>
+<h3 id="23-identidad-y-correlacion-estricta">2.3 Identidad y correlación estricta<a class="headerlink" href="#23-identidad-y-correlacion-estricta" title="Permanent link">&para;</a></h3>
+<p>La reconciliación inicia con un <code>FFM.name</code> explícito; nunca se busca otro FFM por Sales Invoice,
+UUID, folio o serie. Antes de decidir si hay cambios, se valida la correlación (reutilizando
+<code>_resolve_validated_ffm</code> de ADR-0034): <code>response.id == ffm.facturapi_id</code> y <code>response.uuid ==
+ffm.fm_uuid</code> (UUID normalizado). Ante contradicción → no se toca el estado fiscal, <code>fm_sync_status
+= error</code>, y se preserva/registra <code>FiscalCorrelationError</code>.</p>
+<h3 id="24-helper-unico-de-mapeo">2.4 Helper único de mapeo<a class="headerlink" href="#24-helper-unico-de-mapeo" title="Permanent link">&para;</a></h3>
+<p><code>derive_pac_reconciliation(remote_status, cancellation_status) -&gt; (estado_fiscal | None, fm_sync_status)</code>
+en <code>facturacion_mexico/config/fiscal_states_config.py</code>. Es la <strong>única fuente de verdad</strong> del mapeo,
+compartida por <code>cancelar_factura</code> (FASE 3), <code>revisar_estatus_cancelacion</code> y el motor.</p>
 <table>
 <thead>
 <tr>
-<th>#</th>
-<th>Commit</th>
-<th>Estado</th>
+<th>Estado remoto</th>
+<th>Estado local</th>
+<th><code>fm_sync_status</code></th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>34</td>
-<td><code>feat(e1): implementar sistema 8 STCT específicos + generación automática ITT</code></td>
-<td>Funcional</td>
+<td><code>valid</code> + sin cancelación</td>
+<td><code>TIMBRADO</code> (vigente)</td>
+<td><code>synced</code></td>
 </tr>
 <tr>
-<td>35</td>
-<td><code>refactor(e1): consolidar fuente de verdad única Item Groups</code></td>
-<td>Refactoring</td>
+<td><code>valid</code> + <code>pending</code>/<code>verifying</code></td>
+<td><code>PENDIENTE_CANCELACION</code></td>
+<td><code>synced</code></td>
 </tr>
 <tr>
-<td>36</td>
-<td><code>fix(e1): corregir generación templates + carga tax rows + eliminar código JS legacy</code></td>
-<td>Fix</td>
+<td><code>valid</code> + <code>rejected</code>/<code>expired</code></td>
+<td><code>TIMBRADO</code></td>
+<td><code>synced</code></td>
 </tr>
 <tr>
-<td>37</td>
-<td><code>refactor(fiscal): consolidar single source of truth roles fiscales + 18 roles</code></td>
-<td>Refactoring</td>
+<td><code>accepted</code> / <code>canceled</code></td>
+<td><code>CANCELADO</code></td>
+<td><code>synced</code></td>
 </tr>
 <tr>
-<td>38</td>
-<td><code>fix(generador): corregir lectura checkboxes en generación parcial templates STCT</code></td>
-<td>Fix</td>
+<td><code>pending</code> (remoto no definitivo)</td>
+<td>sin transición</td>
+<td><code>pending</code></td>
 </tr>
 <tr>
-<td>39</td>
-<td><code>docs(e1): documentar sincronización JSON-Python roles fiscales + tests autoselección</code></td>
-<td>Docs/tests</td>
-</tr>
-<tr>
-<td>40</td>
-<td><code>fix(e1): forzar carga STCT taxes siempre + detectar bugs ERPNext cuotas/totals</code></td>
-<td>Fix activo</td>
-</tr>
-<tr>
-<td>41</td>
-<td><code>fix(e1): implementar FIX-V1 para preservar cuotas IEPS en draft</code></td>
-<td>Fix parcial</td>
-</tr>
-<tr>
-<td>42</td>
-<td><code>chore(e4): checkpoint de seguridad - preservar estado trabajo en progreso ITT específico por item</code></td>
-<td><strong>WIP EXPLÍCITO</strong></td>
+<td><code>draft</code>/desconocido</td>
+<td>sin transición</td>
+<td><code>error</code></td>
 </tr>
 </tbody>
 </table>
-<p><strong>Archivos de código tocados por los 9 commits WIP</strong> (excluyendo docs):
-- <code>config/sat_tipo_factor.py</code>
-- <code>facturacion_fiscal/config/constantes_fiscales.py</code>
-- <code>facturacion_fiscal/doctype/configuracion_fiscal_mexico/configuracion_fiscal_mexico.js/.py</code>
-- <code>facturacion_fiscal/doctype/mapeo_cuenta_fiscal_mexico/mapeo_cuenta_fiscal_mexico.json</code>
-- <code>facturacion_fiscal/setup/generador_templates_fiscal.py</code>
-- <code>hooks.py</code>
-- <code>hooks_handlers/sales_invoice_automated_tax.py</code> ← <strong>el validate hook activo</strong>
-- <code>hooks_handlers/sales_invoice_ieps.py</code> ← comentado en hooks, no se ejecuta
-- <code>public/js/sales_invoice.js</code>
-- <code>setup/item_groups.py</code> ← ejecutado en <code>after_migrate</code>
-- Tests varios</p>
-<p><strong><code>timbrado_api.py</code> NO aparece en los 9 WIP.</strong> El timbrado no cambió en esta fase.</p>
-<h3 id="riesgo-del-commit-42-wip-itt-especifico-por-item">Riesgo del commit 42 (WIP ITT específico por item)<a class="headerlink" href="#riesgo-del-commit-42-wip-itt-especifico-por-item" title="Permanent link">&para;</a></h3>
-<p>El commit 42 preserva trabajo en progreso del sistema ITT específico por item. El hook <code>sales_invoice_automated_tax.validate</code> en este commit puede tener validaciones que busquen STCT por nombre de variante (<code>IVA_GENERAL</code>, <code>IVA_FRONTERA</code>, <code>RESICO_GENERAL</code>, etc.). Si esos templates no existen en el site, el validate puede lanzar <code>frappe.throw()</code> al intentar guardar cualquier SI.</p>
-<hr />
-<h2 id="5-timbrado_apipy">5. TIMBRADO_API.PY<a class="headerlink" href="#5-timbrado_apipy" title="Permanent link">&para;</a></h2>
-<p><code>timbrado_api.py</code> fue modificado antes del commit 33 (en la fase e1-e4 del sistema de impuestos). Los 9 WIP <strong>no lo tocan</strong>. Dado que <code>test_connection()</code> respondió exitosamente en el módulo 2 con la versión actual (main), y que <code>timbrado_api.py</code> en e4 incorpora mejoras al puente SI→PAC pero sin cambiar el flujo de timbrado base, el riesgo de regresión en timbrado es bajo.</p>
-<p>El diff de <code>timbrado_api.py</code> no pudo obtenerse vía API (posiblemente por tamaño), pero el hecho de que esté incluido en commits 27-33 (E4: puente SI→PAC read-only) y no en los 9 WIP confirma que la versión estable está en el commit 33.</p>
-<hr />
-<h2 id="6-riesgo-operativo-principal">6. RIESGO OPERATIVO PRINCIPAL<a class="headerlink" href="#6-riesgo-operativo-principal" title="Permanent link">&para;</a></h2>
-<h3 id="validate-hook-sobre-sales-invoices-con-items-sin-codigo-sat">Validate hook sobre Sales Invoices con items sin código SAT<a class="headerlink" href="#validate-hook-sobre-sales-invoices-con-items-sin-codigo-sat" title="Permanent link">&para;</a></h3>
-<p>Con el checkout a cualquier rama &gt;= e1, el hook <code>validate</code> de Sales Invoice ejecuta:</p>
-<div class="highlight"><pre><span></span><code><span class="n">sat_field</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">&quot;Item&quot;</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">item_code</span><span class="p">,</span> <span class="s2">&quot;fm_producto_servicio_sat&quot;</span><span class="p">)</span>
-<span class="k">if</span> <span class="ow">not</span> <span class="n">sat_field</span><span class="p">:</span>
-    <span class="n">frappe</span><span class="o">.</span><span class="n">throw</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Línea </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> sin código SAT...&quot;</span><span class="p">)</span>
+<p>Precedencia: <code>status==canceled</code> manda sobre cualquier <code>cancellation_status</code> contradictorio.</p>
+<h3 id="25-semantica-de-campos">2.5 Semántica de campos<a class="headerlink" href="#25-semantica-de-campos" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><code>fm_sync_status</code>:</strong> <code>synced</code> (respuesta concluyente reflejada) · <code>pending</code> (inconclusa:
+  timeout/429/5xx/remoto pending) · <code>error</code> (no reintentable: 4xx, identidad contradictoria,
+  estado desconocido).</li>
+<li><strong><code>fm_last_pac_sync</code></strong> (Datetime): se actualiza <strong>exclusivamente</strong> cuando el GET fue exitoso y
+  correlacionado con el mismo FFM (cambio o no-op). En <strong>cualquier fallo de consulta</strong> se conserva
+  el valor anterior.</li>
+</ul>
+<h3 id="26-persistencia-y-response-log">2.6 Persistencia y Response Log<a class="headerlink" href="#26-persistencia-y-response-log" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Cambio</strong> de <code>status</code>/<code>fm_sync_status</code> → <code>write_pac_response(operation_type="reconciliacion")</code>:
+  persiste el FFM y crea Response Log correlacionado.</li>
+<li><strong>Sin cambios (no-op)</strong> → solo se sella <code>fm_last_pac_sync</code>; <strong>no</strong> se crea Response Log.</li>
+<li><strong>Error/contradicción</strong> → se registra (Response Log para errores HTTP; alerta crítica para
+  contradicción de identidad) y se fija <code>fm_sync_status</code>, conservando <code>fm_last_pac_sync</code>.</li>
+</ul>
+<h3 id="27-selector-lote-y-scheduler">2.7 Selector, lote y scheduler<a class="headerlink" href="#27-selector-lote-y-scheduler" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>BATCH_SIZE = 100</code>. Prioridad: <code>PENDIENTE_CANCELACION</code>, luego <code>pending</code>, luego <code>fm_last_pac_sync</code>
+  más antiguo, luego <code>name</code>.</li>
+<li>Scheduler: una tarea en <strong><code>hourly_long</code></strong> → <code>run_auto_reconciliation</code>. Un FFM fallido no detiene
+  el lote.</li>
+</ul>
+<h3 id="28-verificacion-manual">2.8 Verificación manual<a class="headerlink" href="#28-verificacion-manual" title="Permanent link">&para;</a></h3>
+<p>Botón <strong>"Verificar estado en FacturAPI"</strong> (grupo <strong>Comprobantes</strong>) en el FFM, visible solo cuando
+el documento está guardado y tiene <code>facturapi_id</code>. Llama al mismo núcleo (<code>reconcile_ffm</code> →
+<code>_reconcile_ffm</code>). El JavaScript no contiene lógica fiscal: solo consulta, muestra el resultado y
+recarga. El endpoint <code>reconcile_ffm</code> está whitelisted y exige el <strong>mismo permiso fiscal que la
+cancelación</strong> (<code>frappe.only_for(System Manager / Facturacion Mexico System Manager / Manager)</code>).</p>
+<h3 id="29-concurrencia-locks">2.9 Concurrencia (locks)<a class="headerlink" href="#29-concurrencia-locks" title="Permanent link">&para;</a></h3>
+<p>Locks de cache (Redis), no bloqueantes, con TTL, liberados en <code>finally</code>:
+- Lote: <code>facturacion_mexico:ffm_auto_reconciliation</code> (TTL 2 h).
+- Por-FFM: <code>facturacion_mexico:ffm_reconciliation:&lt;name&gt;</code> (TTL 5 min) — evita la carrera
+  scheduler/botón sobre el mismo FFM.</p>
+<p>Liberación con <strong>compare-and-delete atómico</strong> (script Lua): solo se borra la clave si su valor
+sigue siendo el token del dueño, evitando que un proceso cuyo lock expiró borre el lock de otro.</p>
+<h3 id="210-sin-configuracion-campos-ni-doctypes-nuevos">2.10 Sin configuración, campos ni DocTypes nuevos<a class="headerlink" href="#210-sin-configuracion-campos-ni-doctypes-nuevos" title="Permanent link">&para;</a></h3>
+<p>No se agrega campo de activación, ni nuevos campos, ni DocTypes, ni patches, ni fixtures, ni
+cambios de esquema. El único cambio de despliegue es registrar el evento <code>hourly_long</code>.</p>
+<h2 id="3-consecuencias">3. Consecuencias<a class="headerlink" href="#3-consecuencias" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Los ~70 FFM <code>TIMBRADO+pending</code> se reconcilian a <code>synced</code> al confirmar <code>valid</code> con el PAC.</li>
+<li>Las cancelaciones <code>PENDIENTE_CANCELACION</code> se resuelven solas hasta su estado terminal.</li>
+<li><strong><code>expired</code> quedó unificado a <code>TIMBRADO</code></strong> en los tres flujos (antes la cancelación caía a
+  <code>PENDIENTE_CANCELACION</code>). <code>accepted → CANCELADO</code> se conserva.</li>
+<li>El refactor de unificación toca <code>timbrado_api.py</code> (flujo de cancelación productivo): la suite de
+  regresión de ADR-0034 es la red de seguridad.</li>
+</ul>
+<h2 id="4-riesgos-operativos-y-despliegue">4. Riesgos operativos y despliegue<a class="headerlink" href="#4-riesgos-operativos-y-despliegue" title="Permanent link">&para;</a></h2>
+<p><code>bench migrate</code> registra <code>hourly_long</code>; con el scheduler habilitado, <strong>el motor empieza a correr
+solo (cada hora) y a hacer GET reales contra FacturAPI</strong>. Por eso el despliegue y la habilitación
+del scheduler deben hacerse <strong>únicamente cuando se autorice iniciar ese tráfico GET</strong>. La primera
+prueba será local y controlada en <code>llantascs-v16.dev</code> (backup de producción). <code>hourly_long</code> corre
+para todas las companies con FFM pendientes; si una no tiene credenciales, el aislamiento por-FFM
+evita que rompa el lote.</p>
+<h2 id="5-alternativas-descartadas">5. Alternativas descartadas<a class="headerlink" href="#5-alternativas-descartadas" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Modo dry-run:</strong> descartado; el botón individual + el flag por respuesta concluyente cubren la
+  necesidad de verificación previa sin un modo separado.</li>
+<li><strong>Nuevo DocType de log:</strong> descartado; se reutiliza <code>FacturAPI Response Log</code>.</li>
+<li><strong>Búsqueda del FFM por Sales Invoice:</strong> descartado; viola la correlación estricta de ADR-0034.</li>
+<li><strong>Barrido completo de todos los FFM:</strong> descartado; el alcance se acota a los que necesitan
+  seguimiento.</li>
+<li><strong>Botones con lógica fiscal en JavaScript:</strong> descartado; toda la decisión fiscal y la seguridad
+  viven en el servidor.</li>
+</ul>
+<h2 id="6-despliegue-resumen">6. Despliegue (resumen)<a class="headerlink" href="#6-despliegue-resumen" title="Permanent link">&para;</a></h2>
+<p><div class="highlight"><pre><span></span><code>bench --site &lt;site&gt; migrate            # registra hourly_long (a partir de aquí el motor puede correr solo)
+bench build --app facturacion_mexico   # compila el asset JS del botón
+bench --site &lt;site&gt; clear-cache
 </code></pre></div>
-<p>El site tiene <strong>21 de 37 items sin <code>fm_producto_servicio_sat</code></strong>. Esto significa:</p>
-<ul>
-<li>Las 762 SIs existentes submitted/cancelled <strong>no se ven afectadas</strong> (el hook solo corre en <code>validate</code>, no sobre documentos ya submitted)</li>
-<li>Cualquier SI en estado <strong>Draft</strong> que use esos 21 items <strong>no podrá guardarse</strong> hasta que se configure el código SAT</li>
-<li>Las SIs nuevas con esos items también fallarán en la primera guardada</li>
-</ul>
-<p><strong>Este es el bloqueante operativo más importante.</strong> Antes de hacer checkout, deben configurarse los 21 items con código SAT, o la operación quedará parcialmente paralizada.</p>
-<h3 id="assign_itt_to_groups-en-after_migrate">assign_itt_to_groups en after_migrate<a class="headerlink" href="#assign_itt_to_groups-en-after_migrate" title="Permanent link">&para;</a></h3>
-<p>En cada <code>bench migrate</code>, <code>setup/item_groups.py</code> asignará ITT a los Item Groups automáticamente. Sin <code>Configuracion Fiscal Mexico</code> configurada y sin los STCTs existentes en el site, esta función puede:
-- Crear Item Tax Templates nuevos (no destructivo)
-- O fallar silenciosamente si no encuentra la configuración fiscal</p>
-<hr />
-<h2 id="7-resumen-de-riesgos">7. RESUMEN DE RIESGOS<a class="headerlink" href="#7-resumen-de-riesgos" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Riesgo</th>
-<th>Nivel</th>
-<th>Causa</th>
-<th>Consecuencia</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Pérdida de datos en migrate</td>
-<td><strong>NINGUNO</strong></td>
-<td>Nuevos DocTypes = tablas vacías</td>
-<td>—</td>
-</tr>
-<tr>
-<td>Patch rompe Customers</td>
-<td><strong>NINGUNO</strong></td>
-<td>Patch es idempotente y conservador</td>
-<td>—</td>
-</tr>
-<tr>
-<td>SI en draft con items sin SAT</td>
-<td><strong>ALTO</strong></td>
-<td>Validate hook nuevo + 21 items sin código</td>
-<td>SI no puede guardarse</td>
-</tr>
-<tr>
-<td>assign_itt_to_groups en migrate</td>
-<td><strong>MEDIO</strong></td>
-<td>after_migrate nuevo, sin config previa</td>
-<td>Puede modificar Item Groups</td>
-</tr>
-<tr>
-<td>ITT específico por item WIP</td>
-<td><strong>MEDIO</strong></td>
-<td>Commit 42 en progreso</td>
-<td>Validate puede buscar STCT que no existen</td>
-</tr>
-<tr>
-<td>Timbrado regresión</td>
-<td><strong>BAJO</strong></td>
-<td>timbrado_api.py no tocado en WIP</td>
-<td>Sin cambio en flujo de timbrado</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2 id="8-recomendacion">8. RECOMENDACIÓN<a class="headerlink" href="#8-recomendacion" title="Permanent link">&para;</a></h2>
-<h3 id="opcion-a-checkout-a-fixieps-tabaco-dual-campos-tax-breakup-commit-33-recomendada">Opción A — Checkout a <code>fix/ieps-tabaco-dual-campos-tax-breakup</code> (commit 33) ✅ RECOMENDADA<a class="headerlink" href="#opcion-a-checkout-a-fixieps-tabaco-dual-campos-tax-breakup-commit-33-recomendada" title="Permanent link">&para;</a></h3>
-<ul>
-<li>33 commits estables, sin WIP explícito</li>
-<li>Incluye: migración tax_category, nuevos DocTypes, IEPS cuota fix, puente SI→PAC</li>
-<li><strong>No incluye:</strong> sistema 8 STCT específicos (WIP), FIX-V1 cuotas draft (parcial)</li>
-<li>El validate hook es la versión estable anterior al refactoring STCT</li>
-</ul>
-<h3 id="opcion-b-checkout-a-featuree4-ieps-on-item-quantity-completo-commit-42">Opción B — Checkout a <code>feature/e4-ieps-on-item-quantity</code> completo (commit 42) ⚠️<a class="headerlink" href="#opcion-b-checkout-a-featuree4-ieps-on-item-quantity-completo-commit-42" title="Permanent link">&para;</a></h3>
-<ul>
-<li>42 commits, los últimos 9 en progreso</li>
-<li>El validate hook puede fallar en SIs con STCT no configurados</li>
-<li>Última salvaguarda antes de checkout: verificar que <code>_find_stct_by_variant()</code> tiene fallback</li>
-</ul>
-<hr />
-<h2 id="9-orden-correcto-de-operaciones">9. ORDEN CORRECTO DE OPERACIONES<a class="headerlink" href="#9-orden-correcto-de-operaciones" title="Permanent link">&para;</a></h2>
-<p>Independientemente de la opción elegida:</p>
-<div class="highlight"><pre><span></span><code>ANTES DEL CHECKOUT
-──────────────────
-1. Backup completo de la base de datos
-   mysqldump -u _516552b8cbcbc35c -pYkedgj5MpEdlGnYc _516552b8cbcbc35c &gt; backup_pre_e4_$(date +%Y%m%d_%H%M%S).sql
-
-2. Configurar los 21 items sin código SAT
-   (evita que el validate hook bloquee SIs existentes en draft)
-
-CHECKOUT Y MIGRATE
-──────────────────
-3. git checkout fix/ieps-tabaco-dual-campos-tax-breakup   (o e4 si se acepta el riesgo)
-4. bench --site facturacion-v16.dev migrate
-   → Crea tablas: tabConfiguracion Fiscal Mexico, tabIeps Cuota SAT, tabMapeo Cuenta Fiscal Mexico
-   → Ejecuta patch: migrate_customer_tax_category_to_fm_tax_regime (19 customers)
-   → Ejecuta after_migrate: apply_customization + assign_itt_to_groups
-
-POST-MIGRATE
-────────────
-5. Verificar que los 3 nuevos DocTypes existen
-6. Verificar resultado del patch en patch log (bench --site ... console: frappe.get_all(&quot;Patch Log&quot;, ...))
-7. Verificar que assign_itt_to_groups no rompió Item Groups
-8. Crear Configuracion Fiscal Mexico para la Company principal
-9. Probar guardado de una SI con item que SÍ tiene código SAT
-10. Probar timbrado con timbrar_factura()
-</code></pre></div>
+Habilitar el scheduler solo cuando se autorice el tráfico GET. No ejecutar una corrida PAC real
+durante el desarrollo de esta feature.</p>
 
 
 
