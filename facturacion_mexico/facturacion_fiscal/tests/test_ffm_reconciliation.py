@@ -306,6 +306,47 @@ class TestFFMReconciliation(IntegrationTestCase):
 		self._reconciliar(ffm, get_return=_ok({"status": "valid"}))
 		self.assertNotEqual(self._last_sync(ffm), antes)
 
+	# ─────────── Persistencia transaccional (commit explícito en ramas sin writer) ───────────
+	# Estas pruebas simulan el cierre de la request (botón vía frappe.call, sin auto-commit) con
+	# un frappe.db.rollback() posterior: si la rama NO commitea, el rollback revierte la escritura
+	# y la aserción falla. Un set_value en la misma transacción es invisible a este defecto.
+
+	def test_noop_persiste_last_sync_tras_rollback(self):
+		ffm, antes = self._ffm_con_last_sync(sync="synced")
+		res, _, _ = self._reconciliar(ffm, get_return=_ok({"status": "valid"}))
+		self.assertEqual(res["outcome"], "unchanged")
+		frappe.db.rollback()  # simula fin de request sin auto-commit
+		self.assertNotEqual(self._last_sync(ffm), antes)  # sobrevive al rollback => hubo commit
+
+	def test_noop_dos_consultas_consecutivas_avanzan_timestamp(self):
+		ffm, antes = self._ffm_con_last_sync(sync="synced")
+		self._reconciliar(ffm, get_return=_ok({"status": "valid"}))
+		frappe.db.rollback()
+		t1 = self._last_sync(ffm)
+		self.assertNotEqual(t1, antes)  # primera consulta selló y persistió
+		# Segunda consulta, también no-op: vuelve a sellar y persistir.
+		self._reconciliar(ffm, get_return=_ok({"status": "valid"}))
+		frappe.db.rollback()
+		t2 = self._last_sync(ffm)
+		self.assertGreaterEqual(t2, t1)
+
+	def test_error_persiste_sync_y_conserva_last_sync_tras_rollback(self):
+		# 404 -> error: el override final de _log_and_set_sync (sync=error + last_sync restaurado)
+		# corre DESPUÉS del commit del writer y debe commitearse para sobrevivir al fin de request.
+		ffm, antes = self._ffm_con_last_sync(sync="pending")
+		res, _, _ = self._reconciliar(ffm, get_side_effect=_http_error(404))
+		self.assertEqual(res["outcome"], "error")
+		frappe.db.rollback()  # simula fin de request sin auto-commit
+		self.assertEqual(self._sync(ffm), "error")  # override persistido
+		self.assertEqual(self._last_sync(ffm), antes)  # se conservó el valor previo
+
+	def test_noop_no_modifica_sales_invoice(self):
+		si = self._si()
+		ffm = self._ffm(si, "TIMBRADO", sync="synced")
+		ds_antes = frappe.db.get_value("Sales Invoice", si, "docstatus")
+		self._reconciliar(ffm, get_return=_ok({"status": "valid"}))
+		self.assertEqual(frappe.db.get_value("Sales Invoice", si, "docstatus"), ds_antes)
+
 	# ─────────────────────────── Errores y seguridad ───────────────────────────
 
 	def test_timeout_pending(self):

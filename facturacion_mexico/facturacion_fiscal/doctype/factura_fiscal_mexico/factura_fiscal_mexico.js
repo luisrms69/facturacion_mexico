@@ -329,6 +329,28 @@
 		frm.dashboard.set_headline_alert(primary.text, level_color[primary.level] || "grey");
 	}
 
+	function render_sync_badge(frm) {
+		// Semáforo inline para fm_sync_status: resalta 'pending'.
+		// Pinta una indicator-pill nativa de Frappe en el campo HTML fm_sync_status_badge.
+		const field = frm.fields_dict && frm.fields_dict.fm_sync_status_badge;
+		if (!field) return;
+		const map = {
+			synced: { color: "green", label: __("Sincronizado") },
+			pending: { color: "orange", label: __("Pendiente") },
+			error: { color: "red", label: __("Error de sincronización") },
+		};
+		const cfg = map[frm.doc.fm_sync_status];
+		if (!cfg) {
+			field.$wrapper.html("");
+			return;
+		}
+		field.$wrapper.html(
+			`<span class="indicator-pill ${cfg.color}">${frappe.utils.escape_html(
+				cfg.label
+			)}</span>`
+		);
+	}
+
 	function freeze_fiscal_fields_after_submit(frm) {
 		/**
 		 * Bloquear campos fiscales críticos después de Submit
@@ -390,6 +412,9 @@
 		refresh: function (frm) {
 			// Controlar visibilidad del checkbox Venta Mostrador según el customer
 			_update_venta_mostrador_visibility(frm);
+
+			// Semáforo de sincronización (badge inline)
+			render_sync_badge(frm);
 
 			// Poblar opciones SAT desde el servidor
 			if (!frm._sat_opts_loaded) {

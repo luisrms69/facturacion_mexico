@@ -110,6 +110,9 @@ def _log_and_set_sync(ffm, response_data: dict, sync_status: str) -> None:
 		ffm.name,
 		{"fm_sync_status": sync_status, "fm_last_pac_sync": prev_last_sync},
 	)
+	# Estas escrituras finales corren DESPUÉS del commit del writer; sin un commit propio se
+	# descartan al cerrar la request (p. ej. botón vía frappe.call). Un solo commit al final.
+	frappe.db.commit()
 
 
 def _reconcile_ffm(ffm_name: str) -> dict:
@@ -185,7 +188,10 @@ def _reconcile_ffm(ffm_name: str) -> dict:
 			}
 
 		# Sin cambios: NO se crea Response Log; solo se sella la última consulta exitosa.
+		# Commit explícito: este write no pasa por el writer (que sí commitea) y se descartaría
+		# al cerrar la request (botón vía frappe.call) sin él.
 		frappe.db.set_value("Factura Fiscal Mexico", ffm.name, "fm_last_pac_sync", now_datetime())
+		frappe.db.commit()
 		return {"ffm": ffm_name, "outcome": "unchanged"}
 	finally:
 		_release_lock(lock, token)
