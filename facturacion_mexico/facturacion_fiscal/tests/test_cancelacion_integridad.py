@@ -50,10 +50,14 @@ def _seed_ffm(
 	motivo=None,
 	reason=None,
 	date=None,
-	facturapi_id=_FA,
-	uuid=_UUID,
+	facturapi_id=None,
+	uuid=None,
 	sync="pending",
 ):
+	# IDs fiscales únicos por fixture cuando el caller no los suministra (aislamiento de pruebas,
+	# RG-003). Los tests de correlación que necesitan emparejar seed↔respuesta pasan ids explícitos.
+	facturapi_id = facturapi_id or "FA-" + frappe.generate_hash()[:10]
+	uuid = uuid or "U-" + frappe.generate_hash()[:10]
 	ffm = frappe.get_doc(
 		{
 			"doctype": "Factura Fiscal Mexico",
@@ -275,35 +279,66 @@ class TestCancelacionIntegridad(IntegrationTestCase):
 		self.assertIsNotNone(self._field(ffm, "cancellation_date"))
 		self.assertEqual(self._si_status(si), FiscalStates.CANCELADO)
 
-	def test_13_cancelar_si_con_ffm_real_cancelado(self):
+	def test_13_guard_usa_estado_real_de_ffm_no_snapshot(self):
+		"""El guard de cancelar_si_post_fiscal valida el estado REAL de la FFM activa, NO el snapshot
+		SI.fm_fiscal_status (que puede quedar stale). Documentos reales; sin mock de frappe.get_doc ni
+		de funciones internas (RG-003). Se detiene de forma determinista en la validación 'todas
+		canceladas', antes del cancel() real de la SI, y falla ante errores no esperados."""
 		from facturacion_mexico.api.fiscal_operations import cancelar_si_post_fiscal
 
-		ffm = self.ffm(None, FiscalStates.CANCELADO, motivo="02")
-		# Snapshot de la SI DESACTUALIZADO (PENDIENTE) aunque la FFM real está CANCELADO.
+		# FFM activa REALMENTE cancelada ante el SAT, pero snapshot SI desactualizado (PENDIENTE).
+		ffm_cancelado = self.ffm(None, FiscalStates.CANCELADO, motivo="02")
+		si = self.si(fiscal_status=FiscalStates.PENDIENTE_CANCELACION, ffm=ffm_cancelado)
+		frappe.db.set_value("Factura Fiscal Mexico", ffm_cancelado, "sales_invoice", si)
+		# 2ª FFM ligada a la misma SI AÚN activa: el flujo pasa el guard SAT (la FFM activa SÍ está
+		# CANCELADO) y se detiene en la validación determinista "todas canceladas", sin llegar al
+		# cancel() real de la SI.
+		ffm_activa = self.ffm(None, FiscalStates.PENDIENTE_CANCELACION, motivo="02")
+		frappe.db.set_value("Factura Fiscal Mexico", ffm_activa, "sales_invoice", si)
+		frappe.db.commit()
+
+		with self.assertRaises(frappe.ValidationError) as ctx:
+			cancelar_si_post_fiscal(si)
+		msg = str(ctx.exception)
+		# El guard SAT PASÓ: leyó el estado real de la FFM activa, no el snapshot stale de la SI.
+		self.assertNotIn("cancelada ante el SAT", msg)
+		# Se detuvo, de forma determinista, en la validación de FFMs aún activas (no en el cancel()).
+		self.assertIn(ffm_activa, msg)
+
+	def test_13b_guard_rechaza_cuando_ffm_activa_no_esta_cancelada(self):
+		"""Caso negativo del guard: si la FFM activa NO está CANCELADO, se rechaza con el error SAT."""
+		from facturacion_mexico.api.fiscal_operations import cancelar_si_post_fiscal
+
+		ffm = self.ffm(None, FiscalStates.PENDIENTE_CANCELACION, motivo="02")
 		si = self.si(fiscal_status=FiscalStates.PENDIENTE_CANCELACION, ffm=ffm)
 		frappe.db.set_value("Factura Fiscal Mexico", ffm, "sales_invoice", si)
-		with patch("frappe.has_permission", return_value=True), patch("frappe.get_doc") as gd:
-			# get_doc("Sales Invoice") -> obj con docstatus 1; el cancel() real se mockea.
-			real_get_doc = frappe.get_doc
+		frappe.db.commit()
 
-			def _gd(*a, **k):
-				if a and a[0] == "Sales Invoice":
-					m = MagicMock()
-					m.docstatus = 1
-					m.get.side_effect = lambda f: {
-						"fm_fiscal_status": "PENDIENTE_CANCELACION",
-						"fm_factura_fiscal_mx": ffm,
-					}.get(f)
-					m.name = si
-					return m
-				return real_get_doc(*a, **k)
+		with self.assertRaisesRegex(frappe.ValidationError, "cancelada ante el SAT"):
+			cancelar_si_post_fiscal(si)
 
-			gd.side_effect = _gd
-			# No debe lanzar "Solo aplica cuando..." porque la FFM real está CANCELADO.
-			try:
-				cancelar_si_post_fiscal(si)
-			except frappe.ValidationError as e:
-				self.assertNotIn("cancelada ante el SAT", str(e))
+	def test_13c_endpoint_publico_no_controla_skip_state_persist(self):
+		"""Seguridad (#13): la frontera pública @frappe.whitelist() NO expone skip_state_persist; un
+		caller no puede saltarse la persistencia del estado fiscal por el wire. El skip se deriva
+		server-side de operation_type ('Solicitud Cancelación') dentro del writer."""
+		import inspect
+
+		from facturacion_mexico.facturacion_fiscal.api import write_pac_response
+
+		# 1. La firma pública no incluye el parámetro.
+		self.assertNotIn("skip_state_persist", inspect.signature(write_pac_response).parameters)
+
+		# 2. Enviar el flag desde el caller falla por argumento inesperado (TypeError en el binding,
+		#    antes de tocar BD): no es controlable desde el request.
+		with self.assertRaises(TypeError):
+			write_pac_response(
+				"SI-INEXISTENTE",
+				"{}",
+				"{}",
+				"timbrado",
+				factura_fiscal_name="FFM-INEXISTENTE",
+				skip_state_persist=True,
+			)
 
 	# ---------- Motor asíncrono ----------
 
@@ -315,7 +350,14 @@ class TestCancelacionIntegridad(IntegrationTestCase):
 	def test_06_motor_pendiente_a_cancelado_completo(self):
 		from facturacion_mexico.facturacion_fiscal.services import ffm_reconciliation as mod
 
-		ffm = self.ffm(None, FiscalStates.PENDIENTE_CANCELACION, motivo="02", sync="pending")
+		ffm = self.ffm(
+			None,
+			FiscalStates.PENDIENTE_CANCELACION,
+			motivo="02",
+			sync="pending",
+			facturapi_id=_FA,
+			uuid=_UUID,
+		)
 		si = self.si(fiscal_status=FiscalStates.PENDIENTE_CANCELACION, ffm=ffm)
 		frappe.db.set_value("Factura Fiscal Mexico", ffm, "sales_invoice", si)
 		raw = {"status": "canceled", "cancellation_status": "accepted", "id": _FA, "uuid": _UUID}
@@ -331,7 +373,7 @@ class TestCancelacionIntegridad(IntegrationTestCase):
 		from facturacion_mexico.facturacion_fiscal.services import ffm_reconciliation as mod
 
 		# FFM TIMBRADO con sync pending; respuesta valid sin cancelación -> NO es cancelación.
-		ffm = self.ffm(None, FiscalStates.TIMBRADO, sync="pending")
+		ffm = self.ffm(None, FiscalStates.TIMBRADO, sync="pending", facturapi_id=_FA, uuid=_UUID)
 		raw = {"status": "valid", "cancellation_status": "none", "id": _FA, "uuid": _UUID}
 		with (
 			patch.object(mod, "get_facturapi_client", return_value=self._fake_client(raw)),
@@ -373,6 +415,8 @@ class TestCancelacionIntegridad(IntegrationTestCase):
 			reason="01 - Comprobantes emitidos con errores con relación",
 			date=None,
 			sync="synced",
+			facturapi_id=_FA,
+			uuid=_UUID,
 		)
 		si = self.si(fiscal_status=FiscalStates.PENDIENTE_CANCELACION, ffm=ffm)  # snapshot viejo
 		frappe.db.set_value("Factura Fiscal Mexico", ffm, "sales_invoice", si)
@@ -400,6 +444,8 @@ class TestCancelacionIntegridad(IntegrationTestCase):
 			reason="02 - Comprobantes emitidos con errores sin relación",
 			date=frappe.utils.now_datetime(),
 			sync="synced",
+			facturapi_id=_FA,
+			uuid=_UUID,
 		)
 		si = self.si(fiscal_status=FiscalStates.CANCELADO, ffm=ffm)
 		frappe.db.set_value("Factura Fiscal Mexico", ffm, "sales_invoice", si)
@@ -485,7 +531,14 @@ class TestCancelacionIntegridad(IntegrationTestCase):
 		from facturacion_mexico.facturacion_fiscal.cancellation_state import extract_canceled_at
 		from facturacion_mexico.facturacion_fiscal.services import ffm_reconciliation as mod
 
-		ffm = self.ffm(None, FiscalStates.PENDIENTE_CANCELACION, motivo="02", sync="pending")
+		ffm = self.ffm(
+			None,
+			FiscalStates.PENDIENTE_CANCELACION,
+			motivo="02",
+			sync="pending",
+			facturapi_id=_FA,
+			uuid=_UUID,
+		)
 		si = self.si(fiscal_status=FiscalStates.PENDIENTE_CANCELACION, ffm=ffm)
 		frappe.db.set_value("Factura Fiscal Mexico", ffm, "sales_invoice", si)
 		raw = {
@@ -505,7 +558,14 @@ class TestCancelacionIntegridad(IntegrationTestCase):
 		# canceled SIN canceled_at -> hora de observación (no None).
 		from facturacion_mexico.facturacion_fiscal.services import ffm_reconciliation as mod
 
-		ffm = self.ffm(None, FiscalStates.PENDIENTE_CANCELACION, motivo="02", sync="pending")
+		ffm = self.ffm(
+			None,
+			FiscalStates.PENDIENTE_CANCELACION,
+			motivo="02",
+			sync="pending",
+			facturapi_id=_FA,
+			uuid=_UUID,
+		)
 		raw = {"status": "canceled", "cancellation_status": "none", "id": _FA, "uuid": _UUID}
 		with patch.object(mod, "get_facturapi_client", return_value=self._fake_client(raw)):
 			mod._reconcile_ffm(ffm)
@@ -515,7 +575,14 @@ class TestCancelacionIntegridad(IntegrationTestCase):
 		from facturacion_mexico.facturacion_fiscal.cancellation_state import extract_canceled_at
 		from facturacion_mexico.facturacion_fiscal.services import ffm_reconciliation as mod
 
-		ffm = self.ffm(None, FiscalStates.PENDIENTE_CANCELACION, motivo="02", sync="pending")
+		ffm = self.ffm(
+			None,
+			FiscalStates.PENDIENTE_CANCELACION,
+			motivo="02",
+			sync="pending",
+			facturapi_id=_FA,
+			uuid=_UUID,
+		)
 		raw = {
 			"status": "canceled",
 			"cancellation_status": "none",
@@ -537,7 +604,14 @@ class TestCancelacionIntegridad(IntegrationTestCase):
 		from facturacion_mexico.facturacion_fiscal.services import ffm_reconciliation as mod
 
 		for cs in ("verifying", "pending", "rejected", "zzz-desconocido"):
-			ffm = self.ffm(None, FiscalStates.PENDIENTE_CANCELACION, motivo="02", sync="pending")
+			ffm = self.ffm(
+				None,
+				FiscalStates.PENDIENTE_CANCELACION,
+				motivo="02",
+				sync="pending",
+				facturapi_id=_FA,
+				uuid=_UUID,
+			)
 			raw = {"status": "valid", "cancellation_status": cs, "id": _FA, "uuid": _UUID}
 			with patch.object(mod, "get_facturapi_client", return_value=self._fake_client(raw)):
 				mod._reconcile_ffm(ffm)

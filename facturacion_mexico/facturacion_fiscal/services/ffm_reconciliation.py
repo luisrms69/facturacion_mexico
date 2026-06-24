@@ -37,7 +37,7 @@ from facturacion_mexico.facturacion_fiscal.cancellation_state import (
 
 def _write_pac_response(
 	sales_invoice_name, request_data, response_data, factura_fiscal_name, *, skip_state_persist=False
-):
+) -> dict:
 	"""Persistir vía el writer (método, acepta dicts) con operation_type='reconciliacion'.
 
 	Se usa el método del writer y NO la función whitelisted pública (que exige str por type-hints).

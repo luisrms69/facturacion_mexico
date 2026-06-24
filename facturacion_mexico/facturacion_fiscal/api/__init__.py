@@ -849,7 +849,6 @@ def write_pac_response(
 	response_data: str,
 	operation_type: str = "timbrado",
 	factura_fiscal_name: str | None = None,
-	skip_state_persist: bool = False,
 ) -> dict[str, Any]:
 	"""
 	API pública para escribir respuesta PAC.
@@ -865,13 +864,19 @@ def write_pac_response(
 
 	Returns:
 		Dict con resultado operación
+
+	Nota de seguridad: `skip_state_persist` NO se expone en esta frontera pública.
+	Saltarse la persistencia del estado fiscal es una decisión server-side que se deriva
+	internamente de `operation_type` ("Solicitud Cancelación") en el writer; un caller del
+	endpoint no puede controlarla. El flag solo existe en `PACResponseWriter.write_pac_response`
+	para uso interno (p. ej. el motor de reconciliación).
 	"""
 	try:
 		# Parse JSON strings
 		request_dict = json.loads(request_data) if isinstance(request_data, str) else request_data
 		response_dict = json.loads(response_data) if isinstance(response_data, str) else response_data
 
-		# Usar writer resiliente
+		# Usar writer resiliente (sin skip_state_persist: el writer lo deriva de operation_type)
 		writer = PACResponseWriter()
 		result = writer.write_pac_response(
 			sales_invoice_name,
@@ -879,7 +884,6 @@ def write_pac_response(
 			response_dict,
 			operation_type,
 			factura_fiscal_name=factura_fiscal_name,
-			skip_state_persist=skip_state_persist,
 		)
 
 		return result

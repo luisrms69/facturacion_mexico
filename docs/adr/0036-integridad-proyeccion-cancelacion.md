@@ -34,6 +34,7 @@ SI stale → **la Sales Invoice no se podía cancelar** (el guard validaba el sn
 ## 2. Decisión
 
 ### 2.1 Clasificación de cancelación **fail-closed** (corrige ADR-0035 §2.4)
+
 El HTTP 200 confirma que la *solicitud* se procesó, **no** que el SAT canceló. La cancelación se
 clasifica con un helper acotado `derive_cancellation_reconciliation(remote_status, cancellation_status)`:
 
@@ -52,6 +53,7 @@ El mismo criterio se usa en los tres caminos: cancelación síncrona (FASE 3), `
 y el motor de reconciliación.
 
 ### 2.2 Operación autoritativa única: `apply_cancellation_state`
+
 Una sola función escribe el estado de cancelación, idempotente y monotónica:
 - conserva `fm_motivo_cancelacion` (motivo SAT solicitado);
 - deriva `cancellation_reason` desde ese motivo (sobrescribe residuos como `01`);
@@ -66,6 +68,7 @@ La escritura de estado en cancelación deja de pasar por el writer (que solo cre
 `skip_state_persist`), eliminando la doble escritura / commit parcial.
 
 ### 2.3 Reparación idempotente desde el motor (extiende ADR-0035 §2.6)
+
 El reconciliador ejecuta `apply_cancellation_state` en cancelaciones **aunque `status` y
 `fm_sync_status` no cambien**, para reparar FFM terminales incompletas (reason/fecha/snapshot SI).
 Se crea Response Log de reconciliación cuando hubo cambio real (status, sync **o** reparación de
@@ -73,18 +76,21 @@ campos); si nada cambió, no se crea log. **No** se altera el selector de candid
 (`_select_candidates`): el scheduler sigue procesando solo `pending` / `PENDIENTE_CANCELACION`.
 
 ### 2.4 `cancellation_date` desde `canceled_at` del PAC
+
 La fecha de cancelación usa el `canceled_at` **real** que entrega FacturAPI (UTC ISO-8601 con `Z`),
 normalizado a la zona horaria del sitio (`convert_utc_to_system_timezone`). `now()` solo se usa como
 respaldo si el PAC no entrega `canceled_at`. Una `cancellation_date` ya existente nunca se sobrescribe.
 Solo se fija fecha cuando el estado es CANCELADO.
 
 ### 2.5 Consolidación del flujo manual (corrige ADR-0035 §2.8)
+
 Queda **un solo** botón de consulta: **"Verificar estado en FacturAPI"** (→ `reconcile_ffm`). El botón
 duplicado "Revisar Estatus Cancelación" se eliminó. La función `revisar_estatus_cancelacion` se mantiene
 por compatibilidad como **wrapper** que delega en `reconcile_ffm` (hereda company, correlación estricta,
 lock por FFM y permiso fiscal; no realiza una segunda consulta al PAC).
 
 ### 2.6 Otros endurecimientos
+
 - **Guard de cancelación de SI:** `cancelar_si_post_fiscal` valida el estado **real** de la FFM activa,
   no el snapshot `SI.fm_fiscal_status` (derivado).
 - **Resolución de FFM en el endpoint de cancelación:** se resuelve la FFM activa por

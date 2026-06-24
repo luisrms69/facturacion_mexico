@@ -83,19 +83,19 @@ def derive_cancellation_reconciliation(remote_status, cancellation_status):
 	return None, SyncStates.ERROR
 
 
-def _reason_from_motive(motivo: str | None) -> str:
+def _reason_from_motive(motive: str | None) -> str:
 	"""Derivar el texto del Select `cancellation_reason` desde el código de motivo solicitado.
 
 	Se deriva por prefijo contra las opciones reales del DocType (evita drift con descripciones).
 	Si no hay motivo o no matchea ninguna opción, devuelve "" (fail-soft: no bloquea la transición).
 	"""
-	motivo = (motivo or "").strip()
-	if not motivo:
+	motive = (motive or "").strip()
+	if not motive:
 		return ""
 	field = frappe.get_meta("Factura Fiscal Mexico").get_field("cancellation_reason")
 	opts = [(o or "").strip() for o in (field.options or "").split("\n") if (o or "").strip()]
 	for o in opts:
-		if o.startswith(f"{motivo} -") or o.startswith(f"{motivo} "):
+		if o.startswith((f"{motive} -", f"{motive} ")):
 			return o
 	return ""
 
