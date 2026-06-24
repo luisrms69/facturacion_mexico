@@ -829,6 +829,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#flujo-de-cancelacion-y-reconciliacion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Flujo de cancelación y reconciliación
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#integraciones-externas" class="md-nav__link">
     <span class="md-ellipsis">
       Integraciones externas
@@ -1812,6 +1821,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0036-integridad-proyeccion-cancelacion/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0036 — Integridad de la proyección de cancelación y consolidación del flujo manual
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2068,6 +2098,15 @@
   <a href="#api-endpoints-whitelisted-timbrado_apipy" class="md-nav__link">
     <span class="md-ellipsis">
       API endpoints whitelisted — timbrado_api.py
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#flujo-de-cancelacion-y-reconciliacion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Flujo de cancelación y reconciliación
     </span>
   </a>
   
@@ -2393,6 +2432,16 @@ Ver <a href="../../adr/0032-ereceipts-facturapi-arquitectura/">ADR-0032</a>.</p>
 <td>Long Text</td>
 <td>Texto enviado a FacturAPI como <code>pdf_custom_section</code> al timbrar. Read-only — registra exactamente lo enviado. Solo para CFDI tipo I.</td>
 </tr>
+<tr>
+<td><code>fm_motivo_cancelacion</code></td>
+<td>Data</td>
+<td>Motivo SAT <strong>solicitado</strong> (01/02/03/04). Se <strong>conserva</strong> durante todo el ciclo de cancelación.</td>
+</tr>
+<tr>
+<td><code>cancellation_reason</code></td>
+<td>Select</td>
+<td>Descripción <strong>derivada</strong> del motivo, <strong>read-only</strong> (salida del sistema). La primera opción es <strong>vacía</strong> para no asignar implícitamente el motivo <code>01</code> al crear la FFM.</td>
+</tr>
 </tbody>
 </table>
 <h3 id="complemento-pago-mx-campos-propios-del-doctype">Complemento Pago MX — campos propios del DocType<a class="headerlink" href="#complemento-pago-mx-campos-propios-del-doctype" title="Permanent link">&para;</a></h3>
@@ -2437,8 +2486,39 @@ Ver <a href="../../adr/0032-ereceipts-facturapi-arquitectura/">ADR-0032</a>.</p>
 <td><code>timbrado_api</code></td>
 <td>Descarga PDF+XML desde FacturAPI y los adjunta al FFM. Wrapper de <code>TimbradoAPI._download_fiscal_files()</code> — no duplica lógica.</td>
 </tr>
+<tr>
+<td><code>revisar_estatus_cancelacion</code></td>
+<td><code>timbrado_api</code></td>
+<td><strong>Compat:</strong> wrapper que delega en <code>reconcile_ffm</code>. No tiene lógica propia.</td>
+</tr>
 </tbody>
 </table>
+<h2 id="flujo-de-cancelacion-y-reconciliacion">Flujo de cancelación y reconciliación<a class="headerlink" href="#flujo-de-cancelacion-y-reconciliacion" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p>Decisiones y detalle en <a href="../../adr/0036-integridad-proyeccion-cancelacion/">ADR-0036</a> (proyección de
+cancelación) y <a href="../../adr/0035-motor-reconciliacion-ffm/">ADR-0035</a> (motor de reconciliación).</p>
+</blockquote>
+<ul>
+<li><strong>Solicitud de cancelación:</strong> el HTTP 200 confirma que la <em>solicitud</em> se procesó, <strong>no</strong> que el SAT canceló.</li>
+<li><strong>Clasificación fail-closed</strong> (<code>derive_cancellation_reconciliation</code>):</li>
+<li><code>status = canceled</code> → <strong>CANCELADO</strong> (único estado terminal);</li>
+<li><code>valid</code> + <code>pending</code>/<code>verifying</code>/<code>accepted</code> (aislado) → <strong>PENDIENTE_CANCELACION</strong>;</li>
+<li><code>valid</code> + <code>rejected</code>/<code>expired</code> → TIMBRADO (vigente);</li>
+<li>desconocido/incoherente → sin transición (<strong>nunca</strong> CANCELADO).</li>
+<li><strong>Confirmación síncrona</strong> (FASE 3 de <code>cancelar_factura</code>) y <strong>asíncrona</strong> (motor / botón "Verificar estado
+  en FacturAPI") usan el <strong>mismo</strong> helper autoritativo <code>apply_cancellation_state</code>, que escribe en una sola
+  operación: <code>status</code>, <code>fm_motivo_cancelacion</code> (conservado), <code>cancellation_reason</code> (derivado),
+  <code>cancellation_date</code>, <code>fm_sync_status</code> y el snapshot <code>SI.fm_fiscal_status</code> (solo si <code>SI.fm_factura_fiscal_mx == FFM.name</code>).</li>
+<li><strong>Monotonicidad y reparación:</strong> una FFM <code>CANCELADO</code> <strong>no se degrada</strong>; una FFM <code>CANCELADO</code> <strong>incompleta</strong>
+  sí se <strong>repara</strong> (idempotente) aunque <code>status</code>/<code>fm_sync_status</code> no cambien. El reconciliador crea Response
+  Log solo si hubo cambio real; <strong>no</strong> se altera el selector de candidatos (<code>_select_candidates</code>) ni el
+  alcance del scheduler.</li>
+<li><strong><code>cancellation_date</code>:</strong> usa el <code>canceled_at</code> real del PAC (UTC → zona del sitio); <code>now()</code> solo como
+  respaldo si el PAC no lo entrega; una fecha existente nunca se sobrescribe.</li>
+<li><strong>Flujo manual único:</strong> un solo botón <strong>"Verificar estado en FacturAPI"</strong> (<code>reconcile_ffm</code>).</li>
+<li><strong>Guard de cancelación de la SI:</strong> <code>cancelar_si_post_fiscal</code> valida el estado <strong>real</strong> de la FFM activa,
+  no el snapshot derivado <code>SI.fm_fiscal_status</code>.</li>
+</ul>
 <h2 id="integraciones-externas">Integraciones externas<a class="headerlink" href="#integraciones-externas" title="Permanent link">&para;</a></h2>
 <table>
 <thead>

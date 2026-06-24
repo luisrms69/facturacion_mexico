@@ -535,6 +535,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#reparacion-de-cancelaciones" class="md-nav__link">
+    <span class="md-ellipsis">
+      Reparación de cancelaciones
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#resultados-posibles" class="md-nav__link">
     <span class="md-ellipsis">
       Resultados posibles
@@ -1674,6 +1683,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0036-integridad-proyeccion-cancelacion/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0036 — Integridad de la proyección de cancelación y consolidación del flujo manual
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1859,6 +1889,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#reparacion-de-cancelaciones" class="md-nav__link">
+    <span class="md-ellipsis">
+      Reparación de cancelaciones
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#resultados-posibles" class="md-nav__link">
     <span class="md-ellipsis">
       Resultados posibles
@@ -1918,11 +1957,21 @@ En ambos casos el sistema <strong>solo consulta</strong> a FacturAPI: nunca timb
 </ol>
 <p>El botón <strong>solo aparece</strong> cuando la FFM ya está <strong>guardada</strong> y tiene un comprobante en FacturAPI
 (<code>facturapi_id</code>). Al pulsarlo, el sistema consulta el estado real en FacturAPI, actualiza la FFM si
-corresponde y <strong>recarga el documento</strong> para mostrar el estado al día.</p>
+corresponde y <strong>recarga el documento</strong> para mostrar el estado al día. <strong>Es el único botón de
+consulta</strong>: realiza una <strong>consulta de estado</strong>, nunca envía una nueva solicitud de cancelación.</p>
 <blockquote>
 <p>El botón <strong>no cancela la Sales Invoice</strong>. Si la verificación confirma que el CFDI quedó
 <strong>CANCELADO</strong>, después puedes cancelar la Sales Invoice con el procedimiento normal.</p>
 </blockquote>
+<p><strong>Importante:</strong> una cancelación <strong>pendiente</strong> permanece pendiente hasta que el SAT la confirme. Que
+FacturAPI haya recibido la solicitud <strong>no</strong> significa que el CFDI ya esté cancelado: solo cuando el
+estado real es <em>cancelado</em> la FFM pasa a <strong>CANCELADO</strong>.</p>
+<h3 id="reparacion-de-cancelaciones">Reparación de cancelaciones<a class="headerlink" href="#reparacion-de-cancelaciones" title="Permanent link">&para;</a></h3>
+<p>Si una FFM quedó marcada como <strong>CANCELADO</strong> pero con información incompleta (motivo, descripción,
+fecha de cancelación, o el estado de la venta sin actualizar), pulsar <strong>"Verificar estado en
+FacturAPI"</strong> <strong>completa esos campos</strong> conforme a la respuesta del PAC, <strong>sin cambiar</strong> el estado ya
+cancelado. La <strong>fecha de cancelación</strong> mostrada proviene del <code>canceled_at</code> que entrega FacturAPI (la
+hora real de cancelación), no de la hora de la consulta.</p>
 <h3 id="resultados-posibles">Resultados posibles<a class="headerlink" href="#resultados-posibles" title="Permanent link">&para;</a></h3>
 <table>
 <thead>

@@ -16,7 +16,7 @@
         <link rel="prev" href="../0034-integridad-correlacion-ffm/">
       
       
-        <link rel="next" href="../../referencia/">
+        <link rel="next" href="../0036-integridad-proyeccion-cancelacion/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -1782,6 +1782,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0036-integridad-proyeccion-cancelacion/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0036 — Integridad de la proyección de cancelación y consolidación del flujo manual
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2123,11 +2144,20 @@
 
 <h1 id="adr-0035-motor-de-reconciliacion-ffm-facturapi">ADR-0035 — Motor de reconciliación FFM ↔ FacturAPI<a class="headerlink" href="#adr-0035-motor-de-reconciliacion-ffm-facturapi" title="Permanent link">&para;</a></h1>
 <ul>
-<li><strong>Estado:</strong> Propuesto</li>
+<li><strong>Estado:</strong> Propuesto (extendido por ADR-0036)</li>
 <li><strong>Fecha:</strong> 2026-06-21</li>
 <li><strong>Rama:</strong> <code>feat/motor-reconciliacion-ffm</code></li>
 <li><strong>Relacionado:</strong> [[0034-integridad-correlacion-ffm]] (integridad y correlación del FFM)</li>
 </ul>
+<blockquote>
+<p><strong>Nota (ADR-0036):</strong> Esta decisión fue <strong>extendida/corregida por [[0036-integridad-proyeccion-cancelacion]]</strong>
+en lo relativo a la <strong>proyección completa del estado de cancelación y la consolidación del flujo manual</strong>:
+clasificación fail-closed (solo <code>status=canceled</code> es terminal; <code>accepted</code> aislado ya no produce CANCELADO
+— corrige §2.4), escritura autoritativa <code>apply_cancellation_state</code> (motivo/reason/fecha/sync/snapshot SI),
+reparación idempotente de FFM terminales incompletas (extiende §2.6), <code>canceled_at</code> del PAC como fecha de
+cancelación, y un solo botón manual (§2.8). El resto sigue vigente (GET-only, correlación, selector de
+candidatos, scheduler <code>hourly_long</code>, locks, semántica de <code>fm_sync_status</code>/<code>fm_last_pac_sync</code>).</p>
+</blockquote>
 <hr />
 <h2 id="1-contexto-y-problema">1. Contexto y problema<a class="headerlink" href="#1-contexto-y-problema" title="Permanent link">&para;</a></h2>
 <p>Tras el bloque de integridad (ADR-0034), el estado local de una <code>Factura Fiscal Mexico</code> (FFM)

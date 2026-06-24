@@ -13,10 +13,10 @@
       
       
       
-        <link rel="prev" href="../0020-smoke-test-mvp-flujos-cancelacion/">
+        <link rel="prev" href="../0035-motor-reconciliacion-ffm/">
       
       
-        <link rel="next" href="../0022-solucion-issue-112-reclasificacion-fiscal-pe/">
+        <link rel="next" href="../../referencia/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -24,7 +24,7 @@
     
     
       
-        <title>ADR-0021 — Capa fiscal_state: UI centralizada via endpoint Python - Facturación México - Documentación Técnica</title>
+        <title>ADR-0036 — Integridad de la proyección de cancelación y consolidación del flujo manual - Facturación México - Documentación Técnica</title>
       
     
     
@@ -90,7 +90,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#adr-0021-capa-fiscal_state-ui-centralizada-via-endpoint-python" class="md-skip">
+        <a href="#adr-0036-integridad-de-la-proyeccion-de-cancelacion-y-consolidacion-del-flujo-manual" class="md-skip">
           Saltar a contenido
         </a>
       
@@ -128,7 +128,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              ADR-0021 — Capa fiscal_state: UI centralizada via endpoint Python
+              ADR-0036 — Integridad de la proyección de cancelación y consolidación del flujo manual
             
           </span>
         </div>
@@ -1281,30 +1281,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    ADR-0021 — Capa fiscal_state: UI centralizada via endpoint Python
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../0021-fiscal-state-capa-ui-centralizada/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1313,197 +1293,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Tabla de contenidos
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#contexto" class="md-nav__link">
-    <span class="md-ellipsis">
-      Contexto
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#decision" class="md-nav__link">
-    <span class="md-ellipsis">
-      Decisión
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Decisión">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#principios" class="md-nav__link">
-    <span class="md-ellipsis">
-      Principios
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#estructura-implementada" class="md-nav__link">
-    <span class="md-ellipsis">
-      Estructura implementada
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#doctypes-migrados-a-fiscal_state" class="md-nav__link">
-    <span class="md-ellipsis">
-      DocTypes migrados a fiscal_state
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#check_ppd_requirement-implementacion-real" class="md-nav__link">
-    <span class="md-ellipsis">
-      check_ppd_requirement — implementación real
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#gap-identificado-can_register_payment" class="md-nav__link">
-    <span class="md-ellipsis">
-      Gap identificado — can_register_payment
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#alternativas-descartadas" class="md-nav__link">
-    <span class="md-ellipsis">
-      Alternativas descartadas
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Alternativas descartadas">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#a-mantener-logica-en-js-con-mas-llamadas-async" class="md-nav__link">
-    <span class="md-ellipsis">
-      A) Mantener lógica en JS con más llamadas async
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#b-calcular-todo-en-validate-y-guardar-en-campos" class="md-nav__link">
-    <span class="md-ellipsis">
-      B) Calcular todo en validate y guardar en campos
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#c-un-endpoint-por-doctype" class="md-nav__link">
-    <span class="md-ellipsis">
-      C) Un endpoint por DocType
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#consecuencias" class="md-nav__link">
-    <span class="md-ellipsis">
-      Consecuencias
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#hardening-post-merge-pr-123" class="md-nav__link">
-    <span class="md-ellipsis">
-      Hardening post-merge (PR #123)
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#tests" class="md-nav__link">
-    <span class="md-ellipsis">
-      Tests
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#referencias" class="md-nav__link">
-    <span class="md-ellipsis">
-      Referencias
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#nota-adicional-2026-05-12-issue-133" class="md-nav__link">
-    <span class="md-ellipsis">
-      Nota adicional — 2026-05-12 (Issue #133)
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Nota adicional — 2026-05-12 (Issue #133)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#problema-detectado-post-implementacion-fm_sync_status-bloqueaba-boton-timbrar" class="md-nav__link">
-    <span class="md-ellipsis">
-      Problema detectado post-implementación: fm_sync_status bloqueaba botón Timbrar
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1807,10 +1596,30 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../0036-integridad-proyeccion-cancelacion/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    ADR-0036 — Integridad de la proyección de cancelación y consolidación del flujo manual
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -1819,6 +1628,131 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-contexto-y-problema" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Contexto y problema
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Decisión
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Decisión">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-clasificacion-de-cancelacion-fail-closed-corrige-adr-0035-24" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.1 Clasificación de cancelación fail-closed (corrige ADR-0035 §2.4)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-operacion-autoritativa-unica-apply_cancellation_state" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.2 Operación autoritativa única: apply_cancellation_state
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-reparacion-idempotente-desde-el-motor-extiende-adr-0035-26" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.3 Reparación idempotente desde el motor (extiende ADR-0035 §2.6)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-cancellation_date-desde-canceled_at-del-pac" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.4 cancellation_date desde canceled_at del PAC
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#25-consolidacion-del-flujo-manual-corrige-adr-0035-28" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.5 Consolidación del flujo manual (corrige ADR-0035 §2.8)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#26-otros-endurecimientos" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.6 Otros endurecimientos
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-consecuencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Consecuencias
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-validacion" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Validación
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-alternativas-descartadas" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Alternativas descartadas
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1999,64 +1933,73 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#contexto" class="md-nav__link">
+  <a href="#1-contexto-y-problema" class="md-nav__link">
     <span class="md-ellipsis">
-      Contexto
+      1. Contexto y problema
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#decision" class="md-nav__link">
+  <a href="#2-decision" class="md-nav__link">
     <span class="md-ellipsis">
-      Decisión
+      2. Decisión
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Decisión">
+    <nav class="md-nav" aria-label="2. Decisión">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#principios" class="md-nav__link">
+  <a href="#21-clasificacion-de-cancelacion-fail-closed-corrige-adr-0035-24" class="md-nav__link">
     <span class="md-ellipsis">
-      Principios
+      2.1 Clasificación de cancelación fail-closed (corrige ADR-0035 §2.4)
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#estructura-implementada" class="md-nav__link">
+  <a href="#22-operacion-autoritativa-unica-apply_cancellation_state" class="md-nav__link">
     <span class="md-ellipsis">
-      Estructura implementada
+      2.2 Operación autoritativa única: apply_cancellation_state
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#doctypes-migrados-a-fiscal_state" class="md-nav__link">
+  <a href="#23-reparacion-idempotente-desde-el-motor-extiende-adr-0035-26" class="md-nav__link">
     <span class="md-ellipsis">
-      DocTypes migrados a fiscal_state
+      2.3 Reparación idempotente desde el motor (extiende ADR-0035 §2.6)
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#check_ppd_requirement-implementacion-real" class="md-nav__link">
+  <a href="#24-cancellation_date-desde-canceled_at-del-pac" class="md-nav__link">
     <span class="md-ellipsis">
-      check_ppd_requirement — implementación real
+      2.4 cancellation_date desde canceled_at del PAC
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#gap-identificado-can_register_payment" class="md-nav__link">
+  <a href="#25-consolidacion-del-flujo-manual-corrige-adr-0035-28" class="md-nav__link">
     <span class="md-ellipsis">
-      Gap identificado — can_register_payment
+      2.5 Consolidación del flujo manual (corrige ADR-0035 §2.8)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#26-otros-endurecimientos" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.6 Otros endurecimientos
     </span>
   </a>
   
@@ -2068,104 +2011,29 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#alternativas-descartadas" class="md-nav__link">
+  <a href="#3-consecuencias" class="md-nav__link">
     <span class="md-ellipsis">
-      Alternativas descartadas
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Alternativas descartadas">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#a-mantener-logica-en-js-con-mas-llamadas-async" class="md-nav__link">
-    <span class="md-ellipsis">
-      A) Mantener lógica en JS con más llamadas async
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#b-calcular-todo-en-validate-y-guardar-en-campos" class="md-nav__link">
-    <span class="md-ellipsis">
-      B) Calcular todo en validate y guardar en campos
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#c-un-endpoint-por-doctype" class="md-nav__link">
-    <span class="md-ellipsis">
-      C) Un endpoint por DocType
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#consecuencias" class="md-nav__link">
-    <span class="md-ellipsis">
-      Consecuencias
+      3. Consecuencias
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#hardening-post-merge-pr-123" class="md-nav__link">
+  <a href="#4-validacion" class="md-nav__link">
     <span class="md-ellipsis">
-      Hardening post-merge (PR #123)
+      4. Validación
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#tests" class="md-nav__link">
+  <a href="#5-alternativas-descartadas" class="md-nav__link">
     <span class="md-ellipsis">
-      Tests
+      5. Alternativas descartadas
     </span>
   </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#referencias" class="md-nav__link">
-    <span class="md-ellipsis">
-      Referencias
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#nota-adicional-2026-05-12-issue-133" class="md-nav__link">
-    <span class="md-ellipsis">
-      Nota adicional — 2026-05-12 (Issue #133)
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Nota adicional — 2026-05-12 (Issue #133)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#problema-detectado-post-implementacion-fm_sync_status-bloqueaba-boton-timbrar" class="md-nav__link">
-    <span class="md-ellipsis">
-      Problema detectado post-implementación: fm_sync_status bloqueaba botón Timbrar
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -2184,195 +2052,144 @@
                   
 
 
-<h1 id="adr-0021-capa-fiscal_state-ui-centralizada-via-endpoint-python">ADR-0021 — Capa fiscal_state: UI centralizada via endpoint Python<a class="headerlink" href="#adr-0021-capa-fiscal_state-ui-centralizada-via-endpoint-python" title="Permanent link">&para;</a></h1>
-<p><strong>Fecha:</strong> 2026-05-10
-<strong>Estado:</strong> Implementado (PR #122)
-<strong>Branch:</strong> feat/beta-release-fixes</p>
+<h1 id="adr-0036-integridad-de-la-proyeccion-de-cancelacion-y-consolidacion-del-flujo-manual">ADR-0036 — Integridad de la proyección de cancelación y consolidación del flujo manual<a class="headerlink" href="#adr-0036-integridad-de-la-proyeccion-de-cancelacion-y-consolidacion-del-flujo-manual" title="Permanent link">&para;</a></h1>
+<ul>
+<li><strong>Estado:</strong> Propuesto</li>
+<li><strong>Fecha:</strong> 2026-06-24</li>
+<li><strong>Rama:</strong> <code>fix/cancelacion-integridad</code></li>
+<li><strong>Relacionado:</strong> [[0034-integridad-correlacion-ffm]] (correlación estricta y writer) · [[0035-motor-reconciliacion-ffm]] (motor de reconciliación)</li>
+<li><strong>Extiende/corrige:</strong> ADR-0035 (clasificación de cancelación, persistencia y flujo manual). <strong>No</strong> lo reemplaza por completo.</li>
+</ul>
 <hr />
-<h2 id="contexto">Contexto<a class="headerlink" href="#contexto" title="Permanent link">&para;</a></h2>
-<p>Antes de este ADR, la lógica de decisión de UI (qué botones mostrar, qué mensajes emitir, qué acciones habilitar) estaba distribuida en tres capas sin coordinación:</p>
+<h2 id="1-contexto-y-problema">1. Contexto y problema<a class="headerlink" href="#1-contexto-y-problema" title="Permanent link">&para;</a></h2>
+<p>Tras ADR-0035, se detectaron en producción (LlantasCS) FFM marcadas localmente como <code>CANCELADO</code> que
+<strong>no estaban canceladas ante el SAT</strong> o que quedaron con campos incompletos. Causas confirmadas
+(forense sobre FFMX-2026-00117 y 00137):</p>
 <ol>
-<li><strong>JS directo</strong> — cada archivo <code>.js</code> consultaba campos individuales del documento y tomaba decisiones locales</li>
-<li><strong>Múltiples llamadas async</strong> — cada botón disparaba su propio <code>frappe.call</code> para verificar prerrequisitos</li>
-<li><strong><code>fm_require_complement</code></strong> — campo en Payment Entry calculado de forma inconsistente desde tres rutas distintas (PE creation, on_submit, en_validate)</li>
+<li><strong><code>CANCELADO</code> prematuro.</strong> El writer clasificaba la respuesta de la cancelación por <strong>HTTP 200</strong>
+   (<code>Solicitud Cancelación → CANCELADO</code>), ignorando <code>cancellation_status</code>. Una respuesta
+   <code>valid + verifying</code> (la cancelación apenas se está verificando en el SAT) se marcaba CANCELADO.</li>
+<li><strong>Crash <code>(1406) Data too long for column 'method'</code></strong> durante la finalización: el antipatrón
+   <code>frappe.log_error(&lt;texto largo&gt;, "título")</code> contra la firma <code>log_error(title, message)</code> desbordaba
+   la columna <code>method</code> (140) y abortaba la FASE 3, dejando <code>cancellation_reason</code> residual (<code>01</code>),
+   <code>cancellation_date</code> vacía y el snapshot de la SI sin sincronizar.</li>
+<li><strong>Finalización asíncrona incompleta.</strong> El motor (ADR-0035) escribía solo <code>status</code> + <code>fm_sync_status</code>
+   al llegar a CANCELADO; no completaba <code>cancellation_reason</code>/<code>cancellation_date</code>/snapshot SI.</li>
+<li><strong>Duplicación de flujo manual.</strong> Coexistían dos botones que consultaban el PAC: "Verificar estado
+   en FacturAPI" (motor, con company/correlación/lock/permiso) y "Revisar Estatus Cancelación"
+   (camino laxo, sin esas protecciones).</li>
+<li><strong>Fecha de cancelación = <code>now()</code></strong> en vez del <code>canceled_at</code> real del PAC.</li>
 </ol>
-<p>Esto generaba:
-- Inconsistencias entre lo que mostraba la UI y lo que permitía el backend
-- Decisiones de roles hardcodeadas en JS (listas de nombres de roles)
-- Múltiples puntos donde agregar lógica nueva requería tocar N archivos
-- El bug C1: <code>complemento_state.py</code> habilitaba el botón de descarga con <code>has_xml/has_pdf</code>, pero la API lanzaba error si faltaba <code>facturapi_id</code></p>
-<hr />
-<h2 id="decision">Decisión<a class="headerlink" href="#decision" title="Permanent link">&para;</a></h2>
-<p>Crear una capa <code>fiscal_state/</code> como <strong>fuente única de verdad</strong> para decisiones de UI fiscal.</p>
-<h3 id="principios">Principios<a class="headerlink" href="#principios" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>Read-only</strong> — los módulos de estado solo leen, nunca modifican documentos</li>
-<li><strong>Tres capas</strong> — <code>facts</code> (observaciones), <code>actions</code> (acciones posibles), <code>messages</code> (mensajes de UI)</li>
-<li><strong>Un solo endpoint whitelisted</strong> — <code>get_fiscal_ui_state(doctype, name)</code> enruta a los módulos específicos</li>
-<li><strong>Sin roles hardcodeados</strong> — permisos delegados a <code>frappe.model.can_cancel()</code> (DocPerm configurable por cliente)</li>
-<li><strong>Permission check en el gateway</strong> — <code>frappe.has_permission(doctype, "read", name)</code> antes de cualquier cómputo</li>
-</ul>
-<h3 id="estructura-implementada">Estructura implementada<a class="headerlink" href="#estructura-implementada" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>facturacion_mexico/fiscal_state/
-    __init__.py
-    api.py                      # endpoint whitelisted
-    payment_entry_state.py      # facts/actions/messages para Payment Entry
-    sales_invoice_state.py      # facts/actions/messages para Sales Invoice
-    ffm_state.py                # facts/actions/messages para Factura Fiscal Mexico
-    complemento_state.py        # facts/actions/messages para Complemento Pago MX
-</code></pre></div>
-<h3 id="doctypes-migrados-a-fiscal_state">DocTypes migrados a fiscal_state<a class="headerlink" href="#doctypes-migrados-a-fiscal_state" title="Permanent link">&para;</a></h3>
+<p>Efecto convergente: <code>CANCELADO</code> + <code>cancellation_reason="01"</code> + <code>cancellation_date</code> vacía + snapshot
+SI stale → <strong>la Sales Invoice no se podía cancelar</strong> (el guard validaba el snapshot, no el estado real).</p>
+<h2 id="2-decision">2. Decisión<a class="headerlink" href="#2-decision" title="Permanent link">&para;</a></h2>
+<h3 id="21-clasificacion-de-cancelacion-fail-closed-corrige-adr-0035-24">2.1 Clasificación de cancelación <strong>fail-closed</strong> (corrige ADR-0035 §2.4)<a class="headerlink" href="#21-clasificacion-de-cancelacion-fail-closed-corrige-adr-0035-24" title="Permanent link">&para;</a></h3>
+<p>El HTTP 200 confirma que la <em>solicitud</em> se procesó, <strong>no</strong> que el SAT canceló. La cancelación se
+clasifica con un helper acotado <code>derive_cancellation_reconciliation(remote_status, cancellation_status)</code>:</p>
 <table>
 <thead>
 <tr>
-<th>DocType</th>
-<th>Archivo JS</th>
-<th>Qué se migró</th>
+<th>Respuesta PAC</th>
+<th>Estado local</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Complemento Pago MX</td>
-<td><code>complemento_pago_mx.js</code></td>
-<td>Todos los botones y mensajes</td>
+<td><code>status = canceled</code></td>
+<td><strong>CANCELADO</strong> (único terminal)</td>
 </tr>
 <tr>
-<td>Payment Entry</td>
-<td><code>payment_entry.js</code></td>
-<td>Botones, cancel guard, mensajes</td>
+<td><code>valid</code> + <code>pending</code> / <code>verifying</code> / <code>accepted</code> (aislado)</td>
+<td><strong>PENDIENTE_CANCELACION</strong></td>
 </tr>
 <tr>
-<td>Factura Fiscal Mexico</td>
-<td><code>factura_fiscal_mexico.js</code></td>
-<td><code>applyFFMUi()</code> reemplazado por <code>_apply_ffm_buttons/messages()</code></td>
+<td><code>valid</code> + <code>rejected</code> / <code>expired</code></td>
+<td>TIMBRADO (sigue vigente)</td>
 </tr>
 <tr>
-<td>Sales Invoice</td>
-<td><code>sales_invoice.js</code></td>
-<td>Botón Timbrar, Ver Factura Fiscal, guards</td>
+<td><code>valid</code> + ninguno</td>
+<td>TIMBRADO</td>
+</tr>
+<tr>
+<td>desconocido / incoherente</td>
+<td>sin transición (<strong>nunca CANCELADO</strong>)</td>
 </tr>
 </tbody>
 </table>
-<h3 id="check_ppd_requirement-implementacion-real">check_ppd_requirement — implementación real<a class="headerlink" href="#check_ppd_requirement-implementacion-real" title="Permanent link">&para;</a></h3>
-<p><code>payment_entry_validate.check_ppd_requirement()</code> era un no-op. Se implementó para establecer <code>fm_require_complement</code> como fuente única de verdad en BD:</p>
+<blockquote>
+<p><strong>Corrección a ADR-0035:</strong> <code>accepted</code> <strong>aislado</strong> (sin <code>status=canceled</code>) ya <strong>no</strong> produce
+CANCELADO. Solo <code>status=canceled</code> es terminal.</p>
+</blockquote>
+<p>El mismo criterio se usa en los tres caminos: cancelación síncrona (FASE 3), <code>revisar_estatus_cancelacion</code>
+y el motor de reconciliación.</p>
+<h3 id="22-operacion-autoritativa-unica-apply_cancellation_state">2.2 Operación autoritativa única: <code>apply_cancellation_state</code><a class="headerlink" href="#22-operacion-autoritativa-unica-apply_cancellation_state" title="Permanent link">&para;</a></h3>
+<p>Una sola función escribe el estado de cancelación, idempotente y monotónica:
+- conserva <code>fm_motivo_cancelacion</code> (motivo SAT solicitado);
+- deriva <code>cancellation_reason</code> desde ese motivo (sobrescribe residuos como <code>01</code>);
+- fija <code>cancellation_date</code> (ver §2.4);
+- fija <code>fm_sync_status</code> (valor derivado, no asumido);
+- sincroniza <code>SI.fm_fiscal_status</code> <strong>solo si</strong> la SI apunta a esa FFM (<code>SI.fm_factura_fiscal_mx == FFM.name</code>);
+- <strong>monotonicidad:</strong> una FFM <code>CANCELADO</code> <strong>no se degrada</strong> a PENDIENTE/TIMBRADO por una respuesta vieja;
+- <strong>reparación:</strong> <code>CANCELADO → CANCELADO</code> <strong>sí</strong> ejecuta la parte reparadora para completar campos faltantes;
+- devuelve si escribió algún campo (para decidir trazabilidad).</p>
+<p>La escritura de estado en cancelación deja de pasar por el writer (que solo crea el Response Log con
+<code>skip_state_persist</code>), eliminando la doble escritura / commit parcial.</p>
+<h3 id="23-reparacion-idempotente-desde-el-motor-extiende-adr-0035-26">2.3 Reparación idempotente desde el motor (extiende ADR-0035 §2.6)<a class="headerlink" href="#23-reparacion-idempotente-desde-el-motor-extiende-adr-0035-26" title="Permanent link">&para;</a></h3>
+<p>El reconciliador ejecuta <code>apply_cancellation_state</code> en cancelaciones <strong>aunque <code>status</code> y
+<code>fm_sync_status</code> no cambien</strong>, para reparar FFM terminales incompletas (reason/fecha/snapshot SI).
+Se crea Response Log de reconciliación cuando hubo cambio real (status, sync <strong>o</strong> reparación de
+campos); si nada cambió, no se crea log. <strong>No</strong> se altera el selector de candidatos asíncronos
+(<code>_select_candidates</code>): el scheduler sigue procesando solo <code>pending</code> / <code>PENDIENTE_CANCELACION</code>.</p>
+<h3 id="24-cancellation_date-desde-canceled_at-del-pac">2.4 <code>cancellation_date</code> desde <code>canceled_at</code> del PAC<a class="headerlink" href="#24-cancellation_date-desde-canceled_at-del-pac" title="Permanent link">&para;</a></h3>
+<p>La fecha de cancelación usa el <code>canceled_at</code> <strong>real</strong> que entrega FacturAPI (UTC ISO-8601 con <code>Z</code>),
+normalizado a la zona horaria del sitio (<code>convert_utc_to_system_timezone</code>). <code>now()</code> solo se usa como
+respaldo si el PAC no entrega <code>canceled_at</code>. Una <code>cancellation_date</code> ya existente nunca se sobrescribe.
+Solo se fija fecha cuando el estado es CANCELADO.</p>
+<h3 id="25-consolidacion-del-flujo-manual-corrige-adr-0035-28">2.5 Consolidación del flujo manual (corrige ADR-0035 §2.8)<a class="headerlink" href="#25-consolidacion-del-flujo-manual-corrige-adr-0035-28" title="Permanent link">&para;</a></h3>
+<p>Queda <strong>un solo</strong> botón de consulta: <strong>"Verificar estado en FacturAPI"</strong> (→ <code>reconcile_ffm</code>). El botón
+duplicado "Revisar Estatus Cancelación" se eliminó. La función <code>revisar_estatus_cancelacion</code> se mantiene
+por compatibilidad como <strong>wrapper</strong> que delega en <code>reconcile_ffm</code> (hereda company, correlación estricta,
+lock por FFM y permiso fiscal; no realiza una segunda consulta al PAC).</p>
+<h3 id="26-otros-endurecimientos">2.6 Otros endurecimientos<a class="headerlink" href="#26-otros-endurecimientos" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Solo aplica a PE de tipo <code>Receive</code></li>
-<li>Busca SIs referenciadas con <code>fm_es_ppd=1</code> y <code>fm_fiscal_status=TIMBRADO</code></li>
-<li>Usa <code>ignore_permissions=True</code> para evitar falsos negativos por permisos restringidos</li>
-<li>Usa <code>flt(allocated_amount)</code> para robustez ante <code>None</code></li>
+<li><strong>Guard de cancelación de SI:</strong> <code>cancelar_si_post_fiscal</code> valida el estado <strong>real</strong> de la FFM activa,
+  no el snapshot <code>SI.fm_fiscal_status</code> (derivado).</li>
+<li><strong>Resolución de FFM en el endpoint de cancelación:</strong> se resuelve la FFM activa por
+  <code>SI.fm_factura_fiscal_mx</code> (validando el vínculo), no por <code>get_all(... limit=1)</code>.</li>
+<li><strong><code>cancellation_reason</code> (Select):</strong> primera opción <strong>vacía</strong> + <code>read_only</code>. Evita que una FFM nueva
+  nazca con el motivo <code>01</code> implícito (default de Select de Frappe).</li>
+<li><strong>Logging:</strong> las llamadas <code>frappe.log_error</code> del camino de cancelación usan argumentos nombrados
+  (<code>title=</code>, <code>message=</code>); el fallo del logger ya no reemplaza la excepción original (corrige el 1406).</li>
 </ul>
-<h3 id="gap-identificado-can_register_payment">Gap identificado — can_register_payment<a class="headerlink" href="#gap-identificado-can_register_payment" title="Permanent link">&para;</a></h3>
-<p>Se detectó durante la auditoría que Sales Invoice con FFM cancelada seguía mostrando el botón de registro de pago. Se agregó <code>can_register_payment</code> a <code>sales_invoice_state.py</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="n">can_register_payment</span> <span class="o">=</span> <span class="n">is_submitted</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_cancelled</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">has_ffm</span> <span class="ow">or</span> <span class="n">has_active_ffm</span><span class="p">)</span>
-</code></pre></div>
-<hr />
-<h2 id="alternativas-descartadas">Alternativas descartadas<a class="headerlink" href="#alternativas-descartadas" title="Permanent link">&para;</a></h2>
-<h3 id="a-mantener-logica-en-js-con-mas-llamadas-async">A) Mantener lógica en JS con más llamadas async<a class="headerlink" href="#a-mantener-logica-en-js-con-mas-llamadas-async" title="Permanent link">&para;</a></h3>
-<p>Descartada: amplifica el problema de N fuentes de verdad. Cada caso nuevo requiere tocar múltiples archivos.</p>
-<h3 id="b-calcular-todo-en-validate-y-guardar-en-campos">B) Calcular todo en <code>validate</code> y guardar en campos<a class="headerlink" href="#b-calcular-todo-en-validate-y-guardar-en-campos" title="Permanent link">&para;</a></h3>
-<p>Descartada: genera escrituras innecesarias en BD en cada validación, complica el historial de cambios, y mezcla preocupaciones.</p>
-<h3 id="c-un-endpoint-por-doctype">C) Un endpoint por DocType<a class="headerlink" href="#c-un-endpoint-por-doctype" title="Permanent link">&para;</a></h3>
-<p>Descartada: el gateway único <code>get_fiscal_ui_state</code> con routing interno permite evolucionar la firma sin tocar JS.</p>
-<hr />
-<h2 id="consecuencias">Consecuencias<a class="headerlink" href="#consecuencias" title="Permanent link">&para;</a></h2>
-<p><strong>Positivas:</strong>
-- Lógica fiscal centralizada y auditable en Python
-- JS reducido a aplicar el estado recibido (sin decisiones)
-- Roles de cancelación configurables por cliente sin tocar código
-- Bug C1 corregido (can_download ahora depende de <code>has_facturapi_id</code>)
-- Base para futuras features: agregar un hecho o acción nueva no requiere cambios en JS</p>
-<p><strong>Negativas / Trade-offs:</strong>
-- Un <code>frappe.call</code> adicional en cada <code>refresh()</code> de los 4 doctypes
-- 3 llamadas separadas en Sales Invoice refresh (SI + Opciones Fiscales + Sustituir CFDI) — pendiente consolidar (H1 CodeRabbit)
-- <code>sales_invoice_block_cancel.js</code> no migrado (tiene eventos realtime — fuera de alcance)</p>
-<hr />
-<h2 id="hardening-post-merge-pr-123">Hardening post-merge (PR #123)<a class="headerlink" href="#hardening-post-merge-pr-123" title="Permanent link">&para;</a></h2>
-<p>CodeRabbit identificó 10 issues en PR #122, todos aplicados en <code>fix/coderabbit-hardening-pr122</code>:</p>
-<table>
-<thead>
-<tr>
-<th>Fix</th>
-<th>Descripción</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>C1</td>
-<td><code>complemento_state</code> — <code>can_download</code> usa <code>has_facturapi_id</code></td>
-</tr>
-<tr>
-<td>M1</td>
-<td><code>payment_entry_validate</code> — <code>ignore_permissions=True</code></td>
-</tr>
-<tr>
-<td>Q1</td>
-<td><code>complemento_pago_mx.js</code> — destructuring defensivo</td>
-</tr>
-<tr>
-<td>Q2</td>
-<td><code>payment_entry_validate</code> — <code>flt(allocated_amount)</code></td>
-</tr>
-<tr>
-<td>Q3</td>
-<td><code>factura_fiscal_mexico.js</code> — destructuring defensivo</td>
-</tr>
-<tr>
-<td>Q4</td>
-<td><code>factura_fiscal_mexico.js</code> — eliminar bloque if vacío</td>
-</tr>
-<tr>
-<td>Q5</td>
-<td><code>ffm_state</code> — <code>startswith</code> con tuple</td>
-</tr>
-<tr>
-<td>Q6</td>
-<td><code>payment_entry.js</code> — destructuring defensivo</td>
-</tr>
-<tr>
-<td>Q8</td>
-<td><code>si_post_fiscal_actions.js</code> — optional chaining</td>
-</tr>
-<tr>
-<td>O1</td>
-<td><code>factura_fiscal_mexico.js</code> — eliminar dead code (2 funciones sin callers)</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2 id="tests">Tests<a class="headerlink" href="#tests" title="Permanent link">&para;</a></h2>
+<h2 id="3-consecuencias">3. Consecuencias<a class="headerlink" href="#3-consecuencias" title="Permanent link">&para;</a></h2>
 <ul>
-<li><code>facturacion_mexico.tests.test_check_ppd_requirement</code> — 5/5 ✅</li>
-<li><code>facturacion_mexico.tests.test_fiscal_state_payment_entry</code> — suite completa ✅</li>
-<li><code>facturacion_mexico.tests.test_refacturar_workflow</code> — 8/8 ✅ (regresión)</li>
-<li>CI primera corrida: ✅ aprobado</li>
+<li>Una solicitud de cancelación en proceso permanece en <code>PENDIENTE_CANCELACION</code> hasta que el SAT confirme.</li>
+<li>El motor y la verificación manual <strong>completan/reparan</strong> FFM CANCELADO incompletas sin degradarlas.</li>
+<li><code>cancellation_date</code> refleja el instante fiscal real (<code>canceled_at</code>).</li>
+<li>La SI vuelve a ser cancelable cuando la FFM activa está realmente CANCELADO.</li>
+<li><strong>Estado de los ADR:</strong> ADR-0035 sigue vigente en lo relativo al motor (GET-only, correlación,
+  selector de candidatos, scheduler <code>hourly_long</code>, locks, semántica de <code>fm_sync_status</code>/<code>fm_last_pac_sync</code>,
+  sin DocTypes/campos nuevos). ADR-0034 sigue vigente (correlación estricta y writer). Este ADR-0036
+  <strong>corrige</strong> la clasificación de cancelación y la persistencia de cancelación de ADR-0035, y <strong>agrega</strong>
+  la proyección completa, la reparación idempotente, el <code>canceled_at</code> y la consolidación del flujo manual.</li>
 </ul>
-<hr />
-<h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">&para;</a></h2>
+<h2 id="4-validacion">4. Validación<a class="headerlink" href="#4-validacion" title="Permanent link">&para;</a></h2>
+<p>Validado en <code>llantascs-v16.dev</code> (backup de producción) con datos reales del PAC:
+- <strong>FFMX-2026-00137:</strong> PAC <code>status=canceled</code>, motivo <code>02</code>, SAT <code>2026-06-23T18:01:23.572Z</code> → local
+  <code>2026-06-23 12:01:23.572</code> (UTC-6), <code>cancellation_reason → 02</code>, <code>SI.fm_fiscal_status → CANCELADO</code>,
+  Response Log de reconciliación, <strong>0</strong> nuevas solicitudes de cancelación, <strong>0</strong> nuevos errores 1406.
+- Suites de regresión de ADR-0034/0035 verdes + suite nueva de integridad de cancelación.</p>
+<h2 id="5-alternativas-descartadas">5. Alternativas descartadas<a class="headerlink" href="#5-alternativas-descartadas" title="Permanent link">&para;</a></h2>
 <ul>
-<li>PR #122: feat(fiscal-state): capa UI centralizada + migración de 4 doctypes a fiscal_state</li>
-<li>PR #123: fix(fiscal-state): hardening CodeRabbit PR #122 — 10 fixes</li>
-<li><code>docs/development/fiscal-ui-state-audit.md</code> — auditoría previa que originó esta decisión</li>
-<li><code>frappe-infrastructure/checkpoints/coderabbit-pr122-review.md</code> — análisis CodeRabbit</li>
+<li><strong>Mantener los dos botones</strong> alineando el laxo con company/correlación/lock/permiso: descartado;
+  deja dos puertas para la misma operación.</li>
+<li><strong>Comando de "reparación" separado</strong> del reconciliador: descartado; la reparación idempotente dentro
+  del motor reutiliza el flujo único sin arquitectura nueva.</li>
+<li><strong>Incluir las FFM <code>CANCELADO</code> incompletas en el selector asíncrono:</strong> descartado en este alcance; la
+  reparación de terminales se hace por el botón manual, sin tocar <code>_select_candidates</code>.</li>
+<li><strong>Usar <code>now()</code> como fecha de cancelación:</strong> descartado; no es el instante fiscal real cuando el PAC
+  entrega <code>canceled_at</code>.</li>
 </ul>
-<hr />
-<h2 id="nota-adicional-2026-05-12-issue-133">Nota adicional — 2026-05-12 (Issue #133)<a class="headerlink" href="#nota-adicional-2026-05-12-issue-133" title="Permanent link">&para;</a></h2>
-<h3 id="problema-detectado-post-implementacion-fm_sync_status-bloqueaba-boton-timbrar">Problema detectado post-implementación: fm_sync_status bloqueaba botón Timbrar<a class="headerlink" href="#problema-detectado-post-implementacion-fm_sync_status-bloqueaba-boton-timbrar" title="Permanent link">&para;</a></h3>
-<p>Durante pruebas de la rama <code>feature/issue129-addendas</code> se detectó que toda FFM nueva
-quedaba con el botón "Timbrar" bloqueado hasta que el scheduler corría (hasta 5 minutos).</p>
-<p><strong>Causa:</strong> <code>fm_sync_status</code> tiene <code>default = "pending"</code> en el DocType. La lógica de
-<code>_compute_actions</code> bloqueaba <code>can_stamp</code> cuando <code>sync_pending = True</code>, lo que afectaba
-a <strong>toda FFM recién creada</strong> aunque nunca hubiera tenido una operación PAC activa.</p>
-<p><strong>Corrección aplicada:</strong>
-- <code>can_stamp</code> ya no depende de <code>fm_sync_status</code> — solo depende del estado fiscal real
-- El mensaje "Operación en progreso" solo aparece cuando <code>sync_pending=True AND (has_uuid OR facturapi_id)</code>
-- El scheduler <code>bulk_sync_invoices</code> se mantiene activo únicamente como red de seguridad</p>
-<p><strong>Hallazgo:</strong> <code>FFM.on_update → update_sales_invoice_fiscal_info()</code> ya sincroniza SI
-síncronamente. El scheduler era trabajo duplicado para el flujo normal.</p>
-<p><strong>Refactor pendiente:</strong> Ver Issue #133 para limpieza completa de <code>fm_sync_status</code>,
-<code>bulk_sync_invoices</code> y el <code>try/except</code> silencioso en <code>update_sales_invoice_fiscal_info</code>.</p>
-<p><strong>Análisis detallado:</strong>
-- <code>docs/development/REPORTE_BUG_FM_SYNC_STATUS_PENDING.md</code>
-- <code>docs/development/REPORTE_FM_SYNC_STATUS_IMPLICACIONES.md</code></p>
 
 
 

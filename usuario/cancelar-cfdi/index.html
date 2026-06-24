@@ -1752,6 +1752,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0036-integridad-proyeccion-cancelacion/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0036 — Integridad de la proyección de cancelación y consolidación del flujo manual
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2115,35 +2136,38 @@ El motivo <strong>01</strong> requiere un UUID sustituto y sigue un camino difer
 <li>En el FFM → sección <strong>Cancelación</strong> → seleccionar el <strong>motivo</strong> (02, 03 o 04)</li>
 <li>Confirmar</li>
 </ol>
-<p>El sistema envía la solicitud de cancelación a FacturAPI.io.</p>
+<p>El sistema envía la <strong>solicitud</strong> de cancelación a FacturAPI.io. Que FacturAPI reciba la solicitud
+<strong>no</strong> significa que el CFDI ya esté cancelado: solo cuando el SAT lo confirma queda en <code>CANCELADO</code>.</p>
 <h3 id="que-pasa-despues">Qué pasa después<a class="headerlink" href="#que-pasa-despues" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
 <tr>
-<th>Respuesta del SAT</th>
+<th>Estado real en el SAT</th>
 <th>Estado resultante</th>
 <th>Qué significa</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>canceled</code> / <code>accepted</code></td>
+<td><code>canceled</code></td>
 <td><code>CANCELADO</code></td>
-<td>Cancelación aceptada de inmediato</td>
+<td>Cancelación <strong>confirmada</strong> por el SAT</td>
 </tr>
 <tr>
-<td><code>pending</code></td>
+<td><code>pending</code> / <code>verifying</code> / <code>accepted</code> (sin <code>canceled</code>)</td>
 <td><code>PENDIENTE_CANCELACION</code></td>
-<td>El receptor tiene 72 horas para aceptar o rechazar</td>
+<td>La solicitud se procesó; el SAT/receptor aún no la confirma</td>
 </tr>
 <tr>
-<td><code>rejected</code></td>
+<td><code>rejected</code> / <code>expired</code></td>
 <td><code>TIMBRADO</code> (sin cambio)</td>
-<td>El receptor rechazó la cancelación</td>
+<td>La cancelación no procedió; el CFDI sigue vigente</td>
 </tr>
 </tbody>
 </table>
-<p>Si queda en <code>PENDIENTE_CANCELACION</code>: esperar. El SAT acepta automáticamente después de 72 horas si el receptor no responde. Puedes verificar el estado con el botón <strong>"Revisar estatus cancelación"</strong> en el FFM.</p>
+<p>Si queda en <code>PENDIENTE_CANCELACION</code>: esperar. El SAT acepta automáticamente después de 72 horas si el
+receptor no responde. Puedes verificar o actualizar el estado con el botón <strong>"Verificar estado en
+FacturAPI"</strong> en el FFM (ver <a href="../verificar-estado-facturapi/">Verificar estado en FacturAPI</a>).</p>
 <hr />
 <h2 id="camino-b-motivo-01-cancelacion-con-sustitucion">Camino B — Motivo 01 (cancelación con sustitución)<a class="headerlink" href="#camino-b-motivo-01-cancelacion-con-sustitucion" title="Permanent link">&para;</a></h2>
 <p>Este camino se usa cuando hay un error en la factura y necesitas emitir una versión corregida. El CFDI original se cancela y queda relacionado con el nuevo.</p>
