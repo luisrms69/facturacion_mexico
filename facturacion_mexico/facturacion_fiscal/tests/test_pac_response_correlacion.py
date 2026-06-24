@@ -116,6 +116,13 @@ class TestPACResponseCorrelacion(IntegrationTestCase):
 
 	# 2
 	def test_cancelacion_se_aplica_al_ffm_explicito(self):
+		"""El writer correlaciona la respuesta de cancelación al FFM explícito, pero NO
+		proyecta el estado de cancelación (skip_state_persist). La proyección autoritativa
+		la hace `apply_cancellation_state`, y solo sobre el FFM explícito."""
+		from facturacion_mexico.facturacion_fiscal.cancellation_state import (
+			apply_cancellation_state,
+		)
+
 		ffm_a = self._ffm(status="TIMBRADO", uuid="UUID-A", facturapi_id="fa-A")
 		ffm_b = self._ffm(status="TIMBRADO", uuid="UUID-B", facturapi_id="fa-B")
 
@@ -123,6 +130,19 @@ class TestPACResponseCorrelacion(IntegrationTestCase):
 			self.si, {"req": 1}, _cancelacion_response(), "cancelacion", factura_fiscal_name=ffm_a
 		)
 		self.assertTrue(result["success"])
+
+		# Response Log correlacionado al FFM explícito (ffm_a)
+		log_ffm = frappe.db.get_value(
+			"FacturAPI Response Log", result["response_log_name"], "factura_fiscal_mexico"
+		)
+		self.assertEqual(log_ffm, ffm_a)
+
+		# El writer no persiste estado de cancelación: ambos siguen TIMBRADO
+		self.assertEqual(frappe.db.get_value("Factura Fiscal Mexico", ffm_a, "status"), "TIMBRADO")
+		self.assertEqual(frappe.db.get_value("Factura Fiscal Mexico", ffm_b, "status"), "TIMBRADO")
+
+		# La capa autoritativa proyecta CANCELADO solo sobre el FFM explícito
+		apply_cancellation_state(ffm_a, "CANCELADO", sync_status="canceled")
 		self.assertEqual(frappe.db.get_value("Factura Fiscal Mexico", ffm_a, "status"), "CANCELADO")
 		# ffm_b intacto
 		self.assertEqual(frappe.db.get_value("Factura Fiscal Mexico", ffm_b, "status"), "TIMBRADO")
