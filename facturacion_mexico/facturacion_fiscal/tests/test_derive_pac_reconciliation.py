@@ -192,23 +192,21 @@ class TestExpiredUnificado(IntegrationTestCase):
 				api.cancelar_factura(si, "02")
 		self.assertEqual(frappe.db.get_value("Factura Fiscal Mexico", ffm, "status"), "TIMBRADO")
 
-	# revisar_estatus_cancelacion: EXPIRED resuelve a TIMBRADO (antes quedaba PENDIENTE_CANCELACION).
-	def test_revisar_expired_timbrado(self):
-		si = self._si(fiscal_status="PENDIENTE_CANCELACION")
-		ffm = self._ffm(si, "PENDIENTE_CANCELACION", facturapi_id=_FA_ID, uuid=_UUID)
-		frappe.db.set_value("Sales Invoice", si, "fm_factura_fiscal_mx", ffm)
-		frappe.db.commit()
+	# Consolidación: revisar delega en reconcile_ffm; la clasificación expired→TIMBRADO la cubre el
+	# clasificador acotado (y el motor). revisar no realiza una 2ª consulta al PAC.
+	def test_revisar_delega_en_motor(self):
+		ffm = self._ffm(self._si(), "PENDIENTE_CANCELACION", facturapi_id=_FA_ID, uuid=_UUID)
 		with (
 			patch(
-				"facturacion_mexico.facturacion_fiscal.api_client.query_pac_status",
-				return_value={"success": True, "data": {"status": "valid", "cancellation_status": "expired"}},
-			),
-			patch("frappe.set_value", side_effect=_set_value_factory()),
-			patch(f"{_TIMBRADO_API}.write_pac_response", return_value={"success": True}),
+				"facturacion_mexico.facturacion_fiscal.services.ffm_reconciliation.reconcile_ffm",
+				return_value={"ffm": ffm, "outcome": "changed"},
+			) as rec,
+			patch("facturacion_mexico.facturacion_fiscal.api_client.query_pac_status") as qps,
 		):
-			result = revisar_estatus_cancelacion(ffm)
-		self.assertEqual(frappe.db.get_value("Factura Fiscal Mexico", ffm, "status"), "TIMBRADO")
-		self.assertEqual(result.get("status"), "TIMBRADO")
+			out = revisar_estatus_cancelacion(ffm)
+		rec.assert_called_once_with(ffm)
+		qps.assert_not_called()
+		self.assertEqual(out, {"ffm": ffm, "outcome": "changed"})
 
 	# cero referencias al cliente PAC importadas en el módulo de prueba
 	def test_cero_trafico_pac(self):

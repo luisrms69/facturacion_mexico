@@ -41,7 +41,12 @@ def _log_payload_checkpoint(tag, payload: dict):
 from facturacion_mexico.config.fiscal_states_config import (
 	FiscalStates,
 	OperationTypes,
-	derive_pac_reconciliation,
+	SyncStates,
+)
+from facturacion_mexico.facturacion_fiscal.cancellation_state import (
+	apply_cancellation_state,
+	derive_cancellation_reconciliation,
+	extract_canceled_at,
 )
 
 from .api import (  # PAC Response Writer - Arquitectura resiliente activada
@@ -1543,52 +1548,47 @@ class TimbradoAPI:
 
 			# FASE 3: ACTUALIZACIÓN FRAPPE
 			try:
-				# Construir valor EXACTO esperado por campo Select del DocType
-				motivo_completo = _build_cancellation_reason_for_select(motivo)
-
-				# CORRECCIÓN BUG: Mapear estado fiscal según respuesta real del PAC
+				# Interpretar la respuesta del PAC con el criterio ACOTADO de cancelación
+				# (verifying/pending/accepted-aislado -> PENDIENTE; canceled -> CANCELADO;
+				# rejected/expired -> TIMBRADO; desconocido -> None, nunca CANCELADO).
 				raw_response = pac_response.get("raw_response", {})
 				response_status = raw_response.get("status", "")
 				cancellation_status = raw_response.get("cancellation_status", "")
 
-				# Log respuesta para auditoría
 				frappe.logger().info(
 					f"Respuesta PAC para FFM {factura_fiscal.name}: status='{response_status}', cancellation_status='{cancellation_status}'"
 				)
 
-				# Mapeo ÚNICO (derive_pac_reconciliation): mantiene accepted->CANCELADO y suma
-				# expired->TIMBRADO. Se consume solo el estado fiscal ([0]); el sync lo maneja el writer.
-				fiscal_status = derive_pac_reconciliation(response_status, cancellation_status)[0]
-				if fiscal_status == FiscalStates.CANCELADO:
-					cancellation_date = now_datetime()
-				elif fiscal_status is None:
-					# Respuesta inesperada/no definitiva: fallback conservador (comportamiento previo).
+				fiscal_status, sync_status = derive_cancellation_reconciliation(
+					response_status, cancellation_status
+				)
+				if fiscal_status is None:
+					# Respuesta no concluyente: fallback conservador. No degrada un CANCELADO previo
+					# (la monotonicidad la protege apply_cancellation_state).
 					fiscal_status = FiscalStates.PENDIENTE_CANCELACION
-					cancellation_date = None
+					sync_status = SyncStates.PENDING
 					frappe.logger().warning(
-						f"Respuesta PAC inesperada para FFM {factura_fiscal.name}: status='{response_status}', cancellation_status='{cancellation_status}'. Usando fallback PENDIENTE_CANCELACION"
+						f"Respuesta PAC no concluyente para FFM {factura_fiscal.name}: "
+						f"status='{response_status}', cancellation_status='{cancellation_status}'. "
+						f"Fallback PENDIENTE_CANCELACION"
 					)
-				else:
-					cancellation_date = None
 
-				# Actualizar FFM con estado correcto
-				update_data = {
-					"status": fiscal_status,
-					"cancellation_reason": motivo_completo,
-				}
-				if cancellation_date:
-					update_data["cancellation_date"] = cancellation_date
+				# CANCELADO: usar el `canceled_at` REAL del PAC cuando exista; observación solo si no hay.
+				cancellation_date = (
+					(extract_canceled_at(pac_response) or now_datetime())
+					if fiscal_status == FiscalStates.CANCELADO
+					else None
+				)
 
-				# fm_motivo_cancelacion es el campo canónico del código SAT
-				if fiscal_status == FiscalStates.CANCELADO:
-					update_data["fm_motivo_cancelacion"] = motivo  # código corto: "01", "02", etc.
-				else:
-					update_data["fm_motivo_cancelacion"] = None  # solicitud rechazada o pendiente
-
-				frappe.set_value("Factura Fiscal Mexico", factura_fiscal.name, update_data)
-
-				# Actualizar Sales Invoice con mismo estado fiscal
-				frappe.set_value("Sales Invoice", sales_invoice_name, {"fm_fiscal_status": fiscal_status})
+				# ÚNICA escritura autoritativa del estado de cancelación (status, motivo conservado,
+				# cancellation_reason derivado, cancellation_date, fm_sync_status y snapshot SI).
+				# El writer (FASE previa) creó el Response Log y NO persistió el estado fiscal.
+				apply_cancellation_state(
+					factura_fiscal.name,
+					fiscal_status,
+					sync_status=sync_status,
+					cancellation_date=cancellation_date,
+				)
 
 				frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to ensure cancellation transaction is committed
 
@@ -1668,9 +1668,13 @@ class TimbradoAPI:
 					return _persistence_unresolved_result()
 
 				# PAC canceló exitosamente pero Frappe falló - CREAR RECOVERY TASK
-				frappe.log_error(
-					f"Error post-cancelación actualizando Frappe: {frappe_error}", "Post-Cancelación Error"
-				)
+				try:
+					frappe.log_error(
+						title="Post-Cancelación Error",
+						message=f"Error post-cancelación actualizando Frappe: {frappe_error}",
+					)
+				except Exception:
+					pass  # el fallo del logger nunca debe reemplazar ni ocultar el error original
 
 				# CRÍTICO: Crear Recovery Task para que jobs automáticos corrijan el estado
 				try:
@@ -1703,9 +1707,13 @@ class TimbradoAPI:
 					)
 
 				except Exception as recovery_error:
-					frappe.log_error(
-						f"Error creando Recovery Task: {recovery_error}", "Recovery Task Creation Error"
-					)
+					try:
+						frappe.log_error(
+							title="Recovery Task Creation Error",
+							message=f"Error creando Recovery Task: {recovery_error}",
+						)
+					except Exception:
+						pass
 
 				return {
 					"success": False,
@@ -1722,16 +1730,22 @@ class TimbradoAPI:
 			# Error ANTES del PAC o error del PAC ya manejado
 			if not pac_response:
 				# Error antes de llamar al PAC - NO guardar en Response Log
-				frappe.log_error(
-					f"Error pre-cancelación (antes de contactar PAC): {e}\nSales Invoice: {sales_invoice_name}",
-					"Pre-Cancelación Error",
-				)
+				try:
+					frappe.log_error(
+						title="Pre-Cancelación Error",
+						message=f"Error pre-cancelación (antes de contactar PAC): {e}\nSales Invoice: {sales_invoice_name}",
+					)
+				except Exception:
+					pass
 			else:
 				# Error del PAC ya fue guardado en Response Log
-				frappe.log_error(
-					f"Error cancelación PAC: {e}\nSales Invoice: {sales_invoice_name}",
-					"PAC Cancelación Error",
-				)
+				try:
+					frappe.log_error(
+						title="PAC Cancelación Error",
+						message=f"Error cancelación PAC: {e}\nSales Invoice: {sales_invoice_name}",
+					)
+				except Exception:
+					pass
 
 			# Generar mensaje amigable SOLO para UI
 			error_details = self._process_pac_error(e)
@@ -2884,15 +2898,20 @@ def cancelar_factura(
 		description = SAT_MOTIVES.get_description(motivo_code)
 		frappe.throw(f"El motivo '{motivo_code}' ({description}) requiere UUID de sustitución obligatorio")
 
-	# [Milestone 3] Guard backend: motivo 01 solo desde flujo sustitución
-	# Obtener FFM doc para el guard y persistencia
+	# [Milestone 3] Guard backend + persistencia: resolver la FFM ACTIVA EXPLÍCITA desde la SI.
+	# Prohibido get_all(... limit=1) (puede caer en una FFM distinta a la cancelada). Se valida
+	# que los vínculos SI<->FFM coincidan; si no, se detiene con error controlado.
 	ffm_doc = None
-	ffm_name = None
-	if sales_invoice:
-		ffm_list = frappe.get_all("Factura Fiscal Mexico", filters={"sales_invoice": sales_invoice}, limit=1)
-		if ffm_list:
-			ffm_name = ffm_list[0].name
-			ffm_doc = frappe.get_doc("Factura Fiscal Mexico", ffm_name)
+	ffm_name = frappe.db.get_value("Sales Invoice", sales_invoice, "fm_factura_fiscal_mx")
+	if ffm_name:
+		ffm_si = frappe.db.get_value("Factura Fiscal Mexico", ffm_name, "sales_invoice")
+		if ffm_si != sales_invoice:
+			frappe.throw(
+				_("Inconsistencia de vínculos: la FFM {0} no corresponde al Sales Invoice {1}.").format(
+					ffm_name, sales_invoice
+				)
+			)
+		ffm_doc = frappe.get_doc("Factura Fiscal Mexico", ffm_name)
 
 	if ffm_doc:
 		_guard_motive_01_only_from_substitution(ffm_doc, motivo_code, substitution_uuid)
@@ -3220,20 +3239,28 @@ def _cascade_cancel_previous_after_substitute(new_ffm_name: str):
 				api = TimbradoAPI()
 				# CRITICAL FIX: Usar orig_si_name en lugar de orig_ffm_name
 				cancel_result = api.cancelar_factura(orig_si_name, "01", new_uuid)
-				frappe.logger().info(f"Cancelación fiscal PAC exitosa: {cancel_result}")
+				frappe.logger().info(f"Cancelación fiscal PAC: {cancel_result}")
 			except Exception as e:
 				frappe.logger().error(f"Error cancelando CFDI previo en PAC: {e}")
 				# No fallar toda la operación por error en cancelación PAC
 				cancel_result = None
 
-			# 2) REORDER: Marcar FFM original con estado fiscal CANCELADO (sin cancelar DocType aún)
-			try:
-				orig_ffm.reload()
-				orig_ffm.set("status", "CANCELADO")
-				orig_ffm.save()
-				frappe.logger().info(f"FFM {orig_ffm_name} marcada como CANCELADO fiscalmente")
-			except Exception as e:
-				frappe.logger().error(f"Error marcando FFM como CANCELADO: {e}")
+			# 2) GUARDA FAIL-CLOSED: relectura autoritativa del estado real (misma transacción, sin
+			# commit extra). La operación interna ya aplicó el estado vía apply_cancellation_state.
+			# Solo se continúa la cancelación DOCUMENTAL si el CFDI previo quedó realmente CANCELADO.
+			# Si el PAC falló / quedó pending/verifying / no terminal, NO se cancela SI ni FFM.
+			orig_status = frappe.db.get_value("Factura Fiscal Mexico", orig_ffm_name, "status")
+			if orig_status != FiscalStates.CANCELADO:
+				frappe.logger().warning(
+					f"Cascada detenida: CFDI previo no terminal "
+					f"(FFM {orig_ffm_name} status={orig_status}). No se cancela SI/FFM."
+				)
+				return {
+					"cascade": "halted_not_terminal",
+					"ffm": orig_ffm_name,
+					"status": orig_status,
+				}
+			frappe.logger().info(f"FFM {orig_ffm_name} CANCELADO confirmado; continúa cancelación documental")
 
 			# 2.5) HARDENING PREVENTIVO - ANTES de cancelar (CONFIRMADO POR EXPERTO)
 			try:
@@ -3469,102 +3496,16 @@ def get_sat_cancellation_motives():
 
 @frappe.whitelist()
 def revisar_estatus_cancelacion(ffm_name: str) -> dict:
-	"""Consulta FacturAPI para resolver estado PENDIENTE_CANCELACION."""
-	ffm = frappe.get_doc("Factura Fiscal Mexico", ffm_name)
+	"""Compat: delega en el flujo ÚNICO de reconciliación (motor `reconcile_ffm`).
 
-	if ffm.status != FiscalStates.PENDIENTE_CANCELACION:
-		frappe.throw(_("El documento no está en estado PENDIENTE_CANCELACION"))
+	No conserva lógica propia (consulta PAC, resolución de company, clasificación, aplicación de
+	estado, Response Log, permisos, lock, correlación): TODO se hereda de `reconcile_ffm` →
+	`_reconcile_ffm`. El botón GUI propio se eliminó; la función se mantiene por compatibilidad con
+	llamadas existentes.
+	"""
+	from facturacion_mexico.facturacion_fiscal.services.ffm_reconciliation import reconcile_ffm
 
-	from facturacion_mexico.facturacion_fiscal.api_client import query_pac_status
-
-	result = query_pac_status(ffm_name)
-
-	if not result.get("success"):
-		frappe.throw(_("Error al consultar PAC: {0}").format(result.get("error")))
-
-	data = result.get("data", {})
-	pac_status = data.get("status", "")
-	cancel_status = data.get("cancellation_status", "")
-
-	# Mapeo ÚNICO (derive_pac_reconciliation): se consume solo el estado fiscal ([0]).
-	# Mantiene accepted->CANCELADO y suma expired->TIMBRADO (antes caía a PENDIENTE_CANCELACION).
-	nuevo_estado = derive_pac_reconciliation(pac_status, cancel_status)[0]
-	if nuevo_estado == FiscalStates.CANCELADO:
-		update_data = {
-			"status": nuevo_estado,
-			"cancellation_date": now_datetime(),
-		}
-		msg = _("Cancelación confirmada por el receptor. CFDI cancelado.")
-		indicator = "green"
-	elif nuevo_estado == FiscalStates.TIMBRADO:
-		update_data = {
-			"status": nuevo_estado,
-			"fm_motivo_cancelacion": None,
-		}
-		msg = _("La cancelación no procedió (rechazada o expirada). CFDI sigue vigente.")
-		indicator = "orange"
-	else:
-		# None (no definitivo) o cualquier otro: conservar PENDIENTE_CANCELACION.
-		nuevo_estado = FiscalStates.PENDIENTE_CANCELACION
-		update_data = {"status": nuevo_estado}
-		msg = _("Cancelación aún pendiente de aceptación por el receptor.")
-		indicator = "blue"
-
-	frappe.db.set_value("Factura Fiscal Mexico", ffm_name, update_data)
-	if ffm.sales_invoice:
-		frappe.db.set_value("Sales Invoice", ffm.sales_invoice, {"fm_fiscal_status": nuevo_estado})
-
-	# Registrar consulta en FacturAPI Response Log para trazabilidad
-	writer_result = None
-	try:
-		writer_result = write_pac_response(
-			sales_invoice_name=ffm.sales_invoice or "",
-			request_data=json.dumps(
-				{"action": "consulta_estatus", "ffm": ffm_name, "facturapi_id": ffm.facturapi_id}
-			),
-			response_data=json.dumps(
-				{
-					"success": True,
-					"status_code": 200,
-					"raw_response": data,
-					"resultado_transicion": nuevo_estado,
-				},
-				default=str,
-			),
-			operation_type="consulta",
-			factura_fiscal_name=ffm_name,
-		)
-	except FiscalCorrelationError:
-		# Corrección 6A: la inconsistencia de correlación en la consulta NO se traga; se reporta.
-		# El cambio de estado escrito sobre ESTE FFM se revierte al propagar (no se hace commit).
-		_raise_correlation_incident()
-	except Exception as log_err:
-		frappe.logger().warning(f"No se pudo registrar log de consulta estatus {ffm_name}: {log_err}")
-
-	frappe.db.commit()  # nosemgrep: frappe-manual-commit - Required to persist status transition immediately after PAC response
-
-	base_result = {
-		"status": nuevo_estado,
-		"message": msg,
-		"indicator": indicator,
-		"cancellation_status": cancel_status,
-	}
-	# Corrección 6B2: si la persistencia principal del writer falló (PAC OK), verificar que el
-	# estado ya determinado por el flujo quedó persistido. No se repite la consulta al PAC.
-	if _writer_persistence_failed(writer_result):
-		recovered = _verify_estado_persisted(ffm_name, nuevo_estado)
-		_alert_persistence_incident("consulta", ffm_name, ffm.sales_invoice, recovered)
-		_set_sync_status_best_effort(ffm_name, "synced" if recovered else "error")  # 7A1
-		return (
-			_persistence_recovered_result(
-				base_result,
-				status="state_verified_after_writer_failure",
-				source="pre_writer_state_update",
-			)
-			if recovered
-			else _persistence_unresolved_result(base_result)
-		)
-	return _apply_audit_warning(writer_result, base_result)
+	return reconcile_ffm(ffm_name)
 
 
 _ALLOWED_PDF_TEMPLATE_KEYS = frozenset({"company", "total", "due_date"})

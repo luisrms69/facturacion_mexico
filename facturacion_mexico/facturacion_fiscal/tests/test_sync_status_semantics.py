@@ -18,7 +18,9 @@ from unittest.mock import MagicMock, patch
 import frappe
 from frappe.tests import IntegrationTestCase
 
+from facturacion_mexico.config.fiscal_states_config import FiscalStates, SyncStates
 from facturacion_mexico.facturacion_fiscal.api import PACResponseWriter
+from facturacion_mexico.facturacion_fiscal.cancellation_state import apply_cancellation_state
 from facturacion_mexico.facturacion_fiscal.timbrado_api import TimbradoAPI, revisar_estatus_cancelacion
 
 _TIMBRADO_API = "facturacion_mexico.facturacion_fiscal.timbrado_api"
@@ -152,26 +154,34 @@ class TestSyncStatusSemantics(IntegrationTestCase):
 		self.assertEqual(self._sync(ffm), "synced")
 
 	# 4 — cancelación inmediata (raw sin 'success', con id) → synced
+	# Nuevo contrato (CORR-1): en cancelación el writer crea el Response Log pero NO persiste
+	# status/fm_sync_status; eso lo hace apply_cancellation_state. Se verifican ambos por separado.
 	def test_04_cancelacion_inmediata_synced(self):
 		si = self._si()
-		ffm = self._ffm(si, "CANCELADO", facturapi_id="FA-1")
+		ffm = self._ffm(si, "CANCELADO", facturapi_id="FA-1", sync="pending")
 		self._write(si, ffm, {"status": "canceled", "id": "FA-1"}, "cancelacion")
-		self.assertEqual(self._sync(ffm), "synced")
+		self.assertEqual(self._sync(ffm), "pending")  # (1) writer no toca sync
+		apply_cancellation_state(ffm, FiscalStates.CANCELADO, sync_status=SyncStates.SYNCED)
+		self.assertEqual(self._sync(ffm), "synced")  # (2) apply sí
 
-	# 5 — cancelación pendiente de aceptación → synced (la respuesta ya se reflejó)
+	# 5 — cancelación pendiente de aceptación
 	def test_05_cancelacion_pendiente_synced(self):
 		si = self._si()
-		ffm = self._ffm(si, "PENDIENTE_CANCELACION", facturapi_id="FA-1")
+		ffm = self._ffm(si, "PENDIENTE_CANCELACION", facturapi_id="FA-1", sync="pending")
 		self._write(si, ffm, {"cancellation_status": "pending", "id": "FA-1"}, "cancelacion")
 		self.assertEqual(frappe.db.get_value("Factura Fiscal Mexico", ffm, "status"), "PENDIENTE_CANCELACION")
-		self.assertEqual(self._sync(ffm), "synced")
+		self.assertEqual(self._sync(ffm), "pending")  # (1) writer no toca status/sync
+		apply_cancellation_state(ffm, FiscalStates.PENDIENTE_CANCELACION, sync_status=SyncStates.SYNCED)
+		self.assertEqual(self._sync(ffm), "synced")  # (2) apply sí
 
-	# 6 — cancelación rechazada y registrada → synced
+	# 6 — cancelación rechazada y registrada
 	def test_06_cancelacion_rechazada_synced(self):
 		si = self._si()
-		ffm = self._ffm(si, "TIMBRADO", facturapi_id="FA-1")
+		ffm = self._ffm(si, "TIMBRADO", facturapi_id="FA-1", sync="pending")
 		self._write(si, ffm, {"cancellation_status": "rejected", "id": "FA-1"}, "cancelacion")
-		self.assertEqual(self._sync(ffm), "synced")
+		self.assertEqual(self._sync(ffm), "pending")  # (1) writer no toca sync
+		apply_cancellation_state(ffm, FiscalStates.TIMBRADO, sync_status=SyncStates.SYNCED)
+		self.assertEqual(self._sync(ffm), "synced")  # (2) apply sí
 
 	# 7 — consulta con respuesta concluyente → synced
 	def test_07_consulta_concluyente_synced(self):
@@ -292,19 +302,19 @@ class TestSyncStatusSemantics(IntegrationTestCase):
 
 	# 9 — consulta con writer fallido pero estado verificado → synced
 	def test_09_consulta_recuperada_synced(self):
-		si = self._si()
-		ffm = self._ffm(si, "PENDIENTE_CANCELACION", facturapi_id="FA-1", uuid="U-1", sync="pending")
-		mock_query = patch(
-			"facturacion_mexico.facturacion_fiscal.api_client.query_pac_status",
-			return_value={"success": True, "data": {"cancellation_status": "accepted"}},
-		)
+		# Consolidación: revisar delega en reconcile_ffm (camino único) y NO hace 2ª consulta al PAC.
+		ffm = self._ffm(self._si(), "PENDIENTE_CANCELACION", facturapi_id="FA-1", uuid="U-1", sync="pending")
 		with (
-			mock_query,
-			patch("frappe.set_value", side_effect=_set_value_factory()),
-			patch(f"{_TIMBRADO_API}.write_pac_response", return_value={"success": False}),
+			patch(
+				"facturacion_mexico.facturacion_fiscal.services.ffm_reconciliation.reconcile_ffm",
+				return_value={"ffm": ffm, "outcome": "changed"},
+			) as rec,
+			patch("facturacion_mexico.facturacion_fiscal.api_client.query_pac_status") as qps,
 		):
-			revisar_estatus_cancelacion(ffm)
-		self.assertEqual(self._sync(ffm), "synced")
+			out = revisar_estatus_cancelacion(ffm)
+		rec.assert_called_once_with(ffm)
+		qps.assert_not_called()
+		self.assertEqual(out, {"ffm": ffm, "outcome": "changed"})
 
 	# 14 — HTTP 5xx / status_code=0 NO se clasifican como concluyentes solo por el código
 	def test_14_http_5xx_no_synced(self):

@@ -253,27 +253,23 @@ class TestAuditWarning(IntegrationTestCase):
 			)
 
 	# 4 — consulta exitosa + auditoría incompleta: estado conservado, advertencia, sin repetir PAC
-	def test_04_consulta_audit_incompleta(self):
+	def test_04_revisar_delega_en_motor(self):
+		# Consolidación: revisar_estatus_cancelacion ya no tiene lógica/consulta propia; delega en el
+		# motor (reconcile_ffm) y NO realiza una segunda llamada al PAC (query_pac_status). El manejo
+		# de auditoría incompleta queda en el camino único del motor/writer (probado en sus suites).
 		si = self._si()
 		ffm = self._ffm(si, "PENDIENTE_CANCELACION", facturapi_id="FA-1", uuid="U-1")
-
-		mock_query = patch(
-			"facturacion_mexico.facturacion_fiscal.api_client.query_pac_status",
-			return_value={"success": True, "data": {"cancellation_status": "accepted"}},
-		)
 		with (
-			mock_query as mq,
-			patch("frappe.set_value", side_effect=_set_value_si_noop_factory()),
 			patch(
-				f"{_TIMBRADO_API}.write_pac_response",
-				return_value={"success": True, "fiscal_updated": True, "audit_log_failed": True},
-			),
+				"facturacion_mexico.facturacion_fiscal.services.ffm_reconciliation.reconcile_ffm",
+				return_value={"ffm": ffm, "outcome": "changed"},
+			) as rec,
+			patch("facturacion_mexico.facturacion_fiscal.api_client.query_pac_status") as qps,
 		):
 			result = revisar_estatus_cancelacion(ffm)
-
-		self.assertEqual(result.get("status"), "CANCELADO")  # estado conservado
-		self.assertTrue(result.get("audit_warning"))
-		mq.assert_called_once()  # no repite la consulta al PAC
+		rec.assert_called_once_with(ffm)
+		qps.assert_not_called()
+		self.assertEqual(result, {"ffm": ffm, "outcome": "changed"})
 
 	# 10 — cero referencias al cliente del PAC en este módulo
 	def test_10_cero_trafico_pac(self):

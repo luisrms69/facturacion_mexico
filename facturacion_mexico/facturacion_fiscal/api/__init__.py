@@ -241,6 +241,7 @@ class PACResponseWriter:
 		operation_type: str = "timbrado",
 		*,
 		factura_fiscal_name: str | None = None,
+		skip_state_persist: bool = False,
 	) -> dict[str, Any]:
 		"""
 		Escribir respuesta PAC con máxima resilencia.
@@ -280,6 +281,7 @@ class PACResponseWriter:
 			None,  # fm_last_response_log se asigna después, cuando el log exista
 			operation_type,
 			factura_fiscal_name=factura_fiscal_name,
+			skip_state_persist=skip_state_persist,
 		)
 		result["success"] = True
 		result["method"] = "database"
@@ -637,6 +639,7 @@ class PACResponseWriter:
 		operation_type: str = "Timbrado",
 		*,
 		factura_fiscal_name: str | None = None,
+		skip_state_persist: bool = False,
 	):
 		"""Actualizar Factura Fiscal Mexico con datos de respuesta."""
 		try:
@@ -666,17 +669,25 @@ class PACResponseWriter:
 			# M1 (CodeRabbit): tampoco se refresca fm_last_pac_sync en eventos internos no-PAC;
 			# hacerlo haría que un fallback interno parezca una sincronización fresca con el PAC.
 			_is_fiscal_event = isinstance(operation_type, str) and operation_type.startswith("fiscal_event_")
+			# Cancelación: el estado de negocio (status + fm_sync_status) lo persiste EXCLUSIVAMENTE
+			# apply_cancellation_state, no el writer (evita doble escritura / commit parcial). El
+			# writer sigue creando el Response Log y refresca fm_last_pac_sync (evidencia de consulta).
+			# "Solicitud Cancelación" siempre omite; "Reconciliacion" solo cuando el caller lo indica
+			# (skip_state_persist) tras decidir que reconcilia una cancelación.
+			_skip_fiscal = skip_state_persist or _normalized_op == "Solicitud Cancelación"
+
 			update_fields = {}
 			if not _is_fiscal_event:
 				update_fields["fm_last_pac_sync"] = now_datetime()
-			sync_status = _derive_sync_status_from_response(response_data, operation_type)
-			if sync_status is not None:
-				update_fields["fm_sync_status"] = sync_status
+			if not _skip_fiscal:
+				sync_status = _derive_sync_status_from_response(response_data, operation_type)
+				if sync_status is not None:
+					update_fields["fm_sync_status"] = sync_status
 
-			# Solo actualizar estado fiscal si la operación lo requiere (new_status no es None)
-			if new_status is not None:
-				normalized_status = _norm_status(new_status)
-				update_fields["status"] = normalized_status
+				# Solo actualizar estado fiscal si la operación lo requiere (new_status no es None)
+				if new_status is not None:
+					normalized_status = _norm_status(new_status)
+					update_fields["status"] = normalized_status
 
 			# Actualizar UUID solo si es exitoso
 			if uuid:
@@ -785,10 +796,23 @@ class PACResponseWriter:
 			return "ERROR", status_code or 500, ""
 
 		elif operation_type == "Solicitud Cancelación":
-			# Para cancelación: éxito = CANCELADO, error = mantener estado actual (no cambiar)
-			if ok and status_code in (200, 201):
-				return "CANCELADO", status_code, ""
-			# ERROR EN CANCELACIÓN: NO cambiar estado fiscal (return None = no update)
+			# El HTTP 200 solo confirma que la SOLICITUD se procesó, no que el SAT canceló.
+			# Criterio fiscal acotado y fail-closed: verifying/pending/accepted-aislado ->
+			# PENDIENTE_CANCELACION; canceled -> CANCELADO; rejected/expired -> TIMBRADO;
+			# desconocido/incoherente -> None (nunca CANCELADO). En cancelación el estado lo
+			# persiste apply_cancellation_state, no el writer (skip_state_persist).
+			from facturacion_mexico.facturacion_fiscal.cancellation_state import (
+				derive_cancellation_reconciliation,
+			)
+
+			try:
+				code = int(status_code) if status_code is not None else 0
+			except (TypeError, ValueError):
+				code = 0
+			if ok and code in (200, 201):
+				rs, cs = _extract_reconciliation_states(resp)
+				fiscal_status, _sync = derive_cancellation_reconciliation(rs, cs)
+				return fiscal_status, code, ""
 			return None, status_code or 500, ""
 
 		elif operation_type == "Reconciliacion":
@@ -825,6 +849,7 @@ def write_pac_response(
 	response_data: str,
 	operation_type: str = "timbrado",
 	factura_fiscal_name: str | None = None,
+	skip_state_persist: bool = False,
 ) -> dict[str, Any]:
 	"""
 	API pública para escribir respuesta PAC.
@@ -854,6 +879,7 @@ def write_pac_response(
 			response_dict,
 			operation_type,
 			factura_fiscal_name=factura_fiscal_name,
+			skip_state_persist=skip_state_persist,
 		)
 
 		return result

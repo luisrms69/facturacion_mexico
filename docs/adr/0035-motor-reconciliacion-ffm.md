@@ -1,9 +1,17 @@
 # ADR-0035 — Motor de reconciliación FFM ↔ FacturAPI
 
-- **Estado:** Propuesto
+- **Estado:** Propuesto (extendido por ADR-0036)
 - **Fecha:** 2026-06-21
 - **Rama:** `feat/motor-reconciliacion-ffm`
 - **Relacionado:** [[0034-integridad-correlacion-ffm]] (integridad y correlación del FFM)
+
+> **Nota (ADR-0036):** Esta decisión fue **extendida/corregida por [[0036-integridad-proyeccion-cancelacion]]**
+> en lo relativo a la **proyección completa del estado de cancelación y la consolidación del flujo manual**:
+> clasificación fail-closed (solo `status=canceled` es terminal; `accepted` aislado ya no produce CANCELADO
+> — corrige §2.4), escritura autoritativa `apply_cancellation_state` (motivo/reason/fecha/sync/snapshot SI),
+> reparación idempotente de FFM terminales incompletas (extiende §2.6), `canceled_at` del PAC como fecha de
+> cancelación, y un solo botón manual (§2.8). El resto sigue vigente (GET-only, correlación, selector de
+> candidatos, scheduler `hourly_long`, locks, semántica de `fm_sync_status`/`fm_last_pac_sync`).
 
 ---
 

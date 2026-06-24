@@ -39,17 +39,20 @@ Este camino cancela el CFDI sin emitir uno nuevo.
 3. En el FFM → sección **Cancelación** → seleccionar el **motivo** (02, 03 o 04)
 4. Confirmar
 
-El sistema envía la solicitud de cancelación a FacturAPI.io.
+El sistema envía la **solicitud** de cancelación a FacturAPI.io. Que FacturAPI reciba la solicitud
+**no** significa que el CFDI ya esté cancelado: solo cuando el SAT lo confirma queda en `CANCELADO`.
 
 ### Qué pasa después
 
-| Respuesta del SAT | Estado resultante | Qué significa |
+| Estado real en el SAT | Estado resultante | Qué significa |
 |---|---|---|
-| `canceled` / `accepted` | `CANCELADO` | Cancelación aceptada de inmediato |
-| `pending` | `PENDIENTE_CANCELACION` | El receptor tiene 72 horas para aceptar o rechazar |
-| `rejected` | `TIMBRADO` (sin cambio) | El receptor rechazó la cancelación |
+| `canceled` | `CANCELADO` | Cancelación **confirmada** por el SAT |
+| `pending` / `verifying` / `accepted` (sin `canceled`) | `PENDIENTE_CANCELACION` | La solicitud se procesó; el SAT/receptor aún no la confirma |
+| `rejected` / `expired` | `TIMBRADO` (sin cambio) | La cancelación no procedió; el CFDI sigue vigente |
 
-Si queda en `PENDIENTE_CANCELACION`: esperar. El SAT acepta automáticamente después de 72 horas si el receptor no responde. Puedes verificar el estado con el botón **"Revisar estatus cancelación"** en el FFM.
+Si queda en `PENDIENTE_CANCELACION`: esperar. El SAT acepta automáticamente después de 72 horas si el
+receptor no responde. Puedes verificar o actualizar el estado con el botón **"Verificar estado en
+FacturAPI"** en el FFM (ver [Verificar estado en FacturAPI](verificar-estado-facturapi.md)).
 
 ---
 

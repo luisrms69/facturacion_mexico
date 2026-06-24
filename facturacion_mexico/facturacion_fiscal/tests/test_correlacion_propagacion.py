@@ -217,25 +217,22 @@ class TestCorrelacionPropagacion(IntegrationTestCase):
 	# ── 6: consulta — reporta la inconsistencia y no toca OTRO FFM ───────────
 
 	def test_06_consulta_correlacion_reporta_y_no_toca_otro_ffm(self):
+		# Consolidación: revisar delega en reconcile_ffm (camino único con correlación estricta del
+		# motor) y NO hace 2ª consulta al PAC. La garantía de no tocar otro FFM la da el motor/writer
+		# (probada en las suites del motor y en los demás tests de correlación de este módulo).
 		si = self._si()
 		target = self._ffm(si, "PENDIENTE_CANCELACION", facturapi_id="FA-T", uuid="U-T")
-		control = self._ffm(si, "TIMBRADO", facturapi_id="FA-C", uuid="U-C")
-		control_status_before = frappe.db.get_value("Factura Fiscal Mexico", control, "status")
-
 		with (
 			patch(
-				"facturacion_mexico.facturacion_fiscal.api_client.query_pac_status",
-				return_value={"success": True, "data": {"cancellation_status": "accepted"}},
-			),
-			patch(f"{_TIMBRADO_API}.write_pac_response", side_effect=FiscalCorrelationError("x")),
+				"facturacion_mexico.facturacion_fiscal.services.ffm_reconciliation.reconcile_ffm",
+				return_value={"ffm": target, "outcome": "changed"},
+			) as rec,
+			patch("facturacion_mexico.facturacion_fiscal.api_client.query_pac_status") as qps,
 		):
-			with self.assertRaises(FiscalCorrelationError):
-				revisar_estatus_cancelacion(target)
-
-		# El OTRO FFM (control) no fue tocado.
-		self.assertEqual(
-			frappe.db.get_value("Factura Fiscal Mexico", control, "status"), control_status_before
-		)
+			out = revisar_estatus_cancelacion(target)
+		rec.assert_called_once_with(target)
+		qps.assert_not_called()
+		self.assertEqual(out, {"ffm": target, "outcome": "changed"})
 
 	# ── M2 (CodeRabbit): write_pac_timeout también propaga la correlación ────
 
