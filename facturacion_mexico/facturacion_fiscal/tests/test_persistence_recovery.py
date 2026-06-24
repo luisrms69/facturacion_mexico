@@ -268,38 +268,44 @@ class TestPersistenceRecovery(IntegrationTestCase):
 		client.cancel_invoice.return_value = {"success": True, "raw_response": {"status": "canceled"}}
 		with patch(f"{_TIMBRADO_API}.get_facturapi_client", return_value=client):
 			api = TimbradoAPI(company="_Test Company")
+			# Boundary nuevo: la escritura autoritativa del estado es apply_cancellation_state.
+			# Si falla + el writer también falló -> ni una ni otra confirmó la persistencia.
 			with (
-				patch("frappe.set_value", side_effect=_set_value_factory(ffm_raises=True)),
+				patch(
+					f"{_TIMBRADO_API}.apply_cancellation_state",
+					side_effect=RuntimeError("persistencia FFM caída"),
+				),
 				patch(f"{_TIMBRADO_API}.write_pac_response", return_value={"success": False}),
 			):
 				result = api.cancelar_factura(si, "02")
 		self.assertFalse(result["success"])
 		self.assertEqual(result.get("persistence_status"), "unresolved")
+		self.assertEqual(
+			frappe.db.get_value("Factura Fiscal Mexico", ffm, "status"), "TIMBRADO"
+		)  # no falso CANCELADO
 		client.cancel_invoice.assert_called_once()  # sin segunda cancelación
 		if recovery_dt:
 			self.assertEqual(frappe.db.count("Fiscal Recovery Task", {"reference_name": ffm}), 0)
 
 	# 6 — consulta: writer falla, el estado ya persistido queda verificado
-	def test_06_consulta_recuperada(self):
+	def test_06_revisar_delega_en_motor(self):
+		# Consolidación: revisar_estatus_cancelacion ya no consulta el PAC ni persiste por sí misma;
+		# delega en reconcile_ffm (único camino, con company/correlación/lock/permiso/writer) y NO
+		# hace una segunda consulta (query_pac_status). La resiliencia ante fallo del writer queda en
+		# el camino único (probada en las suites del motor/writer).
 		si = self._si()
 		ffm = self._ffm(si, "PENDIENTE_CANCELACION", facturapi_id="FA-1", uuid="U-1")
-		mock_query = patch(
-			"facturacion_mexico.facturacion_fiscal.api_client.query_pac_status",
-			return_value={"success": True, "data": {"cancellation_status": "accepted"}},
-		)
 		with (
-			mock_query as mq,
-			patch("frappe.set_value", side_effect=_set_value_factory()),
-			patch(f"{_TIMBRADO_API}.write_pac_response", return_value={"success": False}),
+			patch(
+				"facturacion_mexico.facturacion_fiscal.services.ffm_reconciliation.reconcile_ffm",
+				return_value={"ffm": ffm, "outcome": "changed"},
+			) as rec,
+			patch("facturacion_mexico.facturacion_fiscal.api_client.query_pac_status") as qps,
 		):
 			result = revisar_estatus_cancelacion(ffm)
-		self.assertTrue(result.get("success", True))  # éxito con advertencia
-		self.assertEqual(result.get("status"), "CANCELADO")  # estado previamente persistido y verificado
-		self.assertNotEqual(result.get("persistence_status"), "recovered_by_phase3")
-		self.assertEqual(result.get("persistence_status"), "state_verified_after_writer_failure")
-		self.assertEqual(result.get("persistence_recovery_source"), "pre_writer_state_update")
-		self.assertTrue(result.get("persistence_warning"))
-		mq.assert_called_once()  # consulta al PAC una sola vez
+		rec.assert_called_once_with(ffm)
+		qps.assert_not_called()
+		self.assertEqual(result, {"ffm": ffm, "outcome": "changed"})
 
 	# --- M3 (CodeRabbit): verificación de persistencia usa el estado derivado (`fiscal_status`) ---
 
@@ -313,10 +319,19 @@ class TestPersistenceRecovery(IntegrationTestCase):
 		client.cancel_invoice.return_value = {"success": True, "raw_response": raw_response}
 		with patch(f"{_TIMBRADO_API}.get_facturapi_client", return_value=client):
 			api = TimbradoAPI(company="_Test Company")
-			with (
-				patch("frappe.set_value", side_effect=_set_value_factory(ffm_raises=ffm_raises)),
-				patch(f"{_TIMBRADO_API}.write_pac_response", return_value={"success": False}),
-			):
+			with ExitStack() as es:
+				es.enter_context(patch("frappe.set_value", side_effect=_set_value_factory(ffm_raises=False)))
+				es.enter_context(
+					patch(f"{_TIMBRADO_API}.write_pac_response", return_value={"success": False})
+				)
+				if ffm_raises:
+					# Boundary nuevo: la escritura autoritativa es apply_cancellation_state.
+					es.enter_context(
+						patch(
+							f"{_TIMBRADO_API}.apply_cancellation_state",
+							side_effect=RuntimeError("persistencia FFM caída"),
+						)
+					)
 				result = api.cancelar_factura(si, motivo)
 		return result, ffm, client
 

@@ -111,6 +111,7 @@ nav:
       - adr/0033-factura-global-hardcodes.md
       - adr/0034-integridad-correlacion-ffm.md
       - adr/0035-motor-reconciliacion-ffm.md
+      - adr/0036-integridad-proyeccion-cancelacion.md
   - Referencia:
     - referencia/index.md
     - DocTypes: referencia/doctypes.md

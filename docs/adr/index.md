@@ -39,3 +39,4 @@ Registro permanente de decisiones de arquitectura. Un ADR nunca se modifica — 
 | [0033](0033-factura-global-hardcodes.md) | Eliminación de defaults fiscales silenciosos en Factura Global |
 | [0034](0034-integridad-correlacion-ffm.md) | Integridad y correlación de Factura Fiscal Mexico |
 | [0035](0035-motor-reconciliacion-ffm.md) | Motor de reconciliación FFM ↔ FacturAPI |
+| [0036](0036-integridad-proyeccion-cancelacion.md) | Integridad de la proyección de cancelación y consolidación del flujo manual |

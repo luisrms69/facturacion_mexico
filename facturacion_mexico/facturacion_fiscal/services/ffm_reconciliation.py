@@ -17,19 +17,32 @@ import frappe
 from frappe import _
 from frappe.utils import now_datetime
 
-from facturacion_mexico.config.fiscal_states_config import SyncStates, derive_pac_reconciliation
+from facturacion_mexico.config.fiscal_states_config import (
+	FiscalStates,
+	SyncStates,
+	derive_pac_reconciliation,
+)
 from facturacion_mexico.facturacion_fiscal.api import (
 	FiscalCorrelationError,
 	PACResponseWriter,
 	_extract_reconciliation_states,
 )
 from facturacion_mexico.facturacion_fiscal.api_client import get_facturapi_client
+from facturacion_mexico.facturacion_fiscal.cancellation_state import (
+	apply_cancellation_state,
+	derive_cancellation_reconciliation,
+	extract_canceled_at,
+)
 
 
-def _write_pac_response(sales_invoice_name, request_data, response_data, factura_fiscal_name):
+def _write_pac_response(
+	sales_invoice_name, request_data, response_data, factura_fiscal_name, *, skip_state_persist=False
+) -> dict:
 	"""Persistir vía el writer (método, acepta dicts) con operation_type='reconciliacion'.
 
 	Se usa el método del writer y NO la función whitelisted pública (que exige str por type-hints).
+	`skip_state_persist=True` cuando se reconcilia una CANCELACIÓN: el writer crea el Response Log
+	pero NO persiste el estado fiscal (lo aplica apply_cancellation_state).
 	"""
 	return PACResponseWriter().write_pac_response(
 		sales_invoice_name,
@@ -37,6 +50,7 @@ def _write_pac_response(sales_invoice_name, request_data, response_data, factura
 		response_data,
 		"reconciliacion",
 		factura_fiscal_name=factura_fiscal_name,
+		skip_state_persist=skip_state_persist,
 	)
 
 
@@ -169,19 +183,57 @@ def _reconcile_ffm(ffm_name: str) -> dict:
 			return {"ffm": ffm_name, "outcome": "error", "error_type": "correlacion"}
 
 		remote_status, cancellation_status = _extract_reconciliation_states(response)
-		fiscal_status, sync_status = derive_pac_reconciliation(remote_status, cancellation_status)
+
+		# CORR-1: decidir EXPLÍCITAMENTE si esta reconciliación corresponde a una cancelación.
+		# No se deduce solo del estado derivado: una FFM ya CANCELADO no debe degradarse por una
+		# respuesta `valid` sin estado de cancelación.
+		_rs = (remote_status or "").strip().lower()
+		_cs = (cancellation_status or "").strip().lower()
+		is_cancellation = (
+			ffm.status in (FiscalStates.PENDIENTE_CANCELACION, FiscalStates.CANCELADO)
+			or _rs == "canceled"
+			or _cs in ("pending", "verifying", "accepted", "rejected", "expired")
+		)
+
+		if is_cancellation:
+			fiscal_status, sync_status = derive_cancellation_reconciliation(
+				remote_status, cancellation_status
+			)
+		else:
+			fiscal_status, sync_status = derive_pac_reconciliation(remote_status, cancellation_status)
 
 		status_changed = fiscal_status is not None and fiscal_status != ffm.status
 		sync_changed = sync_status != ffm.fm_sync_status
 
-		if status_changed or sync_changed:
-			# Cambio real: el writer persiste estado/sync y crea Response Log correlacionado.
+		# Cancelación: aplicar SIEMPRE (idempotente) para REPARAR campos incompletos (reason/date/
+		# snapshot SI) de una FFM ya terminal, aunque status/sync no cambien. La correlación estricta
+		# ya se validó arriba (_resolve_validated_ffm). apply devuelve si escribió algún campo.
+		# NO altera la selección de candidatos asíncronos (_select_candidates) — solo cómo se aplica.
+		repaired = False
+		if is_cancellation and fiscal_status is not None:
+			# CANCELADO: usar el `canceled_at` REAL del PAC cuando exista; observación solo si no hay.
+			_cdate = (
+				(extract_canceled_at(response) or now_datetime())
+				if fiscal_status == FiscalStates.CANCELADO
+				else None
+			)
+			repaired = apply_cancellation_state(
+				ffm.name, fiscal_status, sync_status=sync_status, cancellation_date=_cdate
+			)
+
+		if status_changed or sync_changed or repaired:
+			# El writer crea el Response Log correlacionado. En cancelación NO persiste el estado
+			# fiscal (skip_state_persist): la escritura autoritativa es apply_cancellation_state.
 			_write_pac_response(
 				ffm.sales_invoice or "",
 				{"action": "reconciliacion", "facturapi_id": ffm.facturapi_id},
 				response,
 				ffm.name,
+				skip_state_persist=is_cancellation,
 			)
+			if is_cancellation and fiscal_status is None and sync_changed:
+				# pending/no concluyente pero el sync cambió (apply no corre con fiscal_status=None).
+				frappe.db.set_value("Factura Fiscal Mexico", ffm.name, "fm_sync_status", sync_status)
 			return {
 				"ffm": ffm_name,
 				"outcome": "changed",

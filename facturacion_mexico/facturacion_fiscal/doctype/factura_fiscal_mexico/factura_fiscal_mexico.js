@@ -196,30 +196,8 @@
 			}).addClass("btn-danger");
 		}
 
-		// Revisar estatus cancelación
-		if (actions.can_retry_cancel) {
-			frm.add_custom_button(__("Revisar Estatus Cancelación"), async () => {
-				frappe.show_alert({
-					message: __("Consultando estado en FacturAPI..."),
-					indicator: "blue",
-				});
-				const r = await frappe.call({
-					method: "facturacion_mexico.facturacion_fiscal.timbrado_api.revisar_estatus_cancelacion",
-					args: { ffm_name: frm.doc.name },
-					freeze: true,
-					freeze_message: __("Consultando PAC..."),
-				});
-				const res = r && r.message;
-				if (res) {
-					frappe.msgprint({
-						title: __("Resultado"),
-						message: __(res.message),
-						indicator: res.indicator,
-					});
-					frm.reload_doc();
-				}
-			}).addClass("btn-primary");
-		}
+		// (Botón duplicado de revisión de estatus eliminado: duplicaba la consulta del PAC. El flujo
+		// único es "Verificar estado en FacturAPI" → reconcile_ffm, que también repara CANCELADO.)
 
 		// Descargar PDF+XML
 		if (actions.can_download_xml || actions.can_download_pdf) {

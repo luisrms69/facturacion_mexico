@@ -14,10 +14,23 @@ En ambos casos el sistema **solo consulta** a FacturAPI: nunca timbra, cancela n
 
 El botón **solo aparece** cuando la FFM ya está **guardada** y tiene un comprobante en FacturAPI
 (`facturapi_id`). Al pulsarlo, el sistema consulta el estado real en FacturAPI, actualiza la FFM si
-corresponde y **recarga el documento** para mostrar el estado al día.
+corresponde y **recarga el documento** para mostrar el estado al día. **Es el único botón de
+consulta**: realiza una **consulta de estado**, nunca envía una nueva solicitud de cancelación.
 
 > El botón **no cancela la Sales Invoice**. Si la verificación confirma que el CFDI quedó
 > **CANCELADO**, después puedes cancelar la Sales Invoice con el procedimiento normal.
+
+**Importante:** una cancelación **pendiente** permanece pendiente hasta que el SAT la confirme. Que
+FacturAPI haya recibido la solicitud **no** significa que el CFDI ya esté cancelado: solo cuando el
+estado real es *cancelado* la FFM pasa a **CANCELADO**.
+
+### Reparación de cancelaciones
+
+Si una FFM quedó marcada como **CANCELADO** pero con información incompleta (motivo, descripción,
+fecha de cancelación, o el estado de la venta sin actualizar), pulsar **"Verificar estado en
+FacturAPI"** **completa esos campos** conforme a la respuesta del PAC, **sin cambiar** el estado ya
+cancelado. La **fecha de cancelación** mostrada proviene del `canceled_at` que entrega FacturAPI (la
+hora real de cancelación), no de la hora de la consulta.
 
 ### Resultados posibles
 

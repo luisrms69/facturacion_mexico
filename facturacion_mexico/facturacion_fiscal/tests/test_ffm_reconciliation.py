@@ -190,10 +190,11 @@ class TestFFMReconciliation(IntegrationTestCase):
 		self.assertEqual(self._status(ffm), "CANCELADO")
 
 	def test_accepted(self):
+		# Fail-closed (req #10): accepted SIN status=canceled NO confirma cancelación fiscal.
 		si = self._si()
-		ffm = self._ffm(si, "PENDIENTE_CANCELACION", sync="synced")
-		self._reconciliar(ffm, get_return=_ok({"cancellation_status": "accepted"}))
-		self.assertEqual(self._status(ffm), "CANCELADO")
+		ffm = self._ffm(si, "TIMBRADO", sync="pending")
+		self._reconciliar(ffm, get_return=_ok({"status": "valid", "cancellation_status": "accepted"}))
+		self.assertEqual(self._status(ffm), "PENDIENTE_CANCELACION")
 
 	def test_rejected(self):
 		si = self._si()

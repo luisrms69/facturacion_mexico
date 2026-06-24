@@ -334,7 +334,8 @@
    "fieldname": "cancellation_reason",
    "fieldtype": "Select",
    "label": "Motivo de Cancelación",
-   "options": "01 - Comprobantes emitidos con errores con relación\n02 - Comprobantes emitidos con errores sin relación\n03 - No se llevó a cabo la operación\n04 - Operación nominativa relacionada en la factura global"
+   "options": "\n01 - Comprobantes emitidos con errores con relación\n02 - Comprobantes emitidos con errores sin relación\n03 - No se llevó a cabo la operación\n04 - Operación nominativa relacionada en la factura global",
+   "read_only": 1
   },
   {
    "fieldname": "cancellation_date",

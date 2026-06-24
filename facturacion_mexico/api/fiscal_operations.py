@@ -188,8 +188,12 @@ def cancelar_si_post_fiscal(si_name: str):
 	if si.docstatus != 1:
 		frappe.throw(_("Solo se puede cancelar una Sales Invoice enviada."))
 
-	if (si.get("fm_fiscal_status") or "").upper() != "CANCELADO":
-		frappe.throw(_("Solo aplica cuando la Factura Fiscal está cancelada ante el SAT."))
+	# Validar el estado REAL de la FFM activa, no el snapshot SI.fm_fiscal_status (que puede quedar
+	# desactualizado tras una resolución asíncrona). El snapshot es derivado, no autoritativo.
+	active_ffm = si.get("fm_factura_fiscal_mx")
+	active_status = frappe.db.get_value("Factura Fiscal Mexico", active_ffm, "status") if active_ffm else None
+	if (active_status or "").upper() != "CANCELADO":
+		frappe.throw(_("Solo aplica cuando la Factura Fiscal activa está cancelada ante el SAT."))
 
 	if not frappe.has_permission("Sales Invoice", "cancel", si):
 		frappe.throw(_("Sin permisos para cancelar Sales Invoice."))

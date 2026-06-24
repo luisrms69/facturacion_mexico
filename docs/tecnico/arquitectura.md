@@ -106,6 +106,8 @@ Campos relevantes definidos directamente en el JSON del DocType (no como Custom 
 | `fm_sync_status` | Select | Estado sincronización PAC: `synced` / `pending` / `error` |
 | `fm_payment_method_sat` | Select | `PUE` o `PPD` |
 | `fm_pdf_custom_section` | Long Text | Texto enviado a FacturAPI como `pdf_custom_section` al timbrar. Read-only — registra exactamente lo enviado. Solo para CFDI tipo I. |
+| `fm_motivo_cancelacion` | Data | Motivo SAT **solicitado** (01/02/03/04). Se **conserva** durante todo el ciclo de cancelación. |
+| `cancellation_reason` | Select | Descripción **derivada** del motivo, **read-only** (salida del sistema). La primera opción es **vacía** para no asignar implícitamente el motivo `01` al crear la FFM. |
 
 ### Complemento Pago MX — campos propios del DocType
 
@@ -120,6 +122,32 @@ Campos relevantes definidos directamente en el JSON del DocType (no como Custom 
 | `timbrar_factura` | `timbrado_api` | Timbra CFDI desde SI |
 | `cancelar_factura` | `timbrado_api` | Cancela CFDI con motivo SAT |
 | `descargar_archivos_cfdi` | `timbrado_api` | Descarga PDF+XML desde FacturAPI y los adjunta al FFM. Wrapper de `TimbradoAPI._download_fiscal_files()` — no duplica lógica. |
+| `revisar_estatus_cancelacion` | `timbrado_api` | **Compat:** wrapper que delega en `reconcile_ffm`. No tiene lógica propia. |
+
+## Flujo de cancelación y reconciliación
+
+> Decisiones y detalle en [ADR-0036](../adr/0036-integridad-proyeccion-cancelacion.md) (proyección de
+> cancelación) y [ADR-0035](../adr/0035-motor-reconciliacion-ffm.md) (motor de reconciliación).
+
+- **Solicitud de cancelación:** el HTTP 200 confirma que la *solicitud* se procesó, **no** que el SAT canceló.
+- **Clasificación fail-closed** (`derive_cancellation_reconciliation`):
+  - `status = canceled` → **CANCELADO** (único estado terminal);
+  - `valid` + `pending`/`verifying`/`accepted` (aislado) → **PENDIENTE_CANCELACION**;
+  - `valid` + `rejected`/`expired` → TIMBRADO (vigente);
+  - desconocido/incoherente → sin transición (**nunca** CANCELADO).
+- **Confirmación síncrona** (FASE 3 de `cancelar_factura`) y **asíncrona** (motor / botón "Verificar estado
+  en FacturAPI") usan el **mismo** helper autoritativo `apply_cancellation_state`, que escribe en una sola
+  operación: `status`, `fm_motivo_cancelacion` (conservado), `cancellation_reason` (derivado),
+  `cancellation_date`, `fm_sync_status` y el snapshot `SI.fm_fiscal_status` (solo si `SI.fm_factura_fiscal_mx == FFM.name`).
+- **Monotonicidad y reparación:** una FFM `CANCELADO` **no se degrada**; una FFM `CANCELADO` **incompleta**
+  sí se **repara** (idempotente) aunque `status`/`fm_sync_status` no cambien. El reconciliador crea Response
+  Log solo si hubo cambio real; **no** se altera el selector de candidatos (`_select_candidates`) ni el
+  alcance del scheduler.
+- **`cancellation_date`:** usa el `canceled_at` real del PAC (UTC → zona del sitio); `now()` solo como
+  respaldo si el PAC no lo entrega; una fecha existente nunca se sobrescribe.
+- **Flujo manual único:** un solo botón **"Verificar estado en FacturAPI"** (`reconcile_ffm`).
+- **Guard de cancelación de la SI:** `cancelar_si_post_fiscal` valida el estado **real** de la FFM activa,
+  no el snapshot derivado `SI.fm_fiscal_status`.
 
 ## Integraciones externas
 
