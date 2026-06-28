@@ -881,9 +881,12 @@ Fuente: `facturacion_mexico/facturacion_fiscal/doctype/factura_fiscal_mexico/fac
 | `fm_last_response_log` | Último Log de Respuesta | Link |  | FacturAPI Response Log |
 
 
-### Facturacion Mexico Settings _Single_
+### Facturacion Mexico Settings _(removido — migrado a Facturacion Mexico Company Settings)_
 
-Fuente: `facturacion_mexico/facturacion_fiscal/doctype/facturacion_mexico_settings/facturacion_mexico_settings.json`
+> El DocType Single global `Facturacion Mexico Settings` fue **removido**. Su configuración
+> (credenciales FacturAPI, `customer_email_fallback`, defaults de email, etc.) ahora vive en
+> **`Facturacion Mexico Company Settings`**, por compañía. La tabla de campos siguiente es
+> **histórica** y se conserva solo como referencia de los campos migrados.
 
 
 | Campo | Label | Tipo | Requerido | Opciones |

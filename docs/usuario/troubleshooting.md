@@ -8,7 +8,7 @@ Solución a los problemas más comunes.
 
 **Verificar en orden:**
 
-1. **Credenciales FacturAPI** — abrir `Facturacion Mexico Settings` y verificar que `API Key` esté configurada y que el modo sandbox/producción sea el correcto.
+1. **Credenciales FacturAPI** — abrir `Facturacion Mexico Company Settings` (de la compañía) y verificar que `API Key` esté configurada y que el modo sandbox/producción sea el correcto.
 
 2. **RFC de la empresa** — en `Setup > Company`, verificar que `Tax ID` tenga el RFC correcto.
 

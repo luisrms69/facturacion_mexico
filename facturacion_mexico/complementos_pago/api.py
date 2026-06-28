@@ -550,19 +550,16 @@ def action_send_email_complemento(complemento_name: str, to: str | None = None) 
 	if not comp.facturapi_id:
 		frappe.throw(_("El complemento no tiene ID de FacturAPI."))
 
-	to_email = to
-	if not to_email:
-		to_email = (
-			frappe.db.get_value("Payment Entry", comp.payment_entry, "contact_email")
-			if comp.payment_entry
-			else None
-		)
-	if not to_email:
-		customer = (
-			frappe.db.get_value("Payment Entry", comp.payment_entry, "party") if comp.payment_entry else None
-		)
-		if customer:
-			to_email = frappe.db.get_value("Customer", customer, "email_id")
+	# Resolución canónica: mismo criterio que Factura Fiscal Mexico (dirección principal del
+	# Customer -> customer_email_fallback de Company Settings por comp.company). Usa el documento
+	# como fuente de Customer/Company; no se consultan fuentes del Payment Entry ni del Customer.
+	from facturacion_mexico.facturacion_fiscal.email_recipient import resolve_fiscal_recipient_email
+
+	to_email = resolve_fiscal_recipient_email(
+		customer=comp.customer,
+		company=comp.company,
+		to=to,
+	)
 
 	if not to_email:
 		comp.add_comment("Comment", "No se envió complemento: no hay destinatario.")

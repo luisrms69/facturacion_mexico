@@ -77,18 +77,20 @@ class TestPR68EmailSystem(FrappeTestCase):
 			_resolve_recipient_email,
 		)
 
-		# Mock FFM con email configurado
+		# Documento con correo real -> el helper lo recibe como stored_email
+		self.mock_ffm.customer = "CUST"
+		self.mock_ffm.company = "COMP"
 		self.mock_ffm.fm_email_facturacion = "ffm@test.com"
 
 		with patch(
-			"facturacion_mexico.facturacion_fiscal.doctype.factura_fiscal_mexico.factura_fiscal_mexico._get_settings_email_defaults"
-		) as mock_settings:
-			mock_settings.return_value = (True, "fallback@test.com")
+			"facturacion_mexico.facturacion_fiscal.email_recipient.resolve_fiscal_recipient_email"
+		) as mock_helper:
+			mock_helper.return_value = "ffm@test.com"
 
 			result = _resolve_recipient_email(self.mock_ffm)
 
-			# Debe usar email de FFM, no fallback
 			self.assertEqual(result, "ffm@test.com")
+			mock_helper.assert_called_once_with(customer="CUST", company="COMP", stored_email="ffm@test.com")
 
 	def test_resolve_recipient_email_settings_fallback(self):
 		"""Test fallback a settings cuando FFM no tiene email"""
@@ -96,17 +98,18 @@ class TestPR68EmailSystem(FrappeTestCase):
 			_resolve_recipient_email,
 		)
 
-		# Mock FFM sin email
+		# Sin correo en el documento -> el destinatario proviene del helper (fallback por company)
+		self.mock_ffm.customer = "CUST"
+		self.mock_ffm.company = "COMP"
 		self.mock_ffm.fm_email_facturacion = ""
 
 		with patch(
-			"facturacion_mexico.facturacion_fiscal.doctype.factura_fiscal_mexico.factura_fiscal_mexico._get_settings_email_defaults"
-		) as mock_settings:
-			mock_settings.return_value = (True, "fallback@test.com")
+			"facturacion_mexico.facturacion_fiscal.email_recipient.resolve_fiscal_recipient_email"
+		) as mock_helper:
+			mock_helper.return_value = "fallback@test.com"
 
 			result = _resolve_recipient_email(self.mock_ffm)
 
-			# Debe usar fallback de settings
 			self.assertEqual(result, "fallback@test.com")
 
 	def test_resolve_recipient_email_no_fallback(self):
@@ -115,17 +118,18 @@ class TestPR68EmailSystem(FrappeTestCase):
 			_resolve_recipient_email,
 		)
 
-		# Mock FFM sin email
+		# El helper no resuelve destinatario -> None
+		self.mock_ffm.customer = "CUST"
+		self.mock_ffm.company = "COMP"
 		self.mock_ffm.fm_email_facturacion = None
 
 		with patch(
-			"facturacion_mexico.facturacion_fiscal.doctype.factura_fiscal_mexico.factura_fiscal_mexico._get_settings_email_defaults"
-		) as mock_settings:
-			mock_settings.return_value = (False, None)
+			"facturacion_mexico.facturacion_fiscal.email_recipient.resolve_fiscal_recipient_email"
+		) as mock_helper:
+			mock_helper.return_value = None
 
 			result = _resolve_recipient_email(self.mock_ffm)
 
-			# Debe retornar None
 			self.assertIsNone(result)
 
 	def test_resolve_auto_email_flag_customer_enviar(self):

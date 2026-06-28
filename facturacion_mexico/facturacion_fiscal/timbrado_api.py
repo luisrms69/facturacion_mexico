@@ -710,8 +710,8 @@ class TimbradoAPI:
 			),
 		}
 
-		# TODO: Email fallback configurable desde Facturacion Mexico Settings
-		# Si no hay email del cliente ni configurado en settings, email queda None (sin envío correos)
+		# Email fallback configurable por compañía en Facturacion Mexico Company Settings
+		# (customer_email_fallback). Si no hay correo del cliente ni fallback, queda None (sin envío).
 
 		# MIGRACIÓN ARQUITECTURAL: Tax system OBLIGATORIO desde Factura Fiscal
 		tax_system_code = self._get_tax_system_for_timbrado(factura_fiscal, customer)
@@ -1872,7 +1872,7 @@ class TimbradoAPI:
 		if "unauthorized" in error_str or "api" in error_str or "token" in error_str:
 			return {
 				"user_message": "ERROR DE AUTENTICACIÓN: Problema con las credenciales del PAC. Verifique la configuración de API keys.",
-				"corrective_action": "Verificar Facturacion Mexico Settings → API Keys",
+				"corrective_action": "Verificar Facturacion Mexico Company Settings → API Keys",
 				"status_code": status_code,
 			}
 
@@ -2289,7 +2289,7 @@ class TimbradoAPI:
 				"<p style='margin: 0 0 15px 0;'>No se pudo determinar la empresa para buscar configuración fiscal.</p>"
 				"<p style='margin: 15px 0 8px 0; font-weight: 600;'>Solución:</p>"
 				"<ol style='margin: 0; padding-left: 20px;'>"
-				"<li>Configurar empresa en <strong>Facturacion Mexico Settings</strong></li>"
+				"<li>Configurar empresa en <strong>Facturacion Mexico Company Settings</strong></li>"
 				"</ol>"
 				"</div>",
 				title="Empresa No Configurada",

@@ -157,7 +157,7 @@ function applyFFMUi(frm) {
 }
 ```
 
-### Facturacion Mexico Settings DocType
+### Facturacion Mexico Company Settings DocType (por compañía)
 ```json
 {
     "fieldname": "send_email_default",
@@ -252,6 +252,11 @@ print(f"Email flag for customer: {flag}")
 customer = frappe.get_doc("Customer", "CUSTOMER_NAME")
 print(f"Customer email setting: {customer.fm_envio_email_cliente}")
 
-settings = frappe.get_single("Facturacion Mexico Settings")
-print(f"Global default: {settings.send_email_default}")
+settings = frappe.db.get_value(
+    "Facturacion Mexico Company Settings",
+    {"company": customer.represents_company or frappe.defaults.get_user_default("company")},
+    ["send_email_default", "customer_email_fallback"],
+    as_dict=True,
+)
+print(f"Company default: {settings.send_email_default if settings else None}")
 ```
