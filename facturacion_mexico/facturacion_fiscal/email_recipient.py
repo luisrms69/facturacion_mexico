@@ -31,59 +31,58 @@ def _is_valid_email(value: str | None) -> bool:
 	if not value or not isinstance(value, str):
 		return False
 	email = value.strip()
-	if not email or " " in email:
+	# Descarta vacíos, espacios y placeholders/avisos (emojis u otros no-ASCII).
+	if not email or " " in email or not email.isascii():
 		return False
-	# Un correo válido tiene exactamente un '@' con texto a ambos lados y un punto en el dominio.
+	# Exactamente un '@' con texto a ambos lados.
 	if email.count("@") != 1:
 		return False
 	local, _, domain = email.partition("@")
-	if not local or "." not in domain:
+	if not local or not domain:
 		return False
-	# Descarta explícitamente placeholders/avisos (emojis o caracteres no ASCII de aviso).
-	return email.isascii()
+	# Dominio: sin punto inicial/final, con al menos dos etiquetas y ninguna vacía
+	# (rechaza cliente@.mx, cliente@example..com, cliente@mx, cliente@example.com.).
+	if domain.startswith(".") or domain.endswith("."):
+		return False
+	labels = domain.split(".")
+	if len(labels) < 2 or any(not label for label in labels):
+		return False
+	return True
 
 
 def get_customer_primary_address_email(customer: str | None) -> str | None:
 	"""Correo de la dirección principal del Customer (misma fuente que FFM).
 
-	Resolución de la dirección principal:
-	    1) Address con `is_primary_address=1` ligada al Customer por Dynamic Link.
-	    2) `Customer.customer_primary_address`.
-	    3) Primera Address ligada por Dynamic Link.
+	Resolución acotada a las Address ligadas a ESTE Customer (sin escaneo global del sitio):
+	    1) Address ligada con `is_primary_address=1`.
+	    2) `Customer.customer_primary_address`, si está ligada al Customer.
+	    3) Primera Address ligada.
 	Devuelve `Address.email_id` si es un correo válido, de lo contrario None.
 	"""
 	if not customer:
 		return None
 
-	addr_name = None
-	primary_addresses = frappe.get_all("Address", filters={"is_primary_address": 1}, pluck="name")
-	for name in primary_addresses:
-		if frappe.db.exists(
-			"Dynamic Link",
-			{
-				"link_doctype": "Customer",
-				"link_name": customer,
-				"parent": name,
-				"parenttype": "Address",
-			},
-		):
-			addr_name = name
-			break
-
-	if not addr_name:
-		addr_name = frappe.db.get_value("Customer", customer, "customer_primary_address")
-
-	if not addr_name:
-		linked = frappe.get_all(
-			"Dynamic Link",
-			filters={"link_doctype": "Customer", "link_name": customer, "parenttype": "Address"},
-			pluck="parent",
-		)
-		if linked:
-			addr_name = linked[0]
-
-	if not addr_name:
+	# Direcciones ligadas a ESTE Customer (consulta acotada por Dynamic Link; sin escaneo global).
+	linked = frappe.get_all(
+		"Dynamic Link",
+		filters={"link_doctype": "Customer", "link_name": customer, "parenttype": "Address"},
+		pluck="parent",
+	)
+	if not linked:
 		return None
+
+	# 1) Entre las ligadas, preferir la marcada is_primary_address=1 (una sola consulta).
+	addr_name = frappe.db.get_value("Address", {"name": ["in", linked], "is_primary_address": 1}, "name")
+
+	# 2) Customer.customer_primary_address, solo si está ligada a este Customer.
+	if not addr_name:
+		cpa = frappe.db.get_value("Customer", customer, "customer_primary_address")
+		if cpa and cpa in linked:
+			addr_name = cpa
+
+	# 3) Primera Address ligada.
+	if not addr_name:
+		addr_name = linked[0]
 
 	email = frappe.db.get_value("Address", addr_name, "email_id")
 	return email.strip() if _is_valid_email(email) else None

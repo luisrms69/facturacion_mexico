@@ -93,8 +93,14 @@ def _set_company_fallback(company: str, email: str | None):
 
 
 class TestIsValidEmail(IntegrationTestCase):
-	def test_accepts_real_email(self):
-		self.assertTrue(_is_valid_email("cliente@example.com"))
+	def test_accepts_real_emails(self):
+		for good in [
+			"cliente@example.com",
+			"cliente@sub.example.com",
+			"cliente.test@example.com.mx",
+			"a@b.co",
+		]:
+			self.assertTrue(_is_valid_email(good), f"debió aceptar: {good!r}")
 
 	def test_rejects_placeholder_and_invalid(self):
 		for bad in [
@@ -108,6 +114,14 @@ class TestIsValidEmail(IntegrationTestCase):
 			"dos@@arrobas.com",
 			"sin dominio@",
 			"con espacio @x.com",
+			# Dominios malformados (endurecimiento CodeRabbit #2)
+			"cliente@.mx",
+			"cliente@example..com",
+			"cliente@mx",
+			"cliente@example.com.",
+			"cliente@.example.com",
+			"@example.com",
+			"cliente@",
 		]:
 			self.assertFalse(_is_valid_email(bad), f"debió rechazar: {bad!r}")
 
@@ -242,17 +256,52 @@ class TestFFMResolverDelegation(IntegrationTestCase):
 		)
 
 	def test_manual_and_auto_use_same_resolver(self):
-		"""El envío manual (_send_cfdi_email) y el automático (_send_fiscal_email) usan
-		el MISMO resolver _resolve_recipient_email."""
+		"""Conductual: el envío manual (`_send_cfdi_email`) y el automático (`_send_fiscal_email`)
+		llaman al MISMO resolver `_resolve_recipient_email` con el documento (company correcta),
+		sin comunicación externa real (FacturAPI mockeado)."""
+		import unittest.mock as m
+		from types import SimpleNamespace
+
 		from facturacion_mexico.facturacion_fiscal import timbrado_api as t_mod
 		from facturacion_mexico.facturacion_fiscal.doctype.factura_fiscal_mexico import (
 			factura_fiscal_mexico as ffm_mod,
 		)
 
-		manual_src = inspect.getsource(ffm_mod._send_cfdi_email)
-		auto_src = inspect.getsource(t_mod.TimbradoAPI._send_fiscal_email)
-		self.assertIn("_resolve_recipient_email", manual_src)
-		self.assertIn("_resolve_recipient_email", auto_src)
+		captured = []
+
+		def fake_resolver(doc):
+			captured.append(doc)
+			return "dest@example.com"
+
+		ffm = frappe.get_doc({"doctype": "Factura Fiscal Mexico"})  # doc en memoria, sin insertar
+		ffm.customer = "CUST-Z"
+		ffm.company = "COMPANY-Z"
+		ffm.fm_uuid = "UUID-123"
+		ffm.facturapi_id = "fapi-123"
+		ffm.add_comment = lambda *a, **k: None  # doc sin guardar: no insertar Comment
+
+		# Ambos flujos resuelven vía _resolve_recipient_email (el automático lo importa localmente
+		# desde el mismo módulo, así que basta parchear ahí).
+		with m.patch.object(ffm_mod, "_resolve_recipient_email", side_effect=fake_resolver):
+			# MANUAL: FacturAPIClient se importa dentro de _send_cfdi_email desde api_client.
+			with m.patch("facturacion_mexico.facturacion_fiscal.api_client.FacturAPIClient") as MockClient:
+				result = ffm_mod._send_cfdi_email(ffm)
+				self.assertTrue(result.get("sent"))
+				self.assertEqual(result.get("to"), "dest@example.com")
+				MockClient.return_value.send_invoice_email.assert_called_once_with(
+					"fapi-123", "dest@example.com"
+				)
+
+			# AUTOMÁTICO post-timbrado: self.client es el boundary externo (mockeado).
+			fake_timbrado = SimpleNamespace(client=m.MagicMock())
+			t_mod.TimbradoAPI._send_fiscal_email(fake_timbrado, ffm, "fapi-123")
+			fake_timbrado.client.send_invoice_email.assert_called_once_with("fapi-123", "dest@example.com")
+
+		# Verificación clave: ambos flujos llamaron al MISMO resolver con el documento (company correcta).
+		self.assertEqual(len(captured), 2)
+		for doc in captured:
+			self.assertIs(doc, ffm)
+			self.assertEqual(getattr(doc, "company", None), "COMPANY-Z")
 
 
 class TestComplementoUsesCanonicalResolver(IntegrationTestCase):
