@@ -166,7 +166,7 @@ Si el cliente tiene configurado envío automático de CFDI (`fm_enviar_email_tim
 el sistema envía el XML y PDF por correo al hacer el timbrado.
 
 La configuración de correo se hereda de `Customer.fm_auto_send_cfdi` con fallback a
-`Facturacion Mexico Settings`.
+`Facturacion Mexico Company Settings` (configuración por compañía).
 
 ---
 

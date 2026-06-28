@@ -1077,7 +1077,8 @@ class FacturaFiscalMexico(Document):
 		if not self.customer:
 			# Mostrar mensajes informativos si no hay customer
 			self.fm_cp_cliente = "⚠️ SELECCIONA UN CLIENTE"
-			self.fm_email_facturacion = "⚠️ SELECCIONA UN CLIENTE"
+			# fm_email_facturacion solo almacena correo real o vacío (nunca avisos): se usa como destinatario.
+			self.fm_email_facturacion = ""
 			self.fm_rfc_cliente = "⚠️ SELECCIONA UN CLIENTE"
 			self.fm_tax_system = "⚠️ SELECCIONA UN CLIENTE"
 			self.fm_direccion_principal_link = ""
@@ -1120,14 +1121,15 @@ class FacturaFiscalMexico(Document):
 			if primary_address:
 				# Poblar datos desde dirección principal
 				self.fm_cp_cliente = primary_address.pincode or "⚠️ FALTA CP EN DIRECCIÓN"
-				self.fm_email_facturacion = primary_address.email_id or "⚠️ FALTA EMAIL EN DIRECCIÓN"
+				# Solo correo real o vacío: el aviso de falta de correo NO se almacena aquí.
+				self.fm_email_facturacion = primary_address.email_id or ""
 				self.fm_direccion_principal_link = primary_address.name
 				self.fm_direccion_principal_display = self._get_primary_address_display()
 				# Datos poblados desde dirección principal
 			else:
 				# No hay dirección principal - marcar campos como faltantes
 				self.fm_cp_cliente = "⚠️ FALTA DIRECCIÓN PRINCIPAL"
-				self.fm_email_facturacion = "⚠️ FALTA DIRECCIÓN PRINCIPAL"
+				self.fm_email_facturacion = ""
 				self.fm_direccion_principal_link = ""
 				self.fm_direccion_principal_display = "⚠️ FALTA DIRECCIÓN PRINCIPAL DEL CLIENTE"
 				# No hay dirección principal - campos marcados como faltantes
@@ -1139,7 +1141,7 @@ class FacturaFiscalMexico(Document):
 			frappe.log_error(f"Error poblando datos de facturación: {e!s}", "Billing Data Population Error")
 			# En caso de error, mostrar mensajes de error
 			self.fm_cp_cliente = "❌ ERROR AL OBTENER CP"
-			self.fm_email_facturacion = "❌ ERROR AL OBTENER EMAIL"
+			self.fm_email_facturacion = ""
 			self.fm_rfc_cliente = "❌ ERROR AL OBTENER RFC"
 			self.fm_tax_system = "❌ ERROR AL OBTENER TAX SYSTEM"
 			self.fm_direccion_principal_link = ""
@@ -1630,15 +1632,23 @@ def _resolve_auto_email_flag(customer_name: str, company=None) -> int:
 
 
 def _resolve_recipient_email(ffm_doc) -> str | None:
-	"""Devuelve el email final según regla estricta:
-	1) FFM.fm_email_facturacion
-	2) Settings.customer_email_fallback
-	3) None si no hay
+	"""Resuelve el destinatario del CFDI con el criterio fiscal canónico (multi-company).
+
+	Delegado al helper común para garantizar el MISMO criterio que el Complemento de Pago:
+	1) `fm_email_facturacion` ya almacenado si es un correo real, o dirección principal del Customer
+	2) `customer_email_fallback` de Company Settings para la company del documento
+	3) None
+
+	El fallback usa SIEMPRE la company del documento (no la company default global).
+	No se aceptan placeholders ni avisos almacenados en `fm_email_facturacion`.
 	"""
-	_, fallback = _get_settings_email_defaults()
-	ffm_email = (getattr(ffm_doc, "fm_email_facturacion", "") or "").strip()
-	result = ffm_email or fallback or None
-	return result
+	from facturacion_mexico.facturacion_fiscal.email_recipient import resolve_fiscal_recipient_email
+
+	return resolve_fiscal_recipient_email(
+		customer=getattr(ffm_doc, "customer", None),
+		company=getattr(ffm_doc, "company", None),
+		stored_email=getattr(ffm_doc, "fm_email_facturacion", None),
+	)
 
 
 def _send_cfdi_email(self, to_override: str | None = None) -> dict:
