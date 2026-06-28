@@ -29,7 +29,33 @@ def _make_customer(suffix: str) -> str:
 	return c.name
 
 
+def _ensure_default_address_template():
+	"""CI no trae Address Template por defecto; insertar una Address dispara su render
+	(`on_update` -> `get_address_display`), que falla sin un template default."""
+	if frappe.db.exists("Address Template", {"is_default": 1}):
+		return
+	country = frappe.get_all("Country", limit=1, pluck="name")
+	frappe.get_doc(
+		{
+			"doctype": "Address Template",
+			"country": country[0] if country else "Mexico",
+			"is_default": 1,
+			"template": "{{ address_line1 or '' }}",
+		}
+	).insert(ignore_permissions=True)
+
+
+def _first_company() -> str | None:
+	"""Company existente de forma robusta (evita `get_value` con filtro vacío `{}`)."""
+	default = frappe.defaults.get_global_default("company")
+	if default:
+		return default
+	names = frappe.get_all("Company", limit=1, pluck="name")
+	return names[0] if names else None
+
+
 def _make_address(customer: str, suffix: str, email: str | None, primary: bool = True) -> str:
+	_ensure_default_address_template()
 	addr = frappe.get_doc(
 		{
 			"doctype": "Address",
@@ -54,14 +80,16 @@ def _set_company_fallback(company: str, email: str | None):
 	name = frappe.db.get_value("Facturacion Mexico Company Settings", {"company": company}, "name")
 	if name:
 		frappe.db.set_value("Facturacion Mexico Company Settings", name, "customer_email_fallback", email)
-	else:
-		frappe.get_doc(
-			{
-				"doctype": "Facturacion Mexico Company Settings",
-				"company": company,
-				"customer_email_fallback": email,
-			}
-		).insert(ignore_permissions=True, ignore_mandatory=True)
+		return
+	doc = frappe.get_doc(
+		{
+			"doctype": "Facturacion Mexico Company Settings",
+			"company": company,
+			"customer_email_fallback": email,
+		}
+	)
+	doc.flags.ignore_validate = True
+	doc.insert(ignore_permissions=True, ignore_mandatory=True)
 
 
 class TestIsValidEmail(IntegrationTestCase):
@@ -87,9 +115,7 @@ class TestIsValidEmail(IntegrationTestCase):
 class TestResolveHelperRealRecords(IntegrationTestCase):
 	def setUp(self):
 		self.sfx = frappe.generate_hash()[:6]
-		self.company = frappe.defaults.get_global_default("company") or frappe.db.get_value(
-			"Company", {}, "name"
-		)
+		self.company = _first_company()
 
 	def test_address_email_used(self):
 		cust = _make_customer(self.sfx)
@@ -108,6 +134,8 @@ class TestResolveHelperRealRecords(IntegrationTestCase):
 		self.assertNotEqual(out, "customer-directo@example.com")
 
 	def test_fallback_when_address_has_no_email(self):
+		if not self.company:
+			self.skipTest("entorno de pruebas sin Company")
 		cust = _make_customer(self.sfx)
 		_make_address(cust, self.sfx, None)  # dirección sin correo
 		_set_company_fallback(self.company, "fallback@empresa.com")
@@ -160,9 +188,9 @@ class TestCompanyFallbackScoping(IntegrationTestCase):
 	"""Multi-company: el fallback se lee por la company del documento, nunca por la global."""
 
 	def setUp(self):
-		self.company = frappe.defaults.get_global_default("company") or frappe.db.get_value(
-			"Company", {}, "name"
-		)
+		self.company = _first_company()
+		if not self.company:
+			self.skipTest("entorno de pruebas sin Company")
 
 	def test_fallback_scoped_to_company(self):
 		_set_company_fallback(self.company, "scoped@empresa.com")

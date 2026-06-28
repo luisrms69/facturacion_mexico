@@ -2285,14 +2285,16 @@ class TimbradoAPI:
 
 		if not company:
 			frappe.throw(
-				"<div style='font-family: -apple-system, BlinkMacSystemFont, sans-serif;'>"
-				"<p style='margin: 0 0 15px 0;'>No se pudo determinar la empresa para buscar configuración fiscal.</p>"
-				"<p style='margin: 15px 0 8px 0; font-weight: 600;'>Solución:</p>"
-				"<ol style='margin: 0; padding-left: 20px;'>"
-				"<li>Configurar empresa en <strong>Facturacion Mexico Company Settings</strong></li>"
-				"</ol>"
-				"</div>",
-				title="Empresa No Configurada",
+				_(
+					"<div style='font-family: -apple-system, BlinkMacSystemFont, sans-serif;'>"
+					"<p style='margin: 0 0 15px 0;'>No se pudo determinar la empresa para buscar configuración fiscal.</p>"
+					"<p style='margin: 15px 0 8px 0; font-weight: 600;'>Solución:</p>"
+					"<ol style='margin: 0; padding-left: 20px;'>"
+					"<li>Configurar empresa en <strong>Facturacion Mexico Company Settings</strong></li>"
+					"</ol>"
+					"</div>"
+				),
+				title=_("Empresa No Configurada"),
 			)
 
 		# Buscar en configuración fiscal por company
