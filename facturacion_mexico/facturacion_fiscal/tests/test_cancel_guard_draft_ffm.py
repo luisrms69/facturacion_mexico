@@ -146,7 +146,13 @@ class TestCancelarSiPostFiscalIgnoraDraft(IntegrationTestCase):
 	def setUp(self):
 		self.si = _seed_si()
 		# FFM fiscal válida: submitted, CANCELADO, con evidencia fiscal
-		self.ffm_valida = _seed_ffm(self.si, "CANCELADO", 1, uuid="U-VALIDA", facturapi_id="FA-VALIDA")
+		self.ffm_valida = _seed_ffm(
+			self.si,
+			"CANCELADO",
+			1,
+			uuid=frappe.generate_hash(length=10),
+			facturapi_id=frappe.generate_hash(length=10),
+		)
 		frappe.db.set_value("Sales Invoice", self.si, "fm_factura_fiscal_mx", self.ffm_valida)
 		# FFM duplicada BORRADOR: docstatus=0, sin UUID ni facturapi_id
 		self.ffm_draft = _seed_ffm(self.si, "BORRADOR", 0)
@@ -190,28 +196,31 @@ class TestCancelarSiPostFiscalIgnoraDraft(IntegrationTestCase):
 
 	def test_draft_con_uuid_sigue_bloqueando(self):
 		# Convertir la draft en una con UUID → vuelve a ser fiscalmente activa y BLOQUEA
-		frappe.db.set_value("Factura Fiscal Mexico", self.ffm_draft, "fm_uuid", "U-CONUUID")
-		with mock.patch("frappe.model.document.Document.cancel"):
-			with self.assertRaises(frappe.ValidationError):
-				cancelar_si_post_fiscal(self.si)
+		frappe.db.set_value(
+			"Factura Fiscal Mexico", self.ffm_draft, "fm_uuid", frappe.generate_hash(length=10)
+		)
+		with mock.patch("frappe.model.document.Document.cancel"), self.assertRaises(frappe.ValidationError):
+			cancelar_si_post_fiscal(self.si)
 
 	def test_ffm_submitted_no_cancelada_sigue_bloqueando(self):
 		# Una segunda FFM submitted en TIMBRADO (no CANCELADO) debe bloquear
-		_seed_ffm(self.si, "TIMBRADO", 1, uuid="U-TIMB", facturapi_id="FA-TIMB")
-		with mock.patch("frappe.model.document.Document.cancel"):
-			with self.assertRaises(frappe.ValidationError):
-				cancelar_si_post_fiscal(self.si)
+		_seed_ffm(
+			self.si,
+			"TIMBRADO",
+			1,
+			uuid=frappe.generate_hash(length=10),
+			facturapi_id=frappe.generate_hash(length=10),
+		)
+		with mock.patch("frappe.model.document.Document.cancel"), self.assertRaises(frappe.ValidationError):
+			cancelar_si_post_fiscal(self.si)
 
 	def test_draft_procesando_sigue_bloqueando(self):
 		# Draft en PROCESANDO (sin UUID ni facturapi_id): puede haber operación en curso → BLOQUEA
 		_seed_ffm(self.si, "PROCESANDO", 0)
-		with mock.patch("frappe.model.document.Document.cancel"):
-			with self.assertRaises(frappe.ValidationError):
-				cancelar_si_post_fiscal(self.si)
+		with mock.patch("frappe.model.document.Document.cancel"), self.assertRaises(frappe.ValidationError):
+			cancelar_si_post_fiscal(self.si)
 
-	def test_draft_borrador_que_es_la_ffm_activa_bloquea(self):
-		# Si la SI apunta a un borrador sin timbrar como FFM activa, nunca se ignora → BLOQUEA
-		frappe.db.set_value("Sales Invoice", self.si, "fm_factura_fiscal_mx", self.ffm_draft)
-		with mock.patch("frappe.model.document.Document.cancel"):
-			with self.assertRaises(frappe.ValidationError):
-				cancelar_si_post_fiscal(self.si)
+	# Nota: el guard "nunca ignorar la FFM activa de la SI" se cubre por el test directo del
+	# predicado (TestEsFfmBorradorSinTimbrar.test_ffm_activa_de_la_si_es_false). Un test de
+	# integración que apunte el borrador como FFM activa bloquearía por el guard previo
+	# (la FFM activa debe estar CANCELADO), no por este branch — sería engañoso, se omite.
