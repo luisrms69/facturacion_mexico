@@ -176,6 +176,29 @@ def refacturar_misma_si(si_name: str):
 	}
 
 
+def _es_ffm_borrador_sin_timbrar(ffm_row, active_ffm_name=None) -> bool:
+	"""True si la FFM es un borrador nunca timbrado y NO es la FFM activa de la SI.
+
+	Debe cumplir TODO: docstatus=0, status == BORRADOR, sin UUID, sin facturapi_id, y no ser la FFM
+	que la Sales Invoice reconoce como activa (`fm_factura_fiscal_mx`). Estas FFM no representan un
+	CFDI emitido ni una operación fiscal en curso → no son fiscalmente activas: no bloquean la
+	cancelación de la Sales Invoice y no se desvinculan ni se modifican.
+
+	Cualquier FFM con UUID, con facturapi_id, con docstatus != 0, con un status distinto de BORRADOR
+	(p. ej. PROCESANDO/PENDIENTE — puede haber una operación en curso ante el PAC) o que sea la FFM
+	activa de la SI SÍ debe evaluarse contra el guard (debe estar CANCELADO).
+	"""
+	# Nunca ignorar la FFM que la SI reconoce como activa, aunque esté inconsistente.
+	if active_ffm_name and ffm_row.get("name") == active_ffm_name:
+		return False
+	return (
+		int(ffm_row.get("docstatus") or 0) == 0
+		and (ffm_row.get("status") or "").upper() == "BORRADOR"
+		and not (ffm_row.get("fm_uuid") or "").strip()
+		and not (ffm_row.get("facturapi_id") or "").strip()
+	)
+
+
 @frappe.whitelist()
 def cancelar_si_post_fiscal(si_name: str):
 	"""
@@ -198,13 +221,17 @@ def cancelar_si_post_fiscal(si_name: str):
 	if not frappe.has_permission("Sales Invoice", "cancel", si):
 		frappe.throw(_("Sin permisos para cancelar Sales Invoice."))
 
-	# Obtener todas las FFMs ligadas y validar que todas estén canceladas antes de desvincular
+	# Obtener todas las FFMs ligadas y validar que las fiscalmente activas estén canceladas antes
+	# de desvincular. Una FFM en BORRADOR nunca timbrada (docstatus=0, sin UUID ni facturapi_id) NO
+	# es fiscalmente activa: no bloquea la cancelación y no se toca.
 	ffms = frappe.get_all(
 		"Factura Fiscal Mexico",
 		filters={"sales_invoice": si_name},
-		fields=["name", "status"],
+		fields=["name", "status", "docstatus", "fm_uuid", "facturapi_id"],
 	)
 	for row in ffms:
+		if _es_ffm_borrador_sin_timbrar(row, active_ffm):
+			continue  # borrador sin timbrar: no es fiscalmente activa, no bloquea
 		if (row.get("status") or "").upper() != "CANCELADO":
 			frappe.throw(
 				_(
@@ -213,8 +240,11 @@ def cancelar_si_post_fiscal(si_name: str):
 				).format(row.name, row.status)
 			)
 
-	# Todas canceladas — desvincular para que ERPNext permita el cancel de la SI
+	# Desvincular SOLO las FFM fiscalmente activas (ya canceladas) para que ERPNext permita el
+	# cancel de la SI. Las FFM borrador sin timbrar no se desvinculan ni se modifican.
 	for row in ffms:
+		if _es_ffm_borrador_sin_timbrar(row, active_ffm):
+			continue
 		frappe.db.set_value("Factura Fiscal Mexico", row.name, "sales_invoice", "")
 
 	# Limpiar vínculos fiscales en la SI
