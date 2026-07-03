@@ -33,7 +33,7 @@
   "print_hide": 0,
   "hidden": 0,
   "reqd": 0,
-  "description": "Estado fiscal actual - Sincronizado automáticamente desde Factura Fiscal Mexico",
+  "description": null,
   "default": ""
  },
  {
