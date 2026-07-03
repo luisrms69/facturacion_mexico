@@ -1229,7 +1229,7 @@ class TimbradoAPI:
 				},
 			)
 
-			# Proyectar folio fiscal (UUID vigente) a la Sales Invoice para reportes de CxC
+			# Proyectar folio fiscal (folio consecutivo vigente) a la Sales Invoice para reportes de CxC
 			from facturacion_mexico.facturacion_fiscal.utils import sincronizar_folio_fiscal
 
 			sincronizar_folio_fiscal(sales_invoice.name)

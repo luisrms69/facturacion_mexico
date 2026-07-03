@@ -1,7 +1,7 @@
 """Backfill one-off de Sales Invoice.fm_folio_fiscal (cache de folio fiscal para CxC).
 
 Recorre las Sales Invoice con FFM ligada o con folio ya poblado, y sincroniza
-`fm_folio_fiscal` con el folio (UUID) del CFDI VIGENTE usando el mismo helper que el flujo
+`fm_folio_fiscal` con el folio consecutivo (FFM.folio) del CFDI VIGENTE usando el mismo helper que el flujo
 en vivo: `facturacion_fiscal.utils.sincronizar_folio_fiscal`.
 
 - Idempotente y repetible. Sin FacturAPI (solo lee campos internos ya persistidos).
@@ -30,9 +30,9 @@ def _folio_vigente_esperado(si_name):
 	ffm = frappe.db.get_value("Sales Invoice", si_name, "fm_factura_fiscal_mx")
 	if not ffm:
 		return ""
-	row = frappe.db.get_value("Factura Fiscal Mexico", ffm, ["status", "fm_uuid"], as_dict=True)
-	if row and (row.fm_uuid or "").strip() and row.status in _FOLIO_VIGENTE_STATES:
-		return row.fm_uuid.strip()
+	row = frappe.db.get_value("Factura Fiscal Mexico", ffm, ["status", "folio"], as_dict=True)
+	if row and row.status in _FOLIO_VIGENTE_STATES and str(row.folio or "").strip():
+		return str(row.folio).strip()
 	return ""
 
 

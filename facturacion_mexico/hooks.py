@@ -466,6 +466,8 @@ scheduler_events = {
 	],
 	"weekly": [
 		# P6.1.4d: cleanup_old_fiscal_events eliminado - FiscalEventMX no existe
+		# Red de seguridad: reconcilia SI.fm_folio_fiscal con FFM.folio (idempotente, sin FacturAPI)
+		"facturacion_mexico.facturacion_fiscal.tasks.sync_folio_fiscal_scheduled",
 	],
 }
 
