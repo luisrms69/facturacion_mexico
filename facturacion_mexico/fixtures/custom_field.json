@@ -2756,7 +2756,7 @@
   "insert_after": "fm_fiscal_status",
   "is_system_generated": 0,
   "is_virtual": 0,
-  "label": "Folio Fiscal",
+  "label": "Folio Fiscal FFM",
   "length": 0,
   "link_filters": null,
   "mandatory_depends_on": null,
