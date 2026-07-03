@@ -34,6 +34,68 @@ def get_invoice_uuid(sales_invoice_name):
 		return None
 
 
+# Estados en los que el CFDI sigue existiendo y su folio es VIGENTE.
+# PENDIENTE_CANCELACION: cancelación en curso pero aún no aceptada → el CFDI sigue vivo.
+_FOLIO_VIGENTE_STATES = {FiscalStates.TIMBRADO, FiscalStates.PENDIENTE_CANCELACION}
+
+
+def resolver_folio_vigente(sales_invoice_name):
+	"""Read-only: folio (FFM.folio) de la SI si su FFM ligada es vigente, o "" si no.
+
+	Vigente = FFM ligada (SI.fm_factura_fiscal_mx) con folio y status en
+	{TIMBRADO, PENDIENTE_CANCELACION}. No escribe. Fuente única de la regla de vigencia:
+	la reutilizan `sincronizar_folio_fiscal` (flujo en vivo) y el backfill.
+	"""
+	ffm_name = frappe.db.get_value("Sales Invoice", sales_invoice_name, "fm_factura_fiscal_mx")
+	if not ffm_name:
+		return ""
+	row = frappe.db.get_value("Factura Fiscal Mexico", ffm_name, ["status", "folio"], as_dict=True)
+	if row and row.status in _FOLIO_VIGENTE_STATES and str(row.folio or "").strip():
+		return str(row.folio).strip()
+	return ""
+
+
+def sincronizar_folio_fiscal(sales_invoice_name):
+	"""Sincroniza Sales Invoice.fm_folio_fiscal con el FOLIO consecutivo del CFDI VIGENTE.
+
+	Folio = el consecutivo del CFDI (`FFM.folio`), el que usa el cliente. NO es el UUID/timbre.
+	Cache de solo lectura para reportes de Cuentas por Cobrar. La fuente fiscal sigue siendo
+	Factura Fiscal Mexico; este campo es una proyección, no autoritativo. No usa FacturAPI:
+	solo lee campos internos ya persistidos.
+
+	Idempotente: recomputa desde el estado actual y escribe el folio vigente o lo limpia.
+	Vigente = la FFM ligada (SI.fm_factura_fiscal_mx) tiene folio y su status está en
+	{TIMBRADO, PENDIENTE_CANCELACION}. Si no hay FFM vigente ligada, el campo queda vacío.
+
+	Se escribe con update_modified=False: una proyección de cache no debe alterar el timestamp
+	de auditoría de la Sales Invoice (importante también para el backfill masivo).
+
+	Args:
+		sales_invoice_name (str): Nombre del documento Sales Invoice
+
+	Returns:
+		str: El folio escrito, o "" si se limpió.
+	"""
+	try:
+		folio = resolver_folio_vigente(sales_invoice_name)
+
+		# Escribir solo si cambia (idempotencia, evita writes innecesarios)
+		current = frappe.db.get_value("Sales Invoice", sales_invoice_name, "fm_folio_fiscal") or ""
+		if current != folio:
+			frappe.db.set_value(
+				"Sales Invoice", sales_invoice_name, "fm_folio_fiscal", folio, update_modified=False
+			)
+
+		return folio
+
+	except Exception as e:
+		frappe.log_error(
+			f"Error sincronizando folio fiscal para {sales_invoice_name}: {e!s}",
+			"Sincronizar Folio Fiscal Error",
+		)
+		return ""
+
+
 def get_invoice_fiscal_data(sales_invoice_name):
 	"""
 	Obtener datos fiscales completos desde Factura Fiscal Mexico.

@@ -120,3 +120,46 @@ def _create_log_summaries(logs: list[dict[str, Any]]):
 
 	except Exception as e:
 		frappe.log_error(f"Error creando resúmenes de logs: {e!s}", "Log Summary Error")
+
+
+def sync_folio_fiscal_scheduled():
+	"""Red de seguridad semanal: reconcilia Sales Invoice.fm_folio_fiscal con FFM.folio.
+
+	Reutiliza el mismo helper del flujo en vivo y del backfill (`sincronizar_folio_fiscal`):
+	corrige folios desactualizados y limpia los no vigentes. Idempotente, sin FacturAPI.
+	El commit lo maneja el scheduler tras la ejecución. Registra un resumen en el log.
+
+	Returns:
+		dict: conteos revisadas/actualizadas/limpiadas/sin_cambio/errores.
+	"""
+	from facturacion_mexico.facturacion_fiscal.utils import sincronizar_folio_fiscal
+
+	stats = {"revisadas": 0, "actualizadas": 0, "limpiadas": 0, "sin_cambio": 0, "errores": 0}
+
+	# Alcance: SIs con FFM ligada (a mantener) o con folio ya escrito (a reverificar/limpiar).
+	names = frappe.get_all(
+		"Sales Invoice",
+		or_filters=[["fm_factura_fiscal_mx", "!=", ""], ["fm_folio_fiscal", "!=", ""]],
+		pluck="name",
+	)
+
+	for name in names:
+		stats["revisadas"] += 1
+		try:
+			antes = frappe.db.get_value("Sales Invoice", name, "fm_folio_fiscal") or ""
+			despues = sincronizar_folio_fiscal(name)
+			if antes == despues:
+				stats["sin_cambio"] += 1
+			elif despues:
+				stats["actualizadas"] += 1
+			else:
+				stats["limpiadas"] += 1
+		except Exception as e:
+			stats["errores"] += 1
+			frappe.log_error(
+				f"sync_folio_fiscal_scheduled falló en {name}: {e!s}",
+				"Sync Folio Fiscal Scheduled Error",
+			)
+
+	frappe.logger("facturacion_mexico").info({"event": "sync_folio_fiscal_scheduled", **stats})
+	return stats
