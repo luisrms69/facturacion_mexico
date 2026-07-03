@@ -38,10 +38,16 @@ def get_ffm_summary(ffm_name: str) -> dict:
 	try:
 		doc = frappe.get_doc(FFM_DOCTYPE, ffm_name).as_dict()
 
-		# Construir folio combinado si existe serie y folio por separado
-		folio_display = _pick(doc, ALIASES["folio"])
-		if not folio_display and doc.get("serie") and doc.get("folio"):
-			folio_display = f"{doc.get('serie')}-{doc.get('folio')}"
+		# "Serie y Folio": preferir el combinado ya persistido; si no, unir serie+folio;
+		# como último recurso, mostrar lo que haya suelto (folio, serie o folio_fiscal).
+		folio_display = (doc.get("fm_serie_folio") or "").strip()
+		if not folio_display:
+			serie = (doc.get("serie") or "").strip()
+			folio = (doc.get("folio") or "").strip()
+			if serie and folio:
+				folio_display = f"{serie}-{folio}"
+			else:
+				folio_display = folio or serie or (doc.get("folio_fiscal") or "").strip() or None
 
 		metodo_pago = doc.get("fm_payment_method_sat") or ""
 		metodo_pago_label = {
