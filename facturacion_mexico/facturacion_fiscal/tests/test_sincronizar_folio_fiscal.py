@@ -120,6 +120,22 @@ class TestSincronizarFolioFiscal(IntegrationTestCase):
 		self.assertEqual(sincronizar_folio_fiscal(si), folio)
 		self.assertEqual(_folio(si), folio)
 
+	def test_estado_no_vigente_limpia(self):
+		# FFM en estado no vigente (BORRADOR) con folio → el campo se limpia
+		ffm = _seed_ffm(FiscalStates.BORRADOR, folio=_folio_unico())
+		si = _seed_si(fm_folio_fiscal="FOLIO-PREVIO", fm_factura_fiscal_mx=ffm)
+
+		self.assertEqual(sincronizar_folio_fiscal(si), "")
+		self.assertEqual(_folio(si), "")
+
+	def test_folio_en_blanco_limpia(self):
+		# FFM vigente pero folio solo con espacios → se trata como vacío y se limpia
+		ffm = _seed_ffm(FiscalStates.TIMBRADO, folio="   ")
+		si = _seed_si(fm_folio_fiscal="FOLIO-PREVIO", fm_factura_fiscal_mx=ffm)
+
+		self.assertEqual(sincronizar_folio_fiscal(si), "")
+		self.assertEqual(_folio(si), "")
+
 
 class TestSyncFolioFiscalScheduled(IntegrationTestCase):
 	"""La tarea programada reutiliza el helper y reconcilia (corrige/limpia) con conteos correctos."""

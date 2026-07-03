@@ -39,6 +39,22 @@ def get_invoice_uuid(sales_invoice_name):
 _FOLIO_VIGENTE_STATES = {FiscalStates.TIMBRADO, FiscalStates.PENDIENTE_CANCELACION}
 
 
+def resolver_folio_vigente(sales_invoice_name):
+	"""Read-only: folio (FFM.folio) de la SI si su FFM ligada es vigente, o "" si no.
+
+	Vigente = FFM ligada (SI.fm_factura_fiscal_mx) con folio y status en
+	{TIMBRADO, PENDIENTE_CANCELACION}. No escribe. Fuente única de la regla de vigencia:
+	la reutilizan `sincronizar_folio_fiscal` (flujo en vivo) y el backfill.
+	"""
+	ffm_name = frappe.db.get_value("Sales Invoice", sales_invoice_name, "fm_factura_fiscal_mx")
+	if not ffm_name:
+		return ""
+	row = frappe.db.get_value("Factura Fiscal Mexico", ffm_name, ["status", "folio"], as_dict=True)
+	if row and row.status in _FOLIO_VIGENTE_STATES and str(row.folio or "").strip():
+		return str(row.folio).strip()
+	return ""
+
+
 def sincronizar_folio_fiscal(sales_invoice_name):
 	"""Sincroniza Sales Invoice.fm_folio_fiscal con el FOLIO consecutivo del CFDI VIGENTE.
 
@@ -61,12 +77,7 @@ def sincronizar_folio_fiscal(sales_invoice_name):
 		str: El folio escrito, o "" si se limpió.
 	"""
 	try:
-		folio = ""
-		ffm_name = frappe.db.get_value("Sales Invoice", sales_invoice_name, "fm_factura_fiscal_mx")
-		if ffm_name:
-			row = frappe.db.get_value("Factura Fiscal Mexico", ffm_name, ["status", "folio"], as_dict=True)
-			if row and row.status in _FOLIO_VIGENTE_STATES and str(row.folio or "").strip():
-				folio = str(row.folio).strip()
+		folio = resolver_folio_vigente(sales_invoice_name)
 
 		# Escribir solo si cambia (idempotencia, evita writes innecesarios)
 		current = frappe.db.get_value("Sales Invoice", sales_invoice_name, "fm_folio_fiscal") or ""

@@ -1,8 +1,8 @@
 """Backfill one-off de Sales Invoice.fm_folio_fiscal (cache de folio fiscal para CxC).
 
 Recorre las Sales Invoice con FFM ligada o con folio ya poblado, y sincroniza
-`fm_folio_fiscal` con el folio consecutivo (FFM.folio) del CFDI VIGENTE usando el mismo helper que el flujo
-en vivo: `facturacion_fiscal.utils.sincronizar_folio_fiscal`.
+`fm_folio_fiscal` con el folio consecutivo (FFM.folio) del CFDI VIGENTE usando el mismo
+helper que el flujo en vivo: `facturacion_fiscal.utils.sincronizar_folio_fiscal`.
 
 - Idempotente y repetible. Sin FacturAPI (solo lee campos internos ya persistidos).
 - Dry-run por DEFAULT: `apply=0` no escribe nada, solo clasifica y reporta.
@@ -20,32 +20,21 @@ Reporta: revisadas, actualizadas, limpiadas, sin_cambio, errores.
 import frappe
 
 from facturacion_mexico.facturacion_fiscal.utils import (
-	_FOLIO_VIGENTE_STATES,
+	resolver_folio_vigente,
 	sincronizar_folio_fiscal,
 )
-
-
-def _folio_vigente_esperado(si_name):
-	"""Read-only: folio que DEBERÍA tener la SI (misma regla que el helper), sin escribir."""
-	ffm = frappe.db.get_value("Sales Invoice", si_name, "fm_factura_fiscal_mx")
-	if not ffm:
-		return ""
-	row = frappe.db.get_value("Factura Fiscal Mexico", ffm, ["status", "folio"], as_dict=True)
-	if row and row.status in _FOLIO_VIGENTE_STATES and str(row.folio or "").strip():
-		return str(row.folio).strip()
-	return ""
 
 
 def run(apply=0):
 	"""Backfill de fm_folio_fiscal. apply=0 (default) → dry-run; apply=1 → escribe."""
 	apply = int(apply)
 	stats = {"revisadas": 0, "actualizadas": 0, "limpiadas": 0, "sin_cambio": 0, "errores": 0}
-	ejemplos = {"actualizadas": [], "limpiadas": [], "sin_cambio": []}
-	MAX_EJEMPLOS = 3
+	examples = {"actualizadas": [], "limpiadas": [], "sin_cambio": []}
+	max_examples = 3
 
-	def _muestra(categoria, name, current, desired):
-		if len(ejemplos[categoria]) < MAX_EJEMPLOS:
-			ejemplos[categoria].append((name, current, desired))
+	def record_example(category, name, current, expected):
+		if len(examples[category]) < max_examples:
+			examples[category].append((name, current, expected))
 
 	# Alcance: SIs con FFM ligada (a poblar) o con folio ya escrito (a reverificar/limpiar).
 	names = frappe.get_all(
@@ -58,16 +47,16 @@ def run(apply=0):
 		stats["revisadas"] += 1
 		try:
 			current = frappe.db.get_value("Sales Invoice", name, "fm_folio_fiscal") or ""
-			desired = _folio_vigente_esperado(name)
+			expected = resolver_folio_vigente(name)
 
-			if current == desired:
+			if current == expected:
 				stats["sin_cambio"] += 1
-				_muestra("sin_cambio", name, current, desired)
+				record_example("sin_cambio", name, current, expected)
 				continue
 
-			categoria = "actualizadas" if desired else "limpiadas"
-			stats[categoria] += 1
-			_muestra(categoria, name, current, desired)
+			category = "actualizadas" if expected else "limpiadas"
+			stats[category] += 1
+			record_example(category, name, current, expected)
 
 			if apply:
 				# Escritura autoritativa vía el mismo helper del flujo en vivo
@@ -77,11 +66,13 @@ def run(apply=0):
 			frappe.log_error(f"Backfill folio fiscal falló en {name}: {e!s}", "Backfill Folio Fiscal Error")
 
 	if apply:
-		frappe.db.commit()
+		# One-off manual vía `bench execute`: el commit explícito es necesario para persistir
+		# (no corre dentro de una request web con auto-commit).
+		frappe.db.commit()  # nosemgrep
 
-	modo = "ESCRITURA (apply=1)" if apply else "DRY-RUN (apply=0, sin cambios)"
+	mode = "ESCRITURA (apply=1)" if apply else "DRY-RUN (apply=0, sin cambios)"
 	print("=" * 60)
-	print(f"Backfill fm_folio_fiscal — {modo}")
+	print(f"Backfill fm_folio_fiscal — {mode}")
 	print("-" * 60)
 	print(f"  Revisadas:   {stats['revisadas']}")
 	print(f"  Actualizadas:{stats['actualizadas']:>6}  (se poblaría/pobló un folio vigente)")
@@ -91,11 +82,11 @@ def run(apply=0):
 	print("=" * 60)
 
 	# Ejemplos por categoría (hasta 3): (Sales Invoice, folio_actual, folio_esperado)
-	for categoria in ("actualizadas", "limpiadas", "sin_cambio"):
-		if ejemplos[categoria]:
-			print(f"Ejemplos [{categoria}]:")
-			for name, current, desired in ejemplos[categoria]:
-				print(f"  - {name}: actual={current or '∅'} → esperado={desired or '∅'}")
+	for category in ("actualizadas", "limpiadas", "sin_cambio"):
+		if examples[category]:
+			print(f"Ejemplos [{category}]:")
+			for name, current, expected in examples[category]:
+				print(f"  - {name}: actual={current or '∅'} → esperado={expected or '∅'}")
 
 	if not apply:
 		print("DRY-RUN: no se escribió nada. Para aplicar: --kwargs \"{'apply': 1}\"")
