@@ -158,6 +158,11 @@ def refacturar_misma_si(si_name: str):
 	if hasattr(si, "ffm_substitution_source_uuid"):
 		si.db_set("ffm_substitution_source_uuid", "")
 
+	# Limpiar folio fiscal proyectado: ya no hay FFM vigente ligada (se repoblará al retimbrar)
+	from facturacion_mexico.facturacion_fiscal.utils import sincronizar_folio_fiscal
+
+	sincronizar_folio_fiscal(si.name)
+
 	# TRAZABILIDAD MÍNIMA: Comment simple sin sobrecarga
 	si.add_comment(
 		"Info", _("Re-facturación 02/03/04: SI desvinculada de FFM {0}.").format(ffm_anterior or "N/A")

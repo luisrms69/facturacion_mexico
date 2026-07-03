@@ -167,5 +167,9 @@ def apply_cancellation_state(ffm, fiscal_status, *, sync_status, cancellation_da
 		if frappe.db.get_value("Sales Invoice", si, "fm_fiscal_status") != fiscal_status:
 			frappe.db.set_value("Sales Invoice", si, "fm_fiscal_status", fiscal_status)
 			wrote = True
+		# Proyectar folio fiscal vigente (se limpia si la FFM dejó de ser vigente, p. ej. CANCELADO)
+		from facturacion_mexico.facturacion_fiscal.utils import sincronizar_folio_fiscal
+
+		sincronizar_folio_fiscal(si)
 
 	return wrote

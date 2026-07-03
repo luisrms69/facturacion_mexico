@@ -237,6 +237,7 @@ fixtures = [
 					"Sales Invoice-fm_ffm_summary_html",
 					"Sales Invoice-fm_fiscal_section",
 					"Sales Invoice-fm_fiscal_status",
+					"Sales Invoice-fm_folio_fiscal",
 					"Sales Invoice-fm_folio_reserved",
 					"Sales Invoice-fm_quick_status",
 					# "Sales Invoice-fm_informacion_fiscal_section", # ELIMINADO - Sección vacía migrada a Factura Fiscal Mexico

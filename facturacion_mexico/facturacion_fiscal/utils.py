@@ -34,6 +34,56 @@ def get_invoice_uuid(sales_invoice_name):
 		return None
 
 
+# Estados en los que el CFDI sigue existiendo y su folio es VIGENTE.
+# PENDIENTE_CANCELACION: cancelación en curso pero aún no aceptada → el CFDI sigue vivo.
+_FOLIO_VIGENTE_STATES = {FiscalStates.TIMBRADO, FiscalStates.PENDIENTE_CANCELACION}
+
+
+def sincronizar_folio_fiscal(sales_invoice_name):
+	"""Sincroniza Sales Invoice.fm_folio_fiscal con el folio (UUID) del CFDI VIGENTE.
+
+	Cache de solo lectura para reportes de Cuentas por Cobrar. La fuente fiscal sigue siendo
+	Factura Fiscal Mexico; este campo es una proyección, no autoritativo. No usa FacturAPI:
+	solo lee campos internos ya persistidos.
+
+	Idempotente: recomputa desde el estado actual y escribe el folio vigente o lo limpia.
+	Vigente = la FFM ligada (SI.fm_factura_fiscal_mx) tiene fm_uuid y su status está en
+	{TIMBRADO, PENDIENTE_CANCELACION}. Si no hay FFM vigente ligada, el campo queda vacío.
+
+	Se escribe con update_modified=False: una proyección de cache no debe alterar el timestamp
+	de auditoría de la Sales Invoice (importante también para el backfill masivo).
+
+	Args:
+		sales_invoice_name (str): Nombre del documento Sales Invoice
+
+	Returns:
+		str: El folio (UUID) escrito, o "" si se limpió.
+	"""
+	try:
+		uuid = ""
+		ffm_name = frappe.db.get_value("Sales Invoice", sales_invoice_name, "fm_factura_fiscal_mx")
+		if ffm_name:
+			row = frappe.db.get_value("Factura Fiscal Mexico", ffm_name, ["status", "fm_uuid"], as_dict=True)
+			if row and (row.fm_uuid or "").strip() and row.status in _FOLIO_VIGENTE_STATES:
+				uuid = row.fm_uuid.strip()
+
+		# Escribir solo si cambia (idempotencia, evita writes innecesarios)
+		current = frappe.db.get_value("Sales Invoice", sales_invoice_name, "fm_folio_fiscal") or ""
+		if current != uuid:
+			frappe.db.set_value(
+				"Sales Invoice", sales_invoice_name, "fm_folio_fiscal", uuid, update_modified=False
+			)
+
+		return uuid
+
+	except Exception as e:
+		frappe.log_error(
+			f"Error sincronizando folio fiscal para {sales_invoice_name}: {e!s}",
+			"Sincronizar Folio Fiscal Error",
+		)
+		return ""
+
+
 def get_invoice_fiscal_data(sales_invoice_name):
 	"""
 	Obtener datos fiscales completos desde Factura Fiscal Mexico.
