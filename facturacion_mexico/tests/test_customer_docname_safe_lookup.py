@@ -5,7 +5,7 @@ Bug original: varios lookups en JS leían campos del Customer con
 `frappe.db.get_value("Customer", frm.doc.customer, [...])` pasando el docname como
 STRING suelto. En el servidor, `frappe.client.get_value` pasa ese string por
 `get_safe_filters()` → `orjson.loads()`. Si el docname es JSON válido (p.ej. envuelto en
-comillas dobles: `"LOGISTICA Y TRANSPORTE MAXMEX"`), orjson lo interpreta como string JSON
+comillas dobles: `"EMPRESA DEMO SA"`), orjson lo interpreta como string JSON
 y le QUITA las comillas → el `name` resultante ya no existe → resultado vacío. Efectos:
     - botón Timbrar oculto + "el RFC del cliente no está validado con SAT" (aunque =1);
     - defaults de Centro de Costos / Price List no se autollenan;
@@ -51,10 +51,10 @@ class TestCustomerDocnameSafeLookup(FrappeTestCase):
 	# NOTA: el hash {h} va DENTRO de las comillas de cierre en el caso "envuelto" para que el
 	# docname completo sea un string JSON válido ("...")— así reproduce la trampa real de orjson
 	# (que solo mutila nombres JSON-parseables de extremo a extremo, como el docname productivo
-	# "LOGISTICA Y TRANSPORTE MAXMEX"). Si el hash quedara fuera de la comilla, ya no sería JSON.
+	# "EMPRESA DEMO SA"). Si el hash quedara fuera de la comilla, ya no sería JSON.
 	NAME_TEMPLATES: ClassVar[list] = [
 		"CLIENTE NORMAL {h}",
-		'"LOGISTICA Y TRANSPORTE MAXMEX {h}"',
+		'"EMPRESA DEMO SA {h}"',
 		'CLIENTE "SUCURSAL NORTE" {h}',
 		"O'CONNOR TRANSPORTES {h}",
 		"ACME & ASOCIADOS {h}",
@@ -83,7 +83,7 @@ class TestCustomerDocnameSafeLookup(FrappeTestCase):
 		self.price_list = frappe.db.get_value("Price List", {"selling": 1}, "name") or frappe.db.get_value(
 			"Price List", {}, "name"
 		)
-		self.uso_cfdi = frappe.db.get_value("Uso CFDI SAT", {}, "name")
+		self.cfdi_use = frappe.db.get_value("Uso CFDI SAT", {}, "name")
 
 		# Valores esperados que se fijan en CADA customer (para aserciones de igualdad exacta).
 		self.expected = {
@@ -92,7 +92,7 @@ class TestCustomerDocnameSafeLookup(FrappeTestCase):
 			"fm_allow_generic_rfc": 1,
 			"fm_customer_default_cost_center": self.cost_center,
 			"default_price_list": self.price_list,
-			"fm_uso_cfdi_default": self.uso_cfdi,
+			"fm_uso_cfdi_default": self.cfdi_use,
 		}
 
 		self.names = []
@@ -147,7 +147,7 @@ class TestCustomerDocnameSafeLookup(FrappeTestCase):
 	def test_string_suelto_pierde_nombre_entre_comillas(self):
 		"""TRAMPA/REGRESIÓN: el docname envuelto en comillas dobles, como string suelto, es
 		mutilado por get_safe_filters/orjson → vacío. Este es el bug que el fix elimina."""
-		quoted = f'"LOGISTICA Y TRANSPORTE MAXMEX {self.h}"'
+		quoted = f'"EMPRESA DEMO SA {self.h}"'
 		self.assertIn(quoted, self.names)
 
 		r_bad = client_get_value("Customer", "fm_rfc_validated", filters=quoted)

@@ -9,8 +9,8 @@
 ## Recuperación rápida
 
 Estoy trabajando en:
-Corrección del defecto reportado en LlantasCS: el cliente `"LOGISTICA Y TRANSPORTE MAXMEX"`
-(RFC LTM220809E5A) — con comillas dobles como parte del docname — no permitía timbrar la SI,
+Corrección de un defecto reportado: un cliente cuyo docname va entre comillas dobles (ejemplo
+ficticio `"EMPRESA DEMO SA"`) — con las comillas como parte del docname — no permitía timbrar la SI,
 mostrando falsamente "el RFC del cliente no está validado con SAT" aunque `fm_rfc_validated=1`.
 Causa raíz: el JS leía Customer con `frappe.db.get_value("Customer", frm.doc.customer, …)`
 pasando el docname como string suelto; en el servidor `get_safe_filters`/orjson interpreta el
@@ -22,12 +22,13 @@ Fix de defecto + eliminación de duplicación JS (instrucción del usuario: no l
 llamadas; barrer toda la app, consolidar lógica duplicada, agregar tests de regresión).
 
 Objetivo inmediato:
-Commit `fc3f208` (fix) + commit de supresión `# nosemgrep` ya en la rama (pusheado el primero).
-Siguiente paso del flujo: `/ship push` y luego `/ship pr` hacia `main`.
+PR #213 abierto (base `main`), CI verde. Commits en rama: `fc3f208` (fix) + `572f93d` (nosemgrep)
++ commit de scrub de PII y rename CodeRabbit (este). Falta: push del último commit, quitar el
+nombre de ejemplo de la descripción del PR, y squash-merge (el merge lo ejecuta el usuario).
 
 Criterio de avance:
-Tests verdes (10/10) + linters limpios + `/pr-ready` sin bloqueos (semgrep `frappe-manual-commit`
-suprimido con `# nosemgrep` en el test dinámico) + diff sin cambios funcionales colaterales.
+Tests verdes (10/10) + linters limpios + CI del PR en verde + ninguna aparición del nombre real
+de la empresa de ejemplo en archivos ni en la descripción del PR.
 
 ---
 
@@ -45,7 +46,10 @@ suprimido con `# nosemgrep` en el test dinámico) + diff sin cambios funcionales
   lectura `{name}` de `tax_id`+`fm_rfc_validated`; eliminado handler `cost_center` duplicado
   redundante (CC-B); alerta roja de error preservada; `.catch` de paridad.
 - 2 tests nuevos: dinámico (borde servidor `frappe.client.get_value`) 6/6 + estático (guarda
-  del código JS contra reintroducir string suelto) 4/4.
+  del código JS contra reintroducir string suelto) 4/4. Re-verificados 10/10 tras el scrub.
+- PR #213 abierto y con CI verde. CodeRabbit: 1 nota Minor (variable de test en español) — aplicada.
+- Scrub de PII: el nombre real de la empresa de ejemplo y su RFC se reemplazaron por
+  `"EMPRESA DEMO SA"` en tests, comentario JS y CONTINUITY (no debe aparecer en búsquedas).
 - Linters: prettier@2.7.1 (versión del CI — v3 mete trailing commas espurias), eslint 8.44.0,
   ruff — todos limpios. `git diff --check` OK.
 

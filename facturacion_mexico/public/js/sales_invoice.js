@@ -507,7 +507,7 @@ function _check_rfc_and_show_timbrar(frm) {
 	if (!frm.doc.customer) return;
 
 	// Una sola lectura del Customer: tax_id (RFC presente) + fm_rfc_validated (validado SAT).
-	// Filtro { name } explícito: un docname con comillas ("LOGISTICA Y TRANSPORTE MAXMEX") pasado
+	// Filtro { name } explícito: un docname con comillas (p. ej. un nombre entre comillas dobles) pasado
 	// como string suelto es mutilado por get_safe_filters/orjson en el servidor y no encontraría
 	// al cliente, mostrando falsamente "RFC no validado".
 	frappe.db
