@@ -53,31 +53,6 @@ frappe.ui.form.on("Sales Invoice", {
 	},
 });
 
-function has_customer_rfc(frm, callback) {
-	// Verificar si el cliente tiene RFC configurado - RFC está en Customer, no en Sales Invoice
-	if (!frm.doc.customer) {
-		callback(false);
-		return;
-	}
-
-	// Obtener RFC del Customer vinculado
-	frappe.call({
-		method: "frappe.client.get_value",
-		args: {
-			doctype: "Customer",
-			filters: { name: frm.doc.customer },
-			fieldname: "tax_id",
-		},
-		callback: function (r) {
-			const has_rfc = !!(r.message && r.message.tax_id);
-			callback(has_rfc);
-		},
-		error: function (err) {
-			callback(false);
-		},
-	});
-}
-
 function is_already_timbrada(frm) {
 	// Función "no-op" segura para evitar referencias a campos obsoletos.
 	// Mantiene compatibilidad con tests que verifican su existencia/uso.
@@ -283,60 +258,8 @@ frappe.ui.form.on("Sales Invoice", {
 		});
 	},
 
-	// AJUSTES UX - Propuesta ChatGPT: avisos 6-7s, mensajes negocio, condicionalidad correcta
-	async customer(frm) {
-		if (!frm.doc.customer) return;
-
-		try {
-			// Obtener configuración del Customer
-			const customer_data = await frappe.db.get_value("Customer", frm.doc.customer, [
-				"fm_customer_default_cost_center",
-				"default_price_list",
-			]);
-
-			if (customer_data && customer_data.message) {
-				const { fm_customer_default_cost_center } = customer_data.message;
-
-				// Condicionalidad correcta según configuración Customer
-				if (fm_customer_default_cost_center) {
-					await frm.set_value("cost_center", fm_customer_default_cost_center);
-					// Mensaje negocio sin referencias técnicas, 6-7 segundos
-					frappe.show_alert(
-						{
-							message: __("Centro de Costos asignado automáticamente."),
-							indicator: "green",
-						},
-						6
-					);
-
-					// Disparar evento cost_center para que recalcule Branch/Price List
-					// (El handler cost_center() ya existe y maneja esto)
-				} else {
-					// Solo avisar cuando NO hay CC por defecto, 6-7 segundos
-					frappe.show_alert(
-						{
-							message: __(
-								"Este cliente no tiene Centro de Costos configurado. Selecciónalo para continuar."
-							),
-							indicator: "orange",
-						},
-						6
-					);
-				}
-			}
-		} catch (e) {
-			console.error("Error al cargar configuración del cliente:", e);
-			frappe.show_alert(
-				{
-					message: __(
-						"Error al cargar configuración del cliente. Configura manualmente."
-					),
-					indicator: "red",
-				},
-				6
-			);
-		}
-	},
+	// NOTA: el handler `customer` duplicado se consolidó en `apply_customer_defaults()`
+	// (ver bloque inferior). Aquí solo queda la lógica de cost_center.
 
 	// Si el usuario cambia el cost_center manualmente, refrescar Branch/Price List en UI
 	cost_center: async function (frm) {
@@ -366,7 +289,7 @@ frappe.ui.form.on("Sales Invoice", {
 			if (frm.doc.customer) {
 				const cust = await frappe.db.get_value(
 					"Customer",
-					frm.doc.customer,
+					{ name: frm.doc.customer },
 					"default_price_list"
 				);
 				if (cust && cust.message && cust.message.default_price_list) {
@@ -486,77 +409,14 @@ frappe.ui.form.on("Sales Invoice", {
 	},
 
 	customer: async function (frm) {
-		if (!frm.doc.customer) return;
-
-		// 1) Cargar CC por defecto del cliente
-		try {
-			const { message } = await frappe.db.get_value("Customer", frm.doc.customer, [
-				"fm_customer_default_cost_center",
-				"default_price_list",
-			]);
-			const cc = message ? message.fm_customer_default_cost_center : null;
-			const pl = message ? message.default_price_list : null;
-
-			if (cc) {
-				await frm.set_value("cost_center", cc);
-				frappe.show_alert(
-					{ message: "Centro de Costos asignado automáticamente.", indicator: "green" },
-					6
-				);
-			} else {
-				frappe.show_alert(
-					{
-						message: "El cliente no tiene Centro de Costos por defecto.",
-						indicator: "orange",
-					},
-					6
-				);
-			}
-
-			// 2) Price List por prioridad (si no está ya)
-			if (!frm.doc.selling_price_list) {
-				if (pl) {
-					await frm.set_value("selling_price_list", pl);
-				} else {
-					// si no hay en Customer, cuando setee cost_center se recalculará abajo
-				}
-			}
-
-			// 3) Resolver STCT por sucursal emisora, si taxes_and_charges está vacío
-			await _fm_apply_branch_tax_template(frm);
-		} catch (e) {
-			console.log("customer handler error", e);
-		}
+		// Handler único de cliente: carga de defaults consolidada (antes duplicada en dos bloques).
+		await apply_customer_defaults(frm);
 	},
 
-	cost_center: async function (frm) {
-		if (!frm.doc.cost_center) return;
-
-		// 1) Resolver Branch y STCT por sucursal (si no hay STCT ya)
-		await _fm_apply_branch_tax_template(frm);
-
-		// 2) Price List por prioridad si sigue vacío
-		if (!frm.doc.selling_price_list) {
-			try {
-				const { message: ccRow } = await frappe.db.get_value(
-					"Cost Center",
-					frm.doc.cost_center,
-					["fm_default_selling_price_list"]
-				);
-				if (ccRow && ccRow.fm_default_selling_price_list) {
-					await frm.set_value("selling_price_list", ccRow.fm_default_selling_price_list);
-				} else {
-					const companyPL = await frappe.db.get_single_value(
-						"Selling Settings",
-						"selling_price_list"
-					);
-					if (companyPL) await frm.set_value("selling_price_list", companyPL);
-				}
-			} catch (e) {
-				console.log("cost_center handler price list error", e);
-			}
-		}
-	},
+	// NOTA: el handler `cost_center` de este bloque se eliminó por ser un duplicado redundante
+	// del handler `cost_center` del bloque superior (que ya resuelve fm_branch + Price List con
+	// cascada Customer → Cost Center → Selling Settings). Su única acción propia era un no-op
+	// (_fm_apply_branch_tax_template); su cascada Price List era subconjunto de la otra.
 
 	before_save(frm) {
 		if (!frm.doc.cost_center) {
@@ -577,6 +437,61 @@ async function _fm_apply_branch_tax_template(frm) {
 	return;
 }
 
+// Carga de defaults del Customer (Centro de Costos + Price List) y resolución STCT.
+// Consolida los dos handlers `customer` que antes ejecutaban esta misma lógica por separado.
+// Usa filtro { name } para que docnames con comillas/caracteres especiales lleguen intactos
+// al servidor (un string suelto lo mutila `get_safe_filters`/orjson).
+async function apply_customer_defaults(frm) {
+	if (!frm.doc.customer) return;
+
+	try {
+		const { message } = await frappe.db.get_value("Customer", { name: frm.doc.customer }, [
+			"fm_customer_default_cost_center",
+			"default_price_list",
+		]);
+		const cc = message ? message.fm_customer_default_cost_center : null;
+		const pl = message ? message.default_price_list : null;
+
+		// 1) Centro de Costos por defecto del cliente
+		if (cc) {
+			await frm.set_value("cost_center", cc);
+			frappe.show_alert(
+				{ message: __("Centro de Costos asignado automáticamente."), indicator: "green" },
+				6
+			);
+		} else {
+			frappe.show_alert(
+				{
+					message: __("El cliente no tiene Centro de Costos por defecto."),
+					indicator: "orange",
+				},
+				6
+			);
+		}
+
+		// 2) Price List del cliente si aún no hay una asignada
+		if (!frm.doc.selling_price_list && pl) {
+			await frm.set_value("selling_price_list", pl);
+		}
+
+		// 3) Resolver STCT por sucursal emisora (lógica en Python hook)
+		await _fm_apply_branch_tax_template(frm);
+	} catch (e) {
+		console.log("apply_customer_defaults error", e);
+		// Notificación visible ante fallo de lectura del Customer (conserva el aviso que daba
+		// el handler previo; una sola alerta, no duplicada).
+		frappe.show_alert(
+			{
+				message: __(
+					"Error al cargar la configuración del cliente. Configúrala manualmente."
+				),
+				indicator: "red",
+			},
+			6
+		);
+	}
+}
+
 function cint(v) {
 	try {
 		return parseInt(v, 10) || 0;
@@ -589,14 +504,23 @@ function cint(v) {
 // Llamado desde sales_invoice_block_cancel.js después de resolver estado de cancelación.
 function _check_rfc_and_show_timbrar(frm) {
 	if (!frm.doc || frm.doc.docstatus !== 1) return;
+	if (!frm.doc.customer) return;
 
-	has_customer_rfc(frm, function (has_rfc) {
-		if (!has_rfc) return;
-		frappe.db.get_value("Customer", frm.doc.customer, ["fm_rfc_validated"]).then((r) => {
-			const is_validated = !!(
-				r.message &&
-				(r.message.fm_rfc_validated === 1 || r.message.fm_rfc_validated === "1")
-			);
+	// Una sola lectura del Customer: tax_id (RFC presente) + fm_rfc_validated (validado SAT).
+	// Filtro { name } explícito: un docname con comillas (p. ej. un nombre entre comillas dobles) pasado
+	// como string suelto es mutilado por get_safe_filters/orjson en el servidor y no encontraría
+	// al cliente, mostrando falsamente "RFC no validado".
+	frappe.db
+		.get_value("Customer", { name: frm.doc.customer }, ["tax_id", "fm_rfc_validated"])
+		.then((r) => {
+			const msg = (r && r.message) || {};
+
+			// RFC presente: sin RFC no se muestra botón ni alerta (comportamiento previo).
+			if (!msg.tax_id) return;
+
+			// Validación SAT: solo un flag explícito = 1 habilita el botón; vacío/0 nunca se
+			// interpreta como validado.
+			const is_validated = msg.fm_rfc_validated === 1 || msg.fm_rfc_validated === "1";
 			if (is_validated) {
 				if (should_show_timbrar_button(frm)) {
 					add_timbrar_button(frm);
@@ -610,6 +534,8 @@ function _check_rfc_and_show_timbrar(frm) {
 						"orange"
 					);
 			}
+		})
+		.catch(() => {
+			// Error de servidor: no mostrar boton ni alerta (paridad con el manejo previo).
 		});
-	});
 }

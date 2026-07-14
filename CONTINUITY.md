@@ -1,79 +1,107 @@
 # CONTINUITY.md — facturacion_mexico
 
-**Fecha:** 2026-06-19
-**Rama activa:** `fix/ffm-cancel-permissions`
-**Tarea actual:** PR #197 — fixes CodeRabbit aplicados (6/6)
+**Fecha:** 2026-07-13
+**Rama activa:** `fix/customer-docname-safe-lookups`
+**Tarea actual:** Fix — lookups de Customer en JS fallan cuando el docname tiene caracteres especiales (comillas). En fase de PR (flujo `/ship`).
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-Dos correcciones post go-live LlantasCS en la misma rama: (1) permisos de cancelación
-FFM restringidos a 3 roles; (2) cleanup de errores 403/417 al refrescar FFM.
+Corrección de un defecto reportado: un cliente cuyo docname va entre comillas dobles (ejemplo
+ficticio `"EMPRESA DEMO SA"`) — con las comillas como parte del docname — no permitía timbrar la SI,
+mostrando falsamente "el RFC del cliente no está validado con SAT" aunque `fm_rfc_validated=1`.
+Causa raíz: el JS leía Customer con `frappe.db.get_value("Customer", frm.doc.customer, …)`
+pasando el docname como string suelto; en el servidor `get_safe_filters`/orjson interpreta el
+nombre entre comillas como JSON y le quita las comillas → no encuentra al cliente. Fix: filtro
+explícito `{ name: … }`.
 
 Plan que estoy siguiendo:
-Correcciones post go-live LlantasCS. Multi-sucursal fiscal documentado en issue #196.
+Fix de defecto + eliminación de duplicación JS (instrucción del usuario: no limitar a las 3
+llamadas; barrer toda la app, consolidar lógica duplicada, agregar tests de regresión).
 
 Objetivo inmediato:
-Push + PR de esta rama.
+PR #213 abierto (base `main`), CI verde. Commits en rama: `fc3f208` (fix) + `572f93d` (nosemgrep)
++ commit de scrub de PII y rename CodeRabbit (este). Falta: push del último commit, quitar el
+nombre de ejemplo de la descripción del PR, y squash-merge (el merge lo ejecuta el usuario).
 
 Criterio de avance:
-PR mergeado y cambios en producción vía bench migrate + bench build.
+Tests verdes (10/10) + linters limpios + CI del PR en verde + ninguna aparición del nombre real
+de la empresa de ejemplo en archivos ni en la descripción del PR.
 
 ---
 
 ## Estado actual
 
 ### Ya cerrado
-- PR #195 mergeado: fix pdf_custom_section + CodeRabbit
-- PR #193 mergeado: fixes post go-live timbrado + CPMX email
-- PR #192 mergeado: migración Fase 2 FFM + CPMX
-- Issue #196 creado: habilitación explícita multi-sucursal fiscal por Company
+- Diagnóstico probado: `get_safe_filters`/orjson mutila docnames JSON-parseables (envueltos
+  en comillas). Verificado contra `llantascs-v16.dev` (docname real con comillas, `fm_rfc_validated=1`).
+- App afectada confirmada: `facturacion_mexico` (provee el JS vía `doctype_js`). `facturacion_mx`
+  NO afectada (hooks JS comentados, sin el código) — no se toca.
+- 6 call-sites vulnerables corregidos a filtro `{ name }` (2 en `factura_fiscal_mexico.js`,
+  4 en `sales_invoice.js`).
+- Consolidación JS: 2 handlers `customer` duplicados → `apply_customer_defaults(frm)`;
+  eliminado `has_customer_rfc` (doble round-trip); `_check_rfc_and_show_timbrar` hace 1 sola
+  lectura `{name}` de `tax_id`+`fm_rfc_validated`; eliminado handler `cost_center` duplicado
+  redundante (CC-B); alerta roja de error preservada; `.catch` de paridad.
+- 2 tests nuevos: dinámico (borde servidor `frappe.client.get_value`) 6/6 + estático (guarda
+  del código JS contra reintroducir string suelto) 4/4. Re-verificados 10/10 tras el scrub.
+- PR #213 abierto y con CI verde. CodeRabbit: 1 nota Minor (variable de test en español) — aplicada.
+- Scrub de PII: el nombre real de la empresa de ejemplo y su RFC se reemplazaron por
+  `"EMPRESA DEMO SA"` en tests, comentario JS y CONTINUITY (no debe aparecer en búsquedas).
+- Linters: prettier@2.7.1 (versión del CI — v3 mete trailing commas espurias), eslint 8.44.0,
+  ruff — todos limpios. `git diff --check` OK.
 
 ### En progreso
-- Rama `fix/ffm-cancel-permissions` (2 commits):
-  - 1452ed5: permisos cancelación FFM (3 roles)
-  - (en curso): cleanup 403/417 JS + prueba estática
+- Rama `fix/customer-docname-safe-lookups`: commit `fc3f208` (fix, pusheado) + commit de
+  supresión `# nosemgrep` (recién creado). Falta `/ship push` del segundo + `/ship pr`.
 
 ### Pendiente inmediato
-1. Push de esta rama
-2. Abrir PR
-3. Deploy en producción: `bench migrate` + `bench build`
-4. Configurar textos PUE/PPD en Company Settings de LlantasCS en producción
-5. Ejecutar `fix_fm_tax_regime_from_tax_category.py` en producción cuando esté listo
-6. Multi-sucursal fiscal (issue #196) — implementación fin de semana
+1. `/ship push` (2º commit) y `/ship pr` hacia `main`.
+2. Validación GUI del botón Timbrar con el cliente de comillas (los tests NO cubren el JS en
+   navegador — solo el borde servidor y la forma del código fuente).
 
 ### No repetir
-- NO persistir fm_pdf_custom_section en el payload — solo en _process_timbrado_success
-- NO mergear chore/track-working-docs-archive directo — tiene código obsoleto mezclado
-- NO conectar fm_branch al timbrado en esta rama — eso es trabajo del issue #196
-- NO tocar series/folios/lugar_expedicion/payload en esta rama
-
-### No repetir (multi-sucursal — para #196)
-- El timbrado lee `branch` (campo inexistente en SI); SI usa `fm_branch`
-- La serie siempre cae en "F" (timbrado_api.py:698)
-- BranchFolioManager y Configuracion Fiscal Sucursal desconectados del timbrado
-- El indicador debe ser explícito por Company: `multisucursal_fiscal_enabled`
+- NO usar `npx prettier` sin fijar `@2.7.1` — la v3 reformatea trailing commas y ensucia el diff.
+- NO correr `bench run-tests --app … --module …`: el combo ignora el filtro y corre la suite
+  completa. Usar solo `--module` (sin `--app`).
+- NO correr tests de este app sin el seed `facturacion_mexico.tests.ci_pre_tests.run` + `--lightmode`.
+- NO tocar `facturacion_mx` — no está afectada.
 
 ---
 
 ## Decisiones vigentes
-- Solo 3 roles cancelan FFM: System Manager, Facturacion Mexico Manager, Facturacion Mexico System Manager
-- `control_multisucursal_field_visibility` solo oculta campos localmente (sin llamadas servidor)
-- `pdf_custom_section` solo para CFDI tipo I
+- Todo lookup de Customer desde JS debe usar filtro dict `{ name: customer }`, nunca el docname
+  como string suelto. La API Python `frappe.db.get_value` es inmune (param-binding); el defecto
+  es exclusivo del borde HTTP `frappe.client.get_value` (que pasa por `get_safe_filters`/orjson).
+- El servidor mantiene su validación fiscal independiente e inmune a comillas (usa
+  `getattr(customer_doc,…)` y SQL parametrizado).
+- Consolidación permitida solo donde había duplicación real de lógica de negocio; no crear
+  abstracción genérica que envuelva `get_value`.
 
 ---
 
 ## Archivos relevantes ahora
 
+### Leer primero
+- `facturacion_mexico/public/js/sales_invoice.js` — `apply_customer_defaults`,
+  `_check_rfc_and_show_timbrar`, handler `cost_center` (CC-A).
+- `facturacion_mexico/facturacion_fiscal/doctype/factura_fiscal_mexico/factura_fiscal_mexico.js`
+  — lookups `fm_uso_cfdi_default`, `fm_allow_generic_rfc`.
+
+### Probablemente editar
+- (ninguno — fix cerrado, salvo feedback de revisión/PR)
+
 ### No tocar
-- `patches.txt` — vacío por diseño (RG-010b)
-- `one_offs/fix_fm_tax_regime_from_tax_category.py` — pendiente ejecución producción
-- `timbrado_api.py` — NO modificar en esta rama (es trabajo de #196)
+- `facturacion_mexico/one_offs/*` — nunca commitear
+- `working_docs/active/*` — no van en este fix
+- `facturacion_mx` (otra app) — no afectada
 
 ---
 
 ## Riesgos / cuidados
-- Producción necesita `bench migrate` + `bench build` para activar permisos y JS nuevos
-- `chore/track-working-docs-archive` tiene código obsoleto — no mergear sin cherry-pick
+- Los tests dinámicos requieren las instancias Redis del bench (13001 cache / 11001 queue) y el
+  seed `ci_pre_tests.run`; sin Redis fallan en el bootstrap de test-records de erpnext.
+- La cobertura de tests NO incluye el JS en navegador: si alguien revierte el JS a string suelto,
+  el test dinámico seguiría verde — por eso existe el test estático que sí lo detecta.
