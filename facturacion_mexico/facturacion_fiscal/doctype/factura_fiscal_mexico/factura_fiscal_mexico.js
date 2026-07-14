@@ -673,7 +673,7 @@
 		);
 
 		frappe.db
-			.get_value("Customer", customer, "fm_uso_cfdi_default")
+			.get_value("Customer", { name: customer }, "fm_uso_cfdi_default")
 			.then((r) => {
 				console.log("📥 Response from Customer.fm_uso_cfdi_default:", r);
 
@@ -2640,7 +2640,7 @@ function validate_billing_data_visual(frm) {
 
 		const currentCustomer = frm.doc.customer;
 		frappe.db
-			.get_value("Customer", currentCustomer, "fm_allow_generic_rfc")
+			.get_value("Customer", { name: currentCustomer }, "fm_allow_generic_rfc")
 			.then((r) => {
 				if (frm.doc.customer !== currentCustomer) {
 					frm._vm_loaded_for = null; // customer changed during load — reset
