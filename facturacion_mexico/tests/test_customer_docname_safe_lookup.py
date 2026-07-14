@@ -117,7 +117,7 @@ class TestCustomerDocnameSafeLookup(FrappeTestCase):
 				frappe.db.set_value("Customer", target, field, value)
 			self.names.append(target)
 
-		frappe.db.commit()
+		frappe.db.commit()  # nosemgrep: frappe-manual-commit
 
 	# ------------------------------------------------------------------ CENTRAL
 
@@ -179,7 +179,7 @@ class TestCustomerDocnameSafeLookup(FrappeTestCase):
 		"""fm_rfc_validated=0 debe devolver 0 (no habilita el botón)."""
 		name = self.names[0]
 		frappe.db.set_value("Customer", name, "fm_rfc_validated", 0)
-		frappe.db.commit()
+		frappe.db.commit()  # nosemgrep: frappe-manual-commit
 		r = client_get_value("Customer", "fm_rfc_validated", filters=_filters_dict(name))
 		self.assertEqual(cint(r.get("fm_rfc_validated")), 0)
 
@@ -192,7 +192,7 @@ class TestCustomerDocnameSafeLookup(FrappeTestCase):
 		"""Sin RFC (tax_id vacío) el flujo del botón corta antes de evaluar validación."""
 		name = self.names[2]
 		frappe.db.set_value("Customer", name, "tax_id", "")
-		frappe.db.commit()
+		frappe.db.commit()  # nosemgrep: frappe-manual-commit
 		r = client_get_value(
 			"Customer", _fields_arg(["tax_id", "fm_rfc_validated"]), filters=_filters_dict(name)
 		)

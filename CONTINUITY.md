@@ -2,7 +2,7 @@
 
 **Fecha:** 2026-07-13
 **Rama activa:** `fix/customer-docname-safe-lookups`
-**Tarea actual:** Fix — lookups de Customer en JS fallan cuando el docname tiene caracteres especiales (comillas)
+**Tarea actual:** Fix — lookups de Customer en JS fallan cuando el docname tiene caracteres especiales (comillas). En fase de PR (flujo `/ship`).
 
 ---
 
@@ -22,11 +22,12 @@ Fix de defecto + eliminación de duplicación JS (instrucción del usuario: no l
 llamadas; barrer toda la app, consolidar lógica duplicada, agregar tests de regresión).
 
 Objetivo inmediato:
-Commit hecho en esta rama (solo commit; sin push). Siguiente paso lo decide el usuario
-(push / PR).
+Commit `fc3f208` (fix) + commit de supresión `# nosemgrep` ya en la rama (pusheado el primero).
+Siguiente paso del flujo: `/ship push` y luego `/ship pr` hacia `main`.
 
 Criterio de avance:
-Tests verdes (10/10) + linters limpios + diff sin cambios funcionales colaterales.
+Tests verdes (10/10) + linters limpios + `/pr-ready` sin bloqueos (semgrep `frappe-manual-commit`
+suprimido con `# nosemgrep` en el test dinámico) + diff sin cambios funcionales colaterales.
 
 ---
 
@@ -49,10 +50,11 @@ Tests verdes (10/10) + linters limpios + diff sin cambios funcionales colaterale
   ruff — todos limpios. `git diff --check` OK.
 
 ### En progreso
-- Commit en `fix/customer-docname-safe-lookups`.
+- Rama `fix/customer-docname-safe-lookups`: commit `fc3f208` (fix, pusheado) + commit de
+  supresión `# nosemgrep` (recién creado). Falta `/ship push` del segundo + `/ship pr`.
 
 ### Pendiente inmediato
-1. Decisión del usuario: push / PR.
+1. `/ship push` (2º commit) y `/ship pr` hacia `main`.
 2. Validación GUI del botón Timbrar con el cliente de comillas (los tests NO cubren el JS en
    navegador — solo el borde servidor y la forma del código fuente).
 
