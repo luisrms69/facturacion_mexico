@@ -13,10 +13,10 @@
       
       
       
-        <link rel="prev" href="../0003-verificacion-configuracion-fiscal/">
+        <link rel="prev" href="../0036-integridad-proyeccion-cancelacion/">
       
       
-        <link rel="next" href="../0005-workflow-configuracion-inicial-v2/">
+        <link rel="next" href="../../referencia/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -24,7 +24,7 @@
     
     
       
-        <title>MÓDULO 2 — VERIFICACIÓN FLUJO DE TIMBRADO CFDI - Facturación México - Documentación Técnica</title>
+        <title>ADR-0037 — Resiliencia de la cancelación de sustitución (motivo 01) ante fallos transitorios del PAC - Facturación México - Documentación Técnica</title>
       
     
     
@@ -90,7 +90,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#modulo-2-verificacion-flujo-de-timbrado-cfdi" class="md-skip">
+        <a href="#adr-0037-resiliencia-de-la-cancelacion-de-sustitucion-motivo-01-ante-fallos-transitorios-del-pac" class="md-skip">
           Saltar a contenido
         </a>
       
@@ -128,7 +128,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              MÓDULO 2 — VERIFICACIÓN FLUJO DE TIMBRADO CFDI
+              ADR-0037 — Resiliencia de la cancelación de sustitución (motivo 01) ante fallos transitorios del PAC
             
           </span>
         </div>
@@ -903,30 +903,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    MÓDULO 2 — VERIFICACIÓN FLUJO DE TIMBRADO CFDI
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../0004-verificacion-timbrado/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -935,80 +915,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Tabla de contenidos
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#resultados" class="md-nav__link">
-    <span class="md-ellipsis">
-      Resultados
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#detalle-sales-invoices-submitted" class="md-nav__link">
-    <span class="md-ellipsis">
-      Detalle: Sales Invoices submitted
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#detalle-metodos-whitelisted-en-timbrado_apipy" class="md-nav__link">
-    <span class="md-ellipsis">
-      Detalle: Métodos whitelisted en timbrado_api.py
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#advertencia-heredada-del-modulo-1" class="md-nav__link">
-    <span class="md-ellipsis">
-      Advertencia heredada del Módulo 1
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#listo-para-prueba-manual-si" class="md-nav__link">
-    <span class="md-ellipsis">
-      LISTO PARA PRUEBA MANUAL: Sí
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#siguiente-paso" class="md-nav__link">
-    <span class="md-ellipsis">
-      SIGUIENTE PASO
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1711,10 +1617,30 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../0037-resiliencia-cancelacion-sustitucion-motivo-01/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    ADR-0037 — Resiliencia de la cancelación de sustitución (motivo 01) ante fallos transitorios del PAC
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -1723,6 +1649,149 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-contexto-y-defecto-real-observado" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Contexto y defecto real observado
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Decisión
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Decisión">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-reintentos-inmediatos-acotados-en-la-cascada" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.1 Reintentos inmediatos acotados en la cascada
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-transicion-a-pendiente_cancelacion-sin-falsear-el-timbrado" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.2 Transición a PENDIENTE_CANCELACION sin falsear el timbrado
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-recuperacion-programada-scheduler-dedicado" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.3 Recuperación programada (scheduler dedicado)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-throttle-escalonado-y-corte-temporal-anti-bloqueo-del-pac" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.4 Throttle escalonado y corte temporal (anti-bloqueo del PAC)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#25-guard-acotado-sin-abrir-el-flujo-manual" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.5 Guard acotado sin abrir el flujo manual
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#26-proteccion-de-la-reconciliacion-no-revertir-una-sustitucion-en-curso" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.6 Protección de la reconciliación (no revertir una sustitución en curso)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#27-convergencia-documental" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.7 Convergencia documental
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#28-ux" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.8 UX
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-alternativas-descartadas" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Alternativas descartadas
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-consecuencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Consecuencias
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-fuera-de-alcance-incidentes-separados" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Fuera de alcance (incidentes separados)
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1903,54 +1972,123 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#resultados" class="md-nav__link">
+  <a href="#1-contexto-y-defecto-real-observado" class="md-nav__link">
     <span class="md-ellipsis">
-      Resultados
+      1. Contexto y defecto real observado
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#detalle-sales-invoices-submitted" class="md-nav__link">
+  <a href="#2-decision" class="md-nav__link">
     <span class="md-ellipsis">
-      Detalle: Sales Invoices submitted
+      2. Decisión
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Decisión">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-reintentos-inmediatos-acotados-en-la-cascada" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.1 Reintentos inmediatos acotados en la cascada
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-transicion-a-pendiente_cancelacion-sin-falsear-el-timbrado" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.2 Transición a PENDIENTE_CANCELACION sin falsear el timbrado
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-recuperacion-programada-scheduler-dedicado" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.3 Recuperación programada (scheduler dedicado)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-throttle-escalonado-y-corte-temporal-anti-bloqueo-del-pac" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.4 Throttle escalonado y corte temporal (anti-bloqueo del PAC)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#25-guard-acotado-sin-abrir-el-flujo-manual" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.5 Guard acotado sin abrir el flujo manual
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#26-proteccion-de-la-reconciliacion-no-revertir-una-sustitucion-en-curso" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.6 Protección de la reconciliación (no revertir una sustitución en curso)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#27-convergencia-documental" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.7 Convergencia documental
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#28-ux" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.8 UX
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-alternativas-descartadas" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Alternativas descartadas
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#detalle-metodos-whitelisted-en-timbrado_apipy" class="md-nav__link">
+  <a href="#4-consecuencias" class="md-nav__link">
     <span class="md-ellipsis">
-      Detalle: Métodos whitelisted en timbrado_api.py
+      4. Consecuencias
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#advertencia-heredada-del-modulo-1" class="md-nav__link">
+  <a href="#5-fuera-de-alcance-incidentes-separados" class="md-nav__link">
     <span class="md-ellipsis">
-      Advertencia heredada del Módulo 1
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#listo-para-prueba-manual-si" class="md-nav__link">
-    <span class="md-ellipsis">
-      LISTO PARA PRUEBA MANUAL: Sí
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#siguiente-paso" class="md-nav__link">
-    <span class="md-ellipsis">
-      SIGUIENTE PASO
+      5. Fuera de alcance (incidentes separados)
     </span>
   </a>
   
@@ -1971,163 +2109,126 @@
                   
 
 
-<h1 id="modulo-2-verificacion-flujo-de-timbrado-cfdi">MÓDULO 2 — VERIFICACIÓN FLUJO DE TIMBRADO CFDI<a class="headerlink" href="#modulo-2-verificacion-flujo-de-timbrado-cfdi" title="Permanent link">&para;</a></h1>
-<p>==================================================
-Fecha: 2026-05-01<br />
-Site: facturacion-v16.dev<br />
-Bench: /home/erpnext/frappe-bench-v16  </p>
+<h1 id="adr-0037-resiliencia-de-la-cancelacion-de-sustitucion-motivo-01-ante-fallos-transitorios-del-pac">ADR-0037 — Resiliencia de la cancelación de sustitución (motivo 01) ante fallos transitorios del PAC<a class="headerlink" href="#adr-0037-resiliencia-de-la-cancelacion-de-sustitucion-motivo-01-ante-fallos-transitorios-del-pac" title="Permanent link">&para;</a></h1>
+<ul>
+<li><strong>Estado:</strong> Propuesto</li>
+<li><strong>Fecha:</strong> 2026-07-17</li>
+<li><strong>Rama:</strong> <code>fix/cascade-cancel-01-transient-404-and-doc-reconcile</code></li>
+<li><strong>Relacionado:</strong> [[0013-arquitectura-sistema-cancelaciones-cfdi]] · [[0035-motor-reconciliacion-ffm]] (motor de reconciliación) · [[0036-integridad-proyeccion-cancelacion]] (clasificación fail-closed de cancelación)</li>
+<li><strong>Extiende/corrige:</strong> ADR-0035 y ADR-0036. No los reemplaza.</li>
+</ul>
 <hr />
-<h2 id="resultados">Resultados<a class="headerlink" href="#resultados" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>#</th>
-<th>Check</th>
-<th>Estado</th>
-<th>Detalle</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>1</td>
-<td>Sales Invoices submitted disponibles</td>
-<td>✓</td>
-<td>200 submitted — 60 sin timbrar, 0 timbradas, 0 canceladas</td>
-</tr>
-<tr>
-<td>2</td>
-<td>FacturAPI sandbox responde</td>
-<td>✓</td>
-<td>HTTP 200 — <code>{"success": true, "message": "Conexión exitosa con FacturAPI"}</code></td>
-</tr>
-<tr>
-<td>3</td>
-<td>DocType Factura Fiscal Mexico carga</td>
-<td>✓</td>
-<td>64 fields</td>
-</tr>
-<tr>
-<td>4</td>
-<td>Método <code>timbrar_factura</code> existe</td>
-<td>✓</td>
-<td><code>facturacion_mexico.facturacion_fiscal.timbrado_api.timbrar_factura</code> — <code>@frappe.whitelist</code></td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2 id="detalle-sales-invoices-submitted">Detalle: Sales Invoices submitted<a class="headerlink" href="#detalle-sales-invoices-submitted" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Estado fiscal</th>
-<th>Cantidad</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Sin timbrar (<code>fm_fiscal_status</code> vacío)</td>
-<td><strong>60</strong></td>
-</tr>
-<tr>
-<td>Timbradas</td>
-<td>0</td>
-</tr>
-<tr>
-<td>Canceladas</td>
-<td>0</td>
-</tr>
-<tr>
-<td><strong>Total submitted</strong></td>
-<td><strong>200</strong></td>
-</tr>
-</tbody>
-</table>
-<p>Muestra de las 3 más recientes (todas del mismo cliente, sin <code>fm_fiscal_status</code>):</p>
-<table>
-<thead>
-<tr>
-<th>Factura</th>
-<th>Cliente</th>
-<th>Total</th>
-<th>Fiscal Status</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>ACC-SINV-2025-01676</td>
-<td>CONCESIONARIA VUELA COMPAÑIA DE AVIACION</td>
-<td>8,020.82</td>
-<td>—</td>
-</tr>
-<tr>
-<td>ACC-SINV-2025-01675</td>
-<td>CONCESIONARIA VUELA COMPAÑIA DE AVIACION</td>
-<td>8,020.82</td>
-<td>—</td>
-</tr>
-<tr>
-<td>ACC-SINV-2025-01674</td>
-<td>CONCESIONARIA VUELA COMPAÑIA DE AVIACION</td>
-<td>8,020.82</td>
-<td>—</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2 id="detalle-metodos-whitelisted-en-timbrado_apipy">Detalle: Métodos whitelisted en timbrado_api.py<a class="headerlink" href="#detalle-metodos-whitelisted-en-timbrado_apipy" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Método</th>
-<th>Descripción</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>timbrar_factura(sales_invoice)</code></td>
-<td>Timbrado principal</td>
-</tr>
-<tr>
-<td><code>cancelar_factura(sales_invoice, uuid, ffm_name, motivo, substitution_uuid)</code></td>
-<td>Cancelación</td>
-</tr>
-<tr>
-<td><code>create_substitution_si(si_name)</code></td>
-<td>Refacturación (sustitución)</td>
-</tr>
-<tr>
-<td><code>get_sat_cancellation_motives()</code></td>
-<td>Catálogo de motivos SAT</td>
-</tr>
-<tr>
-<td><code>test_connection()</code></td>
-<td>Prueba de conectividad al PAC</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2 id="advertencia-heredada-del-modulo-1">Advertencia heredada del Módulo 1<a class="headerlink" href="#advertencia-heredada-del-modulo-1" title="Permanent link">&para;</a></h2>
-<p>21 de 37 ítems no tienen <code>fm_producto_servicio_sat</code> asignado. Si alguna de las 60
-facturas sin timbrar usa esos ítems, el proceso fallará en la construcción del XML
-por <code>ClaveProdServ</code> vacía. Verificar antes de la primera prueba qué ítems usan las
-facturas candidatas.</p>
-<hr />
-<h2 id="listo-para-prueba-manual-si">LISTO PARA PRUEBA MANUAL: <strong>Sí</strong><a class="headerlink" href="#listo-para-prueba-manual-si" title="Permanent link">&para;</a></h2>
-<p>Toda la infraestructura de timbrado está operativa:
-- FacturAPI sandbox conecta y autentica correctamente
-- El método <code>timbrar_factura</code> existe y está expuesto como whitelist
-- El DocType <code>Factura Fiscal Mexico</code> carga con 64 campos
-- Hay 60 facturas submitted disponibles como candidatas</p>
-<p><strong>Precaución antes de ejecutar:</strong> confirmar que la factura de prueba elegida
-no usa ítems sin código SAT (ver Módulo 1 — 21 ítems pendientes).</p>
-<hr />
-<h2 id="siguiente-paso">SIGUIENTE PASO<a class="headerlink" href="#siguiente-paso" title="Permanent link">&para;</a></h2>
+<h2 id="1-contexto-y-defecto-real-observado">1. Contexto y defecto real observado<a class="headerlink" href="#1-contexto-y-defecto-real-observado" title="Permanent link">&para;</a></h2>
+<p>En el flujo de sustitución motivo 01, tras timbrar el CFDI sustituto (B), una cascada cancela
+automáticamente el CFDI original (A) con <code>TipoRelación = 04</code> y <code>FolioSustitución = UUID_B</code>.</p>
+<p>En una prueba de integración real contra FacturAPI TEST (par A=<code>FFMX-2026-00045</code> / B=<code>FFMX-2026-00046</code>)
+se reprodujo <strong>de forma natural</strong> el defecto: el <code>DELETE</code> de A inmediatamente después de timbrar B
+devolvió <strong>HTTP 404 <code>invoice_not_found</code></strong> (consistencia eventual del PAC: A existe y está timbrado,
+pero el PAC no lo resuelve por unos instantes). Evidencia en <code>FacturAPI Response Log</code> de A:</p>
+<ul>
+<li><code>00:52:02</code> Timbrado de B → 200</li>
+<li><code>00:52:08</code> Solicitud Cancelación de A → <strong>404 <code>invoice_not_found</code></strong> (transitorio)</li>
+<li><code>01:21:21</code> Solicitud Cancelación de A → <strong>200</strong> (cuando el PAC ya lo resolvía)</li>
+</ul>
+<p>El diseño previo trataba ese 404 como fallo terminal y, peor, presentaba el timbrado <strong>exitoso</strong> de B
+como si hubiera fallado. Además, la prueba real destapó <strong>tres defectos</strong> que los tests con mock no
+podían ver:</p>
 <ol>
-<li>Elegir una factura de prueba cuyo(s) ítem(s) tengan <code>fm_producto_servicio_sat</code> configurado</li>
-<li>Ejecutar <code>timbrar_factura("&lt;nombre_factura&gt;")</code> desde consola o UI</li>
-<li>Verificar que se crea el documento <code>Factura Fiscal Mexico</code> con UUID y XML adjunto</li>
-<li>Continuar con <strong>Módulo 3: Cancelación y flujo de errores</strong></li>
+<li><strong>Timbrado de B presentado como error</strong> por un fallo que era solo de la cancelación de A.</li>
+<li><strong>La recuperación diferida no cancelaba nunca:</strong> el guard de <code>cancelar_factura</code> exige
+   <code>fm_fiscal_status == TIMBRADO</code>; al reintentar A ya estaba en <code>PENDIENTE_CANCELACION</code>, el guard la
+   rechazaba y <strong>devolvía <code>{success: False}</code> sin lanzar excepción</strong>, que el scheduler ignoraba.</li>
+<li><strong>La reconciliación pasiva destruía la cancelación en curso:</strong> <code>run_auto_reconciliation</code> veía A
+   <code>valid/none</code> (el DELETE no se había registrado) y <code>derive_cancellation_reconciliation</code> la revertía
+   <code>PENDIENTE_CANCELACION → TIMBRADO</code>, sacándola de la cola del scheduler → cancelación perdida y
+   <strong>A y B ambos vigentes</strong> (doble CFDI).</li>
 </ol>
+<h2 id="2-decision">2. Decisión<a class="headerlink" href="#2-decision" title="Permanent link">&para;</a></h2>
+<h3 id="21-reintentos-inmediatos-acotados-en-la-cascada">2.1 Reintentos inmediatos acotados en la cascada<a class="headerlink" href="#21-reintentos-inmediatos-acotados-en-la-cascada" title="Permanent link">&para;</a></h3>
+<p>Al timbrar B, la cancelación de A se intenta con reintentos <strong>inmediatos y cortos</strong> solo ante errores
+<strong>transitorios</strong> (<code>404 invoice_not_found</code>, <code>429</code>, <code>5xx</code>, timeouts, errores de conexión):</p>
+<div class="highlight"><pre><span></span><code>intento 1 (t0) → espera 0.5 s → intento 2 → espera 1.0 s → intento 3 (≈ +1.5 s acumulado)
+(3 intentos, ventana total ≈ 1.5 s, dentro del request)
+</code></pre></div>
+<p>Si el error no es transitorio, no se reintenta.</p>
+<h3 id="22-transicion-a-pendiente_cancelacion-sin-falsear-el-timbrado">2.2 Transición a <code>PENDIENTE_CANCELACION</code> sin falsear el timbrado<a class="headerlink" href="#22-transicion-a-pendiente_cancelacion-sin-falsear-el-timbrado" title="Permanent link">&para;</a></h3>
+<p>Si los reintentos inmediatos se agotan, la cascada <strong>no lanza error</strong> (el timbrado de B fue real y
+exitoso). A queda en <code>PENDIENTE_CANCELACION</code> + <code>fm_sync_status = pending</code> + <code>fm_sync_error</code> explicativo.
+B permanece <code>TIMBRADO</code>; SI/FFM de A intactos (docstatus sin tocar).</p>
+<h3 id="23-recuperacion-programada-scheduler-dedicado">2.3 Recuperación programada (scheduler dedicado)<a class="headerlink" href="#23-recuperacion-programada-scheduler-dedicado" title="Permanent link">&para;</a></h3>
+<p>Una tarea <code>cron</code> <strong>cada 1 minuto</strong> (<code>retry_pending_substitution_cancellations</code>) redescubre los casos
+pendientes desde el estado en BD (no usa contadores ni jobs efímeros; sobrevive reinicios). Por cada A:</p>
+<ul>
+<li><strong>GET-first</strong>: consulta el estado remoto real de A.</li>
+<li>Si el PAC ya la reporta <code>canceled</code> → no reenvía DELETE; reconcilia + completa documental.</li>
+<li>Si sigue <code>valid</code> → envía <strong>un</strong> DELETE motivo 01 + <code>UUID_B</code> (vía <code>cancelar_factura</code> con el flag
+    interno <code>_allow_pending_cancellation</code>, ver §2.5).</li>
+<li>Solo actúa si A es <strong>origen de sustitución real</strong>: existe una SI con
+  <code>ffm_substitution_source_uuid == A.fm_uuid</code> y su FFM está <code>TIMBRADO</code>. Cualquier cancelación ajena
+  (motivos 02/03/04, o pendientes sin sustituto) se ignora sin efectos.</li>
+</ul>
+<h3 id="24-throttle-escalonado-y-corte-temporal-anti-bloqueo-del-pac">2.4 Throttle escalonado y corte temporal (anti-bloqueo del PAC)<a class="headerlink" href="#24-throttle-escalonado-y-corte-temporal-anti-bloqueo-del-pac" title="Permanent link">&para;</a></h3>
+<p>Anclados en <code>fecha_timbrado</code> de B (momento real en que A pasó a pendiente) y en <code>fm_last_pac_sync</code>:</p>
+<ul>
+<li><strong>Ventana rápida</strong> (primeros 5 min): 1 intento por tick de 1 minuto.</li>
+<li><strong>Después</strong>: 1 intento cada ~5 min (throttle vía <code>fm_last_pac_sync</code>).</li>
+<li><strong>Corte total ~2 h</strong>: pasada la ventana se abandona el ciclo automático → <code>fm_sync_status = error</code> +
+  <code>fm_sync_error</code> accionable (intervención manual). Evita ~120 DELETE para un caso prolongado.</li>
+</ul>
+<p>Cronología: <code>t0 → +0.5 s → +1 s → +1 → +2 → +3 → +4 → +5 min → luego ~cada 5 min → corte 2 h</code>.</p>
+<h3 id="25-guard-acotado-sin-abrir-el-flujo-manual">2.5 Guard acotado sin abrir el flujo manual<a class="headerlink" href="#25-guard-acotado-sin-abrir-el-flujo-manual" title="Permanent link">&para;</a></h3>
+<p>La cancelación manual sigue exigiendo <code>TIMBRADO</code>. <strong>Solo</strong> el reintento automático pasa el flag
+keyword-only <code>_allow_pending_cancellation=True</code>, que permite reintentar una FFM en
+<code>PENDIENTE_CANCELACION</code>. El scheduler además maneja <strong>ambas</strong> formas de fallo: excepción <strong>y</strong> retorno
+<code>{success: False}</code> — clasificando transitorio (conservar pendiente) vs definitivo (salir del ciclo);
+nunca interpreta un fallo como éxito.</p>
+<h3 id="26-proteccion-de-la-reconciliacion-no-revertir-una-sustitucion-en-curso">2.6 Protección de la reconciliación (no revertir una sustitución en curso)<a class="headerlink" href="#26-proteccion-de-la-reconciliacion-no-revertir-una-sustitucion-en-curso" title="Permanent link">&para;</a></h3>
+<p>En <code>run_auto_reconciliation</code> (que <strong>sigue siendo estrictamente de solo lectura</strong> ante el PAC: no envía
+DELETE, no cancela, no cambia su contrato), cuando A está <code>PENDIENTE_CANCELACION</code>, es origen de
+sustitución con B <code>TIMBRADO</code> vigente, y el PAC responde <code>valid/none</code>, <strong>se conserva
+<code>PENDIENTE_CANCELACION</code></strong> en vez de aplicar la transición genérica <code>valid/none → TIMBRADO</code>. Así el
+scheduler dedicado puede seguir reintentando. La excepción está acotada exclusivamente a sustituciones
+motivo 01 verificables (<code>_es_origen_sustitucion_vigente</code>), no se generaliza a cualquier pendiente.</p>
+<h3 id="27-convergencia-documental">2.7 Convergencia documental<a class="headerlink" href="#27-convergencia-documental" title="Permanent link">&para;</a></h3>
+<p>La cancelación fiscal (<code>status = CANCELADO</code>) y la documental (<code>docstatus = 2</code> de SI y FFM) están
+separadas. <code>_complete_documental_cancellation</code> es la <strong>única</strong> implementación (reutilizada por cascada,
+scheduler y reconciliación), idempotente: si ambos ya están en <code>docstatus = 2</code> no hace nada. Si A queda
+<code>CANCELADO</code> con <code>docstatus = 1</code> (p. ej. proceso interrumpido), la reconciliación completa el documental
+sin reenviar DELETE.</p>
+<h3 id="28-ux">2.8 UX<a class="headerlink" href="#28-ux" title="Permanent link">&para;</a></h3>
+<p>El timbrado de B se reporta <strong>siempre como éxito</strong>. Cuando A queda pendiente, la respuesta al frontend
+incluye <code>cancelacion_previa_pendiente = true</code> y el formulario muestra un mensaje <strong>amarillo</strong> (no un
+error): <em>"Factura sustituta timbrada correctamente. La cancelación del CFDI anterior quedó pendiente y
+el sistema continuará reintentándola automáticamente."</em> La fuente de verdad es el estado del documento
+(A en <code>PENDIENTE_CANCELACION</code>).</p>
+<h2 id="3-alternativas-descartadas">3. Alternativas descartadas<a class="headerlink" href="#3-alternativas-descartadas" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Reintento ciego con <code>sleep</code> fijo (1.5 s / 3 s):</strong> arbitrario y bloquea el request; rechazado.</li>
+<li><strong>Diseño durable sobredimensionado:</strong> máquina de estados multinivel con campos nuevos
+  (<code>cancellation_retry_count</code>, <code>last_retry_at</code>, <code>next_retry_at</code>), múltiples schedulers (30 s / 60 s /
+  5 min) y persistencia de acuses. <strong>Desproporcionado</strong> para un 404 intermitente y raro. Se descartó a
+  favor del diseño mínimo actual: sin campos nuevos, sin contadores, un solo scheduler, durabilidad vía
+  el estado ya persistido (<code>PENDIENTE_CANCELACION</code> / <code>fm_sync_status = pending</code>).</li>
+<li><strong>Validar el XML timbrado antes de cancelar A:</strong> requeriría una descarga extra justo en la ventana de
+  consistencia eventual (reintroduce el 404) y añade latencia/timeout de UX. Se prefiere validar contra
+  la respuesta de <code>create_invoice</code> (coste ~0) y dejar la validación del XML como verificación posterior.</li>
+</ul>
+<h2 id="4-consecuencias">4. Consecuencias<a class="headerlink" href="#4-consecuencias" title="Permanent link">&para;</a></h2>
+<ul>
+<li>El timbrado de B nunca se presenta como error por un fallo de cancelación de A.</li>
+<li>La cancelación de A es <strong>fail-closed</strong>: nunca se marca <code>CANCELADO</code> en falso; converge cuando el PAC lo
+  permite, o sale a intervención tras ~2 h.</li>
+<li>La reconciliación pasiva ya no destruye una cancelación de sustitución en curso.</li>
+<li>Sin cambios de esquema (no requiere <code>bench migrate</code>). Requiere que el scheduler esté activo para la
+  recuperación diferida.</li>
+</ul>
+<h2 id="5-fuera-de-alcance-incidentes-separados">5. Fuera de alcance (incidentes separados)<a class="headerlink" href="#5-fuera-de-alcance-incidentes-separados" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Duplicación de nodos <code>cfdi:Traslado</code> (IVA 0%) observada en A y B — problema general de generación de
+  impuestos, ajeno a este fix.</li>
+<li>Sistema de alertas en tiempo real de facturación.</li>
+<li>"Error visual al timbrar hasta refrescar" reportado en producción.</li>
+</ul>
 
 
 

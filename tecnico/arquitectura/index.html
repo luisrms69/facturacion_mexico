@@ -835,6 +835,21 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Flujo de cancelación y reconciliación">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#resiliencia-de-la-cancelacion-de-sustitucion-motivo-01" class="md-nav__link">
+    <span class="md-ellipsis">
+      Resiliencia de la cancelación de sustitución (motivo 01)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1842,6 +1857,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0037-resiliencia-cancelacion-sustitucion-motivo-01/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0037 — Resiliencia de la cancelación de sustitución (motivo 01) ante fallos transitorios del PAC
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2109,6 +2145,21 @@
       Flujo de cancelación y reconciliación
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Flujo de cancelación y reconciliación">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#resiliencia-de-la-cancelacion-de-sustitucion-motivo-01" class="md-nav__link">
+    <span class="md-ellipsis">
+      Resiliencia de la cancelación de sustitución (motivo 01)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2519,6 +2570,36 @@ cancelación) y <a href="../../adr/0035-motor-reconciliacion-ffm/">ADR-0035</a> 
 <li><strong>Guard de cancelación de la SI:</strong> <code>cancelar_si_post_fiscal</code> valida el estado <strong>real</strong> de la FFM activa,
   no el snapshot derivado <code>SI.fm_fiscal_status</code>.</li>
 </ul>
+<h3 id="resiliencia-de-la-cancelacion-de-sustitucion-motivo-01">Resiliencia de la cancelación de sustitución (motivo 01)<a class="headerlink" href="#resiliencia-de-la-cancelacion-de-sustitucion-motivo-01" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>Decisiones y detalle en <a href="../../adr/0037-resiliencia-cancelacion-sustitucion-motivo-01/">ADR-0037</a>.</p>
+</blockquote>
+<p>Al timbrar el CFDI sustituto (B), la cascada cancela el original (A) con <code>TipoRelación = 04</code>. Ante un
+fallo <strong>transitorio</strong> del PAC (p. ej. <code>404 invoice_not_found</code> por consistencia eventual justo tras
+timbrar B), el flujo es resiliente <strong>sin falsear el timbrado de B</strong>:</p>
+<ul>
+<li><strong>Reintentos inmediatos</strong> en la cascada: intento <code>t0</code> → <code>+0.5 s</code> → <code>+1 s</code>, solo para errores
+  transitorios (<code>_is_transient_pac_error</code>: <code>404 invoice_not_found</code>, <code>429</code>, <code>5xx</code>, timeouts, conexión).</li>
+<li>Si se agotan, A queda <strong><code>PENDIENTE_CANCELACION</code></strong> + <code>fm_sync_status = pending</code> + <code>fm_sync_error</code>; B
+  permanece <code>TIMBRADO</code> y la cascada <strong>no lanza error</strong> (nunca usa <code>frappe.throw</code>).</li>
+<li><strong>Scheduler dedicado</strong> (<code>retry_pending_substitution_cancellations</code>, cron <code>* * * * *</code> en <code>hooks.py</code>):
+  GET-first del estado real de A → si <code>canceled</code> reconcilia + completa documental; si <code>valid</code> envía <strong>un</strong>
+  DELETE motivo 01 + <code>UUID_B</code>. Solo procesa A que sea <strong>origen de sustitución real</strong> (existe SI con
+  <code>ffm_substitution_source_uuid == A.fm_uuid</code> y su FFM <code>TIMBRADO</code>); cualquier cancelación ajena se ignora.</li>
+<li><strong>Throttle escalonado</strong> anclado en <code>B.fecha_timbrado</code> y <code>fm_last_pac_sync</code>: ventana rápida (1/min los
+  primeros 5 min) → luego ~1 intento/5 min → <strong>corte a ~2 h</strong> (<code>fm_sync_status = error</code>, intervención).</li>
+<li><strong>Guard acotado:</strong> <code>cancelar_factura(..., _allow_pending_cancellation=True)</code> (flag interno keyword-only)
+  permite reintentar una FFM <code>PENDIENTE_CANCELACION</code>; la cancelación <strong>manual</strong> sigue exigiendo <code>TIMBRADO</code>.
+  El scheduler maneja <strong>excepción</strong> y <strong>retorno <code>{success: False}</code></strong> (nunca interpreta un fallo como éxito).</li>
+<li><strong>Protección de la reconciliación (Gap 2):</strong> <code>run_auto_reconciliation</code> sigue <strong>solo-lectura</strong> (no envía
+  DELETE ni cancela), pero <strong>no revierte</strong> <code>PENDIENTE_CANCELACION → TIMBRADO</code> cuando A es origen de
+  sustitución con B <code>TIMBRADO</code> vigente y el PAC responde <code>valid/none</code> (<code>_es_origen_sustitucion_vigente</code>),
+  para que el scheduler pueda seguir reintentando.</li>
+<li><strong>Convergencia documental (fail-closed e idempotente):</strong> <code>_complete_documental_cancellation</code> es la única
+  implementación (cascada, scheduler y reconciliación); baja SI y FFM a <code>docstatus = 2</code> solo tras <code>CANCELADO</code>
+  real, y no hace nada si ya está convergido. Nunca se marca <code>CANCELADO</code> sin confirmación del PAC.</li>
+</ul>
+<p>Sin cambios de esquema (no requiere <code>bench migrate</code>); la recuperación diferida exige el scheduler activo.</p>
 <h2 id="integraciones-externas">Integraciones externas<a class="headerlink" href="#integraciones-externas" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
