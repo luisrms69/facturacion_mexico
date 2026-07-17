@@ -63,6 +63,11 @@ class TestCascadeCancel01Recovery(FrappeTestCase):
 		)
 		self.company = self.debit_to.company
 		self.debit_to = self.debit_to.name
+		# Moneda del documento = moneda de la cuenta por cobrar (o la de la empresa). Evita el
+		# mismatch "currency (MXN) vs document currency (INR)" en CI, donde la SI defaultea a INR.
+		self.si_currency = frappe.db.get_value(
+			"Account", self.debit_to, "account_currency"
+		) or frappe.db.get_value("Company", self.company, "default_currency")
 		self.income_acc = frappe.db.get_value(
 			"Account", {"company": self.company, "root_type": "Income", "is_group": 0}, "name"
 		)
@@ -139,6 +144,7 @@ class TestCascadeCancel01Recovery(FrappeTestCase):
 				"doctype": "Sales Invoice",
 				"company": self.company,
 				"customer": self.customer.name,
+				"currency": self.si_currency,
 				"cost_center": self.cc,
 				"debit_to": self.debit_to,
 				"items": [
