@@ -241,7 +241,11 @@ def _reconcile_ffm(ffm_name: str) -> dict:
 			# docstatus=1, completar la cancelación DOCUMENTAL pendiente (idempotente, sin tocar el PAC).
 			if fiscal_status == FiscalStates.CANCELADO:
 				try:
-					_reconcile_substitution_documental(ffm)
+					# Serializar con cascada/scheduler: el helper documental hace clear-links + cancel().
+					# Se usa el MISMO lock por-documento que ellos (`ffm:cascade:{ffm}`) para evitar
+					# carreras (dos flujos cancelando/limpiando links del mismo caso a la vez).
+					with frappe.cache().lock(f"ffm:cascade:{ffm.name}", timeout=30):
+						_reconcile_substitution_documental(ffm)
 				except Exception as e:
 					frappe.logger().error(f"Reconcile documental sustitución {ffm.name}: {e}")
 
@@ -296,15 +300,16 @@ def _reconcile_substitution_documental(ffm):
 	"""Completa la cancelación DOCUMENTAL de una FFM que es ORIGEN de una sustitución motivo 01,
 	cuando ya está fiscalmente CANCELADA pero sus documentos siguen docstatus=1.
 
-	Acotado y seguro: solo actúa si existe un CFDI (Sales Invoice) que la relaciona vía
-	`ffm_substitution_source_uuid = ffm.fm_uuid`. NO llama al PAC. Idempotente. No aplica a
-	cancelaciones normales (02/03/04) porque estas no dejan un CFDI sustituto relacionado.
+	Acotado y seguro: solo actúa si existe un CFDI sustituto (B) **TIMBRADO** que la relaciona vía
+	`ffm_substitution_source_uuid = ffm.fm_uuid` (mismo criterio que `_es_origen_sustitucion_vigente`,
+	para no cancelar documentalmente A por un sustituto en borrador o fallido). NO llama al PAC.
+	Idempotente. No aplica a cancelaciones normales (02/03/04).
 	"""
 	uuid = (getattr(ffm, "fm_uuid", "") or "").strip()
 	if not uuid:
 		return
-	if not frappe.db.exists("Sales Invoice", {"ffm_substitution_source_uuid": uuid}):
-		return  # no es origen de sustitución → no tocar documentos
+	if not _es_origen_sustitucion_vigente(ffm):
+		return  # no es origen de una sustitución con B TIMBRADO vigente → no tocar documentos
 
 	si_name = ffm.sales_invoice or frappe.db.get_value(
 		"Sales Invoice", {"fm_factura_fiscal_mx": ffm.name}, "name"

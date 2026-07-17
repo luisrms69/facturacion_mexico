@@ -2,7 +2,7 @@
 
 **Fecha:** 2026-07-17
 **Rama activa:** `fix/cascade-cancel-01-transient-404-and-doc-reconcile`
-**Tarea actual:** Fix — resiliencia de la cancelación de sustitución (motivo 01) ante fallos transitorios del PAC. En fase de commit (flujo `/ship`).
+**Tarea actual:** Fix — resiliencia de la cancelación de sustitución (motivo 01) ante fallos transitorios del PAC. **PR #214 abierto**; aplicando fixes post-review de CodeRabbit antes del merge.
 
 ---
 
@@ -39,6 +39,7 @@ en sandbox (A convergió a CANCELADO/docstatus=2, B TIMBRADO, XML `04 → UUID_A
 ## Estado actual
 
 ### Ya cerrado
+
 - **Cascada:** reintentos inmediatos transitorios (0.5s/1s); si se agotan, A → `PENDIENTE_CANCELACION`
   + `fm_sync_status=pending` + `fm_sync_error`, sin `frappe.throw` (B queda TIMBRADO).
 - **Scheduler** `retry_pending_substitution_cancellations` (cron `* * * * *` en `hooks.py`): GET-first,
@@ -55,10 +56,21 @@ en sandbox (A convergió a CANCELADO/docstatus=2, B TIMBRADO, XML `04 → UUID_A
 - **Docs (gate):** ADR-0037, `docs/usuario/cancelar-cfdi.md`, `docs/tecnico/arquitectura.md`,
   `mkdocs.yml`, `docs/adr/index.md`.
 - **Validación real (sandbox FacturAPI TEST):** flujo completo verificado end-to-end.
+- **Fix CI (commit `039a18f`):** `si.currency` en el test de recuperación (mismatch MXN/INR en `_Test Company`).
+- **Post-review CodeRabbit (PR #214):** aplicados 12 de 17 — company en cliente PAC (cascada y scheduler),
+  `{success: False}` en reintentos inmediatos, reconcile exige B TIMBRADO, lock `ffm:cascade` compartido en
+  reconciliación, pre-filtro de sustituciones antes del batch (anti-inanición), retorno documental veraz
+  (`completed`/`incomplete`), `canceled_at` real, rename a inglés, IDs únicos en test, docs (docstatus=2 en
+  usuario, MD040 en ADR).
 
 ### Pendiente / siguiente paso
-- Push + PR: requieren autorización explícita separada.
-- Incidentes **separados** (no en este fix): duplicación de nodos `cfdi:Traslado` (IVA 0%); sistema de
-  alertas en tiempo real; "error visual al timbrar hasta refresh".
-- Artefactos locales sin commitear (correcto): `one_offs/` de validación, `poc-playwright-demo/val01/`.
+
+- **Push** de estos fixes a la rama del PR #214 → luego **re-correr la prueba GUI** para confirmar que los
+  cambios de CodeRabbit no rompieron el flujo.
+- **Fuera de alcance / posible issue separado (CodeRabbit):** #6 clasificación estructural de errores PAC;
+  #8 defensa ante fallo de persistencia; #11 limpieza exhaustiva de fixtures de tests; #12 aislamiento de
+  tests con selector global.
+- Otros incidentes separados: duplicación `cfdi:Traslado` (IVA 0%); alertas en tiempo real; error visual al
+  timbrar hasta refresh.
+- Artefactos locales sin commitear (correcto): `one_offs/`, `poc-playwright-demo/val01/`.
 - Servidor dev `facturacion-v16.dev:8888` levantado en tmux `serve_facturacion-v16_dev`.

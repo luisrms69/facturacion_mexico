@@ -214,10 +214,12 @@ class TestFFMReconciliation(IntegrationTestCase):
 		conserva PENDIENTE + pending para que el scheduler siga seleccionándola. Reconciliación NO cancela."""
 		a_si = self._si()
 		a = self._ffm(a_si, "PENDIENTE_CANCELACION", sync="pending")  # uuid=_UUID
-		# B: sustituto timbrado que relaciona a A por ffm_substitution_source_uuid == A.fm_uuid
+		# B: sustituto timbrado que relaciona a A por ffm_substitution_source_uuid == A.fm_uuid.
+		# IDs únicos por corrida para no colisionar en el site compartido.
+		b_ids = frappe.generate_hash()[:8]
 		b_si = self._si()
 		frappe.db.set_value("Sales Invoice", b_si, "ffm_substitution_source_uuid", _UUID)
-		self._ffm(b_si, "TIMBRADO", facturapi_id="FA-B", uuid="U-B")
+		self._ffm(b_si, "TIMBRADO", facturapi_id=f"FA-B-{b_ids}", uuid=f"U-B-{b_ids}")
 		frappe.db.commit()
 		_res, client, _ = self._reconciliar(
 			a, get_return=_ok({"status": "valid", "cancellation_status": "none"})

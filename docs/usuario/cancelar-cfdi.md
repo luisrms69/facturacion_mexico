@@ -107,7 +107,9 @@ Qué significa:
 
 El campo `fm_fiscal_status` en el Sales Invoice cambia a `CANCELADO` (o `PENDIENTE_CANCELACION` mientras espera al receptor).
 
-El Sales Invoice permanece en ERPNext — la cancelación fiscal no implica cancelar el documento ERPNext.
+En general, el Sales Invoice **permanece** en ERPNext — la cancelación fiscal no implica cancelar el documento ERPNext.
+
+**Excepción — sustitución (motivo 01):** cuando el CFDI anterior se cancela por sustitución, al confirmarse la cancelación el sistema **sí cancela también el documento ERPNext**: el Sales Invoice y su Factura Fiscal Mexico originales pasan a `docstatus = 2` (cancelados). Si la cancelación quedó `PENDIENTE_CANCELACION`, esto ocurre cuando la cancelación se confirma (de inmediato o por el reintento automático).
 
 ---
 

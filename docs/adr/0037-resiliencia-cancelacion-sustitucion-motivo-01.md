@@ -42,8 +42,9 @@ podían ver:
 Al timbrar B, la cancelación de A se intenta con reintentos **inmediatos y cortos** solo ante errores
 **transitorios** (`404 invoice_not_found`, `429`, `5xx`, timeouts, errores de conexión):
 
-```
-intento 1 (t0) → +0.5 s → +1.0 s     (ventana total ≤ ~1.5 s, dentro del request)
+```text
+intento 1 (t0) → espera 0.5 s → intento 2 → espera 1.0 s → intento 3 (≈ +1.5 s acumulado)
+(3 intentos, ventana total ≈ 1.5 s, dentro del request)
 ```
 
 Si el error no es transitorio, no se reintenta.
