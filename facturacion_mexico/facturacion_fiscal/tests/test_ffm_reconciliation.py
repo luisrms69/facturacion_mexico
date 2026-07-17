@@ -208,6 +208,35 @@ class TestFFMReconciliation(IntegrationTestCase):
 		self._reconciliar(ffm, get_return=_ok({"status": "valid", "cancellation_status": "expired"}))
 		self.assertEqual(self._status(ffm), "TIMBRADO")
 
+	def test_gap2_no_revierte_sustitucion_pendiente(self):
+		"""Gap 2: una FFM ORIGEN de sustitución (con B timbrado) en PENDIENTE_CANCELACION NO debe
+		revertirse a TIMBRADO al reconciliar con PAC valid/none (el DELETE aún no se registró):
+		conserva PENDIENTE + pending para que el scheduler siga seleccionándola. Reconciliación NO cancela."""
+		a_si = self._si()
+		a = self._ffm(a_si, "PENDIENTE_CANCELACION", sync="pending")  # uuid=_UUID
+		# B: sustituto timbrado que relaciona a A por ffm_substitution_source_uuid == A.fm_uuid
+		b_si = self._si()
+		frappe.db.set_value("Sales Invoice", b_si, "ffm_substitution_source_uuid", _UUID)
+		self._ffm(b_si, "TIMBRADO", facturapi_id="FA-B", uuid="U-B")
+		frappe.db.commit()
+		_res, client, _ = self._reconciliar(
+			a, get_return=_ok({"status": "valid", "cancellation_status": "none"})
+		)
+		self.assertEqual(self._status(a), "PENDIENTE_CANCELACION", "no revertir cancelación en curso")
+		self.assertEqual(self._sync(a), "pending", "sigue seleccionable por el scheduler")
+		self.assertIn(a, mod._select_candidates())
+		client.cancel_invoice.assert_not_called()
+
+	def test_gap2_control_ffm_normal_si_transiciona(self):
+		"""Control Gap 2: una FFM SIN sustituto vigente conserva la transición genérica valid/none→TIMBRADO."""
+		si = self._si()
+		a = self._ffm(si, "PENDIENTE_CANCELACION", sync="synced")
+		_res, client, _ = self._reconciliar(
+			a, get_return=_ok({"status": "valid", "cancellation_status": "none"})
+		)
+		self.assertEqual(self._status(a), "TIMBRADO", "sin sustitución: transición genérica intacta")
+		client.cancel_invoice.assert_not_called()
+
 	def test_remoto_pending_conserva_estado_y_pending(self):
 		si = self._si()
 		ffm = self._ffm(si, "TIMBRADO", sync="synced")

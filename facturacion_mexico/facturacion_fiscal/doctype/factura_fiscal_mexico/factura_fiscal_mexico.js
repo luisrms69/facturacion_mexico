@@ -898,6 +898,17 @@
 							},
 							ALERT_DURATION_DEFAULT
 						);
+						// Sustitución (motivo 01): B timbró OK pero la cancelación del CFDI anterior
+						// quedó pendiente. NO es un error de timbrado; se informa en amarillo.
+						if (r.message.cancelacion_previa_pendiente) {
+							frappe.msgprint({
+								title: __("Cancelación anterior pendiente"),
+								indicator: "yellow",
+								message: __(
+									"Factura sustituta timbrada correctamente. La cancelación del CFDI anterior quedó pendiente y el sistema continuará reintentándola automáticamente."
+								),
+							});
+						}
 						frm.reload_doc();
 					} else if (r.message && r.message.user_error) {
 						// Mostrar error amigable del PAC

@@ -149,6 +149,37 @@ Campos relevantes definidos directamente en el JSON del DocType (no como Custom 
 - **Guard de cancelación de la SI:** `cancelar_si_post_fiscal` valida el estado **real** de la FFM activa,
   no el snapshot derivado `SI.fm_fiscal_status`.
 
+### Resiliencia de la cancelación de sustitución (motivo 01)
+
+> Decisiones y detalle en [ADR-0037](../adr/0037-resiliencia-cancelacion-sustitucion-motivo-01.md).
+
+Al timbrar el CFDI sustituto (B), la cascada cancela el original (A) con `TipoRelación = 04`. Ante un
+fallo **transitorio** del PAC (p. ej. `404 invoice_not_found` por consistencia eventual justo tras
+timbrar B), el flujo es resiliente **sin falsear el timbrado de B**:
+
+- **Reintentos inmediatos** en la cascada: intento `t0` → `+0.5 s` → `+1 s`, solo para errores
+  transitorios (`_is_transient_pac_error`: `404 invoice_not_found`, `429`, `5xx`, timeouts, conexión).
+- Si se agotan, A queda **`PENDIENTE_CANCELACION`** + `fm_sync_status = pending` + `fm_sync_error`; B
+  permanece `TIMBRADO` y la cascada **no lanza error** (nunca usa `frappe.throw`).
+- **Scheduler dedicado** (`retry_pending_substitution_cancellations`, cron `* * * * *` en `hooks.py`):
+  GET-first del estado real de A → si `canceled` reconcilia + completa documental; si `valid` envía **un**
+  DELETE motivo 01 + `UUID_B`. Solo procesa A que sea **origen de sustitución real** (existe SI con
+  `ffm_substitution_source_uuid == A.fm_uuid` y su FFM `TIMBRADO`); cualquier cancelación ajena se ignora.
+- **Throttle escalonado** anclado en `B.fecha_timbrado` y `fm_last_pac_sync`: ventana rápida (1/min los
+  primeros 5 min) → luego ~1 intento/5 min → **corte a ~2 h** (`fm_sync_status = error`, intervención).
+- **Guard acotado:** `cancelar_factura(..., _allow_pending_cancellation=True)` (flag interno keyword-only)
+  permite reintentar una FFM `PENDIENTE_CANCELACION`; la cancelación **manual** sigue exigiendo `TIMBRADO`.
+  El scheduler maneja **excepción** y **retorno `{success: False}`** (nunca interpreta un fallo como éxito).
+- **Protección de la reconciliación (Gap 2):** `run_auto_reconciliation` sigue **solo-lectura** (no envía
+  DELETE ni cancela), pero **no revierte** `PENDIENTE_CANCELACION → TIMBRADO` cuando A es origen de
+  sustitución con B `TIMBRADO` vigente y el PAC responde `valid/none` (`_es_origen_sustitucion_vigente`),
+  para que el scheduler pueda seguir reintentando.
+- **Convergencia documental (fail-closed e idempotente):** `_complete_documental_cancellation` es la única
+  implementación (cascada, scheduler y reconciliación); baja SI y FFM a `docstatus = 2` solo tras `CANCELADO`
+  real, y no hace nada si ya está convergido. Nunca se marca `CANCELADO` sin confirmación del PAC.
+
+Sin cambios de esquema (no requiere `bench migrate`); la recuperación diferida exige el scheduler activo.
+
 ## Integraciones externas
 
 | Sistema | Uso | Configuración |

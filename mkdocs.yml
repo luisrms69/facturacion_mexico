@@ -112,6 +112,7 @@ nav:
       - adr/0034-integridad-correlacion-ffm.md
       - adr/0035-motor-reconciliacion-ffm.md
       - adr/0036-integridad-proyeccion-cancelacion.md
+      - adr/0037-resiliencia-cancelacion-sustitucion-motivo-01.md
   - Referencia:
     - referencia/index.md
     - DocTypes: referencia/doctypes.md

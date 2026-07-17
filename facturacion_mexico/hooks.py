@@ -453,6 +453,12 @@ scheduler_events = {
 		"facturacion_mexico.facturacion_fiscal.services.ffm_reconciliation.run_auto_reconciliation",
 	],
 	"cron": {
+		# Reintento diferido de cancelaciones motivo 01 (SUSTITUCIÓN) que quedaron PENDIENTE_CANCELACION
+		# tras agotar los reintentos inmediatos de la cascada. Acotado (batch + ventana máx) para no
+		# bloquear la API del PAC. Durable vía estado en BD; NO reenvía cancelaciones no-sustitución.
+		"* * * * *": [
+			"facturacion_mexico.facturacion_fiscal.timbrado_api.retry_pending_substitution_cancellations",
+		],
 		# Validación RFC automática nocturna a las 2:00 AM todos los días
 		"0 2 * * *": [
 			"facturacion_mexico.validaciones.api.run_nightly_rfc_validation",

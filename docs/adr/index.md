@@ -40,3 +40,4 @@ Registro permanente de decisiones de arquitectura. Un ADR nunca se modifica — 
 | [0034](0034-integridad-correlacion-ffm.md) | Integridad y correlación de Factura Fiscal Mexico |
 | [0035](0035-motor-reconciliacion-ffm.md) | Motor de reconciliación FFM ↔ FacturAPI |
 | [0036](0036-integridad-proyeccion-cancelacion.md) | Integridad de la proyección de cancelación y consolidación del flujo manual |
+| [0037](0037-resiliencia-cancelacion-sustitucion-motivo-01.md) | Resiliencia de la cancelación de sustitución (motivo 01) ante fallos transitorios del PAC |
