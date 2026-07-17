@@ -1,107 +1,76 @@
 # CONTINUITY.md — facturacion_mexico
 
-**Fecha:** 2026-07-13
-**Rama activa:** `fix/customer-docname-safe-lookups`
-**Tarea actual:** Fix — lookups de Customer en JS fallan cuando el docname tiene caracteres especiales (comillas). En fase de PR (flujo `/ship`).
+**Fecha:** 2026-07-17
+**Rama activa:** `fix/cascade-cancel-01-transient-404-and-doc-reconcile`
+**Tarea actual:** Fix — resiliencia de la cancelación de sustitución (motivo 01) ante fallos transitorios del PAC. **PR #214 abierto**; aplicando fixes post-review de CodeRabbit antes del merge.
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-Corrección de un defecto reportado: un cliente cuyo docname va entre comillas dobles (ejemplo
-ficticio `"EMPRESA DEMO SA"`) — con las comillas como parte del docname — no permitía timbrar la SI,
-mostrando falsamente "el RFC del cliente no está validado con SAT" aunque `fm_rfc_validated=1`.
-Causa raíz: el JS leía Customer con `frappe.db.get_value("Customer", frm.doc.customer, …)`
-pasando el docname como string suelto; en el servidor `get_safe_filters`/orjson interpreta el
-nombre entre comillas como JSON y le quita las comillas → no encuentra al cliente. Fix: filtro
-explícito `{ name: … }`.
+Corrección de un defecto real en el flujo de sustitución motivo 01. Al timbrar el CFDI sustituto (B),
+la cascada cancela el original (A) con `TipoRelación = 04`; un `404 invoice_not_found` transitorio del
+PAC (consistencia eventual justo tras timbrar B) rompía el flujo y presentaba el timbrado exitoso de B
+como error. La prueba de integración real (par A=`FFMX-2026-00045` / B=`FFMX-2026-00046`, FacturAPI TEST)
+reprodujo el 404 de forma natural y destapó **tres defectos**: (1) B mostrado como error; (2) la
+recuperación diferida no cancelaba nunca porque `cancelar_factura` exige `TIMBRADO` y devolvía
+`{success: False}` sin excepción; (3) `run_auto_reconciliation` revertía `PENDIENTE_CANCELACION → TIMBRADO`
+(valid/none) destruyendo la cancelación en curso.
 
 Plan que estoy siguiendo:
-Fix de defecto + eliminación de duplicación JS (instrucción del usuario: no limitar a las 3
-llamadas; barrer toda la app, consolidar lógica duplicada, agregar tests de regresión).
+Fix mínimo y proporcionado (sin campos nuevos, sin contadores, un solo scheduler): reintentos inmediatos
+(0.5s/1s) → `PENDIENTE_CANCELACION` sin falsear el timbrado → scheduler cada minuto con throttle escalonado
+y corte 2h → guard interno `_allow_pending_cancellation` (manual sigue exigiendo TIMBRADO) + manejo de
+`{success: False}` → protección Gap 2 en reconciliación (no revertir sustitución vigente) → convergencia
+documental idempotente. UX: mensaje amarillo, nunca falso error. Detalle en ADR-0037.
 
 Objetivo inmediato:
-PR #213 abierto (base `main`), CI verde. Commits en rama: `fc3f208` (fix) + `572f93d` (nosemgrep)
-+ commit de scrub de PII y rename CodeRabbit (este). Falta: push del último commit, quitar el
-nombre de ejemplo de la descripción del PR, y squash-merge (el merge lo ejecuta el usuario).
+Commit en la rama (flujo `/ship commit`), con código + tests + documentación exigida por el gate.
+Sin push, sin PR (pendientes de autorización separada).
 
 Criterio de avance:
-Tests verdes (10/10) + linters limpios + CI del PR en verde + ninguna aparición del nombre real
-de la empresa de ejemplo en archivos ni en la descripción del PR.
+Tests específicos verdes (`test_cascade_cancel_01_recovery` 15/15, `test_cancelacion_integridad` 37/37,
+Gap 2 en `test_ffm_reconciliation`) + linters limpios + `mkdocs build --strict` limpio + validación real
+en sandbox (A convergió a CANCELADO/docstatus=2, B TIMBRADO, XML `04 → UUID_A` PASS, local==PAC).
 
 ---
 
 ## Estado actual
 
 ### Ya cerrado
-- Diagnóstico probado: `get_safe_filters`/orjson mutila docnames JSON-parseables (envueltos
-  en comillas). Verificado contra `llantascs-v16.dev` (docname real con comillas, `fm_rfc_validated=1`).
-- App afectada confirmada: `facturacion_mexico` (provee el JS vía `doctype_js`). `facturacion_mx`
-  NO afectada (hooks JS comentados, sin el código) — no se toca.
-- 6 call-sites vulnerables corregidos a filtro `{ name }` (2 en `factura_fiscal_mexico.js`,
-  4 en `sales_invoice.js`).
-- Consolidación JS: 2 handlers `customer` duplicados → `apply_customer_defaults(frm)`;
-  eliminado `has_customer_rfc` (doble round-trip); `_check_rfc_and_show_timbrar` hace 1 sola
-  lectura `{name}` de `tax_id`+`fm_rfc_validated`; eliminado handler `cost_center` duplicado
-  redundante (CC-B); alerta roja de error preservada; `.catch` de paridad.
-- 2 tests nuevos: dinámico (borde servidor `frappe.client.get_value`) 6/6 + estático (guarda
-  del código JS contra reintroducir string suelto) 4/4. Re-verificados 10/10 tras el scrub.
-- PR #213 abierto y con CI verde. CodeRabbit: 1 nota Minor (variable de test en español) — aplicada.
-- Scrub de PII: el nombre real de la empresa de ejemplo y su RFC se reemplazaron por
-  `"EMPRESA DEMO SA"` en tests, comentario JS y CONTINUITY (no debe aparecer en búsquedas).
-- Linters: prettier@2.7.1 (versión del CI — v3 mete trailing commas espurias), eslint 8.44.0,
-  ruff — todos limpios. `git diff --check` OK.
 
-### En progreso
-- Rama `fix/customer-docname-safe-lookups`: commit `fc3f208` (fix, pusheado) + commit de
-  supresión `# nosemgrep` (recién creado). Falta `/ship push` del segundo + `/ship pr`.
+- **Cascada:** reintentos inmediatos transitorios (0.5s/1s); si se agotan, A → `PENDIENTE_CANCELACION`
+  + `fm_sync_status=pending` + `fm_sync_error`, sin `frappe.throw` (B queda TIMBRADO).
+- **Scheduler** `retry_pending_substitution_cancellations` (cron `* * * * *` en `hooks.py`): GET-first,
+  throttle escalonado anclado en `B.fecha_timbrado` + `fm_last_pac_sync` (rápido 5 min → ~5 min → corte 2h),
+  batch 50. Solo procesa orígenes de sustitución reales.
+- **Guard acotado:** `cancelar_factura(..., _allow_pending_cancellation=True)` (keyword-only) para el
+  reintento automático; manual intacto. Scheduler maneja excepción **y** `{success: False}`.
+- **Gap 2:** `_es_origen_sustitucion_vigente` en `ffm_reconciliation`; la reconciliación (solo-lectura)
+  no revierte `PENDIENTE_CANCELACION → TIMBRADO` de una sustitución con B TIMBRADO vigente.
+- **Gap 3 / documental:** `_complete_documental_cancellation` única e idempotente (cascada/scheduler/reconcile).
+- **UX:** `base_result.cancelacion_previa_pendiente` → mensaje amarillo en `factura_fiscal_mexico.js`.
+- **Tests:** nuevo `test_cascade_cancel_01_recovery.py` (15) + Gap 2 en `test_ffm_reconciliation.py` (2)
+  + adaptación de `test_cancelacion_integridad` al nuevo contrato.
+- **Docs (gate):** ADR-0037, `docs/usuario/cancelar-cfdi.md`, `docs/tecnico/arquitectura.md`,
+  `mkdocs.yml`, `docs/adr/index.md`.
+- **Validación real (sandbox FacturAPI TEST):** flujo completo verificado end-to-end.
+- **Fix CI (commit `039a18f`):** `si.currency` en el test de recuperación (mismatch MXN/INR en `_Test Company`).
+- **Post-review CodeRabbit (PR #214):** aplicados 12 de 17 — company en cliente PAC (cascada y scheduler),
+  `{success: False}` en reintentos inmediatos, reconcile exige B TIMBRADO, lock `ffm:cascade` compartido en
+  reconciliación, pre-filtro de sustituciones antes del batch (anti-inanición), retorno documental veraz
+  (`completed`/`incomplete`), `canceled_at` real, rename a inglés, IDs únicos en test, docs (docstatus=2 en
+  usuario, MD040 en ADR).
 
-### Pendiente inmediato
-1. `/ship push` (2º commit) y `/ship pr` hacia `main`.
-2. Validación GUI del botón Timbrar con el cliente de comillas (los tests NO cubren el JS en
-   navegador — solo el borde servidor y la forma del código fuente).
+### Pendiente / siguiente paso
 
-### No repetir
-- NO usar `npx prettier` sin fijar `@2.7.1` — la v3 reformatea trailing commas y ensucia el diff.
-- NO correr `bench run-tests --app … --module …`: el combo ignora el filtro y corre la suite
-  completa. Usar solo `--module` (sin `--app`).
-- NO correr tests de este app sin el seed `facturacion_mexico.tests.ci_pre_tests.run` + `--lightmode`.
-- NO tocar `facturacion_mx` — no está afectada.
-
----
-
-## Decisiones vigentes
-- Todo lookup de Customer desde JS debe usar filtro dict `{ name: customer }`, nunca el docname
-  como string suelto. La API Python `frappe.db.get_value` es inmune (param-binding); el defecto
-  es exclusivo del borde HTTP `frappe.client.get_value` (que pasa por `get_safe_filters`/orjson).
-- El servidor mantiene su validación fiscal independiente e inmune a comillas (usa
-  `getattr(customer_doc,…)` y SQL parametrizado).
-- Consolidación permitida solo donde había duplicación real de lógica de negocio; no crear
-  abstracción genérica que envuelva `get_value`.
-
----
-
-## Archivos relevantes ahora
-
-### Leer primero
-- `facturacion_mexico/public/js/sales_invoice.js` — `apply_customer_defaults`,
-  `_check_rfc_and_show_timbrar`, handler `cost_center` (CC-A).
-- `facturacion_mexico/facturacion_fiscal/doctype/factura_fiscal_mexico/factura_fiscal_mexico.js`
-  — lookups `fm_uso_cfdi_default`, `fm_allow_generic_rfc`.
-
-### Probablemente editar
-- (ninguno — fix cerrado, salvo feedback de revisión/PR)
-
-### No tocar
-- `facturacion_mexico/one_offs/*` — nunca commitear
-- `working_docs/active/*` — no van en este fix
-- `facturacion_mx` (otra app) — no afectada
-
----
-
-## Riesgos / cuidados
-- Los tests dinámicos requieren las instancias Redis del bench (13001 cache / 11001 queue) y el
-  seed `ci_pre_tests.run`; sin Redis fallan en el bootstrap de test-records de erpnext.
-- La cobertura de tests NO incluye el JS en navegador: si alguien revierte el JS a string suelto,
-  el test dinámico seguiría verde — por eso existe el test estático que sí lo detecta.
+- **Push** de estos fixes a la rama del PR #214 → luego **re-correr la prueba GUI** para confirmar que los
+  cambios de CodeRabbit no rompieron el flujo.
+- **Fuera de alcance / posible issue separado (CodeRabbit):** #6 clasificación estructural de errores PAC;
+  #8 defensa ante fallo de persistencia; #11 limpieza exhaustiva de fixtures de tests; #12 aislamiento de
+  tests con selector global.
+- Otros incidentes separados: duplicación `cfdi:Traslado` (IVA 0%); alertas en tiempo real; error visual al
+  timbrar hasta refresh.
+- Artefactos locales sin commitear (correcto): `one_offs/`, `poc-playwright-demo/val01/`.
+- Servidor dev `facturacion-v16.dev:8888` levantado en tmux `serve_facturacion-v16_dev`.

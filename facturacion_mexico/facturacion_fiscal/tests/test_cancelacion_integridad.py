@@ -633,12 +633,14 @@ class TestCancelacionIntegridad(IntegrationTestCase):
 		frappe.db.set_value("Sales Invoice", new_si, "ffm_substitution_source_uuid", src_uuid)
 		frappe.db.commit()
 
-		# PAC deja la cancelación NO terminal (no marca CANCELADO la FFM previa).
+		# PAC deja la cancelación NO terminal (no marca CANCELADO la FFM previa). Con el diseño
+		# simplificado, la cascada NO rompe el timbrado de B: deja A en PENDIENTE_CANCELACION para el
+		# reintento diferido (scheduler). Garantías core intactas: A no se cancela falsamente, SI viva.
 		with patch.object(
 			tmod.TimbradoAPI, "cancelar_factura", return_value={"status_ffm": "PENDIENTE_CANCELACION"}
 		):
 			res = tmod._cascade_cancel_previous_after_substitute(new_ffm)
-		self.assertEqual(res.get("cascade"), "halted_not_terminal")
+		self.assertEqual(res.get("cascade"), "pending_cancellation")
 		self.assertNotEqual(self._status(orig_ffm), FiscalStates.CANCELADO)
 		self.assertEqual(frappe.db.get_value("Sales Invoice", orig_si, "docstatus"), 1)  # SI NO cancelada
 

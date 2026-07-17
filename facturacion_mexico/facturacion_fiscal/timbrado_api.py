@@ -1,12 +1,13 @@
 import json
 import re
+import time
 import traceback
 import unicodedata
 from typing import Any
 
 import frappe
 from frappe import _
-from frappe.utils import flt, fmt_money, format_date, now_datetime, today
+from frappe.utils import flt, fmt_money, format_date, now_datetime, time_diff_in_seconds, today
 
 from facturacion_mexico.config.sat_objeto_impuesto import SATObjetoImpuesto
 from facturacion_mexico.config.sat_tax_rates import FacturAPITaxRates
@@ -478,6 +479,15 @@ class TimbradoAPI:
 					"factura_fiscal": factura_fiscal.name,
 					"message": "Factura timbrada exitosamente",  # Mensaje para UI
 				}
+				# Propagar el desenlace de la cascada de sustitución (si aplica) para que el frontend
+				# distinga inequívocamente: B timbrado OK vs cancelación de A pendiente. NO es un error
+				# de timbrado; es información complementaria.
+				_cascade = getattr(self, "_last_cascade_result", None)
+				if _cascade:
+					base_result["cascade"] = _cascade.get("cascade")
+					if _cascade.get("cascade") == "pending_cancellation":
+						base_result["cancelacion_previa_pendiente"] = True
+						base_result["pending_cancellation_ffm"] = _cascade.get("ffm")
 				# Corrección 6B2: si la persistencia principal del writer falló (PAC OK), verificar
 				# con lectura nueva de BD si la FASE 3 recuperó el estado. No se re-llama al PAC.
 				if _writer_persistence_failed(writer_result):
@@ -1249,12 +1259,16 @@ class TimbradoAPI:
 			else:
 				pass
 
-			# [Milestone 3] Cascada post-timbrado: cancelar CFDI previo y SI original si es sustitución
+			# [Milestone 3] Cascada post-timbrado: cancelar CFDI previo y SI original si es sustitución.
+			# El resultado se guarda en self para propagarlo al frontend (distingue B timbrado OK vs
+			# cancelación de A pendiente), sin romper nunca el éxito del timbrado de B.
+			self._last_cascade_result = None
 			try:
 				# Solo si hay UUID de origen en la SI (indica sustitución 01)
 				si = frappe.get_doc("Sales Invoice", sales_invoice.name)
 				if (getattr(si, "ffm_substitution_source_uuid", "") or "").strip():
 					cascade_result = _cascade_cancel_previous_after_substitute(factura_fiscal.name)
+					self._last_cascade_result = cascade_result
 					if cascade_result.get("cascade") == "completed":
 						frappe.logger().info(f"Cascada sustitución completada para FFM {factura_fiscal.name}")
 					else:
@@ -1425,7 +1439,12 @@ class TimbradoAPI:
 			frappe.logger().error(f"Error descargando archivos de acuse de cancelación: {e!s}")
 
 	def cancelar_factura(
-		self, sales_invoice_name: str, motivo: str, substitution_uuid: str | None = None
+		self,
+		sales_invoice_name: str,
+		motivo: str,
+		substitution_uuid: str | None = None,
+		*,
+		_allow_pending_cancellation: bool = False,
 	) -> dict[str, Any]:
 		"""Cancelar factura timbrada con arquitectura resiliente de 3 fases.
 
@@ -1459,8 +1478,14 @@ class TimbradoAPI:
 			# FASE 1: PREPARACIÓN Y VALIDACIONES
 			sales_invoice = frappe.get_doc("Sales Invoice", sales_invoice_name)
 
-			# Validar que se pueda cancelar
-			if sales_invoice.fm_fiscal_status != FiscalStates.TIMBRADO:
+			# Validar que se pueda cancelar. La ruta MANUAL exige TIMBRADO. SOLO el reintento
+			# AUTOMÁTICO de sustitución motivo 01 (que ya verificó que A es origen de sustitución con
+			# B timbrado) puede reintentar una FFM ya en PENDIENTE_CANCELACION vía el flag interno
+			# keyword-only; esto NO abre la puerta al flujo manual, que nunca pasa el flag.
+			cancelable_states = {FiscalStates.TIMBRADO}
+			if _allow_pending_cancellation:
+				cancelable_states.add(FiscalStates.PENDIENTE_CANCELACION)
+			if sales_invoice.fm_fiscal_status not in cancelable_states:
 				frappe.throw(_("Solo se pueden cancelar facturas timbradas"))
 
 			if not sales_invoice.fm_factura_fiscal_mx:
@@ -3193,10 +3218,124 @@ def create_substitution_si(si_name: str):
 	return {"new_si": new_si.name, "src_uuid": ffm["fm_uuid"]}
 
 
-def _cascade_cancel_previous_after_substitute(new_ffm_name: str):
-	"""Post-éxito: cancelar CFDI previo con motivo 01 y cancelar SI/FFM originales."""
+# Marcadores de errores del PAC considerados TRANSITORIOS SOLO en el contexto de la cascada de
+# sustitución (el CFDI original existe, fue timbrado y tiene UUID/facturapi_id). En ese contexto,
+# un 404 invoice_not_found inmediato tras timbrar el sustituto es consistencia eventual del PAC.
+_TRANSIENT_PAC_MARKERS = (
+	"invoice_not_found",
+	"404",
+	"429",
+	"500",
+	"502",
+	"503",
+	"504",
+	"timeout",
+	"conexión",
+	"connection",
+)
+
+
+def _is_transient_pac_error(exc) -> bool:
+	s = str(exc or "").lower()
+	return any(m in s for m in _TRANSIENT_PAC_MARKERS)
+
+
+# Cotas del reintento automático diferido (scheduler cada minuto). Existen para que un caso
+# atascado NO golpee la API del PAC indefinidamente:
+#   - MAX_AGE: ventana total de reintento. Pasada esta antigüedad (medida desde que se creó el
+#     CFDI sustituto B), se abandona el ciclo automático → fm_sync_status='error' → intervención.
+#   - BATCH: tope de casos procesados por tick, para que un backlog no dispare una ráfaga de
+#     llamadas al PAC en un solo minuto. El excedente se retoma en el siguiente ciclo (se loguea).
+#   - FAST_WINDOW: durante los primeros minutos tras timbrar B (periodo crítico) se permite un
+#     intento por tick de 1 min (recuperación rápida del 404 transitorio prolongado).
+#   - SLOW_INTERVAL: pasada la ventana rápida, solo se reintenta si transcurrieron ≥5 min desde el
+#     último contacto con el PAC (fm_last_pac_sync). Esto escalona a ~1 intento/5 min y evita
+#     ~120 DELETE para un caso prolongado, sin campos ni contadores nuevos.
+_SUBSTITUTION_CANCEL_MAX_AGE_MIN = 120  # corte total (~2 h desde fecha_timbrado de B)
+_SUBSTITUTION_CANCEL_FAST_WINDOW_MIN = 5  # ventana rápida inicial: 1 intento por minuto
+_SUBSTITUTION_CANCEL_SLOW_INTERVAL_MIN = 5  # después: 1 intento cada ~5 min
+_SUBSTITUTION_CANCEL_BATCH = 50
+
+
+def _complete_documental_cancellation(orig_ffm_name: str, orig_si_name: str | None = None) -> dict:
+	"""Completa la cancelación DOCUMENTAL (docstatus=2) de la Sales Invoice y la Factura Fiscal
+	Mexico ORIGINALES cuando el CFDI ya está fiscalmente CANCELADO. NO llama al PAC.
+
+	Idempotente y fail-safe ante reintentos:
+	  - si ambos ya están docstatus=2 -> no-op;
+	  - si solo uno quedó pendiente -> completa el que falta;
+	  - usa el mecanismo documental normal de Frappe (doc.cancel(), con los overrides existentes),
+	    nunca db_set de docstatus.
+	Reproduce el mismo hardening preventivo de links que hacía la cascada inline.
+	"""
 	from frappe.utils import cstr
 
+	if not orig_si_name:
+		orig_si_name = frappe.db.get_value(
+			"Factura Fiscal Mexico", orig_ffm_name, "sales_invoice"
+		) or frappe.db.get_value("Sales Invoice", {"fm_factura_fiscal_mx": orig_ffm_name}, "name")
+
+	orig_ffm = frappe.get_doc("Factura Fiscal Mexico", orig_ffm_name)
+	orig_si = frappe.get_doc("Sales Invoice", orig_si_name) if orig_si_name else None
+
+	if (orig_si is None or orig_si.docstatus == 2) and orig_ffm.docstatus == 2:
+		return {"documental": "already_done"}
+
+	# Hardening preventivo: limpiar links SI<->FFM antes de cancelar (evita LinkExistsError).
+	try:
+		if orig_si is not None:
+			orig_si.reload()
+			if getattr(orig_si, "fm_factura_fiscal_mx", None):
+				orig_si.db_set("fm_factura_fiscal_mx", "")
+				frappe.db.commit()  # nosemgrep: frappe-manual-commit
+		orig_ffm.reload()
+		if getattr(orig_ffm, "sales_invoice", None):
+			orig_ffm.db_set("sales_invoice", "")
+			frappe.db.commit()  # nosemgrep: frappe-manual-commit
+	except Exception as e:
+		frappe.logger().error(f"Hardening preventivo documental: {e}")
+
+	# Cancelar SI original (docstatus=2) si sigue submitted.
+	if orig_si is not None:
+		try:
+			orig_si.reload()
+			if cstr(orig_si.docstatus) == "1":
+				orig_si.cancel()
+				frappe.logger().info(f"SI {orig_si_name} cancelado (docstatus=2)")
+		except Exception as e:
+			frappe.logger().error(f"Error cancelando SI original: {e}")
+
+	# Restaurar link sales_invoice en la FFM (limpiado por el hardening).
+	if orig_si_name:
+		try:
+			orig_ffm.db_set("sales_invoice", orig_si_name)
+		except Exception as e:
+			frappe.logger().warning(f"No se pudo restaurar link sales_invoice: {e}")
+
+	# Cancelar FFM original (docstatus=2) si sigue submitted.
+	try:
+		orig_ffm.reload()
+		if cstr(orig_ffm.docstatus) == "1":
+			orig_ffm.cancel()
+			frappe.logger().info(f"FFM {orig_ffm_name} cancelada (docstatus=2)")
+	except Exception as e:
+		frappe.logger().error(f"Error cancelando FFM original: {e}")
+
+	si_ds = frappe.db.get_value("Sales Invoice", orig_si_name, "docstatus") if orig_si_name else 2
+	ffm_ds = frappe.db.get_value("Factura Fiscal Mexico", orig_ffm_name, "docstatus")
+	# Veraz: solo "completed" si AMBOS quedaron realmente en docstatus=2. Si un cancel() falló, se
+	# reporta "incomplete" para no declarar una convergencia que no ocurrió (la reconciliación
+	# horaria la reintentará vía el hook documental).
+	done = (si_ds in (2, None)) and (ffm_ds == 2)
+	return {
+		"documental": "completed" if done else "incomplete",
+		"si_docstatus": si_ds,
+		"ffm_docstatus": ffm_ds,
+	}
+
+
+def _cascade_cancel_previous_after_substitute(new_ffm_name: str):
+	"""Post-éxito: cancelar CFDI previo con motivo 01 y cancelar SI/FFM originales."""
 	try:
 		new_ffm = frappe.get_doc("Factura Fiscal Mexico", new_ffm_name)
 		new_uuid = (new_ffm.get("fm_uuid") or "").strip()
@@ -3230,7 +3369,11 @@ def _cascade_cancel_previous_after_substitute(new_ffm_name: str):
 
 		orig_status = frappe.db.get_value("Factura Fiscal Mexico", orig_ffm_name, "status")
 		if (orig_status or "").upper() in {"CANCELADO", "CANCELADA"}:
-			return {"skipped": "already_cancelled"}
+			# Fiscal YA cancelado (por reconciliación o reintento previo) pero SI o FFM siguen
+			# docstatus=1: completar SOLO la cancelación DOCUMENTAL pendiente (sin PAC, idempotente).
+			with frappe.cache().lock(f"ffm:cascade:{orig_ffm_name}", timeout=30):
+				doc_res = _complete_documental_cancellation(orig_ffm_name, orig_si_name)
+			return {"cascade": "documental_completed", **doc_res}
 
 		# CONCURRENCY FIX: Lock per-document para evitar race conditions
 		lock_key = f"ffm:cascade:{orig_ffm_name}"
@@ -3241,104 +3384,316 @@ def _cascade_cancel_previous_after_substitute(new_ffm_name: str):
 
 			cancel_result = None
 
-			# 1) Cancelar fiscalmente el CFDI previo con motivo 01 (PAC)
-			try:
-				api = TimbradoAPI()
-				# CRITICAL FIX: Usar orig_si_name en lugar de orig_ffm_name
-				cancel_result = api.cancelar_factura(orig_si_name, "01", new_uuid)
-				frappe.logger().info(f"Cancelación fiscal PAC: {cancel_result}")
-			except Exception as e:
-				frappe.logger().error(f"Error cancelando CFDI previo en PAC: {e}")
-				# No fallar toda la operación por error en cancelación PAC
-				cancel_result = None
+			# 1) Cancelar fiscalmente el CFDI previo con motivo 01 (PAC), con reintentos INMEDIATOS y
+			# CORTOS ante errores TRANSITORIOS (p.ej. 404 invoice_not_found por inconsistencia
+			# momentánea del PAC justo tras timbrar el sustituto). Ventana total ≤ ~1.5s dentro del
+			# request. Si el error NO es transitorio, no se reintenta.
+			#   intento 1 (t0) · espera 0.5s · intento 2 · espera 1.0s · intento 3 (≈+1.5s acumulado)
+			max_intentos = 3
+			last_error = None
+			# Company de la FFM/SI original: el cliente PAC DEBE usar las credenciales de esa empresa
+			# (no la default) para no cancelar contra otra cuenta en entornos multiempresa.
+			orig_company = frappe.db.get_value("Sales Invoice", orig_si_name, "company")
+			for intento in range(1, max_intentos + 1):
+				try:
+					api = TimbradoAPI(company=orig_company)
+					cancel_result = api.cancelar_factura(orig_si_name, "01", new_uuid)
+					frappe.logger().info(
+						f"Cancelación fiscal PAC (intento inmediato {intento}): {cancel_result}"
+					)
+					# cancelar_factura puede FALLAR devolviendo {success: False} SIN lanzar excepción.
+					# Tratarlo como fallo: transitorio → reintentar; definitivo → salir del loop.
+					if isinstance(cancel_result, dict) and cancel_result.get("success") is False:
+						last_error = (
+							cancel_result.get("error")
+							or cancel_result.get("message")
+							or "cancelación no exitosa"
+						)
+						transitorio = _is_transient_pac_error(last_error)
+						cancel_result = None
+						if transitorio and intento < max_intentos:
+							time.sleep(0.5 * intento)  # 0.5s, 1.0s
+							continue
+						break
+					break
+				except Exception as e:
+					last_error = e
+					transitorio = _is_transient_pac_error(e)
+					frappe.logger().error(
+						f"Error cancelando CFDI previo en PAC (intento inmediato {intento}/{max_intentos}, "
+						f"transitorio={transitorio}): {e}"
+					)
+					cancel_result = None
+					if transitorio and intento < max_intentos:
+						time.sleep(0.5 * intento)  # 0.5s, 1.0s
+						continue
+					break
 
-			# 2) GUARDA FAIL-CLOSED: relectura autoritativa del estado real (misma transacción, sin
-			# commit extra). La operación interna ya aplicó el estado vía apply_cancellation_state.
-			# Solo se continúa la cancelación DOCUMENTAL si el CFDI previo quedó realmente CANCELADO.
-			# Si el PAC falló / quedó pending/verifying / no terminal, NO se cancela SI ni FFM.
+			# 2) GUARDA FAIL-CLOSED: relectura autoritativa del estado real. Solo se continúa la
+			# cancelación DOCUMENTAL si el CFDI previo quedó realmente CANCELADO.
 			orig_status = frappe.db.get_value("Factura Fiscal Mexico", orig_ffm_name, "status")
 			if orig_status != FiscalStates.CANCELADO:
+				# Los reintentos inmediatos no confirmaron. NO se rompe el timbrado de B (que fue
+				# exitoso): se deja A en PENDIENTE_CANCELACION para que el reintento automático diferido
+				# (scheduler cada minuto) la retome. B permanece TIMBRADO; SI/FFM de A intactos.
+				_mark_substitution_cancellation_pending(orig_ffm_name, orig_si_name, last_error)
 				frappe.logger().warning(
-					f"Cascada detenida: CFDI previo no terminal "
-					f"(FFM {orig_ffm_name} status={orig_status}). No se cancela SI/FFM."
+					f"Cascada: cancelación de A no confirmada tras reintentos inmediatos "
+					f"(FFM {orig_ffm_name} status={orig_status}). Marcada PENDIENTE_CANCELACION."
 				)
 				return {
-					"cascade": "halted_not_terminal",
+					"cascade": "pending_cancellation",
 					"ffm": orig_ffm_name,
-					"status": orig_status,
+					"status": FiscalStates.PENDIENTE_CANCELACION,
 				}
 			frappe.logger().info(f"FFM {orig_ffm_name} CANCELADO confirmado; continúa cancelación documental")
 
-			# 2.5) HARDENING PREVENTIVO - ANTES de cancelar (CONFIRMADO POR EXPERTO)
-			try:
-				orig_si.reload()
-				orig_ffm.reload()
+			# 3) Completar la cancelación DOCUMENTAL (idempotente): baja SI y FFM a docstatus=2.
+			doc_res = _complete_documental_cancellation(orig_ffm_name, orig_si_name)
 
-				# Limpiar SI → FFM link ANTES de cancel()
-				if getattr(orig_si, "fm_factura_fiscal_mx", None):
-					ffm_ref = orig_si.fm_factura_fiscal_mx
-					orig_si.db_set("fm_factura_fiscal_mx", "")
-					frappe.db.commit()  # Forzar commit inmediato
-					orig_si.add_comment("Info", f"Link FFM limpiado preventivo: {ffm_ref}")
-					frappe.logger().info(f"Hardening preventivo 1: SI {orig_si_name} → FFM link limpiado")
-
-				# Limpiar FFM → SI link ANTES de cancel()
-				if getattr(orig_ffm, "sales_invoice", None):
-					si_ref = orig_ffm.sales_invoice
-					orig_ffm.db_set("sales_invoice", "")
-					frappe.db.commit()  # Forzar commit inmediato
-					orig_ffm.add_comment("Info", f"Link SI limpiado preventivo: {si_ref}")
-					frappe.logger().info(f"Hardening preventivo 2: FFM {orig_ffm_name} → SI link limpiado")
-
-			except Exception as e:
-				frappe.logger().error(f"Error en hardening preventivo: {e}")
-
-			# 3) REORDER: Cancelar SI original PRIMERO (sin links que validen)
-			try:
-				orig_si.reload()  # CONCURRENCY FIX: reload antes de cancelar
-				if cstr(orig_si.docstatus) == "1":
-					orig_si.cancel()
-					frappe.logger().info(f"SI {orig_si_name} cancelado (docstatus=2)")
-			except Exception as e:
-				frappe.logger().error(f"Error cancelando SI original: {e}")
-
-			# Restaurar link sales_invoice en FFM original (limpiado por hardening preventivo)
-			try:
-				orig_ffm.db_set("sales_invoice", orig_si_name)
-				frappe.logger().info(f"Link sales_invoice restaurado en FFM {orig_ffm_name} → {orig_si_name}")
-			except Exception as e:
-				frappe.logger().warning(f"No se pudo restaurar link sales_invoice en FFM: {e}")
-
-			# 4) REORDER: Cancelar FFM original DESPUÉS (con reload)
-			try:
-				orig_ffm.reload()  # CONCURRENCY FIX: reload antes de cancelar
-				if cstr(orig_ffm.docstatus) == "1":
-					orig_ffm.cancel()
-					frappe.logger().info(f"FFM {orig_ffm_name} cancelada (docstatus=2)")
-			except Exception as e:
-				frappe.logger().error(f"Error cancelando FFM original: {e}")
-
-			# 5) Garantizar acuse de cancelación en FFM original (tras cancelar FFM)
+			# 4) Garantizar acuse de cancelación en la FFM original (si el PAC lo aceptó en este intento).
 			if cancel_result and cancel_result.get("status") in ["accepted", "accepted_with_details"]:
 				try:
 					_download_and_attach_cancellation_ack(
 						ffm_name=orig_ffm_name,
-						uuid=getattr(orig_ffm, "fm_uuid", src_uuid),
+						uuid=frappe.db.get_value("Factura Fiscal Mexico", orig_ffm_name, "fm_uuid")
+						or src_uuid,
 						cancel_result=cancel_result,
 					)
 				except Exception as e:
 					frappe.log_error(f"Acuse cancelación pendiente o error descarga: {e}", "FFM Cancel Ack")
-					# Marcar como pendiente para reintento manual
 					try:
-						orig_ffm.db_set("ack_pending", 1)
+						frappe.db.set_value("Factura Fiscal Mexico", orig_ffm_name, "ack_pending", 1)
 					except Exception:
 						pass
 
-		return {"cascade": "completed"}
+		return {"cascade": "completed", **doc_res}
 
 	except Exception as e:
 		frappe.logger().error(f"Error en cascada de cancelación: {e}")
 		return {"cascade": "error", "message": str(e)}
+
+
+def _mark_substitution_cancellation_pending(orig_ffm_name, orig_si_name, error=None):
+	"""Deja A en PENDIENTE_CANCELACION (fiscal) + fm_sync_status='pending' + fm_sync_error, SIN tocar
+	docstatus ni el timbrado de B. Reutiliza apply_cancellation_state (writer autoritativo). El
+	scheduler `retry_pending_substitution_cancellations` la retomará (durabilidad vía estado en BD)."""
+	from facturacion_mexico.facturacion_fiscal.cancellation_state import apply_cancellation_state
+
+	try:
+		apply_cancellation_state(orig_ffm_name, FiscalStates.PENDIENTE_CANCELACION, sync_status="pending")
+	except Exception as e:
+		frappe.logger().error(f"No se pudo marcar PENDIENTE_CANCELACION {orig_ffm_name}: {e}")
+	msg = (
+		"Sustitución 01: el CFDI sustituto quedó timbrado, pero la cancelación del CFDI anterior "
+		"quedó pendiente porque el PAC no la procesó en el intento inmediato. El sistema la "
+		"reintentará automáticamente."
+	)
+	if error:
+		msg += f" Último error: {str(error)[:200]}"
+	try:
+		frappe.db.set_value("Factura Fiscal Mexico", orig_ffm_name, "fm_sync_error", msg)
+	except Exception:
+		pass
+
+
+def _mark_substitution_cancellation_definitive_error(orig_ffm_name, detail):
+	"""Saca a A del ciclo de reintento automático (fm_sync_status='error') y deja mensaje accionable."""
+	frappe.db.set_value(
+		"Factura Fiscal Mexico",
+		orig_ffm_name,
+		{
+			"fm_sync_status": "error",
+			"fm_sync_error": (
+				f"Cancelación de sustitución (motivo 01) no recuperable automáticamente: "
+				f"{str(detail)[:200]}. Requiere intervención manual."
+			),
+		},
+	)
+	frappe.logger().error(f"Substitution cancel definitivo {orig_ffm_name}: {detail}")
+
+
+def retry_pending_substitution_cancellations():
+	"""Scheduler (cada 1 min): reintenta cancelaciones motivo 01 de SUSTITUCIÓN que quedaron
+	PENDIENTE_CANCELACION tras fallar el intento inmediato de la cascada.
+
+	Idempotente y durable: el estado vive en BD (PENDIENTE_CANCELACION + fm_sync_status='pending');
+	tras un reinicio de workers/Redis/bench, el siguiente ciclo redescubre el caso. NO usa contadores
+	ni jobs efímeros. NO altera el contrato de run_auto_reconciliation (que sigue siendo solo lectura).
+
+	ACOTADO para no bloquear la API del PAC: a lo sumo _SUBSTITUTION_CANCEL_BATCH casos por tick
+	(el resto se retoma en el siguiente minuto), y cada caso se abandona pasada _SUBSTITUTION_CANCEL_MAX_AGE_MIN."""
+	# La promesa del retry diferido es SOLO para cancelaciones de SUSTITUCIÓN. Se filtra por el UUID
+	# del CFDI original (A) que tiene un sustituto (B) ANTES del límite del batch, para que un backlog
+	# de pendientes NO-sustitución (motivos 02/03/04) no consuma el cupo e inanicione a las
+	# sustituciones reales. `_retry_one` reverifica luego que B esté TIMBRADO.
+	source_uuids = [
+		u
+		for u in set(
+			frappe.get_all(
+				"Sales Invoice",
+				filters={"ffm_substitution_source_uuid": ["!=", ""]},
+				pluck="ffm_substitution_source_uuid",
+			)
+		)
+		if u
+	]
+	if not source_uuids:
+		return
+	base_filters = {
+		"status": FiscalStates.PENDIENTE_CANCELACION,
+		"fm_sync_status": "pending",
+		"fm_uuid": ["in", source_uuids],
+	}
+	pendientes = frappe.db.count("Factura Fiscal Mexico", base_filters)
+	candidates = frappe.get_all(
+		"Factura Fiscal Mexico",
+		filters=base_filters,
+		order_by="modified asc",  # los más antiguos primero
+		limit=_SUBSTITUTION_CANCEL_BATCH,
+		pluck="name",
+	)
+	if pendientes > len(candidates):
+		frappe.logger().warning(
+			f"retry_pending_substitution_cancellations: {pendientes} pendientes, procesando "
+			f"{len(candidates)} este tick; el resto se retoma en el siguiente ciclo."
+		)
+	for ffm_name in candidates:
+		try:
+			_retry_one_substitution_cancellation(ffm_name)
+		except Exception as e:
+			frappe.logger().error(f"retry_pending_substitution_cancellations {ffm_name}: {e}")
+
+
+def _retry_one_substitution_cancellation(orig_ffm_name):
+	"""Procesa UNA A pendiente: GET-first (canceled->reconcilia; valid->1 DELETE; definitivo->sale).
+	Solo actúa si A es ORIGEN de una sustitución real (existe B timbrado que la relaciona)."""
+	orig = frappe.db.get_value(
+		"Factura Fiscal Mexico",
+		orig_ffm_name,
+		["sales_invoice", "fm_uuid", "facturapi_id", "status", "fm_last_pac_sync"],
+		as_dict=True,
+	)
+	if not orig or (orig.status or "").upper() != FiscalStates.PENDIENTE_CANCELACION:
+		return
+	a_uuid = (orig.fm_uuid or "").strip()
+	if not a_uuid or not orig.facturapi_id:
+		return
+	# Debe ser origen de sustitución real: existe B (Sales Invoice) que la relaciona y está timbrado.
+	b_si = frappe.db.get_value("Sales Invoice", {"ffm_substitution_source_uuid": a_uuid}, "name")
+	if not b_si:
+		return
+	b = frappe.db.get_value(
+		"Factura Fiscal Mexico",
+		{"sales_invoice": b_si, "status": FiscalStates.TIMBRADO},
+		["fm_uuid", "fecha_timbrado", "creation"],
+		as_dict=True,
+	)
+	if not b or not b.fm_uuid:
+		return
+	b_uuid = b.fm_uuid
+
+	# ANCLA correcta: momento en que A pasó a PENDIENTE_CANCELACION = instante del timbrado de B
+	# (la cascada corre ahí). fecha_timbrado es inmutable tras timbrar; fallback a creation por si
+	# faltara. NO se usa B.creation directo: B puede vivir como borrador horas antes de timbrarse.
+	ancla = b.fecha_timbrado or b.creation
+	edad_min = time_diff_in_seconds(now_datetime(), ancla) / 60.0
+
+	# COTA DURA anti-bloqueo: pasada la ventana total, se abandona el ciclo automático SIN volver a
+	# llamar al PAC. Queda como error accionable para intervención/alertas.
+	if edad_min > _SUBSTITUTION_CANCEL_MAX_AGE_MIN:
+		_mark_substitution_cancellation_definitive_error(
+			orig_ffm_name,
+			f"Excedió la ventana de reintento automático ({_SUBSTITUTION_CANCEL_MAX_AGE_MIN} min).",
+		)
+		return
+
+	# THROTTLE escalonado (sin contadores): dentro de la ventana rápida inicial, 1 intento por tick
+	# de 1 min. Pasada esa ventana, solo si transcurrieron ≥SLOW_INTERVAL desde el último contacto
+	# con el PAC (fm_last_pac_sync). Cronología: t0→+0.5s→+1s→+1..+5 min→luego ~cada 5 min.
+	if edad_min > _SUBSTITUTION_CANCEL_FAST_WINDOW_MIN and orig.fm_last_pac_sync:
+		desde_ultimo_min = time_diff_in_seconds(now_datetime(), orig.fm_last_pac_sync) / 60.0
+		if desde_ultimo_min < _SUBSTITUTION_CANCEL_SLOW_INTERVAL_MIN:
+			return  # aún en enfriamiento; el próximo tick que cumpla el intervalo reintentará
+
+	with frappe.cache().lock(f"ffm:cascade:{orig_ffm_name}", timeout=30):
+		if (
+			frappe.db.get_value("Factura Fiscal Mexico", orig_ffm_name, "status") or ""
+		).upper() != FiscalStates.PENDIENTE_CANCELACION:
+			return
+		api = TimbradoAPI(company=frappe.db.get_value("Sales Invoice", orig.sales_invoice, "company"))
+
+		# Sello de contacto con el PAC para el throttling (marca este tick como intento consumido,
+		# aunque el GET falle). update_modified=False para no alterar el orden del selector.
+		frappe.db.set_value(
+			"Factura Fiscal Mexico",
+			orig_ffm_name,
+			"fm_last_pac_sync",
+			now_datetime(),
+			update_modified=False,
+		)
+
+		# GET-first: estado remoto REAL de A.
+		try:
+			r = api.client.get_invoice(orig.facturapi_id)
+			raw = r.get("raw_response") if isinstance(r, dict) else r
+			remote = (raw.get("status") if isinstance(raw, dict) else "") or ""
+		except Exception as e:
+			# GET transitorio (red/timeout): conservar pending; el próximo ciclo reintenta.
+			frappe.logger().warning(f"Scheduled retry: GET A {orig_ffm_name} falló (transitorio): {e}")
+			return
+
+		if remote == "canceled":
+			# Ya cancelado en el PAC: NO reenviar DELETE. Reconciliar + completar documental.
+			from facturacion_mexico.facturacion_fiscal.cancellation_state import apply_cancellation_state
+
+			apply_cancellation_state(
+				orig_ffm_name,
+				FiscalStates.CANCELADO,
+				sync_status="synced",
+				cancellation_date=extract_canceled_at({"raw_response": raw}) or now_datetime(),
+			)
+			doc_res = _complete_documental_cancellation(orig_ffm_name, orig.sales_invoice)
+			if doc_res.get("documental") == "completed":
+				frappe.db.set_value("Factura Fiscal Mexico", orig_ffm_name, "fm_sync_error", "")
+			frappe.logger().info(
+				f"Scheduled retry: A {orig_ffm_name} ya 'canceled' en PAC -> reconciliado + documental ({doc_res.get('documental')})."
+			)
+			return
+
+		if remote == "valid":
+			# A sigue vigente: reenviar UN DELETE motivo 01 + UUID_B. Se pasa el flag interno para que
+			# cancelar_factura acepte reintentar una FFM en PENDIENTE_CANCELACION (el guard manual sigue
+			# exigiendo TIMBRADO). El fallo puede llegar de DOS formas: excepción O retorno
+			# {success: False} — se manejan ambas, sin interpretar un fallo como éxito.
+			try:
+				res = api.cancelar_factura(orig.sales_invoice, "01", b_uuid, _allow_pending_cancellation=True)
+			except Exception as e:
+				if _is_transient_pac_error(e):
+					frappe.logger().warning(f"Scheduled retry: DELETE A {orig_ffm_name} transitorio: {e}")
+					return  # conservar pending -> siguiente ciclo
+				_mark_substitution_cancellation_definitive_error(orig_ffm_name, e)
+				return
+			if isinstance(res, dict) and res.get("success") is False:
+				err = res.get("error") or res.get("message") or "cancelación no exitosa"
+				if _is_transient_pac_error(err):
+					frappe.logger().warning(
+						f"Scheduled retry: DELETE A {orig_ffm_name} success=False transitorio: {err}"
+					)
+					return  # conservar pending -> siguiente ciclo
+				_mark_substitution_cancellation_definitive_error(orig_ffm_name, err)
+				return
+			if (
+				frappe.db.get_value("Factura Fiscal Mexico", orig_ffm_name, "status")
+				== FiscalStates.CANCELADO
+			):
+				doc_res = _complete_documental_cancellation(orig_ffm_name, orig.sales_invoice)
+				if doc_res.get("documental") == "completed":
+					frappe.db.set_value("Factura Fiscal Mexico", orig_ffm_name, "fm_sync_error", "")
+			return  # si quedó pending en PAC, conservar y reintentar en el siguiente ciclo
+
+		# Estado remoto inesperado/incompatible -> intervención (sale del ciclo automático).
+		_mark_substitution_cancellation_definitive_error(orig_ffm_name, f"Estado remoto inesperado: {remote}")
 
 
 def _download_and_attach_cancellation_ack(ffm_name: str, uuid: str, cancel_result: dict):

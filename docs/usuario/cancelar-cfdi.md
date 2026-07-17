@@ -79,13 +79,37 @@ El sistema envía la cancelación con `TipoRelación = 04` (sustitución).
 
 La cancelación motivo 01 generalmente es inmediata (`CANCELADO`). El SAT vincula ambos CFDIs mediante la relación.
 
+#### Si la cancelación del CFDI anterior queda pendiente
+
+A veces el PAC no procesa la cancelación del CFDI original en el mismo instante en que se timbra el
+sustituto (un desfase momentáneo del servicio). En ese caso verás un mensaje **amarillo** (no un error):
+
+> **Factura sustituta timbrada correctamente. La cancelación del CFDI anterior quedó pendiente y el
+> sistema continuará reintentándola automáticamente.**
+
+Qué significa:
+
+- **La factura sustituta SÍ quedó timbrada** correctamente. No es un error de timbrado.
+- El CFDI **anterior** queda en **`PENDIENTE_CANCELACION`**: su cancelación se solicitó pero el PAC aún
+  no la confirmó.
+- **No tienes que hacer nada.** El sistema reintenta la cancelación automáticamente (con más frecuencia
+  en los primeros minutos y luego cada pocos minutos). Cuando el PAC la confirma, el CFDI anterior pasa
+  a `CANCELADO` solo.
+- Si tras un periodo prolongado no se logra, el CFDI anterior se marca para **revisión manual** (queda
+  con un mensaje indicando que requiere intervención).
+
+> El sistema **nunca** marca un CFDI como cancelado sin la confirmación real del PAC: mientras esté
+> `PENDIENTE_CANCELACION`, el CFDI anterior sigue vigente ante el SAT.
+
 ---
 
 ## Estado después de cancelar
 
 El campo `fm_fiscal_status` en el Sales Invoice cambia a `CANCELADO` (o `PENDIENTE_CANCELACION` mientras espera al receptor).
 
-El Sales Invoice permanece en ERPNext — la cancelación fiscal no implica cancelar el documento ERPNext.
+En general, el Sales Invoice **permanece** en ERPNext — la cancelación fiscal no implica cancelar el documento ERPNext.
+
+**Excepción — sustitución (motivo 01):** cuando el CFDI anterior se cancela por sustitución, al confirmarse la cancelación el sistema **sí cancela también el documento ERPNext**: el Sales Invoice y su Factura Fiscal Mexico originales pasan a `docstatus = 2` (cancelados). Si la cancelación quedó `PENDIENTE_CANCELACION`, esto ocurre cuando la cancelación se confirma (de inmediato o por el reintento automático).
 
 ---
 

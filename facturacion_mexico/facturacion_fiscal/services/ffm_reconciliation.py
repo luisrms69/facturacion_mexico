@@ -202,6 +202,21 @@ def _reconcile_ffm(ffm_name: str) -> dict:
 		else:
 			fiscal_status, sync_status = derive_pac_reconciliation(remote_status, cancellation_status)
 
+		# GAP 2: no dejar que la reconciliación PASIVA destruya una cancelación de SUSTITUCIÓN en curso.
+		# Si A está PENDIENTE_CANCELACION, es ORIGEN de una sustitución motivo 01 con sustituto (B)
+		# TIMBRADO vigente, y la reconciliación derivaría TIMBRADO (valid/none = el DELETE aún no se
+		# registró en el PAC), se CONSERVA PENDIENTE_CANCELACION + pending para que el scheduler dedicado
+		# siga reintentando. run_auto_reconciliation NO envía DELETE ni cancela nada: solo evita borrar
+		# un estado de cancelación activa con evidencia de sustitución. Acotado a este caso exacto.
+		if (
+			is_cancellation
+			and fiscal_status == FiscalStates.TIMBRADO
+			and ffm.status == FiscalStates.PENDIENTE_CANCELACION
+			and _es_origen_sustitucion_vigente(ffm)
+		):
+			fiscal_status = FiscalStates.PENDIENTE_CANCELACION
+			sync_status = SyncStates.PENDING
+
 		status_changed = fiscal_status is not None and fiscal_status != ffm.status
 		sync_changed = sync_status != ffm.fm_sync_status
 
@@ -220,6 +235,19 @@ def _reconcile_ffm(ffm_name: str) -> dict:
 			repaired = apply_cancellation_state(
 				ffm.name, fiscal_status, sync_status=sync_status, cancellation_date=_cdate
 			)
+
+			# Sustitución motivo 01: si el CFDI quedó CANCELADO y es ORIGEN de una sustitución (existe
+			# un CFDI que lo relaciona vía ffm_substitution_source_uuid) con documentos aún en
+			# docstatus=1, completar la cancelación DOCUMENTAL pendiente (idempotente, sin tocar el PAC).
+			if fiscal_status == FiscalStates.CANCELADO:
+				try:
+					# Serializar con cascada/scheduler: el helper documental hace clear-links + cancel().
+					# Se usa el MISMO lock por-documento que ellos (`ffm:cascade:{ffm}`) para evitar
+					# carreras (dos flujos cancelando/limpiando links del mismo caso a la vez).
+					with frappe.cache().lock(f"ffm:cascade:{ffm.name}", timeout=30):
+						_reconcile_substitution_documental(ffm)
+				except Exception as e:
+					frappe.logger().error(f"Reconcile documental sustitución {ffm.name}: {e}")
 
 		if status_changed or sync_changed or repaired:
 			# El writer crea el Response Log correlacionado. En cancelación NO persiste el estado
@@ -249,6 +277,52 @@ def _reconcile_ffm(ffm_name: str) -> dict:
 		return {"ffm": ffm_name, "outcome": "unchanged"}
 	finally:
 		_release_lock(lock, token)
+
+
+def _es_origen_sustitucion_vigente(ffm) -> bool:
+	"""True si esta FFM es ORIGEN de una sustitución motivo 01 con sustituto (B) TIMBRADO vigente:
+	existe un Sales Invoice cuyo ffm_substitution_source_uuid == ffm.fm_uuid y cuya FFM está TIMBRADO.
+	Acotado: NO aplica a cancelaciones normales (02/03/04), que no dejan un sustituto relacionado."""
+	uuid = (getattr(ffm, "fm_uuid", "") or "").strip()
+	if not uuid:
+		return False
+	b_si = frappe.db.get_value("Sales Invoice", {"ffm_substitution_source_uuid": uuid}, "name")
+	if not b_si:
+		return False
+	return bool(
+		frappe.db.get_value(
+			"Factura Fiscal Mexico", {"sales_invoice": b_si, "status": FiscalStates.TIMBRADO}, "name"
+		)
+	)
+
+
+def _reconcile_substitution_documental(ffm):
+	"""Completa la cancelación DOCUMENTAL de una FFM que es ORIGEN de una sustitución motivo 01,
+	cuando ya está fiscalmente CANCELADA pero sus documentos siguen docstatus=1.
+
+	Acotado y seguro: solo actúa si existe un CFDI sustituto (B) **TIMBRADO** que la relaciona vía
+	`ffm_substitution_source_uuid = ffm.fm_uuid` (mismo criterio que `_es_origen_sustitucion_vigente`,
+	para no cancelar documentalmente A por un sustituto en borrador o fallido). NO llama al PAC.
+	Idempotente. No aplica a cancelaciones normales (02/03/04).
+	"""
+	uuid = (getattr(ffm, "fm_uuid", "") or "").strip()
+	if not uuid:
+		return
+	if not _es_origen_sustitucion_vigente(ffm):
+		return  # no es origen de una sustitución con B TIMBRADO vigente → no tocar documentos
+
+	si_name = ffm.sales_invoice or frappe.db.get_value(
+		"Sales Invoice", {"fm_factura_fiscal_mx": ffm.name}, "name"
+	)
+	si_ds = frappe.db.get_value("Sales Invoice", si_name, "docstatus") if si_name else 2
+	if ffm.docstatus == 2 and si_ds in (2, None):
+		return  # ya convergido
+
+	from facturacion_mexico.facturacion_fiscal.timbrado_api import (
+		_complete_documental_cancellation,
+	)
+
+	_complete_documental_cancellation(ffm.name, si_name)
 
 
 @frappe.whitelist()
