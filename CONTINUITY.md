@@ -1,8 +1,8 @@
 # CONTINUITY.md — facturacion_mexico
 
 **Fecha:** 2026-07-22
-**Rama activa:** `fix/ffm-nace-error-fiscal-event-fallback` (PR #217)
-**Tarea actual:** PR #217 con dos fixes: (1) FFM ya no nace en `ERROR` (`a08c65b`); (2) soporte de moneda extranjera en el CFDI (`caf893a`, `001557a` formato). Follow-ups: reorder `on_update` (CodeRabbit) + determinismo de CI en `test_cfdi_moneda_extranjera` (Address Template, Company USD para el guard, y Company MXN ligada al Año Fiscal vigente). Pendiente: re-CI del PR.
+**Rama activa:** `chore/release-v1.1.0`
+**Tarea actual:** Bump de versión interna del app `0.0.1` → `1.1.0` (fuente única: `facturacion_mexico/__init__.py`; `pyproject.toml` la deriva vía `flit` + `dynamic=["version"]`). PR #217 ya mergeado (`f1e47b3`). Tras mergear este PR de release: crear tag `v1.1.0` + GitHub Release con notas acumuladas desde `v1.0.0`.
 
 ---
 
