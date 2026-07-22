@@ -211,3 +211,41 @@ class TestFFMNaceErrorFiscalEvent(FrappeTestCase):
 		self._seed_log(ffm, "Timbrado", success=True, offset_secs=0)
 		self._seed_log(ffm, "Solicitud Cancelación", success=True, offset_secs=5)
 		self.assertEqual(self._recalc(ffm), FiscalStates.PENDIENTE_CANCELACION)
+
+	# ---------------- Orden de on_update (sincronización inmediata SI) ----------------
+
+	def test_06_si_recibe_estado_recalculado_en_un_solo_save(self):
+		"""on_update recalcula ANTES de sincronizar: la SI recibe el estado FINAL en un solo save.
+
+		Con el orden anterior (sync → recalcular), la SI quedaba con el estado previo hasta un save
+		posterior. Este test falla con el orden anterior y pasa con el nuevo.
+		"""
+		si = self._mk_si()
+		ffm = self._mk_ffm(si)  # BORRADOR
+		# Datos fiscales mínimos para que save() pase validate (vía db.set_value, sin disparar on_update).
+		frappe.db.set_value(
+			"Factura Fiscal Mexico",
+			ffm,
+			{
+				"fm_cfdi_use": self.uso_cfdi,
+				"fm_tax_system": "601",
+				"fm_forma_pago_timbrado": self.forma_pago,
+				"fm_payment_method_sat": "PUE",
+			},
+		)
+		# calculate determinará TIMBRADO (estado distinto al previo).
+		self._seed_log(ffm, "Timbrado", success=True)
+		# Estado previo distinto en la SI, para evidenciar la sincronización.
+		frappe.db.set_value("Sales Invoice", si, "fm_fiscal_status", FiscalStates.BORRADOR)
+		frappe.db.commit()  # nosemgrep: frappe-manual-commit
+
+		# Un solo save dispara on_update (calculate → update_sales_invoice_fiscal_info).
+		frappe.get_doc("Factura Fiscal Mexico", ffm).save(ignore_permissions=True)
+
+		# Sin un segundo save: tanto la FFM como la SI quedan en el estado recalculado.
+		self.assertEqual(frappe.db.get_value("Factura Fiscal Mexico", ffm, "status"), FiscalStates.TIMBRADO)
+		self.assertEqual(
+			frappe.db.get_value("Sales Invoice", si, "fm_fiscal_status"),
+			FiscalStates.TIMBRADO,
+			"La SI debe recibir el estado recalculado en el mismo on_update (calculate antes de sync)",
+		)

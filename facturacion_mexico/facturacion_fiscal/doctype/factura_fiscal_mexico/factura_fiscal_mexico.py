@@ -636,11 +636,12 @@ class FacturaFiscalMexico(Document):
 
 	def on_update(self):
 		"""Ejecutar después de actualizar."""
+		# Recalcular el estado fiscal desde los logs ANTES de sincronizar la Sales Invoice, para que
+		# la SI reciba el estado fiscal ya recalculado (no el previo) en el mismo update.
+		self.calculate_fiscal_status_from_logs()
+
 		# Actualizar Sales Invoice con información fiscal
 		self.update_sales_invoice_fiscal_info()
-
-		# Recalcular estado fiscal basado en logs
-		self.calculate_fiscal_status_from_logs()
 
 	def update_sales_invoice_fiscal_info(self):
 		"""Actualizar información fiscal en Sales Invoice."""

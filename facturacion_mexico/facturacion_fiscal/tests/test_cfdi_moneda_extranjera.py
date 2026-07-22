@@ -64,20 +64,12 @@ class TestResolveCurrencyExchange(FrappeTestCase):
 			with self.assertRaises(frappe.ValidationError):
 				resolve_cfdi_currency_exchange(frappe._dict(name="SI-Z", currency="USD", conversion_rate=bad))
 
-	def test_guard_empresa_base_no_mxn(self):
-		# `_Test Company` es base INR → emitir en divisa se bloquea (suposición explícita).
-		base = frappe.db.get_value("Company", "_Test Company", "default_currency")
-		self.assertNotEqual(base, "MXN")  # sanity del entorno de test
-		with self.assertRaises(frappe.ValidationError):
-			resolve_cfdi_currency_exchange(
-				frappe._dict(name="SI-Q", currency="USD", conversion_rate=17.5, company="_Test Company")
-			)
-
 
 class TestPayloadMoneda(FrappeTestCase):
 	"""Payload real de `_prepare_facturapi_data` sobre una empresa base MXN."""
 
 	MXN_COMPANY = "_Test FM MXN"
+	USD_COMPANY = "_Test FM USD"  # empresa base != MXN para el guard (determinista en cualquier entorno)
 
 	@classmethod
 	def setUpClass(cls):
@@ -87,6 +79,21 @@ class TestPayloadMoneda(FrappeTestCase):
 			return_value=MagicMock(),
 		)
 		cls._patcher.start()
+
+		# Address Template por defecto: el site fresco de CI no lo trae y Address.on_update lo exige.
+		if not frappe.db.exists("Address Template", {"is_default": 1}):
+			if frappe.db.exists("Address Template", "Mexico"):
+				frappe.db.set_value("Address Template", "Mexico", "is_default", 1)
+			else:
+				frappe.get_doc(
+					{
+						"doctype": "Address Template",
+						"country": "Mexico",
+						"is_default": 1,
+						"template": "{{ address_line1 or '' }}",
+					}
+				).insert(ignore_permissions=True)
+
 		if not frappe.db.exists("Company", cls.MXN_COMPANY):
 			frappe.get_doc(
 				{
@@ -106,22 +113,42 @@ class TestPayloadMoneda(FrappeTestCase):
 			)
 			roc = frappe.db.get_value("Cost Center", {"company": co, "is_group": 0}, "name")
 			frappe.db.set_value("Company", co, {"round_off_account": roa, "round_off_cost_center": roc})
-			frappe.db.commit()  # nosemgrep: frappe-manual-commit
+
+		# Empresa base USD para probar el guard fail-closed (independiente del entorno).
+		if not frappe.db.exists("Company", cls.USD_COMPANY):
+			frappe.get_doc(
+				{
+					"doctype": "Company",
+					"company_name": cls.USD_COMPANY,
+					"abbr": "TFMUSD",
+					"default_currency": "USD",
+					"country": "United States",
+				}
+			).insert(ignore_permissions=True)
+		frappe.db.commit()  # nosemgrep: frappe-manual-commit
 
 	@classmethod
 	def tearDownClass(cls):
 		cls._patcher.stop()
-		# Limpieza dura de la empresa de prueba y TODO lo que cuelga de ella (evita cuentas huérfanas
+		# Limpieza dura de las empresas de prueba y TODO lo que cuelga de ellas (evita cuentas huérfanas
 		# que contaminarían otras suites que buscan "la primera cuenta Receivable"). frappe.db.delete
 		# usa DELETE directo → sin problemas de jerarquía de cuentas.
 		try:
-			for dt in ("Account", "Cost Center", "Warehouse"):
-				frappe.db.delete(dt, {"company": cls.MXN_COMPANY})
-			frappe.db.delete("Company", {"name": cls.MXN_COMPANY})
+			for co in (cls.MXN_COMPANY, cls.USD_COMPANY):
+				for dt in ("Account", "Cost Center", "Warehouse"):
+					frappe.db.delete(dt, {"company": co})
+				frappe.db.delete("Company", {"name": co})
 			frappe.db.commit()  # nosemgrep: frappe-manual-commit
 		except Exception:
 			frappe.db.rollback()
 		super().tearDownClass()
+
+	def test_guard_empresa_base_no_mxn(self):
+		# Empresa base USD → emitir en divisa se bloquea (suposición explícita fail-closed).
+		with self.assertRaises(frappe.ValidationError):
+			resolve_cfdi_currency_exchange(
+				frappe._dict(name="SI-Q", currency="USD", conversion_rate=17.5, company=self.USD_COMPANY)
+			)
 
 	def setUp(self):
 		self.h = frappe.generate_hash()[:6]

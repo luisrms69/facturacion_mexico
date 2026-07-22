@@ -1,8 +1,8 @@
 # CONTINUITY.md — facturacion_mexico
 
-**Fecha:** 2026-07-21
-**Rama activa:** `fix/ffm-nace-error-fiscal-event-fallback`
-**Tarea actual:** Dos fixes en una sola rama: (1) FFM ya no nace en `ERROR` (commit `a08c65b`); (2) soporte de moneda extranjera en el CFDI (este segundo commit). Ambos validados en GUI/sandbox.
+**Fecha:** 2026-07-22
+**Rama activa:** `fix/ffm-nace-error-fiscal-event-fallback` (PR #217)
+**Tarea actual:** PR #217 con dos fixes: (1) FFM ya no nace en `ERROR` (`a08c65b`); (2) soporte de moneda extranjera en el CFDI (`caf893a`, `001557a` formato). Follow-up: fix de CI (test determinista) + hallazgo CodeRabbit (orden de `on_update`). Pendiente: push del follow-up y re-CI.
 
 ---
 
