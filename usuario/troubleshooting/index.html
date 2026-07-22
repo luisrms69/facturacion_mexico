@@ -651,6 +651,24 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#la-factura-fiscal-aparece-en-error-sin-haberla-timbrado" class="md-nav__link">
+    <span class="md-ellipsis">
+      La Factura Fiscal aparece en ERROR sin haberla timbrado
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#factura-en-moneda-extranjera-usd-u-otra" class="md-nav__link">
+    <span class="md-ellipsis">
+      Factura en moneda extranjera (USD u otra)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#timbrado-falla-al-hacer-submit" class="md-nav__link">
     <span class="md-ellipsis">
       Timbrado falla al hacer Submit
@@ -1930,6 +1948,24 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#la-factura-fiscal-aparece-en-error-sin-haberla-timbrado" class="md-nav__link">
+    <span class="md-ellipsis">
+      La Factura Fiscal aparece en ERROR sin haberla timbrado
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#factura-en-moneda-extranjera-usd-u-otra" class="md-nav__link">
+    <span class="md-ellipsis">
+      Factura en moneda extranjera (USD u otra)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#timbrado-falla-al-hacer-submit" class="md-nav__link">
     <span class="md-ellipsis">
       Timbrado falla al hacer Submit
@@ -2027,6 +2063,24 @@
 
 <h1 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h1>
 <p>Solución a los problemas más comunes.</p>
+<hr />
+<h2 id="la-factura-fiscal-aparece-en-error-sin-haberla-timbrado">La Factura Fiscal aparece en ERROR sin haberla timbrado<a class="headerlink" href="#la-factura-fiscal-aparece-en-error-sin-haberla-timbrado" title="Permanent link">&para;</a></h2>
+<p>Una Factura Fiscal Mexico recién creada debe quedar en <strong>BORRADOR</strong>. El estado <strong>ERROR</strong> solo
+aparece cuando un intento real de <strong>Timbrado</strong> fue rechazado por el PAC. Si ves una FFM en
+<code>ERROR</code> que nunca se envió a timbrar, es un estado incorrecto: revisa el <code>FacturAPI Response Log</code>
+de esa factura; solo un <code>Timbrado</code> fallido debe producir <code>ERROR</code>. Los problemas de sincronización
+o de consulta se reflejan en <code>fm_sync_status</code>, no en el estado fiscal.</p>
+<hr />
+<h2 id="factura-en-moneda-extranjera-usd-u-otra">Factura en moneda extranjera (USD u otra)<a class="headerlink" href="#factura-en-moneda-extranjera-usd-u-otra" title="Permanent link">&para;</a></h2>
+<p>El CFDI hereda la <strong>moneda</strong> y el <strong>tipo de cambio</strong> de la Sales Invoice:</p>
+<ul>
+<li>La SI debe tener su moneda (ej. <code>USD</code>) y un tipo de cambio (<code>conversion_rate</code>) válido (&gt; 0).</li>
+<li>La empresa emisora debe tener <strong>moneda base MXN</strong>. Si no, el timbrado se bloquea con
+  <strong>"Moneda base no soportada"</strong>: el tipo de cambio del CFDI (pesos por unidad de la divisa) solo se
+  deriva automáticamente desde <code>conversion_rate</code> cuando la base de la empresa es MXN.</li>
+<li>Los importes del CFDI (subtotal, IVA, total) quedan <strong>en la moneda de la factura</strong>, no convertidos
+  a pesos. El CFDI incluye <code>Moneda</code> y <code>TipoCambio</code> conforme al CFDI 4.0.</li>
+</ul>
 <hr />
 <h2 id="timbrado-falla-al-hacer-submit">Timbrado falla al hacer Submit<a class="headerlink" href="#timbrado-falla-al-hacer-submit" title="Permanent link">&para;</a></h2>
 <p><strong>Verificar en orden:</strong></p>

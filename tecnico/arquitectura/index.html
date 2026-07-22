@@ -757,6 +757,30 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Flujo principal — CFDI emitido">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#derivacion-del-estado-fiscal-de-la-ffm" class="md-nav__link">
+    <span class="md-ellipsis">
+      Derivación del estado fiscal de la FFM
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#moneda-del-cfdi-currency-exchange" class="md-nav__link">
+    <span class="md-ellipsis">
+      Moneda del CFDI (currency / exchange)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2068,6 +2092,30 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Flujo principal — CFDI emitido">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#derivacion-del-estado-fiscal-de-la-ffm" class="md-nav__link">
+    <span class="md-ellipsis">
+      Derivación del estado fiscal de la FFM
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#moneda-del-cfdi-currency-exchange" class="md-nav__link">
+    <span class="md-ellipsis">
+      Moneda del CFDI (currency / exchange)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2338,6 +2386,30 @@
   → Factura Fiscal Mexico
   → timbrado_api.py → FacturAPI.io → SAT
 </code></pre></div>
+<h3 id="derivacion-del-estado-fiscal-de-la-ffm">Derivación del estado fiscal de la FFM<a class="headerlink" href="#derivacion-del-estado-fiscal-de-la-ffm" title="Permanent link">&para;</a></h3>
+<p>El <code>status</code> de la Factura Fiscal Mexico se calcula desde los <code>FacturAPI Response Log</code>
+(<code>calculate_fiscal_status_from_logs</code>). Reglas vigentes:</p>
+<ul>
+<li>Una FFM recién creada queda en <code>BORRADOR</code>; su creación <strong>no</strong> contacta al PAC ni escribe logs.</li>
+<li><code>TIMBRADO</code> / <code>CANCELADO</code> / <code>PENDIENTE_CANCELACION</code> derivan de logs PAC exitosos.</li>
+<li><code>ERROR</code> fiscal deriva <strong>exclusivamente de un <code>Timbrado</code> fallido</strong>, consistente con la regla
+  canónica por operación de <code>api/__init__.py</code>. Consulta, reconciliación y cancelación fallidas
+  pertenecen a <code>fm_sync_status</code>, no al estado fiscal.</li>
+</ul>
+<h3 id="moneda-del-cfdi-currency-exchange">Moneda del CFDI (<code>currency</code> / <code>exchange</code>)<a class="headerlink" href="#moneda-del-cfdi-currency-exchange" title="Permanent link">&para;</a></h3>
+<p>El payload a FacturAPI declara la moneda y el tipo de cambio derivados de la Sales Invoice, que es
+la <strong>fuente de verdad</strong> (<code>resolve_cfdi_currency_exchange</code> en <code>timbrado_api.py</code>):</p>
+<ul>
+<li><code>SI.currency = MXN</code> → <code>currency = "MXN"</code>, <code>exchange = 1</code> (por definición del CFDI, sin importar la
+  moneda base contable).</li>
+<li><code>SI.currency = &lt;divisa&gt;</code> → <code>currency = &lt;divisa&gt;</code>, <code>exchange = SI.conversion_rate</code>.</li>
+</ul>
+<p>Los importes de los conceptos van en la <strong>moneda de la transacción</strong> (<code>item.net_rate</code>, base de IVA
+sobre <code>net_rate</code>); <strong>nunca</strong> en campos <code>base_*</code> convertidos a la moneda base. <code>FacturAPI.exchange</code>
+(pesos por unidad de la divisa) equivale a <code>ERPNext.conversion_rate</code> <strong>solo si la moneda base de la
+empresa es MXN</strong>; la app no lo garantiza (solo lo recomienda en el setup), por lo que emitir en
+divisa desde una empresa con base ≠ MXN se <strong>bloquea</strong> explícitamente (fail-closed). La FFM <strong>no</strong>
+guarda copia propia de moneda/tipo de cambio: siempre se derivan de la Sales Invoice.</p>
 <h2 id="flujo-e-receipt-autofactura">Flujo E-Receipt / Autofactura<a class="headerlink" href="#flujo-e-receipt-autofactura" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code>Sales Invoice (submit, fm_ereceipt_mode=&quot;E-Receipt&quot;)
   → crear_ereceipt() → EReceipt MX (local)
