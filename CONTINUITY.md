@@ -2,7 +2,7 @@
 
 **Fecha:** 2026-07-22
 **Rama activa:** `fix/ffm-nace-error-fiscal-event-fallback` (PR #217)
-**Tarea actual:** PR #217 con dos fixes: (1) FFM ya no nace en `ERROR` (`a08c65b`); (2) soporte de moneda extranjera en el CFDI (`caf893a`, `001557a` formato). Follow-up: fix de CI (test determinista) + hallazgo CodeRabbit (orden de `on_update`). Pendiente: push del follow-up y re-CI.
+**Tarea actual:** PR #217 con dos fixes: (1) FFM ya no nace en `ERROR` (`a08c65b`); (2) soporte de moneda extranjera en el CFDI (`caf893a`, `001557a` formato). Follow-ups: reorder `on_update` (CodeRabbit) + determinismo de CI en `test_cfdi_moneda_extranjera` (Address Template, Company USD para el guard, y Company MXN ligada al Año Fiscal vigente). Pendiente: re-CI del PR.
 
 ---
 

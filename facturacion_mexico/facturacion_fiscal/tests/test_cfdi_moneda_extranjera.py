@@ -114,6 +114,22 @@ class TestPayloadMoneda(FrappeTestCase):
 			roc = frappe.db.get_value("Cost Center", {"company": co, "is_group": 0}, "name")
 			frappe.db.set_value("Company", co, {"round_off_account": roa, "round_off_cost_center": roc})
 
+			# Ligar la empresa al Año Fiscal vigente si éste está restringido por empresa (en CI lo
+			# está; en un site fresco la Company nueva no queda cubierta y falla FiscalYearError).
+			from frappe.utils import getdate, today
+
+			d = getdate(today())
+			for fy in frappe.get_all(
+				"Fiscal Year",
+				filters={"year_start_date": ["<=", d], "year_end_date": [">=", d]},
+				pluck="name",
+			):
+				fydoc = frappe.get_doc("Fiscal Year", fy)
+				companies = [c.company for c in (fydoc.get("companies") or [])]
+				if companies and co not in companies:
+					fydoc.append("companies", {"company": co})
+					fydoc.save(ignore_permissions=True)
+
 		# Empresa base USD para probar el guard fail-closed (independiente del entorno).
 		if not frappe.db.exists("Company", cls.USD_COMPANY):
 			frappe.get_doc(
@@ -135,6 +151,7 @@ class TestPayloadMoneda(FrappeTestCase):
 		# usa DELETE directo → sin problemas de jerarquía de cuentas.
 		try:
 			for co in (cls.MXN_COMPANY, cls.USD_COMPANY):
+				frappe.db.delete("Fiscal Year Company", {"company": co})
 				for dt in ("Account", "Cost Center", "Warehouse"):
 					frappe.db.delete(dt, {"company": co})
 				frappe.db.delete("Company", {"name": co})
