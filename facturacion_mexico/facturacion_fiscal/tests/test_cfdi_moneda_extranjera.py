@@ -62,9 +62,7 @@ class TestResolveCurrencyExchange(FrappeTestCase):
 	def test_usd_sin_tipo_cambio_falla(self):
 		for bad in (0, -3):
 			with self.assertRaises(frappe.ValidationError):
-				resolve_cfdi_currency_exchange(
-					frappe._dict(name="SI-Z", currency="USD", conversion_rate=bad)
-				)
+				resolve_cfdi_currency_exchange(frappe._dict(name="SI-Z", currency="USD", conversion_rate=bad))
 
 	def test_guard_empresa_base_no_mxn(self):
 		# `_Test Company` es base INR → emitir en divisa se bloquea (suposición explícita).
@@ -143,17 +141,21 @@ class TestPayloadMoneda(FrappeTestCase):
 		)
 		if not self.debit_to_usd:
 			parent = frappe.db.get_value("Account", self.debit_to, "parent_account")
-			self.debit_to_usd = frappe.get_doc(
-				{
-					"doctype": "Account",
-					"account_name": "Debtors USD",
-					"parent_account": parent,
-					"company": self.company,
-					"account_type": "Receivable",
-					"account_currency": "USD",
-					"is_group": 0,
-				}
-			).insert(ignore_permissions=True).name
+			self.debit_to_usd = (
+				frappe.get_doc(
+					{
+						"doctype": "Account",
+						"account_name": "Debtors USD",
+						"parent_account": parent,
+						"company": self.company,
+						"account_type": "Receivable",
+						"account_currency": "USD",
+						"is_group": 0,
+					}
+				)
+				.insert(ignore_permissions=True)
+				.name
+			)
 		self.income_acc = frappe.db.get_value(
 			"Account", {"company": self.company, "root_type": "Income", "is_group": 0}, "name"
 		)
@@ -201,9 +203,9 @@ class TestPayloadMoneda(FrappeTestCase):
 			"Uso CFDI SAT", {}, "name"
 		)
 		# fm_forma_pago_timbrado debe empezar con el código SAT de 2 dígitos (ej. "01 Efectivo").
-		self.forma_pago = frappe.db.get_value("Mode of Payment", "01 Efectivo", "name") or frappe.db.get_value(
-			"Mode of Payment", {"name": ["like", "0%"]}, "name"
-		)
+		self.forma_pago = frappe.db.get_value(
+			"Mode of Payment", "01 Efectivo", "name"
+		) or frappe.db.get_value("Mode of Payment", {"name": ["like", "0%"]}, "name")
 
 		self.customer = frappe.get_doc(
 			{
@@ -217,7 +219,12 @@ class TestPayloadMoneda(FrappeTestCase):
 		frappe.db.set_value(
 			"Customer",
 			self.customer.name,
-			{"tax_id": "XAXX010101000", "fm_rfc_validated": 1, "fm_uso_cfdi_default": "G03", "fm_tax_regime": "601"},
+			{
+				"tax_id": "XAXX010101000",
+				"fm_rfc_validated": 1,
+				"fm_uso_cfdi_default": "G03",
+				"fm_tax_regime": "601",
+			},
 		)
 		# Dirección primaria (el builder exige CP del receptor).
 		frappe.get_doc(
