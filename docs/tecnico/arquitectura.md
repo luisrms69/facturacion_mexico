@@ -29,6 +29,33 @@ Sales Invoice (submit)
   → timbrado_api.py → FacturAPI.io → SAT
 ```
 
+### Derivación del estado fiscal de la FFM
+
+El `status` de la Factura Fiscal Mexico se calcula desde los `FacturAPI Response Log`
+(`calculate_fiscal_status_from_logs`). Reglas vigentes:
+
+- Una FFM recién creada queda en `BORRADOR`; su creación **no** contacta al PAC ni escribe logs.
+- `TIMBRADO` / `CANCELADO` / `PENDIENTE_CANCELACION` derivan de logs PAC exitosos.
+- `ERROR` fiscal deriva **exclusivamente de un `Timbrado` fallido**, consistente con la regla
+  canónica por operación de `api/__init__.py`. Consulta, reconciliación y cancelación fallidas
+  pertenecen a `fm_sync_status`, no al estado fiscal.
+
+### Moneda del CFDI (`currency` / `exchange`)
+
+El payload a FacturAPI declara la moneda y el tipo de cambio derivados de la Sales Invoice, que es
+la **fuente de verdad** (`resolve_cfdi_currency_exchange` en `timbrado_api.py`):
+
+- `SI.currency = MXN` → `currency = "MXN"`, `exchange = 1` (por definición del CFDI, sin importar la
+  moneda base contable).
+- `SI.currency = <divisa>` → `currency = <divisa>`, `exchange = SI.conversion_rate`.
+
+Los importes de los conceptos van en la **moneda de la transacción** (`item.net_rate`, base de IVA
+sobre `net_rate`); **nunca** en campos `base_*` convertidos a la moneda base. `FacturAPI.exchange`
+(pesos por unidad de la divisa) equivale a `ERPNext.conversion_rate` **solo si la moneda base de la
+empresa es MXN**; la app no lo garantiza (solo lo recomienda en el setup), por lo que emitir en
+divisa desde una empresa con base ≠ MXN se **bloquea** explícitamente (fail-closed). La FFM **no**
+guarda copia propia de moneda/tipo de cambio: siempre se derivan de la Sales Invoice.
+
 ## Flujo E-Receipt / Autofactura
 
 ```text

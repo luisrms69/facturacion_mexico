@@ -1,76 +1,78 @@
 # CONTINUITY.md — facturacion_mexico
 
-**Fecha:** 2026-07-17
-**Rama activa:** `fix/cascade-cancel-01-transient-404-and-doc-reconcile`
-**Tarea actual:** Fix — resiliencia de la cancelación de sustitución (motivo 01) ante fallos transitorios del PAC. **PR #214 abierto**; aplicando fixes post-review de CodeRabbit antes del merge.
+**Fecha:** 2026-07-22
+**Rama activa:** `fix/ffm-nace-error-fiscal-event-fallback` (PR #217)
+**Tarea actual:** PR #217 con dos fixes: (1) FFM ya no nace en `ERROR` (`a08c65b`); (2) soporte de moneda extranjera en el CFDI (`caf893a`, `001557a` formato). Follow-ups: reorder `on_update` (CodeRabbit) + determinismo de CI en `test_cfdi_moneda_extranjera` (Address Template, Company USD para el guard, y Company MXN ligada al Año Fiscal vigente). Pendiente: re-CI del PR.
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-Corrección de un defecto real en el flujo de sustitución motivo 01. Al timbrar el CFDI sustituto (B),
-la cascada cancela el original (A) con `TipoRelación = 04`; un `404 invoice_not_found` transitorio del
-PAC (consistencia eventual justo tras timbrar B) rompía el flujo y presentaba el timbrado exitoso de B
-como error. La prueba de integración real (par A=`FFMX-2026-00045` / B=`FFMX-2026-00046`, FacturAPI TEST)
-reprodujo el 404 de forma natural y destapó **tres defectos**: (1) B mostrado como error; (2) la
-recuperación diferida no cancelaba nunca porque `cancelar_factura` exige `TIMBRADO` y devolvía
-`{success: False}` sin excepción; (3) `run_auto_reconciliation` revertía `PENDIENTE_CANCELACION → TIMBRADO`
-(valid/none) destruyendo la cancelación en curso.
+Dos correcciones fiscales, cada una en su propio commit dentro de la **misma** rama:
+
+1. **FFM nace en ERROR** (`a08c65b`, ya commiteado): los eventos de ciclo de vida de la FFM se
+   escribían vía fallback como respuestas PAC fallidas (`success=0` → "Consulta Estado"/500), y
+   `calculate_fiscal_status_from_logs` marcaba `ERROR` ante cualquier `success=0`. Se retiró el
+   fallback (Capa 1) y se acotó la derivación de `ERROR` a un `Timbrado` fallido (Capa 2).
+
+2. **Moneda extranjera en el CFDI** (este commit): el payload a FacturAPI **no** declaraba
+   `currency` ni `exchange` → FacturAPI asumía MXN y una factura en USD quedaba bloqueada por
+   "Moneda Inconsistente". Se agregó `resolve_cfdi_currency_exchange` (deriva moneda/tipo de cambio
+   de la Sales Invoice: MXN → exchange 1; divisa → `conversion_rate`) y se cableó `currency`/
+   `exchange` en `_prepare_facturapi_data`. Los importes ya iban en moneda de transacción
+   (`net_rate`); no se tocaron precios ni impuestos.
 
 Plan que estoy siguiendo:
-Fix mínimo y proporcionado (sin campos nuevos, sin contadores, un solo scheduler): reintentos inmediatos
-(0.5s/1s) → `PENDIENTE_CANCELACION` sin falsear el timbrado → scheduler cada minuto con throttle escalonado
-y corte 2h → guard interno `_allow_pending_cancellation` (manual sigue exigiendo TIMBRADO) + manejo de
-`{success: False}` → protección Gap 2 en reconciliación (no revertir sustitución vigente) → convergencia
-documental idempotente. UX: mensaje amarillo, nunca falso error. Detalle en ADR-0037.
+Fix mínimo por feature, commits separados en la misma rama. Se hizo explícita y fail-closed la
+suposición de **moneda base MXN** (emitir en divisa desde empresa con base ≠ MXN se bloquea:
+`conversion_rate` solo equivale a "pesos por unidad" con base MXN, y la app no lo garantiza).
 
 Objetivo inmediato:
-Commit en la rama (flujo `/ship commit`), con código + tests + documentación exigida por el gate.
-Sin push, sin PR (pendientes de autorización separada).
+Segundo commit (moneda) en la rama. Después: flujo normal paso a paso (push → PR → merge →
+`/sync-check`) con autorización explícita en cada paso. Al cierre: revisión de tags/releases y crear
+el release correspondiente.
 
 Criterio de avance:
-Tests específicos verdes (`test_cascade_cancel_01_recovery` 15/15, `test_cancelacion_integridad` 37/37,
-Gap 2 en `test_ffm_reconciliation`) + linters limpios + `mkdocs build --strict` limpio + validación real
-en sandbox (A convergió a CANCELADO/docstatus=2, B TIMBRADO, XML `04 → UUID_A` PASS, local==PAC).
+Tests verdes (`test_cfdi_moneda_extranjera` 10/10, `test_ffm_nace_error_fiscal_event` 5/5,
+regresión `test_cancelacion_integridad` 37 / `test_e4_puente_si_pac` 17) + `ruff` + `mkdocs
+--strict` limpios + validación GUI/sandbox (USD `FFMX-2026-00299`: `Moneda=USD`,
+`TipoCambio=17.3943`, subtotal/IVA/total en USD, `livemode=false`).
 
 ---
 
 ## Estado actual
 
-### Ya cerrado
+### Ya cerrado (en esta rama)
 
-- **Cascada:** reintentos inmediatos transitorios (0.5s/1s); si se agotan, A → `PENDIENTE_CANCELACION`
-  + `fm_sync_status=pending` + `fm_sync_error`, sin `frappe.throw` (B queda TIMBRADO).
-- **Scheduler** `retry_pending_substitution_cancellations` (cron `* * * * *` en `hooks.py`): GET-first,
-  throttle escalonado anclado en `B.fecha_timbrado` + `fm_last_pac_sync` (rápido 5 min → ~5 min → corte 2h),
-  batch 50. Solo procesa orígenes de sustitución reales.
-- **Guard acotado:** `cancelar_factura(..., _allow_pending_cancellation=True)` (keyword-only) para el
-  reintento automático; manual intacto. Scheduler maneja excepción **y** `{success: False}`.
-- **Gap 2:** `_es_origen_sustitucion_vigente` en `ffm_reconciliation`; la reconciliación (solo-lectura)
-  no revierte `PENDIENTE_CANCELACION → TIMBRADO` de una sustitución con B TIMBRADO vigente.
-- **Gap 3 / documental:** `_complete_documental_cancellation` única e idempotente (cascada/scheduler/reconcile).
-- **UX:** `base_result.cancelacion_previa_pendiente` → mensaje amarillo en `factura_fiscal_mexico.js`.
-- **Tests:** nuevo `test_cascade_cancel_01_recovery.py` (15) + Gap 2 en `test_ffm_reconciliation.py` (2)
-  + adaptación de `test_cancelacion_integridad` al nuevo contrato.
-- **Docs (gate):** ADR-0037, `docs/usuario/cancelar-cfdi.md`, `docs/tecnico/arquitectura.md`,
-  `mkdocs.yml`, `docs/adr/index.md`.
-- **Validación real (sandbox FacturAPI TEST):** flujo completo verificado end-to-end.
-- **Fix CI (commit `039a18f`):** `si.currency` en el test de recuperación (mismatch MXN/INR en `_Test Company`).
-- **Post-review CodeRabbit (PR #214):** aplicados 12 de 17 — company en cliente PAC (cascada y scheduler),
-  `{success: False}` en reintentos inmediatos, reconcile exige B TIMBRADO, lock `ffm:cascade` compartido en
-  reconciliación, pre-filtro de sustituciones antes del batch (anti-inanición), retorno documental veraz
-  (`completed`/`incomplete`), `canceled_at` real, rename a inglés, IDs únicos en test, docs (docstatus=2 en
-  usuario, MD040 en ADR).
+- **Commit `a08c65b`** — FFM nace en ERROR: retiro del fallback (`after_insert`, bloque
+  `create_fiscal_event` de `on_update`, métodos `create_fiscal_event` / `_log_event_to_response_log`)
+  + `calculate_fiscal_status_from_logs` deriva `ERROR` solo de `Timbrado` fallido. Test
+  `test_ffm_nace_error_fiscal_event` (5). Docs: arquitectura + troubleshooting.
+- **Commit moneda (este)** — `resolve_cfdi_currency_exchange` + cableo `currency`/`exchange` en el
+  payload + guard fail-closed de base MXN. Test `test_cfdi_moneda_extranjera` (10: helper + payload
+  real MXN/USD, guard base, verificación de no-uso de `base_net_rate`). Docs: arquitectura
+  (Moneda del CFDI) + troubleshooting (factura en divisa).
 
-### Pendiente / siguiente paso
+### Siguiente paso concreto
 
-- **Push** de estos fixes a la rama del PR #214 → luego **re-correr la prueba GUI** para confirmar que los
-  cambios de CodeRabbit no rompieron el flujo.
-- **Fuera de alcance / posible issue separado (CodeRabbit):** #6 clasificación estructural de errores PAC;
-  #8 defensa ante fallo de persistencia; #11 limpieza exhaustiva de fixtures de tests; #12 aislamiento de
-  tests con selector global.
-- Otros incidentes separados: duplicación `cfdi:Traslado` (IVA 0%); alertas en tiempo real; error visual al
-  timbrar hasta refresh.
-- Artefactos locales sin commitear (correcto): `one_offs/`, `poc-playwright-demo/val01/`.
-- Servidor dev `facturacion-v16.dev:8888` levantado en tmux `serve_facturacion-v16_dev`.
+1. (Hecho) `/ship commit` del fix de moneda. **Sin push ni PR** hasta autorización.
+2. Flujo normal paso a paso: `/ship push` → `/ship pr` → (merge lo hace el usuario) → `/sync-check`.
+3. **Al cierre:** revisión de tags/releases y crear el release correspondiente.
+
+### Fuera de este trabajo (sin commitear)
+
+- `one_offs/verificar_payload_moneda.py` — verificador de payload solo-lectura (queda fuera del commit).
+- Issues abiertos aparte: #215 (guards de ambiente FacturAPI multi-capa), #216 (validación fiscal
+  temprana ObjetoImp=02 sin impuestos en Sales Invoice).
+
+---
+
+## Decisiones vigentes no reflejadas en código
+
+- **`fm_sync_status` / `fm_sync_error`:** capa distinta con su propia derivación; no se tocan.
+- **Moneda base MXN:** la app no la garantiza (solo la recomienda en `install.py`). Emitir CFDI en
+  divisa exige base MXN; en caso contrario se bloquea. La FFM no guarda copia de moneda/tipo de
+  cambio: siempre se derivan de la Sales Invoice.
+- **Config FacturAPI de `llantascs-v16.dev`:** saneada a sandbox (`sandbox_mode=1`, `sk_live` borrada;
+  el usuario cargó la `sk_test`). Prevención universal en issue #215.
