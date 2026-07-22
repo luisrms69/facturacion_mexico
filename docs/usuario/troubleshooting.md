@@ -14,6 +14,19 @@ o de consulta se reflejan en `fm_sync_status`, no en el estado fiscal.
 
 ---
 
+## Factura en moneda extranjera (USD u otra)
+
+El CFDI hereda la **moneda** y el **tipo de cambio** de la Sales Invoice:
+
+- La SI debe tener su moneda (ej. `USD`) y un tipo de cambio (`conversion_rate`) válido (> 0).
+- La empresa emisora debe tener **moneda base MXN**. Si no, el timbrado se bloquea con
+  **"Moneda base no soportada"**: el tipo de cambio del CFDI (pesos por unidad de la divisa) solo se
+  deriva automáticamente desde `conversion_rate` cuando la base de la empresa es MXN.
+- Los importes del CFDI (subtotal, IVA, total) quedan **en la moneda de la factura**, no convertidos
+  a pesos. El CFDI incluye `Moneda` y `TipoCambio` conforme al CFDI 4.0.
+
+---
+
 ## Timbrado falla al hacer Submit
 
 **Verificar en orden:**

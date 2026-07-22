@@ -20,6 +20,61 @@ except ImportError:
 	get_conversion_factor = None
 
 
+def resolve_cfdi_currency_exchange(sales_invoice):
+	"""Deriva (currency, exchange) del CFDI desde la Sales Invoice, que es la fuente de verdad.
+
+	Regla SAT/FacturAPI:
+	- MXN: el tipo de cambio es 1 por definición (el CFDI se expresa en pesos), sin importar la
+	  moneda base contable de la empresa.
+	- Divisa extranjera (p. ej. USD): `exchange` = pesos mexicanos por unidad de esa divisa.
+
+	`FacturAPI.exchange` = pesos por unidad de la moneda; `ERPNext.conversion_rate` = moneda de la
+	transacción → moneda **base de la empresa**. Ambos coinciden **solo si la moneda base es MXN**.
+	La app NO lo garantiza (solo lo recomienda en el setup, `install.py`), así que aquí se valida de
+	forma explícita y fail-closed: si la empresa no es base MXN, no se deriva un tipo de cambio
+	incorrecto — se bloquea.
+
+	Los importes del payload ya van en la moneda de la transacción (`item.net_rate`, base IVA sobre
+	`net_rate`, IVA por tasa). NO se usan campos `base_*` (convertidos a la moneda base).
+
+	Returns:
+		tuple(currency: str, exchange: float)
+
+	Raises:
+		frappe.ValidationError: si la empresa no es base MXN al emitir en divisa, o si la SI está en
+		divisa sin un tipo de cambio válido (> 0).
+	"""
+	currency = (sales_invoice.get("currency") or "MXN").upper()
+	if currency == "MXN":
+		return currency, 1.0
+
+	# Suposición explícita: `conversion_rate` == pesos por unidad SOLO si la base de la empresa es MXN.
+	company = sales_invoice.get("company")
+	base_currency = frappe.db.get_value("Company", company, "default_currency") if company else None
+	if base_currency and base_currency != "MXN":
+		frappe.throw(
+			_(
+				"No se puede emitir un CFDI en {0}: la empresa {1} tiene moneda base {2}. "
+				"El tipo de cambio del CFDI (pesos por unidad) solo se puede derivar automáticamente "
+				"si la moneda base de la empresa es MXN."
+			).format(currency, company, base_currency),
+			title=_("Moneda base no soportada"),
+		)
+
+	# Debe existir un tipo de cambio válido (> 0). No se infiere que 1 sea imposible para una divisa:
+	# solo se rechaza ausente / cero / negativo.
+	rate = flt(sales_invoice.get("conversion_rate"))
+	if rate <= 0:
+		frappe.throw(
+			_(
+				"La Sales Invoice {0} está en {1} pero no tiene un tipo de cambio válido "
+				"(conversion_rate = {2}). Configure el tipo de cambio de la factura antes de timbrar."
+			).format(sales_invoice.get("name") or "", currency, rate),
+			title=_("Tipo de cambio requerido"),
+		)
+	return currency, rate
+
+
 def _log_text(label, s: str):
 	if s is None:
 		s = ""
@@ -948,6 +1003,11 @@ class TimbradoAPI:
 				# Extraer solo la parte alfabética del patrón para enviar al PAC
 				serie_for_pac = self._extract_series_from_pattern(branch_doc.fm_serie_pattern)
 
+		# Moneda y tipo de cambio del CFDI: derivados de la Sales Invoice (fuente de verdad).
+		# Los importes de los conceptos ya van en la moneda de la transacción (net_rate); aquí solo
+		# se declara la moneda y el tipo de cambio. MXN → exchange 1; divisa extranjera → conversion_rate.
+		cfdi_currency, cfdi_exchange = resolve_cfdi_currency_exchange(sales_invoice)
+
 		# Datos de la factura
 		invoice_data = {
 			"customer": customer_data,
@@ -957,6 +1017,8 @@ class TimbradoAPI:
 			# MILESTONE 1: NO enviar folio_number - deja autoincremento del PAC
 			"series": serie_for_pac,  # Serie resuelta por Branch o default
 			"use": cfdi_use,
+			"currency": cfdi_currency,
+			"exchange": cfdi_exchange,
 		}
 
 		# TIPO DE COMPROBANTE: Obtener desde Factura Fiscal Mexico
