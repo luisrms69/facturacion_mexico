@@ -1,76 +1,76 @@
 # CONTINUITY.md — facturacion_mexico
 
-**Fecha:** 2026-07-17
-**Rama activa:** `fix/cascade-cancel-01-transient-404-and-doc-reconcile`
-**Tarea actual:** Fix — resiliencia de la cancelación de sustitución (motivo 01) ante fallos transitorios del PAC. **PR #214 abierto**; aplicando fixes post-review de CodeRabbit antes del merge.
+**Fecha:** 2026-07-21
+**Rama activa:** `fix/ffm-nace-error-fiscal-event-fallback`
+**Tarea actual:** Fix — la Factura Fiscal Mexico (FFM) nacía en estado `ERROR` al crearse, sin ninguna llamada al PAC. Commit en la rama (flujo `/ship commit`). Validación GUI ya confirmada por el usuario.
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-Corrección de un defecto real en el flujo de sustitución motivo 01. Al timbrar el CFDI sustituto (B),
-la cascada cancela el original (A) con `TipoRelación = 04`; un `404 invoice_not_found` transitorio del
-PAC (consistencia eventual justo tras timbrar B) rompía el flujo y presentaba el timbrado exitoso de B
-como error. La prueba de integración real (par A=`FFMX-2026-00045` / B=`FFMX-2026-00046`, FacturAPI TEST)
-reprodujo el 404 de forma natural y destapó **tres defectos**: (1) B mostrado como error; (2) la
-recuperación diferida no cancelaba nunca porque `cancelar_factura` exige `TIMBRADO` y devolvía
-`{success: False}` sin excepción; (3) `run_auto_reconciliation` revertía `PENDIENTE_CANCELACION → TIMBRADO`
-(valid/none) destruyendo la cancelación en curso.
+Corrección del bug "FFM nace en ERROR". Al crear una FFM (flujo normal desde Sales Invoice), la FFM
+quedaba de inmediato en `ERROR` con todas sus implicaciones (botón "Reintentar Timbrado", badge de sync
+rojo), **sin contactar a FacturAPI**. Causa raíz: los eventos de ciclo de vida de la FFM
+(`create`/`status_change`) se escribían, vía un fallback (`_log_event_to_response_log`), como
+respuestas PAC fallidas en `FacturAPI Response Log` (`success=0`, `operation_type` mapeado por defecto a
+`"Consulta Estado"`, HTTP 500), porque el DocType `Fiscal Event MX` fue deprecado/eliminado. Luego
+`calculate_fiscal_status_from_logs` marcaba `ERROR` ante **cualquier** log `success=0`.
 
 Plan que estoy siguiendo:
-Fix mínimo y proporcionado (sin campos nuevos, sin contadores, un solo scheduler): reintentos inmediatos
-(0.5s/1s) → `PENDIENTE_CANCELACION` sin falsear el timbrado → scheduler cada minuto con throttle escalonado
-y corte 2h → guard interno `_allow_pending_cancellation` (manual sigue exigiendo TIMBRADO) + manejo de
-`{success: False}` → protección Gap 2 en reconciliación (no revertir sustitución vigente) → convergencia
-documental idempotente. UX: mensaje amarillo, nunca falso error. Detalle en ADR-0037.
+Fix mínimo en dos capas (aprobado en revisión con ChatGPT):
+- **Capa 1 (origen):** retirar por completo el fallback y su código muerto — `after_insert`, el bloque
+  `create_fiscal_event` de `on_update`, y los métodos `create_fiscal_event` / `_log_event_to_response_log`.
+  Los guards `fiscal_event_*` de `api/__init__.py` se conservan (defensivos y cubiertos por tests).
+- **Capa 2 (blindaje):** `calculate_fiscal_status_from_logs` deriva `ERROR` fiscal **solo** de un
+  `Timbrado` fallido, consistente con la regla canónica por operación de `api/__init__.py:790-816`.
+  Consulta/reconciliación/cancelación fallidas pertenecen a `fm_sync_status`, no al estado fiscal.
 
 Objetivo inmediato:
-Commit en la rama (flujo `/ship commit`), con código + tests + documentación exigida por el gate.
-Sin push, sin PR (pendientes de autorización separada).
+Commit en la rama (código + test + docs mínimos del gate; sin ADR). Sin push, sin PR (pendientes de
+autorización separada). Después: investigar y registrar con `/ship issue` un problema DISTINTO (validación
+fiscal temprana en Sales Invoice — `ObjetoImp=02` sin impuestos), sin mezclar código.
 
 Criterio de avance:
-Tests específicos verdes (`test_cascade_cancel_01_recovery` 15/15, `test_cancelacion_integridad` 37/37,
-Gap 2 en `test_ffm_reconciliation`) + linters limpios + `mkdocs build --strict` limpio + validación real
-en sandbox (A convergió a CANCELADO/docstatus=2, B TIMBRADO, XML `04 → UUID_A` PASS, local==PAC).
+Tests verdes (`test_ffm_nace_error_fiscal_event` 5/5, más sin regresión en `test_sync_status_semantics`
+17, `test_cancelacion_integridad` 37, `test_cascade_cancel_01_recovery` 15) + `ruff` limpio +
+`mkdocs build --strict` exit 0 + validación GUI del usuario OK (FFM nueva queda en `BORRADOR`).
 
 ---
 
 ## Estado actual
 
-### Ya cerrado
+### Ya cerrado (en esta rama)
 
-- **Cascada:** reintentos inmediatos transitorios (0.5s/1s); si se agotan, A → `PENDIENTE_CANCELACION`
-  + `fm_sync_status=pending` + `fm_sync_error`, sin `frappe.throw` (B queda TIMBRADO).
-- **Scheduler** `retry_pending_substitution_cancellations` (cron `* * * * *` en `hooks.py`): GET-first,
-  throttle escalonado anclado en `B.fecha_timbrado` + `fm_last_pac_sync` (rápido 5 min → ~5 min → corte 2h),
-  batch 50. Solo procesa orígenes de sustitución reales.
-- **Guard acotado:** `cancelar_factura(..., _allow_pending_cancellation=True)` (keyword-only) para el
-  reintento automático; manual intacto. Scheduler maneja excepción **y** `{success: False}`.
-- **Gap 2:** `_es_origen_sustitucion_vigente` en `ffm_reconciliation`; la reconciliación (solo-lectura)
-  no revierte `PENDIENTE_CANCELACION → TIMBRADO` de una sustitución con B TIMBRADO vigente.
-- **Gap 3 / documental:** `_complete_documental_cancellation` única e idempotente (cascada/scheduler/reconcile).
-- **UX:** `base_result.cancelacion_previa_pendiente` → mensaje amarillo en `factura_fiscal_mexico.js`.
-- **Tests:** nuevo `test_cascade_cancel_01_recovery.py` (15) + Gap 2 en `test_ffm_reconciliation.py` (2)
-  + adaptación de `test_cancelacion_integridad` al nuevo contrato.
-- **Docs (gate):** ADR-0037, `docs/usuario/cancelar-cfdi.md`, `docs/tecnico/arquitectura.md`,
-  `mkdocs.yml`, `docs/adr/index.md`.
-- **Validación real (sandbox FacturAPI TEST):** flujo completo verificado end-to-end.
-- **Fix CI (commit `039a18f`):** `si.currency` en el test de recuperación (mismatch MXN/INR en `_Test Company`).
-- **Post-review CodeRabbit (PR #214):** aplicados 12 de 17 — company en cliente PAC (cascada y scheduler),
-  `{success: False}` en reintentos inmediatos, reconcile exige B TIMBRADO, lock `ffm:cascade` compartido en
-  reconciliación, pre-filtro de sustituciones antes del batch (anti-inanición), retorno documental veraz
-  (`completed`/`incomplete`), `canceled_at` real, rename a inglés, IDs únicos en test, docs (docstatus=2 en
-  usuario, MD040 en ADR).
+- **Capa 1:** eliminado el fallback a `FacturAPI Response Log` en `factura_fiscal_mexico.py`
+  (`after_insert`, bloque `create_fiscal_event` de `on_update`, métodos `create_fiscal_event` y
+  `_log_event_to_response_log`). `Factura Global MX` tiene su propio `create_fiscal_event` — no se tocó.
+- **Capa 2:** `calculate_fiscal_status_from_logs` — `ERROR` solo si el último `Timbrado` falló y no hay
+  timbrado/cancelación exitoso posterior. Se retiró la heurística de "cualquier `success=0` en 24h".
+- **Tests:** `test_ffm_nace_error_fiscal_event.py` (5): nace BORRADOR sin logs sintéticos; timbrado
+  fallido → ERROR; fallido→éxito → TIMBRADO; consulta fallida → NO ERROR; PENDIENTE_CANCELACION intacto.
+- **Docs (gate):** `docs/tecnico/arquitectura.md` (derivación de estado fiscal) y
+  `docs/usuario/troubleshooting.md` (FFM en ERROR sin timbrar). Sin ADR (corrige comportamiento contra
+  el diseño existente, no es decisión nueva).
 
-### Pendiente / siguiente paso
+### Siguiente paso concreto
 
-- **Push** de estos fixes a la rama del PR #214 → luego **re-correr la prueba GUI** para confirmar que los
-  cambios de CodeRabbit no rompieron el flujo.
-- **Fuera de alcance / posible issue separado (CodeRabbit):** #6 clasificación estructural de errores PAC;
-  #8 defensa ante fallo de persistencia; #11 limpieza exhaustiva de fixtures de tests; #12 aislamiento de
-  tests con selector global.
-- Otros incidentes separados: duplicación `cfdi:Traslado` (IVA 0%); alertas en tiempo real; error visual al
-  timbrar hasta refresh.
-- Artefactos locales sin commitear (correcto): `one_offs/`, `poc-playwright-demo/val01/`.
-- Servidor dev `facturacion-v16.dev:8888` levantado en tmux `serve_facturacion-v16_dev`.
+1. (Este commit) `/ship commit` en la rama. **Sin push ni PR** hasta autorización.
+2. Investigar + `/ship issue` del problema de **validación fiscal temprana en Sales Invoice**
+   (`ObjetoImp=02` sin impuestos por configuración fiscal de sucursal incompleta; se detecta tarde, en
+   la FFM antes del timbrado). Solo issue, sin código, sin rama nueva.
+3. **Remediación de datos (separada, futura, con autorización):** las FFM históricas ya pegadas en
+   `ERROR` deben recalcularse (one-off idempotente por sitio) tras desplegar y validar el fix.
+
+---
+
+## Decisiones vigentes no reflejadas en código
+
+- **RCA cronología (cerrada):** el bug estaba latente desde agosto 2025 (commits #37/#51/#60). El
+  disparador operativo fue la eliminación efectiva del DocType `Fiscal Event MX` de la BD de producción
+  entre el 15 y el 18 de junio de 2026 (no se conserva evidencia del deploy/migración específico). Antes
+  del 15-jun el `frappe.db.exists` daba True y el fallback no corría; desde el 18-jun las FFM nacen en ERROR.
+- **`fm_sync_status` / `fm_sync_error`:** NO se tocan en este fix (capa distinta con su propia derivación).
+- **Config FacturAPI de `llantascs-v16.dev`** (aparte de este fix): ya saneada a sandbox (sk_live borrada,
+  `sandbox_mode=1`); el usuario carga la `sk_test` real. Prevención universal en issue #215 (guards
+  multi-capa + indicador de ambiente).

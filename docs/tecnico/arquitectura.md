@@ -29,6 +29,17 @@ Sales Invoice (submit)
   → timbrado_api.py → FacturAPI.io → SAT
 ```
 
+### Derivación del estado fiscal de la FFM
+
+El `status` de la Factura Fiscal Mexico se calcula desde los `FacturAPI Response Log`
+(`calculate_fiscal_status_from_logs`). Reglas vigentes:
+
+- Una FFM recién creada queda en `BORRADOR`; su creación **no** contacta al PAC ni escribe logs.
+- `TIMBRADO` / `CANCELADO` / `PENDIENTE_CANCELACION` derivan de logs PAC exitosos.
+- `ERROR` fiscal deriva **exclusivamente de un `Timbrado` fallido**, consistente con la regla
+  canónica por operación de `api/__init__.py`. Consulta, reconciliación y cancelación fallidas
+  pertenecen a `fm_sync_status`, no al estado fiscal.
+
 ## Flujo E-Receipt / Autofactura
 
 ```text

@@ -634,86 +634,13 @@ class FacturaFiscalMexico(Document):
 		# NO actualizar campo status - es manejado por Frappe
 		# self.calculate_status_from_fiscal_status() # DEPRECADO - no usar campo status estándar
 
-	def after_insert(self):
-		"""Ejecutar después de insertar."""
-		# Crear evento fiscal
-		self.create_fiscal_event(
-			"create",
-			{"sales_invoice": self.sales_invoice, "company": self.company, "status": self.status},
-		)
-
 	def on_update(self):
 		"""Ejecutar después de actualizar."""
-		# Si el estado cambió, crear evento fiscal
-		if self.has_value_changed("status"):
-			self.create_fiscal_event(
-				"status_change",
-				{
-					"old_status": self.get_doc_before_save().status
-					if self.get_doc_before_save()
-					else "BORRADOR",
-					"new_status": self.status,
-					"uuid": self.fm_uuid,
-					"facturapi_id": getattr(self, "facturapi_id", None),
-				},
-			)
-
 		# Actualizar Sales Invoice con información fiscal
 		self.update_sales_invoice_fiscal_info()
 
 		# Recalcular estado fiscal basado en logs
 		self.calculate_fiscal_status_from_logs()
-
-	def create_fiscal_event(self, event_type, event_data):
-		"""Crear evento fiscal - ELIMINACIÓN EN PROGRESO (FASE 0)."""
-		try:
-			# GUARD INMEDIATO: Verificar existencia DocType
-			if not frappe.db.exists("DocType", "Fiscal Event MX"):
-				# FALLBACK: Usar Response Log como única fuente verdad
-				self._log_event_to_response_log(event_type, event_data)
-				return None
-
-			# Código original (si DocType existe - transición suave)
-			fiscal_event = frappe.new_doc("Fiscal Event MX")
-			fiscal_event.event_type = event_type
-			fiscal_event.reference_doctype = self.doctype
-			fiscal_event.reference_name = self.name
-			fiscal_event.event_data = frappe.as_json(event_data)
-			fiscal_event.status = "success"
-			fiscal_event.user_role = (
-				frappe.get_roles(frappe.session.user)[0] if frappe.get_roles(frappe.session.user) else "Guest"
-			)
-			fiscal_event.save(ignore_permissions=True)
-
-		except Exception as e:
-			# ERROR: También loggear en Response Log
-			self._log_event_to_response_log(
-				f"error_{event_type}", {"error": str(e), "original_data": event_data}
-			)
-			frappe.log_error(f"Error creating fiscal event: {e!s}", "Fiscal Event Creation Error")
-
-	def _log_event_to_response_log(self, event_type, event_data):
-		"""Fallback: usar Response Log para eventos fiscales."""
-		try:
-			import json
-
-			from facturacion_mexico.facturacion_fiscal.api import write_pac_response
-
-			write_pac_response(
-				self.sales_invoice or self.name,
-				json.dumps({"event_type": event_type, "source": "fiscal_event_fallback"}),
-				json.dumps(event_data),
-				f"fiscal_event_{event_type}",
-				factura_fiscal_name=self.name,
-			)
-
-			frappe.logger().info(f"Fiscal event logged to Response Log: {event_type} for {self.name}")
-
-		except Exception as fallback_error:
-			frappe.log_error(
-				f"Error in fiscal event fallback: {fallback_error!s}\nOriginal event: {event_type}\nData: {event_data}",
-				"Fiscal Event Fallback Error",
-			)
 
 	def update_sales_invoice_fiscal_info(self):
 		"""Actualizar información fiscal en Sales Invoice."""
@@ -1035,23 +962,25 @@ class FacturaFiscalMexico(Document):
 				if not confirmation_exists:
 					new_status = "PENDIENTE_CANCELACION"
 
-			# Verificar si hay errores recientes
-			recent_error = frappe.db.get_value(
+			# ERROR fiscal SOLO desde un Timbrado realmente fallido. Es la misma regla canónica
+			# por operación que ya aplica api/__init__.py (solo "Timbrado" deriva ERROR fiscal;
+			# consulta, reconciliación y cancelación NO). Cualquier otro log success=0 —incluidos
+			# los eventos sintéticos "fiscal_event_*" y las consultas de estado— pertenece a
+			# fm_sync_status, no al estado fiscal, y NO debe marcar la FFM como ERROR.
+			failed_timbrado = frappe.db.get_value(
 				"FacturAPI Response Log",
 				{
 					"factura_fiscal_mexico": self.name,
+					"operation_type": "Timbrado",
 					"success": 0,
-					"timestamp": (
-						">",
-						frappe.utils.add_days(frappe.utils.now_datetime(), -1),
-					),  # Últimas 24 horas
 				},
-				["operation_type", "timestamp"],
+				"timestamp",
 				order_by="timestamp desc",
 			)
 
-			# Si hay error reciente y no hay éxito posterior, marcar como Error
-			if recent_error and not latest_log:
+			# Marcar ERROR solo si el último Timbrado falló y no hay timbrado/cancelación exitoso
+			# posterior (latest_log). Así un éxito posterior siempre prevalece sobre el ERROR.
+			if failed_timbrado and not latest_log:
 				new_status = "ERROR"
 
 			# Actualizar estado solo si cambió usando db_set (reconocido por semgrep)
