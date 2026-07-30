@@ -14,6 +14,7 @@
   "test_api_key",
   "section_facturas",
   "metodo_pago_default",
+  "cuenta_descuentos",
   "send_email_default",
   "column_break_facturas",
   "download_files_default",
@@ -97,6 +98,13 @@
    "fieldtype": "Select",
    "label": "Método de Pago por Defecto",
    "options": "PUE\nPPD"
+  },
+  {
+   "description": "Cuenta de ingresos para notas de crédito por descuento/bonificación (CFDI E, TipoRelación 01). El operador la asigna como income_account en las líneas de la Credit Note ANTES del Submit; la Factura Fiscal Mexico la usa para auto-detectar y validar el motivo 'Descuento / Bonificación'. Configuración por empresa — no se hardcodea.",
+   "fieldname": "cuenta_descuentos",
+   "fieldtype": "Link",
+   "label": "Cuenta de Descuentos y Bonificaciones",
+   "options": "Account"
   },
   {
    "default": "0",

@@ -1,78 +1,76 @@
 # CONTINUITY.md — facturacion_mexico
 
-**Fecha:** 2026-07-22
-**Rama activa:** `chore/release-v1.1.0`
-**Tarea actual:** Bump de versión interna del app `0.0.1` → `1.1.0` (fuente única: `facturacion_mexico/__init__.py`; `pyproject.toml` la deriva vía `flit` + `dynamic=["version"]`). PR #217 ya mergeado (`f1e47b3`). Tras mergear este PR de release: crear tag `v1.1.0` + GitHub Release con notas acumuladas desde `v1.0.0`.
+**Fecha:** 2026-07-30
+**Rama activa:** `feat/nota-credito-descuento-relacion-01`
+**Tarea actual:** Nota de Crédito por descuento/bonificación (CFDI E, TipoRelación 01). Feature completa y validada end-to-end en sandbox; commit hecho, **falta push + PR**.
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-Dos correcciones fiscales, cada una en su propio commit dentro de la **misma** rama:
-
-1. **FFM nace en ERROR** (`a08c65b`, ya commiteado): los eventos de ciclo de vida de la FFM se
-   escribían vía fallback como respuestas PAC fallidas (`success=0` → "Consulta Estado"/500), y
-   `calculate_fiscal_status_from_logs` marcaba `ERROR` ante cualquier `success=0`. Se retiró el
-   fallback (Capa 1) y se acotó la derivación de `ERROR` a un `Timbrado` fallido (Capa 2).
-
-2. **Moneda extranjera en el CFDI** (este commit): el payload a FacturAPI **no** declaraba
-   `currency` ni `exchange` → FacturAPI asumía MXN y una factura en USD quedaba bloqueada por
-   "Moneda Inconsistente". Se agregó `resolve_cfdi_currency_exchange` (deriva moneda/tipo de cambio
-   de la Sales Invoice: MXN → exchange 1; divisa → `conversion_rate`) y se cableó `currency`/
-   `exchange` en `_prepare_facturapi_data`. Los importes ya iban en moneda de transacción
-   (`net_rate`); no se tocaron precios ni impuestos.
+El flujo de Nota de Crédito por **descuento/bonificación** (distinto de devolución física). El operador ejecuta el botón **«Aplicar como Descuento / Bonificación»** en una Sales Invoice Return en borrador → se fija `income_account = cuenta de descuentos configurada por empresa` y `description = "Descuento - <descripción original>"` (conserva Item y ClaveProdServ del origen). Tras el Submit, la FFM detecta el descuento por la cuenta contable y deriva **E / 01 / G02 / PUE / 15 - Condonación**, con UUID relacionado desde `return_against`.
 
 Plan que estoy siguiendo:
-Fix mínimo por feature, commits separados en la misma rama. Se hizo explícita y fail-closed la
-suposición de **moneda base MXN** (emitir en divisa desde empresa con base ≠ MXN se bloquea:
-`conversion_rate` solo equivale a "pesos por unidad" con base MXN, y la app no lo garantiza).
+Issue #137 (TipoRelación 01) + ADR `docs/adr/0025-notas-credito-cfdi-tipo-e-issue116.md` (única fuente de la arquitectura y decisiones).
 
 Objetivo inmediato:
-Segundo commit (moneda) en la rama. Después: flujo normal paso a paso (push → PR → merge →
-`/sync-check`) con autorización explícita en cada paso. Al cierre: revisión de tags/releases y crear
-el release correspondiente.
+`/ship push` → `/ship pr` (base `main`), con autorización explícita en cada paso.
 
 Criterio de avance:
-Tests verdes (`test_cfdi_moneda_extranjera` 10/10, `test_ffm_nace_error_fiscal_event` 5/5,
-regresión `test_cancelacion_integridad` 37 / `test_e4_puente_si_pac` 17) + `ruff` + `mkdocs
---strict` limpios + validación GUI/sandbox (USD `FFMX-2026-00299`: `Moneda=USD`,
-`TipoCambio=17.3943`, subtotal/IVA/total en USD, `livemode=false`).
+Tests verdes (49 en `test_nota_credito_descuento_relacion_01` + regresión CFDI E 6 / complemento 24 / issue162 9) + ruff/prettier/mkdocs limpios. Experimento sandbox en sitio dev confirmó GL y XML correctos con `Enable Discount Accounting = OFF`.
 
 ---
 
 ## Estado actual
 
-### Ya cerrado (en esta rama)
+### Ya cerrado
+- Feature implementada (12 archivos) y **commiteada** en esta rama. Bump `1.1.0 → 1.2.0`.
+- Experimento end-to-end en sitio dev (sandbox): 2 ventas (lista / 10% abajo) + 2 NC de descuento, todos timbrados; GL y XML validados con Discount Accounting OFF.
+- ADR 0025 actualizado (arquitectura final + precondición Discount Accounting OFF).
 
-- **Commit `a08c65b`** — FFM nace en ERROR: retiro del fallback (`after_insert`, bloque
-  `create_fiscal_event` de `on_update`, métodos `create_fiscal_event` / `_log_event_to_response_log`)
-  + `calculate_fiscal_status_from_logs` deriva `ERROR` solo de `Timbrado` fallido. Test
-  `test_ffm_nace_error_fiscal_event` (5). Docs: arquitectura + troubleshooting.
-- **Commit moneda (este)** — `resolve_cfdi_currency_exchange` + cableo `currency`/`exchange` en el
-  payload + guard fail-closed de base MXN. Test `test_cfdi_moneda_extranjera` (10: helper + payload
-  real MXN/USD, guard base, verificación de no-uso de `base_net_rate`). Docs: arquitectura
-  (Moneda del CFDI) + troubleshooting (factura en divisa).
+### En progreso
+- Ninguna edición de código pendiente.
 
-### Siguiente paso concreto
+### Pendiente inmediato
+1. `/ship push` (con autorización).
+2. `/ship pr` hacia `main` (con autorización).
+3. Tras merge (lo hace el usuario): tag `v1.2.0` + Release.
 
-1. (Hecho) `/ship commit` del fix de moneda. **Sin push ni PR** hasta autorización.
-2. Flujo normal paso a paso: `/ship push` → `/ship pr` → (merge lo hace el usuario) → `/sync-check`.
-3. **Al cierre:** revisión de tags/releases y crear el release correspondiente.
-
-### Fuera de este trabajo (sin commitear)
-
-- `one_offs/verificar_payload_moneda.py` — verificador de payload solo-lectura (queda fuera del commit).
-- Issues abiertos aparte: #215 (guards de ambiente FacturAPI multi-capa), #216 (validación fiscal
-  temprana ObjetoImp=02 sin impuestos en Sales Invoice).
+### No repetir
+- **NO** usar `discount_account` nativo para la NC de descuento: invierte e infla el asiento ("descuento del 90%"). La solución es `Enable Discount Accounting = OFF` por empresa (config, no código).
+- **NO** cambiar `item_code` a un Item "Descuento" (ERPNext `validate_returned_items` lo rechaza en returns con `return_against`).
+- **NO** alinear `price_list_rate = rate` en la acción (se intentó y descartó; el usuario lo revirtió).
+- **NO** commitear `one_offs/` ni `working_docs/`.
 
 ---
 
-## Decisiones vigentes no reflejadas en código
+## Decisiones vigentes
+- **Precondición por empresa:** `Selling Settings.Enable Discount Accounting = OFF` para operar NC de descuento (documentado en ADR 0025). No es regla universal del app.
+- El descuento queda integrado en el `ValorUnitario` del CFDI (payload usa `net_rate`, `discount=0`); **nunca** se emite nodo `Descuento` en el XML.
+- Cuenta de descuentos: config por empresa en `Facturacion Mexico Company Settings.cuenta_descuentos` (no hardcode; se aplica como `income_account`).
+- Devolución física conserva comportamiento histórico (TipoRelación 03).
 
-- **`fm_sync_status` / `fm_sync_error`:** capa distinta con su propia derivación; no se tocan.
-- **Moneda base MXN:** la app no la garantiza (solo la recomienda en `install.py`). Emitir CFDI en
-  divisa exige base MXN; en caso contrario se bloquea. La FFM no guarda copia de moneda/tipo de
-  cambio: siempre se derivan de la Sales Invoice.
-- **Config FacturAPI de `llantascs-v16.dev`:** saneada a sandbox (`sandbox_mode=1`, `sk_live` borrada;
-  el usuario cargó la `sk_test`). Prevención universal en issue #215.
+---
+
+## Archivos relevantes ahora
+
+### Leer primero
+- `docs/adr/0025-notas-credito-cfdi-tipo-e-issue116.md`
+
+### Probablemente editar
+- (ninguno; feature cerrada salvo hallazgos en review/CI)
+
+### No tocar
+- `facturacion_fiscal/timbrado_api.py` fórmula del REP (`allocated_amount / si.grand_total`).
+
+---
+
+## Riesgos / cuidados
+- El sitio dev de prueba tiene el setting `Enable Discount Accounting = OFF` (dejado así como solución). Documentos de prueba conservados para auditoría.
+- Al abrir PR: el gate documental mapea `public/js` → `docs/usuario`; se acordó que ADR 0025 cubre el flujo (no se creó página de usuario).
+
+---
+
+## Información faltante
+- Confirmación del contador/ChatGPT sobre el cierre fiscal del escenario (pendiente formal, no bloquea el commit).

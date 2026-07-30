@@ -21,6 +21,20 @@ MUTABLE_AFTER_SUBMIT = {
 # Estados en los que el CFDI ya no debe alterarse
 FISCAL_FROZEN_STATES = {"TIMBRADO", "CANCELADO", "PENDIENTE_CANCELACION"}
 
+# Tipo de Nota de Crédito (intención de negocio en Factura Fiscal Mexico.fm_tipo_nota_credito).
+# Determina el tratamiento fiscal del CFDI de Egreso:
+#   - Devolución de mercancía  → TipoRelación 03 (comportamiento histórico, sin regresión)
+#   - Descuento / Bonificación → TipoRelación 01 + UsoCFDI G02 + FormaPago 15 (Condonación)
+# Vacío se trata como Devolución de mercancía para preservar el comportamiento actual.
+NOTA_CREDITO_DEVOLUCION = "Devolución de mercancía"
+NOTA_CREDITO_DESCUENTO = "Descuento / Bonificación"
+# UsoCFDI fijo para notas de crédito por descuento/bonificación (criterio SAT: G02).
+CFDI_USE_DESCUENTO = "G02"
+# FormaPago fija para el CFDI E de descuento: 15 - Condonación.
+# Criterio fiscal confirmado por el contador (Issue #136): el CFDI E documenta exclusivamente
+# la extinción del importe no cobrado; el efectivo recibido se documenta aparte en el REP.
+FORMA_PAGO_DESCUENTO = "15 Condonación"
+
 # Estados de sincronización permitidos (minúsculas)
 ALLOWED_SYNC = {"synced", "pending", "error"}
 
@@ -300,6 +314,37 @@ class FacturaFiscalMexico(Document):
 		sales_invoice = frappe.get_doc("Sales Invoice", self.sales_invoice)
 		return bool(getattr(sales_invoice, "is_return", 0))
 
+	def _is_nota_descuento(self) -> bool:
+		"""Determinar si la nota de crédito es por descuento/bonificación (no devolución física).
+
+		La intención de negocio se captura en el campo fm_tipo_nota_credito de la FFM.
+		Vacío o 'Devolución de mercancía' → False (devolución física, comportamiento actual).
+		"""
+		return (self.get("fm_tipo_nota_credito") or "").strip() == NOTA_CREDITO_DESCUENTO
+
+	def _detect_nota_credito_motivo(self):
+		"""Opción X: preseleccionar el motivo a partir de la cuenta contable de la Credit Note.
+
+		Si la nota de crédito ya se contabilizó (income_account de sus líneas) contra la cuenta
+		de descuentos configurada para la empresa, preseleccionar 'Descuento / Bonificación'.
+
+		Solo actúa cuando el campo está VACÍO (preselección, no override de una elección explícita
+		del usuario). Si las cuentas no coinciden, NO infiere descuento y se conserva el
+		comportamiento histórico de devolución (relación 03) — punto 8 de la decisión.
+		"""
+		if (self.get("fm_tipo_nota_credito") or "").strip():
+			return  # ya decidido (usuario o preselección previa) — no sobrescribir
+
+		from facturacion_mexico.facturacion_fiscal.utils import (
+			credit_note_lines_use_discount_account,
+			get_cuenta_descuentos,
+		)
+
+		company = self.get("company") or frappe.db.get_value("Sales Invoice", self.sales_invoice, "company")
+		cuenta = get_cuenta_descuentos(company)
+		if cuenta and credit_note_lines_use_discount_account(self.sales_invoice, cuenta):
+			self.fm_tipo_nota_credito = NOTA_CREDITO_DESCUENTO
+
 	def _set_tipo_from_context(self):
 		"""Establecer tipo automáticamente según contexto."""
 		if self._is_sales_invoice_return():
@@ -307,13 +352,28 @@ class FacturaFiscalMexico(Document):
 			self.fm_payment_method_sat = "PUE"  # SAT: PPD not allowed on credit notes
 			self.fm_uuid_relacionado = self.fm_uuid_relacionado or self._find_uuid_cfdi_origen()
 
-			# Physical merchandise return → TipoRelación 03 (normative, Issue #116).
-			# TipoRelación 01 (discounts/bonifications) is a separate flow — Issue #137.
-			self.fm_tipo_relacion_sat = self.fm_tipo_relacion_sat or "03 - " + TIPO_RELACION["03"]
+			# Opción X: preseleccionar el motivo desde la cuenta contable si el operador ya
+			# asignó la cuenta de descuentos configurada en las líneas antes del Submit.
+			self._detect_nota_credito_motivo()
+
+			if self._is_nota_descuento():
+				# Descuento / bonificación (Issue #137): el usuario selecciona la intención de
+				# negocio en fm_tipo_nota_credito y aquí se derivan los códigos SAT.
+				#   TipoRelación 01 · UsoCFDI G02 · FormaPago 15 (Condonación) · MetodoPago PUE.
+				# El concepto fiscal se describe como 'Descuento' en el payload (timbrado_api),
+				# conservando Item/ClaveProdServ e impuestos proporcionales.
+				self.fm_tipo_relacion_sat = "01 - " + TIPO_RELACION["01"]
+				self.fm_cfdi_use = CFDI_USE_DESCUENTO
+				self.fm_forma_pago_timbrado = FORMA_PAGO_DESCUENTO
+			else:
+				# Devolución física de mercancía → TipoRelación 03 (normativo, Issue #116).
+				# Sin regresión: comportamiento histórico intacto.
+				self.fm_tipo_relacion_sat = self.fm_tipo_relacion_sat or "03 - " + TIPO_RELACION["03"]
 
 			# Inherit venta-mostrador flag from origin — no customization allowed.
-			# FormaPago for tipo E is determined in auto_load_payment_method_from_sales_invoice()
-			# based on outstanding_amount of origin SI (single source of truth).
+			# FormaPago for tipo E (devolución física) is determined in
+			# auto_load_payment_method_from_sales_invoice() based on outstanding_amount of
+			# origin SI. Para descuento la FormaPago ya quedó fijada arriba (15 - Condonación).
 			origin_ffm = self._get_origin_ffm()
 			if origin_ffm:
 				self.fm_facturar_venta_mostrador = cint(origin_ffm.get("fm_facturar_venta_mostrador", 0))
