@@ -51,6 +51,7 @@ doctype_js = {
 		"public/js/si_ereceipt_summary.js",
 		"public/js/sales_invoice_block_cancel.js",
 		"public/js/si_post_fiscal_actions.js",
+		"public/js/si_nota_credito_descuento.js",
 	],
 	"Customer": ["public/js/customer.js"],
 	"Payment Entry": ["public/js/payment_entry.js"],

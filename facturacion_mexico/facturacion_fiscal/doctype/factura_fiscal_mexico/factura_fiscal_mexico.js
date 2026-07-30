@@ -1270,6 +1270,15 @@
 		lock("fm_facturar_venta_mostrador");
 		lock("fm_tipo_relacion_sat");
 		lock("fm_uuid_relacionado");
+		// Tipo de Nota de Crédito: es la ÚNICA entrada del usuario (intención de negocio).
+		// Editable mientras es borrador; se bloquea una vez enviado/timbrado.
+		if (frm.get_field("fm_tipo_nota_credito")) {
+			frm.set_df_property(
+				"fm_tipo_nota_credito",
+				"read_only",
+				frm.doc.docstatus === 1 ? 1 : 0
+			);
+		}
 	}
 
 	function setup_payment_method_radio_buttons(frm) {

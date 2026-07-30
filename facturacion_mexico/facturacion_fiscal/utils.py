@@ -8,6 +8,80 @@ import frappe
 from facturacion_mexico.config.fiscal_states_config import FiscalStates
 
 
+def get_cuenta_descuentos(company):
+	"""Cuenta de ingresos configurada para descuentos/bonificaciones de una empresa.
+
+	Se lee de Facturacion Mexico Company Settings.cuenta_descuentos (config por empresa,
+	sin hardcode). Devuelve None si no hay empresa o no está configurada.
+	"""
+	if not company:
+		return None
+	return (
+		frappe.db.get_value("Facturacion Mexico Company Settings", {"company": company}, "cuenta_descuentos")
+		or None
+	)
+
+
+def credit_note_lines_use_discount_account(sales_invoice, cuenta_descuentos) -> bool:
+	"""True si TODAS las líneas de ítem de la nota de crédito están contabilizadas contra
+	la cuenta de descuentos configurada (income_account por línea).
+
+	Señal de la Opción X: la intención de descuento se expresa nativamente al asignar
+	income_account = cuenta configurada ANTES del Submit. Requiere cuenta configurada y ≥1 línea.
+	Si alguna línea usa otra cuenta, retorna False (no inferir descuento — punto 8).
+	"""
+	if not cuenta_descuentos:
+		return False
+	doc = sales_invoice if hasattr(sales_invoice, "items") else frappe.get_doc("Sales Invoice", sales_invoice)
+	items = doc.get("items") or []
+	if not items:
+		return False
+	return all((row.get("income_account") == cuenta_descuentos) for row in items)
+
+
+# Prefijo de descripción fiscal de una nota de crédito por descuento/bonificación.
+DESCRIPCION_DESCUENTO = "Descuento"
+
+
+def build_descuento_description(origen_desc) -> str:
+	"""Descripción fiscal de una línea de descuento: 'Descuento - <descripción de la partida origen>'.
+
+	Criterio del contador: no usar la descripción genérica 'Descuento' cuando exista una partida
+	origen identificable. Si no hay descripción origen → 'Descuento'. Idempotente: si el texto ya
+	empieza con 'Descuento' no vuelve a prefijar (evita 'Descuento - Descuento - ...').
+	"""
+	origen = (origen_desc or "").strip()
+	if not origen:
+		return DESCRIPCION_DESCUENTO
+	if origen.lower().startswith(DESCRIPCION_DESCUENTO.lower()):
+		return origen
+	return f"{DESCRIPCION_DESCUENTO} - {origen}"
+
+
+def apply_descuento_to_lines(doc, cuenta_descuentos) -> int:
+	"""Preparar TODAS las líneas de la nota como descuento/bonificación, SIN cambiar el Item.
+
+	ERPNext exige que el `item_code` de una nota de crédito con `return_against` exista en la factura
+	origen (validación core `validate_returned_items`); por eso se **conserva el Item original** y el
+	descuento se expresa por descripción + cuenta contable. Por cada línea:
+	  - `description`     = 'Descuento - <descripción original>' (idempotente);
+	  - `income_account`  = cuenta de descuentos configurada por empresa.
+
+	Se conservan `item_code`, cantidad, precio, UOM e impuestos. La ClaveProdServ SAT
+	del CFDI se obtiene normalmente del Item/línea original (item_code intacto). Devuelve el número de
+	líneas afectadas. No guarda el documento (lo hace el llamador).
+	"""
+	n = 0
+	for row in doc.get("items") or []:
+		# Fuente de la descripción origen: description de la línea o, si está vacía, item_name
+		# (mismo fallback que usa el flujo normal en resolve_concepto_description). ERPNext deja
+		# description vacío cuando el Item maestro no tiene description, pero item_name sí se llena.
+		row.description = build_descuento_description(row.get("description") or row.get("item_name"))
+		row.income_account = cuenta_descuentos
+		n += 1
+	return n
+
+
 def get_invoice_uuid(sales_invoice_name):
 	"""
 	Obtener UUID fiscal desde Factura Fiscal Mexico vía referencia.

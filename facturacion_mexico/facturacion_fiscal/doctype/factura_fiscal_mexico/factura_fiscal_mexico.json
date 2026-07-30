@@ -20,6 +20,7 @@
   "fm_payment_method_sat",
   "fm_forma_pago_timbrado",
   "fm_tipo_comprobante",
+  "fm_tipo_nota_credito",
   "fm_tipo_relacion_sat",
   "fm_uuid_relacionado",
   "section_break_datos_facturacion",
@@ -155,6 +156,14 @@
    "default": "I - Ingreso",
    "reqd": 1,
    "read_only": 1
+  },
+  {
+   "fieldname": "fm_tipo_nota_credito",
+   "label": "Tipo de Nota de Crédito",
+   "fieldtype": "Select",
+   "options": "\nDevolución de mercancía\nDescuento / Bonificación",
+   "depends_on": "eval:doc.fm_tipo_comprobante && doc.fm_tipo_comprobante.startsWith('E')",
+   "description": "Intención de negocio de la nota de crédito. 'Descuento / Bonificación' deriva automáticamente TipoRelación 01, UsoCFDI G02 y FormaPago 15 - Condonación. Vacío o 'Devolución de mercancía' mantiene TipoRelación 03 (devolución física)."
   },
   {
    "fieldname": "fm_tipo_relacion_sat",

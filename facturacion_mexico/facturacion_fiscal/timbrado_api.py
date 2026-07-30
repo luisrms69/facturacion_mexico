@@ -75,6 +75,32 @@ def resolve_cfdi_currency_exchange(sales_invoice):
 	return currency, rate
 
 
+def is_nota_descuento(factura_fiscal) -> bool:
+	"""True si la Factura Fiscal Mexico es una nota de crédito por descuento/bonificación.
+
+	Se determina por el CFDI de Egreso (E) con TipoRelación 01. La intención de negocio
+	la fija el usuario en fm_tipo_nota_credito y el controlador la traduce a TipoRelación 01.
+	"""
+	tipo = (factura_fiscal.get("fm_tipo_comprobante") or "").strip()
+	rel = (factura_fiscal.get("fm_tipo_relacion_sat") or "").split(" - ")[0].strip()
+	return tipo.startswith("E") and rel == "01"
+
+
+def resolve_concepto_description(item, es_nota_descuento: bool) -> str:
+	"""Descripción fiscal del concepto para el payload del PAC.
+
+	Nota de crédito por descuento/bonificación → 'Descuento - <descripción de la partida origen>'
+	(criterio del contador; sin partida identificable → 'Descuento'). La acción ya deja esa
+	descripción en la línea; aquí se reafirma como defensa e idempotente. En cualquier otro caso,
+	la descripción o el nombre del ítem, como hasta ahora.
+	"""
+	if es_nota_descuento:
+		from facturacion_mexico.facturacion_fiscal.utils import build_descuento_description
+
+		return build_descuento_description(item.description or item.item_name)
+	return item.description or item.item_name
+
+
 def _log_text(label, s: str):
 	if s is None:
 		s = ""
@@ -716,6 +742,38 @@ class TimbradoAPI:
 		if fiscal_doc and not fiscal_doc.get("fm_cfdi_use"):
 			frappe.throw(_("Se requiere configurar Uso de CFDI en los datos fiscales"))
 
+		# Guard Opción X: una NC marcada como 'Descuento / Bonificación' (TipoRelación 01) DEBE
+		# estar contabilizada contra la cuenta de descuentos configurada de la empresa. El GL se
+		# asienta en el Submit de la Credit Note; no se corrige después. Si no coincide, bloquear.
+		if fiscal_doc and is_nota_descuento(fiscal_doc):
+			from facturacion_mexico.facturacion_fiscal.utils import (
+				credit_note_lines_use_discount_account,
+				get_cuenta_descuentos,
+			)
+
+			company = sales_invoice.get("company")
+			cuenta = get_cuenta_descuentos(company)
+			if not cuenta:
+				frappe.throw(
+					_(
+						"No hay 'Cuenta de Descuentos y Bonificaciones' configurada en "
+						"Facturacion Mexico Company Settings para la empresa {0}. "
+						"Configúrela antes de timbrar la nota de crédito por descuento."
+					).format(company),
+					title=_("Cuenta de Descuentos No Configurada"),
+				)
+			if not credit_note_lines_use_discount_account(sales_invoice, cuenta):
+				frappe.throw(
+					_(
+						"La nota de crédito está marcada como 'Descuento / Bonificación' pero sus "
+						"líneas no están contabilizadas contra la cuenta configurada ({0}). "
+						"Corrija la cuenta de ingresos (income_account) de las líneas ANTES del Submit; "
+						"el asiento contable no se corrige después. Si la nota ya fue enviada, "
+						"cancélela y vuelva a crearla con la cuenta correcta."
+					).format(cuenta),
+					title=_("Contabilización Inconsistente con Descuento"),
+				)
+
 		# Verificar que tenga items
 		if not sales_invoice.items:
 			frappe.throw(_("La factura debe tener al menos un item"))
@@ -808,13 +866,19 @@ class TimbradoAPI:
 			"zip": primary_address.get("pincode") or "",
 		}
 
+		# Nota de crédito por descuento/bonificación (TipoRelación 01): el concepto fiscal se
+		# describe como "Descuento", conservando el Item original (item_code), su ClaveProdServ SAT
+		# (fm_producto_servicio_sat) y los impuestos proporcionales. Solo cambia la descripción.
+		es_nota_descuento = is_nota_descuento(factura_fiscal)
+
 		# Items de la factura - E4-RO: Puente SI → Payload PAC
 		items = []
 		for item in sales_invoice.items:
 			item_doc = frappe.get_doc("Item", item.item_code)
 
 			# Defensa final contra ausencia de clave SAT — no debe llegar aquí
-			# si _validate_invoice_for_timbrado corrió primero.
+			# si _validate_invoice_for_timbrado corrió primero. El Item original se conserva
+			# (también en notas de crédito por descuento), así que la ClaveProdServ sale del Item.
 			if not item_doc.fm_producto_servicio_sat:
 				frappe.throw(
 					_("Ítem '{0}': sin Clave SAT Producto/Servicio.").format(item_doc.name),
@@ -957,7 +1021,9 @@ class TimbradoAPI:
 			item_payload = {
 				"quantity": abs(item.qty),  # SIs de devolución tienen qty negativa por diseño ERPNext
 				"product": {
-					"description": item.description or item.item_name,
+					# TipoRelación 01: descripción 'Descuento - <origen>'; la ClaveProdServ es la del
+					# Item original (se conserva el item_code, no hay Item 'Descuento').
+					"description": resolve_concepto_description(item, es_nota_descuento),
 					"product_key": item_doc.fm_producto_servicio_sat,
 					# Usar net_rate (precio sin impuesto) para el CFDI.
 					# Cuando included_in_print_rate=0: net_rate == rate (sin cambio).
