@@ -4,9 +4,13 @@
 **Estado:** Implementado — #137 implementado (2026-07-29); #136 resuelto para descuento con pago previo
 **Autor:** Luis Montanaro / Claude Sonnet 4.6
 
-> **Actualización 2026-07-29:** Ver sección final *«Descuento / Bonificación (TipoRelación 01)»*.
+> **Actualización 2026-07-29:** Ver sección *«Descuento / Bonificación (TipoRelación 01)»*.
 > Se implementó el flujo de nota de crédito por descuento (Issue #137) y se cerró el criterio de
 > FormaPago del escenario de descuento con pago previo (Issue #136).
+>
+> **Actualización 2026-07-30:** Ver sección *«Robustez operativa descuento ⇄ devolución en SI
+> Return»*: inventario, guard de Discount Accounting y reversión determinista (puntos 1–3). Los
+> puntos 4–5 (FFM: `fm_tipo_nota_credito` derivado, visibilidad/textos) quedan para rama/PR aparte.
 
 ---
 
@@ -205,9 +209,10 @@ El motivo de la nota se **decide antes del Submit** mediante la cuenta contable 
   `return_against`) el operador ejecuta el botón **«Aplicar como Descuento / Bonificación»**
   (`facturacion_mexico.facturacion_fiscal.api.nota_credito.aplicar_como_descuento`). Server-side aplica
   lo anterior y guarda; el documento muestra ya `Descuento - <origen>` antes del Submit. Guards del
-  servidor: es Return, en borrador, `return_against` presente, cuenta de descuentos configurada. El
-  operador **no** selecciona Item, cuenta ni códigos SAT. Si **no** ejecuta la acción, la nota conserva
-  sus cuentas normales → devolución física (relación 03).
+  servidor: es Return, en borrador, `return_against` presente, `Enable Discount Accounting = OFF` en
+  Selling Settings, y cuenta de descuentos configurada. El operador **no** selecciona Item, cuenta ni
+  códigos SAT. Si **no** ejecuta la acción, la nota conserva sus cuentas normales → devolución física
+  (relación 03).
 - **Al crearse la FFM** (mismo `on_submit` de siempre): `_detect_nota_credito_motivo()` detecta si
   **todas** las líneas están contabilizadas contra `cuenta_descuentos` y, de ser así, **preselecciona**
   `fm_tipo_nota_credito = Descuento / Bonificación` (solo si el campo está vacío). La señal es la
@@ -254,8 +259,9 @@ importe de la Nota de Crédito **no** se trata como efectivo en el REP. Se desca
 
 ### Enable Discount Accounting — precondición operativa por sitio (no regla universal)
 
-**Precondición operativa para empresas/sitios que usen este flujo de descuento:**
-**`Selling Settings.Enable Discount Accounting = OFF`** en la empresa.
+**Precondición operativa para los sitios que usen este flujo de descuento:**
+**`Selling Settings.Enable Discount Accounting = OFF`** — es un setting **a nivel de sitio**
+(*Selling Settings* es un Single global de ERPNext), **no** una configuración por empresa.
 
 - Con `ON`, ERPNext exige `discount_account` por línea cuando `discount_amount > 0`, y su
   `make_discount_gl_entries` postea `discount_amount × qty` a `discount_account`. En una **nota de
@@ -266,9 +272,10 @@ importe de la Nota de Crédito **no** se trata como efectivo en el REP. Se desca
 - Con `OFF`, la NC contabiliza correctamente: `income_account` (cuenta de descuentos) **debitado** por
   la base real, IVA revertido proporcionalmente, Clientes acreditado por el total. La venta normal no
   se altera y el CFDI/XML tampoco (el payload usa `net_rate`; nunca emite nodo `Descuento`).
-- **No** es una regla universal de `facturacion_mexico`: es una **configuración por empresa** que se
-  adopta si se van a operar notas de crédito por descuento. Empresas que **no** usen descuento de línea
-  (`rate = price_list_rate` siempre) no pierden funcionalidad al apagarlo.
+- **No** es una regla universal de `facturacion_mexico`: es una **configuración a nivel de sitio**
+  (*Selling Settings*, un Single global) que se adopta si en ese sitio se van a operar notas de crédito
+  por descuento. Los sitios donde **no** se usa descuento de línea (`rate = price_list_rate` siempre)
+  no pierden funcionalidad al apagarlo.
 - Evidencia: experimento end-to-end en un sitio de desarrollo (sandbox) con 4 CFDIs — 2 ventas
   (a precio de lista / 10% abajo) y 2 notas de crédito de descuento (TipoRelación 01), GL y XML
   validados con `Enable Discount Accounting = OFF`.
@@ -279,6 +286,66 @@ importe de la Nota de Crédito **no** se trata como efectivo en el REP. Se desca
 - **Issue #136:** el escenario de descuento con pago previo queda **resuelto** con `FormaPago 15`. Si
   el issue conserva otros escenarios de FormaPago tipo E (p. ej. escenario D: `outstanding=0` que
   hereda `99`), **permanece abierto** para esos; este caso se marca resuelto.
+
+---
+
+## Robustez operativa descuento ⇄ devolución en SI Return (2026-07-30)
+
+Endurecimiento del flujo tras validación GUI en producción. Los cambios se acotan a la **Sales
+Invoice Return en borrador** y a la acción de negocio; **no** se toca la derivación de códigos SAT ni
+el timbrado.
+
+### Implementado (puntos 1–3)
+
+1. **Inventario en descuento.** Al «Aplicar como Descuento / Bonificación», la acción fuerza
+   `update_stock = 0` (un descuento no es devolución física → no mueve inventario). Es **reversible**:
+   el valor correcto de una devolución es `return_against.update_stock`, y la acción inversa lo
+   restaura desde el origen (determinista, 0 o 1). Antes la NC podía heredar `update_stock = 1` del
+   origen y afectar inventario.
+
+2. **Guard de Enable Discount Accounting.** La conversión a descuento **se bloquea antes de modificar
+   la nota** si `Selling Settings.Enable Discount Accounting = ON`, con mensaje claro. **No** se apaga
+   el setting global automáticamente (afectaría otros procesos): la precondición documentada arriba
+   pasa de "manual" a **protegida por guard** en la acción (`preparar_como_descuento`). El mecanismo
+   sigue usando `cuenta_descuentos` como `income_account`; nunca `discount_account`.
+
+3. **Reversión determinista descuento ⇄ devolución (solo SI Return en Draft).**
+   - Botón **«Revertir a Devolución de mercancía»**, simétrico a «Aplicar como Descuento».
+   - Restaura **exacto desde el origen**: por cada línea usa el vínculo nativo `sales_invoice_item`
+     (poblado por `make_return_doc`) para leer su renglón en `return_against` y restaurar
+     `income_account` y `description`; restaura `update_stock` desde `return_against.update_stock`.
+   - **Fail-closed:** si alguna línea no tiene vínculo con su renglón de origen (o no se encuentra),
+     **bloquea sin modificar** la nota y lista las líneas afectadas — no adivina cuentas contables.
+   - **Ninguna acción disponible tras el Submit** (ambas exigen `docstatus = 0`).
+   - La UX elige qué botón mostrar según el **estado contable real** (`income_account ==
+     cuenta_descuentos`), no según la descripción (editable).
+
+**La reversión vive exclusivamente en la SI Return en borrador. La FFM no participa en la reversión.**
+
+### Pendiente — rama/PR independiente (puntos 4–5)
+
+No se implementan en esta rama:
+
+- **`fm_tipo_nota_credito` como dato derivado/no editable en FFM.** Hoy es editable en borrador pero su
+  cambio manual no re-deriva de forma simétrica los códigos SAT (la rama devolución conserva valores
+  del descuento por el `or` y por no resetear `fm_cfdi_use`/`fm_forma_pago_timbrado`) → «parece
+  editable pero no hace nada». Propuesta: derivarlo autoritativamente desde el estado contable y
+  volverlo read-only permanente. **No** hay caso legítimo de cambio manual en FFM (la intención se
+  decide y revierte en la SI Return).
+- **Visibilidad / textos de campos FFM** (`fm_tipo_nota_credito`, `fm_tipo_relacion_sat`,
+  `fm_uuid_relacionado`): sin bug de visibilidad activo (solo aparecen en tipo E); pendiente acortar el
+  `description` largo de `fm_tipo_nota_credito` (UX) y evaluar gating por existencia real de UUID.
+- **UsoCFDI en devolución:** hoy no se fuerza a `G02` (queda al default del cliente); confirmar con el
+  contador si debe ser `G02` como en descuento.
+
+### Propuesta futura — bandera explícita en la SI Return como fuente de verdad
+
+Sustituir la **inferencia por cuenta contable** (`income_account == cuenta_descuentos`) por una
+**bandera explícita en la Sales Invoice Return** (p. ej. un campo booleano/estado «modo descuento»)
+que registre la intención de forma inequívoca. Motivos: (a) evita falsos positivos si una devolución
+legítima usara la misma cuenta; (b) define comportamiento claro si unas líneas están en la cuenta de
+descuentos y otras no; (c) da a la FFM una fuente de verdad estable en lugar de inferir. **No se
+implementa aquí** — queda para la rama/PR de los puntos 4–5.
 
 ---
 
