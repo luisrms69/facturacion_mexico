@@ -1666,6 +1666,48 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#robustez-operativa-descuento-devolucion-en-si-return-2026-07-30" class="md-nav__link">
+    <span class="md-ellipsis">
+      Robustez operativa descuento ⇄ devolución en SI Return (2026-07-30)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Robustez operativa descuento ⇄ devolución en SI Return (2026-07-30)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#implementado-puntos-13" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementado (puntos 1–3)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pendiente-ramapr-independiente-puntos-45" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pendiente — rama/PR independiente (puntos 4–5)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#propuesta-futura-bandera-explicita-en-la-si-return-como-fuente-de-verdad" class="md-nav__link">
+    <span class="md-ellipsis">
+      Propuesta futura — bandera explícita en la SI Return como fuente de verdad
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#referencias" class="md-nav__link">
     <span class="md-ellipsis">
       Referencias
@@ -2362,6 +2404,48 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#robustez-operativa-descuento-devolucion-en-si-return-2026-07-30" class="md-nav__link">
+    <span class="md-ellipsis">
+      Robustez operativa descuento ⇄ devolución en SI Return (2026-07-30)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Robustez operativa descuento ⇄ devolución en SI Return (2026-07-30)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#implementado-puntos-13" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementado (puntos 1–3)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pendiente-ramapr-independiente-puntos-45" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pendiente — rama/PR independiente (puntos 4–5)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#propuesta-futura-bandera-explicita-en-la-si-return-como-fuente-de-verdad" class="md-nav__link">
+    <span class="md-ellipsis">
+      Propuesta futura — bandera explícita en la SI Return como fuente de verdad
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#referencias" class="md-nav__link">
     <span class="md-ellipsis">
       Referencias
@@ -2390,9 +2474,12 @@
 <strong>Estado:</strong> Implementado — #137 implementado (2026-07-29); #136 resuelto para descuento con pago previo
 <strong>Autor:</strong> Luis Montanaro / Claude Sonnet 4.6</p>
 <blockquote>
-<p><strong>Actualización 2026-07-29:</strong> Ver sección final <em>«Descuento / Bonificación (TipoRelación 01)»</em>.
+<p><strong>Actualización 2026-07-29:</strong> Ver sección <em>«Descuento / Bonificación (TipoRelación 01)»</em>.
 Se implementó el flujo de nota de crédito por descuento (Issue #137) y se cerró el criterio de
 FormaPago del escenario de descuento con pago previo (Issue #136).</p>
+<p><strong>Actualización 2026-07-30:</strong> Ver sección <em>«Robustez operativa descuento ⇄ devolución en SI
+Return»</em>: inventario, guard de Discount Accounting y reversión determinista (puntos 1–3). Los
+puntos 4–5 (FFM: <code>fm_tipo_nota_credito</code> derivado, visibilidad/textos) quedan para rama/PR aparte.</p>
 </blockquote>
 <hr />
 <h2 id="contexto">Contexto<a class="headerlink" href="#contexto" title="Permanent link">&para;</a></h2>
@@ -2659,9 +2746,10 @@ La distinción entre ambos casos queda <strong>explícita</strong> y sin habilit
   <code>return_against</code>) el operador ejecuta el botón <strong>«Aplicar como Descuento / Bonificación»</strong>
   (<code>facturacion_mexico.facturacion_fiscal.api.nota_credito.aplicar_como_descuento</code>). Server-side aplica
   lo anterior y guarda; el documento muestra ya <code>Descuento - &lt;origen&gt;</code> antes del Submit. Guards del
-  servidor: es Return, en borrador, <code>return_against</code> presente, cuenta de descuentos configurada. El
-  operador <strong>no</strong> selecciona Item, cuenta ni códigos SAT. Si <strong>no</strong> ejecuta la acción, la nota conserva
-  sus cuentas normales → devolución física (relación 03).</li>
+  servidor: es Return, en borrador, <code>return_against</code> presente, <code>Enable Discount Accounting = OFF</code> en
+  Selling Settings, y cuenta de descuentos configurada. El operador <strong>no</strong> selecciona Item, cuenta ni
+  códigos SAT. Si <strong>no</strong> ejecuta la acción, la nota conserva sus cuentas normales → devolución física
+  (relación 03).</li>
 <li><strong>Al crearse la FFM</strong> (mismo <code>on_submit</code> de siempre): <code>_detect_nota_credito_motivo()</code> detecta si
   <strong>todas</strong> las líneas están contabilizadas contra <code>cuenta_descuentos</code> y, de ser así, <strong>preselecciona</strong>
   <code>fm_tipo_nota_credito = Descuento / Bonificación</code> (solo si el campo está vacío). La señal es la
@@ -2703,8 +2791,9 @@ provisional para este caso.</p>
 <p>Sin cambios: <code>proporcion = allocated_amount / si.grand_total</code> (grand_total <strong>original</strong> del CFDI). El
 importe de la Nota de Crédito <strong>no</strong> se trata como efectivo en el REP. Se descarta el gap G-4.</p>
 <h3 id="enable-discount-accounting-precondicion-operativa-por-sitio-no-regla-universal">Enable Discount Accounting — precondición operativa por sitio (no regla universal)<a class="headerlink" href="#enable-discount-accounting-precondicion-operativa-por-sitio-no-regla-universal" title="Permanent link">&para;</a></h3>
-<p><strong>Precondición operativa para empresas/sitios que usen este flujo de descuento:</strong>
-<strong><code>Selling Settings.Enable Discount Accounting = OFF</code></strong> en la empresa.</p>
+<p><strong>Precondición operativa para los sitios que usen este flujo de descuento:</strong>
+<strong><code>Selling Settings.Enable Discount Accounting = OFF</code></strong> — es un setting <strong>a nivel de sitio</strong>
+(<em>Selling Settings</em> es un Single global de ERPNext), <strong>no</strong> una configuración por empresa.</p>
 <ul>
 <li>Con <code>ON</code>, ERPNext exige <code>discount_account</code> por línea cuando <code>discount_amount &gt; 0</code>, y su
   <code>make_discount_gl_entries</code> postea <code>discount_amount × qty</code> a <code>discount_account</code>. En una <strong>nota de
@@ -2715,9 +2804,10 @@ importe de la Nota de Crédito <strong>no</strong> se trata como efectivo en el 
 <li>Con <code>OFF</code>, la NC contabiliza correctamente: <code>income_account</code> (cuenta de descuentos) <strong>debitado</strong> por
   la base real, IVA revertido proporcionalmente, Clientes acreditado por el total. La venta normal no
   se altera y el CFDI/XML tampoco (el payload usa <code>net_rate</code>; nunca emite nodo <code>Descuento</code>).</li>
-<li><strong>No</strong> es una regla universal de <code>facturacion_mexico</code>: es una <strong>configuración por empresa</strong> que se
-  adopta si se van a operar notas de crédito por descuento. Empresas que <strong>no</strong> usen descuento de línea
-  (<code>rate = price_list_rate</code> siempre) no pierden funcionalidad al apagarlo.</li>
+<li><strong>No</strong> es una regla universal de <code>facturacion_mexico</code>: es una <strong>configuración a nivel de sitio</strong>
+  (<em>Selling Settings</em>, un Single global) que se adopta si en ese sitio se van a operar notas de crédito
+  por descuento. Los sitios donde <strong>no</strong> se usa descuento de línea (<code>rate = price_list_rate</code> siempre)
+  no pierden funcionalidad al apagarlo.</li>
 <li>Evidencia: experimento end-to-end en un sitio de desarrollo (sandbox) con 4 CFDIs — 2 ventas
   (a precio de lista / 10% abajo) y 2 notas de crédito de descuento (TipoRelación 01), GL y XML
   validados con <code>Enable Discount Accounting = OFF</code>.</li>
@@ -2729,6 +2819,63 @@ importe de la Nota de Crédito <strong>no</strong> se trata como efectivo en el 
   el issue conserva otros escenarios de FormaPago tipo E (p. ej. escenario D: <code>outstanding=0</code> que
   hereda <code>99</code>), <strong>permanece abierto</strong> para esos; este caso se marca resuelto.</li>
 </ul>
+<hr />
+<h2 id="robustez-operativa-descuento-devolucion-en-si-return-2026-07-30">Robustez operativa descuento ⇄ devolución en SI Return (2026-07-30)<a class="headerlink" href="#robustez-operativa-descuento-devolucion-en-si-return-2026-07-30" title="Permanent link">&para;</a></h2>
+<p>Endurecimiento del flujo tras validación GUI en producción. Los cambios se acotan a la <strong>Sales
+Invoice Return en borrador</strong> y a la acción de negocio; <strong>no</strong> se toca la derivación de códigos SAT ni
+el timbrado.</p>
+<h3 id="implementado-puntos-13">Implementado (puntos 1–3)<a class="headerlink" href="#implementado-puntos-13" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p><strong>Inventario en descuento.</strong> Al «Aplicar como Descuento / Bonificación», la acción fuerza
+   <code>update_stock = 0</code> (un descuento no es devolución física → no mueve inventario). Es <strong>reversible</strong>:
+   el valor correcto de una devolución es <code>return_against.update_stock</code>, y la acción inversa lo
+   restaura desde el origen (determinista, 0 o 1). Antes la NC podía heredar <code>update_stock = 1</code> del
+   origen y afectar inventario.</p>
+</li>
+<li>
+<p><strong>Guard de Enable Discount Accounting.</strong> La conversión a descuento <strong>se bloquea antes de modificar
+   la nota</strong> si <code>Selling Settings.Enable Discount Accounting = ON</code>, con mensaje claro. <strong>No</strong> se apaga
+   el setting global automáticamente (afectaría otros procesos): la precondición documentada arriba
+   pasa de "manual" a <strong>protegida por guard</strong> en la acción (<code>preparar_como_descuento</code>). El mecanismo
+   sigue usando <code>cuenta_descuentos</code> como <code>income_account</code>; nunca <code>discount_account</code>.</p>
+</li>
+<li>
+<p><strong>Reversión determinista descuento ⇄ devolución (solo SI Return en Draft).</strong></p>
+</li>
+<li>Botón <strong>«Revertir a Devolución de mercancía»</strong>, simétrico a «Aplicar como Descuento».</li>
+<li>Restaura <strong>exacto desde el origen</strong>: por cada línea usa el vínculo nativo <code>sales_invoice_item</code>
+     (poblado por <code>make_return_doc</code>) para leer su renglón en <code>return_against</code> y restaurar
+     <code>income_account</code> y <code>description</code>; restaura <code>update_stock</code> desde <code>return_against.update_stock</code>.</li>
+<li><strong>Fail-closed:</strong> si alguna línea no tiene vínculo con su renglón de origen (o no se encuentra),
+     <strong>bloquea sin modificar</strong> la nota y lista las líneas afectadas — no adivina cuentas contables.</li>
+<li><strong>Ninguna acción disponible tras el Submit</strong> (ambas exigen <code>docstatus = 0</code>).</li>
+<li>La UX elige qué botón mostrar según el <strong>estado contable real</strong> (<code>income_account ==
+     cuenta_descuentos</code>), no según la descripción (editable).</li>
+</ol>
+<p><strong>La reversión vive exclusivamente en la SI Return en borrador. La FFM no participa en la reversión.</strong></p>
+<h3 id="pendiente-ramapr-independiente-puntos-45">Pendiente — rama/PR independiente (puntos 4–5)<a class="headerlink" href="#pendiente-ramapr-independiente-puntos-45" title="Permanent link">&para;</a></h3>
+<p>No se implementan en esta rama:</p>
+<ul>
+<li><strong><code>fm_tipo_nota_credito</code> como dato derivado/no editable en FFM.</strong> Hoy es editable en borrador pero su
+  cambio manual no re-deriva de forma simétrica los códigos SAT (la rama devolución conserva valores
+  del descuento por el <code>or</code> y por no resetear <code>fm_cfdi_use</code>/<code>fm_forma_pago_timbrado</code>) → «parece
+  editable pero no hace nada». Propuesta: derivarlo autoritativamente desde el estado contable y
+  volverlo read-only permanente. <strong>No</strong> hay caso legítimo de cambio manual en FFM (la intención se
+  decide y revierte en la SI Return).</li>
+<li><strong>Visibilidad / textos de campos FFM</strong> (<code>fm_tipo_nota_credito</code>, <code>fm_tipo_relacion_sat</code>,
+  <code>fm_uuid_relacionado</code>): sin bug de visibilidad activo (solo aparecen en tipo E); pendiente acortar el
+  <code>description</code> largo de <code>fm_tipo_nota_credito</code> (UX) y evaluar gating por existencia real de UUID.</li>
+<li><strong>UsoCFDI en devolución:</strong> hoy no se fuerza a <code>G02</code> (queda al default del cliente); confirmar con el
+  contador si debe ser <code>G02</code> como en descuento.</li>
+</ul>
+<h3 id="propuesta-futura-bandera-explicita-en-la-si-return-como-fuente-de-verdad">Propuesta futura — bandera explícita en la SI Return como fuente de verdad<a class="headerlink" href="#propuesta-futura-bandera-explicita-en-la-si-return-como-fuente-de-verdad" title="Permanent link">&para;</a></h3>
+<p>Sustituir la <strong>inferencia por cuenta contable</strong> (<code>income_account == cuenta_descuentos</code>) por una
+<strong>bandera explícita en la Sales Invoice Return</strong> (p. ej. un campo booleano/estado «modo descuento»)
+que registre la intención de forma inequívoca. Motivos: (a) evita falsos positivos si una devolución
+legítima usara la misma cuenta; (b) define comportamiento claro si unas líneas están en la cuenta de
+descuentos y otras no; (c) da a la FFM una fuente de verdad estable en lugar de inferir. <strong>No se
+implementa aquí</strong> — queda para la rama/PR de los puntos 4–5.</p>
 <hr />
 <h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">&para;</a></h2>
 <ul>
