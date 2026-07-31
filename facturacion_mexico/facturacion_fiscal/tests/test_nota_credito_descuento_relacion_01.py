@@ -22,7 +22,10 @@ import frappe
 from frappe import _dict
 from frappe.tests.utils import FrappeTestCase
 
-from facturacion_mexico.facturacion_fiscal.api.nota_credito import preparar_como_descuento
+from facturacion_mexico.facturacion_fiscal.api.nota_credito import (
+	preparar_como_descuento,
+	preparar_reversion_a_devolucion,
+)
 from facturacion_mexico.facturacion_fiscal.doctype.factura_fiscal_mexico.factura_fiscal_mexico import (
 	FacturaFiscalMexico,
 )
@@ -380,6 +383,50 @@ def _fake_si(**over):
 	return doc
 
 
+def _fake_cn_descuento(**over):
+	"""Nota de crédito YA convertida a descuento, con vínculo `sales_invoice_item` a cada origen."""
+	base = {
+		"is_return": 1,
+		"return_against": "SINV-ORIGEN",
+		"docstatus": 0,
+		"company": "_Test Company",
+		"update_stock": 0,
+		"items": [
+			_fake_line(
+				"LLANTA-A",
+				income_account=CUENTA_DESC,
+				description="Descuento - LLANTA-A mercancía",
+				sales_invoice_item="ORIG-1",
+			),
+			_fake_line(
+				"RIN-B",
+				income_account=CUENTA_DESC,
+				description="Descuento - RIN-B mercancía",
+				sales_invoice_item="ORIG-2",
+			),
+		],
+	}
+	base.update(over)
+	doc = _dict(base)
+	doc.save = lambda: None
+	return doc
+
+
+def _fake_origin(update_stock=1):
+	"""Factura de origen: renglones con nombre estable e income_account/description originales."""
+	return _dict(
+		{
+			"update_stock": update_stock,
+			"items": [
+				_dict(
+					{"name": "ORIG-1", "income_account": "Sales - _TC", "description": "LLANTA-A mercancía"}
+				),
+				_dict({"name": "ORIG-2", "income_account": "Ventas - _TC", "description": "RIN-B mercancía"}),
+			],
+		}
+	)
+
+
 class TestApplyDescuentoToLines(FrappeTestCase):
 	"""Conserva item_code; cambia description a 'Descuento - <origen>' e income_account."""
 
@@ -442,10 +489,16 @@ class TestApplyDescuentoToLines(FrappeTestCase):
 class TestAplicarComoDescuento(FrappeTestCase):
 	"""Acción de negocio: aplica descuento (sin cambiar Item) con guards; no expone cuentas/códigos."""
 
-	def _run(self, doc, cuenta=CUENTA_DESC):
-		with patch(
-			"facturacion_mexico.facturacion_fiscal.api.nota_credito.get_cuenta_descuentos",
-			return_value=cuenta,
+	def _run(self, doc, cuenta=CUENTA_DESC, discount_accounting=False):
+		with (
+			patch(
+				"facturacion_mexico.facturacion_fiscal.api.nota_credito.get_cuenta_descuentos",
+				return_value=cuenta,
+			),
+			patch(
+				"facturacion_mexico.facturacion_fiscal.api.nota_credito._discount_accounting_enabled",
+				return_value=discount_accounting,
+			),
 		):
 			return preparar_como_descuento(doc)
 
@@ -477,6 +530,102 @@ class TestAplicarComoDescuento(FrappeTestCase):
 		doc = _fake_si(docstatus=1)
 		with self.assertRaises(frappe.ValidationError):
 			self._run(doc)
+
+	def test_desmarca_actualizar_inventario(self):
+		"""Un descuento no es devolución física → la acción fuerza update_stock a 0 aunque
+		el origen lo haya heredado en 1 (evita que la NC mueva inventario)."""
+		doc = _fake_si(update_stock=1)
+		self._run(doc)
+		self.assertEqual(doc.update_stock, 0)
+
+	def test_respeta_inventario_ya_desmarcado(self):
+		"""Si el origen ya venía sin actualizar inventario, se conserva en 0 (no rompe nada)."""
+		doc = _fake_si(update_stock=0)
+		self._run(doc)
+		self.assertEqual(doc.update_stock, 0)
+
+	def test_bloquea_si_discount_accounting_activo_sin_modificar(self):
+		"""Precondición: con 'Enable Discount Accounting' = ON la acción bloquea ANTES de tocar la
+		nota (income_account, description y update_stock quedan intactos)."""
+		doc = _fake_si(update_stock=1)
+		income_original = [r.income_account for r in doc["items"]]
+		desc_original = [r.description for r in doc["items"]]
+		with self.assertRaises(frappe.ValidationError):
+			self._run(doc, discount_accounting=True)
+		# El documento NO se modificó
+		self.assertEqual([r.income_account for r in doc["items"]], income_original)
+		self.assertEqual([r.description for r in doc["items"]], desc_original)
+		self.assertEqual(doc.update_stock, 1)
+
+	def test_permite_si_discount_accounting_inactivo(self):
+		"""Con 'Enable Discount Accounting' = OFF la conversión procede normalmente."""
+		doc = _fake_si()
+		res = self._run(doc, discount_accounting=False)
+		self.assertTrue(res["ok"])
+		self.assertTrue(all(r.income_account == CUENTA_DESC for r in doc["items"]))
+
+
+class TestRevertirADevolucion(FrappeTestCase):
+	"""Reversión descuento → devolución (motivo 03): restaura EXACTO desde el origen vía
+	`sales_invoice_item`; bloquea sin modificar si alguna línea no mapea; solo en borrador."""
+
+	def _run(self, doc, origen):
+		with patch(
+			"facturacion_mexico.facturacion_fiscal.api.nota_credito.frappe.get_doc",
+			return_value=origen,
+		):
+			return preparar_reversion_a_devolucion(doc)
+
+	def test_restaura_income_y_description_desde_origen(self):
+		doc = _fake_cn_descuento()
+		res = self._run(doc, _fake_origin(update_stock=1))
+		self.assertTrue(res["ok"])
+		self.assertEqual(res["lineas"], 2)
+		self.assertEqual([r.income_account for r in doc["items"]], ["Sales - _TC", "Ventas - _TC"])
+		self.assertEqual([r.description for r in doc["items"]], ["LLANTA-A mercancía", "RIN-B mercancía"])
+
+	def test_restaura_update_stock_desde_origen_uno(self):
+		doc = _fake_cn_descuento(update_stock=0)
+		self._run(doc, _fake_origin(update_stock=1))
+		self.assertEqual(doc.update_stock, 1)
+
+	def test_restaura_update_stock_desde_origen_cero(self):
+		doc = _fake_cn_descuento(update_stock=0)
+		self._run(doc, _fake_origin(update_stock=0))
+		self.assertEqual(doc.update_stock, 0)
+
+	def test_bloquea_sin_vinculo_sin_modificar(self):
+		"""Una línea sin sales_invoice_item → bloquea y NO modifica la nota (no adivina cuentas)."""
+		doc = _fake_cn_descuento()
+		doc["items"][1].sales_invoice_item = None
+		income_original = [r.income_account for r in doc["items"]]
+		with self.assertRaises(frappe.ValidationError):
+			self._run(doc, _fake_origin())
+		self.assertEqual([r.income_account for r in doc["items"]], income_original)
+		self.assertEqual(doc.update_stock, 0)
+
+	def test_bloquea_vinculo_inexistente_en_origen(self):
+		"""Vínculo que no existe en el origen → bloquea sin modificar."""
+		doc = _fake_cn_descuento()
+		doc["items"][0].sales_invoice_item = "NO-EXISTE"
+		with self.assertRaises(frappe.ValidationError):
+			self._run(doc, _fake_origin())
+		self.assertEqual(doc["items"][0].income_account, CUENTA_DESC)
+
+	def test_bloquea_si_no_es_borrador(self):
+		doc = _fake_cn_descuento(docstatus=1)
+		with self.assertRaises(frappe.ValidationError):
+			self._run(doc, _fake_origin())
+
+	def test_bloquea_si_no_es_return(self):
+		doc = _fake_cn_descuento(is_return=0)
+		with self.assertRaises(frappe.ValidationError):
+			self._run(doc, _fake_origin())
+
+	def test_bloquea_si_no_hay_return_against(self):
+		doc = _fake_cn_descuento(return_against=None)
+		with self.assertRaises(frappe.ValidationError):
+			self._run(doc, _fake_origin())
 
 
 # ── Concepto del CFDI: usa net_rate y NO emite nodo Descuento ─────────────────

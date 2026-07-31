@@ -4,9 +4,13 @@
 **Estado:** Implementado — #137 implementado (2026-07-29); #136 resuelto para descuento con pago previo
 **Autor:** Luis Montanaro / Claude Sonnet 4.6
 
-> **Actualización 2026-07-29:** Ver sección final *«Descuento / Bonificación (TipoRelación 01)»*.
+> **Actualización 2026-07-29:** Ver sección *«Descuento / Bonificación (TipoRelación 01)»*.
 > Se implementó el flujo de nota de crédito por descuento (Issue #137) y se cerró el criterio de
 > FormaPago del escenario de descuento con pago previo (Issue #136).
+>
+> **Actualización 2026-07-30:** Ver sección *«Robustez operativa descuento ⇄ devolución en SI
+> Return»*: inventario, guard de Discount Accounting y reversión determinista (puntos 1–3). Los
+> puntos 4–5 (FFM: `fm_tipo_nota_credito` derivado, visibilidad/textos) quedan para rama/PR aparte.
 
 ---
 
@@ -279,6 +283,66 @@ importe de la Nota de Crédito **no** se trata como efectivo en el REP. Se desca
 - **Issue #136:** el escenario de descuento con pago previo queda **resuelto** con `FormaPago 15`. Si
   el issue conserva otros escenarios de FormaPago tipo E (p. ej. escenario D: `outstanding=0` que
   hereda `99`), **permanece abierto** para esos; este caso se marca resuelto.
+
+---
+
+## Robustez operativa descuento ⇄ devolución en SI Return (2026-07-30)
+
+Endurecimiento del flujo tras validación GUI en producción. Los cambios se acotan a la **Sales
+Invoice Return en borrador** y a la acción de negocio; **no** se toca la derivación de códigos SAT ni
+el timbrado.
+
+### Implementado (puntos 1–3)
+
+1. **Inventario en descuento.** Al «Aplicar como Descuento / Bonificación», la acción fuerza
+   `update_stock = 0` (un descuento no es devolución física → no mueve inventario). Es **reversible**:
+   el valor correcto de una devolución es `return_against.update_stock`, y la acción inversa lo
+   restaura desde el origen (determinista, 0 o 1). Antes la NC podía heredar `update_stock = 1` del
+   origen y afectar inventario.
+
+2. **Guard de Enable Discount Accounting.** La conversión a descuento **se bloquea antes de modificar
+   la nota** si `Selling Settings.Enable Discount Accounting = ON`, con mensaje claro. **No** se apaga
+   el setting global automáticamente (afectaría otros procesos): la precondición documentada arriba
+   pasa de "manual" a **protegida por guard** en la acción (`preparar_como_descuento`). El mecanismo
+   sigue usando `cuenta_descuentos` como `income_account`; nunca `discount_account`.
+
+3. **Reversión determinista descuento ⇄ devolución (solo SI Return en Draft).**
+   - Botón **«Revertir a Devolución de mercancía»**, simétrico a «Aplicar como Descuento».
+   - Restaura **exacto desde el origen**: por cada línea usa el vínculo nativo `sales_invoice_item`
+     (poblado por `make_return_doc`) para leer su renglón en `return_against` y restaurar
+     `income_account` y `description`; restaura `update_stock` desde `return_against.update_stock`.
+   - **Fail-closed:** si alguna línea no tiene vínculo con su renglón de origen (o no se encuentra),
+     **bloquea sin modificar** la nota y lista las líneas afectadas — no adivina cuentas contables.
+   - **Ninguna acción disponible tras el Submit** (ambas exigen `docstatus = 0`).
+   - La UX elige qué botón mostrar según el **estado contable real** (`income_account ==
+     cuenta_descuentos`), no según la descripción (editable).
+
+**La reversión vive exclusivamente en la SI Return en borrador. La FFM no participa en la reversión.**
+
+### Pendiente — rama/PR independiente (puntos 4–5)
+
+No se implementan en esta rama:
+
+- **`fm_tipo_nota_credito` como dato derivado/no editable en FFM.** Hoy es editable en borrador pero su
+  cambio manual no re-deriva de forma simétrica los códigos SAT (la rama devolución conserva valores
+  del descuento por el `or` y por no resetear `fm_cfdi_use`/`fm_forma_pago_timbrado`) → «parece
+  editable pero no hace nada». Propuesta: derivarlo autoritativamente desde el estado contable y
+  volverlo read-only permanente. **No** hay caso legítimo de cambio manual en FFM (la intención se
+  decide y revierte en la SI Return).
+- **Visibilidad / textos de campos FFM** (`fm_tipo_nota_credito`, `fm_tipo_relacion_sat`,
+  `fm_uuid_relacionado`): sin bug de visibilidad activo (solo aparecen en tipo E); pendiente acortar el
+  `description` largo de `fm_tipo_nota_credito` (UX) y evaluar gating por existencia real de UUID.
+- **UsoCFDI en devolución:** hoy no se fuerza a `G02` (queda al default del cliente); confirmar con el
+  contador si debe ser `G02` como en descuento.
+
+### Propuesta futura — bandera explícita en la SI Return como fuente de verdad
+
+Sustituir la **inferencia por cuenta contable** (`income_account == cuenta_descuentos`) por una
+**bandera explícita en la Sales Invoice Return** (p. ej. un campo booleano/estado «modo descuento»)
+que registre la intención de forma inequívoca. Motivos: (a) evita falsos positivos si una devolución
+legítima usara la misma cuenta; (b) define comportamiento claro si unas líneas están en la cuenta de
+descuentos y otras no; (c) da a la FFM una fuente de verdad estable en lugar de inferir. **No se
+implementa aquí** — queda para la rama/PR de los puntos 4–5.
 
 ---
 

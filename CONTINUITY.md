@@ -1,76 +1,77 @@
 # CONTINUITY.md — facturacion_mexico
 
 **Fecha:** 2026-07-30
-**Rama activa:** `feat/nota-credito-descuento-relacion-01`
-**Tarea actual:** Nota de Crédito por descuento/bonificación (CFDI E, TipoRelación 01). Feature completa y validada end-to-end en sandbox; commit hecho, **falta push + PR**.
+**Rama activa:** `feat/nc-descuento-inventario-reversion`
+**Tarea actual:** Robustez de la Nota de Crédito por descuento en la Sales Invoice Return (puntos 1-3). Listo para commit; falta autorización de commit + push + PR.
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-El flujo de Nota de Crédito por **descuento/bonificación** (distinto de devolución física). El operador ejecuta el botón **«Aplicar como Descuento / Bonificación»** en una Sales Invoice Return en borrador → se fija `income_account = cuenta de descuentos configurada por empresa` y `description = "Descuento - <descripción original>"` (conserva Item y ClaveProdServ del origen). Tras el Submit, la FFM detecta el descuento por la cuenta contable y deriva **E / 01 / G02 / PUE / 15 - Condonación**, con UUID relacionado desde `return_against`.
+Endurecimiento del flujo de **Nota de Crédito por descuento/bonificación**, acotado a la **Sales Invoice Return en borrador** (la FFM no participa). Tres cambios: (1) al «Aplicar como Descuento» se fuerza `update_stock = 0` (reversible desde `return_against.update_stock`); (2) guard que bloquea la conversión si `Enable Discount Accounting = ON`, sin apagar el setting global; (3) acción inversa «Revertir a Devolución de mercancía» que restaura `income_account`/`description`/`update_stock` **exactos desde el origen** (vía `sales_invoice_item`), fail-closed si una línea no mapea, y solo en borrador.
 
 Plan que estoy siguiendo:
-Issue #137 (TipoRelación 01) + ADR `docs/adr/0025-notas-credito-cfdi-tipo-e-issue116.md` (única fuente de la arquitectura y decisiones).
+Puntos 1-3 de la revisión GUI post-#220. ADR `docs/adr/0025-notas-credito-cfdi-tipo-e-issue116.md`, sección «Robustez operativa descuento ⇄ devolución en SI Return».
 
 Objetivo inmediato:
-`/ship push` → `/ship pr` (base `main`), con autorización explícita en cada paso.
+`/ship commit` → `/ship push` → `/ship pr` (base `main`), con autorización explícita en cada paso.
 
 Criterio de avance:
-Tests verdes (49 en `test_nota_credito_descuento_relacion_01` + regresión CFDI E 6 / complemento 24 / issue162 9) + ruff/prettier/mkdocs limpios. Experimento sandbox en sitio dev confirmó GL y XML correctos con `Enable Discount Accounting = OFF`.
+Tests focalizados verdes (13 nuevos + acción/reversión) + ruff/prettier/mkdocs `--strict` limpios + diff contra `upstream/main` solo con archivos en alcance + bump `1.3.0`.
 
 ---
 
 ## Estado actual
 
 ### Ya cerrado
-- Feature implementada (12 archivos) y **commiteada** en esta rama. Bump `1.1.0 → 1.2.0`.
-- Experimento end-to-end en sitio dev (sandbox): 2 ventas (lista / 10% abajo) + 2 NC de descuento, todos timbrados; GL y XML validados con Discount Accounting OFF.
-- ADR 0025 actualizado (arquitectura final + precondición Discount Accounting OFF).
+- Puntos 1-3 implementados (4 archivos: `api/nota_credito.py`, JS del botón, tests, ADR 0025).
+- Bump `__version__` `1.2.0 → 1.3.0` (MINOR: nueva acción de reversión + endpoints).
+- Rama `feat/nc-descuento-inventario-reversion` creada **desde `upstream/main`** (PR #220 ya mergeado; la rama vieja quedó obsoleta).
 
 ### En progreso
-- Ninguna edición de código pendiente.
+- Ninguna edición de código pendiente. Falta autorización de commit.
 
 ### Pendiente inmediato
-1. `/ship push` (con autorización).
-2. `/ship pr` hacia `main` (con autorización).
-3. Tras merge (lo hace el usuario): tag `v1.2.0` + Release.
+1. `/ship commit` (con autorización).
+2. `/ship push` → `/ship pr` hacia `main` (con autorización).
 
 ### No repetir
-- **NO** usar `discount_account` nativo para la NC de descuento: invierte e infla el asiento ("descuento del 90%"). La solución es `Enable Discount Accounting = OFF` por empresa (config, no código).
-- **NO** cambiar `item_code` a un Item "Descuento" (ERPNext `validate_returned_items` lo rechaza en returns con `return_against`).
-- **NO** alinear `price_list_rate = rate` en la acción (se intentó y descartó; el usuario lo revirtió).
+- **NO** reutilizar la rama vieja `feat/nota-credito-descuento-relacion-01` (PR #220 ya mergeado por squash; PR desde ahí saldría sucio).
+- **NO** tocar FFM en este PR: `fm_tipo_nota_credito`, derivación fiscal, visibilidad/textos → PR independiente de puntos 4-5.
+- **NO** usar `discount_account` para la NC de descuento (invierte/infla el asiento).
 - **NO** commitear `one_offs/` ni `working_docs/`.
 
 ---
 
 ## Decisiones vigentes
-- **Precondición por empresa:** `Selling Settings.Enable Discount Accounting = OFF` para operar NC de descuento (documentado en ADR 0025). No es regla universal del app.
-- El descuento queda integrado en el `ValorUnitario` del CFDI (payload usa `net_rate`, `discount=0`); **nunca** se emite nodo `Descuento` en el XML.
-- Cuenta de descuentos: config por empresa en `Facturacion Mexico Company Settings.cuenta_descuentos` (no hardcode; se aplica como `income_account`).
-- Devolución física conserva comportamiento histórico (TipoRelación 03).
+- La reversión descuento ⇄ devolución vive **solo en la SI Return en borrador**; la FFM no participa.
+- El estado de la nota (qué botón mostrar) se decide por el **estado contable real** (`income_account == cuenta_descuentos`), no por la descripción.
+- Reversión **fail-closed**: sin vínculo `sales_invoice_item` exacto → bloquea sin modificar.
+- Precondición `Enable Discount Accounting = OFF` ahora **protegida por guard** en la acción (antes solo documentada).
+- **FormaPago `15 - Condonación` (PUE)** para la NC de descuento está **confirmada por el contador** (ADR 0025). No es un pendiente. Lo que permanece abierto en #136 son otros escenarios tipo E (p. ej. `outstanding=0` que hereda `99`), no el de descuento.
 
 ---
 
 ## Archivos relevantes ahora
 
 ### Leer primero
-- `docs/adr/0025-notas-credito-cfdi-tipo-e-issue116.md`
+- `docs/adr/0025-notas-credito-cfdi-tipo-e-issue116.md` (sección «Robustez operativa descuento ⇄ devolución»).
 
 ### Probablemente editar
-- (ninguno; feature cerrada salvo hallazgos en review/CI)
+- (ninguno; puntos 1-3 cerrados salvo hallazgos en review/CI).
 
 ### No tocar
-- `facturacion_fiscal/timbrado_api.py` fórmula del REP (`allocated_amount / si.grand_total`).
+- `facturacion_fiscal/timbrado_api.py`, `factura_fiscal_mexico.py`/`.js` (pertenecen al PR de puntos 4-5).
 
 ---
 
 ## Riesgos / cuidados
-- El sitio dev de prueba tiene el setting `Enable Discount Accounting = OFF` (dejado así como solución). Documentos de prueba conservados para auditoría.
-- Al abrir PR: el gate documental mapea `public/js` → `docs/usuario`; se acordó que ADR 0025 cubre el flujo (no se creó página de usuario).
+- CodeRabbit #4 (ADR vs CONTINUITY sobre FormaPago 15) queda alineado en este archivo.
+- Pendientes CodeRabbit para el PR de puntos 4-5: #2 (forzar TipoRelación 03 en `_set_tipo_from_context`), #5 (JS `fm_tipo_nota_credito` editable en `docstatus==2`), #8 (`-> None` en `_set_tipo_from_context`).
+- Fuera por bajo valor/alcance: #1 (rename RG-001), #3 (test integración del guard), #6 (IDs de mocks in-memory).
 
 ---
 
 ## Información faltante
-- Confirmación del contador/ChatGPT sobre el cierre fiscal del escenario (pendiente formal, no bloquea el commit).
+- Confirmación normativa de otros escenarios FormaPago tipo E del Issue #136 (escenario `outstanding=0 → 99`). No aplica al flujo de descuento (ya confirmado) ni bloquea este PR.
