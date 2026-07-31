@@ -209,9 +209,10 @@ El motivo de la nota se **decide antes del Submit** mediante la cuenta contable 
   `return_against`) el operador ejecuta el botón **«Aplicar como Descuento / Bonificación»**
   (`facturacion_mexico.facturacion_fiscal.api.nota_credito.aplicar_como_descuento`). Server-side aplica
   lo anterior y guarda; el documento muestra ya `Descuento - <origen>` antes del Submit. Guards del
-  servidor: es Return, en borrador, `return_against` presente, cuenta de descuentos configurada. El
-  operador **no** selecciona Item, cuenta ni códigos SAT. Si **no** ejecuta la acción, la nota conserva
-  sus cuentas normales → devolución física (relación 03).
+  servidor: es Return, en borrador, `return_against` presente, `Enable Discount Accounting = OFF` en
+  Selling Settings, y cuenta de descuentos configurada. El operador **no** selecciona Item, cuenta ni
+  códigos SAT. Si **no** ejecuta la acción, la nota conserva sus cuentas normales → devolución física
+  (relación 03).
 - **Al crearse la FFM** (mismo `on_submit` de siempre): `_detect_nota_credito_motivo()` detecta si
   **todas** las líneas están contabilizadas contra `cuenta_descuentos` y, de ser así, **preselecciona**
   `fm_tipo_nota_credito = Descuento / Bonificación` (solo si el campo está vacío). La señal es la

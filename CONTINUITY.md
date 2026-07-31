@@ -28,13 +28,15 @@ Tests focalizados verdes (13 nuevos + acción/reversión) + ruff/prettier/mkdocs
 - Puntos 1-3 implementados (4 archivos: `api/nota_credito.py`, JS del botón, tests, ADR 0025).
 - Bump `__version__` `1.2.0 → 1.3.0` (MINOR: nueva acción de reversión + endpoints).
 - Rama `feat/nc-descuento-inventario-reversion` creada **desde `upstream/main`** (PR #220 ya mergeado; la rama vieja quedó obsoleta).
+- PR #221 abierto (base `main`), CI verde.
+- **CodeRabbit #221 #1/#2/#4 atendidos**: #1 ADR lista el guard Enable Discount Accounting; #2 `check_permission` en endpoints whitelisted (write en aplicar/revertir, read en estado y sobre el origen); #4 JS quita ambos botones antes de agregar el actual. + tests de permisos.
 
 ### En progreso
-- Ninguna edición de código pendiente. Falta autorización de commit.
+- Ninguna edición de código pendiente en este PR.
 
 ### Pendiente inmediato
-1. `/ship commit` (con autorización).
-2. `/ship push` → `/ship pr` hacia `main` (con autorización).
+1. Merge de PR #221 (lo hace el usuario) — tag `v1.3.0` + Release tras merge (con autorización).
+2. PR independiente de puntos 4-5 (FFM).
 
 ### No repetir
 - **NO** reutilizar la rama vieja `feat/nota-credito-descuento-relacion-01` (PR #220 ya mergeado por squash; PR desde ahí saldría sucio).
@@ -67,8 +69,8 @@ Tests focalizados verdes (13 nuevos + acción/reversión) + ruff/prettier/mkdocs
 ---
 
 ## Riesgos / cuidados
-- CodeRabbit #4 (ADR vs CONTINUITY sobre FormaPago 15) queda alineado en este archivo.
-- Pendientes CodeRabbit para el PR de puntos 4-5: #2 (forzar TipoRelación 03 en `_set_tipo_from_context`), #5 (JS `fm_tipo_nota_credito` editable en `docstatus==2`), #8 (`-> None` en `_set_tipo_from_context`).
+- **CodeRabbit #221 pendientes deliberados:** #3 (no mockear `frappe.get_doc` en tests — deuda RG-003; no se cambian firmas de código productivo solo por el mock) y #5 (helper DRY de botones JS — bajo valor).
+- Pendientes para el PR independiente de puntos 4-5 (del review de #220): forzar TipoRelación 03 en `_set_tipo_from_context`, JS `fm_tipo_nota_credito` editable en `docstatus==2`, y `-> None` en `_set_tipo_from_context`.
 - Fuera por bajo valor/alcance: #1 (rename RG-001), #3 (test integración del guard), #6 (IDs de mocks in-memory).
 
 ---

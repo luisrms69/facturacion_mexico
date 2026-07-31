@@ -82,6 +82,8 @@ def aplicar_como_descuento(sales_invoice: str) -> dict:
 	No devuelve el nombre de la cuenta: el usuario final nunca debe ver la cuenta técnica.
 	"""
 	doc = frappe.get_doc("Sales Invoice", sales_invoice)
+	# Modifica la nota de crédito → exigir permiso de escritura sobre ella antes de operar.
+	doc.check_permission("write")
 	return preparar_como_descuento(doc)
 
 
@@ -105,6 +107,8 @@ def preparar_reversion_a_devolucion(doc) -> dict:
 		frappe.throw(_("Solo se puede revertir mientras la nota de crédito está en borrador."))
 
 	origen = frappe.get_doc("Sales Invoice", doc.get("return_against"))
+	# Se leen datos contables de la factura de origen → exigir permiso de lectura sobre ella.
+	origen.check_permission("read")
 	origen_rows = {r.name: r for r in (origen.get("items") or [])}
 
 	# Validación previa (sin mutación): cada línea debe mapearse EXACTAMENTE a su renglón de origen.
@@ -145,6 +149,8 @@ def preparar_reversion_a_devolucion(doc) -> dict:
 def revertir_a_devolucion(sales_invoice: str) -> dict:
 	"""Punto de entrada desde la UI (botón inverso en Sales Invoice Return en borrador)."""
 	doc = frappe.get_doc("Sales Invoice", sales_invoice)
+	# Modifica la nota de crédito → exigir permiso de escritura sobre ella antes de operar.
+	doc.check_permission("write")
 	return preparar_reversion_a_devolucion(doc)
 
 
@@ -158,6 +164,8 @@ def estado_nota_descuento(sales_invoice: str) -> dict:
 	  - es_descuento: la nota ya está preparada como descuento.
 	"""
 	doc = frappe.get_doc("Sales Invoice", sales_invoice)
+	# Solo lectura de estado → exigir permiso de lectura sobre la nota.
+	doc.check_permission("read")
 	cuenta = get_cuenta_descuentos(doc.get("company"))
 	return {
 		"cuenta_configurada": bool(cuenta),

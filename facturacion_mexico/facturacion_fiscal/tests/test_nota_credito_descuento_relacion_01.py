@@ -414,7 +414,7 @@ def _fake_cn_descuento(**over):
 
 def _fake_origin(update_stock=1):
 	"""Factura de origen: renglones con nombre estable e income_account/description originales."""
-	return _dict(
+	origen = _dict(
 		{
 			"update_stock": update_stock,
 			"items": [
@@ -425,6 +425,9 @@ def _fake_origin(update_stock=1):
 			],
 		}
 	)
+	# Boundary de permisos: no-op por defecto (los tests de permiso lo sobrescriben para lanzar).
+	origen.check_permission = lambda perm=None: None
+	return origen
 
 
 class TestApplyDescuentoToLines(FrappeTestCase):
@@ -626,6 +629,68 @@ class TestRevertirADevolucion(FrappeTestCase):
 		doc = _fake_cn_descuento(return_against=None)
 		with self.assertRaises(frappe.ValidationError):
 			self._run(doc, _fake_origin())
+
+
+def _perm_denegada(perm_denegado):
+	"""check_permission que lanza PermissionError solo para el permtype indicado."""
+
+	def _check(permtype="read", permlevel=None):
+		if permtype == perm_denegado:
+			raise frappe.PermissionError(f"sin permiso {permtype}")
+
+	return _check
+
+
+class TestPermisosNotaCredito(FrappeTestCase):
+	"""Hardening (CodeRabbit #2): los endpoints whitelisted exigen permiso antes de operar.
+	Un usuario sin permiso no puede ejecutar la acción y el documento no se modifica."""
+
+	def test_aplicar_como_descuento_exige_write(self):
+		from facturacion_mexico.facturacion_fiscal.api import nota_credito
+
+		doc = _fake_si()
+		doc.check_permission = _perm_denegada("write")
+		income_original = [r.income_account for r in doc["items"]]
+		with patch.object(nota_credito.frappe, "get_doc", return_value=doc):
+			with self.assertRaises(frappe.PermissionError):
+				nota_credito.aplicar_como_descuento("SINV-X")
+		# No se modificó la nota
+		self.assertEqual([r.income_account for r in doc["items"]], income_original)
+
+	def test_revertir_a_devolucion_exige_write(self):
+		from facturacion_mexico.facturacion_fiscal.api import nota_credito
+
+		doc = _fake_cn_descuento()
+		doc.check_permission = _perm_denegada("write")
+		income_original = [r.income_account for r in doc["items"]]
+		with patch.object(nota_credito.frappe, "get_doc", return_value=doc):
+			with self.assertRaises(frappe.PermissionError):
+				nota_credito.revertir_a_devolucion("SINV-X")
+		self.assertEqual([r.income_account for r in doc["items"]], income_original)
+
+	def test_estado_nota_descuento_exige_read(self):
+		from facturacion_mexico.facturacion_fiscal.api import nota_credito
+
+		doc = _fake_si()
+		doc.check_permission = _perm_denegada("read")
+		with patch.object(nota_credito.frappe, "get_doc", return_value=doc):
+			with self.assertRaises(frappe.PermissionError):
+				nota_credito.estado_nota_descuento("SINV-X")
+
+	def test_reversion_exige_read_en_origen(self):
+		"""La reversión lee la factura de origen → exige 'read' sobre ella antes de usar sus datos."""
+		doc = _fake_cn_descuento()
+		income_original = [r.income_account for r in doc["items"]]
+		origen = _fake_origin()
+		origen.check_permission = _perm_denegada("read")
+		with patch(
+			"facturacion_mexico.facturacion_fiscal.api.nota_credito.frappe.get_doc",
+			return_value=origen,
+		):
+			with self.assertRaises(frappe.PermissionError):
+				preparar_reversion_a_devolucion(doc)
+		# No se modificó la nota
+		self.assertEqual([r.income_account for r in doc["items"]], income_original)
 
 
 # ── Concepto del CFDI: usa net_rate y NO emite nodo Descuento ─────────────────

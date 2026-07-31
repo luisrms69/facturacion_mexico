@@ -15,6 +15,12 @@ frappe.ui.form.on("Sales Invoice", {
 			args: { sales_invoice: frm.doc.name },
 			callback: function (r) {
 				if (r.exc || !r.message) return;
+				// Evitar botones duplicados tras reload_doc: quitar ambos antes de agregar el actual.
+				frm.remove_custom_button(
+					__("Aplicar como Descuento / Bonificación"),
+					__("Acciones")
+				);
+				frm.remove_custom_button(__("Revertir a Devolución de mercancía"), __("Acciones"));
 				if (r.message.es_descuento) {
 					agregar_boton_revertir(frm);
 				} else {
