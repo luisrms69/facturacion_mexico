@@ -258,8 +258,9 @@ importe de la Nota de Crédito **no** se trata como efectivo en el REP. Se desca
 
 ### Enable Discount Accounting — precondición operativa por sitio (no regla universal)
 
-**Precondición operativa para empresas/sitios que usen este flujo de descuento:**
-**`Selling Settings.Enable Discount Accounting = OFF`** en la empresa.
+**Precondición operativa para los sitios que usen este flujo de descuento:**
+**`Selling Settings.Enable Discount Accounting = OFF`** — es un setting **a nivel de sitio**
+(*Selling Settings* es un Single global de ERPNext), **no** una configuración por empresa.
 
 - Con `ON`, ERPNext exige `discount_account` por línea cuando `discount_amount > 0`, y su
   `make_discount_gl_entries` postea `discount_amount × qty` a `discount_account`. En una **nota de
@@ -270,9 +271,10 @@ importe de la Nota de Crédito **no** se trata como efectivo en el REP. Se desca
 - Con `OFF`, la NC contabiliza correctamente: `income_account` (cuenta de descuentos) **debitado** por
   la base real, IVA revertido proporcionalmente, Clientes acreditado por el total. La venta normal no
   se altera y el CFDI/XML tampoco (el payload usa `net_rate`; nunca emite nodo `Descuento`).
-- **No** es una regla universal de `facturacion_mexico`: es una **configuración por empresa** que se
-  adopta si se van a operar notas de crédito por descuento. Empresas que **no** usen descuento de línea
-  (`rate = price_list_rate` siempre) no pierden funcionalidad al apagarlo.
+- **No** es una regla universal de `facturacion_mexico`: es una **configuración a nivel de sitio**
+  (*Selling Settings*, un Single global) que se adopta si en ese sitio se van a operar notas de crédito
+  por descuento. Los sitios donde **no** se usa descuento de línea (`rate = price_list_rate` siempre)
+  no pierden funcionalidad al apagarlo.
 - Evidencia: experimento end-to-end en un sitio de desarrollo (sandbox) con 4 CFDIs — 2 ventas
   (a precio de lista / 10% abajo) y 2 notas de crédito de descuento (TipoRelación 01), GL y XML
   validados con `Enable Discount Accounting = OFF`.
