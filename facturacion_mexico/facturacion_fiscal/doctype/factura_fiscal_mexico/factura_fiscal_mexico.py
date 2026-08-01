@@ -322,58 +322,133 @@ class FacturaFiscalMexico(Document):
 		"""
 		return (self.get("fm_tipo_nota_credito") or "").strip() == NOTA_CREDITO_DESCUENTO
 
-	def _detect_nota_credito_motivo(self):
-		"""Opción X: preseleccionar el motivo a partir de la cuenta contable de la Credit Note.
+	def _throw_estado_nc_invalido(self, msg: str) -> None:
+		"""Bloquear el guardado de la FFM Draft por estado de nota de crédito no clasificable."""
+		frappe.throw(msg, title=_("Estado de Nota de Crédito No Válido"))
 
-		Si la nota de crédito ya se contabilizó (income_account de sus líneas) contra la cuenta
-		de descuentos configurada para la empresa, preseleccionar 'Descuento / Bonificación'.
+	def _classify_nota_credito(self) -> str:
+		"""Clasificación POSITIVA y fail-closed del motivo desde el estado EXACTO de la SI Return.
 
-		Solo actúa cuando el campo está VACÍO (preselección, no override de una elección explícita
-		del usuario). Si las cuentas no coinciden, NO infiere descuento y se conserva el
-		comportamiento histórico de devolución (relación 03) — punto 8 de la decisión.
+		Devuelve NOTA_CREDITO_DEVOLUCION o NOTA_CREDITO_DESCUENTO; NO muta ningún campo. Lanza si el
+		estado no coincide exactamente con ninguno, o si faltan los vínculos `sales_invoice_item`
+		necesarios para comprobarlo (no adivina, no clasifica por default).
+
+		- Devolución de mercancía: cada línea conserva el `income_account` y la `description` de su
+		  renglón de origen (vía `sales_invoice_item`), y `update_stock == return_against.update_stock`.
+		  Funciona aunque la Company no tenga `cuenta_descuentos`.
+		- Descuento / Bonificación: hay `cuenta_descuentos` configurada, TODAS las líneas la usan como
+		  `income_account`, cada `description` == la generada por el flujo de descuento para su renglón
+		  de origen, y `update_stock == 0`.
 		"""
-		if (self.get("fm_tipo_nota_credito") or "").strip():
-			return  # ya decidido (usuario o preselección previa) — no sobrescribir
-
 		from facturacion_mexico.facturacion_fiscal.utils import (
-			credit_note_lines_use_discount_account,
+			build_descuento_description,
 			get_cuenta_descuentos,
 		)
 
-		company = self.get("company") or frappe.db.get_value("Sales Invoice", self.sales_invoice, "company")
-		cuenta = get_cuenta_descuentos(company)
-		if cuenta and credit_note_lines_use_discount_account(self.sales_invoice, cuenta):
-			self.fm_tipo_nota_credito = NOTA_CREDITO_DESCUENTO
+		si = frappe.get_doc("Sales Invoice", self.sales_invoice)
+		return_against = si.get("return_against")
+		if not return_against:
+			self._throw_estado_nc_invalido(
+				_("La nota de crédito no tiene factura de origen (return_against).")
+			)
+		origen = frappe.get_doc("Sales Invoice", return_against)
+		origen_rows = {r.name: r for r in (origen.get("items") or [])}
+		lineas = si.get("items") or []
+		if not lineas:
+			self._throw_estado_nc_invalido(_("La nota de crédito no tiene líneas."))
 
-	def _set_tipo_from_context(self):
-		"""Establecer tipo automáticamente según contexto."""
+		# Vínculos con el origen obligatorios: sin ellos no se puede comprobar el estado (no adivinar).
+		faltantes = [
+			row
+			for row in lineas
+			if not row.get("sales_invoice_item") or row.get("sales_invoice_item") not in origen_rows
+		]
+		if faltantes:
+			detalle = ", ".join(
+				_("línea {0} ({1})").format(row.get("idx"), row.get("item_code")) for row in faltantes
+			)
+			self._throw_estado_nc_invalido(
+				_("Faltan vínculos con la factura de origen (sales_invoice_item): {0}.").format(detalle)
+			)
+
+		# Devolución de mercancía: estado idéntico al origen (income_account, description, update_stock).
+		mismo_update_stock = cint(si.get("update_stock")) == cint(origen.get("update_stock"))
+		es_devolucion = mismo_update_stock and all(
+			row.get("income_account") == origen_rows[row.get("sales_invoice_item")].get("income_account")
+			and (row.get("description") or "")
+			== (origen_rows[row.get("sales_invoice_item")].get("description") or "")
+			for row in lineas
+		)
+		if es_devolucion:
+			return NOTA_CREDITO_DEVOLUCION
+
+		# Descuento / Bonificación: estado completo generado por la acción (cuenta + descripción + stock).
+		company = self.get("company") or si.get("company")
+		cuenta = get_cuenta_descuentos(company)
+		es_descuento = (
+			bool(cuenta)
+			and cint(si.get("update_stock")) == 0
+			and all(
+				row.get("income_account") == cuenta
+				and (row.get("description") or "")
+				== build_descuento_description(
+					origen_rows[row.get("sales_invoice_item")].get("description")
+					or origen_rows[row.get("sales_invoice_item")].get("item_name")
+				)
+				for row in lineas
+			)
+		)
+		if es_descuento:
+			return NOTA_CREDITO_DESCUENTO
+
+		# Ni devolución ni descuento exactos → NO clasificar por default; bloquear.
+		self._throw_estado_nc_invalido(
+			_(
+				"La Sales Invoice Return no coincide exactamente con un estado válido de devolución de "
+				"mercancía ni de descuento/bonificación; revísela antes de timbrar."
+			)
+		)
+
+	def _set_tipo_from_context(self) -> None:
+		"""Establecer tipo y códigos SAT según contexto (derivación autoritativa, solo en Draft).
+
+		`fm_tipo_nota_credito` es derivado/read-only: refleja el estado exacto de la SI Return y de él
+		se derivan simétricamente los códigos SAT. La clasificación es fail-closed (bloquea estados
+		ambiguos) y no reinterpreta ni modifica documentos Submitted/Cancelled (guard de docstatus).
+		"""
+		# Protección explícita: no reinterpretar ni modificar documentos ya emitidos,
+		# independientemente de si validate() se invoca.
+		if cint(self.get("docstatus")) != 0:
+			return
+
 		if self._is_sales_invoice_return():
+			# Clasificación POSITIVA y fail-closed PRIMERO: si el estado es ambiguo lanza aquí, ANTES
+			# de mutar cualquier campo fiscal (no deja la FFM parcialmente derivada).
+			motivo = self._classify_nota_credito()
+
+			self.fm_tipo_nota_credito = motivo
 			self.fm_tipo_comprobante = "E - Egreso"
 			self.fm_payment_method_sat = "PUE"  # SAT: PPD not allowed on credit notes
 			self.fm_uuid_relacionado = self.fm_uuid_relacionado or self._find_uuid_cfdi_origen()
 
-			# Opción X: preseleccionar el motivo desde la cuenta contable si el operador ya
-			# asignó la cuenta de descuentos configurada en las líneas antes del Submit.
-			self._detect_nota_credito_motivo()
-
-			if self._is_nota_descuento():
-				# Descuento / bonificación (Issue #137): el usuario selecciona la intención de
-				# negocio en fm_tipo_nota_credito y aquí se derivan los códigos SAT.
+			if motivo == NOTA_CREDITO_DESCUENTO:
+				# Descuento / bonificación (Issue #137):
 				#   TipoRelación 01 · UsoCFDI G02 · FormaPago 15 (Condonación) · MetodoPago PUE.
-				# El concepto fiscal se describe como 'Descuento' en el payload (timbrado_api),
-				# conservando Item/ClaveProdServ e impuestos proporcionales.
 				self.fm_tipo_relacion_sat = "01 - " + TIPO_RELACION["01"]
 				self.fm_cfdi_use = CFDI_USE_DESCUENTO
 				self.fm_forma_pago_timbrado = FORMA_PAGO_DESCUENTO
 			else:
-				# Devolución física de mercancía → TipoRelación 03 (normativo, Issue #116).
-				# Sin regresión: comportamiento histórico intacto.
-				self.fm_tipo_relacion_sat = self.fm_tipo_relacion_sat or "03 - " + TIPO_RELACION["03"]
+				# Devolución física de mercancía → TipoRelación 03 (normativo, Issue #116), FORZADO.
+				# UsoCFDI G02 aplica también a devoluciones (criterio SAT).
+				self.fm_tipo_relacion_sat = "03 - " + TIPO_RELACION["03"]
+				self.fm_cfdi_use = CFDI_USE_DESCUENTO
+				# FormaPago: eliminar residuo del modo descuento y delegar en la lógica existente
+				# (basada en outstanding de la SI origen). No se cambia la política de FormaPago (#136).
+				if self.fm_forma_pago_timbrado == FORMA_PAGO_DESCUENTO:
+					self.fm_forma_pago_timbrado = None
+				self._auto_populate_forma_pago_tipo_e()
 
 			# Inherit venta-mostrador flag from origin — no customization allowed.
-			# FormaPago for tipo E (devolución física) is determined in
-			# auto_load_payment_method_from_sales_invoice() based on outstanding_amount of
-			# origin SI. Para descuento la FormaPago ya quedó fijada arriba (15 - Condonación).
 			origin_ffm = self._get_origin_ffm()
 			if origin_ffm:
 				self.fm_facturar_venta_mostrador = cint(origin_ffm.get("fm_facturar_venta_mostrador", 0))

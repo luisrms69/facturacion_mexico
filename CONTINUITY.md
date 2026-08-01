@@ -1,79 +1,71 @@
 # CONTINUITY.md — facturacion_mexico
 
-**Fecha:** 2026-07-30
-**Rama activa:** `feat/nc-descuento-inventario-reversion`
-**Tarea actual:** Robustez de la Nota de Crédito por descuento en la Sales Invoice Return (puntos 1-3). Listo para commit; falta autorización de commit + push + PR.
+**Fecha:** 2026-08-01
+**Rama activa:** `fix/ffm-tipo-nc-derivado-simetrico`
+**Tarea actual:** Puntos 4-5 FFM — `fm_tipo_nota_credito` derivado/read-only + clasificación positiva fail-closed. Listo para commit; falta autorización de push + PR.
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-Endurecimiento del flujo de **Nota de Crédito por descuento/bonificación**, acotado a la **Sales Invoice Return en borrador** (la FFM no participa). Tres cambios: (1) al «Aplicar como Descuento» se fuerza `update_stock = 0` (reversible desde `return_against.update_stock`); (2) guard que bloquea la conversión si `Enable Discount Accounting = ON`, sin apagar el setting global; (3) acción inversa «Revertir a Devolución de mercancía» que restaura `income_account`/`description`/`update_stock` **exactos desde el origen** (vía `sales_invoice_item`), fail-closed si una línea no mapea, y solo en borrador.
+Hacer `fm_tipo_nota_credito` un **dato derivado y read-only** en la FFM: la decisión Descuento vs Devolución se toma en la **Sales Invoice Return**; la FFM la **clasifica desde el estado exacto del origen** (vía `sales_invoice_item`) de forma **positiva y fail-closed**. Devolución exacta → 01... no: **03/G02/FormaPago general**; descuento exacto → **01/G02/15**; estado ambiguo o vínculos faltantes → **bloquea** sin mutación parcial. Protección `docstatus` para no reinterpretar submitted/cancelled.
 
 Plan que estoy siguiendo:
-Puntos 1-3 de la revisión GUI post-#220. ADR `docs/adr/0025-notas-credito-cfdi-tipo-e-issue116.md`, sección «Robustez operativa descuento ⇄ devolución en SI Return».
+ADR `docs/adr/0025-notas-credito-cfdi-tipo-e-issue116.md`, sección «Puntos 4–5». Diseño aprobado: Opción A (no bandera en SI). PATCH 1.3.1.
 
 Objetivo inmediato:
-`/ship commit` → `/ship push` → `/ship pr` (base `main`), con autorización explícita en cada paso.
+`/ship push` → `/ship pr` (base `main`), con autorización explícita en cada paso.
 
 Criterio de avance:
-Tests focalizados verdes (13 nuevos + acción/reversión) + ruff/prettier/mkdocs `--strict` limpios + diff contra `upstream/main` solo con archivos en alcance + bump `1.3.0`.
+Focalizados verdes (clasificación exacta, estados ambiguos, ciclo Draft→Submit, meta) + full suite en baseline (2 failures/11 errors preexistentes) + ruff/prettier/mkdocs limpios.
 
 ---
 
 ## Estado actual
 
 ### Ya cerrado
-- Puntos 1-3 implementados (4 archivos: `api/nota_credito.py`, JS del botón, tests, ADR 0025).
-- Bump `__version__` `1.2.0 → 1.3.0` (MINOR: nueva acción de reversión + endpoints).
-- Rama `feat/nc-descuento-inventario-reversion` creada **desde `upstream/main`** (PR #220 ya mergeado; la rama vieja quedó obsoleta).
-- PR #221 abierto (base `main`), CI verde.
-- **CodeRabbit #221 #1/#2/#4 atendidos**: #1 ADR lista el guard Enable Discount Accounting; #2 `check_permission` en endpoints whitelisted (write en aplicar/revertir, read en estado y sobre el origen); #4 JS quita ambos botones antes de agregar el actual. + tests de permisos.
-
-### En progreso
-- Ninguna edición de código pendiente en este PR.
+- Controller: `_classify_nota_credito` (positivo, fail-closed, no muta antes de derivar) reemplaza a `_detect_nota_credito_motivo`; derivación simétrica 01/03 con G02 en ambos; guard `docstatus`; `-> None`.
+- DocType JSON: `fm_tipo_nota_credito` `read_only:1` + description corta. JS: campo siempre bloqueado.
+- Tests: clasificación (7 escenarios), derivación, protección submitted/cancelled, ciclo Draft→Submit, meta.
+- Bump `1.3.0 → 1.3.1`. ADR actualizado.
+- `bench migrate` corrido **solo** en `test-facturacion.localhost` (metadata read_only/description).
 
 ### Pendiente inmediato
-1. Merge de PR #221 (lo hace el usuario) — tag `v1.3.0` + Release tras merge (con autorización).
-2. PR independiente de puntos 4-5 (FFM).
+1. `/ship push` (con autorización).
+2. `/ship pr` hacia `main` (con autorización) → tras merge: tag `v1.3.1` + Release.
 
 ### No repetir
-- **NO** reutilizar la rama vieja `feat/nota-credito-descuento-relacion-01` (PR #220 ya mergeado por squash; PR desde ahí saldría sucio).
-- **NO** tocar FFM en este PR: `fm_tipo_nota_credito`, derivación fiscal, visibilidad/textos → PR independiente de puntos 4-5.
-- **NO** usar `discount_account` para la NC de descuento (invierte/infla el asiento).
-- **NO** commitear `one_offs/` ni `working_docs/`.
+- **NO** reintroducir default «sin cuenta → devolución»: la clasificación es por **estado exacto**, fail-closed.
+- **NO** clasificar por prefijo de descripción; validar el estado completo (`build_descuento_description`, income_account, update_stock).
+- **NO** mutar campos fiscales antes de lanzar en estado ambiguo.
+- **NO** tocar `depends_on`/visibilidad ni otros pendientes CodeRabbit (#3 test guard, RG-001, IDs mocks, RG-003 get_doc, DRY JS SI).
 
 ---
 
 ## Decisiones vigentes
-- La reversión descuento ⇄ devolución vive **solo en la SI Return en borrador**; la FFM no participa.
-- El estado de la nota (qué botón mostrar) se decide por el **estado contable real** (`income_account == cuenta_descuentos`), no por la descripción.
-- Reversión **fail-closed**: sin vínculo `sales_invoice_item` exacto → bloquea sin modificar.
-- Precondición `Enable Discount Accounting = OFF` ahora **protegida por guard** en la acción (antes solo documentada).
-- **FormaPago `15 - Condonación` (PUE)** para la NC de descuento está **confirmada por el contador** (ADR 0025). No es un pendiente. Lo que permanece abierto en #136 son otros escenarios tipo E (p. ej. `outstanding=0` que hereda `99`), no el de descuento.
+- `fm_tipo_nota_credito` es derivado/read-only; fuente de verdad = estado de la SI Return.
+- UsoCFDI **G02** aplica a **ambos** (descuento y devolución).
+- FormaPago de devolución: se limpia residuo de descuento y se delega en `_auto_populate_forma_pago_tipo_e` (política #136 sin cambios).
+- Clasificación fail-closed corre en `validate` de cada FFM Draft de nota de crédito y **puede lanzar** (a validar en GUI del despliegue).
 
 ---
 
 ## Archivos relevantes ahora
 
 ### Leer primero
-- `docs/adr/0025-notas-credito-cfdi-tipo-e-issue116.md` (sección «Robustez operativa descuento ⇄ devolución»).
-
-### Probablemente editar
-- (ninguno; puntos 1-3 cerrados salvo hallazgos en review/CI).
+- `docs/adr/0025-notas-credito-cfdi-tipo-e-issue116.md` (sección «Puntos 4–5»).
 
 ### No tocar
-- `facturacion_fiscal/timbrado_api.py`, `factura_fiscal_mexico.py`/`.js` (pertenecen al PR de puntos 4-5).
+- `timbrado_api.py`, `api/nota_credito.py` (flujo SI-stage, ya en 1.3.0).
 
 ---
 
 ## Riesgos / cuidados
-- **CodeRabbit #221 pendientes deliberados:** #3 (no mockear `frappe.get_doc` en tests — deuda RG-003; no se cambian firmas de código productivo solo por el mock) y #5 (helper DRY de botones JS — bajo valor).
-- Pendientes para el PR independiente de puntos 4-5 (del review de #220): forzar TipoRelación 03 en `_set_tipo_from_context`, JS `fm_tipo_nota_credito` editable en `docstatus==2`, y `-> None` en `_set_tipo_from_context`.
-- Fuera por bajo valor/alcance: #1 (rename RG-001), #3 (test integración del guard), #6 (IDs de mocks in-memory).
+- **Cambio de comportamiento:** una SI Return editada manualmente o sin `sales_invoice_item` bloquea la creación/guardado de la FFM (fail-closed). Devoluciones `make_return_doc` y descuentos por la acción pasan sin bloqueo (0 regresiones en full suite).
+- Este PR **requiere `bench migrate`** al instalar (metadata del DocType).
 
 ---
 
 ## Información faltante
-- Confirmación normativa de otros escenarios FormaPago tipo E del Issue #136 (escenario `outstanding=0 → 99`). No aplica al flujo de descuento (ya confirmado) ni bloquea este PR.
+- Validación GUI del bloque de despliegue de 1.3.1 (estados válidos/ambiguos en el sitio real).

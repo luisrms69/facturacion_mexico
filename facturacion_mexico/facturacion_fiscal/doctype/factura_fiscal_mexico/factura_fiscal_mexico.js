@@ -1270,15 +1270,10 @@
 		lock("fm_facturar_venta_mostrador");
 		lock("fm_tipo_relacion_sat");
 		lock("fm_uuid_relacionado");
-		// Tipo de Nota de Crédito: es la ÚNICA entrada del usuario (intención de negocio).
-		// Editable mientras es borrador; se bloquea una vez enviado/timbrado.
-		if (frm.get_field("fm_tipo_nota_credito")) {
-			frm.set_df_property(
-				"fm_tipo_nota_credito",
-				"read_only",
-				frm.doc.docstatus === 1 ? 1 : 0
-			);
-		}
+		// Tipo de Nota de Crédito: dato DERIVADO (read-only por DocType). La decisión Descuento vs
+		// Devolución se toma en la Sales Invoice Return; la FFM solo la refleja. Se bloquea también
+		// aquí por consistencia (no se re-habilita según docstatus).
+		lock("fm_tipo_nota_credito");
 	}
 
 	function setup_payment_method_radio_buttons(frm) {
