@@ -2,20 +2,20 @@
 
 **Fecha:** 2026-08-03
 **Rama activa:** `fix/ffm-tipo-nc-derivado-simetrico`
-**Tarea actual:** Corrección del control de visibilidad del botón "Crear Factura Fiscal" en Sales Invoice (+ aviso RFC).
+**Tarea actual:** Documentación de usuario del flujo de Notas de Crédito (Descuento/Bonificación ↔ Devolución) + botones fiscales.
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-Fix de la lógica que decide cuándo mostrar el botón primario "Crear Factura Fiscal" y el aviso de RFC en la Sales Invoice. Se corrigió una regresión donde una FFM ya timbrada volvía a mostrar el botón, y se sumó el bloqueo para FFM en Draft, sin perder el aviso de RFC.
+Documentación de usuario del flujo de Notas de Crédito. El fix del botón fiscal + aviso RFC ya está commiteado (`3e22101`) y pusheado a `upstream`. Esta tarea agrega la página de usuario `docs/usuario/notas-credito.md`.
 
 Plan que estoy siguiendo:
-Instrucciones directas del usuario (sesión de depuración del botón). No hay issue/PR aún.
+Instrucciones directas del usuario. El PR de la rama está preparado pero NO creado aún (pendiente de autorización).
 
 Objetivo inmediato:
-Commit hecho de los 3 archivos + este CONTINUITY.md. Siguiente paso lo decide el usuario (posible push/PR + "escenario B" de limpieza arquitectónica aún NO autorizado).
+Commit documental (`docs/usuario/notas-credito.md` + `mkdocs.yml` + este CONTINUITY.md). Después, el usuario decide crear el PR (`/ship pr` ya validado: base main, versión 1.3.1 PATCH).
 
 Criterio de avance:
 `can_stamp=false` para FFM activa/timbrada Y para FFM Draft; `can_stamp=true` solo sin FFM y con condiciones normales; aviso RFC visible solo cuando `can_stamp=true`.

@@ -59,6 +59,7 @@ nav:
     - usuario/index.md
     - Primeros Pasos: usuario/getting-started.md
     - Emitir un CFDI: usuario/emitir-cfdi.md
+    - Notas de Crédito: usuario/notas-credito.md
     - Cancelar CFDI: usuario/cancelar-cfdi.md
     - Verificar estado en FacturAPI: usuario/verificar-estado-facturapi.md
     - Complemento de Pago: usuario/complemento-pago.md
