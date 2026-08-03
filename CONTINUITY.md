@@ -2,7 +2,7 @@
 
 **Fecha:** 2026-08-03
 **Rama activa:** `fix/ffm-tipo-nc-derivado-simetrico`
-**Tarea actual:** Atención de la revisión de CodeRabbit del PR #222 (correcciones #2–#5; #1 diferido a issue).
+**Tarea actual:** PR #222 — corrección de permisos de cancelación de Sales Invoice (estado inválido `cancel=1, submit=0`) detectada durante instalación de HRMS.
 
 ---
 
@@ -34,10 +34,14 @@ CodeRabbit sin comentarios accionables pendientes salvo el #1 (que vive en el is
 - Botón fiscal + aviso RFC: `can_stamp` excluye `has_active_ffm` **y** `has_draft_ffm`; guard `frm.__fm_can_stamp` en `add_timbrar_button`; aviso RFC gateado por `can_stamp`.
 - Doc de usuario `docs/usuario/notas-credito.md` (en nav de MkDocs).
 - CodeRabbit revisado (reporte en `frappe-infrastructure/checkpoints/coderabbit-pr222-review.md`).
+- CodeRabbit #2/#3/#4/#5 atendidos y commiteados (`e856671`); #1 diferido al issue #223.
 
 ### En progreso
 
-- Correcciones de revisión CodeRabbit #2 (doc: el Item se conserva), #3/#4 (CONTINUITY/MD022), #5 (`NoReturn`).
+- Permisos Sales Invoice: `Facturacion Mexico Manager` y `System Manager` pasan a `submit=1, cancel=1`
+  (antes `cancel=1, submit=0`, inválido en Frappe). Corregido en `fixtures/docperm.json` y en la
+  segunda fuente `api/fiscal_operations.py::assign_facturacion_permissions()`. Test de fixture
+  agregado (`test_docperm_sales_invoice_permissions.py`). La lógica de cancelación no cambia.
 
 ### Pendiente inmediato
 
