@@ -45,9 +45,15 @@ CUENTA_DESC = "501-005 - Descuentos y bonificaciones - TC"
 UUID_ORIGEN_C = "550E8400-E29B-41D4-A716-446655440000"
 
 
-def _make_ffm(motivo, uuid=UUID_ORIGEN_C):
-	"""FFM de una nota de crédito (SI return) con la intención de negocio indicada."""
+def _make_ffm(motivo, uuid=UUID_ORIGEN_C, docstatus=0):
+	"""FFM de una nota de crédito (SI return) con la intención de negocio indicada.
+
+	Aísla la DERIVACIÓN de códigos SAT «dado un motivo»: se stubbea `_classify_nota_credito` para que
+	devuelva el `motivo` pasado (la clasificación desde el estado exacto de la SI Return se prueba en
+	`TestClasificacionNotaCredito`).
+	"""
 	inst = FacturaFiscalMexico.__new__(FacturaFiscalMexico)
+	inst.docstatus = docstatus
 	inst.sales_invoice = "SINV-C-RETORNO"
 	inst.fm_tipo_nota_credito = motivo
 	inst.fm_tipo_comprobante = None
@@ -59,8 +65,12 @@ def _make_ffm(motivo, uuid=UUID_ORIGEN_C):
 	inst.fm_facturar_venta_mostrador = 0
 	# Aislar dependencias de BD/SI origen (boundary)
 	inst._is_sales_invoice_return = lambda: True
+	inst._classify_nota_credito = lambda: motivo  # honrar el motivo pasado (no clasificar aquí)
 	inst._find_uuid_cfdi_origen = lambda: uuid
 	inst._get_origin_ffm = lambda: None
+	# FormaPago de devolución la resuelve _auto_populate_forma_pago_tipo_e (basada en outstanding):
+	# no-op por defecto en tests (los tests de orden la sobrescriben con un sentinel).
+	inst._auto_populate_forma_pago_tipo_e = lambda: None
 	return inst
 
 
@@ -100,18 +110,146 @@ class TestDerivacionFiscalNotaCredito(FrappeTestCase):
 		self.assertEqual(ffm.fm_uuid_relacionado, UUID_ORIGEN_C)
 
 	def test_devolucion_mercancia_relacion_03(self):
-		"""Devolución física → relación 03 (comportamiento histórico, sin regresión)."""
+		"""Devolución física → relación 03. UsoCFDI G02 aplica también a devoluciones (criterio SAT)."""
 		ffm = _make_ffm("Devolución de mercancía")
 		ffm._set_tipo_from_context()
 		self.assertTrue(ffm.fm_tipo_relacion_sat.startswith("03 - "))
-		# No debe forzar G02 ni FormaPago 15 en devolución física
-		self.assertIsNone(ffm.fm_cfdi_use)
+		self.assertEqual(ffm.fm_cfdi_use, "G02")
 
 	def test_vacio_es_devolucion_sin_regresion(self):
 		"""Vacío se comporta como devolución física (relación 03)."""
 		ffm = _make_ffm("")
 		ffm._set_tipo_from_context()
 		self.assertTrue(ffm.fm_tipo_relacion_sat.startswith("03 - "))
+
+
+# ── P4: derivación simétrica, autoritativa, read-only y protección de emitidos ─
+
+
+class TestDerivacionSimetricaYProteccion(FrappeTestCase):
+	"""Derivación simétrica descuento⇄devolución, auto-sanado desde SI Return, no-adivinar y
+	protección de documentos Submitted/Cancelled."""
+
+	def test_switch_descuento_a_devolucion_no_conserva_residuo(self):
+		"""Estado residual de descuento (01/G02/15) → al ser devolución fuerza 03 y limpia FormaPago."""
+		ffm = _make_ffm("Devolución de mercancía")
+		# Simula residuo de un estado previo de descuento
+		ffm.fm_tipo_relacion_sat = "01 - residuo de descuento"
+		ffm.fm_forma_pago_timbrado = "15 Condonación"
+		ffm._auto_populate_forma_pago_tipo_e = lambda: setattr(ffm, "fm_forma_pago_timbrado", "AUTO-POP")
+		ffm._set_tipo_from_context()
+		self.assertTrue(ffm.fm_tipo_relacion_sat.startswith("03 - "))  # forzado, no queda 01
+		self.assertEqual(ffm.fm_cfdi_use, "G02")
+		self.assertEqual(ffm.fm_forma_pago_timbrado, "AUTO-POP")  # residuo 15 eliminado + delegación
+
+	def test_switch_devolucion_a_descuento_no_conserva_residuo(self):
+		"""Estado residual de devolución (03) → al ser descuento fuerza 01/G02/15."""
+		ffm = _make_ffm("Descuento / Bonificación")
+		ffm.fm_tipo_relacion_sat = "03 - residuo de devolución"
+		ffm._set_tipo_from_context()
+		self.assertTrue(ffm.fm_tipo_relacion_sat.startswith("01 - "))
+		self.assertEqual(ffm.fm_cfdi_use, "G02")
+		self.assertEqual(ffm.fm_forma_pago_timbrado, "15 Condonación")
+
+	def test_devolucion_formapago_orden_delegacion(self):
+		"""El residuo 15 se limpia y luego _auto_populate_forma_pago_tipo_e aplica la lógica existente."""
+		ffm = _make_ffm("Devolución de mercancía")
+		ffm.fm_forma_pago_timbrado = "15 Condonación"
+		llamado = {"n": 0}
+
+		def _auto():
+			# Al ejecutarse, el residuo ya fue limpiado (None)
+			llamado["n"] += 1
+			llamado["forma_al_entrar"] = ffm.fm_forma_pago_timbrado
+			ffm.fm_forma_pago_timbrado = "99 Por definir"
+
+		ffm._auto_populate_forma_pago_tipo_e = _auto
+		ffm._set_tipo_from_context()
+		self.assertEqual(llamado["n"], 1)
+		self.assertIsNone(llamado["forma_al_entrar"])  # residuo limpiado antes de delegar
+		self.assertEqual(ffm.fm_forma_pago_timbrado, "99 Por definir")
+
+	def test_submitted_no_se_reinterpreta(self):
+		"""docstatus=1: la derivación no corre (protección explícita), no modifica el documento."""
+		ffm = _make_ffm("Descuento / Bonificación", docstatus=1)
+		ffm.fm_tipo_relacion_sat = "VALOR-PREVIO"
+		ffm.fm_cfdi_use = "USO-PREVIO"
+		ffm._set_tipo_from_context()
+		self.assertEqual(ffm.fm_tipo_relacion_sat, "VALOR-PREVIO")
+		self.assertEqual(ffm.fm_cfdi_use, "USO-PREVIO")
+
+	def test_cancelled_no_se_reinterpreta(self):
+		"""docstatus=2: idéntica protección — no se reinterpreta ni modifica."""
+		ffm = _make_ffm("Descuento / Bonificación", docstatus=2)
+		ffm.fm_tipo_relacion_sat = "VALOR-PREVIO"
+		ffm._set_tipo_from_context()
+		self.assertEqual(ffm.fm_tipo_relacion_sat, "VALOR-PREVIO")
+
+
+# ── P4 · Gate 2: ciclo Draft → Submit (documento real, sin PAC) ───────────────
+
+
+class TestCicloDraftSubmit(FrappeTestCase):
+	"""Confirma que la derivación ocurre en el guardado en Draft (docstatus=0) y que, al pasar a
+	docstatus=1 (Submit), el guard NO deja la FFM con valores vacíos ni residuales.
+
+	Flujo real: get_or_create_active_ffm inserta la FFM en Draft (validate deriva); el timbrado exige
+	FFM submitted (timbrado_api: 'debe estar submitted... Submit primero'). FFM no tiene on_submit →
+	el Submit solo cambia docstatus, sin contactar el PAC. Aquí se usa un Document real y se aíslan las
+	dependencias de SI origen (boundary); no se timbra."""
+
+	def _ffm_real(self, motivo):
+		doc = frappe.get_doc(
+			{
+				"doctype": "Factura Fiscal Mexico",
+				"sales_invoice": "SINV-C-RETORNO",
+				"company": "_Test Company",
+			}
+		)
+		doc._is_sales_invoice_return = lambda: True
+		doc._classify_nota_credito = lambda: motivo  # clasificación aislada (se prueba aparte)
+		doc._find_uuid_cfdi_origen = lambda: UUID_ORIGEN_C
+		doc._get_origin_ffm = lambda: None
+		# FormaPago de devolución la resuelve la lógica existente (sentinel en test).
+		doc._auto_populate_forma_pago_tipo_e = lambda: setattr(
+			doc, "fm_forma_pago_timbrado", "15 Condonación"
+		)
+		return doc
+
+	def _draft_deriva_y_submit_preserva(self, motivo):
+		doc = self._ffm_real(motivo)
+		# FASE DRAFT (docstatus=0): el guardado deriva todo
+		doc.docstatus = 0
+		doc._set_tipo_from_context()
+		derivados = {
+			"fm_tipo_nota_credito": doc.fm_tipo_nota_credito,
+			"fm_tipo_relacion_sat": doc.fm_tipo_relacion_sat,
+			"fm_cfdi_use": doc.fm_cfdi_use,
+			"fm_forma_pago_timbrado": doc.fm_forma_pago_timbrado,
+		}
+		for campo, valor in derivados.items():
+			self.assertTrue(valor, f"{campo} quedó vacío en Draft antes de Submit")
+
+		# FASE SUBMIT (docstatus=1): validate re-corre; el guard NO altera ni vacía
+		doc.docstatus = 1
+		doc._set_tipo_from_context()
+		for campo, valor in derivados.items():
+			self.assertEqual(getattr(doc, campo), valor, f"{campo} cambió/residuo tras Submit")
+		return derivados
+
+	def test_ciclo_descuento_draft_deriva_submit_preserva(self):
+		d = self._draft_deriva_y_submit_preserva("Descuento / Bonificación")
+		self.assertEqual(d["fm_tipo_nota_credito"], "Descuento / Bonificación")
+		self.assertTrue(d["fm_tipo_relacion_sat"].startswith("01 - "))
+		self.assertEqual(d["fm_cfdi_use"], "G02")
+		self.assertEqual(d["fm_forma_pago_timbrado"], "15 Condonación")
+
+	def test_ciclo_devolucion_draft_deriva_submit_preserva(self):
+		d = self._draft_deriva_y_submit_preserva("Devolución de mercancía")
+		self.assertEqual(d["fm_tipo_nota_credito"], "Devolución de mercancía")
+		self.assertTrue(d["fm_tipo_relacion_sat"].startswith("03 - "))
+		self.assertEqual(d["fm_cfdi_use"], "G02")
+		self.assertTrue(d["fm_forma_pago_timbrado"])  # resuelta por la lógica general
 
 
 # ── Concepto fiscal e independencia de la ClaveProdServ ───────────────────────
@@ -233,6 +371,32 @@ class TestMetaCampoTipoNotaCredito(FrappeTestCase):
 		self.assertIn("Devolución de mercancía", opciones)
 		self.assertIn("Descuento / Bonificación", opciones)
 
+	def test_tipo_nota_credito_es_readonly(self):
+		"""P4/P5: el campo es derivado → read-only en el DocType (no editable en FFM)."""
+		meta = frappe.get_meta("Factura Fiscal Mexico")
+		field = next(f for f in meta.fields if f.fieldname == "fm_tipo_nota_credito")
+		self.assertEqual(field.read_only, 1)
+
+	def test_tipo_nota_credito_description_corta(self):
+		"""P5: description exacta y corta."""
+		meta = frappe.get_meta("Factura Fiscal Mexico")
+		field = next(f for f in meta.fields if f.fieldname == "fm_tipo_nota_credito")
+		self.assertEqual(
+			field.description,
+			"Descuento/Bonificación → relación 01. Devolución de mercancía → relación 03.",
+		)
+
+	def test_visibilidad_tres_campos_intacta(self):
+		"""P5: los 3 campos siguen visibles solo para tipo E; relación/uuid siguen read-only."""
+		meta = frappe.get_meta("Factura Fiscal Mexico")
+		esperado = "eval:doc.fm_tipo_comprobante && doc.fm_tipo_comprobante.startsWith('E')"
+		for fn in ("fm_tipo_nota_credito", "fm_tipo_relacion_sat", "fm_uuid_relacionado"):
+			field = next(f for f in meta.fields if f.fieldname == fn)
+			self.assertEqual(field.depends_on, esperado, fn)
+		for fn in ("fm_tipo_relacion_sat", "fm_uuid_relacionado"):
+			field = next(f for f in meta.fields if f.fieldname == fn)
+			self.assertEqual(field.read_only, 1, fn)
+
 	def test_company_settings_tiene_cuenta_descuentos(self):
 		meta = frappe.get_meta("Facturacion Mexico Company Settings")
 		field = next((f for f in meta.fields if f.fieldname == "cuenta_descuentos"), None)
@@ -266,62 +430,181 @@ class TestCreditNoteLinesUseDiscountAccount(FrappeTestCase):
 		self.assertFalse(credit_note_lines_use_discount_account(si, CUENTA_DESC))
 
 
-class TestPreseleccionMotivo(FrappeTestCase):
-	"""_detect_nota_credito_motivo: preselección solo cuando el campo está vacío (punto 6 y 8)."""
+_FFM_MOD = "facturacion_mexico.facturacion_fiscal.doctype.factura_fiscal_mexico.factura_fiscal_mexico"
+CUENTA_DESC_CFG = "401-001-003 - Descuentos - TC"
 
-	def _ffm(self, motivo_inicial=""):
+
+class TestClasificacionNotaCredito(FrappeTestCase):
+	"""_classify_nota_credito: clasificación POSITIVA y fail-closed desde el estado EXACTO de la SI
+	Return. Devolución/Descuento solo con coincidencia exacta; estado ambiguo o vínculos faltantes →
+	bloquea SIN mutación parcial de campos fiscales."""
+
+	def _origen(self, update_stock=1):
+		return _dict(
+			{
+				"name": "SINV-ORIGEN",
+				"company": "_Test Company",
+				"update_stock": update_stock,
+				"items": [
+					_dict(
+						{
+							"name": "O1",
+							"income_account": "Ventas - TC",
+							"description": "Llanta 205",
+							"item_name": "LLANTA-A",
+						}
+					),
+					_dict(
+						{
+							"name": "O2",
+							"income_account": "Ventas - TC",
+							"description": "Rin 16",
+							"item_name": "RIN-B",
+						}
+					),
+				],
+			}
+		)
+
+	def _linea(self, name, si_item, income, desc, item="LLANTA-A"):
+		return _dict(
+			{
+				"name": name,
+				"sales_invoice_item": si_item,
+				"income_account": income,
+				"description": desc,
+				"item_code": item,
+				"idx": 1,
+			}
+		)
+
+	def _si(self, lineas, update_stock, return_against="SINV-ORIGEN"):
+		return _dict(
+			{
+				"name": "SINV-C-RETORNO",
+				"return_against": return_against,
+				"company": "_Test Company",
+				"update_stock": update_stock,
+				"items": lineas,
+			}
+		)
+
+	def _ffm(self):
 		inst = FacturaFiscalMexico.__new__(FacturaFiscalMexico)
+		inst.docstatus = 0
 		inst.sales_invoice = "SINV-C-RETORNO"
 		inst.company = "_Test Company"
-		inst.fm_tipo_nota_credito = motivo_inicial
+		inst.fm_tipo_nota_credito = ""
+		inst.fm_tipo_comprobante = None
+		inst.fm_tipo_relacion_sat = None
+		inst.fm_uuid_relacionado = None
+		inst.fm_cfdi_use = None
+		inst.fm_forma_pago_timbrado = None
+		inst.fm_payment_method_sat = None
+		inst.fm_facturar_venta_mostrador = 0
+		inst._is_sales_invoice_return = lambda: True
+		inst._find_uuid_cfdi_origen = lambda: UUID_ORIGEN_C
+		inst._get_origin_ffm = lambda: None
+		inst._auto_populate_forma_pago_tipo_e = lambda: setattr(
+			inst, "fm_forma_pago_timbrado", "FORMA-GENERAL"
+		)
 		return inst
 
-	def test_preselecciona_descuento_si_cuenta_coincide(self):
-		inst = self._ffm("")
-		with (
-			patch(
-				"facturacion_mexico.facturacion_fiscal.utils.get_cuenta_descuentos",
-				return_value=CUENTA_DESC,
-			),
-			patch(
-				"facturacion_mexico.facturacion_fiscal.utils.credit_note_lines_use_discount_account",
-				return_value=True,
-			),
-		):
-			inst._detect_nota_credito_motivo()
-		self.assertEqual(inst.fm_tipo_nota_credito, "Descuento / Bonificación")
+	def _derivar(self, ffm, si, origen, cuenta):
+		def _side(doctype, name):
+			return si if name == "SINV-C-RETORNO" else origen
 
-	def test_no_infiere_si_cuenta_no_coincide(self):
-		"""Punto 8: si las cuentas no coinciden, no inferir → queda vacío (devolución)."""
-		inst = self._ffm("")
 		with (
+			patch(_FFM_MOD + ".frappe.get_doc", side_effect=_side),
 			patch(
 				"facturacion_mexico.facturacion_fiscal.utils.get_cuenta_descuentos",
-				return_value=CUENTA_DESC,
-			),
-			patch(
-				"facturacion_mexico.facturacion_fiscal.utils.credit_note_lines_use_discount_account",
-				return_value=False,
+				return_value=cuenta,
 			),
 		):
-			inst._detect_nota_credito_motivo()
-		self.assertEqual(inst.fm_tipo_nota_credito, "")
+			ffm._set_tipo_from_context()
 
-	def test_no_sobrescribe_seleccion_previa(self):
-		"""Preselección no debe sobrescribir una elección explícita del usuario."""
-		inst = self._ffm("Devolución de mercancía")
-		with (
-			patch(
-				"facturacion_mexico.facturacion_fiscal.utils.get_cuenta_descuentos",
-				return_value=CUENTA_DESC,
-			),
-			patch(
-				"facturacion_mexico.facturacion_fiscal.utils.credit_note_lines_use_discount_account",
-				return_value=True,
-			),
-		):
-			inst._detect_nota_credito_motivo()
-		self.assertEqual(inst.fm_tipo_nota_credito, "Devolución de mercancía")
+	# (1) devolución exacta SIN cuenta_descuentos → 03/G02 + FormaPago general
+	def test_devolucion_exacta_sin_cuenta(self):
+		lineas = [
+			self._linea("R1", "O1", "Ventas - TC", "Llanta 205", "LLANTA-A"),
+			self._linea("R2", "O2", "Ventas - TC", "Rin 16", "RIN-B"),
+		]
+		ffm = self._ffm()
+		self._derivar(ffm, self._si(lineas, update_stock=1), self._origen(update_stock=1), cuenta=None)
+		self.assertEqual(ffm.fm_tipo_nota_credito, "Devolución de mercancía")
+		self.assertTrue(ffm.fm_tipo_relacion_sat.startswith("03 - "))
+		self.assertEqual(ffm.fm_cfdi_use, "G02")
+		self.assertEqual(ffm.fm_forma_pago_timbrado, "FORMA-GENERAL")
+
+	# (2) descuento exacto CON configuración → 01/G02/15
+	def test_descuento_exacto_con_config(self):
+		lineas = [
+			self._linea("R1", "O1", CUENTA_DESC_CFG, build_descuento_description("Llanta 205"), "LLANTA-A"),
+			self._linea("R2", "O2", CUENTA_DESC_CFG, build_descuento_description("Rin 16"), "RIN-B"),
+		]
+		ffm = self._ffm()
+		self._derivar(ffm, self._si(lineas, update_stock=0), self._origen(), cuenta=CUENTA_DESC_CFG)
+		self.assertEqual(ffm.fm_tipo_nota_credito, "Descuento / Bonificación")
+		self.assertTrue(ffm.fm_tipo_relacion_sat.startswith("01 - "))
+		self.assertEqual(ffm.fm_cfdi_use, "G02")
+		self.assertEqual(ffm.fm_forma_pago_timbrado, "15 Condonación")
+
+	# (3) descuento cuya configuración fue eliminada después → bloquea (no deriva 03)
+	def test_descuento_config_eliminada_bloquea(self):
+		lineas = [
+			self._linea("R1", "O1", CUENTA_DESC_CFG, build_descuento_description("Llanta 205"), "LLANTA-A"),
+			self._linea("R2", "O2", CUENTA_DESC_CFG, build_descuento_description("Rin 16"), "RIN-B"),
+		]
+		ffm = self._ffm()
+		with self.assertRaises(frappe.ValidationError):
+			self._derivar(ffm, self._si(lineas, update_stock=0), self._origen(), cuenta=None)
+		self.assertIsNone(ffm.fm_tipo_comprobante)  # sin mutación parcial
+		self.assertIsNone(ffm.fm_tipo_relacion_sat)
+
+	# (4) cuenta configurada pero DISTINTA de la usada en la SI → bloquea
+	def test_cuenta_distinta_de_la_usada_bloquea(self):
+		lineas = [
+			self._linea("R1", "O1", "OTRA - TC", build_descuento_description("Llanta 205"), "LLANTA-A"),
+			self._linea("R2", "O2", "OTRA - TC", build_descuento_description("Rin 16"), "RIN-B"),
+		]
+		ffm = self._ffm()
+		with self.assertRaises(frappe.ValidationError):
+			self._derivar(ffm, self._si(lineas, update_stock=0), self._origen(), cuenta=CUENTA_DESC_CFG)
+		self.assertIsNone(ffm.fm_tipo_comprobante)
+
+	# (5) línea con descripción modificada manualmente → bloquea
+	def test_linea_modificada_manualmente_bloquea(self):
+		lineas = [
+			self._linea("R1", "O1", "Ventas - TC", "Llanta 205", "LLANTA-A"),
+			self._linea("R2", "O2", "Ventas - TC", "DESCRIPCIÓN MODIFICADA", "RIN-B"),
+		]
+		ffm = self._ffm()
+		with self.assertRaises(frappe.ValidationError):
+			self._derivar(ffm, self._si(lineas, update_stock=1), self._origen(), cuenta=CUENTA_DESC_CFG)
+		self.assertIsNone(ffm.fm_tipo_comprobante)
+
+	# (6) línea sin sales_invoice_item → bloquea SIN mutación parcial
+	def test_linea_sin_vinculo_bloquea_sin_mutacion(self):
+		lineas = [
+			self._linea("R1", None, "Ventas - TC", "Llanta 205", "LLANTA-A"),  # sin vínculo
+			self._linea("R2", "O2", "Ventas - TC", "Rin 16", "RIN-B"),
+		]
+		ffm = self._ffm()
+		with self.assertRaises(frappe.ValidationError):
+			self._derivar(ffm, self._si(lineas, update_stock=1), self._origen(), cuenta=None)
+		self.assertIsNone(ffm.fm_tipo_comprobante)
+		self.assertIsNone(ffm.fm_tipo_relacion_sat)
+
+	# (6b) vínculo inexistente en el origen → bloquea
+	def test_linea_vinculo_inexistente_bloquea(self):
+		lineas = [
+			self._linea("R1", "NO-EXISTE", "Ventas - TC", "Llanta 205", "LLANTA-A"),
+			self._linea("R2", "O2", "Ventas - TC", "Rin 16", "RIN-B"),
+		]
+		ffm = self._ffm()
+		with self.assertRaises(frappe.ValidationError):
+			self._derivar(ffm, self._si(lineas, update_stock=1), self._origen(), cuenta=None)
+		self.assertIsNone(ffm.fm_tipo_comprobante)
 
 
 class TestGuardTimbradoContrato(FrappeTestCase):

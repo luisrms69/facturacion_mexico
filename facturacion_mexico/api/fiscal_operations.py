@@ -341,11 +341,15 @@ def assign_facturacion_permissions():
 		},
 		# DocType: Sales Invoice
 		{"doctype": "Sales Invoice", "role": "Facturacion Mexico User", "perms": {"read": 1}},
-		{"doctype": "Sales Invoice", "role": "Facturacion Mexico Manager", "perms": {"read": 1, "cancel": 1}},
+		{
+			"doctype": "Sales Invoice",
+			"role": "Facturacion Mexico Manager",
+			"perms": {"read": 1, "submit": 1, "cancel": 1},
+		},
 		{
 			"doctype": "Sales Invoice",
 			"role": "Facturacion Mexico System Manager",
-			"perms": {"read": 1, "cancel": 1},
+			"perms": {"read": 1, "submit": 1, "cancel": 1},
 		},
 	]
 

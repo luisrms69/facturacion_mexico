@@ -65,6 +65,7 @@ def _compute_facts(si) -> dict:
 
 	has_active_ffm = False
 	has_cancelled_ffm = False
+	has_draft_ffm = False
 	has_stamped_ffm = False
 	has_uuid = False
 	has_xml = False
@@ -88,6 +89,8 @@ def _compute_facts(si) -> dict:
 				has_cancelled_ffm = True
 			elif ffm.get("docstatus") == 1:
 				has_active_ffm = True
+			elif ffm.get("docstatus") == 0:
+				has_draft_ffm = True
 
 			has_stamped_ffm = has_uuid
 
@@ -109,6 +112,7 @@ def _compute_facts(si) -> dict:
 		{
 			"has_active_ffm": has_active_ffm,
 			"has_cancelled_ffm": has_cancelled_ffm,
+			"has_draft_ffm": has_draft_ffm,
 			"has_stamped_ffm": has_stamped_ffm,
 			"has_uuid": has_uuid,
 			"has_xml": has_xml,
@@ -189,7 +193,17 @@ def _compute_actions(facts: dict) -> dict:
 	fiscal_status = facts["fiscal_status"]
 	is_submitted = facts["is_submitted"]
 
-	can_stamp = is_submitted and fiscal_status in _TIMBRABLE_STATUSES and not facts["has_active_ffm"]
+	# Crear FFM solo si NO hay ya una FFM que deba abrirse/reutilizarse: ni activa/timbrada
+	# (docstatus=1) ni Draft (docstatus=0). Ambas exclusiones son necesarias — el snapshot
+	# fm_fiscal_status de la SI puede quedar desincronizado (p. ej. "ERROR") aunque la FFM ya
+	# esté TIMBRADA, por eso no basta con el gate de fiscal_status. FFM cancelada no bloquea
+	# (fiscal_status=CANCELADO ya la excluye y la refacturación tiene su propia acción).
+	can_stamp = (
+		is_submitted
+		and fiscal_status in _TIMBRABLE_STATUSES
+		and not facts.get("has_active_ffm", False)
+		and not facts.get("has_draft_ffm", False)
+	)
 
 	can_cancel_cfdi = (
 		is_submitted

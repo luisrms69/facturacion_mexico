@@ -163,7 +163,8 @@
    "fieldtype": "Select",
    "options": "\nDevolución de mercancía\nDescuento / Bonificación",
    "depends_on": "eval:doc.fm_tipo_comprobante && doc.fm_tipo_comprobante.startsWith('E')",
-   "description": "Intención de negocio de la nota de crédito. 'Descuento / Bonificación' deriva automáticamente TipoRelación 01, UsoCFDI G02 y FormaPago 15 - Condonación. Vacío o 'Devolución de mercancía' mantiene TipoRelación 03 (devolución física)."
+   "read_only": 1,
+   "description": "Descuento/Bonificación → relación 01. Devolución de mercancía → relación 03."
   },
   {
    "fieldname": "fm_tipo_relacion_sat",

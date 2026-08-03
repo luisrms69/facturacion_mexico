@@ -1,79 +1,93 @@
 # CONTINUITY.md — facturacion_mexico
 
-**Fecha:** 2026-07-30
-**Rama activa:** `feat/nc-descuento-inventario-reversion`
-**Tarea actual:** Robustez de la Nota de Crédito por descuento en la Sales Invoice Return (puntos 1-3). Listo para commit; falta autorización de commit + push + PR.
+**Fecha:** 2026-08-03
+**Rama activa:** `fix/ffm-tipo-nc-derivado-simetrico`
+**Tarea actual:** PR #222 — corrección de permisos de cancelación de Sales Invoice (estado inválido `cancel=1, submit=0`) detectada durante instalación de HRMS.
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-Endurecimiento del flujo de **Nota de Crédito por descuento/bonificación**, acotado a la **Sales Invoice Return en borrador** (la FFM no participa). Tres cambios: (1) al «Aplicar como Descuento» se fuerza `update_stock = 0` (reversible desde `return_against.update_stock`); (2) guard que bloquea la conversión si `Enable Discount Accounting = ON`, sin apagar el setting global; (3) acción inversa «Revertir a Devolución de mercancía» que restaura `income_account`/`description`/`update_stock` **exactos desde el origen** (vía `sales_invoice_item`), fail-closed si una línea no mapea, y solo en borrador.
+
+Cierre de la revisión de CodeRabbit del PR #222. Se corrigen los comentarios #2 (doc), #3/#4 (CONTINUITY/MD022) y #5 (`NoReturn`). El comentario #1 (test que mockea `frappe.get_doc`) se difirió al issue #223.
 
 Plan que estoy siguiendo:
-Puntos 1-3 de la revisión GUI post-#220. ADR `docs/adr/0025-notas-credito-cfdi-tipo-e-issue116.md`, sección «Robustez operativa descuento ⇄ devolución en SI Return».
+
+Instrucciones directas del usuario para cerrar la revisión. PR #222 abierto; merge lo hace el usuario.
 
 Objetivo inmediato:
-`/ship commit` → `/ship push` → `/ship pr` (base `main`), con autorización explícita en cada paso.
+
+Commit de las correcciones de revisión → push para actualizar el PR #222 → re-ejecutar `/ship coderabbit`.
 
 Criterio de avance:
-Tests focalizados verdes (13 nuevos + acción/reversión) + ruff/prettier/mkdocs `--strict` limpios + diff contra `upstream/main` solo con archivos en alcance + bump `1.3.0`.
+
+CodeRabbit sin comentarios accionables pendientes salvo el #1 (que vive en el issue #223); suite en verde; docs consistente con el código.
 
 ---
 
 ## Estado actual
 
 ### Ya cerrado
-- Puntos 1-3 implementados (4 archivos: `api/nota_credito.py`, JS del botón, tests, ADR 0025).
-- Bump `__version__` `1.2.0 → 1.3.0` (MINOR: nueva acción de reversión + endpoints).
-- Rama `feat/nc-descuento-inventario-reversion` creada **desde `upstream/main`** (PR #220 ya mergeado; la rama vieja quedó obsoleta).
-- PR #221 abierto (base `main`), CI verde.
-- **CodeRabbit #221 #1/#2/#4 atendidos**: #1 ADR lista el guard Enable Discount Accounting; #2 `check_permission` en endpoints whitelisted (write en aplicar/revertir, read en estado y sobre el origen); #4 JS quita ambos botones antes de agregar el actual. + tests de permisos.
+
+- PR **#222** abierto (base `main`), rama publicada en `upstream`. Versión objetivo `1.3.1` (PATCH).
+- Botón fiscal + aviso RFC: `can_stamp` excluye `has_active_ffm` **y** `has_draft_ffm`; guard `frm.__fm_can_stamp` en `add_timbrar_button`; aviso RFC gateado por `can_stamp`.
+- Doc de usuario `docs/usuario/notas-credito.md` (en nav de MkDocs).
+- CodeRabbit revisado (reporte en `frappe-infrastructure/checkpoints/coderabbit-pr222-review.md`).
+- CodeRabbit #2/#3/#4/#5 atendidos y commiteados (`e856671`); #1 diferido al issue #223.
 
 ### En progreso
-- Ninguna edición de código pendiente en este PR.
+
+- Permisos Sales Invoice: `Facturacion Mexico Manager` y `System Manager` pasan a `submit=1, cancel=1`
+  (antes `cancel=1, submit=0`, inválido en Frappe). Corregido en `fixtures/docperm.json` y en la
+  segunda fuente `api/fiscal_operations.py::assign_facturacion_permissions()`. Test de fixture
+  agregado (`test_docperm_sales_invoice_permissions.py`). La lógica de cancelación no cambia.
 
 ### Pendiente inmediato
-1. Merge de PR #221 (lo hace el usuario) — tag `v1.3.0` + Release tras merge (con autorización).
-2. PR independiente de puntos 4-5 (FFM).
+
+1. Commit + push de las correcciones → actualizar PR #222.
+2. Re-ejecutar `/ship coderabbit` para confirmar el estado.
+3. Merge: lo realiza el usuario (Squash & Merge). No lo hace Claude.
 
 ### No repetir
-- **NO** reutilizar la rama vieja `feat/nota-credito-descuento-relacion-01` (PR #220 ya mergeado por squash; PR desde ahí saldría sucio).
-- **NO** tocar FFM en este PR: `fm_tipo_nota_credito`, derivación fiscal, visibilidad/textos → PR independiente de puntos 4-5.
-- **NO** usar `discount_account` para la NC de descuento (invierte/infla el asiento).
-- **NO** commitear `one_offs/` ni `working_docs/`.
+
+- No usar `git restore/reset/revert/checkout` para deshacer trabajo.
+- No reintroducir la regresión: `can_stamp` debe excluir `has_active_ffm` Y `has_draft_ffm`.
+- No meter conocimiento de FFM dentro de la validación RFC.
+- No tocar `redirect_to_fiscal_document` ni su query.
+- No atender el comentario #1 dentro del PR #222 (vive en el issue #223): no tocar `_derivar`, sus mocks ni la carga por `frappe.get_doc`, ni añadir costura de pruebas a producción.
 
 ---
 
 ## Decisiones vigentes
-- La reversión descuento ⇄ devolución vive **solo en la SI Return en borrador**; la FFM no participa.
-- El estado de la nota (qué botón mostrar) se decide por el **estado contable real** (`income_account == cuenta_descuentos`), no por la descripción.
-- Reversión **fail-closed**: sin vínculo `sales_invoice_item` exacto → bloquea sin modificar.
-- Precondición `Enable Discount Accounting = OFF` ahora **protegida por guard** en la acción (antes solo documentada).
-- **FormaPago `15 - Condonación` (PUE)** para la NC de descuento está **confirmada por el contador** (ADR 0025). No es un pendiente. Lo que permanece abierto en #136 son otros escenarios tipo E (p. ej. `outstanding=0` que hereda `99`), no el de descuento.
+
+- El comentario #1 de CodeRabbit (mock de `frappe.get_doc` en `TestClasificacionNotaCredito`) se difiere al issue **#223**: `_classify_nota_credito` carga la SI/origen con `frappe.get_doc` directo; no se añade costura productiva ni infraestructura pesada dentro de este PR.
+- El flujo de descuento **conserva el `item_code` original** (ERPNext `validate_returned_items` lo exige); solo cambia `description` («Descuento - \<original\>»), `income_account` y `update_stock=0`. La doc se corrigió acorde.
+- Fuente autoritativa de visibilidad del botón = `can_stamp` (servidor).
 
 ---
 
 ## Archivos relevantes ahora
 
 ### Leer primero
-- `docs/adr/0025-notas-credito-cfdi-tipo-e-issue116.md` (sección «Robustez operativa descuento ⇄ devolución»).
 
-### Probablemente editar
-- (ninguno; puntos 1-3 cerrados salvo hallazgos en review/CI).
+- `docs/usuario/notas-credito.md` (corrección #2)
+- `facturacion_mexico/facturacion_fiscal/doctype/factura_fiscal_mexico/factura_fiscal_mexico.py` (`NoReturn`, #5)
 
 ### No tocar
-- `facturacion_fiscal/timbrado_api.py`, `factura_fiscal_mexico.py`/`.js` (pertenecen al PR de puntos 4-5).
+
+- `facturacion_mexico/facturacion_fiscal/tests/test_nota_credito_descuento_relacion_01.py` (`TestClasificacionNotaCredito._derivar`) → reservado al issue #223.
+- `redirect_to_fiscal_document` y su query en `sales_invoice.js`.
 
 ---
 
 ## Riesgos / cuidados
-- **CodeRabbit #221 pendientes deliberados:** #3 (no mockear `frappe.get_doc` en tests — deuda RG-003; no se cambian firmas de código productivo solo por el mock) y #5 (helper DRY de botones JS — bajo valor).
-- Pendientes para el PR independiente de puntos 4-5 (del review de #220): forzar TipoRelación 03 en `_set_tipo_from_context`, JS `fm_tipo_nota_credito` editable en `docstatus==2`, y `-> None` en `_set_tipo_from_context`.
-- Fuera por bajo valor/alcance: #1 (rename RG-001), #3 (test integración del guard), #6 (IDs de mocks in-memory).
+
+- `NoReturn` debe ser el único cambio en Python de esta ronda (sin tocar lógica ni mensajes).
+- Mantener `docperm.json` limpio y no incluir untracked de `one_offs/` / `working_docs/`.
 
 ---
 
 ## Información faltante
-- Confirmación normativa de otros escenarios FormaPago tipo E del Issue #136 (escenario `outstanding=0 → 99`). No aplica al flujo de descuento (ya confirmado) ni bloquea este PR.
+
+- Ninguna pendiente para esta ronda; tras el push, confirmar la nueva revisión de CodeRabbit.

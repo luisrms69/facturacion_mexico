@@ -322,21 +322,47 @@ el timbrado.
 
 **La reversión vive exclusivamente en la SI Return en borrador. La FFM no participa en la reversión.**
 
-### Pendiente — rama/PR independiente (puntos 4–5)
+### Puntos 4–5 — `fm_tipo_nota_credito` derivado/read-only y UX (implementado 2026-08-01)
 
-No se implementan en esta rama:
+`fm_tipo_nota_credito` es ahora un **dato derivado y read-only** en la FFM: la decisión Descuento vs
+Devolución se toma **exclusivamente en la Sales Invoice Return** (la FFM la refleja, no la redefine).
+La FFM cumple sus dos condiciones primordiales: **ser reflejo de la SI** y **cumplir los requisitos
+del SAT**.
 
-- **`fm_tipo_nota_credito` como dato derivado/no editable en FFM.** Hoy es editable en borrador pero su
-  cambio manual no re-deriva de forma simétrica los códigos SAT (la rama devolución conserva valores
-  del descuento por el `or` y por no resetear `fm_cfdi_use`/`fm_forma_pago_timbrado`) → «parece
-  editable pero no hace nada». Propuesta: derivarlo autoritativamente desde el estado contable y
-  volverlo read-only permanente. **No** hay caso legítimo de cambio manual en FFM (la intención se
-  decide y revierte en la SI Return).
-- **Visibilidad / textos de campos FFM** (`fm_tipo_nota_credito`, `fm_tipo_relacion_sat`,
-  `fm_uuid_relacionado`): sin bug de visibilidad activo (solo aparecen en tipo E); pendiente acortar el
-  `description` largo de `fm_tipo_nota_credito` (UX) y evaluar gating por existencia real de UUID.
-- **UsoCFDI en devolución:** hoy no se fuerza a `G02` (queda al default del cliente); confirmar con el
-  contador si debe ser `G02` como en descuento.
+- **Fuente de verdad y clasificación POSITIVA fail-closed** (`_classify_nota_credito()`): la FFM
+  clasifica el motivo comparando el **estado exacto** de la Sales Invoice Return contra su factura de
+  origen (vía el vínculo nativo `sales_invoice_item`). Solo en **Draft**, tipo **E**, con SI Return
+  válida. La clasificación **no muta ningún campo** y se ejecuta **antes** de derivar (si el estado es
+  ambiguo, bloquea el guardado sin dejar campos fiscales parcialmente escritos).
+  - **Devolución de mercancía:** cada línea conserva el `income_account` y la `description` de su
+    renglón de origen, y `update_stock == return_against.update_stock`. **Funciona aunque la Company no
+    tenga `cuenta_descuentos`.**
+  - **Descuento / Bonificación:** hay `cuenta_descuentos` configurada, **todas** las líneas la usan como
+    `income_account`, cada `description` == la generada por el flujo de descuento para su renglón de
+    origen (`build_descuento_description`, no solo el prefijo), y `update_stock == 0`.
+  - **Estado ambiguo o vínculos `sales_invoice_item` faltantes → se BLOQUEA** el guardado de la FFM
+    Draft con mensaje claro (no se clasifica por default, no se adivina). Así, si la configuración se
+    elimina/cambia o una línea se altera manualmente, la nota **no** se reclasifica silenciosamente como
+    03; exige revisión.
+  - **Protección explícita por `docstatus`**: no reinterpreta ni modifica documentos
+    **Submitted/Cancelled** (no depende de que `validate()` no se invoque).
+- **Derivación fiscal simétrica** (`_set_tipo_from_context`, forzada en ambos sentidos):
+  - Descuento / Bonificación → `fm_tipo_relacion_sat = 01`, `fm_cfdi_use = G02`,
+    `fm_forma_pago_timbrado = 15 Condonación`, MétodoPago PUE.
+  - Devolución de mercancía → `fm_tipo_relacion_sat = 03` (**forzado**, no conserva un `01` residual),
+    `fm_cfdi_use = G02` (**G02 aplica también a devoluciones**, criterio SAT). Para FormaPago se
+    elimina el residuo del modo descuento y se **delega** en `_auto_populate_forma_pago_tipo_e()`
+    (lógica existente por `outstanding`); **no** se cambia la política de FormaPago ni se resuelven los
+    escenarios abiertos de #136.
+- **UX:** `fm_tipo_nota_credito.read_only = 1` en el DocType; `description` corta
+  («Descuento/Bonificación → relación 01. Devolución de mercancía → relación 03.»); el JS deja de
+  re-habilitar el campo según `docstatus`. **No** se cambian `depends_on` ni la visibilidad: los tres
+  campos siguen visibles solo para tipo E; `fm_tipo_relacion_sat`/`fm_uuid_relacionado` siguen
+  read-only (no había bug de visibilidad).
+- **Documentos históricos:** Submitted/Cancelled **no** se reescriben ni se migran (sin patch).
+
+Pendientes CodeRabbit incluidos aquí (por ser P4/P5): forzar `03` en devolución, corregir la
+editabilidad de `fm_tipo_nota_credito`, y anotación `-> None` en `_set_tipo_from_context()`.
 
 ### Propuesta futura — bandera explícita en la SI Return como fuente de verdad
 

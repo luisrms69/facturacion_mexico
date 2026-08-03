@@ -144,6 +144,18 @@ class TestFiscalStateSIFacts(FrappeTestCase):
 		self.assertTrue(facts["is_cancelled"])
 		self.assertFalse(facts["is_submitted"])
 
+	# ── Caso 8: FFM vinculada en Draft (docstatus=0) → has_draft_ffm ──────
+	def test_ffm_draft_marca_has_draft_ffm(self):
+		"""FFM vinculada con docstatus=0 (Draft, incl. ERROR) → has_draft_ffm=True.
+		Regresión: el botón Crear seguía visible por no detectar la FFM Draft."""
+		si = _mock_si(fm_fiscal_status="ERROR", fm_factura_fiscal_mx="FFMX-001")
+		ffm_data = _ffm(status="ERROR", fm_uuid=None, docstatus=0)
+		with patch("frappe.get_all", side_effect=[ffm_data, [], [], []]):
+			facts = _compute_facts(si)
+		self.assertTrue(facts["has_draft_ffm"])
+		self.assertFalse(facts["has_active_ffm"])
+		self.assertFalse(facts["has_cancelled_ffm"])
+
 
 class TestFiscalStateSIActions(FrappeTestCase):
 	def _base_facts(self, **overrides):
@@ -278,6 +290,47 @@ class TestFiscalStateSIActions(FrappeTestCase):
 		actions = _compute_actions(facts)
 		self.assertFalse(actions["can_register_payment"])
 
+	def test_can_stamp_false_con_ffm_draft(self):
+		"""FFM vinculada en BORRADOR (docstatus=0) → oculta Crear (can_stamp False), sí Abrir."""
+		facts = self._base_facts(
+			fiscal_status="BORRADOR",
+			has_ffm=True,
+			has_active_ffm=False,
+			has_cancelled_ffm=False,
+			has_draft_ffm=True,
+			has_stamped_ffm=False,
+			has_uuid=False,
+		)
+		actions = _compute_actions(facts)
+		self.assertFalse(actions["can_stamp"])
+		self.assertTrue(actions["can_view_ffm"])
+
+	def test_can_stamp_false_con_ffm_activa_snapshot_desincronizado(self):
+		"""FFM activa/timbrada (docstatus=1) con snapshot fiscal_status aún timbrable (p. ej. ERROR)
+		→ can_stamp=False. Protección contra FFM activa, independiente del snapshot de la SI."""
+		facts = self._base_facts(
+			fiscal_status="ERROR",
+			has_ffm=True,
+			has_active_ffm=True,
+			has_draft_ffm=False,
+			has_cancelled_ffm=False,
+		)
+		actions = _compute_actions(facts)
+		self.assertFalse(actions["can_stamp"])
+		self.assertTrue(actions["can_view_ffm"])
+
+	def test_can_stamp_true_sin_ffm_condiciones_normales(self):
+		"""Sin FFM (ni activa ni draft) y estado timbrable → can_stamp=True."""
+		facts = self._base_facts(
+			fiscal_status="BORRADOR",
+			has_ffm=False,
+			has_active_ffm=False,
+			has_draft_ffm=False,
+			has_cancelled_ffm=False,
+		)
+		actions = _compute_actions(facts)
+		self.assertTrue(actions["can_stamp"])
+
 
 class TestFiscalStateSIMessages(FrappeTestCase):
 	def _base(self, **overrides):
@@ -389,3 +442,28 @@ class TestFiscalStateSIMessages(FrappeTestCase):
 			m["code"] for m in _compute_messages(self._base(requires_complement=True, has_complement=True))
 		]
 		self.assertIn("COMPLEMENT_PENDING", codes)
+
+
+class TestSalesInvoiceJsEtiquetas(FrappeTestCase):
+	"""Contrato estático del JS de Sales Invoice.
+
+	Verifica que las etiquetas de acción se renombraron y —de forma explícita— que el query
+	original dentro de redirect_to_fiscal_document sigue presente. Esa preservación es
+	intencional: su eliminación NO está autorizada y esta prueba la protege de regresión.
+	"""
+
+	def _read_js(self):
+		path = frappe.get_app_path("facturacion_mexico", "public", "js", "sales_invoice.js")
+		with open(path, encoding="utf-8") as fh:
+			return fh.read()
+
+	def test_etiquetas_y_query_intacto(self):
+		"""Etiquetas nuevas presentes; las anteriores ya no se usan; el query de
+		redirect_to_fiscal_document permanece (su eliminación NO está autorizada)."""
+		js = self._read_js()
+		self.assertIn('__("Crear Factura Fiscal")', js)
+		self.assertIn('__("Abrir Factura Fiscal")', js)
+		self.assertNotIn('__("Timbrar Factura")', js)
+		self.assertNotIn('__("Ver Factura Fiscal")', js)
+		self.assertIn('method: "frappe.client.get_value"', js)
+		self.assertIn('fieldname: "fm_fiscal_status"', js)
