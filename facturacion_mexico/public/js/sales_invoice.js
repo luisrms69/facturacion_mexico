@@ -33,8 +33,8 @@ load_fiscal_states();
 
 frappe.ui.form.on("Sales Invoice", {
 	refresh: function (frm) {
-		frm.remove_custom_button(__("Timbrar Factura"));
-		frm.remove_custom_button(__("Ver Factura Fiscal"));
+		frm.remove_custom_button(__("Crear Factura Fiscal"));
+		frm.remove_custom_button(__("Abrir Factura Fiscal"));
 
 		if (frm.doc.docstatus !== 1) return;
 
@@ -45,6 +45,11 @@ frappe.ui.form.on("Sales Invoice", {
 			callback(r) {
 				if (!r.message) return;
 				const { actions } = r.message;
+				// Estado autoritativo del servidor: guardarlo en el frm para que cualquier vía
+				// (incluidas las asíncronas) respete can_stamp al decidir dibujar el botón.
+				frm.__fm_can_stamp = actions.can_stamp === true;
+				// Limpiar SIEMPRE la acción primaria antes de decidir.
+				frm.page.clear_primary_action();
 				if (actions.can_view_ffm) add_view_fiscal_button(frm);
 				// can_stamp: condiciones técnicas OK — RFC check decide si mostrar o avisar
 				if (actions.can_stamp) _check_rfc_and_show_timbrar(frm);
@@ -72,14 +77,18 @@ function should_show_timbrar_button(frm) {
 }
 
 function add_timbrar_button(frm) {
+	// Guard de choke-point: nunca colocar el botón si el estado fiscal autoritativo del servidor
+	// no permite timbrar. Bloquea cualquier vía (síncrona o asíncrona) que intente dibujarlo
+	// cuando can_stamp es false (p. ej. FFM en Draft ya vinculada).
+	if (frm.__fm_can_stamp !== true) return;
 	// Botón único y prominente: Timbrar Factura que redirije a Factura Fiscal Mexico
-	frm.page.set_primary_action(__("Timbrar Factura"), function () {
+	frm.page.set_primary_action(__("Crear Factura Fiscal"), function () {
 		redirect_to_fiscal_document(frm);
 	});
 }
 
 function add_view_fiscal_button(frm) {
-	frm.add_custom_button(__("Ver Factura Fiscal"), function () {
+	frm.add_custom_button(__("Abrir Factura Fiscal"), function () {
 		frappe.set_route("Form", "Factura Fiscal Mexico", frm.doc.fm_factura_fiscal_mx);
 	}).addClass("btn-info");
 }
@@ -515,12 +524,16 @@ function _check_rfc_and_show_timbrar(frm) {
 		.then((r) => {
 			const msg = (r && r.message) || {};
 
-			// RFC presente: sin RFC no se muestra botón ni alerta (comportamiento previo).
-			if (!msg.tax_id) return;
+			// Solo avisar/dibujar cuando el estado fiscal permite crear FFM (can_stamp autoritativo).
+			// Evita avisos engañosos de "valida el RFC para crear la FFM" en SI que ya tienen una FFM
+			// (can_stamp=false). No introduce lógica de FFM aquí: usa el flag fiscal ya calculado.
+			if (frm.__fm_can_stamp !== true) return;
 
-			// Validación SAT: solo un flag explícito = 1 habilita el botón; vacío/0 nunca se
-			// interpreta como validado.
-			const is_validated = msg.fm_rfc_validated === 1 || msg.fm_rfc_validated === "1";
+			// RFC válido = tiene tax_id Y está validado ante SAT (tolera 1 numérico o "1" string).
+			// RFC vacío o no validado se tratan igual: no se dibuja botón y se muestra el mismo aviso.
+			const is_validated =
+				Boolean(msg.tax_id) &&
+				(msg.fm_rfc_validated === 1 || msg.fm_rfc_validated === "1");
 			if (is_validated) {
 				if (should_show_timbrar_button(frm)) {
 					add_timbrar_button(frm);
