@@ -30,10 +30,10 @@ En el menú **Acciones**, pulsa **Aplicar como Descuento / Bonificación**.
 
 El sistema:
 
-- Cambia la línea al Item real **Descuento**.
-- Deja de afectar inventario (**update_stock = 0**).
-- Construye la descripción del descuento con referencia a la línea original.
-- Usa la **Cuenta de Descuentos y Bonificaciones** configurada para la empresa.
+- **Conserva el Item original** de la línea: el `item_code` (y su ClaveProdServ SAT) **no** cambia; no se sustituye por un Item «Descuento».
+- Cambia la **descripción** de la línea a **«Descuento - \<descripción original\>»**.
+- Cambia la **cuenta de ingresos** (`income_account`) a la **Cuenta de Descuentos y Bonificaciones** configurada para la empresa.
+- Deja de afectar inventario (**`update_stock = 0`**).
 - Conserva los vínculos con la factura y la línea original.
 
 Confirma con el mensaje: *"Nota de crédito preparada como Descuento / Bonificación."*
@@ -56,10 +56,10 @@ Mientras la devolución siga en **Borrador**, en el menú **Acciones** pulsa
 
 El sistema:
 
-- Restaura el Item original.
-- Restaura la descripción original.
-- Restaura la cuenta de ingresos original.
-- Restaura el comportamiento de inventario original.
+- El **Item nunca cambió**: sigue siendo el original (`item_code` intacto).
+- Restaura la **descripción** original.
+- Restaura la **cuenta de ingresos** (`income_account`) original.
+- Restaura el **comportamiento de inventario** original (`update_stock` desde la factura de origen).
 - Conserva los vínculos con la factura de origen.
 
 Confirma con el mensaje: *"Nota de crédito revertida a Devolución de mercancía."*

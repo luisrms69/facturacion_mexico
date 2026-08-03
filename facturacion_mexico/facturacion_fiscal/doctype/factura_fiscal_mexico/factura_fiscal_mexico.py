@@ -1,3 +1,5 @@
+from typing import NoReturn
+
 import frappe
 from frappe import _
 from frappe.contacts.doctype.address.address import get_address_display
@@ -322,7 +324,7 @@ class FacturaFiscalMexico(Document):
 		"""
 		return (self.get("fm_tipo_nota_credito") or "").strip() == NOTA_CREDITO_DESCUENTO
 
-	def _throw_estado_nc_invalido(self, msg: str) -> None:
+	def _throw_estado_nc_invalido(self, msg: str) -> NoReturn:
 		"""Bloquear el guardado de la FFM Draft por estado de nota de crédito no clasificable."""
 		frappe.throw(msg, title=_("Estado de Nota de Crédito No Válido"))
 

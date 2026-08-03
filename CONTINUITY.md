@@ -2,76 +2,88 @@
 
 **Fecha:** 2026-08-03
 **Rama activa:** `fix/ffm-tipo-nc-derivado-simetrico`
-**Tarea actual:** Documentación de usuario del flujo de Notas de Crédito (Descuento/Bonificación ↔ Devolución) + botones fiscales.
+**Tarea actual:** Atención de la revisión de CodeRabbit del PR #222 (correcciones #2–#5; #1 diferido a issue).
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-Documentación de usuario del flujo de Notas de Crédito. El fix del botón fiscal + aviso RFC ya está commiteado (`3e22101`) y pusheado a `upstream`. Esta tarea agrega la página de usuario `docs/usuario/notas-credito.md`.
+
+Cierre de la revisión de CodeRabbit del PR #222. Se corrigen los comentarios #2 (doc), #3/#4 (CONTINUITY/MD022) y #5 (`NoReturn`). El comentario #1 (test que mockea `frappe.get_doc`) se difirió al issue #223.
 
 Plan que estoy siguiendo:
-Instrucciones directas del usuario. El PR de la rama está preparado pero NO creado aún (pendiente de autorización).
+
+Instrucciones directas del usuario para cerrar la revisión. PR #222 abierto; merge lo hace el usuario.
 
 Objetivo inmediato:
-Commit documental (`docs/usuario/notas-credito.md` + `mkdocs.yml` + este CONTINUITY.md). Después, el usuario decide crear el PR (`/ship pr` ya validado: base main, versión 1.3.1 PATCH).
+
+Commit de las correcciones de revisión → push para actualizar el PR #222 → re-ejecutar `/ship coderabbit`.
 
 Criterio de avance:
-`can_stamp=false` para FFM activa/timbrada Y para FFM Draft; `can_stamp=true` solo sin FFM y con condiciones normales; aviso RFC visible solo cuando `can_stamp=true`.
+
+CodeRabbit sin comentarios accionables pendientes salvo el #1 (que vive en el issue #223); suite en verde; docs consistente con el código.
 
 ---
 
 ## Estado actual
 
 ### Ya cerrado
-- `can_stamp` en `_compute_actions` excluye AMBAS: `has_active_ffm` (restaurada) y `has_draft_ffm` (nueva). Nuevo fact `has_draft_ffm = ffm.docstatus == 0`.
-- `sales_invoice.js`: guard choke-point en `add_timbrar_button` (`frm.__fm_can_stamp`); `_check_rfc_and_show_timbrar` gatea el aviso por `can_stamp` y trata RFC vacío/no-validado con el mismo aviso.
-- Tests aditivos de sesión (no se tocó ninguno previo). Validación GUI de 5 escenarios RFC/FFM + NC descuento OK.
+
+- PR **#222** abierto (base `main`), rama publicada en `upstream`. Versión objetivo `1.3.1` (PATCH).
+- Botón fiscal + aviso RFC: `can_stamp` excluye `has_active_ffm` **y** `has_draft_ffm`; guard `frm.__fm_can_stamp` en `add_timbrar_button`; aviso RFC gateado por `can_stamp`.
+- Doc de usuario `docs/usuario/notas-credito.md` (en nav de MkDocs).
+- CodeRabbit revisado (reporte en `frappe-infrastructure/checkpoints/coderabbit-pr222-review.md`).
 
 ### En progreso
-- (nada abierto tras el commit)
+
+- Correcciones de revisión CodeRabbit #2 (doc: el Item se conserva), #3/#4 (CONTINUITY/MD022), #5 (`NoReturn`).
 
 ### Pendiente inmediato
-1. Esperar decisión del usuario sobre push/PR.
-2. "Escenario B" (quitar la llamada ungated `_check_rfc_and_show_timbrar` en `sales_invoice_block_cancel.js`) — NO autorizado; no ejecutar sin orden explícita.
-3. Versionado: el bump SemVer se valida al crear el PR (contra `upstream/main`), no en el commit.
+
+1. Commit + push de las correcciones → actualizar PR #222.
+2. Re-ejecutar `/ship coderabbit` para confirmar el estado.
+3. Merge: lo realiza el usuario (Squash & Merge). No lo hace Claude.
 
 ### No repetir
+
 - No usar `git restore/reset/revert/checkout` para deshacer trabajo.
-- No reintroducir la regresión: `can_stamp` debe excluir `has_active_ffm` Y `has_draft_ffm` (no sustituir una por otra).
+- No reintroducir la regresión: `can_stamp` debe excluir `has_active_ffm` Y `has_draft_ffm`.
 - No meter conocimiento de FFM dentro de la validación RFC.
 - No tocar `redirect_to_fiscal_document` ni su query.
+- No atender el comentario #1 dentro del PR #222 (vive en el issue #223): no tocar `_derivar`, sus mocks ni la carga por `frappe.get_doc`, ni añadir costura de pruebas a producción.
 
 ---
 
 ## Decisiones vigentes
-- Fuente autoritativa de visibilidad del botón = `can_stamp` (servidor). El JS solo dibuja si `can_stamp=true` (guard en `add_timbrar_button`).
-- FFM en ERROR es `docstatus=0` → cuenta como Draft → bloquea "Crear" (se reintenta abriendo la FFM). Confirmado como comportamiento deseado.
-- El snapshot `Sales Invoice.fm_fiscal_status` puede quedar desincronizado; por eso `can_stamp` NO puede depender solo de `fiscal_status`, necesita `has_active_ffm`.
+
+- El comentario #1 de CodeRabbit (mock de `frappe.get_doc` en `TestClasificacionNotaCredito`) se difiere al issue **#223**: `_classify_nota_credito` carga la SI/origen con `frappe.get_doc` directo; no se añade costura productiva ni infraestructura pesada dentro de este PR.
+- El flujo de descuento **conserva el `item_code` original** (ERPNext `validate_returned_items` lo exige); solo cambia `description` («Descuento - \<original\>»), `income_account` y `update_stock=0`. La doc se corrigió acorde.
+- Fuente autoritativa de visibilidad del botón = `can_stamp` (servidor).
 
 ---
 
 ## Archivos relevantes ahora
 
 ### Leer primero
-- `facturacion_mexico/fiscal_state/sales_invoice_state.py` (`_compute_facts`, `_compute_actions`)
-- `facturacion_mexico/public/js/sales_invoice.js` (`_check_rfc_and_show_timbrar`, `add_timbrar_button`, callback de `get_fiscal_ui_state`)
 
-### Probablemente editar
-- `facturacion_mexico/public/js/sales_invoice_block_cancel.js` (solo si se autoriza el "escenario B")
+- `docs/usuario/notas-credito.md` (corrección #2)
+- `facturacion_mexico/facturacion_fiscal/doctype/factura_fiscal_mexico/factura_fiscal_mexico.py` (`NoReturn`, #5)
 
 ### No tocar
-- `redirect_to_fiscal_document` y su query en `sales_invoice.js`
-- tests preexistentes en `tests/test_fiscal_state_sales_invoice.py`
+
+- `facturacion_mexico/facturacion_fiscal/tests/test_nota_credito_descuento_relacion_01.py` (`TestClasificacionNotaCredito._derivar`) → reservado al issue #223.
+- `redirect_to_fiscal_document` y su query en `sales_invoice.js`.
 
 ---
 
 ## Riesgos / cuidados
-- `_check_rfc_and_show_timbrar` se llama desde `sales_invoice.js` (gateado por can_stamp) y desde `block_cancel.js` (sin gate) → la coherencia se sostiene con el guard + el gate `frm.__fm_can_stamp` dentro del `.then`.
-- `clear_primary_action()` incondicional en el callback: pendiente evaluar si podría borrar acciones primarias estándar de ERPNext (riesgo señalado, no confirmado).
+
+- `NoReturn` debe ser el único cambio en Python de esta ronda (sin tocar lógica ni mensajes).
+- Mantener `docperm.json` limpio y no incluir untracked de `one_offs/` / `working_docs/`.
 
 ---
 
 ## Información faltante
-- Decisión del usuario sobre push/PR y sobre el "escenario B".
+
+- Ninguna pendiente para esta ronda; tras el push, confirmar la nueva revisión de CodeRabbit.
