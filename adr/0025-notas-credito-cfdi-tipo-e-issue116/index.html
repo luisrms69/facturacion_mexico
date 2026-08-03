@@ -458,6 +458,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../usuario/notas-credito/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Notas de Crédito
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../usuario/cancelar-cfdi/" class="md-nav__link">
         
   
@@ -1685,9 +1706,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pendiente-ramapr-independiente-puntos-45" class="md-nav__link">
+  <a href="#puntos-45-fm_tipo_nota_credito-derivadoread-only-y-ux-implementado-2026-08-01" class="md-nav__link">
     <span class="md-ellipsis">
-      Pendiente — rama/PR independiente (puntos 4–5)
+      Puntos 4–5 — fm_tipo_nota_credito derivado/read-only y UX (implementado 2026-08-01)
     </span>
   </a>
   
@@ -2423,9 +2444,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pendiente-ramapr-independiente-puntos-45" class="md-nav__link">
+  <a href="#puntos-45-fm_tipo_nota_credito-derivadoread-only-y-ux-implementado-2026-08-01" class="md-nav__link">
     <span class="md-ellipsis">
-      Pendiente — rama/PR independiente (puntos 4–5)
+      Puntos 4–5 — fm_tipo_nota_credito derivado/read-only y UX (implementado 2026-08-01)
     </span>
   </a>
   
@@ -2854,21 +2875,46 @@ el timbrado.</p>
      cuenta_descuentos</code>), no según la descripción (editable).</li>
 </ol>
 <p><strong>La reversión vive exclusivamente en la SI Return en borrador. La FFM no participa en la reversión.</strong></p>
-<h3 id="pendiente-ramapr-independiente-puntos-45">Pendiente — rama/PR independiente (puntos 4–5)<a class="headerlink" href="#pendiente-ramapr-independiente-puntos-45" title="Permanent link">&para;</a></h3>
-<p>No se implementan en esta rama:</p>
+<h3 id="puntos-45-fm_tipo_nota_credito-derivadoread-only-y-ux-implementado-2026-08-01">Puntos 4–5 — <code>fm_tipo_nota_credito</code> derivado/read-only y UX (implementado 2026-08-01)<a class="headerlink" href="#puntos-45-fm_tipo_nota_credito-derivadoread-only-y-ux-implementado-2026-08-01" title="Permanent link">&para;</a></h3>
+<p><code>fm_tipo_nota_credito</code> es ahora un <strong>dato derivado y read-only</strong> en la FFM: la decisión Descuento vs
+Devolución se toma <strong>exclusivamente en la Sales Invoice Return</strong> (la FFM la refleja, no la redefine).
+La FFM cumple sus dos condiciones primordiales: <strong>ser reflejo de la SI</strong> y <strong>cumplir los requisitos
+del SAT</strong>.</p>
 <ul>
-<li><strong><code>fm_tipo_nota_credito</code> como dato derivado/no editable en FFM.</strong> Hoy es editable en borrador pero su
-  cambio manual no re-deriva de forma simétrica los códigos SAT (la rama devolución conserva valores
-  del descuento por el <code>or</code> y por no resetear <code>fm_cfdi_use</code>/<code>fm_forma_pago_timbrado</code>) → «parece
-  editable pero no hace nada». Propuesta: derivarlo autoritativamente desde el estado contable y
-  volverlo read-only permanente. <strong>No</strong> hay caso legítimo de cambio manual en FFM (la intención se
-  decide y revierte en la SI Return).</li>
-<li><strong>Visibilidad / textos de campos FFM</strong> (<code>fm_tipo_nota_credito</code>, <code>fm_tipo_relacion_sat</code>,
-  <code>fm_uuid_relacionado</code>): sin bug de visibilidad activo (solo aparecen en tipo E); pendiente acortar el
-  <code>description</code> largo de <code>fm_tipo_nota_credito</code> (UX) y evaluar gating por existencia real de UUID.</li>
-<li><strong>UsoCFDI en devolución:</strong> hoy no se fuerza a <code>G02</code> (queda al default del cliente); confirmar con el
-  contador si debe ser <code>G02</code> como en descuento.</li>
+<li><strong>Fuente de verdad y clasificación POSITIVA fail-closed</strong> (<code>_classify_nota_credito()</code>): la FFM
+  clasifica el motivo comparando el <strong>estado exacto</strong> de la Sales Invoice Return contra su factura de
+  origen (vía el vínculo nativo <code>sales_invoice_item</code>). Solo en <strong>Draft</strong>, tipo <strong>E</strong>, con SI Return
+  válida. La clasificación <strong>no muta ningún campo</strong> y se ejecuta <strong>antes</strong> de derivar (si el estado es
+  ambiguo, bloquea el guardado sin dejar campos fiscales parcialmente escritos).</li>
+<li><strong>Devolución de mercancía:</strong> cada línea conserva el <code>income_account</code> y la <code>description</code> de su
+    renglón de origen, y <code>update_stock == return_against.update_stock</code>. <strong>Funciona aunque la Company no
+    tenga <code>cuenta_descuentos</code>.</strong></li>
+<li><strong>Descuento / Bonificación:</strong> hay <code>cuenta_descuentos</code> configurada, <strong>todas</strong> las líneas la usan como
+    <code>income_account</code>, cada <code>description</code> == la generada por el flujo de descuento para su renglón de
+    origen (<code>build_descuento_description</code>, no solo el prefijo), y <code>update_stock == 0</code>.</li>
+<li><strong>Estado ambiguo o vínculos <code>sales_invoice_item</code> faltantes → se BLOQUEA</strong> el guardado de la FFM
+    Draft con mensaje claro (no se clasifica por default, no se adivina). Así, si la configuración se
+    elimina/cambia o una línea se altera manualmente, la nota <strong>no</strong> se reclasifica silenciosamente como
+    03; exige revisión.</li>
+<li><strong>Protección explícita por <code>docstatus</code></strong>: no reinterpreta ni modifica documentos
+    <strong>Submitted/Cancelled</strong> (no depende de que <code>validate()</code> no se invoque).</li>
+<li><strong>Derivación fiscal simétrica</strong> (<code>_set_tipo_from_context</code>, forzada en ambos sentidos):</li>
+<li>Descuento / Bonificación → <code>fm_tipo_relacion_sat = 01</code>, <code>fm_cfdi_use = G02</code>,
+    <code>fm_forma_pago_timbrado = 15 Condonación</code>, MétodoPago PUE.</li>
+<li>Devolución de mercancía → <code>fm_tipo_relacion_sat = 03</code> (<strong>forzado</strong>, no conserva un <code>01</code> residual),
+    <code>fm_cfdi_use = G02</code> (<strong>G02 aplica también a devoluciones</strong>, criterio SAT). Para FormaPago se
+    elimina el residuo del modo descuento y se <strong>delega</strong> en <code>_auto_populate_forma_pago_tipo_e()</code>
+    (lógica existente por <code>outstanding</code>); <strong>no</strong> se cambia la política de FormaPago ni se resuelven los
+    escenarios abiertos de #136.</li>
+<li><strong>UX:</strong> <code>fm_tipo_nota_credito.read_only = 1</code> en el DocType; <code>description</code> corta
+  («Descuento/Bonificación → relación 01. Devolución de mercancía → relación 03.»); el JS deja de
+  re-habilitar el campo según <code>docstatus</code>. <strong>No</strong> se cambian <code>depends_on</code> ni la visibilidad: los tres
+  campos siguen visibles solo para tipo E; <code>fm_tipo_relacion_sat</code>/<code>fm_uuid_relacionado</code> siguen
+  read-only (no había bug de visibilidad).</li>
+<li><strong>Documentos históricos:</strong> Submitted/Cancelled <strong>no</strong> se reescriben ni se migran (sin patch).</li>
 </ul>
+<p>Pendientes CodeRabbit incluidos aquí (por ser P4/P5): forzar <code>03</code> en devolución, corregir la
+editabilidad de <code>fm_tipo_nota_credito</code>, y anotación <code>-&gt; None</code> en <code>_set_tipo_from_context()</code>.</p>
 <h3 id="propuesta-futura-bandera-explicita-en-la-si-return-como-fuente-de-verdad">Propuesta futura — bandera explícita en la SI Return como fuente de verdad<a class="headerlink" href="#propuesta-futura-bandera-explicita-en-la-si-return-como-fuente-de-verdad" title="Permanent link">&para;</a></h3>
 <p>Sustituir la <strong>inferencia por cuenta contable</strong> (<code>income_account == cuenta_descuentos</code>) por una
 <strong>bandera explícita en la Sales Invoice Return</strong> (p. ej. un campo booleano/estado «modo descuento»)

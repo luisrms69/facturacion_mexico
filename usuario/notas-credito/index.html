@@ -13,10 +13,10 @@
       
       
       
-        <link rel="prev" href="../0008-analisis-9-commits-wip/">
+        <link rel="prev" href="../emitir-cfdi/">
       
       
-        <link rel="next" href="../0010-verificacion-post-cancelacion/">
+        <link rel="next" href="../cancelar-cfdi/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -24,7 +24,7 @@
     
     
       
-        <title>ADR 0009 — CHECKLIST ESTADOS Y FLUJO DE TIMBRADO - Facturación México - Documentación Técnica</title>
+        <title>Notas de Crédito - Facturación México - Documentación Técnica</title>
       
     
     
@@ -90,7 +90,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#adr-0009-checklist-estados-y-flujo-de-timbrado" class="md-skip">
+        <a href="#notas-de-credito" class="md-skip">
           Saltar a contenido
         </a>
       
@@ -128,7 +128,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              ADR 0009 — CHECKLIST ESTADOS Y FLUJO DE TIMBRADO
+              Notas de Crédito
             
           </span>
         </div>
@@ -240,11 +240,13 @@
         
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../usuario/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
           
   
   Guía de Usuario
@@ -258,12 +260,10 @@
         
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
+      <li class="md-tabs__item">
         <a href="../../tecnico/" class="md-tabs__link">
           
   
@@ -350,8 +350,10 @@
       
   
   
+    
   
   
+  
     
     
     
@@ -360,14 +362,12 @@
       
       
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
           <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
@@ -381,7 +381,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             Guía de Usuario
@@ -395,7 +395,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../usuario/" class="md-nav__link">
+      <a href="../" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -416,7 +416,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../usuario/getting-started/" class="md-nav__link">
+      <a href="../getting-started/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -437,7 +437,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../usuario/emitir-cfdi/" class="md-nav__link">
+      <a href="../emitir-cfdi/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -455,10 +455,30 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../usuario/notas-credito/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Notas de Crédito
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -467,6 +487,89 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#punto-de-partida" class="md-nav__link">
+    <span class="md-ellipsis">
+      Punto de partida
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#aplicar-como-descuento-bonificacion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Aplicar como Descuento / Bonificación
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#revertir-a-devolucion-de-mercancia" class="md-nav__link">
+    <span class="md-ellipsis">
+      Revertir a Devolución de mercancía
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#alternar-antes-de-guardar-enviar" class="md-nav__link">
+    <span class="md-ellipsis">
+      Alternar antes de guardar / enviar
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuracion-requerida" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuración requerida
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#uuid-relacionado" class="md-nav__link">
+    <span class="md-ellipsis">
+      UUID relacionado
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#botones-fiscales-en-la-devolucion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Botones fiscales en la devolución
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -479,7 +582,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../usuario/cancelar-cfdi/" class="md-nav__link">
+      <a href="../cancelar-cfdi/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -500,7 +603,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../usuario/verificar-estado-facturapi/" class="md-nav__link">
+      <a href="../verificar-estado-facturapi/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -521,7 +624,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../usuario/complemento-pago/" class="md-nav__link">
+      <a href="../complemento-pago/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -542,7 +645,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../usuario/cfdi-recibidos/" class="md-nav__link">
+      <a href="../cfdi-recibidos/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -563,7 +666,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../usuario/ereceipts/" class="md-nav__link">
+      <a href="../ereceipts/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -584,7 +687,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../usuario/addendas/" class="md-nav__link">
+      <a href="../addendas/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -605,7 +708,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../usuario/multisucursal/" class="md-nav__link">
+      <a href="../multisucursal/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -626,7 +729,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../usuario/troubleshooting/" class="md-nav__link">
+      <a href="../troubleshooting/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -651,8 +754,6 @@
       
   
   
-    
-  
   
   
     
@@ -663,12 +764,14 @@
       
       
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
         
           
           <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
@@ -682,7 +785,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             Técnico
@@ -798,8 +901,6 @@
                 
   
   
-    
-  
   
   
     
@@ -810,12 +911,14 @@
       
       
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_6" >
         
           
           <label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="">
@@ -829,7 +932,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_6_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_6_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_6">
             <span class="md-nav__icon md-icon"></span>
             ADRs
@@ -843,7 +946,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../" class="md-nav__link">
+      <a href="../../adr/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -864,7 +967,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0000-estado-real-pre-migracion/" class="md-nav__link">
+      <a href="../../adr/0000-estado-real-pre-migracion/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -885,7 +988,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0002-verificacion-arranque-v16/" class="md-nav__link">
+      <a href="../../adr/0002-verificacion-arranque-v16/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -906,7 +1009,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0003-verificacion-configuracion-fiscal/" class="md-nav__link">
+      <a href="../../adr/0003-verificacion-configuracion-fiscal/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -927,7 +1030,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0004-verificacion-timbrado/" class="md-nav__link">
+      <a href="../../adr/0004-verificacion-timbrado/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -948,7 +1051,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0005-workflow-configuracion-inicial-v2/" class="md-nav__link">
+      <a href="../../adr/0005-workflow-configuracion-inicial-v2/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -969,7 +1072,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0005-workflow-configuracion-inicial/" class="md-nav__link">
+      <a href="../../adr/0005-workflow-configuracion-inicial/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -990,7 +1093,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0006-analisis-branches-wip/" class="md-nav__link">
+      <a href="../../adr/0006-analisis-branches-wip/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1011,7 +1114,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0007-analisis-checkout-e4/" class="md-nav__link">
+      <a href="../../adr/0007-analisis-checkout-e4/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1032,7 +1135,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0008-analisis-9-commits-wip/" class="md-nav__link">
+      <a href="../../adr/0008-analisis-9-commits-wip/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1050,30 +1153,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    ADR 0009 — CHECKLIST ESTADOS Y FLUJO DE TIMBRADO
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../adr/0009-checklist-estados-flujo-timbrado/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1082,173 +1165,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Tabla de contenidos
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#estado-del-ultimo-timbrado-verificado" class="md-nav__link">
-    <span class="md-ellipsis">
-      Estado del último timbrado verificado
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#diagrama-de-estados" class="md-nav__link">
-    <span class="md-ellipsis">
-      Diagrama de estados
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#transiciones-de-estado-ffm" class="md-nav__link">
-    <span class="md-ellipsis">
-      Transiciones de estado FFM
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Transiciones de estado FFM">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#borrador-procesando-timbrado-flujo-normal" class="md-nav__link">
-    <span class="md-ellipsis">
-      BORRADOR → PROCESANDO → TIMBRADO (flujo normal)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#timbrado-cancelado-pendiente_cancelacion" class="md-nav__link">
-    <span class="md-ellipsis">
-      TIMBRADO → CANCELADO / PENDIENTE_CANCELACION
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#pendiente_cancelacion-cancelado-o-timbrado-resolucion-sat" class="md-nav__link">
-    <span class="md-ellipsis">
-      PENDIENTE_CANCELACION → CANCELADO o → TIMBRADO (resolución SAT)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#timbrado-error-error-borrador-reintento" class="md-nav__link">
-    <span class="md-ellipsis">
-      TIMBRADO / ERROR → ERROR → BORRADOR (reintento)
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#proteccion-contra-cancelacion-de-sales-invoice" class="md-nav__link">
-    <span class="md-ellipsis">
-      Protección contra cancelación de Sales Invoice
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Protección contra cancelación de Sales Invoice">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#capa-1-frontend-js" class="md-nav__link">
-    <span class="md-ellipsis">
-      Capa 1 — Frontend (JS)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#capa-2-server-hook-before_cancel-de-si" class="md-nav__link">
-    <span class="md-ellipsis">
-      Capa 2 — Server hook (before_cancel de SI)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#capa-3-override-class-ffm-before_cancel-de-ffm" class="md-nav__link">
-    <span class="md-ellipsis">
-      Capa 3 — Override class FFM (before_cancel de FFM)
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#secuencia-de-cancelacion-correcta" class="md-nav__link">
-    <span class="md-ellipsis">
-      Secuencia de cancelación correcta
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#checklist-verificacion-post-timbrado" class="md-nav__link">
-    <span class="md-ellipsis">
-      Checklist verificación post-timbrado
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#checklist-verificacion-post-cancelacion" class="md-nav__link">
-    <span class="md-ellipsis">
-      Checklist verificación post-cancelación
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#errores-criticos-y-como-identificarlos" class="md-nav__link">
-    <span class="md-ellipsis">
-      Errores críticos y cómo identificarlos
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1261,7 +1177,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0010-verificacion-post-cancelacion/" class="md-nav__link">
+      <a href="../../adr/0010-verificacion-post-cancelacion/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1282,7 +1198,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0011-diagnostico-sistema-tests/" class="md-nav__link">
+      <a href="../../adr/0011-diagnostico-sistema-tests/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1303,7 +1219,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0012-solucion-sistema-tests-v16/" class="md-nav__link">
+      <a href="../../adr/0012-solucion-sistema-tests-v16/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1324,7 +1240,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0013-arquitectura-sistema-cancelaciones-cfdi/" class="md-nav__link">
+      <a href="../../adr/0013-arquitectura-sistema-cancelaciones-cfdi/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1345,7 +1261,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0014-diagnostico-conectividad-si-ffm/" class="md-nav__link">
+      <a href="../../adr/0014-diagnostico-conectividad-si-ffm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1366,7 +1282,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0015-si-ffm-relationship-architecture/" class="md-nav__link">
+      <a href="../../adr/0015-si-ffm-relationship-architecture/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1387,7 +1303,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0016-reclasificacion-fiscal-payment-entry/" class="md-nav__link">
+      <a href="../../adr/0016-reclasificacion-fiscal-payment-entry/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1408,7 +1324,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0017-complemento-pago-mx-schema-normalizacion/" class="md-nav__link">
+      <a href="../../adr/0017-complemento-pago-mx-schema-normalizacion/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1429,7 +1345,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0018-ffm-status-fiscal-state-migration/" class="md-nav__link">
+      <a href="../../adr/0018-ffm-status-fiscal-state-migration/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1450,7 +1366,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0019-primera-implementacion-rc-v0.1/" class="md-nav__link">
+      <a href="../../adr/0019-primera-implementacion-rc-v0.1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1471,7 +1387,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0020-smoke-test-mvp-flujos-cancelacion/" class="md-nav__link">
+      <a href="../../adr/0020-smoke-test-mvp-flujos-cancelacion/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1492,7 +1408,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0021-fiscal-state-capa-ui-centralizada/" class="md-nav__link">
+      <a href="../../adr/0021-fiscal-state-capa-ui-centralizada/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1513,7 +1429,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0022-solucion-issue-112-reclasificacion-fiscal-pe/" class="md-nav__link">
+      <a href="../../adr/0022-solucion-issue-112-reclasificacion-fiscal-pe/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1534,7 +1450,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0023-venta-mostrador-cfdi-individual-rfc-generico/" class="md-nav__link">
+      <a href="../../adr/0023-venta-mostrador-cfdi-individual-rfc-generico/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1555,7 +1471,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0024-addendas-pre-timbrado-issue129/" class="md-nav__link">
+      <a href="../../adr/0024-addendas-pre-timbrado-issue129/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1576,7 +1492,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0025-notas-credito-cfdi-tipo-e-issue116/" class="md-nav__link">
+      <a href="../../adr/0025-notas-credito-cfdi-tipo-e-issue116/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1597,7 +1513,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0026-workspace-facturacion-mexico-issue120/" class="md-nav__link">
+      <a href="../../adr/0026-workspace-facturacion-mexico-issue120/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1618,7 +1534,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0027-migracion-facturacion-mx-a-facturacion-mexico/" class="md-nav__link">
+      <a href="../../adr/0027-migracion-facturacion-mx-a-facturacion-mexico/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1639,7 +1555,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0028-ffm-legacy-fields-audit/" class="md-nav__link">
+      <a href="../../adr/0028-ffm-legacy-fields-audit/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1660,7 +1576,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0029-facturapi-base-unitaria-ieps-cuota/" class="md-nav__link">
+      <a href="../../adr/0029-facturapi-base-unitaria-ieps-cuota/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1681,7 +1597,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0030-tablas-maestras-python-reglas-fiscales/" class="md-nav__link">
+      <a href="../../adr/0030-tablas-maestras-python-reglas-fiscales/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1702,7 +1618,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0031-migracion-settings-por-company/" class="md-nav__link">
+      <a href="../../adr/0031-migracion-settings-por-company/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1723,7 +1639,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0032-ereceipts-facturapi-arquitectura/" class="md-nav__link">
+      <a href="../../adr/0032-ereceipts-facturapi-arquitectura/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1744,7 +1660,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0033-factura-global-hardcodes/" class="md-nav__link">
+      <a href="../../adr/0033-factura-global-hardcodes/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1765,7 +1681,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0034-integridad-correlacion-ffm/" class="md-nav__link">
+      <a href="../../adr/0034-integridad-correlacion-ffm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1786,7 +1702,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0035-motor-reconciliacion-ffm/" class="md-nav__link">
+      <a href="../../adr/0035-motor-reconciliacion-ffm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1807,7 +1723,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0036-integridad-proyeccion-cancelacion/" class="md-nav__link">
+      <a href="../../adr/0036-integridad-proyeccion-cancelacion/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1828,7 +1744,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0037-resiliencia-cancelacion-sustitucion-motivo-01/" class="md-nav__link">
+      <a href="../../adr/0037-resiliencia-cancelacion-sustitucion-motivo-01/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2017,147 +1933,63 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#estado-del-ultimo-timbrado-verificado" class="md-nav__link">
+  <a href="#punto-de-partida" class="md-nav__link">
     <span class="md-ellipsis">
-      Estado del último timbrado verificado
+      Punto de partida
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#diagrama-de-estados" class="md-nav__link">
+  <a href="#aplicar-como-descuento-bonificacion" class="md-nav__link">
     <span class="md-ellipsis">
-      Diagrama de estados
+      Aplicar como Descuento / Bonificación
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#transiciones-de-estado-ffm" class="md-nav__link">
+  <a href="#revertir-a-devolucion-de-mercancia" class="md-nav__link">
     <span class="md-ellipsis">
-      Transiciones de estado FFM
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Transiciones de estado FFM">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#borrador-procesando-timbrado-flujo-normal" class="md-nav__link">
-    <span class="md-ellipsis">
-      BORRADOR → PROCESANDO → TIMBRADO (flujo normal)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#timbrado-cancelado-pendiente_cancelacion" class="md-nav__link">
-    <span class="md-ellipsis">
-      TIMBRADO → CANCELADO / PENDIENTE_CANCELACION
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#pendiente_cancelacion-cancelado-o-timbrado-resolucion-sat" class="md-nav__link">
-    <span class="md-ellipsis">
-      PENDIENTE_CANCELACION → CANCELADO o → TIMBRADO (resolución SAT)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#timbrado-error-error-borrador-reintento" class="md-nav__link">
-    <span class="md-ellipsis">
-      TIMBRADO / ERROR → ERROR → BORRADOR (reintento)
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#proteccion-contra-cancelacion-de-sales-invoice" class="md-nav__link">
-    <span class="md-ellipsis">
-      Protección contra cancelación de Sales Invoice
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Protección contra cancelación de Sales Invoice">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#capa-1-frontend-js" class="md-nav__link">
-    <span class="md-ellipsis">
-      Capa 1 — Frontend (JS)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#capa-2-server-hook-before_cancel-de-si" class="md-nav__link">
-    <span class="md-ellipsis">
-      Capa 2 — Server hook (before_cancel de SI)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#capa-3-override-class-ffm-before_cancel-de-ffm" class="md-nav__link">
-    <span class="md-ellipsis">
-      Capa 3 — Override class FFM (before_cancel de FFM)
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#secuencia-de-cancelacion-correcta" class="md-nav__link">
-    <span class="md-ellipsis">
-      Secuencia de cancelación correcta
+      Revertir a Devolución de mercancía
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#checklist-verificacion-post-timbrado" class="md-nav__link">
+  <a href="#alternar-antes-de-guardar-enviar" class="md-nav__link">
     <span class="md-ellipsis">
-      Checklist verificación post-timbrado
+      Alternar antes de guardar / enviar
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#checklist-verificacion-post-cancelacion" class="md-nav__link">
+  <a href="#configuracion-requerida" class="md-nav__link">
     <span class="md-ellipsis">
-      Checklist verificación post-cancelación
+      Configuración requerida
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#errores-criticos-y-como-identificarlos" class="md-nav__link">
+  <a href="#uuid-relacionado" class="md-nav__link">
     <span class="md-ellipsis">
-      Errores críticos y cómo identificarlos
+      UUID relacionado
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#botones-fiscales-en-la-devolucion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Botones fiscales en la devolución
     </span>
   </a>
   
@@ -2178,392 +2010,136 @@
                   
 
 
-<h1 id="adr-0009-checklist-estados-y-flujo-de-timbrado">ADR 0009 — CHECKLIST ESTADOS Y FLUJO DE TIMBRADO<a class="headerlink" href="#adr-0009-checklist-estados-y-flujo-de-timbrado" title="Permanent link">&para;</a></h1>
-<p>====================================================
-Fecha: 2026-05-02
-Site: facturacion-v16.dev
-Fuente: Análisis de timbrado_api.py, factura_fiscal_mexico.py, overrides.py,
-        sales_invoice_cancel_guard.py, sales_invoice_block_cancel.js</p>
+<h1 id="notas-de-credito">Notas de Crédito<a class="headerlink" href="#notas-de-credito" title="Permanent link">&para;</a></h1>
+<p>Guía para emitir una Nota de Crédito (CFDI tipo <strong>E - Egreso</strong>) a partir de una devolución de venta,
+y para elegir entre <strong>Devolución de mercancía</strong> y <strong>Descuento / Bonificación</strong>.</p>
+<p>Una Nota de Crédito nace de un <strong>Sales Invoice Return</strong> (devolución) vinculado a una factura de origen.
+Mientras la devolución esté en <strong>Borrador (Draft)</strong> puedes decidir con qué tratamiento fiscal se
+emitirá; el sistema deriva el resto de los datos fiscales automáticamente.</p>
 <hr />
-<h2 id="estado-del-ultimo-timbrado-verificado">Estado del último timbrado verificado<a class="headerlink" href="#estado-del-ultimo-timbrado-verificado" title="Permanent link">&para;</a></h2>
-<p><strong>FFM:</strong> <code>FFMX-2026-00002</code></p>
+<h2 id="punto-de-partida">Punto de partida<a class="headerlink" href="#punto-de-partida" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Crea el <strong>Sales Invoice Return</strong> contra la factura de origen (campo <em>Return Against</em>).</li>
+<li><strong>Guárdalo</strong> (queda en Borrador).</li>
+</ol>
+<p>En una devolución guardada, en Borrador y con factura de origen, aparece —en el menú <strong>Acciones</strong>—
+<strong>uno</strong> de estos botones, según el estado actual del documento:</p>
+<ul>
+<li><strong>Aplicar como Descuento / Bonificación</strong> — si la devolución está tratada como devolución de mercancía.</li>
+<li><strong>Revertir a Devolución de mercancía</strong> — si la devolución ya está tratada como descuento.</li>
+</ul>
+<p>Solo se muestra un botón a la vez: el que te lleva al <strong>otro</strong> tratamiento.</p>
+<hr />
+<h2 id="aplicar-como-descuento-bonificacion">Aplicar como Descuento / Bonificación<a class="headerlink" href="#aplicar-como-descuento-bonificacion" title="Permanent link">&para;</a></h2>
+<p>En el menú <strong>Acciones</strong>, pulsa <strong>Aplicar como Descuento / Bonificación</strong>.</p>
+<p>El sistema:</p>
+<ul>
+<li><strong>Conserva el Item original</strong> de la línea: el <code>item_code</code> (y su ClaveProdServ SAT) <strong>no</strong> cambia; no se sustituye por un Item «Descuento».</li>
+<li>Cambia la <strong>descripción</strong> de la línea a <strong>«Descuento - \&lt;descripción original&gt;»</strong>.</li>
+<li>Cambia la <strong>cuenta de ingresos</strong> (<code>income_account</code>) a la <strong>Cuenta de Descuentos y Bonificaciones</strong> configurada para la empresa.</li>
+<li>Deja de afectar inventario (<strong><code>update_stock = 0</code></strong>).</li>
+<li>Conserva los vínculos con la factura y la línea original.</li>
+</ul>
+<p>Confirma con el mensaje: <em>"Nota de crédito preparada como Descuento / Bonificación."</em></p>
+<p>Al <strong>crear la Factura Fiscal</strong> desde esta devolución, el sistema deriva automáticamente:</p>
 <table>
 <thead>
 <tr>
-<th>Campo</th>
-<th>Valor</th>
+<th>Dato fiscal</th>
+<th>Valor derivado</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>sales_invoice</code></td>
-<td>ACC-SINV-2026-00001</td>
+<td>Tipo de Nota de Crédito</td>
+<td><strong>Descuento / Bonificación</strong></td>
 </tr>
 <tr>
-<td><code>fm_uuid</code></td>
-<td>AC82DF3E-89FE-4F14-9AFB-D9D417C62964</td>
+<td>TipoRelación SAT</td>
+<td><strong>01</strong></td>
 </tr>
 <tr>
-<td><code>fm_fiscal_status</code></td>
-<td>TIMBRADO</td>
+<td>Uso CFDI</td>
+<td><strong>G02</strong></td>
 </tr>
 <tr>
-<td><code>serie</code></td>
-<td>F</td>
-</tr>
-<tr>
-<td><code>folio</code></td>
-<td>270</td>
-</tr>
-<tr>
-<td><code>total_fiscal</code></td>
-<td>$498.80</td>
-</tr>
-<tr>
-<td><code>fecha_timbrado</code></td>
-<td>2026-05-02 12:03:21</td>
-</tr>
-<tr>
-<td><code>facturapi_id</code></td>
-<td>69f63c6914917afe07e4bdb3</td>
+<td>Forma de Pago</td>
+<td><strong>15</strong></td>
 </tr>
 </tbody>
 </table>
-<p><strong>SI vinculada:</strong> <code>ACC-SINV-2026-00001</code>
-- <code>status</code>: Unpaid | <code>docstatus</code>: 1 | <code>fm_fiscal_status</code>: TIMBRADO
-- <code>fm_factura_fiscal_mx</code>: FFMX-2026-00002</p>
-<p><strong>Response Log:</strong> <code>FAPI-LOG-2026-00002</code>
-- <code>operation_type</code>: Timbrado | <code>success</code>: 1 | <code>status_code</code>: 200</p>
-<p><strong>Archivos adjuntos:</strong>
-- PDF: <code>FFMX-2026-000024ecfaf.pdf</code> (155,572 bytes)
-- XML: <code>FFMX-2026-000029c848e.xml</code> (5,093 bytes)</p>
 <hr />
-<h2 id="diagrama-de-estados">Diagrama de estados<a class="headerlink" href="#diagrama-de-estados" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code>                    ┌─────────────────────────────────────────────┐
-                    │         FACTURA FISCAL MEXICO                │
-                    └─────────────────────────────────────────────┘
-
-  [nuevo]──submit──▶ BORRADOR ──timbrar_factura()──▶ PROCESANDO
-                        ▲                                │
-                        │                       ┌───────┴───────┐
-                        │                    éxito PAC       error PAC
-                        │                       │               │
-                  reintento                      ▼               ▼
-                        │                    TIMBRADO ◀────── ERROR
-                        └────────────────────────┤
-                                                 │ cancelar_factura()
-                                        ┌────────┴────────┐
-                                   PAC acepta       PAC pendiente
-                                        │               │
-                                        ▼               ▼
-                                    CANCELADO   PENDIENTE_CANCELACION
-                                   [FINAL]          │
-                                                     │ SAT confirma / rechaza
-                                            ┌────────┴────────┐
-                                       confirma           rechaza
-                                            │               │
-                                            ▼               ▼
-                                        CANCELADO       TIMBRADO
-</code></pre></div>
-<div class="highlight"><pre><span></span><code>                    ┌─────────────────────────────────────────────┐
-                    │            SALES INVOICE                     │
-                    └─────────────────────────────────────────────┘
-
-  Draft ──submit──▶ Submitted (fm_fiscal_status vacío)
-                         │
-                    timbrar_factura()
-                         │
-                    fm_fiscal_status = TIMBRADO
-                         │
-                    [BLOQUEADA para cancelar hasta que FFM = CANCELADO]
-                         │
-                    FFM cancelada en PAC + Frappe
-                         │
-                    SI puede cancelarse ──▶ Cancelled
-</code></pre></div>
-<hr />
-<h2 id="transiciones-de-estado-ffm">Transiciones de estado FFM<a class="headerlink" href="#transiciones-de-estado-ffm" title="Permanent link">&para;</a></h2>
-<h3 id="borrador-procesando-timbrado-flujo-normal">BORRADOR → PROCESANDO → TIMBRADO (flujo normal)<a class="headerlink" href="#borrador-procesando-timbrado-flujo-normal" title="Permanent link">&para;</a></h3>
-<p><strong>Cuándo:</strong> llamada a <code>timbrar_factura(sales_invoice_name)</code></p>
-<p><strong>Validaciones previas (FASE 1):</strong>
-- <code>SI.docstatus == 1</code> (submitted) — si no: throw
-- <code>SI.fm_fiscal_status != TIMBRADO</code> — si ya timbrado: throw
-- <code>SI.customer</code> existe
-- <code>Customer.tax_id</code> (RFC) no vacío — si no: throw
-- Address primaria existe — si no: throw
-- <code>Address.country</code> válido (México/MEX/MX) — si no: throw
-- <code>Factura Fiscal Mexico</code> existe y está submitted — si no: throw
-- <code>FFM.fm_cfdi_use</code> no vacío — si no: throw
-- <code>SI.items</code> no vacío — si no: throw</p>
-<p><strong>Transición:</strong>
-<div class="highlight"><pre><span></span><code>BORRADOR → PROCESANDO  (set_value al iniciar llamada PAC)
-         → TIMBRADO    (set_value en _process_timbrado_success)
-         → ERROR       (set_value si falla PAC o Frappe post-PAC)
-</code></pre></div></p>
-<p><strong>Campos actualizados al TIMBRADO:</strong></p>
+<h2 id="revertir-a-devolucion-de-mercancia">Revertir a Devolución de mercancía<a class="headerlink" href="#revertir-a-devolucion-de-mercancia" title="Permanent link">&para;</a></h2>
+<p>Mientras la devolución siga en <strong>Borrador</strong>, en el menú <strong>Acciones</strong> pulsa
+<strong>Revertir a Devolución de mercancía</strong>.</p>
+<p>El sistema:</p>
+<ul>
+<li>El <strong>Item nunca cambió</strong>: sigue siendo el original (<code>item_code</code> intacto).</li>
+<li>Restaura la <strong>descripción</strong> original.</li>
+<li>Restaura la <strong>cuenta de ingresos</strong> (<code>income_account</code>) original.</li>
+<li>Restaura el <strong>comportamiento de inventario</strong> original (<code>update_stock</code> desde la factura de origen).</li>
+<li>Conserva los vínculos con la factura de origen.</li>
+</ul>
+<p>Confirma con el mensaje: <em>"Nota de crédito revertida a Devolución de mercancía."</em></p>
+<p>Al <strong>crear la Factura Fiscal</strong>, el sistema deriva:</p>
 <table>
 <thead>
 <tr>
-<th>Campo FFM</th>
-<th>Fuente</th>
+<th>Dato fiscal</th>
+<th>Valor derivado</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>fm_fiscal_status</code></td>
-<td><code>"TIMBRADO"</code></td>
+<td>Tipo de Nota de Crédito</td>
+<td><strong>Devolución de mercancía</strong></td>
 </tr>
 <tr>
-<td><code>fm_uuid</code></td>
-<td><code>response["uuid"]</code></td>
+<td>TipoRelación SAT</td>
+<td><strong>03</strong></td>
 </tr>
 <tr>
-<td><code>facturapi_id</code></td>
-<td><code>response["id"]</code></td>
+<td>Uso CFDI</td>
+<td><strong>G02</strong></td>
 </tr>
 <tr>
-<td><code>fecha_timbrado</code></td>
-<td><code>response["stamp"]["date"]</code> o <code>now_datetime()</code></td>
-</tr>
-<tr>
-<td><code>serie</code></td>
-<td><code>response["series"]</code> (si viene)</td>
-</tr>
-<tr>
-<td><code>folio</code></td>
-<td><code>response["folio_number"]</code> (solo número, sin prefijo)</td>
-</tr>
-<tr>
-<td><code>total_fiscal</code></td>
-<td><code>response["total"]</code></td>
-</tr>
-<tr>
-<td><code>fm_xml_url</code></td>
-<td><code>response["xml_url"]</code> (si viene)</td>
-</tr>
-<tr>
-<td><code>fm_pdf_url</code></td>
-<td><code>response["pdf_url"]</code> (si viene)</td>
+<td>Forma de Pago</td>
+<td>Conforme a la lógica normal aplicable</td>
 </tr>
 </tbody>
 </table>
-<table>
-<thead>
-<tr>
-<th>Campo SI</th>
-<th>Valor</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>fm_fiscal_status</code></td>
-<td><code>"TIMBRADO"</code></td>
-</tr>
-</tbody>
-</table>
-<p><strong>Qué debe verse en UI:</strong>
-- FFM: estado <code>TIMBRADO</code> en badge
-- FFM: UUID visible, folio y serie asignados
-- FFM: PDF y XML adjuntos (si <code>download_files_default = 1</code>)
-- SI: badge fiscal <code>TIMBRADO</code>, campo <code>fm_factura_fiscal_mx</code> con link a FFM</p>
-<p><strong>Errores posibles:</strong>
-- <code>PROCESANDO</code> quedó sin resolver (timeout / Frappe caído post-PAC) → usar recovery worker
-- <code>ERROR</code> con mensaje: ver <code>user_message</code> en respuesta y en FacturAPI Response Log</p>
 <hr />
-<h3 id="timbrado-cancelado-pendiente_cancelacion">TIMBRADO → CANCELADO / PENDIENTE_CANCELACION<a class="headerlink" href="#timbrado-cancelado-pendiente_cancelacion" title="Permanent link">&para;</a></h3>
-<p><strong>Cuándo:</strong> llamada a <code>cancelar_factura(sales_invoice, motivo, [substitution_uuid])</code></p>
-<p><strong>Validaciones previas:</strong>
-- <code>SI.fm_fiscal_status == TIMBRADO</code> — si no: throw
-- <code>FFM.fm_uuid</code> existe (hubo timbrado real) — si no: throw
-- Motivo válido (01–04 SAT)
-- Motivo 01 solo desde flujo de sustitución (requiere <code>substitution_uuid</code>)</p>
-<p><strong>Transición según respuesta PAC:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Estado PAC devuelto</th>
-<th>Estado FFM resultante</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>"valid"</code> / <code>"canceled"</code></td>
-<td><code>CANCELADO</code></td>
-</tr>
-<tr>
-<td><code>"pending"</code> / <code>"in_process"</code></td>
-<td><code>PENDIENTE_CANCELACION</code></td>
-</tr>
-<tr>
-<td>Respuesta inesperada</td>
-<td><code>PENDIENTE_CANCELACION</code> (fallback)</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Campos actualizados:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Campo FFM</th>
-<th>Valor</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>fm_fiscal_status</code></td>
-<td><code>CANCELADO</code> o <code>PENDIENTE_CANCELACION</code></td>
-</tr>
-<tr>
-<td><code>cancellation_reason</code></td>
-<td>motivo SAT</td>
-</tr>
-<tr>
-<td><code>cancellation_date</code></td>
-<td>fecha cancelación</td>
-</tr>
-</tbody>
-</table>
-<table>
-<thead>
-<tr>
-<th>Campo SI</th>
-<th>Valor</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>fm_fiscal_status</code></td>
-<td>mismo estado que FFM</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Qué debe verse en UI:</strong>
-- FFM: badge <code>CANCELADO</code> o <code>PENDIENTE_CANCELACION</code>
-- SI: botón Cancel visible (si FFM = CANCELADO) o bloqueado (si PENDIENTE)</p>
+<h2 id="alternar-antes-de-guardar-enviar">Alternar antes de guardar / enviar<a class="headerlink" href="#alternar-antes-de-guardar-enviar" title="Permanent link">&para;</a></h2>
+<p>Mientras el documento permanezca en <strong>Borrador</strong>, puedes alternar entre ambas opciones tantas veces
+como necesites antes de guardar o enviar.</p>
+<p>El tipo fiscal que finalmente usa la Factura Fiscal <strong>depende del estado real</strong> en que quede la
+devolución: si la dejas como descuento, se emite como Descuento / Bonificación; si la dejas como
+devolución de mercancía, se emite como Devolución.</p>
 <hr />
-<h3 id="pendiente_cancelacion-cancelado-o-timbrado-resolucion-sat">PENDIENTE_CANCELACION → CANCELADO o → TIMBRADO (resolución SAT)<a class="headerlink" href="#pendiente_cancelacion-cancelado-o-timbrado-resolucion-sat" title="Permanent link">&para;</a></h3>
-<p><strong>Cuándo:</strong> SAT confirma o rechaza la cancelación (job <code>process_pending_complements</code> o acción manual)</p>
-<p><strong>Sin validaciones activas</strong> — el estado se actualiza cuando el PAC reporta resolución.</p>
+<h2 id="configuracion-requerida">Configuración requerida<a class="headerlink" href="#configuracion-requerida" title="Permanent link">&para;</a></h2>
+<p>Cada empresa debe tener configurada la <strong>Cuenta de Descuentos y Bonificaciones</strong> en
+<strong>Facturacion Mexico Company Settings</strong>.</p>
+<p>Si falta esa cuenta, el sistema <strong>bloquea la conversión a descuento</strong> y muestra el mensaje
+correspondiente. Configúrala antes de usar <em>Aplicar como Descuento / Bonificación</em>.</p>
 <hr />
-<h3 id="timbrado-error-error-borrador-reintento">TIMBRADO / ERROR → ERROR → BORRADOR (reintento)<a class="headerlink" href="#timbrado-error-error-borrador-reintento" title="Permanent link">&para;</a></h3>
-<p><strong>Cuándo:</strong> el usuario corrige datos y reintenta timbrar después de un error.</p>
-<p><strong>Matriz de transiciones permitidas</strong> (validada en <code>validate_status_transitions</code>):</p>
-<div class="highlight"><pre><span></span><code><span class="kc">None</span>      <span class="err">→</span> <span class="p">[</span><span class="s2">&quot;BORRADOR&quot;</span><span class="p">]</span>
-<span class="s2">&quot;&quot;</span>        <span class="err">→</span> <span class="p">[</span><span class="s2">&quot;BORRADOR&quot;</span><span class="p">]</span>
-<span class="n">BORRADOR</span>  <span class="err">→</span> <span class="p">[</span><span class="s2">&quot;PROCESANDO&quot;</span><span class="p">,</span> <span class="s2">&quot;TIMBRADO&quot;</span><span class="p">,</span> <span class="s2">&quot;CANCELADO&quot;</span><span class="p">,</span> <span class="s2">&quot;ERROR&quot;</span><span class="p">]</span>
-<span class="n">PROCESANDO</span><span class="err">→</span> <span class="p">[</span><span class="s2">&quot;TIMBRADO&quot;</span><span class="p">,</span> <span class="s2">&quot;ERROR&quot;</span><span class="p">,</span> <span class="s2">&quot;CANCELADO&quot;</span><span class="p">]</span>
-<span class="n">TIMBRADO</span>  <span class="err">→</span> <span class="p">[</span><span class="s2">&quot;CANCELADO&quot;</span><span class="p">,</span> <span class="s2">&quot;PENDIENTE_CANCELACION&quot;</span><span class="p">]</span>
-<span class="n">ERROR</span>     <span class="err">→</span> <span class="p">[</span><span class="s2">&quot;BORRADOR&quot;</span><span class="p">,</span> <span class="s2">&quot;PROCESANDO&quot;</span><span class="p">,</span> <span class="s2">&quot;TIMBRADO&quot;</span><span class="p">]</span>   <span class="c1"># puede reintentarse</span>
-<span class="n">CANCELADO</span> <span class="err">→</span> <span class="p">[]</span>                                        <span class="c1"># FINAL — sin transición</span>
-<span class="n">PENDIENTE_CANCELACION</span> <span class="err">→</span> <span class="p">[</span><span class="s2">&quot;CANCELADO&quot;</span><span class="p">,</span> <span class="s2">&quot;TIMBRADO&quot;</span><span class="p">]</span>
-</code></pre></div>
-<p>Cualquier transición fuera de esta matriz lanza <code>ValidationError</code>.</p>
+<h2 id="uuid-relacionado">UUID relacionado<a class="headerlink" href="#uuid-relacionado" title="Permanent link">&para;</a></h2>
+<p>Una Nota de Crédito requiere el <strong>UUID fiscal real</strong> del CFDI de la factura de origen. Al crear la
+Factura Fiscal se solicita cuando no puede obtenerse automáticamente.</p>
+<p>Usa siempre el UUID verdadero del comprobante origen. No uses UUID arbitrarios fuera de ambientes de
+prueba.</p>
 <hr />
-<h2 id="proteccion-contra-cancelacion-de-sales-invoice">Protección contra cancelación de Sales Invoice<a class="headerlink" href="#proteccion-contra-cancelacion-de-sales-invoice" title="Permanent link">&para;</a></h2>
-<p>Tres capas independientes — cualquiera puede bloquear:</p>
-<h3 id="capa-1-frontend-js">Capa 1 — Frontend (JS)<a class="headerlink" href="#capa-1-frontend-js" title="Permanent link">&para;</a></h3>
-<p><code>public/js/sales_invoice_block_cancel.js</code> — se ejecuta en cada <code>refresh</code> de SI submitted:
-1. Llama a <code>can_cancel_sales_invoice(si_name)</code> (endpoint whitelisted)
-2. Si <code>allowed = False</code>: oculta botón Cancel + muestra headline naranja con razón
-3. Si hay error de red: NO oculta (evita bloquear por error de red — el server-hook sigue protegiendo)</p>
-<h3 id="capa-2-server-hook-before_cancel-de-si">Capa 2 — Server hook (before_cancel de SI)<a class="headerlink" href="#capa-2-server-hook-before_cancel-de-si" title="Permanent link">&para;</a></h3>
-<p><code>validaciones/sales_invoice_cancel_guard.py</code> → hook <code>before_cancel</code> en Sales Invoice:
-1. Busca FFM vinculada (por <code>sales_invoice</code> en FFM o por <code>fm_factura_fiscal_mx</code> en SI)
-2. Si FFM existe con <code>docstatus=1</code> y <code>fm_fiscal_status</code> ∉ <code>{CANCELADO, CANCELADA, CANCELLED, CANCELLED_OK, CANCELED}</code> → <code>raise ValidationError</code>
-3. Si no hay FFM vinculada → permite cancelar</p>
-<h3 id="capa-3-override-class-ffm-before_cancel-de-ffm">Capa 3 — Override class FFM (before_cancel de FFM)<a class="headerlink" href="#capa-3-override-class-ffm-before_cancel-de-ffm" title="Permanent link">&para;</a></h3>
-<p><code>factura_fiscal_mexico.py → before_cancel()</code>:
-- Si <code>fm_uuid</code> existe y <code>fm_fiscal_status != "CANCELADO"</code> → throw con instrucciones de secuencia correcta
-- Solo bypass si <code>fm_uuid</code> es None y <code>flags.allow_local_cancel = True</code> (para FFMs sin timbrado)</p>
-<p><code>overrides.py → cancel()</code>:
-- Verifica que <code>fm_fiscal_status</code> esté en <code>CANCELADO_FISCAL</code> antes de proceder
-- Si no → throw "Primero cancela en el PAC"
-- Si sí → <code>flags.ignore_links = True</code> para evitar <code>LinkExistsError</code> al cancelar con SI vinculada</p>
-<hr />
-<h2 id="secuencia-de-cancelacion-correcta">Secuencia de cancelación correcta<a class="headerlink" href="#secuencia-de-cancelacion-correcta" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code>1. Botón &quot;Cancelar en FacturAPI&quot; en FFM
-   → cancelar_factura() → PAC procesa → FFM.fm_fiscal_status = CANCELADO
-
-2. Botón &quot;Cancel&quot; en FFM (Frappe)
-   → before_cancel: verifica fm_fiscal_status = CANCELADO ✓
-   → overrides.cancel: flags.ignore_links = True
-   → FFM.docstatus = 2
-
-3. Botón &quot;Cancel&quot; en Sales Invoice
-   → before_cancel guard: FFM docstatus=2 → permite ✓
-   → SI.docstatus = 2
-</code></pre></div>
-<p><strong>Si el PAC responde PENDIENTE_CANCELACION:</strong>
-- FFM queda en <code>PENDIENTE_CANCELACION</code>
-- SI sigue bloqueada para cancelar
-- Esperar que el SAT procese (job nocturno o acción manual)
-- Cuando PAC confirme → FFM → <code>CANCELADO</code> → continúa secuencia</p>
-<hr />
-<h2 id="checklist-verificacion-post-timbrado">Checklist verificación post-timbrado<a class="headerlink" href="#checklist-verificacion-post-timbrado" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code>☐ FFM.fm_fiscal_status = TIMBRADO
-☐ FFM.fm_uuid poblado (36 chars UUID)
-☐ FFM.facturapi_id poblado
-☐ FFM.fecha_timbrado poblado
-☐ FFM.total_fiscal = SI.grand_total (validar discrepancia)
-☐ FFM tiene PDF adjunto (si download_files_default = 1)
-☐ FFM tiene XML adjunto (si download_files_default = 1)
-☐ FacturAPI Response Log: operation_type=Timbrado, success=1, status_code=200
-☐ SI.fm_fiscal_status = TIMBRADO
-☐ SI.fm_factura_fiscal_mx = FFM.name
-☐ Botón Cancel en SI: oculto / headline &quot;Cancelación bloqueada&quot;
-</code></pre></div>
-<h2 id="checklist-verificacion-post-cancelacion">Checklist verificación post-cancelación<a class="headerlink" href="#checklist-verificacion-post-cancelacion" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code>☐ FFM.fm_fiscal_status = CANCELADO
-☐ FFM.docstatus = 2 (cancelado en Frappe)
-☐ FFM.cancellation_reason poblado
-☐ FacturAPI Response Log: operation_type=Cancelación, success=1
-☐ SI.fm_fiscal_status = CANCELADO
-☐ Botón Cancel en SI: visible
-☐ SI.docstatus = 2 (si se completó cancelación en Frappe)
-</code></pre></div>
-<hr />
-<h2 id="errores-criticos-y-como-identificarlos">Errores críticos y cómo identificarlos<a class="headerlink" href="#errores-criticos-y-como-identificarlos" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Error</th>
-<th>Causa</th>
-<th>Dónde buscar</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>FFM queda en PROCESANDO</td>
-<td>Timeout o Frappe caído post-PAC</td>
-<td>FacturAPI Response Log + recovery worker</td>
-</tr>
-<tr>
-<td>FFM en ERROR con UUID</td>
-<td>PAC timbró pero Frappe falló al guardar</td>
-<td>Response Log tiene UUID — recuperar con <code>process_sync_errors</code></td>
-</tr>
-<tr>
-<td>FFM en PENDIENTE_CANCELACION mucho tiempo</td>
-<td>SAT no procesa</td>
-<td>Verificar en portal SAT con UUID</td>
-</tr>
-<tr>
-<td>SI bloqueada para cancelar sin FFM visible</td>
-<td>FFM existe en docstatus=1 pero no en UI</td>
-<td>Buscar FFM directamente por sales_invoice</td>
-</tr>
-<tr>
-<td>LinkExistsError al cancelar FFM</td>
-<td>Bug pre-override</td>
-<td>Ya corregido en overrides.py via <code>flags.ignore_links</code></td>
-</tr>
-<tr>
-<td>Amend de FFM bloqueado</td>
-<td>Correcto por diseño</td>
-<td>Crear nueva FFM en lugar de corregir</td>
-</tr>
-</tbody>
-</table>
+<h2 id="botones-fiscales-en-la-devolucion">Botones fiscales en la devolución<a class="headerlink" href="#botones-fiscales-en-la-devolucion" title="Permanent link">&para;</a></h2>
+<p>El botón fiscal que ves en la devolución depende de su estado:</p>
+<ul>
+<li><strong>Sin Factura Fiscal</strong>, con condiciones fiscales y RFC válidos → <strong>Crear Factura Fiscal</strong>.</li>
+<li><strong>Con Factura Fiscal ya creada</strong> (en Borrador o Timbrada) → <strong>Abrir Factura Fiscal</strong>.</li>
+</ul>
+<p>No se crea una segunda Factura Fiscal desde la misma devolución: si ya existe una, se abre la
+existente.</p>
+<blockquote>
+<p>Si el RFC del cliente está vacío o no validado, el botón <strong>Crear Factura Fiscal</strong> no aparece y se
+muestra un aviso indicando que debe validarse el RFC antes de crear la Factura Fiscal.</p>
+</blockquote>
 
 
 
