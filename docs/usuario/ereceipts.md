@@ -1,5 +1,13 @@
 # E-Receipts y Autofactura
 
+!!! warning "Funcionalidad pendiente de validación integral"
+    Existe implementación parcial de E-Receipts, pero **el flujo completo contra FacturAPI y el
+    portal de autofacturación no ha sido validado integralmente ni aprobado para producción ni
+    capacitación**. Esta página describe el comportamiento **de diseño según el código**; no debe
+    tomarse como guía operativa aprobada. En particular, **no** están validados: el portal de
+    autofactura, la autofacturación por el receptor, ni la expiración automática. Ver el estado en
+    `working_docs/active/auditoria_manual/I_scope_roadmap.md` (F-01).
+
 Los E-Receipts son recibos digitales para ventas a público en general. El cliente puede
 autofacturarse en un portal web con su RFC, sin intervención del operador.
 
@@ -123,15 +131,18 @@ estado operativo (`fm_fiscal_status = E-RECEIPT`). Los datos fiscales se leen de
 
 ## Factura Global
 
-Si el cliente no se autofactura antes de que expire el receipt, la empresa puede incluirlo
-en una **Factura Global** periódica (mensual, quincenal, etc.) que cubre todos los receipts
-abiertos del período.
+!!! warning "Factura Global — pendiente de interfaz y validación integral"
+    La **Factura Global** existe a nivel de API (métodos del servidor) pero **no cuenta con una
+    interfaz de usuario completa** ni con validación integral end-to-end. **No** está aprobada como
+    flujo operativo: no la uses como procedimiento de producción hasta que exista UI y validación.
 
-Ver [Factura Global](../tecnico/arquitectura.md#flujo-e-receipt--autofactura) para detalles técnicos.
+En el diseño, si el cliente no se autofactura antes de que expire el receipt, la empresa podría
+incluirlo en una **Factura Global** periódica que agrupa los receipts abiertos del período. Hoy ese
+agrupamiento y su timbrado solo están disponibles vía API del servidor, sin pantalla operable.
 
-!!! note "Limitación actual"
+!!! note "Limitación de diseño"
     Los E-Receipts con **IEPS** no pueden incluirse en Factura Global hasta que se implemente
-    el modelo line-level de impuestos (issue #182). El sistema bloqueará con un mensaje claro.
+    el modelo line-level de impuestos (issue #182).
 
 ---
 

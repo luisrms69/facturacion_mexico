@@ -74,14 +74,15 @@ nav:
     - Setup: tecnico/setup.md
     - Email CFDI: tecnico/email-system.md
     - Regeneración STCT: tecnico/proceso-regeneracion-stct-e4.md
+    - Reconciliación y fallback: tecnico/reconciliacion-fallback.md
     - ADRs:
       - adr/index.md
       - adr/0000-estado-real-pre-migracion.md
       - adr/0002-verificacion-arranque-v16.md
       - adr/0003-verificacion-configuracion-fiscal.md
       - adr/0004-verificacion-timbrado.md
-      - adr/0005-workflow-configuracion-inicial-v2.md
-      - adr/0005-workflow-configuracion-inicial.md
+      - "0005 Workflow configuración inicial (v2, vigente)": adr/0005-workflow-configuracion-inicial-v2.md
+      - "0005 Workflow configuración inicial (obsoleto — superseded por v2)": adr/0005-workflow-configuracion-inicial.md
       - adr/0006-analisis-branches-wip.md
       - adr/0007-analisis-checkout-e4.md
       - adr/0008-analisis-9-commits-wip.md
@@ -119,6 +120,8 @@ nav:
     - DocTypes: referencia/doctypes.md
     - Hooks: referencia/hooks.md
     - API: referencia/api.md
+    - Configuración: referencia/configuracion.md
+    - Campos fiscales: referencia/campos-fiscales.md
 
 # Extra
 extra:
@@ -127,11 +130,10 @@ extra:
     default: latest
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/tu-org/facturacion_mexico
+      link: https://github.com/luisrms69/facturacion_mexico
       name: GitHub
-  analytics:
-    provider: google
-    property: G-XXXXXXXXXX
+  # Google Analytics deshabilitado: no hay ID real configurado (antes placeholder G-XXXXXXXXXX).
+  # No inventar un ID; reactivar solo cuando exista una propiedad real.
   consent:
     title: Consentimiento de cookies
     description: >

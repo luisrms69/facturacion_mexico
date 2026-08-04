@@ -35,8 +35,13 @@ Este camino cancela el CFDI sin emitir uno nuevo.
 ### Pasos
 
 1. Abrir el **Sales Invoice** timbrado (`fm_fiscal_status = TIMBRADO`)
-2. Desde el Sales Invoice → abrir la **Factura Fiscal Mexico** (botón **"Ver Factura Fiscal"**)
+2. Desde el Sales Invoice → abrir la **Factura Fiscal Mexico** (botón **"Abrir Factura Fiscal"**)
 3. En el FFM → sección **Cancelación** → seleccionar el **motivo** (02, 03 o 04)
+
+> Los motivos **02, 03 y 04** se procesan **desde la Factura Fiscal Mexico**. El motivo **01
+> no se ejecuta mediante cancelación directa**: se realiza por **sustitución**, que inicia desde el
+> Sales Invoice con el botón **"Sustituir CFDI (01)"** (ver Camino B). El sistema crea una factura de
+> reemplazo y cancela el CFDI anterior mediante la cascada de sustitución.
 4. Confirmar
 
 El sistema envía la **solicitud** de cancelación a FacturAPI.io. Que FacturAPI reciba la solicitud
