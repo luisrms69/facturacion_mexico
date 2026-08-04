@@ -13,10 +13,10 @@
       
       
       
-        <link rel="prev" href="../0031-migracion-settings-por-company/">
+        <link rel="prev" href="../proceso-regeneracion-stct-e4/">
       
       
-        <link rel="next" href="../0033-factura-global-hardcodes/">
+        <link rel="next" href="../../adr/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -24,7 +24,7 @@
     
     
       
-        <title>ADR-0032: Arquitectura E-Receipts — FacturAPI como motor fiscal, ERPNext como trazabilidad - Facturación México - Documentación Técnica</title>
+        <title>Reconciliación y fallback - Facturación México - Documentación Técnica</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#adr-0032-arquitectura-e-receipts-facturapi-como-motor-fiscal-erpnext-como-trazabilidad" class="md-skip">
+        <a href="#reconciliacion-ffm-facturapi-y-fallback-de-timbrado" class="md-skip">
           Saltar a contenido
         </a>
       
@@ -118,7 +118,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              ADR-0032: Arquitectura E-Receipts — FacturAPI como motor fiscal, ERPNext como trazabilidad
+              Reconciliación y fallback
             
           </span>
         </div>
@@ -254,7 +254,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../../tecnico/" class="md-tabs__link">
+        <a href="../" class="md-tabs__link">
           
   
   Técnico
@@ -686,7 +686,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../tecnico/" class="md-nav__link">
+      <a href="../" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -707,7 +707,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../tecnico/arquitectura/" class="md-nav__link">
+      <a href="../arquitectura/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -728,7 +728,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../tecnico/setup/" class="md-nav__link">
+      <a href="../setup/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -749,7 +749,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../tecnico/email-system/" class="md-nav__link">
+      <a href="../email-system/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -770,767 +770,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../tecnico/proceso-regeneracion-stct-e4/" class="md-nav__link">
+      <a href="../proceso-regeneracion-stct-e4/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
     Regeneración STCT
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../tecnico/reconciliacion-fallback/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Reconciliación y fallback
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    
-    
-    
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
-      
-        
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_7" checked>
-        
-          
-          <label class="md-nav__link" for="__nav_3_7" id="__nav_3_7_label" tabindex="">
-            
-  
-  <span class="md-ellipsis">
-    ADRs
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_7_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_3_7">
-            <span class="md-nav__icon md-icon"></span>
-            ADRs
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADRs — Decisiones Arquitectónicas
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../0000-estado-real-pre-migracion/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR 0000: Estado Real de la App — Pre-Migración
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../0002-verificacion-arranque-v16/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    MÓDULO 0 — VERIFICACIÓN DE ARRANQUE
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../0003-verificacion-configuracion-fiscal/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    MÓDULO 1 — CONFIGURACIÓN FISCAL Y DATOS MAESTROS
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../0004-verificacion-timbrado/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    MÓDULO 2 — VERIFICACIÓN FLUJO DE TIMBRADO CFDI
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../0005-workflow-configuracion-inicial-v2/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    0005 Workflow configuración inicial (v2, vigente)
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../0005-workflow-configuracion-inicial/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    0005 Workflow configuración inicial (obsoleto — superseded por v2)
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../0006-analisis-branches-wip/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR 0006 — ANÁLISIS DE BRANCHES WIP
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../0007-analisis-checkout-e4/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR 0007 — ANÁLISIS DE RIESGO: CHECKOUT A feature/e4-ieps-on-item-quantity
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../0008-analisis-9-commits-wip/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR 0008 — ANÁLISIS DETALLADO: 9 COMMITS WIP
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../0009-checklist-estados-flujo-timbrado/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR 0009 — CHECKLIST ESTADOS Y FLUJO DE TIMBRADO
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../0010-verificacion-post-cancelacion/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR 0010 — VERIFICACIÓN ESTADO POST-CANCELACIÓN
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../0011-diagnostico-sistema-tests/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR 0011 — DIAGNÓSTICO SISTEMA DE TESTS
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../0012-solucion-sistema-tests-v16/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR 0012 — SOLUCIÓN SISTEMA DE TESTS V16
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../0013-arquitectura-sistema-cancelaciones-cfdi/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR 0013 — Arquitectura del Sistema de Cancelaciones CFDI
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../0014-diagnostico-conectividad-si-ffm/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR 0014 — Diagnóstico Conectividad Sales Invoice ↔ Factura Fiscal Mexico
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../0015-si-ffm-relationship-architecture/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR 0015 — Arquitectura Relación Sales Invoice ↔ Factura Fiscal Mexico
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../0016-reclasificacion-fiscal-payment-entry/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR 0016 — Reclasificación Fiscal de Impuestos en Payment Entry
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../0017-complemento-pago-mx-schema-normalizacion/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR 0017 — Complemento Pago MX MVP
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../0018-ffm-status-fiscal-state-migration/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR 0018 — Migración de estado fiscal FFM a status
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../0019-primera-implementacion-rc-v0.1/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR-0019: Primera implementación Release Candidates v0.1
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../0020-smoke-test-mvp-flujos-cancelacion/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR-0020: Smoke Test MVP v0.1 — Flujos de Cancelación y Refacturación
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../0021-fiscal-state-capa-ui-centralizada/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR-0021 — Capa fiscal_state: UI centralizada via endpoint Python
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../0022-solucion-issue-112-reclasificacion-fiscal-pe/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR-0022 — Solución Issue #112: Reclasificación Fiscal en Payment Entry
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../0023-venta-mostrador-cfdi-individual-rfc-generico/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR-0023 — Venta Mostrador: CFDI Individual con RFC Genérico XAXX010101000
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../0024-addendas-pre-timbrado-issue129/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR 0024 — Addendas CFDI pre-timbrado (Issue #129)
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../0025-notas-credito-cfdi-tipo-e-issue116/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR 0025 — Notas de Crédito CFDI tipo E (Issue #116)
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../0026-workspace-facturacion-mexico-issue120/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR 0026 — Workspace "Facturación México" (Issue #120)
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../0027-migracion-facturacion-mx-a-facturacion-mexico/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR 0027 — Migración facturacion_mx → facturacion_mexico
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../0028-ffm-legacy-fields-audit/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR 0028 — Auditoría campos legacy FFM + desmantelamiento Sistema Resiliente
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../0029-facturapi-base-unitaria-ieps-cuota/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR 0029 — FacturAPI multiplica base × cantidad: enviar valores unitarios para IEPS Cuota
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../0030-tablas-maestras-python-reglas-fiscales/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR 0030 — Reglas de cálculo fiscal como tablas maestras Python
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../0031-migracion-settings-por-company/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR-0031 — Migración de Settings global (Single) a configuración por Company
   </span>
   
 
@@ -1560,7 +804,7 @@
           
   
   <span class="md-ellipsis">
-    ADR-0032: Arquitectura E-Receipts — FacturAPI como motor fiscal, ERPNext como trazabilidad
+    Reconciliación y fallback
   </span>
   
 
@@ -1571,7 +815,7 @@
         
   
   <span class="md-ellipsis">
-    ADR-0032: Arquitectura E-Receipts — FacturAPI como motor fiscal, ERPNext como trazabilidad
+    Reconciliación y fallback
   </span>
   
 
@@ -1593,46 +837,64 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#contexto" class="md-nav__link">
+  <a href="#1-proposito" class="md-nav__link">
     <span class="md-ellipsis">
-      Contexto
+      1. Propósito
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#decision" class="md-nav__link">
+  <a href="#2-ejecucion-automatica-por-scheduler" class="md-nav__link">
     <span class="md-ellipsis">
-      Decisión
+      2. Ejecución automática por scheduler
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#modelo-de-datos-resultante" class="md-nav__link">
+  <a href="#3-boton-manual-verificar-estado-en-facturapi" class="md-nav__link">
     <span class="md-ellipsis">
-      Modelo de datos resultante
+      3. Botón manual "Verificar estado en FacturAPI"
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Modelo de datos resultante">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-seleccion-de-candidatos-locks-e-idempotencia" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Selección de candidatos, locks e idempotencia
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Selección de candidatos, locks e idempotencia">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#sales-invoice-campos-nuevos" class="md-nav__link">
+  <a href="#seleccion-de-candidatos" class="md-nav__link">
     <span class="md-ellipsis">
-      Sales Invoice (campos nuevos)
+      Selección de candidatos
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#ereceipt-mx-campos-relevantes" class="md-nav__link">
+  <a href="#locks-redis-distribuidos-no-bloqueantes-con-ttl" class="md-nav__link">
     <span class="md-ellipsis">
-      EReceipt MX (campos relevantes)
+      Locks (Redis, distribuidos, no bloqueantes, con TTL)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#idempotencia" class="md-nav__link">
+    <span class="md-ellipsis">
+      Idempotencia
     </span>
   </a>
   
@@ -1644,37 +906,19 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#consecuencias" class="md-nav__link">
+  <a href="#5-estados-que-actualiza-y-proteccion-contra-degradar-cancelados" class="md-nav__link">
     <span class="md-ellipsis">
-      Consecuencias
+      5. Estados que actualiza y protección contra degradar CANCELADOS
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Consecuencias">
+    <nav class="md-nav" aria-label="5. Estados que actualiza y protección contra degradar CANCELADOS">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#positivas" class="md-nav__link">
+  <a href="#protecciones-contra-degradar-un-estado-de-cancelacion" class="md-nav__link">
     <span class="md-ellipsis">
-      Positivas
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#negativas-trade-offs" class="md-nav__link">
-    <span class="md-ellipsis">
-      Negativas / trade-offs
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fuera-de-alcance-de-esta-decision" class="md-nav__link">
-    <span class="md-ellipsis">
-      Fuera de alcance de esta decisión
+      Protecciones contra degradar un estado de cancelación
     </span>
   </a>
   
@@ -1686,9 +930,51 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#alternativa-descartada" class="md-nav__link">
+  <a href="#6-sincronizacion-del-folio-fiscal" class="md-nav__link">
     <span class="md-ellipsis">
-      Alternativa descartada
+      6. Sincronización del folio fiscal
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-persistencia-de-respuestas-raw-del-pac-fallback-de-timbrado" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. Persistencia de respuestas RAW del PAC (fallback de timbrado)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Persistencia de respuestas RAW del PAC (fallback de timbrado)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#persistencia-de-respuestas-raw-del-pac-pacresponsewriter" class="md-nav__link">
+    <span class="md-ellipsis">
+      Persistencia de respuestas RAW del PAC (PACResponseWriter)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#comportamiento-ante-fallo-posterior-a-una-respuesta-exitosa-del-pac" class="md-nav__link">
+    <span class="md-ellipsis">
+      Comportamiento ante fallo posterior a una respuesta exitosa del PAC
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-aclaraciones-explicitas-con-evidencia" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. Aclaraciones explícitas (con evidencia)
     </span>
   </a>
   
@@ -1709,8 +995,764 @@
   
   
   
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_7" id="__nav_3_7_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    ADRs
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_7">
+            <span class="md-nav__icon md-icon"></span>
+            ADRs
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
-      <a href="../0033-factura-global-hardcodes/" class="md-nav__link">
+      <a href="../../adr/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADRs — Decisiones Arquitectónicas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0000-estado-real-pre-migracion/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0000: Estado Real de la App — Pre-Migración
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0002-verificacion-arranque-v16/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MÓDULO 0 — VERIFICACIÓN DE ARRANQUE
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0003-verificacion-configuracion-fiscal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MÓDULO 1 — CONFIGURACIÓN FISCAL Y DATOS MAESTROS
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0004-verificacion-timbrado/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MÓDULO 2 — VERIFICACIÓN FLUJO DE TIMBRADO CFDI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0005-workflow-configuracion-inicial-v2/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    0005 Workflow configuración inicial (v2, vigente)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0005-workflow-configuracion-inicial/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    0005 Workflow configuración inicial (obsoleto — superseded por v2)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0006-analisis-branches-wip/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0006 — ANÁLISIS DE BRANCHES WIP
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0007-analisis-checkout-e4/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0007 — ANÁLISIS DE RIESGO: CHECKOUT A feature/e4-ieps-on-item-quantity
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0008-analisis-9-commits-wip/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0008 — ANÁLISIS DETALLADO: 9 COMMITS WIP
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0009-checklist-estados-flujo-timbrado/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0009 — CHECKLIST ESTADOS Y FLUJO DE TIMBRADO
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0010-verificacion-post-cancelacion/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0010 — VERIFICACIÓN ESTADO POST-CANCELACIÓN
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0011-diagnostico-sistema-tests/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0011 — DIAGNÓSTICO SISTEMA DE TESTS
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0012-solucion-sistema-tests-v16/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0012 — SOLUCIÓN SISTEMA DE TESTS V16
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0013-arquitectura-sistema-cancelaciones-cfdi/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0013 — Arquitectura del Sistema de Cancelaciones CFDI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0014-diagnostico-conectividad-si-ffm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0014 — Diagnóstico Conectividad Sales Invoice ↔ Factura Fiscal Mexico
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0015-si-ffm-relationship-architecture/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0015 — Arquitectura Relación Sales Invoice ↔ Factura Fiscal Mexico
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0016-reclasificacion-fiscal-payment-entry/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0016 — Reclasificación Fiscal de Impuestos en Payment Entry
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0017-complemento-pago-mx-schema-normalizacion/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0017 — Complemento Pago MX MVP
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0018-ffm-status-fiscal-state-migration/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0018 — Migración de estado fiscal FFM a status
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0019-primera-implementacion-rc-v0.1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0019: Primera implementación Release Candidates v0.1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0020-smoke-test-mvp-flujos-cancelacion/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0020: Smoke Test MVP v0.1 — Flujos de Cancelación y Refacturación
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0021-fiscal-state-capa-ui-centralizada/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0021 — Capa fiscal_state: UI centralizada via endpoint Python
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0022-solucion-issue-112-reclasificacion-fiscal-pe/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0022 — Solución Issue #112: Reclasificación Fiscal en Payment Entry
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0023-venta-mostrador-cfdi-individual-rfc-generico/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0023 — Venta Mostrador: CFDI Individual con RFC Genérico XAXX010101000
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0024-addendas-pre-timbrado-issue129/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0024 — Addendas CFDI pre-timbrado (Issue #129)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0025-notas-credito-cfdi-tipo-e-issue116/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0025 — Notas de Crédito CFDI tipo E (Issue #116)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0026-workspace-facturacion-mexico-issue120/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0026 — Workspace "Facturación México" (Issue #120)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0027-migracion-facturacion-mx-a-facturacion-mexico/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0027 — Migración facturacion_mx → facturacion_mexico
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0028-ffm-legacy-fields-audit/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0028 — Auditoría campos legacy FFM + desmantelamiento Sistema Resiliente
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0029-facturapi-base-unitaria-ieps-cuota/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0029 — FacturAPI multiplica base × cantidad: enviar valores unitarios para IEPS Cuota
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0030-tablas-maestras-python-reglas-fiscales/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0030 — Reglas de cálculo fiscal como tablas maestras Python
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0031-migracion-settings-por-company/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0031 — Migración de Settings global (Single) a configuración por Company
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0032-ereceipts-facturapi-arquitectura/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0032: Arquitectura E-Receipts — FacturAPI como motor fiscal, ERPNext como trazabilidad
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0033-factura-global-hardcodes/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1731,7 +1773,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0034-integridad-correlacion-ffm/" class="md-nav__link">
+      <a href="../../adr/0034-integridad-correlacion-ffm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1752,7 +1794,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0035-motor-reconciliacion-ffm/" class="md-nav__link">
+      <a href="../../adr/0035-motor-reconciliacion-ffm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1773,7 +1815,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0036-integridad-proyeccion-cancelacion/" class="md-nav__link">
+      <a href="../../adr/0036-integridad-proyeccion-cancelacion/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1794,7 +1836,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../0037-resiliencia-cancelacion-sustitucion-motivo-01/" class="md-nav__link">
+      <a href="../../adr/0037-resiliencia-cancelacion-sustitucion-motivo-01/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2025,46 +2067,64 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#contexto" class="md-nav__link">
+  <a href="#1-proposito" class="md-nav__link">
     <span class="md-ellipsis">
-      Contexto
+      1. Propósito
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#decision" class="md-nav__link">
+  <a href="#2-ejecucion-automatica-por-scheduler" class="md-nav__link">
     <span class="md-ellipsis">
-      Decisión
+      2. Ejecución automática por scheduler
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#modelo-de-datos-resultante" class="md-nav__link">
+  <a href="#3-boton-manual-verificar-estado-en-facturapi" class="md-nav__link">
     <span class="md-ellipsis">
-      Modelo de datos resultante
+      3. Botón manual "Verificar estado en FacturAPI"
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Modelo de datos resultante">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-seleccion-de-candidatos-locks-e-idempotencia" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Selección de candidatos, locks e idempotencia
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Selección de candidatos, locks e idempotencia">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#sales-invoice-campos-nuevos" class="md-nav__link">
+  <a href="#seleccion-de-candidatos" class="md-nav__link">
     <span class="md-ellipsis">
-      Sales Invoice (campos nuevos)
+      Selección de candidatos
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#ereceipt-mx-campos-relevantes" class="md-nav__link">
+  <a href="#locks-redis-distribuidos-no-bloqueantes-con-ttl" class="md-nav__link">
     <span class="md-ellipsis">
-      EReceipt MX (campos relevantes)
+      Locks (Redis, distribuidos, no bloqueantes, con TTL)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#idempotencia" class="md-nav__link">
+    <span class="md-ellipsis">
+      Idempotencia
     </span>
   </a>
   
@@ -2076,37 +2136,19 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#consecuencias" class="md-nav__link">
+  <a href="#5-estados-que-actualiza-y-proteccion-contra-degradar-cancelados" class="md-nav__link">
     <span class="md-ellipsis">
-      Consecuencias
+      5. Estados que actualiza y protección contra degradar CANCELADOS
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Consecuencias">
+    <nav class="md-nav" aria-label="5. Estados que actualiza y protección contra degradar CANCELADOS">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#positivas" class="md-nav__link">
+  <a href="#protecciones-contra-degradar-un-estado-de-cancelacion" class="md-nav__link">
     <span class="md-ellipsis">
-      Positivas
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#negativas-trade-offs" class="md-nav__link">
-    <span class="md-ellipsis">
-      Negativas / trade-offs
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fuera-de-alcance-de-esta-decision" class="md-nav__link">
-    <span class="md-ellipsis">
-      Fuera de alcance de esta decisión
+      Protecciones contra degradar un estado de cancelación
     </span>
   </a>
   
@@ -2118,9 +2160,51 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#alternativa-descartada" class="md-nav__link">
+  <a href="#6-sincronizacion-del-folio-fiscal" class="md-nav__link">
     <span class="md-ellipsis">
-      Alternativa descartada
+      6. Sincronización del folio fiscal
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-persistencia-de-respuestas-raw-del-pac-fallback-de-timbrado" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. Persistencia de respuestas RAW del PAC (fallback de timbrado)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Persistencia de respuestas RAW del PAC (fallback de timbrado)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#persistencia-de-respuestas-raw-del-pac-pacresponsewriter" class="md-nav__link">
+    <span class="md-ellipsis">
+      Persistencia de respuestas RAW del PAC (PACResponseWriter)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#comportamiento-ante-fallo-posterior-a-una-respuesta-exitosa-del-pac" class="md-nav__link">
+    <span class="md-ellipsis">
+      Comportamiento ante fallo posterior a una respuesta exitosa del PAC
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-aclaraciones-explicitas-con-evidencia" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. Aclaraciones explícitas (con evidencia)
     </span>
   </a>
   
@@ -2141,180 +2225,263 @@
                   
 
 
-<h1 id="adr-0032-arquitectura-e-receipts-facturapi-como-motor-fiscal-erpnext-como-trazabilidad">ADR-0032: Arquitectura E-Receipts — FacturAPI como motor fiscal, ERPNext como trazabilidad<a class="headerlink" href="#adr-0032-arquitectura-e-receipts-facturapi-como-motor-fiscal-erpnext-como-trazabilidad" title="Permanent link">&para;</a></h1>
-<p><strong>Fecha:</strong> 2026-06-06
-<strong>Estado:</strong> Activo
-<strong>Issue:</strong> #118 (E-Receipts flujo completo), Fase 0
-<strong>PR:</strong> feat(ereceipts): Fase 0 — payload fiscal correcto + trazabilidad SI ↔ EReceipt MX</p>
-<hr />
-<h2 id="contexto">Contexto<a class="headerlink" href="#contexto" title="Permanent link">&para;</a></h2>
-<p>El módulo E-Receipts permite emitir recibos digitales a clientes de ventas a público en general,
-ofreciéndoles un portal para autofacturarse cuando lo necesiten. FacturAPI.io (el PAC que ya usa
-la app para timbrado normal) ofrece un flujo completo para esto:</p>
-<ul>
-<li><code>POST /receipts</code> — crea el receipt con items y forma de pago</li>
-<li>Portal <code>factura.space/&lt;domain&gt;/&lt;key&gt;</code> — el cliente captura su RFC y FacturAPI genera el CFDI</li>
-<li><code>POST /receipts/{id}/invoice</code> — facturar individualmente desde la API</li>
-<li><code>POST /receipts/global-invoice</code> — factura global de todos los receipts abiertos del período</li>
-</ul>
-<p>Antes de esta decisión, el código existente intentaba duplicar parte de este trabajo en ERPNext:
-<code>invoice_ereceipt()</code> creaba un Sales Invoice local y lo pasaba por el flujo FFM/timbrado_api.py,
-y <code>cfdi_global_builder.py</code> construía el payload CFDI manualmente en lugar de usar el endpoint
-de FacturAPI para receipts.</p>
-<hr />
-<h2 id="decision">Decisión<a class="headerlink" href="#decision" title="Permanent link">&para;</a></h2>
-<p><strong>FacturAPI hace el heavy lifting fiscal. ERPNext solo mantiene control, trazabilidad y sincronización.</strong></p>
-<p>Reglas resultantes:</p>
+<h1 id="reconciliacion-ffm-facturapi-y-fallback-de-timbrado">Reconciliación FFM ↔ FacturAPI y fallback de timbrado<a class="headerlink" href="#reconciliacion-ffm-facturapi-y-fallback-de-timbrado" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Estado:</strong> este documento describe los mecanismos de resiliencia <strong>vigentes</strong>:</p>
 <ol>
-<li>
-<p><strong>No portal propio.</strong> El portal de autofactura es <code>factura.space/&lt;domain&gt;/&lt;key&gt;</code>. Solo guardamos
-   y exponemos <code>self_invoice_url</code>. No construimos microsite propio.</p>
-</li>
-<li>
-<p><strong>No crear Sales Invoice nueva para facturar un EReceipt.</strong> Cuando el cliente autofactura o
-   cuando el operador factura desde ERPNext, se usa <code>POST /receipts/{id}/invoice</code> de FacturAPI.
-   FacturAPI genera el CFDI. ERPNext solo sincroniza el resultado.</p>
-</li>
-<li>
-<p><strong>No usar el flujo FFM/timbrado_api.py para E-Receipts.</strong> Ese flujo es para CFDI directos
-   (Sales Invoice → FFM → timbrado). Para E-Receipts el flujo es diferente: el receipt vive
-   en FacturAPI; ERPNext es un espejo.</p>
-</li>
-<li>
-<p><strong>No construir Factura Global CFDI manualmente si FacturAPI puede hacerlo desde receipts.</strong>
-   Usar <code>POST /receipts/global-invoice</code> (pendiente Fase 4) en lugar de <code>POST /invoices</code> con
-   payload construido localmente.</p>
-</li>
-<li>
-<p><strong>UUID, folio, invoice_id, PDF, XML nunca se copian a Sales Invoice.</strong> Esos datos viven en
-   <code>EReceipt MX</code> (autofactura individual) o en <code>Factura Global MX</code> (factura global). La Sales
-   Invoice solo guarda el Link (<code>fm_ereceipt_mx</code>) y el status operativo (<code>fm_fiscal_status</code>).
-   El widget del SI lee los datos por relación bajo demanda — mismo patrón que <code>fm_ffm_summary_html</code>.</p>
-</li>
+<li><strong>Reconciliación FFM ↔ FacturAPI</strong> (consultas GET de solo lectura, por scheduler y botón
+   manual): el código está presente; <strong>pendiente de una prueba operativa controlada</strong> (no
+   ejecutada aún).</li>
+<li><strong>Fallback de timbrado</strong>: persistencia de la respuesta RAW del PAC en un archivo bajo
+   <strong>archivos privados del sitio</strong>, con advertencia visible al usuario. El archivo conserva la
+   evidencia, pero <strong>no es por sí mismo una recuperación automática</strong>.</li>
 </ol>
+<p>El mecanismo histórico de recuperación por <code>/tmp</code> con <code>api_backup.py</code> fue <strong>removido</strong> (PR #142) y
+<strong>ya no forma parte de la arquitectura</strong>; no se documenta aquí.</p>
+</blockquote>
 <hr />
-<h2 id="modelo-de-datos-resultante">Modelo de datos resultante<a class="headerlink" href="#modelo-de-datos-resultante" title="Permanent link">&para;</a></h2>
-<h3 id="sales-invoice-campos-nuevos">Sales Invoice (campos nuevos)<a class="headerlink" href="#sales-invoice-campos-nuevos" title="Permanent link">&para;</a></h3>
+<h2 id="1-proposito">1. Propósito<a class="headerlink" href="#1-proposito" title="Permanent link">&para;</a></h2>
+<p>La reconciliación mantiene el estado local de cada <strong>Factura Fiscal Mexico (FFM)</strong> alineado
+con el estado real del CFDI en <strong>FacturAPI</strong> (el PAC). Su única operación contra el PAC es
+un <strong>GET de solo lectura</strong> (<code>client.get_invoice(facturapi_id)</code>); nunca timbra ni cancela.</p>
+<p>Resuelve el hueco entre "el PAC ya hizo algo" y "el sistema local lo refleja": timbrados o
+cancelaciones cuya respuesta se perdió por timeout, fallo de BD o error posterior a una
+respuesta exitosa del PAC. La verdad fiscal siempre reside en el PAC/SAT; el estado local
+es una proyección que la reconciliación acerca a esa verdad.</p>
+<p><strong>Fuente:</strong> <code>facturacion_fiscal/services/ffm_reconciliation.py</code> (docstring del módulo y
+<code>_reconcile_ffm</code>).</p>
+<blockquote>
+<p><strong>Garantía de diseño (docstring del módulo):</strong> <em>"nunca create_invoice / cancel_invoice;
+nunca busca otro FFM por Sales Invoice; nunca cancela ni guarda la Sales Invoice"</em>. La
+reconciliación <strong>no debe retimbrar ni cancelar</strong> documentos por iniciativa propia fuera de
+los flujos diseñados. La única excepción acotada es completar la cancelación <strong>documental</strong>
+(no fiscal, sin llamar al PAC) de un CFDI ya CANCELADO que es origen de una sustitución
+motivo 01 con sustituto TIMBRADO vigente (<code>_reconcile_substitution_documental</code>).</p>
+</blockquote>
+<hr />
+<h2 id="2-ejecucion-automatica-por-scheduler">2. Ejecución automática por scheduler<a class="headerlink" href="#2-ejecucion-automatica-por-scheduler" title="Permanent link">&para;</a></h2>
+<p>Frecuencias reales declaradas en <code>hooks.py</code> (<code>scheduler_events</code>):</p>
 <table>
 <thead>
 <tr>
-<th>Campo</th>
-<th>Tipo</th>
-<th>Cuándo se llena</th>
+<th>Frecuencia</th>
+<th>Función</th>
+<th>Rol</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>fm_ereceipt_mx</code></td>
-<td>Link → EReceipt MX</td>
-<td>Al crear EReceipt desde esta SI</td>
+<td><code>hourly_long</code></td>
+<td><code>facturacion_fiscal.services.ffm_reconciliation.run_auto_reconciliation</code></td>
+<td>Reconciliación FFM ↔ FacturAPI por lote. Solo GET; nunca timbra ni cancela.</td>
 </tr>
 <tr>
-<td><code>fm_ereceipt_summary_html</code></td>
-<td>HTML (widget)</td>
-<td>Siempre visible si hay fm_ereceipt_mx</td>
+<td><code>cron: * * * * *</code> (cada minuto)</td>
+<td><code>facturacion_fiscal.timbrado_api.retry_pending_substitution_cancellations</code></td>
+<td>Reintento diferido de cancelaciones motivo 01 (sustitución) que quedaron <code>PENDIENTE_CANCELACION</code>.</td>
 </tr>
 <tr>
-<td><code>fm_fiscal_status</code></td>
-<td>Select</td>
-<td><code>E-RECEIPT</code> al crear; <code>E-RECEIPT-FACTURADO</code> tras facturar</td>
+<td><code>weekly</code></td>
+<td><code>facturacion_fiscal.tasks.sync_folio_fiscal_scheduled</code></td>
+<td>Red de seguridad: reconcilia <code>SI.fm_folio_fiscal</code> con <code>FFM.folio</code>. Idempotente, <strong>sin</strong> FacturAPI.</td>
 </tr>
 </tbody>
 </table>
-<h3 id="ereceipt-mx-campos-relevantes">EReceipt MX (campos relevantes)<a class="headerlink" href="#ereceipt-mx-campos-relevantes" title="Permanent link">&para;</a></h3>
+<p><code>run_auto_reconciliation(limit=None)</code> es el punto de entrada del scheduler y de ejecución
+manual por lote. Adquiere el lock global de lote, selecciona candidatos, procesa cada FFM de
+forma aislada (un fallo no detiene el lote: <code>frappe.log_error</code> + continúa) y devuelve un
+resumen con <code>selected/processed/changed/unchanged/pending/errors/locked</code>.</p>
+<p><strong>Fuente:</strong> <code>hooks.py</code> (líneas 447–479); <code>ffm_reconciliation.py::run_auto_reconciliation</code>.</p>
+<hr />
+<h2 id="3-boton-manual-verificar-estado-en-facturapi">3. Botón manual "Verificar estado en FacturAPI"<a class="headerlink" href="#3-boton-manual-verificar-estado-en-facturapi" title="Permanent link">&para;</a></h2>
+<p>En el formulario de <strong>Factura Fiscal Mexico</strong> existe el botón <strong>"Verificar estado en
+FacturAPI"</strong> (grupo "Comprobantes"), visible para cualquier FFM guardado que tenga
+<code>facturapi_id</code>, sin importar su estado de sync/cancelación.</p>
+<ul>
+<li>Llama a <code>ffm_reconciliation.reconcile_ffm(ffm_name)</code> (whitelisted) con <code>freeze: true</code>
+  (congela la UI e impide doble clic durante la consulta).</li>
+<li>El JS <strong>solo</strong> consulta, traduce el <code>outcome</code> a un texto breve
+  (<code>changed/unchanged/locked/pending/error</code>) y recarga el formulario. <strong>No</strong> interpreta
+  <code>status</code>/<code>cancellation_status</code>, <strong>no</strong> decide estados ni escribe campos: toda la lógica y
+  la seguridad viven en el servidor.</li>
+<li><code>reconcile_ffm</code> valida que el FFM exista y aplica <code>frappe.only_for(FISCAL_ROLES)</code> — los
+  mismos roles que la cancelación fiscal (<code>System Manager</code>, <code>Facturacion Mexico System
+  Manager</code>, <code>Facturacion Mexico Manager</code>, idénticos a <code>cancel_ffm_keep_si</code>, PR #197).</li>
+</ul>
+<p>Tanto el botón manual como el lote automático ejecutan <strong>exactamente</strong> el mismo núcleo
+<code>_reconcile_ffm</code>.</p>
+<p><strong>Fuente:</strong> <code>factura_fiscal_mexico.js</code> (líneas ~2735–2778);
+<code>ffm_reconciliation.py::reconcile_ffm</code>.</p>
+<hr />
+<h2 id="4-seleccion-de-candidatos-locks-e-idempotencia">4. Selección de candidatos, locks e idempotencia<a class="headerlink" href="#4-seleccion-de-candidatos-locks-e-idempotencia" title="Permanent link">&para;</a></h2>
+<h3 id="seleccion-de-candidatos">Selección de candidatos<a class="headerlink" href="#seleccion-de-candidatos" title="Permanent link">&para;</a></h3>
+<p><code>_select_candidates(limit=None)</code> (SQL de <strong>solo lectura</strong>) selecciona FFM que tengan
+<code>facturapi_id</code> <strong>y</strong> estén <code>fm_sync_status = 'pending'</code> <strong>o</strong> <code>status =
+'PENDIENTE_CANCELACION'</code>. Orden de prioridad:</p>
+<ol>
+<li>Cancelación (<code>PENDIENTE_CANCELACION</code>) primero.</li>
+<li><code>pending</code> primero.</li>
+<li><code>fm_last_pac_sync</code> más antiguo (NULL primero).</li>
+<li><code>name</code>.</li>
+</ol>
+<p><code>BATCH_SIZE = 100</code> es el límite por defecto. El SQL crudo se usa porque el <code>ORDER BY</code> con
+<code>CASE</code> no es expresable en <code>frappe.get_all</code>; no modifica datos.</p>
+<h3 id="locks-redis-distribuidos-no-bloqueantes-con-ttl">Locks (Redis, distribuidos, no bloqueantes, con TTL)<a class="headerlink" href="#locks-redis-distribuidos-no-bloqueantes-con-ttl" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
 <tr>
-<th>Campo</th>
-<th>Fuente</th>
-<th>Descripción</th>
+<th>Lock</th>
+<th>Prefijo</th>
+<th>TTL</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>facturapi_id</code></td>
-<td>FacturAPI response</td>
-<td>ID del receipt en FacturAPI — clave para todas las operaciones</td>
+<td>Lote global</td>
+<td><code>facturacion_mexico:ffm_auto_reconciliation</code></td>
+<td>2 horas</td>
 </tr>
 <tr>
-<td><code>key</code></td>
-<td>FacturAPI response</td>
-<td>Clave del receipt para el portal</td>
-</tr>
-<tr>
-<td><code>self_invoice_url</code></td>
-<td>FacturAPI response</td>
-<td>URL completa del portal de autofactura</td>
-</tr>
-<tr>
-<td><code>status</code></td>
-<td>FacturAPI (sincronizado)</td>
-<td>open / invoiced_to_customer / invoiced_globally / cancelled</td>
-</tr>
-<tr>
-<td><code>tax_rate</code></td>
-<td>SI.taxes (transitorio)</td>
-<td>Tasa IVA del receipt — ver ADR-0033</td>
-</tr>
-<tr>
-<td><code>invoice_id</code></td>
-<td>FacturAPI (sync)</td>
-<td>ID del CFDI generado cuando se factura</td>
-</tr>
-<tr>
-<td><code>invoice_uuid</code></td>
-<td>FacturAPI (sync)</td>
-<td>UUID fiscal del CFDI</td>
-</tr>
-<tr>
-<td><code>invoice_folio</code></td>
-<td>FacturAPI (sync)</td>
-<td>Folio fiscal</td>
-</tr>
-<tr>
-<td><code>invoiced_at</code></td>
-<td>FacturAPI (sync)</td>
-<td>Fecha de facturación</td>
-</tr>
-<tr>
-<td><code>factura_global_mx</code></td>
-<td>ERPNext (al incluir en FG)</td>
-<td>Link a Factura Global MX</td>
-</tr>
-<tr>
-<td><code>last_sync_at</code></td>
-<td>ERPNext</td>
-<td>Última sincronización con FacturAPI</td>
+<td>Por FFM</td>
+<td><code>facturacion_mexico:ffm_reconciliation:&lt;ffm&gt;</code></td>
+<td>5 minutos</td>
 </tr>
 </tbody>
 </table>
+<ul>
+<li>Adquisición atómica no bloqueante con <code>SET NX EX</code> (<code>_acquire_lock</code>); devuelve un token de
+  propietario o <code>None</code> si ya está ocupado.</li>
+<li>Liberación segura por <strong>compare-and-delete atómico</strong> vía script Lua (<code>_release_lock</code>): solo
+  borra la clave si su valor sigue siendo el token del dueño, evitando que un proceso cuyo
+  lock expiró borre el de otro. Se libera <strong>siempre</strong> en <code>finally</code>.</li>
+<li>Namespacing por sitio (<code>_lock_key</code> → <code>frappe.local.site:...</code>) para benches multi-sitio.</li>
+<li>Si el FFM ya está bloqueado, <code>_reconcile_ffm</code> devuelve <code>outcome = "locked"</code> sin tocar nada.</li>
+<li>Para la cancelación documental de sustitución se usa el mismo lock por documento que la
+  cascada/scheduler (<code>ffm:cascade:&lt;ffm&gt;</code>) para evitar carreras.</li>
+</ul>
+<h3 id="idempotencia">Idempotencia<a class="headerlink" href="#idempotencia" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Sin cambios detectados: <strong>no</strong> se crea Response Log; solo se sella <code>fm_last_pac_sync</code> con la
+  hora de la consulta exitosa.</li>
+<li>Los errores de consulta (timeout / 4xx / 5xx) <strong>conservan</strong> <code>fm_last_pac_sync</code> previo: un
+  error no cuenta como última consulta exitosa (<code>_log_and_set_sync</code>).</li>
+<li>La aplicación del estado de cancelación (<code>apply_cancellation_state</code>) es <strong>idempotente y
+  monotónica</strong>: relee siempre desde BD, escribe solo campos que cambian, y una fecha de
+  cancelación existente nunca se sobrescribe.</li>
+</ul>
+<p><strong>Fuente:</strong> <code>ffm_reconciliation.py</code> (<code>_select_candidates</code>, <code>_acquire_lock</code>, <code>_release_lock</code>,
+<code>_lock_key</code>, <code>_reconcile_ffm</code>); <code>cancellation_state.py::apply_cancellation_state</code>.</p>
 <hr />
-<h2 id="consecuencias">Consecuencias<a class="headerlink" href="#consecuencias" title="Permanent link">&para;</a></h2>
-<h3 id="positivas">Positivas<a class="headerlink" href="#positivas" title="Permanent link">&para;</a></h3>
+<h2 id="5-estados-que-actualiza-y-proteccion-contra-degradar-cancelados">5. Estados que actualiza y protección contra degradar CANCELADOS<a class="headerlink" href="#5-estados-que-actualiza-y-proteccion-contra-degradar-cancelados" title="Permanent link">&para;</a></h2>
+<p>Tras un GET exitoso, la reconciliación valida <strong>primero</strong> la correlación estricta
+(<code>_resolve_validated_ffm</code>: el FFM explícito debe coincidir por <code>name</code>, pertenecer a la misma
+Sales Invoice, y no contradecir UUID/<code>facturapi_id</code>). Una contradicción lanza
+<code>FiscalCorrelationError</code>, registra alerta crítica, marca <code>fm_sync_status = error</code> y <strong>no</strong>
+toca el estado fiscal.</p>
+<p>Luego decide <strong>explícitamente</strong> si la respuesta corresponde a una cancelación
+(<code>is_cancellation</code>): lo es si el FFM ya está en <code>PENDIENTE_CANCELACION</code>/<code>CANCELADO</code>, si el
+estado remoto es <code>canceled</code>, o si hay <code>cancellation_status</code> en
+<code>pending/verifying/accepted/rejected/expired</code>. Según eso deriva estado con
+<code>derive_cancellation_reconciliation</code> (acotado, fail-closed) o <code>derive_pac_reconciliation</code>.</p>
+<p>Estados objetivo posibles: <code>TIMBRADO</code>, <code>PENDIENTE_CANCELACION</code>, <code>CANCELADO</code>, y
+<code>fm_sync_status</code> en <code>synced/pending/error</code>.</p>
+<h3 id="protecciones-contra-degradar-un-estado-de-cancelacion">Protecciones contra degradar un estado de cancelación<a class="headerlink" href="#protecciones-contra-degradar-un-estado-de-cancelacion" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Sin duplicación de lógica fiscal — FacturAPI ya lo resuelve correctamente para SAT</li>
-<li>Portal de autofactura sin infraestructura propia — FacturAPI lo provee con branding</li>
-<li>El CFDI generado por FacturAPI desde el receipt siempre es consistente con el receipt original</li>
-<li>Modelo de sincronización simple: <code>GET /receipts/{id}</code> actualiza el EReceipt MX local</li>
+<li><strong>CORR-1 (decisión explícita):</strong> una FFM ya <code>CANCELADO</code> <strong>no</strong> se degrada por una respuesta
+  <code>valid</code> que carezca de estado de cancelación. El branch de cancelación se elige por
+  decisión explícita, no solo por el estado derivado.</li>
+<li><strong>Monotonicidad (<code>apply_cancellation_state</code>):</strong> <em>"una FFM CANCELADO no se degrada a
+  PENDIENTE/TIMBRADO por una respuesta vieja"</em>. <code>CANCELADO → CANCELADO</code> sí ejecuta la parte
+  reparadora (completa <code>reason</code>/<code>date</code>/<code>sync</code>/snapshot SI faltantes) sin degradar.</li>
+<li><strong>GAP 2 (sustitución en curso):</strong> si A está <code>PENDIENTE_CANCELACION</code>, es origen de una
+  sustitución motivo 01 con sustituto B TIMBRADO vigente, y la reconciliación derivaría
+  <code>TIMBRADO</code> (el DELETE aún no se registró en el PAC), se <strong>conserva</strong> `PENDIENTE_CANCELACION</li>
+<li>pending<code>para que el scheduler dedicado siga reintentando.</code>run_auto_reconciliation`
+  <strong>no</strong> envía DELETE ni cancela: solo evita borrar un estado de cancelación activa con
+  evidencia de sustitución.</li>
+<li><strong>Persistencia autoritativa separada:</strong> en cancelación, el estado de negocio lo persiste
+  <strong>exclusivamente</strong> <code>apply_cancellation_state</code> (<code>skip_state_persist=True</code> en el writer), que
+  crea el Response Log pero <strong>no</strong> persiste el estado fiscal, evitando doble escritura.</li>
 </ul>
-<h3 id="negativas-trade-offs">Negativas / trade-offs<a class="headerlink" href="#negativas-trade-offs" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Requiere conexión a FacturAPI para operaciones fiscales (ya era el caso para timbrado normal)</li>
-<li>El status del EReceipt puede quedar desincronizado si no se ejecuta el scheduler de sync</li>
-<li>Si el cliente autofactura y no hay webhook/sync, ERPNext lo ve como <code>open</code> temporalmente</li>
-</ul>
-<h3 id="fuera-de-alcance-de-esta-decision">Fuera de alcance de esta decisión<a class="headerlink" href="#fuera-de-alcance-de-esta-decision" title="Permanent link">&para;</a></h3>
-<ul>
-<li>IEPS line-level en E-Receipts: pendiente ADR-0034 e issue #182</li>
-<li>Webhooks: pendiente Fase posterior (#118)</li>
-</ul>
+<p><strong>Fuente:</strong> <code>ffm_reconciliation.py::_reconcile_ffm</code> (CORR-1, GAP 2);
+<code>cancellation_state.py</code> (<code>derive_cancellation_reconciliation</code>, <code>apply_cancellation_state</code>);
+<code>api/__init__.py::PACResponseWriter._resolve_validated_ffm</code>.</p>
 <hr />
-<h2 id="alternativa-descartada">Alternativa descartada<a class="headerlink" href="#alternativa-descartada" title="Permanent link">&para;</a></h2>
-<p><strong>ERPNext como motor fiscal para E-Receipts</strong> — crear una Sales Invoice nueva con los datos del cliente
-que autofactura, pasarla por <code>timbrado_api.py</code> y generar un FFM. Descartada porque:
-- Duplica el CFDI: FacturAPI ya lo genera al autofacturar en el portal
-- El FFM duplicado no representa la venta original — representa una copia fiscal inconsistente
-- No sincroniza el estado del receipt en FacturAPI → risk de doble facturación en Factura Global</p>
+<h2 id="6-sincronizacion-del-folio-fiscal">6. Sincronización del folio fiscal<a class="headerlink" href="#6-sincronizacion-del-folio-fiscal" title="Permanent link">&para;</a></h2>
+<p><code>SI.fm_folio_fiscal</code> es una <strong>proyección de cache de solo lectura</strong> para reportes de Cuentas
+por Cobrar; la fuente fiscal sigue siendo la FFM. Se sincroniza con el consecutivo del CFDI
+<strong>vigente</strong> (<code>FFM.folio</code> — el consecutivo, <strong>no</strong> el UUID/timbre).</p>
+<ul>
+<li><strong>En vivo:</strong> <code>apply_cancellation_state</code> invoca <code>sincronizar_folio_fiscal(si)</code> al proyectar
+  el snapshot de la SI (limpia el folio si la FFM dejó de ser vigente, p. ej. CANCELADO).</li>
+<li><strong>Red de seguridad (weekly):</strong> <code>sync_folio_fiscal_scheduled</code> recorre SIs con FFM ligada o
+  folio ya escrito, y reconcilia/limpia el folio. Es <strong>idempotente</strong>, escribe con
+  <code>update_modified=False</code> (no altera el timestamp de auditoría) y <strong>no</strong> usa FacturAPI: solo
+  lee campos internos ya persistidos. Vigente = la FFM ligada tiene folio y su status está en
+  <code>{TIMBRADO, PENDIENTE_CANCELACION}</code>.</li>
+</ul>
+<p><strong>Fuente:</strong> <code>facturacion_fiscal/utils.py::sincronizar_folio_fiscal</code>;
+<code>facturacion_fiscal/tasks.py::sync_folio_fiscal_scheduled</code>;
+<code>cancellation_state.py::apply_cancellation_state</code>.</p>
+<hr />
+<h2 id="7-persistencia-de-respuestas-raw-del-pac-fallback-de-timbrado">7. Persistencia de respuestas RAW del PAC (fallback de timbrado)<a class="headerlink" href="#7-persistencia-de-respuestas-raw-del-pac-fallback-de-timbrado" title="Permanent link">&para;</a></h2>
+<h3 id="persistencia-de-respuestas-raw-del-pac-pacresponsewriter">Persistencia de respuestas RAW del PAC (<code>PACResponseWriter</code>)<a class="headerlink" href="#persistencia-de-respuestas-raw-del-pac-pacresponsewriter" title="Permanent link">&para;</a></h3>
+<p>La persistencia se apoya en <code>PACResponseWriter</code> (<code>api/__init__.py</code>). Principio: <strong>PAC
+Response First</strong> — la respuesta del PAC se registra íntegra y su estado fiscal se persiste
+<strong>primero e independientemente</strong> del Response Log de auditoría:</p>
+<ul>
+<li><strong>PASO 1 — estado fiscal:</strong> <code>_update_factura_fiscal</code> valida correlación estricta y persiste
+  estado/UUID/<code>facturapi_id</code>/<code>fm_sync_status</code> en el FFM, con commit. Un fallo aquí <strong>relanza</strong>
+  (alerta crítica) y <strong>no</strong> se crea Response Log ni se reporta éxito.</li>
+<li><strong>PASO 2 — Response Log:</strong> <code>_write_to_database</code> crea el "FacturAPI Response Log" con la
+  respuesta <strong>RAW</strong> completa (<code>raw_response</code> si existe, o el payload completo) y adjunta el
+  JSON como File privado. Va <strong>aislado con savepoint</strong>: si su inserción falla, se revierte
+  <strong>solo</strong> el log (rollback al savepoint); el FFM ya persistido permanece intacto y <strong>no</strong> se
+  degrada.</li>
+<li><strong>PASO 3 — enlace de auditoría:</strong> se enlaza <code>fm_last_response_log</code>; su fallo no revierte ni
+  el FFM ni el log.</li>
+</ul>
+<p><code>FiscalCorrelationError</code> <strong>nunca</strong> se degrada a <code>{success: False}</code> ni al fallback de
+filesystem: representa una contradicción de integridad fiscal, no una indisponibilidad de BD;
+se propaga para detener el flujo.</p>
+<h3 id="comportamiento-ante-fallo-posterior-a-una-respuesta-exitosa-del-pac">Comportamiento ante fallo posterior a una respuesta exitosa del PAC<a class="headerlink" href="#comportamiento-ante-fallo-posterior-a-una-respuesta-exitosa-del-pac" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Timbrado (PAC OK, persistencia principal del writer falló):</strong> se hace una <strong>lectura nueva
+  de BD</strong> con <code>_verify_timbrado_persisted</code> (¿el FFM quedó <code>TIMBRADO</code> con UUID/<code>facturapi_id</code>
+  coincidentes?). Si la FASE 3 lo recuperó → <code>sync = synced</code>; si no → <code>sync = error</code> e
+  intervención manual. <strong>No</strong> se re-llama al PAC.</li>
+<li><strong>Cancelación (PAC OK, Frappe falló después):</strong> si el writer sí persistió, se conserva el
+  manejo existente; si la persistencia principal también falló, el estado local puede quedar
+  temporalmente <strong>sin reflejar</strong> la cancelación. El mecanismo que realinea el estado local con la
+  verdad de FacturAPI en una corrida posterior es la <strong>reconciliación</strong> (GET, ver §1–§5). <strong>No</strong> se
+  re-llama al PAC en el momento del fallo.</li>
+</ul>
+<p><strong>Fuente:</strong> <code>api/__init__.py::PACResponseWriter</code> (<code>write_pac_response</code>, <code>_update_factura_fiscal</code>,
+<code>_write_to_database</code>, <code>_resolve_validated_ffm</code>); <code>timbrado_api.py::_verify_timbrado_persisted</code>.</p>
+<hr />
+<h2 id="8-aclaraciones-explicitas-con-evidencia">8. Aclaraciones explícitas (con evidencia)<a class="headerlink" href="#8-aclaraciones-explicitas-con-evidencia" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Ya NO se usa recuperación mediante <code>/tmp</code>.</strong> El directorio de fallback se calcula por
+  sitio en <code>sites/&lt;site&gt;/private/files/facturacion_mexico_pac_fallback</code>
+  (<code>_get_fallback_dir</code>, con <code>chmod 0700</code>). La ruta <code>/tmp/facturacion_mexico_pac_fallback</code>
+  solo aparece como <strong>último recurso</strong> dentro del <code>except</code> de <code>_get_fallback_dir</code> (si no se
+  puede resolver el path del sitio) y en código de tests/validadores — <strong>no</strong> como mecanismo
+  primario. La estrategia primaria de persistencia es <strong>BD</strong>; el fallback file conserva la
+  evidencia RAW pero <strong>no constituye por sí mismo una recuperación automática</strong>.</li>
+<li><strong><code>api_backup.py</code> ya NO existe.</strong> Verificado: <code>find . -iname "*api_backup*"</code> no devuelve
+  ningún archivo en el repositorio.</li>
+<li><strong>Reconciliación pendiente de validación operativa.</strong> La reconciliación (GET) está presente pero
+  <strong>pendiente de una prueba operativa controlada</strong> (roadmap interno). No debe describirse como
+  "operativa" ni "validada" hasta ejecutar esa prueba.</li>
+<li><strong>La reconciliación NO retimbra ni cancela por iniciativa propia.</strong> Su única llamada al PAC
+  es un GET de solo lectura; nunca <code>create_invoice</code>/<code>cancel_invoice</code>, nunca cancela/guarda la
+  Sales Invoice, nunca busca otro FFM por Sales Invoice. La única acción de convergencia fuera
+  del GET es completar la cancelación <strong>documental</strong> (sin PAC) de un caso de sustitución
+  motivo 01 ya CANCELADO fiscalmente, de forma idempotente y acotada.</li>
+</ul>
+<p><strong>Fuente:</strong> <code>api/__init__.py::_get_fallback_dir</code>; verificación <code>find</code>;
+<code>working_docs/active/auditoria_manual/I_scope_roadmap.md</code>;
+<code>ffm_reconciliation.py</code> (docstring del módulo y <code>_reconcile_ffm</code>).</p>
 
 
 
