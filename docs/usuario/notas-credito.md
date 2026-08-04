@@ -86,6 +86,22 @@ devolución de mercancía, se emite como Devolución.
 
 ---
 
+## Bloqueo por estado ambiguo (fail-closed)
+
+El sistema **deriva el tipo de forma read-only a partir del estado contable real** de la devolución,
+no de lo que el usuario "quiso". La clasificación es **fail-closed**: si el estado de las líneas **no
+coincide exactamente** con un patrón válido —ni el de *devolución de mercancía* (misma cuenta de
+ingresos, misma descripción y mismo comportamiento de inventario que el origen) ni el de *descuento /
+bonificación* (cuenta de descuentos configurada en todas las líneas, descripción "Descuento - …" y
+`update_stock = 0`)— la creación/timbrado de la Factura Fiscal se **bloquea con un mensaje** y no se
+asigna ningún tipo por defecto.
+
+También se bloquea si falta el vínculo con la línea de origen (`sales_invoice_item`): el sistema **no
+adivina** la cuenta contable. En ese caso, corrige el estado de la devolución (o reviértela con el
+botón correspondiente) antes de volver a intentar.
+
+---
+
 ## Configuración requerida
 
 Cada empresa debe tener configurada la **Cuenta de Descuentos y Bonificaciones** en

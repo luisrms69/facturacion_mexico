@@ -70,8 +70,8 @@ con soporte multi-sucursal, addendas, e-receipts y complementos de pago.
 | `Factura Fiscal Mexico` | CFDI tipo I/E via FacturAPI. Submittable. | ✅ Funcional |
 | `Complemento Pago MX` | CFDI tipo P (PPD). Auto desde Payment Entry. | ✅ Funcional |
 | `EReceipt MX` | Recibo digital para autofacturación. | ✅ Funcional |
-| `Factura Global MX` | Agrupa E-Receipts en CFDI global. | ✅ Funcional |
-| `Facturacion Mexico Settings` | Single — credenciales FacturAPI, config global. | ✅ Funcional |
+| `Factura Global MX` | Agrupa E-Receipts en CFDI global. | ⚠️ API sin UI — sin validación integral |
+| `Facturacion Mexico Company Settings` | Config por **empresa**: credenciales FacturAPI (sandbox/prod), cuenta de descuentos, defaults. **No es Single** — el antiguo Single `Facturacion Mexico Settings` fue eliminado (ADR 0031). | ✅ Funcional |
 | `Configuracion Fiscal Mexico` | Config fiscal por empresa — wizard STCT/ITT. | ✅ Funcional |
 | `Configuracion Fiscal Sucursal` | Config fiscal por Branch con folios y series. | ✅ Funcional |
 | `IEPS Cuota SAT` | Cuotas fijas IEPS por producto/empresa/fecha. | ✅ Creado, sin datos |
@@ -88,13 +88,14 @@ Catálogos SAT propios: `Uso CFDI SAT`, `Forma Pago SAT`, `Metodo Pago SAT`,
 |---|---|
 | Timbrado CFDI (I/E/N) | ✅ Funcional |
 | Complemento de Pago PPD | ✅ Funcional |
-| E-Receipts / autofactura | ✅ Funcional |
-| Factura Global | ✅ Funcional |
+| E-Receipts / autofactura | ⚠️ Implementación parcial — pendiente validación integral (portal/expiración/autofactura sin aprobar) |
+| Factura Global | ⚠️ API existente sin UI completa ni validación integral |
 | Cancelación CFDI | ✅ Funcional |
 | Multi-sucursal (Branch) | ✅ Funcional |
 | Addendas genéricas | ✅ Funcional |
 | Validación RFC contra SAT | ✅ Funcional |
-| Recovery / resiliencia PAC | ⚠️ Funcional pero defecto crítico (datos en /tmp) |
+| Reconciliación FFM↔FacturAPI | ⚠️ Existe (scheduler + botón, solo GET); **pendiente prueba operativa controlada** |
+| Fallback de timbrado | ✅ Persistencia de la respuesta RAW del PAC en fallback file (`private/files`; `/tmp` solo último recurso) + advertencia visible. El archivo conserva evidencia, no es recuperación automática. `api_backup.py` eliminado (PR #142) |
 | Draft management | ❌ No funcional — todo MOCK |
 | Motor de reglas | ⚠️ Parcial — acciones clave deshabilitadas |
 | Dashboard KPIs | ⚠️ Parcial — alertas siempre en 0 |
@@ -116,11 +117,14 @@ Sales Invoice (submit)
 
 ### Custom Fields sobre DocTypes de ERPNext
 
-- **Sales Invoice:** ~40 campos (estado fiscal, timbrado, multi-sucursal, addenda)
-- **Branch:** 14 campos (folios, series, certificados)
-- **Customer:** 12 campos (RFC, régimen fiscal, uso CFDI)
-- **Item:** 3 campos (clave SAT)
-- **Payment Entry:** 5 campos (forma de pago SAT)
+**Total real: 97 custom fields** (`fixtures/custom_field.json`). No todos son configurables por el
+usuario: ~30 son estructura visual (Section/Column/Tab/HTML), varios son internos/legado. Solo ~48
+(configurables + informativos) se documentan como campos de usuario (ver `docs/referencia/campos-fiscales.md`).
+
+- **Sales Invoice:** 41 campos (estado fiscal, timbrado, multi-sucursal, addenda, e-receipt)
+- **Branch:** 20 campos (folios, series, certificados, estadísticas)
+- **Customer:** 19 campos (RFC, régimen fiscal, uso CFDI, GLN addenda)
+- **Payment Entry:** 5 campos · **Item:** 3 · **Address:** 2 · **Cost Center:** 2 · **Purchase Invoice:** 2 · **Item Customer Detail:** 2 · **Item Group:** 1
 
 Prefijo obligatorio: `fm_*` para todos los custom fields.
 
@@ -135,8 +139,8 @@ Prefijo obligatorio: `fm_*` para todos los custom fields.
 ### API externa
 
 - **FacturAPI.io** — PAC para timbrado CFDI
-- Sandbox/producción configurable en `Facturacion Mexico Settings`
-- Cliente HTTP en `facturacion_fiscal/timbrado_api.py`
+- Sandbox/producción configurable **por empresa** en `Facturacion Mexico Company Settings`
+- Cliente HTTP en `facturacion_fiscal/api_client.py` (timbrado en `facturacion_fiscal/timbrado_api.py`)
 
 ---
 
@@ -144,7 +148,7 @@ Prefijo obligatorio: `fm_*` para todos los custom fields.
 
 **Apps de Frappe requeridas:** erpnext (declarado en `required_apps`)  
 **Apps en el mismo bench (v16):** hrms, payments, facturacion_mexico  
-**API externa:** FacturAPI.io (credenciales en Facturacion Mexico Settings)
+**API externa:** FacturAPI.io (credenciales por empresa en `Facturacion Mexico Company Settings`)
 
 ---
 
@@ -181,14 +185,28 @@ facturacion_mexico.patches.v1_0.migrate_customer_tax_category_to_fm_tax_regime
 1. **`draft_management/api.py`** — completamente simulado con MOCKs. Flujos con
    `fm_create_as_draft = True` no generan CFDI real. Falla silenciosamente.
 
-2. **`facturacion_fiscal/api_backup.py`** — fallback de recovery escribe en `/tmp/`.
-   Se pierde en reinicio. Viola cumplimiento fiscal (respuestas PAC tienen valor legal).
+2. **Resiliencia PAC.** El antiguo `api_backup.py` (recovery a `/tmp/`) fue **removido** (PR #142).
+   Hoy la resiliencia = **reconciliación FFM↔FacturAPI** (GET, pendiente de prueba operativa) +
+   **fallback file de timbrado** (respuesta RAW en `private/files`; `/tmp` solo último recurso). Ver
+   `docs/tecnico/reconciliacion-fallback.md`. (Existe deuda de código legacy en la ruta de
+   cancelación, gestionada en issue aparte — no forma parte de la arquitectura vigente.)
 
 3. **IEPS Cuota $0 en submit** (issue #81) — cuotas `charge_type="Actual"` se vuelven $0
-   al hacer submit. Hooks comentados (`# E4 DISABLED`). No bloquea timbrado de IVA estándar.
+   al hacer submit. Hooks **deshabilitados** (`# E4 DISABLED`). Funcionalidad IEPS cuota fija:
+   **deshabilitada** (candidata a roadmap). No bloquea timbrado de IVA estándar.
 
-4. **Motor de reglas** — `execute_call_api_manual()` y similares retornan strings de error,
+4. **Motor de reglas** — parcial: `execute_call_api_manual()` y similares retornan strings de error,
    no ejecutan nada.
+
+5. **Dashboard fiscal** — parcial: scores/uptime **hardcodeados**, alertas en 0, UI en **inglés**
+   (viola RG-001). No apto para manual.
+
+6. **E-Receipts / Factura Global** — implementación parcial/API sin UI; **sin validación integral**.
+   No presentar como operativos.
+
+> **Config:** la configuración vigente es **por empresa** (`Facturacion Mexico Company Settings`);
+> el Single `Facturacion Mexico Settings` fue eliminado (ADR 0031). **`patches.txt` está vacío** y
+> `patches/legacy/` **no es ejecutable** (solo referencia histórica).
 
 ---
 

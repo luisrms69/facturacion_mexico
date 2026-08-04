@@ -123,6 +123,16 @@ El paso 4 anterior cubre la Address de la Company. Antes de emitir, confirma que
 - `fm_invoice_creator_gln` en el Customer tiene el GLN correcto del nodo `InvoiceCreator`
 - Todos los campos GLN del Customer están llenos (pasos 2)
 
+### 7. Propagación automática y generación
+
+Los datos de addenda del **Customer** se **propagan automáticamente** a la Sales Invoice al validarla:
+si el cliente tiene `fm_requires_addenda` activo, la SI hereda `fm_requires_addenda` y
+`fm_default_addenda_type`. No hay que capturar el tipo de addenda en cada factura.
+
+La **addenda se genera antes del timbrado** (pre-timbrado): al crear la Factura Fiscal / timbrar, el
+sistema construye el XML de addenda a partir del template del *Addenda Type* y los datos EDI
+(GLN, códigos de producto por cliente, UOM, descripción) y lo incorpora al CFDI.
+
 ---
 
 ## Emitir una factura con addenda

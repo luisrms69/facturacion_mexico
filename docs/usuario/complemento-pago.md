@@ -26,6 +26,26 @@ No se requiere acción manual — el complemento se genera al hacer Submit del P
 
 ---
 
+## Botón manual, bloqueos y reclasificación
+
+**Botón manual.** Cuando corresponda (por ejemplo, si el complemento no se generó automáticamente),
+el Payment Entry ofrece el botón **"Crear Complemento de Pago"**. Si ya existe uno vinculado, en su
+lugar aparece **"Ver Complemento de Pago"**.
+
+**Bloqueo al cancelar el Payment Entry.** Si el Payment Entry tiene un **complemento fiscal activo**,
+el sistema **impide cancelarlo**: primero debes cancelar el Complemento de Pago. El bloqueo se muestra
+con un mensaje claro.
+
+**Bloqueo al cancelar la factura.** Mientras exista un complemento activo asociado, no se permite
+cancelar la Sales Invoice: hay que cancelar antes el complemento.
+
+**Reclasificación fiscal del Payment Entry (automatismo administrativo).** Al validar el Payment
+Entry, el sistema **carga/reclasifica automáticamente los impuestos** del pago según las reglas
+fiscales configuradas por empresa. Es un proceso interno de contabilidad fiscal; no requiere
+intervención del operador.
+
+---
+
 ## Prerequisitos
 
 - La Sales Invoice debe tener `fm_payment_method_sat = PPD`

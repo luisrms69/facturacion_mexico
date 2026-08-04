@@ -20,6 +20,34 @@ Cargar XML → Resolver proveedor → Asignar departamento → Clasificar items 
 | `Convertido a PI` | Purchase Invoice Draft creada |
 | `Error conversión` | Falló la conversión — revisar `error_message` |
 
+Además: **`No Procesar`** — CFDI marcado para excluirlo del flujo (reversible con *Reactivar CFDI*).
+
+---
+
+## Acciones disponibles (lista y formulario)
+
+**Desde la vista de lista** (procesamiento por lotes):
+
+| Botón | Qué hace |
+|---|---|
+| **Cargar XML** | Sube uno o varios XML de CFDI recibidos (dedup por UUID). |
+| **Generar proveedores faltantes** | Crea los Supplier que faltan a partir del RFC/nombre del emisor. |
+| **Asignar Departamentos** | Asigna el departamento (cost center) según el mapeo configurado. |
+| **Clasificar automáticamente** | Clasifica los conceptos con `item_code` según las reglas de mapeo. |
+| **Generar PIs pendientes** | Crea en lote las Purchase Invoice de los CFDI ya `Clasificado`. |
+
+**Desde el formulario del CFDI Recibido:**
+
+| Botón | Qué hace |
+|---|---|
+| **Resolver Items pendientes** | Asigna manualmente el item_code de los conceptos sin clasificar. |
+| **Generar Purchase Invoice** | Crea la Purchase Invoice (Draft) de ese CFDI. |
+| **Marcar No Procesar** | Excluye el CFDI del flujo (pasa a `No Procesar`). |
+| **Reactivar CFDI** | Revierte *No Procesar* y devuelve el CFDI al flujo. |
+
+Las etapas por las que transita cada CFDI son las de la tabla anterior: **Falta proveedor → Falta
+departamento → Falta clasificación → Clasificado → Convertido a PI** (o **No Procesar**).
+
 ---
 
 ## Paso 1 — Cargar XMLs
