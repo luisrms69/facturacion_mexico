@@ -17,10 +17,12 @@ Ejemplo del archivo `sites/<sitio>/site_config.json`:
 }
 ```
 
-> **Estrictamente por-sitio.** El código lee `fm_environment` **directamente del `site_config.json`
-> del sitio** (vía `frappe.get_site_path`), **no** de la configuración mergeada (`frappe.conf` /
+> **Estrictamente por-sitio.** El código comprueba la **presencia** de la clave `fm_environment` en el
+> `site_config.json` **del propio sitio** (vía `frappe.get_file_json` sobre
+> `frappe.get_site_path("site_config.json")`), **no** en la configuración mergeada (`frappe.conf` /
 > `frappe.get_site_config()`, que combinan common + site). Por tanto, un `fm_environment` puesto en
-> `common_site_config.json` **se ignora**: no habilita ni cambia el ambiente de ningún sitio.
+> `common_site_config.json` **se ignora**; y un sitio que la declara explícitamente siempre cuenta,
+> aunque el valor coincida con uno de common. Si el archivo no se puede leer, se bloquea (fail-closed).
 
 ## Comportamiento
 

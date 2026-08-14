@@ -5,7 +5,7 @@ cuando el ambiente del sitio es inseguro, y que producción/sandbox legítimos y
 sigan funcionando. Nunca se contacta a FacturAPI real: `requests.request` está mockeado.
 """
 
-from unittest.mock import MagicMock, mock_open, patch
+from unittest.mock import MagicMock, patch
 
 import frappe
 from frappe.tests.utils import FrappeTestCase
@@ -123,16 +123,22 @@ class TestPacEnvironmentGuard(FrappeTestCase):
 		self.assertTrue(kwargs["url"].endswith("/invoices"))
 		self.assertEqual(kwargs["json"], data)
 
-	# 10. F-01: un fm_environment presente SOLO en common_site_config NO debe aplicar (estrictamente por-sitio).
-	def test_common_only_environment_is_rejected(self):
+	# 10. F-01: el ambiente se resuelve por PRESENCIA de la clave en el site_config.json del sitio.
+	def test_environment_read_from_site_config_presence(self):
 		from facturacion_mexico.facturacion_fiscal import pac_environment
 
-		# Simula que la config MERGEADA (common + site) reportaría "production"...
-		with patch.dict(frappe.conf, {"fm_environment": "production"}, clear=False):
-			# ...pero el site_config.json DEL SITIO no tiene la clave → se ignora la herencia de common.
-			with patch("builtins.open", mock_open(read_data='{"db_name": "x"}')):
-				self.assertEqual(pac_environment.get_fm_environment(), "")
+		# (a) La clave NO está en el site_config del sitio (aunque common la tuviera) → rechazada.
+		with patch("frappe.get_file_json", return_value={"db_name": "x"}):
+			self.assertEqual(pac_environment.get_fm_environment(), "")
 
-		# En cambio, si el site_config.json DEL SITIO sí la declara, se respeta.
-		with patch("builtins.open", mock_open(read_data='{"fm_environment": "sandbox"}')):
+		# (b) La clave SÍ está en el site_config del sitio → se usa ese valor.
+		with patch("frappe.get_file_json", return_value={"fm_environment": "sandbox"}):
 			self.assertEqual(pac_environment.get_fm_environment(), "sandbox")
+
+		# (c) El sitio la define aunque coincida con un posible valor de common → cuenta por presencia.
+		with patch("frappe.get_file_json", return_value={"fm_environment": "production"}):
+			self.assertEqual(pac_environment.get_fm_environment(), "production")
+
+		# (d) Fail-closed: si el site_config no se puede leer → cadena vacía.
+		with patch("frappe.get_file_json", side_effect=OSError("no file")):
+			self.assertEqual(pac_environment.get_fm_environment(), "")

@@ -38,11 +38,14 @@ La fuente de verdad del ambiente fiscal pasa a ser una variable **explícita por
    adicional).
 
 `site_config.json` es a prueba de restore (no se copia con la BD) y es un mecanismo estándar de
-Frappe. La lectura es **estrictamente por-sitio**: `get_fm_environment()` lee el `site_config.json`
-del sitio **directamente** (vía `frappe.get_site_path`), **no** la configuración mergeada
-(`frappe.conf` / `frappe.get_site_config()` combinan `common_site_config.json` + `site_config.json`).
-Así, un `fm_environment` colocado en `common_site_config.json` **no se hereda** ni habilita el
-ambiente de ningún sitio (evita una habilitación accidental global).
+Frappe. La resolución es **estrictamente por-sitio**: `get_fm_environment()` comprueba la **presencia**
+de la clave en el `site_config.json` del propio sitio con `frappe.get_file_json` sobre
+`frappe.get_site_path("site_config.json")` (API de Frappe; el acceso a archivo vive dentro del
+framework, no en la app, por lo que no dispara la regla Semgrep `frappe-security-file-traversal` que
+prohíbe `open(...)`). No se usa la configuración mergeada (`frappe.conf` / `frappe.get_site_config()`
+combinan common + site), por lo que un `fm_environment` colocado en `common_site_config.json` **no se
+hereda**; y un sitio que la declara siempre cuenta, aun si el valor coincide con uno de common. Ante
+error de lectura se bloquea (fail-closed).
 
 ## Consecuencias
 
