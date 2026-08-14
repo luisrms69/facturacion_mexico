@@ -1,0 +1,57 @@
+# Ambiente fiscal del sitio (`fm_environment`)
+
+La emisión real de CFDIs depende de una variable **explícita por sitio**, no de la base de datos.
+Esto evita que una copia restaurada de producción (staging/dev) timbre CFDIs reales por accidente.
+
+## Variable
+
+- **Nombre:** `fm_environment`
+- **Ubicación:** `site_config.json` del sitio (no en la BD, no en `common_site_config.json`).
+- **Valores permitidos:** `"production"` o `"sandbox"`.
+
+```json
+// sites/<sitio>/site_config.json
+{
+  "fm_environment": "production"
+}
+```
+
+## Comportamiento
+
+| `fm_environment` | Credencial usada | Operación mutante al PAC |
+|---|---|---|
+| `"production"` | `api_key` (obligatoria) | Permitida si hay `api_key` |
+| `"sandbox"` | `test_api_key` (obligatoria) | Permitida si hay `test_api_key` |
+| ausente / valor inválido | ninguna | **Bloqueada (fail-closed)** |
+
+Reglas adicionales:
+
+- **Sin fallback** entre `api_key` y `test_api_key`: si falta la credencial del ambiente, se bloquea.
+- **Protección extra:** si la credencial efectiva empieza con `sk_live_` y el ambiente **no** es
+  `production`, se bloquea (protege contra una llave productiva colocada por error en `test_api_key`).
+- **Solo se bloquean mutaciones** (POST/PUT/PATCH/DELETE: timbrar, cancelar, complementos, E-Receipts,
+  Factura Global). Los **GET** (reconciliación, verificación de estado, validación de RFC) siguen
+  permitidos.
+- El bloqueo ocurre en el punto central `FacturAPIClient` **antes** de contactar a FacturAPI; el
+  mensaje indica explícitamente que **no se contactó al PAC**. En background jobs, la excepción queda
+  registrada en **Error Log** por el comportamiento estándar de Frappe.
+
+`sandbox_mode` (campo de BD) **ya no decide** la credencial; se conserva como valor derivado
+(`sandbox_mode = fm_environment == "sandbox"`) por compatibilidad de UI.
+
+## Por qué es a prueba de restore
+
+`bench restore` restaura **la base de datos**, no `site_config.json`. Una copia restaurada desde
+producción conserva su propio `site_config.json`; por tanto **no hereda** el `fm_environment` de
+producción. Si la copia no declara el ambiente, queda **bloqueada** para emitir.
+
+## Configuración requerida por sitio
+
+Todo sitio que timbre debe declarar `fm_environment`:
+
+- **Producción:** `"production"`.
+- **Staging / desarrollo:** `"sandbox"`.
+
+> **Importante (orden de despliegue):** fija `fm_environment` en el `site_config.json` de cada sitio
+> **antes** de desplegar esta guarda. Si producción no lo declara al activarse la guarda, su timbrado
+> legítimo quedaría bloqueado.

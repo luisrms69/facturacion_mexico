@@ -1,93 +1,83 @@
 # CONTINUITY.md — facturacion_mexico
 
-**Fecha:** 2026-08-03
-**Rama activa:** `fix/ffm-tipo-nc-derivado-simetrico`
-**Tarea actual:** PR #222 — corrección de permisos de cancelación de Sales Invoice (estado inválido `cancel=1, submit=0`) detectada durante instalación de HRMS.
+**Fecha:** 2026-08-14
+**Rama activa:** `feat/issue-215-fm-environment-guard`
+**Tarea actual:** Issue #215 — guarda de ambiente fiscal por sitio (`fm_environment`) para el PAC.
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-
-Cierre de la revisión de CodeRabbit del PR #222. Se corrigen los comentarios #2 (doc), #3/#4 (CONTINUITY/MD022) y #5 (`NoReturn`). El comentario #1 (test que mockea `frappe.get_doc`) se difirió al issue #223.
+La implementación del issue #215: evitar que un entorno no productivo (p. ej. restaurado desde
+producción) emita CFDIs reales contra FacturAPI.
 
 Plan que estoy siguiendo:
-
-Instrucciones directas del usuario para cerrar la revisión. PR #222 abierto; merge lo hace el usuario.
+Issue #215 + ADR-0038 (`docs/adr/0038-guarda-ambiente-fiscal-fm-environment.md`).
 
 Objetivo inmediato:
-
-Commit de las correcciones de revisión → push para actualizar el PR #222 → re-ejecutar `/ship coderabbit`.
+Commit hecho en la rama. Siguiente paso concreto: `/ship push` (con autorización) y luego `/ship pr`.
 
 Criterio de avance:
-
-CodeRabbit sin comentarios accionables pendientes salvo el #1 (que vive en el issue #223); suite en verde; docs consistente con el código.
+Gates verdes (datos-cliente, documental, ruff, mkdocs --strict) y tests de la guarda 9/9 OK.
 
 ---
 
 ## Estado actual
 
 ### Ya cerrado
-
-- PR **#222** abierto (base `main`), rama publicada en `upstream`. Versión objetivo `1.3.1` (PATCH).
-- Botón fiscal + aviso RFC: `can_stamp` excluye `has_active_ffm` **y** `has_draft_ffm`; guard `frm.__fm_can_stamp` en `add_timbrar_button`; aviso RFC gateado por `can_stamp`.
-- Doc de usuario `docs/usuario/notas-credito.md` (en nav de MkDocs).
-- CodeRabbit revisado (reporte en `frappe-infrastructure/checkpoints/coderabbit-pr222-review.md`).
-- CodeRabbit #2/#3/#4/#5 atendidos y commiteados (`e856671`); #1 diferido al issue #223.
+- Guarda central en `FacturAPIClient` (`_make_request` / `_make_request_silent`) + módulo
+  `pac_environment.py`. Credencial seleccionada por `fm_environment` (site_config.json).
+- `sandbox_mode` pasa a valor derivado (compat). Sin fallback entre credenciales.
+- Docs: `docs/tecnico/ambiente-fiscal.md` + ADR-0038 + nav MkDocs.
+- Tests: `test_pac_environment_guard` (9/9) + `test_facturacion_mexico_company_settings` (actualizado, 9/9).
+- Validación local: sandbox real (`sk_test_`) POST permitido con `livemode=false`; bloqueo con
+  `fm_environment` ausente y con `sk_live_` en sandbox. Sin datos de cliente alterados.
+- Bump `__version__` 1.3.2 → 1.4.0 (MINOR).
 
 ### En progreso
-
-- Permisos Sales Invoice: `Facturacion Mexico Manager` y `System Manager` pasan a `submit=1, cancel=1`
-  (antes `cancel=1, submit=0`, inválido en Frappe). Corregido en `fixtures/docperm.json` y en la
-  segunda fuente `api/fiscal_operations.py::assign_facturacion_permissions()`. Test de fixture
-  agregado (`test_docperm_sales_invoice_permissions.py`). La lógica de cancelación no cambia.
+- Nada; commit de la rama listo.
 
 ### Pendiente inmediato
-
-1. Commit + push de las correcciones → actualizar PR #222.
-2. Re-ejecutar `/ship coderabbit` para confirmar el estado.
-3. Merge: lo realiza el usuario (Squash & Merge). No lo hace Claude.
+1. `/ship push` (autorización aparte).
+2. `/ship pr` contra `main` (base upstream/main 1.3.2 → objetivo 1.4.0).
+3. Configurar `fm_environment` en `site_config.json` de producción/staging antes del deploy.
 
 ### No repetir
-
-- No usar `git restore/reset/revert/checkout` para deshacer trabajo.
-- No reintroducir la regresión: `can_stamp` debe excluir `has_active_ffm` Y `has_draft_ffm`.
-- No meter conocimiento de FFM dentro de la validación RFC.
-- No tocar `redirect_to_fiscal_document` ni su query.
-- No atender el comentario #1 dentro del PR #222 (vive en el issue #223): no tocar `_derivar`, sus mocks ni la carga por `frappe.get_doc`, ni añadir costura de pruebas a producción.
+- No intentar el timbrado sandbox sobre FFM BORRADOR de fixtures: fallan por validaciones locales
+  (UOM fuera de `c_ClaveUnidad`, `ObjetoImp=02` sin impuestos) ajenas a #215. Para probar el
+  happy-path usar `one_offs/verificar_215.demo_sandbox_call` (POST directo a sandbox).
 
 ---
 
 ## Decisiones vigentes
-
-- El comentario #1 de CodeRabbit (mock de `frappe.get_doc` en `TestClasificacionNotaCredito`) se difiere al issue **#223**: `_classify_nota_credito` carga la SI/origen con `frappe.get_doc` directo; no se añade costura productiva ni infraestructura pesada dentro de este PR.
-- El flujo de descuento **conserva el `item_code` original** (ERPNext `validate_returned_items` lo exige); solo cambia `description` («Descuento - \<original\>»), `income_account` y `update_stock=0`. La doc se corrigió acorde.
-- Fuente autoritativa de visibilidad del botón = `can_stamp` (servidor).
+- Fuente de verdad del ambiente = `fm_environment` en `site_config.json` (a prueba de restore).
+- Guarda solo bloquea mutaciones (POST/PUT/PATCH/DELETE); GET permitido.
+- `fm_environment` debe fijarse en TODOS los sitios que timbran (prod=`production`, dev=`sandbox`),
+  antes de activar la guarda (orden de despliegue crítico).
 
 ---
 
 ## Archivos relevantes ahora
 
 ### Leer primero
+- `facturacion_mexico/facturacion_fiscal/pac_environment.py`
+- `facturacion_mexico/facturacion_fiscal/api_client.py`
+- `docs/adr/0038-guarda-ambiente-fiscal-fm-environment.md`
 
-- `docs/usuario/notas-credito.md` (corrección #2)
-- `facturacion_mexico/facturacion_fiscal/doctype/factura_fiscal_mexico/factura_fiscal_mexico.py` (`NoReturn`, #5)
+### Probablemente editar
+- (ninguno pendiente)
 
 ### No tocar
-
-- `facturacion_mexico/facturacion_fiscal/tests/test_nota_credito_descuento_relacion_01.py` (`TestClasificacionNotaCredito._derivar`) → reservado al issue #223.
-- `redirect_to_fiscal_document` y su query en `sales_invoice.js`.
+- `facturacion_mexico/one_offs/verificar_215.py` (diagnóstico; nunca se commitea).
 
 ---
 
 ## Riesgos / cuidados
-
-- `NoReturn` debe ser el único cambio en Python de esta ronda (sin tocar lógica ni mensajes).
-- Mantener `docperm.json` limpio y no incluir untracked de `one_offs/` / `working_docs/`.
+- Deploy: si se activa la guarda sin `fm_environment="production"` en producción, se bloquea el
+  timbrado legítimo. Fijar la variable primero.
 
 ---
 
 ## Información faltante
-
-- Ninguna pendiente para esta ronda; tras el push, confirmar la nueva revisión de CodeRabbit.
+- Ninguna para cerrar el PR.

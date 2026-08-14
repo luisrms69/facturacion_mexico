@@ -4,6 +4,8 @@ import frappe
 import requests
 from frappe import _
 
+from facturacion_mexico.facturacion_fiscal import pac_environment
+
 
 class FacturAPIClient:
 	"""Cliente para FacturAPI.io usando requests (ya incluido en Frappe)."""
@@ -14,7 +16,11 @@ class FacturAPIClient:
 	def __init__(self, company=None):
 		"""Inicializar cliente con configuración."""
 		self.company = company
-		self.sandbox_mode = self._resolve_sandbox_mode()
+		# Fuente de verdad del ambiente: site_config.json (issue #215), no la BD.
+		self.environment = pac_environment.get_fm_environment()
+		# `sandbox_mode` se conserva como valor DERIVADO por compatibilidad (UI, defaults
+		# cosméticos de E-Receipt). Ya NO decide la credencial.
+		self.sandbox_mode = self.environment == "sandbox"
 		self.base_url = self._get_base_url()
 		self.api_key = self._get_api_key()
 		self.timeout = self._DEFAULT_TIMEOUT
@@ -49,24 +55,35 @@ class FacturAPIClient:
 			)
 		return doc
 
-	def _resolve_sandbox_mode(self) -> bool:
-		"""Resolver sandbox_mode desde Company Settings."""
-		return bool(self._get_company_settings().sandbox_mode)
-
 	def _get_base_url(self) -> str:
 		"""URL base FacturAPI."""
 		return "https://www.facturapi.io/v2"
 
 	def _get_api_key(self) -> str:
-		"""Obtener API key desde Company Settings según modo sandbox/producción."""
+		"""Obtener API key desde Company Settings según el ambiente del sitio (issue #215).
+
+		El campo se elige por `fm_environment` (production → api_key, sandbox → test_api_key),
+		NO por `sandbox_mode`. Sin fallback entre campos. Si el ambiente es inválido no se
+		selecciona credencial (cadena vacía); las operaciones mutantes quedan bloqueadas por
+		la guarda central antes de contactar al PAC.
+		"""
 		from frappe.utils.password import get_decrypted_password
 
+		field = pac_environment.credential_field_for(self.environment)
+		if not field:
+			return ""
+
 		settings = self._get_company_settings()
-		field = "test_api_key" if settings.sandbox_mode else "api_key"
 		return get_decrypted_password("Facturacion Mexico Company Settings", settings.name, field) or ""
+
+	def _assert_operation_allowed(self, method: str) -> None:
+		"""Guarda central (issue #215): bloquea mutaciones al PAC en ambientes inseguros."""
+		pac_environment.assert_pac_operation_allowed(method, self.environment, self.api_key)
 
 	def _make_request(self, method: str, endpoint: str, data: dict | None = None) -> dict[str, Any]:
 		"""Realizar petición HTTP a FacturAPI."""
+		# Guarda central de ambiente (issue #215): bloquea mutaciones inseguras antes de la red.
+		self._assert_operation_allowed(method)
 		url = f"{self.base_url}{endpoint}"
 
 		try:
@@ -160,7 +177,14 @@ class FacturAPIClient:
 		return None
 
 	def _make_request_silent(self, method: str, endpoint: str, data: dict | None = None) -> dict[str, Any]:
-		"""Realizar petición HTTP a FacturAPI SIN frappe.throw() para validaciones."""
+		"""Realizar petición HTTP a FacturAPI SIN frappe.throw() para validaciones.
+
+		Nota: la guarda de ambiente (issue #215) SÍ puede lanzar `frappe.throw` para una
+		operación mutante insegura — la seguridad prevalece sobre el modo silencioso. Los GET
+		(uso habitual de este método) no se bloquean.
+		"""
+		# Guarda central de ambiente (issue #215): bloquea mutaciones inseguras antes de la red.
+		self._assert_operation_allowed(method)
 		url = f"{self.base_url}{endpoint}"
 
 		try:
