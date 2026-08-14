@@ -37,8 +37,12 @@ La fuente de verdad del ambiente fiscal pasa a ser una variable **explícita por
    background jobs, Frappe registra la excepción en Error Log (sin infraestructura de alertas
    adicional).
 
-`site_config.json` es a prueba de restore (no se copia con la BD) y es un mecanismo estándar
-de Frappe (`frappe.conf`).
+`site_config.json` es a prueba de restore (no se copia con la BD) y es un mecanismo estándar de
+Frappe. La lectura es **estrictamente por-sitio**: `get_fm_environment()` lee el `site_config.json`
+del sitio **directamente** (vía `frappe.get_site_path`), **no** la configuración mergeada
+(`frappe.conf` / `frappe.get_site_config()` combinan `common_site_config.json` + `site_config.json`).
+Así, un `fm_environment` colocado en `common_site_config.json` **no se hereda** ni habilita el
+ambiente de ningún sitio (evita una habilitación accidental global).
 
 ## Consecuencias
 

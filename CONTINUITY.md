@@ -2,59 +2,58 @@
 
 **Fecha:** 2026-08-14
 **Rama activa:** `feat/issue-215-fm-environment-guard`
-**Tarea actual:** Issue #215 — guarda de ambiente fiscal por sitio (`fm_environment`) para el PAC.
+**Tarea actual:** Issue #215 — guarda de ambiente fiscal por sitio (`fm_environment`); PR #226 abierto, atendiendo CodeRabbit.
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-La implementación del issue #215: evitar que un entorno no productivo (p. ej. restaurado desde
-producción) emita CFDIs reales contra FacturAPI.
+PR #226 (issue #215). Ya se aplicaron los fixes de CodeRabbit F-01 y F-03; F-02 y F-04 diferidos.
 
 Plan que estoy siguiendo:
-Issue #215 + ADR-0038 (`docs/adr/0038-guarda-ambiente-fiscal-fm-environment.md`).
+Issue #215 + ADR-0038 + reporte CodeRabbit en
+`frappe-infrastructure/checkpoints/coderabbit-pr226-review.md`.
 
 Objetivo inmediato:
-Commit hecho en la rama. Siguiente paso concreto: `/ship push` (con autorización) y luego `/ship pr`.
+Commit de F-01/F-03 hecho en la rama. Siguiente paso: `/ship push` (actualiza PR #226) — con autorización.
 
 Criterio de avance:
-Gates verdes (datos-cliente, documental, ruff, mkdocs --strict) y tests de la guarda 9/9 OK.
+Gates verdes y tests focalizados (`test_pac_environment_guard` 10/10, `test_facturacion_mexico_company_settings` 9/9).
 
 ---
 
 ## Estado actual
 
 ### Ya cerrado
-- Guarda central en `FacturAPIClient` (`_make_request` / `_make_request_silent`) + módulo
-  `pac_environment.py`. Credencial seleccionada por `fm_environment` (site_config.json).
-- `sandbox_mode` pasa a valor derivado (compat). Sin fallback entre credenciales.
-- Docs: `docs/tecnico/ambiente-fiscal.md` + ADR-0038 + nav MkDocs.
-- Tests: `test_pac_environment_guard` (9/9) + `test_facturacion_mexico_company_settings` (actualizado, 9/9).
-- Validación local: sandbox real (`sk_test_`) POST permitido con `livemode=false`; bloqueo con
-  `fm_environment` ausente y con `sk_live_` en sandbox. Sin datos de cliente alterados.
-- Bump `__version__` 1.3.2 → 1.4.0 (MINOR).
+- Guarda central `pac_environment.py` en `FacturAPIClient` + selección de credencial por `fm_environment`.
+- **F-01 (CodeRabbit):** `get_fm_environment()` lee el `site_config.json` DEL SITIO directamente
+  (`frappe.get_site_path`), NO la config mergeada → un `fm_environment` en `common_site_config.json`
+  se ignora. Test de regresión `test_common_only_environment_is_rejected`.
+- **F-03 (CodeRabbit):** JSON de ejemplo válido en `docs/tecnico/ambiente-fiscal.md`.
+- Docs: tecnico + ADR-0038 (con lectura site-only) + nav. Bump `__version__` = 1.4.0 (MINOR).
+- PR #226 abierto contra `main` (no mergeado).
 
 ### En progreso
-- Nada; commit de la rama listo.
+- Nada; commit de F-01/F-03 listo en la rama.
 
 ### Pendiente inmediato
-1. `/ship push` (autorización aparte).
-2. `/ship pr` contra `main` (base upstream/main 1.3.2 → objetivo 1.4.0).
+1. `/ship push` (actualiza PR #226) — autorización aparte.
+2. Merge (usuario) → luego `/sync-check` + `/ship release` (tag + Release v1.4.0).
 3. Configurar `fm_environment` en `site_config.json` de producción/staging antes del deploy.
 
 ### No repetir
-- No intentar el timbrado sandbox sobre FFM BORRADOR de fixtures: fallan por validaciones locales
-  (UOM fuera de `c_ClaveUnidad`, `ObjetoImp=02` sin impuestos) ajenas a #215. Para probar el
-  happy-path usar `one_offs/verificar_215.demo_sandbox_call` (POST directo a sandbox).
+- No usar `frappe.conf` / `frappe.get_site_config()` para el ambiente: combinan common + site.
+  El ambiente es estrictamente por-sitio (lectura directa del archivo del sitio).
+- No timbrar FFM BORRADOR de fixtures (fallan por UOM/`ObjetoImp`, ajeno a #215); para probar el
+  happy-path usar `one_offs/verificar_215.demo_sandbox_call`.
 
 ---
 
 ## Decisiones vigentes
-- Fuente de verdad del ambiente = `fm_environment` en `site_config.json` (a prueba de restore).
+- Fuente de verdad del ambiente = `fm_environment` en `site_config.json` **del sitio** (no common).
 - Guarda solo bloquea mutaciones (POST/PUT/PATCH/DELETE); GET permitido.
-- `fm_environment` debe fijarse en TODOS los sitios que timbran (prod=`production`, dev=`sandbox`),
-  antes de activar la guarda (orden de despliegue crítico).
+- F-02 (tests con registros reales, RG-003) y F-04 (MD022 en plantilla CONTINUITY) → diferidos a issues.
 
 ---
 
@@ -62,11 +61,8 @@ Gates verdes (datos-cliente, documental, ruff, mkdocs --strict) y tests de la gu
 
 ### Leer primero
 - `facturacion_mexico/facturacion_fiscal/pac_environment.py`
-- `facturacion_mexico/facturacion_fiscal/api_client.py`
 - `docs/adr/0038-guarda-ambiente-fiscal-fm-environment.md`
-
-### Probablemente editar
-- (ninguno pendiente)
+- `frappe-infrastructure/checkpoints/coderabbit-pr226-review.md`
 
 ### No tocar
 - `facturacion_mexico/one_offs/verificar_215.py` (diagnóstico; nunca se commitea).
@@ -74,8 +70,8 @@ Gates verdes (datos-cliente, documental, ruff, mkdocs --strict) y tests de la gu
 ---
 
 ## Riesgos / cuidados
-- Deploy: si se activa la guarda sin `fm_environment="production"` en producción, se bloquea el
-  timbrado legítimo. Fijar la variable primero.
+- Deploy: fijar `fm_environment="production"` en el `site_config.json` de producción antes de activar
+  la guarda, o el timbrado legítimo se bloquea.
 
 ---
 

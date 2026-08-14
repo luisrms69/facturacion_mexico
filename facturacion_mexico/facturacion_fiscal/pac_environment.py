@@ -15,6 +15,8 @@ operación MUTANTE al PAC (POST/PUT/PATCH/DELETE) antes de contactarlo. Los GET 
 permitidos.
 """
 
+import json
+
 import frappe
 from frappe import _
 
@@ -22,9 +24,27 @@ VALID_ENVIRONMENTS = ("production", "sandbox")
 MUTATING_METHODS = ("POST", "PUT", "PATCH", "DELETE")
 
 
+def _read_site_only_config() -> dict:
+	"""Leer SOLO el `site_config.json` del sitio actual (sin merge con common_site_config.json).
+
+	`frappe.conf` / `frappe.get_site_config()` combinan `common_site_config.json` + `site_config.json`,
+	por lo que un `fm_environment` puesto en common se heredaría a sitios que lo omiten. Para que el
+	ambiente sea estrictamente **por-sitio** (issue #215), se lee el archivo del sitio directamente y
+	NO se consulta la configuración mergeada.
+	"""
+	try:
+		with open(frappe.get_site_path("site_config.json")) as fh:
+			return json.load(fh)
+	except (OSError, ValueError):
+		return {}
+
+
 def get_fm_environment() -> str:
-	"""Ambiente fiscal declarado en site_config.json, normalizado (minúsculas)."""
-	return (frappe.conf.get("fm_environment") or "").strip().lower()
+	"""Ambiente fiscal declarado en el `site_config.json` DEL SITIO (no heredado de common), normalizado.
+
+	Estrictamente por-sitio: un valor presente únicamente en `common_site_config.json` se ignora.
+	"""
+	return (_read_site_only_config().get("fm_environment") or "").strip().lower()
 
 
 def credential_field_for(environment: str) -> str | None:

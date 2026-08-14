@@ -5,7 +5,7 @@ cuando el ambiente del sitio es inseguro, y que producción/sandbox legítimos y
 sigan funcionando. Nunca se contacta a FacturAPI real: `requests.request` está mockeado.
 """
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, mock_open, patch
 
 import frappe
 from frappe.tests.utils import FrappeTestCase
@@ -122,3 +122,17 @@ class TestPacEnvironmentGuard(FrappeTestCase):
 		self.assertEqual(kwargs["method"], "POST")
 		self.assertTrue(kwargs["url"].endswith("/invoices"))
 		self.assertEqual(kwargs["json"], data)
+
+	# 10. F-01: un fm_environment presente SOLO en common_site_config NO debe aplicar (estrictamente por-sitio).
+	def test_common_only_environment_is_rejected(self):
+		from facturacion_mexico.facturacion_fiscal import pac_environment
+
+		# Simula que la config MERGEADA (common + site) reportaría "production"...
+		with patch.dict(frappe.conf, {"fm_environment": "production"}, clear=False):
+			# ...pero el site_config.json DEL SITIO no tiene la clave → se ignora la herencia de common.
+			with patch("builtins.open", mock_open(read_data='{"db_name": "x"}')):
+				self.assertEqual(pac_environment.get_fm_environment(), "")
+
+		# En cambio, si el site_config.json DEL SITIO sí la declara, se respeta.
+		with patch("builtins.open", mock_open(read_data='{"fm_environment": "sandbox"}')):
+			self.assertEqual(pac_environment.get_fm_environment(), "sandbox")

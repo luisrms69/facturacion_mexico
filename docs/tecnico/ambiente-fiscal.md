@@ -9,12 +9,18 @@ Esto evita que una copia restaurada de producción (staging/dev) timbre CFDIs re
 - **Ubicación:** `site_config.json` del sitio (no en la BD, no en `common_site_config.json`).
 - **Valores permitidos:** `"production"` o `"sandbox"`.
 
+Ejemplo del archivo `sites/<sitio>/site_config.json`:
+
 ```json
-// sites/<sitio>/site_config.json
 {
   "fm_environment": "production"
 }
 ```
+
+> **Estrictamente por-sitio.** El código lee `fm_environment` **directamente del `site_config.json`
+> del sitio** (vía `frappe.get_site_path`), **no** de la configuración mergeada (`frappe.conf` /
+> `frappe.get_site_config()`, que combinan common + site). Por tanto, un `fm_environment` puesto en
+> `common_site_config.json` **se ignora**: no habilita ni cambia el ambiente de ningún sitio.
 
 ## Comportamiento
 
