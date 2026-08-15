@@ -13,25 +13,25 @@
       
       
       
-        <link rel="prev" href="../usuario/troubleshooting/">
+        <link rel="prev" href="../0037-resiliencia-cancelacion-sustitucion-motivo-01/">
       
       
-        <link rel="next" href="arquitectura/">
+        <link rel="next" href="../../referencia/">
       
       
-      <link rel="icon" href="../assets/images/favicon.png">
+      <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.3">
     
     
       
-        <title>Documentación Técnica - Facturación México - Documentación Técnica</title>
+        <title>ADR 0038 — Guarda de ambiente fiscal por sitio (fm_environment) para el PAC - Facturación México - Documentación Técnica</title>
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.50c56a3b.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.50c56a3b.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
       
       
 
@@ -50,11 +50,11 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/extra.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/extra.css">
     
-      <link rel="stylesheet" href="../assets/stylesheets/advanced.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/advanced.css">
     
-    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#documentacion-tecnica" class="md-skip">
+        <a href="#adr-0038-guarda-de-ambiente-fiscal-por-sitio-fm_environment-para-el-pac" class="md-skip">
           Saltar a contenido
         </a>
       
@@ -98,7 +98,7 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Cabecera">
-    <a href=".." title="Facturación México - Documentación Técnica" class="md-header__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+    <a href="../.." title="Facturación México - Documentación Técnica" class="md-header__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
@@ -118,7 +118,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Documentación Técnica
+              ADR 0038 — Guarda de ambiente fiscal por sitio (fm_environment) para el PAC
             
           </span>
         </div>
@@ -215,7 +215,7 @@
   
   
     <li class="md-tabs__item">
-      <a href=".." class="md-tabs__link">
+      <a href="../.." class="md-tabs__link">
         
   
     
@@ -234,7 +234,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../usuario/" class="md-tabs__link">
+        <a href="../../usuario/" class="md-tabs__link">
           
   
   Guía de Usuario
@@ -254,7 +254,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="./" class="md-tabs__link">
+        <a href="../../tecnico/" class="md-tabs__link">
           
   
   Técnico
@@ -272,7 +272,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../referencia/" class="md-tabs__link">
+        <a href="../../referencia/" class="md-tabs__link">
           
   
   Referencia
@@ -305,7 +305,7 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navegación" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="Facturación México - Documentación Técnica" class="md-nav__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
+    <a href="../.." title="Facturación México - Documentación Técnica" class="md-nav__button md-logo" aria-label="Facturación México - Documentación Técnica" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
@@ -323,7 +323,7 @@
   
   
     <li class="md-nav__item">
-      <a href=".." class="md-nav__link">
+      <a href="../.." class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -385,7 +385,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../usuario/" class="md-nav__link">
+      <a href="../../usuario/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -406,7 +406,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../usuario/getting-started/" class="md-nav__link">
+      <a href="../../usuario/getting-started/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -427,7 +427,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../usuario/emitir-cfdi/" class="md-nav__link">
+      <a href="../../usuario/emitir-cfdi/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -448,7 +448,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../usuario/notas-credito/" class="md-nav__link">
+      <a href="../../usuario/notas-credito/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -469,7 +469,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../usuario/cancelar-cfdi/" class="md-nav__link">
+      <a href="../../usuario/cancelar-cfdi/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -490,7 +490,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../usuario/verificar-estado-facturapi/" class="md-nav__link">
+      <a href="../../usuario/verificar-estado-facturapi/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -511,7 +511,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../usuario/complemento-pago/" class="md-nav__link">
+      <a href="../../usuario/complemento-pago/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -532,7 +532,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../usuario/cfdi-recibidos/" class="md-nav__link">
+      <a href="../../usuario/cfdi-recibidos/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -553,7 +553,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../usuario/ereceipts/" class="md-nav__link">
+      <a href="../../usuario/ereceipts/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -574,7 +574,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../usuario/addendas/" class="md-nav__link">
+      <a href="../../usuario/addendas/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -595,7 +595,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../usuario/multisucursal/" class="md-nav__link">
+      <a href="../../usuario/multisucursal/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -616,7 +616,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../usuario/troubleshooting/" class="md-nav__link">
+      <a href="../../usuario/troubleshooting/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -683,6 +683,1014 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tecnico/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Documentación Técnica
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tecnico/arquitectura/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Arquitectura
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tecnico/setup/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Setup
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tecnico/email-system/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Email CFDI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tecnico/proceso-regeneracion-stct-e4/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Regeneración STCT
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tecnico/reconciliacion-fallback/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Reconciliación y fallback
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tecnico/ambiente-fiscal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Ambiente fiscal (fm_environment)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_8" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_8" id="__nav_3_8_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    ADRs
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_8_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_8">
+            <span class="md-nav__icon md-icon"></span>
+            ADRs
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADRs — Decisiones Arquitectónicas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0000-estado-real-pre-migracion/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0000: Estado Real de la App — Pre-Migración
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0002-verificacion-arranque-v16/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MÓDULO 0 — VERIFICACIÓN DE ARRANQUE
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0003-verificacion-configuracion-fiscal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MÓDULO 1 — CONFIGURACIÓN FISCAL Y DATOS MAESTROS
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0004-verificacion-timbrado/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MÓDULO 2 — VERIFICACIÓN FLUJO DE TIMBRADO CFDI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0005-workflow-configuracion-inicial-v2/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    0005 Workflow configuración inicial (v2, vigente)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0005-workflow-configuracion-inicial/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    0005 Workflow configuración inicial (obsoleto — superseded por v2)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0006-analisis-branches-wip/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0006 — ANÁLISIS DE BRANCHES WIP
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0007-analisis-checkout-e4/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0007 — ANÁLISIS DE RIESGO: CHECKOUT A feature/e4-ieps-on-item-quantity
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0008-analisis-9-commits-wip/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0008 — ANÁLISIS DETALLADO: 9 COMMITS WIP
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0009-checklist-estados-flujo-timbrado/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0009 — CHECKLIST ESTADOS Y FLUJO DE TIMBRADO
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0010-verificacion-post-cancelacion/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0010 — VERIFICACIÓN ESTADO POST-CANCELACIÓN
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0011-diagnostico-sistema-tests/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0011 — DIAGNÓSTICO SISTEMA DE TESTS
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0012-solucion-sistema-tests-v16/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0012 — SOLUCIÓN SISTEMA DE TESTS V16
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0013-arquitectura-sistema-cancelaciones-cfdi/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0013 — Arquitectura del Sistema de Cancelaciones CFDI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0014-diagnostico-conectividad-si-ffm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0014 — Diagnóstico Conectividad Sales Invoice ↔ Factura Fiscal Mexico
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0015-si-ffm-relationship-architecture/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0015 — Arquitectura Relación Sales Invoice ↔ Factura Fiscal Mexico
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0016-reclasificacion-fiscal-payment-entry/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0016 — Reclasificación Fiscal de Impuestos en Payment Entry
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0017-complemento-pago-mx-schema-normalizacion/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0017 — Complemento Pago MX MVP
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0018-ffm-status-fiscal-state-migration/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0018 — Migración de estado fiscal FFM a status
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0019-primera-implementacion-rc-v0.1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0019: Primera implementación Release Candidates v0.1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0020-smoke-test-mvp-flujos-cancelacion/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0020: Smoke Test MVP v0.1 — Flujos de Cancelación y Refacturación
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0021-fiscal-state-capa-ui-centralizada/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0021 — Capa fiscal_state: UI centralizada via endpoint Python
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0022-solucion-issue-112-reclasificacion-fiscal-pe/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0022 — Solución Issue #112: Reclasificación Fiscal en Payment Entry
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0023-venta-mostrador-cfdi-individual-rfc-generico/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0023 — Venta Mostrador: CFDI Individual con RFC Genérico XAXX010101000
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0024-addendas-pre-timbrado-issue129/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0024 — Addendas CFDI pre-timbrado (Issue #129)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0025-notas-credito-cfdi-tipo-e-issue116/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0025 — Notas de Crédito CFDI tipo E (Issue #116)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0026-workspace-facturacion-mexico-issue120/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0026 — Workspace "Facturación México" (Issue #120)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0027-migracion-facturacion-mx-a-facturacion-mexico/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0027 — Migración facturacion_mx → facturacion_mexico
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0028-ffm-legacy-fields-audit/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0028 — Auditoría campos legacy FFM + desmantelamiento Sistema Resiliente
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0029-facturapi-base-unitaria-ieps-cuota/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0029 — FacturAPI multiplica base × cantidad: enviar valores unitarios para IEPS Cuota
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0030-tablas-maestras-python-reglas-fiscales/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0030 — Reglas de cálculo fiscal como tablas maestras Python
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0031-migracion-settings-por-company/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0031 — Migración de Settings global (Single) a configuración por Company
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0032-ereceipts-facturapi-arquitectura/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0032: Arquitectura E-Receipts — FacturAPI como motor fiscal, ERPNext como trazabilidad
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0033-factura-global-hardcodes/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0033: Eliminación de defaults fiscales silenciosos en Factura Global
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0034-integridad-correlacion-ffm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0034 — Integridad y correlación de Factura Fiscal Mexico
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0035-motor-reconciliacion-ffm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0035 — Motor de reconciliación FFM ↔ FacturAPI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0036-integridad-proyeccion-cancelacion/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0036 — Integridad de la proyección de cancelación y consolidación del flujo manual
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0037-resiliencia-cancelacion-sustitucion-motivo-01/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR-0037 — Resiliencia de la cancelación de sustitución (motivo 01) ante fallos transitorios del PAC
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -699,7 +1707,7 @@
           
   
   <span class="md-ellipsis">
-    Documentación Técnica
+    ADR 0038 — Guarda de ambiente fiscal por sitio (fm_environment) para el PAC
   </span>
   
 
@@ -710,7 +1718,7 @@
         
   
   <span class="md-ellipsis">
-    Documentación Técnica
+    ADR 0038 — Guarda de ambiente fiscal por sitio (fm_environment) para el PAC
   </span>
   
 
@@ -732,9 +1740,36 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#contenido" class="md-nav__link">
+  <a href="#contexto" class="md-nav__link">
     <span class="md-ellipsis">
-      Contenido
+      Contexto
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      Decisión
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#consecuencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      Consecuencias
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#alternativa-descartada" class="md-nav__link">
+    <span class="md-ellipsis">
+      Alternativa descartada
     </span>
   </a>
   
@@ -744,1014 +1779,6 @@
   
 </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="arquitectura/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Arquitectura
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="setup/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Setup
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="email-system/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Email CFDI
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="proceso-regeneracion-stct-e4/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Regeneración STCT
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="reconciliacion-fallback/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Reconciliación y fallback
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="ambiente-fiscal/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Ambiente fiscal (fm_environment)
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
-      
-        
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_8" >
-        
-          
-          <label class="md-nav__link" for="__nav_3_8" id="__nav_3_8_label" tabindex="">
-            
-  
-  <span class="md-ellipsis">
-    ADRs
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_8_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_8">
-            <span class="md-nav__icon md-icon"></span>
-            ADRs
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../adr/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADRs — Decisiones Arquitectónicas
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../adr/0000-estado-real-pre-migracion/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR 0000: Estado Real de la App — Pre-Migración
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../adr/0002-verificacion-arranque-v16/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    MÓDULO 0 — VERIFICACIÓN DE ARRANQUE
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../adr/0003-verificacion-configuracion-fiscal/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    MÓDULO 1 — CONFIGURACIÓN FISCAL Y DATOS MAESTROS
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../adr/0004-verificacion-timbrado/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    MÓDULO 2 — VERIFICACIÓN FLUJO DE TIMBRADO CFDI
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../adr/0005-workflow-configuracion-inicial-v2/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    0005 Workflow configuración inicial (v2, vigente)
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../adr/0005-workflow-configuracion-inicial/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    0005 Workflow configuración inicial (obsoleto — superseded por v2)
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../adr/0006-analisis-branches-wip/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR 0006 — ANÁLISIS DE BRANCHES WIP
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../adr/0007-analisis-checkout-e4/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR 0007 — ANÁLISIS DE RIESGO: CHECKOUT A feature/e4-ieps-on-item-quantity
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../adr/0008-analisis-9-commits-wip/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR 0008 — ANÁLISIS DETALLADO: 9 COMMITS WIP
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../adr/0009-checklist-estados-flujo-timbrado/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR 0009 — CHECKLIST ESTADOS Y FLUJO DE TIMBRADO
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../adr/0010-verificacion-post-cancelacion/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR 0010 — VERIFICACIÓN ESTADO POST-CANCELACIÓN
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../adr/0011-diagnostico-sistema-tests/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR 0011 — DIAGNÓSTICO SISTEMA DE TESTS
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../adr/0012-solucion-sistema-tests-v16/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR 0012 — SOLUCIÓN SISTEMA DE TESTS V16
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../adr/0013-arquitectura-sistema-cancelaciones-cfdi/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR 0013 — Arquitectura del Sistema de Cancelaciones CFDI
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../adr/0014-diagnostico-conectividad-si-ffm/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR 0014 — Diagnóstico Conectividad Sales Invoice ↔ Factura Fiscal Mexico
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../adr/0015-si-ffm-relationship-architecture/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR 0015 — Arquitectura Relación Sales Invoice ↔ Factura Fiscal Mexico
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../adr/0016-reclasificacion-fiscal-payment-entry/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR 0016 — Reclasificación Fiscal de Impuestos en Payment Entry
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../adr/0017-complemento-pago-mx-schema-normalizacion/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR 0017 — Complemento Pago MX MVP
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../adr/0018-ffm-status-fiscal-state-migration/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR 0018 — Migración de estado fiscal FFM a status
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../adr/0019-primera-implementacion-rc-v0.1/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR-0019: Primera implementación Release Candidates v0.1
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../adr/0020-smoke-test-mvp-flujos-cancelacion/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR-0020: Smoke Test MVP v0.1 — Flujos de Cancelación y Refacturación
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../adr/0021-fiscal-state-capa-ui-centralizada/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR-0021 — Capa fiscal_state: UI centralizada via endpoint Python
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../adr/0022-solucion-issue-112-reclasificacion-fiscal-pe/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR-0022 — Solución Issue #112: Reclasificación Fiscal en Payment Entry
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../adr/0023-venta-mostrador-cfdi-individual-rfc-generico/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR-0023 — Venta Mostrador: CFDI Individual con RFC Genérico XAXX010101000
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../adr/0024-addendas-pre-timbrado-issue129/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR 0024 — Addendas CFDI pre-timbrado (Issue #129)
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../adr/0025-notas-credito-cfdi-tipo-e-issue116/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR 0025 — Notas de Crédito CFDI tipo E (Issue #116)
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../adr/0026-workspace-facturacion-mexico-issue120/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR 0026 — Workspace "Facturación México" (Issue #120)
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../adr/0027-migracion-facturacion-mx-a-facturacion-mexico/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR 0027 — Migración facturacion_mx → facturacion_mexico
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../adr/0028-ffm-legacy-fields-audit/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR 0028 — Auditoría campos legacy FFM + desmantelamiento Sistema Resiliente
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../adr/0029-facturapi-base-unitaria-ieps-cuota/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR 0029 — FacturAPI multiplica base × cantidad: enviar valores unitarios para IEPS Cuota
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../adr/0030-tablas-maestras-python-reglas-fiscales/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR 0030 — Reglas de cálculo fiscal como tablas maestras Python
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../adr/0031-migracion-settings-por-company/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR-0031 — Migración de Settings global (Single) a configuración por Company
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../adr/0032-ereceipts-facturapi-arquitectura/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR-0032: Arquitectura E-Receipts — FacturAPI como motor fiscal, ERPNext como trazabilidad
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../adr/0033-factura-global-hardcodes/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR-0033: Eliminación de defaults fiscales silenciosos en Factura Global
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../adr/0034-integridad-correlacion-ffm/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR-0034 — Integridad y correlación de Factura Fiscal Mexico
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../adr/0035-motor-reconciliacion-ffm/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR-0035 — Motor de reconciliación FFM ↔ FacturAPI
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../adr/0036-integridad-proyeccion-cancelacion/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR-0036 — Integridad de la proyección de cancelación y consolidación del flujo manual
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../adr/0037-resiliencia-cancelacion-sustitucion-motivo-01/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR-0037 — Resiliencia de la cancelación de sustitución (motivo 01) ante fallos transitorios del PAC
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../adr/0038-guarda-ambiente-fiscal-fm-environment/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ADR 0038 — Guarda de ambiente fiscal por sitio (fm_environment) para el PAC
-  </span>
-  
-
-      </a>
     </li>
   
 
@@ -1821,7 +1848,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../referencia/" class="md-nav__link">
+      <a href="../../referencia/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1842,7 +1869,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../referencia/doctypes/" class="md-nav__link">
+      <a href="../../referencia/doctypes/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1863,7 +1890,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../referencia/hooks/" class="md-nav__link">
+      <a href="../../referencia/hooks/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1884,7 +1911,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../referencia/api/" class="md-nav__link">
+      <a href="../../referencia/api/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1905,7 +1932,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../referencia/configuracion/" class="md-nav__link">
+      <a href="../../referencia/configuracion/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1926,7 +1953,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../referencia/campos-fiscales/" class="md-nav__link">
+      <a href="../../referencia/campos-fiscales/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1974,9 +2001,36 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#contenido" class="md-nav__link">
+  <a href="#contexto" class="md-nav__link">
     <span class="md-ellipsis">
-      Contenido
+      Contexto
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      Decisión
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#consecuencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      Consecuencias
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#alternativa-descartada" class="md-nav__link">
+    <span class="md-ellipsis">
+      Alternativa descartada
     </span>
   </a>
   
@@ -1997,14 +2051,69 @@
                   
 
 
-<h1 id="documentacion-tecnica">Documentación Técnica<a class="headerlink" href="#documentacion-tecnica" title="Permanent link">&para;</a></h1>
-<p>Para desarrolladores que mantienen o extienden el app.</p>
-<h2 id="contenido">Contenido<a class="headerlink" href="#contenido" title="Permanent link">&para;</a></h2>
+<h1 id="adr-0038-guarda-de-ambiente-fiscal-por-sitio-fm_environment-para-el-pac">ADR 0038 — Guarda de ambiente fiscal por sitio (<code>fm_environment</code>) para el PAC<a class="headerlink" href="#adr-0038-guarda-de-ambiente-fiscal-por-sitio-fm_environment-para-el-pac" title="Permanent link">&para;</a></h1>
+<p><strong>Estado:</strong> Aceptado
+<strong>Issue:</strong> #215
+<strong>Fecha:</strong> 2026-08-14</p>
+<h2 id="contexto">Contexto<a class="headerlink" href="#contexto" title="Permanent link">&para;</a></h2>
+<p>La selección de credencial de FacturAPI dependía exclusivamente del campo <code>sandbox_mode</code>
+almacenado en la <strong>base de datos</strong> (<code>Facturacion Mexico Company Settings</code>). El cliente elegía
+<code>test_api_key</code> o <code>api_key</code> según ese flag, contra la misma URL de FacturAPI (el ambiente real
+lo determina el prefijo de la Secret Key: <code>sk_live_</code> vs <code>sk_test_</code>).</p>
+<p><code>bench restore</code> restaura la <strong>BD</strong> pero no sanea las credenciales fiscales. Un sitio de
+desarrollo restaurado desde producción hereda <code>sandbox_mode</code> y <code>api_key</code> productivos; con
+<code>sandbox_mode=0</code> + <code>api_key</code> <code>sk_live_</code>, cualquier timbrado desde ese entorno emitiría un
+<strong>CFDI real ante el SAT</strong>. La única condición para facturar en real vivía en la BD — justo lo
+que el restore sobreescribe.</p>
+<h2 id="decision">Decisión<a class="headerlink" href="#decision" title="Permanent link">&para;</a></h2>
+<p>La fuente de verdad del ambiente fiscal pasa a ser una variable <strong>explícita por sitio</strong> en
+<code>site_config.json</code>: <code>fm_environment</code> con valores <code>"production"</code> o <code>"sandbox"</code>.</p>
+<ol>
+<li>La credencial se elige por <code>fm_environment</code> (<code>production</code> → <code>api_key</code>, <code>sandbox</code> →
+   <code>test_api_key</code>), <strong>sin fallback</strong> entre campos. <code>sandbox_mode</code> deja de decidir la credencial
+   y se conserva solo como valor <strong>derivado</strong> (<code>sandbox_mode == (fm_environment == "sandbox")</code>)
+   por compatibilidad de UI.</li>
+<li>Una <strong>guarda central</strong> en el único chokepoint (<code>FacturAPIClient._make_request</code> y
+   <code>_make_request_silent</code>) bloquea las operaciones <strong>mutantes</strong> (POST/PUT/PATCH/DELETE) antes de
+   contactar al PAC cuando:</li>
+<li>falta <code>fm_environment</code> o su valor es inválido (fail-closed);</li>
+<li>la credencial del ambiente no existe;</li>
+<li>la credencial efectiva empieza con <code>sk_live_</code> y <code>fm_environment != "production"</code>.
+   Los <strong>GET</strong> (reconciliación, verificación de estado, validación de RFC) siguen permitidos.</li>
+<li>El bloqueo usa <code>frappe.throw</code> con mensaje explícito ("no se contactó a FacturAPI"); en
+   background jobs, Frappe registra la excepción en Error Log (sin infraestructura de alertas
+   adicional).</li>
+</ol>
+<p><code>site_config.json</code> es a prueba de restore (no se copia con la BD) y es un mecanismo estándar de
+Frappe. La resolución es <strong>estrictamente por-sitio</strong>: <code>get_fm_environment()</code> comprueba la <strong>presencia</strong>
+de la clave en el <code>site_config.json</code> del propio sitio con <code>frappe.get_file_json</code> sobre
+<code>frappe.get_site_path("site_config.json")</code> (API de Frappe; el acceso a archivo vive dentro del
+framework, no en la app, por lo que no dispara la regla Semgrep <code>frappe-security-file-traversal</code> que
+prohíbe <code>open(...)</code>). No se usa la configuración mergeada (<code>frappe.conf</code> / <code>frappe.get_site_config()</code>
+combinan common + site), por lo que un <code>fm_environment</code> colocado en <code>common_site_config.json</code> <strong>no se
+hereda</strong>; y un sitio que la declara siempre cuenta, aun si el valor coincide con uno de common. Ante
+error de lectura se bloquea (fail-closed).</p>
+<h2 id="consecuencias">Consecuencias<a class="headerlink" href="#consecuencias" title="Permanent link">&para;</a></h2>
 <ul>
-<li><a href="arquitectura/">Arquitectura</a> — Estado actual del sistema: módulos, flujos, DocTypes principales, integraciones</li>
-<li><a href="setup/">Setup de desarrollo</a> — Entorno local, tests, linters, flujo de trabajo</li>
-<li><a href="../adr/">ADRs</a> — Decisiones arquitectónicas permanentes</li>
+<li>Un entorno restaurado desde producción queda <strong>incapaz de emitir CFDIs reales</strong> salvo que su
+  <code>site_config.json</code> declare explícitamente <code>fm_environment="production"</code> <strong>y</strong> tenga <code>api_key</code>
+  <code>sk_live_</code>.</li>
+<li><strong>Todos</strong> los sitios que timbran deben declarar <code>fm_environment</code> (producción → <code>production</code>;
+  staging/desarrollo → <code>sandbox</code>); si falta, las mutaciones quedan bloqueadas (fail-closed).</li>
+<li><strong>Orden de despliegue crítico:</strong> fijar <code>fm_environment="production"</code> en el <code>site_config.json</code>
+  de producción <strong>antes</strong> de activar la guarda, o el timbrado legítimo de producción quedaría
+  bloqueado.</li>
+<li>El ambiente fiscal pasa a ser <strong>por sitio</strong>, no por Company: un mismo sitio es todo
+  <code>production</code> o todo <code>sandbox</code>. No hay cambios en la lógica fiscal, cálculo ni payload.</li>
 </ul>
+<h2 id="alternativa-descartada">Alternativa descartada<a class="headerlink" href="#alternativa-descartada" title="Permanent link">&para;</a></h2>
+<p>Se evaluó un esquema de <strong>defensa en profundidad</strong> con múltiples capas (autorizador server-side
+por filesystem, allowlist por IP/identidad de red, saneo automático post-restore vía
+<code>after_migrate</code>, e indicador visual). Se descartó por ser innecesariamente complejo y frágil
+(las IP cambian; el saneo automático corre en cada migrate) frente al objetivo. Como todo el
+tráfico mutante pasa por un <strong>único chokepoint</strong>, una sola guarda explícita basada en
+<code>site_config.json</code> cumple el objetivo fail-closed con cambios mínimos. El indicador visual y el
+saneo se remiten a issues separados (p. ej. #171).</p>
 
 
 
@@ -2118,14 +2227,14 @@
       </div>
       <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout(function(){document.querySelector("[data-md-component=consent]").hidden=!1},250);var action,form=document.forms.consent;for(action of["submit","reset"])form.addEventListener(action,function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map(function(e){return[e,!0]}))),location.hash="",location.reload()})</script>
     
-    <script id="__config" type="application/json">{"base": "..", "features": ["content.code.copy", "navigation.expand", "navigation.instant", "navigation.sections", "navigation.tabs", "navigation.top", "search.highlight", "search.suggest"], "search": "../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copiado al portapapeles", "clipboard.copy": "Copiar al portapapeles", "search.result.more.one": "1 m\u00e1s en esta p\u00e1gina", "search.result.more.other": "# m\u00e1s en esta p\u00e1gina", "search.result.none": "No se encontraron documentos", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Teclee para comenzar b\u00fasqueda", "search.result.term.missing": "Falta", "select.version": "Seleccionar versi\u00f3n"}, "version": {"default": "latest", "provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.expand", "navigation.instant", "navigation.sections", "navigation.tabs", "navigation.top", "search.highlight", "search.suggest"], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copiado al portapapeles", "clipboard.copy": "Copiar al portapapeles", "search.result.more.one": "1 m\u00e1s en esta p\u00e1gina", "search.result.more.other": "# m\u00e1s en esta p\u00e1gina", "search.result.none": "No se encontraron documentos", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Teclee para comenzar b\u00fasqueda", "search.result.term.missing": "Falta", "select.version": "Seleccionar versi\u00f3n"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.d7c377c4.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7c377c4.min.js"></script>
       
-        <script src="../assets/javascripts/extra.js"></script>
+        <script src="../../assets/javascripts/extra.js"></script>
       
-        <script src="../assets/javascripts/advanced.js"></script>
+        <script src="../../assets/javascripts/advanced.js"></script>
       
     
   </body>
