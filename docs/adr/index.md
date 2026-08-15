@@ -42,3 +42,4 @@ Registro permanente de decisiones de arquitectura. Un ADR nunca se modifica — 
 | [0036](0036-integridad-proyeccion-cancelacion.md) | Integridad de la proyección de cancelación y consolidación del flujo manual |
 | [0037](0037-resiliencia-cancelacion-sustitucion-motivo-01.md) | Resiliencia de la cancelación de sustitución (motivo 01) ante fallos transitorios del PAC |
 | [0038](0038-guarda-ambiente-fiscal-fm-environment.md) | Guarda de ambiente fiscal por sitio (`fm_environment`) para el PAC |
+| [0039](0039-marca-visual-staging-bench.md) | Marca visual de STAGING a nivel de bench (rediseño de #171) |

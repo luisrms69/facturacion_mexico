@@ -1,0 +1,24 @@
+/* Marca visual de STAGING (issue #171, arquitectura nueva).
+ *
+ * NO representa `fm_environment` ni lo lee. Es una señal a nivel de BENCH/SERVIDOR: solo distingue
+ * el servidor de STAGING del de producción. La protección fiscal real la da la guarda de #215
+ * (`get_fm_environment` server-side), no esta franja.
+ *
+ * Activación: la mera CARGA de este archivo = servidor de staging. Se carga vía `app_include_css`
+ * en `common_site_config.json` SOLO en el bench de staging (producción no lo declara). Sin JS, sin
+ * `frappe.boot`, sin `boot_session`, sin AJAX, sin polling, sin BD, sin lógica por Company.
+ *
+ * Efecto: una franja CIAN de 3px en el borde inferior del encabezado de página del Desk
+ * (`.page-head`, el elemento realmente presente en el DOM del Desk v16). Persistente en la página
+ * activa de todas las rutas. No cambia fondos, ni toca badges, botones, alerts, dialogs ni nada
+ * dentro de los formularios (Sales Invoice / Factura Fiscal Mexico).
+ *
+ * Color #06b6d4 (cian intenso): claramente visible en tema claro y oscuro; no se confunde con el
+ * rojo de error, el ámbar/amarillo de warning ni el verde de éxito, y es distinto del azul primario
+ * de Frappe. El box-shadow refuerza la visibilidad sobre encabezados oscuros.
+ */
+
+.page-head {
+	border-bottom: 3px solid #06b6d4 !important;
+	box-shadow: 0 2px 0 0 rgba(6, 182, 212, 0.35) !important;
+}

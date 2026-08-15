@@ -47,23 +47,42 @@ Reglas adicionales:
 `sandbox_mode` (campo de BD) **ya no decide** la credencial; se conserva como valor derivado
 (`sandbox_mode = fm_environment == "sandbox"`) por compatibilidad de UI.
 
-## Indicador visual en el Desk (issue #171)
+## Marca visual de STAGING en el Desk (issue #171)
 
-Para que el ambiente sea perceptible sin competir con los avisos fiscales de Sales Invoice / Factura
-Fiscal Mexico, el Desk muestra **solo una franja inferior en la navbar global**, alimentada por la
-misma fuente (`get_fm_environment()`, publicada en `frappe.boot.fm_environment` vía `boot_session`):
+> **Independiente de `fm_environment`.** Esta marca **no** representa el ambiente fiscal ni lo lee.
+> Es una señal **a nivel de bench/servidor** que solo distingue el servidor de STAGING del de
+> producción. La protección fiscal real la da la guarda de #215 descrita arriba, no esta franja.
 
-| `fm_environment` | Navbar del Desk | Resto de la UI |
-|---|---|---|
-| `production` | sin cambios | sin cambios |
-| `sandbox` | franja inferior **ámbar** | sin cambios |
-| ausente / inválido | franja inferior **roja** | sin cambios |
+El Desk de un servidor de STAGING muestra una **franja cian** en el borde inferior de la navbar
+global. Producción **no** muestra ninguna franja.
 
-No añade badges, mensajes flotantes, indicadores dentro de formularios, alerts ni dialogs; no usa
-`sandbox_mode`, ni lógica por Company, ni polling, ni llamadas al servidor (el valor viaja en el
-boot). El estilo solo aplica un `border-bottom` de 4px al `.page-head` de la página **activa** (via
-`app_include_css`); los `.page-head` de páginas inactivas no se pintan porque Frappe los mantiene en
-un contenedor `display:none`. Funciona en tema claro/oscuro.
+### Cómo se activa
+
+Se activa por **bench**, mediante `app_include_css` en `common_site_config.json` (soporte nativo de
+Frappe: `frappe/www/desk.py` concatena `frappe.conf.get("app_include_css")` con los hooks de apps).
+**No** usa `hooks.py`, `boot_session`, `frappe.boot`, JS, AJAX, polling, BD ni lógica por Company.
+
+- **Servidor de STAGING** → `common_site_config.json` incluye la clave:
+
+  ```json
+  {
+    "app_include_css": ["/assets/facturacion_mexico/css/fm_staging_marker.css"]
+  }
+  ```
+
+- **Servidor de PRODUCCIÓN** → **no** se agrega esa clave. Sin franja.
+
+El valor debe ser una **lista**. El cambio se refleja en ≤60 s (TTL del cache en memoria de la config
+por proceso), sin `clear-cache` ni restart. No depende de `app_hooks` ni de `bootinfo`.
+
+### Dónde vive el CSS
+
+`facturacion_mexico/public/css/fm_staging_marker.css`, servido en
+`/assets/facturacion_mexico/css/fm_staging_marker.css`. Como `/assets/<app>/…` es un symlink a nivel
+de bench, el archivo se sirve para **todos los sitios del bench** aunque un sitio no tenga la app
+instalada, siempre que los assets estén construidos (`bench build`). El CSS solo aplica un
+`border-bottom` cian al encabezado de página del Desk (`.page-head`); no toca fondos, formularios,
+badges, alerts ni dialogs.
 
 ## Por qué es a prueba de restore
 
