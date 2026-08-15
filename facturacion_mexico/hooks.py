@@ -25,8 +25,13 @@ required_apps = ["erpnext"]
 # ------------------
 
 # include js, css files in header of desk.html
-# app_include_css = "/assets/facturacion_mexico/css/facturacion_mexico.css"
-# app_include_js = "/assets/facturacion_mexico/js/facturacion_mexico.js"
+# Indicador de ambiente fiscal en el Desk (issue #171): franja en .page-head según fm_environment.
+# CSS como bundle → URL con hash (cache-busting automático; evita stale-cache de 12h en producción).
+app_include_css = "fm_environment.bundle.css"
+app_include_js = "/assets/facturacion_mexico/js/fm_environment_indicator.js"
+
+# Publica el ambiente fiscal del sitio (issue #215/#171) en frappe.boot para el indicador del Desk.
+boot_session = "facturacion_mexico.boot.add_fiscal_environment_to_boot"
 
 # include js, css files in header of web template
 # web_include_css = "/assets/facturacion_mexico/css/facturacion_mexico.css"
