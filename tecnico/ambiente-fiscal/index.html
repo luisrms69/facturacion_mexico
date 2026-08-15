@@ -876,11 +876,35 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#indicador-visual-en-el-desk-issue-171" class="md-nav__link">
+  <a href="#marca-visual-de-staging-en-el-desk-issue-171" class="md-nav__link">
     <span class="md-ellipsis">
-      Indicador visual en el Desk (issue #171)
+      Marca visual de STAGING en el Desk (issue #171)
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Marca visual de STAGING en el Desk (issue #171)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#como-se-activa" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cómo se activa
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#donde-vive-el-css" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dónde vive el CSS
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1793,6 +1817,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0039-marca-visual-staging-bench/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0039 — Marca visual de STAGING a nivel de bench (rediseño de #171)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2028,11 +2073,35 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#indicador-visual-en-el-desk-issue-171" class="md-nav__link">
+  <a href="#marca-visual-de-staging-en-el-desk-issue-171" class="md-nav__link">
     <span class="md-ellipsis">
-      Indicador visual en el Desk (issue #171)
+      Marca visual de STAGING en el Desk (issue #171)
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Marca visual de STAGING en el Desk (issue #171)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#como-se-activa" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cómo se activa
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#donde-vive-el-css" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dónde vive el CSS
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2132,41 +2201,37 @@ aunque el valor coincida con uno de common. Si el archivo no se puede leer, se b
 </ul>
 <p><code>sandbox_mode</code> (campo de BD) <strong>ya no decide</strong> la credencial; se conserva como valor derivado
 (<code>sandbox_mode = fm_environment == "sandbox"</code>) por compatibilidad de UI.</p>
-<h2 id="indicador-visual-en-el-desk-issue-171">Indicador visual en el Desk (issue #171)<a class="headerlink" href="#indicador-visual-en-el-desk-issue-171" title="Permanent link">&para;</a></h2>
-<p>Para que el ambiente sea perceptible sin competir con los avisos fiscales de Sales Invoice / Factura
-Fiscal Mexico, el Desk muestra <strong>solo una franja inferior en la navbar global</strong>, alimentada por la
-misma fuente (<code>get_fm_environment()</code>, publicada en <code>frappe.boot.fm_environment</code> vía <code>boot_session</code>):</p>
-<table>
-<thead>
-<tr>
-<th><code>fm_environment</code></th>
-<th>Navbar del Desk</th>
-<th>Resto de la UI</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>production</code></td>
-<td>sin cambios</td>
-<td>sin cambios</td>
-</tr>
-<tr>
-<td><code>sandbox</code></td>
-<td>franja inferior <strong>ámbar</strong></td>
-<td>sin cambios</td>
-</tr>
-<tr>
-<td>ausente / inválido</td>
-<td>franja inferior <strong>roja</strong></td>
-<td>sin cambios</td>
-</tr>
-</tbody>
-</table>
-<p>No añade badges, mensajes flotantes, indicadores dentro de formularios, alerts ni dialogs; no usa
-<code>sandbox_mode</code>, ni lógica por Company, ni polling, ni llamadas al servidor (el valor viaja en el
-boot). El estilo solo aplica un <code>border-bottom</code> de 4px al <code>.page-head</code> de la página <strong>activa</strong> (via
-<code>app_include_css</code>); los <code>.page-head</code> de páginas inactivas no se pintan porque Frappe los mantiene en
-un contenedor <code>display:none</code>. Funciona en tema claro/oscuro.</p>
+<h2 id="marca-visual-de-staging-en-el-desk-issue-171">Marca visual de STAGING en el Desk (issue #171)<a class="headerlink" href="#marca-visual-de-staging-en-el-desk-issue-171" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p><strong>Independiente de <code>fm_environment</code>.</strong> Esta marca <strong>no</strong> representa el ambiente fiscal ni lo lee.
+Es una señal <strong>a nivel de bench/servidor</strong> que solo distingue el servidor de STAGING del de
+producción. La protección fiscal real la da la guarda de #215 descrita arriba, no esta franja.</p>
+</blockquote>
+<p>El Desk de un servidor de STAGING muestra una <strong>franja cian</strong> en el borde inferior de la navbar
+global. Producción <strong>no</strong> muestra ninguna franja.</p>
+<h3 id="como-se-activa">Cómo se activa<a class="headerlink" href="#como-se-activa" title="Permanent link">&para;</a></h3>
+<p>Se activa por <strong>bench</strong>, mediante <code>app_include_css</code> en <code>common_site_config.json</code> (soporte nativo de
+Frappe: <code>frappe/www/desk.py</code> concatena <code>frappe.conf.get("app_include_css")</code> con los hooks de apps).
+<strong>No</strong> usa <code>hooks.py</code>, <code>boot_session</code>, <code>frappe.boot</code>, JS, AJAX, polling, BD ni lógica por Company.</p>
+<ul>
+<li><strong>Servidor de STAGING</strong> → <code>common_site_config.json</code> incluye la clave:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;app_include_css&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;/assets/facturacion_mexico/css/fm_staging_marker.css&quot;</span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<ul>
+<li><strong>Servidor de PRODUCCIÓN</strong> → <strong>no</strong> se agrega esa clave. Sin franja.</li>
+</ul>
+<p>El valor debe ser una <strong>lista</strong>. El cambio se refleja en ≤60 s (TTL del cache en memoria de la config
+por proceso), sin <code>clear-cache</code> ni restart. No depende de <code>app_hooks</code> ni de <code>bootinfo</code>.</p>
+<h3 id="donde-vive-el-css">Dónde vive el CSS<a class="headerlink" href="#donde-vive-el-css" title="Permanent link">&para;</a></h3>
+<p><code>facturacion_mexico/public/css/fm_staging_marker.css</code>, servido en
+<code>/assets/facturacion_mexico/css/fm_staging_marker.css</code>. Como <code>/assets/&lt;app&gt;/…</code> es un symlink a nivel
+de bench, el archivo se sirve para <strong>todos los sitios del bench</strong> aunque un sitio no tenga la app
+instalada, siempre que los assets estén construidos (<code>bench build</code>). El CSS solo aplica un
+<code>border-bottom</code> cian al encabezado de página del Desk (<code>.page-head</code>); no toca fondos, formularios,
+badges, alerts ni dialogs.</p>
 <h2 id="por-que-es-a-prueba-de-restore">Por qué es a prueba de restore<a class="headerlink" href="#por-que-es-a-prueba-de-restore" title="Permanent link">&para;</a></h2>
 <p><code>bench restore</code> restaura <strong>la base de datos</strong>, no <code>site_config.json</code>. Una copia restaurada desde
 producción conserva su propio <code>site_config.json</code>; por tanto <strong>no hereda</strong> el <code>fm_environment</code> de
