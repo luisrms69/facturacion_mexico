@@ -47,6 +47,24 @@ Reglas adicionales:
 `sandbox_mode` (campo de BD) **ya no decide** la credencial; se conserva como valor derivado
 (`sandbox_mode = fm_environment == "sandbox"`) por compatibilidad de UI.
 
+## Indicador visual en el Desk (issue #171)
+
+Para que el ambiente sea perceptible sin competir con los avisos fiscales de Sales Invoice / Factura
+Fiscal Mexico, el Desk muestra **solo una franja inferior en la navbar global**, alimentada por la
+misma fuente (`get_fm_environment()`, publicada en `frappe.boot.fm_environment` vía `boot_session`):
+
+| `fm_environment` | Navbar del Desk | Resto de la UI |
+|---|---|---|
+| `production` | sin cambios | sin cambios |
+| `sandbox` | franja inferior **ámbar** | sin cambios |
+| ausente / inválido | franja inferior **roja** | sin cambios |
+
+No añade badges, mensajes flotantes, indicadores dentro de formularios, alerts ni dialogs; no usa
+`sandbox_mode`, ni lógica por Company, ni polling, ni llamadas al servidor (el valor viaja en el
+boot). El estilo solo aplica un `border-bottom` de 4px al `.page-head` de la página **activa** (via
+`app_include_css`); los `.page-head` de páginas inactivas no se pintan porque Frappe los mantiene en
+un contenedor `display:none`. Funciona en tema claro/oscuro.
+
 ## Por qué es a prueba de restore
 
 `bench restore` restaura **la base de datos**, no `site_config.json`. Una copia restaurada desde
