@@ -1,81 +1,95 @@
 # CONTINUITY.md — facturacion_mexico
 
-**Fecha:** 2026-08-14
-**Rama activa:** `feat/issue-215-fm-environment-guard`
-**Tarea actual:** PR #226 — guarda de ambiente #215 + indicador visual #171 (ambos por-sitio, v1.4.0).
+**Fecha:** 2026-08-15
+**Rama activa:** `fix/171-marca-staging-css`
+**Tarea actual:** Rediseño de #171 — marca visual de STAGING por bench (v1.4.1). Commit recién creado; falta push + PR.
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-PR #226. #215 (guarda PAC por `fm_environment`) ya validado y con CI verde. #171 (indicador de
-ambiente en el Desk) implementado y validado visualmente; recién commiteado, falta push.
+Rediseño de #171. La implementación original (boot_session + frappe.boot + JS + app_include hooks,
+1.4.0) se descartó por depender de dos cachés de Frappe (`app_hooks` y `bootinfo`) que quedaban
+*stale* de forma persistente y podían mostrar el ambiente equivocado. Reemplazada por una marca
+estática de STAGING a nivel de bench, cargada por `common_site_config.json → app_include_css`.
 
 Plan que estoy siguiendo:
-Issues #215 y #171 + ADR-0038 + reporte CodeRabbit `frappe-infrastructure/checkpoints/coderabbit-pr226-review.md`.
+Instrucciones del usuario en esta sesión (eliminación manual de #171 anterior + nueva arquitectura) +
+ADR-0039. #215 queda intacto y separado.
 
 Objetivo inmediato:
-`/ship push` (actualiza PR #226 y re-dispara CI) — con autorización. Luego esperar CI verde y merge.
+Esperar autorización para `/ship push`, luego `/ship pr` (base `main`).
 
 Criterio de avance:
-CI completamente verde (incluye Frappe Linter/Semgrep) tras el push.
+Push OK → PR abierto con gate de versión 1.4.1 → CI verde.
 
 ---
 
 ## Estado actual
 
-### Ya cerrado (en la rama)
-- #215: guarda central en `FacturAPIClient` + credencial por `fm_environment` (site-only vía
-  `frappe.get_file_json`). Tests 10/10. CI verde en `3f69124`.
-- #171: indicador de ambiente en el Desk, por-sitio, reutilizando `get_fm_environment()`:
-  - `boot.py` publica `frappe.boot.fm_environment`;
-  - `public/js/fm_environment_indicator.js` añade clase `fm-env-sandbox`/`fm-env-unset` al `<body>`;
-  - `public/css/fm_environment.bundle.css` (bundle con hash) → `border-bottom` 4px en `.page-head`
-    (ámbar sandbox / rojo ausente-inválido); production sin cambios.
-  - Validado visualmente en dev; rendimiento nulo (boot ~11-14 µs, sin BD; assets ~1.3 KB cacheados).
-  - Comentario de alcance publicado en el issue #171 (reajuste per-Company → per-sitio).
-- Versión `__version__` = 1.4.0 (un bump por PR; cubre #215+#171).
+### Ya cerrado
+- Eliminación manual de #171 anterior (sin git revert/restore): borrados `boot.py`,
+  `fm_environment_indicator.js`, `fm_environment.bundle.css`, `test_boot_fm_environment.py`;
+  retirados `app_include_css/js` y `boot_session` de `hooks.py` (comentarios scaffold restaurados).
+- Auditoría anti-residuos contra `555fe07`: sin residuos funcionales.
+- Nueva marca: `public/css/fm_staging_marker.css` (franja cian `#06b6d4` en `.page-head`).
+- Activación por `common_site_config.json → app_include_css` (verificado local, aparece sin refresh).
+- Docs: `ambiente-fiscal.md` reescrita, `getting-started.md` (usuario), ADR-0039 + índice + mkdocs.
+- Bump `__version__` 1.4.0 → 1.4.1 (PATCH).
+- Commit creado en la rama (ver `git log`).
+
+### En progreso
+- Ciclo `/ship`: commit hecho, falta `push` y `pr`.
 
 ### Pendiente inmediato
-1. `/ship push` (sube el commit de #171; CI debe quedar verde).
-2. Merge (usuario) → `/sync-check` + `/ship release` v1.4.0.
-3. Cierre formal del issue #171 (`/ship issue close 171`) post-merge.
+1. `/ship push` (con autorización).
+2. `/ship pr` contra `main` (título/cuerpo con versión 1.4.1, PATCH).
+3. Tras merge: `/sync-check` + `/ship release` (tag/Release v1.4.1).
 
 ### No repetir
-- No usar `open()` en código de la app (Semgrep `frappe-security-file-traversal`).
-- No usar includes crudos para CSS que cambie: usar bundle (`*.bundle.css`) → hash y cache-busting.
-- No usar `frappe.conf`/`get_site_config()` para el ambiente (combinan common+site).
-- Indicador SOLO en `.page-head` (franja); nada dentro de SI/FFM.
+- No usar `boot_session`/`frappe.boot`/JS para el ambiente: quedan *stale* en `bootinfo` (hash Redis
+  por usuario, sin TTL) y `app_hooks`; refresh/hard-refresh no lo corrigen.
+- No alojar el CSS fuera de `facturacion_mexico` ni inventar app nueva.
+- No añadir `clear-cache` al deploy como "solución" de la marca: la arquitectura nueva no lo necesita.
+- Selector: usar `.page-head` (probado). `header.navbar` NO existe en el DOM del Desk v16
+  (`toolbar.js` reemplaza `<header>` por `<div class="sticky-top">`).
 
 ---
 
 ## Decisiones vigentes
-- Fuente única del ambiente = `fm_environment` en el `site_config.json` DEL SITIO.
-- Indicador por-sitio (no por Company, no `sandbox_mode`).
-- CSS del Desk como bundle para cache-busting automático.
-- F-02 (tests con registros reales) y F-04 (MD022) → diferidos a issues. JS crudo de #171: no se
-  bundle-a ahora (no afecta rendimiento; se haría si alguna vez cambia).
+- **#171 ya no representa `fm_environment`.** Es una marca de bench: staging lleva la clave en
+  `common_site_config.json`, producción no. Independiente de que un sitio tenga la app instalada
+  (se sirve por symlink de bench en `/assets/facturacion_mexico/css/`).
+- **#215 intacto** y es la única protección fiscal real (server-side, por sitio).
+- El bench local (`facturacion-v16.dev`) tiene la clave `app_include_css` puesta a propósito
+  (es dev/staging) — se deja como señal permanente; no se commitea (es config del bench).
 
 ---
 
 ## Archivos relevantes ahora
 
 ### Leer primero
-- `facturacion_mexico/boot.py`, `facturacion_mexico/public/js/fm_environment_indicator.js`,
-  `facturacion_mexico/public/css/fm_environment.bundle.css`
-- `facturacion_mexico/facturacion_fiscal/pac_environment.py`
-- `docs/tecnico/ambiente-fiscal.md`
+- `docs/adr/0039-marca-visual-staging-bench.md` — decisión y contexto.
+- `docs/tecnico/ambiente-fiscal.md` — sección "Marca visual de STAGING".
+
+### Probablemente editar
+- Ninguno pendiente (a la espera de push/PR).
 
 ### No tocar
-- `facturacion_mexico/one_offs/verificar_215.py` (diagnóstico; nunca se commitea).
+- `facturacion_mexico/facturacion_fiscal/pac_environment.py`, `api_client.py`, tests de #215.
 
 ---
 
 ## Riesgos / cuidados
-- Validar Semgrep (regla `open(...)`) además de ruff antes de cada push que toque `.py`.
+- Al retirar los hooks en un bench que ya recibió 1.4.0 (p. ej. staging con la franja ámbar vieja),
+  el cambio de set de `app_hooks` puede exigir **una** invalidación de caché en ese deploy puntual
+  (costo general de Frappe al cambiar `hooks.py`, no de la arquitectura nueva).
+- `app_include_css` en `common_site_config.json` debe ser **lista** (un string rompería `desk.py`).
+- Despliegue en cliente lo hace el usuario manualmente (no hay Ansible/MSP).
 
 ---
 
 ## Información faltante
-- Ninguna para cerrar el PR.
+- Confirmar qué apps neutrales están en el `apps.txt` del bench de staging real (no bloquea: el CSS
+  vive en `facturacion_mexico`, presente en ese bench).

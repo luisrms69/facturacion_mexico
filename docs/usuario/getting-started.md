@@ -4,6 +4,19 @@ Guía de implementación del app en un sitio nuevo o restaurado, desde diagnóst
 
 ---
 
+## ¿Ves una franja de color en la parte superior?
+
+Si al entrar al sistema aparece una **franja cian (azul-verdoso) en el borde superior de la pantalla**,
+significa que estás trabajando en un **entorno de pruebas (STAGING)**, no en el sistema productivo.
+
+- Lo que hagas ahí **no** corresponde al entorno de producción: sirve para practicar o validar.
+- En el **entorno normal de producción no aparece ninguna franja**.
+
+Si no estás seguro de en qué entorno estás, la presencia (pruebas) o ausencia (producción) de esa
+franja te lo indica de un vistazo.
+
+---
+
 ## Requisitos previos
 
 - ERPNext v16 instalado

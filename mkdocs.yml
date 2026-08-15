@@ -117,6 +117,7 @@ nav:
       - adr/0036-integridad-proyeccion-cancelacion.md
       - adr/0037-resiliencia-cancelacion-sustitucion-motivo-01.md
       - adr/0038-guarda-ambiente-fiscal-fm-environment.md
+      - adr/0039-marca-visual-staging-bench.md
   - Referencia:
     - referencia/index.md
     - DocTypes: referencia/doctypes.md
