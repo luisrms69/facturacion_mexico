@@ -1,95 +1,94 @@
 # CONTINUITY.md — facturacion_mexico
 
-**Fecha:** 2026-08-15
-**Rama activa:** `fix/171-marca-staging-css`
-**Tarea actual:** Rediseño de #171 — marca visual de STAGING por bench (v1.4.1). Commit recién creado; falta push + PR.
+**Fecha:** 2026-08-22
+**Rama activa:** `fix/207-venta-mostrador-address-display`
+**Tarea actual:** Fix #207 — coherencia de dirección display/link en venta mostrador. Commit en curso (incluye este CONTINUITY.md); falta push + PR.
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-Rediseño de #171. La implementación original (boot_session + frappe.boot + JS + app_include hooks,
-1.4.0) se descartó por depender de dos cachés de Frappe (`app_hooks` y `bootinfo`) que quedaban
-*stale* de forma persistente y podían mostrar el ambiente equivocado. Reemplazada por una marca
-estática de STAGING a nivel de bench, cargada por `common_site_config.json → app_include_css`.
+Issue #207. En `FacturaFiscalMexico.populate_billing_data()`, rama de venta mostrador
+(`fm_facturar_venta_mostrador = 1`), `fm_direccion_principal_link` se resolvía desde el Customer
+plantilla (`VENTA MOSTRADOR`) pero `fm_direccion_principal_display` se recalculaba vía `self.customer`
+(cliente real), dejando link y display inconsistentes. Fix mínimo: `_get_primary_address_display()`
+ahora acepta la `Address` ya resuelta y se le pasa `primary_address`.
 
 Plan que estoy siguiendo:
-Instrucciones del usuario en esta sesión (eliminación manual de #171 anterior + nueva arquitectura) +
-ADR-0039. #215 queda intacto y separado.
+Issue #207 (label `it-tech:approved`) + Assessment Package del issue. Autorización humana explícita en
+esta sesión para el commit tras confirmar baseline.
 
 Objetivo inmediato:
-Esperar autorización para `/ship push`, luego `/ship pr` (base `main`).
+Cerrar `/ship commit` de #207. Luego esperar autorización para `/ship push` y `/ship pr` (base `main`).
 
 Criterio de avance:
-Push OK → PR abierto con gate de versión 1.4.1 → CI verde.
+Commit con los 2 archivos + CONTINUITY.md → push OK → PR con bump de versión (PATCH) → CI.
 
 ---
 
 ## Estado actual
 
 ### Ya cerrado
-- Eliminación manual de #171 anterior (sin git revert/restore): borrados `boot.py`,
-  `fm_environment_indicator.js`, `fm_environment.bundle.css`, `test_boot_fm_environment.py`;
-  retirados `app_include_css/js` y `boot_session` de `hooks.py` (comentarios scaffold restaurados).
-- Auditoría anti-residuos contra `555fe07`: sin residuos funcionales.
-- Nueva marca: `public/css/fm_staging_marker.css` (franja cian `#06b6d4` en `.page-head`).
-- Activación por `common_site_config.json → app_include_css` (verificado local, aparece sin refresh).
-- Docs: `ambiente-fiscal.md` reescrita, `getting-started.md` (usuario), ADR-0039 + índice + mkdocs.
-- Bump `__version__` 1.4.0 → 1.4.1 (PATCH).
-- Commit creado en la rama (ver `git log`).
+- Causa raíz confirmada (demostrada, no inferida): link (plantilla) vs display (cliente real).
+- Verificación fiscal: `fm_direccion_principal_display` es SOLO presentación — 0 referencias en
+  `timbrado_api.py`/`api_client.py`/payload/XML/CFDI. Riesgo residual: muy bajo.
+- Fix aplicado: `_get_primary_address_display(self, address=None)` + call site en venta mostrador.
+  Caso normal sin cambio (allí `primary_address` == lo que devuelve el helper).
+- Test de regresión `test_venta_mostrador_address_display.py` que ejerce `populate_billing_data()`
+  real; falla si se retira el fix; idempotente (rollback, cero residuo).
+- Linters limpios (`ruff check` + `ruff format`).
+- Baseline confirmado: `main` limpio (a6aa652, sin #207) reproduce EXACTAMENTE las mismas 2 failures
+  + 11 errors (`failures=2, errors=11, skipped=178`). Son preexistentes/ambientales, ajenas a #207.
 
 ### En progreso
-- Ciclo `/ship`: commit hecho, falta `push` y `pr`.
+- Ciclo `/ship`: ejecutando `commit` (2 archivos + CONTINUITY.md). Falta `push` y `pr`.
 
 ### Pendiente inmediato
 1. `/ship push` (con autorización).
-2. `/ship pr` contra `main` (título/cuerpo con versión 1.4.1, PATCH).
-3. Tras merge: `/sync-check` + `/ship release` (tag/Release v1.4.1).
+2. `/ship pr` contra `main` con bump `__version__` (PATCH, calcular vs `upstream/main`).
+3. Validación GUI opcional: abrir una FFM venta mostrador y ver que el panel "Datos de Facturación"
+   muestra la dirección de la plantilla coherente con el link.
 
 ### No repetir
-- No usar `boot_session`/`frappe.boot`/JS para el ambiente: quedan *stale* en `bootinfo` (hash Redis
-  por usuario, sin TTL) y `app_hooks`; refresh/hard-refresh no lo corrigen.
-- No alojar el CSS fuera de `facturacion_mexico` ni inventar app nueva.
-- No añadir `clear-cache` al deploy como "solución" de la marca: la arquitectura nueva no lo necesita.
-- Selector: usar `.page-head` (probado). `header.navbar` NO existe en el DOM del Desk v16
-  (`toolbar.js` reemplaza `<header>` por `<div class="sticky-top">`).
+- No usar `bench run-tests --app X --module Y --lightmode`: en Frappe v16 el combo `--app` + `--module`
+  ignora el filtro y corre la suite completa (1659 tests). Para un módulo aislado: `--module` SIN `--app`.
+- No declarar "riesgo nulo" en campos fiscales sin comprobar payload/XML/CFDI — aquí se comprobó.
+- No incluir en el commit `scripts/*` ni `working_docs/private/` (fuera de alcance; siempre `git add` explícito).
 
 ---
 
 ## Decisiones vigentes
-- **#171 ya no representa `fm_environment`.** Es una marca de bench: staging lleva la clave en
-  `common_site_config.json`, producción no. Independiente de que un sitio tenga la app instalada
-  (se sirve por symlink de bench en `/assets/facturacion_mexico/css/`).
-- **#215 intacto** y es la única protección fiscal real (server-side, por sitio).
-- El bench local (`facturacion-v16.dev`) tiene la clave `app_include_css` puesta a propósito
-  (es dev/staging) — se deja como señal permanente; no se commitea (es config del bench).
+- Las 13 fallas de la suite (`test_custom_fields_naming_consistency` por campos UAE/VAT sin `fm_`;
+  `test_ffm_reconciliation.test_lote_un_fallo_no_detiene` por datos residuales; `test_refacturar_workflow`,
+  `test_check_ppd_requirement`, `test_setup_expense_item_groups`) son **baseline preexistente** del
+  test site compartido, NO bloquean el commit de #207 (autorizado explícitamente por el usuario).
+- Gate documental de #207 = **No aplica** (bug fix que restaura comportamiento previsto de un campo de
+  presentación; test puro). Commit sin docs autorizado. Sin trailer `Co-Authored-By`.
 
 ---
 
 ## Archivos relevantes ahora
 
 ### Leer primero
-- `docs/adr/0039-marca-visual-staging-bench.md` — decisión y contexto.
-- `docs/tecnico/ambiente-fiscal.md` — sección "Marca visual de STAGING".
+- `facturacion_mexico/facturacion_fiscal/doctype/factura_fiscal_mexico/factura_fiscal_mexico.py`
+  — `populate_billing_data()` (rama venta mostrador) y `_get_primary_address_display()`.
 
 ### Probablemente editar
 - Ninguno pendiente (a la espera de push/PR).
 
 ### No tocar
-- `facturacion_mexico/facturacion_fiscal/pac_environment.py`, `api_client.py`, tests de #215.
+- `scripts/*`, `working_docs/private/` (untracked, fuera de alcance).
 
 ---
 
 ## Riesgos / cuidados
-- Al retirar los hooks en un bench que ya recibió 1.4.0 (p. ej. staging con la franja ámbar vieja),
-  el cambio de set de `app_hooks` puede exigir **una** invalidación de caché en ese deploy puntual
-  (costo general de Frappe al cambiar `hooks.py`, no de la arquitectura nueva).
-- `app_include_css` en `common_site_config.json` debe ser **lista** (un string rompería `desk.py`).
-- Despliegue en cliente lo hace el usuario manualmente (no hay Ansible/MSP).
+- El test site `test-facturacion.localhost` es compartido y arrastra datos residuales + custom fields
+  regionales UAE → suite global con 13 fallas preexistentes (deuda de entorno, issue aparte si se decide).
+- Al crear el PR: recalcular el bump SemVer contra `upstream/main` (una sola versión por PR).
 
 ---
 
 ## Información faltante
-- Confirmar qué apps neutrales están en el `apps.txt` del bench de staging real (no bloquea: el CSS
-  vive en `facturacion_mexico`, presente en ese bench).
+- Ninguna que bloquee #207. (Las 13 fallas ambientales de la suite quedan como deuda de test site,
+  separada de este fix.)
