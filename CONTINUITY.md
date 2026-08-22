@@ -2,93 +2,93 @@
 
 **Fecha:** 2026-08-22
 **Rama activa:** `fix/207-venta-mostrador-address-display`
-**Tarea actual:** Fix #207 — coherencia de dirección display/link en venta mostrador. Commit en curso (incluye este CONTINUITY.md); falta push + PR.
+**Tarea actual:** Rama con DOS issues: #207 (ya commiteado `6639c89`) y #56 (validado; commit en curso). Falta push + PR.
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-Issue #207. En `FacturaFiscalMexico.populate_billing_data()`, rama de venta mostrador
-(`fm_facturar_venta_mostrador = 1`), `fm_direccion_principal_link` se resolvía desde el Customer
-plantilla (`VENTA MOSTRADOR`) pero `fm_direccion_principal_display` se recalculaba vía `self.customer`
-(cliente real), dejando link y display inconsistentes. Fix mínimo: `_get_primary_address_display()`
-ahora acepta la `Address` ya resuelta y se le pasa `primary_address`.
+Cierre de #56 en la misma rama de #207. #56: el botón "Cerrar" del modal de éxito de timbrado era un
+`primary_action` con `client_action: "frappe.hide_msgprint()"` (Frappe lo resuelve como ruta de
+propiedades → no-op). Fix mínimo: eliminar solo ese `primary_action` roto; el cierre nativo (X/Escape)
+ya funcionaba. NO se tocó el `try/except` de la FASE 3.
 
 Plan que estoy siguiendo:
-Issue #207 (label `it-tech:approved`) + Assessment Package del issue. Autorización humana explícita en
-esta sesión para el commit tras confirmar baseline.
+Issues #207 y #56 (ambos `it-tech:approved`) + instrucciones humanas explícitas de esta sesión.
 
 Objetivo inmediato:
-Cerrar `/ship commit` de #207. Luego esperar autorización para `/ship push` y `/ship pr` (base `main`).
+Cerrar `/ship commit` de #56 (commit SEPARADO encima de `6639c89`, sin squash). Luego esperar
+autorización para `/ship push` y `/ship pr` (base `main`).
 
 Criterio de avance:
-Commit con los 2 archivos + CONTINUITY.md → push OK → PR con bump de versión (PATCH) → CI.
+Commit de #56 con sus 2 archivos + CONTINUITY.md → push OK → PR con bump SemVer (alcance combinado
+#207+#56, recalculado vs `upstream/main`) → CI.
 
 ---
 
 ## Estado actual
 
 ### Ya cerrado
-- Causa raíz confirmada (demostrada, no inferida): link (plantilla) vs display (cliente real).
-- Verificación fiscal: `fm_direccion_principal_display` es SOLO presentación — 0 referencias en
-  `timbrado_api.py`/`api_client.py`/payload/XML/CFDI. Riesgo residual: muy bajo.
-- Fix aplicado: `_get_primary_address_display(self, address=None)` + call site en venta mostrador.
-  Caso normal sin cambio (allí `primary_address` == lo que devuelve el helper).
-- Test de regresión `test_venta_mostrador_address_display.py` que ejerce `populate_billing_data()`
-  real; falla si se retira el fix; idempotente (rollback, cero residuo).
+- #207: commit `6639c89` (display de dirección venta mostrador; baseline confirmado; test real).
+- #56: causa raíz confirmada en código (`timbrado_api.py:548-552`, única ocurrencia). Fix mínimo
+  aplicado (−5 líneas), sin alterar el `try/except` de FASE 3 (try:500 / except:591 / ERROR:611).
+- #56: test estructural `test_timbrado_success_modal_close.py` (3 tests, verde) — modal de éxito se
+  conserva y sin `primary_action`/`client_action`/`hide_msgprint`.
+- #56: **validación funcional real en sandbox** (`facturacion-v16.dev`, `fm_environment=sandbox`).
+  Evidencia (por IDs de documento, sin datos de cliente):
+    · FFM `FFMX-2026-00055` → status TIMBRADO, UUID presente (prefijo c15788ae).
+    · SI `ACC-SINV-2026-00070` → `fm_fiscal_status = TIMBRADO`, sin transición posterior a ERROR.
+    · Modal "Timbrado Exitoso" mostrado; botón "Cerrar" roto AUSENTE; cierre nativo por X confirmado.
 - Linters limpios (`ruff check` + `ruff format`).
-- Baseline confirmado: `main` limpio (a6aa652, sin #207) reproduce EXACTAMENTE las mismas 2 failures
-  + 11 errors (`failures=2, errors=11, skipped=178`). Son preexistentes/ambientales, ajenas a #207.
 
 ### En progreso
-- Ciclo `/ship`: ejecutando `commit` (2 archivos + CONTINUITY.md). Falta `push` y `pr`.
+- `/ship commit` de #56: gates OK, esperando confirmación del mensaje para commitear.
 
 ### Pendiente inmediato
-1. `/ship push` (con autorización).
-2. `/ship pr` contra `main` con bump `__version__` (PATCH, calcular vs `upstream/main`).
-3. Validación GUI opcional: abrir una FFM venta mostrador y ver que el panel "Datos de Facturación"
-   muestra la dirección de la plantilla coherente con el link.
+1. Commit de #56 (2 archivos + CONTINUITY.md).
+2. `/ship push` (con autorización).
+3. `/ship pr` contra `main` con bump `__version__` del alcance combinado (recalcular vs `upstream/main`).
 
 ### No repetir
-- No usar `bench run-tests --app X --module Y --lightmode`: en Frappe v16 el combo `--app` + `--module`
-  ignora el filtro y corre la suite completa (1659 tests). Para un módulo aislado: `--module` SIN `--app`.
-- No declarar "riesgo nulo" en campos fiscales sin comprobar payload/XML/CFDI — aquí se comprobó.
-- No incluir en el commit `scripts/*` ni `working_docs/private/` (fuera de alcance; siempre `git add` explícito).
+- `bench run-tests --app X --module Y --lightmode`: en v16 el combo `--app`+`--module` corre la suite
+  completa. Para un módulo aislado: `--module` SIN `--app`.
+- No decir "riesgo nulo" en campos/rutas fiscales sin comprobar payload/PAC/XML/CFDI.
+- No incluir en commits `scripts/*` ni `working_docs/private/` (siempre `git add` explícito).
+- No timbrar fuera de sandbox; confirmar `fm_environment=sandbox` antes (guard #215 bloquea `sk_live_`).
 
 ---
 
 ## Decisiones vigentes
-- Las 13 fallas de la suite (`test_custom_fields_naming_consistency` por campos UAE/VAT sin `fm_`;
-  `test_ffm_reconciliation.test_lote_un_fallo_no_detiene` por datos residuales; `test_refacturar_workflow`,
-  `test_check_ppd_requirement`, `test_setup_expense_item_groups`) son **baseline preexistente** del
-  test site compartido, NO bloquean el commit de #207 (autorizado explícitamente por el usuario).
-- Gate documental de #207 = **No aplica** (bug fix que restaura comportamiento previsto de un campo de
-  presentación; test puro). Commit sin docs autorizado. Sin trailer `Co-Authored-By`.
+- Suite global del test site arrastra 13 fallas preexistentes/ambientales (custom fields UAE,
+  datos residuales) — NO bloquean estos commits (baseline confirmado quitando solo #207).
+- Gate documental de #207 y #56 = **No aplica** (bug fixes de comportamiento existente, sin nuevo
+  flujo/modelo/integración; tests puros). Commits sin docs autorizados por el usuario.
+- La rama lleva #207 + #56 → el PR será mixto; el bump SemVer se calcula por el alcance combinado.
 
 ---
 
 ## Archivos relevantes ahora
 
 ### Leer primero
-- `facturacion_mexico/facturacion_fiscal/doctype/factura_fiscal_mexico/factura_fiscal_mexico.py`
-  — `populate_billing_data()` (rama venta mostrador) y `_get_primary_address_display()`.
+- `facturacion_mexico/facturacion_fiscal/timbrado_api.py` — msgprint de éxito (~536-553) dentro del
+  `try` de FASE 3 (500). El fix quitó el `primary_action`.
 
 ### Probablemente editar
 - Ninguno pendiente (a la espera de push/PR).
 
 ### No tocar
+- `try/except` de FASE 3 en `timbrado_api.py` (fuera del alcance de #56).
 - `scripts/*`, `working_docs/private/` (untracked, fuera de alcance).
 
 ---
 
 ## Riesgos / cuidados
-- El test site `test-facturacion.localhost` es compartido y arrastra datos residuales + custom fields
-  regionales UAE → suite global con 13 fallas preexistentes (deuda de entorno, issue aparte si se decide).
-- Al crear el PR: recalcular el bump SemVer contra `upstream/main` (una sola versión por PR).
+- Test site `test-facturacion.localhost` compartido (deuda de entorno, issue aparte si se decide).
+- CFDI de prueba de #56 quedó timbrado en SANDBOX (dato de prueba, sin efecto real).
+- Al crear el PR: un solo bump por PR, recalculado vs `upstream/main` (no doble incremento).
 
 ---
 
 ## Información faltante
-- Ninguna que bloquee #207. (Las 13 fallas ambientales de la suite quedan como deuda de test site,
-  separada de este fix.)
+- Ninguna que bloquee #207 o #56.

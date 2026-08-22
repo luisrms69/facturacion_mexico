@@ -545,11 +545,6 @@ class TimbradoAPI:
 					title=_("Timbrado Exitoso"),
 					indicator="green",
 					as_list=False,
-					primary_action={
-						"label": _("Cerrar"),
-						"client_action": "frappe.hide_msgprint()",
-						"hide_on_success": True,
-					},
 				)
 
 				base_result = {
