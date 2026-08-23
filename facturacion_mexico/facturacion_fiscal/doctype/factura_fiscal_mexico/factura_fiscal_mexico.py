@@ -1191,7 +1191,11 @@ class FacturaFiscalMexico(Document):
 				# Solo correo real o vacío: el aviso de falta de correo NO se almacena aquí.
 				self.fm_email_facturacion = primary_address.email_id or ""
 				self.fm_direccion_principal_link = primary_address.name
-				self.fm_direccion_principal_display = self._get_primary_address_display()
+				# Derivar el display de la MISMA Address ya resuelta (coherente con el link).
+				# Sin este argumento, el helper hacía un segundo lookup por self.customer y en
+				# venta mostrador mostraba la dirección del cliente real, divergiendo del link
+				# (que apunta al Customer plantilla). Ver issue #207.
+				self.fm_direccion_principal_display = self._get_primary_address_display(primary_address)
 				# Datos poblados desde dirección principal
 			else:
 				# No hay dirección principal - marcar campos como faltantes
@@ -1258,9 +1262,15 @@ class FacturaFiscalMexico(Document):
 
 		return frappe.get_doc("Address", addr_name) if addr_name else None
 
-	def _get_primary_address_display(self):
-		"""Formateo estándar de Frappe, igual que en Customer UI."""
-		addr = self._get_primary_address()
+	def _get_primary_address_display(self, address=None):
+		"""Formateo estándar de Frappe, igual que en Customer UI.
+
+		Si el llamador ya resolvió la Address correcta para la operación (p. ej. la del
+		Customer plantilla en venta mostrador), se pasa vía `address` para derivar el
+		display de esa misma dirección y no de un segundo lookup por `self.customer`
+		(issue #207). Sin argumento, conserva el comportamiento previo.
+		"""
+		addr = address or self._get_primary_address()
 		if not addr:
 			return ""
 		return get_address_display(addr.as_dict()) or ""

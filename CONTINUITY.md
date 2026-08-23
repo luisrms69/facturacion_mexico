@@ -1,95 +1,94 @@
 # CONTINUITY.md — facturacion_mexico
 
-**Fecha:** 2026-08-15
-**Rama activa:** `fix/171-marca-staging-css`
-**Tarea actual:** Rediseño de #171 — marca visual de STAGING por bench (v1.4.1). Commit recién creado; falta push + PR.
+**Fecha:** 2026-08-22
+**Rama activa:** `fix/207-venta-mostrador-address-display`
+**Tarea actual:** Rama con DOS issues: #207 (ya commiteado `6639c89`) y #56 (validado; commit en curso). Falta push + PR.
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-Rediseño de #171. La implementación original (boot_session + frappe.boot + JS + app_include hooks,
-1.4.0) se descartó por depender de dos cachés de Frappe (`app_hooks` y `bootinfo`) que quedaban
-*stale* de forma persistente y podían mostrar el ambiente equivocado. Reemplazada por una marca
-estática de STAGING a nivel de bench, cargada por `common_site_config.json → app_include_css`.
+Cierre de #56 en la misma rama de #207. #56: el botón "Cerrar" del modal de éxito de timbrado era un
+`primary_action` con `client_action: "frappe.hide_msgprint()"` (Frappe lo resuelve como ruta de
+propiedades → no-op). Fix mínimo: eliminar solo ese `primary_action` roto; el cierre nativo (X/Escape)
+ya funcionaba. NO se tocó el `try/except` de la FASE 3.
 
 Plan que estoy siguiendo:
-Instrucciones del usuario en esta sesión (eliminación manual de #171 anterior + nueva arquitectura) +
-ADR-0039. #215 queda intacto y separado.
+Issues #207 y #56 (ambos `it-tech:approved`) + instrucciones humanas explícitas de esta sesión.
 
 Objetivo inmediato:
-Esperar autorización para `/ship push`, luego `/ship pr` (base `main`).
+Cerrar `/ship commit` de #56 (commit SEPARADO encima de `6639c89`, sin squash). Luego esperar
+autorización para `/ship push` y `/ship pr` (base `main`).
 
 Criterio de avance:
-Push OK → PR abierto con gate de versión 1.4.1 → CI verde.
+Commit de #56 con sus 2 archivos + CONTINUITY.md → push OK → PR con bump SemVer (alcance combinado
+#207+#56, recalculado vs `upstream/main`) → CI.
 
 ---
 
 ## Estado actual
 
 ### Ya cerrado
-- Eliminación manual de #171 anterior (sin git revert/restore): borrados `boot.py`,
-  `fm_environment_indicator.js`, `fm_environment.bundle.css`, `test_boot_fm_environment.py`;
-  retirados `app_include_css/js` y `boot_session` de `hooks.py` (comentarios scaffold restaurados).
-- Auditoría anti-residuos contra `555fe07`: sin residuos funcionales.
-- Nueva marca: `public/css/fm_staging_marker.css` (franja cian `#06b6d4` en `.page-head`).
-- Activación por `common_site_config.json → app_include_css` (verificado local, aparece sin refresh).
-- Docs: `ambiente-fiscal.md` reescrita, `getting-started.md` (usuario), ADR-0039 + índice + mkdocs.
-- Bump `__version__` 1.4.0 → 1.4.1 (PATCH).
-- Commit creado en la rama (ver `git log`).
+- #207: commit `6639c89` (display de dirección venta mostrador; baseline confirmado; test real).
+- #56: causa raíz confirmada en código (`timbrado_api.py:548-552`, única ocurrencia). Fix mínimo
+  aplicado (−5 líneas), sin alterar el `try/except` de FASE 3 (try:500 / except:591 / ERROR:611).
+- #56: test estructural `test_timbrado_success_modal_close.py` (3 tests, verde) — modal de éxito se
+  conserva y sin `primary_action`/`client_action`/`hide_msgprint`.
+- #56: **validación funcional real en sandbox** (`facturacion-v16.dev`, `fm_environment=sandbox`).
+  Evidencia (por IDs de documento, sin datos de cliente):
+    · FFM `FFMX-2026-00055` → status TIMBRADO, UUID presente (prefijo c15788ae).
+    · SI `ACC-SINV-2026-00070` → `fm_fiscal_status = TIMBRADO`, sin transición posterior a ERROR.
+    · Modal "Timbrado Exitoso" mostrado; botón "Cerrar" roto AUSENTE; cierre nativo por X confirmado.
+- Linters limpios (`ruff check` + `ruff format`).
 
 ### En progreso
-- Ciclo `/ship`: commit hecho, falta `push` y `pr`.
+- `/ship commit` de #56: gates OK, esperando confirmación del mensaje para commitear.
 
 ### Pendiente inmediato
-1. `/ship push` (con autorización).
-2. `/ship pr` contra `main` (título/cuerpo con versión 1.4.1, PATCH).
-3. Tras merge: `/sync-check` + `/ship release` (tag/Release v1.4.1).
+1. Commit de #56 (2 archivos + CONTINUITY.md).
+2. `/ship push` (con autorización).
+3. `/ship pr` contra `main` con bump `__version__` del alcance combinado (recalcular vs `upstream/main`).
 
 ### No repetir
-- No usar `boot_session`/`frappe.boot`/JS para el ambiente: quedan *stale* en `bootinfo` (hash Redis
-  por usuario, sin TTL) y `app_hooks`; refresh/hard-refresh no lo corrigen.
-- No alojar el CSS fuera de `facturacion_mexico` ni inventar app nueva.
-- No añadir `clear-cache` al deploy como "solución" de la marca: la arquitectura nueva no lo necesita.
-- Selector: usar `.page-head` (probado). `header.navbar` NO existe en el DOM del Desk v16
-  (`toolbar.js` reemplaza `<header>` por `<div class="sticky-top">`).
+- `bench run-tests --app X --module Y --lightmode`: en v16 el combo `--app`+`--module` corre la suite
+  completa. Para un módulo aislado: `--module` SIN `--app`.
+- No decir "riesgo nulo" en campos/rutas fiscales sin comprobar payload/PAC/XML/CFDI.
+- No incluir en commits `scripts/*` ni `working_docs/private/` (siempre `git add` explícito).
+- No timbrar fuera de sandbox; confirmar `fm_environment=sandbox` antes (guard #215 bloquea `sk_live_`).
 
 ---
 
 ## Decisiones vigentes
-- **#171 ya no representa `fm_environment`.** Es una marca de bench: staging lleva la clave en
-  `common_site_config.json`, producción no. Independiente de que un sitio tenga la app instalada
-  (se sirve por symlink de bench en `/assets/facturacion_mexico/css/`).
-- **#215 intacto** y es la única protección fiscal real (server-side, por sitio).
-- El bench local (`facturacion-v16.dev`) tiene la clave `app_include_css` puesta a propósito
-  (es dev/staging) — se deja como señal permanente; no se commitea (es config del bench).
+- Suite global del test site arrastra 13 fallas preexistentes/ambientales (custom fields UAE,
+  datos residuales) — NO bloquean estos commits (baseline confirmado quitando solo #207).
+- Gate documental de #207 y #56 = **No aplica** (bug fixes de comportamiento existente, sin nuevo
+  flujo/modelo/integración; tests puros). Commits sin docs autorizados por el usuario.
+- La rama lleva #207 + #56 → el PR será mixto; el bump SemVer se calcula por el alcance combinado.
 
 ---
 
 ## Archivos relevantes ahora
 
 ### Leer primero
-- `docs/adr/0039-marca-visual-staging-bench.md` — decisión y contexto.
-- `docs/tecnico/ambiente-fiscal.md` — sección "Marca visual de STAGING".
+- `facturacion_mexico/facturacion_fiscal/timbrado_api.py` — msgprint de éxito (~536-553) dentro del
+  `try` de FASE 3 (500). El fix quitó el `primary_action`.
 
 ### Probablemente editar
 - Ninguno pendiente (a la espera de push/PR).
 
 ### No tocar
-- `facturacion_mexico/facturacion_fiscal/pac_environment.py`, `api_client.py`, tests de #215.
+- `try/except` de FASE 3 en `timbrado_api.py` (fuera del alcance de #56).
+- `scripts/*`, `working_docs/private/` (untracked, fuera de alcance).
 
 ---
 
 ## Riesgos / cuidados
-- Al retirar los hooks en un bench que ya recibió 1.4.0 (p. ej. staging con la franja ámbar vieja),
-  el cambio de set de `app_hooks` puede exigir **una** invalidación de caché en ese deploy puntual
-  (costo general de Frappe al cambiar `hooks.py`, no de la arquitectura nueva).
-- `app_include_css` en `common_site_config.json` debe ser **lista** (un string rompería `desk.py`).
-- Despliegue en cliente lo hace el usuario manualmente (no hay Ansible/MSP).
+- Test site `test-facturacion.localhost` compartido (deuda de entorno, issue aparte si se decide).
+- CFDI de prueba de #56 quedó timbrado en SANDBOX (dato de prueba, sin efecto real).
+- Al crear el PR: un solo bump por PR, recalculado vs `upstream/main` (no doble incremento).
 
 ---
 
 ## Información faltante
-- Confirmar qué apps neutrales están en el `apps.txt` del bench de staging real (no bloquea: el CSS
-  vive en `facturacion_mexico`, presente en ese bench).
+- Ninguna que bloquee #207 o #56.
