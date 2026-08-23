@@ -2335,7 +2335,7 @@ reutilizando la infraestructura de ADR-0034 (correlación estricta, writer, Resp
 ni sustituye CFDI, y nunca cancela la Sales Invoice.</p>
 <h3 id="21-alcance-inicial">2.1 Alcance inicial<a class="headerlink" href="#21-alcance-inicial" title="Permanent link">&para;</a></h3>
 <p>Selector acotado a los FFM que necesitan seguimiento:</p>
-<div class="highlight"><pre><span></span><code>facturapi_id != &#39;&#39;  AND  (fm_sync_status = &#39;pending&#39;  OR  status = &#39;PENDIENTE_CANCELACION&#39;)
+<div class="highlight"><pre><span></span><code>facturapi_id != ''  AND  (fm_sync_status = 'pending'  OR  status = 'PENDIENTE_CANCELACION')
 </code></pre></div>
 <p>Fuera de alcance: barrido del histórico completo, <code>fm_sync_status='error'</code>, reparación de
 duplicados, archivado de huérfanos.</p>

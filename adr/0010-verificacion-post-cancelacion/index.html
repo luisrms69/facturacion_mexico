@@ -2484,7 +2484,7 @@ Frappe que el usuario debe ejecutar manualmente — no son errores del sistema.<
 <div class="highlight"><pre><span></span><code><span class="c1">// factura_fiscal_mexico.js:1050</span>
 <span class="kd">function</span><span class="w"> </span><span class="nx">handle_cancel_success</span><span class="p">(</span><span class="nx">frm</span><span class="p">,</span><span class="w"> </span><span class="nx">msg</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">msg</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="nx">msg</span><span class="p">.</span><span class="nx">ok</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nx">msg</span><span class="p">.</span><span class="nx">success</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">frappe</span><span class="p">.</span><span class="nx">show_alert</span><span class="p">({</span><span class="w"> </span><span class="nx">message</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;✅ Factura cancelada exitosamente&quot;</span><span class="w"> </span><span class="p">});</span>
+<span class="w">        </span><span class="nx">frappe</span><span class="p">.</span><span class="nx">show_alert</span><span class="p">({</span><span class="w"> </span><span class="nx">message</span><span class="o">:</span><span class="w"> </span><span class="s2">"✅ Factura cancelada exitosamente"</span><span class="w"> </span><span class="p">});</span>
 <span class="w">        </span><span class="nx">frappe</span><span class="p">.</span><span class="nx">msgprint</span><span class="p">({</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="nx">detalle</span><span class="w"> </span><span class="nx">de</span><span class="w"> </span><span class="nx">estado</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">});</span>
 <span class="w">        </span><span class="nx">frm</span><span class="p">.</span><span class="nx">reload_doc</span><span class="p">();</span><span class="w">   </span><span class="c1">// ← recarga SOLO el formulario FFM</span>
 <span class="w">    </span><span class="p">}</span>
@@ -2505,11 +2505,11 @@ llama al endpoint y decide si mostrar/ocultar el botón Cancel.</p>
 <h3 id="que-no-existe-gap-identificado">Qué NO existe — gap identificado<a class="headerlink" href="#que-no-existe-gap-identificado" title="Permanent link">&para;</a></h3>
 <p><strong>No hay <code>frappe.publish_realtime()</code> en <code>cancelar_factura()</code>.</strong></p>
 <div class="highlight"><pre><span></span><code><span class="c1"># timbrado_api.py — cancelar_factura() FASE 3 (líneas ~1183-1260)</span>
-<span class="n">frappe</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="s2">&quot;Factura Fiscal Mexico&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
-<span class="n">frappe</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="s2">&quot;Sales Invoice&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+<span class="n">frappe</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="s2">"Factura Fiscal Mexico"</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+<span class="n">frappe</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="s2">"Sales Invoice"</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
 <span class="n">frappe</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
 <span class="c1"># FIN — sin publish_realtime</span>
-<span class="k">return</span> <span class="p">{</span> <span class="s2">&quot;ok&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;status_ffm&quot;</span><span class="p">:</span> <span class="n">fiscal_status</span><span class="p">,</span> <span class="o">...</span> <span class="p">}</span>
+<span class="k">return</span> <span class="p">{</span> <span class="s2">"ok"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">"status_ffm"</span><span class="p">:</span> <span class="n">fiscal_status</span><span class="p">,</span> <span class="o">...</span> <span class="p">}</span>
 </code></pre></div>
 <p>El backend actualiza <code>fm_fiscal_status</code> en la SI via <code>frappe.set_value()</code>, pero
 <strong>no emite ningún evento Frappe realtime</strong> (<code>frappe.publish_realtime()</code>, <code>frappe.publish_doc()</code>)
@@ -2545,13 +2545,13 @@ que notifique al formulario SI si está abierto en otro tab.</p>
 <p>Agregar <code>frappe.publish_realtime()</code> al final de <code>cancelar_factura()</code> éxitosa:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># En timbrado_api.py, después del frappe.db.commit():</span>
 <span class="n">frappe</span><span class="o">.</span><span class="n">publish_realtime</span><span class="p">(</span>
-    <span class="n">event</span><span class="o">=</span><span class="s2">&quot;fiscal_status_changed&quot;</span><span class="p">,</span>
+    <span class="n">event</span><span class="o">=</span><span class="s2">"fiscal_status_changed"</span><span class="p">,</span>
     <span class="n">message</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">&quot;sales_invoice&quot;</span><span class="p">:</span> <span class="n">sales_invoice_name</span><span class="p">,</span>
-        <span class="s2">&quot;fm_fiscal_status&quot;</span><span class="p">:</span> <span class="n">fiscal_status</span><span class="p">,</span>
-        <span class="s2">&quot;ffm&quot;</span><span class="p">:</span> <span class="n">factura_fiscal</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="s2">"sales_invoice"</span><span class="p">:</span> <span class="n">sales_invoice_name</span><span class="p">,</span>
+        <span class="s2">"fm_fiscal_status"</span><span class="p">:</span> <span class="n">fiscal_status</span><span class="p">,</span>
+        <span class="s2">"ffm"</span><span class="p">:</span> <span class="n">factura_fiscal</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="n">doctype</span><span class="o">=</span><span class="s2">&quot;Sales Invoice&quot;</span><span class="p">,</span>
+    <span class="n">doctype</span><span class="o">=</span><span class="s2">"Sales Invoice"</span><span class="p">,</span>
     <span class="n">docname</span><span class="o">=</span><span class="n">sales_invoice_name</span><span class="p">,</span>
 <span class="p">)</span>
 </code></pre></div>
@@ -2562,10 +2562,10 @@ funciona correctamente independientemente del estado del botón en UI.</p>
 <hr />
 <h2 id="siguiente-accion-manual-requerida">Siguiente acción manual requerida<a class="headerlink" href="#siguiente-accion-manual-requerida" title="Permanent link">&para;</a></h2>
 <p>Para completar el flujo de cancelación en Frappe:</p>
-<div class="highlight"><pre><span></span><code>1. Abrir FFMX-2026-00002 → botón &quot;Cancel&quot; → confirmar
+<div class="highlight"><pre><span></span><code>1. Abrir FFMX-2026-00002 → botón "Cancel" → confirmar
    → FFM.docstatus = 2
 
-2. Abrir ACC-SINV-2026-00001 → botón &quot;Cancel&quot; → confirmar
+2. Abrir ACC-SINV-2026-00001 → botón "Cancel" → confirmar
    → SI.docstatus = 2
 
 Estado final esperado: ambos documentos con docstatus=2, fm_fiscal_status=CANCELADO

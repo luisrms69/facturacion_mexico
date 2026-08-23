@@ -2564,14 +2564,14 @@ Fuente: Análisis de timbrado_api.py, factura_fiscal_mexico.py, overrides.py,
 <h3 id="timbrado-error-error-borrador-reintento">TIMBRADO / ERROR → ERROR → BORRADOR (reintento)<a class="headerlink" href="#timbrado-error-error-borrador-reintento" title="Permanent link">&para;</a></h3>
 <p><strong>Cuándo:</strong> el usuario corrige datos y reintenta timbrar después de un error.</p>
 <p><strong>Matriz de transiciones permitidas</strong> (validada en <code>validate_status_transitions</code>):</p>
-<div class="highlight"><pre><span></span><code><span class="kc">None</span>      <span class="err">→</span> <span class="p">[</span><span class="s2">&quot;BORRADOR&quot;</span><span class="p">]</span>
-<span class="s2">&quot;&quot;</span>        <span class="err">→</span> <span class="p">[</span><span class="s2">&quot;BORRADOR&quot;</span><span class="p">]</span>
-<span class="n">BORRADOR</span>  <span class="err">→</span> <span class="p">[</span><span class="s2">&quot;PROCESANDO&quot;</span><span class="p">,</span> <span class="s2">&quot;TIMBRADO&quot;</span><span class="p">,</span> <span class="s2">&quot;CANCELADO&quot;</span><span class="p">,</span> <span class="s2">&quot;ERROR&quot;</span><span class="p">]</span>
-<span class="n">PROCESANDO</span><span class="err">→</span> <span class="p">[</span><span class="s2">&quot;TIMBRADO&quot;</span><span class="p">,</span> <span class="s2">&quot;ERROR&quot;</span><span class="p">,</span> <span class="s2">&quot;CANCELADO&quot;</span><span class="p">]</span>
-<span class="n">TIMBRADO</span>  <span class="err">→</span> <span class="p">[</span><span class="s2">&quot;CANCELADO&quot;</span><span class="p">,</span> <span class="s2">&quot;PENDIENTE_CANCELACION&quot;</span><span class="p">]</span>
-<span class="n">ERROR</span>     <span class="err">→</span> <span class="p">[</span><span class="s2">&quot;BORRADOR&quot;</span><span class="p">,</span> <span class="s2">&quot;PROCESANDO&quot;</span><span class="p">,</span> <span class="s2">&quot;TIMBRADO&quot;</span><span class="p">]</span>   <span class="c1"># puede reintentarse</span>
+<div class="highlight"><pre><span></span><code><span class="kc">None</span>      <span class="err">→</span> <span class="p">[</span><span class="s2">"BORRADOR"</span><span class="p">]</span>
+<span class="s2">""</span>        <span class="err">→</span> <span class="p">[</span><span class="s2">"BORRADOR"</span><span class="p">]</span>
+<span class="n">BORRADOR</span>  <span class="err">→</span> <span class="p">[</span><span class="s2">"PROCESANDO"</span><span class="p">,</span> <span class="s2">"TIMBRADO"</span><span class="p">,</span> <span class="s2">"CANCELADO"</span><span class="p">,</span> <span class="s2">"ERROR"</span><span class="p">]</span>
+<span class="n">PROCESANDO</span><span class="err">→</span> <span class="p">[</span><span class="s2">"TIMBRADO"</span><span class="p">,</span> <span class="s2">"ERROR"</span><span class="p">,</span> <span class="s2">"CANCELADO"</span><span class="p">]</span>
+<span class="n">TIMBRADO</span>  <span class="err">→</span> <span class="p">[</span><span class="s2">"CANCELADO"</span><span class="p">,</span> <span class="s2">"PENDIENTE_CANCELACION"</span><span class="p">]</span>
+<span class="n">ERROR</span>     <span class="err">→</span> <span class="p">[</span><span class="s2">"BORRADOR"</span><span class="p">,</span> <span class="s2">"PROCESANDO"</span><span class="p">,</span> <span class="s2">"TIMBRADO"</span><span class="p">]</span>   <span class="c1"># puede reintentarse</span>
 <span class="n">CANCELADO</span> <span class="err">→</span> <span class="p">[]</span>                                        <span class="c1"># FINAL — sin transición</span>
-<span class="n">PENDIENTE_CANCELACION</span> <span class="err">→</span> <span class="p">[</span><span class="s2">&quot;CANCELADO&quot;</span><span class="p">,</span> <span class="s2">&quot;TIMBRADO&quot;</span><span class="p">]</span>
+<span class="n">PENDIENTE_CANCELACION</span> <span class="err">→</span> <span class="p">[</span><span class="s2">"CANCELADO"</span><span class="p">,</span> <span class="s2">"TIMBRADO"</span><span class="p">]</span>
 </code></pre></div>
 <p>Cualquier transición fuera de esta matriz lanza <code>ValidationError</code>.</p>
 <hr />
@@ -2597,15 +2597,15 @@ Fuente: Análisis de timbrado_api.py, factura_fiscal_mexico.py, overrides.py,
 - Si sí → <code>flags.ignore_links = True</code> para evitar <code>LinkExistsError</code> al cancelar con SI vinculada</p>
 <hr />
 <h2 id="secuencia-de-cancelacion-correcta">Secuencia de cancelación correcta<a class="headerlink" href="#secuencia-de-cancelacion-correcta" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code>1. Botón &quot;Cancelar en FacturAPI&quot; en FFM
+<div class="highlight"><pre><span></span><code>1. Botón "Cancelar en FacturAPI" en FFM
    → cancelar_factura() → PAC procesa → FFM.fm_fiscal_status = CANCELADO
 
-2. Botón &quot;Cancel&quot; en FFM (Frappe)
+2. Botón "Cancel" en FFM (Frappe)
    → before_cancel: verifica fm_fiscal_status = CANCELADO ✓
    → overrides.cancel: flags.ignore_links = True
    → FFM.docstatus = 2
 
-3. Botón &quot;Cancel&quot; en Sales Invoice
+3. Botón "Cancel" en Sales Invoice
    → before_cancel guard: FFM docstatus=2 → permite ✓
    → SI.docstatus = 2
 </code></pre></div>
@@ -2626,7 +2626,7 @@ Fuente: Análisis de timbrado_api.py, factura_fiscal_mexico.py, overrides.py,
 ☐ FacturAPI Response Log: operation_type=Timbrado, success=1, status_code=200
 ☐ SI.fm_fiscal_status = TIMBRADO
 ☐ SI.fm_factura_fiscal_mx = FFM.name
-☐ Botón Cancel en SI: oculto / headline &quot;Cancelación bloqueada&quot;
+☐ Botón Cancel en SI: oculto / headline "Cancelación bloqueada"
 </code></pre></div>
 <h2 id="checklist-verificacion-post-cancelacion">Checklist verificación post-cancelación<a class="headerlink" href="#checklist-verificacion-post-cancelacion" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code>☐ FFM.fm_fiscal_status = CANCELADO

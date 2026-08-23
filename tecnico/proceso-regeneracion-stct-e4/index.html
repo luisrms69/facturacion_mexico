@@ -2520,7 +2520,7 @@ bench<span class="w"> </span>--site<span class="w"> </span>facturacion.dev<span 
 <span class="c1"># En consola Python:</span>
 from<span class="w"> </span>facturacion_mexico.facturacion_fiscal.setup.generador_templates_fiscal<span class="w"> </span>import<span class="w"> </span>_MAPEO_CHARGE_TYPE
 print<span class="o">(</span>_MAPEO_CHARGE_TYPE<span class="o">)</span>
-<span class="c1"># Debe mostrar: &#39;cantidad&#39;: &#39;On Item Quantity&#39;</span>
+<span class="c1"># Debe mostrar: 'cantidad': 'On Item Quantity'</span>
 </code></pre></div>
 <h3 id="verificar-tabla-maestra-actualizada">✅ Verificar tabla maestra actualizada<a class="headerlink" href="#verificar-tabla-maestra-actualizada" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><span class="c1"># En consola Python (continuando):</span>
@@ -2530,8 +2530,8 @@ print<span class="o">(</span>_MAPEO_CHARGE_TYPE<span class="o">)</span>
 <span class="c1"># Verificar 3 roles cuota</span>
 <span class="k">for</span> <span class="n">rol</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ROL_IEPS_AZU</span><span class="p">,</span> <span class="n">ROL_IEPS_COMB</span><span class="p">,</span> <span class="n">ROL_IEPS_TABQ</span><span class="p">]:</span>
     <span class="n">regla</span> <span class="o">=</span> <span class="n">obtener_regla_calculo</span><span class="p">(</span><span class="n">rol</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">rol</span><span class="si">}</span><span class="s2">: regla_base=&#39;</span><span class="si">{</span><span class="n">regla</span><span class="p">[</span><span class="s1">&#39;regla_base&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
-    <span class="c1"># Debe mostrar: regla_base=&#39;cantidad&#39; (no &#39;monto_neto&#39;)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">rol</span><span class="si">}</span><span class="s2">: regla_base='</span><span class="si">{</span><span class="n">regla</span><span class="p">[</span><span class="s1">'regla_base'</span><span class="p">]</span><span class="si">}</span><span class="s2">'"</span><span class="p">)</span>
+    <span class="c1"># Debe mostrar: regla_base='cantidad' (no 'monto_neto')</span>
 </code></pre></div>
 <h3 id="backup-obligatorio">✅ Backup obligatorio<a class="headerlink" href="#backup-obligatorio" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><span class="c1"># Crear backup antes de regenerar</span>
@@ -2546,7 +2546,7 @@ cp<span class="w"> </span><span class="o">[</span>timestamp<span class="o">]</sp
 <h3 id="comando-bench">Comando bench<a class="headerlink" href="#comando-bench" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>bench<span class="w"> </span>--site<span class="w"> </span>facturacion.dev<span class="w"> </span>execute<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>facturacion_mexico.facturacion_fiscal.setup.generador_templates_fiscal.generate_8_stct_for_company<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--kwargs<span class="w"> </span><span class="s2">&quot;{&#39;company&#39;:&#39;Tauro Cigarettes SA de CV&#39;}&quot;</span>
+<span class="w">  </span>--kwargs<span class="w"> </span><span class="s2">"{'company':'Tauro Cigarettes SA de CV'}"</span>
 </code></pre></div>
 <h3 id="importante">⚠️ IMPORTANTE<a class="headerlink" href="#importante" title="Permanent link">&para;</a></h3>
 <ul>
@@ -2556,16 +2556,16 @@ cp<span class="w"> </span><span class="o">[</span>timestamp<span class="o">]</sp
 </ul>
 <h3 id="output-esperado">Output esperado<a class="headerlink" href="#output-esperado" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-    <span class="s2">&quot;created&quot;</span><span class="p">:</span> <span class="p">[</span>
-        <span class="s2">&quot;STCT - IVA Nacional 16% - Basico - TC&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;STCT - IVA Nacional 16% - IEPS - TC&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;STCT - IVA Nacional 16% - Retenciones - TC&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;STCT - IVA Nacional 16% - Total - TC&quot;</span><span class="p">,</span>
+    <span class="s2">"created"</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">"STCT - IVA Nacional 16% - Basico - TC"</span><span class="p">,</span>
+        <span class="s2">"STCT - IVA Nacional 16% - IEPS - TC"</span><span class="p">,</span>
+        <span class="s2">"STCT - IVA Nacional 16% - Retenciones - TC"</span><span class="p">,</span>
+        <span class="s2">"STCT - IVA Nacional 16% - Total - TC"</span><span class="p">,</span>
         <span class="c1"># ... 4 más para Frontera 8%</span>
     <span class="p">],</span>
-    <span class="s2">&quot;skipped&quot;</span><span class="p">:</span> <span class="p">[],</span>  <span class="c1"># Si alguno falló</span>
-    <span class="s2">&quot;omitted_rows_por_template&quot;</span><span class="p">:</span> <span class="p">{},</span>  <span class="c1"># Filas omitidas por falta mapeo</span>
-    <span class="s2">&quot;disabled_old&quot;</span><span class="p">:</span> <span class="n">true</span>
+    <span class="s2">"skipped"</span><span class="p">:</span> <span class="p">[],</span>  <span class="c1"># Si alguno falló</span>
+    <span class="s2">"omitted_rows_por_template"</span><span class="p">:</span> <span class="p">{},</span>  <span class="c1"># Filas omitidas por falta mapeo</span>
+    <span class="s2">"disabled_old"</span><span class="p">:</span> <span class="n">true</span>
 <span class="p">}</span>
 </code></pre></div>
 <hr />
@@ -2578,19 +2578,19 @@ bench<span class="w"> </span>--site<span class="w"> </span>facturacion.dev<span 
 <span class="kn">import</span><span class="w"> </span><span class="nn">frappe</span>
 
 <span class="c1"># Obtener STCT de IEPS (contiene cuotas)</span>
-<span class="n">stct</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_doc</span><span class="p">(</span><span class="s2">&quot;Sales Taxes and Charges Template&quot;</span><span class="p">,</span> <span class="s2">&quot;STCT - IVA Nacional 16% - IEPS - TC&quot;</span><span class="p">)</span>
+<span class="n">stct</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_doc</span><span class="p">(</span><span class="s2">"Sales Taxes and Charges Template"</span><span class="p">,</span> <span class="s2">"STCT - IVA Nacional 16% - IEPS - TC"</span><span class="p">)</span>
 
 <span class="c1"># Buscar filas IEPS Cuota</span>
 <span class="k">for</span> <span class="n">tax</span> <span class="ow">in</span> <span class="n">stct</span><span class="o">.</span><span class="n">taxes</span><span class="p">:</span>
-    <span class="k">if</span> <span class="s2">&quot;IEPS&quot;</span> <span class="ow">in</span> <span class="n">tax</span><span class="o">.</span><span class="n">description</span> <span class="ow">and</span> <span class="s2">&quot;Cuota&quot;</span> <span class="ow">in</span> <span class="n">tax</span><span class="o">.</span><span class="n">description</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Fila </span><span class="si">{</span><span class="n">tax</span><span class="o">.</span><span class="n">idx</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">tax</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  charge_type: </span><span class="si">{</span><span class="n">tax</span><span class="o">.</span><span class="n">charge_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># ← DEBE SER &quot;On Item Quantity&quot;</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  rate: </span><span class="si">{</span><span class="n">tax</span><span class="o">.</span><span class="n">rate</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">"IEPS"</span> <span class="ow">in</span> <span class="n">tax</span><span class="o">.</span><span class="n">description</span> <span class="ow">and</span> <span class="s2">"Cuota"</span> <span class="ow">in</span> <span class="n">tax</span><span class="o">.</span><span class="n">description</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Fila </span><span class="si">{</span><span class="n">tax</span><span class="o">.</span><span class="n">idx</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">tax</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  charge_type: </span><span class="si">{</span><span class="n">tax</span><span class="o">.</span><span class="n">charge_type</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>  <span class="c1"># ← DEBE SER "On Item Quantity"</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  rate: </span><span class="si">{</span><span class="n">tax</span><span class="o">.</span><span class="n">rate</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">()</span>
 
 <span class="c1"># RESULTADO ESPERADO:</span>
 <span class="c1"># Fila X: IEPS Tabaco Cuota</span>
-<span class="c1">#   charge_type: On Item Quantity  ← ✅ CORRECTO (no &quot;On Net Total&quot;)</span>
+<span class="c1">#   charge_type: On Item Quantity  ← ✅ CORRECTO (no "On Net Total")</span>
 <span class="c1">#   rate: 0.0</span>
 </code></pre></div>
 <h3 id="22-verificar-orden-fiscal-iepsiva">2.2 Verificar orden fiscal IEPS→IVA<a class="headerlink" href="#22-verificar-orden-fiscal-iepsiva" title="Permanent link">&para;</a></h3>
@@ -2599,25 +2599,25 @@ bench<span class="w"> </span>--site<span class="w"> </span>facturacion.dev<span 
 <span class="n">iva_idx</span> <span class="o">=</span> <span class="kc">None</span>
 
 <span class="k">for</span> <span class="n">tax</span> <span class="ow">in</span> <span class="n">stct</span><span class="o">.</span><span class="n">taxes</span><span class="p">:</span>
-    <span class="k">if</span> <span class="s2">&quot;IEPS&quot;</span> <span class="ow">in</span> <span class="n">tax</span><span class="o">.</span><span class="n">description</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s2">"IEPS"</span> <span class="ow">in</span> <span class="n">tax</span><span class="o">.</span><span class="n">description</span><span class="p">:</span>
         <span class="n">ieps_idx</span> <span class="o">=</span> <span class="n">tax</span><span class="o">.</span><span class="n">idx</span>
-    <span class="k">if</span> <span class="s2">&quot;IVA&quot;</span> <span class="ow">in</span> <span class="n">tax</span><span class="o">.</span><span class="n">description</span> <span class="ow">and</span> <span class="n">iva_idx</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s2">"IVA"</span> <span class="ow">in</span> <span class="n">tax</span><span class="o">.</span><span class="n">description</span> <span class="ow">and</span> <span class="n">iva_idx</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">iva_idx</span> <span class="o">=</span> <span class="n">tax</span><span class="o">.</span><span class="n">idx</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;IEPS en índice: </span><span class="si">{</span><span class="n">ieps_idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;IVA en índice: </span><span class="si">{</span><span class="n">iva_idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Orden correcto: </span><span class="si">{</span><span class="n">ieps_idx</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">iva_idx</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">ieps_idx</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">iva_idx</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;N/A&#39;</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"IEPS en índice: </span><span class="si">{</span><span class="n">ieps_idx</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"IVA en índice: </span><span class="si">{</span><span class="n">iva_idx</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Orden correcto: </span><span class="si">{</span><span class="n">ieps_idx</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">iva_idx</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">ieps_idx</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">iva_idx</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">'N/A'</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 <span class="c1"># DEBE MOSTRAR: True</span>
 </code></pre></div>
 <h3 id="23-contar-stct-generados">2.3 Contar STCT generados<a class="headerlink" href="#23-contar-stct-generados" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><span class="c1"># Contar templates activos nuevos</span>
 <span class="n">stct_nuevos</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_all</span><span class="p">(</span>
-    <span class="s2">&quot;Sales Taxes and Charges Template&quot;</span><span class="p">,</span>
-    <span class="n">filters</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;disabled&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
-    <span class="n">fields</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;creation&quot;</span><span class="p">]</span>
+    <span class="s2">"Sales Taxes and Charges Template"</span><span class="p">,</span>
+    <span class="n">filters</span><span class="o">=</span><span class="p">{</span><span class="s2">"disabled"</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+    <span class="n">fields</span><span class="o">=</span><span class="p">[</span><span class="s2">"name"</span><span class="p">,</span> <span class="s2">"creation"</span><span class="p">]</span>
 <span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total STCT activos: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">stct_nuevos</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Total STCT activos: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">stct_nuevos</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 <span class="c1"># DEBE SER: 8 (o 7 si Frontera no aplica)</span>
 </code></pre></div>
 <hr />
@@ -2628,51 +2628,51 @@ bench<span class="w"> </span>--site<span class="w"> </span>facturacion.dev<span 
 <span class="kn">from</span><span class="w"> </span><span class="nn">frappe.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">nowdate</span>
 
 <span class="c1"># Crear SI con item IEPS Cuota</span>
-<span class="n">si</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">new_doc</span><span class="p">(</span><span class="s2">&quot;Sales Invoice&quot;</span><span class="p">)</span>
-<span class="n">si</span><span class="o">.</span><span class="n">customer</span> <span class="o">=</span> <span class="s2">&quot;TEST-CUSTOMER-001&quot;</span>
-<span class="n">si</span><span class="o">.</span><span class="n">company</span> <span class="o">=</span> <span class="s2">&quot;Tauro Cigarettes SA de CV&quot;</span>
+<span class="n">si</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">new_doc</span><span class="p">(</span><span class="s2">"Sales Invoice"</span><span class="p">)</span>
+<span class="n">si</span><span class="o">.</span><span class="n">customer</span> <span class="o">=</span> <span class="s2">"TEST-CUSTOMER-001"</span>
+<span class="n">si</span><span class="o">.</span><span class="n">company</span> <span class="o">=</span> <span class="s2">"Tauro Cigarettes SA de CV"</span>
 <span class="n">si</span><span class="o">.</span><span class="n">posting_date</span> <span class="o">=</span> <span class="n">nowdate</span><span class="p">()</span>
 
 <span class="c1"># Agregar item con IEPS Cuota</span>
-<span class="n">si</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;items&quot;</span><span class="p">,</span> <span class="p">{</span>
-    <span class="s2">&quot;item_code&quot;</span><span class="p">:</span> <span class="s2">&quot;TEST-IEPS-TABACO-001&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;qty&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>  <span class="c1"># 10 cajetillas</span>
-    <span class="s2">&quot;rate&quot;</span><span class="p">:</span> <span class="mf">50.00</span>
+<span class="n">si</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"items"</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s2">"item_code"</span><span class="p">:</span> <span class="s2">"TEST-IEPS-TABACO-001"</span><span class="p">,</span>
+    <span class="s2">"qty"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>  <span class="c1"># 10 cajetillas</span>
+    <span class="s2">"rate"</span><span class="p">:</span> <span class="mf">50.00</span>
 <span class="p">})</span>
 
 <span class="c1"># Asignar STCT con IEPS</span>
-<span class="n">si</span><span class="o">.</span><span class="n">taxes_and_charges</span> <span class="o">=</span> <span class="s2">&quot;STCT - IVA Nacional 16% - IEPS - TC&quot;</span>
+<span class="n">si</span><span class="o">.</span><span class="n">taxes_and_charges</span> <span class="o">=</span> <span class="s2">"STCT - IVA Nacional 16% - IEPS - TC"</span>
 
 <span class="c1"># Guardar DRAFT (no submit aún)</span>
 <span class="n">si</span><span class="o">.</span><span class="n">insert</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SI creada: </span><span class="si">{</span><span class="n">si</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"SI creada: </span><span class="si">{</span><span class="n">si</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </code></pre></div>
 <h3 id="32-verificar-charge_type-persiste-en-draft">3.2 Verificar charge_type persiste en Draft<a class="headerlink" href="#32-verificar-charge_type-persiste-en-draft" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><span class="c1"># Recargar SI y verificar taxes</span>
 <span class="n">si</span><span class="o">.</span><span class="n">reload</span><span class="p">()</span>
 
 <span class="k">for</span> <span class="n">tax</span> <span class="ow">in</span> <span class="n">si</span><span class="o">.</span><span class="n">taxes</span><span class="p">:</span>
-    <span class="k">if</span> <span class="s2">&quot;IEPS&quot;</span> <span class="ow">in</span> <span class="n">tax</span><span class="o">.</span><span class="n">description</span> <span class="ow">and</span> <span class="s2">&quot;Cuota&quot;</span> <span class="ow">in</span> <span class="n">tax</span><span class="o">.</span><span class="n">description</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;DRAFT - </span><span class="si">{</span><span class="n">tax</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  charge_type: </span><span class="si">{</span><span class="n">tax</span><span class="o">.</span><span class="n">charge_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># ← DEBE SER &quot;On Item Quantity&quot;</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  tax_amount: </span><span class="si">{</span><span class="n">tax</span><span class="o">.</span><span class="n">tax_amount</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">"IEPS"</span> <span class="ow">in</span> <span class="n">tax</span><span class="o">.</span><span class="n">description</span> <span class="ow">and</span> <span class="s2">"Cuota"</span> <span class="ow">in</span> <span class="n">tax</span><span class="o">.</span><span class="n">description</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"DRAFT - </span><span class="si">{</span><span class="n">tax</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  charge_type: </span><span class="si">{</span><span class="n">tax</span><span class="o">.</span><span class="n">charge_type</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>  <span class="c1"># ← DEBE SER "On Item Quantity"</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  tax_amount: </span><span class="si">{</span><span class="n">tax</span><span class="o">.</span><span class="n">tax_amount</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </code></pre></div>
 <h3 id="33-submit-y-verificar-estabilidad">3.3 Submit y verificar estabilidad<a class="headerlink" href="#33-submit-y-verificar-estabilidad" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><span class="c1"># Submit SI</span>
 <span class="n">si</span><span class="o">.</span><span class="n">submit</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SI submitted: </span><span class="si">{</span><span class="n">si</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"SI submitted: </span><span class="si">{</span><span class="n">si</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="c1"># Recargar y verificar que charge_type NO cambió</span>
 <span class="n">si</span><span class="o">.</span><span class="n">reload</span><span class="p">()</span>
 
 <span class="k">for</span> <span class="n">tax</span> <span class="ow">in</span> <span class="n">si</span><span class="o">.</span><span class="n">taxes</span><span class="p">:</span>
-    <span class="k">if</span> <span class="s2">&quot;IEPS&quot;</span> <span class="ow">in</span> <span class="n">tax</span><span class="o">.</span><span class="n">description</span> <span class="ow">and</span> <span class="s2">&quot;Cuota&quot;</span> <span class="ow">in</span> <span class="n">tax</span><span class="o">.</span><span class="n">description</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SUBMIT - </span><span class="si">{</span><span class="n">tax</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  charge_type: </span><span class="si">{</span><span class="n">tax</span><span class="o">.</span><span class="n">charge_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># ← DEBE SEGUIR &quot;On Item Quantity&quot;</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  tax_amount: </span><span class="si">{</span><span class="n">tax</span><span class="o">.</span><span class="n">tax_amount</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">"IEPS"</span> <span class="ow">in</span> <span class="n">tax</span><span class="o">.</span><span class="n">description</span> <span class="ow">and</span> <span class="s2">"Cuota"</span> <span class="ow">in</span> <span class="n">tax</span><span class="o">.</span><span class="n">description</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"SUBMIT - </span><span class="si">{</span><span class="n">tax</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  charge_type: </span><span class="si">{</span><span class="n">tax</span><span class="o">.</span><span class="n">charge_type</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>  <span class="c1"># ← DEBE SEGUIR "On Item Quantity"</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  tax_amount: </span><span class="si">{</span><span class="n">tax</span><span class="o">.</span><span class="n">tax_amount</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="c1"># CRITERIO ÉXITO:</span>
-<span class="c1"># charge_type permanece &quot;On Item Quantity&quot; en Draft Y Submit</span>
+<span class="c1"># charge_type permanece "On Item Quantity" en Draft Y Submit</span>
 <span class="c1"># tax_amount NO cambió entre Draft y Submit</span>
 </code></pre></div>
 <hr />
@@ -2693,14 +2693,14 @@ bench<span class="w"> </span>--site<span class="w"> </span>facturacion.dev<span 
 <span class="kn">import</span><span class="w"> </span><span class="nn">frappe</span>
 
 <span class="c1"># Deshabilitar STCT nuevos (no borrar - conservar historial)</span>
-<span class="n">stct_nuevos</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_all</span><span class="p">(</span><span class="s2">&quot;Sales Taxes and Charges Template&quot;</span><span class="p">,</span>
-                              <span class="n">filters</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;disabled&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
+<span class="n">stct_nuevos</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_all</span><span class="p">(</span><span class="s2">"Sales Taxes and Charges Template"</span><span class="p">,</span>
+                              <span class="n">filters</span><span class="o">=</span><span class="p">{</span><span class="s2">"disabled"</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
 
 <span class="k">for</span> <span class="n">stct</span> <span class="ow">in</span> <span class="n">stct_nuevos</span><span class="p">:</span>
-    <span class="n">doc</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_doc</span><span class="p">(</span><span class="s2">&quot;Sales Taxes and Charges Template&quot;</span><span class="p">,</span> <span class="n">stct</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">doc</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_doc</span><span class="p">(</span><span class="s2">"Sales Taxes and Charges Template"</span><span class="p">,</span> <span class="n">stct</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
     <span class="n">doc</span><span class="o">.</span><span class="n">disabled</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">doc</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Deshabilitado: </span><span class="si">{</span><span class="n">stct</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Deshabilitado: </span><span class="si">{</span><span class="n">stct</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="n">frappe</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
 

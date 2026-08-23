@@ -2594,36 +2594,36 @@
 <h3 id="1-backend-python">1. Backend Python<a class="headerlink" href="#1-backend-python" title="Permanent link">&para;</a></h3>
 <h4 id="funcion-_resolve_auto_email_flagcustomer_name">Función <code>_resolve_auto_email_flag(customer_name)</code><a class="headerlink" href="#funcion-_resolve_auto_email_flagcustomer_name" title="Permanent link">&para;</a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_resolve_auto_email_flag</span><span class="p">(</span><span class="n">customer_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Resuelve automáticamente si enviar email usando lógica cascade.</span>
 
 <span class="sd">    Prioridad:</span>
-<span class="sd">    1. Customer.fm_envio_email_cliente (&quot;Enviar&quot;/&quot;No enviar&quot;)</span>
-<span class="sd">    2. Settings.send_email_default (si Customer = &quot;Default&quot;)</span>
+<span class="sd">    1. Customer.fm_envio_email_cliente ("Enviar"/"No enviar")</span>
+<span class="sd">    2. Settings.send_email_default (si Customer = "Default")</span>
 <span class="sd">    3. False (por defecto)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 </code></pre></div>
 <p><strong>Ubicación</strong>: <code>factura_fiscal_mexico.py</code>
 <strong>Uso</strong>: Llamada en <code>before_insert()</code> y funciones de resolución</p>
 <h4 id="metodo-before_insert">Método <code>before_insert()</code><a class="headerlink" href="#metodo-before_insert" title="Permanent link">&para;</a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">before_insert</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Auto-asigna fm_enviar_email_timbrado usando lógica cascade.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Auto-asigna fm_enviar_email_timbrado usando lógica cascade."""</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">frappe.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">cint</span>
         <span class="n">flag</span> <span class="o">=</span> <span class="n">_resolve_auto_email_flag</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">customer</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fm_enviar_email_timbrado</span> <span class="o">=</span> <span class="n">cint</span><span class="p">(</span><span class="n">flag</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fm_enviar_email_timbrado</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">frappe</span><span class="o">.</span><span class="n">logger</span><span class="p">()</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[FFM before_insert] No se pudo resolver auto-email: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">frappe</span><span class="o">.</span><span class="n">logger</span><span class="p">()</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"[FFM before_insert] No se pudo resolver auto-email: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </code></pre></div>
 <p><strong>Ubicación</strong>: Clase <code>FacturaFiscalMexico</code>
 <strong>Propósito</strong>: Auto-configuración campo en documentos nuevos</p>
 <h4 id="metodo-on_successful_stamp">Método <code>on_successful_stamp()</code><a class="headerlink" href="#metodo-on_successful_stamp" title="Permanent link">&para;</a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">on_successful_stamp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Llamado después de timbrado exitoso para envío automático.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Llamado después de timbrado exitoso para envío automático."""</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">frappe.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">cint</span>
 
-    <span class="k">if</span> <span class="n">cint</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;fm_enviar_email_timbrado&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">cint</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"fm_enviar_email_timbrado"</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">return</span>
 
     <span class="c1"># Enviar si hay destinatario</span>
@@ -2633,7 +2633,7 @@
 <strong>Propósito</strong>: Trigger automático post-timbrado</p>
 <h4 id="funcion-_send_cfdi_emaildoc-to_overridenone">Función <code>_send_cfdi_email(doc, to_override=None)</code><a class="headerlink" href="#funcion-_send_cfdi_emaildoc-to_overridenone" title="Permanent link">&para;</a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_send_cfdi_email</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">to_override</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Envía CFDI por email via FacturAPI.</span>
 
 <span class="sd">    Args:</span>
@@ -2641,17 +2641,17 @@
 <span class="sd">        to_override: Email específico (opcional)</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        dict: {&quot;sent&quot;: bool, &quot;to&quot;: str, &quot;reason&quot;: str, &quot;error&quot;: str}</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        dict: {"sent": bool, "to": str, "reason": str, "error": str}</span>
+<span class="sd">    """</span>
 </code></pre></div>
 <p><strong>Ubicación</strong>: <code>factura_fiscal_mexico.py</code>
 <strong>Propósito</strong>: Lógica core de envío email</p>
 <h4 id="endpoint-action_send_cfdi_emailffm_name-tonone">Endpoint <code>action_send_cfdi_email(ffm_name, to=None)</code><a class="headerlink" href="#endpoint-action_send_cfdi_emailffm_name-tonone" title="Permanent link">&para;</a></h4>
 <div class="highlight"><pre><span></span><code><span class="nd">@frappe</span><span class="o">.</span><span class="n">whitelist</span><span class="p">()</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">action_send_cfdi_email</span><span class="p">(</span><span class="n">ffm_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">to</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Endpoint whitelisted para botón manual.&quot;&quot;&quot;</span>
-    <span class="n">doc</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_doc</span><span class="p">(</span><span class="s2">&quot;Factura Fiscal Mexico&quot;</span><span class="p">,</span> <span class="n">ffm_name</span><span class="p">)</span>
-    <span class="n">frappe</span><span class="o">.</span><span class="n">has_permission</span><span class="p">(</span><span class="n">doctype</span><span class="o">=</span><span class="s2">&quot;Factura Fiscal Mexico&quot;</span><span class="p">,</span> <span class="n">ptype</span><span class="o">=</span><span class="s2">&quot;write&quot;</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="n">doc</span><span class="p">,</span> <span class="n">throw</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">"""Endpoint whitelisted para botón manual."""</span>
+    <span class="n">doc</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_doc</span><span class="p">(</span><span class="s2">"Factura Fiscal Mexico"</span><span class="p">,</span> <span class="n">ffm_name</span><span class="p">)</span>
+    <span class="n">frappe</span><span class="o">.</span><span class="n">has_permission</span><span class="p">(</span><span class="n">doctype</span><span class="o">=</span><span class="s2">"Factura Fiscal Mexico"</span><span class="p">,</span> <span class="n">ptype</span><span class="o">=</span><span class="s2">"write"</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="n">doc</span><span class="p">,</span> <span class="n">throw</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">_send_cfdi_email</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">to_override</span><span class="o">=</span><span class="n">to</span><span class="p">)</span>
 </code></pre></div>
 <p><strong>Ubicación</strong>: <code>factura_fiscal_mexico.py</code>
@@ -2659,10 +2659,10 @@
 <h3 id="2-cliente-facturapi">2. Cliente FacturAPI<a class="headerlink" href="#2-cliente-facturapi" title="Permanent link">&para;</a></h3>
 <h4 id="metodo-send_invoice_emailinvoice_id-email">Método <code>send_invoice_email(invoice_id, email)</code><a class="headerlink" href="#metodo-send_invoice_emailinvoice_id-email" title="Permanent link">&para;</a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">send_invoice_email</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">invoice_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">email</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Enviar CFDI por email via FacturAPI.&quot;&quot;&quot;</span>
-    <span class="n">endpoint</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;/invoices/</span><span class="si">{</span><span class="n">invoice_id</span><span class="si">}</span><span class="s2">/email&quot;</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="n">email</span><span class="p">}</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_request</span><span class="p">(</span><span class="s2">&quot;POST&quot;</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">"""Enviar CFDI por email via FacturAPI."""</span>
+    <span class="n">endpoint</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"/invoices/</span><span class="si">{</span><span class="n">invoice_id</span><span class="si">}</span><span class="s2">/email"</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"email"</span><span class="p">:</span> <span class="n">email</span><span class="p">}</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_request</span><span class="p">(</span><span class="s2">"POST"</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
 </code></pre></div>
 <p><strong>Ubicación</strong>: <code>api_client.py</code> - Clase <code>FacturAPIClient</code>
 <strong>Propósito</strong>: Integración directa con FacturAPI</p>
@@ -2674,9 +2674,9 @@
 <span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">is_stamped</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">!!</span><span class="nx">frm</span><span class="p">.</span><span class="nx">doc</span><span class="p">.</span><span class="nx">fm_uuid</span><span class="p">;</span>
 
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">is_submitted</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">is_stamped</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="c1">// Botones agrupados en dropdown &quot;Comprobantes&quot;</span>
-<span class="w">        </span><span class="nx">frm</span><span class="p">.</span><span class="nx">add_custom_button</span><span class="p">(</span><span class="nx">__</span><span class="p">(</span><span class="s2">&quot;Descargar PDF+XML&quot;</span><span class="p">),</span><span class="w"> </span><span class="p">...,</span><span class="w"> </span><span class="nx">__</span><span class="p">(</span><span class="s2">&quot;Comprobantes&quot;</span><span class="p">));</span>
-<span class="w">        </span><span class="nx">frm</span><span class="p">.</span><span class="nx">add_custom_button</span><span class="p">(</span><span class="nx">__</span><span class="p">(</span><span class="s2">&quot;Enviar por email&quot;</span><span class="p">),</span><span class="w"> </span><span class="p">...,</span><span class="w"> </span><span class="nx">__</span><span class="p">(</span><span class="s2">&quot;Comprobantes&quot;</span><span class="p">));</span>
+<span class="w">        </span><span class="c1">// Botones agrupados en dropdown "Comprobantes"</span>
+<span class="w">        </span><span class="nx">frm</span><span class="p">.</span><span class="nx">add_custom_button</span><span class="p">(</span><span class="nx">__</span><span class="p">(</span><span class="s2">"Descargar PDF+XML"</span><span class="p">),</span><span class="w"> </span><span class="p">...,</span><span class="w"> </span><span class="nx">__</span><span class="p">(</span><span class="s2">"Comprobantes"</span><span class="p">));</span>
+<span class="w">        </span><span class="nx">frm</span><span class="p">.</span><span class="nx">add_custom_button</span><span class="p">(</span><span class="nx">__</span><span class="p">(</span><span class="s2">"Enviar por email"</span><span class="p">),</span><span class="w"> </span><span class="p">...,</span><span class="w"> </span><span class="nx">__</span><span class="p">(</span><span class="s2">"Comprobantes"</span><span class="p">));</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -2685,33 +2685,33 @@
 <h2 id="custom-fields-requeridos">Custom Fields Requeridos<a class="headerlink" href="#custom-fields-requeridos" title="Permanent link">&para;</a></h2>
 <h3 id="customer-doctype">Customer DocType<a class="headerlink" href="#customer-doctype" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;fieldname&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fm_envio_email_cliente&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;fieldtype&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Select&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Envío Email Cliente&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;options&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Default (usar settings)\nEnviar\nNo enviar&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Default (usar settings)&quot;</span>
+<span class="w">    </span><span class="nt">"fieldname"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fm_envio_email_cliente"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"fieldtype"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Select"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"label"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Envío Email Cliente"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"options"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Default (usar settings)\nEnviar\nNo enviar"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"default"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Default (usar settings)"</span>
 <span class="p">}</span>
 </code></pre></div>
 <h3 id="factura-fiscal-mexico-doctype">Factura Fiscal Mexico DocType<a class="headerlink" href="#factura-fiscal-mexico-doctype" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;fieldname&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fm_enviar_email_timbrado&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;fieldtype&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Check&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Enviar CFDI por email al timbrar&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">    </span><span class="nt">"fieldname"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fm_enviar_email_timbrado"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"fieldtype"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Check"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"label"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Enviar CFDI por email al timbrar"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"default"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span>
 <span class="p">}</span>
 </code></pre></div>
 <h3 id="facturacion-mexico-company-settings-doctype-por-compania">Facturacion Mexico Company Settings DocType (por compañía)<a class="headerlink" href="#facturacion-mexico-company-settings-doctype-por-compania" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;fieldname&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;send_email_default&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;fieldtype&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Check&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Enviar email por defecto al timbrar&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">    </span><span class="nt">"fieldname"</span><span class="p">:</span><span class="w"> </span><span class="s2">"send_email_default"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"fieldtype"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Check"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"label"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Enviar email por defecto al timbrar"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"default"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span>
 <span class="p">},</span>
 <span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;fieldname&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;customer_email_fallback&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;fieldtype&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Data&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Email fallback cliente&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;options&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Email&quot;</span>
+<span class="w">    </span><span class="nt">"fieldname"</span><span class="p">:</span><span class="w"> </span><span class="s2">"customer_email_fallback"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"fieldtype"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Data"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"label"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Email fallback cliente"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"options"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Email"</span>
 <span class="p">}</span>
 </code></pre></div>
 <h2 id="patrones-de-desarrollo">Patrones de Desarrollo<a class="headerlink" href="#patrones-de-desarrollo" title="Permanent link">&para;</a></h2>
@@ -2731,14 +2731,14 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">fm_enviar_email_timbrado</span> <span class="o">=</span> <span class="n">cint</span><span class="p">(</span><span class="n">flag</span><span class="p">)</span>
 <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">fm_enviar_email_timbrado</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># Valor seguro</span>
-    <span class="n">frappe</span><span class="o">.</span><span class="n">logger</span><span class="p">()</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error context: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">frappe</span><span class="o">.</span><span class="n">logger</span><span class="p">()</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Error context: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </code></pre></div>
 <h3 id="logica-cascade">Lógica Cascade<a class="headerlink" href="#logica-cascade" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><span class="c1"># Prioridad clara y documentada</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_auto_email_flag</span><span class="p">(</span><span class="n">customer_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
     <span class="c1"># 1. Configuración específica del cliente</span>
-    <span class="k">if</span> <span class="n">customer_setting</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Enviar&quot;</span><span class="p">,</span> <span class="s2">&quot;No enviar&quot;</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="n">customer_setting</span> <span class="o">==</span> <span class="s2">&quot;Enviar&quot;</span>
+    <span class="k">if</span> <span class="n">customer_setting</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"Enviar"</span><span class="p">,</span> <span class="s2">"No enviar"</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">customer_setting</span> <span class="o">==</span> <span class="s2">"Enviar"</span>
 
     <span class="c1"># 2. Configuración global Settings</span>
     <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">send_email_default</span><span class="p">)</span>
@@ -2746,46 +2746,46 @@
 <h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
 <h3 id="unit-tests-recomendados">Unit Tests Recomendados<a class="headerlink" href="#unit-tests-recomendados" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_email_cascade_logic</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test lógica cascade Customer/Settings.&quot;&quot;&quot;</span>
-    <span class="c1"># Customer = &quot;Enviar&quot;, Settings = 0 → Debe retornar True</span>
-    <span class="c1"># Customer = &quot;No enviar&quot;, Settings = 1 → Debe retornar False</span>
-    <span class="c1"># Customer = &quot;Default&quot;, Settings = 1 → Debe retornar True</span>
+<span class="w">    </span><span class="sd">"""Test lógica cascade Customer/Settings."""</span>
+    <span class="c1"># Customer = "Enviar", Settings = 0 → Debe retornar True</span>
+    <span class="c1"># Customer = "No enviar", Settings = 1 → Debe retornar False</span>
+    <span class="c1"># Customer = "Default", Settings = 1 → Debe retornar True</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">test_before_insert_email_assignment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test auto-asignación en before_insert.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Test auto-asignación en before_insert."""</span>
     <span class="c1"># Crear FFM nuevo → Verificar fm_enviar_email_timbrado correcto</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">test_on_successful_stamp_trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test trigger automático post-timbrado.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Test trigger automático post-timbrado."""</span>
     <span class="c1"># Mock timbrado exitoso → Verificar llamada a _send_cfdi_email</span>
 </code></pre></div>
 <h2 id="debugging">Debugging<a class="headerlink" href="#debugging" title="Permanent link">&para;</a></h2>
 <h3 id="logs-clave">Logs Clave<a class="headerlink" href="#logs-clave" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><span class="c1"># En before_insert()</span>
-<span class="n">frappe</span><span class="o">.</span><span class="n">logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[FFM before_insert] Customer: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">customer</span><span class="si">}</span><span class="s2">, Flag resolved: </span><span class="si">{</span><span class="n">flag</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">frappe</span><span class="o">.</span><span class="n">logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"[FFM before_insert] Customer: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">customer</span><span class="si">}</span><span class="s2">, Flag resolved: </span><span class="si">{</span><span class="n">flag</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="c1"># En on_successful_stamp()</span>
-<span class="n">frappe</span><span class="o">.</span><span class="n">logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[FFM stamp] Email flag: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">fm_enviar_email_timbrado</span><span class="si">}</span><span class="s2">, Sending: </span><span class="si">{</span><span class="n">will_send</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">frappe</span><span class="o">.</span><span class="n">logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"[FFM stamp] Email flag: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">fm_enviar_email_timbrado</span><span class="si">}</span><span class="s2">, Sending: </span><span class="si">{</span><span class="n">will_send</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="c1"># En _send_cfdi_email()</span>
-<span class="n">frappe</span><span class="o">.</span><span class="n">logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[FFM email] To: </span><span class="si">{</span><span class="n">to_email</span><span class="si">}</span><span class="s2">, FacturAPI ID: </span><span class="si">{</span><span class="n">facturapi_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">frappe</span><span class="o">.</span><span class="n">logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"[FFM email] To: </span><span class="si">{</span><span class="n">to_email</span><span class="si">}</span><span class="s2">, FacturAPI ID: </span><span class="si">{</span><span class="n">facturapi_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </code></pre></div>
 <h3 id="verificacion-estado">Verificación Estado<a class="headerlink" href="#verificacion-estado" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><span class="c1"># Verificar configuración cascade</span>
-<span class="n">flag</span> <span class="o">=</span> <span class="n">_resolve_auto_email_flag</span><span class="p">(</span><span class="s2">&quot;CUSTOMER_NAME&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Email flag for customer: </span><span class="si">{</span><span class="n">flag</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">flag</span> <span class="o">=</span> <span class="n">_resolve_auto_email_flag</span><span class="p">(</span><span class="s2">"CUSTOMER_NAME"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Email flag for customer: </span><span class="si">{</span><span class="n">flag</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="c1"># Verificar custom fields</span>
-<span class="n">customer</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_doc</span><span class="p">(</span><span class="s2">&quot;Customer&quot;</span><span class="p">,</span> <span class="s2">&quot;CUSTOMER_NAME&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Customer email setting: </span><span class="si">{</span><span class="n">customer</span><span class="o">.</span><span class="n">fm_envio_email_cliente</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">customer</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_doc</span><span class="p">(</span><span class="s2">"Customer"</span><span class="p">,</span> <span class="s2">"CUSTOMER_NAME"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Customer email setting: </span><span class="si">{</span><span class="n">customer</span><span class="o">.</span><span class="n">fm_envio_email_cliente</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="n">settings</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span>
-    <span class="s2">&quot;Facturacion Mexico Company Settings&quot;</span><span class="p">,</span>
-    <span class="p">{</span><span class="s2">&quot;company&quot;</span><span class="p">:</span> <span class="n">customer</span><span class="o">.</span><span class="n">represents_company</span> <span class="ow">or</span> <span class="n">frappe</span><span class="o">.</span><span class="n">defaults</span><span class="o">.</span><span class="n">get_user_default</span><span class="p">(</span><span class="s2">&quot;company&quot;</span><span class="p">)},</span>
-    <span class="p">[</span><span class="s2">&quot;send_email_default&quot;</span><span class="p">,</span> <span class="s2">&quot;customer_email_fallback&quot;</span><span class="p">],</span>
+    <span class="s2">"Facturacion Mexico Company Settings"</span><span class="p">,</span>
+    <span class="p">{</span><span class="s2">"company"</span><span class="p">:</span> <span class="n">customer</span><span class="o">.</span><span class="n">represents_company</span> <span class="ow">or</span> <span class="n">frappe</span><span class="o">.</span><span class="n">defaults</span><span class="o">.</span><span class="n">get_user_default</span><span class="p">(</span><span class="s2">"company"</span><span class="p">)},</span>
+    <span class="p">[</span><span class="s2">"send_email_default"</span><span class="p">,</span> <span class="s2">"customer_email_fallback"</span><span class="p">],</span>
     <span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Company default: </span><span class="si">{</span><span class="n">settings</span><span class="o">.</span><span class="n">send_email_default</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">settings</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="kc">None</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Company default: </span><span class="si">{</span><span class="n">settings</span><span class="o">.</span><span class="n">send_email_default</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">settings</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="kc">None</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </code></pre></div>
 
 

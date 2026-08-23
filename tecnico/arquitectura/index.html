@@ -2548,12 +2548,12 @@ empresa es MXN</strong>; la app no lo garantiza (solo lo recomienda en el setup)
 divisa desde una empresa con base ≠ MXN se <strong>bloquea</strong> explícitamente (fail-closed). La FFM <strong>no</strong>
 guarda copia propia de moneda/tipo de cambio: siempre se derivan de la Sales Invoice.</p>
 <h2 id="flujo-e-receipt-autofactura">Flujo E-Receipt / Autofactura<a class="headerlink" href="#flujo-e-receipt-autofactura" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code>Sales Invoice (submit, fm_ereceipt_mode=&quot;E-Receipt&quot;)
+<div class="highlight"><pre><span></span><code>Sales Invoice (submit, fm_ereceipt_mode="E-Receipt")
   → crear_ereceipt() → EReceipt MX (local)
   → POST /receipts → FacturAPI.io
   → FacturAPI genera: receipt + self_invoice_url + key
   → EReceipt MX guarda: facturapi_id, key, self_invoice_url, status=open
-  → SI actualiza: fm_ereceipt_mx = EReceipt.name, fm_fiscal_status = &quot;E-RECEIPT&quot;
+  → SI actualiza: fm_ereceipt_mx = EReceipt.name, fm_fiscal_status = "E-RECEIPT"
 
 Cliente visita self_invoice_url → portal FacturAPI
   → captura RFC, razón social, email
@@ -2563,7 +2563,7 @@ Cliente visita self_invoice_url → portal FacturAPI
 Sync (scheduler o manual)
   → GET /receipts/{facturapi_id}
   → EReceipt MX actualiza: status, invoice_uuid, invoice_folio, invoiced_at
-  → SI actualiza: fm_fiscal_status = &quot;E-RECEIPT-FACTURADO&quot;
+  → SI actualiza: fm_fiscal_status = "E-RECEIPT-FACTURADO"
 </code></pre></div>
 <p><strong>Principio arquitectónico:</strong> FacturAPI hace el heavy lifting fiscal (timbrado, portal, CFDI global).
 ERPNext solo conserva trazabilidad y control. UUID/folio/invoice_id <strong>nunca</strong> se copian a Sales Invoice.

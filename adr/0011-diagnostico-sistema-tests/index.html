@@ -2318,8 +2318,8 @@ Bench: /home/erpnext/frappe-bench-v16</p>
 <p>El runner falla en la <strong>inicialización de ERPNext</strong> antes de ejecutar
 un solo test de <code>facturacion_mexico</code>:</p>
 <div class="highlight"><pre><span></span><code>frappe.exceptions.DuplicateEntryError:
-(&#39;Item Tax Template&#39;, &#39;_Test Item Tax Template 1 - _TC&#39;,
- IntegrityError(1062, &quot;Duplicate entry ... for key &#39;PRIMARY&#39;&quot;))
+('Item Tax Template', '_Test Item Tax Template 1 - _TC',
+ IntegrityError(1062, "Duplicate entry ... for key 'PRIMARY'"))
 </code></pre></div>
 <p><strong>Cadena de fallo:</strong></p>
 <div class="highlight"><pre><span></span><code>bench run-tests --app facturacion_mexico

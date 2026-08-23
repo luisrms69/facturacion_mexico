@@ -2636,8 +2636,8 @@ implementación. Se recomienda evaluar DocType separado para tipo E en versiones
 <h2 id="cambios-implementados">Cambios implementados<a class="headerlink" href="#cambios-implementados" title="Permanent link">&para;</a></h2>
 <h3 id="1-uuid-relacionado-obligatorio">1. UUID relacionado obligatorio<a class="headerlink" href="#1-uuid-relacionado-obligatorio" title="Permanent link">&para;</a></h3>
 <p>Guard bloqueante en <code>_prepare_facturapi_data()</code> antes de enviar a FacturAPI:</p>
-<div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="n">invoice_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;E&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">uuid_relacionado</span><span class="p">:</span>
-    <span class="n">frappe</span><span class="o">.</span><span class="n">throw</span><span class="p">(</span><span class="s2">&quot;No se puede timbrar la Nota de Crédito: falta el UUID del CFDI origen relacionado.&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="n">invoice_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"type"</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"E"</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">uuid_relacionado</span><span class="p">:</span>
+    <span class="n">frappe</span><span class="o">.</span><span class="n">throw</span><span class="p">(</span><span class="s2">"No se puede timbrar la Nota de Crédito: falta el UUID del CFDI origen relacionado."</span><span class="p">)</span>
 </code></pre></div>
 <p><code>related_documents</code> se garantiza siempre — no se omite silenciosamente.</p>
 <h3 id="2-resolucion-automatica-de-uuid-origen-_find_uuid_cfdi_origen">2. Resolución automática de UUID origen — <code>_find_uuid_cfdi_origen()</code><a class="headerlink" href="#2-resolucion-automatica-de-uuid-origen-_find_uuid_cfdi_origen" title="Permanent link">&para;</a></h3>
@@ -2651,11 +2651,11 @@ implementación. Se recomienda evaluar DocType separado para tipo E en versiones
 <h3 id="4-formapago-automatica-_auto_populate_forma_pago_tipo_e-provisional">4. FormaPago automática — <code>_auto_populate_forma_pago_tipo_e()</code> <em>(provisional)</em><a class="headerlink" href="#4-formapago-automatica-_auto_populate_forma_pago_tipo_e-provisional" title="Permanent link">&para;</a></h3>
 <p>Fuente única de verdad para FormaPago en tipo E, basada en <code>outstanding_amount</code> de la SI origen:</p>
 <div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="n">nota_total</span> <span class="o">&lt;=</span> <span class="n">outstanding_origen</span><span class="p">:</span>   <span class="c1"># factura no pagada</span>
-    <span class="n">forma_pago</span> <span class="o">=</span> <span class="s2">&quot;15 - Condonación&quot;</span>
+    <span class="n">forma_pago</span> <span class="o">=</span> <span class="s2">"15 - Condonación"</span>
 <span class="k">elif</span> <span class="n">outstanding_origen</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>          <span class="c1"># factura pagada</span>
     <span class="n">forma_pago</span> <span class="o">=</span> <span class="n">hereda</span> <span class="n">de</span> <span class="n">FFM</span> <span class="n">origen</span>  <span class="c1"># proxy; pendiente Issue #136</span>
 <span class="k">else</span><span class="p">:</span>                                  <span class="c1"># caso mixto</span>
-    <span class="n">forma_pago</span> <span class="o">=</span> <span class="s2">&quot;15 - Condonación&quot;</span>   <span class="c1"># safe default</span>
+    <span class="n">forma_pago</span> <span class="o">=</span> <span class="s2">"15 - Condonación"</span>   <span class="c1"># safe default</span>
 </code></pre></div>
 <p><strong>Provisional:</strong> el caso <code>outstanding=0</code> puede representar "saldo a favor" (sin reembolso real)
 o reembolso efectivo. La distinción requiere validación con despacho contable. Ver Issue #136.</p>

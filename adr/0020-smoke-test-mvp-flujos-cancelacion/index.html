@@ -2564,17 +2564,17 @@
 <h2 id="workflow-correcto-por-escenario-para-usuarios">Workflow correcto por escenario (para usuarios)<a class="headerlink" href="#workflow-correcto-por-escenario-para-usuarios" title="Permanent link">&para;</a></h2>
 <h3 id="timbrado-inicial">Timbrado inicial<a class="headerlink" href="#timbrado-inicial" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>1. Crear Sales Invoice → Submit
-2. En SI: botón &quot;Timbrar Factura&quot; → crea FFM en borrador
-3. En FFM: Submit → botón &quot;Timbrar con FacturAPI&quot;
+2. En SI: botón "Timbrar Factura" → crea FFM en borrador
+3. En FFM: Submit → botón "Timbrar con FacturAPI"
 4. FFM queda TIMBRADO con UUID SAT
 </code></pre></div>
 <h3 id="cancelacion-de-complemento-de-pago">Cancelación de Complemento de Pago<a class="headerlink" href="#cancelacion-de-complemento-de-pago" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>Condición: tener FFM PPD timbrada + Payment Entry + Complemento timbrado
 
-1. En Complemento: botón &quot;Cancelar&quot; → seleccionar motivo (02/03)
+1. En Complemento: botón "Cancelar" → seleccionar motivo (02/03)
 2. Complemento queda Cancelado
 3. Cancelar Payment Entry → Amend → nuevo PE
-4. Desde nuevo PE: &quot;Generar Complemento&quot; → timbrar nuevo Complemento
+4. Desde nuevo PE: "Generar Complemento" → timbrar nuevo Complemento
 
 Nota: motivo 01 en complemento no está implementado.
 Nota: al hacer cancel/amend del PE se pierde la relación histórica PE→Complemento anterior.
@@ -2582,12 +2582,12 @@ Nota: al hacer cancel/amend del PE se pierde la relación histórica PE→Comple
 <h3 id="cancelacion-ffm-motivo-01-sustitucion-con-cfdi-relacionado">Cancelación FFM — Motivo 01 (sustitución con CFDI relacionado)<a class="headerlink" href="#cancelacion-ffm-motivo-01-sustitucion-con-cfdi-relacionado" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>Condición: FFM TIMBRADO, SI sin pagos activos
 
-1. En SI (con FFM TIMBRADO): &quot;Acciones Fiscales → 🔄 Sustituir CFDI (01)&quot;
+1. En SI (con FFM TIMBRADO): "Acciones Fiscales → 🔄 Sustituir CFDI (01)"
 2. Se crea SI nueva de reemplazo en borrador — modificar datos si es necesario
 3. Submit SI nueva → Timbrar FFM nueva
 4. Al timbrar la nueva FFM: la FFM original se cancela automáticamente ante el SAT
    con TipoRelación 04 referenciando el UUID original ✅
-5. Verificar en log: related_documents[{relationship: &quot;04&quot;, documents: [UUID_original]}]
+5. Verificar en log: related_documents[{relationship: "04", documents: [UUID_original]}]
 
 Regla SAT respetada: FFM original permanece TIMBRADA hasta que la sustituta esté timbrada.
 </code></pre></div>
@@ -2597,22 +2597,22 @@ Regla SAT respetada: FFM original permanece TIMBRADA hasta que la sustituta est�
 [Si hay Complemento activo]
 → Primero cancelar Complemento → luego cancelar FFM
 
-1. En FFM: &quot;Cancelar en FacturAPI&quot; → seleccionar motivo → Confirmar
+1. En FFM: "Cancelar en FacturAPI" → seleccionar motivo → Confirmar
 2. FFM queda CANCELADO
-3. En SI aparece grupo &quot;Opciones Fiscales&quot;:
+3. En SI aparece grupo "Opciones Fiscales":
 
    Opción A — Retimbrar misma factura (error fue en FFM, no en SI):
-   → &quot;🔄 Nueva factura fiscal&quot; → desvincuala SI de FFM cancelada
-   → &quot;Generar Factura Fiscal&quot; → nueva FFM → timbrar
+   → "🔄 Nueva factura fiscal" → desvincuala SI de FFM cancelada
+   → "Generar Factura Fiscal" → nueva FFM → timbrar
    → ⚠️ La SI no se puede modificar en este flujo
 
    Opción B — Cambiar datos de la factura o motivo 03 (operación no realizada):
-   → &quot;❌ Cancelar documento&quot; → desvincula FFMs y cancela SI en un paso
+   → "❌ Cancelar documento" → desvincula FFMs y cancela SI en un paso
    → Si necesita nueva factura: Amend → nueva SI → nueva FFM → timbrar
    → Si no necesita nueva factura (motivo 03): fin
 
    Opción C — Motivo 04 (operación en factura global):
-   → &quot;❌ Cancelar documento&quot; → cancela SI
+   → "❌ Cancelar documento" → cancela SI
    → ⚠️ DEUDA TÉCNICA: flujo de Factura Global no implementado
 </code></pre></div>
 <hr />

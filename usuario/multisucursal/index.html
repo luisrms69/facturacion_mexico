@@ -2728,9 +2728,9 @@
 <h3 id="1-habilitar-multi-sucursal">1. Habilitar Multi-sucursal<a class="headerlink" href="#1-habilitar-multi-sucursal" title="Permanent link">&para;</a></h3>
 <p>En tu <code>site_config.json</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;multisucursal_enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;multisucursal_coordination&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;branch_failover_enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">  </span><span class="nt">"multisucursal_enabled"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"multisucursal_coordination"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"branch_failover_enabled"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
 <span class="p">}</span>
 </code></pre></div>
 <h3 id="2-crear-branches">2. Crear Branches<a class="headerlink" href="#2-crear-branches" title="Permanent link">&para;</a></h3>
@@ -2760,10 +2760,10 @@ Coordination Group: GRUPO_NORTE
 <p>Para cada branch, configura credenciales PAC independientes:</p>
 <div class="highlight"><pre><span></span><code><span class="c1">// En Branch configuration</span>
 <span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;pac_credentials&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;username&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user_sucursal_01&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;password&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;pass_sucursal_01&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;test_mode&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">  </span><span class="nt">"pac_credentials"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"username"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user_sucursal_01"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"password"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pass_sucursal_01"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"test_mode"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -2806,24 +2806,24 @@ Coordination Group: GRUPO_NORTE
 <span class="kn">import</span><span class="w"> </span><span class="nn">frappe</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">facturacion_mexico.multisucursal.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_branch_metrics</span>
 
-<span class="n">metrics</span> <span class="o">=</span> <span class="n">get_branch_metrics</span><span class="p">(</span><span class="s2">&quot;NORTE_01&quot;</span><span class="p">,</span> <span class="n">days</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CFDIs procesados: </span><span class="si">{</span><span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;total_invoices&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tasa de éxito: </span><span class="si">{</span><span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;success_rate&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tiempo promedio: </span><span class="si">{</span><span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;avg_response_time&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">ms&quot;</span><span class="p">)</span>
+<span class="n">metrics</span> <span class="o">=</span> <span class="n">get_branch_metrics</span><span class="p">(</span><span class="s2">"NORTE_01"</span><span class="p">,</span> <span class="n">days</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"CFDIs procesados: </span><span class="si">{</span><span class="n">metrics</span><span class="p">[</span><span class="s1">'total_invoices'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Tasa de éxito: </span><span class="si">{</span><span class="n">metrics</span><span class="p">[</span><span class="s1">'success_rate'</span><span class="p">]</span><span class="si">}</span><span class="s2">%"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Tiempo promedio: </span><span class="si">{</span><span class="n">metrics</span><span class="p">[</span><span class="s1">'avg_response_time'</span><span class="p">]</span><span class="si">}</span><span class="s2">ms"</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="coordinacion-entre-branches">🔄 Coordinación entre Branches<a class="headerlink" href="#coordinacion-entre-branches" title="Permanent link">&para;</a></h2>
 <h3 id="grupos-de-coordinacion">Grupos de Coordinación<a class="headerlink" href="#grupos-de-coordinacion" title="Permanent link">&para;</a></h3>
 <p>Los branches se organizan en grupos para optimizar la coordinación:</p>
 <div class="highlight"><pre><span></span><code><span class="n">COORDINATION_GROUPS</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;GRUPO_NORTE&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;branches&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;TIJUANA_01&quot;</span><span class="p">,</span> <span class="s2">&quot;MONTERREY_01&quot;</span><span class="p">,</span> <span class="s2">&quot;CHIHUAHUA_01&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;primary&quot;</span><span class="p">:</span> <span class="s2">&quot;MONTERREY_01&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;backup_priority&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;TIJUANA_01&quot;</span><span class="p">,</span> <span class="s2">&quot;CHIHUAHUA_01&quot;</span><span class="p">]</span>
+    <span class="s2">"GRUPO_NORTE"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"branches"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"TIJUANA_01"</span><span class="p">,</span> <span class="s2">"MONTERREY_01"</span><span class="p">,</span> <span class="s2">"CHIHUAHUA_01"</span><span class="p">],</span>
+        <span class="s2">"primary"</span><span class="p">:</span> <span class="s2">"MONTERREY_01"</span><span class="p">,</span>
+        <span class="s2">"backup_priority"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"TIJUANA_01"</span><span class="p">,</span> <span class="s2">"CHIHUAHUA_01"</span><span class="p">]</span>
     <span class="p">},</span>
-    <span class="s2">&quot;GRUPO_CENTRO&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;branches&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;MEXICO_01&quot;</span><span class="p">,</span> <span class="s2">&quot;GUADALAJARA_01&quot;</span><span class="p">,</span> <span class="s2">&quot;PUEBLA_01&quot;</span><span class="p">],</span> 
-        <span class="s2">&quot;primary&quot;</span><span class="p">:</span> <span class="s2">&quot;MEXICO_01&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;backup_priority&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;GUADALAJARA_01&quot;</span><span class="p">,</span> <span class="s2">&quot;PUEBLA_01&quot;</span><span class="p">]</span>
+    <span class="s2">"GRUPO_CENTRO"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"branches"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"MEXICO_01"</span><span class="p">,</span> <span class="s2">"GUADALAJARA_01"</span><span class="p">,</span> <span class="s2">"PUEBLA_01"</span><span class="p">],</span> 
+        <span class="s2">"primary"</span><span class="p">:</span> <span class="s2">"MEXICO_01"</span><span class="p">,</span>
+        <span class="s2">"backup_priority"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"GUADALAJARA_01"</span><span class="p">,</span> <span class="s2">"PUEBLA_01"</span><span class="p">]</span>
     <span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -2864,10 +2864,10 @@ Coordination Group: GRUPO_NORTE
 <h3 id="recuperacion-automatica">Recuperación Automática<a class="headerlink" href="#recuperacion-automatica" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><span class="c1"># Configurar recuperación automática</span>
 <span class="n">FAILOVER_CONFIG</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;auto_recovery&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="s2">&quot;health_check_interval&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>  <span class="c1"># segundos</span>
-    <span class="s2">&quot;recovery_threshold&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>      <span class="c1"># checks exitosos consecutivos</span>
-    <span class="s2">&quot;max_retry_attempts&quot;</span><span class="p">:</span> <span class="mi">5</span>
+    <span class="s2">"auto_recovery"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="s2">"health_check_interval"</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>  <span class="c1"># segundos</span>
+    <span class="s2">"recovery_threshold"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>      <span class="c1"># checks exitosos consecutivos</span>
+    <span class="s2">"max_retry_attempts"</span><span class="p">:</span> <span class="mi">5</span>
 <span class="p">}</span>
 </code></pre></div>
 <h2 id="reportes-y-analytics">📊 Reportes y Analytics<a class="headerlink" href="#reportes-y-analytics" title="Permanent link">&para;</a></h2>
@@ -2884,44 +2884,44 @@ Coordination Group: GRUPO_NORTE
 <span class="kn">from</span><span class="w"> </span><span class="nn">facturacion_mexico.multisucursal.reports</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_failover_report</span>
 
 <span class="n">report</span> <span class="o">=</span> <span class="n">generate_failover_report</span><span class="p">(</span>
-    <span class="n">from_date</span><span class="o">=</span><span class="s2">&quot;2025-01-01&quot;</span><span class="p">,</span>
-    <span class="n">to_date</span><span class="o">=</span><span class="s2">&quot;2025-01-31&quot;</span>
+    <span class="n">from_date</span><span class="o">=</span><span class="s2">"2025-01-01"</span><span class="p">,</span>
+    <span class="n">to_date</span><span class="o">=</span><span class="s2">"2025-01-31"</span>
 <span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total failovers: </span><span class="si">{</span><span class="n">report</span><span class="p">[</span><span class="s1">&#39;total_failovers&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tiempo promedio de recuperación: </span><span class="si">{</span><span class="n">report</span><span class="p">[</span><span class="s1">&#39;avg_recovery_time&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> segundos&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Branch más estable: </span><span class="si">{</span><span class="n">report</span><span class="p">[</span><span class="s1">&#39;most_stable_branch&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Total failovers: </span><span class="si">{</span><span class="n">report</span><span class="p">[</span><span class="s1">'total_failovers'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Tiempo promedio de recuperación: </span><span class="si">{</span><span class="n">report</span><span class="p">[</span><span class="s1">'avg_recovery_time'</span><span class="p">]</span><span class="si">}</span><span class="s2"> segundos"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Branch más estable: </span><span class="si">{</span><span class="n">report</span><span class="p">[</span><span class="s1">'most_stable_branch'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="configuracion-avanzada">🔧 Configuración Avanzada<a class="headerlink" href="#configuracion-avanzada" title="Permanent link">&para;</a></h2>
 <h3 id="politicas-de-seleccion">Políticas de Selección<a class="headerlink" href="#politicas-de-seleccion" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><span class="c1"># Personalizar algoritmo de selección</span>
 <span class="n">SELECTION_POLICIES</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;geographic_priority&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>     <span class="c1"># Priorizar cercanía geográfica  </span>
-    <span class="s2">&quot;load_balancing&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>          <span class="c1"># Balancear carga entre branches</span>
-    <span class="s2">&quot;cost_optimization&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>      <span class="c1"># Optimizar por costo vs velocidad</span>
-    <span class="s2">&quot;client_affinity&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>         <span class="c1"># Mantener afinidad por cliente</span>
-    <span class="s2">&quot;peak_hour_routing&quot;</span><span class="p">:</span> <span class="kc">True</span>        <span class="c1"># Ruteo especial en horas pico</span>
+    <span class="s2">"geographic_priority"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>     <span class="c1"># Priorizar cercanía geográfica  </span>
+    <span class="s2">"load_balancing"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>          <span class="c1"># Balancear carga entre branches</span>
+    <span class="s2">"cost_optimization"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>      <span class="c1"># Optimizar por costo vs velocidad</span>
+    <span class="s2">"client_affinity"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>         <span class="c1"># Mantener afinidad por cliente</span>
+    <span class="s2">"peak_hour_routing"</span><span class="p">:</span> <span class="kc">True</span>        <span class="c1"># Ruteo especial en horas pico</span>
 <span class="p">}</span>
 </code></pre></div>
 <h3 id="configuracion-por-cliente">Configuración por Cliente<a class="headerlink" href="#configuracion-por-cliente" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><span class="c1"># Configurar branch específico para cliente</span>
-<span class="n">customer_doc</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_doc</span><span class="p">(</span><span class="s2">&quot;Customer&quot;</span><span class="p">,</span> <span class="s2">&quot;WALMART-001&quot;</span><span class="p">)</span>
-<span class="n">customer_doc</span><span class="o">.</span><span class="n">preferred_branch</span> <span class="o">=</span> <span class="s2">&quot;NORTE_01&quot;</span>
-<span class="n">customer_doc</span><span class="o">.</span><span class="n">backup_branches</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;CENTRO_01&quot;</span><span class="p">,</span> <span class="s2">&quot;SUR_01&quot;</span><span class="p">]</span>
+<span class="n">customer_doc</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_doc</span><span class="p">(</span><span class="s2">"Customer"</span><span class="p">,</span> <span class="s2">"WALMART-001"</span><span class="p">)</span>
+<span class="n">customer_doc</span><span class="o">.</span><span class="n">preferred_branch</span> <span class="o">=</span> <span class="s2">"NORTE_01"</span>
+<span class="n">customer_doc</span><span class="o">.</span><span class="n">backup_branches</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"CENTRO_01"</span><span class="p">,</span> <span class="s2">"SUR_01"</span><span class="p">]</span>
 <span class="n">customer_doc</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
 </code></pre></div>
 <h3 id="alertas-y-notificaciones">Alertas y Notificaciones<a class="headerlink" href="#alertas-y-notificaciones" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><span class="c1"># Configurar alertas</span>
 <span class="n">ALERT_CONFIG</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;branch_down&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;enabled&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="s2">&quot;recipients&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;admin@empresa.com&quot;</span><span class="p">,</span> <span class="s2">&quot;operaciones@empresa.com&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;channels&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;email&quot;</span><span class="p">,</span> <span class="s2">&quot;slack&quot;</span><span class="p">]</span>
+    <span class="s2">"branch_down"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"enabled"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">"recipients"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"admin@empresa.com"</span><span class="p">,</span> <span class="s2">"operaciones@empresa.com"</span><span class="p">],</span>
+        <span class="s2">"channels"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"email"</span><span class="p">,</span> <span class="s2">"slack"</span><span class="p">]</span>
     <span class="p">},</span>
-    <span class="s2">&quot;high_error_rate&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;enabled&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="s2">&quot;threshold&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>  <span class="c1"># porcentaje</span>
-        <span class="s2">&quot;time_window&quot;</span><span class="p">:</span> <span class="mi">300</span>  <span class="c1"># segundos</span>
+    <span class="s2">"high_error_rate"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"enabled"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">"threshold"</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>  <span class="c1"># porcentaje</span>
+        <span class="s2">"time_window"</span><span class="p">:</span> <span class="mi">300</span>  <span class="c1"># segundos</span>
     <span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -2937,10 +2937,10 @@ Coordination Group: GRUPO_NORTE
 <div class="highlight"><pre><span></span><code><span class="c1"># Diagnosticar branch</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">facturacion_mexico.multisucursal.diagnostics</span><span class="w"> </span><span class="kn">import</span> <span class="n">diagnose_branch</span>
 
-<span class="n">result</span> <span class="o">=</span> <span class="n">diagnose_branch</span><span class="p">(</span><span class="s2">&quot;NORTE_01&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Status: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Issues: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;issues&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Recommendations: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;recommendations&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">diagnose_branch</span><span class="p">(</span><span class="s2">"NORTE_01"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Status: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">'status'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Issues: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">'issues'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Recommendations: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">'recommendations'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </code></pre></div>
 <h3 id="failover-no-funciona">Failover No Funciona<a class="headerlink" href="#failover-no-funciona" title="Permanent link">&para;</a></h3>
 <p><strong>Síntomas:</strong>
@@ -2966,12 +2966,12 @@ bench<span class="w"> </span>--site<span class="w"> </span>tu-sitio.local<span c
 3. Verificar capacidad de branches</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Ajustar pesos de balanceo</span>
 <span class="n">branch_weights</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;MATRIZ_01&quot;</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">,</span>    <span class="c1"># 40% de la carga</span>
-    <span class="s2">&quot;NORTE_01&quot;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span>     <span class="c1"># 30% de la carga  </span>
-    <span class="s2">&quot;SUR_01&quot;</span><span class="p">:</span> <span class="mf">0.3</span>        <span class="c1"># 30% de la carga</span>
+    <span class="s2">"MATRIZ_01"</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">,</span>    <span class="c1"># 40% de la carga</span>
+    <span class="s2">"NORTE_01"</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span>     <span class="c1"># 30% de la carga  </span>
+    <span class="s2">"SUR_01"</span><span class="p">:</span> <span class="mf">0.3</span>        <span class="c1"># 30% de la carga</span>
 <span class="p">}</span>
 
-<span class="n">frappe</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="s2">&quot;Branch Settings&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;load_distribution_weights&quot;</span><span class="p">,</span> 
+<span class="n">frappe</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="s2">"Branch Settings"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"load_distribution_weights"</span><span class="p">,</span> 
                    <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">branch_weights</span><span class="p">))</span>
 </code></pre></div>
 <hr />

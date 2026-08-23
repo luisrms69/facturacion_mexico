@@ -2897,11 +2897,11 @@
 <h3 id="configurado-en-hookspy">Configurado en <code>hooks.py</code><a class="headerlink" href="#configurado-en-hookspy" title="Permanent link">&para;</a></h3>
 <p>A diferencia de <code>facturacion_mx</code>, esta app <strong>sí tiene fixtures correctamente declarados</strong>:</p>
 <div class="highlight"><pre><span></span><code><span class="n">fixtures</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="p">{</span><span class="s2">&quot;dt&quot;</span><span class="p">:</span> <span class="s2">&quot;Custom Field&quot;</span><span class="p">,</span> <span class="s2">&quot;filters&quot;</span><span class="p">:</span> <span class="p">[[</span><span class="s2">&quot;module&quot;</span><span class="p">,</span> <span class="s2">&quot;=&quot;</span><span class="p">,</span> <span class="s2">&quot;Facturacion Mexico&quot;</span><span class="p">]]},</span>
-    <span class="p">{</span><span class="s2">&quot;dt&quot;</span><span class="p">:</span> <span class="s2">&quot;Mode of Payment&quot;</span><span class="p">,</span> <span class="s2">&quot;filters&quot;</span><span class="p">:</span> <span class="p">[[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;like&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%-%</span><span class="s2">&quot;</span><span class="p">]]},</span>
-    <span class="p">{</span><span class="s2">&quot;dt&quot;</span><span class="p">:</span> <span class="s2">&quot;UOM&quot;</span><span class="p">,</span> <span class="s2">&quot;filters&quot;</span><span class="p">:</span> <span class="p">[[</span><span class="s2">&quot;uom_name&quot;</span><span class="p">,</span> <span class="s2">&quot;like&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">% - %</span><span class="s2">&quot;</span><span class="p">]]},</span>
-    <span class="p">{</span><span class="s2">&quot;dt&quot;</span><span class="p">:</span> <span class="s2">&quot;Role&quot;</span><span class="p">,</span> <span class="s2">&quot;filters&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]},</span>   <span class="c1"># 3 roles</span>
-    <span class="p">{</span><span class="s2">&quot;dt&quot;</span><span class="p">:</span> <span class="s2">&quot;DocPerm&quot;</span><span class="p">,</span> <span class="s2">&quot;filters&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]}</span> <span class="c1"># permisos para Factura Fiscal Mexico y Sales Invoice</span>
+    <span class="p">{</span><span class="s2">"dt"</span><span class="p">:</span> <span class="s2">"Custom Field"</span><span class="p">,</span> <span class="s2">"filters"</span><span class="p">:</span> <span class="p">[[</span><span class="s2">"module"</span><span class="p">,</span> <span class="s2">"="</span><span class="p">,</span> <span class="s2">"Facturacion Mexico"</span><span class="p">]]},</span>
+    <span class="p">{</span><span class="s2">"dt"</span><span class="p">:</span> <span class="s2">"Mode of Payment"</span><span class="p">,</span> <span class="s2">"filters"</span><span class="p">:</span> <span class="p">[[</span><span class="s2">"name"</span><span class="p">,</span> <span class="s2">"like"</span><span class="p">,</span> <span class="s2">"</span><span class="si">%-%</span><span class="s2">"</span><span class="p">]]},</span>
+    <span class="p">{</span><span class="s2">"dt"</span><span class="p">:</span> <span class="s2">"UOM"</span><span class="p">,</span> <span class="s2">"filters"</span><span class="p">:</span> <span class="p">[[</span><span class="s2">"uom_name"</span><span class="p">,</span> <span class="s2">"like"</span><span class="p">,</span> <span class="s2">"</span><span class="si">% - %</span><span class="s2">"</span><span class="p">]]},</span>
+    <span class="p">{</span><span class="s2">"dt"</span><span class="p">:</span> <span class="s2">"Role"</span><span class="p">,</span> <span class="s2">"filters"</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]},</span>   <span class="c1"># 3 roles</span>
+    <span class="p">{</span><span class="s2">"dt"</span><span class="p">:</span> <span class="s2">"DocPerm"</span><span class="p">,</span> <span class="s2">"filters"</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]}</span> <span class="c1"># permisos para Factura Fiscal Mexico y Sales Invoice</span>
 <span class="p">]</span>
 </code></pre></div>
 <h3 id="custom-fields-exportados-75-campos-en-5-doctypes-estandar-de-erpnext">Custom Fields exportados (~75 campos en 5 doctypes estándar de ERPNext)<a class="headerlink" href="#custom-fields-exportados-75-campos-en-5-doctypes-estandar-de-erpnext" title="Permanent link">&para;</a></h3>
@@ -3090,16 +3090,16 @@
 <li><strong>Draft management</strong> — MOCK, no funcional en producción</li>
 </ul>
 <h3 id="after_install-after_migrate">after_install / after_migrate<a class="headerlink" href="#after_install-after_migrate" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>after_install: &quot;facturacion_mexico.install.after_install&quot;
+<div class="highlight"><pre><span></span><code>after_install: "facturacion_mexico.install.after_install"
 after_migrate: [
-    &quot;facturacion_mexico.setup.customize_sales_invoice.apply_customization&quot;,
-    &quot;facturacion_mexico.setup.item_groups.assign_itt_to_groups&quot;
+    "facturacion_mexico.setup.customize_sales_invoice.apply_customization",
+    "facturacion_mexico.setup.item_groups.assign_itt_to_groups"
 ]
 </code></pre></div>
 <hr />
 <h2 id="4-dependencias">4. Dependencias<a class="headerlink" href="#4-dependencias" title="Permanent link">&para;</a></h2>
 <h3 id="apps-requeridas-declaradas-correctamente">Apps requeridas (declaradas correctamente)<a class="headerlink" href="#apps-requeridas-declaradas-correctamente" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><span class="n">required_apps</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;erpnext&quot;</span><span class="p">]</span>
+<div class="highlight"><pre><span></span><code><span class="n">required_apps</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"erpnext"</span><span class="p">]</span>
 </code></pre></div>
 <h3 id="python-declaradas-en-pyprojecttoml">Python (declaradas en <code>pyproject.toml</code>)<a class="headerlink" href="#python-declaradas-en-pyprojecttoml" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>requests &gt;= 2.31.0       # HTTP client para FacturAPI.io
@@ -3125,23 +3125,23 @@ La convivencia de <code>facturacion_mx</code> (app predecesora) y <code>facturac
 <h3 id="critico-draft_managementapipy-integracion-completamente-simulada">CRITICO: <code>draft_management/api.py</code> — integración completamente simulada<a class="headerlink" href="#critico-draft_managementapipy-integracion-completamente-simulada" title="Permanent link">&para;</a></h3>
 <p>Todo el módulo de borradores usa MOCKS que devuelven datos falsos. Las funciones clave:</p>
 <p><div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">send_to_factorapi</span><span class="p">():</span>      <span class="c1"># Devuelve UUID falso, no llama a FacturAPI</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">convert_draft_to_invoice</span><span class="p">():</span> <span class="c1"># Devuelve XML dummy &quot;&lt;cfdi:Comprobante&gt;...&lt;/cfdi:Comprobante&gt;&quot;</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">convert_draft_to_invoice</span><span class="p">():</span> <span class="c1"># Devuelve XML dummy "&lt;cfdi:Comprobante&gt;...&lt;/cfdi:Comprobante&gt;"</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">cancel_draft_in_factorapi</span><span class="p">():</span> <span class="c1"># Mock vacío</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_draft_preview_from_factorapi</span><span class="p">():</span> <span class="c1"># Mock vacío</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">build_cfdi_payload</span><span class="p">():</span>     <span class="c1"># &quot;Implementación simplificada - en realidad usaría el sistema existente&quot;</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_cfdi_payload</span><span class="p">():</span>     <span class="c1"># "Implementación simplificada - en realidad usaría el sistema existente"</span>
 </code></pre></div>
 <strong>Impacto:</strong> Cualquier flujo que use borradores (<code>fm_create_as_draft = True</code> en Sales Invoice) no genera un CFDI real. Falla silenciosamente — el hook que lo llama suprime el error con <code>frappe.log_error</code>.</p>
 <h3 id="critico-facturacion_fiscalapi_backuppy-fallback-fiscal-en-tmp">CRITICO: <code>facturacion_fiscal/api_backup.py</code> — fallback fiscal en <code>/tmp</code><a class="headerlink" href="#critico-facturacion_fiscalapi_backuppy-fallback-fiscal-en-tmp" title="Permanent link">&para;</a></h3>
 <p>El sistema de recovery escribe respuestas PAC en <code>/tmp/facturacion_mexico_pac_fallback/</code>. En caso de emergencia usa <code>/tmp/pac_emergency_{name}_{timestamp}</code>.</p>
-<p><div class="highlight"><pre><span></span><code><span class="n">FALLBACK_DIR</span> <span class="o">=</span> <span class="s2">&quot;/tmp/facturacion_mexico_pac_fallback&quot;</span>
-<span class="n">emergency_file</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;/tmp/pac_emergency_</span><span class="si">{</span><span class="n">sales_invoice_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">now</span><span class="p">()</span><span class="si">}</span><span class="s2">...&quot;</span>
+<p><div class="highlight"><pre><span></span><code><span class="n">FALLBACK_DIR</span> <span class="o">=</span> <span class="s2">"/tmp/facturacion_mexico_pac_fallback"</span>
+<span class="n">emergency_file</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"/tmp/pac_emergency_</span><span class="si">{</span><span class="n">sales_invoice_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">now</span><span class="p">()</span><span class="si">}</span><span class="s2">..."</span>
 </code></pre></div>
 <strong>Impacto:</strong> Los datos fiscales en <code>/tmp</code> se pierden en cualquier reinicio del servidor. Viola cumplimiento fiscal (las respuestas del PAC son documentos fiscales con valor legal). El código tiene <code>frappe.db.commit()</code> con comentario <code># nosemgrep</code> — supresión del linter de seguridad sin explicación.</p>
 <h3 id="critico-motor-de-reglas-acciones-criticas-no-implementadas">CRITICO: Motor de reglas — acciones críticas no implementadas<a class="headerlink" href="#critico-motor-de-reglas-acciones-criticas-no-implementadas" title="Permanent link">&para;</a></h3>
 <p><code>motor_reglas/engine/rule_executor.py</code>:
-<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">execute_call_api_manual</span><span class="p">():</span>    <span class="c1"># retorna: &quot;API calls not yet implemented for security reasons&quot;</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">execute_script_manual</span><span class="p">():</span>      <span class="c1"># retorna: &quot;Script execution not yet implemented for security reasons&quot;</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">execute_create_document_manual</span><span class="p">():</span> <span class="c1"># retorna: &quot;Document creation not yet implemented&quot;</span>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">execute_call_api_manual</span><span class="p">():</span>    <span class="c1"># retorna: "API calls not yet implemented for security reasons"</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">execute_script_manual</span><span class="p">():</span>      <span class="c1"># retorna: "Script execution not yet implemented for security reasons"</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">execute_create_document_manual</span><span class="p">():</span> <span class="c1"># retorna: "Document creation not yet implemented"</span>
 </code></pre></div>
 <strong>Impacto:</strong> Las reglas configuradas que usen estas acciones no ejecutan nada.</p>
 <h3 id="alto-kpi-engine-calculate_active_alerts-siempre-retorna-0">ALTO: KPI Engine — <code>calculate_active_alerts()</code> siempre retorna 0<a class="headerlink" href="#alto-kpi-engine-calculate_active_alerts-siempre-retorna-0" title="Permanent link">&para;</a></h3>
@@ -3193,9 +3193,9 @@ create_additional_test_invoices.py, test_*.py (varios),
 <h3 id="medio-hook-en-sales-invoice-suprime-errores-del-draft-silenciosamente">MEDIO: Hook en Sales Invoice suprime errores del draft silenciosamente<a class="headerlink" href="#medio-hook-en-sales-invoice-suprime-errores-del-draft-silenciosamente" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">on_sales_invoice_submit</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">doc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fm_create_as_draft&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">doc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fm_draft_status&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">doc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"fm_create_as_draft"</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">doc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"fm_draft_status"</span><span class="p">):</span>
             <span class="n">result</span> <span class="o">=</span> <span class="n">create_draft_invoice</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;success&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"success"</span><span class="p">):</span>
                 <span class="n">frappe</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>  <span class="c1"># No re-raise — falla en silencio</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="n">frappe</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>  <span class="c1"># Ídem</span>

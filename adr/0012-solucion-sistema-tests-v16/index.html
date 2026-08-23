@@ -2376,7 +2376,7 @@ Supersede: N/A — complementa ADR 0011</p>
 <p>El workflow <code>.github/workflows/server-tests-mariadb.yml</code> de ERPNext en GitHub usa
 exactamente este patrón:</p>
 <div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Add to Hosts</span>
-<span class="w">  </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">echo &quot;127.0.0.1 test_site&quot; | sudo tee -a /etc/hosts</span>
+<span class="w">  </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">echo "127.0.0.1 test_site" | sudo tee -a /etc/hosts</span>
 
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Run Tests</span>
 <span class="w">  </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bench --site test_site run-parallel-tests --lightmode --app erpnext</span>

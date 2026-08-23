@@ -2246,14 +2246,14 @@ mode_of_payment                       forma_pago_p (mode_of_payment[:2])
 <hr />
 <h2 id="flujo-completo">Flujo completo<a class="headerlink" href="#flujo-completo" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code>1. Submit PE con SI PPD timbrada
-   → botón &quot;Crear Complemento de Pago&quot; aparece en PE
+   → botón "Crear Complemento de Pago" aparece en PE
 
 2. Click → crear_complemento_pago_desde_pe()
    → Complemento creado (docstatus=0, status=Pendiente)
    → documentos_relacionados y detalles_impuestos llenados
    → PE.fm_complemento_pago vinculado
 
-3. Click &quot;Timbrar Complemento de Pago&quot; (docstatus=0, status=Pendiente/Error)
+3. Click "Timbrar Complemento de Pago" (docstatus=0, status=Pendiente/Error)
    → timbrar_complemento_pago()
    → llama FacturAPI con payload tipo P
    → guarda campos stamp (uuid_sat, folio_fiscal, no_certificado_sat, ...)
@@ -2265,13 +2265,13 @@ mode_of_payment                       forma_pago_p (mode_of_payment[:2])
    → botón Cancel del PE oculto en JS
    → advertencia visible en dashboard del PE
 
-5. Click &quot;Cancelar Complemento&quot; (solo Manager/System Manager)
+5. Click "Cancelar Complemento" (solo Manager/System Manager)
    → cancelar_complemento_pago(motivo)
    → llama FacturAPI
 
    Respuesta accepted:
      → status=Cancelado, estatus_sat=Cancelado
-     → PE liberado (fm_complemento_pago=&quot;&quot;, fm_complement_generated=0)
+     → PE liberado (fm_complemento_pago="", fm_complement_generated=0)
      → doc.cancel() → docstatus=2
      → Response Log: Cancelación Complemento Pago
 
@@ -2280,14 +2280,14 @@ mode_of_payment                       forma_pago_p (mode_of_payment[:2])
      → docstatus=1 (sin cambio)
      → PE sigue bloqueado
      → Response Log: Cancelación Complemento Pago
-     → botón &quot;Revisar Estatus Cancelación&quot; aparece
+     → botón "Revisar Estatus Cancelación" aparece
 
    Respuesta rejected:
      → status=Timbrado (vuelve a estado previo)
      → docstatus=1
      → Response Log: Cancelación Complemento Pago
 
-6. Click &quot;Revisar Estatus Cancelación&quot; (status=Pendiente Cancelación)
+6. Click "Revisar Estatus Cancelación" (status=Pendiente Cancelación)
    → revisar_estatus_cancelacion_complemento()
    → consulta FacturAPI con facturapi_id
    → aplica mismas transiciones (accepted/pending/rejected)
@@ -2296,23 +2296,23 @@ mode_of_payment                       forma_pago_p (mode_of_payment[:2])
 <hr />
 <h2 id="payload-facturapi-confirmado-vs-legacy-facturacion_mx">Payload FacturAPI (confirmado vs legacy facturacion_mx)<a class="headerlink" href="#payload-facturapi-confirmado-vs-legacy-facturacion_mx" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-  <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;P&quot;</span><span class="p">,</span>
-  <span class="s2">&quot;customer&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="s2">&quot;legal_name&quot;</span><span class="p">,</span> <span class="s2">&quot;tax_id&quot;</span><span class="p">,</span> <span class="s2">&quot;tax_system&quot;</span><span class="p">,</span> <span class="s2">&quot;email&quot;</span><span class="p">,</span> <span class="s2">&quot;address&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;zip&quot;</span><span class="p">}</span> <span class="p">},</span>
-  <span class="s2">&quot;complements&quot;</span><span class="p">:</span> <span class="p">[{</span>
-    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;pago&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">[{</span>
-      <span class="s2">&quot;payment_form&quot;</span><span class="p">:</span> <span class="n">mode_of_payment</span><span class="p">[:</span><span class="mi">2</span><span class="p">],</span>
-      <span class="s2">&quot;currency&quot;</span><span class="p">:</span> <span class="s2">&quot;MXN&quot;</span><span class="p">,</span>
-      <span class="s2">&quot;exchange&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
-      <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">posting_date</span><span class="p">,</span>
-      <span class="s2">&quot;related_documents&quot;</span><span class="p">:</span> <span class="p">[{</span>
-        <span class="s2">&quot;uuid&quot;</span><span class="p">:</span> <span class="n">FFM</span><span class="o">.</span><span class="n">fm_uuid</span><span class="p">,</span>
-        <span class="s2">&quot;folio_number&quot;</span><span class="p">:</span> <span class="n">FFM</span><span class="o">.</span><span class="n">folio</span><span class="p">,</span>
-        <span class="s2">&quot;amount&quot;</span><span class="p">:</span> <span class="n">imp_pagado</span><span class="p">,</span>
-        <span class="s2">&quot;last_balance&quot;</span><span class="p">:</span> <span class="n">imp_saldo_ant</span><span class="p">,</span>       <span class="c1"># allocated + outstanding</span>
-        <span class="s2">&quot;installment&quot;</span><span class="p">:</span> <span class="n">num_parcialidad</span><span class="p">,</span>       <span class="c1"># por pe.creation ASC (no pe.name)</span>
-        <span class="s2">&quot;taxability&quot;</span><span class="p">:</span> <span class="n">objeto_imp_dr</span><span class="p">,</span>
-        <span class="s2">&quot;taxes&quot;</span><span class="p">:</span> <span class="p">[{</span> <span class="s2">&quot;base&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">,</span> <span class="s2">&quot;rate&quot;</span><span class="p">,</span> <span class="s2">&quot;factor&quot;</span><span class="p">,</span> <span class="s2">&quot;withholding&quot;</span> <span class="p">}]</span>
+  <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"P"</span><span class="p">,</span>
+  <span class="s2">"customer"</span><span class="p">:</span> <span class="p">{</span> <span class="s2">"legal_name"</span><span class="p">,</span> <span class="s2">"tax_id"</span><span class="p">,</span> <span class="s2">"tax_system"</span><span class="p">,</span> <span class="s2">"email"</span><span class="p">,</span> <span class="s2">"address"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"zip"</span><span class="p">}</span> <span class="p">},</span>
+  <span class="s2">"complements"</span><span class="p">:</span> <span class="p">[{</span>
+    <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"pago"</span><span class="p">,</span>
+    <span class="s2">"data"</span><span class="p">:</span> <span class="p">[{</span>
+      <span class="s2">"payment_form"</span><span class="p">:</span> <span class="n">mode_of_payment</span><span class="p">[:</span><span class="mi">2</span><span class="p">],</span>
+      <span class="s2">"currency"</span><span class="p">:</span> <span class="s2">"MXN"</span><span class="p">,</span>
+      <span class="s2">"exchange"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+      <span class="s2">"date"</span><span class="p">:</span> <span class="n">posting_date</span><span class="p">,</span>
+      <span class="s2">"related_documents"</span><span class="p">:</span> <span class="p">[{</span>
+        <span class="s2">"uuid"</span><span class="p">:</span> <span class="n">FFM</span><span class="o">.</span><span class="n">fm_uuid</span><span class="p">,</span>
+        <span class="s2">"folio_number"</span><span class="p">:</span> <span class="n">FFM</span><span class="o">.</span><span class="n">folio</span><span class="p">,</span>
+        <span class="s2">"amount"</span><span class="p">:</span> <span class="n">imp_pagado</span><span class="p">,</span>
+        <span class="s2">"last_balance"</span><span class="p">:</span> <span class="n">imp_saldo_ant</span><span class="p">,</span>       <span class="c1"># allocated + outstanding</span>
+        <span class="s2">"installment"</span><span class="p">:</span> <span class="n">num_parcialidad</span><span class="p">,</span>       <span class="c1"># por pe.creation ASC (no pe.name)</span>
+        <span class="s2">"taxability"</span><span class="p">:</span> <span class="n">objeto_imp_dr</span><span class="p">,</span>
+        <span class="s2">"taxes"</span><span class="p">:</span> <span class="p">[{</span> <span class="s2">"base"</span><span class="p">,</span> <span class="s2">"type"</span><span class="p">,</span> <span class="s2">"rate"</span><span class="p">,</span> <span class="s2">"factor"</span><span class="p">,</span> <span class="s2">"withholding"</span> <span class="p">}]</span>
       <span class="p">}]</span>
     <span class="p">}]</span>
   <span class="p">}]</span>

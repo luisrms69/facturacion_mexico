@@ -2278,13 +2278,13 @@ aparecer estos mensajes:</p>
 <p>Para encontrar items sin clave:</p>
 <div class="highlight"><pre><span></span><code>bench<span class="w"> </span>--site<span class="w"> </span>tu-sitio.local<span class="w"> </span>console
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="n">items</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<div class="highlight"><pre><span></span><code><span class="n">items</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="s2">"""</span>
 <span class="s2">    SELECT name, item_name FROM tabItem</span>
-<span class="s2">    WHERE fm_producto_servicio_sat IS NULL OR fm_producto_servicio_sat = &quot;&quot;</span>
+<span class="s2">    WHERE fm_producto_servicio_sat IS NULL OR fm_producto_servicio_sat = ""</span>
 <span class="s2">    LIMIT 20</span>
-<span class="s2">&quot;&quot;&quot;</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="s2">"""</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">i</span><span class="p">[</span><span class="s1">&#39;item_name&#39;</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="s1">'name'</span><span class="p">],</span> <span class="s1">'-'</span><span class="p">,</span> <span class="n">i</span><span class="p">[</span><span class="s1">'item_name'</span><span class="p">])</span>
 </code></pre></div>
 <p>Asignar la clave SAT en <code>Stock &gt; Item</code>.</p>
 <hr />
@@ -2351,14 +2351,14 @@ aparecer estos mensajes:</p>
 <h2 id="ver-logs-de-error-del-sistema">Ver logs de error del sistema<a class="headerlink" href="#ver-logs-de-error-del-sistema" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code>bench<span class="w"> </span>--site<span class="w"> </span>tu-sitio.local<span class="w"> </span>console
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="n">logs</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_all</span><span class="p">(</span><span class="s2">&quot;Error Log&quot;</span><span class="p">,</span>
-    <span class="n">filters</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;like&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%f</span><span class="s2">acturacion%&quot;</span><span class="p">]},</span>
-    <span class="n">fields</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;method&quot;</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="s2">&quot;creation&quot;</span><span class="p">],</span>
-    <span class="n">order_by</span><span class="o">=</span><span class="s2">&quot;creation desc&quot;</span><span class="p">,</span>
+<div class="highlight"><pre><span></span><code><span class="n">logs</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">get_all</span><span class="p">(</span><span class="s2">"Error Log"</span><span class="p">,</span>
+    <span class="n">filters</span><span class="o">=</span><span class="p">{</span><span class="s2">"method"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"like"</span><span class="p">,</span> <span class="s2">"</span><span class="si">%f</span><span class="s2">acturacion%"</span><span class="p">]},</span>
+    <span class="n">fields</span><span class="o">=</span><span class="p">[</span><span class="s2">"name"</span><span class="p">,</span> <span class="s2">"method"</span><span class="p">,</span> <span class="s2">"error"</span><span class="p">,</span> <span class="s2">"creation"</span><span class="p">],</span>
+    <span class="n">order_by</span><span class="o">=</span><span class="s2">"creation desc"</span><span class="p">,</span>
     <span class="n">limit</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">log</span> <span class="ow">in</span> <span class="n">logs</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">log</span><span class="p">[</span><span class="s2">&quot;creation&quot;</span><span class="p">],</span> <span class="s2">&quot;|&quot;</span><span class="p">,</span> <span class="n">log</span><span class="p">[</span><span class="s2">&quot;method&quot;</span><span class="p">])</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">log</span><span class="p">[</span><span class="s2">&quot;error&quot;</span><span class="p">][:</span><span class="mi">300</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">log</span><span class="p">[</span><span class="s2">"creation"</span><span class="p">],</span> <span class="s2">"|"</span><span class="p">,</span> <span class="n">log</span><span class="p">[</span><span class="s2">"method"</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">log</span><span class="p">[</span><span class="s2">"error"</span><span class="p">][:</span><span class="mi">300</span><span class="p">])</span>
     <span class="nb">print</span><span class="p">()</span>
 </code></pre></div>
 

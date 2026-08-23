@@ -2678,19 +2678,19 @@ en cada Payment Entry PPD.</p>
 </ol>
 <h3 id="estructura-propuesta">Estructura propuesta<a class="headerlink" href="#estructura-propuesta" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="n">company</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dry_run</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sections</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    sections: None = todas | lista de secciones a correr</span>
 <span class="sd">    Secciones disponibles: customers | items | facturas | complementos</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">report</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">sections</span> <span class="ow">or</span> <span class="s2">&quot;customers&quot;</span> <span class="ow">in</span> <span class="n">sections</span><span class="p">:</span>
-        <span class="n">report</span><span class="p">[</span><span class="s2">&quot;customers&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">migrate_customers</span><span class="p">(</span><span class="n">company</span><span class="p">,</span> <span class="n">dry_run</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">sections</span> <span class="ow">or</span> <span class="s2">&quot;items&quot;</span> <span class="ow">in</span> <span class="n">sections</span><span class="p">:</span>
-        <span class="n">report</span><span class="p">[</span><span class="s2">&quot;items&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">migrate_items</span><span class="p">(</span><span class="n">company</span><span class="p">,</span> <span class="n">dry_run</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">sections</span> <span class="ow">or</span> <span class="s2">&quot;facturas&quot;</span> <span class="ow">in</span> <span class="n">sections</span><span class="p">:</span>
-        <span class="n">report</span><span class="p">[</span><span class="s2">&quot;facturas&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">migrate_facturas</span><span class="p">(</span><span class="n">company</span><span class="p">,</span> <span class="n">dry_run</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">sections</span> <span class="ow">or</span> <span class="s2">&quot;complementos&quot;</span> <span class="ow">in</span> <span class="n">sections</span><span class="p">:</span>
-        <span class="n">report</span><span class="p">[</span><span class="s2">&quot;complementos&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">migrate_complementos</span><span class="p">(</span><span class="n">company</span><span class="p">,</span> <span class="n">dry_run</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">sections</span> <span class="ow">or</span> <span class="s2">"customers"</span> <span class="ow">in</span> <span class="n">sections</span><span class="p">:</span>
+        <span class="n">report</span><span class="p">[</span><span class="s2">"customers"</span><span class="p">]</span> <span class="o">=</span> <span class="n">migrate_customers</span><span class="p">(</span><span class="n">company</span><span class="p">,</span> <span class="n">dry_run</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">sections</span> <span class="ow">or</span> <span class="s2">"items"</span> <span class="ow">in</span> <span class="n">sections</span><span class="p">:</span>
+        <span class="n">report</span><span class="p">[</span><span class="s2">"items"</span><span class="p">]</span> <span class="o">=</span> <span class="n">migrate_items</span><span class="p">(</span><span class="n">company</span><span class="p">,</span> <span class="n">dry_run</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">sections</span> <span class="ow">or</span> <span class="s2">"facturas"</span> <span class="ow">in</span> <span class="n">sections</span><span class="p">:</span>
+        <span class="n">report</span><span class="p">[</span><span class="s2">"facturas"</span><span class="p">]</span> <span class="o">=</span> <span class="n">migrate_facturas</span><span class="p">(</span><span class="n">company</span><span class="p">,</span> <span class="n">dry_run</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">sections</span> <span class="ow">or</span> <span class="s2">"complementos"</span> <span class="ow">in</span> <span class="n">sections</span><span class="p">:</span>
+        <span class="n">report</span><span class="p">[</span><span class="s2">"complementos"</span><span class="p">]</span> <span class="o">=</span> <span class="n">migrate_complementos</span><span class="p">(</span><span class="n">company</span><span class="p">,</span> <span class="n">dry_run</span><span class="p">)</span>
     <span class="n">print_report</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
 </code></pre></div>
 <hr />

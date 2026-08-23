@@ -2068,7 +2068,7 @@ pretendía señalar. Una señal de seguridad incorrecta es peor que no tener se�
 <li><strong>STAGING</strong> → una franja <strong>cian</strong> en la navbar global del Desk, cargada por bench mediante
    <code>app_include_css</code> en <code>common_site_config.json</code>:</li>
 </ol>
-<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="w"> </span><span class="nt">&quot;app_include_css&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;/assets/facturacion_mexico/css/fm_staging_marker.css&quot;</span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="w"> </span><span class="nt">"app_include_css"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"/assets/facturacion_mexico/css/fm_staging_marker.css"</span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
 <p>Frappe (<code>frappe/www/desk.py</code>) concatena <code>frappe.conf.get("app_include_css")</code> con los hooks de apps,
 por lo que esta ruta <strong>no</strong> pasa por la caché <code>app_hooks</code> ni por <code>bootinfo</code>. La configuración se lee

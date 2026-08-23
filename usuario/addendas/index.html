@@ -2869,7 +2869,7 @@ sistema construye el XML de addenda a partir del template del <em>Addenda Type</
 <p>Ejemplo en template:
 <div class="highlight"><pre><span></span><code>{%<span class="w"> </span>set<span class="w"> </span>m<span class="w"> </span>=<span class="w"> </span>product_mapping.get(item.item_code)<span class="w"> </span>%}
 <span class="nt">&lt;gtin&gt;</span>{{<span class="w"> </span>m.customer_item_code<span class="w"> </span>if<span class="w"> </span>m<span class="w"> </span>else<span class="w"> </span>item.item_code<span class="w"> </span>}}<span class="nt">&lt;/gtin&gt;</span>
-<span class="nt">&lt;invoicedQuantity</span><span class="w"> </span><span class="na">unitOfMeasure=</span><span class="s">&quot;{{ m.customer_uom if m else item.uom }}&quot;</span><span class="nt">&gt;</span>
+<span class="nt">&lt;invoicedQuantity</span><span class="w"> </span><span class="na">unitOfMeasure=</span><span class="s">"{{ m.customer_uom if m else item.uom }}"</span><span class="nt">&gt;</span>
 </code></pre></div></p>
 <h3 id="helpers">Helpers<a class="headerlink" href="#helpers" title="Permanent link">&para;</a></h3>
 <table>

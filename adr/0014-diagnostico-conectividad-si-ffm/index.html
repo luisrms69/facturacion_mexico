@@ -2638,36 +2638,36 @@ que consultaba la FFM directamente al renderizar.</p>
 </table>
 <h3 id="grupo-5-campos-migrados-a-ffm-eliminados-de-si">Grupo 5 — Campos migrados a FFM (eliminados de SI)<a class="headerlink" href="#grupo-5-campos-migrados-a-ffm-eliminados-de-si" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><span class="c1"># hooks.py:</span>
-<span class="c1"># &quot;Sales Invoice-fm_payment_method_sat&quot;         # MIGRADO A Factura Fiscal Mexico</span>
-<span class="c1"># &quot;Sales Invoice-fm_lugar_expedicion&quot;            # MIGRADO A Factura Fiscal Mexico</span>
-<span class="c1"># &quot;Sales Invoice-fm_serie_folio&quot;                 # MIGRADO A Factura Fiscal Mexico</span>
-<span class="c1"># &quot;Sales Invoice-fm_cfdi_use&quot;                    # MIGRADO A Factura Fiscal Mexico</span>
-<span class="c1"># &quot;Sales Invoice-fm_uuid_fiscal&quot;                 # ELIMINADO — usar get_invoice_uuid()</span>
-<span class="c1"># &quot;Sales Invoice-fm_informacion_fiscal_section&quot;  # ELIMINADO — sección vacía</span>
+<span class="c1"># "Sales Invoice-fm_payment_method_sat"         # MIGRADO A Factura Fiscal Mexico</span>
+<span class="c1"># "Sales Invoice-fm_lugar_expedicion"            # MIGRADO A Factura Fiscal Mexico</span>
+<span class="c1"># "Sales Invoice-fm_serie_folio"                 # MIGRADO A Factura Fiscal Mexico</span>
+<span class="c1"># "Sales Invoice-fm_cfdi_use"                    # MIGRADO A Factura Fiscal Mexico</span>
+<span class="c1"># "Sales Invoice-fm_uuid_fiscal"                 # ELIMINADO — usar get_invoice_uuid()</span>
+<span class="c1"># "Sales Invoice-fm_informacion_fiscal_section"  # ELIMINADO — sección vacía</span>
 </code></pre></div>
 <hr />
 <h2 id="ciclo-de-vida-real-de-los-campos-en-si-verificado-en-bd">Ciclo de vida real de los campos en SI (verificado en BD)<a class="headerlink" href="#ciclo-de-vida-real-de-los-campos-en-si-verificado-en-bd" title="Permanent link">&para;</a></h2>
 <h3 id="al-crearsubmit-sales-invoice">Al crear/submit Sales Invoice<a class="headerlink" href="#al-crearsubmit-sales-invoice" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>SI.on_submit hook
   → crear FFM en estado BORRADOR
-  → frappe.db.set_value(SI, &quot;fm_fiscal_status&quot;, &quot;BORRADOR&quot;)
-  → frappe.db.set_value(SI, &quot;fm_factura_fiscal_mx&quot;, ffm.name)
+  → frappe.db.set_value(SI, "fm_fiscal_status", "BORRADOR")
+  → frappe.db.set_value(SI, "fm_factura_fiscal_mx", ffm.name)
 </code></pre></div>
 <h3 id="al-timbrar">Al timbrar<a class="headerlink" href="#al-timbrar" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>TimbradoAPI.timbrar()
   → PAC responde OK
-  → frappe.set_value(SI, {&quot;fm_fiscal_status&quot;: &quot;TIMBRADO&quot;})
+  → frappe.set_value(SI, {"fm_fiscal_status": "TIMBRADO"})
   ← SOLO ESO. Los fm_ffm_* nunca se escribieron (confirmado BD).
 </code></pre></div>
 <h3 id="al-cancelar">Al cancelar<a class="headerlink" href="#al-cancelar" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>cancelar_factura() / revisar_estatus_cancelacion()
-  → frappe.set_value(SI, {&quot;fm_fiscal_status&quot;: &quot;CANCELADO&quot;})
+  → frappe.set_value(SI, {"fm_fiscal_status": "CANCELADO"})
 </code></pre></div>
 <h3 id="en-cascade-de-sustitucion-motivo-01">En cascade de sustitución (motivo 01)<a class="headerlink" href="#en-cascade-de-sustitucion-motivo-01" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>_cascade_cancel_previous_after_substitute()
-  → orig_si.db_set(&quot;fm_factura_fiscal_mx&quot;, &quot;&quot;)    ← limpiado
-  → orig_ffm.db_set(&quot;sales_invoice&quot;, &quot;&quot;)           ← limpiado
-  → orig_ffm.db_set(&quot;sales_invoice&quot;, orig_si_name) ← restaurado post-cancel
+  → orig_si.db_set("fm_factura_fiscal_mx", "")    ← limpiado
+  → orig_ffm.db_set("sales_invoice", "")           ← limpiado
+  → orig_ffm.db_set("sales_invoice", orig_si_name) ← restaurado post-cancel
 </code></pre></div>
 <hr />
 <h2 id="verificacion-de-integridad-bd-2026-05-04">Verificación de integridad BD (2026-05-04)<a class="headerlink" href="#verificacion-de-integridad-bd-2026-05-04" title="Permanent link">&para;</a></h2>

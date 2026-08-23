@@ -2611,13 +2611,13 @@ Branch objetivo: feature/e4-ieps-on-item-quantity (42 commits sobre main)</p>
 <span class="c1"># validate:</span>
 <span class="n">sales_invoice_automated_tax</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
   <span class="err">→</span> <span class="n">verifica</span> <span class="n">que</span> <span class="n">cada</span> <span class="n">item</span> <span class="n">tenga</span> <span class="n">fm_producto_servicio_sat</span>
-  <span class="err">→</span> <span class="n">si</span> <span class="n">algún</span> <span class="n">item</span> <span class="n">no</span> <span class="n">tiene</span> <span class="n">código</span> <span class="n">SAT</span> <span class="err">→</span> <span class="n">frappe</span><span class="o">.</span><span class="n">throw</span><span class="p">(</span><span class="s2">&quot;Línea N sin código SAT...&quot;</span><span class="p">)</span>
+  <span class="err">→</span> <span class="n">si</span> <span class="n">algún</span> <span class="n">item</span> <span class="n">no</span> <span class="n">tiene</span> <span class="n">código</span> <span class="n">SAT</span> <span class="err">→</span> <span class="n">frappe</span><span class="o">.</span><span class="n">throw</span><span class="p">(</span><span class="s2">"Línea N sin código SAT..."</span><span class="p">)</span>
 </code></pre></div>
 <p><strong><code>before_save</code> — todos los hooks IEPS están comentados:</strong>
-<div class="highlight"><pre><span></span><code><span class="s2">&quot;before_save&quot;</span><span class="p">:</span> <span class="p">[</span>
-    <span class="c1"># E4 DISABLED: &quot;facturacion_mexico.hooks_handlers.sales_invoice_ieps.calcular_ieps_cuota&quot;,</span>
-    <span class="c1"># E4 DISABLED: &quot;facturacion_mexico.hooks_handlers.sales_invoice_ieps.ajustar_base_iva_combustibles&quot;,</span>
-    <span class="c1"># E4 DISABLED: &quot;facturacion_mexico.hooks_handlers.sales_invoice_ieps.corregir_ieps_cuota_final&quot;,</span>
+<div class="highlight"><pre><span></span><code><span class="s2">"before_save"</span><span class="p">:</span> <span class="p">[</span>
+    <span class="c1"># E4 DISABLED: "facturacion_mexico.hooks_handlers.sales_invoice_ieps.calcular_ieps_cuota",</span>
+    <span class="c1"># E4 DISABLED: "facturacion_mexico.hooks_handlers.sales_invoice_ieps.ajustar_base_iva_combustibles",</span>
+    <span class="c1"># E4 DISABLED: "facturacion_mexico.hooks_handlers.sales_invoice_ieps.corregir_ieps_cuota_final",</span>
 <span class="p">],</span>
 </code></pre></div></p>
 <p>Los hooks de IEPS cuota están deliberadamente desactivados en e4 (<code># E4 DISABLED</code>). El sistema de IEPS manual fue reemplazado por el enfoque nativo de ERPNext con <code>charge_type="On Item Quantity"</code>.</p>
@@ -2703,9 +2703,9 @@ Branch objetivo: feature/e4-ieps-on-item-quantity (42 commits sobre main)</p>
 <h2 id="6-riesgo-operativo-principal">6. RIESGO OPERATIVO PRINCIPAL<a class="headerlink" href="#6-riesgo-operativo-principal" title="Permanent link">&para;</a></h2>
 <h3 id="validate-hook-sobre-sales-invoices-con-items-sin-codigo-sat">Validate hook sobre Sales Invoices con items sin código SAT<a class="headerlink" href="#validate-hook-sobre-sales-invoices-con-items-sin-codigo-sat" title="Permanent link">&para;</a></h3>
 <p>Con el checkout a cualquier rama &gt;= e1, el hook <code>validate</code> de Sales Invoice ejecuta:</p>
-<div class="highlight"><pre><span></span><code><span class="n">sat_field</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">&quot;Item&quot;</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">item_code</span><span class="p">,</span> <span class="s2">&quot;fm_producto_servicio_sat&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">sat_field</span> <span class="o">=</span> <span class="n">frappe</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">"Item"</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">item_code</span><span class="p">,</span> <span class="s2">"fm_producto_servicio_sat"</span><span class="p">)</span>
 <span class="k">if</span> <span class="ow">not</span> <span class="n">sat_field</span><span class="p">:</span>
-    <span class="n">frappe</span><span class="o">.</span><span class="n">throw</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Línea </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> sin código SAT...&quot;</span><span class="p">)</span>
+    <span class="n">frappe</span><span class="o">.</span><span class="n">throw</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Línea </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> sin código SAT..."</span><span class="p">)</span>
 </code></pre></div>
 <p>El site tiene <strong>21 de 37 items sin <code>fm_producto_servicio_sat</code></strong>. Esto significa:</p>
 <ul>
@@ -2805,7 +2805,7 @@ CHECKOUT Y MIGRATE
 POST-MIGRATE
 ────────────
 5. Verificar que los 3 nuevos DocTypes existen
-6. Verificar resultado del patch en patch log (bench --site ... console: frappe.get_all(&quot;Patch Log&quot;, ...))
+6. Verificar resultado del patch en patch log (bench --site ... console: frappe.get_all("Patch Log", ...))
 7. Verificar que assign_itt_to_groups no rompió Item Groups
 8. Crear Configuracion Fiscal Mexico para la Company principal
 9. Probar guardado de una SI con item que SÍ tiene código SAT

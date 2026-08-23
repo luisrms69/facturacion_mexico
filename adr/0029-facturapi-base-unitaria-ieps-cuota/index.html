@@ -2215,11 +2215,11 @@ se comporta diferente al esperado: <strong>FacturAPI multiplica automáticamente
 al generar el XML SAT.</p>
 <p>Enviar el valor total en <code>base</code> produce montos multiplicados dos veces:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Payload enviado (incorrecto)</span>
-<span class="p">{</span><span class="s2">&quot;quantity&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span> <span class="s2">&quot;taxes&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;IEPS&quot;</span><span class="p">,</span> <span class="s2">&quot;base&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span> <span class="s2">&quot;rate&quot;</span><span class="p">:</span> <span class="mf">5.49</span><span class="p">}]}</span>
+<span class="p">{</span><span class="s2">"quantity"</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span> <span class="s2">"taxes"</span><span class="p">:</span> <span class="p">[{</span><span class="s2">"type"</span><span class="p">:</span> <span class="s2">"IEPS"</span><span class="p">,</span> <span class="s2">"base"</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span> <span class="s2">"rate"</span><span class="p">:</span> <span class="mf">5.49</span><span class="p">}]}</span>
 
 <span class="c1"># XML SAT generado por FacturAPI</span>
-<span class="c1"># Base=&quot;2500.000000&quot;  ← 50 × 50 = 2,500 (debería ser 50)</span>
-<span class="c1"># Importe=&quot;13725.000000&quot; ← debería ser $274.50</span>
+<span class="c1"># Base="2500.000000"  ← 50 × 50 = 2,500 (debería ser 50)</span>
+<span class="c1"># Importe="13725.000000" ← debería ser $274.50</span>
 </code></pre></div>
 <p>Diferencia resultante: <strong>+$23,250.50</strong> por documento — SAT rechaza cualquier diferencia
 mayor a $0.05 pesos.</p>
@@ -2232,27 +2232,27 @@ FacturAPI los multiplique por <code>Cantidad</code> y obtenga los totales correc
 (puede ser LTR para bebidas/combustibles, H87 para tabaco por pieza, etc.).</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># FIX E4.1: Obtener cuota ORIGINAL de tabla SAT (no calcularla desde amount)</span>
 <span class="c1"># RAZÓN: amount ya está multiplicado por qty, dividirlo causa error de precisión</span>
-<span class="n">cuota_por_uom_base</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_cuota_from_tabla_sat</span><span class="p">(</span><span class="n">item_doc</span><span class="p">,</span> <span class="n">tax_data</span><span class="p">[</span><span class="s2">&quot;account_head&quot;</span><span class="p">])</span>
+<span class="n">cuota_por_uom_base</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_cuota_from_tabla_sat</span><span class="p">(</span><span class="n">item_doc</span><span class="p">,</span> <span class="n">tax_data</span><span class="p">[</span><span class="s2">"account_head"</span><span class="p">])</span>
 
 <span class="c1"># Obtener UOM base dinámica desde tabla IEPS Cuota SAT (LTR, H87, etc.)</span>
-<span class="n">uom_base</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_uom_base_from_tabla_sat</span><span class="p">(</span><span class="n">item_doc</span><span class="p">,</span> <span class="n">tax_data</span><span class="p">[</span><span class="s2">&quot;account_head&quot;</span><span class="p">])</span>
+<span class="n">uom_base</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_uom_base_from_tabla_sat</span><span class="p">(</span><span class="n">item_doc</span><span class="p">,</span> <span class="n">tax_data</span><span class="p">[</span><span class="s2">"account_head"</span><span class="p">])</span>
 
 <span class="c1"># Factor conversión: item.uom → uom_base</span>
 <span class="c1"># Ejemplo: Combustible LTR→LTR factor=1.0, Refresco 600ml→LTR factor=0.6, Tabaco H87→H87 factor=1.0</span>
 <span class="n">factor_conversion</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_uom_conversion_factor</span><span class="p">(</span><span class="n">item_doc</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">uom</span><span class="p">,</span> <span class="n">uom_base</span><span class="p">)</span>
 
-<span class="n">tax_item</span><span class="p">[</span><span class="s2">&quot;rate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">flt</span><span class="p">(</span><span class="n">cuota_por_uom_base</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>  <span class="c1"># TasaOCuota (cuota/unidad base)</span>
-<span class="n">tax_item</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">flt</span><span class="p">(</span><span class="n">factor_conversion</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>    <span class="c1"># Factor conversión (FacturAPI × qty = unidades base)</span>
+<span class="n">tax_item</span><span class="p">[</span><span class="s2">"rate"</span><span class="p">]</span> <span class="o">=</span> <span class="n">flt</span><span class="p">(</span><span class="n">cuota_por_uom_base</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>  <span class="c1"># TasaOCuota (cuota/unidad base)</span>
+<span class="n">tax_item</span><span class="p">[</span><span class="s2">"base"</span><span class="p">]</span> <span class="o">=</span> <span class="n">flt</span><span class="p">(</span><span class="n">factor_conversion</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>    <span class="c1"># Factor conversión (FacturAPI × qty = unidades base)</span>
 </code></pre></div>
 <h3 id="iva-con-ieps-cuota-base-precio-unitario-ieps-unitario">IVA con IEPS Cuota — base = precio unitario ± IEPS unitario<a class="headerlink" href="#iva-con-ieps-cuota-base-precio-unitario-ieps-unitario" title="Permanent link">&para;</a></h3>
 <p>La integración del IEPS en la base IVA depende del tipo de producto (Art. 2-A LIEPS):</p>
 <div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="n">integra_base</span><span class="p">:</span>  <span class="c1"># Bebidas, tabaco, alcohol → IEPS sí computa para IVA</span>
-    <span class="n">ieps_unitario</span> <span class="o">=</span> <span class="n">flt</span><span class="p">(</span><span class="n">tax_check</span><span class="p">[</span><span class="s2">&quot;amount&quot;</span><span class="p">])</span> <span class="o">/</span> <span class="n">flt</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">qty</span><span class="p">)</span>
+    <span class="n">ieps_unitario</span> <span class="o">=</span> <span class="n">flt</span><span class="p">(</span><span class="n">tax_check</span><span class="p">[</span><span class="s2">"amount"</span><span class="p">])</span> <span class="o">/</span> <span class="n">flt</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">qty</span><span class="p">)</span>
     <span class="n">base_iva_unitaria</span> <span class="o">=</span> <span class="n">flt</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">rate</span><span class="p">)</span> <span class="o">+</span> <span class="n">ieps_unitario</span>
 <span class="k">else</span><span class="p">:</span>  <span class="c1"># Combustibles (Art. 2-A LIEPS) → IEPS NO computa para IVA</span>
     <span class="n">base_iva_unitaria</span> <span class="o">=</span> <span class="n">flt</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">rate</span><span class="p">)</span>
 
-<span class="n">tax_item</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">flt</span><span class="p">(</span><span class="n">base_iva_unitaria</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+<span class="n">tax_item</span><span class="p">[</span><span class="s2">"base"</span><span class="p">]</span> <span class="o">=</span> <span class="n">flt</span><span class="p">(</span><span class="n">base_iva_unitaria</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
 </code></pre></div>
 <hr />
 <h2 id="consecuencias">Consecuencias<a class="headerlink" href="#consecuencias" title="Permanent link">&para;</a></h2>

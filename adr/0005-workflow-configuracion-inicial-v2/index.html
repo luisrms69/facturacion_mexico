@@ -3103,8 +3103,8 @@ No hay fallback silencioso.</p>
     3. Con Branch → _set_stct_by_branch():
          a. Lee Branch.fm_is_border_zone → zona (Nacional/Frontera)
          b. Clasifica items → variante (Básico/IEPS/Retenciones/Total)
-         c. Busca STCT: &quot;IVA {zona} - {variante} - {abbr}&quot;
-         d. Fallback: &quot;IVA {zona} - Básico - {abbr}&quot;
+         c. Busca STCT: "IVA {zona} - {variante} - {abbr}"
+         d. Fallback: "IVA {zona} - Básico - {abbr}"
          e. Si no encuentra ninguno → frappe.throw() ← BLOQUEANTE
          f. Carga tax rows completas desde STCT
     4. Para cada línea sin ITT → intenta asignar desde Item master
@@ -3176,7 +3176,7 @@ que tenga un Branch con <code>fm_is_border_zone</code> definido.</p>
 </table>
 <hr />
 <h2 id="paso-10-timbrar">PASO 10 — Timbrar<a class="headerlink" href="#paso-10-timbrar" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><span class="n">timbrado_api</span><span class="o">.</span><span class="n">timbrar_factura</span><span class="p">(</span><span class="s2">&quot;&lt;nombre_sales_invoice&gt;&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">timbrado_api</span><span class="o">.</span><span class="n">timbrar_factura</span><span class="p">(</span><span class="s2">"&lt;nombre_sales_invoice&gt;"</span><span class="p">)</span>
 </code></pre></div>
 <p>O desde el botón "Generar CFDI" en la Sales Invoice.</p>
 <hr />

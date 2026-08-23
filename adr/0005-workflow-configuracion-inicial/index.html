@@ -2743,7 +2743,7 @@ un doc <code>Configuracion Fiscal Sucursal</code> vinculado a esta Branch.</p>
 <hr />
 <h2 id="paso-8-timbrar">PASO 8 — Timbrar<a class="headerlink" href="#paso-8-timbrar" title="Permanent link">&para;</a></h2>
 <p><strong>Cómo:</strong> Botón "Generar CFDI" en Sales Invoice, o directamente:
-<div class="highlight"><pre><span></span><code><span class="n">timbrado_api</span><span class="o">.</span><span class="n">timbrar_factura</span><span class="p">(</span><span class="s2">&quot;&lt;nombre_sales_invoice&gt;&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">timbrado_api</span><span class="o">.</span><span class="n">timbrar_factura</span><span class="p">(</span><span class="s2">"&lt;nombre_sales_invoice&gt;"</span><span class="p">)</span>
 </code></pre></div></p>
 <p><strong>Fases internas:</strong></p>
 <div class="highlight"><pre><span></span><code>FASE 1 — Validación pre-timbrado
@@ -2766,8 +2766,8 @@ FASE 2 — Construcción del payload
     ├─ Lugar expedición (Branch.fm_lugar_expedicion o Settings.lugar_expedicion)
     ├─ Serie (Branch.fm_serie_pattern → extrae prefijo)
     └─ Items: por cada línea →
-         product_key = Item.fm_producto_servicio_sat || &quot;01010101&quot;
-         unit_key    = UOM.name.split(&quot; - &quot;)[0]
+         product_key = Item.fm_producto_servicio_sat || "01010101"
+         unit_key    = UOM.name.split(" - ")[0]
          description = item.description || item.item_name
          quantity, unit_price, taxes
 
@@ -2777,16 +2777,16 @@ FASE 3 — Llamada a FacturAPI
 
 FASE 4 — Procesamiento de respuesta
   _process_timbrado_success(si, ffm, response)
-    ├─ FFM.fm_uuid        = response[&quot;uuid&quot;]
-    ├─ FFM.facturapi_id   = response[&quot;id&quot;]
-    ├─ FFM.serie          = response[&quot;series&quot;]
-    ├─ FFM.folio          = response[&quot;folio_number&quot;]
-    ├─ FFM.total_fiscal   = response[&quot;total&quot;]
+    ├─ FFM.fm_uuid        = response["uuid"]
+    ├─ FFM.facturapi_id   = response["id"]
+    ├─ FFM.serie          = response["series"]
+    ├─ FFM.folio          = response["folio_number"]
+    ├─ FFM.total_fiscal   = response["total"]
     ├─ FFM.fecha_timbrado = now()
-    ├─ FFM.fm_fiscal_status = &quot;TIMBRADO&quot;
-    ├─ SI.fm_fiscal_status  = &quot;TIMBRADO&quot;
+    ├─ FFM.fm_fiscal_status = "TIMBRADO"
+    ├─ SI.fm_fiscal_status  = "TIMBRADO"
     ├─ SI.fm_factura_fiscal_mx = ffm.name
-    ├─ SI.fm_uuid_fiscal  = response[&quot;uuid&quot;]
+    ├─ SI.fm_uuid_fiscal  = response["uuid"]
     ├─ Descargar PDF y XML (si Settings.download_files_default=1)
     ├─ Enviar email (si Settings.send_email_default=1)
     └─ Branch.fm_folio_current += 1 (si hay Branch)
@@ -2899,12 +2899,12 @@ FASE 4 — Procesamiento de respuesta
           ☐ Address PRIMARY completa (calle, ciudad, estado, país, CP)
           ☐ fm_regimen_fiscal → Link a Regimen Fiscal SAT
 ☐ PASO 5  Items
-          ☐ stock_uom en formato &quot;COD - Descripción&quot;
+          ☐ stock_uom en formato "COD - Descripción"
           ☐ fm_producto_servicio_sat (o aceptar default 01010101)
 ☐ PASO 6  Sales Invoice → SUBMITTED
 ☐ PASO 7  Factura Fiscal Mexico → SUBMITTED
           ☐ fm_payment_method_sat = PUE
-          ☐ fm_forma_pago_timbrado = &quot;01 - Efectivo&quot; (u otro)
+          ☐ fm_forma_pago_timbrado = "01 - Efectivo" (u otro)
           ☐ fm_cfdi_use = G01 (u otro)
 ☐ PASO 8  Botón Timbrar / timbrar_factura()
 </code></pre></div>

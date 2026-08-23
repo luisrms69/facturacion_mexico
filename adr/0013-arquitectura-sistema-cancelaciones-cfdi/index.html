@@ -2376,8 +2376,8 @@ intermedios que no tenían mecanismo de resolución (PENDIENTE_CANCELACION).</p>
 <h3 id="motivo-02-comprobantes-emitidos-con-errores-sin-relacion">Motivo 02 — Comprobantes emitidos con errores sin relación<a class="headerlink" href="#motivo-02-comprobantes-emitidos-con-errores-sin-relacion" title="Permanent link">&para;</a></h3>
 <p><strong>Cuándo usar:</strong> Error en el CFDI que no tiene un documento sustituto.</p>
 <p><strong>Flujo:</strong>
-<div class="highlight"><pre><span></span><code>FFM (TIMBRADO) → Cancelar en FacturAPI → botón &quot;Cancelar en FacturAPI&quot; → diálogo motivos
-→ usuario selecciona 02 → cancelar_factura(motivo=&quot;02&quot;) → PAC → CANCELADO
+<div class="highlight"><pre><span></span><code>FFM (TIMBRADO) → Cancelar en FacturAPI → botón "Cancelar en FacturAPI" → diálogo motivos
+→ usuario selecciona 02 → cancelar_factura(motivo="02") → PAC → CANCELADO
 </code></pre></div></p>
 <p><strong>Requiere UUID sustituto:</strong> No.
 <strong>Estado final FFM:</strong> CANCELADO. <strong>Estado final SI:</strong> CANCELADO (fm_fiscal_status).
@@ -2399,7 +2399,7 @@ intermedios que no tenían mecanismo de resolución (PENDIENTE_CANCELACION).</p>
 <p><strong>Cuándo usar:</strong> El CFDI tiene errores y será reemplazado por uno nuevo.</p>
 <p><strong>Flujo completo:</strong>
 <div class="highlight"><pre><span></span><code>SI original (TIMBRADO)
-  → botón &quot;🔄 Sustituir CFDI (01)&quot; en &quot;Acciones Fiscales&quot; (si_post_fiscal_actions.js)
+  → botón "🔄 Sustituir CFDI (01)" en "Acciones Fiscales" (si_post_fiscal_actions.js)
   → create_substitution_si(si_name)  [timbrado_api.py]
       → frappe.copy_doc(SI original)
       → limpia campos fiscales (fm_factura_fiscal_mx, fm_fiscal_status)
@@ -2408,9 +2408,9 @@ intermedios que no tenían mecanismo de resolución (PENDIENTE_CANCELACION).</p>
   → usuario corrige datos en SI borrador
   → usuario timbra SI sustituto
       → al timbrar detecta ffm_substitution_source_uuid
-      → inyecta TipoRelación &quot;04&quot; en el CFDI nuevo (relación con UUID original)
+      → inyecta TipoRelación "04" en el CFDI nuevo (relación con UUID original)
       → _cascade_cancel_previous_after_substitute() en background:
-          1. Cancelar CFDI original en PAC con motivo &quot;01&quot; (referenciando UUID del nuevo)
+          1. Cancelar CFDI original en PAC con motivo "01" (referenciando UUID del nuevo)
           2. Hardening preventivo: limpiar links SI↔FFM antes de cancel()
           3. Restaurar link sales_invoice en FFM original post-cancel (fix v16)
           4. Cancelar SI original (docstatus=2)
@@ -2492,7 +2492,7 @@ pendientes automáticamente si la función de recuperación lo permite.</p>
 Una SI cancelada como parte de una sustitución CFDI no debe poder ser enmendada —
 crearía un documento que bypasea el proceso fiscal.</p>
 <p><strong>Implementación</strong> (<code>si_post_fiscal_actions.js</code>):
-<div class="highlight"><pre><span></span><code><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">frm</span><span class="p">.</span><span class="nx">doc</span><span class="p">.</span><span class="nx">docstatus</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">2</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">frm</span><span class="p">.</span><span class="nx">doc</span><span class="p">.</span><span class="nx">fm_fiscal_status</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">&quot;CANCELADO&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<div class="highlight"><pre><span></span><code><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">frm</span><span class="p">.</span><span class="nx">doc</span><span class="p">.</span><span class="nx">docstatus</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">2</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">frm</span><span class="p">.</span><span class="nx">doc</span><span class="p">.</span><span class="nx">fm_fiscal_status</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">"CANCELADO"</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nx">frm</span><span class="p">.</span><span class="nx">perm</span><span class="p">[</span><span class="mf">0</span><span class="p">].</span><span class="nx">amend</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span>
 <span class="w">    </span><span class="nx">frm</span><span class="p">.</span><span class="nx">page</span><span class="p">.</span><span class="nx">clear_primary_action</span><span class="p">();</span><span class="w"> </span><span class="c1">// retira botón ya renderizado por Frappe</span>
 <span class="p">}</span>
@@ -2507,7 +2507,7 @@ sin CFDI (<code>fm_fiscal_status</code> vacío) no se ven afectadas.</p>
 limpiaba <code>orig_ffm.sales_invoice = ""</code> antes de llamar <code>orig_si.cancel()</code> para evitar
 <code>LinkExistsError</code>. El link nunca se restauraba.</p>
 <p><strong>Fix:</strong> Después de <code>orig_si.cancel()</code>, se restaura:
-<div class="highlight"><pre><span></span><code><span class="n">orig_ffm</span><span class="o">.</span><span class="n">db_set</span><span class="p">(</span><span class="s2">&quot;sales_invoice&quot;</span><span class="p">,</span> <span class="n">orig_si_name</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">orig_ffm</span><span class="o">.</span><span class="n">db_set</span><span class="p">(</span><span class="s2">"sales_invoice"</span><span class="p">,</span> <span class="n">orig_si_name</span><span class="p">)</span>
 </code></pre></div></p>
 <h3 id="bug-query_pac_status-devolvia-none-en-todos-los-campos">Bug: <code>query_pac_status</code> devolvía None en todos los campos<a class="headerlink" href="#bug-query_pac_status-devolvia-none-en-todos-los-campos" title="Permanent link">&para;</a></h3>
 <p><strong>Causa:</strong> <code>client.get_invoice()</code> devuelve un wrapper <code>{success, status_code, raw_response}</code>.
