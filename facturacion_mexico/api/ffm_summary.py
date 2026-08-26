@@ -7,7 +7,7 @@ FFM_DOCTYPE = "Factura Fiscal Mexico"
 ALIASES = {
 	"estado": ["fm_fiscal_status", "status", "cfdi_status"],
 	"folio": ["fm_serie_folio", "folio", "serie", "folio_fiscal"],
-	"uuid": ["fm_uuid", "uuid", "uuid_fiscal"],
+	"uuid": ["fm_uuid"],
 	"fecha": ["fecha_timbrado", "cfdi_date", "fm_fecha_cfdi"],
 	"pac_msg": ["fm_sync_error", "last_pac_message", "pac_response", "ultimo_mensaje_pac"],
 }
