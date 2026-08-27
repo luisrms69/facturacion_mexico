@@ -1,94 +1,95 @@
 # CONTINUITY.md — facturacion_mexico
 
-**Fecha:** 2026-08-22
-**Rama activa:** `fix/207-venta-mostrador-address-display`
-**Tarea actual:** Rama con DOS issues: #207 (ya commiteado `6639c89`) y #56 (validado; commit en curso). Falta push + PR.
+**Fecha:** 2026-08-23
+**Rama activa:** `fix/campaign-b-57-163-78`
+**Tarea actual:** Campaña B (paquete #57 + #163 + #78) cerrado y versionado 1.4.3. Falta push + PR.
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-Cierre de #56 en la misma rama de #207. #56: el botón "Cerrar" del modal de éxito de timbrado era un
-`primary_action` con `client_action: "frappe.hide_msgprint()"` (Frappe lo resuelve como ruta de
-propiedades → no-op). Fix mínimo: eliminar solo ese `primary_action` roto; el cierre nativo (X/Escape)
-ya funcionaba. NO se tocó el `try/except` de la FASE 3.
+Campaña B — tres bug fixes independientes entregados en UN solo branch/PR con commits separados,
+un solo bump. Todos aprobados (it-tech:approved).
+
+- **#57** (`54e3aa1`): en `api/ffm_summary.py`, `ALIASES["uuid"]` tenía alias muertos (`uuid`,
+  `uuid_fiscal`, nunca campos de la FFM) → reducido a `["fm_uuid"]`. Sin cambio de comportamiento
+  (verificado: 0 Custom Fields `uuid`/`uuid_fiscal`; `fm_uuid` es nativo del DocType).
+- **#163** (`c00169b`): en `get_or_create_active_ffm`, la clasificación IVA/otros usaba `"IVA" in
+  head` y neteaba la retención IVA (negativa) contra `si_iva`. Se extrae helper puro
+  `_clasificar_iva_otros(taxes, is_return)` con normalización de signo por `is_return`. Campos
+  informativos `si_iva`/`si_otros_impuestos` (NO en CFDI); no usa el mapeo fiscal (#186).
+- **#78** (`f583168`): dedup de avisos del selector Método de Pago SAT. (1) guard determinista
+  `_should_notify_payment_method` para el duplicado PPD (dos funciones hermanas); (2) eliminado el
+  `frm.trigger("fm_payment_method_sat")` redundante del radio handler para el duplicado PUE
+  "No se encontró Payment Entry" (mismo evento disparado 2×). Sin tocar PPD⇒99 ni fiscal/PAC.
 
 Plan que estoy siguiendo:
-Issues #207 y #56 (ambos `it-tech:approved`) + instrucciones humanas explícitas de esta sesión.
+Estrategia por campañas. Campaña A (depuración) cerrada (awaiting-decision 25→20; cerrados
+#123/#111/#133). Campaña B = este paquete. Campaña C (pendiente): calidad/tests (#223 + #158 +
+deuda del baseline de tests).
 
 Objetivo inmediato:
-Cerrar `/ship commit` de #56 (commit SEPARADO encima de `6639c89`, sin squash). Luego esperar
-autorización para `/ship push` y `/ship pr` (base `main`).
+`/ship push` → `/ship pr` (base `main`, cierra #57 #163 #78) → merge → `/ship release` v1.4.3 →
+cerrar #57 #163 #78.
 
 Criterio de avance:
-Commit de #56 con sus 2 archivos + CONTINUITY.md → push OK → PR con bump SemVer (alcance combinado
-#207+#56, recalculado vs `upstream/main`) → CI.
+CI verde (en entorno limpio la suite pasa; local arrastra 13 fallas baseline preexistentes) → merge
+→ tag/Release v1.4.3.
 
 ---
 
 ## Estado actual
 
 ### Ya cerrado
-- #207: commit `6639c89` (display de dirección venta mostrador; baseline confirmado; test real).
-- #56: causa raíz confirmada en código (`timbrado_api.py:548-552`, única ocurrencia). Fix mínimo
-  aplicado (−5 líneas), sin alterar el `try/except` de FASE 3 (try:500 / except:591 / ERROR:611).
-- #56: test estructural `test_timbrado_success_modal_close.py` (3 tests, verde) — modal de éxito se
-  conserva y sin `primary_action`/`client_action`/`hide_msgprint`.
-- #56: **validación funcional real en sandbox** (`facturacion-v16.dev`, `fm_environment=sandbox`).
-  Evidencia (por IDs de documento, sin datos de cliente):
-    · FFM `FFMX-2026-00055` → status TIMBRADO, UUID presente (prefijo c15788ae).
-    · SI `ACC-SINV-2026-00070` → `fm_fiscal_status = TIMBRADO`, sin transición posterior a ERROR.
-    · Modal "Timbrado Exitoso" mostrado; botón "Cerrar" roto AUSENTE; cierre nativo por X confirmado.
-- Linters limpios (`ruff check` + `ruff format`).
+- Release v1.4.2 (PR #228: #207 + #56); #207/#56 cerrados.
+- Campaña A: #123, #111, #133 cerrados sin código.
+- Campaña B (esta rama): #57, #163, #78 implementados, con tests, commits separados.
+- Bump `1.4.2 → 1.4.3` (PATCH, vs `upstream/main`).
+- Gates conjuntos: linters ✅ (ruff + prettier@2.7.1); mkdocs --strict ✅; doc-review No aplica.
+- Suite: `failures=2, errors=11` = **13 fallas baseline preexistentes idénticas** a PR #228,
+  **0 regresiones nuevas**; +9 tests nuevos verdes; `test_calculo_iva_combinado` corregido.
 
 ### En progreso
-- `/ship commit` de #56: gates OK, esperando confirmación del mensaje para commitear.
+- Cierre del paquete: commit de versionado (bump + este CONTINUITY). Luego push/PR.
 
 ### Pendiente inmediato
-1. Commit de #56 (2 archivos + CONTINUITY.md).
-2. `/ship push` (con autorización).
-3. `/ship pr` contra `main` con bump `__version__` del alcance combinado (recalcular vs `upstream/main`).
+1. Commit final de cierre/versionado (`__init__.py` 1.4.3 + CONTINUITY.md), `Refs #57 #163 #78`.
+2. `/ship push` + preview `/ship pr` (base `main`).
+3. Tras merge: `/sync-check` + `/ship release` v1.4.3 + cerrar #57 #163 #78.
 
 ### No repetir
-- `bench run-tests --app X --module Y --lightmode`: en v16 el combo `--app`+`--module` corre la suite
-  completa. Para un módulo aislado: `--module` SIN `--app`.
-- No decir "riesgo nulo" en campos/rutas fiscales sin comprobar payload/PAC/XML/CFDI.
-- No incluir en commits `scripts/*` ni `working_docs/private/` (siempre `git add` explícito).
-- No timbrar fuera de sandbox; confirmar `fm_environment=sandbox` antes (guard #215 bloquea `sk_live_`).
+- `bench run-tests --app X --module Y`: en v16 corre la suite completa; usar `--module` SIN `--app`.
+- No incluir `scripts/*` ni `working_docs/private/` en commits (siempre `git add` explícito).
+- No tocar `ffm_substitution_source_uuid`, PPD⇒99, mapeo fiscal (#186) ni PAC.
+- No reutilizar el guard de #78 para el aviso "no PE" (mensaje distinto; se resolvió quitando el trigger).
 
 ---
 
 ## Decisiones vigentes
-- Suite global del test site arrastra 13 fallas preexistentes/ambientales (custom fields UAE,
-  datos residuales) — NO bloquean estos commits (baseline confirmado quitando solo #207).
-- Gate documental de #207 y #56 = **No aplica** (bug fixes de comportamiento existente, sin nuevo
-  flujo/modelo/integración; tests puros). Commits sin docs autorizados por el usuario.
-- La rama lleva #207 + #56 → el PR será mixto; el bump SemVer se calcula por el alcance combinado.
+- Las 13 fallas del test site (custom fields UAE en `LEGACY_CF_ALLOWLIST`, datos residuales de
+  reconciliación, setUpClass compartido) son **baseline preexistente**, NO bloquean; en CI limpio pasa.
+- Gate documental de #57/#163/#78 = No aplica (bug fixes sin flujo/campo/estado nuevo).
+- Campaña C tratará #223 + #158 + la deuda del baseline de tests juntos.
 
 ---
 
 ## Archivos relevantes ahora
 
 ### Leer primero
-- `facturacion_mexico/facturacion_fiscal/timbrado_api.py` — msgprint de éxito (~536-553) dentro del
-  `try` de FASE 3 (500). El fix quitó el `primary_action`.
-
-### Probablemente editar
-- Ninguno pendiente (a la espera de push/PR).
+- `facturacion_mexico/api/ffm_summary.py` (#57), `.../factura_fiscal_mexico.py` `_clasificar_iva_otros`
+  y `get_or_create_active_ffm` (#163), `.../factura_fiscal_mexico.js` selector método de pago (#78).
 
 ### No tocar
-- `try/except` de FASE 3 en `timbrado_api.py` (fuera del alcance de #56).
 - `scripts/*`, `working_docs/private/` (untracked, fuera de alcance).
 
 ---
 
 ## Riesgos / cuidados
-- Test site `test-facturacion.localhost` compartido (deuda de entorno, issue aparte si se decide).
-- CFDI de prueba de #56 quedó timbrado en SANDBOX (dato de prueba, sin efecto real).
-- Al crear el PR: un solo bump por PR, recalculado vs `upstream/main` (no doble incremento).
+- Al crear el PR: un solo bump por PR (ya en 1.4.3), recalculado vs `upstream/main`.
+- Test site compartido con deuda baseline (Campaña C).
 
 ---
 
 ## Información faltante
-- Ninguna que bloquee #207 o #56.
+- Ninguna que bloquee el cierre del paquete.

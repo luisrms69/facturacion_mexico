@@ -1385,8 +1385,10 @@
 			// Punto 7: Manejar campo "Forma de pago para Timbrado"
 			handle_payment_form_field_visibility(frm, selected_value);
 
-			// Trigger validations si existen
-			frm.trigger("fm_payment_method_sat");
+			// Issue #78: NO re-disparar fm_payment_method_sat aquí. `frm.set_value` (arriba) ya
+			// dispara ese evento de formulario, que llama a auto_load_payment_method_from_sales_invoice.
+			// El `frm.trigger` explícito lo ejecutaba una segunda vez → doble aviso "No se encontró
+			// Payment Entry" al cambiar a PUE.
 		});
 
 		// Aplicar estilos de hover y resaltado inicial
@@ -1437,6 +1439,19 @@
 		}
 	}
 
+	function _should_notify_payment_method(frm, method) {
+		// Issue #78: guard determinista contra la notificación repetida del cambio de método
+		// de pago. Un mismo cambio dispara dos canales solapados (el aviso PPD/PUE y el aviso
+		// "99 Por definir" de la visibilidad de forma de pago); el guard hace que solo el primero
+		// del ciclo se muestre. Se re-arma al cambiar a un método distinto, de modo que una
+		// transición nueva legítima sí vuelve a notificar. No es un debounce temporal.
+		if (frm.__fm_pm_notified === method) {
+			return false; // misma transición ya notificada
+		}
+		frm.__fm_pm_notified = method;
+		return true;
+	}
+
 	function show_payment_method_change_notification(frm, previous_value, new_value) {
 		// Punto 6: Avisos detallados al cambiar método de pago
 		if (previous_value === new_value) {
@@ -1467,7 +1482,7 @@
 			indicator = "green";
 		}
 
-		if (message) {
+		if (message && _should_notify_payment_method(frm, new_value)) {
 			frappe.show_alert(
 				{
 					message: `<strong>${__(title)}</strong><br>${__(message)}`,
@@ -1506,13 +1521,18 @@
 			// Prevents repeated notice on each refresh of an already stamped PPD.
 			if (frm.doc.fm_forma_pago_timbrado !== "99 Por definir") {
 				frm.set_value("fm_forma_pago_timbrado", "99 Por definir");
-				frappe.show_alert(
-					{
-						message: __("Forma de pago asignada automáticamente: 99 Por definir"),
-						indicator: "orange",
-					},
-					ALERT_DURATION_DEFAULT
-				);
+				// Issue #78: mismo guard por transición que el aviso de cambio de método, para
+				// no duplicar el mensaje "99 Por definir" en un mismo cambio. La asignación de
+				// la forma de pago (arriba) NO se guarda — solo el aviso.
+				if (_should_notify_payment_method(frm, "PPD")) {
+					frappe.show_alert(
+						{
+							message: __("Forma de pago asignada automáticamente: 99 Por definir"),
+							indicator: "orange",
+						},
+						ALERT_DURATION_DEFAULT
+					);
+				}
 			}
 		} else if (payment_method === "PUE") {
 			// Para PUE: Mostrar campo y filtrar opciones (sin "99 Por definir")

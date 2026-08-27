@@ -36,3 +36,11 @@ class TestFfmSummaryFolio(IntegrationTestCase):
 	def test_solo_folio_sin_serie(self):
 		name = _seed_ffm(folio="500")
 		self.assertEqual(get_ffm_summary(name)["folio"], "500")
+
+	def test_uuid_desde_fm_uuid(self):
+		# Issue #57: el alias `uuid` se redujo a ["fm_uuid"] (se quitaron los legacy
+		# `uuid`/`uuid_fiscal`, que nunca fueron campos de la FFM). El summary debe
+		# seguir devolviendo el UUID desde `fm_uuid`.
+		uid = "TEST-UUID-" + frappe.generate_hash()[:12].upper()
+		name = _seed_ffm(fm_uuid=uid)
+		self.assertEqual(get_ffm_summary(name)["uuid"], uid)

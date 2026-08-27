@@ -20,6 +20,7 @@ from frappe.utils import flt
 
 from facturacion_mexico.facturacion_fiscal.api import FiscalCorrelationError
 from facturacion_mexico.facturacion_fiscal.doctype.factura_fiscal_mexico.factura_fiscal_mexico import (
+	_clasificar_iva_otros,
 	get_or_create_active_ffm,
 )
 
@@ -248,8 +249,10 @@ class TestGetOrCreateActiveFFM(IntegrationTestCase):
 		)
 		num_rows, si_iva, si_otros = self._ffm_tax_totals(si)
 		self.assertEqual(num_rows, 4)  # filas hijas realmente cargadas
-		self.assertEqual(si_iva, 120.00)  # 160.00 + (-40.00)
-		self.assertEqual(si_otros, 15.00)  # 25.00 + (-10.00)
+		# Issue #163: la retención IVA (-40, contiene "IVA") YA NO se netea contra si_iva;
+		# solo el IVA trasladado (+160) va a si_iva. La retención IVA pasa a "otros".
+		self.assertEqual(si_iva, 160.00)  # solo IVA trasladado
+		self.assertEqual(si_otros, -25.00)  # IVA Ret (-40) + IEPS (25) + ISR Ret (-10)
 
 	# 2 — solo IVA
 	def test_calculo_solo_iva(self):
@@ -338,3 +341,36 @@ class TestGetOrCreateActiveFFM(IntegrationTestCase):
 		with self.assertRaises(FiscalCorrelationError):
 			get_or_create_active_ffm(si, extra_fields={"campo_que_no_existe": "x"})
 		self.assertEqual(frappe.db.count("Factura Fiscal Mexico", {"sales_invoice": si}), 0)
+
+	# ── Issue #163: clasificación IVA/otros con normalización de signo por is_return ──
+
+	def test_clasificar_iva_otros_factura_normal(self):
+		"""SI normal: IVA trasladado positivo va a si_iva; retencion IVA negativa (contiene 'IVA') va a otros."""
+		taxes = [
+			frappe._dict(account_head="IVA Trasladado 16% - _TC", tax_amount=160.0),
+			frappe._dict(account_head="IVA Retenido - _TC", tax_amount=-100.0),
+		]
+		iva, otros = _clasificar_iva_otros(taxes, is_return=0)
+		self.assertEqual(flt(iva), 160.0)
+		self.assertEqual(flt(otros), -100.0)
+
+	def test_clasificar_iva_otros_nota_credito_return(self):
+		"""SI Return: signos invertidos; el traslado negativo sigue en si_iva y la retencion positiva en otros."""
+		taxes = [
+			frappe._dict(account_head="IVA Trasladado 16% - _TC", tax_amount=-160.0),
+			frappe._dict(account_head="IVA Retenido - _TC", tax_amount=100.0),
+		]
+		iva, otros = _clasificar_iva_otros(taxes, is_return=1)
+		self.assertEqual(flt(iva), -160.0)
+		self.assertEqual(flt(otros), 100.0)
+
+	def test_helper_conectado_en_get_or_create_ffm_normal(self):
+		"""Integración ligera (SI normal): el FFM creado recibe si_iva/si_otros_impuestos correctos."""
+		si = self._si()
+		_add_tax_rows(si, [("IVA Trasladado 16% - _TC", 160.0), ("IVA Retenido - _TC", -100.0)])
+		ffm = self._track_ffm(get_or_create_active_ffm(si))
+		vals = frappe.db.get_value(
+			"Factura Fiscal Mexico", ffm, ["si_iva", "si_otros_impuestos"], as_dict=True
+		)
+		self.assertEqual(flt(vals.si_iva), 160.0)
+		self.assertEqual(flt(vals.si_otros_impuestos), -100.0)
