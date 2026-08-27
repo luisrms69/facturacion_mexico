@@ -1432,6 +1432,29 @@ def get_sales_invoice_for_ffm(
 	)
 
 
+def _clasificar_iva_otros(taxes, is_return) -> tuple[float, float]:
+	"""Separa IVA trasladado de "otros impuestos" desde las filas de taxes de una Sales Invoice.
+
+	Alcance acotado (issue #163): normaliza el signo por `is_return` (en NC/Return el IVA
+	trasladado viene negativo) para clasificar igual que una factura normal — traslado
+	efectivo > 0 → IVA; retenciones (negativas) y demás → otros. Acumula el importe con su
+	signo real. Alimenta solo los campos informativos `si_iva`/`si_otros_impuestos` (no el CFDI).
+
+	NO es el clasificador fiscal general: no usa el mapeo de cuentas fiscales (#186).
+	"""
+	iva_total = 0.0
+	otros_impuestos = 0.0
+	for tax in taxes or []:
+		head = (getattr(tax, "account_head", "") or "").upper()
+		amount = flt(getattr(tax, "tax_amount", 0))
+		effective_amount = -amount if is_return else amount
+		if "IVA" in head and effective_amount > 0:
+			iva_total += amount
+		else:
+			otros_impuestos += amount
+	return iva_total, otros_impuestos
+
+
 @frappe.whitelist()
 def get_or_create_active_ffm(sales_invoice: str, extra_fields: str | dict | None = None) -> str:
 	"""Obtener o crear el FFM de una Sales Invoice — única vía de creación e idempotente.
@@ -1574,14 +1597,8 @@ def get_or_create_active_ffm(sales_invoice: str, extra_fields: str | dict | None
 		)
 
 	# Crear el FFM con la MISMA lógica/valores del botón (cálculo de IVA en servidor).
-	iva_total = 0.0
-	otros_impuestos = 0.0
-	for tax in si.taxes or []:
-		head = (tax.account_head or "").upper()
-		if "IVA" in head:
-			iva_total += flt(tax.tax_amount)
-		else:
-			otros_impuestos += flt(tax.tax_amount)
+	# Clasificación IVA/otros con normalización de signo por is_return (issue #163).
+	iva_total, otros_impuestos = _clasificar_iva_otros(si.taxes, si.is_return)
 
 	ffm_doc = frappe.get_doc(
 		{
