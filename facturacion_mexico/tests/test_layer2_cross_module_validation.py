@@ -84,7 +84,7 @@ class TestLayer2CrossModuleValidation(unittest.TestCase):
 
 		inconsistent_fields = frappe.db.sql(
 			"""
-            SELECT dt, fieldname, label
+            SELECT dt, fieldname, label, module
             FROM `tabCustom Field`
             WHERE fieldname NOT LIKE 'fm_%'
             AND dt IN ('Sales Invoice', 'Customer', 'Branch', 'Payment Entry', 'Item')
@@ -94,6 +94,17 @@ class TestLayer2CrossModuleValidation(unittest.TestCase):
         """,
 			as_dict=True,
 		)
+
+		# Filtro de propiedad: solo evaluamos Custom Fields de facturacion_mexico. Los campos
+		# regionales de ERPNext (UAE VAT: vat_emirate/permit_no/company_trn/…, department/location,
+		# is_exempt/is_zero_rated/…) se inyectan según la versión de erpnext instalada y NO llevan
+		# `module` (module NULL); no son responsabilidad de esta app. La señal fiable de propiedad
+		# es que `module` pertenezca a un módulo de la app: un Custom Field futuro creado por
+		# facturacion_mexico sí lo lleva y seguiría siendo evaluado por este control.
+		fm_modules = set(
+			frappe.get_all("Module Def", filters={"app_name": "facturacion_mexico"}, pluck="name")
+		)
+		inconsistent_fields = [f for f in inconsistent_fields if f.module in fm_modules]
 
 		# Filtrar campos del sistema base ERPNext y legados autorizados
 		system_fields = [
