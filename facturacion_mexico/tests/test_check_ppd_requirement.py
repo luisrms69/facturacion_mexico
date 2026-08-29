@@ -21,6 +21,11 @@ from frappe.tests.utils import FrappeTestCase
 from facturacion_mexico.complementos_pago.hooks_handlers.payment_entry_validate import (
 	check_ppd_requirement,
 )
+from facturacion_mexico.tests.fm_si_builder import (
+	TEST_COMPANY,
+	make_submitted_si,
+	resolve_test_accounts,
+)
 
 
 def _make_pe(payment_type="Receive", docstatus=1, references=None):
@@ -117,21 +122,26 @@ class TestCheckPPDRequirementIntegracion(FrappeTestCase):
 
 		cls._suffix = frappe.generate_hash(length=6)
 
-		# --- Company (patrón documentado en test-guard) ---
-		default_co = frappe.defaults.get_global_default("company")
-		if default_co and frappe.db.exists("Company", default_co):
-			cls.company = default_co
+		# --- Company ---
+		# `_Test Company` (plan de cuentas completo) es necesaria para emitir una SI real;
+		# el default global del site puede ser una company mínima sin plan de cuentas.
+		if frappe.db.exists("Company", TEST_COMPANY):
+			cls.company = TEST_COMPANY
 		else:
-			cls.company = frappe.db.get_value("Company", {}, "name")
-			if not cls.company:
-				company = frappe.new_doc("Company")
-				company.company_name = "_Test Company"
-				company.abbr = "_TC"
-				company.default_currency = "MXN"
-				company.country = "Mexico"
-				company.insert(ignore_permissions=True)
-				cls.company = company.name
-				frappe.db.set_default("company", cls.company)
+			default_co = frappe.defaults.get_global_default("company")
+			if default_co and frappe.db.exists("Company", default_co):
+				cls.company = default_co
+			else:
+				cls.company = frappe.db.get_value("Company", {}, "name")
+				if not cls.company:
+					company = frappe.new_doc("Company")
+					company.company_name = "_Test Company"
+					company.abbr = "_TC"
+					company.default_currency = "MXN"
+					company.country = "Mexico"
+					company.insert(ignore_permissions=True)
+					cls.company = company.name
+					frappe.db.set_default("company", cls.company)
 
 		cls.currency = frappe.db.get_value("Company", cls.company, "default_currency") or "MXN"
 
@@ -229,28 +239,32 @@ class TestCheckPPDRequirementIntegracion(FrappeTestCase):
 				fy.save(ignore_permissions=True)
 
 		# --- Cuentas para PE ---
-		cls.receivable_account = frappe.db.get_value(
-			"Account", {"account_type": "Receivable", "company": cls.company, "is_group": 0}, "name"
-		)
+		# El party account del PE (paid_from) debe coincidir con el debit_to de la SI:
+		# se resuelve con el mismo helper para garantizar la coincidencia (Debtors).
+		cls.receivable_account = resolve_test_accounts(cls.company)[0]
+		# Preferir Cash (no exige Reference No/Date como las cuentas Bank).
 		cls.bank_account = frappe.db.get_value(
-			"Account",
-			{"account_type": ["in", ["Bank", "Cash"]], "company": cls.company, "is_group": 0},
-			"name",
+			"Account", {"account_type": "Cash", "company": cls.company, "is_group": 0}, "name"
+		) or frappe.db.get_value(
+			"Account", {"account_type": "Bank", "company": cls.company, "is_group": 0}, "name"
 		)
 
 		frappe.db.commit()
 
 	def _make_real_si(self, is_ppd=True, fiscal_status="TIMBRADO"):
-		"""Crea SI real submitted con campos fiscales seteados vía db_set."""
-		si = frappe.new_doc("Sales Invoice")
-		si.company = self.company
-		si.customer = self.customer
-		si.cost_center = self.cost_center
-		si.currency = self.currency
-		si.conversion_rate = 1.0
-		si.append("items", {"item_code": self.item_code, "qty": 1, "rate": 500})
-		si.insert(ignore_permissions=True)
-		si.submit()
+		"""Crea SI real submitted con campos fiscales seteados vía db_set.
+
+		Cablea income_account/debit_to/cost_center a cuentas reales de la company vía el
+		builder de tests compartido, de modo que insert()+submit() no fallen.
+		"""
+		si = make_submitted_si(
+			company=self.company,
+			customer=self.customer,
+			item_code=self.item_code,
+			cost_center=self.cost_center,
+			rate=500,
+			currency=self.currency,
+		)
 		frappe.db.set_value(
 			"Sales Invoice",
 			si.name,
@@ -279,6 +293,10 @@ class TestCheckPPDRequirementIntegracion(FrappeTestCase):
 			"references",
 			{"reference_doctype": "Sales Invoice", "reference_name": si_name, "allocated_amount": allocated},
 		)
+		# Cuentas Bank exigen Reference No/Date; las Cash no. Se agrega solo si aplica.
+		if frappe.db.get_value("Account", self.bank_account, "account_type") == "Bank":
+			pe.reference_no = f"FM-TEST-{frappe.generate_hash(length=6)}"
+			pe.reference_date = frappe.utils.today()
 		pe.insert(ignore_permissions=True)
 		return pe
 

@@ -462,20 +462,34 @@ class TestFFMReconciliation(IntegrationTestCase):
 	def test_lote_un_fallo_no_detiene(self):
 		si = self._si()
 		a = self._ffm(si, "TIMBRADO", sync="pending", facturapi_id="FA-A")
-		self._ffm(si, "TIMBRADO", sync="pending", facturapi_id="FA-B")
+		b = self._ffm(si, "TIMBRADO", sync="pending", facturapi_id="FA-B")
+
+		called = []
 
 		def _side(name):
+			called.append(name)
 			if name == a:
 				raise RuntimeError("boom")
 			return {"ffm": name, "outcome": "unchanged"}
 
+		# `limit` alto (interfaz pública real) para que ambas FFM del test entren en la
+		# selección aunque el site tenga residuo de otras FFM pendientes.
 		with (
 			patch(f"{MOD}._reconcile_ffm", side_effect=_side),
 			patch(f"{MOD}._acquire_lock", return_value=True),
 			patch(f"{MOD}._release_lock"),
 		):
-			summary = mod.run_auto_reconciliation()
-		self.assertEqual(summary["processed"], 2)
+			summary = mod.run_auto_reconciliation(limit=100000)
+
+		# Contrato: un fallo en una FFM NO detiene el lote. La aserción es robusta a un site
+		# con residuo (no se asume que a/b sean los únicos candidatos ni un conteo fijo): se
+		# prueba que el lote procesó TODOS los seleccionados pese a que 'a' lanzó, que ambas
+		# FFM del test participaron y que el fallo se contabilizó. No se mockea la selección
+		# de candidatos ni se altera el estado global del site.
+		self.assertIn(a, called)  # la FFM que falla se intentó
+		self.assertIn(b, called)  # la siguiente se procesó pese al fallo
+		self.assertGreaterEqual(summary["selected"], 2)
+		self.assertEqual(summary["processed"], summary["selected"])  # ninguna interrumpió el lote
 		self.assertGreaterEqual(summary["errors"], 1)
 
 	def test_lock_global_ocupado_sale_sin_error(self):

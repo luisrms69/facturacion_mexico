@@ -15,6 +15,7 @@ import frappe
 from frappe.tests.utils import FrappeTestCase
 
 from facturacion_mexico.api.fiscal_operations import refacturar_misma_si
+from facturacion_mexico.tests.fm_si_builder import TEST_COMPANY, make_submitted_si
 
 TEST_SAT_CODE = "84111506"  # Servicios de consultoría — genérico para testing
 TEST_ITEM_CODE = "FM-TEST-REFACTURA-ITEM"
@@ -28,22 +29,27 @@ class TestRefacturarWorkflow(FrappeTestCase):
 		super().setUpClass()
 
 		# --- Company ---
-		# Usar la existente si hay; si no, crear una mínima.
-		# bench new-site en CI no corre setup wizard → no hay company por defecto.
-		default_co = frappe.defaults.get_global_default("company")
-		if default_co and frappe.db.exists("Company", default_co):
-			cls.company = default_co
+		# `_Test Company` es la company canónica de ERPNext con plan de cuentas completo:
+		# necesaria para que la SI real haga insert()+submit() sin fallar por income_account/
+		# debit_to sin resolver. El default global del site puede ser una company mínima sin
+		# plan de cuentas (p. ej. "Test PCV Company"), que no permite emitir una SI real.
+		if frappe.db.exists("Company", TEST_COMPANY):
+			cls.company = TEST_COMPANY
 		else:
-			cls.company = frappe.db.get_value("Company", {}, "name")
-			if not cls.company:
-				company = frappe.new_doc("Company")
-				company.company_name = "_Test Company"
-				company.abbr = "_TC"
-				company.default_currency = "MXN"
-				company.country = "Mexico"
-				company.insert(ignore_permissions=True)
-				cls.company = company.name
-				frappe.db.set_default("company", cls.company)
+			default_co = frappe.defaults.get_global_default("company")
+			if default_co and frappe.db.exists("Company", default_co):
+				cls.company = default_co
+			else:
+				cls.company = frappe.db.get_value("Company", {}, "name")
+				if not cls.company:
+					company = frappe.new_doc("Company")
+					company.company_name = "_Test Company"
+					company.abbr = "_TC"
+					company.default_currency = "MXN"
+					company.country = "Mexico"
+					company.insert(ignore_permissions=True)
+					cls.company = company.name
+					frappe.db.set_default("company", cls.company)
 
 		# --- UOM ---
 		if not frappe.db.exists("UOM", "Nos"):
@@ -145,26 +151,19 @@ class TestRefacturarWorkflow(FrappeTestCase):
 		frappe.db.commit()
 
 	def _make_si(self, docstatus=1):
-		"""Crea una SI fiscalmente válida (cost_center + SAT code) para testing."""
-		si = frappe.new_doc("Sales Invoice")
-		si.company = self.company
-		si.customer = self.customer
-		si.cost_center = self.cost_center
-		# Moneda explícita para que coincida con la cuenta Debtors de la company (MXN)
-		si.currency = frappe.db.get_value("Company", self.company, "default_currency") or "MXN"
-		si.conversion_rate = 1.0
-		si.append(
-			"items",
-			{
-				"item_code": TEST_ITEM_CODE,
-				"qty": 1,
-				"rate": 1000,
-			},
+		"""Crea una SI fiscalmente válida (cost_center + SAT code) para testing.
+
+		Cablea income_account/debit_to/cost_center a cuentas reales de la company vía el
+		builder de tests compartido, de modo que insert()+submit() no fallen.
+		"""
+		return make_submitted_si(
+			company=self.company,
+			customer=self.customer,
+			item_code=TEST_ITEM_CODE,
+			cost_center=self.cost_center,
+			rate=1000,
+			do_submit=(docstatus == 1),
 		)
-		si.insert(ignore_permissions=True)
-		if docstatus == 1:
-			si.submit()
-		return si
 
 	def _make_ffm(self, si_name, status="TIMBRADO", motivo=None):
 		"""Crea una FFM mínima vinculada a la SI."""
@@ -199,7 +198,7 @@ class TestRefacturarWorkflow(FrappeTestCase):
 	def test_refacturar_motivo_02(self):
 		"""SI submitted + FFM CANCELADA motivo 02 → desvincula correctamente."""
 		si = self._make_si()
-		ffm = self._make_ffm(si.name, status="CANCELADO", motivo="02")
+		self._make_ffm(si.name, status="CANCELADO", motivo="02")
 
 		refacturar_misma_si(si.name)
 
