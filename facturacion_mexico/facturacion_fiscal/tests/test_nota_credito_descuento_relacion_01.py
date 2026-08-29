@@ -39,6 +39,7 @@ from facturacion_mexico.facturacion_fiscal.utils import (
 	credit_note_lines_use_discount_account,
 	get_cuenta_descuentos,
 )
+from facturacion_mexico.tests.fm_si_builder import seed_minimal_si
 
 CUENTA_DESC = "501-005 - Descuentos y bonificaciones - TC"
 
@@ -430,70 +431,92 @@ class TestCreditNoteLinesUseDiscountAccount(FrappeTestCase):
 		self.assertFalse(credit_note_lines_use_discount_account(si, CUENTA_DESC))
 
 
-_FFM_MOD = "facturacion_mexico.facturacion_fiscal.doctype.factura_fiscal_mexico.factura_fiscal_mexico"
 CUENTA_DESC_CFG = "401-001-003 - Descuentos - TC"
 
 
 class TestClasificacionNotaCredito(FrappeTestCase):
 	"""_classify_nota_credito: clasificación POSITIVA y fail-closed desde el estado EXACTO de la SI
 	Return. Devolución/Descuento solo con coincidencia exacta; estado ambiguo o vínculos faltantes →
-	bloquea SIN mutación parcial de campos fiscales."""
+	bloquea SIN mutación parcial de campos fiscales.
 
-	def _origen(self, update_stock=1):
-		return _dict(
+	Issue #223 — RG-003: se eliminó el mock de `frappe.get_doc`. La clasificación lee Sales Invoice
+	de origen y Return REALES (persistidas mínimas vía db_insert, sin validación; el clasificador solo
+	las lee) y la cuenta de descuentos se toma de una Facturacion Mexico Company Settings REAL. La
+	company es única por test → aislamiento total (FrappeTestCase revierte la transacción). Se mantiene
+	únicamente el sentinel de `_auto_populate_forma_pago_tipo_e` (punto de delegación de FormaPago,
+	fuera del alcance de #223); las demás dependencias se resuelven con datos reales.
+	"""
+
+	def setUp(self):
+		self.tid = frappe.generate_hash(length=8)
+		self.company = f"_Test NC {self.tid}"
+
+	def _oname(self, suffix):
+		return f"{self.tid}-{suffix}"
+
+	def _si_item(self, suffix):
+		"""Resuelve el vínculo al renglón de origen: O1/O2 → nombre real; otros valores (None,
+		'NO-EXISTE') se dejan literales para probar los bloqueos por vínculo."""
+		return self._oname(suffix) if suffix in ("O1", "O2") else suffix
+
+	def _seed_discount_account(self, cuenta):
+		"""Facturacion Mexico Company Settings REAL con cuenta_descuentos (config por empresa)."""
+		cs = frappe.get_doc(
 			{
-				"name": "SINV-ORIGEN",
-				"company": "_Test Company",
-				"update_stock": update_stock,
-				"items": [
-					_dict(
-						{
-							"name": "O1",
-							"income_account": "Ventas - TC",
-							"description": "Llanta 205",
-							"item_name": "LLANTA-A",
-						}
-					),
-					_dict(
-						{
-							"name": "O2",
-							"income_account": "Ventas - TC",
-							"description": "Rin 16",
-							"item_name": "RIN-B",
-						}
-					),
-				],
+				"doctype": "Facturacion Mexico Company Settings",
+				"company": self.company,
+				"cuenta_descuentos": cuenta,
 			}
+		)
+		cs.flags.ignore_validate = True
+		cs.flags.ignore_mandatory = True
+		cs.flags.ignore_links = True
+		cs.db_insert()
+
+	def _seed_origen(self, update_stock=1):
+		return seed_minimal_si(
+			company=self.company,
+			update_stock=update_stock,
+			items=[
+				{
+					"name": self._oname("O1"),
+					"income_account": "Ventas - TC",
+					"description": "Llanta 205",
+					"item_name": "LLANTA-A",
+				},
+				{
+					"name": self._oname("O2"),
+					"income_account": "Ventas - TC",
+					"description": "Rin 16",
+					"item_name": "RIN-B",
+				},
+			],
 		)
 
 	def _linea(self, name, si_item, income, desc, item="LLANTA-A"):
-		return _dict(
-			{
-				"name": name,
-				"sales_invoice_item": si_item,
-				"income_account": income,
-				"description": desc,
-				"item_code": item,
-				"idx": 1,
-			}
+		return {
+			"name": self._oname(name),
+			"sales_invoice_item": self._si_item(si_item),
+			"income_account": income,
+			"description": desc,
+			"item_code": item,
+			"idx": 1,
+		}
+
+	def _seed_return(self, origen, lineas, update_stock):
+		return seed_minimal_si(
+			company=self.company,
+			is_return=1,
+			return_against=origen,
+			update_stock=update_stock,
+			items=lineas,
 		)
 
-	def _si(self, lineas, update_stock, return_against="SINV-ORIGEN"):
-		return _dict(
-			{
-				"name": "SINV-C-RETORNO",
-				"return_against": return_against,
-				"company": "_Test Company",
-				"update_stock": update_stock,
-				"items": lineas,
-			}
-		)
-
-	def _ffm(self):
+	def _ffm(self, return_name):
 		inst = FacturaFiscalMexico.__new__(FacturaFiscalMexico)
 		inst.docstatus = 0
-		inst.sales_invoice = "SINV-C-RETORNO"
-		inst.company = "_Test Company"
+		inst.sales_invoice = return_name
+		inst.company = self.company
 		inst.fm_tipo_nota_credito = ""
 		inst.fm_tipo_comprobante = None
 		inst.fm_tipo_relacion_sat = None
@@ -502,35 +525,25 @@ class TestClasificacionNotaCredito(FrappeTestCase):
 		inst.fm_forma_pago_timbrado = None
 		inst.fm_payment_method_sat = None
 		inst.fm_facturar_venta_mostrador = 0
-		inst._is_sales_invoice_return = lambda: True
-		inst._find_uuid_cfdi_origen = lambda: UUID_ORIGEN_C
-		inst._get_origin_ffm = lambda: None
+		# Sentinel del punto de delegación de FormaPago (fuera del alcance de #223).
 		inst._auto_populate_forma_pago_tipo_e = lambda: setattr(
 			inst, "fm_forma_pago_timbrado", "FORMA-GENERAL"
 		)
 		return inst
 
-	def _derivar(self, ffm, si, origen, cuenta):
-		def _side(doctype, name):
-			return si if name == "SINV-C-RETORNO" else origen
-
-		with (
-			patch(_FFM_MOD + ".frappe.get_doc", side_effect=_side),
-			patch(
-				"facturacion_mexico.facturacion_fiscal.utils.get_cuenta_descuentos",
-				return_value=cuenta,
-			),
-		):
-			ffm._set_tipo_from_context()
+	def _derivar(self, ffm):
+		# Sin mocks: lee las Sales Invoice reales (frappe.get_doc) y la config real de la empresa.
+		ffm._set_tipo_from_context()
 
 	# (1) devolución exacta SIN cuenta_descuentos → 03/G02 + FormaPago general
 	def test_devolucion_exacta_sin_cuenta(self):
+		origen = self._seed_origen(update_stock=1)
 		lineas = [
 			self._linea("R1", "O1", "Ventas - TC", "Llanta 205", "LLANTA-A"),
 			self._linea("R2", "O2", "Ventas - TC", "Rin 16", "RIN-B"),
 		]
-		ffm = self._ffm()
-		self._derivar(ffm, self._si(lineas, update_stock=1), self._origen(update_stock=1), cuenta=None)
+		ffm = self._ffm(self._seed_return(origen, lineas, update_stock=1))
+		self._derivar(ffm)
 		self.assertEqual(ffm.fm_tipo_nota_credito, "Devolución de mercancía")
 		self.assertTrue(ffm.fm_tipo_relacion_sat.startswith("03 - "))
 		self.assertEqual(ffm.fm_cfdi_use, "G02")
@@ -538,12 +551,14 @@ class TestClasificacionNotaCredito(FrappeTestCase):
 
 	# (2) descuento exacto CON configuración → 01/G02/15
 	def test_descuento_exacto_con_config(self):
+		self._seed_discount_account(CUENTA_DESC_CFG)
+		origen = self._seed_origen(update_stock=1)
 		lineas = [
 			self._linea("R1", "O1", CUENTA_DESC_CFG, build_descuento_description("Llanta 205"), "LLANTA-A"),
 			self._linea("R2", "O2", CUENTA_DESC_CFG, build_descuento_description("Rin 16"), "RIN-B"),
 		]
-		ffm = self._ffm()
-		self._derivar(ffm, self._si(lineas, update_stock=0), self._origen(), cuenta=CUENTA_DESC_CFG)
+		ffm = self._ffm(self._seed_return(origen, lineas, update_stock=0))
+		self._derivar(ffm)
 		self.assertEqual(ffm.fm_tipo_nota_credito, "Descuento / Bonificación")
 		self.assertTrue(ffm.fm_tipo_relacion_sat.startswith("01 - "))
 		self.assertEqual(ffm.fm_cfdi_use, "G02")
@@ -551,59 +566,67 @@ class TestClasificacionNotaCredito(FrappeTestCase):
 
 	# (3) descuento cuya configuración fue eliminada después → bloquea (no deriva 03)
 	def test_descuento_config_eliminada_bloquea(self):
+		# Sin _seed_discount_account → get_cuenta_descuentos(company) devuelve None.
+		origen = self._seed_origen(update_stock=1)
 		lineas = [
 			self._linea("R1", "O1", CUENTA_DESC_CFG, build_descuento_description("Llanta 205"), "LLANTA-A"),
 			self._linea("R2", "O2", CUENTA_DESC_CFG, build_descuento_description("Rin 16"), "RIN-B"),
 		]
-		ffm = self._ffm()
+		ffm = self._ffm(self._seed_return(origen, lineas, update_stock=0))
 		with self.assertRaises(frappe.ValidationError):
-			self._derivar(ffm, self._si(lineas, update_stock=0), self._origen(), cuenta=None)
+			self._derivar(ffm)
 		self.assertIsNone(ffm.fm_tipo_comprobante)  # sin mutación parcial
 		self.assertIsNone(ffm.fm_tipo_relacion_sat)
 
 	# (4) cuenta configurada pero DISTINTA de la usada en la SI → bloquea
 	def test_cuenta_distinta_de_la_usada_bloquea(self):
+		self._seed_discount_account(CUENTA_DESC_CFG)
+		origen = self._seed_origen(update_stock=1)
 		lineas = [
 			self._linea("R1", "O1", "OTRA - TC", build_descuento_description("Llanta 205"), "LLANTA-A"),
 			self._linea("R2", "O2", "OTRA - TC", build_descuento_description("Rin 16"), "RIN-B"),
 		]
-		ffm = self._ffm()
+		ffm = self._ffm(self._seed_return(origen, lineas, update_stock=0))
 		with self.assertRaises(frappe.ValidationError):
-			self._derivar(ffm, self._si(lineas, update_stock=0), self._origen(), cuenta=CUENTA_DESC_CFG)
+			self._derivar(ffm)
 		self.assertIsNone(ffm.fm_tipo_comprobante)
 
 	# (5) línea con descripción modificada manualmente → bloquea
 	def test_linea_modificada_manualmente_bloquea(self):
+		self._seed_discount_account(CUENTA_DESC_CFG)
+		origen = self._seed_origen(update_stock=1)
 		lineas = [
 			self._linea("R1", "O1", "Ventas - TC", "Llanta 205", "LLANTA-A"),
 			self._linea("R2", "O2", "Ventas - TC", "DESCRIPCIÓN MODIFICADA", "RIN-B"),
 		]
-		ffm = self._ffm()
+		ffm = self._ffm(self._seed_return(origen, lineas, update_stock=1))
 		with self.assertRaises(frappe.ValidationError):
-			self._derivar(ffm, self._si(lineas, update_stock=1), self._origen(), cuenta=CUENTA_DESC_CFG)
+			self._derivar(ffm)
 		self.assertIsNone(ffm.fm_tipo_comprobante)
 
 	# (6) línea sin sales_invoice_item → bloquea SIN mutación parcial
 	def test_linea_sin_vinculo_bloquea_sin_mutacion(self):
+		origen = self._seed_origen(update_stock=1)
 		lineas = [
 			self._linea("R1", None, "Ventas - TC", "Llanta 205", "LLANTA-A"),  # sin vínculo
 			self._linea("R2", "O2", "Ventas - TC", "Rin 16", "RIN-B"),
 		]
-		ffm = self._ffm()
+		ffm = self._ffm(self._seed_return(origen, lineas, update_stock=1))
 		with self.assertRaises(frappe.ValidationError):
-			self._derivar(ffm, self._si(lineas, update_stock=1), self._origen(), cuenta=None)
+			self._derivar(ffm)
 		self.assertIsNone(ffm.fm_tipo_comprobante)
 		self.assertIsNone(ffm.fm_tipo_relacion_sat)
 
 	# (6b) vínculo inexistente en el origen → bloquea
 	def test_linea_vinculo_inexistente_bloquea(self):
+		origen = self._seed_origen(update_stock=1)
 		lineas = [
 			self._linea("R1", "NO-EXISTE", "Ventas - TC", "Llanta 205", "LLANTA-A"),
 			self._linea("R2", "O2", "Ventas - TC", "Rin 16", "RIN-B"),
 		]
-		ffm = self._ffm()
+		ffm = self._ffm(self._seed_return(origen, lineas, update_stock=1))
 		with self.assertRaises(frappe.ValidationError):
-			self._derivar(ffm, self._si(lineas, update_stock=1), self._origen(), cuenta=None)
+			self._derivar(ffm)
 		self.assertIsNone(ffm.fm_tipo_comprobante)
 
 

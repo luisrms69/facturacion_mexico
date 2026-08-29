@@ -93,3 +93,60 @@ def make_submitted_si(
 	if do_submit:
 		si.submit()
 	return si
+
+
+def seed_minimal_si(
+	*,
+	company: str,
+	items: list[dict],
+	is_return: int = 0,
+	return_against: str | None = None,
+	update_stock: int = 0,
+	docstatus: int = 0,
+) -> str:
+	"""Persiste una Sales Invoice mínima (db_insert, sin validación) + sus líneas.
+
+	Para tests que SOLO LEEN el documento vía `frappe.get_doc` (p. ej. la clasificación de
+	notas de crédito, #223): evita el mock de `frappe.get_doc` sin pagar el costo de emitir
+	una SI real. `items` es una lista de dicts con los campos de Sales Invoice Item a persistir;
+	cada dict puede traer un `name` explícito (útil para enlazar `sales_invoice_item` desde la
+	Return al renglón de origen). `item_code`/`income_account`/`description` son cadenas de
+	solo lectura: no requieren Items ni Accounts reales.
+
+	Devuelve el `name` de la Sales Invoice.
+	"""
+	si = frappe.get_doc(
+		{
+			"doctype": "Sales Invoice",
+			"company": company,
+			"is_return": is_return,
+			"return_against": return_against,
+			"update_stock": update_stock,
+			"posting_date": frappe.utils.today(),
+			"docstatus": docstatus,
+		}
+	)
+	si.flags.ignore_validate = True
+	si.flags.ignore_mandatory = True
+	si.flags.ignore_links = True
+	si.db_insert()
+
+	for idx, raw in enumerate(items, start=1):
+		fields = dict(raw)
+		row = frappe.get_doc(
+			{
+				"doctype": "Sales Invoice Item",
+				"name": fields.pop("name", None) or frappe.generate_hash(length=10),
+				"parent": si.name,
+				"parenttype": "Sales Invoice",
+				"parentfield": "items",
+				"idx": fields.pop("idx", idx),
+				**fields,
+			}
+		)
+		row.flags.ignore_validate = True
+		row.flags.ignore_mandatory = True
+		row.flags.ignore_links = True
+		row.db_insert()
+
+	return si.name
