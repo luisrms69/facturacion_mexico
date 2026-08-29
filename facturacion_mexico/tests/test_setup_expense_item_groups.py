@@ -19,15 +19,32 @@ _ALL_PARENT_NAMES = [g["name"] for g in _GROUPS]
 _ALL_CHILD_NAMES = [child for g in _GROUPS for child in g["children"]]
 
 
+def _delete_item_group_subtree(name):
+	"""Borra recursivamente (bottom-up) un Item Group y TODOS sus descendientes reales.
+
+	Acotado al subárbol de `name`: descubre los hijos reales en BD (no solo los nombres
+	conocidos), de modo que un hijo residual dejado por una corrida interrumpida no bloquee
+	el borrado del padre (NestedSetChildExistsError). No toca nada fuera de este subárbol.
+	"""
+	if not frappe.db.exists("Item Group", name):
+		return
+	for child in frappe.get_all("Item Group", filters={"parent_item_group": name}, pluck="name"):
+		_delete_item_group_subtree(child)
+	frappe.delete_doc("Item Group", name, force=True, ignore_permissions=True)
+
+
 def _cleanup():
-	for child in _ALL_CHILD_NAMES:
-		if frappe.db.exists("Item Group", child):
-			frappe.delete_doc("Item Group", child, force=True)
+	"""Limpieza idempotente y robusta a corridas interrumpidas.
+
+	Borra únicamente el subárbol propiedad del test —el paraguas `_UMBRELLA` con todos sus
+	descendientes, más los grupos definidos que vivan fuera del paraguas por override de
+	parent—. No hace limpieza global del site ni borra Item Groups ajenos.
+	"""
+	_delete_item_group_subtree(_UMBRELLA)
 	for parent in reversed(_ALL_PARENT_NAMES):
-		if frappe.db.exists("Item Group", parent):
-			frappe.delete_doc("Item Group", parent, force=True)
-	if frappe.db.exists("Item Group", _UMBRELLA):
-		frappe.delete_doc("Item Group", _UMBRELLA, force=True)
+		_delete_item_group_subtree(parent)
+	for child in _ALL_CHILD_NAMES:
+		_delete_item_group_subtree(child)
 	frappe.db.commit()
 
 
