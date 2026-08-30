@@ -1,12 +1,11 @@
 """
 Tests de ConceptClassifier y CFDI Concepto Mapping — Fase 2.
 
-unittest.TestCase con contexto Frappe activo.
+IntegrationTestCase — aislamiento por rollback de clase (sin commits explícitos).
 """
 
-import unittest
-
 import frappe
+from frappe.tests import IntegrationTestCase
 
 from facturacion_mexico.cfdi_recibidos.services.concept_classifier import (
 	classify_concepts,
@@ -14,30 +13,30 @@ from facturacion_mexico.cfdi_recibidos.services.concept_classifier import (
 )
 
 TEST_COMPANY = "_Test Company"
-TEST_RFC = "CNA201211FM9"
 TEST_SAT_KEY = "43231500"
 UUID_BASE = "CLSF0001-0001-0001-0001-"
-_TEST_SUPPLIER_NAME = "Test Supplier CNA201211FM9"
 
 
-def _get_or_create_supplier() -> str:
-	existing = frappe.db.get_value("Supplier", {"tax_id": TEST_RFC}, "name")
+def _rfc() -> str:
+	"""RFC ficticio único (no real) para un Supplier de prueba."""
+	return "TST" + frappe.generate_hash(length=10).upper()
+
+
+def _suffix() -> str:
+	"""Sufijo único para el UUID de un CFDI Recibido de prueba."""
+	return frappe.generate_hash(length=12).upper()
+
+
+def _get_or_create_supplier(rfc: str) -> str:
+	existing = frappe.db.get_value("Supplier", {"tax_id": rfc}, "name")
 	if existing:
 		return existing
 	doc = frappe.new_doc("Supplier")
-	doc.supplier_name = _TEST_SUPPLIER_NAME
+	doc.supplier_name = f"Test Supplier {rfc}"
 	doc.supplier_type = "Company"
-	doc.tax_id = TEST_RFC
+	doc.tax_id = rfc
 	doc.insert(ignore_permissions=True)
-	frappe.db.commit()
 	return doc.name
-
-
-def _cleanup_supplier():
-	name = frappe.db.get_value("Supplier", {"tax_id": TEST_RFC, "supplier_name": _TEST_SUPPLIER_NAME}, "name")
-	if name:
-		frappe.delete_doc("Supplier", name, force=True)
-		frappe.db.commit()
 
 
 def _get_or_create_dept() -> str:
@@ -50,7 +49,6 @@ def _get_or_create_dept() -> str:
 	doc.department_name = "_Test Dept CLSF"
 	doc.company = TEST_COMPANY
 	doc.insert(ignore_permissions=True)
-	frappe.db.commit()
 	return doc.name
 
 
@@ -59,11 +57,12 @@ def _make_cfdi(
 	conceptos: list | None = None,
 	supplier: str | None = None,
 	department: str | None = None,
+	rfc: str | None = None,
 ) -> str:
 	doc = frappe.new_doc("CFDI Recibido")
 	doc.company = TEST_COMPANY
 	doc.uuid = f"{UUID_BASE}{uuid_suffix}"
-	doc.supplier_rfc = TEST_RFC
+	doc.supplier_rfc = rfc
 	doc.supplier_name = "Test Supplier"
 	doc.supplier = supplier
 	doc.department = department
@@ -74,7 +73,6 @@ def _make_cfdi(
 	for c in conceptos or []:
 		doc.append("conceptos", c)
 	doc.insert(ignore_permissions=True)
-	frappe.db.commit()
 	return doc.name
 
 
@@ -87,26 +85,7 @@ def _make_rule(supplier_rfc: str, sat_key: str, target_type: str, **kwargs) -> s
 	for k, v in kwargs.items():
 		setattr(doc, k, v)
 	doc.insert(ignore_permissions=True)
-	frappe.db.commit()
 	return doc.name
-
-
-def _cleanup_cfdi(uuid_suffix: str):
-	name = frappe.db.get_value("CFDI Recibido", {"uuid": f"{UUID_BASE}{uuid_suffix}"}, "name")
-	if name:
-		frappe.delete_doc("CFDI Recibido", name, force=True)
-		frappe.db.commit()
-
-
-def _cleanup_rules(supplier_rfc: str, sat_key: str = ""):
-	filters = {"supplier_rfc": supplier_rfc}
-	if sat_key:
-		filters["sat_product_key"] = sat_key
-	names = frappe.db.get_all("CFDI Concepto Mapping", filters=filters, pluck="name")
-	for name in names:
-		frappe.delete_doc("CFDI Concepto Mapping", name, force=True)
-	if names:
-		frappe.db.commit()
 
 
 def _get_expense_account() -> str:
@@ -122,17 +101,17 @@ def _get_expense_account() -> str:
 	frappe.throw("No se encontró ninguna cuenta de tipo Expense en el site de pruebas")
 
 
-class TestMappingValidation(unittest.TestCase):
+class TestMappingValidation(IntegrationTestCase):
 	def test_item_requiere_target_item(self):
 		doc = frappe.new_doc("CFDI Concepto Mapping")
-		doc.supplier_rfc = "TEST000000AAA"
+		doc.supplier_rfc = _rfc()
 		doc.target_type = "Item"
 		with self.assertRaises(Exception):
 			doc.insert(ignore_permissions=True)
 
 	def test_expense_account_requiere_target_account(self):
 		doc = frappe.new_doc("CFDI Concepto Mapping")
-		doc.supplier_rfc = "TEST000000AAA"
+		doc.supplier_rfc = _rfc()
 		doc.target_type = "ExpenseAccount"
 		with self.assertRaises(Exception):
 			doc.insert(ignore_permissions=True)
@@ -147,19 +126,20 @@ class TestMappingValidation(unittest.TestCase):
 		self.assertNotIn("classification_status", field_names)
 
 
-class TestMatchingExacto(unittest.TestCase):
+class TestMatchingExacto(IntegrationTestCase):
 	def setUp(self):
-		self.supplier = _get_or_create_supplier()
+		self.rfc = _rfc()
+		self.supplier = _get_or_create_supplier(self.rfc)
 		self.account = _get_expense_account()
 		self.dept = _get_or_create_dept()
 		self.rule = _make_rule(
-			TEST_RFC,
+			self.rfc,
 			TEST_SAT_KEY,
 			"ExpenseAccount",
 			target_account=self.account,
 		)
 		self.cfdi = _make_cfdi(
-			"001A",
+			_suffix(),
 			[
 				{
 					"sat_product_key": TEST_SAT_KEY,
@@ -176,15 +156,11 @@ class TestMatchingExacto(unittest.TestCase):
 			],
 			supplier=self.supplier,
 			department=self.dept,
+			rfc=self.rfc,
 		)
 
-	def tearDown(self):
-		_cleanup_cfdi("001A")
-		_cleanup_rules(TEST_RFC, TEST_SAT_KEY)
-		_cleanup_supplier()
-
 	def test_matching_exacto(self):
-		rule = get_rule_for_concept(TEST_COMPANY, TEST_RFC, TEST_SAT_KEY)
+		rule = get_rule_for_concept(TEST_COMPANY, self.rfc, TEST_SAT_KEY)
 		self.assertIsNotNone(rule)
 
 	def test_classify_todos_listo(self):
@@ -201,14 +177,15 @@ class TestMatchingExacto(unittest.TestCase):
 		self.assertEqual(status, "Falta clasificación")
 
 
-class TestMatchingFallback(unittest.TestCase):
+class TestMatchingFallback(IntegrationTestCase):
 	def setUp(self):
-		self.supplier = _get_or_create_supplier()
+		self.rfc = _rfc()
+		self.supplier = _get_or_create_supplier(self.rfc)
 		self.account = _get_expense_account()
 		# Regla con sat_product_key vacío — aplica a cualquier clave del proveedor
-		self.rule = _make_rule(TEST_RFC, "", "ExpenseAccount", target_account=self.account)
+		self.rule = _make_rule(self.rfc, "", "ExpenseAccount", target_account=self.account)
 		self.cfdi = _make_cfdi(
-			"001B",
+			_suffix(),
 			[
 				{
 					"sat_product_key": "99999999",
@@ -224,15 +201,11 @@ class TestMatchingFallback(unittest.TestCase):
 				}
 			],
 			supplier=self.supplier,
+			rfc=self.rfc,
 		)
 
-	def tearDown(self):
-		_cleanup_cfdi("001B")
-		_cleanup_rules(TEST_RFC, "")
-		_cleanup_supplier()
-
 	def test_fallback_proveedor_sin_sat_key(self):
-		rule = get_rule_for_concept(TEST_COMPANY, TEST_RFC, "99999999")
+		rule = get_rule_for_concept(TEST_COMPANY, self.rfc, "99999999")
 		self.assertIsNotNone(rule)
 
 	def test_classify_listo_via_fallback(self):
@@ -240,12 +213,13 @@ class TestMatchingFallback(unittest.TestCase):
 		self.assertEqual(result["status"], "ok")
 
 
-class TestSinMatch(unittest.TestCase):
+class TestSinMatch(IntegrationTestCase):
 	def setUp(self):
-		self.supplier = _get_or_create_supplier()
+		self.rfc = _rfc()
+		self.supplier = _get_or_create_supplier(self.rfc)
 		self.dept = _get_or_create_dept()
 		self.cfdi = _make_cfdi(
-			"001C",
+			_suffix(),
 			[
 				{
 					"sat_product_key": "SINMATCH00",
@@ -262,11 +236,8 @@ class TestSinMatch(unittest.TestCase):
 			],
 			supplier=self.supplier,
 			department=self.dept,
+			rfc=self.rfc,
 		)
-
-	def tearDown(self):
-		_cleanup_cfdi("001C")
-		_cleanup_supplier()
 
 	def test_sin_match_retorna_falta_clasif(self):
 		result = classify_concepts(self.cfdi)
