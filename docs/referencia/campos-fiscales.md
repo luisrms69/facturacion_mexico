@@ -40,10 +40,10 @@ Campos fiscales sobre la factura de venta. Aparecen en la sección **Informació
 | E-Receipt MX | `fm_ereceipt_mx` | Link | Sistema calcula / solo lectura | Liga al EReceipt MX generado | Tras generar el E-Receipt | E-Receipts |
 | Requiere Addenda | `fm_addenda_required` | Check | Usuario captura | Indica si la factura requiere addenda (default: `0`) | Siempre, en la sección de addenda | Addendas |
 | Tipo de Addenda | `fm_addenda_type` | Link | Usuario captura | Tipo de addenda a generar | Si `fm_addenda_required` | Addendas |
-| Estado de Addenda | `fm_addenda_status` | Select | Sistema calcula / solo lectura | Estado de generación de la addenda | Si `fm_addenda_required` | Addendas |
-| XML de Addenda | `fm_addenda_xml` | Code | Sistema calcula / solo lectura | XML de addenda generado | Cuando el estado de addenda es `Completada` | Addendas |
-| Errores de Addenda | `fm_addenda_errors` | Small Text | Sistema calcula / solo lectura | Errores de generación de la addenda | Cuando el estado de addenda es `Error` | Addendas |
-| Fecha Generación Addenda | `fm_addenda_generated_date` | Datetime | Sistema calcula / solo lectura | Fecha de generación de la addenda | Cuando el estado de addenda es `Completada` | Addendas |
+| Estado de Addenda | `fm_addenda_status` | Select | Legado — sin productor activo | Campo legado; la addenda vigente se genera en el bloque `<Addenda>` del CFDI al timbrar, no se persiste aquí (ver #132) | — | Addendas |
+| XML de Addenda | `fm_addenda_xml` | Code | Legado — sin productor activo | Campo legado; la addenda vigente se genera en el payload al timbrar, no se persiste aquí (ver #132) | — | Addendas |
+| Errores de Addenda | `fm_addenda_errors` | Small Text | Legado — sin productor activo | Campo legado; sin flujo que lo escriba (ver #132) | — | Addendas |
+| Fecha Generación Addenda | `fm_addenda_generated_date` | Datetime | Legado — sin productor activo | Campo legado; sin flujo que lo escriba (ver #132) | — | Addendas |
 
 ---
 

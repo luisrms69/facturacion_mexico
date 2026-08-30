@@ -78,7 +78,8 @@ que consultaba la FFM directamente al renderizar.
 | Módulo | Campos | Estado |
 |---|---|---|
 | Multi-sucursal | `fm_branch`, `fm_branch_health_status`, `fm_certificate_info`, `fm_auto_selected_branch`, `fm_original_stct_template` | ✅ Activos |
-| Addendas | `fm_addenda_type`, `fm_addenda_required`, `fm_addenda_status`, `fm_addenda_xml`, `fm_addenda_errors`, `fm_addenda_generated_date` | ✅ Activos |
+| Addendas | `fm_addenda_type`, `fm_addenda_required` | ✅ Activos |
+| Addendas (legado) | `fm_addenda_status`, `fm_addenda_xml`, `fm_addenda_errors`, `fm_addenda_generated_date` | ⚠️ Legado — sin productor activo (ver #132). #132 Fase A eliminó los módulos muertos que los escribían. |
 | E-Receipts | `fm_ereceipt_mode`, `fm_ereceipt_expiry_type/days/date` | ✅ Activos |
 
 ### Grupo 4 — Campos legacy sin uso activo confirmado
