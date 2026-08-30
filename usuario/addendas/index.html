@@ -2675,7 +2675,7 @@ sistema construye el XML de addenda a partir del template del <em>Addenda Type</
 <li>Completar la factura normalmente (items, cantidades, impuestos)</li>
 <li><strong>Submit</strong> — al hacer submit, el sistema detecta que el cliente requiere addenda y genera el XML antes del timbrado</li>
 <li>Desde la Factura Fiscal Mexico generada, clic en <strong>"Timbrar con FacturAPI"</strong> — el CFDI incluirá el bloque <code>&lt;Addenda&gt;</code> con el XML generado</li>
-<li>El XML de addenda queda en <code>fm_addenda_xml</code>; el estado en <code>fm_addenda_status</code></li>
+<li>La addenda se integra en el bloque <code>&lt;Addenda&gt;</code> del CFDI al timbrar; <strong>no</strong> se persiste en <code>fm_addenda_xml</code>/<code>fm_addenda_status</code> (campos legado sin productor activo, ver #132)</li>
 </ol>
 <div class="admonition warning">
 <p class="admonition-title">Shipping Address obligatorio</p>
