@@ -13,9 +13,18 @@ from facturacion_mexico.cfdi_recibidos.services.supplier_resolver import (
 	resolve_supplier,
 )
 
-TEST_RFC = "PROV9001011AA"
 TEST_COMPANY = "_Test Company"
 TEST_UUID_BASE = "SUPP0001-0001-0001-0001-"
+
+
+def _rfc() -> str:
+	"""RFC ficticio único (no real) para un Supplier de prueba."""
+	return "TST" + frappe.generate_hash(length=10).upper()
+
+
+def _suffix() -> str:
+	"""Sufijo único para el UUID de un CFDI Recibido de prueba."""
+	return frappe.generate_hash(length=12).upper()
 
 
 def _get_or_create_supplier(rfc: str) -> str:
@@ -55,26 +64,11 @@ def _make_cfdi(uuid_suffix: str, supplier_rfc: str, company: str, status: str = 
 	return doc.name
 
 
-def _cleanup_supplier(rfc: str):
-	"""Elimina el Supplier con tax_id == rfc si existe."""
-	name = frappe.db.get_value("Supplier", {"tax_id": rfc}, "name")
-	if name:
-		frappe.delete_doc("Supplier", name, force=True)
-
-
-def _cleanup(uuid_suffix: str):
-	name = frappe.db.get_value("CFDI Recibido", {"uuid": f"{TEST_UUID_BASE}{uuid_suffix}"}, "name")
-	if name:
-		frappe.delete_doc("CFDI Recibido", name, force=True)
-
-
 class TestSupplierResolverAuto(IntegrationTestCase):
 	def setUp(self):
-		self.supplier = _get_or_create_supplier(TEST_RFC)
-		self.cfdi = _make_cfdi("000A", TEST_RFC, TEST_COMPANY)
-
-	def tearDown(self):
-		_cleanup("000A")
+		self.rfc = _rfc()
+		self.supplier = _get_or_create_supplier(self.rfc)
+		self.cfdi = _make_cfdi(_suffix(), self.rfc, TEST_COMPANY)
 
 	def test_resuelve_por_rfc(self):
 		result = resolve_supplier(self.cfdi)
@@ -94,10 +88,8 @@ class TestSupplierResolverAuto(IntegrationTestCase):
 
 class TestSupplierResolverSinMatch(IntegrationTestCase):
 	def setUp(self):
-		self.cfdi = _make_cfdi("000B", "RFC_SIN_MATCH_999", TEST_COMPANY)
-
-	def tearDown(self):
-		_cleanup("000B")
+		# RFC único sin Supplier asociado → no hay match posible.
+		self.cfdi = _make_cfdi(_suffix(), _rfc(), TEST_COMPANY)
 
 	def test_status_falta_proveedor(self):
 		result = resolve_supplier(self.cfdi)
@@ -112,12 +104,9 @@ class TestSupplierResolverSinMatch(IntegrationTestCase):
 
 class TestSupplierResolverManual(IntegrationTestCase):
 	def setUp(self):
-		self.supplier = _get_or_create_supplier(TEST_RFC)
+		self.supplier = _get_or_create_supplier(_rfc())
 		# CFDI con RFC distinto al del supplier — solo vinculación manual puede resolverlo
-		self.cfdi = _make_cfdi("000C", "RFC_DIFERENTE_ABC", TEST_COMPANY)
-
-	def tearDown(self):
-		_cleanup("000C")
+		self.cfdi = _make_cfdi(_suffix(), _rfc(), TEST_COMPANY)
 
 	def test_vinculacion_manual_aunque_rfc_no_coincida(self):
 		result = resolve_supplier(self.cfdi, supplier_override=self.supplier)
@@ -128,18 +117,6 @@ class TestSupplierResolverManual(IntegrationTestCase):
 		resolve_supplier(self.cfdi, supplier_override=self.supplier)
 		supplier_en_doc = frappe.db.get_value("CFDI Recibido", self.cfdi, "supplier")
 		self.assertEqual(supplier_en_doc, self.supplier)
-
-
-# --- RFC únicos para Hito B (sin colisión con las clases anteriores) ---
-RFC_B1 = "HITOB001AAAA"  # CFDI sin Supplier → crear
-RFC_B2 = "HITOB002BBBB"  # CFDI con Supplier existente → asignar
-RFC_B3 = "HITOB003CCCC"  # Dos CFDI mismo RFC
-RFC_B4 = "HITOB004DDDD"  # Ejecución repetida
-
-# --- RFC únicos para Hito C.1 ---
-RFC_C1 = "HITOC001AAAA"  # Payment terms asignado a nuevo Supplier
-RFC_C2 = "HITOC002BBBB"  # Sin payment terms configurado → no bloquea
-RFC_C3 = "HITOC003CCCC"  # Supplier existente con payment_terms → no sobrescribir
 
 
 def _get_or_create_payment_terms(name: str) -> str:
@@ -202,22 +179,9 @@ def _create_minimal_cfdi_rec_cfg(company: str, payment_terms: str | None = None)
 class TestGenerateMissingSuppliers(IntegrationTestCase):
 	"""Hito B — generate_missing_suppliers: 8 casos del plan."""
 
-	def setUp(self):
-		# Limpiar cualquier residuo de pruebas anteriores
-		for rfc in [RFC_B1, RFC_B2, RFC_B3, RFC_B4]:
-			_cleanup_supplier(rfc)
-		for suffix in ["B01", "B02", "B03a", "B03b", "B04", "B05", "B06", "B07"]:
-			_cleanup(suffix)
-
-	def tearDown(self):
-		for rfc in [RFC_B1, RFC_B2, RFC_B3, RFC_B4]:
-			_cleanup_supplier(rfc)
-		for suffix in ["B01", "B02", "B03a", "B03b", "B04", "B05", "B06", "B07"]:
-			_cleanup(suffix)
-
 	def test_crea_supplier_y_asigna(self):
 		"""Caso 1: CFDI Falta proveedor sin Supplier → crea y asigna."""
-		cfdi = _make_cfdi("B01", RFC_B1, TEST_COMPANY, status="Falta proveedor")
+		cfdi = _make_cfdi(_suffix(), _rfc(), TEST_COMPANY, status="Falta proveedor")
 		result = generate_missing_suppliers()
 		self.assertGreaterEqual(result["creados"], 1)
 		status = frappe.db.get_value("CFDI Recibido", cfdi, "status")
@@ -227,34 +191,34 @@ class TestGenerateMissingSuppliers(IntegrationTestCase):
 
 	def test_asigna_supplier_existente_sin_duplicar(self):
 		"""Caso 2: CFDI Falta proveedor con Supplier ya existente → asigna sin crear duplicado."""
-		existing = _get_or_create_supplier(RFC_B2)
-		cfdi = _make_cfdi("B02", RFC_B2, TEST_COMPANY, status="Falta proveedor")
+		rfc = _rfc()
+		existing = _get_or_create_supplier(rfc)
+		cfdi = _make_cfdi(_suffix(), rfc, TEST_COMPANY, status="Falta proveedor")
 		result = generate_missing_suppliers()
 		self.assertGreaterEqual(result["ya_existian_y_asignados"], 1)
-		self.assertEqual(result["creados"], 0)
-		# Verificar que no se creó un segundo Supplier con el mismo RFC
-		count = frappe.db.count("Supplier", {"tax_id": RFC_B2})
+		# No se creó un segundo Supplier con el mismo RFC (verificación acotada al RFC del test)
+		count = frappe.db.count("Supplier", {"tax_id": rfc})
 		self.assertEqual(count, 1)
 		supplier_en_cfdi = frappe.db.get_value("CFDI Recibido", cfdi, "supplier")
 		self.assertEqual(supplier_en_cfdi, existing)
 
 	def test_proveedor_encontrado_va_a_omitidos(self):
 		"""Caso 3: CFDI con status Proveedor encontrado → omitido."""
-		cfdi = _make_cfdi("B03a", RFC_B1, TEST_COMPANY, status="Proveedor encontrado")
+		cfdi = _make_cfdi(_suffix(), _rfc(), TEST_COMPANY, status="Proveedor encontrado")
 		result = generate_missing_suppliers([cfdi])
 		self.assertEqual(result["omitidos"], 1)
 		self.assertEqual(result["creados"], 0)
 
 	def test_no_aplicable_va_a_omitidos(self):
 		"""Caso 4: CFDI No aplicable → omitido."""
-		cfdi = _make_cfdi("B03b", RFC_B1, TEST_COMPANY, status="No aplicable")
+		cfdi = _make_cfdi(_suffix(), _rfc(), TEST_COMPANY, status="No aplicable")
 		result = generate_missing_suppliers([cfdi])
 		self.assertEqual(result["omitidos"], 1)
 		self.assertEqual(result["creados"], 0)
 
 	def test_no_procesar_va_a_omitidos(self):
 		"""Caso 5: CFDI no_procesar=1 → omitido."""
-		cfdi = _make_cfdi("B04", RFC_B1, TEST_COMPANY, status="Falta proveedor")
+		cfdi = _make_cfdi(_suffix(), _rfc(), TEST_COMPANY, status="Falta proveedor")
 		frappe.db.set_value("CFDI Recibido", cfdi, "no_procesar", 1)
 		result = generate_missing_suppliers([cfdi])
 		self.assertEqual(result["omitidos"], 1)
@@ -262,12 +226,13 @@ class TestGenerateMissingSuppliers(IntegrationTestCase):
 
 	def test_dos_cfdi_mismo_rfc_un_supplier(self):
 		"""Caso 6: Dos CFDI con mismo RFC → un Supplier creado, ambos asignados."""
-		cfdi_a = _make_cfdi("B05", RFC_B3, TEST_COMPANY, status="Falta proveedor")
-		cfdi_b = _make_cfdi("B06", RFC_B3, TEST_COMPANY, status="Falta proveedor")
+		rfc = _rfc()
+		cfdi_a = _make_cfdi(_suffix(), rfc, TEST_COMPANY, status="Falta proveedor")
+		cfdi_b = _make_cfdi(_suffix(), rfc, TEST_COMPANY, status="Falta proveedor")
 		result = generate_missing_suppliers([cfdi_a, cfdi_b])
 		self.assertEqual(result["creados"], 1)
 		self.assertEqual(result["ya_existian_y_asignados"], 1)
-		count = frappe.db.count("Supplier", {"tax_id": RFC_B3})
+		count = frappe.db.count("Supplier", {"tax_id": rfc})
 		self.assertEqual(count, 1)
 		for cfdi in [cfdi_a, cfdi_b]:
 			status = frappe.db.get_value("CFDI Recibido", cfdi, "status")
@@ -275,12 +240,13 @@ class TestGenerateMissingSuppliers(IntegrationTestCase):
 
 	def test_ejecucion_repetida_no_duplica(self):
 		"""Caso 7: Segunda ejecución no crea Supplier duplicado."""
-		cfdi = _make_cfdi("B07", RFC_B4, TEST_COMPANY, status="Falta proveedor")
+		rfc = _rfc()
+		cfdi = _make_cfdi(_suffix(), rfc, TEST_COMPANY, status="Falta proveedor")
 		generate_missing_suppliers([cfdi])
-		count_after_first = frappe.db.count("Supplier", {"tax_id": RFC_B4})
+		count_after_first = frappe.db.count("Supplier", {"tax_id": rfc})
 		# Segunda ejecución — el CFDI ya está en Proveedor encontrado, va a omitidos
 		result2 = generate_missing_suppliers([cfdi])
-		count_after_second = frappe.db.count("Supplier", {"tax_id": RFC_B4})
+		count_after_second = frappe.db.count("Supplier", {"tax_id": rfc})
 		self.assertEqual(count_after_first, count_after_second)
 		self.assertEqual(result2["creados"], 0)
 		self.assertEqual(result2["omitidos"], 1)
@@ -327,22 +293,10 @@ class TestGenerateSuppliersPaymentTerms(IntegrationTestCase):
 			_set_cfdi_rec_payment_terms(TEST_COMPANY, cls._pt_prev)
 		super().tearDownClass()
 
-	def setUp(self):
-		for rfc in [RFC_C1, RFC_C2, RFC_C3]:
-			_cleanup_supplier(rfc)
-		for suffix in ["C01", "C02", "C03"]:
-			_cleanup(suffix)
-
-	def tearDown(self):
-		for rfc in [RFC_C1, RFC_C2, RFC_C3]:
-			_cleanup_supplier(rfc)
-		for suffix in ["C01", "C02", "C03"]:
-			_cleanup(suffix)
-
 	def test_payment_terms_asignado_a_nuevo_supplier(self):
 		"""C.1 Caso 1: CFM con payment_terms configurado → nuevo Supplier lo recibe."""
 		_create_minimal_cfdi_rec_cfg(TEST_COMPANY, self._pt_name)
-		cfdi = _make_cfdi("C01", RFC_C1, TEST_COMPANY, status="Falta proveedor")
+		cfdi = _make_cfdi(_suffix(), _rfc(), TEST_COMPANY, status="Falta proveedor")
 		result = generate_missing_suppliers([cfdi])
 		self.assertEqual(result["creados"], 1)
 		supplier_name = frappe.db.get_value("CFDI Recibido", cfdi, "supplier")
@@ -352,7 +306,7 @@ class TestGenerateSuppliersPaymentTerms(IntegrationTestCase):
 	def test_sin_payment_terms_configurado_no_bloquea(self):
 		"""C.1 Caso 2: CFM sin payment_terms → Supplier se crea sin error."""
 		_create_minimal_cfdi_rec_cfg(TEST_COMPANY, None)
-		cfdi = _make_cfdi("C02", RFC_C2, TEST_COMPANY, status="Falta proveedor")
+		cfdi = _make_cfdi(_suffix(), _rfc(), TEST_COMPANY, status="Falta proveedor")
 		result = generate_missing_suppliers([cfdi])
 		self.assertEqual(result["creados"], 1)
 		self.assertEqual(len(result["errores"]), 0)
@@ -360,13 +314,14 @@ class TestGenerateSuppliersPaymentTerms(IntegrationTestCase):
 	def test_supplier_existente_payment_terms_no_sobrescrito(self):
 		"""C.1 Caso 3: Supplier existente con payment_terms propios → no se sobreescriben."""
 		_create_minimal_cfdi_rec_cfg(TEST_COMPANY, self._pt_name)
-		# Crear Supplier con payment_terms diferente
-		supplier = _get_or_create_supplier(RFC_C3)
+		# Crear Supplier con payment_terms diferente (mismo RFC que el CFDI → ya existe)
+		rfc = _rfc()
+		supplier = _get_or_create_supplier(rfc)
 		original_pt = "_Test PT Original"
 		_get_or_create_payment_terms(original_pt)
 		frappe.db.set_value("Supplier", supplier, "payment_terms", original_pt)
 
-		cfdi = _make_cfdi("C03", RFC_C3, TEST_COMPANY, status="Falta proveedor")
+		cfdi = _make_cfdi(_suffix(), rfc, TEST_COMPANY, status="Falta proveedor")
 		result = generate_missing_suppliers([cfdi])
 		self.assertGreaterEqual(result["ya_existian_y_asignados"], 1)
 		# El payment_terms del Supplier existente no debe cambiar
