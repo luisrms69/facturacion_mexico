@@ -261,38 +261,20 @@ class TestGenerateMissingSuppliers(IntegrationTestCase):
 
 
 class TestGenerateSuppliersPaymentTerms(IntegrationTestCase):
-	"""Hito C.1 — payment_terms por defecto al crear Suppliers desde CFDI Recibidos."""
+	"""Hito C.1 — payment_terms por defecto al crear Suppliers desde CFDI Recibidos.
+
+	La configuración compartida (Configuracion CFDI Recibidos) se muta dentro de cada test con
+	_create_minimal_cfdi_rec_cfg; el rollback de clase de IntegrationTestCase revierte esas
+	mutaciones al terminar. No se guarda/restaura manualmente ni queda residuo entre reruns.
+	"""
 
 	_pt_name = "_Test PT CFDI Recibidos"
-	_cfm_created = False
 
 	@classmethod
 	def setUpClass(cls):
 		super().setUpClass()
-		# Crear Payment Terms Template de prueba
+		# Payment Terms Template de prueba (revertido por el rollback de clase).
 		_get_or_create_payment_terms(cls._pt_name)
-		# Guardar valor previo del campo en Configuracion CFDI Recibidos si ya existe
-		config_name = f"CFDI-REC-CFG-{TEST_COMPANY}"
-		cls._cfm_existed = frappe.db.exists("Configuracion CFDI Recibidos", config_name)
-		if cls._cfm_existed:
-			cls._pt_prev = frappe.db.get_value(
-				"Configuracion CFDI Recibidos",
-				config_name,
-				"default_payment_terms_supplier",
-			)
-		else:
-			cls._pt_prev = None
-			cls._cfm_created = True
-
-	@classmethod
-	def tearDownClass(cls):
-		# Restaurar estado previo de Configuracion CFDI Recibidos
-		config_name = f"CFDI-REC-CFG-{TEST_COMPANY}"
-		if cls._cfm_created and frappe.db.exists("Configuracion CFDI Recibidos", config_name):
-			frappe.delete_doc("Configuracion CFDI Recibidos", config_name, force=True)
-		elif cls._cfm_existed:
-			_set_cfdi_rec_payment_terms(TEST_COMPANY, cls._pt_prev)
-		super().tearDownClass()
 
 	def test_payment_terms_asignado_a_nuevo_supplier(self):
 		"""C.1 Caso 1: CFM con payment_terms configurado → nuevo Supplier lo recibe."""
