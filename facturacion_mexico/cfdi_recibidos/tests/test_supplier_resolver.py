@@ -182,7 +182,7 @@ class TestGenerateMissingSuppliers(IntegrationTestCase):
 	def test_crea_supplier_y_asigna(self):
 		"""Caso 1: CFDI Falta proveedor sin Supplier → crea y asigna."""
 		cfdi = _make_cfdi(_suffix(), _rfc(), TEST_COMPANY, status="Falta proveedor")
-		result = generate_missing_suppliers()
+		result = generate_missing_suppliers([cfdi])
 		self.assertGreaterEqual(result["creados"], 1)
 		status = frappe.db.get_value("CFDI Recibido", cfdi, "status")
 		self.assertEqual(status, "Proveedor encontrado")
@@ -194,7 +194,7 @@ class TestGenerateMissingSuppliers(IntegrationTestCase):
 		rfc = _rfc()
 		existing = _get_or_create_supplier(rfc)
 		cfdi = _make_cfdi(_suffix(), rfc, TEST_COMPANY, status="Falta proveedor")
-		result = generate_missing_suppliers()
+		result = generate_missing_suppliers([cfdi])
 		self.assertGreaterEqual(result["ya_existian_y_asignados"], 1)
 		# No se creó un segundo Supplier con el mismo RFC (verificación acotada al RFC del test)
 		count = frappe.db.count("Supplier", {"tax_id": rfc})
@@ -253,7 +253,8 @@ class TestGenerateMissingSuppliers(IntegrationTestCase):
 
 	def test_resumen_contiene_todos_los_campos(self):
 		"""Caso 8: El resumen siempre contiene creados/asignados/omitidos/errores."""
-		result = generate_missing_suppliers()
+		cfdi = _make_cfdi(_suffix(), _rfc(), TEST_COMPANY, status="Falta proveedor")
+		result = generate_missing_suppliers([cfdi])
 		for key in ["creados", "ya_existian_y_asignados", "omitidos", "errores"]:
 			self.assertIn(key, result)
 		self.assertIsInstance(result["errores"], list)
