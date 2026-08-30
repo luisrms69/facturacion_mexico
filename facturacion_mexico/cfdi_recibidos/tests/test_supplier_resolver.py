@@ -1,13 +1,12 @@
 """
 Tests de SupplierResolver — Fase 2.
 
-unittest.TestCase con contexto Frappe activo.
-Crea y limpia registros reales en BD de pruebas.
+IntegrationTestCase — aislamiento por rollback de clase (sin commits explícitos).
+Crea registros reales en BD de pruebas; el rollback de clase limpia el site.
 """
 
-import unittest
-
 import frappe
+from frappe.tests import IntegrationTestCase
 
 from facturacion_mexico.cfdi_recibidos.services.supplier_resolver import (
 	generate_missing_suppliers,
@@ -30,7 +29,6 @@ def _get_or_create_supplier(rfc: str) -> str:
 		sg = frappe.new_doc("Supplier Group")
 		sg.supplier_group_name = "Test Suppliers"
 		sg.insert(ignore_permissions=True)
-		frappe.db.commit()
 		supplier_group = sg.name
 
 	sup = frappe.new_doc("Supplier")
@@ -38,7 +36,6 @@ def _get_or_create_supplier(rfc: str) -> str:
 	sup.supplier_group = supplier_group
 	sup.tax_id = rfc
 	sup.insert(ignore_permissions=True)
-	frappe.db.commit()
 	return sup.name
 
 
@@ -55,7 +52,6 @@ def _make_cfdi(uuid_suffix: str, supplier_rfc: str, company: str, status: str = 
 	doc.xml_hash = frappe.generate_hash()[:64]
 	doc.insert(ignore_permissions=True)
 	frappe.db.set_value("CFDI Recibido", doc.name, "status", status)
-	frappe.db.commit()
 	return doc.name
 
 
@@ -64,17 +60,15 @@ def _cleanup_supplier(rfc: str):
 	name = frappe.db.get_value("Supplier", {"tax_id": rfc}, "name")
 	if name:
 		frappe.delete_doc("Supplier", name, force=True)
-		frappe.db.commit()
 
 
 def _cleanup(uuid_suffix: str):
 	name = frappe.db.get_value("CFDI Recibido", {"uuid": f"{TEST_UUID_BASE}{uuid_suffix}"}, "name")
 	if name:
 		frappe.delete_doc("CFDI Recibido", name, force=True)
-		frappe.db.commit()
 
 
-class TestSupplierResolverAuto(unittest.TestCase):
+class TestSupplierResolverAuto(IntegrationTestCase):
 	def setUp(self):
 		self.supplier = _get_or_create_supplier(TEST_RFC)
 		self.cfdi = _make_cfdi("000A", TEST_RFC, TEST_COMPANY)
@@ -98,7 +92,7 @@ class TestSupplierResolverAuto(unittest.TestCase):
 		self.assertNotEqual(status, "Falta proveedor")
 
 
-class TestSupplierResolverSinMatch(unittest.TestCase):
+class TestSupplierResolverSinMatch(IntegrationTestCase):
 	def setUp(self):
 		self.cfdi = _make_cfdi("000B", "RFC_SIN_MATCH_999", TEST_COMPANY)
 
@@ -116,7 +110,7 @@ class TestSupplierResolverSinMatch(unittest.TestCase):
 		self.assertEqual(status, "Falta proveedor")
 
 
-class TestSupplierResolverManual(unittest.TestCase):
+class TestSupplierResolverManual(IntegrationTestCase):
 	def setUp(self):
 		self.supplier = _get_or_create_supplier(TEST_RFC)
 		# CFDI con RFC distinto al del supplier — solo vinculación manual puede resolverlo
@@ -164,7 +158,6 @@ def _get_or_create_payment_terms(name: str) -> str:
 		},
 	)
 	doc.insert(ignore_permissions=True)
-	frappe.db.commit()
 	return doc.name
 
 
@@ -177,7 +170,6 @@ def _get_or_create_payment_term(name: str) -> str:
 	doc.credit_days_based_on = "Day(s) after invoice date"
 	doc.credit_days = 30
 	doc.insert(ignore_permissions=True)
-	frappe.db.commit()
 	return doc.name
 
 
@@ -191,7 +183,6 @@ def _set_cfdi_rec_payment_terms(company: str, payment_terms: str | None):
 			"default_payment_terms_supplier",
 			payment_terms,
 		)
-		frappe.db.commit()
 
 
 def _create_minimal_cfdi_rec_cfg(company: str, payment_terms: str | None = None) -> str:
@@ -205,11 +196,10 @@ def _create_minimal_cfdi_rec_cfg(company: str, payment_terms: str | None = None)
 	if payment_terms:
 		cfg.default_payment_terms_supplier = payment_terms
 	cfg.insert(ignore_permissions=True)
-	frappe.db.commit()
 	return config_name
 
 
-class TestGenerateMissingSuppliers(unittest.TestCase):
+class TestGenerateMissingSuppliers(IntegrationTestCase):
 	"""Hito B — generate_missing_suppliers: 8 casos del plan."""
 
 	def setUp(self):
@@ -266,7 +256,6 @@ class TestGenerateMissingSuppliers(unittest.TestCase):
 		"""Caso 5: CFDI no_procesar=1 → omitido."""
 		cfdi = _make_cfdi("B04", RFC_B1, TEST_COMPANY, status="Falta proveedor")
 		frappe.db.set_value("CFDI Recibido", cfdi, "no_procesar", 1)
-		frappe.db.commit()
 		result = generate_missing_suppliers([cfdi])
 		self.assertEqual(result["omitidos"], 1)
 		self.assertEqual(result["creados"], 0)
@@ -304,7 +293,7 @@ class TestGenerateMissingSuppliers(unittest.TestCase):
 		self.assertIsInstance(result["errores"], list)
 
 
-class TestGenerateSuppliersPaymentTerms(unittest.TestCase):
+class TestGenerateSuppliersPaymentTerms(IntegrationTestCase):
 	"""Hito C.1 — payment_terms por defecto al crear Suppliers desde CFDI Recibidos."""
 
 	_pt_name = "_Test PT CFDI Recibidos"
@@ -334,7 +323,6 @@ class TestGenerateSuppliersPaymentTerms(unittest.TestCase):
 		config_name = f"CFDI-REC-CFG-{TEST_COMPANY}"
 		if cls._cfm_created and frappe.db.exists("Configuracion CFDI Recibidos", config_name):
 			frappe.delete_doc("Configuracion CFDI Recibidos", config_name, force=True)
-			frappe.db.commit()
 		elif cls._cfm_existed:
 			_set_cfdi_rec_payment_terms(TEST_COMPANY, cls._pt_prev)
 		super().tearDownClass()
@@ -377,7 +365,6 @@ class TestGenerateSuppliersPaymentTerms(unittest.TestCase):
 		original_pt = "_Test PT Original"
 		_get_or_create_payment_terms(original_pt)
 		frappe.db.set_value("Supplier", supplier, "payment_terms", original_pt)
-		frappe.db.commit()
 
 		cfdi = _make_cfdi("C03", RFC_C3, TEST_COMPANY, status="Falta proveedor")
 		result = generate_missing_suppliers([cfdi])

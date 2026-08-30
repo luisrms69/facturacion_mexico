@@ -1,12 +1,11 @@
 """
 Tests de ConceptClassifier y CFDI Concepto Mapping — Fase 2.
 
-unittest.TestCase con contexto Frappe activo.
+IntegrationTestCase — aislamiento por rollback de clase (sin commits explícitos).
 """
 
-import unittest
-
 import frappe
+from frappe.tests import IntegrationTestCase
 
 from facturacion_mexico.cfdi_recibidos.services.concept_classifier import (
 	classify_concepts,
@@ -29,7 +28,6 @@ def _get_or_create_supplier() -> str:
 	doc.supplier_type = "Company"
 	doc.tax_id = TEST_RFC
 	doc.insert(ignore_permissions=True)
-	frappe.db.commit()
 	return doc.name
 
 
@@ -37,7 +35,6 @@ def _cleanup_supplier():
 	name = frappe.db.get_value("Supplier", {"tax_id": TEST_RFC, "supplier_name": _TEST_SUPPLIER_NAME}, "name")
 	if name:
 		frappe.delete_doc("Supplier", name, force=True)
-		frappe.db.commit()
 
 
 def _get_or_create_dept() -> str:
@@ -50,7 +47,6 @@ def _get_or_create_dept() -> str:
 	doc.department_name = "_Test Dept CLSF"
 	doc.company = TEST_COMPANY
 	doc.insert(ignore_permissions=True)
-	frappe.db.commit()
 	return doc.name
 
 
@@ -74,7 +70,6 @@ def _make_cfdi(
 	for c in conceptos or []:
 		doc.append("conceptos", c)
 	doc.insert(ignore_permissions=True)
-	frappe.db.commit()
 	return doc.name
 
 
@@ -87,7 +82,6 @@ def _make_rule(supplier_rfc: str, sat_key: str, target_type: str, **kwargs) -> s
 	for k, v in kwargs.items():
 		setattr(doc, k, v)
 	doc.insert(ignore_permissions=True)
-	frappe.db.commit()
 	return doc.name
 
 
@@ -95,7 +89,6 @@ def _cleanup_cfdi(uuid_suffix: str):
 	name = frappe.db.get_value("CFDI Recibido", {"uuid": f"{UUID_BASE}{uuid_suffix}"}, "name")
 	if name:
 		frappe.delete_doc("CFDI Recibido", name, force=True)
-		frappe.db.commit()
 
 
 def _cleanup_rules(supplier_rfc: str, sat_key: str = ""):
@@ -105,8 +98,6 @@ def _cleanup_rules(supplier_rfc: str, sat_key: str = ""):
 	names = frappe.db.get_all("CFDI Concepto Mapping", filters=filters, pluck="name")
 	for name in names:
 		frappe.delete_doc("CFDI Concepto Mapping", name, force=True)
-	if names:
-		frappe.db.commit()
 
 
 def _get_expense_account() -> str:
@@ -122,7 +113,7 @@ def _get_expense_account() -> str:
 	frappe.throw("No se encontró ninguna cuenta de tipo Expense en el site de pruebas")
 
 
-class TestMappingValidation(unittest.TestCase):
+class TestMappingValidation(IntegrationTestCase):
 	def test_item_requiere_target_item(self):
 		doc = frappe.new_doc("CFDI Concepto Mapping")
 		doc.supplier_rfc = "TEST000000AAA"
@@ -147,7 +138,7 @@ class TestMappingValidation(unittest.TestCase):
 		self.assertNotIn("classification_status", field_names)
 
 
-class TestMatchingExacto(unittest.TestCase):
+class TestMatchingExacto(IntegrationTestCase):
 	def setUp(self):
 		self.supplier = _get_or_create_supplier()
 		self.account = _get_expense_account()
@@ -201,7 +192,7 @@ class TestMatchingExacto(unittest.TestCase):
 		self.assertEqual(status, "Falta clasificación")
 
 
-class TestMatchingFallback(unittest.TestCase):
+class TestMatchingFallback(IntegrationTestCase):
 	def setUp(self):
 		self.supplier = _get_or_create_supplier()
 		self.account = _get_expense_account()
@@ -240,7 +231,7 @@ class TestMatchingFallback(unittest.TestCase):
 		self.assertEqual(result["status"], "ok")
 
 
-class TestSinMatch(unittest.TestCase):
+class TestSinMatch(IntegrationTestCase):
 	def setUp(self):
 		self.supplier = _get_or_create_supplier()
 		self.dept = _get_or_create_dept()
