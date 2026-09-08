@@ -78,9 +78,20 @@ El departamento determina la familia SAT (601/602/603/604) para efectos contable
 
 Cada línea del XML necesita un `item_code` de ERPNext para poder generar la PI.
 
-El sistema intenta clasificar automáticamente usando:
-- **Reglas aprendidas**: si ya se clasificó ese proveedor+código anteriormente
-- **Items genéricos**: GASTO-{categoría}-NNN según el grupo de gastos
+El sistema intenta clasificar automáticamente usando, en orden de prioridad:
+
+1. **Reglas manuales** configuradas (`Regla Item CFDI Recibido`).
+2. **Código de proveedor**: coincidencia exacta entre el `no_identificacion` del concepto y un `item_code`.
+3. **Historial**: si ese **proveedor + clave SAT** ya fue clasificado por una persona anteriormente.
+4. **Items genéricos**: GASTO-{categoría}-NNN según el grupo de gastos.
+
+### Aprendizaje por historial
+
+El sistema aprende de las clasificaciones que hace el equipo. Cuando un mismo proveedor + clave de producto/servicio SAT ya se clasificó **a mano** varias veces con el mismo Item, ese Item se propone —y, si la evidencia es fuerte, se **autoasigna**— en los siguientes CFDIs.
+
+- **Autoasignación** (resolución `Historial`): solo ocurre con **evidencia fuerte** — al menos **2** clasificaciones humanas previas y **≥ 80 %** de acuerdo en el mismo Item. Si no se alcanza ese umbral, el Item aparece como **sugerencia** y el concepto queda pendiente de tu decisión.
+- **Confirmar una sugerencia** de historial cuenta como decisión humana: se guarda como `Manual`, con el detalle del historial en el campo *Motivo de match*. Así refuerza el aprendizaje sin que el sistema se realimente de sus propias autoasignaciones.
+- El aprendizaje **no cruza empresas**: cada empresa aprende de su propio historial.
 
 Para conceptos que no se clasifiquen solos, usar el flujo guiado **"Resolver Items pendientes"** en la lista o en el formulario del CFDI.
 

@@ -21,22 +21,32 @@ from facturacion_mexico.cfdi_recibidos.services.concept_text_normalizer import (
 	normalize,
 )
 
+# Gate de autoasignación por historial. Justificación (auditoría real):
+# clave (company, supplier_rfc, sat_product_key); prev>=2 & share>=0.80 -> precisión 0.94,
+# cobertura auto 0.56. Solo el Item top puede autoasignarse.
+HIST_MIN_PREV = 2
+HIST_MIN_SHARE = 0.80
 
-def get_resolution_options(concepto_data: dict, cfdi_data: dict) -> dict:
+
+def get_resolution_options(concepto_data: dict, cfdi_data: dict, current_concepto_name: str = "") -> dict:
 	"""
 	Analiza un concepto y retorna opciones de resolución de Item.
 
 	concepto_data: sat_product_key, no_identificacion, description, item_group
 	cfdi_data:     company, supplier, supplier_rfc
+	current_concepto_name: name del concepto actual (para excluirlo del historial).
 
-	Retorna:
-	    primary      — mejor match (dict | None)
-	    alternatives — otras opciones automáticas (list[dict])
-	    generic      — fallback GASTO-* (dict | None)
-	    can_create   — siempre True
+	Orden de precedencia:
+	    1. Regla MANUAL (override deliberado)
+	    2. Determinista: Item.item_code == no_identificacion
+	    3. Historial (company, supplier_rfc, sat_product_key)
+	    4. Regla AUTO legacy (match_reason "Auto:")
+	    5. Match textual
+	    6. Genérico GASTO-*
 
-	Cada opción incluye: item_code, item_name, item_group,
-	                     item_resolution, match_reason, match_confidence
+	Retorna: primary (dict|None), alternatives (list[dict]), generic (dict|None), can_create.
+	Cada opción incluye: item_code, item_name, item_group, item_resolution,
+	                     match_reason, match_confidence (y source/auto_assignable en Historial).
 	"""
 	company = cfdi_data.get("company", "")
 	supplier_rfc = cfdi_data.get("supplier_rfc", "")
@@ -49,31 +59,48 @@ def get_resolution_options(concepto_data: dict, cfdi_data: dict) -> dict:
 	primary = None
 	alternatives = []
 
+	def _push(opt):
+		nonlocal primary
+		if not opt:
+			return
+		seen.add(opt["item_code"])
+		if primary is None:
+			primary = opt
+		else:
+			alternatives.append(opt)
+
+	# 1. Regla MANUAL
 	for opt in _resolve_by_rules(
-		company, supplier_rfc, sat_product_key, description, no_identificacion, seen
+		company, supplier_rfc, sat_product_key, description, no_identificacion, seen, only_auto=False
 	):
-		seen.add(opt["item_code"])
-		if primary is None:
-			primary = opt
-		else:
-			alternatives.append(opt)
+		_push(opt)
 
-	opt = _resolve_by_no_identificacion(no_identificacion, seen)
-	if opt:
-		seen.add(opt["item_code"])
-		if primary is None:
-			primary = opt
-		else:
-			alternatives.append(opt)
+	# 2. Determinista: no_identificacion
+	_push(_resolve_by_no_identificacion(no_identificacion, seen))
 
+	# 3. Historial
+	for opt in _resolve_by_history(company, supplier_rfc, sat_product_key, current_concepto_name, seen):
+		_push(opt)
+
+	# 4. Regla AUTO legacy
+	for opt in _resolve_by_rules(
+		company, supplier_rfc, sat_product_key, description, no_identificacion, seen, only_auto=True
+	):
+		_push(opt)
+
+	# 5. Match textual
 	for opt in _resolve_by_text(description, seen)[:3]:
-		seen.add(opt["item_code"])
-		if primary is None:
-			primary = opt
-		else:
-			alternatives.append(opt)
+		_push(opt)
 
+	# 6. Genérico
 	generic = _resolve_generic(item_group, seen)
+
+	# auto_assignable describe la capacidad operativa de la opción en el resultado FINAL.
+	# Si una fuente de mayor precedencia (manual/determinista) ocupó el primary, el histórico
+	# quedó como alternativa y ya no debe autoasignarse, aunque hubiera pasado el gate.
+	for alt in alternatives:
+		if alt.get("source") == "Historial":
+			alt["auto_assignable"] = False
 
 	return {
 		"primary": primary,
@@ -83,7 +110,91 @@ def get_resolution_options(concepto_data: dict, cfdi_data: dict) -> dict:
 	}
 
 
-def _resolve_by_rules(company, supplier_rfc, sat_product_key, description, no_identificacion, seen):
+def _resolve_by_history(company, supplier_rfc, sat_product_key, current_concepto_name, seen):
+	"""Opciones de Item según el historial humano del proveedor para esta clave SAT.
+
+	Clave: (company, supplier_rfc, sat_product_key). Usa TODO el trabajo ya clasificado por
+	humanos (sin corte por fecha; solo excluye el propio concepto — anti-autocontaminación).
+	Excluye autoasignaciones previas (item_resolution="Historial") para evitar auto-refuerzo,
+	y CFDIs marcados no_procesar. Valida cada Item candidato con validate_expense_item ANTES de
+	calcular frecuencia/share. Devuelve lista rankeada (count desc, item_code asc); solo el top
+	puede ser auto_assignable. GASTO-* participa igual.
+	"""
+	if not company or not supplier_rfc or not sat_product_key:
+		return []
+
+	from collections import Counter
+
+	from facturacion_mexico.cfdi_recibidos.services.item_validator import validate_expense_item
+
+	rows = frappe.db.sql(
+		"""
+		SELECT c.item_code
+		FROM `tabCFDI Recibido Concepto` c
+		JOIN `tabCFDI Recibido` p ON c.parent = p.name
+		WHERE p.company = %(co)s
+		  AND p.supplier_rfc = %(rfc)s
+		  AND c.sat_product_key = %(sat)s
+		  AND c.item_code IS NOT NULL AND c.item_code != ''
+		  AND c.name != %(cur)s
+		  AND COALESCE(p.no_procesar, 0) = 0
+		  AND COALESCE(c.item_resolution, '') != 'Historial'
+		""",
+		{
+			"co": company,
+			"rfc": supplier_rfc,
+			"sat": sat_product_key,
+			"cur": current_concepto_name or "",
+		},
+		as_dict=True,
+	)
+	if not rows:
+		return []
+
+	raw = Counter(r["item_code"] for r in rows)
+	valid = {it: n for it, n in raw.items() if validate_expense_item(it)[0]}
+	if not valid:
+		return []
+
+	count = sum(valid.values())
+	ranked = sorted(valid.items(), key=lambda kv: (-kv[1], kv[0]))  # count desc, item_code asc
+	top, topn = ranked[0]
+	share = topn / count
+	distinct = len(valid)
+	auto_top = count >= HIST_MIN_PREV and share >= HIST_MIN_SHARE
+
+	out = []
+	for it, n in ranked:
+		if it in seen:
+			continue
+		info = frappe.db.get_value("Item", it, ["item_name", "item_group"], as_dict=True)
+		if not info:
+			continue
+		is_top = it == top
+		out.append(
+			{
+				"item_code": it,
+				"item_name": info.item_name,
+				"item_group": info.item_group or "",
+				"item_resolution": "Historial",
+				"source": "Historial",
+				"auto_assignable": bool(auto_top and is_top),
+				"match_reason": (
+					f"Historial rfc+sat: {topn}/{count} ({share:.1%}), {distinct} Items"
+					if is_top
+					else f"Historial rfc+sat: {n}/{count} ({n / count:.1%})"
+				),
+				"match_confidence": ("Alta" if (auto_top and is_top) else "Media" if is_top else "Baja"),
+			}
+		)
+	return out
+
+
+def _resolve_by_rules(
+	company, supplier_rfc, sat_product_key, description, no_identificacion, seen, only_auto=None
+):
+	"""Reglas Item CFDI Recibido. only_auto=False -> solo manuales; True -> solo auto-aprendidas
+	(match_reason "Auto:"); None -> todas. Permite precedencia: manual arriba, auto degradada."""
 	rules = frappe.get_all(
 		"Regla Item CFDI Recibido",
 		filters={"is_active": 1},
@@ -105,13 +216,18 @@ def _resolve_by_rules(company, supplier_rfc, sat_product_key, description, no_id
 		target = rule.get("target_item") if isinstance(rule, dict) else rule.target_item
 		if not target or target in seen:
 			continue
+		match_reason = rule.get("match_reason") if isinstance(rule, dict) else rule.match_reason
+		is_auto = (match_reason or "").startswith("Auto:")
+		if only_auto is True and not is_auto:
+			continue
+		if only_auto is False and is_auto:
+			continue
 		level = _match_level(rule, company, supplier_rfc, sat_product_key, description, no_identificacion)
 		if level is None:
 			continue
 		item_data = frappe.db.get_value("Item", target, ["item_name", "item_group"], as_dict=True)
 		if not item_data:
 			continue
-		match_reason = rule.get("match_reason") if isinstance(rule, dict) else rule.match_reason
 		results.append(
 			{
 				"item_code": target,

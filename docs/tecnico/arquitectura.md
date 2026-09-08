@@ -93,6 +93,27 @@ Upload XML
   → PurchaseInvoiceBuilder → Purchase Invoice Draft
 ```
 
+### Motor de resolución de Items
+
+`cfdi_recibidos/services/item_resolution_engine.py` → `get_resolution_options(concepto, cfdi,
+current_concepto_name)` propone un `item_code` por concepto. Precedencia (mayor a menor):
+
+1. Regla **manual** (`Regla Item CFDI Recibido` con `match_reason` que **no** empieza con `Auto:`).
+2. Determinista: `Item.item_code == no_identificacion`.
+3. **Historial** (`_resolve_by_history`) — clave `(company, supplier_rfc, sat_product_key)`.
+4. Regla **`Auto:`** legacy (degradada).
+5. Match textual.
+6. Genérico `GASTO-*`.
+
+`_resolve_by_history` cuenta las clasificaciones **humanas** previas por clave, filtrando cada Item
+con `validate_expense_item` **antes** de contar. Ranking determinista (`count` desc, `item_code`
+asc). Solo el top se autoasigna (`auto_assignable`) si `count ≥ HIST_MIN_PREV` (2) y `share ≥
+HIST_MIN_SHARE` (0.80); en caso contrario se ofrece como sugerencia. La consulta **excluye** las
+autoasignaciones previas (`item_resolution = "Historial"`), los CFDIs `no_procesar` y el propio
+concepto (anti-refuerzo y anti-autocontaminación). `assign_item_to_concepto` persiste la
+confirmación humana como `Manual` (no `Historial`) y **ya no** materializa reglas `Auto:`
+(`_auto_create_regla` queda sin llamador). Ver [ADR 0040](../adr/0040-aprendizaje-historial-clasificacion-cfdi-recibido.md).
+
 ## Flujo — Complemento de Pago PPD
 
 ```

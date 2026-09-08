@@ -202,9 +202,11 @@ class TestGetResolutionOptions(unittest.TestCase):
 					match_reason="Limpieza mensual",
 				)
 			],
+			[],  # reglas AUTO (segunda pasada, only_auto=True)
 			[],  # item groups (from _get_expense_item_groups)
 			[],  # text search candidates (Item)
 		]
+		mock_frappe.db.sql.return_value = []  # historial vacío
 		mock_frappe.db.get_value.return_value = _item_data("Limpieza mensual", "Servicios")
 		mock_frappe.db.get_value.return_value.lft = 1
 		mock_frappe.db.get_value.return_value.rgt = 10

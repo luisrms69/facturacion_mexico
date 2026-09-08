@@ -550,12 +550,18 @@ def classify_all_concepts(cfdi_recibido: str) -> dict:
 				"supplier": doc.supplier or "",
 				"supplier_rfc": doc.supplier_rfc or "",
 			},
+			current_concepto_name=concepto.name,
 		)
 
 		primary = opts.get("primary")
-		# Auto-asignación solo por coincidencia exacta no_identificacion ↔ item_code.
-		# Reglas configuradas (Mapeado) y texto (Sugerido) requieren decisión explícita del usuario.
-		if not primary or primary["item_resolution"] != "Código proveedor":
+		# Auto-asignación: coincidencia exacta no_identificacion ↔ item_code (como antes), o
+		# top histórico que pasa el gate (auto_assignable). Reglas (Mapeado) y texto (Sugerido)
+		# siguen requiriendo decisión explícita del usuario -> quedan pendientes sin escribir.
+		auto_ok = primary and (
+			primary["item_resolution"] == "Código proveedor"
+			or (primary.get("source") == "Historial" and primary.get("auto_assignable"))
+		)
+		if not auto_ok:
 			pendientes += 1
 			continue
 
@@ -690,6 +696,7 @@ def get_item_resolution_options(cfdi_recibido: str, concepto_name: str) -> dict:
 			"supplier": doc.supplier or "",
 			"supplier_rfc": doc.supplier_rfc or "",
 		},
+		current_concepto_name=concepto.name,
 	)
 
 
@@ -715,6 +722,13 @@ def assign_item_to_concepto(
 		frappe.throw(_("concepto_name e item_code son obligatorios"), frappe.MandatoryError)
 
 	concepto_doc = frappe.get_doc("CFDI Recibido Concepto", concepto_name)
+
+	# Confirmar una sugerencia histórica es una DECISIÓN HUMANA: se registra como "Manual"
+	# (no "Historial") para que alimente el aprendizaje y evite el auto-refuerzo del algoritmo.
+	# El detalle del historial se conserva en item_match_reason.
+	if item_resolution == "Historial":
+		item_resolution = "Manual"
+
 	item_group = frappe.db.get_value("Item", item_code, "item_group") or ""
 
 	frappe.db.set_value(
@@ -734,13 +748,8 @@ def assign_item_to_concepto(
 	nuevo_status = compute_stage(cfdi_doc)
 	frappe.db.set_value("CFDI Recibido", cfdi_name, "status", nuevo_status)
 
-	# Auto-crear Regla si hay no_identificacion — para recordar esta asignación
-	if concepto_doc.no_identificacion and not item_code.startswith("GASTO-"):
-		_auto_create_regla(
-			cfdi_doc.supplier_rfc or "",
-			concepto_doc.no_identificacion,
-			item_code,
-		)
+	# El aprendizaje ya no materializa reglas "Auto:": la memoria es el historial de conceptos
+	# clasificados (ver _resolve_by_history). _auto_create_regla se conserva como legacy sin caller.
 
 	return {
 		"status": "ok",
