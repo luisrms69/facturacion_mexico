@@ -2,7 +2,7 @@
 
 **Fecha:** 2026-09-07
 **Rama activa:** `feat/cfdi-item-history-resolution`
-**Tarea actual:** Feature "aprendizaje por historial" en resolución de Items CFDI Recibido (v1.4.7). Commit hecho; falta push + PR.
+**Tarea actual:** Feature "aprendizaje por historial" en resolución de Items CFDI Recibido (v1.4.7). PR #234 abierto; pendiente merge (usuario) + release v1.4.7.
 
 ---
 
@@ -20,10 +20,10 @@ V1 cerrada en alcance; cleanup de legacy (`_auto_create_regla`, `CFDI Concepto M
 `item_resolver`, reglas `Auto:`) queda para un issue separado (fuera de alcance).
 
 Objetivo inmediato:
-`/ship push` (rama) y luego `/ship pr` hacia `main`, cuando el usuario lo autorice (pasos separados).
+Usuario hace Squash & Merge de PR #234 en GitHub. Después: `/sync-check` + `/ship release` v1.4.7.
 
 Criterio de avance:
-PR abierto contra `main` con bump 1.4.7 y `/pr-ready` en verde (linters, mkdocs --strict, tests).
+PR #234 mergeado en `main` y release v1.4.7 (tag + GitHub Release) alineados.
 
 ---
 
@@ -41,12 +41,12 @@ PR abierto contra `main` con bump 1.4.7 y `/pr-ready` en verde (linters, mkdocs 
 - Commit creado en la rama (bump 1.4.6 → 1.4.7).
 
 ### En progreso
-- Cierre del ciclo `/ship`: falta push + PR.
+- PR #234 abierto contra `main`. Esperando Squash & Merge del usuario (Claude no mergea).
 
 ### Pendiente inmediato
-1. `/ship push` de la rama (con autorización explícita).
-2. `/ship pr` hacia `main` (con autorización explícita; incluye `/pr-ready`).
-3. Tras merge: `/sync-check` + `/ship release` v1.4.7.
+1. Usuario: Squash & Merge de PR #234 en GitHub.
+2. Tras merge: `/sync-check` (detecta drift de release) + `/ship release` v1.4.7.
+3. (opcional) crear el issue de cleanup legacy que quedó fuera de alcance.
 
 ### No repetir
 - No volver a decir "suite de 1700 tests": la suite real de `bench run-tests --app` es **345**.
