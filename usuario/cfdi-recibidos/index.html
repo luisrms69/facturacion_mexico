@@ -620,6 +620,21 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Paso 3 — Clasificar conceptos">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#aprendizaje-por-historial" class="md-nav__link">
+    <span class="md-ellipsis">
+      Aprendizaje por historial
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1883,6 +1898,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0040-aprendizaje-historial-clasificacion-cfdi-recibido/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0040 — Aprendizaje por historial en la clasificación de conceptos CFDI Recibido
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2142,6 +2178,21 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Paso 3 — Clasificar conceptos">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#aprendizaje-por-historial" class="md-nav__link">
+    <span class="md-ellipsis">
+      Aprendizaje por historial
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2353,9 +2404,20 @@ departamento → Falta clasificación → Clasificado → Convertido a PI</stron
 <hr />
 <h2 id="paso-3-clasificar-conceptos">Paso 3 — Clasificar conceptos<a class="headerlink" href="#paso-3-clasificar-conceptos" title="Permanent link">&para;</a></h2>
 <p>Cada línea del XML necesita un <code>item_code</code> de ERPNext para poder generar la PI.</p>
-<p>El sistema intenta clasificar automáticamente usando:
-- <strong>Reglas aprendidas</strong>: si ya se clasificó ese proveedor+código anteriormente
-- <strong>Items genéricos</strong>: GASTO-{categoría}-NNN según el grupo de gastos</p>
+<p>El sistema intenta clasificar automáticamente usando, en orden de prioridad:</p>
+<ol>
+<li><strong>Reglas manuales</strong> configuradas (<code>Regla Item CFDI Recibido</code>).</li>
+<li><strong>Código de proveedor</strong>: coincidencia exacta entre el <code>no_identificacion</code> del concepto y un <code>item_code</code>.</li>
+<li><strong>Historial</strong>: si ese <strong>proveedor + clave SAT</strong> ya fue clasificado por una persona anteriormente.</li>
+<li><strong>Items genéricos</strong>: GASTO-{categoría}-NNN según el grupo de gastos.</li>
+</ol>
+<h3 id="aprendizaje-por-historial">Aprendizaje por historial<a class="headerlink" href="#aprendizaje-por-historial" title="Permanent link">&para;</a></h3>
+<p>El sistema aprende de las clasificaciones que hace el equipo. Cuando un mismo proveedor + clave de producto/servicio SAT ya se clasificó <strong>a mano</strong> varias veces con el mismo Item, ese Item se propone —y, si la evidencia es fuerte, se <strong>autoasigna</strong>— en los siguientes CFDIs.</p>
+<ul>
+<li><strong>Autoasignación</strong> (resolución <code>Historial</code>): solo ocurre con <strong>evidencia fuerte</strong> — al menos <strong>2</strong> clasificaciones humanas previas y <strong>≥ 80 %</strong> de acuerdo en el mismo Item. Si no se alcanza ese umbral, el Item aparece como <strong>sugerencia</strong> y el concepto queda pendiente de tu decisión.</li>
+<li><strong>Confirmar una sugerencia</strong> de historial cuenta como decisión humana: se guarda como <code>Manual</code>, con el detalle del historial en el campo <em>Motivo de match</em>. Así refuerza el aprendizaje sin que el sistema se realimente de sus propias autoasignaciones.</li>
+<li>El aprendizaje <strong>no cruza empresas</strong>: cada empresa aprende de su propio historial.</li>
+</ul>
 <p>Para conceptos que no se clasifiquen solos, usar el flujo guiado <strong>"Resolver Items pendientes"</strong> en la lista o en el formulario del CFDI.</p>
 <hr />
 <h2 id="paso-4-generar-purchase-invoice">Paso 4 — Generar Purchase Invoice<a class="headerlink" href="#paso-4-generar-purchase-invoice" title="Permanent link">&para;</a></h2>
