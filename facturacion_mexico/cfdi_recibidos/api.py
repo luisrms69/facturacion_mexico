@@ -748,9 +748,6 @@ def assign_item_to_concepto(
 	nuevo_status = compute_stage(cfdi_doc)
 	frappe.db.set_value("CFDI Recibido", cfdi_name, "status", nuevo_status)
 
-	# El aprendizaje ya no materializa reglas "Auto:": la memoria es el historial de conceptos
-	# clasificados (ver _resolve_by_history). _auto_create_regla se conserva como legacy sin caller.
-
 	return {
 		"status": "ok",
 		"concepto_name": concepto_name,
@@ -980,23 +977,3 @@ def get_next_item_code_for_group(item_group: str) -> str:
 		if suffix.isdigit():
 			max_num = max(max_num, int(suffix))
 	return f"{slug}-{max_num + 1:03d}"
-
-
-def _auto_create_regla(supplier_rfc: str, no_identificacion: str, item_code: str) -> None:
-	"""Crea una Regla Item CFDI Recibido para recordar la asignación proveedor+no_identificacion."""
-	if not supplier_rfc or not no_identificacion or not item_code:
-		return
-	existing = frappe.db.exists(
-		"Regla Item CFDI Recibido",
-		{"supplier_rfc": supplier_rfc, "keywords": no_identificacion, "target_item": item_code},
-	)
-	if existing:
-		return
-	rule = frappe.new_doc("Regla Item CFDI Recibido")
-	rule.supplier_rfc = supplier_rfc
-	rule.keywords = no_identificacion
-	rule.target_item = item_code
-	rule.match_reason = f"Auto: {supplier_rfc} / {no_identificacion}"
-	rule.priority = 5
-	rule.is_active = 1
-	rule.insert(ignore_permissions=True)

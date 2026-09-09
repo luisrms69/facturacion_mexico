@@ -112,7 +112,7 @@ HIST_MIN_SHARE` (0.80); en caso contrario se ofrece como sugerencia. La consulta
 autoasignaciones previas (`item_resolution = "Historial"`), los CFDIs `no_procesar` y el propio
 concepto (anti-refuerzo y anti-autocontaminación). `assign_item_to_concepto` persiste la
 confirmación humana como `Manual` (no `Historial`) y **ya no** materializa reglas `Auto:`
-(`_auto_create_regla` queda sin llamador). Ver [ADR 0040](../adr/0040-aprendizaje-historial-clasificacion-cfdi-recibido.md).
+(el helper `_auto_create_regla`, ya sin uso, fue eliminado en un cleanup posterior). Ver [ADR 0040](../adr/0040-aprendizaje-historial-clasificacion-cfdi-recibido.md).
 
 ## Flujo — Complemento de Pago PPD
 
