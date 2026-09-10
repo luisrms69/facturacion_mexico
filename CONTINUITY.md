@@ -1,91 +1,79 @@
 # CONTINUITY.md — facturacion_mexico
 
-**Fecha:** 2026-09-07
-**Rama activa:** `feat/cfdi-item-history-resolution`
-**Tarea actual:** Feature "aprendizaje por historial" en resolución de Items CFDI Recibido (v1.4.7). PR #234 abierto; pendiente merge (usuario) + release v1.4.7.
+**Fecha:** 2026-09-08
+**Rama activa:** `chore/235-remove-auto-create-regla`
+**Tarea actual:** #235 Parte A — eliminar código muerto `_auto_create_regla` (v1.4.8). Commit hecho; falta push + PR.
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-Nueva fuente de resolución `_resolve_by_history` en `item_resolution_engine.py`: reutiliza las
-clasificaciones humanas previas por `(company, supplier_rfc, sat_product_key)` para proponer —y,
-con evidencia fuerte, autoasignar— el `item_code` de un concepto. Diseño colaborativo (auditoría
-UX), no proviene de un issue abierto.
+Cleanup acotado del motor de resolución CFDI Recibidos, **solo Parte A** del issue #235: eliminar la
+función `_auto_create_regla` (sin llamador desde v1.4.7) y su comentario obsoleto en `api.py`, y
+corregir la referencia en `docs/tecnico/arquitectura.md`.
 
 Plan que estoy siguiendo:
-Diseño acordado en conversación + [ADR 0040](docs/adr/0040-aprendizaje-historial-clasificacion-cfdi-recibido.md).
-V1 cerrada en alcance; cleanup de legacy (`_auto_create_regla`, `CFDI Concepto Mapping`,
-`item_resolver`, reglas `Auto:`) queda para un issue separado (fuera de alcance).
+Decisión del propietario en #235 (alcance reducido a Parte A). Partes B y C **conservadas fuera de
+alcance** por seguir funcionales; no se abren issues nuevos por ellas en este ciclo.
 
 Objetivo inmediato:
-Usuario hace Squash & Merge de PR #234 en GitHub. Después: `/sync-check` + `/ship release` v1.4.7.
+`/ship push` (rama) y luego `/ship pr` hacia `main`, con autorización explícita por paso.
 
 Criterio de avance:
-PR #234 mergeado en `main` y release v1.4.7 (tag + GitHub Release) alineados.
+PR mergeado con bump 1.4.8; tras merge `/sync-check` + `/ship release` v1.4.8; luego cerrar #235
+como `completed`.
 
 ---
 
 ## Estado actual
 
 ### Ya cerrado
-- Implementación V1 completa: `_resolve_by_history`, reorden de precedencia, split `_resolve_by_rules`
-  (manual vs `Auto:`), gate (≥2 previos, ≥80%), anti-refuerzo, scope company, conversión
-  confirmación→`Manual`, retiro del caller `_auto_create_regla`, opción `Historial` en el DocType.
-- Ajuste: `auto_assignable=False` cuando el historial queda como alternativa.
-- Docs: ADR 0040, `docs/usuario/cfdi-recibidos.md` (Paso 3), `docs/tecnico/arquitectura.md`, índice
-  ADR y `mkdocs.yml` nav.
-- Tests: 22 nuevos (unit + IntegrationTestCase). Módulo historial 22/22, motor 24/24.
-- `bench migrate` aplicado en `test-facturacion.localhost` y `facturacion-v16.dev` (opción `Historial`).
-- Commit creado en la rama (bump 1.4.6 → 1.4.7).
+- Eliminada `_auto_create_regla` + comentario obsoleto (`api.py`); referencia corregida en
+  `arquitectura.md`. Bump 1.4.7 → 1.4.8 (PATCH).
+- #235 reformulado a Parte A; label `it-tech:approved`.
+- Tests focalizados verdes: api 8/8, item_resolution_history 22, item_resolution_engine 24
+  (0 llamadores → sin cambio de comportamiento).
+- Commit creado en la rama.
 
 ### En progreso
-- PR #234 abierto contra `main`. Esperando Squash & Merge del usuario (Claude no mergea).
+- Cierre del ciclo `/ship`: falta push + PR.
 
 ### Pendiente inmediato
-1. Usuario: Squash & Merge de PR #234 en GitHub.
-2. Tras merge: `/sync-check` (detecta drift de release) + `/ship release` v1.4.7.
-3. (opcional) crear el issue de cleanup legacy que quedó fuera de alcance.
+1. `/ship push` de la rama (con autorización explícita).
+2. `/ship pr` hacia `main` (con autorización explícita).
+3. Tras merge: `/sync-check` + `/ship release` v1.4.8 → cerrar #235 como `completed`.
 
 ### No repetir
-- No volver a decir "suite de 1700 tests": la suite real de `bench run-tests --app` es **345**.
-- No re-verificar el flake `test_sis_distintas_no_se_bloquean`: ya se confirmó preexistente en
-  `main@72893a8` (reproducido 1/3 con worktree). Es deuda separada; no estabilizar dentro de esta V1.
-- No crear un issue retroactivo solo para vincular este commit.
-- No commitear `scripts/*` ni `working_docs/private/` (temporales/privados).
+- No tocar Partes B (`CFDI Concepto Mapping` + `item_resolver` + APIs) ni C (reglas `Auto:` nivel 4):
+  conservadas a propósito, siguen funcionales.
+- No modificar el ADR 0040 (registro histórico inmutable).
+- No commitear `scripts/*` ni `working_docs/private/`.
 
 ---
 
 ## Decisiones vigentes
-- La memoria del sistema es el **historial de conceptos clasificados**, no reglas `Auto:`
-  materializadas. `_auto_create_regla` se conserva sin llamador (legacy).
-- Confirmar una sugerencia de historial se guarda como `Manual` (no `Historial`) para alimentar el
-  aprendizaje sin auto-refuerzo. La query excluye `item_resolution='Historial'` y `no_procesar=1`.
-- Gate calibrado con auditoría real: precisión ≈0.94, cobertura auto ≈0.56.
-- Bump 1.4.7 = PATCH (mantener cadencia 1.4.x para features acotadas de CFDI Recibidos).
+- `_auto_create_regla` eliminado; la memoria del resolver es el historial de conceptos (ADR 0040).
+- B y C se conservan: superficie activa / participan en sugerencias del resolver.
+- Bump 1.4.8 = PATCH (cleanup de código muerto, sin cambio de comportamiento).
 
 ---
 
 ## Archivos relevantes ahora
 
 ### Leer primero
-- `facturacion_mexico/cfdi_recibidos/services/item_resolution_engine.py` (`_resolve_by_history`, orden)
-- `facturacion_mexico/cfdi_recibidos/api.py` (`classify_all_concepts`, `assign_item_to_concepto`)
-- `docs/adr/0040-aprendizaje-historial-clasificacion-cfdi-recibido.md`
-
-### Probablemente editar
-- (ninguno pendiente en V1 — próximos pasos son git: push/PR)
+- `facturacion_mexico/cfdi_recibidos/api.py` (donde estaba `_auto_create_regla`)
+- `docs/tecnico/arquitectura.md` (referencia corregida)
 
 ### No tocar
-- `_auto_create_regla`, `CFDI Concepto Mapping`, `item_resolver` (cleanup = issue separado)
+- `CFDI Concepto Mapping`, `item_resolver`, reglas `Auto:` (fuera de alcance conservado)
+- `docs/adr/0040-*.md` (inmutable)
 
 ---
 
 ## Riesgos / cuidados
-- Flake de concurrencia preexistente (`test_sis_distintas_no_se_bloquean`) puede aparecer en corridas
-  de suite completa; no es de esta feature.
-- `bench run-tests --app` = 345 tests (dato oficial).
+- `bench run-tests --app` = 345 tests (dato oficial); flake de concurrencia preexistente
+  `test_sis_distintas_no_se_bloquean` puede aparecer en suite completa (ajeno a este cambio).
 
 ---
 
