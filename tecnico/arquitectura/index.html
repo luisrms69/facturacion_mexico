@@ -2646,7 +2646,7 @@ HIST_MIN_SHARE</code> (0.80); en caso contrario se ofrece como sugerencia. La co
 autoasignaciones previas (<code>item_resolution = "Historial"</code>), los CFDIs <code>no_procesar</code> y el propio
 concepto (anti-refuerzo y anti-autocontaminación). <code>assign_item_to_concepto</code> persiste la
 confirmación humana como <code>Manual</code> (no <code>Historial</code>) y <strong>ya no</strong> materializa reglas <code>Auto:</code>
-(<code>_auto_create_regla</code> queda sin llamador). Ver <a href="../../adr/0040-aprendizaje-historial-clasificacion-cfdi-recibido/">ADR 0040</a>.</p>
+(el helper <code>_auto_create_regla</code>, ya sin uso, fue eliminado en un cleanup posterior). Ver <a href="../../adr/0040-aprendizaje-historial-clasificacion-cfdi-recibido/">ADR 0040</a>.</p>
 <h2 id="flujo-complemento-de-pago-ppd">Flujo — Complemento de Pago PPD<a class="headerlink" href="#flujo-complemento-de-pago-ppd" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code>Payment Entry (submit)
   → hook on_submit → create_complement_if_required
