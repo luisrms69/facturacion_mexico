@@ -55,6 +55,21 @@ Antes de hacer Submit, verificar:
 > **PUE** — Pago en Una Exhibición: la factura se paga en el mismo momento.
 > **PPD** — Pago en Parcialidades o Diferido: se pagará después. Requiere Complemento de Pago al cobrar.
 
+#### Descripción que aparece en el CFDI (por línea)
+
+Cada línea tiene el campo **`Descripción CFDI`** (`fm_descripcion_cfdi`), que es **el único texto que se
+envía como Descripción del concepto en el CFDI**. Es independiente de la descripción comercial nativa
+del artículo (`description`), que se sigue usando para impresión/cotización.
+
+- Se **llena automáticamente** al agregar el artículo, con el comportamiento de siempre: toma la
+  descripción del artículo y, si está vacía, su nombre.
+- Se puede **editar por línea** (incluso después del Submit del Sales Invoice, antes de timbrar).
+- El texto se guarda **en texto plano** (se quita cualquier formato/HTML) y se limita a **1000
+  caracteres** (máximo del SAT).
+
+> Si la línea no tiene `Descripción CFDI` (facturas creadas antes de esta función), el timbrado usa
+> la descripción comercial saneada y, en su defecto, el nombre del artículo.
+
 ### 2. Submit del Sales Invoice
 
 Al hacer Submit:

@@ -196,6 +196,8 @@ fixtures = [
 					"Item-fm_clasificacion_sat_section",
 					"Item-fm_producto_servicio_sat",
 					"Item-fm_column_break_item_sat",
+					# Sales Invoice Item custom fields (1 campo)
+					"Sales Invoice Item-fm_descripcion_cfdi",
 					# Payment Entry custom fields (5 campos)
 					"Payment Entry-fm_complement_generated",
 					"Payment Entry-fm_complemento_pago",

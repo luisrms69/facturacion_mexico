@@ -56,6 +56,20 @@ empresa es MXN**; la app no lo garantiza (solo lo recomienda en el setup), por l
 divisa desde una empresa con base ≠ MXN se **bloquea** explícitamente (fail-closed). La FFM **no**
 guarda copia propia de moneda/tipo de cambio: siempre se derivan de la Sales Invoice.
 
+### Descripción del concepto (`fm_descripcion_cfdi`)
+
+`Concepto.Descripcion` del CFDI se toma de un campo fiscal **editable por línea**,
+`Sales Invoice Item.fm_descripcion_cfdi` (Custom Field, Small Text, `allow_on_submit`), separado de la
+descripción comercial nativa (`description`, Text Editor):
+
+- **Auto-llenado** (`populate_fm_descripcion_cfdi` en el `validate` de Sales Invoice): si el campo está
+  vacío toma `description` y, en su defecto, `item_name`; si el usuario lo capturó, conserva su texto.
+  En ambos casos se sanea a **texto plano** (`sanitize_cfdi_description`: quita HTML, colapsa espacios,
+  máx **1000** caracteres). Corre también en tests (antes del early-return de `in_test`).
+- **Timbrado** (`resolve_concepto_description`): usa `fm_descripcion_cfdi`; para documentos históricos
+  sin el campo, fallback defensivo `description` saneado → `item_name`. En nota de crédito por
+  descuento (TipoRelación 01) aplica `build_descuento_description` (idempotente).
+
 ## Flujo E-Receipt / Autofactura
 
 ```text
@@ -244,6 +258,7 @@ Sin cambios de esquema (no requiere `bench migrate`); la recuperación diferida 
 `fm_ereceipt_mode` (Normal / E-Receipt), `fm_ereceipt_expiry_*` (configuración vencimiento)
 **Customer:** `fm_tax_regime`, `fm_uso_cfdi_default`, `fm_requires_addenda`, `fm_default_addenda_type`, `fm_buyer_gln`, `fm_seller_gln`, `fm_seller_id`, `fm_invoice_creator_gln`, `fm_dias_credito_addenda`
 **Address:** `fm_gln` (GLN de sucursal destino para addendas EDI), `is_your_company_address` (workaround ERPNext v16 — campo requerido por `erpnext/accounts/custom/address.py` pero no declarado en el DocType nativo; se agrega como Custom Field con default=0 para evitar AttributeError al guardar Address de clientes)
+**Sales Invoice Item:** `fm_descripcion_cfdi` (descripción fiscal editable por línea → `Concepto.Descripcion`; ver "Descripción del concepto")
 **Item Customer Detail:** `ref_code` (nativo ERPNext), `fm_customer_uom`, `fm_customer_description`
 **Branch:** `fm_enable_fiscal`, `fm_lugar_expedicion`, `fm_serie_pattern`, folios
 **Payment Entry:** `fm_complemento_pago`, `fm_complement_generated`
