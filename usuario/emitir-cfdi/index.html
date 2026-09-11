@@ -507,6 +507,21 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="1. Crear y configurar el Sales Invoice">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#descripcion-que-aparece-en-el-cfdi-por-linea" class="md-nav__link">
+    <span class="md-ellipsis">
+      Descripción que aparece en el CFDI (por línea)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -2173,6 +2188,21 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="1. Crear y configurar el Sales Invoice">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#descripcion-que-aparece-en-el-cfdi-por-linea" class="md-nav__link">
+    <span class="md-ellipsis">
+      Descripción que aparece en el CFDI (por línea)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -2394,6 +2424,21 @@ Ver <a href="../ereceipts/">E-Receipts y Autofactura</a> para el detalle de ese 
 <blockquote>
 <p><strong>PUE</strong> — Pago en Una Exhibición: la factura se paga en el mismo momento.
 <strong>PPD</strong> — Pago en Parcialidades o Diferido: se pagará después. Requiere Complemento de Pago al cobrar.</p>
+</blockquote>
+<h4 id="descripcion-que-aparece-en-el-cfdi-por-linea">Descripción que aparece en el CFDI (por línea)<a class="headerlink" href="#descripcion-que-aparece-en-el-cfdi-por-linea" title="Permanent link">&para;</a></h4>
+<p>Cada línea tiene el campo <strong><code>Descripción CFDI</code></strong> (<code>fm_descripcion_cfdi</code>), que es <strong>el único texto que se
+envía como Descripción del concepto en el CFDI</strong>. Es independiente de la descripción comercial nativa
+del artículo (<code>description</code>), que se sigue usando para impresión/cotización.</p>
+<ul>
+<li>Se <strong>llena automáticamente</strong> al agregar el artículo, con el comportamiento de siempre: toma la
+  descripción del artículo y, si está vacía, su nombre.</li>
+<li>Se puede <strong>editar por línea</strong> (incluso después del Submit del Sales Invoice, antes de timbrar).</li>
+<li>El texto se guarda <strong>en texto plano</strong> (se quita cualquier formato/HTML) y se limita a <strong>1000
+  caracteres</strong> (máximo del SAT).</li>
+</ul>
+<blockquote>
+<p>Si la línea no tiene <code>Descripción CFDI</code> (facturas creadas antes de esta función), el timbrado usa
+la descripción comercial saneada y, en su defecto, el nombre del artículo.</p>
 </blockquote>
 <h3 id="2-submit-del-sales-invoice">2. Submit del Sales Invoice<a class="headerlink" href="#2-submit-del-sales-invoice" title="Permanent link">&para;</a></h3>
 <p>Al hacer Submit:

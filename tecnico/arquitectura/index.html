@@ -789,6 +789,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#descripcion-del-concepto-fm_descripcion_cfdi" class="md-nav__link">
+    <span class="md-ellipsis">
+      Descripción del concepto (fm_descripcion_cfdi)
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2286,6 +2295,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#descripcion-del-concepto-fm_descripcion_cfdi" class="md-nav__link">
+    <span class="md-ellipsis">
+      Descripción del concepto (fm_descripcion_cfdi)
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2598,6 +2616,19 @@ sobre <code>net_rate</code>); <strong>nunca</strong> en campos <code>base_*</cod
 empresa es MXN</strong>; la app no lo garantiza (solo lo recomienda en el setup), por lo que emitir en
 divisa desde una empresa con base ≠ MXN se <strong>bloquea</strong> explícitamente (fail-closed). La FFM <strong>no</strong>
 guarda copia propia de moneda/tipo de cambio: siempre se derivan de la Sales Invoice.</p>
+<h3 id="descripcion-del-concepto-fm_descripcion_cfdi">Descripción del concepto (<code>fm_descripcion_cfdi</code>)<a class="headerlink" href="#descripcion-del-concepto-fm_descripcion_cfdi" title="Permanent link">&para;</a></h3>
+<p><code>Concepto.Descripcion</code> del CFDI se toma de un campo fiscal <strong>editable por línea</strong>,
+<code>Sales Invoice Item.fm_descripcion_cfdi</code> (Custom Field, Small Text, <code>allow_on_submit</code>), separado de la
+descripción comercial nativa (<code>description</code>, Text Editor):</p>
+<ul>
+<li><strong>Auto-llenado</strong> (<code>populate_fm_descripcion_cfdi</code> en el <code>validate</code> de Sales Invoice): si el campo está
+  vacío toma <code>description</code> y, en su defecto, <code>item_name</code>; si el usuario lo capturó, conserva su texto.
+  En ambos casos se sanea a <strong>texto plano</strong> (<code>sanitize_cfdi_description</code>: quita HTML, colapsa espacios,
+  máx <strong>1000</strong> caracteres). Corre también en tests (antes del early-return de <code>in_test</code>).</li>
+<li><strong>Timbrado</strong> (<code>resolve_concepto_description</code>): usa <code>fm_descripcion_cfdi</code>; para documentos históricos
+  sin el campo, fallback defensivo <code>description</code> saneado → <code>item_name</code>. En nota de crédito por
+  descuento (TipoRelación 01) aplica <code>build_descuento_description</code> (idempotente).</li>
+</ul>
 <h2 id="flujo-e-receipt-autofactura">Flujo E-Receipt / Autofactura<a class="headerlink" href="#flujo-e-receipt-autofactura" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code>Sales Invoice (submit, fm_ereceipt_mode="E-Receipt")
   → crear_ereceipt() → EReceipt MX (local)
@@ -2908,6 +2939,7 @@ timbrar B), el flujo es resiliente <strong>sin falsear el timbrado de B</strong>
 <code>fm_ereceipt_mode</code> (Normal / E-Receipt), <code>fm_ereceipt_expiry_*</code> (configuración vencimiento)
 <strong>Customer:</strong> <code>fm_tax_regime</code>, <code>fm_uso_cfdi_default</code>, <code>fm_requires_addenda</code>, <code>fm_default_addenda_type</code>, <code>fm_buyer_gln</code>, <code>fm_seller_gln</code>, <code>fm_seller_id</code>, <code>fm_invoice_creator_gln</code>, <code>fm_dias_credito_addenda</code>
 <strong>Address:</strong> <code>fm_gln</code> (GLN de sucursal destino para addendas EDI), <code>is_your_company_address</code> (workaround ERPNext v16 — campo requerido por <code>erpnext/accounts/custom/address.py</code> pero no declarado en el DocType nativo; se agrega como Custom Field con default=0 para evitar AttributeError al guardar Address de clientes)
+<strong>Sales Invoice Item:</strong> <code>fm_descripcion_cfdi</code> (descripción fiscal editable por línea → <code>Concepto.Descripcion</code>; ver "Descripción del concepto")
 <strong>Item Customer Detail:</strong> <code>ref_code</code> (nativo ERPNext), <code>fm_customer_uom</code>, <code>fm_customer_description</code>
 <strong>Branch:</strong> <code>fm_enable_fiscal</code>, <code>fm_lugar_expedicion</code>, <code>fm_serie_pattern</code>, folios
 <strong>Payment Entry:</strong> <code>fm_complemento_pago</code>, <code>fm_complement_generated</code>
