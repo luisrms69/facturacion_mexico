@@ -39,6 +39,29 @@ def credit_note_lines_use_discount_account(sales_invoice, cuenta_descuentos) -> 
 	return all((row.get("income_account") == cuenta_descuentos) for row in items)
 
 
+# Longitud máxima de la descripción de un concepto en el CFDI (spec SAT).
+CFDI_DESCRIPCION_MAX = 1000
+
+
+def sanitize_cfdi_description(text) -> str:
+	"""Normaliza un texto a la descripción fiscal de un concepto CFDI.
+
+	Quita HTML (el campo comercial `description` es Text Editor), decodifica entidades, colapsa
+	espacios/saltos y trunca a 1000 caracteres (límite SAT). Devuelve texto plano; "" si es vacío.
+	"""
+	import html as _html
+	import re
+
+	from frappe.utils import strip_html
+
+	if not text:
+		return ""
+	s = strip_html(str(text))
+	s = _html.unescape(s)
+	s = re.sub(r"\s+", " ", s).strip()
+	return s[:CFDI_DESCRIPCION_MAX]
+
+
 # Prefijo de descripción fiscal de una nota de crédito por descuento/bonificación.
 DESCRIPCION_DESCUENTO = "Descuento"
 

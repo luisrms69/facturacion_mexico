@@ -432,6 +432,20 @@ def before_validate(doc, method=None):
 				row.item_tax_template = itt
 
 
+def populate_fm_descripcion_cfdi(doc):
+	"""Auto-llena la descripción fiscal por línea (Concepto.Descripcion del CFDI).
+
+	Si `fm_descripcion_cfdi` está vacío → default con el comportamiento histórico (`description`,
+	y si vacío `item_name`). Si el usuario ya lo capturó → conserva su texto. En ambos casos se
+	sanea a texto plano (máx 1000). No bloquea; corre también en tests (antes del early return).
+	"""
+	from facturacion_mexico.facturacion_fiscal.utils import sanitize_cfdi_description
+
+	for row in doc.get("items") or []:
+		base = row.get("fm_descripcion_cfdi") or row.get("description") or row.get("item_name")
+		row.fm_descripcion_cfdi = sanitize_cfdi_description(base)
+
+
 def validate(doc, method=None):
 	"""
 	Bloqueos finales antes de guardar:
@@ -439,6 +453,9 @@ def validate(doc, method=None):
 	- todas las líneas deben tener fm_producto_servicio_sat via Item
 	* Sin tax_category. No programamos impuestos por producto.
 	"""
+	# 0) Descripción fiscal por línea (siempre, incluido test): default histórico + saneo.
+	populate_fm_descripcion_cfdi(doc)
+
 	# 1) cost_center obligatorio
 	if not getattr(doc, "cost_center", None):
 		frappe.throw("No se puede guardar la factura: <b>Centro de Costos</b> es obligatorio.")

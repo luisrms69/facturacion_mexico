@@ -89,16 +89,27 @@ def is_nota_descuento(factura_fiscal) -> bool:
 def resolve_concepto_description(item, es_nota_descuento: bool) -> str:
 	"""Descripción fiscal del concepto para el payload del PAC.
 
-	Nota de crédito por descuento/bonificación → 'Descuento - <descripción de la partida origen>'
-	(criterio del contador; sin partida identificable → 'Descuento'). La acción ya deja esa
-	descripción en la línea; aquí se reafirma como defensa e idempotente. En cualquier otro caso,
-	la descripción o el nombre del ítem, como hasta ahora.
-	"""
-	if es_nota_descuento:
-		from facturacion_mexico.facturacion_fiscal.utils import build_descuento_description
+	Fuente: el campo fiscal editable por línea `fm_descripcion_cfdi` (lo llena el `validate` con el
+	default histórico saneado y el usuario puede editarlo). Fallback defensivo para documentos
+	históricos sin el campo: `description` saneado → `item_name`.
 
-		return build_descuento_description(item.description or item.item_name)
-	return item.description or item.item_name
+	Nota de crédito por descuento/bonificación → 'Descuento - <descripción origen>' (criterio del
+	contador; sin partida identificable → 'Descuento'). `build_descuento_description` es idempotente:
+	no vuelve a prefijar.
+	"""
+	from facturacion_mexico.facturacion_fiscal.utils import (
+		build_descuento_description,
+		sanitize_cfdi_description,
+	)
+
+	base = (
+		sanitize_cfdi_description(item.get("fm_descripcion_cfdi"))
+		or sanitize_cfdi_description(item.description)
+		or item.item_name
+	)
+	if es_nota_descuento:
+		return build_descuento_description(base)
+	return base
 
 
 def _log_text(label, s: str):
