@@ -2385,23 +2385,36 @@ receptor no responde. Puedes verificar o actualizar el estado con el botón <str
 FacturAPI"</strong> en el FFM (ver <a href="../verificar-estado-facturapi/">Verificar estado en FacturAPI</a>).</p>
 <hr />
 <h2 id="camino-b-motivo-01-cancelacion-con-sustitucion">Camino B — Motivo 01 (cancelación con sustitución)<a class="headerlink" href="#camino-b-motivo-01-cancelacion-con-sustitucion" title="Permanent link">&para;</a></h2>
-<p>Este camino se usa cuando hay un error en la factura y necesitas emitir una versión corregida. El CFDI original se cancela y queda relacionado con el nuevo.</p>
-<p><strong>Flujo obligatorio: primero timbras el sustituto, luego cancelas el original.</strong></p>
+<p>Este camino se usa cuando hay un error en la factura y necesitas emitir una versión corregida. El
+sistema crea el CFDI sustituto, lo relaciona con el original mediante <strong>TipoRelación 04</strong> y, una vez
+timbrado el sustituto, cancela el CFDI original con <strong>Motivo de cancelación 01</strong>.</p>
+<p><strong>El flujo lo inicia el sistema desde el Sales Invoice original: tú NO creas la factura sustituta a mano
+ni ingresas UUIDs.</strong></p>
 <h3 id="pasos_1">Pasos<a class="headerlink" href="#pasos_1" title="Permanent link">&para;</a></h3>
 <ol>
-<li><strong>Crear el Sales Invoice sustituto</strong> — nuevo SI con los datos correctos</li>
-<li><strong>Timbrar el SI sustituto</strong> — obtener su UUID (ver <a href="../emitir-cfdi/">Emitir un CFDI</a>)</li>
-<li>Volver al <strong>Sales Invoice original</strong> (<code>fm_fiscal_status = TIMBRADO</code>)</li>
-<li>Buscar el botón <strong>"Sustituir CFDI (01)"</strong> en el Sales Invoice</li>
-<li>Ingresar el <strong>UUID del CFDI sustituto</strong> (el que timbraste en el paso 2)</li>
-<li>Confirmar</li>
+<li>Abrir el <strong>Sales Invoice original</strong> timbrado (<code>fm_fiscal_status = TIMBRADO</code>).</li>
+<li>Pulsar el botón <strong>"🔄 Sustituir CFDI (01)"</strong> (grupo <em>Opciones Fiscales</em>).</li>
+<li>El sistema <strong>crea automáticamente una nueva Sales Invoice sustituta</strong> (copia de la original en
+   Borrador) que conserva la referencia al CFDI original (<code>ffm_substitution_source_uuid</code> = UUID del CFDI
+   original). Verás el mensaje <em>"SI de reemplazo creado: …"</em>.</li>
+<li>Abrir la <strong>nueva Sales Invoice sustituta</strong>, <strong>corregir los datos</strong> y <strong>timbrarla</strong>
+   (ver <a href="../emitir-cfdi/">Emitir un CFDI</a>). Al timbrarse, el CFDI sustituto incluye <strong>automáticamente
+   <code>TipoRelación = 04</code></strong> apuntando al <strong>UUID del CFDI original</strong>.</li>
+<li>Cuando el sustituto queda timbrado (obtiene su propio UUID), el sistema <strong>cancela automáticamente el
+   CFDI original con Motivo 01</strong>, usando el <strong>UUID del sustituto</strong> como folio de sustitución (cascada).
+   No ingresas UUIDs manualmente.</li>
 </ol>
-<p>El sistema envía la cancelación con <code>TipoRelación = 04</code> (sustitución).</p>
 <blockquote>
-<p><strong>Importante:</strong> Si intentas usar motivo 01 desde el FFM directamente (no desde el SI), el sistema te redirigirá al Sales Invoice. El flujo de sustitución está controlado desde el SI.</p>
+<p><strong>Importante:</strong> el <strong>Motivo 01 no se ejecuta desde la Factura Fiscal Mexico.</strong> Si intentas cancelar con
+motivo 01 desde el FFM, el sistema te remite al Sales Invoice y al botón <strong>"Sustituir CFDI (01)"</strong>.</p>
+<p><strong>No confundir tres conceptos con el mismo número:</strong> el <strong>Motivo de cancelación 01</strong> (la razón por la
+que se cancela el CFDI original), la <strong>TipoRelación 01</strong> (nota de crédito por descuento/bonificación;
+ver <a href="../notas-credito/">Notas de Crédito</a>) y la <strong>TipoRelación 04</strong> (relación del CFDI sustituto hacia el
+original en este flujo). Son catálogos SAT distintos.</p>
 </blockquote>
 <h3 id="que-pasa-despues_1">Qué pasa después<a class="headerlink" href="#que-pasa-despues_1" title="Permanent link">&para;</a></h3>
-<p>La cancelación motivo 01 generalmente es inmediata (<code>CANCELADO</code>). El SAT vincula ambos CFDIs mediante la relación.</p>
+<p>La cancelación motivo 01 generalmente es inmediata (<code>CANCELADO</code>). El SAT vincula ambos CFDIs: el sustituto
+referencia al original con <strong>TipoRelación 04</strong>, y el original se cancela citando el <strong>UUID del sustituto</strong>.</p>
 <h4 id="si-la-cancelacion-del-cfdi-anterior-queda-pendiente">Si la cancelación del CFDI anterior queda pendiente<a class="headerlink" href="#si-la-cancelacion-del-cfdi-anterior-queda-pendiente" title="Permanent link">&para;</a></h4>
 <p>A veces el PAC no procesa la cancelación del CFDI original en el mismo instante en que se timbra el
 sustituto (un desfase momentáneo del servicio). En ese caso verás un mensaje <strong>amarillo</strong> (no un error):</p>

@@ -2884,9 +2884,11 @@ cancelación) y <a href="../../adr/0035-motor-reconciliacion-ffm/">ADR-0035</a> 
 <blockquote>
 <p>Decisiones y detalle en <a href="../../adr/0037-resiliencia-cancelacion-sustitucion-motivo-01/">ADR-0037</a>.</p>
 </blockquote>
-<p>Al timbrar el CFDI sustituto (B), la cascada cancela el original (A) con <code>TipoRelación = 04</code>. Ante un
-fallo <strong>transitorio</strong> del PAC (p. ej. <code>404 invoice_not_found</code> por consistencia eventual justo tras
-timbrar B), el flujo es resiliente <strong>sin falsear el timbrado de B</strong>:</p>
+<p>El CFDI sustituto (B) se timbra con <code>TipoRelación = 04</code> apuntando al UUID de A (relación del sustituto
+hacia el original). Al timbrarse B, la cascada cancela el original (A) con <strong>Motivo de cancelación 01</strong>
+citando el <code>UUID</code> de B como sustituto. Ante un fallo <strong>transitorio</strong> del PAC (p. ej. <code>404
+invoice_not_found</code> por consistencia eventual justo tras timbrar B), el flujo es resiliente <strong>sin falsear
+el timbrado de B</strong>:</p>
 <ul>
 <li><strong>Reintentos inmediatos</strong> en la cascada: intento <code>t0</code> → <code>+0.5 s</code> → <code>+1 s</code>, solo para errores
   transitorios (<code>_is_transient_pac_error</code>: <code>404 invoice_not_found</code>, <code>429</code>, <code>5xx</code>, timeouts, conexión).</li>
