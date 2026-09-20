@@ -215,9 +215,11 @@ Campos relevantes definidos directamente en el JSON del DocType (no como Custom 
 
 > Decisiones y detalle en [ADR-0037](../adr/0037-resiliencia-cancelacion-sustitucion-motivo-01.md).
 
-Al timbrar el CFDI sustituto (B), la cascada cancela el original (A) con `TipoRelación = 04`. Ante un
-fallo **transitorio** del PAC (p. ej. `404 invoice_not_found` por consistencia eventual justo tras
-timbrar B), el flujo es resiliente **sin falsear el timbrado de B**:
+El CFDI sustituto (B) se timbra con `TipoRelación = 04` apuntando al UUID de A (relación del sustituto
+hacia el original). Al timbrarse B, la cascada cancela el original (A) con **Motivo de cancelación 01**
+citando el `UUID` de B como sustituto. Ante un fallo **transitorio** del PAC (p. ej. `404
+invoice_not_found` por consistencia eventual justo tras timbrar B), el flujo es resiliente **sin falsear
+el timbrado de B**:
 
 - **Reintentos inmediatos** en la cascada: intento `t0` → `+0.5 s` → `+1 s`, solo para errores
   transitorios (`_is_transient_pac_error`: `404 invoice_not_found`, `429`, `5xx`, timeouts, conexión).
