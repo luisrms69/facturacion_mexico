@@ -478,7 +478,7 @@
    "fieldname": "fm_creation_source",
    "fieldtype": "Select",
    "label": "Origen de Creación",
-   "options": "\nTimbrado directo\nMigración legacy facturacion_mx\nManual",
+   "options": "\nTimbrado directo\nMigración legacy facturacion_mx\nManual\nCFDI externo",
    "default": "Timbrado directo",
    "allow_on_submit": 1,
    "read_only": 1,

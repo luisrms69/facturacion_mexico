@@ -23,6 +23,27 @@ MUTABLE_AFTER_SUBMIT = {
 # Estados en los que el CFDI ya no debe alterarse
 FISCAL_FROZEN_STATES = {"TIMBRADO", "CANCELADO", "PENDIENTE_CANCELACION"}
 
+# === CFDI EXTERNO (V3) ===
+# Valor de `fm_creation_source` que marca una FFM cuyo CFDI fue timbrado FUERA de este ERP
+# (otro sistema/PAC). Para estas FFM el estado fiscal NO se deriva de FacturAPI Response Log:
+# `FFM.status` es la fuente de verdad, poblada desde la evidencia externa (UUID + fecha + XML).
+# No hay `facturapi_id`, no se llama al PAC y no se crean Response Logs sintéticos.
+CFDI_EXTERNO = "CFDI externo"
+
+# Estados fiscales válidos para un CFDI externo. BORRADOR es transitorio (durante la
+# construcción, antes de adjuntar la evidencia); TIMBRADO/CANCELADO son los definitivos.
+EXTERNO_ESTADOS_VALIDOS = {"BORRADOR", "TIMBRADO", "CANCELADO"}
+
+# Transiciones permitidas para un CFDI externo (subconjunto acotado; sin estados del ciclo PAC
+# como PROCESANDO/ERROR/PENDIENTE_CANCELACION). CANCELADO es terminal.
+EXTERNO_TRANSICIONES = {
+	None: ["BORRADOR", "TIMBRADO", "CANCELADO"],
+	"": ["BORRADOR", "TIMBRADO", "CANCELADO"],
+	"BORRADOR": ["TIMBRADO", "CANCELADO"],
+	"TIMBRADO": ["CANCELADO"],
+	"CANCELADO": [],
+}
+
 # Tipo de Nota de Crédito (intención de negocio en Factura Fiscal Mexico.fm_tipo_nota_credito).
 # Determina el tratamiento fiscal del CFDI de Egreso:
 #   - Devolución de mercancía  → TipoRelación 03 (comportamiento histórico, sin regresión)
@@ -217,6 +238,68 @@ class FacturaFiscalMexico(Document):
 		self.validate_payment_method()
 		self.validate_ppd_vs_forma_pago()
 		self._validate_items_clave_sat()
+
+		# CFDI externo (V3): evidencia obligatoria antes de aceptar TIMBRADO/CANCELADO externo.
+		self._validate_cfdi_externo()
+
+	def _validate_cfdi_externo(self):
+		"""Validar la evidencia de un CFDI timbrado externamente (V3).
+
+		Solo aplica cuando `fm_creation_source == CFDI_EXTERNO`. La validación dura es CONDICIONAL
+		al estado objetivo: en BORRADOR (construcción) no exige evidencia todavía, para permitir el
+		orden crear-FFM → adjuntar-XML → poblar → fijar estado. Al fijar TIMBRADO/CANCELADO exige la
+		evidencia mínima e impide contaminación del sistema de auditoría del PAC.
+		"""
+		if self.get("fm_creation_source") != CFDI_EXTERNO:
+			return
+
+		# Un CFDI externo NUNCA tiene facturapi_id (no pasó por FacturAPI).
+		if self.get("facturapi_id"):
+			frappe.throw(
+				_("Un CFDI externo no puede tener FacturAPI ID."),
+				title=_("CFDI externo inválido"),
+			)
+
+		# Estado dentro del subconjunto permitido para externos.
+		if self.status and self.status not in EXTERNO_ESTADOS_VALIDOS:
+			frappe.throw(
+				_(
+					"Estado {0} no válido para un CFDI externo (permitidos: BORRADOR, TIMBRADO, CANCELADO)."
+				).format(self.status),
+				title=_("CFDI externo inválido"),
+			)
+
+		# Evidencia mínima SOLO cuando se declara TIMBRADO/CANCELADO.
+		if self.status not in ("TIMBRADO", "CANCELADO"):
+			return
+
+		faltantes = []
+		if not self.get("fm_uuid"):
+			faltantes.append(_("UUID fiscal"))
+		elif not _es_uuid_valido(self.fm_uuid):
+			frappe.throw(_("El UUID fiscal no tiene un formato válido."), title=_("CFDI externo inválido"))
+		if not self.get("fecha_timbrado"):
+			faltantes.append(_("Fecha de timbrado"))
+		if not self.get("xml_file"):
+			faltantes.append(_("XML original adjunto"))
+
+		if faltantes:
+			frappe.throw(
+				_("Evidencia insuficiente para registrar el CFDI externo como {0}:").format(self.status)
+				+ "\n\n• "
+				+ "\n• ".join(faltantes),
+				title=_("Evidencia CFDI externo faltante"),
+			)
+
+		# Un CFDI externo no debe tener un Response Log de Timbrado (no pasó por FacturAPI).
+		if frappe.db.exists(
+			"FacturAPI Response Log",
+			{"factura_fiscal_mexico": self.name, "operation_type": "Timbrado", "success": 1},
+		):
+			frappe.throw(
+				_("Un CFDI externo no debe tener un FacturAPI Response Log de Timbrado."),
+				title=_("CFDI externo inválido"),
+			)
 
 	def _validate_items_clave_sat(self):
 		"""Verificar que todos los ítems del SI tienen Clave SAT Producto/Servicio."""
@@ -651,6 +734,18 @@ class FacturaFiscalMexico(Document):
 		if old_status == new_status:
 			return
 
+		# CFDI externo (V3): state machine acotada (BORRADOR→TIMBRADO/CANCELADO, TIMBRADO→CANCELADO).
+		# Bloquea estados del ciclo PAC (PROCESANDO/ERROR/PENDIENTE_CANCELACION) que no aplican a un
+		# CFDI importado externamente. CANCELADO es terminal.
+		if self.get("fm_creation_source") == CFDI_EXTERNO:
+			if new_status not in EXTERNO_TRANSICIONES.get(old_status, []):
+				frappe.throw(
+					_("Transición de estado inválida para CFDI externo: {0} → {1}").format(
+						old_status or "nuevo", new_status
+					)
+				)
+			return
+
 		# Definir transiciones válidas - ARQUITECTURA RESILIENTE
 		valid_transitions = {
 			None: ["BORRADOR"],  # Documento nuevo puede ser BORRADOR
@@ -1055,7 +1150,17 @@ class FacturaFiscalMexico(Document):
 		)
 
 	def calculate_fiscal_status_from_logs(self):
-		"""Calcular estado fiscal automáticamente basado en logs de FacturAPI."""
+		"""Calcular estado fiscal automáticamente basado en logs de FacturAPI.
+
+		CFDI externo (V3): si `fm_creation_source == CFDI_EXTERNO`, el estado NO se deriva de
+		FacturAPI Response Log. `FFM.status` es autoritativo (poblado desde evidencia externa por
+		`registrar_cfdi_externo`), así que esta función NO lo toca. Esto preserva TIMBRADO/CANCELADO
+		externo a través de cualquier save/submit sin fabricar Response Logs. El flujo FacturAPI
+		normal queda intacto (rama de abajo sin cambios).
+		"""
+		if self.get("fm_creation_source") == CFDI_EXTERNO:
+			return
+
 		try:
 			# Obtener último log exitoso de operaciones críticas
 			latest_log = frappe.db.get_value(
@@ -1622,6 +1727,163 @@ def get_or_create_active_ffm(sales_invoice: str, extra_fields: str | dict | None
 	# Devolver el nombre del FFM (sin llamar al PAC). El lock de fila adquirido con
 	# for_update se libera con el commit/rollback NORMAL del request — sin commit manual.
 	return ffm_doc.name
+
+
+def _es_uuid_valido(uuid: str) -> bool:
+	"""Validar el formato de un UUID SAT (8-4-4-4-12 hex)."""
+	import re
+
+	if not uuid:
+		return False
+	return bool(
+		re.fullmatch(
+			r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}",
+			uuid.strip(),
+		)
+	)
+
+
+def registrar_cfdi_externo(
+	sales_invoice: str,
+	uuid: str,
+	xml_content,
+	*,
+	external_status: str = "TIMBRADO",
+	serie: str | None = None,
+	folio: str | None = None,
+	fecha_timbrado=None,
+	total_fiscal=None,
+	metodo_pago_sat: str | None = None,
+	forma_pago_sat: str | None = None,
+	uso_cfdi: str | None = None,
+	lugar_expedicion: str | None = None,
+	cancellation_date=None,
+	motivo_cancelacion: str | None = None,
+	submit: bool = True,
+) -> str:
+	"""Registrar un CFDI de ventas timbrado FUERA de este ERP/PAC (V3).
+
+	Función de dominio INTERNA (no whitelisted) que consumen acti_customs y migraciones desde
+	Python. Crea o reutiliza la FFM de la Sales Invoice, adjunta el XML original, puebla la
+	evidencia fiscal y fija `FFM.status` (TIMBRADO/CANCELADO) como fuente de verdad:
+
+	- NO llama al PAC · NO asigna `facturapi_id` · NO crea FacturAPI Response Log.
+	- Idempotente por (sales_invoice, uuid); fail-closed ante conflictos de UUID/datos.
+	- Un CANCELADO externo NO cancela la Sales Invoice ni genera reversión contable.
+
+	Orden interno (resuelve el lifecycle de Attach): crear/reutilizar FFM en BORRADOR → marcar
+	origen externo → adjuntar XML → poblar evidencia → fijar estado (aquí corre la validación
+	dura de evidencia) → submit.
+	"""
+	# --- Validación de entrada ---
+	external_status = (external_status or "").upper()
+	if external_status not in ("TIMBRADO", "CANCELADO"):
+		frappe.throw(_("external_status debe ser TIMBRADO o CANCELADO."))
+	if not uuid or not _es_uuid_valido(uuid):
+		frappe.throw(_("UUID inválido o ausente para el CFDI externo."))
+	uuid = uuid.strip().upper()
+	if not xml_content:
+		frappe.throw(_("El XML original es obligatorio para un CFDI externo."))
+
+	if not frappe.db.exists("Sales Invoice", sales_invoice):
+		frappe.throw(_("La Sales Invoice {0} no existe.").format(sales_invoice))
+	if frappe.db.get_value("Sales Invoice", sales_invoice, "docstatus") != 1:
+		frappe.throw(
+			_("La Sales Invoice {0} debe estar enviada (submitted) para registrar un CFDI externo.").format(
+				sales_invoice
+			)
+		)
+
+	# --- Idempotencia global por UUID (fail-closed si pertenece a otra SI) ---
+	existente = frappe.db.get_value(
+		"Factura Fiscal Mexico",
+		{"fm_uuid": uuid},
+		["name", "sales_invoice", "status", "serie", "folio", "fm_creation_source"],
+		as_dict=True,
+	)
+	if existente and existente.sales_invoice and existente.sales_invoice != sales_invoice:
+		frappe.throw(
+			_("El UUID {0} ya está registrado en la FFM {1} de otra Sales Invoice ({2}).").format(
+				uuid, existente.name, existente.sales_invoice
+			),
+			title=_("UUID duplicado"),
+		)
+
+	# --- Crear/reutilizar la FFM (idempotente por SI; cardinalidad y lock ya garantizados) ---
+	ffm_name = get_or_create_active_ffm(sales_invoice)
+	ffm = frappe.get_doc("Factura Fiscal Mexico", ffm_name)
+
+	# Reuso idempotente: la FFM ya es un CFDI externo poblado.
+	if ffm.get("fm_creation_source") == CFDI_EXTERNO and ffm.get("fm_uuid"):
+		if ffm.fm_uuid != uuid:
+			frappe.throw(
+				_("La Sales Invoice {0} ya tiene una FFM externa con UUID distinto ({1}).").format(
+					sales_invoice, ffm.fm_uuid
+				),
+				title=_("Conflicto de UUID"),
+			)
+		if ffm.status != external_status:
+			frappe.throw(
+				_("La FFM externa {0} ya existe con estado {1}, incompatible con el solicitado {2}.").format(
+					ffm.name, ffm.status, external_status
+				),
+				title=_("Conflicto de estado"),
+			)
+		return ffm.name
+
+	# Una FFM activa que NO es externa (p. ej. un timbrado FacturAPI real) no debe convertirse.
+	if ffm.get("facturapi_id"):
+		frappe.throw(
+			_(
+				"La Sales Invoice {0} ya tiene una FFM timbrada por FacturAPI; no se puede registrar como externa."
+			).format(sales_invoice),
+			title=_("Integridad fiscal"),
+		)
+
+	# --- Marcar origen externo + adjuntar XML + poblar evidencia (aún BORRADOR) ---
+	ffm.fm_creation_source = CFDI_EXTERNO
+	ffm.fm_uuid = uuid
+	if serie is not None:
+		ffm.serie = serie
+	if folio is not None:
+		ffm.folio = folio
+	if fecha_timbrado is not None:
+		ffm.fecha_timbrado = fecha_timbrado
+	if total_fiscal is not None:
+		ffm.total_fiscal = flt(total_fiscal)
+	if metodo_pago_sat is not None:
+		ffm.fm_payment_method_sat = metodo_pago_sat
+	if forma_pago_sat is not None:
+		ffm.fm_forma_pago_timbrado = forma_pago_sat
+	if uso_cfdi is not None:
+		ffm.fm_cfdi_use = uso_cfdi
+	if lugar_expedicion is not None and hasattr(ffm, "fm_lugar_expedicion"):
+		ffm.fm_lugar_expedicion = lugar_expedicion
+
+	# Adjuntar el XML original (la FFM ya existe → File puede referenciarla).
+	from frappe.utils.file_manager import save_file
+
+	xml_bytes = xml_content.encode("utf-8") if isinstance(xml_content, str) else xml_content
+	file_doc = save_file(f"{ffm.name}_{uuid}.xml", xml_bytes, ffm.doctype, ffm.name, is_private=1)
+	ffm.xml_file = file_doc.file_url
+
+	# --- Fijar estado externo definitivo (aquí corre _validate_cfdi_externo con evidencia) ---
+	ffm.status = external_status
+	if external_status == "CANCELADO":
+		if cancellation_date is not None:
+			ffm.cancellation_date = cancellation_date
+		if motivo_cancelacion is not None:
+			ffm.fm_motivo_cancelacion = motivo_cancelacion
+
+	ffm.flags.fm_system_write = True  # evidencia de sistema (no edición manual post-submit)
+	ffm.save()
+
+	# --- Submit de la FFM (docstatus=1). on_update NO recalcula (guard externo). ---
+	if submit and ffm.docstatus == 0:
+		ffm.flags.fm_system_write = True
+		ffm.submit()
+
+	return ffm.name
 
 
 @frappe.whitelist()
