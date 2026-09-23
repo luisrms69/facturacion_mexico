@@ -40,6 +40,22 @@ El `status` de la Factura Fiscal Mexico se calcula desde los `FacturAPI Response
   canónica por operación de `api/__init__.py`. Consulta, reconciliación y cancelación fallidas
   pertenecen a `fm_sync_status`, no al estado fiscal.
 
+#### CFDI externo (timbrado fuera de este ERP)
+
+Para representar un CFDI **ya timbrado en otro sistema/PAC** (p. ej. cargas históricas) sin llamar a
+FacturAPI ni fabricar logs, la FFM se marca con `fm_creation_source = "CFDI externo"`. En ese caso
+`calculate_fiscal_status_from_logs` **no** deriva el estado desde los `FacturAPI Response Log`: `FFM.status`
+es la fuente de verdad, poblada desde la evidencia externa (UUID + fecha de timbrado + XML adjunto). Reglas:
+
+- Estados válidos: `BORRADOR` (transitorio), `TIMBRADO`, `CANCELADO` (transiciones `BORRADOR→TIMBRADO/CANCELADO`,
+  `TIMBRADO→CANCELADO`; se bloquean `PROCESANDO`/`ERROR`/`PENDIENTE_CANCELACION`).
+- Sin `facturapi_id`; sin `FacturAPI Response Log` de `Timbrado`; sin llamadas al PAC.
+- Un `CANCELADO` externo **no** cancela la Sales Invoice ni genera reversión contable.
+- Las acciones FacturAPI (timbrar/cancelar/descargar/reconciliar/sustituir) quedan bloqueadas en UI y
+  servidor para estos documentos; la reconciliación programada los omite por `facturapi_id` vacío.
+- Única vía de creación: la primitiva de dominio interna `registrar_cfdi_externo(...)` (idempotente por
+  Sales Invoice + UUID, fail-closed ante conflictos). Ver ADR 0041.
+
 ### Moneda del CFDI (`currency` / `exchange`)
 
 El payload a FacturAPI declara la moneda y el tipo de cambio derivados de la Sales Invoice, que es
@@ -162,7 +178,7 @@ Campos relevantes definidos directamente en el JSON del DocType (no como Custom 
 | Campo | Tipo | Notas |
 |---|---|---|
 | `fm_uuid` | Data | UUID SAT del CFDI |
-| `fm_creation_source` | Select | Origen: `Timbrado directo` / `Migración legacy facturacion_mx` / `Manual`. Default: `Timbrado directo`. Permite identificar FFMs creadas por migración histórica. |
+| `fm_creation_source` | Select | Origen: `Timbrado directo` / `Migración legacy facturacion_mx` / `Manual` / `CFDI externo`. Default: `Timbrado directo`. Identifica FFMs de migración histórica; `CFDI externo` además cambia la autoridad del estado fiscal (ver "CFDI externo"). |
 | `fm_xml_url` | Small Text | URL de verificación SAT (>140 chars — requiere Small Text, no Data) |
 | `fm_serie_folio` | Data | Serie-Folio concatenados (ej: `F-6989`) — usado por complementos PPD |
 | `fm_sync_status` | Select | Estado sincronización PAC: `synced` / `pending` / `error` |

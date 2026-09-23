@@ -2989,6 +2989,9 @@ def _build_cancellation_reason_for_select(motive_code: str) -> str:
 @frappe.whitelist()
 def descargar_archivos_cfdi(ffm_name: str):
 	"""Descarga PDF y XML del CFDI desde FacturAPI y los adjunta al FFM."""
+	# CFDI externo (V3): la descarga es del PAC; su XML/PDF vive como adjunto local. Guard explícito
+	# además del blindaje por facturapi_id vacío de abajo (mensaje claro + defensa en profundidad).
+	_guard_no_externo_por_ffm(ffm_name)
 	ffm = frappe.get_doc("Factura Fiscal Mexico", ffm_name)
 	if not ffm.facturapi_id:
 		frappe.throw(_("Este CFDI no tiene ID de FacturAPI — no se puede descargar."))
@@ -2998,9 +3001,39 @@ def descargar_archivos_cfdi(ffm_name: str):
 	return {"success": True}
 
 
+# CFDI externo (V3): valor de fm_creation_source que marca un CFDI timbrado fuera de este ERP.
+# Las operaciones de FacturAPI (timbrar/cancelar/consultar) NO aplican a estos documentos.
+_CFDI_EXTERNO = "CFDI externo"
+
+
+def _guard_no_externo_por_si(sales_invoice: str) -> None:
+	"""Rechazar operaciones FacturAPI sobre un CFDI externo (defensa en profundidad servidor)."""
+	if not sales_invoice:
+		return
+	if frappe.db.exists(
+		"Factura Fiscal Mexico",
+		{"sales_invoice": sales_invoice, "fm_creation_source": _CFDI_EXTERNO},
+	):
+		frappe.throw(
+			_(
+				"Operación no disponible: la factura corresponde a un CFDI externo (timbrado fuera de este ERP)."
+			)
+		)
+
+
+def _guard_no_externo_por_ffm(ffm_name: str) -> None:
+	"""Rechazar operaciones FacturAPI cuando la FFM es un CFDI externo."""
+	if (
+		ffm_name
+		and frappe.db.get_value("Factura Fiscal Mexico", ffm_name, "fm_creation_source") == _CFDI_EXTERNO
+	):
+		frappe.throw(_("Operación no disponible: esta Factura Fiscal corresponde a un CFDI externo."))
+
+
 @frappe.whitelist()
 def timbrar_factura(sales_invoice: str):
 	"""API para timbrar factura desde interfaz."""
+	_guard_no_externo_por_si(sales_invoice)
 	cache_key = f"si:timbrando:{sales_invoice}"
 	if frappe.cache().get_value(cache_key):
 		frappe.throw(_("Ya hay un timbrado en proceso. Intente en unos segundos."))
@@ -3043,6 +3076,9 @@ def cancelar_factura(
 
 	if not sales_invoice:
 		frappe.throw(_("No se pudo determinar el Sales Invoice para cancelación"))
+
+	# CFDI externo: la cancelación fiscal ocurrió (o no) fuera de este ERP; no se llama al PAC.
+	_guard_no_externo_por_si(sales_invoice)
 
 	# Importar enum de motivos SAT
 	from facturacion_mexico.config.sat_cancellation_motives import SAT_MOTIVES
@@ -3304,6 +3340,9 @@ def create_substitution_si(si_name: str):
 	"""Crear Sales Invoice de reemplazo para workflow 01 (sustitución).
 	Copia el SI original y transporta el UUID del CFDI a sustituir.
 	"""
+	# CFDI externo (V3): la sustitución motivo 01 cancela el original vía FacturAPI; no aplica a un
+	# CFDI timbrado fuera de este ERP (sin facturapi_id). Se bloquea en el punto de entrada.
+	_guard_no_externo_por_si(si_name)
 	si = frappe.get_doc("Sales Invoice", si_name)
 
 	# 1) Verificar que exista FFM vigente ligada (timbrada)
@@ -3999,6 +4038,8 @@ def revisar_estatus_cancelacion(ffm_name: str) -> dict:
 	`_reconcile_ffm`. El botón GUI propio se eliminó; la función se mantiene por compatibilidad con
 	llamadas existentes.
 	"""
+	_guard_no_externo_por_ffm(ffm_name)
+
 	from facturacion_mexico.facturacion_fiscal.services.ffm_reconciliation import reconcile_ffm
 
 	return reconcile_ffm(ffm_name)

@@ -1,81 +1,77 @@
 # CONTINUITY.md — facturacion_mexico
 
-**Fecha:** 2026-09-08
-**Rama activa:** `chore/235-remove-auto-create-regla`
-**Tarea actual:** #235 Parte A — eliminar código muerto `_auto_create_regla` (v1.4.8). Commit hecho; falta push + PR.
+**Fecha:** 2026-09-23
+**Rama activa:** `feat/cfdi-externo-v3`
+**Tarea actual:** V3 — soporte genérico para CFDI timbrado externamente (fuera del ERP/PAC) en Factura Fiscal Mexico. Implementación + tests + docs completos; commit en curso.
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-Cleanup acotado del motor de resolución CFDI Recibidos, **solo Parte A** del issue #235: eliminar la
-función `_auto_create_regla` (sin llamador desde v1.4.7) y su comentario obsoleto en `api.py`, y
-corregir la referencia en `docs/tecnico/arquitectura.md`.
+Representar en ERPNext un CFDI **ya timbrado en otro sistema/PAC** como `Factura Fiscal Mexico`
+autoritativa, sin llamar al PAC ni fabricar `FacturAPI Response Log`. Es la base fiscal genérica de la
+carga histórica de ventas de un cliente; el **importador** (mapeos, XML) vivirá en la app `acti_customs`,
+que consumirá la primitiva `registrar_cfdi_externo()` — NO en `facturacion_mexico`.
 
 Plan que estoy siguiendo:
-Decisión del propietario en #235 (alcance reducido a Parte A). Partes B y C **conservadas fuera de
-alcance** por seguir funcionales; no se abren issues nuevos por ellas en este ciclo.
+Diseño V3 cerrado con el propietario (ver ADR 0041). Cero campos nuevos: solo se agrega el valor
+`"CFDI externo"` a `fm_creation_source`. `FFM.status` sigue siendo canónico; para externos,
+`calculate_fiscal_status_from_logs` NO recalcula desde logs (early-return) y el estado se puebla desde
+evidencia (UUID + fecha_timbrado + XML). Guards UI+servidor bloquean acciones FacturAPI; el motor de
+reconciliación es seguro por `facturapi_id` vacío. Flujo FacturAPI normal intacto y backward-compatible.
 
 Objetivo inmediato:
-`/ship push` (rama) y luego `/ship pr` hacia `main`, con autorización explícita por paso.
+`/ship commit` (este) → `/ship push` → `/ship pr` hacia `main`, con autorización explícita por paso.
+Tras merge: `/sync-check` + `/ship release` v1.5.0.
 
 Criterio de avance:
-PR mergeado con bump 1.4.8; tras merge `/sync-check` + `/ship release` v1.4.8; luego cerrar #235
-como `completed`.
+PR mergeado con bump 1.5.0; luego, en `acti_customs`, construir el DocType de staging `Acti CFDI Historico`
+y el dry-run del primer mes (Vigentes) contra un site no productivo.
 
 ---
 
 ## Estado actual
 
-### Ya cerrado
-- Eliminada `_auto_create_regla` + comentario obsoleto (`api.py`); referencia corregida en
-  `arquitectura.md`. Bump 1.4.7 → 1.4.8 (PATCH).
-- #235 reformulado a Parte A; label `it-tech:approved`.
-- Tests focalizados verdes: api 8/8, item_resolution_history 22, item_resolution_engine 24
-  (0 llamadores → sin cambio de comportamiento).
-- Commit creado en la rama.
+Implementado en la rama (código/tests + docs + bump):
 
-### En progreso
-- Cierre del ciclo `/ship`: falta push + PR.
+- `factura_fiscal_mexico.py` — constante `CFDI_EXTERNO`; guard en `calculate_fiscal_status_from_logs`;
+  rama externa en `validate_status_transitions`; `_validate_cfdi_externo`; **`registrar_cfdi_externo()`**
+  (dominio interna, no whitelisted; idempotente por SI+UUID; fail-closed) + `_es_uuid_valido`.
+- `factura_fiscal_mexico.json` — `+1` opción `CFDI externo` en `fm_creation_source`.
+- `factura_fiscal_mexico.js` — gate de botones FacturAPI para externos (servidor y fallback).
+- `timbrado_api.py` — guards `_guard_no_externo_*` en `timbrar_factura`, `cancelar_factura`,
+  `descargar_archivos_cfdi`, `create_substitution_si`, `revisar_estatus_cancelacion`.
+- `tests/test_cfdi_externo.py` — 9 tests (verdes en test-facturacion.localhost).
+- Docs: ADR 0041 + `docs/tecnico/arquitectura.md` (sección "CFDI externo") + índice ADR + nav mkdocs.
+- `__init__.py` — bump `1.4.10 → 1.5.0` (MINOR).
+
+Verificación de protección servidor (contra código final): timbrar/cancelar/descargar/sustituir/
+verificar-estado → **bloqueados por guard explícito**; motor `reconcile_ffm` (scheduler y directo) →
+**seguro por `facturapi_id` vacío** (skip antes del GET al PAC).
+
+Sin regresión: `get_or_create_active_ffm` (24), `ffm_reconciliation` (51),
+`estado_fiscal_independiente_log` (7), `unico_ffm_activo` (16). `mkdocs build --strict` → EXIT=0.
 
 ### Pendiente inmediato
-1. `/ship push` de la rama (con autorización explícita).
-2. `/ship pr` hacia `main` (con autorización explícita).
-3. Tras merge: `/sync-check` + `/ship release` v1.4.8 → cerrar #235 como `completed`.
-
-### No repetir
-- No tocar Partes B (`CFDI Concepto Mapping` + `item_resolver` + APIs) ni C (reglas `Auto:` nivel 4):
-  conservadas a propósito, siguen funcionales.
-- No modificar el ADR 0040 (registro histórico inmutable).
-- No commitear `scripts/*` ni `working_docs/private/`.
+1. `/ship commit` (este).
+2. `/ship push` de la rama (autorización explícita).
+3. `/ship pr` hacia `main` (autorización explícita).
+4. Tras merge: `/sync-check` + `/ship release` v1.5.0.
 
 ---
 
-## Decisiones vigentes
-- `_auto_create_regla` eliminado; la memoria del resolver es el historial de conceptos (ADR 0040).
-- B y C se conservan: superficie activa / participan en sugerencias del resolver.
-- Bump 1.4.8 = PATCH (cleanup de código muerto, sin cambio de comportamiento).
+## Decisiones vigentes no evidentes en el código
+
+- No se usaron los atajos V1 (`db_set`/SQL) ni V2 (Response Log sintético); se eligió V3 (modelo explícito).
+  Ver ADR 0041 (alternativas descartadas).
+- Un `CANCELADO` externo **no** cancela la Sales Invoice ni genera reversión contable; el tratamiento
+  contable de históricos cancelados se decide por separado (los ~45 cancelados: falta fecha de cancelación
+  para clasificar mismo-mes vs mes-posterior — pendiente de fuente: acuses SAT o sistema anterior).
+- El importador histórico fija `rate` = valor del XML; nunca re-precia desde catálogo.
 
 ---
 
-## Archivos relevantes ahora
-
-### Leer primero
-- `facturacion_mexico/cfdi_recibidos/api.py` (donde estaba `_auto_create_regla`)
-- `docs/tecnico/arquitectura.md` (referencia corregida)
-
-### No tocar
-- `CFDI Concepto Mapping`, `item_resolver`, reglas `Auto:` (fuera de alcance conservado)
-- `docs/adr/0040-*.md` (inmutable)
-
----
-
-## Riesgos / cuidados
-- `bench run-tests --app` = 345 tests (dato oficial); flake de concurrencia preexistente
-  `test_sis_distintas_no_se_bloquean` puede aparecer en suite completa (ajeno a este cambio).
-
----
-
-## Información faltante
-- Ninguna para continuar. Solo faltan las autorizaciones de push/PR.
+## No commitear
+- `facturacion_mexico/one_offs/analisis_hist_actiglobal.py` (one_off de análisis, excluido).
+- `scripts/*`, `working_docs/private/`.

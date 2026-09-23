@@ -130,8 +130,11 @@
 	}
 
 	function handleButtonsWithFallback(frm, status) {
+		// CFDI externo (V3): ninguna operación FacturAPI aplica (timbrado ocurrió fuera de este ERP).
+		const externo = frm.doc.fm_creation_source === "CFDI externo";
 		// Fallback usando estados básicos (solo cuando no hay API disponible)
 		const canTimbrar =
+			!externo &&
 			frm.doc.docstatus === 1 &&
 			(status === "BORRADOR" || status === "ERROR") &&
 			isValidTaxSystem(frm.doc.fm_tax_system);
@@ -171,6 +174,18 @@
 	}
 
 	function _apply_ffm_buttons(frm, actions, facts) {
+		// CFDI externo (V3): timbrado ocurrió fuera de este ERP; sin facturapi_id. Se desactivan TODAS
+		// las acciones FacturAPI (timbrar/cancelar/descargar desde el PAC). El XML local sigue
+		// visible por el adjunto nativo del documento. Guard equivalente en servidor.
+		if (frm.doc.fm_creation_source === "CFDI externo") {
+			actions = Object.assign({}, actions, {
+				can_stamp: false,
+				can_cancel: false,
+				can_download_xml: false,
+				can_download_pdf: false,
+			});
+		}
+
 		// Sección cancelación: visible si puede cancelar o ya está en estado final/pendiente
 		const showCancelSection =
 			actions.can_cancel || facts.is_cancelado || facts.is_pendiente_cancelacion;
