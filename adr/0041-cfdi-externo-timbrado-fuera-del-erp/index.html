@@ -13,10 +13,10 @@
       
       
       
-        <link rel="prev" href="../0028-ffm-legacy-fields-audit/">
+        <link rel="prev" href="../0040-aprendizaje-historial-clasificacion-cfdi-recibido/">
       
       
-        <link rel="next" href="../0030-tablas-maestras-python-reglas-fiscales/">
+        <link rel="next" href="../../referencia/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -24,7 +24,7 @@
     
     
       
-        <title>ADR 0029 — FacturAPI multiplica base × cantidad: enviar valores unitarios para IEPS Cuota - Facturación México - Documentación Técnica</title>
+        <title>ADR 0041 — CFDI externo: representar un timbrado ocurrido fuera de este ERP - Facturación México - Documentación Técnica</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#adr-0029-facturapi-multiplica-base-cantidad-enviar-valores-unitarios-para-ieps-cuota" class="md-skip">
+        <a href="#adr-0041-cfdi-externo-representar-un-timbrado-ocurrido-fuera-de-este-erp" class="md-skip">
           Saltar a contenido
         </a>
       
@@ -118,7 +118,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              ADR 0029 — FacturAPI multiplica base × cantidad: enviar valores unitarios para IEPS Cuota
+              ADR 0041 — CFDI externo: representar un timbrado ocurrido fuera de este ERP
             
           </span>
         </div>
@@ -1502,30 +1502,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    ADR 0029 — FacturAPI multiplica base × cantidad: enviar valores unitarios para IEPS Cuota
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../0029-facturapi-base-unitaria-ieps-cuota/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1534,128 +1514,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Tabla de contenidos
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#contexto" class="md-nav__link">
-    <span class="md-ellipsis">
-      Contexto
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#decision" class="md-nav__link">
-    <span class="md-ellipsis">
-      Decisión
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Decisión">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#ieps-cuota-base-factor-de-conversion-uom-unidad-canonica" class="md-nav__link">
-    <span class="md-ellipsis">
-      IEPS Cuota — base = factor de conversión UOM → unidad canónica
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#iva-con-ieps-cuota-base-precio-unitario-ieps-unitario" class="md-nav__link">
-    <span class="md-ellipsis">
-      IVA con IEPS Cuota — base = precio unitario ± IEPS unitario
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#consecuencias" class="md-nav__link">
-    <span class="md-ellipsis">
-      Consecuencias
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Consecuencias">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#validaciones-con-datos-reales" class="md-nav__link">
-    <span class="md-ellipsis">
-      Validaciones con datos reales
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#regla-para-agregar-nuevos-productos-con-ieps-cuota" class="md-nav__link">
-    <span class="md-ellipsis">
-      Regla para agregar nuevos productos con IEPS Cuota
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#alternativas-descartadas" class="md-nav__link">
-    <span class="md-ellipsis">
-      Alternativas descartadas
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#implementacion" class="md-nav__link">
-    <span class="md-ellipsis">
-      Implementación
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#notas-de-normativa" class="md-nav__link">
-    <span class="md-ellipsis">
-      Notas de normativa
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1896,10 +1754,30 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../0041-cfdi-externo-timbrado-fuera-del-erp/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    ADR 0041 — CFDI externo: representar un timbrado ocurrido fuera de este ERP
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -1908,6 +1786,62 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#contexto" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contexto
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      Decisión
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#consecuencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      Consecuencias
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#alternativas-descartadas" class="md-nav__link">
+    <span class="md-ellipsis">
+      Alternativas descartadas
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -2145,30 +2079,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Decisión">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#ieps-cuota-base-factor-de-conversion-uom-unidad-canonica" class="md-nav__link">
-    <span class="md-ellipsis">
-      IEPS Cuota — base = factor de conversión UOM → unidad canónica
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#iva-con-ieps-cuota-base-precio-unitario-ieps-unitario" class="md-nav__link">
-    <span class="md-ellipsis">
-      IVA con IEPS Cuota — base = precio unitario ± IEPS unitario
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -2178,54 +2088,12 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Consecuencias">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#validaciones-con-datos-reales" class="md-nav__link">
-    <span class="md-ellipsis">
-      Validaciones con datos reales
-    </span>
-  </a>
-  
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#regla-para-agregar-nuevos-productos-con-ieps-cuota" class="md-nav__link">
-    <span class="md-ellipsis">
-      Regla para agregar nuevos productos con IEPS Cuota
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
   <a href="#alternativas-descartadas" class="md-nav__link">
     <span class="md-ellipsis">
       Alternativas descartadas
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#implementacion" class="md-nav__link">
-    <span class="md-ellipsis">
-      Implementación
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#notas-de-normativa" class="md-nav__link">
-    <span class="md-ellipsis">
-      Notas de normativa
     </span>
   </a>
   
@@ -2246,173 +2114,66 @@
                   
 
 
-<h1 id="adr-0029-facturapi-multiplica-base-cantidad-enviar-valores-unitarios-para-ieps-cuota">ADR 0029 — FacturAPI multiplica <code>base</code> × cantidad: enviar valores unitarios para IEPS Cuota<a class="headerlink" href="#adr-0029-facturapi-multiplica-base-cantidad-enviar-valores-unitarios-para-ieps-cuota" title="Permanent link">&para;</a></h1>
-<p><strong>Fecha:</strong> 2025-10-21
-<strong>Estado:</strong> Implementado — PR #83 (<code>78d4606</code>)
-<strong>Autor:</strong> Luis Montanaro / Claude Sonnet 4.6</p>
-<hr />
+<h1 id="adr-0041-cfdi-externo-representar-un-timbrado-ocurrido-fuera-de-este-erp">ADR 0041 — CFDI externo: representar un timbrado ocurrido fuera de este ERP<a class="headerlink" href="#adr-0041-cfdi-externo-representar-un-timbrado-ocurrido-fuera-de-este-erp" title="Permanent link">&para;</a></h1>
+<p><strong>Estado:</strong> Aceptado
+<strong>Fecha:</strong> 2026-09-23</p>
 <h2 id="contexto">Contexto<a class="headerlink" href="#contexto" title="Permanent link">&para;</a></h2>
-<p>Al integrar IEPS Cuota con FacturAPI, se detectó que el campo <code>base</code> del payload
-se comporta diferente al esperado: <strong>FacturAPI multiplica automáticamente <code>base</code> × <code>Cantidad</code></strong>
-al generar el XML SAT.</p>
-<p>Enviar el valor total en <code>base</code> produce montos multiplicados dos veces:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># Payload enviado (incorrecto)</span>
-<span class="p">{</span><span class="s2">"quantity"</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span> <span class="s2">"taxes"</span><span class="p">:</span> <span class="p">[{</span><span class="s2">"type"</span><span class="p">:</span> <span class="s2">"IEPS"</span><span class="p">,</span> <span class="s2">"base"</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span> <span class="s2">"rate"</span><span class="p">:</span> <span class="mf">5.49</span><span class="p">}]}</span>
-
-<span class="c1"># XML SAT generado por FacturAPI</span>
-<span class="c1"># Base="2500.000000"  ← 50 × 50 = 2,500 (debería ser 50)</span>
-<span class="c1"># Importe="13725.000000" ← debería ser $274.50</span>
-</code></pre></div>
-<p>Diferencia resultante: <strong>+$23,250.50</strong> por documento — SAT rechaza cualquier diferencia
-mayor a $0.05 pesos.</p>
-<hr />
-<h2 id="decision">Decisión<a class="headerlink" href="#decision" title="Permanent link">&para;</a></h2>
-<p>Enviar <strong>valores unitarios</strong> (por unidad del ítem) en el campo <code>base</code>, permitiendo que
-FacturAPI los multiplique por <code>Cantidad</code> y obtenga los totales correctos en XML.</p>
-<h3 id="ieps-cuota-base-factor-de-conversion-uom-unidad-canonica">IEPS Cuota — base = factor de conversión UOM → unidad canónica<a class="headerlink" href="#ieps-cuota-base-factor-de-conversion-uom-unidad-canonica" title="Permanent link">&para;</a></h3>
-<p>La UOM canónica no es siempre litros — es la que define el registro en <code>IEPS Cuota SAT</code>
-(puede ser LTR para bebidas/combustibles, H87 para tabaco por pieza, etc.).</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># FIX E4.1: Obtener cuota ORIGINAL de tabla SAT (no calcularla desde amount)</span>
-<span class="c1"># RAZÓN: amount ya está multiplicado por qty, dividirlo causa error de precisión</span>
-<span class="n">cuota_por_uom_base</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_cuota_from_tabla_sat</span><span class="p">(</span><span class="n">item_doc</span><span class="p">,</span> <span class="n">tax_data</span><span class="p">[</span><span class="s2">"account_head"</span><span class="p">])</span>
-
-<span class="c1"># Obtener UOM base dinámica desde tabla IEPS Cuota SAT (LTR, H87, etc.)</span>
-<span class="n">uom_base</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_uom_base_from_tabla_sat</span><span class="p">(</span><span class="n">item_doc</span><span class="p">,</span> <span class="n">tax_data</span><span class="p">[</span><span class="s2">"account_head"</span><span class="p">])</span>
-
-<span class="c1"># Factor conversión: item.uom → uom_base</span>
-<span class="c1"># Ejemplo: Combustible LTR→LTR factor=1.0, Refresco 600ml→LTR factor=0.6, Tabaco H87→H87 factor=1.0</span>
-<span class="n">factor_conversion</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_uom_conversion_factor</span><span class="p">(</span><span class="n">item_doc</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">uom</span><span class="p">,</span> <span class="n">uom_base</span><span class="p">)</span>
-
-<span class="n">tax_item</span><span class="p">[</span><span class="s2">"rate"</span><span class="p">]</span> <span class="o">=</span> <span class="n">flt</span><span class="p">(</span><span class="n">cuota_por_uom_base</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>  <span class="c1"># TasaOCuota (cuota/unidad base)</span>
-<span class="n">tax_item</span><span class="p">[</span><span class="s2">"base"</span><span class="p">]</span> <span class="o">=</span> <span class="n">flt</span><span class="p">(</span><span class="n">factor_conversion</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>    <span class="c1"># Factor conversión (FacturAPI × qty = unidades base)</span>
-</code></pre></div>
-<h3 id="iva-con-ieps-cuota-base-precio-unitario-ieps-unitario">IVA con IEPS Cuota — base = precio unitario ± IEPS unitario<a class="headerlink" href="#iva-con-ieps-cuota-base-precio-unitario-ieps-unitario" title="Permanent link">&para;</a></h3>
-<p>La integración del IEPS en la base IVA depende del tipo de producto (Art. 2-A LIEPS):</p>
-<div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="n">integra_base</span><span class="p">:</span>  <span class="c1"># Bebidas, tabaco, alcohol → IEPS sí computa para IVA</span>
-    <span class="n">ieps_unitario</span> <span class="o">=</span> <span class="n">flt</span><span class="p">(</span><span class="n">tax_check</span><span class="p">[</span><span class="s2">"amount"</span><span class="p">])</span> <span class="o">/</span> <span class="n">flt</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">qty</span><span class="p">)</span>
-    <span class="n">base_iva_unitaria</span> <span class="o">=</span> <span class="n">flt</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">rate</span><span class="p">)</span> <span class="o">+</span> <span class="n">ieps_unitario</span>
-<span class="k">else</span><span class="p">:</span>  <span class="c1"># Combustibles (Art. 2-A LIEPS) → IEPS NO computa para IVA</span>
-    <span class="n">base_iva_unitaria</span> <span class="o">=</span> <span class="n">flt</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">rate</span><span class="p">)</span>
-
-<span class="n">tax_item</span><span class="p">[</span><span class="s2">"base"</span><span class="p">]</span> <span class="o">=</span> <span class="n">flt</span><span class="p">(</span><span class="n">base_iva_unitaria</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
-</code></pre></div>
-<hr />
-<h2 id="consecuencias">Consecuencias<a class="headerlink" href="#consecuencias" title="Permanent link">&para;</a></h2>
-<p><strong>Resultado:</strong> $0.00 diferencia con totales SAT — cumple tolerancia legal ≤ $0.05.</p>
-<h3 id="validaciones-con-datos-reales">Validaciones con datos reales<a class="headerlink" href="#validaciones-con-datos-reales" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Producto</th>
-<th>Cantidad</th>
-<th>Base enviada</th>
-<th>Base XML</th>
-<th>IEPS XML</th>
-<th>Diferencia</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Gasolina Magna (LTR)</td>
-<td>50 L</td>
-<td>1.0</td>
-<td>50.0 L ✅</td>
-<td>$274.50 ✅</td>
-<td>$0.00</td>
-</tr>
-<tr>
-<td>Refresco 600ml</td>
-<td>40 botellas</td>
-<td>0.6</td>
-<td>24.0 L ✅</td>
-<td>$30.48 ✅</td>
-<td>$0.00</td>
-</tr>
-</tbody>
-</table>
-<h3 id="regla-para-agregar-nuevos-productos-con-ieps-cuota">Regla para agregar nuevos productos con IEPS Cuota<a class="headerlink" href="#regla-para-agregar-nuevos-productos-con-ieps-cuota" title="Permanent link">&para;</a></h3>
-<p>Todo ítem con IEPS Cuota cuya UOM de venta sea distinta a la UOM base de
-<code>IEPS Cuota SAT</code> requiere configurar <code>UOM Conversion Factor</code> en el DocType Item:</p>
-<table>
-<thead>
-<tr>
-<th>Ejemplo</th>
-<th>UOM venta</th>
-<th>UOM base SAT</th>
-<th>Factor</th>
-<th>Equivalencia</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Cerveza 355ml</td>
-<td>Lata</td>
-<td>LTR</td>
-<td>0.355</td>
-<td>355 ml</td>
-</tr>
-<tr>
-<td>Whisky 750ml</td>
-<td>Botella</td>
-<td>LTR</td>
-<td>0.75</td>
-<td>750 ml</td>
-</tr>
-<tr>
-<td>Agua mineral 600ml</td>
-<td>Botella</td>
-<td>LTR</td>
-<td>0.6</td>
-<td>600 ml</td>
-</tr>
-<tr>
-<td>Cigarros</td>
-<td>Cajetilla 20 pzas</td>
-<td>H87 (pieza)</td>
-<td>20.0</td>
-<td>20 piezas</td>
-</tr>
-</tbody>
-</table>
-<p>Si falta la conversión o el registro en <code>IEPS Cuota SAT</code>, <code>_get_uom_conversion_factor</code>
-lanza <code>ValidationError</code> antes del timbrado — nunca timbra con valores incorrectos.</p>
-<h3 id="alternativas-descartadas">Alternativas descartadas<a class="headerlink" href="#alternativas-descartadas" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Alternativa</th>
-<th>Problema</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Enviar total en <code>base</code></td>
-<td>FacturAPI lo multiplica × qty → valor ×N</td>
-</tr>
-<tr>
-<td>Calcular y enviar el total SAT directamente</td>
-<td>No disponible en API de FacturAPI — el campo <code>base</code> es el insumo, no el resultado</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2 id="implementacion">Implementación<a class="headerlink" href="#implementacion" title="Permanent link">&para;</a></h2>
-<p><strong>Archivo:</strong> <code>facturacion_mexico/facturacion_fiscal/timbrado_api.py</code></p>
+<p>Necesitamos representar en ERPNext un CFDI <strong>ya timbrado en otro sistema/PAC</strong> (cargas históricas de
+ventas, migraciones): la Sales Invoice y su <code>Factura Fiscal Mexico</code> (FFM) deben conservar la realidad
+fiscal real (UUID, serie, folio, fecha de timbrado, XML, estado vigente/cancelado) <strong>sin</strong> volver a
+timbrar, <strong>sin</strong> llamar a FacturAPI y <strong>sin</strong> inventar actividad del PAC.</p>
+<p>El obstáculo es el lifecycle actual: <code>calculate_fiscal_status_from_logs()</code> corre en cada <code>on_update</code>
+de la FFM y <strong>deriva <code>status</code> exclusivamente de <code>FacturAPI Response Log</code></strong> (<code>Timbrado</code>/<code>Confirmación
+Cancelación</code> con <code>success=1</code>). Sin ese log, cualquier FFM marcada <code>TIMBRADO</code> a mano vuelve a
+<code>BORRADOR</code>. Se evaluaron y descartaron dos atajos:</p>
 <ul>
-<li>Línea 533: <code># FIX E4.1: Para IVA, enviar base UNITARIA (FacturAPI multiplica x qty)</code></li>
-<li>Líneas 549–573: lógica integración IEPS en base IVA (combustibles vs. resto)</li>
-<li>Línea 581: <code># FIX E4.1: Obtener cuota ORIGINAL de tabla SAT (no calcularla desde amount)</code></li>
-<li>Líneas 586–633: obtención de cuota y factor desde <code>IEPS Cuota SAT</code> + <code>_get_uom_conversion_factor</code></li>
-<li>Línea 2123: docstring del método <code>_get_uom_conversion_factor</code></li>
+<li><strong>V1 — <code>db_set</code>/SQL</strong> saltando el ORM para fijar <code>TIMBRADO</code>: frágil (un <code>.save()</code> posterior lo revierte).</li>
+<li><strong>V2 — <code>FacturAPI Response Log</code> sintético</strong>: contamina el sistema de auditoría del PAC con eventos
+  que nunca ocurrieron en FacturAPI.</li>
 </ul>
-<p><strong>PR:</strong> #83 — <code>feat(fiscal): sistema automatizado impuestos E0-E4 + fix timbrado v16</code>
-commit <code>78d4606</code> (squash merge)</p>
-<hr />
-<h2 id="notas-de-normativa">Notas de normativa<a class="headerlink" href="#notas-de-normativa" title="Permanent link">&para;</a></h2>
+<h2 id="decision">Decisión<a class="headerlink" href="#decision" title="Permanent link">&para;</a></h2>
+<p>Se agrega soporte <strong>genérico</strong> (no específico de ningún cliente) para "CFDI externo" con el <strong>mínimo</strong>
+cambio de esquema: <strong>un único valor nuevo</strong> en <code>Factura Fiscal Mexico.fm_creation_source</code> →
+<code>"CFDI externo"</code>. No se crean campos nuevos. <code>FFM.status</code> sigue siendo el estado fiscal canónico.</p>
+<ol>
+<li><strong>Fuente de verdad dual del estado.</strong> <code>calculate_fiscal_status_from_logs()</code> hace <em>early-return</em>
+   cuando <code>fm_creation_source == "CFDI externo"</code>: para esos documentos el estado NO se deriva de
+   Response Logs; lo fija la primitiva desde la evidencia externa. El flujo FacturAPI queda intacto.</li>
+<li><strong>Evidencia mínima</strong> exigida antes de aceptar <code>TIMBRADO</code>/<code>CANCELADO</code> externo: <code>fm_uuid</code> con formato
+   válido, <code>fecha_timbrado</code>, XML adjunto en <code>xml_file</code>, <code>facturapi_id</code> vacío y ausencia de Response Log
+   de <code>Timbrado</code>. En <code>BORRADOR</code> (construcción) la validación no exige evidencia todavía, para permitir
+   el orden crear-FFM → adjuntar-XML → poblar → fijar estado.</li>
+<li><strong>State machine acotada</strong> para externos: <code>BORRADOR→TIMBRADO/CANCELADO</code>, <code>TIMBRADO→CANCELADO</code>; se
+   bloquean los estados del ciclo PAC (<code>PROCESANDO</code>/<code>ERROR</code>/<code>PENDIENTE_CANCELACION</code>). <code>CANCELADO</code> es
+   terminal.</li>
+<li><strong>Primitiva de dominio interna</strong> <code>registrar_cfdi_externo(sales_invoice, uuid, xml_content, ...)</code>
+   (no whitelisted). Crea o reutiliza la FFM (vía <code>get_or_create_active_ffm</code>), adjunta el XML, puebla
+   la evidencia y fija el estado. Es <strong>idempotente</strong> por <code>(sales_invoice, uuid)</code> y <strong>fail-closed</strong> ante
+   conflictos (mismo UUID en otra SI, UUID distinto en la misma SI, o FFM ya timbrada por FacturAPI).</li>
+<li><strong>Guards de acciones FacturAPI</strong> en UI y servidor: <code>timbrar_factura</code>, <code>cancelar_factura</code>,
+   <code>descargar_archivos_cfdi</code>, <code>create_substitution_si</code> y <code>revisar_estatus_cancelacion</code> rechazan un CFDI
+   externo. La reconciliación programada (<code>run_auto_reconciliation</code>/<code>reconcile_ffm</code>) ya los omite por
+   <code>facturapi_id</code> vacío.</li>
+<li><strong><code>CANCELADO</code> externo no cascada:</strong> fija <code>FFM.status = CANCELADO</code> como dato; <strong>no</strong> cancela la Sales
+   Invoice (docstatus) ni genera reversión contable. El tratamiento contable de históricos cancelados
+   se decide por separado.</li>
+</ol>
+<h2 id="consecuencias">Consecuencias<a class="headerlink" href="#consecuencias" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>LIEPS Art. 2-A (Combustibles):</strong> IEPS Cuota <strong>no</strong> forma parte de la base IVA.</li>
-<li><strong>LIEPS General (Bebidas, Alcohol, Tabaco):</strong> IEPS <strong>sí</strong> forma parte de la base IVA.</li>
-<li>La distinción se controla vía <code>integra_base_iva</code> en el mapeo de cuenta SAT.</li>
+<li>Backward-compatible y aditivo: toda FFM existente tiene <code>fm_creation_source != "CFDI externo"</code> → se
+  comporta exactamente igual que hoy. <strong>Sin patch de datos.</strong></li>
+<li>PPD/complementos siguen funcionando: una FFM externa <code>TIMBRADO</code> con UUID + snapshots de SI cumple los
+  requisitos del flujo de complemento (que usa <code>FFM.fm_uuid</code>, no Response Logs).</li>
+<li>La lógica específica de la carga histórica (mapeos, importador) vive en <code>acti_customs</code>, que consume
+  <code>registrar_cfdi_externo</code> sin manipular internals de la FFM. <code>facturacion_mexico</code> permanece genérico.</li>
+</ul>
+<h2 id="alternativas-descartadas">Alternativas descartadas<a class="headerlink" href="#alternativas-descartadas" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>V1 (db_set/SQL)</strong> y <strong>V2 (Response Log sintético)</strong>: ver Contexto.</li>
+<li><strong>Campos nuevos <code>fm_fiscal_source</code> + <code>fm_external_fiscal_status</code></strong>: se evaluó separar "procedencia de
+  creación" de "autoridad fiscal", pero no hay caso real en el código que lo requiera; <code>fm_creation_source</code></li>
+<li><code>status</code> + evidencia bastan de forma inequívoca (el valor explícito <code>CFDI externo</code> evita la
+  ambigüedad de <code>Manual</code>, y el estado solo asciende con evidencia presente).</li>
 </ul>
 
 

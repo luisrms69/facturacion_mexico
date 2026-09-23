@@ -778,6 +778,21 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Derivación del estado fiscal de la FFM">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cfdi-externo-timbrado-fuera-de-este-erp" class="md-nav__link">
+    <span class="md-ellipsis">
+      CFDI externo (timbrado fuera de este ERP)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -2042,6 +2057,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0041-cfdi-externo-timbrado-fuera-del-erp/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0041 — CFDI externo: representar un timbrado ocurrido fuera de este ERP
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2283,6 +2319,21 @@
       Derivación del estado fiscal de la FFM
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Derivación del estado fiscal de la FFM">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cfdi-externo-timbrado-fuera-de-este-erp" class="md-nav__link">
+    <span class="md-ellipsis">
+      CFDI externo (timbrado fuera de este ERP)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -2602,6 +2653,21 @@
   canónica por operación de <code>api/__init__.py</code>. Consulta, reconciliación y cancelación fallidas
   pertenecen a <code>fm_sync_status</code>, no al estado fiscal.</li>
 </ul>
+<h4 id="cfdi-externo-timbrado-fuera-de-este-erp">CFDI externo (timbrado fuera de este ERP)<a class="headerlink" href="#cfdi-externo-timbrado-fuera-de-este-erp" title="Permanent link">&para;</a></h4>
+<p>Para representar un CFDI <strong>ya timbrado en otro sistema/PAC</strong> (p. ej. cargas históricas) sin llamar a
+FacturAPI ni fabricar logs, la FFM se marca con <code>fm_creation_source = "CFDI externo"</code>. En ese caso
+<code>calculate_fiscal_status_from_logs</code> <strong>no</strong> deriva el estado desde los <code>FacturAPI Response Log</code>: <code>FFM.status</code>
+es la fuente de verdad, poblada desde la evidencia externa (UUID + fecha de timbrado + XML adjunto). Reglas:</p>
+<ul>
+<li>Estados válidos: <code>BORRADOR</code> (transitorio), <code>TIMBRADO</code>, <code>CANCELADO</code> (transiciones <code>BORRADOR→TIMBRADO/CANCELADO</code>,
+  <code>TIMBRADO→CANCELADO</code>; se bloquean <code>PROCESANDO</code>/<code>ERROR</code>/<code>PENDIENTE_CANCELACION</code>).</li>
+<li>Sin <code>facturapi_id</code>; sin <code>FacturAPI Response Log</code> de <code>Timbrado</code>; sin llamadas al PAC.</li>
+<li>Un <code>CANCELADO</code> externo <strong>no</strong> cancela la Sales Invoice ni genera reversión contable.</li>
+<li>Las acciones FacturAPI (timbrar/cancelar/descargar/reconciliar/sustituir) quedan bloqueadas en UI y
+  servidor para estos documentos; la reconciliación programada los omite por <code>facturapi_id</code> vacío.</li>
+<li>Única vía de creación: la primitiva de dominio interna <code>registrar_cfdi_externo(...)</code> (idempotente por
+  Sales Invoice + UUID, fail-closed ante conflictos). Ver ADR 0041.</li>
+</ul>
 <h3 id="moneda-del-cfdi-currency-exchange">Moneda del CFDI (<code>currency</code> / <code>exchange</code>)<a class="headerlink" href="#moneda-del-cfdi-currency-exchange" title="Permanent link">&para;</a></h3>
 <p>El payload a FacturAPI declara la moneda y el tipo de cambio derivados de la Sales Invoice, que es
 la <strong>fuente de verdad</strong> (<code>resolve_cfdi_currency_exchange</code> en <code>timbrado_api.py</code>):</p>
@@ -2766,7 +2832,7 @@ confirmación humana como <code>Manual</code> (no <code>Historial</code>) y <str
 <tr>
 <td><code>fm_creation_source</code></td>
 <td>Select</td>
-<td>Origen: <code>Timbrado directo</code> / <code>Migración legacy facturacion_mx</code> / <code>Manual</code>. Default: <code>Timbrado directo</code>. Permite identificar FFMs creadas por migración histórica.</td>
+<td>Origen: <code>Timbrado directo</code> / <code>Migración legacy facturacion_mx</code> / <code>Manual</code> / <code>CFDI externo</code>. Default: <code>Timbrado directo</code>. Identifica FFMs de migración histórica; <code>CFDI externo</code> además cambia la autoridad del estado fiscal (ver "CFDI externo").</td>
 </tr>
 <tr>
 <td><code>fm_xml_url</code></td>
