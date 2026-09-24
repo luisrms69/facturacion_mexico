@@ -757,9 +757,9 @@ def _write_reports(rep, report_dir, dry_run):
 		"estado",
 		"detalle",
 	]
-	with open(
+	with open(  # nosemgrep: frappe-security-file-traversal
 		base + ".csv", "w", encoding="utf-8", newline=""
-	) as fh:  # nosemgrep: frappe-security-file-traversal
+	) as fh:
 		w = csv.DictWriter(fh, fieldnames=cols, extrasaction="ignore")
 		w.writeheader()
 		for e in rep["detalle"]:
