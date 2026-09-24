@@ -76,6 +76,7 @@ nav:
     - Regeneración STCT: tecnico/proceso-regeneracion-stct-e4.md
     - Reconciliación y fallback: tecnico/reconciliacion-fallback.md
     - Ambiente fiscal (fm_environment): tecnico/ambiente-fiscal.md
+    - Importador CFDI emitidos: tecnico/importador-cfdi-emitidos.md
     - ADRs:
       - adr/index.md
       - adr/0000-estado-real-pre-migracion.md
