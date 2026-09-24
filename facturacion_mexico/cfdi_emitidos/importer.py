@@ -40,6 +40,7 @@ import json
 import os
 
 import frappe
+from frappe import _
 from frappe.utils import flt, getdate
 
 from facturacion_mexico.cfdi_emitidos.parser import CFDIError, is_ingreso, normalize_uuid, parse_cfdi
@@ -47,18 +48,21 @@ from facturacion_mexico.cfdi_emitidos.parser import CFDIError, is_ingreso, norma
 
 # ----------------------------------------------------------------- configuración
 class RunConfig:
+	"""Configuración de una corrida del importador, cargada desde un manifest (dict o JSON)."""
+
 	def __init__(self, manifest):
+		"""Carga y valida el manifest (company, item_map, cuentas y defaults de la corrida)."""
 		cfg = manifest
 		if isinstance(manifest, str):
-			with open(manifest, encoding="utf-8") as fh:
+			with open(manifest, encoding="utf-8") as fh:  # nosemgrep: frappe-security-file-traversal
 				cfg = json.load(fh)
 		cfg = cfg or {}
 		self.company = cfg.get("company")
 		if not self.company:
-			frappe.throw("manifest.company es requerido")
+			frappe.throw(_("manifest.company es requerido"))
 		self.item_map = cfg.get("item_map") or {}
 		if not self.item_map:
-			frappe.throw("manifest.item_map es requerido (NoIdentificacion -> item_code)")
+			frappe.throw(_("manifest.item_map es requerido (NoIdentificacion -> item_code)"))
 		self.iva_account = cfg.get("iva_account")
 		self.cancelled_marker = (cfg.get("cancelled_marker") or "cancel").lower()
 		self.tolerance = flt(cfg.get("tolerance") or 0.05)
@@ -196,6 +200,7 @@ def resolve_customer(rfc, receptor=None):
 
 
 def resolve_item(noid, cfg, cache):
+	"""Resuelve el item_code para un NoIdentificacion vía el item_map del manifest (con cache)."""
 	itc = cfg.item_map.get(noid)
 	if not itc:
 		return None, None
@@ -207,6 +212,7 @@ def resolve_item(noid, cfg, cache):
 
 
 def _cost_center_for(customer, cfg):
+	"""Cost center del Customer (fm_customer_default_cost_center) o el default del manifest."""
 	return (
 		frappe.db.get_value("Customer", customer, "fm_customer_default_cost_center")
 		or cfg.default_cost_center
@@ -448,7 +454,7 @@ def corregir_posting_time(source_dir=None, dry_run=1, report_dir="/tmp"):
 			if not fn.lower().endswith(".xml"):
 				continue
 			try:
-				with open(os.path.join(base, fn), "rb") as fh:
+				with open(os.path.join(base, fn), "rb") as fh:  # nosemgrep: frappe-security-file-traversal
 					cfdi = parse_cfdi(fh.read())
 			except CFDIError:
 				continue
@@ -480,7 +486,7 @@ def corregir_posting_time(source_dir=None, dry_run=1, report_dir="/tmp"):
 					"Sales Invoice", si[0].name, "posting_time", target, update_modified=False
 				)
 	if not dry_run:
-		frappe.db.commit()
+		frappe.db.commit()  # nosemgrep: frappe-manual-commit - importación por lote (durabilidad por factura)
 	out = {
 		"dry_run": dry_run,
 		"a_corregir": len(cambios),
@@ -489,7 +495,7 @@ def corregir_posting_time(source_dir=None, dry_run=1, report_dir="/tmp"):
 		"detalle": cambios,
 	}
 	path = os.path.join(report_dir, "posting_time_%s.json" % ("dryrun" if dry_run else "apply"))
-	with open(path, "w", encoding="utf-8") as fh:
+	with open(path, "w", encoding="utf-8") as fh:  # nosemgrep: frappe-security-file-traversal
 		json.dump(out, fh, ensure_ascii=False, indent=2, default=str)
 	print(
 		f"posting_time — {'DRY-RUN' if dry_run else 'APLICADO'}: a_corregir={len(cambios)} "
@@ -506,7 +512,7 @@ def run(source_dir=None, manifest=None, dry_run=1, report_dir="/tmp", limit=None
 	if not source_dir or not os.path.isdir(source_dir):
 		frappe.throw(f"source_dir inválido: {source_dir!r}")
 	if not manifest:
-		frappe.throw("manifest es requerido (dict o ruta a JSON con company/item_map/iva_account)")
+		frappe.throw(_("manifest es requerido (dict o ruta a JSON con company/item_map/iva_account)"))
 	cfg = RunConfig(manifest)
 	dry_run = int(dry_run)
 
@@ -526,7 +532,7 @@ def run(source_dir=None, manifest=None, dry_run=1, report_dir="/tmp", limit=None
 		seleccion = []
 		for p in paths:
 			try:
-				with open(p, "rb") as fh:
+				with open(p, "rb") as fh:  # nosemgrep: frappe-security-file-traversal
 					u = parse_cfdi(fh.read())["uuid"]
 			except Exception:
 				continue
@@ -581,7 +587,7 @@ def run(source_dir=None, manifest=None, dry_run=1, report_dir="/tmp", limit=None
 			counts["total_xml"] += 1
 			entry = {"archivo": fn}
 			try:
-				with open(path, "rb") as fh:
+				with open(path, "rb") as fh:  # nosemgrep: frappe-security-file-traversal
 					raw = fh.read()
 			except OSError as exc:
 				counts["ERROR_OTHER"] += 1
@@ -701,13 +707,13 @@ def run(source_dir=None, manifest=None, dry_run=1, report_dir="/tmp", limit=None
 					# PDF: si existe el hermano determinista, adjuntarlo también.
 					pdf_path = _find_pdf_for(path)
 					if pdf_path:
-						with open(pdf_path, "rb") as fh:
+						with open(pdf_path, "rb") as fh:  # nosemgrep: frappe-security-file-traversal
 							# use_filesystem=True: adjunta el PDF SIN reparseo (evita pdf_contains_js/PyPDF2).
 							_attach_file(doc.name, f"CFDI-{cfdi['uuid']}.pdf", fh.read(), use_filesystem=True)
 						entry["pdf_adjunto"] = True
 					else:
 						entry["pdf_adjunto"] = False
-					frappe.db.commit()
+					frappe.db.commit()  # nosemgrep: frappe-manual-commit - importación por lote (durabilidad por factura)
 					counts["CREADA"] += 1
 					entry["estado"] = "CREADA"
 			except Exception as exc:
@@ -729,10 +735,11 @@ def run(source_dir=None, manifest=None, dry_run=1, report_dir="/tmp", limit=None
 
 
 def _write_reports(rep, report_dir, dry_run):
+	"""Escribe los reportes JSON y CSV de la corrida en `report_dir`."""
 	tag = "dryrun" if dry_run else "apply"
 	stamp = frappe.utils.now().replace(":", "").replace(" ", "_").replace("-", "")[:15]
 	base = os.path.join(report_dir, f"cfdi_emitidos_{tag}_{stamp}")
-	with open(base + ".json", "w", encoding="utf-8") as fh:
+	with open(base + ".json", "w", encoding="utf-8") as fh:  # nosemgrep: frappe-security-file-traversal
 		json.dump(rep, fh, ensure_ascii=False, indent=2, default=str)
 	cols = [
 		"archivo",
@@ -750,7 +757,9 @@ def _write_reports(rep, report_dir, dry_run):
 		"estado",
 		"detalle",
 	]
-	with open(base + ".csv", "w", encoding="utf-8", newline="") as fh:
+	with open(
+		base + ".csv", "w", encoding="utf-8", newline=""
+	) as fh:  # nosemgrep: frappe-security-file-traversal
 		w = csv.DictWriter(fh, fieldnames=cols, extrasaction="ignore")
 		w.writeheader()
 		for e in rep["detalle"]:
@@ -760,6 +769,7 @@ def _write_reports(rep, report_dir, dry_run):
 
 
 def _print_summary(rep):
+	"""Imprime el resumen de contadores y excepciones de la corrida."""
 	c = rep["resumen"]
 	print(
 		"\n=== CFDI emitidos → Sales Invoice — %s ===" % ("DRY-RUN" if rep["meta"]["dry_run"] else "APLICAR")

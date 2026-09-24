@@ -30,10 +30,12 @@ def normalize_uuid(value):
 
 
 def sha256_hex(raw_bytes):
+	"""Hash SHA-256 (hex) de los bytes originales del CFDI (evidencia)."""
 	return hashlib.sha256(raw_bytes).hexdigest()
 
 
 def _num(x):
+	"""Convierte a float de forma segura; devuelve 0.0 si el valor es None/''/no numérico."""
 	try:
 		return float(x) if x not in (None, "") else 0.0
 	except (TypeError, ValueError):
@@ -103,4 +105,5 @@ def parse_cfdi(raw_bytes):
 
 
 def is_ingreso(cfdi):
+	"""True si el CFDI es TipoDeComprobante = I (Ingreso)."""
 	return (cfdi.get("tipo") or "").strip().upper() == "I"
