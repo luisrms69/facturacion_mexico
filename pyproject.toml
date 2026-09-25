@@ -59,4 +59,4 @@ indent-style = "tab"
 
 [tool.interrogate]
 fail-under = 80
-exclude = ["facturacion_mexico/cfdi_recibidos/tests", "facturacion_mexico/facturacion_fiscal/tests", "facturacion_mexico/cfdi_emitidos/tests"]
+exclude = ["facturacion_mexico/cfdi_recibidos/tests", "facturacion_mexico/facturacion_fiscal/tests", "facturacion_mexico/cfdi_emitidos/tests", "facturacion_mexico/ventas_extranjeras/tests"]
