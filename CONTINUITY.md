@@ -48,10 +48,10 @@ Implementado en la rama (commit `dc67bfd` + bump/CONTINUITY):
 - Docs: `docs/tecnico/ventas-extranjeras-ingreso.md` + nav mkdocs.
 - `__init__.py` — bump `1.6.0 → 1.7.0` (MINOR).
 
-Validación funcional real en `test-fm-v010.localhost` (Company "test company 1"): nacional → income nativo;
-extranjera (XEXX y por Address) → cuenta de exportación configurada; INDETERMINADO → nativo, submit no
-bloqueado; fail-closed en submit sin cuenta; Item Default intacto antes/después; GL real verificado.
-Sitio de prueba quedó limpio (masters/SIs de prueba borrados).
+Validación funcional real en un sitio de prueba fresh-install (empresa genérica del entorno):
+nacional → income nativo; extranjera (XEXX y por Address) → cuenta de exportación configurada;
+INDETERMINADO → nativo, submit no bloqueado; fail-closed en submit sin cuenta; Item Default intacto
+antes/después; GL real verificado. Sitio de prueba quedó limpio (masters/SIs de prueba borrados).
 
 Sin regresión: `ventas_extranjeras` (15+26), `cfdi_emitidos` `test_importer_pricing` (3),
 `test_resolve_customer_extranjero` (13), `test_attachments` (11). Ruff check + format limpios.
@@ -80,6 +80,5 @@ Sin regresión: `ventas_extranjeras` (15+26), `cfdi_emitidos` `test_importer_pri
 ---
 
 ## No commitear
-- `facturacion_mexico/one_offs/validacion_ventas_extranjeras.py` (campaña de validación, one_off).
-- `facturacion_mexico/one_offs/analisis_hist_actiglobal.py` (análisis, one_off).
+- `facturacion_mexico/one_offs/*` (campañas de validación y análisis histórico; one_offs, nunca al repo).
 - `scripts/*`, `working_docs/private/`.
