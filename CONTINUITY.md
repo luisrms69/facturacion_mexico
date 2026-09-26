@@ -1,84 +1,73 @@
 # CONTINUITY.md — facturacion_mexico
 
 **Fecha:** 2026-09-25
-**Rama activa:** `feat/ventas-extranjeras`
-**Tarea actual:** Ruteo contable de ventas extranjeras → `Sales Invoice Item.income_account`. Implementación + tests + docs + bump completos; en gate `pr-ready`.
+**Rama activa:** `feat/ventas-extranjeras-fiscal-receptor`
+**Tarea actual:** Bloque fiscal 1 de ventas extranjeras — representación correcta del **receptor extranjero** (identidad), sin tocar IVA/ObjetoImp/Leyendas. Implementación + tests + validación funcional; en `/ship pr`.
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-Enrutar el `income_account` de una `Sales Invoice` a una **cuenta de ingreso de exportación** cuando el
-receptor es extranjero, conservando la resolución nativa de ERPNext para ventas nacionales. Aplica por
-igual al flujo normal de operación y al importador `cfdi_emitidos`, sin lógica contable paralela.
+El primer sub-bloque fiscal de ventas a receptores extranjeros, correcto **independientemente** de si
+una operación futura califica a tasa 0%. Cubre solo la **identidad del receptor extranjero** en el CFDI
+y la **protección del histórico**, no el tratamiento de IVA.
 
 Plan que estoy siguiendo:
-Diseño cerrado con el propietario. **Único schema nuevo:** campo `cuenta_ingreso_venta_extranjera`
-(Link Account) en `Configuracion Fiscal Mexico` (por empresa). Clasificación territorial nativa
-(XEXX > Address.country vs Company.country > Territory "Rest Of The World" > INDETERMINADO), sin Customer
-Group / currency / fm_tax_regime / Tax Category. Two-phase (`before_validate`/`validate`) evita
-contaminación de `Item Default`. Precedencia por línea: `cuenta_descuentos` > routing extranjero > nativo.
-Fail-closed en submit si es EXTRANJERA y falta/está inválida la cuenta. `cfdi_emitidos` aporta evidencia
-del XML vía `doc.flags.fm_cfdi_territorial` (transitorio) y reutiliza el mismo `ruteo_ingreso`.
+Consenso Claude + ChatGPT contra LIVA/RLIVA/RMF 2026/Anexo 20 + XML históricos reales de receptores
+extranjeros del entorno. Evidencia real: todos los CFDI extranjeros usaron `Rfc=XEXX010101000`,
+`Exportacion=01`, `ObjetoImp=01`, **sin impuestos**, **sin complementos** además del TimbreFiscalDigital;
+`NumRegIdTrib`/`ResidenciaFiscal` **condicionales** (unos receptores sí los llevan, otros no). Por eso este
+bloque NO toca IVA/ObjetoImp ni implementa Complemento Leyendas Fiscales (Art. 29-IV-i queda fuera hasta
+demostrar que aplica).
 
 Objetivo inmediato:
-`/ship pr` hacia `main` (gate `pr-ready` → autorización push + PR). Tras merge: `/sync-check` +
-`/ship release` v1.7.0.
+`/ship pr` hacia `main`. Tras merge: `/sync-check` + `/ship release` v1.8.0.
 
 Criterio de avance:
-PR mergeado con bump 1.7.0; luego release v1.7.0.
+PR mergeado con bump 1.8.0; luego release. **Pendiente antes de dar por cerrado el modelo del receptor:**
+prueba de timbrado en **sandbox FacturAPI** (confirmar que `tax_id=<TIN>` + `country` producen
+`Rfc=XEXX`/`NumRegIdTrib`/`ResidenciaFiscal`).
 
 ---
 
 ## Estado actual
 
-Implementado en la rama (commit `dc67bfd` + bump/CONTINUITY):
+Implementado en la rama:
 
-- **Nuevo paquete** `facturacion_mexico/ventas_extranjeras/`:
-  - `clasificacion.py` — `clasificar_territorialidad(doc)` + `clasificar_desde_cfdi(evidencia)` (precedencia XML).
-  - `ruteo_ingreso.py` — two-phase (`before_validate`/`validate`), `get_cuenta_ingreso_extranjera`,
-    `_cuenta_valida`, precedencia `cuenta_descuentos`, fail-closed.
-  - `tests/` — `test_clasificacion.py` (15) + `test_ruteo_ingreso.py` (26).
-- `configuracion_fiscal_mexico.json` — campo `cuenta_ingreso_venta_extranjera` + sección.
-- `configuracion_fiscal_mexico.py` — `_validar_cuenta_ingreso_extranjera` (misma empresa / root_type Income / no grupo / habilitada).
-- `hooks.py` — cableado two-phase en doc_events de Sales Invoice (Fase 1 en `before_validate`, Fase 2 al final de `validate`).
-- `cfdi_emitidos/importer.py` — inyección de `doc.flags.fm_cfdi_territorial` (sin schema persistente).
-- `pyproject.toml` — exclude interrogate del nuevo tests dir.
-- Docs: `docs/tecnico/ventas-extranjeras-ingreso.md` + nav mkdocs.
-- `__init__.py` — bump `1.6.0 → 1.7.0` (MINOR).
-
-Validación funcional real en un sitio de prueba fresh-install (empresa genérica del entorno):
-nacional → income nativo; extranjera (XEXX y por Address) → cuenta de exportación configurada;
-INDETERMINADO → nativo, submit no bloqueado; fail-closed en submit sin cuenta; Item Default intacto
-antes/después; GL real verificado. Sitio de prueba quedó limpio (masters/SIs de prueba borrados).
-
-Sin regresión: `ventas_extranjeras` (15+26), `cfdi_emitidos` `test_importer_pricing` (3),
-`test_resolve_customer_extranjero` (13), `test_attachments` (11). Ruff check + format limpios.
-
-### Pendiente inmediato
-1. `/ship pr` — gate `pr-ready` (autorización push + PR).
-2. Tras merge: `/sync-check` + `/ship release` v1.7.0.
+- **`Customer.fm_num_reg_id_trib`** (Data, opcional) — hogar del NumRegIdTrib extranjero, separado del
+  RFC/XEXX. `depends_on: eval:doc.tax_id=="XEXX010101000"` (visible solo para receptor genérico extranjero).
+  Fixture + registro en `hooks.py`.
+- **`timbrado_api.py`** — `es_receptor_extranjero(si)` (reutiliza la clasificación v1.7.0) +
+  `receptor_tax_id_payload(customer, es_extranjera)`: nacional → RFC; extranjero → `fm_num_reg_id_trib`
+  o se **omite** (FacturAPI coloca XEXX). **Nunca** se envía XEXX como `tax_id`.
+- **Guard del importador** en `_set_stct_by_branch`: señal **transitoria específica**
+  `doc.flags.fm_from_cfdi_emitidos` (la setea el importador en `build_si`) → solo ese flujo evita que el
+  STCT nacional pise los impuestos del XML. El flujo normal (nuevo) sigue recibiendo su STCT (16%).
+- **`_resolve_customer_extranjero`** — resuelve el TIN primero contra `fm_num_reg_id_trib`, fallback a `tax_id`.
+- Tests: `ventas_extranjeras/tests/test_receptor_extranjero.py` (10) + `test_resolve_customer_extranjero.py`
+  (14). Validación funcional en `test-fm-v010.localhost`: guard específico (solo flujo importador evita
+  STCT) y mapeo receptor (omite XEXX / usa TIN) — con datos reales.
+- `__init__.py` — bump `1.7.0 → 1.8.0` (MINOR).
 
 ---
 
 ## Decisiones vigentes no evidentes en el código
 
-- Único schema nuevo permitido: el campo en `Configuracion Fiscal Mexico` (NO campo en Customer/Sales
-  Invoice, NO booleano `fm_es_venta_extranjera`, NO Company Settings, NO child table, NO mezclar en el
-  `Mapeo Cuenta Fiscal Mexico` que valida `account_type == "Tax"`).
-- `INDETERMINADO` es decisión consciente: conserva resolución nativa (no se infiere extranjero) para no
-  romper cientos de Customers sin evidencia territorial. No bloquea submit.
-- Precedencia por línea: `cuenta_descuentos` > routing extranjero > nativo (preserva Motivo/TipoRelación 01).
+- **NO se toca IVA/ObjetoImp/STCT del flujo normal:** una venta extranjera nueva sigue a 16% salvo
+  determinación fiscal positiva (no implementada). Extranjero ≠ 0% automático.
+- **Complemento Leyendas Fiscales / Art. 29-IV-i: FUERA de alcance** — los XML reales no lo usaron.
+- Señal de histórico = flag transitorio del importador (`fm_from_cfdi_emitidos`), **no** `fm_folio_fiscal`
+  (que también existe en el flujo normal timbrado).
+- `depends_on` UI usa solo `tax_id==XEXX` (Address.country no es accesible en el form del Customer).
 
-### Pendientes conocidos (NO bloqueantes, documentados)
-1. E2E real de NC extranjera por descuento en sitio con `Facturacion Mexico Company Settings` +
-   `cuenta_descuentos` reales (validado por unit/integration + prueba funcional con sustitución del resolver).
-2. Tratamiento fiscal de ventas extranjeras como bloque separado: IVA / tasa 0 / no objeto, ObjetoImp,
-   CFDI Exportacion, ResidenciaFiscal / NumRegIdTrib, STCT/ITT. Este bloque cubre SOLO el `income_account`.
+### Pendientes conocidos (NO bloqueantes)
+1. Prueba de timbrado en sandbox FacturAPI del receptor extranjero (cierre del modelo).
+2. Determinación fiscal del servicio real (Art. 29-IV-a/-i o ninguno) → define si algún día se implementa
+   el camino 0% + Leyendas. Depende de la naturaleza real del servicio, no de la ClaveProdServ.
 
 ---
 
 ## No commitear
-- `facturacion_mexico/one_offs/*` (campañas de validación y análisis histórico; one_offs, nunca al repo).
+- `facturacion_mexico/one_offs/*` (validaciones y análisis histórico; nunca al repo).
 - `scripts/*`, `working_docs/private/`.
