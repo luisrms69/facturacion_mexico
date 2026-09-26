@@ -25,11 +25,13 @@ from facturacion_mexico.cfdi_emitidos import importer
 
 XEXX = "XEXX010101000"
 
-# Customers: (name, customer_name, tax_id)
+# Customers: (name, customer_name, tax_id, [fm_num_reg_id_trib])
 _CUSTOMERS = [
 	_dict(name="EXT-COL", customer_name="EMPRESA EXTERIOR COLOMBIA SA", tax_id=XEXX),
 	_dict(name="EXT-ECU", customer_name="CONSORCIO EXTERIOR ECUADOR S.A. TESTECU", tax_id=XEXX),
 	_dict(name="EXT-USA", customer_name="FOREIGN CORP USA INC", tax_id=XEXX),
+	# extranjero con TIN en su hogar canónico (fm_num_reg_id_trib), RFC genérico XEXX
+	_dict(name="EXT-TIN", customer_name="EMPRESA CON TIN SA", tax_id=XEXX, fm_num_reg_id_trib="US987654321"),
 	# nacionales
 	_dict(name="NAC-UNO", customer_name="PROVEEDOR NACIONAL UNO SA", tax_id="AAA010101AA1"),
 	_dict(name="DUP-1", customer_name="PROVEEDOR DUPLICADO SA", tax_id="BBB020202BB2"),
@@ -132,8 +134,13 @@ class TestResolveCustomerExtranjero(unittest.TestCase):
 		r = _receptor("EMPRESA INEXISTENTE LLC", "", "USA")  # USA no mapea a Mexico
 		self.assertEqual(_rc(XEXX, r), (None, "ERROR_CUSTOMER"))
 
-	def test_num_reg_id_trib_como_tax_id_directo(self):
-		# Si un cliente registró el id extranjero como tax_id, se resuelve directo.
+	def test_num_reg_id_trib_hogar_canonico_fm_field(self):
+		# El TIN vive en fm_num_reg_id_trib (hogar canónico) → resuelve directo aunque tax_id sea XEXX.
+		r = _receptor("EMPRESA CON TIN SA", "US987654321", "USA")
+		self.assertEqual(_rc(XEXX, r), ("EXT-TIN", None))
+
+	def test_num_reg_id_trib_fallback_tax_id(self):
+		# Compat histórica: si el id extranjero se guardó en tax_id (sin fm_num_reg_id_trib), resuelve.
 		extra = _dict(name="EXT_DIRECTO", customer_name="EMPRESA DIRECTA LLC", tax_id="US123456789")
 		_CUSTOMERS.append(extra)
 		try:

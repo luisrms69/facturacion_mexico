@@ -132,7 +132,7 @@ def _resolve_customer_extranjero(receptor):
 	"""Resuelve un Customer para un receptor extranjero (RFC genérico XEXX).
 
 	Usa, en este orden, la evidencia del CFDI contra los datos reales del maestro:
-	  1. NumRegIdTrib como tax_id directo (por si el id extranjero se registró ahí);
+	  1. NumRegIdTrib contra su hogar canónico `fm_num_reg_id_trib`; fallback histórico a `tax_id`;
 	  2. coincidencia inequívoca por Nombre fiscal;
 	  3. ResidenciaFiscal/país como desempate cuando el Nombre no es único.
 	Devuelve (customer|None, error|None): 1 match -> ok; 0 -> ERROR_CUSTOMER; >1 -> ERROR_CUSTOMER_AMB.
@@ -142,13 +142,16 @@ def _resolve_customer_extranjero(receptor):
 	residencia = (receptor.get("receptor_residencia_fiscal") or "").strip().upper()
 	nombre = _norm_nombre(receptor.get("receptor_nombre"))
 
-	# 1. El id de registro tributario extranjero pudo guardarse como tax_id.
+	# 1. El número de identidad tributaria extranjero: primero en su hogar canónico
+	#    (fm_num_reg_id_trib); si no hay match, fallback histórico contra tax_id (por si se
+	#    registró ahí antes de existir el campo). Ambigüedad en cualquiera -> AMB.
 	if numreg:
-		directo = frappe.get_all("Customer", filters={"tax_id": numreg}, fields=["name"])
-		if len(directo) == 1:
-			return directo[0].name, None
-		if len(directo) > 1:
-			return None, "ERROR_CUSTOMER_AMB"
+		for _campo in ("fm_num_reg_id_trib", "tax_id"):
+			directo = frappe.get_all("Customer", filters={_campo: numreg}, fields=["name"])
+			if len(directo) == 1:
+				return directo[0].name, None
+			if len(directo) > 1:
+				return None, "ERROR_CUSTOMER_AMB"
 
 	# Pool de candidatos: los Customers que comparten el RFC genérico.
 	pool = frappe.get_all(
@@ -285,6 +288,11 @@ def build_si(cfdi, cfg, item_cache):
 	doc.conversion_rate = tc if moneda != cfg.company_currency else 1.0
 	doc.cost_center = cc
 	doc.update_stock = 0
+	# Señal transitoria específica del importador histórico: el CFDI ya fue timbrado fuera del ERP;
+	# sus impuestos vienen del XML (fuente de verdad). El guard de `_set_stct_by_branch` la usa para
+	# NO imponer STCT nacional/frontera sobre estos documentos. Transitoria (solo durante la
+	# construcción/insert de esta carga); no persiste ni afecta ediciones posteriores del flujo normal.
+	doc.flags.fm_from_cfdi_emitidos = True
 	# Evidencia territorial del XML histórico (transitoria, sin campo persistente): el
 	# clasificador de ventas extranjeras le da precedencia sobre los datos maestros actuales,
 	# para no reinterpretar la historia si el Customer cambió. Ver clasificacion.clasificar_desde_cfdi.
