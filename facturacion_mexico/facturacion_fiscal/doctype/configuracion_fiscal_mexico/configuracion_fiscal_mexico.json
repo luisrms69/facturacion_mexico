@@ -153,6 +153,19 @@
    "description": "Cuando está activo, los STCT de venta generados por la app marcan el impuesto como incluido en el precio capturado (included_in_print_rate = 1). Active esto si sus precios de lista ya incluyen IVA. No modificar manualmente el STCT — regenerar desde aquí."
   },
   {
+   "fieldname": "section_venta_extranjera",
+   "label": "Ventas al Extranjero",
+   "fieldtype": "Section Break",
+   "description": "Cuenta de ingreso que se aplicará a las Sales Invoice cuyo receptor sea extranjero (residente fuera de México). Las ventas nacionales conservan la resolución nativa de ERPNext (Item → Item Group → Brand → Company)."
+  },
+  {
+   "fieldname": "cuenta_ingreso_venta_extranjera",
+   "label": "Cuenta de Ingreso — Venta Extranjera",
+   "fieldtype": "Link",
+   "options": "Account",
+   "description": "Cuenta contable de ingreso (root_type = Income) de la misma empresa, aplicada como income_account de todas las líneas en ventas a receptores extranjeros. Obligatoria al enviar/timbrar una venta extranjera (fail-closed)."
+  },
+  {
    "fieldname": "configuracion_completa",
    "label": "Configuración Completa",
    "fieldtype": "Check",

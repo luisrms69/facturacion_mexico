@@ -3,6 +3,7 @@ Configuración Fiscal México - DocType principal para wizard de mapeo fiscal.
 """
 
 import frappe
+from frappe import _
 from frappe.model.document import Document
 
 # Importar constantes roles fiscales - Single source of truth
@@ -64,7 +65,47 @@ class ConfiguracionFiscalMexico(Document):
 		"""Ejecutar validaciones antes de guardar."""
 		# Las filas se agregan via JavaScript cuando cambian los checkboxes
 		self._validar_mapeo_completo()
+		self._validar_cuenta_ingreso_extranjera()
 		self._actualizar_estado_completitud()
+
+	def _validar_cuenta_ingreso_extranjera(self):
+		"""Validar la cuenta de ingreso para ventas extranjeras (si está configurada).
+
+		Contrato distinto al mapeo de impuestos (que exige ``account_type == "Tax"``):
+		esta cuenta es de INGRESO. El campo es opcional a nivel de configuración —
+		el bloqueo fail-closed ocurre al enviar/timbrar una venta extranjera sin cuenta
+		(ver ``ventas_extranjeras.ruteo_ingreso``). Aquí solo validamos coherencia si hay valor.
+		"""
+		cuenta = getattr(self, "cuenta_ingreso_venta_extranjera", None)
+		if not cuenta:
+			return
+
+		if not frappe.db.exists("Account", cuenta):
+			frappe.throw(_("La cuenta de ingreso extranjera {0} no existe").format(cuenta))
+
+		data = frappe.db.get_value(
+			"Account", cuenta, ["root_type", "company", "is_group", "disabled"], as_dict=True
+		)
+		if data.company != self.company:
+			frappe.throw(
+				_("La cuenta de ingreso extranjera {0} pertenece a la empresa {1}, no a {2}").format(
+					cuenta, data.company, self.company
+				)
+			)
+		if data.root_type != "Income":
+			frappe.throw(
+				_(
+					"La cuenta de ingreso extranjera {0} debe ser de tipo Income (root_type). Actual: {1}"
+				).format(cuenta, data.root_type)
+			)
+		if data.is_group:
+			frappe.throw(
+				_(
+					"La cuenta de ingreso extranjera {0} es un grupo. Seleccione una cuenta específica."
+				).format(cuenta)
+			)
+		if data.disabled:
+			frappe.throw(_("La cuenta de ingreso extranjera {0} está deshabilitada").format(cuenta))
 
 	def _rol_requerido_por_alcance(self, rol_fiscal: str) -> bool:
 		"""Determinar si un rol fiscal es requerido según alcance configurado."""

@@ -129,10 +129,32 @@ def _cleanup_supplier(tax_id: str):
 		frappe.db.commit()
 
 
+def _ensure_leaf_supplier_group():
+	"""Garantiza un Supplier Group HOJA para la auto-creación de proveedor (Step 7).
+
+	Aislamiento de CI: en una BD limpia puede no haber ningún Supplier Group hoja; entonces
+	``_get_default_supplier_group`` cae al grupo RAÍZ (is_group=1) y ``Supplier.insert`` falla
+	(el grupo debe ser hoja), dejando el CFDI en 'Falta proveedor'. Idempotente.
+	"""
+	if frappe.db.get_value("Supplier Group", {"is_group": 0}):
+		return
+	root = frappe.db.get_value("Supplier Group", {"is_group": 1}, "name")
+	frappe.get_doc(
+		{
+			"doctype": "Supplier Group",
+			"supplier_group_name": "_Test Supplier Group VEXT",
+			"parent_supplier_group": root,
+			"is_group": 0,
+		}
+	).insert(ignore_permissions=True)
+	frappe.db.commit()
+
+
 class TestXMLIngestionExitosa(unittest.TestCase):
 	def setUp(self):
 		self.company = _get_company()
 		frappe.db.set_value("Company", self.company, "tax_id", TEST_RFC_EMPRESA)
+		_ensure_leaf_supplier_group()  # CI: Step 7 auto-crea proveedor y exige un Supplier Group hoja
 		frappe.db.commit()
 		_cleanup_supplier("PROV123456AAA")
 		self.xml_bytes = XML_VALIDO.encode("utf-8")

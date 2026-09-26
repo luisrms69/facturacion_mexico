@@ -285,6 +285,14 @@ def build_si(cfdi, cfg, item_cache):
 	doc.conversion_rate = tc if moneda != cfg.company_currency else 1.0
 	doc.cost_center = cc
 	doc.update_stock = 0
+	# Evidencia territorial del XML histórico (transitoria, sin campo persistente): el
+	# clasificador de ventas extranjeras le da precedencia sobre los datos maestros actuales,
+	# para no reinterpretar la historia si el Customer cambió. Ver clasificacion.clasificar_desde_cfdi.
+	doc.flags.fm_cfdi_territorial = {
+		"receptor_rfc": cfdi.get("receptor_rfc"),
+		"receptor_residencia_fiscal": cfdi.get("receptor_residencia_fiscal"),
+		"receptor_num_reg_id_trib": cfdi.get("receptor_num_reg_id_trib"),
+	}
 	# Campos fiscales México — solo se asignan si EXISTEN en el esquema del site.
 	if metodo == "PPD":
 		_set(doc, "fm_es_ppd", 1)
