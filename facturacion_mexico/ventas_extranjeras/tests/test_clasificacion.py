@@ -24,14 +24,21 @@ XEXX = "XEXX010101000"
 # ── Dataset en memoria (FICTICIO) ─────────────────────────────────────────────
 _COMPANY_COUNTRY = {"MI EMPRESA": "Mexico"}
 
+ROW = "Rest Of The World"  # catch-all estándar de ERPNext: NO clasifica por sí solo
+
 # Customer -> atributos
 _CUSTOMERS = {
 	"NAC": _dict(tax_id="ABC010101AAA", customer_primary_address="ADDR-MX", territory="Nacional"),
 	"EXT-ADDR": _dict(tax_id="ABC010101AAA", customer_primary_address="ADDR-CO", territory="Nacional"),
 	"EXT-XEXX": _dict(tax_id=XEXX, customer_primary_address="ADDR-MX", territory="Nacional"),
-	"EXT-TERR": _dict(tax_id="ABC010101AAA", customer_primary_address=None, territory="Rest Of The World"),
 	"INDET": _dict(tax_id="ABC010101AAA", customer_primary_address=None, territory="All Territories"),
 	"EXT-DLINK": _dict(tax_id="ABC010101AAA", customer_primary_address=None, territory="Nacional"),
+	# Casos con Territory "Rest Of The World" (ya NO es fuente de clasificación):
+	"XAXX-TERR": _dict(tax_id="XAXX010101000", customer_primary_address=None, territory=ROW),
+	"NORMAL-TERR": _dict(tax_id="ABC010101AAA", customer_primary_address=None, territory=ROW),
+	"XEXX-TERR": _dict(tax_id=XEXX, customer_primary_address=None, territory=ROW),
+	"ADDR-EXT-TERR": _dict(tax_id="ABC010101AAA", customer_primary_address="ADDR-US", territory=ROW),
+	"ADDR-NAC-TERR": _dict(tax_id="ABC010101AAA", customer_primary_address="ADDR-MX", territory=ROW),
 }
 _ADDR_COUNTRY = {"ADDR-MX": "Mexico", "ADDR-CO": "Colombia", "ADDR-EC": "Ecuador", "ADDR-US": "United States"}
 # Direcciones vinculadas por Customer (Dynamic Link)
@@ -75,13 +82,30 @@ class TestClasificacionTerritorial(unittest.TestCase):
 		# tax_id XEXX + dirección Mexico inconsistente -> XEXX gana (señal fuerte).
 		self.assertEqual(_clasificar("EXT-XEXX"), EXTRANJERA)
 
-	def test_territory_fallback(self):
-		# sin país útil pero Territory = Rest Of The World -> EXTRANJERA
-		self.assertEqual(_clasificar("EXT-TERR"), EXTRANJERA)
-
 	def test_indeterminado_sin_evidencia(self):
 		# RFC mexicano normal, sin address, sin Territory útil -> no adivinar
 		self.assertEqual(_clasificar("INDET"), INDETERMINADO)
+
+	# ── Territory "Rest Of The World" ya NO clasifica (Opción A) ───────────────
+	def test_row_xaxx_sin_address_es_indeterminado(self):
+		# (1) XAXX + sin Address.country + RoW -> INDETERMINADO (no extranjero por Territory)
+		self.assertEqual(_clasificar("XAXX-TERR"), INDETERMINADO)
+
+	def test_row_rfc_normal_sin_address_es_indeterminado(self):
+		# (2) RFC normal + sin Address.country + RoW -> INDETERMINADO
+		self.assertEqual(_clasificar("NORMAL-TERR"), INDETERMINADO)
+
+	def test_row_con_xexx_es_extranjero(self):
+		# (3) XEXX + RoW -> EXTRANJERA (gana la señal fuerte XEXX)
+		self.assertEqual(_clasificar("XEXX-TERR"), EXTRANJERA)
+
+	def test_row_con_address_extranjero_es_extranjero(self):
+		# (4) Address.country extranjero + RoW -> EXTRANJERA (gana Address)
+		self.assertEqual(_clasificar("ADDR-EXT-TERR"), EXTRANJERA)
+
+	def test_row_con_address_nacional_es_nacional(self):
+		# (5) Address.country == Company.country + RoW -> NACIONAL (gana Address)
+		self.assertEqual(_clasificar("ADDR-NAC-TERR"), NACIONAL)
 
 	def test_customer_address_del_doc_tiene_prioridad(self):
 		# doc.customer_address (Ecuador) debe pesar más que la primaria (Mexico) de NAC.

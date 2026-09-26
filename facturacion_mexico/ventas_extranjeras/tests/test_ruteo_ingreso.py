@@ -238,6 +238,37 @@ class TestRuteoIntegracion(unittest.TestCase):
 		cls.company = "_Test Company"
 		cls.default_income = frappe.db.get_value("Company", cls.company, "default_income_account")
 		cls.company_country = frappe.db.get_value("Company", cls.company, "country")
+		# Cuenta de descuentos = cualquier Income leaf real ≠ foreign ≠ default (no asumir un nombre
+		# concreto que puede no existir en CI). Si no hay otra, se crea una dedicada.
+		cls.desc_acct = frappe.db.get_value(
+			"Account",
+			{
+				"company": cls.company,
+				"root_type": "Income",
+				"is_group": 0,
+				"disabled": 0,
+				"name": ["not in", [cls.foreign, cls.default_income]],
+			},
+			"name",
+		)
+		if not cls.desc_acct:
+			_parent = frappe.db.get_value(
+				"Account", {"company": cls.company, "root_type": "Income", "is_group": 1}, "name"
+			)
+			cls.desc_acct = (
+				frappe.get_doc(
+					{
+						"doctype": "Account",
+						"account_name": "ZZ-VEXT-DESC-" + h,
+						"parent_account": _parent,
+						"company": cls.company,
+						"root_type": "Income",
+						"is_group": 0,
+					}
+				)
+				.insert(ignore_permissions=True)
+				.name
+			)
 		# CI puede no tener un Address Template por defecto; crear Address sin él lanza. Garantizarlo
 		# (transitorio: se revierte con el rollback de _restaurar_entorno).
 		if not frappe.db.exists("Address Template", {"is_default": 1}):
@@ -390,7 +421,9 @@ class TestRuteoIntegracion(unittest.TestCase):
 	def test_nc_descuento_extranjera_preserva_cuenta_descuentos(self):
 		# Línea marcada con cuenta_descuentos en una venta extranjera: el two-phase NO la
 		# blanquea ni la reemplaza por la cuenta extranjera (precedencia del descuento).
-		desc_acct = "_Test Account Sales - _TC"  # Income leaf usado como cuenta de descuentos
+		desc_acct = (
+			self.desc_acct
+		)  # Income leaf real del entorno (≠ foreign), usado como cuenta de descuentos
 		self.assertNotEqual(desc_acct, self.foreign)
 		with patch.object(ruteo_ingreso, "get_cuenta_descuentos", return_value=desc_acct):
 			doc = self._make_si(self.cust_xexx, income_account=desc_acct)

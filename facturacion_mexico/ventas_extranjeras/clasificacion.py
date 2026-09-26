@@ -4,15 +4,17 @@ Separada del tratamiento fiscal (IVA/ObjetoImp/STCT/exportación): esto SOLO dec
 territorialidad para el ruteo de la cuenta de ingreso. Usa datos nativos y auditables,
 nunca Customer Group, currency, Tax Category ni ``fm_tax_regime``.
 
-Prioridad (diseño aprobado):
+Prioridad (solo señales FUERTES):
+0. Evidencia autoritativa del CFDI histórico (``doc.flags.fm_cfdi_territorial``).
 1. ``XEXX010101000`` en ``Customer.tax_id`` — RFC genérico para operaciones con
-   residentes en el extranjero: señal FUERTE, resuelve inconsistencias de Address.
+   residentes en el extranjero: resuelve inconsistencias de Address.
 2. País de la dirección: ``Sales Invoice.customer_address`` → ``Address.country``;
    si falta, la dirección primaria del Customer → ``Address.country``. Se compara
-   contra ``Company.country``.
-3. Fallback: ``Customer.territory == "Rest Of The World"``.
-4. Sin evidencia suficiente → ``INDETERMINADO`` (no se inventa clasificación).
+   contra ``Company.country`` (≠ → EXTRANJERA; == → NACIONAL).
+3. Sin evidencia suficiente → ``INDETERMINADO`` (no se inventa clasificación).
 
+``Customer.territory`` NO es fuente de clasificación: ``Rest Of The World`` es un
+catch-all estándar de ERPNext y generaría falsos positivos sobre ventas nacionales.
 Un RFC mexicano normal NO basta por sí solo para afirmar residencia nacional si no
 existe otra evidencia territorial (por eso NACIONAL exige país == Company.country).
 """
@@ -26,8 +28,6 @@ INDETERMINADO = "INDETERMINADO"
 
 # RFC genérico SAT para receptores residentes en el extranjero.
 RFC_GENERICO_EXTRANJERO = "XEXX010101000"
-# Territory estándar de ERPNext usado como fallback de residencia extranjera.
-TERRITORY_RESTO_DEL_MUNDO = "Rest Of The World"
 
 # Flag transitorio (no persistente) donde el importador cfdi_emitidos deposita la
 # evidencia territorial del XML histórico. Cuando está presente, es AUTORITATIVA:
@@ -114,10 +114,8 @@ def clasificar_territorialidad(doc) -> str:
 	if pais and company_country:
 		return EXTRANJERA if pais != company_country else NACIONAL
 
-	# 3) Fallback por Territory
-	territory = frappe.db.get_value("Customer", customer, "territory")
-	if territory == TERRITORY_RESTO_DEL_MUNDO:
-		return EXTRANJERA
-
-	# 4) Sin evidencia territorial suficiente: no adivinar
+	# 3) Sin evidencia territorial suficiente: no adivinar. Territory NO se usa como fuente de
+	# clasificación: "Rest Of The World" es un catch-all estándar de ERPNext y produciría falsos
+	# positivos (bloqueo/redirección contable de ventas nacionales). Solo clasifican EXTRANJERA las
+	# señales fuertes: evidencia autoritativa del CFDI, XEXX y país de Address ≠ país de la empresa.
 	return INDETERMINADO

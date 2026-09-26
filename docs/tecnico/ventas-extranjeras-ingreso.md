@@ -19,18 +19,20 @@ No se usa nombre ni número de cuenta hardcodeado: la cuenta sale del Chart of A
 
 ## Clasificación territorial
 
-Resultado: `NACIONAL`, `EXTRANJERA` o `INDETERMINADO`. Fuentes nativas y auditables
-(prioridad):
+Resultado: `NACIONAL`, `EXTRANJERA` o `INDETERMINADO`. Solo señales **fuertes**,
+nativas y auditables (prioridad):
 
 1. Evidencia del CFDI histórico si está presente en `doc.flags.fm_cfdi_territorial`
    (transitoria, sin schema persistente) — autoritativa para `cfdi_emitidos`.
 2. `Customer.tax_id == XEXX010101000` (RFC genérico de residentes en el extranjero).
 3. País de la dirección (`Sales Invoice.customer_address` → dirección primaria del
-   Customer) comparado contra `Company.country`.
-4. `Customer.territory == "Rest Of The World"` (fallback).
-5. Sin evidencia suficiente → `INDETERMINADO`.
+   Customer) comparado contra `Company.country` (≠ → EXTRANJERA; == → NACIONAL).
+4. Sin evidencia suficiente → `INDETERMINADO`.
 
-No se usa Customer Group, currency, `fm_tax_regime` ni Tax Category.
+**`Customer.territory` NO es fuente de clasificación:** `Rest Of The World` es un
+catch-all estándar de ERPNext y clasificar por él generaría falsos positivos que
+bloquearían/redirigirían ventas nacionales existentes. Tampoco se usa Customer Group,
+currency, `fm_tax_regime` ni Tax Category.
 
 ## Comportamiento contable
 
