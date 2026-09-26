@@ -112,6 +112,33 @@ def resolve_concepto_description(item, es_nota_descuento: bool) -> str:
 	return base
 
 
+def es_receptor_extranjero(sales_invoice) -> bool:
+	"""True si el receptor de la Sales Invoice es EXTRANJERO según la clasificación territorial.
+
+	Reutiliza la clasificación entregada en v1.7.0 (señales fuertes: evidencia CFDI, XEXX,
+	Address.country vs Company.country). NO usa Territory. Import perezoso para evitar peso/ciclos.
+	"""
+	from facturacion_mexico.ventas_extranjeras.clasificacion import (
+		EXTRANJERA,
+		clasificar_territorialidad,
+	)
+
+	return clasificar_territorialidad(sales_invoice) == EXTRANJERA
+
+
+def receptor_tax_id_payload(customer, es_extranjera: bool):
+	"""`tax_id` del receptor para el payload de FacturAPI.
+
+	- Nacional: el RFC (`Customer.tax_id`).
+	- Extranjero: el número de identidad tributaria extranjero (`fm_num_reg_id_trib`) si existe;
+	  si no, se OMITE (retorna None) — FacturAPI coloca el RFC genérico XEXX cuando corresponde.
+	  NUNCA se envía XEXX como `tax_id` de un receptor extranjero.
+	"""
+	if es_extranjera:
+		return (customer.get("fm_num_reg_id_trib") or "").strip() or None
+	return customer.get("tax_id")
+
+
 def _log_text(label, s: str):
 	if s is None:
 		s = ""
@@ -825,12 +852,19 @@ class TimbradoAPI:
 		# TODO: Integrar branch_data cuando se implemente Sprint 6 Phase 2
 		# branch_data = self._get_branch_data_for_invoice(sales_invoice)
 
+		# Receptor extranjero: FacturAPI espera el número de identidad tributaria EXTRANJERO en
+		# `tax_id` (opcional) y coloca XEXX010101000 por su cuenta cuando el país ≠ MEX. Por eso NO
+		# se envía XEXX como `tax_id`. Nacional: el RFC. Venta Mostrador (receptor genérico XAXX) se
+		# excluye del tratamiento extranjero. Ver `receptor_tax_id_payload`/`es_receptor_extranjero`.
+		es_extranjera = not factura_fiscal.get("fm_facturar_venta_mostrador") and es_receptor_extranjero(
+			sales_invoice
+		)
+
 		# Datos del cliente
 		customer_data = {
 			"legal_name": _nfc_collapse_upper(
 				customer.customer_name
 			),  # ← SIN mapas de acentos, PRESERVA Ñ y comillas
-			"tax_id": customer.get("tax_id"),
 			"email": customer.email_id
 			or frappe.db.get_value(
 				"Facturacion Mexico Company Settings",
@@ -838,6 +872,12 @@ class TimbradoAPI:
 				"customer_email_fallback",
 			),
 		}
+
+		# tax_id condicional: se OMITE para receptor extranjero sin número extranjero (FacturAPI
+		# coloca XEXX). Nunca se envía XEXX explícito.
+		_tax_id = receptor_tax_id_payload(customer, es_extranjera)
+		if _tax_id:
+			customer_data["tax_id"] = _tax_id
 
 		# Email fallback configurable por compañía en Facturacion Mexico Company Settings
 		# (customer_email_fallback). Si no hay correo del cliente ni fallback, queda None (sin envío).

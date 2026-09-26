@@ -175,6 +175,7 @@ fixtures = [
 					"Customer-fm_rfc_validated",
 					"Customer-fm_rfc_validation_date",
 					"Customer-fm_tax_regime",
+					"Customer-fm_num_reg_id_trib",
 					"Customer-fm_uso_cfdi_default",
 					"Customer-fm_validacion_sat_section",
 					# Customer tab + addenda EDI fields

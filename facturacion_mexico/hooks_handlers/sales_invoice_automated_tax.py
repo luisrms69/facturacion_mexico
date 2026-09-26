@@ -183,6 +183,15 @@ def _set_stct_by_branch(doc, branch: str | None):
 	NOTA E1: Fuerza carga de taxes desde STCT incluso si ya estaba asignado,
 	         para garantizar que STCT + ITT se combinen correctamente (fix issue #STCT-enabled).
 	"""
+	# Guard del importador histórico (cfdi_emitidos): el CFDI ya fue timbrado fuera del ERP y sus
+	# impuestos provienen del XML (fuente de verdad). El importador marca el doc con el flag
+	# transitorio `fm_from_cfdi_emitidos` durante su construcción/insert; solo en ESE flujo se evita
+	# que el STCT nacional/frontera sobrescriba los impuestos reconstruidos del XML. Es una señal
+	# ESPECÍFICA del importador (no `fm_folio_fiscal`, que también existe en el flujo normal timbrado),
+	# y transitoria (no afecta ediciones posteriores por el flujo normal).
+	if getattr(doc, "flags", None) and doc.flags.get("fm_from_cfdi_emitidos"):
+		return
+
 	if not branch or not getattr(doc, "company", None):
 		return
 
