@@ -254,6 +254,11 @@ class TestRuteoIntegracion(unittest.TestCase):
 					}
 				).insert(ignore_permissions=True)
 		cls.cost_center = frappe.db.get_value("Cost Center", {"company": cls.company, "is_group": 0}, "name")
+		# Moneda de la SI = moneda de la cuenta CxC (evita el choque de validate_party_account_currency
+		# cuando en CI la cuenta por cobrar tiene una moneda distinta a la default de la empresa).
+		cls.company_currency = frappe.db.get_value("Company", cls.company, "default_currency")
+		_recv = frappe.db.get_value("Company", cls.company, "default_receivable_account")
+		cls.si_currency = frappe.db.get_value("Account", _recv, "account_currency") or cls.company_currency
 		cls.uom = "Nos"
 		cls.cgroup = frappe.db.get_value("Customer Group", {"is_group": 0}, "name")
 		cls.territory = frappe.db.get_value("Territory", {"is_group": 0}, "name")
@@ -325,6 +330,10 @@ class TestRuteoIntegracion(unittest.TestCase):
 		doc.customer = customer
 		doc.company = self.company
 		doc.cost_center = self.cost_center
+		if self.si_currency:
+			doc.currency = self.si_currency
+			if self.si_currency != self.company_currency:
+				doc.conversion_rate = 1.0  # nominal: los tests verifican income_account, no FX
 		row = doc.append("items", {})
 		row.item_code = self.item
 		row.qty = 1
@@ -398,8 +407,9 @@ class TestRuteoIntegracion(unittest.TestCase):
 		}
 		cust_name = frappe.db.get_value("Customer", self.cust_xexx, "customer_name")
 		uuid = "AAA10000-0000-4000-8000-" + frappe.generate_hash()[:12].upper()
-		currency = frappe.db.get_value("Company", self.company, "default_currency")
-		xml = _CFDI.format(vu="100.00", mon=currency, rfc=XEXX, rname=cust_name, noid=self.noid, uuid=uuid)
+		xml = _CFDI.format(
+			vu="100.00", mon=self.si_currency, rfc=XEXX, rname=cust_name, noid=self.noid, uuid=uuid
+		)
 		with tempfile.TemporaryDirectory() as tmp:
 			with open(os.path.join(tmp, f"{uuid}.xml"), "w", encoding="utf-8") as fh:
 				fh.write(xml)
