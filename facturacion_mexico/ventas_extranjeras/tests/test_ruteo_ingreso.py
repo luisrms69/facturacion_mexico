@@ -221,10 +221,15 @@ _CFDI = """<?xml version="1.0" encoding="UTF-8"?>
 class TestRuteoIntegracion(unittest.TestCase):
 	@classmethod
 	def setUpClass(cls):
+		# Guardar originales ANTES de parchear y registrar la restauración con addClassCleanup:
+		# así se restaura commit/resolver y se hace rollback AUNQUE setUpClass falle a mitad
+		# (tearDownClass NO corre si setUpClass lanza; sin esto, un commit=no-op se filtraría
+		# a toda la suite y rompería otros tests — aislamiento).
 		cls._orig_commit = frappe.db.commit
+		cls._orig_getc = ruteo_ingreso.get_cuenta_ingreso_extranjera
+		cls.addClassCleanup(cls._restaurar_entorno)
 		frappe.db.commit = lambda *a, **k: None
 		# Fuente de la cuenta: se fuerza el resolver a una cuenta Income real (≠ default).
-		cls._orig_getc = ruteo_ingreso.get_cuenta_ingreso_extranjera
 		cls.foreign = "Service - _TC"  # Income leaf ≠ default_income_account (_Test Company)
 		_foreign = cls.foreign
 		ruteo_ingreso.get_cuenta_ingreso_extranjera = lambda company: _foreign
@@ -233,6 +238,21 @@ class TestRuteoIntegracion(unittest.TestCase):
 		cls.company = "_Test Company"
 		cls.default_income = frappe.db.get_value("Company", cls.company, "default_income_account")
 		cls.company_country = frappe.db.get_value("Company", cls.company, "country")
+		# CI puede no tener un Address Template por defecto; crear Address sin él lanza. Garantizarlo
+		# (transitorio: se revierte con el rollback de _restaurar_entorno).
+		if not frappe.db.exists("Address Template", {"is_default": 1}):
+			existente = frappe.db.get_value("Address Template", {}, "name")
+			if existente:
+				frappe.db.set_value("Address Template", existente, "is_default", 1)
+			else:
+				frappe.get_doc(
+					{
+						"doctype": "Address Template",
+						"country": cls.company_country or "United States",
+						"is_default": 1,
+						"template": "{{ address_line1 }}",
+					}
+				).insert(ignore_permissions=True)
 		cls.cost_center = frappe.db.get_value("Cost Center", {"company": cls.company, "is_group": 0}, "name")
 		cls.uom = "Nos"
 		cls.cgroup = frappe.db.get_value("Customer Group", {"is_group": 0}, "name")
@@ -261,7 +281,9 @@ class TestRuteoIntegracion(unittest.TestCase):
 		cls.cust_indet = cls._customer("ZZ-VEXT-IND-" + h, "ABC010101AAA")
 
 	@classmethod
-	def tearDownClass(cls):
+	def _restaurar_entorno(cls):
+		"""Restaura commit/resolver y descarta lo creado. Corre vía addClassCleanup,
+		incluso si setUpClass falló a mitad (garantiza aislamiento de la suite)."""
 		frappe.db.rollback()
 		frappe.db.commit = cls._orig_commit
 		ruteo_ingreso.get_cuenta_ingreso_extranjera = cls._orig_getc
