@@ -39,12 +39,49 @@ class ComplementoPagoMX(Document):
 		if not self.documentos_relacionados:
 			return
 
-		total_documentos = sum([doc.imp_pagado for doc in self.documentos_relacionados])
-		if abs(total_documentos - self.monto_p) > 0.01:
+		# El cuadre SAT es en MonedaP: ImpPagado está en MonedaDR y se convierte con
+		# EquivalenciaDR (= unidades de MonedaDR por 1 unidad de MonedaP):
+		#     importe_MonedaP = ImpPagado / EquivalenciaDR
+		# Se usa Decimal (no float) y una tolerancia por redondeo ∝ nº de documentos.
+		from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
+
+		moneda_p = (self.moneda_p or "").strip()
+		total_mp = Decimal("0")
+		for doc in self.documentos_relacionados:
+			try:
+				imp = Decimal(str(doc.imp_pagado or 0))
+			except InvalidOperation:
+				frappe.throw(_("Documento {0}: ImpPagado inválido.").format(doc.id_documento or doc.idx))
+			moneda_dr = (doc.moneda_dr or "").strip()
+			eq_raw = doc.equivalencia_dr
+			try:
+				eq = Decimal(str(eq_raw)) if eq_raw not in (None, "") else Decimal("0")
+			except InvalidOperation:
+				eq = Decimal("0")
+			if eq == 0:
+				# EquivalenciaDR faltante/0: permitido como 1 solo si MonedaDR == MonedaP.
+				if moneda_dr and moneda_p and moneda_dr != moneda_p:
+					frappe.throw(
+						_(
+							"Documento {0}: EquivalenciaDR es obligatoria cuando MonedaDR ({1}) difiere de MonedaP ({2})."
+						).format(doc.id_documento or doc.idx, moneda_dr, moneda_p)
+					)
+				eq = Decimal("1")
+			elif eq < 0:
+				frappe.throw(
+					_("Documento {0}: EquivalenciaDR no puede ser negativa.").format(
+						doc.id_documento or doc.idx
+					)
+				)
+			total_mp += (imp / eq).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+
+		monto = Decimal(str(self.monto_p or 0))
+		tol = Decimal("0.01") * max(1, len(self.documentos_relacionados))
+		if abs(total_mp - monto) > tol:
 			frappe.throw(
 				_(
-					f"La suma de documentos relacionados ({total_documentos}) no coincide con el monto del pago ({self.monto_p})"
-				)
+					"La suma de documentos relacionados convertida a MonedaP ({0}) no coincide con el monto del pago ({1})."
+				).format(total_mp, monto)
 			)
 
 	def before_cancel(self):
