@@ -354,9 +354,9 @@ def _write_reports(rep, terceros, report_dir):
 		"n_archivos",
 		"motivo",
 	]
-	with open(
+	with open(  # nosemgrep: frappe-security-file-traversal
 		base + ".csv", "w", encoding="utf-8", newline=""
-	) as fh:  # nosemgrep: frappe-security-file-traversal
+	) as fh:
 		w = csv.DictWriter(fh, fieldnames=gen_cols, extrasaction="ignore")
 		w.writeheader()
 		for t in terceros:

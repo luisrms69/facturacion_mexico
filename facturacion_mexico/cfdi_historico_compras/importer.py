@@ -323,9 +323,9 @@ def _write_reports(rep, missing_suppliers, report_dir, dry_run):
 		"estado",
 		"detalle",
 	]
-	with open(
+	with open(  # nosemgrep: frappe-security-file-traversal
 		base + ".csv", "w", encoding="utf-8", newline=""
-	) as fh:  # nosemgrep: frappe-security-file-traversal
+	) as fh:
 		w = csv.DictWriter(fh, fieldnames=cols, extrasaction="ignore")
 		w.writeheader()
 		for e in rep["detalle"]:
@@ -338,9 +338,9 @@ def _write_reports(rep, missing_suppliers, report_dir, dry_run):
 	if missing_suppliers:
 		sup_path = base + "_proveedores_faltantes.csv"
 		sup_cols = ["supplier_rfc", "supplier_name", "supplier_tax_regime", "archivo", "uuid"]
-		with open(
+		with open(  # nosemgrep: frappe-security-file-traversal
 			sup_path, "w", encoding="utf-8", newline=""
-		) as fh:  # nosemgrep: frappe-security-file-traversal
+		) as fh:
 			w = csv.DictWriter(fh, fieldnames=sup_cols, extrasaction="ignore")
 			w.writeheader()
 			for s in missing_suppliers:
