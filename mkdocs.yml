@@ -77,6 +77,9 @@ nav:
     - Reconciliación y fallback: tecnico/reconciliacion-fallback.md
     - Ambiente fiscal (fm_environment): tecnico/ambiente-fiscal.md
     - Importador CFDI emitidos: tecnico/importador-cfdi-emitidos.md
+    - Importador CFDI de compra: tecnico/importador-cfdi-compras.md
+    - Importador REP histórico: tecnico/importador-rep-historico.md
+    - Preparación de terceros: tecnico/preparacion-terceros.md
     - Ventas extranjeras (income account): tecnico/ventas-extranjeras-ingreso.md
     - ADRs:
       - adr/index.md
@@ -122,6 +125,7 @@ nav:
       - adr/0039-marca-visual-staging-bench.md
       - adr/0040-aprendizaje-historial-clasificacion-cfdi-recibido.md
       - adr/0041-cfdi-externo-timbrado-fuera-del-erp.md
+      - adr/0042-complemento-pago-multi-pago.md
   - Referencia:
     - referencia/index.md
     - DocTypes: referencia/doctypes.md

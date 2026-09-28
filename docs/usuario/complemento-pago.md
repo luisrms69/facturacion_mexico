@@ -90,6 +90,15 @@ en el cliente o el Payment Entry y vuelve a intentarlo.
 
 ---
 
+## Complementos con varios pagos y carga histórica
+
+- Un CFDI de pago (REP) puede contener **varios nodos Pago**. En ese caso el Complemento muestra la
+  tabla **Pagos**, con una fila por pago (fecha, forma, moneda, monto) y su propio Payment Entry.
+  Con varios pagos, cada Payment Entry se ve en esa tabla (no en el vínculo único legacy).
+- La **importación de REP históricos** (ya timbrados en otro sistema) se hace por un proceso técnico
+  por lote (ver *Técnico → Importador REP histórico*): reconstruye los Payment Entry y registra el
+  Complemento **sin** volver a llamar al PAC. No es un flujo de la interfaz de usuario.
+
 ## Troubleshooting
 
 **El complemento no se generó al hacer Submit:**

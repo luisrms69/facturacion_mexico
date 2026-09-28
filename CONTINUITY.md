@@ -1,73 +1,73 @@
 # CONTINUITY.md — facturacion_mexico
 
-**Fecha:** 2026-09-25
-**Rama activa:** `feat/ventas-extranjeras-fiscal-receptor`
-**Tarea actual:** Bloque fiscal 1 de ventas extranjeras — representación correcta del **receptor extranjero** (identidad), sin tocar IVA/ObjetoImp/Leyendas. Implementación + tests + validación funcional; en `/ship pr`.
+**Fecha:** 2026-09-27
+**Rama activa:** `feat/cfdi-emitidos-canceladas-draft`
+**Tarea actual:** Importadores históricos (ventas, compras, REP) + preparación de terceros + soporte
+multi-Pago del Complemento de Pago. En `/ship pr` (v1.9.0).
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-El primer sub-bloque fiscal de ventas a receptores extranjeros, correcto **independientemente** de si
-una operación futura califica a tasa 0%. Cubre solo la **identidad del receptor extranjero** en el CFDI
-y la **protección del histórico**, no el tratamiento de IVA.
-
-Plan que estoy siguiendo:
-Consenso Claude + ChatGPT contra LIVA/RLIVA/RMF 2026/Anexo 20 + XML históricos reales de receptores
-extranjeros del entorno. Evidencia real: todos los CFDI extranjeros usaron `Rfc=XEXX010101000`,
-`Exportacion=01`, `ObjetoImp=01`, **sin impuestos**, **sin complementos** además del TimbreFiscalDigital;
-`NumRegIdTrib`/`ResidenciaFiscal` **condicionales** (unos receptores sí los llevan, otros no). Por eso este
-bloque NO toca IVA/ObjetoImp ni implementa Complemento Leyendas Fiscales (Art. 29-IV-i queda fuera hasta
-demostrar que aplica).
+El cierre del frente de **cargas históricas** para preparar la migración de staging: importadores por
+lote de CFDI de venta, de compra y de REP (pagos), más una utilidad de preparación de Customers/Suppliers,
+y el soporte de **múltiples nodos Pago** en `Complemento Pago MX`.
 
 Objetivo inmediato:
-`/ship pr` hacia `main`. Tras merge: `/sync-check` + `/ship release` v1.8.0.
+`/ship pr` hacia `main` con bump **v1.9.0** (MINOR). Tras merge: `/sync-check` + `/ship release` v1.9.0.
 
 Criterio de avance:
-PR mergeado con bump 1.8.0; luego release. **Pendiente antes de dar por cerrado el modelo del receptor:**
-prueba de timbrado en **sandbox FacturAPI** (confirmar que `tax_id=<TIN>` + `country` producen
-`Rfc=XEXX`/`NumRegIdTrib`/`ResidenciaFiscal`).
+PR mergeado con bump 1.9.0; luego release. **Pendiente NO bloqueante:** validación end-to-end con datos
+reales de los importadores (hoy cubiertos por tests unitarios); prueba de PE cross-currency real.
 
 ---
 
-## Estado actual
+## Estado actual (implementado en la rama)
 
-Implementado en la rama:
+- **`cfdi_emitidos` (importador de venta):** los CFDI **cancelados ya no se omiten** — se crean como
+  Sales Invoice Draft por el mismo flujo que los vigentes (contador `cancelados` informativo).
+- **`cfdi_historico_compras` (nuevo):** importador batch de CFDI de compra → Purchase Invoice Draft
+  reutilizando `cfdi_recibidos` (dry-run read-only, idempotencia por `fm_cfdi_uuid`, fail-closed de
+  Supplier/Item/cuenta/impuesto, CSV de proveedores faltantes). No submit, no PAC.
+- **`preparacion_terceros` (nuevo, V1 solo lectura):** analiza XML y genera CSV de Customers/Suppliers
+  faltantes para Data Import; no crea nada; dedupe nacional por RFC / extranjero por NumRegIdTrib.
+- **`cfdi_historico_rep` (nuevo):** importa REP históricos → Payment Entry nativos + `Complemento Pago MX`
+  sin PAC. Direcciones EMITIDO (Receive/Sales Invoice) y RECIBIDO (Pay/Purchase Invoice); reconciliación
+  fuerte (UUID único, contraparte, MonedaDR==factura, `ImpSaldoAnt==outstanding`, Insoluto, ImpPagado,
+  cuadre `Monto=Σ(ImpPagado/EquivalenciaDR)`); orden cronológico por FechaPago; cuentas explícitas por
+  moneda; idempotencia por `folio_fiscal`; vigentes con PE, cancelados sin PE; **multi-Pago** (N PE + 1
+  Complemento, rollback total).
+- **`complementos_pago` (schema + código):** nuevo child `Complemento Pago Detalle Pago MX` + Table
+  `pagos` + `pago_idx` en `Documento Relacionado Pago MX`/`Detalle Complemento Pago MX`. Validación
+  `validate_documentos_relacionados` pago-aware con Decimal y **EquivalenciaDR SAT correcta**
+  (`ImpPagado/EquivalenciaDR`). `tipo_cambio_p` saliente corregido (MonedaP→MXN). Payload de timbrado
+  consume `pagos` (N nodos). Legacy (sin `pagos`) sigue válido sin data patch.
+- `__init__.py` — bump `1.8.0 → 1.9.0` (MINOR).
 
-- **`Customer.fm_num_reg_id_trib`** (Data, opcional) — hogar del NumRegIdTrib extranjero, separado del
-  RFC/XEXX. `depends_on: eval:doc.tax_id=="XEXX010101000"` (visible solo para receptor genérico extranjero).
-  Fixture + registro en `hooks.py`.
-- **`timbrado_api.py`** — `es_receptor_extranjero(si)` (reutiliza la clasificación v1.7.0) +
-  `receptor_tax_id_payload(customer, es_extranjera)`: nacional → RFC; extranjero → `fm_num_reg_id_trib`
-  o se **omite** (FacturAPI coloca XEXX). **Nunca** se envía XEXX como `tax_id`.
-- **Guard del importador** en `_set_stct_by_branch`: señal **transitoria específica**
-  `doc.flags.fm_from_cfdi_emitidos` (la setea el importador en `build_si`) → solo ese flujo evita que el
-  STCT nacional pise los impuestos del XML. El flujo normal (nuevo) sigue recibiendo su STCT (16%).
-- **`_resolve_customer_extranjero`** — resuelve el TIN primero contra `fm_num_reg_id_trib`, fallback a `tax_id`.
-- Tests: `ventas_extranjeras/tests/test_receptor_extranjero.py` (10) + `test_resolve_customer_extranjero.py`
-  (14). Validación funcional en `test-fm-v010.localhost`: guard específico (solo flujo importador evita
-  STCT) y mapeo receptor (omite XEXX / usa TIN) — con datos reales.
-- `__init__.py` — bump `1.7.0 → 1.8.0` (MINOR).
+Aplicado con `bench migrate` en `test-facturacion.localhost` (nuevo child + columnas). Sin data patch.
 
 ---
 
 ## Decisiones vigentes no evidentes en el código
 
-- **NO se toca IVA/ObjetoImp/STCT del flujo normal:** una venta extranjera nueva sigue a 16% salvo
-  determinación fiscal positiva (no implementada). Extranjero ≠ 0% automático.
-- **Complemento Leyendas Fiscales / Art. 29-IV-i: FUERA de alcance** — los XML reales no lo usaron.
-- Señal de histórico = flag transitorio del importador (`fm_from_cfdi_emitidos`), **no** `fm_folio_fiscal`
-  (que también existe en el flujo normal timbrado).
-- `depends_on` UI usa solo `tax_id==XEXX` (Address.country no es accesible en el form del Customer).
+- **Canónico vs legacy (sin data patch):** con filas `pagos`, esa tabla es la fuente de verdad; los
+  escalares del padre son espejo del primer Pago. Sin `pagos` = un Pago implícito por escalares.
+- **Cuentas fail-closed:** Receive→`paid_to`, Pay→`paid_from` explícitos (o mapa por moneda); nunca se
+  autoselecciona caja/banco; la cuenta debe estar en MonedaP.
+- **Sin PAC en históricos:** `fm_creation_source` vacío → la UI no ofrece cancelación/timbrado PAC.
+- **Cancelado por señal explícita del lote** (`cancelled_marker`), nunca inferido del XML.
+- **Cross-currency:** tasas derivadas de datos reales (`EquivalenciaDR × conversion_rate`); ERPNext es
+  árbitro final (savepoint revierte si no puede representar). Ver ADR 0042.
 
 ### Pendientes conocidos (NO bloqueantes)
-1. Prueba de timbrado en sandbox FacturAPI del receptor extranjero (cierre del modelo).
-2. Determinación fiscal del servicio real (Art. 29-IV-a/-i o ninguno) → define si algún día se implementa
-   el camino 0% + Leyendas. Depende de la naturaleza real del servicio, no de la ClaveProdServ.
+1. Validación end-to-end con datos reales de los importadores (hoy: tests unitarios; migrate verificado).
+2. PE cross-currency real (mapeo nativo validado solo por unit tests + ERPNext runtime).
+3. `tipo_cambio_p` saliente: quedó corregido; falta prueba de timbrado real en moneda extranjera.
 
 ---
 
 ## No commitear
 - `facturacion_mexico/one_offs/*` (validaciones y análisis histórico; nunca al repo).
-- `scripts/*`, `working_docs/private/`.
+- `docs/audit/validation_report.md` (artefacto generado por `scripts/validate_docs.py`).
+- `scripts/*` locales, `working_docs/private/`.

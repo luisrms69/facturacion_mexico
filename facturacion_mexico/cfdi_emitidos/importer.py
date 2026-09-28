@@ -1,8 +1,8 @@
 # Copyright (c) 2026, Buzola and contributors
 """Motor genérico de importación masiva: CFDI XML de venta -> Sales Invoice (Draft).
 
-Capacidad reusable de `facturacion_mexico`. Cada CFDI de Ingreso VIGENTE produce una
-Sales Invoice nativa en `docstatus = 0` (Draft) con su XML original adjunto.
+Capacidad reusable de `facturacion_mexico`. Cada CFDI de Ingreso (vigente o cancelado)
+produce una Sales Invoice nativa en `docstatus = 0` (Draft) con su XML original adjunto.
 
 NO hace Submit, NO timbra, NO llama al PAC, NO crea Payment Entry, NO crea Items ni
 Customers. El precio SIEMPRE viene del XML. Idempotente por UUID usando el campo
@@ -31,7 +31,9 @@ Manifest (JSON) — campos:
   default_cost_center(str, opcional) default si el Customer no tiene uno; si se omite,
                      se usa el cost_center por defecto de la Company.
   cancelled_marker   (str, opcional, default 'cancel') subcadena en el nombre de archivo
-                     que marca un CFDI cancelado (se omite del alta).
+                     que marca un CFDI cancelado. YA NO se omite del alta: se crea como
+                     Sales Invoice en Draft igual que un vigente; el marcador queda como
+                     dato informativo/trazabilidad en el reporte.
   tolerance          (float, opcional, default 0.05) tolerancia decimal de reconciliación.
 """
 
@@ -610,11 +612,12 @@ def run(source_dir=None, manifest=None, dry_run=1, report_dir="/tmp", limit=None
 				rep["detalle"].append({**entry, "estado": "ERROR_OTHER", "detalle": f"lectura: {exc}"})
 				continue
 
+			# Los CFDI cancelados YA NO se omiten: se crean como Sales Invoice en Draft por el
+			# MISMO flujo que los vigentes (sin submit, sin timbrado, sin PAC). El marcador queda
+			# solo como dato informativo/trazabilidad en el reporte de la corrida.
 			if cfg.cancelled_marker in fn.lower():
 				counts["cancelados"] += 1
-				counts["SKIP_CANCELLED"] += 1
-				rep["detalle"].append({**entry, "estado": "SKIP_CANCELLED"})
-				continue
+				entry["cfdi_cancelado"] = True
 			counts["vigentes"] += 1
 
 			try:

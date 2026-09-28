@@ -463,6 +463,7 @@ Fuente: `facturacion_mexico/complementos_pago/doctype/complemento_pago_mx/comple
 | `sello_pago` | Sello Pago | Long Text |  |  |
 | `documentos_relacionados` | Documentos Relacionados | Table |  | Documento Relacionado Pago MX |
 | `detalles_impuestos` | Impuestos Trasladados y Retenidos | Table |  | Detalle Complemento Pago MX |
+| `pagos` | Pagos (REP 2.0) | Table |  | Complemento Pago Detalle Pago MX |
 | `naming_series` | Serie de Nomenclatura | Select | ✅ | COMP-PAG-.YYYY.- |
 | `amended_from` | Amended From | Link |  | Complemento Pago MX |
 
@@ -474,6 +475,7 @@ Fuente: `facturacion_mexico/complementos_pago/doctype/detalle_complemento_pago_m
 
 | Campo | Label | Tipo | Requerido | Opciones |
 |---|---|---|---|---|
+| `pago_idx` | Pago # | Int |  | Nodo pago20:Pago al que pertenece |
 | `tipo_impuesto` | Tipo Impuesto | Select | ✅ | … |
 | `impuesto` | Impuesto | Link | ✅ | Impuesto SAT |
 | `tipo_factor` | Tipo Factor | Select | ✅ | … |
@@ -490,6 +492,7 @@ Fuente: `facturacion_mexico/complementos_pago/doctype/documento_relacionado_pago
 
 | Campo | Label | Tipo | Requerido | Opciones |
 |---|---|---|---|---|
+| `pago_idx` | Pago # | Int |  | Nodo pago20:Pago al que pertenece |
 | `id_documento` | ID Documento | Data | ✅ |  |
 | `serie` | Serie | Data |  |  |
 | `folio` | Folio | Data |  |  |
@@ -502,6 +505,34 @@ Fuente: `facturacion_mexico/complementos_pago/doctype/documento_relacionado_pago
 | `objeto_imp_dr` | Objeto Impuesto | Select | ✅ | … |
 | `tipo_documento` | Tipo Documento | Select |  | … |
 | `referencia_documento` | Referencia Documento | Dynamic Link |  | tipo_documento |
+
+
+### Complemento Pago Detalle Pago MX _Child table_
+
+Fuente: `facturacion_mexico/complementos_pago/doctype/complemento_pago_detalle_pago_mx/complemento_pago_detalle_pago_mx.json`
+
+Una fila = un nodo `pago20:Pago`. Representación **canónica** del Pago (multi-Pago). Los documentos
+relacionados e impuestos se asocian por `pago_idx`.
+
+| Campo | Label | Tipo | Requerido | Opciones |
+|---|---|---|---|---|
+| `pago_idx` | Pago # | Int | ✅ | Índice 1..N del nodo Pago |
+| `fecha_pago` | Fecha Pago | Datetime | ✅ |  |
+| `forma_pago_p` | Forma de Pago | Link | ✅ | Forma Pago SAT |
+| `moneda_p` | Moneda P | Link | ✅ | Moneda SAT |
+| `tipo_cambio_p` | Tipo de Cambio P | Currency |  |  |
+| `monto_p` | Monto | Currency | ✅ |  |
+| `num_operacion` | Num Operación | Data |  |  |
+| `rfc_emisor_cta_ord` | RFC Emisor Cta Ordenante | Data |  |  |
+| `nom_banco_ord_ext` | Nombre Banco Ordenante Extranjero | Data |  |  |
+| `cta_ordenante` | Cuenta Ordenante | Data |  |  |
+| `rfc_emisor_cta_ben` | RFC Emisor Cta Beneficiario | Data |  |  |
+| `cta_beneficiario` | Cuenta Beneficiario | Data |  |  |
+| `tipo_cad_pago` | Tipo Cadena Pago | Data |  |  |
+| `cert_pago` | Certificado Pago | Small Text |  |  |
+| `cad_pago` | Cadena Pago | Small Text |  |  |
+| `sello_pago` | Sello Pago | Small Text |  |  |
+| `payment_entry` | Payment Entry | Link |  | Payment Entry |
 
 
 ## Dashboard Fiscal

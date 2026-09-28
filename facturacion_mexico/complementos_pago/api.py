@@ -63,8 +63,10 @@ def crear_complemento_pago_desde_pe(payment_entry_name: str) -> dict:
 	complemento.monto_p = flt(pe.paid_amount)
 	complemento.moneda_p = _get_currency(pe)
 
-	if complemento.moneda_p != "MXN":
-		complemento.tipo_cambio_p = flt(pe.get("source_exchange_rate") or 1.0)
+	# TipoCambioP = MonedaP→MXN (Receive: target_exchange_rate). None cuando MonedaP == MXN.
+	complemento.tipo_cambio_p = _tipo_cambio_p(
+		complemento.moneda_p, flt(pe.get("target_exchange_rate")) or 1.0
+	)
 
 	complemento.fm_creation_source = "Timbrado directo"
 
@@ -77,6 +79,21 @@ def crear_complemento_pago_desde_pe(payment_entry_name: str) -> dict:
 
 	# --- Llenar detalles_impuestos ---
 	_llenar_detalles_impuestos(complemento, pe)
+
+	# --- Modelo canónico: un único nodo Pago en `pagos` (pago_idx=1) espejo de los escalares ---
+	complemento.append(
+		"pagos",
+		{
+			"pago_idx": 1,
+			"fecha_pago": complemento.fecha_pago,
+			"forma_pago_p": complemento.forma_pago_p,
+			"moneda_p": complemento.moneda_p,
+			"tipo_cambio_p": complemento.tipo_cambio_p,
+			"monto_p": complemento.monto_p,
+			"num_operacion": complemento.num_operacion,
+			"payment_entry": pe.name,
+		},
+	)
 
 	# ignore_mandatory: folio_fiscal se asigna tras el timbrado con el PAC.
 	# No puede llenarse antes — es el UUID del CFDI timbrado.
@@ -191,6 +208,67 @@ def _get_currency(pe) -> str:
 	return pe.get("paid_to_account_currency") or pe.get("paid_from_account_currency") or "MXN"
 
 
+def _equivalencia_dr(moneda_dr: str, moneda_p: str, inv_rate_dr_to_mxn, pay_rate_p_to_mxn) -> float:
+	"""EquivalenciaDR (SAT Pagos 2.0) = unidades de MonedaDR por 1 unidad de MonedaP.
+
+	Equivale a (MonedaP→MXN) / (MonedaDR→MXN). Por regla SAT, si MonedaDR == MonedaP ⇒ 1.
+
+	- inv_rate_dr_to_mxn: tipo de cambio de la factura = MonedaDR→MXN (Sales Invoice.conversion_rate).
+	- pay_rate_p_to_mxn:  tipo de cambio del pago    = MonedaP→MXN (Receive: PE.target_exchange_rate).
+	"""
+	if (moneda_dr or "MXN") == (moneda_p or "MXN"):
+		return 1.0
+	inv = flt(inv_rate_dr_to_mxn) or 1.0
+	pay = flt(pay_rate_p_to_mxn) or 1.0
+	return round(pay / inv, 6)
+
+
+def _tipo_cambio_p(moneda_p: str, pay_rate_p_to_mxn):
+	"""TipoCambioP (SAT) = tipo de cambio de MonedaP respecto a MXN. Depende SOLO de MonedaP.
+
+	None cuando MonedaP == MXN (SAT no lo exige). Para Receive, pay_rate = PE.target_exchange_rate."""
+	if (moneda_p or "MXN") == "MXN":
+		return None
+	return round(flt(pay_rate_p_to_mxn) or 1.0, 6)
+
+
+def _build_related_docs(comp, pago_idx=None):
+	"""related_documents del payload FacturAPI para un nodo Pago (o todos si pago_idx=None).
+
+	Filtra documentos_relacionados y detalles_impuestos por pago_idx (agrupación multi-Pago)."""
+	related = []
+	for dr in comp.documentos_relacionados:
+		if pago_idx is not None and int(dr.get("pago_idx") or 1) != pago_idx:
+			continue
+		taxes_payload = []
+		for det in comp.detalles_impuestos:
+			if det.documento_relacionado != dr.id_documento:
+				continue
+			if pago_idx is not None and int(det.get("pago_idx") or 1) != pago_idx:
+				continue
+			taxes_payload.append(
+				{
+					"base": round(flt(det.base_dr), 6),
+					"type": _impuesto_sat_to_facturapi(det.impuesto),
+					"rate": round(flt(det.tasa_cuota), 6),
+					"factor": det.tipo_factor,
+					"withholding": det.tipo_impuesto == "Retencion",
+				}
+			)
+		related_doc = {
+			"uuid": dr.id_documento,
+			"folio_number": str(dr.folio) if dr.folio else "",
+			"amount": round(flt(dr.imp_pagado), 2),
+			"last_balance": round(flt(dr.imp_saldo_ant), 2),
+			"installment": int(dr.num_parcialidad),
+			"taxability": dr.objeto_imp_dr,
+		}
+		if taxes_payload:
+			related_doc["taxes"] = taxes_payload
+		related.append(related_doc)
+	return related
+
+
 @frappe.whitelist()
 def timbrar_complemento_pago(complemento_name: str) -> dict:
 	"""
@@ -263,53 +341,38 @@ def timbrar_complemento_pago(complemento_name: str) -> dict:
 				receptor_name = "VENTA MOSTRADOR"
 	customer_data = _build_customer_data(receptor_name, comp.company)
 
-	# --- Construir related_documents ---
-	related_docs = []
-	for dr in comp.documentos_relacionados:
-		taxes_payload = []
-		for det in comp.detalles_impuestos:
-			if det.documento_relacionado != dr.id_documento:
-				continue
-			taxes_payload.append(
+	# --- Construir data[] de Pago (modelo canónico `pagos`; fallback legacy a escalares) ---
+	# Cada nodo Pago aporta un elemento en complements[].data con sus propios related_documents
+	# (agrupados por pago_idx). FacturAPI admite múltiples pagos en data[].
+	pagos_data = []
+	if comp.pagos:
+		for pg in sorted(comp.pagos, key=lambda r: int(r.pago_idx or 1)):
+			pagos_data.append(
 				{
-					"base": round(flt(det.base_dr), 6),
-					"type": _impuesto_sat_to_facturapi(det.impuesto),
-					"rate": round(flt(det.tasa_cuota), 6),
-					"factor": det.tipo_factor,
-					"withholding": det.tipo_impuesto == "Retencion",
+					"payment_form": str(pg.forma_pago_p),
+					"currency": str(pg.moneda_p),
+					"exchange": round(flt(pg.tipo_cambio_p or 1), 6),
+					"date": str(pg.fecha_pago),
+					"related_documents": _build_related_docs(comp, int(pg.pago_idx or 1)),
 				}
 			)
-
-		related_doc = {
-			"uuid": dr.id_documento,
-			"folio_number": str(dr.folio) if dr.folio else "",
-			"amount": round(flt(dr.imp_pagado), 2),
-			"last_balance": round(flt(dr.imp_saldo_ant), 2),
-			"installment": int(dr.num_parcialidad),
-			"taxability": dr.objeto_imp_dr,
-		}
-		if taxes_payload:
-			related_doc["taxes"] = taxes_payload
-		related_docs.append(related_doc)
+	else:
+		# Legacy: sin filas `pagos` → un único Pago desde los escalares del padre.
+		pagos_data.append(
+			{
+				"payment_form": str(comp.forma_pago_p),
+				"currency": str(comp.moneda_p),
+				"exchange": round(flt(comp.tipo_cambio_p or 1), 6),
+				"date": str(comp.fecha_pago),
+				"related_documents": _build_related_docs(comp, None),
+			}
+		)
 
 	# --- Payload FacturAPI ---
 	payload = {
 		"type": "P",
 		"customer": customer_data,
-		"complements": [
-			{
-				"type": "pago",
-				"data": [
-					{
-						"payment_form": str(comp.forma_pago_p),
-						"currency": str(comp.moneda_p),
-						"exchange": round(flt(comp.tipo_cambio_p or 1), 6),
-						"date": str(comp.fecha_pago),
-						"related_documents": related_docs,
-					}
-				],
-			}
-		],
+		"complements": [{"type": "pago", "data": pagos_data}],
 	}
 
 	frappe.logger().info(f"Complemento {complemento_name} — payload: {json.dumps(payload, default=str)}")
@@ -870,7 +933,13 @@ def _llenar_documentos_relacionados(complemento, pe):
 				"serie": serie,
 				"folio": folio,
 				"moneda_dr": si.currency or "MXN",
-				"equivalencia_dr": flt(si.conversion_rate) if si.currency != "MXN" else 1.0,
+				# EquivalenciaDR SAT = MonedaDR por MonedaP (no es el conversion_rate de la factura).
+				"equivalencia_dr": _equivalencia_dr(
+					si.currency or "MXN",
+					complemento.moneda_p or "MXN",
+					si.conversion_rate,
+					flt(pe.get("target_exchange_rate")) or 1.0,
+				),
 				"num_parcialidad": num_parcialidad,
 				"imp_saldo_ant": imp_saldo_ant,
 				"imp_pagado": imp_pagado,

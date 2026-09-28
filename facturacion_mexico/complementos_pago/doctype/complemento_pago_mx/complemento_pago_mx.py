@@ -39,12 +39,61 @@ class ComplementoPagoMX(Document):
 		if not self.documentos_relacionados:
 			return
 
-		total_documentos = sum([doc.imp_pagado for doc in self.documentos_relacionados])
-		if abs(total_documentos - self.monto_p) > 0.01:
+		# Modelo CANÓNICO: si hay filas `pagos`, se valida el cuadre por nodo Pago (agrupando
+		# documentos_relacionados por pago_idx). Legacy (sin `pagos`): escalares del padre = 1 Pago.
+		if self.get("pagos"):
+			for pg in self.pagos:
+				idx = int(pg.pago_idx or 1)
+				docs = [d for d in self.documentos_relacionados if int(d.get("pago_idx") or 1) == idx]
+				if docs:
+					self._validar_cuadre_pago(docs, pg.moneda_p, pg.monto_p, f"Pago {idx}")
+			return
+
+		self._validar_cuadre_pago(self.documentos_relacionados, self.moneda_p, self.monto_p, "Pago")
+
+	def _validar_cuadre_pago(self, docs, moneda_p, monto_p, etiqueta):
+		"""Cuadre SAT en MonedaP: importe_MonedaP = ImpPagado / EquivalenciaDR (Decimal).
+
+		EquivalenciaDR = unidades de MonedaDR por 1 de MonedaP; faltante/0 solo vale 1 si
+		MonedaDR == MonedaP; negativa = error. Tolerancia por redondeo ∝ nº de documentos."""
+		from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
+
+		moneda_p = (moneda_p or "").strip()
+		total_mp = Decimal("0")
+		for doc in docs:
+			try:
+				imp = Decimal(str(doc.imp_pagado or 0))
+			except InvalidOperation:
+				frappe.throw(_("Documento {0}: ImpPagado inválido.").format(doc.id_documento or doc.idx))
+			moneda_dr = (doc.moneda_dr or "").strip()
+			eq_raw = doc.equivalencia_dr
+			try:
+				eq = Decimal(str(eq_raw)) if eq_raw not in (None, "") else Decimal("0")
+			except InvalidOperation:
+				eq = Decimal("0")
+			if eq == 0:
+				if moneda_dr and moneda_p and moneda_dr != moneda_p:
+					frappe.throw(
+						_(
+							"Documento {0}: EquivalenciaDR es obligatoria cuando MonedaDR ({1}) difiere de MonedaP ({2})."
+						).format(doc.id_documento or doc.idx, moneda_dr, moneda_p)
+					)
+				eq = Decimal("1")
+			elif eq < 0:
+				frappe.throw(
+					_("Documento {0}: EquivalenciaDR no puede ser negativa.").format(
+						doc.id_documento or doc.idx
+					)
+				)
+			total_mp += (imp / eq).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+
+		monto = Decimal(str(monto_p or 0))
+		tol = Decimal("0.01") * max(1, len(docs))
+		if abs(total_mp - monto) > tol:
 			frappe.throw(
 				_(
-					f"La suma de documentos relacionados ({total_documentos}) no coincide con el monto del pago ({self.monto_p})"
-				)
+					"{0}: la suma de documentos relacionados en MonedaP ({1}) no coincide con el monto del pago ({2})."
+				).format(etiqueta, total_mp, monto)
 			)
 
 	def before_cancel(self):

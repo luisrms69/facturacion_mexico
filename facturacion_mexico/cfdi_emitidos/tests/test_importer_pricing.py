@@ -115,9 +115,9 @@ class TestImporterPricing(unittest.TestCase):
 				}
 			).insert(ignore_permissions=True)
 
-	def _write_xml(self, tmp, uuid, vu=800):
+	def _write_xml(self, tmp, uuid, vu=800, fname=None):
 		xml = _CFDI.format(vu=f"{vu:.2f}", mon=self.currency, rfc=self.rfc, noid=self.noid, uuid=uuid)
-		path = os.path.join(tmp, f"{uuid}.xml")
+		path = os.path.join(tmp, fname or f"{uuid}.xml")
 		with open(path, "w", encoding="utf-8") as fh:
 			fh.write(xml)
 		return path
@@ -186,6 +186,23 @@ class TestImporterPricing(unittest.TestCase):
 			rep2 = self._run(tmp, dry_run=1)
 			self.assertEqual(rep2.get("READY"), 1)
 			self.assertEqual(rep2.get("SKIP_EXISTING", 0), 0)
+
+	def test_4_cancelado_se_crea_como_draft(self):
+		# Un CFDI marcado como cancelado (marcador 'cancel' en el nombre) YA NO se omite:
+		# se crea como Sales Invoice en Draft (docstatus=0) por el MISMO flujo que un vigente.
+		self._set_item_price(1000)
+		uuid = self._uuid("DDD")
+		with tempfile.TemporaryDirectory() as tmp:
+			self._write_xml(tmp, uuid, vu=800, fname=f"{uuid}_Cancelado.xml")
+			rep = self._run(tmp, dry_run=0)
+		si = frappe.db.get_value(
+			"Sales Invoice", {"fm_folio_fiscal": uuid}, ["name", "docstatus"], as_dict=True
+		)
+		self.assertTrue(si, "la SI del CFDI cancelado debió crearse")
+		self.assertEqual(si.docstatus, 0, "debe quedar en Draft (docstatus=0)")
+		self.assertEqual(rep.get("cancelados"), 1, "se contabiliza como cancelado (informativo)")
+		self.assertEqual(rep.get("CREADA"), 1, "se creó igual que un vigente")
+		self.assertEqual(rep.get("SKIP_CANCELLED", 0), 0, "ya no debe omitirse")
 
 
 if __name__ == "__main__":

@@ -113,6 +113,14 @@ La PI se crea como Draft con:
 
 ---
 
+## Carga histórica por lote
+
+Además del flujo interactivo de arriba, existe un **importador por lote** para cargar XML de compra
+históricos como Purchase Invoice en Draft, reutilizando este mismo pipeline (ver *Técnico → Importador
+CFDI de compra*): tiene **dry-run de solo lectura**, es **idempotente por UUID** (`fm_cfdi_uuid`),
+**no crea proveedores** (los faltantes se listan en un CSV para Data Import) y es **fail-closed** ante
+Item/cuenta/impuesto faltante. No hace submit ni llama al PAC.
+
 ## Configuración previa necesaria
 
 !!! warning "Prerequisito: CoA validado"

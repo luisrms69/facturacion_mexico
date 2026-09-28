@@ -32,7 +32,7 @@ como un `manifest` (dict o ruta a JSON) externo. Campos:
 | `item_map` | sí | Mapa `NoIdentificacion` del CFDI → `item_code` real del site. |
 | `iva_account` | si hay traslados | Cuenta para el IVA trasladado. |
 | `default_cost_center` | no | Default si el Customer no tiene uno (si se omite, el de la Company). |
-| `cancelled_marker` | no (`cancel`) | Subcadena en el nombre de archivo que marca un CFDI cancelado. |
+| `cancelled_marker` | no (`cancel`) | Subcadena en el nombre de archivo que marca un CFDI cancelado. Los CFDI cancelados **ya no se omiten**: se crean como Sales Invoice en Draft por el mismo flujo que los vigentes; el marcador queda como dato informativo/trazabilidad. |
 | `tolerance` | no (`0.05`) | Tolerancia decimal de la reconciliación de importes. |
 
 El motor es **genérico**: no contiene mapeos, cuentas ni datos de ninguna empresa.
@@ -117,9 +117,9 @@ operaciones concurrentes.
 
 | Estado | Significado |
 |---|---|
-| `READY` / `CREADA` | Listo para crear / creado en Draft. |
+| `READY` / `CREADA` | Listo para crear / creado en Draft (incluye CFDI cancelados). |
 | `SKIP_EXISTING` | Ya existe una Sales Invoice con ese UUID. |
-| `SKIP_CANCELLED` | CFDI cancelado (por `cancelled_marker`). |
+| `cancelados` (contador) | CFDI marcados como cancelados que **sí** se importan como Draft (informativo). |
 | `ERROR_CUSTOMER` / `ERROR_CUSTOMER_AMB` | Customer no resuelto / ambiguo. |
 | `ERROR_ITEM` | `NoIdentificacion` sin mapeo a Item. |
 | `ERROR_TAX` / `ERROR_TOTAL` | Falta cuenta de IVA / importes no reconcilian. |

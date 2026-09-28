@@ -45,3 +45,4 @@ Registro permanente de decisiones de arquitectura. Un ADR nunca se modifica — 
 | [0039](0039-marca-visual-staging-bench.md) | Marca visual de STAGING a nivel de bench (rediseño de #171) |
 | [0040](0040-aprendizaje-historial-clasificacion-cfdi-recibido.md) | Aprendizaje por historial en la clasificación de conceptos CFDI Recibido |
 | [0041](0041-cfdi-externo-timbrado-fuera-del-erp.md) | CFDI externo: representar un timbrado ocurrido fuera de este ERP |
+| [0042](0042-complemento-pago-multi-pago.md) | Complemento Pago MX: soporte de múltiples nodos Pago (REP 2.0) |

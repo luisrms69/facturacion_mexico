@@ -5,6 +5,7 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "pago_idx",
   "tipo_impuesto",
   "impuesto",
   "tipo_factor",
@@ -15,6 +16,13 @@
   "documento_relacionado"
  ],
  "fields": [
+  {
+   "default": "1",
+   "description": "Nodo pago20:Pago (pago_idx) al que pertenece este renglón",
+   "fieldname": "pago_idx",
+   "fieldtype": "Int",
+   "label": "Pago #"
+  },
   {
    "fieldname": "tipo_impuesto",
    "fieldtype": "Select",
