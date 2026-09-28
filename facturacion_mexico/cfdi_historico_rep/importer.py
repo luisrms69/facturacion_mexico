@@ -17,10 +17,11 @@ Reglas clave:
 - **Orden cronológico** por `FechaPago` (así, aplicar la parcialidad N exige que 1..N-1 ya estén
   aplicadas → `ImpSaldoAnt == outstanding`). No se exige que todas las parcialidades estén en el
   mismo lote: basta que el outstanding real coincida con `ImpSaldoAnt`.
-- **Monedas:** soporta `MonedaP == MonedaDR` (incl. MXN/MXN y USD/USD). Conversión real a la moneda
-  de la empresa vía `conversion_rate` de la factura. `MonedaP != MonedaDR` (conversión cruzada) →
-  **fail-closed** `ERROR_MULTIMONEDA_CRUZADA` (no se inventan tasas). Si ERPNext rechaza la
-  construcción, el savepoint revierte → fail-closed (nunca asiento incorrecto).
+- **Monedas:** soporta `MonedaP == MonedaDR` (MXN/MXN, USD/USD) y también `MonedaP != MonedaDR`
+  (conversión cruzada) usando tasas DERIVADAS de datos reales — `MonedaP->MXN = EquivalenciaDR x
+  conversion_rate` de la factura (no se inventan tasas). Requiere tasa MonedaP->MXN uniforme entre
+  documentos y cuenta bancaria en MonedaP; si no, `ERROR_MULTIMONEDA_CRUZADA`/`ERROR_CUENTA`. Si
+  ERPNext no puede representar el pago, el savepoint revierte → fail-closed (nunca asiento incorrecto).
 - **Cuentas fail-closed:** Receive exige `paid_to` explícito del manifest; Pay exige `paid_from`.
   NO se autoselecciona caja/banco; FormaDePagoP no determina cuenta; Mode of Payment no se usa
   para inferir cuenta.
@@ -159,6 +160,13 @@ def resolve_pi_by_uuid(uuid: str):
 	return None, ("ambiguous" if len(rows) > 1 else "missing")
 
 
+def resolve_account_currency(account: str):
+	"""Moneda de la cuenta (o None si no se puede determinar)."""
+	if not account:
+		return None
+	return frappe.db.get_value("Account", account, "account_currency") or None
+
+
 def _catalogo_ok(forma_pago: str, moneda: str) -> str:
 	if forma_pago and not frappe.db.exists("Forma Pago SAT", forma_pago):
 		return f"Forma Pago SAT '{forma_pago}'"
@@ -207,24 +215,14 @@ def _reconciliar(pago: dict, direction: str, counterparty: str, tol: float):
 				"ERROR_MONEDA",
 				f"MonedaDR {moneda_dr} ≠ moneda factura {inv_cur} ({inv.name})",
 			)
-		# Soporte de moneda: MonedaP == MonedaDR. Conversión cruzada → fail-closed.
-		if moneda_p != moneda_dr:
-			return (
-				None,
-				None,
-				None,
-				"ERROR_MULTIMONEDA_CRUZADA",
-				(
-					f"MonedaP {moneda_p} != MonedaDR {moneda_dr} ({inv.name}) — conversión cruzada no soportada (V1)"
-				),
-			)
 		try:
 			eq = Decimal(str(d.get("equivalencia_dr") or "1"))
 		except InvalidOperation:
 			return None, None, None, "ERROR_MONEDA", f"EquivalenciaDR inválida en {inv.name}"
 		if eq <= 0:
 			eq = Decimal("1")
-		if abs(eq - Decimal("1")) > Decimal("0.000001"):
+		# Regla SAT: si MonedaDR == MonedaP, EquivalenciaDR debe ser 1.
+		if moneda_p == moneda_dr and abs(eq - Decimal("1")) > Decimal("0.000001"):
 			return (
 				None,
 				None,
@@ -232,6 +230,9 @@ def _reconciliar(pago: dict, direction: str, counterparty: str, tol: float):
 				"ERROR_MONEDA",
 				f"EquivalenciaDR {eq} != 1 con MonedaP==MonedaDR ({inv.name})",
 			)
+		# Tasa MonedaP->MXN derivada de datos REALES (no inventada):
+		#   EquivalenciaDR (MonedaDR por MonedaP) x conversion_rate (MonedaDR->MXN) = MonedaP->MXN.
+		derived_pay_rate = round(float(eq) * (flt(inv.conversion_rate) or 1.0), 6)
 
 		saldo_ant = flt(d.get("imp_saldo_ant"))
 		imp = flt(d.get("imp_pagado"))
@@ -267,14 +268,14 @@ def _reconciliar(pago: dict, direction: str, counterparty: str, tol: float):
 		ref_map.append((inv.name, imp, inv_cur))
 		doc_links[uuid] = inv.name
 		total_mp += _to_moneda_p(imp, eq)
-		rates.add(round(flt(inv.conversion_rate) or 1.0, 6))
+		rates.add(derived_pay_rate)  # MonedaP->MXN uniforme por pago
 
 	# Cuadre del pago: Monto ≈ Σ(ImpPagado/EquivalenciaDR) (Decimal), tolerancia ∝ nº docs.
 	monto = Decimal(str(pago.get("monto") or 0))
 	if abs(total_mp - monto) > Decimal("0.01") * len(pago["docs"]):
 		return None, None, None, "ERROR_MONTO", f"Σ(ImpPagado/EquivDR)={total_mp} ≠ Monto={monto}"
 
-	# Tipo de cambio uniforme a la moneda de la empresa (todas las refs comparten moneda).
+	# Tipo de cambio MonedaP->MXN uniforme (necesario para un exchange_rate único del PE).
 	if len(rates) > 1:
 		return (
 			None,
@@ -282,7 +283,7 @@ def _reconciliar(pago: dict, direction: str, counterparty: str, tol: float):
 			None,
 			"ERROR_MULTIMONEDA_CRUZADA",
 			(
-				f"Facturas con tipos de cambio distintos {sorted(rates)} — no se puede fijar un exchange_rate único"
+				f"Tasas MonedaP->MXN distintas entre documentos {sorted(rates)} — no se puede fijar un exchange_rate único"
 			),
 		)
 	exch_rate = rates.pop() if rates else 1.0
@@ -315,8 +316,17 @@ def _crear_payment_entry(cfg, parsed, pago, ref_map, exch_rate, direction, accou
 		if moneda_p != cfg.company_currency:
 			pe.source_exchange_rate = flt(exch_rate) or 1.0
 
-	pe.paid_amount = flt(pago["monto"])
-	pe.received_amount = flt(pago["monto"])
+	# Montos: en MonedaP y su equivalente en moneda de la empresa (base = Monto x exch_rate).
+	# Para misma moneda que la empresa, base == Monto. ERPNext valida el resto (dif/exchange g/l).
+	monto = flt(pago["monto"])
+	base = round(monto * (flt(exch_rate) or 1.0), 2)
+	same_cur = moneda_p == cfg.company_currency
+	if direction == _DIR_EMITIDO:  # Receive: recibe en MonedaP; acredita CxC en moneda empresa
+		pe.received_amount = monto
+		pe.paid_amount = monto if same_cur else base
+	else:  # Pay: paga en MonedaP; debita CxP en moneda empresa
+		pe.paid_amount = monto
+		pe.received_amount = monto if same_cur else base
 	for inv_name, imp, _cur in ref_map:
 		pe.append(
 			"references",
@@ -519,6 +529,15 @@ def _process_file(path: str, cfg: RunConfig, dry_run: bool, index: int) -> dict:
 			**entry,
 			"estado": "ERROR_CUENTA",
 			"detalle": f"Falta cuenta explícita {rol_cta} en el manifest",
+		}
+	# La cuenta de banco/efectivo debe estar en MonedaP (no se convierte una cuenta de otra moneda).
+	moneda_p = pago.get("moneda_p") or "MXN"
+	acc_cur = resolve_account_currency(account)
+	if acc_cur and acc_cur != moneda_p:
+		return {
+			**entry,
+			"estado": "ERROR_CUENTA",
+			"detalle": f"cuenta {account} ({acc_cur}) ≠ MonedaP {moneda_p}",
 		}
 
 	# Catálogos SAT del Complemento

@@ -191,6 +191,21 @@ def _get_currency(pe) -> str:
 	return pe.get("paid_to_account_currency") or pe.get("paid_from_account_currency") or "MXN"
 
 
+def _equivalencia_dr(moneda_dr: str, moneda_p: str, inv_rate_dr_to_mxn, pay_rate_p_to_mxn) -> float:
+	"""EquivalenciaDR (SAT Pagos 2.0) = unidades de MonedaDR por 1 unidad de MonedaP.
+
+	Equivale a (MonedaP→MXN) / (MonedaDR→MXN). Por regla SAT, si MonedaDR == MonedaP ⇒ 1.
+
+	- inv_rate_dr_to_mxn: tipo de cambio de la factura = MonedaDR→MXN (Sales Invoice.conversion_rate).
+	- pay_rate_p_to_mxn:  tipo de cambio del pago    = MonedaP→MXN (Receive: PE.target_exchange_rate).
+	"""
+	if (moneda_dr or "MXN") == (moneda_p or "MXN"):
+		return 1.0
+	inv = flt(inv_rate_dr_to_mxn) or 1.0
+	pay = flt(pay_rate_p_to_mxn) or 1.0
+	return round(pay / inv, 6)
+
+
 @frappe.whitelist()
 def timbrar_complemento_pago(complemento_name: str) -> dict:
 	"""
@@ -870,7 +885,13 @@ def _llenar_documentos_relacionados(complemento, pe):
 				"serie": serie,
 				"folio": folio,
 				"moneda_dr": si.currency or "MXN",
-				"equivalencia_dr": flt(si.conversion_rate) if si.currency != "MXN" else 1.0,
+				# EquivalenciaDR SAT = MonedaDR por MonedaP (no es el conversion_rate de la factura).
+				"equivalencia_dr": _equivalencia_dr(
+					si.currency or "MXN",
+					complemento.moneda_p or "MXN",
+					si.conversion_rate,
+					flt(pe.get("target_exchange_rate")) or 1.0,
+				),
 				"num_parcialidad": num_parcialidad,
 				"imp_saldo_ant": imp_saldo_ant,
 				"imp_pagado": imp_pagado,

@@ -162,10 +162,33 @@ class TestReconciliar(unittest.TestCase):
 		)
 		self.assertEqual(est, "ERROR_MONEDA")
 
-	def test_multimoneda_cruzada(self):
-		# MonedaP=MXN, MonedaDR=USD (factura USD) → cruzada
-		pago = _pago(moneda_p="MXN", docs=[_doc(moneda_dr="USD")])
-		_r, _l, _e, est, _d = self._rec(pago, inv=_inv(customer="C-1", currency="USD"))
+	def test_cross_mxn_inv_usd_pay(self):
+		# Factura MXN (conv 1), pago USD, EquivalenciaDR=17 (MXN por USD). ImpPagado 1700 MXN / 17 = 100 USD.
+		pago = _pago(monto=100, moneda_p="USD", docs=[_doc(1700.0, "MXN", "17")])
+		inv = _inv(customer="C-1", currency="MXN", conversion_rate=1.0, outstanding_amount=1700.0)
+		_rm, _l, ex, est, _d = self._rec(pago, inv=inv)
+		self.assertIsNone(est)
+		self.assertEqual(ex, 17.0)  # MonedaP(USD)->MXN
+
+	def test_cross_usd_inv_mxn_pay(self):
+		# Factura USD (conv 20), pago MXN, EquivalenciaDR=0.05 (USD por MXN). ImpPagado 100 USD / 0.05 = 2000 MXN.
+		pago = _pago(monto=2000, moneda_p="MXN", docs=[_doc(100.0, "USD", "0.05")])
+		inv = _inv(customer="C-1", currency="USD", conversion_rate=20.0, outstanding_amount=100.0)
+		_rm, _l, ex, est, _d = self._rec(pago, inv=inv)
+		self.assertIsNone(est)
+		self.assertEqual(ex, 1.0)  # MonedaP(MXN)->MXN
+
+	def test_cross_no_uniforme(self):
+		inv1 = _inv(
+			name="SI-1", customer="C-1", currency="MXN", conversion_rate=1.0, outstanding_amount=1700.0
+		)
+		inv2 = _inv(
+			name="SI-2", customer="C-1", currency="MXN", conversion_rate=1.0, outstanding_amount=1800.0
+		)
+		docs = [_doc(1700.0, "MXN", "17", iddoc="U1"), _doc(1800.0, "MXN", "18", iddoc="U2")]
+		pago = _pago(monto=200, moneda_p="USD", docs=docs)  # derived 17 y 18 → no uniforme
+		with patch.object(importer, "resolve_si_by_uuid", side_effect=[(inv1, None), (inv2, None)]):
+			_r, _l, _e, est, _d = importer._reconciliar(pago, importer._DIR_EMITIDO, "C-1", 0.05)
 		self.assertEqual(est, "ERROR_MULTIMONEDA_CRUZADA")
 
 	def test_equivalencia_ne1_misma_moneda(self):
@@ -222,6 +245,7 @@ def _run(
 	is_pi=False,
 	cust=("C-1", None),
 	sup=("S-1", None),
+	acc_cur=None,
 	pe="PE-1",
 	comp="COMP-1",
 ):
@@ -234,6 +258,7 @@ def _run(
 		patch.object(importer, "resolve_supplier_by_rfc", return_value=sup),
 		patch.object(importer, "resolve_si_by_uuid", return_value=(inv, None)),
 		patch.object(importer, "resolve_pi_by_uuid", return_value=(inv, None)),
+		patch.object(importer, "resolve_account_currency", return_value=acc_cur),
 		patch.object(importer, "_catalogo_ok", return_value=""),
 		patch.object(importer, "_crear_payment_entry", return_value=pe) as m_pe,
 		patch.object(importer, "_crear_complemento", return_value=comp) as m_comp,
@@ -311,6 +336,12 @@ class TestFailClosed(unittest.TestCase):
 		cfg = _cfg()
 		cfg.paid_to_account = None  # emitido requiere paid_to
 		entry, m_pe, _mc = _run(_tmpfile(), cfg, False, inv=_inv(customer="C-1"))
+		self.assertEqual(entry["estado"], "ERROR_CUENTA")
+		m_pe.assert_not_called()
+
+	def test_cuenta_moneda_distinta(self):
+		# Cuenta en USD pero MonedaP=MXN → fail-closed (no se convierte una cuenta de otra moneda)
+		entry, m_pe, _mc = _run(_tmpfile(), _cfg(), False, inv=_inv(customer="C-1"), acc_cur="USD")
 		self.assertEqual(entry["estado"], "ERROR_CUENTA")
 		m_pe.assert_not_called()
 
