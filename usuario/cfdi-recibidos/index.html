@@ -647,6 +647,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#carga-historica-por-lote" class="md-nav__link">
+    <span class="md-ellipsis">
+      Carga histórica por lote
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#configuracion-previa-necesaria" class="md-nav__link">
     <span class="md-ellipsis">
       Configuración previa necesaria
@@ -1023,6 +1032,69 @@
   
   
     <li class="md-nav__item">
+      <a href="../../tecnico/importador-cfdi-compras/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Importador CFDI de compra
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tecnico/importador-rep-historico/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Importador REP histórico
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tecnico/preparacion-terceros/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Preparación de terceros
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../tecnico/ventas-extranjeras-ingreso/" class="md-nav__link">
         
   
@@ -1058,10 +1130,10 @@
         
           
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_10" >
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_13" >
         
           
-          <label class="md-nav__link" for="__nav_3_10" id="__nav_3_10_label" tabindex="">
+          <label class="md-nav__link" for="__nav_3_13" id="__nav_3_13_label" tabindex="">
             
   
   <span class="md-ellipsis">
@@ -1072,8 +1144,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_10_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_10">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_13_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_13">
             <span class="md-nav__icon md-icon"></span>
             ADRs
           </label>
@@ -1982,6 +2054,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0042-complemento-pago-multi-pago/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0042 — Complemento Pago MX: soporte de múltiples nodos Pago (REP 2.0)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2268,6 +2361,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#carga-historica-por-lote" class="md-nav__link">
+    <span class="md-ellipsis">
+      Carga histórica por lote
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#configuracion-previa-necesaria" class="md-nav__link">
     <span class="md-ellipsis">
       Configuración previa necesaria
@@ -2495,6 +2597,12 @@ departamento → Falta clasificación → Clasificado → Convertido a PI</stron
 <p>Debe existir <code>Configuracion CFDI Recibidos</code> para la empresa, con el wizard de impuestos completado. Sin este paso la conversión falla.</p>
 </div>
 <hr />
+<h2 id="carga-historica-por-lote">Carga histórica por lote<a class="headerlink" href="#carga-historica-por-lote" title="Permanent link">&para;</a></h2>
+<p>Además del flujo interactivo de arriba, existe un <strong>importador por lote</strong> para cargar XML de compra
+históricos como Purchase Invoice en Draft, reutilizando este mismo pipeline (ver <em>Técnico → Importador
+CFDI de compra</em>): tiene <strong>dry-run de solo lectura</strong>, es <strong>idempotente por UUID</strong> (<code>fm_cfdi_uuid</code>),
+<strong>no crea proveedores</strong> (los faltantes se listan en un CSV para Data Import) y es <strong>fail-closed</strong> ante
+Item/cuenta/impuesto faltante. No hace submit ni llama al PAC.</p>
 <h2 id="configuracion-previa-necesaria">Configuración previa necesaria<a class="headerlink" href="#configuracion-previa-necesaria" title="Permanent link">&para;</a></h2>
 <div class="admonition warning">
 <p class="admonition-title">Prerequisito: CoA validado</p>

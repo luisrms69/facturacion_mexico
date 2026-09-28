@@ -854,6 +854,69 @@
   
   
     <li class="md-nav__item">
+      <a href="../../tecnico/importador-cfdi-compras/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Importador CFDI de compra
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tecnico/importador-rep-historico/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Importador REP histórico
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tecnico/preparacion-terceros/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Preparación de terceros
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../tecnico/ventas-extranjeras-ingreso/" class="md-nav__link">
         
   
@@ -889,10 +952,10 @@
         
           
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_10" >
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_13" >
         
           
-          <label class="md-nav__link" for="__nav_3_10" id="__nav_3_10_label" tabindex="">
+          <label class="md-nav__link" for="__nav_3_13" id="__nav_3_13_label" tabindex="">
             
   
   <span class="md-ellipsis">
@@ -903,8 +966,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_10_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_10">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_13_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_13">
             <span class="md-nav__icon md-icon"></span>
             ADRs
           </label>
@@ -1813,6 +1876,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0042-complemento-pago-multi-pago/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0042 — Complemento Pago MX: soporte de múltiples nodos Pago (REP 2.0)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2209,6 +2293,15 @@
   <a href="#documento-relacionado-pago-mx-child-table" class="md-nav__link">
     <span class="md-ellipsis">
       Documento Relacionado Pago MX Child table
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#complemento-pago-detalle-pago-mx-child-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Complemento Pago Detalle Pago MX Child table
     </span>
   </a>
   
@@ -2986,6 +3079,15 @@
   <a href="#documento-relacionado-pago-mx-child-table" class="md-nav__link">
     <span class="md-ellipsis">
       Documento Relacionado Pago MX Child table
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#complemento-pago-detalle-pago-mx-child-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Complemento Pago Detalle Pago MX Child table
     </span>
   </a>
   
@@ -5442,6 +5544,13 @@
 <td>Detalle Complemento Pago MX</td>
 </tr>
 <tr>
+<td><code>pagos</code></td>
+<td>Pagos (REP 2.0)</td>
+<td>Table</td>
+<td></td>
+<td>Complemento Pago Detalle Pago MX</td>
+</tr>
+<tr>
 <td><code>naming_series</code></td>
 <td>Serie de Nomenclatura</td>
 <td>Select</td>
@@ -5470,6 +5579,13 @@
 </tr>
 </thead>
 <tbody>
+<tr>
+<td><code>pago_idx</code></td>
+<td>Pago #</td>
+<td>Int</td>
+<td></td>
+<td>Nodo pago20:Pago al que pertenece</td>
+</tr>
 <tr>
 <td><code>tipo_impuesto</code></td>
 <td>Tipo Impuesto</td>
@@ -5534,6 +5650,13 @@
 </tr>
 </thead>
 <tbody>
+<tr>
+<td><code>pago_idx</code></td>
+<td>Pago #</td>
+<td>Int</td>
+<td></td>
+<td>Nodo pago20:Pago al que pertenece</td>
+</tr>
 <tr>
 <td><code>id_documento</code></td>
 <td>ID Documento</td>
@@ -5617,6 +5740,142 @@
 <td>Dynamic Link</td>
 <td></td>
 <td>tipo_documento</td>
+</tr>
+</tbody>
+</table>
+<h3 id="complemento-pago-detalle-pago-mx-child-table">Complemento Pago Detalle Pago MX <em>Child table</em><a class="headerlink" href="#complemento-pago-detalle-pago-mx-child-table" title="Permanent link">&para;</a></h3>
+<p>Fuente: <code>facturacion_mexico/complementos_pago/doctype/complemento_pago_detalle_pago_mx/complemento_pago_detalle_pago_mx.json</code></p>
+<p>Una fila = un nodo <code>pago20:Pago</code>. Representación <strong>canónica</strong> del Pago (multi-Pago). Los documentos
+relacionados e impuestos se asocian por <code>pago_idx</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Label</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Opciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pago_idx</code></td>
+<td>Pago #</td>
+<td>Int</td>
+<td>✅</td>
+<td>Índice 1..N del nodo Pago</td>
+</tr>
+<tr>
+<td><code>fecha_pago</code></td>
+<td>Fecha Pago</td>
+<td>Datetime</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>forma_pago_p</code></td>
+<td>Forma de Pago</td>
+<td>Link</td>
+<td>✅</td>
+<td>Forma Pago SAT</td>
+</tr>
+<tr>
+<td><code>moneda_p</code></td>
+<td>Moneda P</td>
+<td>Link</td>
+<td>✅</td>
+<td>Moneda SAT</td>
+</tr>
+<tr>
+<td><code>tipo_cambio_p</code></td>
+<td>Tipo de Cambio P</td>
+<td>Currency</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>monto_p</code></td>
+<td>Monto</td>
+<td>Currency</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>num_operacion</code></td>
+<td>Num Operación</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>rfc_emisor_cta_ord</code></td>
+<td>RFC Emisor Cta Ordenante</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>nom_banco_ord_ext</code></td>
+<td>Nombre Banco Ordenante Extranjero</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>cta_ordenante</code></td>
+<td>Cuenta Ordenante</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>rfc_emisor_cta_ben</code></td>
+<td>RFC Emisor Cta Beneficiario</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>cta_beneficiario</code></td>
+<td>Cuenta Beneficiario</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>tipo_cad_pago</code></td>
+<td>Tipo Cadena Pago</td>
+<td>Data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>cert_pago</code></td>
+<td>Certificado Pago</td>
+<td>Small Text</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>cad_pago</code></td>
+<td>Cadena Pago</td>
+<td>Small Text</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>sello_pago</code></td>
+<td>Sello Pago</td>
+<td>Small Text</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>payment_entry</code></td>
+<td>Payment Entry</td>
+<td>Link</td>
+<td></td>
+<td>Payment Entry</td>
 </tr>
 </tbody>
 </table>

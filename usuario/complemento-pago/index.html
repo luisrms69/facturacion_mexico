@@ -620,6 +620,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#complementos-con-varios-pagos-y-carga-historica" class="md-nav__link">
+    <span class="md-ellipsis">
+      Complementos con varios pagos y carga histórica
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#troubleshooting" class="md-nav__link">
     <span class="md-ellipsis">
       Troubleshooting
@@ -966,6 +975,69 @@
   
   
     <li class="md-nav__item">
+      <a href="../../tecnico/importador-cfdi-compras/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Importador CFDI de compra
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tecnico/importador-rep-historico/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Importador REP histórico
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tecnico/preparacion-terceros/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Preparación de terceros
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../tecnico/ventas-extranjeras-ingreso/" class="md-nav__link">
         
   
@@ -1001,10 +1073,10 @@
         
           
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_10" >
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_13" >
         
           
-          <label class="md-nav__link" for="__nav_3_10" id="__nav_3_10_label" tabindex="">
+          <label class="md-nav__link" for="__nav_3_13" id="__nav_3_13_label" tabindex="">
             
   
   <span class="md-ellipsis">
@@ -1015,8 +1087,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_10_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_10">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_13_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_13">
             <span class="md-nav__icon md-icon"></span>
             ADRs
           </label>
@@ -1925,6 +1997,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0042-complemento-pago-multi-pago/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0042 — Complemento Pago MX: soporte de múltiples nodos Pago (REP 2.0)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2205,6 +2298,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#complementos-con-varios-pagos-y-carga-historica" class="md-nav__link">
+    <span class="md-ellipsis">
+      Complementos con varios pagos y carga histórica
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#troubleshooting" class="md-nav__link">
     <span class="md-ellipsis">
       Troubleshooting
@@ -2291,6 +2393,15 @@ se resuelve en este orden:</p>
 <p>Si no hay destinatario, aparece un aviso naranja. En ese caso, configura el email
 en el cliente o el Payment Entry y vuelve a intentarlo.</p>
 <hr />
+<h2 id="complementos-con-varios-pagos-y-carga-historica">Complementos con varios pagos y carga histórica<a class="headerlink" href="#complementos-con-varios-pagos-y-carga-historica" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Un CFDI de pago (REP) puede contener <strong>varios nodos Pago</strong>. En ese caso el Complemento muestra la
+  tabla <strong>Pagos</strong>, con una fila por pago (fecha, forma, moneda, monto) y su propio Payment Entry.
+  Con varios pagos, cada Payment Entry se ve en esa tabla (no en el vínculo único legacy).</li>
+<li>La <strong>importación de REP históricos</strong> (ya timbrados en otro sistema) se hace por un proceso técnico
+  por lote (ver <em>Técnico → Importador REP histórico</em>): reconstruye los Payment Entry y registra el
+  Complemento <strong>sin</strong> volver a llamar al PAC. No es un flujo de la interfaz de usuario.</li>
+</ul>
 <h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
 <p><strong>El complemento no se generó al hacer Submit:</strong>
 1. Verificar que la Sales Invoice tiene <code>fm_payment_method_sat = PPD</code>

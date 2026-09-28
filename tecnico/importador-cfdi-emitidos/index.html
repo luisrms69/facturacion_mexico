@@ -16,7 +16,7 @@
         <link rel="prev" href="../ambiente-fiscal/">
       
       
-        <link rel="next" href="../ventas-extranjeras-ingreso/">
+        <link rel="next" href="../importador-cfdi-compras/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -996,6 +996,69 @@
   
   
     <li class="md-nav__item">
+      <a href="../importador-cfdi-compras/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Importador CFDI de compra
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../importador-rep-historico/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Importador REP histórico
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../preparacion-terceros/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Preparación de terceros
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../ventas-extranjeras-ingreso/" class="md-nav__link">
         
   
@@ -1031,10 +1094,10 @@
         
           
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_10" >
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_13" >
         
           
-          <label class="md-nav__link" for="__nav_3_10" id="__nav_3_10_label" tabindex="">
+          <label class="md-nav__link" for="__nav_3_13" id="__nav_3_13_label" tabindex="">
             
   
   <span class="md-ellipsis">
@@ -1045,8 +1108,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_10_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_10">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_13_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_13">
             <span class="md-nav__icon md-icon"></span>
             ADRs
           </label>
@@ -1955,6 +2018,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0042-complemento-pago-multi-pago/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ADR 0042 — Complemento Pago MX: soporte de múltiples nodos Pago (REP 2.0)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2341,7 +2425,7 @@ como un <code>manifest</code> (dict o ruta a JSON) externo. Campos:</p>
 <tr>
 <td><code>cancelled_marker</code></td>
 <td>no (<code>cancel</code>)</td>
-<td>Subcadena en el nombre de archivo que marca un CFDI cancelado.</td>
+<td>Subcadena en el nombre de archivo que marca un CFDI cancelado. Los CFDI cancelados <strong>ya no se omiten</strong>: se crean como Sales Invoice en Draft por el mismo flujo que los vigentes; el marcador queda como dato informativo/trazabilidad.</td>
 </tr>
 <tr>
 <td><code>tolerance</code></td>
@@ -2419,15 +2503,15 @@ operaciones concurrentes.</p>
 <tbody>
 <tr>
 <td><code>READY</code> / <code>CREADA</code></td>
-<td>Listo para crear / creado en Draft.</td>
+<td>Listo para crear / creado en Draft (incluye CFDI cancelados).</td>
 </tr>
 <tr>
 <td><code>SKIP_EXISTING</code></td>
 <td>Ya existe una Sales Invoice con ese UUID.</td>
 </tr>
 <tr>
-<td><code>SKIP_CANCELLED</code></td>
-<td>CFDI cancelado (por <code>cancelled_marker</code>).</td>
+<td><code>cancelados</code> (contador)</td>
+<td>CFDI marcados como cancelados que <strong>sí</strong> se importan como Draft (informativo).</td>
 </tr>
 <tr>
 <td><code>ERROR_CUSTOMER</code> / <code>ERROR_CUSTOMER_AMB</code></td>
