@@ -15,18 +15,26 @@ from facturacion_mexico.complementos_pago.doctype.complemento_pago_mx.complement
 )
 
 
-def _doc(imp, moneda_dr, eq, idd="D1"):
-	return types.SimpleNamespace(
-		imp_pagado=imp, moneda_dr=moneda_dr, equivalencia_dr=eq, id_documento=idd, idx=1
+def _doc(imp, moneda_dr, eq, idd="D1", pago_idx=1):
+	return frappe._dict(
+		imp_pagado=imp, moneda_dr=moneda_dr, equivalencia_dr=eq, id_documento=idd, idx=1, pago_idx=pago_idx
 	)
 
 
-def _comp(moneda_p, monto_p, docs):
-	return types.SimpleNamespace(moneda_p=moneda_p, monto_p=monto_p, documentos_relacionados=docs)
+def _pg(pago_idx, moneda_p, monto_p):
+	return frappe._dict(pago_idx=pago_idx, moneda_p=moneda_p, monto_p=monto_p)
+
+
+def _comp(moneda_p, monto_p, docs, pagos=None):
+	c = frappe._dict(moneda_p=moneda_p, monto_p=monto_p, documentos_relacionados=docs)
+	if pagos is not None:
+		c.pagos = pagos
+	return c
 
 
 def _validate(comp):
-	# método desligado; solo lee moneda_p / monto_p / documentos_relacionados
+	# Se invoca el método desligado sobre un doble duck-typed; se inyecta el helper enlazado.
+	comp._validar_cuadre_pago = types.MethodType(ComplementoPagoMX._validar_cuadre_pago, comp)
 	ComplementoPagoMX.validate_documentos_relacionados(comp)
 
 
@@ -72,6 +80,19 @@ class TestValidateMultimoneda(unittest.TestCase):
 		# Pago USD, doc MXN, EquivalenciaDR=1 (incorrecto) → 2000 MXN tratado como 2000 USD ≠ 100
 		with self.assertRaises(frappe.ValidationError):
 			_validate(_comp("USD", 100.0, [_doc(2000.0, "MXN", 1)]))
+
+	# ── canónico: validación por nodo Pago (pago_idx) ──
+	def test_multi_pago_cada_grupo_cuadra(self):
+		docs = [_doc(1000.0, "MXN", 1, "A", pago_idx=1), _doc(2000.0, "MXN", 1, "B", pago_idx=2)]
+		pagos = [_pg(1, "MXN", 1000.0), _pg(2, "MXN", 2000.0)]
+		_validate(_comp("MXN", 1000.0, docs, pagos=pagos))  # no raise (cada Pago cuadra su grupo)
+
+	def test_multi_pago_grupo_no_cuadra_falla(self):
+		# Pago 2: docs suman 2000 pero monto_p=1500 → falla solo ese grupo
+		docs = [_doc(1000.0, "MXN", 1, "A", pago_idx=1), _doc(2000.0, "MXN", 1, "B", pago_idx=2)]
+		pagos = [_pg(1, "MXN", 1000.0), _pg(2, "MXN", 1500.0)]
+		with self.assertRaises(frappe.ValidationError):
+			_validate(_comp("MXN", 1000.0, docs, pagos=pagos))
 
 
 if __name__ == "__main__":

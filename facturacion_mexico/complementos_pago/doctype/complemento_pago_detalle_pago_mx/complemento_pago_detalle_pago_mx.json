@@ -1,0 +1,162 @@
+{
+ "actions": [],
+ "creation": "2026-09-27 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "pago_idx",
+  "fecha_pago",
+  "forma_pago_p",
+  "moneda_p",
+  "tipo_cambio_p",
+  "monto_p",
+  "column_break_pago",
+  "num_operacion",
+  "rfc_emisor_cta_ord",
+  "nom_banco_ord_ext",
+  "cta_ordenante",
+  "rfc_emisor_cta_ben",
+  "cta_beneficiario",
+  "section_cadena_pago",
+  "tipo_cad_pago",
+  "cert_pago",
+  "cad_pago",
+  "sello_pago",
+  "section_pe",
+  "payment_entry"
+ ],
+ "fields": [
+  {
+   "description": "Índice 1..N del nodo pago20:Pago dentro del CFDI",
+   "fieldname": "pago_idx",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Pago #",
+   "reqd": 1
+  },
+  {
+   "fieldname": "fecha_pago",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Fecha Pago",
+   "reqd": 1
+  },
+  {
+   "description": "Catálogo SAT c_FormaPago",
+   "fieldname": "forma_pago_p",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Forma de Pago",
+   "options": "Forma Pago SAT",
+   "reqd": 1
+  },
+  {
+   "description": "Catálogo SAT c_Moneda",
+   "fieldname": "moneda_p",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Moneda P",
+   "options": "Moneda SAT",
+   "reqd": 1
+  },
+  {
+   "fieldname": "tipo_cambio_p",
+   "fieldtype": "Currency",
+   "label": "Tipo de Cambio P",
+   "precision": 6
+  },
+  {
+   "fieldname": "monto_p",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Monto",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_pago",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "num_operacion",
+   "fieldtype": "Data",
+   "label": "Num Operación"
+  },
+  {
+   "fieldname": "rfc_emisor_cta_ord",
+   "fieldtype": "Data",
+   "label": "RFC Emisor Cta Ordenante"
+  },
+  {
+   "fieldname": "nom_banco_ord_ext",
+   "fieldtype": "Data",
+   "label": "Nombre Banco Ordenante Extranjero"
+  },
+  {
+   "fieldname": "cta_ordenante",
+   "fieldtype": "Data",
+   "label": "Cuenta Ordenante"
+  },
+  {
+   "fieldname": "rfc_emisor_cta_ben",
+   "fieldtype": "Data",
+   "label": "RFC Emisor Cta Beneficiario"
+  },
+  {
+   "fieldname": "cta_beneficiario",
+   "fieldtype": "Data",
+   "label": "Cuenta Beneficiario"
+  },
+  {
+   "fieldname": "section_cadena_pago",
+   "fieldtype": "Section Break",
+   "label": "Cadena de Pago"
+  },
+  {
+   "fieldname": "tipo_cad_pago",
+   "fieldtype": "Data",
+   "label": "Tipo Cadena Pago"
+  },
+  {
+   "fieldname": "cert_pago",
+   "fieldtype": "Small Text",
+   "label": "Certificado Pago"
+  },
+  {
+   "fieldname": "cad_pago",
+   "fieldtype": "Small Text",
+   "label": "Cadena Pago"
+  },
+  {
+   "fieldname": "sello_pago",
+   "fieldtype": "Small Text",
+   "label": "Sello Pago"
+  },
+  {
+   "fieldname": "section_pe",
+   "fieldtype": "Section Break",
+   "label": "Payment Entry"
+  },
+  {
+   "description": "Payment Entry de ESTE nodo Pago (uno por Pago)",
+   "fieldname": "payment_entry",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Payment Entry",
+   "options": "Payment Entry"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-09-27 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Complementos Pago",
+ "name": "Complemento Pago Detalle Pago MX",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

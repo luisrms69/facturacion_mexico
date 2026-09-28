@@ -25,8 +25,11 @@ Reglas clave:
 - **Cuentas fail-closed:** Receive exige `paid_to` explícito del manifest; Pay exige `paid_from`.
   NO se autoselecciona caja/banco; FormaDePagoP no determina cuenta; Mode of Payment no se usa
   para inferir cuenta.
-- **REP cancelado** (señal explícita del lote): Complemento histórico Cancelado, SIN Payment Entry.
-- **Múltiples nodos `Pago`** → `ERROR_MULTIPLE_PAGOS` (el modelo representa 1 Pago / 1 payment_entry).
+- **REP cancelado** (señal explícita del lote): Complemento histórico Cancelado, SIN Payment Entry
+  (conserva TODOS los nodos Pago + documentos + impuestos).
+- **Múltiples nodos `Pago`**: UN Complemento (folio_fiscal único) con N filas `pagos`, N Payment Entry
+  (uno por Pago, en orden FechaPago), documentos/impuestos agrupados por `pago_idx`. No se colapsan
+  Pagos ni se parte el UUID. Rollback TOTAL del REP si falla cualquier Pago.
 - **Sin PAC.** `fm_creation_source` vacío (evita ofrecer cancelación PAC de un REP no timbrado aquí).
 
 Ejecución:
@@ -87,8 +90,11 @@ class RunConfig:
 		self.cancelled_marker = (cfg.get("cancelled_marker") or "cancel").lower()
 		self.tolerance = flt(cfg.get("tolerance") or 0.05)
 		# Cuentas EXPLÍCITAS (sin autoselección): Receive→paid_to, Pay→paid_from.
+		# Cuenta única y/o mapa por moneda {"USD": "...", "MXN": "..."} para Pagos en distinta moneda.
 		self.paid_to_account = cfg.get("paid_to_account") or None
 		self.paid_from_account = cfg.get("paid_from_account") or None
+		self.paid_to_accounts = cfg.get("paid_to_accounts") or {}
+		self.paid_from_accounts = cfg.get("paid_from_accounts") or {}
 		self.company_currency = frappe.db.get_value("Company", self.company, "default_currency") or "MXN"
 
 
@@ -167,6 +173,23 @@ def resolve_account_currency(account: str):
 	return frappe.db.get_value("Account", account, "account_currency") or None
 
 
+def _account_for(cfg, direction, moneda_p):
+	"""Cuenta banco/efectivo para un Pago según su MonedaP. None si no es inequívoca.
+
+	Preferencia: mapa por moneda del manifest; si no, cuenta única cuando su moneda coincide con
+	MonedaP (o no se puede determinar). NUNCA autoselecciona caja/banco por defecto."""
+	moneda_p = moneda_p or "MXN"
+	mapa = cfg.paid_to_accounts if direction == _DIR_EMITIDO else cfg.paid_from_accounts
+	if mapa and moneda_p in mapa:
+		return mapa[moneda_p]
+	single = cfg.paid_to_account if direction == _DIR_EMITIDO else cfg.paid_from_account
+	if single:
+		acc_cur = resolve_account_currency(single)
+		if acc_cur is None or acc_cur == moneda_p:
+			return single
+	return None
+
+
 def _catalogo_ok(forma_pago: str, moneda: str) -> str:
 	if forma_pago and not frappe.db.exists("Forma Pago SAT", forma_pago):
 		return f"Forma Pago SAT '{forma_pago}'"
@@ -176,12 +199,16 @@ def _catalogo_ok(forma_pago: str, moneda: str) -> str:
 
 
 # ------------------------------------------------------------- reconciliación
-def _reconciliar(pago: dict, direction: str, counterparty: str, tol: float):
+def _reconciliar(pago: dict, direction: str, counterparty: str, tol: float, outstanding_map=None):
 	"""Valida cada DoctoRelacionado y el cuadre del pago.
 
 	Retorna (ref_map, doc_links, exch_rate, estado_error, detalle).
 	ref_map = [(inv_name, imp_pagado, currency)]; doc_links = {uuid: inv_name};
 	exch_rate = tipo de cambio uniforme MonedaP→company (o 1.0). En error: (None, None, None, estado, detalle).
+
+	outstanding_map (opcional): {inv_name: saldo simulado}. Si se pasa, `ImpSaldoAnt` se compara
+	contra el saldo simulado (que refleja pagos previos del mismo REP ya procesados) y se decrementa
+	al validar cada documento — así una parcialidad N solo pasa si 1..N-1 ya se aplicaron.
 	"""
 	moneda_p = (pago.get("moneda_p") or "MXN").strip()
 	ref_map, doc_links = [], {}
@@ -237,7 +264,11 @@ def _reconciliar(pago: dict, direction: str, counterparty: str, tol: float):
 		saldo_ant = flt(d.get("imp_saldo_ant"))
 		imp = flt(d.get("imp_pagado"))
 		insol = flt(d.get("imp_saldo_insoluto"))
-		out = flt(inv.outstanding_amount)
+		out = (
+			outstanding_map.get(inv.name, flt(inv.outstanding_amount))
+			if outstanding_map is not None
+			else flt(inv.outstanding_amount)
+		)
 		if abs(saldo_ant - out) > tol:
 			return (
 				None,
@@ -269,6 +300,8 @@ def _reconciliar(pago: dict, direction: str, counterparty: str, tol: float):
 		doc_links[uuid] = inv.name
 		total_mp += _to_moneda_p(imp, eq)
 		rates.add(derived_pay_rate)  # MonedaP->MXN uniforme por pago
+		if outstanding_map is not None:
+			outstanding_map[inv.name] = out - imp  # simula el saldo tras esta parcialidad
 
 	# Cuadre del pago: Monto ≈ Σ(ImpPagado/EquivalenciaDR) (Decimal), tolerancia ∝ nº docs.
 	monto = Decimal(str(pago.get("monto") or 0))
@@ -338,20 +371,18 @@ def _crear_payment_entry(cfg, parsed, pago, ref_map, exch_rate, direction, accou
 	return pe.name
 
 
-def _crear_complemento(cfg, parsed, pago, pe_name, estatus, direction, doc_links, raw):
-	"""Crea y SUBMIT un Complemento Pago MX (representación fiscal). NO llama al PAC."""
+def _crear_complemento(cfg, parsed, pagos_data, estatus, direction, raw):
+	"""Crea y SUBMIT UN Complemento Pago MX con N nodos Pago. NO llama al PAC.
+
+	pagos_data = lista de dicts {pago_idx, pago, doc_links, pe_name} — representación CANÓNICA.
+	Los escalares del padre son espejo del PRIMER Pago (compat legacy/UI), no fuente de verdad.
+	"""
 	tipo_doc = "Sales Invoice" if direction == _DIR_EMITIDO else "Purchase Invoice"
 	comp = frappe.new_doc("Complemento Pago MX")
 	comp.company = cfg.company
-	# customer solo aplica al emitido; en recibido el proveedor queda vía documentos_relacionados→PI.
 	if direction == _DIR_EMITIDO:
 		comp.customer = resolve_customer_by_rfc(parsed["receptor_rfc"])[0]
-	comp.payment_entry = pe_name  # None para cancelado
-	comp.fecha_pago = pago["fecha_pago"]
-	comp.forma_pago_p = pago["forma_pago"]
-	comp.moneda_p = pago.get("moneda_p") or "MXN"
-	comp.monto_p = flt(pago["monto"])
-	comp.tipo_cambio_p = flt(pago.get("tipo_cambio_p")) or 1.0
+	# --- Identidad CFDI (nivel padre) ---
 	comp.uuid_sat = parsed["uuid"]
 	comp.folio_fiscal = parsed["uuid"]  # ancla de idempotencia (unique)
 	comp.id_documento = parsed["uuid"]
@@ -362,43 +393,75 @@ def _crear_complemento(cfg, parsed, pago, pe_name, estatus, direction, doc_links
 	comp.status = "Timbrado" if estatus == "Vigente" else "Cancelado"
 	comp.estatus_sat = estatus
 	comp.fm_creation_source = ""  # vacío: NO "Timbrado directo" (evita cancelación PAC de la UI)
-	comp.num_operacion = pago.get("num_operacion") or None
-	comp.rfc_emisor_cta_ord = pago.get("rfc_emisor_cta_ord") or None
-	comp.nom_banco_ord_ext = pago.get("nom_banco_ord_ext") or None
-	comp.cta_ordenante = pago.get("cta_ordenante") or None
-	comp.rfc_emisor_cta_ben = pago.get("rfc_emisor_cta_ben") or None
-	comp.cta_beneficiario = pago.get("cta_beneficiario") or None
 
-	for d in pago["docs"]:
+	pagos_data = sorted(pagos_data, key=lambda x: x["pago_idx"])
+	# --- Escalares legacy = espejo del PRIMER Pago (compat; canónico = tabla `pagos`) ---
+	p0 = pagos_data[0]["pago"]
+	comp.fecha_pago = p0["fecha_pago"]
+	comp.forma_pago_p = p0["forma_pago"]
+	comp.moneda_p = p0.get("moneda_p") or "MXN"
+	comp.monto_p = flt(p0["monto"])
+	comp.tipo_cambio_p = flt(p0.get("tipo_cambio_p")) or 1.0
+	comp.num_operacion = p0.get("num_operacion") or None
+	comp.payment_entry = pagos_data[0].get("pe_name")  # legacy: PE del primer Pago
+
+	# --- Filas canónicas por nodo Pago ---
+	for pd in pagos_data:
+		idx = pd["pago_idx"]
+		pago = pd["pago"]
+		doc_links = pd["doc_links"]
+		moneda_p = pago.get("moneda_p") or "MXN"
 		comp.append(
-			"documentos_relacionados",
+			"pagos",
 			{
-				"id_documento": d["id_documento"],
-				"serie": d.get("serie"),
-				"folio": d.get("folio"),
-				"moneda_dr": d.get("moneda_dr") or (pago.get("moneda_p") or "MXN"),
-				"equivalencia_dr": flt(d.get("equivalencia_dr")) or 1.0,
-				"num_parcialidad": int(d["num_parcialidad"]) if d.get("num_parcialidad") else 1,
-				"imp_saldo_ant": flt(d.get("imp_saldo_ant")),
-				"imp_pagado": flt(d.get("imp_pagado")),
-				"imp_saldo_insoluto": flt(d.get("imp_saldo_insoluto")),
-				"objeto_imp_dr": d.get("objeto_imp_dr") or "01",
-				"tipo_documento": tipo_doc,
-				"referencia_documento": doc_links.get(d["id_documento"]),
+				"pago_idx": idx,
+				"fecha_pago": pago["fecha_pago"],
+				"forma_pago_p": pago["forma_pago"],
+				"moneda_p": moneda_p,
+				"tipo_cambio_p": flt(pago.get("tipo_cambio_p")) or 1.0,
+				"monto_p": flt(pago["monto"]),
+				"num_operacion": pago.get("num_operacion") or None,
+				"rfc_emisor_cta_ord": pago.get("rfc_emisor_cta_ord") or None,
+				"nom_banco_ord_ext": pago.get("nom_banco_ord_ext") or None,
+				"cta_ordenante": pago.get("cta_ordenante") or None,
+				"rfc_emisor_cta_ben": pago.get("rfc_emisor_cta_ben") or None,
+				"cta_beneficiario": pago.get("cta_beneficiario") or None,
+				"payment_entry": pd.get("pe_name"),
 			},
 		)
-	for imp in pago.get("impuestos_p", []):
-		comp.append(
-			"detalles_impuestos",
-			{
-				"tipo_impuesto": imp["tipo_impuesto"],
-				"impuesto": imp.get("impuesto"),
-				"tipo_factor": imp.get("tipo_factor"),
-				"tasa_cuota": flt(imp.get("tasa_cuota")),
-				"base_dr": flt(imp.get("base")),
-				"importe_dr": flt(imp.get("importe")),
-			},
-		)
+		for d in pago["docs"]:
+			comp.append(
+				"documentos_relacionados",
+				{
+					"pago_idx": idx,
+					"id_documento": d["id_documento"],
+					"serie": d.get("serie"),
+					"folio": d.get("folio"),
+					"moneda_dr": d.get("moneda_dr") or moneda_p,
+					"equivalencia_dr": flt(d.get("equivalencia_dr")) or 1.0,
+					"num_parcialidad": int(d["num_parcialidad"]) if d.get("num_parcialidad") else 1,
+					"imp_saldo_ant": flt(d.get("imp_saldo_ant")),
+					"imp_pagado": flt(d.get("imp_pagado")),
+					"imp_saldo_insoluto": flt(d.get("imp_saldo_insoluto")),
+					"objeto_imp_dr": d.get("objeto_imp_dr") or "01",
+					"tipo_documento": tipo_doc,
+					"referencia_documento": doc_links.get(d["id_documento"]),
+				},
+			)
+		for imp in pago.get("impuestos_p", []):
+			comp.append(
+				"detalles_impuestos",
+				{
+					"pago_idx": idx,
+					"tipo_impuesto": imp["tipo_impuesto"],
+					"impuesto": imp.get("impuesto"),
+					"tipo_factor": imp.get("tipo_factor"),
+					"tasa_cuota": flt(imp.get("tasa_cuota")),
+					"base_dr": flt(imp.get("base")),
+					"importe_dr": flt(imp.get("importe")),
+					"documento_relacionado": imp.get("id_documento") or "",
+				},
+			)
 
 	comp.flags.ignore_permissions = True
 	comp.insert()
@@ -464,19 +527,22 @@ def _process_file(path: str, cfg: RunConfig, dry_run: bool, index: int) -> dict:
 		}
 	entry["direccion"] = direction
 
-	# Un solo nodo Pago
-	if len(parsed["pagos"]) != 1:
-		return {
-			**entry,
-			"estado": "ERROR_MULTIPLE_PAGOS",
-			"detalle": f"{len(parsed['pagos'])} nodos Pago (V1 soporta 1)",
+	pagos = parsed["pagos"]
+	if not pagos:
+		return {**entry, "estado": "ERROR_PARSE", "detalle": "REP sin nodos Pago"}
+	p0 = pagos[0]
+	entry.update(
+		{
+			"fecha_pago": p0["fecha_pago"],
+			"monto": p0["monto"],
+			"moneda": p0["moneda_p"],
+			"n_pagos": len(pagos),
 		}
-	pago = parsed["pagos"][0]
-	entry.update({"fecha_pago": pago["fecha_pago"], "monto": pago["monto"], "moneda": pago["moneda_p"]})
+	)
 
 	cancelado = cfg.cancelled_marker in fn.lower()  # señal EXPLÍCITA del lote
 
-	# ── REP CANCELADO: preservar fiscalmente, SIN Payment Entry ──
+	# ── REP CANCELADO: preservar TODOS los Pagos + docs + impuestos, SIN Payment Entry ──
 	if cancelado:
 		if parsed.get("cfdi_relacionados"):
 			entry["cfdi_relacionados"] = parsed["cfdi_relacionados"]
@@ -484,22 +550,24 @@ def _process_file(path: str, cfg: RunConfig, dry_run: bool, index: int) -> dict:
 			return {
 				**entry,
 				"estado": "REGISTRADO_CANCELADO",
-				"detalle": "registraría Complemento Cancelado (sin PE)",
+				"detalle": f"registraría Complemento Cancelado, {len(pagos)} pago(s), sin PE",
 			}
 		sp = "rephist_c_" + (uuid[:8] or str(index))
 		frappe.db.savepoint(sp)
 		try:
-			# vínculo best-effort a la factura (informativo); no fail-closed para cancelado
-			doc_links = {}
-			for d in pago["docs"]:
-				inv, _err = (
-					resolve_si_by_uuid(d["id_documento"])
-					if direction == _DIR_EMITIDO
-					else resolve_pi_by_uuid(d["id_documento"])
-				)
-				if inv:
-					doc_links[d["id_documento"]] = inv.name
-			comp = _crear_complemento(cfg, parsed, pago, None, "Cancelado", direction, doc_links, raw)
+			pagos_data = []
+			for idx, pago in enumerate(pagos, start=1):
+				doc_links = {}
+				for d in pago["docs"]:
+					inv, _err = (
+						resolve_si_by_uuid(d["id_documento"])
+						if direction == _DIR_EMITIDO
+						else resolve_pi_by_uuid(d["id_documento"])
+					)
+					if inv:
+						doc_links[d["id_documento"]] = inv.name
+				pagos_data.append({"pago_idx": idx, "pago": pago, "doc_links": doc_links, "pe_name": None})
+			comp = _crear_complemento(cfg, parsed, pagos_data, "Cancelado", direction, raw)
 			frappe.db.commit()  # nosemgrep: frappe-manual-commit - durabilidad por REP en lote
 			return {**entry, "estado": "REGISTRADO_CANCELADO", "complemento": comp}
 		except Exception as exc:
@@ -507,7 +575,7 @@ def _process_file(path: str, cfg: RunConfig, dry_run: bool, index: int) -> dict:
 			return {**entry, "estado": "ERROR_OTHER", "detalle": f"{type(exc).__name__}: {exc}"[:300]}
 
 	# ── REP VIGENTE ──
-	# Contraparte
+	# Contraparte (única para todo el CFDI: emisor/receptor fijos)
 	if direction == _DIR_EMITIDO:
 		cp, cperr = resolve_customer_by_rfc(receptor)
 		cp_label = "Customer"
@@ -521,50 +589,73 @@ def _process_file(path: str, cfg: RunConfig, dry_run: bool, index: int) -> dict:
 			"detalle": f"{cp_label} RFC {receptor if direction == _DIR_EMITIDO else emisor}: {cperr}",
 		}
 
-	# Cuenta explícita (fail-closed, sin autoselección)
-	account = cfg.paid_to_account if direction == _DIR_EMITIDO else cfg.paid_from_account
-	if not account:
-		rol_cta = "paid_to (Receive)" if direction == _DIR_EMITIDO else "paid_from (Pay)"
-		return {
-			**entry,
-			"estado": "ERROR_CUENTA",
-			"detalle": f"Falta cuenta explícita {rol_cta} en el manifest",
-		}
-	# La cuenta de banco/efectivo debe estar en MonedaP (no se convierte una cuenta de otra moneda).
-	moneda_p = pago.get("moneda_p") or "MXN"
-	acc_cur = resolve_account_currency(account)
-	if acc_cur and acc_cur != moneda_p:
-		return {
-			**entry,
-			"estado": "ERROR_CUENTA",
-			"detalle": f"cuenta {account} ({acc_cur}) ≠ MonedaP {moneda_p}",
-		}
-
-	# Catálogos SAT del Complemento
-	falta_cat = _catalogo_ok(pago["forma_pago"], pago.get("moneda_p") or "MXN")
-	if falta_cat:
-		return {**entry, "estado": "ERROR_CATALOGO", "detalle": f"catálogo faltante: {falta_cat}"}
-
-	# Reconciliación fuerte
-	ref_map, doc_links, exch_rate, err_estado, err_det = _reconciliar(pago, direction, cp, cfg.tolerance)
-	if err_estado:
-		return {**entry, "estado": err_estado, "detalle": err_det}
+	# Validar cada Pago en orden cronológico (FechaPago). outstanding_map simula la secuencia de
+	# saldos para que una parcialidad N solo pase si 1..N-1 ya se aplicaron (dentro y fuera del lote).
+	outstanding_map = {}
+	order = sorted(enumerate(pagos, start=1), key=lambda t: ((t[1].get("fecha_pago") or ""), t[0]))
+	validated = []
+	for idx, pago in order:
+		moneda_p = pago.get("moneda_p") or "MXN"
+		account = _account_for(cfg, direction, moneda_p)
+		if not account:
+			rol_cta = "paid_to (Receive)" if direction == _DIR_EMITIDO else "paid_from (Pay)"
+			return {
+				**entry,
+				"estado": "ERROR_CUENTA",
+				"detalle": f"Pago {idx}: falta cuenta {rol_cta} para MonedaP {moneda_p}",
+			}
+		falta_cat = _catalogo_ok(pago["forma_pago"], moneda_p)
+		if falta_cat:
+			return {
+				**entry,
+				"estado": "ERROR_CATALOGO",
+				"detalle": f"Pago {idx}: catálogo faltante {falta_cat}",
+			}
+		ref_map, doc_links, exch_rate, err_estado, err_det = _reconciliar(
+			pago, direction, cp, cfg.tolerance, outstanding_map
+		)
+		if err_estado:
+			return {**entry, "estado": err_estado, "detalle": f"Pago {idx}: {err_det}"}
+		validated.append(
+			{
+				"pago_idx": idx,
+				"pago": pago,
+				"ref_map": ref_map,
+				"doc_links": doc_links,
+				"exch": exch_rate,
+				"account": account,
+			}
+		)
 
 	if dry_run:
 		tipo_pe = "Receive" if direction == _DIR_EMITIDO else "Pay"
 		return {
 			**entry,
 			"estado": "CREADA_VIGENTE",
-			"detalle": f"crearía PE {tipo_pe} ({pago['monto']}) + Complemento; refs={len(ref_map)}",
+			"detalle": f"crearía {len(validated)} PE {tipo_pe} + 1 Complemento ({len(pagos)} pago(s))",
 		}
 
+	# Apply: N Payment Entry (orden FechaPago) + 1 Complemento. Rollback TOTAL ante cualquier fallo.
 	sp = "rephist_v_" + (uuid[:8] or str(index))
 	frappe.db.savepoint(sp)
 	try:
-		pe_name = _crear_payment_entry(cfg, parsed, pago, ref_map, exch_rate, direction, account)
-		comp = _crear_complemento(cfg, parsed, pago, pe_name, "Vigente", direction, doc_links, raw)
+		pagos_data = []
+		for v in validated:  # orden FechaPago
+			pe_name = _crear_payment_entry(
+				cfg, parsed, v["pago"], v["ref_map"], v["exch"], direction, v["account"]
+			)
+			pagos_data.append(
+				{
+					"pago_idx": v["pago_idx"],
+					"pago": v["pago"],
+					"doc_links": v["doc_links"],
+					"pe_name": pe_name,
+				}
+			)
+		comp = _crear_complemento(cfg, parsed, pagos_data, "Vigente", direction, raw)
 		frappe.db.commit()  # nosemgrep: frappe-manual-commit - durabilidad por REP en lote
-		return {**entry, "estado": "CREADA_VIGENTE", "payment_entry": pe_name, "complemento": comp}
+		pes = ";".join(pd["pe_name"] for pd in sorted(pagos_data, key=lambda x: x["pago_idx"]))
+		return {**entry, "estado": "CREADA_VIGENTE", "payment_entry": pes, "complemento": comp}
 	except frappe.ValidationError as exc:
 		frappe.db.rollback(save_point=sp)
 		return {**entry, "estado": "ERROR_OTHER", "detalle": f"PE/Complemento rechazado: {exc}"[:300]}

@@ -117,7 +117,10 @@ function _hide_standard_actions(frm) {
 // ── Botones — callbacks sin cambio ─────────────────────────────────────────
 
 function _setup_pe_link(frm) {
-	if (frm.doc.payment_entry) {
+	// Con múltiples nodos Pago, cada PE vive en la tabla `pagos`; el payment_entry legacy (del
+	// primer Pago) NO representa el único PE. El botón directo solo se ofrece para 0/1 Pago.
+	const npagos = (frm.doc.pagos || []).length;
+	if (frm.doc.payment_entry && npagos <= 1) {
 		frm.add_custom_button(__("Ver Payment Entry"), function () {
 			frappe.set_route("Form", "Payment Entry", frm.doc.payment_entry);
 		}).addClass("btn-info");

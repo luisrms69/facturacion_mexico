@@ -52,6 +52,7 @@
   "documentos_relacionados",
   "section_impuestos",
   "detalles_impuestos",
+  "pagos",
   "naming_series",
   "amended_from",
   "fm_creation_source"
@@ -65,11 +66,11 @@
   {
    "fieldname": "payment_entry",
    "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Payment Entry",
    "options": "Payment Entry",
-   "read_only": 1,
-   "in_list_view": 1,
-   "in_standard_filter": 1
+   "read_only": 1
   },
   {
    "fieldname": "company",
@@ -81,21 +82,21 @@
   {
    "fieldname": "customer",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Cliente",
    "options": "Customer",
-   "read_only": 1,
-   "in_list_view": 1
+   "read_only": 1
   },
   {
+   "allow_on_submit": 1,
+   "default": "Pendiente",
    "fieldname": "status",
    "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Estado",
    "options": "\nPendiente\nTimbrado\nPendiente Cancelación\nCancelado\nError",
-   "default": "Pendiente",
-   "read_only": 1,
-   "allow_on_submit": 1,
-   "in_list_view": 1,
-   "in_standard_filter": 1
+   "read_only": 1
   },
   {
    "fieldname": "column_break_cabecera",
@@ -142,12 +143,12 @@
    "label": "Datos SAT / Timbrado"
   },
   {
+   "bold": 1,
    "fieldname": "uuid_sat",
    "fieldtype": "Data",
-   "label": "UUID SAT",
-   "read_only": 1,
    "in_list_view": 1,
-   "bold": 1
+   "label": "UUID SAT",
+   "read_only": 1
   },
   {
    "fieldname": "serie_folio",
@@ -224,45 +225,45 @@
    "read_only": 1
   },
   {
+   "description": "ID interno de FacturAPI para cancelación",
    "fieldname": "facturapi_id",
    "fieldtype": "Data",
    "label": "FacturAPI ID",
-   "read_only": 1,
-   "description": "ID interno de FacturAPI para cancelación"
+   "read_only": 1
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "pdf_file",
    "fieldtype": "Attach",
    "label": "PDF",
-   "read_only": 1,
-   "allow_on_submit": 1,
+   "no_copy": 1,
    "print_hide": 1,
-   "no_copy": 1
+   "read_only": 1
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "xml_file",
    "fieldtype": "Attach",
    "label": "XML",
-   "read_only": 1,
-   "allow_on_submit": 1,
+   "no_copy": 1,
    "print_hide": 1,
-   "no_copy": 1
+   "read_only": 1
   },
   {
+   "allow_on_submit": 1,
+   "description": "Último registro de operación con FacturAPI/SAT",
    "fieldname": "fm_ultimo_response_log",
    "fieldtype": "Link",
    "label": "Último Log de Respuesta",
    "options": "FacturAPI Response Log",
-   "description": "Último registro de operación con FacturAPI/SAT",
-   "read_only": 1,
-   "allow_on_submit": 1
+   "read_only": 1
   },
   {
+   "collapsible": 1,
+   "description": "Aplica solo cuando el pago tiene referencia bancaria (transferencia, cheque con número de operación). Vacío es correcto para efectivo y tarjeta.",
    "fieldname": "section_bancario",
    "fieldtype": "Section Break",
-   "label": "Datos Bancarios Opcionales",
-   "collapsible": 1,
-   "description": "Aplica solo cuando el pago tiene referencia bancaria (transferencia, cheque con número de operación). Vacío es correcto para efectivo y tarjeta."
+   "label": "Datos Bancarios Opcionales"
   },
   {
    "fieldname": "num_operacion",
@@ -348,8 +349,8 @@
    "fieldtype": "Select",
    "label": "Serie de Nomenclatura",
    "options": "COMP-PAG-.YYYY.-",
-   "reqd": 1,
-   "print_hide": 1
+   "print_hide": 1,
+   "reqd": 1
   },
   {
    "fieldname": "amended_from",
@@ -361,13 +362,20 @@
    "read_only": 1
   },
   {
+   "allow_on_submit": 1,
+   "default": "Timbrado directo",
    "fieldname": "fm_creation_source",
    "fieldtype": "Select",
    "label": "Origen de Creación",
    "options": "\nTimbrado directo\nMigración legacy facturacion_mx\nManual",
-   "default": "Timbrado directo",
-   "allow_on_submit": 1,
    "read_only": 1
+  },
+  {
+   "description": "Representación CANÓNICA de los nodos pago20:Pago. Legacy (sin filas) = Pago único en campos escalares del padre.",
+   "fieldname": "pagos",
+   "fieldtype": "Table",
+   "label": "Pagos (REP 2.0)",
+   "options": "Complemento Pago Detalle Pago MX"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -464,11 +472,26 @@
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [
-  {"color": "Gray",   "title": "Pendiente"},
-  {"color": "Green",  "title": "Timbrado"},
-  {"color": "Orange", "title": "Pendiente Cancelación"},
-  {"color": "Red",    "title": "Cancelado"},
-  {"color": "Red",    "title": "Error"}
+  {
+   "color": "Gray",
+   "title": "Pendiente"
+  },
+  {
+   "color": "Green",
+   "title": "Timbrado"
+  },
+  {
+   "color": "Orange",
+   "title": "Pendiente Cancelación"
+  },
+  {
+   "color": "Red",
+   "title": "Cancelado"
+  },
+  {
+   "color": "Red",
+   "title": "Error"
+  }
  ],
  "status_field": "status",
  "title_field": "folio_fiscal",

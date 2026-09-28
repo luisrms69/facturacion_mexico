@@ -5,6 +5,7 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "pago_idx",
   "id_documento",
   "serie",
   "folio",
@@ -21,6 +22,13 @@
   "referencia_documento"
  ],
  "fields": [
+  {
+   "default": "1",
+   "description": "Nodo pago20:Pago (pago_idx) al que pertenece este renglón",
+   "fieldname": "pago_idx",
+   "fieldtype": "Int",
+   "label": "Pago #"
+  },
   {
    "fieldname": "id_documento",
    "fieldtype": "Data",

@@ -50,6 +50,8 @@ def _cfg():
 		tolerance=0.05,
 		paid_to_account="Banco - TC",
 		paid_from_account="Banco - TC",
+		paid_to_accounts={},
+		paid_from_accounts={},
 		company_currency="MXN",
 	)
 
@@ -301,8 +303,9 @@ class TestCancelado(unittest.TestCase):
 		entry, m_pe, m_comp = _run(_tmpfile("REP_Cancelado.xml"), _cfg(), False, inv=_inv(customer="C-1"))
 		self.assertEqual(entry["estado"], "REGISTRADO_CANCELADO")
 		m_pe.assert_not_called()
-		self.assertIsNone(m_comp.call_args.args[3])  # pe_name None
-		self.assertEqual(m_comp.call_args.args[4], "Cancelado")
+		# _crear_complemento(cfg, parsed, pagos_data, estatus, direction, raw)
+		self.assertEqual(m_comp.call_args.args[3], "Cancelado")  # estatus
+		self.assertIsNone(m_comp.call_args.args[2][0]["pe_name"])  # sin Payment Entry
 
 
 class TestIdempotencia(unittest.TestCase):
@@ -319,12 +322,6 @@ class TestFailClosed(unittest.TestCase):
 		p = _parsed(emisor="OTR010101AAA", receptor="XXX010101AAA")
 		entry, m_pe, _mc = _run(_tmpfile(), _cfg(), False, parsed=p)
 		self.assertEqual(entry["estado"], "ERROR_COMPANY_RFC")
-		m_pe.assert_not_called()
-
-	def test_multiple_pagos(self):
-		p = _parsed(pagos=[_pago(), _pago()])
-		entry, m_pe, _mc = _run(_tmpfile(), _cfg(), False, parsed=p)
-		self.assertEqual(entry["estado"], "ERROR_MULTIPLE_PAGOS")
 		m_pe.assert_not_called()
 
 	def test_contraparte(self):
@@ -350,6 +347,112 @@ class TestFailClosed(unittest.TestCase):
 		entry, m_pe, _mc = _run(_tmpfile(), _cfg(), False, inv=_inv(customer="C-1", outstanding_amount=500.0))
 		self.assertEqual(entry["estado"], "ERROR_SALDO_ANT")
 		m_pe.assert_not_called()
+
+
+# ── multi-Pago ────────────────────────────────────────────────────────────────
+
+
+def _run_multi(parsed, cfg, invs, dry_run=False, filename="rep.xml", pe_side=None):
+	"""Ejecuta _process_file con resolvers por-UUID (invs: {uuid: inv}). Retorna (entry, m_pe, m_comp, m_rb)."""
+
+	def si_side(uuid):
+		inv = invs.get(uuid)
+		return (inv, None) if inv else (None, "missing")
+
+	def default_pe(cfg_, parsed_, pago_, ref_map_, exch_, direction_, account_):
+		return f"PE-{pago_['docs'][0]['id_documento']}"
+
+	m_pe = MagicMock(side_effect=pe_side or default_pe)
+	m_comp = MagicMock(return_value="COMP-1")
+	m_rb = MagicMock()
+	with (
+		patch.object(importer, "parse_rep", return_value=parsed),
+		patch.object(importer, "existing_complemento", return_value=None),
+		patch.object(importer, "resolve_customer_by_rfc", return_value=("C-1", None)),
+		patch.object(importer, "resolve_supplier_by_rfc", return_value=("S-1", None)),
+		patch.object(importer, "resolve_si_by_uuid", side_effect=si_side),
+		patch.object(importer, "resolve_pi_by_uuid", side_effect=si_side),
+		patch.object(importer, "resolve_account_currency", return_value=None),
+		patch.object(importer, "_catalogo_ok", return_value=""),
+		patch.object(importer, "_crear_payment_entry", m_pe),
+		patch.object(importer, "_crear_complemento", m_comp),
+		patch.object(importer.frappe.db, "savepoint", MagicMock()),
+		patch.object(importer.frappe.db, "rollback", m_rb),
+		patch.object(importer.frappe.db, "commit", MagicMock()),
+	):
+		entry = importer._process_file(_tmpfile(filename), cfg, dry_run, 0)
+	return entry, m_pe, m_comp, m_rb
+
+
+def _two_pagos(monto1=1000.0, monto2=2000.0, mon1="MXN", mon2="MXN", eq1="1", eq2="1"):
+	pago1 = _pago(monto1, moneda_p=mon1, docs=[_doc(monto1, mon1, eq1, iddoc="U1")])
+	pago1["fecha_pago"] = "2026-01-10 12:00:00"
+	pago2 = _pago(monto2, moneda_p=mon2, docs=[_doc(monto2, mon2, eq2, iddoc="U2")])
+	pago2["fecha_pago"] = "2026-02-10 12:00:00"
+	return _parsed(pagos=[pago1, pago2])
+
+
+class TestMultiPago(unittest.TestCase):
+	def test_dos_pagos_dos_pe_un_complemento(self):
+		parsed = _two_pagos()
+		invs = {
+			"U1": _inv(name="SI-1", customer="C-1", outstanding_amount=1000.0),
+			"U2": _inv(name="SI-2", customer="C-1", outstanding_amount=2000.0),
+		}
+		entry, m_pe, m_comp, _rb = _run_multi(parsed, _cfg(), invs)
+		self.assertEqual(entry["estado"], "CREADA_VIGENTE")
+		self.assertEqual(m_pe.call_count, 2)  # N Payment Entry
+		m_comp.assert_called_once()  # UN solo Complemento
+		pagos_data = m_comp.call_args.args[2]
+		self.assertEqual(sorted(pd["pago_idx"] for pd in pagos_data), [1, 2])
+		self.assertTrue(all(pd["pe_name"] for pd in pagos_data))
+
+	def test_dos_pagos_monedas_distintas_con_mapa_cuentas(self):
+		# Pago1 MXN, Pago2 USD (factura USD, eq 1). Cuentas por moneda en el manifest.
+		parsed = _two_pagos(monto1=1000.0, monto2=100.0, mon1="MXN", mon2="USD")
+		# factura USD del pago2 con conversion_rate 20 (USD->MXN)
+		invs = {
+			"U1": _inv(
+				name="SI-1", customer="C-1", currency="MXN", conversion_rate=1.0, outstanding_amount=1000.0
+			),
+			"U2": _inv(
+				name="SI-2", customer="C-1", currency="USD", conversion_rate=20.0, outstanding_amount=100.0
+			),
+		}
+		cfg = _cfg()
+		cfg.paid_to_accounts = {"MXN": "Banco MXN - TC", "USD": "Banco USD - TC"}
+		entry, m_pe, _m_comp, _rb = _run_multi(parsed, cfg, invs)
+		self.assertEqual(entry["estado"], "CREADA_VIGENTE")
+		self.assertEqual(m_pe.call_count, 2)
+
+	def test_rollback_total_si_falla_segundo_pago(self):
+		parsed = _two_pagos()
+		invs = {
+			"U1": _inv(name="SI-1", customer="C-1", outstanding_amount=1000.0),
+			"U2": _inv(name="SI-2", customer="C-1", outstanding_amount=2000.0),
+		}
+		calls = {"n": 0}
+
+		def pe_side(*a, **k):
+			calls["n"] += 1
+			if calls["n"] == 2:
+				raise RuntimeError("PE2 falla")
+			return "PE-1"
+
+		entry, _m_pe, m_comp, m_rb = _run_multi(parsed, _cfg(), invs, pe_side=pe_side)
+		self.assertEqual(entry["estado"], "ERROR_OTHER")
+		m_rb.assert_called()  # rollback del REP completo
+		m_comp.assert_not_called()  # no se crea el Complemento si falla un Pago
+
+	def test_cancelado_multi_pago_sin_pe(self):
+		parsed = _two_pagos()
+		invs = {"U1": _inv(name="SI-1"), "U2": _inv(name="SI-2")}
+		entry, m_pe, m_comp, _rb = _run_multi(parsed, _cfg(), invs, filename="REP_Cancelado.xml")
+		self.assertEqual(entry["estado"], "REGISTRADO_CANCELADO")
+		m_pe.assert_not_called()
+		pagos_data = m_comp.call_args.args[2]
+		self.assertEqual(len(pagos_data), 2)
+		self.assertTrue(all(pd["pe_name"] is None for pd in pagos_data))
 
 
 if __name__ == "__main__":
