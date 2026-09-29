@@ -43,6 +43,7 @@ import frappe
 from frappe import _
 
 # Reutilización del pipeline existente (NO se modifica cfdi_recibidos).
+from facturacion_mexico.cfdi_historico_compras.clasificador import resolve_item_code
 from facturacion_mexico.cfdi_recibidos.parsers.cfdi_recibido_parser import CFDIRecibidoParser
 from facturacion_mexico.cfdi_recibidos.services.purchase_invoice_builder import build_purchase_invoice
 from facturacion_mexico.cfdi_recibidos.services.xml_ingestion import ingest_xml
@@ -113,6 +114,56 @@ def _map_build_error(msg: str) -> str:
 	if "grand_total" in m or "tolerancia" in m:
 		return "ERROR_TOTAL"
 	return "ERROR_OTHER"
+
+
+# Contadores a nivel de CONCEPTO (cobertura de item_code).
+_CONCEPT_KEYS = ("conceptos_total", "conceptos_con_item", "conceptos_sin_item")
+
+
+def _classify_conceptos_doc(cfdi_name: str) -> dict:
+	"""Antes de build_purchase_invoice: asigna item_code (+ item_group) a cada concepto
+	SIN clasificar, de forma determinista por ClaveProdServ SAT (taxonomía autorizada).
+
+	NO pisa un item_code preexistente. Retorna {total, clasificados}."""
+	doc = frappe.get_doc("CFDI Recibido", cfdi_name)
+	total = clasificados = 0
+	for c in doc.conceptos or []:
+		total += 1
+		if c.item_code:
+			continue
+		code, motivo = resolve_item_code(c.sat_product_key, c.description)
+		if not code:
+			# Sin mapping definido -> se deja SIN resolver (build lo reporta como ERROR_ITEM).
+			continue
+		c.item_code = code
+		grp = frappe.db.get_value("Item", code, "item_group")
+		if grp:
+			c.item_group = grp
+		c.item_resolution = "Genérico"
+		c.item_match_reason = f"histórico compras ({motivo})"
+		clasificados += 1
+	doc.save(ignore_permissions=True)
+	return {"total": total, "clasificados": clasificados}
+
+
+def _classify_conceptos_preview(conceptos: list) -> dict:
+	"""Proyección READ-ONLY (dry_run) de la clasificación por ClaveProdServ. No escribe.
+	Retorna conteos + items destino que NO existan en el catálogo del site."""
+	total = con_item = 0
+	faltan = set()
+	for c in conceptos or []:
+		total += 1
+		code, _motivo = resolve_item_code(c.get("sat_product_key"), c.get("description"))
+		if code:
+			con_item += 1
+			if not frappe.db.exists("Item", code):
+				faltan.add(code)
+	return {
+		"conceptos_total": total,
+		"conceptos_con_item": con_item,
+		"conceptos_sin_item": total - con_item,
+		"items_no_en_catalogo": sorted(faltan),
+	}
 
 
 _COUNT_KEYS = (
@@ -215,7 +266,7 @@ def _process_file(path: str, cfg: RunConfig, dry_run: bool, index: int) -> dict:
 		}
 	entry["supplier"] = supplier
 
-	# --- dry_run: reporta proyección sin escribir nada ---
+	# --- dry_run: reporta proyección sin escribir nada (incluye cobertura de item_code) ---
 	if dry_run:
 		cfdi_existente = frappe.db.get_value("CFDI Recibido", {"uuid": uuid}, "name")
 		nota = (
@@ -223,7 +274,8 @@ def _process_file(path: str, cfg: RunConfig, dry_run: bool, index: int) -> dict:
 			if not cfdi_existente
 			else (f"CFDI Recibido {cfdi_existente} ya existe; construiría la PI Draft")
 		)
-		return {**entry, "estado": "READY", "detalle": nota}
+		prev = _classify_conceptos_preview(data.get("conceptos", []))
+		return {**entry, "estado": "READY", "detalle": nota, **prev}
 
 	# --- apply: reutiliza el pipeline real, savepoint por archivo ---
 	sp = "cfdihist_" + (uuid[:8] if uuid else str(index))
@@ -233,6 +285,11 @@ def _process_file(path: str, cfg: RunConfig, dry_run: bool, index: int) -> dict:
 		cfdi_name = ing.get("cfdi_recibido")
 		if not cfdi_name:
 			raise RuntimeError(f"ingest sin doc [{ing.get('status')}]: {ing.get('message')}")
+
+		# Clasificación determinista de items ANTES de construir la PI (taxonomía autorizada).
+		clas = _classify_conceptos_doc(cfdi_name)
+		entry["conceptos_total"] = clas["total"]
+		entry["conceptos_clasificados"] = clas["clasificados"]
 
 		result = build_purchase_invoice(cfdi_name)
 		frappe.db.commit()  # nosemgrep: frappe-manual-commit - durabilidad por factura en carga por lote
@@ -277,6 +334,8 @@ def run(source_dir=None, manifest=None, dry_run=1, report_dir="/tmp", limit=None
 		paths = paths[: int(limit)]
 
 	counts = {k: 0 for k in _COUNT_KEYS}
+	conceptos = {k: 0 for k in _CONCEPT_KEYS}
+	items_no_catalogo = set()
 	detalle = []
 	missing_suppliers = {}  # rfc -> payload (dedup por RFC)
 
@@ -286,17 +345,27 @@ def run(source_dir=None, manifest=None, dry_run=1, report_dir="/tmp", limit=None
 		ms = entry.pop("_missing_supplier", None)
 		if ms and ms.get("supplier_rfc"):
 			missing_suppliers.setdefault(ms["supplier_rfc"], ms)
+		for k in _CONCEPT_KEYS:
+			conceptos[k] += entry.get(k, 0)
+		for c in entry.get("items_no_en_catalogo", []) or []:
+			items_no_catalogo.add(c)
 		counts[entry["estado"]] = counts.get(entry["estado"], 0) + 1
 		detalle.append(entry)
 
 	rep = {
 		"meta": {"source_dir": source_dir, "dry_run": dry_run, "company": cfg.company},
 		"resumen": counts,
+		"conceptos": conceptos,
+		"items_no_en_catalogo": sorted(items_no_catalogo),
 		"detalle": detalle,
 	}
 	_write_reports(rep, list(missing_suppliers.values()), report_dir, dry_run)
 	_print_summary(rep, missing_suppliers)
-	return rep["resumen"]
+	return {
+		"resumen": rep["resumen"],
+		"conceptos": rep["conceptos"],
+		"items_no_en_catalogo": rep["items_no_en_catalogo"],
+	}
 
 
 def _write_reports(rep, missing_suppliers, report_dir, dry_run):
@@ -358,6 +427,13 @@ def _print_summary(rep, missing_suppliers):
 	for k in _COUNT_KEYS:
 		if c.get(k):
 			print(f"  {k:22}: {c[k]}")
+	con = rep.get("conceptos", {})
+	if con.get("conceptos_total"):
+		print("  --- cobertura de conceptos (item_code) ---")
+		for k in _CONCEPT_KEYS:
+			print(f"  {k:22}: {con.get(k, 0)}")
+		if rep.get("items_no_en_catalogo"):
+			print(f"  {'items_no_en_catalogo':22}: {rep['items_no_en_catalogo']}")
 	print(f"  {'reporte JSON':22}: {rep['meta'].get('report_json')}")
 	print(f"  {'reporte CSV':22}: {rep['meta'].get('report_csv')}")
 	if missing_suppliers:

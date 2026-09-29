@@ -91,6 +91,9 @@ def _process(
 		patch.object(importer, "ingest_xml", ingest),
 		patch.object(importer, "build_purchase_invoice", build),
 		patch.object(
+			importer, "_classify_conceptos_doc", MagicMock(return_value={"total": 0, "clasificados": 0})
+		),
+		patch.object(
 			importer.frappe,
 			"get_all",
 			return_value=supplier_rows if supplier_rows is not None else [frappe._dict(name="SUP-1")],
