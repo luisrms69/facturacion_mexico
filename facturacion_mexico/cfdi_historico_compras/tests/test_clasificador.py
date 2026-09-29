@@ -39,18 +39,18 @@ class TestResolveItemCode(unittest.TestCase):
 
 	def test_ruteo_por_segmento_representativo(self):
 		casos = {
-			"80101507": "GASTO-SRV-001",   # servicios profesionales
-			"84141602": "GASTO-FIN-001",   # comisiones bancarias
-			"78131806": "GASTO-ARR-002",   # renta storage (781318)
-			"84131602": "GASTO-SEG-001",   # seguros (8413)
-			"85101701": "GASTO-NOM-026",   # IMSS (851017)
-			"90101501": "GASTO-MOV-002",   # alimentos/viáticos
-			"95111602": "GASTO-MOV-010",   # peaje (exacto)
-			"43211508": "INFRA-0002",      # hardware (43)
-			"80141600": "GASTO-VNT-001",   # publicidad (8014)
-			"84111500": "GASTO-SRV-017",   # honorarios contables (8411)
-			"72101507": "GASTO-OPR-006",   # mantenimiento (72)
-			"15101514": "GASTO-MOV-003",   # combustible (15)
+			"80101507": "GASTO-SRV-001",  # servicios profesionales
+			"84141602": "GASTO-FIN-001",  # comisiones bancarias
+			"78131806": "GASTO-ARR-002",  # renta storage (781318)
+			"84131602": "GASTO-SEG-001",  # seguros (8413)
+			"85101701": "GASTO-NOM-026",  # IMSS (851017)
+			"90101501": "GASTO-MOV-002",  # alimentos/viáticos
+			"95111602": "GASTO-MOV-010",  # peaje (exacto)
+			"43211508": "INFRA-0002",  # hardware (43)
+			"80141600": "GASTO-VNT-001",  # publicidad (8014)
+			"84111500": "GASTO-SRV-017",  # honorarios contables (8411)
+			"72101507": "GASTO-OPR-006",  # mantenimiento (72)
+			"15101514": "GASTO-MOV-003",  # combustible (15)
 		}
 		for clave, esperado in casos.items():
 			self.assertEqual(resolve_item_code(clave)[0], esperado, f"clave {clave}")
@@ -58,11 +58,32 @@ class TestResolveItemCode(unittest.TestCase):
 	def test_classify_many_definidos_sin_item_cero(self):
 		# Muestra amplia de segmentos DEFINIDOS: ninguno debe quedar sin item.
 		claves = [
-			"80101507", "81161700", "82101800", "83111603", "84141602", "85121800",
-			"86101601", "90101501", "78102201", "72101507", "94131603", "93161700",
-			"15101514", "10121506", "50202203", "52161500", "43231505", "44103124",
-			"14111815", "26101700", "32131000", "60111400", "49101609", "01010101",
-			"95111602", "56101700",
+			"80101507",
+			"81161700",
+			"82101800",
+			"83111603",
+			"84141602",
+			"85121800",
+			"86101601",
+			"90101501",
+			"78102201",
+			"72101507",
+			"94131603",
+			"93161700",
+			"15101514",
+			"10121506",
+			"50202203",
+			"52161500",
+			"43231505",
+			"44103124",
+			"14111815",
+			"26101700",
+			"32131000",
+			"60111400",
+			"49101609",
+			"01010101",
+			"95111602",
+			"56101700",
 		]
 		_out, sin_item = classify_many(claves)
 		self.assertEqual(sin_item, 0)
