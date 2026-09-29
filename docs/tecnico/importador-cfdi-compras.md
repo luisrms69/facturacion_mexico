@@ -20,6 +20,24 @@ Carga masiva de CFDI de compra (XML recibidos) como **Purchase Invoice en Draft*
 2. **apply:** reutiliza el pipeline real → crea `CFDI Recibido` (ancla del UUID + XML adjunto) y la
    **Purchase Invoice en Draft**; savepoint por archivo.
 
+## Clasificación de Items (determinista por ClaveProdServ SAT)
+
+Antes de `build_purchase_invoice()` — que exige `item_code` en cada concepto — el importador asigna el
+`item_code` de forma **determinista** con `clasificador.resolve_item_code()`:
+
+- El mapeo es **`ClaveProdServ SAT → item_code`** por **prefijo más largo** (8→6→4→2 dígitos), apoyado en
+  la **taxonomía autorizada de Gastos** (Código Agrupador SAT) del catálogo: el backbone `GASTO-*`
+  (una entrada por subgrupo SAT) más `INFRA-0002` para equipo de cómputo.
+- **No usa** el mecanismo de aprendizaje/reglas (`Regla Item CFDI Recibido`) ni el historial.
+- **No hay fallback:** si una clave no tiene mapping definido, el concepto queda **sin `item_code`** y
+  `build_purchase_invoice()` lo reporta como `ERROR_ITEM`. Ningún concepto desconocido se fuerza a un Item.
+- En **apply**, cada concepto sin clasificar recibe `item_code`, su `item_group` real (para que la
+  resolución de cuenta *Automático CoA SAT* obtenga el sufijo SAT) e `item_resolution="Genérico"`.
+- En **dry-run** la clasificación es una **proyección read-only** que reporta `conceptos_total`,
+  `conceptos_con_item`, `conceptos_sin_item` y los items destino que no existan en el catálogo del site.
+
+No se crea un Item por concepto/proveedor/XML: la clasificación reutiliza el catálogo autorizado existente.
+
 ## Idempotencia
 
 - Por **`Purchase Invoice.fm_cfdi_uuid`** (campo `unique`). `build_purchase_invoice` recupera la PI

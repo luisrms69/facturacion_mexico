@@ -1,25 +1,27 @@
 # CONTINUITY.md — facturacion_mexico
 
-**Fecha:** 2026-09-27
-**Rama activa:** `feat/cfdi-emitidos-canceladas-draft`
-**Tarea actual:** Importadores históricos (ventas, compras, REP) + preparación de terceros + soporte
-multi-Pago del Complemento de Pago. En `/ship pr` (v1.9.0).
+**Fecha:** 2026-09-28
+**Rama activa:** `feat/cfdi-historico-compras-clasificador`
+**Tarea actual:** Clasificador determinista de Items para el importador histórico de CFDI de compra.
+En `/ship pr` (v1.10.0).
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-El cierre del frente de **cargas históricas** para preparar la migración de staging: importadores por
-lote de CFDI de venta, de compra y de REP (pagos), más una utilidad de preparación de Customers/Suppliers,
-y el soporte de **múltiples nodos Pago** en `Complemento Pago MX`.
+El **clasificador determinista de Items** de `cfdi_historico_compras`: asignar `item_code` a cada
+concepto XML **antes** de `build_purchase_invoice()`, usando la **taxonomía autorizada de Gastos**
+(Código Agrupador SAT) — sin mecanismo de aprendizaje y **sin fallback arbitrario**.
 
 Objetivo inmediato:
-`/ship pr` hacia `main` con bump **v1.9.0** (MINOR). Tras merge: `/sync-check` + `/ship release` v1.9.0.
+`/ship pr` hacia `main` con bump **v1.10.0** (MINOR). Tras merge: `/sync-check` + `/ship release` v1.10.0.
 
 Criterio de avance:
-PR mergeado con bump 1.9.0; luego release. **Pendiente NO bloqueante:** validación end-to-end con datos
-reales de los importadores (hoy cubiertos por tests unitarios); prueba de PE cross-currency real.
+PR mergeado con bump 1.10.0; luego release. Cobertura demostrada: **905/905 conceptos → item_code, 0 sin
+item, 0 Items nuevos**; una clave sin mapping definido queda sin resolver → `ERROR_ITEM` (sin fallback).
+**Pendiente NO bloqueante:** validación end-to-end con datos reales del apply (hoy: tests unitarios +
+dry-run read-only en el site restaurado local).
 
 ---
 
