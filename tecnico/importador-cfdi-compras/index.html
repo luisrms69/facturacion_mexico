@@ -918,6 +918,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#clasificacion-de-items-determinista-por-claveprodserv-sat" class="md-nav__link">
+    <span class="md-ellipsis">
+      Clasificación de Items (determinista por ClaveProdServ SAT)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#idempotencia" class="md-nav__link">
     <span class="md-ellipsis">
       Idempotencia
@@ -2253,6 +2262,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#clasificacion-de-items-determinista-por-claveprodserv-sat" class="md-nav__link">
+    <span class="md-ellipsis">
+      Clasificación de Items (determinista por ClaveProdServ SAT)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#idempotencia" class="md-nav__link">
     <span class="md-ellipsis">
       Idempotencia
@@ -2350,6 +2368,22 @@
 <li><strong>apply:</strong> reutiliza el pipeline real → crea <code>CFDI Recibido</code> (ancla del UUID + XML adjunto) y la
    <strong>Purchase Invoice en Draft</strong>; savepoint por archivo.</li>
 </ol>
+<h2 id="clasificacion-de-items-determinista-por-claveprodserv-sat">Clasificación de Items (determinista por ClaveProdServ SAT)<a class="headerlink" href="#clasificacion-de-items-determinista-por-claveprodserv-sat" title="Permanent link">&para;</a></h2>
+<p>Antes de <code>build_purchase_invoice()</code> — que exige <code>item_code</code> en cada concepto — el importador asigna el
+<code>item_code</code> de forma <strong>determinista</strong> con <code>clasificador.resolve_item_code()</code>:</p>
+<ul>
+<li>El mapeo es <strong><code>ClaveProdServ SAT → item_code</code></strong> por <strong>prefijo más largo</strong> (8→6→4→2 dígitos), apoyado en
+  la <strong>taxonomía autorizada de Gastos</strong> (Código Agrupador SAT) del catálogo: el backbone <code>GASTO-*</code>
+  (una entrada por subgrupo SAT) más <code>INFRA-0002</code> para equipo de cómputo.</li>
+<li><strong>No usa</strong> el mecanismo de aprendizaje/reglas (<code>Regla Item CFDI Recibido</code>) ni el historial.</li>
+<li><strong>No hay fallback:</strong> si una clave no tiene mapping definido, el concepto queda <strong>sin <code>item_code</code></strong> y
+  <code>build_purchase_invoice()</code> lo reporta como <code>ERROR_ITEM</code>. Ningún concepto desconocido se fuerza a un Item.</li>
+<li>En <strong>apply</strong>, cada concepto sin clasificar recibe <code>item_code</code>, su <code>item_group</code> real (para que la
+  resolución de cuenta <em>Automático CoA SAT</em> obtenga el sufijo SAT) e <code>item_resolution="Genérico"</code>.</li>
+<li>En <strong>dry-run</strong> la clasificación es una <strong>proyección read-only</strong> que reporta <code>conceptos_total</code>,
+  <code>conceptos_con_item</code>, <code>conceptos_sin_item</code> y los items destino que no existan en el catálogo del site.</li>
+</ul>
+<p>No se crea un Item por concepto/proveedor/XML: la clasificación reutiliza el catálogo autorizado existente.</p>
 <h2 id="idempotencia">Idempotencia<a class="headerlink" href="#idempotencia" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Por <strong><code>Purchase Invoice.fm_cfdi_uuid</code></strong> (campo <code>unique</code>). <code>build_purchase_invoice</code> recupera la PI
