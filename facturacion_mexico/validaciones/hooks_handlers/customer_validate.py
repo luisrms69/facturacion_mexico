@@ -31,10 +31,12 @@ def validate_rfc_format(doc, method):
 
 	if len(rfc) == 13:
 		# Persona física: 4 letras + 6 dígitos + 3 caracteres
-		pattern = r"^[A-Z]{4}[0-9]{6}[A-Z0-9]{3}$"
+		# La porción de nombre admite Ñ y & además de A-Z (válidos en RFC del SAT).
+		pattern = r"^[A-ZÑ&]{4}[0-9]{6}[A-Z0-9]{3}$"
 	else:
 		# Persona moral: 3 letras + 6 dígitos + 3 caracteres
-		pattern = r"^[A-Z]{3}[0-9]{6}[A-Z0-9]{3}$"
+		# La porción de nombre admite Ñ y & además de A-Z (válidos en RFC del SAT).
+		pattern = r"^[A-ZÑ&]{3}[0-9]{6}[A-Z0-9]{3}$"
 
 	if not re.match(pattern, rfc):
 		frappe.throw(_("Formato de RFC inválido"))
