@@ -14,6 +14,7 @@ import json
 import unittest
 
 import frappe
+from frappe.tests.utils import change_settings
 from frappe.utils import flt, today
 
 from facturacion_mexico.cfdi_recibidos.services.purchase_invoice_builder import (
@@ -577,8 +578,15 @@ class TestPurchaseInvoiceBuilder(unittest.TestCase):
 		diff = abs(flt(pi.grand_total) - 106.0)
 		self.assertLessEqual(diff, 0.02, f"grand_total={pi.grand_total}, esperado≈106")
 
+	@change_settings("Buying Settings", {"allow_multiple_items": 1})
 	def test_multiples_conceptos_procesados(self):
-		"""Múltiples conceptos: todos los items tienen item_code y grand_total correcto."""
+		"""Múltiples conceptos: todos los items tienen item_code y grand_total correcto.
+
+		Aislamiento: el escenario crea una Purchase Invoice con dos líneas del mismo
+		item_code (dos conceptos del mismo producto). ERPNext (buying/utils.py) rechaza
+		ítems duplicados salvo que ``Buying Settings.allow_multiple_items = 1``; el test
+		fija ese setting explícitamente para no depender del estado/orden ambiental.
+		"""
 		conceptos = [
 			self._concepto(description="Servicio A", unit_price=60.0, expense_account=self.expense_account),
 			self._concepto(description="Servicio B", unit_price=40.0, expense_account=self.expense_account),
