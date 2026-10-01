@@ -7,8 +7,6 @@ El fix alinea ambas al patrón canónico `[A-ZÑ&]` ya usado en
 `facturacion_fiscal.validations` y `validaciones.api`. RFC ficticios en los datos de prueba.
 """
 
-from unittest import mock
-
 import frappe
 from frappe.tests.utils import FrappeTestCase
 
@@ -50,10 +48,18 @@ class TestRFCFormatEnyeAmpersand(FrappeTestCase):
 
 	# --- hook validate_rfc_format (customer_validate.py) ---
 	def _run_hook(self, tax_id):
-		"""Ejecuta el hook con in_test desactivado (si no, retorna temprano)."""
+		"""Ejecuta el hook con in_test desactivado (si no, retorna temprano).
+
+		`frappe.flags` es un `_dict`; `in_test` es una clave (no atributo de instancia),
+		por eso se guarda/restaura a mano en lugar de usar `mock.patch.object`.
+		"""
 		doc = frappe._dict(tax_id=tax_id)
-		with mock.patch.object(frappe.flags, "in_test", False):
+		original_in_test = frappe.flags.in_test
+		frappe.flags.in_test = False
+		try:
 			validate_rfc_format(doc, method="validate")
+		finally:
+			frappe.flags.in_test = original_in_test
 		return doc
 
 	def test_hook_acepta_enye_sin_throw(self):
