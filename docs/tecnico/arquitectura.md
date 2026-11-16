@@ -275,7 +275,7 @@ Sin cambios de esquema (no requiere `bench migrate`); la recuperación diferida 
 `fm_ereceipt_mx` (link al EReceipt MX), `fm_ereceipt_summary_html` (widget estado E-Receipt),
 `fm_ereceipt_mode` (Normal / E-Receipt), `fm_ereceipt_expiry_*` (configuración vencimiento)
 **Customer:** `fm_tax_regime`, `fm_uso_cfdi_default`, `fm_requires_addenda`, `fm_default_addenda_type`, `fm_buyer_gln`, `fm_seller_gln`, `fm_seller_id`, `fm_invoice_creator_gln`, `fm_dias_credito_addenda`
-**Address:** `fm_gln` (GLN de sucursal destino para addendas EDI), `is_your_company_address` (workaround ERPNext v16 — campo requerido por `erpnext/accounts/custom/address.py` pero no declarado en el DocType nativo; se agrega como Custom Field con default=0 para evitar AttributeError al guardar Address de clientes)
+**Address:** `fm_gln` (GLN de sucursal destino para addendas EDI). Nota: `is_your_company_address` es un Custom Field **propiedad de ERPNext** (creado por `erpnext/accounts/custom/address.py` / `create_address_and_contact_custom_fields`); esta app **no** lo declara en fixtures. `install.py` solo le asigna `0` al crear Address de clientes template, para evitar el AttributeError histórico.
 **Sales Invoice Item:** `fm_descripcion_cfdi` (descripción fiscal editable por línea → `Concepto.Descripcion`; ver "Descripción del concepto")
 **Item Customer Detail:** `ref_code` (nativo ERPNext), `fm_customer_uom`, `fm_customer_description`
 **Branch:** `fm_enable_fiscal`, `fm_lugar_expedicion`, `fm_serie_pattern`, folios

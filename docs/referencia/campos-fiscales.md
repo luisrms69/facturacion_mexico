@@ -155,9 +155,10 @@ Campo de clasificación SAT de gasto para CFDI recibidos.
 
 ## Notas de reconciliación
 
-- **Address:** sus dos custom fields quedan fuera de esta referencia. `fm_gln` (GLN para
-  addenda EDI) no tiene consumidor funcional en código (solo declaración) → categoría legado;
-  `is_your_company_address` es un campo legado sin prefijo `fm_`. Por eso Address no tiene tabla.
+- **Address:** su único custom field propio queda fuera de esta referencia. `fm_gln` (GLN para
+  addenda EDI) no tiene consumidor funcional en código (solo declaración) → categoría legado.
+  Por eso Address no tiene tabla. (`is_your_company_address` es propiedad de ERPNext, no de esta
+  app; se dejó de administrar en fixtures.)
 - **Campos calculados de sucursal** (`fm_folio_current`, `fm_last_invoice_date`,
   `fm_monthly_average`) y **administrativos de folios/certificados**
   (`fm_folio_warning_threshold`, `fm_share_certificates`, `fm_certificate_ids`) se tratan como

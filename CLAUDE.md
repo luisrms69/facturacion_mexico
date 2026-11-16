@@ -117,14 +117,14 @@ Sales Invoice (submit)
 
 ### Custom Fields sobre DocTypes de ERPNext
 
-**Total real: 97 custom fields** (`fixtures/custom_field.json`). No todos son configurables por el
+**Total real: 96 custom fields** (`fixtures/custom_field.json`). No todos son configurables por el
 usuario: ~30 son estructura visual (Section/Column/Tab/HTML), varios son internos/legado. Solo ~48
 (configurables + informativos) se documentan como campos de usuario (ver `docs/referencia/campos-fiscales.md`).
 
 - **Sales Invoice:** 41 campos (estado fiscal, timbrado, multi-sucursal, addenda, e-receipt)
 - **Branch:** 20 campos (folios, series, certificados, estadísticas)
 - **Customer:** 19 campos (RFC, régimen fiscal, uso CFDI, GLN addenda)
-- **Payment Entry:** 5 campos · **Item:** 3 · **Address:** 2 · **Cost Center:** 2 · **Purchase Invoice:** 2 · **Item Customer Detail:** 2 · **Item Group:** 1
+- **Payment Entry:** 5 campos · **Item:** 3 · **Address:** 1 (`fm_gln`; `is_your_company_address` es de ERPNext, ya no se administra) · **Cost Center:** 2 · **Purchase Invoice:** 2 · **Item Customer Detail:** 2 · **Item Group:** 1
 
 Prefijo obligatorio: `fm_*` para todos los custom fields.
 
