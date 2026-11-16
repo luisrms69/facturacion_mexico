@@ -33,8 +33,11 @@ aparte:** corrección SQL en staging (opción B) para desbloquear la migración 
   fields propios restantes. Ningún campo del fixture referencia ya un módulo inexistente.
 - **`tests/test_fixtures_module_integrity.py` (nuevo):** guarda de regresión (5 tests) — campo de ERPNext
   ausente de fixtures/hooks, sin módulo obsoleto, módulos ⊆ `modules.txt`, prefijo `fm_` en funcionales.
-- **Docs:** `arquitectura.md`, `campos-fiscales.md` y `CLAUDE.md` actualizados (campo es de ERPNext;
-  conteo de custom fields 97 → 96; Address 2 → 1).
+- **Docs:** `arquitectura.md`, `campos-fiscales.md` y `CLAUDE.md` actualizados (campo es de ERPNext).
+- **Limpieza documental de `CLAUDE.md`** (conforme `documentation-standard.md`): conserva operación,
+  baseline y reglas; la arquitectura/DocTypes/custom fields/hooks/lógica/estado se movió a
+  `docs/tecnico/arquitectura.md` (nueva sección "Estado funcional y limitaciones conocidas") y se
+  apunta a `docs/referencia/*` y `docs/adr/*` sin duplicar.
 - `__init__.py` — bump `1.10.1 → 1.10.2` (PATCH).
 
 Validado en `test-facturacion.localhost`: 5/5 integridad · `test_customfield_prefix` · `test_layer1_custom_fields` 8/8 · `test_layer1_branch_custom_fields` 11/11. Ruff lint/format OK. JSON válido.
