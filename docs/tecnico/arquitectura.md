@@ -364,4 +364,35 @@ impuestos por línea de producto). Ver [ADR-0033](../adr/0033-factura-global-har
 
 ---
 
+## Estado funcional y limitaciones conocidas
+
+| Funcionalidad | Estado |
+|---|---|
+| Timbrado CFDI (I/E/N) | ✅ Funcional |
+| Complemento de Pago PPD | ✅ Funcional |
+| Cancelación CFDI | ✅ Funcional |
+| Multi-sucursal (Branch) | ✅ Funcional |
+| Addendas genéricas | ✅ Funcional |
+| Validación RFC contra SAT | ✅ Funcional |
+| E-Receipts / autofactura | ⚠️ Implementación parcial — pendiente validación integral (portal/expiración/autofactura sin aprobar) |
+| Factura Global | ⚠️ API existente sin UI completa ni validación integral |
+| Reconciliación FFM↔FacturAPI | ⚠️ Existe (scheduler + botón, solo GET); pendiente prueba operativa controlada |
+| Fallback de timbrado | ✅ Persistencia de la respuesta RAW del PAC en fallback file (`private/files`; `/tmp` solo último recurso) + advertencia visible. Conserva evidencia, no es recuperación automática. `api_backup.py` eliminado (PR #142). Ver [reconciliacion-fallback.md](reconciliacion-fallback.md) |
+| Draft management | ❌ No funcional — todo MOCK |
+| Motor de reglas | ⚠️ Parcial — acciones clave deshabilitadas |
+| Dashboard KPIs | ⚠️ Parcial — alertas siempre en 0 |
+
+**Problemas críticos conocidos (no tocar sin plan):**
+
+1. **`draft_management/api.py`** — completamente simulado con MOCKs. Flujos con `fm_create_as_draft = True` no generan CFDI real; falla silenciosamente.
+2. **Resiliencia PAC** — la resiliencia vigente = reconciliación FFM↔FacturAPI (GET, pendiente de prueba operativa) + fallback file de timbrado (respuesta RAW en `private/files`). El antiguo `api_backup.py` (recovery a `/tmp/`) fue removido (PR #142). Ver [reconciliacion-fallback.md](reconciliacion-fallback.md).
+3. **IEPS Cuota $0 en submit** (issue #81) — cuotas `charge_type="Actual"` se vuelven $0 al hacer submit. Hooks deshabilitados (`# E4 DISABLED`). Funcionalidad IEPS cuota fija: deshabilitada (candidata a roadmap). No bloquea timbrado de IVA estándar.
+4. **Motor de reglas** — parcial: `execute_call_api_manual()` y similares retornan strings de error, no ejecutan nada.
+5. **Dashboard fiscal** — parcial: scores/uptime hardcodeados, alertas en 0, UI en inglés (viola RG-001). No apto para manual.
+6. **E-Receipts / Factura Global** — implementación parcial/API sin UI; sin validación integral. No presentar como operativos.
+
+> La configuración vigente es por empresa (`Facturacion Mexico Company Settings`); el Single `Facturacion Mexico Settings` fue eliminado ([ADR 0031](../adr/0031-migracion-settings-por-company.md)). `patches.txt` está vacío y `patches/legacy/` no es ejecutable (solo referencia histórica).
+
+---
+
 > Este documento describe el estado actual. Para el historial de decisiones, ver [ADRs](../adr/index.md).
