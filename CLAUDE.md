@@ -10,7 +10,7 @@
 - **Migración:** v15 → v16 completada (2026-05-01)
 - **Bench:** `/home/erpnext/frappe-bench-v16`
 - **Branch activo:** feature branch creada desde `main` (nunca commitear en `main`)
-- **Versión:** 0.0.1 (desarrollo activo)
+- **Versión:** 1.10.2 (desarrollo activo)
 - **En producción:** No
 
 ---
