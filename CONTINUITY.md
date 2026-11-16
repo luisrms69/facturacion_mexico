@@ -1,75 +1,63 @@
 # CONTINUITY.md — facturacion_mexico
 
-**Fecha:** 2026-09-28
-**Rama activa:** `feat/cfdi-historico-compras-clasificador`
-**Tarea actual:** Clasificador determinista de Items para el importador histórico de CFDI de compra.
-En `/ship pr` (v1.10.0).
+**Fecha:** 2026-11-15
+**Rama activa:** `fix/custom-field-module-facturacion-fiscal`
+**Tarea actual:** Corrección del error de migración `LinkValidationError: Could not find Module
+(for export): Facturacion Mexico`. En `/ship pr` (v1.10.2).
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-El **clasificador determinista de Items** de `cfdi_historico_compras`: asignar `item_code` a cada
-concepto XML **antes** de `build_purchase_invoice()`, usando la **taxonomía autorizada de Gastos**
-(Código Agrupador SAT) — sin mecanismo de aprendizaje y **sin fallback arbitrario**.
+El fix del error de `bench migrate` en staging (`erpstagingacti.buzola.mx`) provocado por el patch de
+ERPNext `restrict_company_address_flag`. Causa raíz: el fixture `custom_field.json` administraba
+`Address-is_your_company_address` (campo **propiedad de ERPNext**) y, además, 18 custom fields apuntaban
+al módulo **inexistente** `Facturacion Mexico` (renombrado a `Facturacion Fiscal` en 2025).
 
 Objetivo inmediato:
-`/ship pr` hacia `main` con bump **v1.10.0** (MINOR). Tras merge: `/sync-check` + `/ship release` v1.10.0.
+`/ship pr` hacia `main` con bump **v1.10.2** (PATCH). Detenido en el gate `pr-ready` por indicación del
+usuario (sin push ni PR todavía).
 
 Criterio de avance:
-PR mergeado con bump 1.10.0; luego release. Cobertura demostrada: **905/905 conceptos → item_code, 0 sin
-item, 0 Items nuevos**; una clave sin mapping definido queda sin resolver → `ERROR_ITEM` (sin fallback).
-**Pendiente NO bloqueante:** validación end-to-end con datos reales del apply (hoy: tests unitarios +
-dry-run read-only en el site restaurado local).
+PR mergeado con bump 1.10.2; luego `/sync-check` + `/ship release` v1.10.2. **Pendiente de autorización
+aparte:** corrección SQL en staging (opción B) para desbloquear la migración del dato ya escrito.
 
 ---
 
 ## Estado actual (implementado en la rama)
 
-- **`cfdi_emitidos` (importador de venta):** los CFDI **cancelados ya no se omiten** — se crean como
-  Sales Invoice Draft por el mismo flujo que los vigentes (contador `cancelados` informativo).
-- **`cfdi_historico_compras` (nuevo):** importador batch de CFDI de compra → Purchase Invoice Draft
-  reutilizando `cfdi_recibidos` (dry-run read-only, idempotencia por `fm_cfdi_uuid`, fail-closed de
-  Supplier/Item/cuenta/impuesto, CSV de proveedores faltantes). No submit, no PAC.
-- **`preparacion_terceros` (nuevo, V1 solo lectura):** analiza XML y genera CSV de Customers/Suppliers
-  faltantes para Data Import; no crea nada; dedupe nacional por RFC / extranjero por NumRegIdTrib.
-- **`cfdi_historico_rep` (nuevo):** importa REP históricos → Payment Entry nativos + `Complemento Pago MX`
-  sin PAC. Direcciones EMITIDO (Receive/Sales Invoice) y RECIBIDO (Pay/Purchase Invoice); reconciliación
-  fuerte (UUID único, contraparte, MonedaDR==factura, `ImpSaldoAnt==outstanding`, Insoluto, ImpPagado,
-  cuadre `Monto=Σ(ImpPagado/EquivalenciaDR)`); orden cronológico por FechaPago; cuentas explícitas por
-  moneda; idempotencia por `folio_fiscal`; vigentes con PE, cancelados sin PE; **multi-Pago** (N PE + 1
-  Complemento, rollback total).
-- **`complementos_pago` (schema + código):** nuevo child `Complemento Pago Detalle Pago MX` + Table
-  `pagos` + `pago_idx` en `Documento Relacionado Pago MX`/`Detalle Complemento Pago MX`. Validación
-  `validate_documentos_relacionados` pago-aware con Decimal y **EquivalenciaDR SAT correcta**
-  (`ImpPagado/EquivalenciaDR`). `tipo_cambio_p` saliente corregido (MonedaP→MXN). Payload de timbrado
-  consume `pagos` (N nodos). Legacy (sin `pagos`) sigue válido sin data patch.
-- `__init__.py` — bump `1.8.0 → 1.9.0` (MINOR).
+- **`hooks.py` + `fixtures/custom_field.json`:** se retira `Address-is_your_company_address` del filtro
+  de fixtures y del JSON (es de ERPNext; `install.py` solo le asigna `0`, no lo administra).
+- **`fixtures/custom_field.json`:** `module "Facturacion Mexico" → "Facturacion Fiscal"` en los 17 custom
+  fields propios restantes. Ningún campo del fixture referencia ya un módulo inexistente.
+- **`tests/test_fixtures_module_integrity.py` (nuevo):** guarda de regresión (5 tests) — campo de ERPNext
+  ausente de fixtures/hooks, sin módulo obsoleto, módulos ⊆ `modules.txt`, prefijo `fm_` en funcionales.
+- **Docs:** `arquitectura.md`, `campos-fiscales.md` y `CLAUDE.md` actualizados (campo es de ERPNext;
+  conteo de custom fields 97 → 96; Address 2 → 1).
+- `__init__.py` — bump `1.10.1 → 1.10.2` (PATCH).
 
-Aplicado con `bench migrate` en `test-facturacion.localhost` (nuevo child + columnas). Sin data patch.
+Validado en `test-facturacion.localhost`: 5/5 integridad · `test_customfield_prefix` · `test_layer1_custom_fields` 8/8 · `test_layer1_branch_custom_fields` 11/11. Ruff lint/format OK. JSON válido.
 
 ---
 
 ## Decisiones vigentes no evidentes en el código
 
-- **Canónico vs legacy (sin data patch):** con filas `pagos`, esa tabla es la fuente de verdad; los
-  escalares del padre son espejo del primer Pago. Sin `pagos` = un Pago implícito por escalares.
-- **Cuentas fail-closed:** Receive→`paid_to`, Pay→`paid_from` explícitos (o mapa por moneda); nunca se
-  autoselecciona caja/banco; la cuenta debe estar en MonedaP.
-- **Sin PAC en históricos:** `fm_creation_source` vacío → la UI no ofrece cancelación/timbrado PAC.
-- **Cancelado por señal explícita del lote** (`cancelled_marker`), nunca inferido del XML.
-- **Cross-currency:** tasas derivadas de datos reales (`EquivalenciaDR × conversion_rate`); ERPNext es
-  árbitro final (savepoint revierte si no puede representar). Ver ADR 0042.
+- **`Address-is_your_company_address` es de ERPNext**, no de esta app. No se declara en fixtures. Prohibido
+  volver a asignarle nuestro módulo. `install.py` conserva `address.is_your_company_address = 0` (asigna,
+  no administra) para evitar el AttributeError histórico de ERPNext v16.21.1.
+- **Fix en dos capas:** app (fixtures/hooks/módulo) + dato en staging. El SQL (opción B) corrige el dato ya
+  escrito: 17 propios → `Facturacion Fiscal`, `Address-is_your_company_address` → `module = NULL` (valor
+  canónico de ERPNext, que no asigna module al crear el campo). SQL **no ejecutado**, requiere autorización.
 
-### Pendientes conocidos (NO bloqueantes)
-1. Validación end-to-end con datos reales de los importadores (hoy: tests unitarios; migrate verificado).
-2. PE cross-currency real (mapeo nativo validado solo por unit tests + ERPNext runtime).
-3. `tipo_cambio_p` saliente: quedó corregido; falta prueba de timbrado real en moneda extranjera.
+### Pendientes conocidos (NO bloqueantes del PR)
+1. Ejecución del SQL en staging (opción B): preparado, pendiente de autorización explícita del usuario.
+2. El `sync_fixtures` del próximo `bench migrate` ya aplicaría la corrección de módulo desde el fixture;
+   el SQL es el desbloqueo inmediato porque los patches corren antes que los fixtures.
 
 ---
 
 ## No commitear
 - `facturacion_mexico/one_offs/*` (validaciones y análisis histórico; nunca al repo).
-- `docs/audit/validation_report.md` (artefacto generado por `scripts/validate_docs.py`).
+- `docs/audit/*` (artefactos de auditoría generados localmente).
 - `scripts/*` locales, `working_docs/private/`.
