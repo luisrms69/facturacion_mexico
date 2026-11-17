@@ -9,6 +9,9 @@ Guardas de regresión para el error de migración
 3. Todo módulo usado por el fixture está declarado en ``modules.txt``.
 4. Todo campo funcional nuevo respeta el prefijo ``fm_`` (los estructurales e
    históricos ya justificados quedan excluidos).
+5. Ningún Custom Field de NINGÚN fixture usa un módulo fuera de ``modules.txt``.
+6. Ningún Custom Field está duplicado entre archivos de fixtures (al importar,
+   el último archivo en orden alfabético sobrescribe al anterior).
 
 Conforme RG-003: pruebas simples, deterministas, sin red.
 """
@@ -20,7 +23,8 @@ from pathlib import Path
 from facturacion_mexico.tests.legacy_allowlist import LEGACY_CF_ALLOWLIST
 
 APP_DIR = Path(__file__).resolve().parents[1]
-FIXTURE = APP_DIR / "fixtures" / "custom_field.json"
+FIXTURES_DIR = APP_DIR / "fixtures"
+FIXTURE = FIXTURES_DIR / "custom_field.json"
 MODULES_TXT = APP_DIR / "modules.txt"
 
 # Campo propiedad de ERPNext que la app no debe administrar.
@@ -39,6 +43,28 @@ def _load_fixture():
 
 def _declared_modules():
 	return {line.strip() for line in MODULES_TXT.read_text(encoding="utf-8").splitlines() if line.strip()}
+
+
+def _custom_fields_by_file():
+	"""{nombre_archivo: [registro_custom_field, ...]} para TODOS los .json de fixtures/.
+
+	Frappe importa todos los .json de la carpeta fixtures/ (os.listdir), no solo
+	los declarados en hooks.py; por eso la integridad debe verificarse sobre todos.
+	"""
+	out = {}
+	for path in sorted(FIXTURES_DIR.glob("*.json")):
+		try:
+			data = json.loads(path.read_text(encoding="utf-8"))
+		except (ValueError, OSError):
+			continue
+		if not isinstance(data, list):
+			continue
+		cfs = [
+			r for r in data if isinstance(r, dict) and r.get("doctype") == "Custom Field" and r.get("name")
+		]
+		if cfs:
+			out[path.name] = cfs
+	return out
 
 
 def _hooks_custom_field_filter():
@@ -90,6 +116,42 @@ class TestFixturesModuleIntegrity(unittest.TestCase):
 			orphans,
 			[],
 			f"Módulos usados por el fixture que no están en modules.txt: {orphans}.",
+		)
+
+	def test_no_invalid_module_in_any_fixture(self):
+		"""Ningún Custom Field de NINGÚN fixture debe usar un módulo fuera de modules.txt.
+
+		Guard contra fixtures residuales (p. ej. el eliminado
+		custom_fields_sales_invoice.json) que reintroducen un módulo obsoleto.
+		"""
+		declared = _declared_modules()
+		offenders = []
+		for fname, cfs in _custom_fields_by_file().items():
+			for cf in cfs:
+				module = cf.get("module")
+				if module and module not in declared:
+					offenders.append(f"{fname}:{cf.get('name')} -> {module}")
+		self.assertEqual(
+			offenders,
+			[],
+			f"Custom Fields con módulo inexistente en modules.txt: {offenders}.",
+		)
+
+	def test_no_duplicate_custom_field_across_fixtures(self):
+		"""Ningún Custom Field debe estar definido en más de un archivo de fixtures.
+
+		Dos archivos con el mismo 'name' se sobrescriben al importar (delete+insert,
+		orden alfabético); el último gana y puede revertir la definición correcta.
+		"""
+		seen = {}
+		for fname, cfs in _custom_fields_by_file().items():
+			for cf in cfs:
+				seen.setdefault(cf["name"], []).append(fname)
+		dups = {name: files for name, files in seen.items() if len(files) > 1}
+		self.assertEqual(
+			dups,
+			{},
+			f"Custom Fields duplicados entre archivos de fixtures: {dups}.",
 		)
 
 	def test_prefix_rule_for_functional_fields(self):
