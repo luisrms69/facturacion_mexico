@@ -1,66 +1,60 @@
 # CONTINUITY.md — facturacion_mexico
 
-**Fecha:** 2026-11-15
-**Rama activa:** `fix/custom-field-module-facturacion-fiscal`
-**Tarea actual:** Corrección del error de migración `LinkValidationError: Could not find Module
-(for export): Facturacion Mexico`. En `/ship pr` (v1.10.2).
+**Fecha:** 2026-11-17
+**Rama activa:** `fix/fixture-duplicado-sales-invoice-module`
+**Tarea actual:** Elimina el fixture duplicado `custom_fields_sales_invoice.json` que revertía el
+módulo de 3 campos de Sales Invoice en cada `bench migrate`. En `/ship pr` (v1.10.3).
 
 ---
 
 ## Recuperación rápida
 
 Estoy trabajando en:
-El fix del error de `bench migrate` en staging (`erpstagingacti.buzola.mx`) provocado por el patch de
-ERPNext `restrict_company_address_flag`. Causa raíz: el fixture `custom_field.json` administraba
-`Address-is_your_company_address` (campo **propiedad de ERPNext**) y, además, 18 custom fields apuntaban
-al módulo **inexistente** `Facturacion Mexico` (renombrado a `Facturacion Fiscal` en 2025).
+La causa raíz de que `module="Facturacion Mexico"` reapareciera tras corregir el dato: Frappe importa
+**todos** los `.json` de `fixtures/` (`os.listdir`, orden alfabético), no solo los de `hooks.py`.
+`custom_fields_sales_invoice.json` (residuo de PR #51) se importaba **después** de `custom_field.json`
+y sobrescribía los 3 campos de SI con módulo obsoleto + opciones de `fm_fiscal_status` sin
+`E-RECEIPT`/`E-RECEIPT-FACTURADO`.
 
 Objetivo inmediato:
-`/ship pr` hacia `main` con bump **v1.10.2** (PATCH). Detenido en el gate `pr-ready` por indicación del
-usuario (sin push ni PR todavía).
+`/ship pr` hacia `main` con bump **v1.10.3** (PATCH). Sin merge (lo hace el usuario).
 
 Criterio de avance:
-PR mergeado con bump 1.10.2; luego `/sync-check` + `/ship release` v1.10.2. **Pendiente de autorización
-aparte:** corrección SQL en staging (opción B) para desbloquear la migración del dato ya escrito.
+PR con el residuo eliminado + test ampliado; tras merge: `/sync-check` + `/ship release` v1.10.3.
+Validación post-despliegue en staging: `bench migrate` y confirmar que los 3 campos conservan
+`module=Facturacion Fiscal` y las opciones completas de E-Receipt. (No re-ejecutar SQL
+preventivamente — con el residuo eliminado, migrate re-estampa desde `custom_field.json`.)
 
 ---
 
 ## Estado actual (implementado en la rama)
 
-- **`hooks.py` + `fixtures/custom_field.json`:** se retira `Address-is_your_company_address` del filtro
-  de fixtures y del JSON (es de ERPNext; `install.py` solo le asigna `0`, no lo administra).
-- **`fixtures/custom_field.json`:** `module "Facturacion Mexico" → "Facturacion Fiscal"` en los 17 custom
-  fields propios restantes. Ningún campo del fixture referencia ya un módulo inexistente.
-- **`tests/test_fixtures_module_integrity.py` (nuevo):** guarda de regresión (5 tests) — campo de ERPNext
-  ausente de fixtures/hooks, sin módulo obsoleto, módulos ⊆ `modules.txt`, prefijo `fm_` en funcionales.
-- **Docs:** `arquitectura.md`, `campos-fiscales.md` y `CLAUDE.md` actualizados (campo es de ERPNext).
-- **Limpieza documental de `CLAUDE.md`** (conforme `documentation-standard.md`): conserva operación,
-  baseline y reglas; la arquitectura/DocTypes/custom fields/hooks/lógica/estado se movió a
-  `docs/tecnico/arquitectura.md` (nueva sección "Estado funcional y limitaciones conocidas") y se
-  apunta a `docs/referencia/*` y `docs/adr/*` sin duplicar.
-- `__init__.py` — bump `1.10.1 → 1.10.2` (PATCH).
+- **Eliminado** `facturacion_mexico/fixtures/custom_fields_sales_invoice.json` (residuo de #51). Los 3
+  campos (`fm_fiscal_section`, `fm_fiscal_status`, `fm_factura_fiscal_mx`) quedan definidos de forma
+  canónica y completa en `custom_field.json` (module=Facturacion Fiscal, opciones completas).
+- **`tests/test_fixtures_module_integrity.py` ampliado:** escanea TODOS los `fixtures/*.json` —
+  guarda contra módulos fuera de `modules.txt` (en cualquier fixture) y contra Custom Fields
+  duplicados entre archivos. Simulación confirmó que ambas guardas disparan con el residuo presente.
+- `__init__.py` — bump `1.10.2 → 1.10.3` (PATCH).
 
-Validado en `test-facturacion.localhost`: 5/5 integridad · `test_customfield_prefix` · `test_layer1_custom_fields` 8/8 · `test_layer1_branch_custom_fields` 11/11. Ruff lint/format OK. JSON válido.
+Validado en `test-facturacion.localhost`: 7/7 del test de integridad; ruff OK.
 
 ---
 
 ## Decisiones vigentes no evidentes en el código
 
-- **`Address-is_your_company_address` es de ERPNext**, no de esta app. No se declara en fixtures. Prohibido
-  volver a asignarle nuestro módulo. `install.py` conserva `address.is_your_company_address = 0` (asigna,
-  no administra) para evitar el AttributeError histórico de ERPNext v16.21.1.
-- **Fix en dos capas:** app (fixtures/hooks/módulo) + dato en staging. El SQL (opción B) corrige el dato ya
-  escrito: 17 propios → `Facturacion Fiscal`, `Address-is_your_company_address` → `module = NULL` (valor
-  canónico de ERPNext, que no asigna module al crear el campo). SQL **no ejecutado**, requiere autorización.
+- Frappe importa fixtures por **carpeta** (`import_fixtures` → `os.listdir(fixtures/)`), no por la lista
+  `fixtures` de `hooks.py` (esa lista solo rige el export). → cualquier `.json` en `fixtures/` se
+  importa; dos archivos con el mismo Custom Field `name` se sobrescriben (último alfabético gana).
+- Los roles "Facturacion Mexico User/Manager/System Manager" (`role.json`/`docperm.json`) son nombres
+  de rol legítimos, **no** referencias de módulo.
 
 ### Pendientes conocidos (NO bloqueantes del PR)
-1. Ejecución del SQL en staging (opción B): preparado, pendiente de autorización explícita del usuario.
-2. El `sync_fixtures` del próximo `bench migrate` ya aplicaría la corrección de módulo desde el fixture;
-   el SQL es el desbloqueo inmediato porque los patches corren antes que los fixtures.
+1. Tras merge + despliegue: `bench migrate` en staging y verificar los 3 campos.
+2. Observación relacionada (fuera de alcance): `test_records.json` también se importa en cada migrate
+   por el mismo mecanismo de carpeta; revisar aparte si procede.
 
 ---
 
 ## No commitear
-- `facturacion_mexico/one_offs/*` (validaciones y análisis histórico; nunca al repo).
-- `docs/audit/*` (artefactos de auditoría generados localmente).
-- `scripts/*` locales, `working_docs/private/`.
+- `facturacion_mexico/one_offs/*` · `docs/audit/*` · `scripts/*` locales · `working_docs/private/`.
