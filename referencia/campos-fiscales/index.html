@@ -2964,9 +2964,10 @@ y <strong>Gestión de Folios</strong>.</p>
 <hr />
 <h2 id="notas-de-reconciliacion">Notas de reconciliación<a class="headerlink" href="#notas-de-reconciliacion" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>Address:</strong> sus dos custom fields quedan fuera de esta referencia. <code>fm_gln</code> (GLN para
-  addenda EDI) no tiene consumidor funcional en código (solo declaración) → categoría legado;
-  <code>is_your_company_address</code> es un campo legado sin prefijo <code>fm_</code>. Por eso Address no tiene tabla.</li>
+<li><strong>Address:</strong> su único custom field propio queda fuera de esta referencia. <code>fm_gln</code> (GLN para
+  addenda EDI) no tiene consumidor funcional en código (solo declaración) → categoría legado.
+  Por eso Address no tiene tabla. (<code>is_your_company_address</code> es propiedad de ERPNext, no de esta
+  app; se dejó de administrar en fixtures.)</li>
 <li><strong>Campos calculados de sucursal</strong> (<code>fm_folio_current</code>, <code>fm_last_invoice_date</code>,
   <code>fm_monthly_average</code>) y <strong>administrativos de folios/certificados</strong>
   (<code>fm_folio_warning_threshold</code>, <code>fm_share_certificates</code>, <code>fm_certificate_ids</code>) se tratan como

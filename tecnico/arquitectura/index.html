@@ -1019,6 +1019,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#estado-funcional-y-limitaciones-conocidas" class="md-nav__link">
+    <span class="md-ellipsis">
+      Estado funcional y limitaciones conocidas
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2687,6 +2696,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#estado-funcional-y-limitaciones-conocidas" class="md-nav__link">
+    <span class="md-ellipsis">
+      Estado funcional y limitaciones conocidas
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3132,7 +3150,7 @@ el timbrado de B</strong>:</p>
 <code>fm_ereceipt_mx</code> (link al EReceipt MX), <code>fm_ereceipt_summary_html</code> (widget estado E-Receipt),
 <code>fm_ereceipt_mode</code> (Normal / E-Receipt), <code>fm_ereceipt_expiry_*</code> (configuración vencimiento)
 <strong>Customer:</strong> <code>fm_tax_regime</code>, <code>fm_uso_cfdi_default</code>, <code>fm_requires_addenda</code>, <code>fm_default_addenda_type</code>, <code>fm_buyer_gln</code>, <code>fm_seller_gln</code>, <code>fm_seller_id</code>, <code>fm_invoice_creator_gln</code>, <code>fm_dias_credito_addenda</code>
-<strong>Address:</strong> <code>fm_gln</code> (GLN de sucursal destino para addendas EDI), <code>is_your_company_address</code> (workaround ERPNext v16 — campo requerido por <code>erpnext/accounts/custom/address.py</code> pero no declarado en el DocType nativo; se agrega como Custom Field con default=0 para evitar AttributeError al guardar Address de clientes)
+<strong>Address:</strong> <code>fm_gln</code> (GLN de sucursal destino para addendas EDI). Nota: <code>is_your_company_address</code> es un Custom Field <strong>propiedad de ERPNext</strong> (creado por <code>erpnext/accounts/custom/address.py</code> / <code>create_address_and_contact_custom_fields</code>); esta app <strong>no</strong> lo declara en fixtures. <code>install.py</code> solo le asigna <code>0</code> al crear Address de clientes template, para evitar el AttributeError histórico.
 <strong>Sales Invoice Item:</strong> <code>fm_descripcion_cfdi</code> (descripción fiscal editable por línea → <code>Concepto.Descripcion</code>; ver "Descripción del concepto")
 <strong>Item Customer Detail:</strong> <code>ref_code</code> (nativo ERPNext), <code>fm_customer_uom</code>, <code>fm_customer_description</code>
 <strong>Branch:</strong> <code>fm_enable_fiscal</code>, <code>fm_lugar_expedicion</code>, <code>fm_serie_pattern</code>, folios
@@ -3267,6 +3285,82 @@ lo que producía valores incorrectos para IVA 8% y tasa 0%.</p>
 las validaciones de Factura Global sin implementar el modelo definitivo de impuestos por línea.</p>
 <p>Serán eliminados cuando issue #182 implemente <code>EReceipt MX Tax Line</code> (child table con
 impuestos por línea de producto). Ver <a href="../../adr/0033-factura-global-hardcodes/">ADR-0033</a>.</p>
+<hr />
+<h2 id="estado-funcional-y-limitaciones-conocidas">Estado funcional y limitaciones conocidas<a class="headerlink" href="#estado-funcional-y-limitaciones-conocidas" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Funcionalidad</th>
+<th>Estado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Timbrado CFDI (I/E/N)</td>
+<td>✅ Funcional</td>
+</tr>
+<tr>
+<td>Complemento de Pago PPD</td>
+<td>✅ Funcional</td>
+</tr>
+<tr>
+<td>Cancelación CFDI</td>
+<td>✅ Funcional</td>
+</tr>
+<tr>
+<td>Multi-sucursal (Branch)</td>
+<td>✅ Funcional</td>
+</tr>
+<tr>
+<td>Addendas genéricas</td>
+<td>✅ Funcional</td>
+</tr>
+<tr>
+<td>Validación RFC contra SAT</td>
+<td>✅ Funcional</td>
+</tr>
+<tr>
+<td>E-Receipts / autofactura</td>
+<td>⚠️ Implementación parcial — pendiente validación integral (portal/expiración/autofactura sin aprobar)</td>
+</tr>
+<tr>
+<td>Factura Global</td>
+<td>⚠️ API existente sin UI completa ni validación integral</td>
+</tr>
+<tr>
+<td>Reconciliación FFM↔FacturAPI</td>
+<td>⚠️ Existe (scheduler + botón, solo GET); pendiente prueba operativa controlada</td>
+</tr>
+<tr>
+<td>Fallback de timbrado</td>
+<td>✅ Persistencia de la respuesta RAW del PAC en fallback file (<code>private/files</code>; <code>/tmp</code> solo último recurso) + advertencia visible. Conserva evidencia, no es recuperación automática. <code>api_backup.py</code> eliminado (PR #142). Ver <a href="../reconciliacion-fallback/">reconciliacion-fallback.md</a></td>
+</tr>
+<tr>
+<td>Draft management</td>
+<td>❌ No funcional — todo MOCK</td>
+</tr>
+<tr>
+<td>Motor de reglas</td>
+<td>⚠️ Parcial — acciones clave deshabilitadas</td>
+</tr>
+<tr>
+<td>Dashboard KPIs</td>
+<td>⚠️ Parcial — alertas siempre en 0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Problemas críticos conocidos (no tocar sin plan):</strong></p>
+<ol>
+<li><strong><code>draft_management/api.py</code></strong> — completamente simulado con MOCKs. Flujos con <code>fm_create_as_draft = True</code> no generan CFDI real; falla silenciosamente.</li>
+<li><strong>Resiliencia PAC</strong> — la resiliencia vigente = reconciliación FFM↔FacturAPI (GET, pendiente de prueba operativa) + fallback file de timbrado (respuesta RAW en <code>private/files</code>). El antiguo <code>api_backup.py</code> (recovery a <code>/tmp/</code>) fue removido (PR #142). Ver <a href="../reconciliacion-fallback/">reconciliacion-fallback.md</a>.</li>
+<li><strong>IEPS Cuota $0 en submit</strong> (issue #81) — cuotas <code>charge_type="Actual"</code> se vuelven $0 al hacer submit. Hooks deshabilitados (<code># E4 DISABLED</code>). Funcionalidad IEPS cuota fija: deshabilitada (candidata a roadmap). No bloquea timbrado de IVA estándar.</li>
+<li><strong>Motor de reglas</strong> — parcial: <code>execute_call_api_manual()</code> y similares retornan strings de error, no ejecutan nada.</li>
+<li><strong>Dashboard fiscal</strong> — parcial: scores/uptime hardcodeados, alertas en 0, UI en inglés (viola RG-001). No apto para manual.</li>
+<li><strong>E-Receipts / Factura Global</strong> — implementación parcial/API sin UI; sin validación integral. No presentar como operativos.</li>
+</ol>
+<blockquote>
+<p>La configuración vigente es por empresa (<code>Facturacion Mexico Company Settings</code>); el Single <code>Facturacion Mexico Settings</code> fue eliminado (<a href="../../adr/0031-migracion-settings-por-company/">ADR 0031</a>). <code>patches.txt</code> está vacío y <code>patches/legacy/</code> no es ejecutable (solo referencia histórica).</p>
+</blockquote>
 <hr />
 <blockquote>
 <p>Este documento describe el estado actual. Para el historial de decisiones, ver <a href="../../adr/">ADRs</a>.</p>
