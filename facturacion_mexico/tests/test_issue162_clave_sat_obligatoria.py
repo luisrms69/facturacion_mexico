@@ -42,7 +42,7 @@ class TestValidateItemsClavesSATTimbrado(FrappeTestCase):
 				"item_code": cls.item_con_clave,
 				"item_name": cls.item_con_clave,
 				"item_group": group,
-				"stock_uom": "Nos",
+				"stock_uom": "H87 - Pieza",
 				"fm_producto_servicio_sat": "84111506",
 			}
 		).insert(ignore_permissions=True, ignore_links=True)
@@ -54,7 +54,7 @@ class TestValidateItemsClavesSATTimbrado(FrappeTestCase):
 				"item_code": cls.item_sin_clave,
 				"item_name": cls.item_sin_clave,
 				"item_group": group,
-				"stock_uom": "Nos",
+				"stock_uom": "H87 - Pieza",
 			}
 		).insert(ignore_permissions=True)
 
@@ -89,7 +89,7 @@ class TestValidateItemsClavesSATTimbrado(FrappeTestCase):
 				"item_code": item_b,
 				"item_name": item_b,
 				"item_group": _item_group(),
-				"stock_uom": "Nos",
+				"stock_uom": "H87 - Pieza",
 			}
 		).insert(ignore_permissions=True)
 		try:
@@ -157,7 +157,7 @@ class TestFFMValidateClavesSAT(FrappeTestCase):
 				"item_code": cls.item_con_clave,
 				"item_name": cls.item_con_clave,
 				"item_group": group,
-				"stock_uom": "Nos",
+				"stock_uom": "H87 - Pieza",
 				"fm_producto_servicio_sat": "84111506",
 			}
 		).insert(ignore_permissions=True, ignore_links=True)
@@ -171,7 +171,7 @@ class TestFFMValidateClavesSAT(FrappeTestCase):
 				"item_code": cls.item_para_si_malo,
 				"item_name": cls.item_para_si_malo,
 				"item_group": group,
-				"stock_uom": "Nos",
+				"stock_uom": "H87 - Pieza",
 				"fm_producto_servicio_sat": "84111506",
 			}
 		).insert(ignore_permissions=True, ignore_links=True)
@@ -206,7 +206,7 @@ class TestFFMValidateClavesSAT(FrappeTestCase):
 						"item_code": cls.item_con_clave,
 						"qty": 1,
 						"rate": 100,
-						"uom": "Nos",
+						"uom": "H87 - Pieza",
 						"cost_center": cls.cost_center,
 					}
 				],
@@ -229,7 +229,7 @@ class TestFFMValidateClavesSAT(FrappeTestCase):
 						"item_code": cls.item_para_si_malo,
 						"qty": 1,
 						"rate": 100,
-						"uom": "Nos",
+						"uom": "H87 - Pieza",
 						"cost_center": cls.cost_center,
 					}
 				],

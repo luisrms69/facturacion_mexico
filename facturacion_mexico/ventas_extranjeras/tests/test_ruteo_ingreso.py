@@ -290,7 +290,7 @@ class TestRuteoIntegracion(unittest.TestCase):
 		cls.company_currency = frappe.db.get_value("Company", cls.company, "default_currency")
 		_recv = frappe.db.get_value("Company", cls.company, "default_receivable_account")
 		cls.si_currency = frappe.db.get_value("Account", _recv, "account_currency") or cls.company_currency
-		cls.uom = "Nos"
+		cls.uom = "H87 - Pieza"
 		cls.cgroup = frappe.db.get_value("Customer Group", {"is_group": 0}, "name")
 		cls.territory = frappe.db.get_value("Territory", {"is_group": 0}, "name")
 		cls.item = "ZZ-VEXT-ITEM-" + h

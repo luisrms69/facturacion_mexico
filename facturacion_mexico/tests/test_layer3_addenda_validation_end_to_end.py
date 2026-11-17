@@ -484,7 +484,7 @@ class TestLayer3AddendaValidationEndToEnd(unittest.TestCase):
                     "item_code": item_code,
                     "item_name": item_code,
                     "item_group": "All Item Groups",
-                    "stock_uom": "Nos",
+                    "stock_uom": "H87 - Pieza",
                     "is_stock_item": 0,
                     "fm_addenda_compatible": 1,
                     "fm_product_category": "general"
