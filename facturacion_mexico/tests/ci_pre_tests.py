@@ -35,6 +35,25 @@ def run():
 			}
 		).insert(ignore_permissions=True)
 
+	# --- 3b) Party Types — ERPNext solo los crea en el Setup Wizard (install_fixtures),
+	#     no en after_install. Un site de CI sin wizard no los tiene y las validaciones
+	#     contables (gl_entry.validate_account_party_type) fallan. Valores oficiales
+	#     exactos de erpnext/setup/setup_wizard/operations/install_fixtures.py ---
+	for party_type, account_type in (
+		("Customer", "Receivable"),
+		("Supplier", "Payable"),
+		("Employee", "Payable"),
+		("Shareholder", "Payable"),
+	):
+		if not frappe.db.exists("Party Type", party_type):
+			frappe.get_doc(
+				{
+					"doctype": "Party Type",
+					"party_type": party_type,
+					"account_type": account_type,
+				}
+			).insert(ignore_permissions=True)
+
 	# --- 4) Territory raíz + hoja que usan tus tests ---
 	if not frappe.db.exists("Territory", "All Territories"):
 		frappe.get_doc(

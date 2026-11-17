@@ -71,7 +71,7 @@ class TestRefacturarWorkflow(FrappeTestCase):
 			item.item_code = TEST_ITEM_CODE
 			item.item_name = "Item de prueba re-facturación"
 			item.item_group = item_group
-			item.stock_uom = "Nos"
+			item.stock_uom = "H87 - Pieza"
 			item.is_stock_item = 0
 			item.fm_producto_servicio_sat = TEST_SAT_CODE
 			item.insert(ignore_permissions=True)

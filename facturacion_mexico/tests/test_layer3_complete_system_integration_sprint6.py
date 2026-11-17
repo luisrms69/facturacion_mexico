@@ -420,7 +420,7 @@ class TestLayer3CompleteSystemIntegrationSprint6(unittest.TestCase):
                     "doctype": "Item",
                     "item_name": config["item_code"],
                     "item_group": "All Item Groups",
-                    "stock_uom": "Nos",
+                    "stock_uom": "H87 - Pieza",
                     "is_stock_item": 0,
                     "fm_addenda_compatible": 1
                 }

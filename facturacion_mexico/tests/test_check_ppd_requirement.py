@@ -203,7 +203,7 @@ class TestCheckPPDRequirementIntegracion(FrappeTestCase):
 			item.item_code = cls.item_code
 			item.item_name = "Item test PPD"
 			item.item_group = item_group
-			item.stock_uom = "Nos"
+			item.stock_uom = "H87 - Pieza"
 			item.is_stock_item = 0
 			item.fm_producto_servicio_sat = sat_code
 			item.insert(ignore_permissions=True)

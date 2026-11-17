@@ -50,7 +50,7 @@ class TestFFMNaceErrorFiscalEvent(FrappeTestCase):
 					"item_code": self.item,
 					"item_name": self.item,
 					"item_group": ig,
-					"stock_uom": "Nos",
+					"stock_uom": "H87 - Pieza",
 					"is_stock_item": 0,
 					"is_sales_item": 1,
 					"fm_producto_servicio_sat": "84111506",

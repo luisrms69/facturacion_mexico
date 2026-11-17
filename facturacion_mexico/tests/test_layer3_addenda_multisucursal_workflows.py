@@ -376,7 +376,7 @@ class TestLayer3AddendaMultiSucursalWorkflows(unittest.TestCase):
                     "item_code": item_code,
                     "item_name": item_code,
                     "item_group": "All Item Groups",
-                    "stock_uom": "Nos",
+                    "stock_uom": "H87 - Pieza",
                     "is_stock_item": 0
                 }
 

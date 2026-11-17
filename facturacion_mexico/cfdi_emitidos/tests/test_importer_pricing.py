@@ -44,7 +44,7 @@ class TestImporterPricing(unittest.TestCase):
 		h = frappe.generate_hash()[:6].upper()
 		cls.company = "_Test Company"
 		cls.currency = frappe.db.get_value("Company", cls.company, "default_currency")
-		cls.uom = "Nos"
+		cls.uom = "H87 - Pieza"
 		cls.rfc = "TESTRFC" + h  # in_test desactiva la validación de formato de RFC
 		cls.item_code = "ZZ-CFDIEMIT-ITEM-" + h
 		cls.noid = "NID" + h
