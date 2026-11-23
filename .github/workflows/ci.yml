@@ -31,18 +31,6 @@ jobs:
         image: redis:alpine
         ports:
           - 11000:6379
-      mariadb:
-        image: mariadb:11.8
-        env:
-          MYSQL_ROOT_PASSWORD: root
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd="mariadb-admin ping"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=10
-          --health-start-period=30s
 
     steps:
       - name: Clone
@@ -78,6 +66,33 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
+
+      - name: Start MariaDB 10.6 with TLS
+        run: |
+          CERTS="$HOME/mariadb-certs"
+          mkdir -p "$CERTS"; cd "$CERTS"
+          openssl genrsa 2048 > ca-key.pem
+          openssl req -new -x509 -nodes -days 3650 -key ca-key.pem -out ca.pem -subj "/CN=MariaDB-CI-CA"
+          openssl req -newkey rsa:2048 -days 3650 -nodes -keyout server-key.pem -out server-req.pem -subj "/CN=127.0.0.1"
+          openssl x509 -req -in server-req.pem -days 3650 -CA ca.pem -CAkey ca-key.pem -set_serial 01 -out server-cert.pem
+          chmod 644 "$CERTS"/*.pem
+          docker run -d --name mariadb106 \
+            -e MYSQL_ROOT_PASSWORD=root \
+            -p 3306:3306 \
+            -v "$CERTS":/etc/mysql/certs:ro \
+            mariadb:10.6 \
+            --ssl-ca=/etc/mysql/certs/ca.pem \
+            --ssl-cert=/etc/mysql/certs/server-cert.pem \
+            --ssl-key=/etc/mysql/certs/server-key.pem \
+            --require-secure-transport=OFF
+          echo "Esperando a MariaDB 10.6..."
+          for i in $(seq 1 40); do
+            if docker exec mariadb106 mysqladmin --protocol=socket -uroot -proot ping >/dev/null 2>&1; then
+              echo "MariaDB 10.6 lista"; break
+            fi
+            sleep 3
+          done
+          docker exec mariadb106 mysql --protocol=socket -uroot -proot -e "SHOW VARIABLES LIKE 'have_ssl'; SHOW VARIABLES LIKE 'version';"
 
       - name: Install MariaDB Client
         run: sudo apt-get update && sudo apt-get install -y mariadb-client
