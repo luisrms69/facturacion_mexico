@@ -143,9 +143,6 @@ bench --site facturacion-v16.dev execute "facturacion_mexico.one_offs.script_nam
 ### RE-002: Documentación
 
 - `docs/instructions/` → SOLO el usuario puede crear archivos ahí. Claude solo lee.
-- Planes de implementación → `docs/development/`
-- Reportes técnicos → `docs/development/` o `docs/audit/`
-- ADRs → `docs/adr/`
 
 ### RE-005: Custom Fields
 
